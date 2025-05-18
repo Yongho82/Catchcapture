@@ -36,6 +36,28 @@ public partial class MainWindow : Window
         
         // 글로벌 단축키 등록
         RegisterGlobalHotkeys();
+        
+        // 로컬 단축키 등록
+        AddKeyboardShortcuts();
+    }
+
+    private void AddKeyboardShortcuts()
+    {
+        // Ctrl+C 단축키 처리
+        KeyDown += MainWindow_KeyDown;
+    }
+
+    private void MainWindow_KeyDown(object sender, KeyEventArgs e)
+    {
+        // Ctrl+C 복사 단축키 처리
+        if (e.Key == Key.C && Keyboard.Modifiers == ModifierKeys.Control)
+        {
+            if (selectedIndex >= 0)
+            {
+                CopySelectedImage();
+                e.Handled = true;
+            }
+        }
     }
 
     #region 캡처 기능

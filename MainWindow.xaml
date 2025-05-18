@@ -5,16 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CatchCapture"
         mc:Ignorable="d"
-        Title="캣치" Height="500" Width="640" 
-        MinWidth="640" MinHeight="500"
+        Title="캣치" Height="500" Width="350" 
+        MinWidth="350" MinHeight="500"
         WindowStartupLocation="CenterScreen"
         Background="#F5F7FA">
     
     <Window.Resources>
         <!-- 버튼 스타일 -->
         <Style x:Key="SidebarButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Margin" Value="10,4,10,4"/>
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Margin" Value="5,3,5,3"/>
             <Setter Property="Background" Value="#E0E0E0"/>
             <Setter Property="Foreground" Value="#333333"/>
             <Setter Property="BorderThickness" Value="1"/>
@@ -48,7 +48,7 @@
         
         <!-- 구분선 스타일 -->
         <Style x:Key="SeparatorStyle" TargetType="Separator">
-            <Setter Property="Margin" Value="10,6,10,6"/>
+            <Setter Property="Margin" Value="5,3,5,3"/>
             <Setter Property="Background" Value="#CCCCCC"/>
             <Setter Property="Height" Value="1"/>
         </Style>
@@ -82,7 +82,7 @@
     
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="130" />
+            <ColumnDefinition Width="100" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
@@ -90,47 +90,47 @@
         <Border Grid.Column="0" Background="#F0F0F0" BorderThickness="0,0,1,0" BorderBrush="#CCCCCC">
             <StackPanel Margin="0,10,0,10">
                 <Button x:Name="AreaCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="AreaCaptureButton_Click">
-                    <TextBlock Text="영역 캡처" HorizontalAlignment="Center"/>
+                    <TextBlock Text="영역 캡처" HorizontalAlignment="Center" FontSize="11"/>
                 </Button>
                 
                 <Button x:Name="FullScreenCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="FullScreenCaptureButton_Click">
-                    <TextBlock Text="전체화면" HorizontalAlignment="Center"/>
+                    <TextBlock Text="전체화면" HorizontalAlignment="Center" FontSize="11"/>
                 </Button>
                 
                 <Separator Style="{StaticResource SeparatorStyle}"/>
                 
                 <Button x:Name="CopySelectedButton" Style="{StaticResource SidebarButtonStyle}" Click="CopySelectedButton_Click" IsEnabled="False">
-                    <TextBlock Text="선택 복사" HorizontalAlignment="Center"/>
+                    <TextBlock Text="복사" HorizontalAlignment="Center" FontSize="11"/>
                 </Button>
                 
                 <Button x:Name="CopyAllButton" Style="{StaticResource SidebarButtonStyle}" Click="CopyAllButton_Click" IsEnabled="False">
-                    <TextBlock Text="전체 복사" HorizontalAlignment="Center"/>
+                    <TextBlock Text="전체복사" HorizontalAlignment="Center" FontSize="11"/>
                 </Button>
                 
                 <Separator Style="{StaticResource SeparatorStyle}"/>
                 
                 <Button x:Name="SaveSelectedButton" Style="{StaticResource SidebarButtonStyle}" Click="SaveSelectedButton_Click" IsEnabled="False">
-                    <TextBlock Text="선택 저장" HorizontalAlignment="Center"/>
+                    <TextBlock Text="저장" HorizontalAlignment="Center" FontSize="11"/>
                 </Button>
                 
                 <Button x:Name="SaveAllButton" Style="{StaticResource SidebarButtonStyle}" Click="SaveAllButton_Click" IsEnabled="False">
-                    <TextBlock Text="전체 저장" HorizontalAlignment="Center"/>
+                    <TextBlock Text="전체저장" HorizontalAlignment="Center" FontSize="11"/>
                 </Button>
                 
                 <Separator Style="{StaticResource SeparatorStyle}"/>
                 
                 <Button x:Name="DeleteSelectedButton" Style="{StaticResource SidebarButtonStyle}" Click="DeleteSelectedButton_Click" IsEnabled="False">
-                    <TextBlock Text="선택 삭제" HorizontalAlignment="Center"/>
+                    <TextBlock Text="삭제" HorizontalAlignment="Center" FontSize="11"/>
                 </Button>
                 
                 <Button x:Name="DeleteAllButton" Style="{StaticResource SidebarButtonStyle}" Click="DeleteAllButton_Click" IsEnabled="False">
-                    <TextBlock Text="전체 삭제" HorizontalAlignment="Center"/>
+                    <TextBlock Text="전체삭제" HorizontalAlignment="Center" FontSize="11"/>
                 </Button>
                 
                 <Separator Style="{StaticResource SeparatorStyle}"/>
                 
                 <Button x:Name="SimpleModeButton" Style="{StaticResource SidebarButtonStyle}" Click="SimpleModeButton_Click">
-                    <TextBlock Text="간편 모드" HorizontalAlignment="Center"/>
+                    <TextBlock Text="간편 모드" HorizontalAlignment="Center" FontSize="11"/>
                 </Button>
             </StackPanel>
         </Border>

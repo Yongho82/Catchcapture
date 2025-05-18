@@ -74,6 +74,13 @@ namespace CatchCapture
                 // 현재 편집 모드 취소
                 CancelCurrentEditMode();
             }
+            else if (e.Key == Key.C && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                // Ctrl+C: 현재 이미지 복사
+                ScreenCaptureUtility.CopyImageToClipboard(currentImage);
+                MessageBox.Show("이미지가 클립보드에 복사되었습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                e.Handled = true;
+            }
         }
 
         private void CancelCurrentEditMode()
