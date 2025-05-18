@@ -28,6 +28,11 @@ namespace CatchCapture
         private double textSize = 16;
         private double eraserSize = 10;
         private int mosaicSize = 10;
+        private FontWeight textFontWeight = FontWeights.Normal;
+        private FontStyle textFontStyle = FontStyles.Normal;
+        private string textFontFamily = "Arial";
+        private bool textShadowEnabled = false;
+        private bool textUnderlineEnabled = false;
 
         public event EventHandler<ImageUpdatedEventArgs>? ImageUpdated;
 
@@ -460,7 +465,32 @@ namespace CatchCapture
                     if (!string.IsNullOrEmpty(text))
                     {
                         SaveForUndo();
-                        currentImage = ImageEditUtility.AddText(currentImage, text, startPoint, textColor, textSize);
+                        
+                        // 향상된 텍스트 서식 옵션 사용
+                        TextFormatOptions options = new TextFormatOptions
+                        {
+                            TextColor = textColor,
+                            FontSize = textSize,
+                            FontWeight = textFontWeight,
+                            FontStyle = textFontStyle,
+                            FontFamily = textFontFamily,
+                            ApplyShadow = textShadowEnabled,
+                            TextAlignment = TextAlignment.Left
+                        };
+                        
+                        if (textShadowEnabled)
+                        {
+                            options.ShadowColor = Color.FromArgb(100, 0, 0, 0);
+                            options.ShadowOffset = new Vector(2, 2);
+                        }
+                        
+                        if (textUnderlineEnabled)
+                        {
+                            options.TextDecoration = new TextDecorationCollection();
+                            options.TextDecoration.Add(TextDecorations.Underline);
+                        }
+                        
+                        currentImage = ImageEditUtility.AddEnhancedText(currentImage, text, startPoint, options);
                         UpdatePreviewImage();
                     }
                     
@@ -742,6 +772,107 @@ namespace CatchCapture
             };
             
             EditToolContent.Children.Add(sizeSlider);
+            
+            // 구분선 추가
+            EditToolContent.Children.Add(new Separator 
+            { 
+                Margin = new Thickness(10, 0, 10, 0),
+                Height = 20
+            });
+            
+            // 폰트 스타일 옵션
+            StackPanel fontStylePanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 10, 0) };
+            
+            // 굵게 버튼
+            CheckBox boldCheckBox = new CheckBox 
+            { 
+                Content = "굵게", 
+                IsChecked = textFontWeight == FontWeights.Bold,
+                Margin = new Thickness(0, 0, 8, 0),
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            boldCheckBox.Checked += (s, e) => { textFontWeight = FontWeights.Bold; };
+            boldCheckBox.Unchecked += (s, e) => { textFontWeight = FontWeights.Normal; };
+            fontStylePanel.Children.Add(boldCheckBox);
+            
+            // 기울임 버튼
+            CheckBox italicCheckBox = new CheckBox 
+            { 
+                Content = "기울임", 
+                IsChecked = textFontStyle == FontStyles.Italic,
+                Margin = new Thickness(0, 0, 8, 0),
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            italicCheckBox.Checked += (s, e) => { textFontStyle = FontStyles.Italic; };
+            italicCheckBox.Unchecked += (s, e) => { textFontStyle = FontStyles.Normal; };
+            fontStylePanel.Children.Add(italicCheckBox);
+            
+            // 밑줄 버튼
+            CheckBox underlineCheckBox = new CheckBox 
+            { 
+                Content = "밑줄", 
+                IsChecked = textUnderlineEnabled,
+                Margin = new Thickness(0, 0, 8, 0),
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            underlineCheckBox.Checked += (s, e) => { textUnderlineEnabled = true; };
+            underlineCheckBox.Unchecked += (s, e) => { textUnderlineEnabled = false; };
+            fontStylePanel.Children.Add(underlineCheckBox);
+            
+            // 그림자 버튼
+            CheckBox shadowCheckBox = new CheckBox 
+            { 
+                Content = "그림자", 
+                IsChecked = textShadowEnabled,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            shadowCheckBox.Checked += (s, e) => { textShadowEnabled = true; };
+            shadowCheckBox.Unchecked += (s, e) => { textShadowEnabled = false; };
+            fontStylePanel.Children.Add(shadowCheckBox);
+            
+            EditToolContent.Children.Add(fontStylePanel);
+            
+            // 구분선 추가
+            EditToolContent.Children.Add(new Separator 
+            { 
+                Margin = new Thickness(10, 0, 10, 0),
+                Height = 20
+            });
+            
+            // 폰트 선택 콤보박스
+            Border fontLabelWrapper = new Border { Margin = new Thickness(0, 0, 5, 0), VerticalAlignment = VerticalAlignment.Center };
+            TextBlock fontLabel = new TextBlock { Text = "폰트:", VerticalAlignment = VerticalAlignment.Center };
+            fontLabelWrapper.Child = fontLabel;
+            EditToolContent.Children.Add(fontLabelWrapper);
+            
+            ComboBox fontComboBox = new ComboBox 
+            { 
+                Width = 100, 
+                SelectedItem = textFontFamily,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            
+            string[] commonFonts = { "Arial", "Verdana", "Tahoma", "Times New Roman", "Courier New" };
+            foreach (string font in commonFonts)
+            {
+                fontComboBox.Items.Add(font);
+            }
+            
+            if (!fontComboBox.Items.Contains(textFontFamily))
+            {
+                fontComboBox.Items.Add(textFontFamily);
+            }
+            
+            fontComboBox.SelectedItem = textFontFamily;
+            fontComboBox.SelectionChanged += (s, e) => 
+            {
+                if (fontComboBox.SelectedItem != null)
+                {
+                    textFontFamily = fontComboBox.SelectedItem.ToString() ?? "Arial";
+                }
+            };
+            
+            EditToolContent.Children.Add(fontComboBox);
             
             EditToolPanel.Visibility = Visibility.Visible;
         }

@@ -2,6 +2,7 @@ using System;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Globalization;
 
 namespace CatchCapture.Utilities
 {
@@ -174,7 +175,7 @@ namespace CatchCapture.Utilities
                 // 텍스트 그리기
                 FormattedText formattedText = new FormattedText(
                     text,
-                    System.Globalization.CultureInfo.CurrentCulture,
+                    CultureInfo.CurrentCulture,
                     FlowDirection.LeftToRight,
                     new Typeface("Arial"),
                     fontSize,
@@ -192,6 +193,155 @@ namespace CatchCapture.Utilities
             renderTargetBitmap.Render(drawingVisual);
 
             return renderTargetBitmap;
+        }
+
+        // 확장된 텍스트 추가 메서드 - 더 많은 서식 옵션 지원
+        public static BitmapSource AddEnhancedText(BitmapSource source, string text, Point position, TextFormatOptions options)
+        {
+            DrawingVisual drawingVisual = new DrawingVisual();
+            using (DrawingContext drawingContext = drawingVisual.RenderOpen())
+            {
+                // 원본 이미지 그리기
+                drawingContext.DrawImage(source, new Rect(0, 0, source.PixelWidth, source.PixelHeight));
+
+                // 텍스트 그림자 효과 적용
+                if (options.ApplyShadow)
+                {
+                    // 그림자용 FormattedText 객체 생성
+                    FormattedText shadowText = new FormattedText(
+                        text,
+                        CultureInfo.CurrentCulture,
+                        FlowDirection.LeftToRight,
+                        new Typeface(new FontFamily(options.FontFamily), options.FontStyle, options.FontWeight, options.FontStretch),
+                        options.FontSize,
+                        new SolidColorBrush(options.ShadowColor),
+                        VisualTreeHelper.GetDpi(drawingVisual).PixelsPerDip);
+                    
+                    // 그림자 텍스트의 서식 설정
+                    shadowText.TextAlignment = options.TextAlignment;
+                    if (options.MaxWidth > 0)
+                    {
+                        shadowText.MaxTextWidth = options.MaxWidth;
+                    }
+                    
+                    // 그림자용 텍스트 장식 설정
+                    if (options.TextDecoration != null)
+                    {
+                        shadowText.SetTextDecorations(options.TextDecoration, 0, text.Length);
+                    }
+                    
+                    // 그림자 텍스트 그리기
+                    Point shadowPosition = new Point(
+                        position.X + options.ShadowOffset.X, 
+                        position.Y + options.ShadowOffset.Y);
+                    drawingContext.DrawText(shadowText, shadowPosition);
+                }
+                
+                // 메인 FormattedText 객체 생성 및 설정
+                FormattedText formattedText = new FormattedText(
+                    text,
+                    CultureInfo.CurrentCulture,
+                    FlowDirection.LeftToRight,
+                    new Typeface(new FontFamily(options.FontFamily), options.FontStyle, options.FontWeight, options.FontStretch),
+                    options.FontSize,
+                    new SolidColorBrush(options.TextColor),
+                    VisualTreeHelper.GetDpi(drawingVisual).PixelsPerDip);
+
+                // 텍스트 정렬 설정
+                formattedText.TextAlignment = options.TextAlignment;
+                
+                // 텍스트 최대 너비 설정 (자동 줄바꿈 활성화)
+                if (options.MaxWidth > 0)
+                {
+                    formattedText.MaxTextWidth = options.MaxWidth;
+                }
+                
+                // 텍스트 장식 설정 (밑줄 등)
+                if (options.TextDecoration != null)
+                {
+                    formattedText.SetTextDecorations(options.TextDecoration, 0, text.Length);
+                }
+                
+                // 메인 텍스트 그리기
+                drawingContext.DrawText(formattedText, position);
+            }
+
+            // DrawingVisual을 RenderTargetBitmap으로 변환
+            RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap(
+                source.PixelWidth, source.PixelHeight,
+                source.DpiX, source.DpiY,
+                PixelFormats.Pbgra32);
+            renderTargetBitmap.Render(drawingVisual);
+
+            return renderTargetBitmap;
+        }
+        
+        // 텍스트 그림자 효과 적용 메서드 - 사용하지 않음
+        private static void DrawTextWithShadow(DrawingContext ctx, FormattedText text, Point position, Color shadowColor, Vector shadowOffset)
+        {
+            // 이 메서드는 사용하지 않음 
+        }
+    }
+    
+    // 텍스트 서식 옵션을 위한 클래스
+    public class TextFormatOptions
+    {
+        // 기본 속성
+        public string FontFamily { get; set; } = "Arial";
+        public FontWeight FontWeight { get; set; } = FontWeights.Normal;
+        public FontStyle FontStyle { get; set; } = FontStyles.Normal;
+        public FontStretch FontStretch { get; set; } = FontStretches.Normal;
+        public double FontSize { get; set; } = 16;
+        public Color TextColor { get; set; } = Colors.Black;
+        public double MaxWidth { get; set; } = 0; // 0은 자동 줄바꿈 없음
+        public TextAlignment TextAlignment { get; set; } = TextAlignment.Left;
+        public TextDecorationCollection TextDecoration { get; set; } = null;
+        
+        // 그림자 효과 속성
+        public bool ApplyShadow { get; set; } = false;
+        public Color ShadowColor { get; set; } = Color.FromArgb(128, 0, 0, 0);
+        public Vector ShadowOffset { get; set; } = new Vector(1, 1);
+        
+        // 빠른 생성을 위한 정적 메서드
+        public static TextFormatOptions DefaultOptions(Color textColor, double fontSize)
+        {
+            return new TextFormatOptions
+            {
+                TextColor = textColor,
+                FontSize = fontSize
+            };
+        }
+        
+        public static TextFormatOptions WithShadow(Color textColor, double fontSize)
+        {
+            return new TextFormatOptions
+            {
+                TextColor = textColor,
+                FontSize = fontSize,
+                ApplyShadow = true
+            };
+        }
+        
+        public static TextFormatOptions WithUnderline(Color textColor, double fontSize)
+        {
+            var options = new TextFormatOptions
+            {
+                TextColor = textColor,
+                FontSize = fontSize
+            };
+            options.TextDecoration = new TextDecorationCollection();
+            options.TextDecoration.Add(TextDecorations.Underline);
+            return options;
+        }
+        
+        public static TextFormatOptions BoldText(Color textColor, double fontSize)
+        {
+            return new TextFormatOptions
+            {
+                TextColor = textColor,
+                FontSize = fontSize,
+                FontWeight = FontWeights.Bold
+            };
         }
     }
 } 
