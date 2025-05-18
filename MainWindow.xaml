@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CatchCapture"
         mc:Ignorable="d"
-        Title="캣치" Height="500" Width="350" 
+        Title="캣치" Height="500" Width="355" 
         MinWidth="350" MinHeight="500"
         WindowStartupLocation="CenterScreen"
         Background="#F8F9FC">
@@ -51,32 +51,6 @@
             <Setter Property="Margin" Value="10,3,10,3"/>
             <Setter Property="Background" Value="#E0E6F0"/>
             <Setter Property="Height" Value="1"/>
-        </Style>
-        
-        <!-- 스크롤바 스타일 -->
-        <Style x:Key="SimpleScrollBar" TargetType="{x:Type ScrollBar}">
-            <Setter Property="Width" Value="6"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type ScrollBar}">
-                        <Grid>
-                            <Border Background="#F0F0F0" CornerRadius="3"/>
-                            <Track x:Name="PART_Track" IsDirectionReversed="True">
-                                <Track.Thumb>
-                                    <Thumb>
-                                        <Thumb.Template>
-                                            <ControlTemplate>
-                                                <Border Background="#BBBBBB" CornerRadius="3"/>
-                                            </ControlTemplate>
-                                        </Thumb.Template>
-                                    </Thumb>
-                                </Track.Thumb>
-                            </Track>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
         </Style>
         
         <!-- 그림자 효과 -->
@@ -168,9 +142,6 @@
         <!-- 오른쪽 캡처 표시 영역 -->
         <Border Grid.Column="1" Background="#FFFFFF" Margin="1,1,1,1" CornerRadius="4">
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                <ScrollViewer.Resources>
-                    <Style TargetType="{x:Type ScrollBar}" BasedOn="{StaticResource SimpleScrollBar}"/>
-                </ScrollViewer.Resources>
                 <!-- 단일 세로 열로 표시 -->
                 <StackPanel x:Name="CaptureListPanel" Margin="10"/>
             </ScrollViewer>
