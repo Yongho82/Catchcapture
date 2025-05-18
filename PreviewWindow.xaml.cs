@@ -465,12 +465,16 @@ namespace CatchCapture
                     }
                     
                     ImageCanvas.Children.Remove(textBox);
-                    currentEditMode = EditMode.None;
+                    // 텍스트 입력 완료 후에도 텍스트 모드 유지
+                    currentEditMode = EditMode.Text;
+                    ImageCanvas.Cursor = Cursors.IBeam;
                 }
                 else if (e.Key == Key.Escape)
                 {
                     ImageCanvas.Children.Remove(textBox);
-                    currentEditMode = EditMode.None;
+                    // ESC 키는 현재 입력만 취소하고 텍스트 모드는 유지
+                    currentEditMode = EditMode.Text;
+                    ImageCanvas.Cursor = Cursors.IBeam;
                 }
             };
         }
@@ -536,7 +540,10 @@ namespace CatchCapture
             
             ImageCanvas.Children.Remove(selectionRectangle);
             selectionRectangle = null;
-            currentEditMode = EditMode.None;
+            
+            // 모자이크 적용 후에도 모드 유지
+            currentEditMode = EditMode.Mosaic;
+            ImageCanvas.Cursor = Cursors.Cross;
         }
 
         private void StartEraser()
