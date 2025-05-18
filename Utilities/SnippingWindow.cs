@@ -15,6 +15,7 @@ namespace CatchCapture.Utilities
         private Canvas canvas;
         private bool isSelecting = false;
         private TextBlock infoTextBlock;
+        private TextBlock sizeTextBlock;
         private BitmapSource screenCapture;
 
         public Int32Rect SelectedArea { get; private set; }
@@ -61,12 +62,25 @@ namespace CatchCapture.Utilities
             canvas.Children.Add(infoTextBlock);
             Canvas.SetLeft(infoTextBlock, (SystemParameters.PrimaryScreenWidth - 300) / 2);
             Canvas.SetTop(infoTextBlock, 20);
+            
+            // 크기 표시용 텍스트 블록 추가
+            sizeTextBlock = new TextBlock
+            {
+                Foreground = Brushes.White,
+                Background = new SolidColorBrush(Color.FromArgb(200, 0, 0, 0)),
+                Padding = new Thickness(8, 4, 8, 4),
+                FontSize = 12,
+                FontWeight = FontWeights.Bold,
+                Visibility = Visibility.Collapsed
+            };
+            canvas.Children.Add(sizeTextBlock);
 
             // 선택 영역 직사각형
             selectionRectangle = new Rectangle
             {
-                Stroke = Brushes.LightBlue,
+                Stroke = Brushes.DeepSkyBlue,
                 StrokeThickness = 2,
+                StrokeDashArray = new DoubleCollection { 4, 2 },
                 Fill = new SolidColorBrush(Color.FromArgb(30, 173, 216, 230))
             };
             canvas.Children.Add(selectionRectangle);
@@ -88,6 +102,9 @@ namespace CatchCapture.Utilities
             Canvas.SetTop(selectionRectangle, startPoint.Y);
             selectionRectangle.Width = 0;
             selectionRectangle.Height = 0;
+            
+            // 크기 표시 숨기기
+            sizeTextBlock.Visibility = Visibility.Collapsed;
         }
 
         private void SnippingWindow_MouseMove(object sender, MouseEventArgs e)
@@ -108,7 +125,31 @@ namespace CatchCapture.Utilities
             selectionRectangle.Height = height;
 
             // 정보 텍스트 업데이트
-            infoTextBlock.Text = $"영역: {(int)width} x {(int)height} (ESC 키를 눌러 취소)";
+            infoTextBlock.Text = $"영역을 선택하세요 (ESC 키를 눌러 취소)";
+            
+            // 크기 표시 업데이트
+            if (width > 5 && height > 5)
+            {
+                sizeTextBlock.Text = $"{(int)width} x {(int)height}";
+                sizeTextBlock.Visibility = Visibility.Visible;
+                
+                // 먼저 크기를 측정하기 위해 레이아웃 업데이트
+                sizeTextBlock.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                sizeTextBlock.Arrange(new Rect(sizeTextBlock.DesiredSize));
+                
+                // 크기 표시 위치 설정 - 우측 하단
+                double textWidth = sizeTextBlock.ActualWidth > 0 ? 
+                    sizeTextBlock.ActualWidth : sizeTextBlock.DesiredSize.Width;
+                double textHeight = sizeTextBlock.ActualHeight > 0 ? 
+                    sizeTextBlock.ActualHeight : sizeTextBlock.DesiredSize.Height;
+                
+                Canvas.SetLeft(sizeTextBlock, left + width - textWidth - 10);
+                Canvas.SetTop(sizeTextBlock, top + height - textHeight - 10);
+            }
+            else
+            {
+                sizeTextBlock.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void SnippingWindow_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)

@@ -90,9 +90,9 @@ public partial class MainWindow : Window
         var captureImage = new CaptureImage(image);
         captures.Add(captureImage);
 
-        // UI에 이미지 추가
+        // UI에 이미지 추가 - 최신 캡처를 위에 표시하기 위해 인덱스 0에 추가
         var border = CreateCaptureItem(captureImage, captures.Count - 1);
-        CaptureListPanel.Children.Add(border);
+        CaptureListPanel.Children.Insert(0, border);
 
         // 추가된 이미지 선택
         SelectCapture(border, captures.Count - 1);
@@ -106,12 +106,13 @@ public partial class MainWindow : Window
 
     private Border CreateCaptureItem(CaptureImage captureImage, int index)
     {
-        // 썸네일 크기 계산 - 이제 너비를 최대한 채우도록 설정
-        double maxWidth = 280; // 약간의 여백을 고려한 너비
-        double scale = maxWidth / captureImage.Image.PixelWidth;
-        double thumbWidth = maxWidth;
-        double thumbHeight = captureImage.Image.PixelHeight * scale;
+        // 썸네일 크기 고정
+        double thumbWidth = 200;
+        double thumbHeight = 120;
 
+        // 그리드 생성
+        Grid grid = new Grid();
+        
         // 이미지 컨트롤 생성
         Image image = new Image
         {
@@ -122,19 +123,38 @@ public partial class MainWindow : Window
             HorizontalAlignment = HorizontalAlignment.Center
         };
 
+        // 인덱스를 태그로 저장하여 나중에 참조할 수 있게 함
+        image.Tag = index;
+
         // 이벤트 연결
         image.MouseDown += (s, e) => 
         {
             if (e.ClickCount == 2)
             {
-                ShowPreviewWindow(captureImage.Image, index);
+                // 태그에서 실제 인덱스 가져오기
+                int actualIndex = (int)((Image)s).Tag;
+                ShowPreviewWindow(captureImage.Image, actualIndex);
                 e.Handled = true;
             }
         };
 
-        // 이미지를 담을 그리드 생성
-        Grid grid = new Grid();
+        // 그리드에 이미지 추가
         grid.Children.Add(image);
+        
+        // 이미지 크기 텍스트 표시
+        TextBlock sizeText = new TextBlock
+        {
+            Text = $"{captureImage.Image.PixelWidth} x {captureImage.Image.PixelHeight}",
+            Foreground = Brushes.White,
+            Background = new SolidColorBrush(Color.FromArgb(180, 0, 0, 0)),
+            Padding = new Thickness(5, 2, 5, 2),
+            HorizontalAlignment = HorizontalAlignment.Right,
+            VerticalAlignment = VerticalAlignment.Bottom,
+            Margin = new Thickness(0, 0, 5, 5),
+            FontSize = 10
+        };
+        
+        grid.Children.Add(sizeText);
 
         // 테두리 생성
         Border border = new Border
@@ -150,16 +170,27 @@ public partial class MainWindow : Window
                 BlurRadius = 5,
                 Opacity = 0.2,
                 Direction = 270
-            }
+            },
+            Tag = index, // 인덱스를 태그로 저장
+            Width = thumbWidth,
+            Height = thumbHeight
         };
 
         // 이벤트 연결
-        border.MouseLeftButtonDown += (s, e) => SelectCapture(border, index);
+        border.MouseLeftButtonDown += (s, e) => 
+        {
+            // 태그에서 실제 인덱스 가져오기
+            int actualIndex = (int)((Border)s).Tag;
+            SelectCapture(border, actualIndex);
+        };
+        
         border.MouseDown += (s, e) => 
         {
             if (e.ClickCount == 2)
             {
-                ShowPreviewWindow(captureImage.Image, index);
+                // 태그에서 실제 인덱스 가져오기
+                int actualIndex = (int)((Border)s).Tag;
+                ShowPreviewWindow(captureImage.Image, actualIndex);
                 e.Handled = true;
             }
         };
@@ -364,11 +395,27 @@ public partial class MainWindow : Window
                 }
             }
 
-            // UI에서 제거
-            CaptureListPanel.Children.RemoveAt(selectedIndex);
+            // UI에서 제거 - 실제 UI 인덱스 찾기
+            int uiIndex = -1;
+            for (int i = 0; i < CaptureListPanel.Children.Count; i++)
+            {
+                if (CaptureListPanel.Children[i] is Border border && (int)border.Tag == selectedIndex)
+                {
+                    uiIndex = i;
+                    break;
+                }
+            }
+
+            if (uiIndex >= 0)
+            {
+                CaptureListPanel.Children.RemoveAt(uiIndex);
+            }
 
             // 데이터에서 제거
             captures.RemoveAt(selectedIndex);
+
+            // 인덱스 업데이트
+            UpdateCaptureItemIndexes();
 
             // 선택 초기화
             selectedBorder = null;
@@ -377,6 +424,35 @@ public partial class MainWindow : Window
             // 버튼 상태 업데이트
             UpdateButtonStates();
             UpdateCaptureCount();
+        }
+    }
+
+    // 캡처 아이템 인덱스 업데이트
+    private void UpdateCaptureItemIndexes()
+    {
+        for (int i = 0; i < CaptureListPanel.Children.Count; i++)
+        {
+            if (CaptureListPanel.Children[i] is Border border)
+            {
+                // 현재 태그를 가져와 인덱스 확인
+                int tagIndex = -1;
+                if (border.Tag is int index)
+                {
+                    tagIndex = index;
+                }
+
+                // 삭제된 아이템 이후의 인덱스는 1씩 감소
+                if (tagIndex > selectedIndex)
+                {
+                    border.Tag = tagIndex - 1;
+
+                    // 이미지의 태그도 업데이트
+                    if (border.Child is Grid grid && grid.Children.Count > 0 && grid.Children[0] is Image img)
+                    {
+                        img.Tag = tagIndex - 1;
+                    }
+                }
+            }
         }
     }
 
@@ -432,11 +508,21 @@ public partial class MainWindow : Window
                 // 이미지 업데이트
                 captures[e.Index].Image = e.NewImage;
                 
-                // 썸네일 업데이트
-                var border = CaptureListPanel.Children[e.Index] as Border;
-                if (border != null && border.Child is Grid grid && grid.Children.Count > 0 && grid.Children[0] is Image thumbnailImage)
+                // 썸네일 업데이트 - 데이터 인덱스에 해당하는 UI 인덱스 찾기
+                for (int i = 0; i < CaptureListPanel.Children.Count; i++)
                 {
-                    thumbnailImage.Source = e.NewImage;
+                    if (CaptureListPanel.Children[i] is Border border && 
+                        border.Tag is int borderTag && 
+                        borderTag == e.Index)
+                    {
+                        if (border.Child is Grid grid && 
+                            grid.Children.Count > 0 && 
+                            grid.Children[0] is Image thumbnailImage)
+                        {
+                            thumbnailImage.Source = e.NewImage;
+                        }
+                        break;
+                    }
                 }
             }
         };

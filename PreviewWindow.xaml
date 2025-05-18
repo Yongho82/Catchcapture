@@ -5,17 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CatchCapture"
         mc:Ignorable="d"
-        Title="이미지 편집" Height="600" Width="800"
+        Title="이미지 편집" Height="600" Width="1050"
         WindowStartupLocation="CenterOwner"
         Background="#F5F7FA">
     
     <Window.Resources>
         <!-- 툴바 버튼 스타일 -->
         <Style x:Key="ToolbarButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="36"/>
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="Margin" Value="2,0"/>
-            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Width" Value="70"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Margin" Value="3,0"/>
+            <Setter Property="Padding" Value="2"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -93,61 +93,100 @@
                 </ScrollViewer.Resources>
                 <StackPanel Orientation="Horizontal" Margin="8,5">
                     <Button x:Name="CopyButton" Style="{StaticResource ToolbarButtonStyle}" Click="CopyButton_Click" ToolTip="클립보드에 복사">
-                        <Image Source="/icons/copy_selected.png" Width="20" Height="20"/>
+                        <StackPanel>
+                            <Image Source="/icons/copy_selected.png" Width="20" Height="20" Margin="0,2,0,2"/>
+                            <TextBlock Text="복사" FontSize="10" HorizontalAlignment="Center"/>
+                        </StackPanel>
                     </Button>
                     
                     <Button x:Name="SaveButton" Style="{StaticResource ToolbarButtonStyle}" Click="SaveButton_Click" ToolTip="저장">
-                        <Image Source="/icons/save_selected.png" Width="20" Height="20"/>
+                        <StackPanel>
+                            <Image Source="/icons/save_selected.png" Width="20" Height="20" Margin="0,2,0,2"/>
+                            <TextBlock Text="저장" FontSize="10" HorizontalAlignment="Center"/>
+                        </StackPanel>
                     </Button>
                     
                     <Separator Style="{StaticResource ToolbarSeparatorStyle}"/>
                     
                     <Button x:Name="UndoButton" Style="{StaticResource ToolbarButtonStyle}" Click="UndoButton_Click" ToolTip="실행 취소" IsEnabled="False">
-                        <Image Source="/icons/undo.png" Width="20" Height="20"/>
+                        <StackPanel>
+                            <Image Source="/icons/undo.png" Width="20" Height="20" Margin="0,2,0,2"/>
+                            <TextBlock Text="실행취소" FontSize="10" HorizontalAlignment="Center"/>
+                        </StackPanel>
                     </Button>
                     
                     <Button x:Name="RedoButton" Style="{StaticResource ToolbarButtonStyle}" Click="RedoButton_Click" ToolTip="다시 실행" IsEnabled="False">
-                        <Image Source="/icons/redo.png" Width="20" Height="20"/>
+                        <StackPanel>
+                            <Image Source="/icons/redo.png" Width="20" Height="20" Margin="0,2,0,2"/>
+                            <TextBlock Text="다시실행" FontSize="10" HorizontalAlignment="Center"/>
+                        </StackPanel>
                     </Button>
                     
                     <Button x:Name="ResetButton" Style="{StaticResource ToolbarButtonStyle}" Click="ResetButton_Click" ToolTip="원본으로 되돌리기">
-                        <Image Source="/icons/reset.png" Width="20" Height="20"/>
+                        <StackPanel>
+                            <Image Source="/icons/reset.png" Width="20" Height="20" Margin="0,2,0,2"/>
+                            <TextBlock Text="초기화" FontSize="10" HorizontalAlignment="Center"/>
+                        </StackPanel>
                     </Button>
                     
                     <Separator Style="{StaticResource ToolbarSeparatorStyle}"/>
                     
                     <Button x:Name="CropButton" Style="{StaticResource ToolbarButtonStyle}" Click="CropButton_Click" ToolTip="자르기">
-                        <Image Source="/icons/crop.png" Width="20" Height="20"/>
+                        <StackPanel>
+                            <Image Source="/icons/crop.png" Width="20" Height="20" Margin="0,2,0,2"/>
+                            <TextBlock Text="자르기" FontSize="10" HorizontalAlignment="Center"/>
+                        </StackPanel>
                     </Button>
                     
                     <Button x:Name="RotateButton" Style="{StaticResource ToolbarButtonStyle}" Click="RotateButton_Click" ToolTip="회전">
-                        <Image Source="/icons/rotate.png" Width="20" Height="20"/>
+                        <StackPanel>
+                            <Image Source="/icons/rotate.png" Width="20" Height="20" Margin="0,2,0,2"/>
+                            <TextBlock Text="회전" FontSize="10" HorizontalAlignment="Center"/>
+                        </StackPanel>
                     </Button>
                     
                     <Button x:Name="FlipHorizontalButton" Style="{StaticResource ToolbarButtonStyle}" Click="FlipHorizontalButton_Click" ToolTip="좌우 반전">
-                        <Image Source="/icons/flip_horizontal.png" Width="20" Height="20"/>
+                        <StackPanel>
+                            <Image Source="/icons/flip_horizontal.png" Width="20" Height="20" Margin="0,2,0,2"/>
+                            <TextBlock Text="좌우반전" FontSize="10" HorizontalAlignment="Center"/>
+                        </StackPanel>
                     </Button>
                     
                     <Button x:Name="FlipVerticalButton" Style="{StaticResource ToolbarButtonStyle}" Click="FlipVerticalButton_Click" ToolTip="상하 반전">
-                        <Image Source="/icons/flip_vertical.png" Width="20" Height="20"/>
+                        <StackPanel>
+                            <Image Source="/icons/flip_vertical.png" Width="20" Height="20" Margin="0,2,0,2"/>
+                            <TextBlock Text="상하반전" FontSize="10" HorizontalAlignment="Center"/>
+                        </StackPanel>
                     </Button>
                     
                     <Separator Style="{StaticResource ToolbarSeparatorStyle}"/>
                     
                     <Button x:Name="HighlightButton" Style="{StaticResource ToolbarButtonStyle}" Click="HighlightButton_Click" ToolTip="형광펜">
-                        <Image Source="/icons/highlight.png" Width="20" Height="20"/>
+                        <StackPanel>
+                            <Image Source="/icons/highlight.png" Width="20" Height="20" Margin="0,2,0,2"/>
+                            <TextBlock Text="형광펜" FontSize="10" HorizontalAlignment="Center"/>
+                        </StackPanel>
                     </Button>
                     
                     <Button x:Name="TextButton" Style="{StaticResource ToolbarButtonStyle}" Click="TextButton_Click" ToolTip="텍스트 추가">
-                        <Image Source="/icons/text.png" Width="20" Height="20"/>
+                        <StackPanel>
+                            <Image Source="/icons/text.png" Width="20" Height="20" Margin="0,2,0,2"/>
+                            <TextBlock Text="텍스트" FontSize="10" HorizontalAlignment="Center"/>
+                        </StackPanel>
                     </Button>
                     
                     <Button x:Name="MosaicButton" Style="{StaticResource ToolbarButtonStyle}" Click="MosaicButton_Click" ToolTip="모자이크">
-                        <Image Source="/icons/mosaic.png" Width="20" Height="20"/>
+                        <StackPanel>
+                            <Image Source="/icons/mosaic.png" Width="20" Height="20" Margin="0,2,0,2"/>
+                            <TextBlock Text="모자이크" FontSize="10" HorizontalAlignment="Center"/>
+                        </StackPanel>
                     </Button>
                     
                     <Button x:Name="EraserButton" Style="{StaticResource ToolbarButtonStyle}" Click="EraserButton_Click" ToolTip="지우개">
-                        <Image Source="/icons/eraser.png" Width="20" Height="20"/>
+                        <StackPanel>
+                            <Image Source="/icons/eraser.png" Width="20" Height="20" Margin="0,2,0,2"/>
+                            <TextBlock Text="지우개" FontSize="10" HorizontalAlignment="Center"/>
+                        </StackPanel>
                     </Button>
                 </StackPanel>
             </ScrollViewer>
