@@ -8,17 +8,17 @@
         Title="캣치" Height="500" Width="350" 
         MinWidth="350" MinHeight="500"
         WindowStartupLocation="CenterScreen"
-        Background="#F5F7FA">
+        Background="#F8F9FC">
     
     <Window.Resources>
         <!-- 버튼 스타일 -->
         <Style x:Key="SidebarButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="35"/>
             <Setter Property="Margin" Value="5,3,5,3"/>
-            <Setter Property="Background" Value="#E0E0E0"/>
+            <Setter Property="Background" Value="#F8F8F8"/>
             <Setter Property="Foreground" Value="#333333"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="#CCCCCC"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -26,16 +26,16 @@
                         <Border x:Name="border" Background="{TemplateBinding Background}" 
                                 BorderBrush="{TemplateBinding BorderBrush}" 
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="0">
-                            <ContentPresenter HorizontalAlignment="Center" 
+                                CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Left" Margin="10,0,0,0"
                                               VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#D0D0D0" TargetName="border"/>
+                                <Setter Property="Background" Value="#EBF0FF" TargetName="border"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="#C0C0C0" TargetName="border"/>
+                                <Setter Property="Background" Value="#D0DAFF" TargetName="border"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.5" TargetName="border"/>
@@ -48,26 +48,26 @@
         
         <!-- 구분선 스타일 -->
         <Style x:Key="SeparatorStyle" TargetType="Separator">
-            <Setter Property="Margin" Value="5,3,5,3"/>
-            <Setter Property="Background" Value="#CCCCCC"/>
+            <Setter Property="Margin" Value="10,3,10,3"/>
+            <Setter Property="Background" Value="#E0E6F0"/>
             <Setter Property="Height" Value="1"/>
         </Style>
         
         <!-- 스크롤바 스타일 -->
         <Style x:Key="SimpleScrollBar" TargetType="{x:Type ScrollBar}">
-            <Setter Property="Width" Value="8"/>
+            <Setter Property="Width" Value="6"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type ScrollBar}">
                         <Grid>
-                            <Border Background="#F0F0F0" CornerRadius="4"/>
+                            <Border Background="#F0F0F0" CornerRadius="3"/>
                             <Track x:Name="PART_Track" IsDirectionReversed="True">
                                 <Track.Thumb>
                                     <Thumb>
                                         <Thumb.Template>
                                             <ControlTemplate>
-                                                <Border Background="#BBBBBB" CornerRadius="4"/>
+                                                <Border Background="#BBBBBB" CornerRadius="3"/>
                                             </ControlTemplate>
                                         </Thumb.Template>
                                     </Thumb>
@@ -78,6 +78,9 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        
+        <!-- 그림자 효과 -->
+        <DropShadowEffect x:Key="CardShadow" ShadowDepth="1" BlurRadius="5" Opacity="0.2" Direction="270"/>
     </Window.Resources>
     
     <Grid>
@@ -87,56 +90,83 @@
         </Grid.ColumnDefinitions>
 
         <!-- 왼쪽 버튼 영역 -->
-        <Border Grid.Column="0" Background="#F0F0F0" BorderThickness="0,0,1,0" BorderBrush="#CCCCCC">
-            <StackPanel Margin="0,10,0,10">
+        <Border Grid.Column="0" Background="#FFFFFF" BorderThickness="0,0,1,0" BorderBrush="#E0E6F0" Effect="{StaticResource CardShadow}">
+            <StackPanel Margin="0,12,0,12">
                 <Button x:Name="AreaCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="AreaCaptureButton_Click">
-                    <TextBlock Text="영역 캡처" HorizontalAlignment="Center" FontSize="11"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="⬚" FontFamily="Segoe UI Symbol" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="영역 캡처" HorizontalAlignment="Left" FontSize="11"/>
+                    </StackPanel>
                 </Button>
                 
                 <Button x:Name="FullScreenCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="FullScreenCaptureButton_Click">
-                    <TextBlock Text="전체화면" HorizontalAlignment="Center" FontSize="11"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="▣" FontFamily="Segoe UI Symbol" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="전체화면" HorizontalAlignment="Left" FontSize="11"/>
+                    </StackPanel>
                 </Button>
                 
                 <Separator Style="{StaticResource SeparatorStyle}"/>
                 
                 <Button x:Name="CopySelectedButton" Style="{StaticResource SidebarButtonStyle}" Click="CopySelectedButton_Click" IsEnabled="False">
-                    <TextBlock Text="복사" HorizontalAlignment="Center" FontSize="11"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="📋" FontFamily="Segoe UI Symbol" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="복사" HorizontalAlignment="Left" FontSize="11"/>
+                    </StackPanel>
                 </Button>
                 
                 <Button x:Name="CopyAllButton" Style="{StaticResource SidebarButtonStyle}" Click="CopyAllButton_Click" IsEnabled="False">
-                    <TextBlock Text="전체복사" HorizontalAlignment="Center" FontSize="11"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="📋" FontFamily="Segoe UI Symbol" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="전체복사" HorizontalAlignment="Left" FontSize="11"/>
+                    </StackPanel>
                 </Button>
                 
                 <Separator Style="{StaticResource SeparatorStyle}"/>
                 
                 <Button x:Name="SaveSelectedButton" Style="{StaticResource SidebarButtonStyle}" Click="SaveSelectedButton_Click" IsEnabled="False">
-                    <TextBlock Text="저장" HorizontalAlignment="Center" FontSize="11"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="💾" FontFamily="Segoe UI Symbol" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="저장" HorizontalAlignment="Left" FontSize="11"/>
+                    </StackPanel>
                 </Button>
                 
                 <Button x:Name="SaveAllButton" Style="{StaticResource SidebarButtonStyle}" Click="SaveAllButton_Click" IsEnabled="False">
-                    <TextBlock Text="전체저장" HorizontalAlignment="Center" FontSize="11"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="💾" FontFamily="Segoe UI Symbol" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="전체저장" HorizontalAlignment="Left" FontSize="11"/>
+                    </StackPanel>
                 </Button>
                 
                 <Separator Style="{StaticResource SeparatorStyle}"/>
                 
                 <Button x:Name="DeleteSelectedButton" Style="{StaticResource SidebarButtonStyle}" Click="DeleteSelectedButton_Click" IsEnabled="False">
-                    <TextBlock Text="삭제" HorizontalAlignment="Center" FontSize="11"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🗑️" FontFamily="Segoe UI Symbol" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="삭제" HorizontalAlignment="Left" FontSize="11"/>
+                    </StackPanel>
                 </Button>
                 
                 <Button x:Name="DeleteAllButton" Style="{StaticResource SidebarButtonStyle}" Click="DeleteAllButton_Click" IsEnabled="False">
-                    <TextBlock Text="전체삭제" HorizontalAlignment="Center" FontSize="11"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🗑️" FontFamily="Segoe UI Symbol" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="전체삭제" HorizontalAlignment="Left" FontSize="11"/>
+                    </StackPanel>
                 </Button>
                 
                 <Separator Style="{StaticResource SeparatorStyle}"/>
                 
                 <Button x:Name="SimpleModeButton" Style="{StaticResource SidebarButtonStyle}" Click="SimpleModeButton_Click">
-                    <TextBlock Text="간편 모드" HorizontalAlignment="Center" FontSize="11"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🔲" FontFamily="Segoe UI Symbol" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="간편 모드" HorizontalAlignment="Left" FontSize="11"/>
+                    </StackPanel>
                 </Button>
             </StackPanel>
         </Border>
 
         <!-- 오른쪽 캡처 표시 영역 -->
-        <Border Grid.Column="1" Background="#FFFFFF" Margin="0">
+        <Border Grid.Column="1" Background="#FFFFFF" Margin="1,1,1,1" CornerRadius="4">
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                 <ScrollViewer.Resources>
                     <Style TargetType="{x:Type ScrollBar}" BasedOn="{StaticResource SimpleScrollBar}"/>

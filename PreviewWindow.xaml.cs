@@ -601,22 +601,25 @@ namespace CatchCapture
             EditToolContent.Children.Clear();
             
             // 색상 선택
-            TextBlock colorLabel = new TextBlock { Text = "색상:", Margin = new Thickness(0, 0, 0, 5) };
-            EditToolContent.Children.Add(colorLabel);
+            Border colorLabelWrapper = new Border { Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center };
+            TextBlock colorLabel = new TextBlock { Text = "색상:", VerticalAlignment = VerticalAlignment.Center };
+            colorLabelWrapper.Child = colorLabel;
+            EditToolContent.Children.Add(colorLabelWrapper);
             
-            StackPanel colorPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 10) };
+            StackPanel colorPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 15, 0), VerticalAlignment = VerticalAlignment.Center };
             
             Color[] colors = { Colors.Yellow, Colors.Red, Colors.Blue, Colors.Green, Colors.Black };
             foreach (Color color in colors)
             {
                 Border colorBorder = new Border
                 {
-                    Width = 20,
-                    Height = 20,
+                    Width = 18,
+                    Height = 18,
                     Background = new SolidColorBrush(color),
                     BorderBrush = color == highlightColor ? Brushes.Black : Brushes.Transparent,
                     BorderThickness = new Thickness(2),
-                    Margin = new Thickness(5, 0, 0, 0)
+                    Margin = new Thickness(3, 0, 0, 0),
+                    CornerRadius = new CornerRadius(2)
                 };
                 
                 colorBorder.MouseLeftButtonDown += (s, e) =>
@@ -637,17 +640,20 @@ namespace CatchCapture
             EditToolContent.Children.Add(colorPanel);
             
             // 두께 선택
-            TextBlock thicknessLabel = new TextBlock { Text = "두께:", Margin = new Thickness(0, 0, 0, 5) };
-            EditToolContent.Children.Add(thicknessLabel);
+            Border thicknessLabelWrapper = new Border { Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center };
+            TextBlock thicknessLabel = new TextBlock { Text = "두께:", VerticalAlignment = VerticalAlignment.Center };
+            thicknessLabelWrapper.Child = thicknessLabel;
+            EditToolContent.Children.Add(thicknessLabelWrapper);
             
             Slider thicknessSlider = new Slider
             {
                 Minimum = 1,
                 Maximum = 20,
                 Value = highlightThickness,
-                Width = 150,
+                Width = 120,
                 IsSnapToTickEnabled = true,
-                TickFrequency = 1
+                TickFrequency = 1,
+                VerticalAlignment = VerticalAlignment.Center
             };
             
             thicknessSlider.ValueChanged += (s, e) =>
@@ -668,22 +674,25 @@ namespace CatchCapture
             EditToolContent.Children.Clear();
             
             // 색상 선택
-            TextBlock colorLabel = new TextBlock { Text = "색상:", Margin = new Thickness(0, 0, 0, 5) };
-            EditToolContent.Children.Add(colorLabel);
+            Border colorLabelWrapper = new Border { Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center };
+            TextBlock colorLabel = new TextBlock { Text = "색상:", VerticalAlignment = VerticalAlignment.Center };
+            colorLabelWrapper.Child = colorLabel;
+            EditToolContent.Children.Add(colorLabelWrapper);
             
-            StackPanel colorPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 10) };
+            StackPanel colorPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 15, 0), VerticalAlignment = VerticalAlignment.Center };
             
             Color[] colors = { Colors.Red, Colors.Blue, Colors.Green, Colors.Black, Colors.White };
             foreach (Color color in colors)
             {
                 Border colorBorder = new Border
                 {
-                    Width = 20,
-                    Height = 20,
+                    Width = 18,
+                    Height = 18,
                     Background = new SolidColorBrush(color),
                     BorderBrush = color == textColor ? Brushes.Black : Brushes.Transparent,
                     BorderThickness = new Thickness(2),
-                    Margin = new Thickness(5, 0, 0, 0)
+                    Margin = new Thickness(3, 0, 0, 0),
+                    CornerRadius = new CornerRadius(2)
                 };
                 
                 colorBorder.MouseLeftButtonDown += (s, e) =>
@@ -704,17 +713,20 @@ namespace CatchCapture
             EditToolContent.Children.Add(colorPanel);
             
             // 크기 선택
-            TextBlock sizeLabel = new TextBlock { Text = "크기:", Margin = new Thickness(0, 0, 0, 5) };
-            EditToolContent.Children.Add(sizeLabel);
+            Border sizeLabelWrapper = new Border { Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center };
+            TextBlock sizeLabel = new TextBlock { Text = "크기:", VerticalAlignment = VerticalAlignment.Center };
+            sizeLabelWrapper.Child = sizeLabel;
+            EditToolContent.Children.Add(sizeLabelWrapper);
             
             Slider sizeSlider = new Slider
             {
                 Minimum = 8,
                 Maximum = 48,
                 Value = textSize,
-                Width = 150,
+                Width = 120,
                 IsSnapToTickEnabled = true,
-                TickFrequency = 2
+                TickFrequency = 2,
+                VerticalAlignment = VerticalAlignment.Center
             };
             
             sizeSlider.ValueChanged += (s, e) =>
@@ -735,8 +747,10 @@ namespace CatchCapture
             EditToolContent.Children.Clear();
             
             // 크기 선택
-            TextBlock sizeLabel = new TextBlock { Text = "모자이크 크기:", Margin = new Thickness(0, 0, 0, 5) };
-            EditToolContent.Children.Add(sizeLabel);
+            Border sizeLabelWrapper = new Border { Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center };
+            TextBlock sizeLabel = new TextBlock { Text = "모자이크 크기:", VerticalAlignment = VerticalAlignment.Center };
+            sizeLabelWrapper.Child = sizeLabel;
+            EditToolContent.Children.Add(sizeLabelWrapper);
             
             Slider sizeSlider = new Slider
             {
@@ -745,7 +759,8 @@ namespace CatchCapture
                 Value = mosaicSize,
                 Width = 150,
                 IsSnapToTickEnabled = true,
-                TickFrequency = 1
+                TickFrequency = 1,
+                VerticalAlignment = VerticalAlignment.Center
             };
             
             sizeSlider.ValueChanged += (s, e) =>
@@ -766,8 +781,10 @@ namespace CatchCapture
             EditToolContent.Children.Clear();
             
             // 크기 선택
-            TextBlock sizeLabel = new TextBlock { Text = "지우개 크기:", Margin = new Thickness(0, 0, 0, 5) };
-            EditToolContent.Children.Add(sizeLabel);
+            Border sizeLabelWrapper = new Border { Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center };
+            TextBlock sizeLabel = new TextBlock { Text = "지우개 크기:", VerticalAlignment = VerticalAlignment.Center };
+            sizeLabelWrapper.Child = sizeLabel;
+            EditToolContent.Children.Add(sizeLabelWrapper);
             
             Slider sizeSlider = new Slider
             {
@@ -776,7 +793,8 @@ namespace CatchCapture
                 Value = eraserSize,
                 Width = 150,
                 IsSnapToTickEnabled = true,
-                TickFrequency = 1
+                TickFrequency = 1,
+                VerticalAlignment = VerticalAlignment.Center
             };
             
             sizeSlider.ValueChanged += (s, e) =>
@@ -785,6 +803,26 @@ namespace CatchCapture
             };
             
             EditToolContent.Children.Add(sizeSlider);
+            
+            // 현재 크기 미리보기
+            Border previewWrapper = new Border { Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
+            Border eraserPreview = new Border 
+            { 
+                Width = eraserSize,
+                Height = eraserSize,
+                Background = Brushes.LightGray,
+                CornerRadius = new CornerRadius(eraserSize / 2)
+            };
+            
+            sizeSlider.ValueChanged += (s, e) =>
+            {
+                eraserPreview.Width = eraserSize;
+                eraserPreview.Height = eraserSize;
+                eraserPreview.CornerRadius = new CornerRadius(eraserSize / 2);
+            };
+            
+            previewWrapper.Child = eraserPreview;
+            EditToolContent.Children.Add(previewWrapper);
             
             EditToolPanel.Visibility = Visibility.Visible;
         }

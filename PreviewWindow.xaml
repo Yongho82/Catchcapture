@@ -7,14 +7,14 @@
         mc:Ignorable="d"
         Title="이미지 편집" Height="600" Width="1050"
         WindowStartupLocation="CenterOwner"
-        Background="#F5F7FA">
+        Background="#F8F9FC">
     
     <Window.Resources>
         <!-- 툴바 버튼 스타일 -->
         <Style x:Key="ToolbarButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="70"/>
-            <Setter Property="Height" Value="50"/>
-            <Setter Property="Margin" Value="3,0"/>
+            <Setter Property="Width" Value="65"/>
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="Margin" Value="2,0"/>
             <Setter Property="Padding" Value="2"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -25,16 +25,16 @@
                         <Border x:Name="border" Background="{TemplateBinding Background}" 
                                 BorderBrush="{TemplateBinding BorderBrush}" 
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4"
+                                CornerRadius="6"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#EEF2FF" TargetName="border"/>
+                                <Setter Property="Background" Value="#EBF0FF" TargetName="border"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="#D8E0FF" TargetName="border"/>
+                                <Setter Property="Background" Value="#D0DAFF" TargetName="border"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.5" TargetName="border"/>
@@ -47,26 +47,26 @@
         
         <!-- 구분선 스타일 -->
         <Style x:Key="ToolbarSeparatorStyle" TargetType="Separator">
-            <Setter Property="Margin" Value="6,4"/>
+            <Setter Property="Margin" Value="5,8"/>
             <Setter Property="Width" Value="1"/>
             <Setter Property="Background" Value="#E0E6F0"/>
         </Style>
         
         <!-- 스크롤바 스타일 -->
         <Style x:Key="SimpleScrollBar" TargetType="{x:Type ScrollBar}">
-            <Setter Property="Width" Value="8"/>
+            <Setter Property="Width" Value="6"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type ScrollBar}">
                         <Grid>
-                            <Border Background="#F0F0F0" CornerRadius="4"/>
+                            <Border Background="#F0F0F0" CornerRadius="3"/>
                             <Track x:Name="PART_Track" IsDirectionReversed="True">
                                 <Track.Thumb>
                                     <Thumb>
                                         <Thumb.Template>
                                             <ControlTemplate>
-                                                <Border Background="#BBBBBB" CornerRadius="4"/>
+                                                <Border Background="#BBBBBB" CornerRadius="3"/>
                                             </ControlTemplate>
                                         </Thumb.Template>
                                     </Thumb>
@@ -77,6 +77,9 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        
+        <!-- 그림자 효과 -->
+        <DropShadowEffect x:Key="MaterialShadow" ShadowDepth="1" BlurRadius="5" Opacity="0.2" Direction="270"/>
     </Window.Resources>
     
     <Grid>
@@ -87,23 +90,23 @@
         </Grid.RowDefinitions>
 
         <!-- 도구 모음 -->
-        <Border Grid.Row="0" Background="White" BorderBrush="#E0E6F0" BorderThickness="0,0,0,1">
+        <Border Grid.Row="0" Background="White" BorderBrush="#E0E6F0" BorderThickness="0,0,0,1" Effect="{StaticResource MaterialShadow}">
             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
                 <ScrollViewer.Resources>
                     <Style TargetType="{x:Type ScrollBar}" BasedOn="{StaticResource SimpleScrollBar}"/>
                 </ScrollViewer.Resources>
-                <StackPanel Orientation="Horizontal" Margin="8,5">
+                <StackPanel Orientation="Horizontal" Margin="10,4">
                     <Button x:Name="CopyButton" Style="{StaticResource ToolbarButtonStyle}" Click="CopyButton_Click" ToolTip="클립보드에 복사">
                         <StackPanel>
-                            <TextBlock FontFamily="Segoe UI Symbol" Text="&#xE8C8;" FontSize="18" HorizontalAlignment="Center"/>
-                            <TextBlock Text="복사" FontSize="10" HorizontalAlignment="Center"/>
+                            <Image Source="icons/copy_selected.png" Width="17" Height="17" Margin="0,2,0,2"/>
+                            <TextBlock Text="복사" FontSize="11" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     
                     <Button x:Name="SaveButton" Style="{StaticResource ToolbarButtonStyle}" Click="SaveButton_Click" ToolTip="저장">
                         <StackPanel>
-                            <TextBlock FontFamily="Segoe UI Symbol" Text="&#xE74E;" FontSize="18" HorizontalAlignment="Center"/>
-                            <TextBlock Text="저장" FontSize="10" HorizontalAlignment="Center"/>
+                            <Image Source="icons/save_selected.png" Width="17" Height="17" Margin="0,2,0,2"/>
+                            <TextBlock Text="저장" FontSize="11" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     
@@ -111,22 +114,22 @@
                     
                     <Button x:Name="UndoButton" Style="{StaticResource ToolbarButtonStyle}" Click="UndoButton_Click" ToolTip="실행 취소" IsEnabled="False">
                         <StackPanel>
-                            <TextBlock FontFamily="Segoe UI Symbol" Text="&#xE7A7;" FontSize="18" HorizontalAlignment="Center"/>
-                            <TextBlock Text="실행취소" FontSize="10" HorizontalAlignment="Center"/>
+                            <Image Source="icons/undo.png" Width="17" Height="17" Margin="0,2,0,2"/>
+                            <TextBlock Text="실행취소" FontSize="11" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     
                     <Button x:Name="RedoButton" Style="{StaticResource ToolbarButtonStyle}" Click="RedoButton_Click" ToolTip="다시 실행" IsEnabled="False">
                         <StackPanel>
-                            <TextBlock FontFamily="Segoe UI Symbol" Text="&#xE7A6;" FontSize="18" HorizontalAlignment="Center"/>
-                            <TextBlock Text="다시실행" FontSize="10" HorizontalAlignment="Center"/>
+                            <Image Source="icons/redo.png" Width="17" Height="17" Margin="0,2,0,2"/>
+                            <TextBlock Text="다시실행" FontSize="11" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     
                     <Button x:Name="ResetButton" Style="{StaticResource ToolbarButtonStyle}" Click="ResetButton_Click" ToolTip="원본으로 되돌리기">
                         <StackPanel>
-                            <TextBlock FontFamily="Segoe UI Symbol" Text="&#xE777;" FontSize="18" HorizontalAlignment="Center"/>
-                            <TextBlock Text="초기화" FontSize="10" HorizontalAlignment="Center"/>
+                            <Image Source="icons/reset.png" Width="17" Height="17" Margin="0,2,0,2"/>
+                            <TextBlock Text="초기화" FontSize="11" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     
@@ -134,29 +137,29 @@
                     
                     <Button x:Name="CropButton" Style="{StaticResource ToolbarButtonStyle}" Click="CropButton_Click" ToolTip="자르기">
                         <StackPanel>
-                            <TextBlock FontFamily="Segoe UI Symbol" Text="&#xE726;" FontSize="18" HorizontalAlignment="Center"/>
-                            <TextBlock Text="자르기" FontSize="10" HorizontalAlignment="Center"/>
+                            <Image Source="icons/crop.png" Width="17" Height="17" Margin="0,2,0,2"/>
+                            <TextBlock Text="자르기" FontSize="11" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     
                     <Button x:Name="RotateButton" Style="{StaticResource ToolbarButtonStyle}" Click="RotateButton_Click" ToolTip="회전">
                         <StackPanel>
-                            <TextBlock FontFamily="Segoe UI Symbol" Text="&#xE7AD;" FontSize="18" HorizontalAlignment="Center"/>
-                            <TextBlock Text="회전" FontSize="10" HorizontalAlignment="Center"/>
+                            <Image Source="icons/rotate.png" Width="17" Height="17" Margin="0,2,0,2"/>
+                            <TextBlock Text="회전" FontSize="11" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     
                     <Button x:Name="FlipHorizontalButton" Style="{StaticResource ToolbarButtonStyle}" Click="FlipHorizontalButton_Click" ToolTip="좌우 반전">
                         <StackPanel>
-                            <TextBlock FontFamily="Segoe UI Symbol" Text="&#xE7FD;" FontSize="18" HorizontalAlignment="Center"/>
-                            <TextBlock Text="좌우반전" FontSize="10" HorizontalAlignment="Center"/>
+                            <Image Source="icons/flip_horizontal.png" Width="17" Height="17" Margin="0,2,0,2"/>
+                            <TextBlock Text="좌우반전" FontSize="11" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     
                     <Button x:Name="FlipVerticalButton" Style="{StaticResource ToolbarButtonStyle}" Click="FlipVerticalButton_Click" ToolTip="상하 반전">
                         <StackPanel>
-                            <TextBlock FontFamily="Segoe UI Symbol" Text="&#xE7FE;" FontSize="18" HorizontalAlignment="Center"/>
-                            <TextBlock Text="상하반전" FontSize="10" HorizontalAlignment="Center"/>
+                            <Image Source="icons/flip_vertical.png" Width="17" Height="17" Margin="0,2,0,2"/>
+                            <TextBlock Text="상하반전" FontSize="11" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     
@@ -164,29 +167,29 @@
                     
                     <Button x:Name="HighlightButton" Style="{StaticResource ToolbarButtonStyle}" Click="HighlightButton_Click" ToolTip="형광펜">
                         <StackPanel>
-                            <TextBlock FontFamily="Segoe UI Symbol" Text="&#xE76F;" FontSize="18" HorizontalAlignment="Center"/>
-                            <TextBlock Text="형광펜" FontSize="10" HorizontalAlignment="Center"/>
+                            <Image Source="icons/highlight.png" Width="17" Height="17" Margin="0,2,0,2"/>
+                            <TextBlock Text="형광펜" FontSize="11" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     
                     <Button x:Name="TextButton" Style="{StaticResource ToolbarButtonStyle}" Click="TextButton_Click" ToolTip="텍스트 추가">
                         <StackPanel>
-                            <TextBlock FontFamily="Segoe UI Symbol" Text="&#xE8D2;" FontSize="18" HorizontalAlignment="Center"/>
-                            <TextBlock Text="텍스트" FontSize="10" HorizontalAlignment="Center"/>
+                            <Image Source="icons/text.png" Width="17" Height="17" Margin="0,2,0,2"/>
+                            <TextBlock Text="텍스트" FontSize="11" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     
                     <Button x:Name="MosaicButton" Style="{StaticResource ToolbarButtonStyle}" Click="MosaicButton_Click" ToolTip="모자이크">
                         <StackPanel>
-                            <TextBlock FontFamily="Segoe UI Symbol" Text="&#xE90C;" FontSize="18" HorizontalAlignment="Center"/>
-                            <TextBlock Text="모자이크" FontSize="10" HorizontalAlignment="Center"/>
+                            <Image Source="icons/mosaic.png" Width="17" Height="17" Margin="0,2,0,2"/>
+                            <TextBlock Text="모자이크" FontSize="11" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     
                     <Button x:Name="EraserButton" Style="{StaticResource ToolbarButtonStyle}" Click="EraserButton_Click" ToolTip="지우개">
                         <StackPanel>
-                            <TextBlock FontFamily="Segoe UI Symbol" Text="&#xE75C;" FontSize="18" HorizontalAlignment="Center"/>
-                            <TextBlock Text="지우개" FontSize="10" HorizontalAlignment="Center"/>
+                            <Image Source="icons/eraser.png" Width="17" Height="17" Margin="0,2,0,2"/>
+                            <TextBlock Text="지우개" FontSize="11" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>
@@ -194,42 +197,68 @@
         </Border>
 
         <!-- 이미지 표시 영역 -->
-        <Border Grid.Row="1" Background="#F0F0F0" BorderThickness="0">
+        <Border Grid.Row="1" Background="#ECEDF2" BorderThickness="0">
             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                 <ScrollViewer.Resources>
                     <Style TargetType="{x:Type ScrollBar}" BasedOn="{StaticResource SimpleScrollBar}"/>
                 </ScrollViewer.Resources>
-                <Canvas x:Name="ImageCanvas" Background="#F0F0F0">
+                <Canvas x:Name="ImageCanvas" Background="#ECEDF2">
                     <Image x:Name="PreviewImage" Stretch="None" RenderOptions.BitmapScalingMode="HighQuality"/>
                 </Canvas>
             </ScrollViewer>
         </Border>
 
-        <!-- 하단 옵션 패널 (편집 도구 옵션) -->
+        <!-- 하단 옵션 패널 (편집 도구 옵션) - 컴팩트하게 변경 -->
         <Border x:Name="EditToolPanel" Grid.Row="2" Background="White" BorderBrush="#D0D7E5" 
-                BorderThickness="0,1,0,0" Padding="10" Visibility="Collapsed">
-            <Grid>
+                BorderThickness="0,1,0,0" Visibility="Collapsed" Effect="{StaticResource MaterialShadow}">
+            <Grid Margin="0">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 
-                <!-- 패널 제목과 닫기 버튼 -->
-                <Grid Grid.Row="0">
-                    <TextBlock x:Name="ToolTitleText" Text="도구 옵션" FontWeight="Bold" 
-                               HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                    <Button x:Name="CloseOptionsButton" Content="×" 
-                            HorizontalAlignment="Right" VerticalAlignment="Center"
-                            Background="Transparent" BorderThickness="0"
-                            FontSize="16" FontWeight="Bold" Cursor="Hand"
-                            Click="CloseOptionsButton_Click"/>
-                </Grid>
-                
-                <!-- 옵션 컨텐츠 -->
-                <Grid Grid.Row="1" Margin="0,5,0,0">
-                    <ScrollViewer HorizontalScrollBarVisibility="Auto" MaxHeight="150">
-                        <StackPanel x:Name="EditToolContent"/>
+                <Grid Margin="10,8,10,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- 패널 제목 -->
+                    <TextBlock x:Name="ToolTitleText" Text="도구 옵션" FontWeight="SemiBold" FontSize="12"
+                               Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    
+                    <!-- 옵션 컨텐츠 - 가로 배열로 변경 -->
+                    <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" 
+                                MaxHeight="60" Margin="0,0,10,0">
+                        <ScrollViewer.Resources>
+                            <Style TargetType="{x:Type ScrollBar}" BasedOn="{StaticResource SimpleScrollBar}"/>
+                        </ScrollViewer.Resources>
+                        <StackPanel x:Name="EditToolContent" Orientation="Horizontal"/>
                     </ScrollViewer>
+                    
+                    <!-- 닫기 버튼 -->
+                    <Button x:Name="CloseOptionsButton" Grid.Column="2" Content="✕" 
+                            Width="22" Height="22"
+                            HorizontalAlignment="Right" VerticalAlignment="Center"
+                            Background="#F0F0F0" BorderThickness="0" FontSize="10" FontWeight="Bold" 
+                            Cursor="Hand" Click="CloseOptionsButton_Click">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="11"
+                                        Width="{TemplateBinding Width}" Height="{TemplateBinding Height}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#FFE0E0" TargetName="border"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter Property="Background" Value="#FFCCCC" TargetName="border"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
                 </Grid>
             </Grid>
         </Border>

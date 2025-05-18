@@ -69,11 +69,14 @@ public partial class MainWindow : Window
 
     private void StartAreaCapture()
     {
-        // 가이드 메시지 표시
-        ShowGuideMessage("영역을 선택하세요 (ESC 키를 눌러 취소)", TimeSpan.FromSeconds(2));
+        // 가이드 메시지 표시 (짧게 표시)
+        var guideWindow = new GuideWindow("영역을 선택하세요 (ESC 키를 눌러 취소)", TimeSpan.FromMilliseconds(800));
+        guideWindow.Owner = this;
+        guideWindow.Show();
 
         // 영역 선택 창 표시
         var snippingWindow = new SnippingWindow();
+        guideWindow.Close(); // 영역 선택 시작 전에 가이드 윈도우 닫기
         this.Hide();
 
         if (snippingWindow.ShowDialog() == true)
@@ -144,6 +147,8 @@ public partial class MainWindow : Window
             Stretch = Stretch.Uniform,
             HorizontalAlignment = HorizontalAlignment.Center
         };
+        
+        RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
 
         // 인덱스를 태그로 저장하여 나중에 참조할 수 있게 함
         image.Tag = index;
@@ -164,31 +169,38 @@ public partial class MainWindow : Window
         grid.Children.Add(image);
         
         // 이미지 크기 텍스트 표시
+        Border sizeBorder = new Border
+        {
+            Background = new SolidColorBrush(Color.FromArgb(180, 0, 0, 0)),
+            CornerRadius = new CornerRadius(4),
+            Padding = new Thickness(6, 3, 6, 3),
+            HorizontalAlignment = HorizontalAlignment.Right,
+            VerticalAlignment = VerticalAlignment.Bottom,
+            Margin = new Thickness(0, 0, 6, 6)
+        };
+        
         TextBlock sizeText = new TextBlock
         {
             Text = $"{captureImage.Image.PixelWidth} x {captureImage.Image.PixelHeight}",
             Foreground = Brushes.White,
-            Background = new SolidColorBrush(Color.FromArgb(180, 0, 0, 0)),
-            Padding = new Thickness(5, 2, 5, 2),
-            HorizontalAlignment = HorizontalAlignment.Right,
-            VerticalAlignment = VerticalAlignment.Bottom,
-            Margin = new Thickness(0, 0, 5, 5),
             FontSize = 10
         };
         
-        grid.Children.Add(sizeText);
+        sizeBorder.Child = sizeText;
+        grid.Children.Add(sizeBorder);
 
         // 테두리 생성
         Border border = new Border
         {
             Child = grid,
-            Margin = new Thickness(0, 5, 0, 5),
-            BorderThickness = new Thickness(2),
-            BorderBrush = Brushes.Transparent,
+            Margin = new Thickness(0, 6, 0, 6),
+            BorderThickness = new Thickness(1),
+            BorderBrush = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0)),
             Background = Brushes.White,
+            CornerRadius = new CornerRadius(6),
             Effect = new DropShadowEffect
             {
-                ShadowDepth = 2,
+                ShadowDepth = 1,
                 BlurRadius = 5,
                 Opacity = 0.2,
                 Direction = 270
@@ -198,22 +210,13 @@ public partial class MainWindow : Window
             Height = thumbHeight
         };
 
-        // 이벤트 연결
+        // 마우스 클릭 이벤트 추가
         border.MouseLeftButtonDown += (s, e) => 
         {
-            // 태그에서 실제 인덱스 가져오기
-            int actualIndex = (int)((Border)s).Tag;
-            SelectCapture(border, actualIndex);
-        };
-        
-        border.MouseDown += (s, e) => 
-        {
-            if (e.ClickCount == 2)
+            if (s is Border clickedBorder)
             {
-                // 태그에서 실제 인덱스 가져오기
-                int actualIndex = (int)((Border)s).Tag;
-                ShowPreviewWindow(captureImage.Image, actualIndex);
-                e.Handled = true;
+                int clickedIndex = (int)clickedBorder.Tag;
+                SelectCapture(clickedBorder, clickedIndex);
             }
         };
 
