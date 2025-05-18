@@ -307,6 +307,12 @@ namespace CatchCapture
             ShowEraserOptions();
         }
 
+        private void CloseOptionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            // 옵션 패널 닫기
+            EditToolPanel.Visibility = Visibility.Collapsed;
+        }
+
         #endregion
 
         #region 편집 도구 구현
@@ -589,6 +595,9 @@ namespace CatchCapture
 
         private void ShowHighlightOptions()
         {
+            // 패널 제목 설정
+            ToolTitleText.Text = "형광펜 도구 옵션";
+            
             EditToolContent.Children.Clear();
             
             // 색상 선택
@@ -653,6 +662,9 @@ namespace CatchCapture
 
         private void ShowTextOptions()
         {
+            // 패널 제목 설정
+            ToolTitleText.Text = "텍스트 도구 옵션";
+            
             EditToolContent.Children.Clear();
             
             // 색상 선택
@@ -717,6 +729,9 @@ namespace CatchCapture
 
         private void ShowMosaicOptions()
         {
+            // 패널 제목 설정
+            ToolTitleText.Text = "모자이크 도구 옵션";
+            
             EditToolContent.Children.Clear();
             
             // 크기 선택
@@ -745,6 +760,9 @@ namespace CatchCapture
 
         private void ShowEraserOptions()
         {
+            // 패널 제목 설정
+            ToolTitleText.Text = "지우개 도구 옵션";
+            
             EditToolContent.Children.Clear();
             
             // 크기 선택

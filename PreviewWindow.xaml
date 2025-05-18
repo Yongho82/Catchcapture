@@ -83,6 +83,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- 도구 모음 -->
@@ -204,14 +205,33 @@
             </ScrollViewer>
         </Border>
 
-        <!-- 편집 도구 패널 (기본적으로 숨김) -->
-        <Border x:Name="EditToolPanel" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Right"
-                Background="White" BorderBrush="#D0D7E5" BorderThickness="1" Margin="0,15,15,0"
-                Padding="15" Visibility="Collapsed" CornerRadius="8">
-            <Border.Effect>
-                <DropShadowEffect ShadowDepth="2" BlurRadius="8" Opacity="0.2" Direction="270"/>
-            </Border.Effect>
-            <StackPanel x:Name="EditToolContent"/>
+        <!-- 하단 옵션 패널 (편집 도구 옵션) -->
+        <Border x:Name="EditToolPanel" Grid.Row="2" Background="White" BorderBrush="#D0D7E5" 
+                BorderThickness="0,1,0,0" Padding="10" Visibility="Collapsed">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <!-- 패널 제목과 닫기 버튼 -->
+                <Grid Grid.Row="0">
+                    <TextBlock x:Name="ToolTitleText" Text="도구 옵션" FontWeight="Bold" 
+                               HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <Button x:Name="CloseOptionsButton" Content="×" 
+                            HorizontalAlignment="Right" VerticalAlignment="Center"
+                            Background="Transparent" BorderThickness="0"
+                            FontSize="16" FontWeight="Bold" Cursor="Hand"
+                            Click="CloseOptionsButton_Click"/>
+                </Grid>
+                
+                <!-- 옵션 컨텐츠 -->
+                <Grid Grid.Row="1" Margin="0,5,0,0">
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" MaxHeight="150">
+                        <StackPanel x:Name="EditToolContent"/>
+                    </ScrollViewer>
+                </Grid>
+            </Grid>
         </Border>
     </Grid>
 </Window> 
