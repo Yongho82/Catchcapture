@@ -233,31 +233,21 @@ namespace CatchCapture
                 {
                     WriteLog($"MouseMove(도형): 위치({currentPoint.X:F1}, {currentPoint.Y:F1}), tempShape={tempShape != null}");
                     
-                    // 이전 임시 도형 모두 제거
-                    List<UIElement> elementsToRemove = new List<UIElement>();
-                    foreach (UIElement element in ImageCanvas.Children)
+                    // 임시 도형이 없으면 새로 생성
+                    if (tempShape == null)
                     {
-                        if (element == tempShape)
+                        tempShape = CreateShape(startPoint, currentPoint);
+                        if (tempShape != null)
                         {
-                            elementsToRemove.Add(element);
-                            WriteLog("기존 tempShape를 제거 대상으로 추가");
+                            ImageCanvas.Children.Add(tempShape);
+                            WriteLog($"임시 도형 생성 및 추가됨: 타입={tempShape.GetType().Name}, 크기({Math.Abs(currentPoint.X - startPoint.X):F1}x{Math.Abs(currentPoint.Y - startPoint.Y):F1})");
                         }
                     }
-                    
-                    foreach (UIElement element in elementsToRemove)
+                    else
                     {
-                        ImageCanvas.Children.Remove(element);
-                        WriteLog("tempShape 제거됨");
-                    }
-                    
-                    tempShape = null;
-                    
-                    // 임시 도형 새로 생성
-                    tempShape = CreateShape(startPoint, currentPoint);
-                    if (tempShape != null)
-                    {
-                        ImageCanvas.Children.Add(tempShape);
-                        WriteLog($"임시 도형 생성 및 추가됨: 타입={tempShape.GetType().Name}, 크기({Math.Abs(currentPoint.X - startPoint.X):F1}x{Math.Abs(currentPoint.Y - startPoint.Y):F1})");
+                        // 기존 도형 속성 업데이트
+                        UpdateShapeProperties(tempShape, startPoint, currentPoint);
+                        WriteLog($"임시 도형 업데이트: 크기({Math.Abs(currentPoint.X - startPoint.X):F1}x{Math.Abs(currentPoint.Y - startPoint.Y):F1})");
                     }
                     
                     e.Handled = true;
@@ -998,6 +988,49 @@ namespace CatchCapture
             else
             {
                 WriteLog("tempShape가 이미 null이거나 ImageCanvas가 null임");
+            }
+        }
+
+        private void UpdateShapeProperties(UIElement shape, Point start, Point current)
+        {
+            double left = Math.Min(start.X, current.X);
+            double top = Math.Min(start.Y, current.Y);
+            double width = Math.Abs(current.X - start.X);
+            double height = Math.Abs(current.Y - start.Y);
+            
+            // 도형 유형에 따라 속성 업데이트
+            if (shape is Rectangle rect)
+            {
+                Canvas.SetLeft(rect, left);
+                Canvas.SetTop(rect, top);
+                rect.Width = width;
+                rect.Height = height;
+            }
+            else if (shape is Ellipse ellipse)
+            {
+                Canvas.SetLeft(ellipse, left);
+                Canvas.SetTop(ellipse, top);
+                ellipse.Width = width;
+                ellipse.Height = height;
+            }
+            else if (shape is Line line)
+            {
+                line.X1 = start.X;
+                line.Y1 = start.Y;
+                line.X2 = current.X;
+                line.Y2 = current.Y;
+            }
+            else if (shape is System.Windows.Shapes.Path path && shapeType == ShapeType.Arrow)
+            {
+                // 화살표는 새로 생성하는 것이 더 간단하고 정확합니다
+                int index = ImageCanvas.Children.IndexOf(shape);
+                if (index != -1)
+                {
+                    ImageCanvas.Children.RemoveAt(index);
+                    var newArrow = CreateArrow(start, current);
+                    ImageCanvas.Children.Insert(index, newArrow);
+                    tempShape = newArrow;
+                }
             }
         }
 
