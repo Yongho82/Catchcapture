@@ -177,6 +177,14 @@
                                 </StackPanel>
                             </Button>
                             
+                            <Button x:Name="ScrollCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="ScrollCaptureButton_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/icons/scroll_capture.png" Width="16" Height="16" Margin="0,0,5,0"
+                                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                                    <TextBlock Text="스크롤캡처" HorizontalAlignment="Left" FontSize="11"/>
+                                </StackPanel>
+                            </Button>
+                            
                             <Separator Style="{StaticResource SeparatorStyle}"/>
                             
                             <Button x:Name="CopySelectedButton" Style="{StaticResource SidebarButtonStyle}" Click="CopySelectedButton_Click" IsEnabled="False">

@@ -135,6 +135,48 @@ public partial class MainWindow : Window
         this.Activate();
     }
 
+    private void ScrollCaptureButton_Click(object sender, RoutedEventArgs e)
+    {
+        CaptureScrollableWindow();
+    }
+    
+    private void CaptureScrollableWindow()
+    {
+        try
+        {
+            // 안내 메시지 표시
+            var guideWindow = new GuideWindow("캡처할 창을 클릭하고 Enter 키를 누르세요", TimeSpan.FromSeconds(2.5));
+            guideWindow.Owner = this;
+            guideWindow.Show();
+            
+            // 사용자가 다른 창을 선택할 수 있도록 기다림
+            this.Hide();
+            
+            // 스크롤 캡처 수행
+            var capturedImage = ScreenCaptureUtility.CaptureScrollableWindow();
+            
+            if (capturedImage != null)
+            {
+                AddCaptureToList(capturedImage);
+                ShowGuideMessage("스크롤 캡처가 완료되었습니다.", TimeSpan.FromSeconds(1.5));
+                
+                // 캡처된 이미지 클립보드에 복사
+                ScreenCaptureUtility.CopyImageToClipboard(capturedImage);
+                ShowGuideMessage("이미지가 클립보드에 복사되었습니다.", TimeSpan.FromSeconds(1.5));
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"스크롤 캡처 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            // 창이 닫히지 않도록 항상 메인 창을 다시 표시
+            this.Show();
+            this.Activate();
+        }
+    }
+
     private void AddCaptureToList(BitmapSource image)
     {
         // 캡처 이미지 객체 생성
