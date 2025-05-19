@@ -115,6 +115,7 @@ namespace CatchCapture.Utilities
         // 가상 키 코드
         private const int VK_RETURN = 0x0D; // 엔터 키
         private const int VK_NEXT = 0x22;   // Page Down 키
+        private const int VK_DOWN = 0x28;   // 아래 방향키
         
         // 가상 키 및 입력 상수
         private const uint INPUT_KEYBOARD = 1;
@@ -279,9 +280,9 @@ namespace CatchCapture.Utilities
                     g.CopyFromScreen(clientOrigin.X, clientOrigin.Y, 0, 0, new System.Drawing.Size(clientWidth, clientHeight));
                 }
                 
-                // 페이지 다운 키 시뮬레이션으로 스크롤
-                SendPageDownKey();
-                Thread.Sleep(500); // 스크롤 후 페이지 로드 대기 (시간 늘림)
+                // 작은 단위로 스크롤 (방향키 여러 번 사용)
+                SendSmallScroll(5); // 중간 정도의 스크롤 양
+                Thread.Sleep(500); // 스크롤 후 페이지 로드 대기
                 
                 // 첫 스크롤 후 캡처
                 Bitmap afterFirstScroll = new Bitmap(clientWidth, clientHeight);
@@ -381,9 +382,40 @@ namespace CatchCapture.Utilities
                 // 스크롤 캡처 시작
                 while (!isScrollEnded && scrollCount < maxScrolls)
                 {
-                    // 페이지 다운 키 시뮬레이션으로 스크롤
-                    SendPageDownKey();
-                    Thread.Sleep(500); // 스크롤 후 페이지 로드 대기 (시간 늘림)
+                    // 마지막에 가까울 때 더 작은 스크롤, 그 외에는 Page Down 사용
+                    bool isNearEnd = false;
+                    
+                    // 임계값 도달: 연속해서 비슷한 이미지가 나오면 마지막에 가까운 것으로 판단
+                    if (scrollCount > 0 && capturedImages.Count >= 2)
+                    {
+                        // 마지막 두 이미지가 70% 이상 비슷하면 마지막에 가까운 것으로 간주
+                        Bitmap lastImage = capturedImages[capturedImages.Count - 1];
+                        Bitmap beforeLastImage = capturedImages[capturedImages.Count - 2];
+                        
+                        double similarity = CalculateImageSimilarity(lastImage, beforeLastImage);
+                        LogToFile($"마지막 두 이미지 유사도: {similarity:F4}");
+                        
+                        if (similarity > 0.7) // 70% 이상 유사할 경우
+                        {
+                            isNearEnd = true;
+                            LogToFile("마지막 페이지에 가까워짐 감지");
+                        }
+                    }
+                    
+                    if (isNearEnd)
+                    {
+                        // 마지막에 가까울 때 더 작은 스크롤 (방향키 사용)
+                        SendSmallScroll(8); // 스크롤 양을 증가
+                        LogToFile("페이지 끝에 가까움: 작은 스크롤 사용");
+                    }
+                    else
+                    {
+                        // 일반적인 경우 페이지 다운 키 사용
+                        SendPageDownKey();
+                        LogToFile("일반 스크롤 (Page Down 사용)");
+                    }
+                    
+                    Thread.Sleep(600); // 스크롤 후 페이지 로드 대기 시간 증가
                     
                     // 스크린샷 캡처
                     Bitmap currentCapture = new Bitmap(clientWidth, clientHeight);
@@ -670,30 +702,30 @@ namespace CatchCapture.Utilities
             int totalPixels = img1.Width * img1.Height;
             int maxDifferentPixels = totalPixels * (100 - matchThreshold) / 100;
             
-            // 샘플링 비율
-            int samplingRate = 10;
+            // 작은 스크롤일 경우 더 민감하게 검사
+            // 이미지 하단 부분에서 작은 차이도 감지할 수 있도록
+            int samplingRate = 5; // 기본 샘플링 비율 (1/5 픽셀 체크)
             
-            // 처음과 마지막 영역 비교를 위한 배율
-            int regionHeight = img1.Height / 5;
+            // 하단 25% 영역 집중 검사 (스크롤 시 주로 변경되는 영역)
+            int bottomRegionStart = (int)(img1.Height * 0.75);
             
-            // 이미지 하단 부분의 달라진 픽셀 수를 더 많이 체크 (스크롤의 주요 변화 영역)
-            for (int y = img1.Height - regionHeight; y < img1.Height; y += samplingRate / 2) // 하단 영역은 더 세밀하게 체크
+            for (int y = bottomRegionStart; y < img1.Height; y += samplingRate / 2)
             {
                 for (int x = 0; x < img1.Width; x += samplingRate)
                 {
-                    if (y >= 0 && y < img1.Height && x >= 0 && x < img1.Width) // 범위 확인
+                    if (y >= 0 && y < img1.Height && x >= 0 && x < img1.Width)
                     {
                         try
                         {
                             Color pixel1 = img1.GetPixel(x, y);
                             Color pixel2 = img2.GetPixel(x, y);
                             
-                            // 더 엄격한 색상 비교
-                            if (Math.Abs(pixel1.R - pixel2.R) > 3 ||
-                                Math.Abs(pixel1.G - pixel2.G) > 3 ||
-                                Math.Abs(pixel1.B - pixel2.B) > 3)
+                            // 색상 차이 확인 (더 엄격하게)
+                            if (Math.Abs(pixel1.R - pixel2.R) > 2 ||
+                                Math.Abs(pixel1.G - pixel2.G) > 2 ||
+                                Math.Abs(pixel1.B - pixel2.B) > 2)
                             {
-                                differentPixels += 2; // 하단 영역의 차이는 더 중요하게 계산
+                                differentPixels += 3; // 하단 영역 차이에 더 가중치
                             }
                         }
                         catch
@@ -704,12 +736,12 @@ namespace CatchCapture.Utilities
                 }
             }
             
-            // 이미지 상단 부분 체크
-            for (int y = 0; y < regionHeight; y += samplingRate)
+            // 이미지 상단 부분도 샘플링 검사
+            for (int y = 0; y < bottomRegionStart; y += samplingRate * 2)
             {
-                for (int x = 0; x < img1.Width; x += samplingRate)
+                for (int x = 0; x < img1.Width; x += samplingRate * 2)
                 {
-                    if (y >= 0 && y < img1.Height && x >= 0 && x < img1.Width) // 범위 확인
+                    if (y >= 0 && y < img1.Height && x >= 0 && x < img1.Width)
                     {
                         try
                         {
@@ -732,9 +764,9 @@ namespace CatchCapture.Utilities
             }
             
             // 실제 다른 픽셀 비율 계산 (샘플링 비율 고려)
-            int estimatedDifferentPixels = differentPixels * samplingRate * samplingRate / 3; // 샘플링 영역 고려하여 조정
+            int estimatedDifferentPixels = differentPixels * 5; // 대략적인 추정치
             
-            System.Diagnostics.Debug.WriteLine($"다른 픽셀 수: {differentPixels}, 예상 다른 픽셀 수: {estimatedDifferentPixels}, 최대 허용 다른 픽셀 수: {maxDifferentPixels}");
+            LogToFile($"이미지 비교: 다른 픽셀 수: {differentPixels}, 예상 다른 픽셀 수: {estimatedDifferentPixels}, 최대 허용 다른 픽셀 수: {maxDifferentPixels}");
             
             return estimatedDifferentPixels <= maxDifferentPixels;
         }
@@ -763,6 +795,38 @@ namespace CatchCapture.Utilities
             
             // 키 이벤트 전송
             SendInput(2, inputs, Marshal.SizeOf(typeof(INPUT)));
+        }
+        
+        // 아래 방향키를 여러 번 눌러 작은 양만큼 스크롤
+        private static void SendSmallScroll(int times)
+        {
+            for (int i = 0; i < times; i++)
+            {
+                // 아래 방향키 이벤트 생성
+                INPUT[] inputs = new INPUT[2];
+                
+                // Key Down
+                inputs[0].Type = INPUT_KEYBOARD;
+                inputs[0].Data.Keyboard.Vk = VK_DOWN; // 방향키 아래
+                inputs[0].Data.Keyboard.Scan = 0;
+                inputs[0].Data.Keyboard.Flags = KEYEVENTF_KEYDOWN;
+                inputs[0].Data.Keyboard.Time = 0;
+                inputs[0].Data.Keyboard.ExtraInfo = IntPtr.Zero;
+                
+                // Key Up
+                inputs[1].Type = INPUT_KEYBOARD;
+                inputs[1].Data.Keyboard.Vk = VK_DOWN; // 방향키 아래
+                inputs[1].Data.Keyboard.Scan = 0;
+                inputs[1].Data.Keyboard.Flags = KEYEVENTF_KEYUP;
+                inputs[1].Data.Keyboard.Time = 0;
+                inputs[1].Data.Keyboard.ExtraInfo = IntPtr.Zero;
+                
+                // 키 이벤트 전송
+                SendInput(2, inputs, Marshal.SizeOf(typeof(INPUT)));
+                
+                // 키 입력 사이 약간의 지연
+                Thread.Sleep(50);
+            }
         }
 
         // 두 이미지를 비교하여 스크롤 가능한 영역 감지
@@ -1003,6 +1067,53 @@ namespace CatchCapture.Utilities
                     }
                 }
             }
+        }
+
+        // 두 이미지의 유사도 계산 (0~1 사이 값, 1이 완전 동일)
+        private static double CalculateImageSimilarity(Bitmap img1, Bitmap img2)
+        {
+            int sampleWidth = Math.Min(img1.Width, img2.Width);
+            int sampleHeight = Math.Min(img1.Height, img2.Height);
+            
+            if (sampleWidth <= 0 || sampleHeight <= 0)
+                return 0;
+            
+            int matchedPixels = 0;
+            int totalPixels = 0;
+            int samplingRate = 10; // 성능을 위한 샘플링
+            
+            // 이미지 전체 유사도 검사
+            for (int y = 0; y < sampleHeight; y += samplingRate)
+            {
+                for (int x = 0; x < sampleWidth; x += samplingRate)
+                {
+                    try
+                    {
+                        Color c1 = img1.GetPixel(x, y);
+                        Color c2 = img2.GetPixel(x, y);
+                        
+                        // 색상 유사도 계산
+                        if (AreColorsSimilar(c1, c2, 10)) // 10은 색상 차이 허용 임계값
+                            matchedPixels++;
+                        
+                        totalPixels++;
+                    }
+                    catch
+                    {
+                        // 인덱스 오류 무시
+                    }
+                }
+            }
+            
+            return totalPixels > 0 ? (double)matchedPixels / totalPixels : 0;
+        }
+        
+        // 두 색상의 유사도 검사 (임계값 내의 차이만 허용)
+        private static bool AreColorsSimilar(Color c1, Color c2, int threshold)
+        {
+            return Math.Abs(c1.R - c2.R) <= threshold &&
+                   Math.Abs(c1.G - c2.G) <= threshold &&
+                   Math.Abs(c1.B - c2.B) <= threshold;
         }
     }
 } 
