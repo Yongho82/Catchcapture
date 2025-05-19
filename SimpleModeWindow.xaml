@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CatchCapture"
         mc:Ignorable="d"
-        Title="간편 모드" Height="110" Width="220"
+        Title="간편 모드" Height="75" Width="230"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         Topmost="True" ResizeMode="NoResize" ShowInTaskbar="False"
         MouseLeftButtonDown="Window_MouseLeftButtonDown">
@@ -13,9 +13,9 @@
     <Window.Resources>
         <!-- 버튼 스타일 -->
         <Style x:Key="SimpleModeButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="75"/>
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Width" Value="72"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Margin" Value="1"/>
             <Setter Property="Background" Value="#FFFFFF"/>
             <Setter Property="Foreground" Value="#333333"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -26,7 +26,7 @@
                         <Border x:Name="border" Background="{TemplateBinding Background}" 
                                 BorderBrush="{TemplateBinding BorderBrush}" 
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="6">
+                                CornerRadius="5">
                             <Border.Effect>
                                 <DropShadowEffect ShadowDepth="1" BlurRadius="3" Opacity="0.1" Direction="270"/>
                             </Border.Effect>
@@ -45,8 +45,8 @@
             </Setter>
         </Style>
         
-        <!-- 닫기 버튼 스타일 -->
-        <Style x:Key="CloseButtonStyle" TargetType="Button">
+        <!-- 닫기/모드 전환 버튼 스타일 -->
+        <Style x:Key="SmallButtonStyle" TargetType="Button">
             <Setter Property="Width" Value="20"/>
             <Setter Property="Height" Value="20"/>
             <Setter Property="Background" Value="Transparent"/>
@@ -60,26 +60,33 @@
                                 BorderBrush="{TemplateBinding BorderBrush}" 
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="10">
-                            <TextBlock Text="✕" FontSize="10" HorizontalAlignment="Center" 
-                                       VerticalAlignment="Center" Foreground="{TemplateBinding Foreground}"/>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#FF5555" TargetName="border"/>
+                                <Setter Property="Background" Value="#50FFFFFF" TargetName="border"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="#CC3333" TargetName="border"/>
+                                <Setter Property="Background" Value="#30FFFFFF" TargetName="border"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
+        
+        <!-- 텍스트 렌더링 개선 스타일 -->
+        <Style x:Key="ClearTextStyle" TargetType="TextBlock">
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
     </Window.Resources>
     
-    <Border CornerRadius="10" BorderThickness="1">
+    <Border CornerRadius="8" BorderThickness="1">
         <Border.Effect>
-            <DropShadowEffect ShadowDepth="3" BlurRadius="10" Opacity="0.3" Direction="270"/>
+            <DropShadowEffect ShadowDepth="2" BlurRadius="8" Opacity="0.3" Direction="270"/>
         </Border.Effect>
         <Border.BorderBrush>
             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -96,36 +103,52 @@
         
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="24"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             
             <!-- 제목 영역 -->
-            <Border Grid.Row="0" Padding="12,8,12,4">
+            <Border Grid.Row="0" Padding="10,2,10,2">
                 <Grid>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="/icons/simple_mode.png" Width="14" Height="14" Margin="0,0,6,0"/>
-                        <TextBlock Text="캣치" Foreground="White" FontWeight="SemiBold" FontSize="13"/>
+                        <Image Source="/icons/simple_mode.png" Width="14" Height="14" Margin="0,0,5,0" 
+                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                        <TextBlock Text="간편 캡처" Foreground="White" FontWeight="SemiBold" FontSize="12"
+                                  Style="{StaticResource ClearTextStyle}"/>
                     </StackPanel>
-                    <Button x:Name="CloseButton" Style="{StaticResource CloseButtonStyle}"
-                            HorizontalAlignment="Right" Click="CloseButton_Click"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button x:Name="CloseButton" Style="{StaticResource SmallButtonStyle}"
+                                Click="CloseButton_Click" ToolTip="닫기">
+                            <TextBlock Text="✕" FontSize="10" Foreground="White" Style="{StaticResource ClearTextStyle}"/>
+                        </Button>
+                    </StackPanel>
                 </Grid>
             </Border>
             
             <!-- 버튼 영역 -->
-            <Border Grid.Row="1" Padding="10,4,10,10">
+            <Border Grid.Row="1" Padding="4,4,4,6">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Button x:Name="AreaCaptureButton" Style="{StaticResource SimpleModeButtonStyle}" Click="AreaCaptureButton_Click">
-                        <StackPanel>
-                            <Image Source="/icons/area_capture.png" Width="18" Height="18" Margin="0,0,0,2"/>
-                            <TextBlock Text="영역 캡처" HorizontalAlignment="Center" FontSize="11"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/icons/area_capture.png" Width="16" Height="16" Margin="0,0,3,0"
+                                  RenderOptions.BitmapScalingMode="HighQuality"/>
+                            <TextBlock Text="영역 캡처" Style="{StaticResource ClearTextStyle}" FontSize="11"/>
                         </StackPanel>
                     </Button>
                     
                     <Button x:Name="FullScreenCaptureButton" Style="{StaticResource SimpleModeButtonStyle}" Click="FullScreenCaptureButton_Click">
-                        <StackPanel>
-                            <Image Source="/icons/full_screen.png" Width="18" Height="18" Margin="0,0,0,2"/>
-                            <TextBlock Text="전체화면" HorizontalAlignment="Center" FontSize="11"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/icons/full_screen.png" Width="16" Height="16" Margin="0,0,3,0"
+                                  RenderOptions.BitmapScalingMode="HighQuality"/>
+                            <TextBlock Text="전체화면" Style="{StaticResource ClearTextStyle}" FontSize="11"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <Button x:Name="ExitSimpleModeButton" Style="{StaticResource SimpleModeButtonStyle}" Click="ExitSimpleModeButton_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/icons/simple_mode.png" Width="16" Height="16" Margin="0,0,3,0"
+                                  RenderOptions.BitmapScalingMode="HighQuality"/>
+                            <TextBlock Text="일반 모드" Style="{StaticResource ClearTextStyle}" FontSize="11"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>

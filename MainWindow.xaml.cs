@@ -604,15 +604,72 @@ public partial class MainWindow : Window
     private void ShowSimpleMode()
     {
         simpleModeWindow = new SimpleModeWindow();
-        simpleModeWindow.AreaCaptureRequested += (s, e) => StartAreaCapture();
-        simpleModeWindow.FullScreenCaptureRequested += (s, e) => CaptureFullScreen();
+        
+        // 이벤트 핸들러 등록
+        simpleModeWindow.AreaCaptureRequested += (s, e) => 
+        {
+            // 영역 캡처 수행
+            var snippingWindow = new SnippingWindow();
+            
+            if (snippingWindow.ShowDialog() == true)
+            {
+                // 선택된 영역 캡처
+                var selectedArea = snippingWindow.SelectedArea;
+                var capturedImage = ScreenCaptureUtility.CaptureArea(selectedArea);
+                
+                // 클립보드에 복사
+                ScreenCaptureUtility.CopyImageToClipboard(capturedImage);
+                
+                // 캡처 목록에 추가
+                AddCaptureToList(capturedImage);
+            }
+            
+            // 간편모드 창 다시 표시
+            simpleModeWindow?.Show();
+        };
+        
+        simpleModeWindow.FullScreenCaptureRequested += (s, e) => 
+        {
+            // 전체화면 캡처 수행
+            System.Threading.Thread.Sleep(200); // 간편모드 창이 사라질 때까지 잠시 대기
+            
+            var capturedImage = ScreenCaptureUtility.CaptureScreen();
+            
+            // 클립보드에 복사
+            ScreenCaptureUtility.CopyImageToClipboard(capturedImage);
+            
+            // 캡처 목록에 추가
+            AddCaptureToList(capturedImage);
+            
+            // 간편모드 창 다시 표시
+            simpleModeWindow?.Show();
+        };
+        
+        simpleModeWindow.ExitSimpleModeRequested += (s, e) => 
+        {
+            HideSimpleMode();
+            this.Show();
+            this.Activate();
+        };
+        
+        // 메인 창 숨기기
+        this.Hide();
+        
+        // 간편모드 창 표시
         simpleModeWindow.Show();
     }
 
     private void HideSimpleMode()
     {
-        simpleModeWindow?.Close();
-        simpleModeWindow = null;
+        if (simpleModeWindow != null)
+        {
+            simpleModeWindow.Close();
+            simpleModeWindow = null;
+        }
+        
+        // 메인 창 표시
+        this.Show();
+        this.Activate();
     }
 
     #endregion
