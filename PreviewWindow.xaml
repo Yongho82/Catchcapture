@@ -134,6 +134,13 @@
                         </StackPanel>
                     </Button>
                     
+                    <Button x:Name="ShapeButton" Style="{StaticResource ToolbarButtonStyle}" Click="ShapeButton_Click" ToolTip="도형 그리기">
+                        <StackPanel>
+                            <Image Source="icons/shape.png" Width="17" Height="17" Margin="0,2,0,2"/>
+                            <TextBlock Text="도형" FontSize="11" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    
                     <Separator Style="{StaticResource ToolbarSeparatorStyle}"/>
                     
                     <Button x:Name="HighlightButton" Style="{StaticResource ToolbarButtonStyle}" Click="HighlightButton_Click" ToolTip="형광펜">

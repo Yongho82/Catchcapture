@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Globalization;
+using System.Windows.Media.TextFormatting;
 
 namespace CatchCapture.Utilities
 {
@@ -37,7 +38,7 @@ namespace CatchCapture.Utilities
             return transformedBitmap;
         }
 
-        public static BitmapSource ApplyHighlight(BitmapSource source, Point[] points, Color color, double thickness)
+        public static BitmapSource ApplyHighlight(BitmapSource source, System.Windows.Point[] points, System.Windows.Media.Color color, double thickness)
         {
             if (points == null || points.Length < 2)
                 return source;
@@ -134,7 +135,7 @@ namespace CatchCapture.Utilities
             return writeableBitmap;
         }
 
-        public static BitmapSource ApplyEraser(BitmapSource source, Point[] points, double radius)
+        public static BitmapSource ApplyEraser(BitmapSource source, System.Windows.Point[] points, double radius)
         {
             if (points == null || points.Length < 1)
                 return source;
@@ -148,7 +149,7 @@ namespace CatchCapture.Utilities
 
                 // 지우개 효과 적용
                 SolidColorBrush eraserBrush = new SolidColorBrush(Colors.White);
-                foreach (Point point in points)
+                foreach (System.Windows.Point point in points)
                 {
                     drawingContext.DrawEllipse(eraserBrush, null, point, radius, radius);
                 }
@@ -164,7 +165,7 @@ namespace CatchCapture.Utilities
             return renderTargetBitmap;
         }
 
-        public static BitmapSource AddText(BitmapSource source, string text, Point position, Color color, double fontSize)
+        public static BitmapSource AddText(BitmapSource source, string text, System.Windows.Point position, System.Windows.Media.Color color, double fontSize)
         {
             DrawingVisual drawingVisual = new DrawingVisual();
             using (DrawingContext drawingContext = drawingVisual.RenderOpen())
@@ -196,7 +197,7 @@ namespace CatchCapture.Utilities
         }
 
         // 확장된 텍스트 추가 메서드 - 더 많은 서식 옵션 지원
-        public static BitmapSource AddEnhancedText(BitmapSource source, string text, Point position, TextFormatOptions options)
+        public static BitmapSource AddEnhancedText(BitmapSource source, string text, System.Windows.Point position, TextFormatOptions options)
         {
             DrawingVisual drawingVisual = new DrawingVisual();
             using (DrawingContext drawingContext = drawingVisual.RenderOpen())
@@ -231,7 +232,7 @@ namespace CatchCapture.Utilities
                     }
                     
                     // 그림자 텍스트 그리기
-                    Point shadowPosition = new Point(
+                    System.Windows.Point shadowPosition = new System.Windows.Point(
                         position.X + options.ShadowOffset.X, 
                         position.Y + options.ShadowOffset.Y);
                     drawingContext.DrawText(shadowText, shadowPosition);
@@ -276,8 +277,83 @@ namespace CatchCapture.Utilities
             return renderTargetBitmap;
         }
         
-        // 텍스트 그림자 효과 적용 메서드 - 사용하지 않음
-        private static void DrawTextWithShadow(DrawingContext ctx, FormattedText text, Point position, Color shadowColor, Vector shadowOffset)
+        public static BitmapSource ApplyShape(BitmapSource source, System.Windows.Point startPoint, System.Windows.Point endPoint, ShapeType shapeType, System.Windows.Media.Color color, double thickness, bool isFilled)
+        {
+            double left = Math.Min(startPoint.X, endPoint.X);
+            double top = Math.Min(startPoint.Y, endPoint.Y);
+            double width = Math.Abs(endPoint.X - startPoint.X);
+            double height = Math.Abs(endPoint.Y - startPoint.Y);
+            
+            DrawingVisual drawingVisual = new DrawingVisual();
+            using (DrawingContext drawingContext = drawingVisual.RenderOpen())
+            {
+                // 원본 이미지 그리기
+                drawingContext.DrawImage(source, new Rect(0, 0, source.PixelWidth, source.PixelHeight));
+                
+                Pen pen = new Pen(new SolidColorBrush(color), thickness);
+                Brush fillBrush = isFilled ? new SolidColorBrush(Color.FromArgb(128, color.R, color.G, color.B)) : Brushes.Transparent;
+                
+                switch (shapeType)
+                {
+                    case ShapeType.Rectangle:
+                        drawingContext.DrawRectangle(fillBrush, pen, new Rect(left, top, width, height));
+                        break;
+                        
+                    case ShapeType.Ellipse:
+                        drawingContext.DrawEllipse(fillBrush, pen, new Point(left + width / 2, top + height / 2), width / 2, height / 2);
+                        break;
+                        
+                    case ShapeType.Line:
+                        pen.StartLineCap = PenLineCap.Round;
+                        pen.EndLineCap = PenLineCap.Round;
+                        drawingContext.DrawLine(pen, startPoint, endPoint);
+                        break;
+                        
+                    case ShapeType.Arrow:
+                        DrawArrow(drawingContext, startPoint, endPoint, pen, thickness);
+                        break;
+                }
+            }
+            
+            // DrawingVisual을 RenderTargetBitmap으로 변환
+            RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap(
+                source.PixelWidth, source.PixelHeight,
+                source.DpiX, source.DpiY,
+                PixelFormats.Pbgra32);
+            renderTargetBitmap.Render(drawingVisual);
+            
+            return renderTargetBitmap;
+        }
+        
+        private static void DrawArrow(DrawingContext drawingContext, Point startPoint, Point endPoint, Pen pen, double thickness)
+        {
+            // 화살표 선 그리기
+            drawingContext.DrawLine(pen, startPoint, endPoint);
+            
+            // 화살표 머리 크기 계산
+            double arrowLength = Math.Sqrt(Math.Pow(endPoint.X - startPoint.X, 2) + Math.Pow(endPoint.Y - startPoint.Y, 2));
+            double arrowHeadWidth = Math.Min(10, arrowLength / 3);
+            
+            // 화살표 각도 계산
+            double angle = Math.Atan2(endPoint.Y - startPoint.Y, endPoint.X - startPoint.X);
+            double arrowHeadAngle1 = angle + Math.PI / 6; // 30도
+            double arrowHeadAngle2 = angle - Math.PI / 6; // -30도
+            
+            // 화살표 머리 끝점 계산
+            Point arrowHead1 = new Point(
+                endPoint.X - arrowHeadWidth * Math.Cos(arrowHeadAngle1),
+                endPoint.Y - arrowHeadWidth * Math.Sin(arrowHeadAngle1));
+                
+            Point arrowHead2 = new Point(
+                endPoint.X - arrowHeadWidth * Math.Cos(arrowHeadAngle2),
+                endPoint.Y - arrowHeadWidth * Math.Sin(arrowHeadAngle2));
+            
+            // 화살표 머리 그리기
+            drawingContext.DrawLine(pen, endPoint, arrowHead1);
+            drawingContext.DrawLine(pen, endPoint, arrowHead2);
+        }
+
+        private static void DrawTextWithShadow(DrawingContext ctx, FormattedText text, System.Windows.Point position, System.Windows.Media.Color shadowColor, System.Windows.Vector shadowOffset)
         {
             // 이 메서드는 사용하지 않음 
         }
@@ -292,18 +368,18 @@ namespace CatchCapture.Utilities
         public FontStyle FontStyle { get; set; } = FontStyles.Normal;
         public FontStretch FontStretch { get; set; } = FontStretches.Normal;
         public double FontSize { get; set; } = 16;
-        public Color TextColor { get; set; } = Colors.Black;
+        public System.Windows.Media.Color TextColor { get; set; } = System.Windows.Media.Colors.Black;
         public double MaxWidth { get; set; } = 0; // 0은 자동 줄바꿈 없음
-        public TextAlignment TextAlignment { get; set; } = TextAlignment.Left;
-        public TextDecorationCollection TextDecoration { get; set; } = null;
+        public System.Windows.TextAlignment TextAlignment { get; set; } = System.Windows.TextAlignment.Left;
+        public System.Windows.TextDecorationCollection? TextDecoration { get; set; } = null;
         
         // 그림자 효과 속성
         public bool ApplyShadow { get; set; } = false;
-        public Color ShadowColor { get; set; } = Color.FromArgb(128, 0, 0, 0);
-        public Vector ShadowOffset { get; set; } = new Vector(1, 1);
+        public System.Windows.Media.Color ShadowColor { get; set; } = System.Windows.Media.Colors.Black;
+        public System.Windows.Vector ShadowOffset { get; set; } = new System.Windows.Vector(1, 1);
         
         // 빠른 생성을 위한 정적 메서드
-        public static TextFormatOptions DefaultOptions(Color textColor, double fontSize)
+        public static TextFormatOptions DefaultOptions(System.Windows.Media.Color textColor, double fontSize)
         {
             return new TextFormatOptions
             {
@@ -312,7 +388,7 @@ namespace CatchCapture.Utilities
             };
         }
         
-        public static TextFormatOptions WithShadow(Color textColor, double fontSize)
+        public static TextFormatOptions WithShadow(System.Windows.Media.Color textColor, double fontSize)
         {
             return new TextFormatOptions
             {
@@ -322,19 +398,19 @@ namespace CatchCapture.Utilities
             };
         }
         
-        public static TextFormatOptions WithUnderline(Color textColor, double fontSize)
+        public static TextFormatOptions WithUnderline(System.Windows.Media.Color textColor, double fontSize)
         {
             var options = new TextFormatOptions
             {
                 TextColor = textColor,
                 FontSize = fontSize
             };
-            options.TextDecoration = new TextDecorationCollection();
-            options.TextDecoration.Add(TextDecorations.Underline);
+            options.TextDecoration = new System.Windows.TextDecorationCollection();
+            options.TextDecoration.Add(System.Windows.TextDecorations.Underline);
             return options;
         }
         
-        public static TextFormatOptions BoldText(Color textColor, double fontSize)
+        public static TextFormatOptions BoldText(System.Windows.Media.Color textColor, double fontSize)
         {
             return new TextFormatOptions
             {
@@ -343,5 +419,13 @@ namespace CatchCapture.Utilities
                 FontWeight = FontWeights.Bold
             };
         }
+    }
+    
+    public enum ShapeType
+    {
+        Rectangle,
+        Ellipse,
+        Line,
+        Arrow
     }
 } 

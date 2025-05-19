@@ -26,6 +26,7 @@
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/rotate.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/save_all.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/save_selected.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/shape.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/simple_mode.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/text.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/translate.png")]

@@ -22,6 +22,10 @@ namespace CatchCapture
         private Rectangle? selectionRectangle;
         private List<Point> drawingPoints = new List<Point>();
         private EditMode currentEditMode = EditMode.None;
+        private ShapeType shapeType = ShapeType.Rectangle;
+        private Color shapeColor = Colors.Red;
+        private double shapeBorderThickness = 2;
+        private bool shapeIsFilled = false;
         private Color highlightColor = Colors.Yellow;
         private double highlightThickness = 5;
         private Color textColor = Colors.Red;
@@ -33,6 +37,16 @@ namespace CatchCapture
         private string textFontFamily = "Arial";
         private bool textShadowEnabled = false;
         private bool textUnderlineEnabled = false;
+        private UIElement? tempShape;
+        
+        // 도형 버튼을 멤버 변수로 선언
+        private Button? rectButton;
+        private Button? ellipseButton;
+        private Button? lineButton;
+        private Button? arrowButton;
+
+        private bool isDrawingShape = false;
+        private bool shapeDrawingStarted = false;
 
         public event EventHandler<ImageUpdatedEventArgs>? ImageUpdated;
 
@@ -94,17 +108,30 @@ namespace CatchCapture
             currentEditMode = EditMode.None;
             
             // 선택 영역 제거
-            if (selectionRectangle != null)
+            if (selectionRectangle != null && ImageCanvas != null)
             {
                 ImageCanvas.Children.Remove(selectionRectangle);
                 selectionRectangle = null;
             }
             
+            // 임시 도형 제거
+            if (tempShape != null && ImageCanvas != null)
+            {
+                ImageCanvas.Children.Remove(tempShape);
+                tempShape = null;
+            }
+            
             // 도구 패널 숨김
-            EditToolPanel.Visibility = Visibility.Collapsed;
+            if (EditToolPanel != null)
+            {
+                EditToolPanel.Visibility = Visibility.Collapsed;
+            }
             
             // 마우스 커서 복원
-            ImageCanvas.Cursor = Cursors.Arrow;
+            if (ImageCanvas != null)
+            {
+                ImageCanvas.Cursor = Cursors.Arrow;
+            }
             
             // 그리기 포인트 초기화
             drawingPoints.Clear();
@@ -114,7 +141,30 @@ namespace CatchCapture
 
         private void ImageCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            startPoint = e.GetPosition(ImageCanvas);
+            if (ImageCanvas == null) return;
+            
+            Point clickPoint = e.GetPosition(ImageCanvas);
+            
+            // 도형 모드에서의 처리
+            if (currentEditMode == EditMode.Shape)
+            {
+                // 캔버스에 임시 요소가 있다면 먼저 제거
+                if (tempShape != null)
+                {
+                    ImageCanvas.Children.Remove(tempShape);
+                    tempShape = null;
+                }
+                
+                // 새 그리기 시작 - 모든 상태 초기화
+                isDrawingShape = true;
+                shapeDrawingStarted = false;
+                startPoint = clickPoint;
+                e.Handled = true;
+                return;
+            }
+            
+            // 다른 모드 처리
+            startPoint = clickPoint;
             
             switch (currentEditMode)
             {
@@ -138,10 +188,45 @@ namespace CatchCapture
 
         private void ImageCanvas_MouseMove(object sender, MouseEventArgs e)
         {
+            // 왼쪽 버튼이 눌려 있지 않으면 아무것도 하지 않음
             if (e.LeftButton != MouseButtonState.Pressed) return;
             
+            // 현재 마우스 위치
             Point currentPoint = e.GetPosition(ImageCanvas);
             
+            // 도형 그리기 처리
+            if (currentEditMode == EditMode.Shape && isDrawingShape)
+            {
+                // 이전 임시 도형이 있으면 제거
+                if (tempShape != null && ImageCanvas != null)
+                {
+                    ImageCanvas.Children.Remove(tempShape);
+                    tempShape = null;
+                }
+                
+                // 최소 크기 확인 (너무 작은 움직임은 무시)
+                double width = Math.Abs(currentPoint.X - startPoint.X);
+                double height = Math.Abs(currentPoint.Y - startPoint.Y);
+                
+                if (width < 5 && height < 5)
+                {
+                    return;
+                }
+                
+                // 도형 생성 및 캔버스에 추가
+                CreateTemporaryShape(startPoint, currentPoint);
+                
+                // 유효한 도형이 생성되었을 때만 그리기 시작 상태 설정
+                if (tempShape != null)
+                {
+                    shapeDrawingStarted = true;
+                }
+                
+                e.Handled = true;
+                return;
+            }
+            
+            // 다른 모드 처리
             switch (currentEditMode)
             {
                 case EditMode.Crop:
@@ -161,10 +246,23 @@ namespace CatchCapture
 
         private void ImageCanvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
+            // 편집 모드가 없으면 아무것도 하지 않음
             if (currentEditMode == EditMode.None) return;
             
+            // 마우스를 뗀 위치
             Point endPoint = e.GetPosition(ImageCanvas);
             
+            // 도형 그리기 완료
+            if (currentEditMode == EditMode.Shape && isDrawingShape && shapeDrawingStarted)
+            {
+                ApplyTemporaryShape(endPoint);
+                isDrawingShape = false;
+                shapeDrawingStarted = false;
+                e.Handled = true;
+                return;
+            }
+            
+            // 다른 모드 처리
             switch (currentEditMode)
             {
                 case EditMode.Crop:
@@ -274,6 +372,31 @@ namespace CatchCapture
             SaveForUndo();
             currentImage = ImageEditUtility.FlipImage(currentImage, false);
             UpdatePreviewImage();
+        }
+
+        private void ShapeButton_Click(object sender, RoutedEventArgs e)
+        {
+            // 현재 편집 모드 취소 (이미 구현된 함수 사용)
+            CancelCurrentEditMode();
+            
+            // 도형 그리기 모드 설정
+            currentEditMode = EditMode.Shape;
+            ImageCanvas.Cursor = Cursors.Cross;
+            
+            // 임시 도형 요소가 있다면 제거
+            if (tempShape != null && ImageCanvas != null)
+            {
+                ImageCanvas.Children.Remove(tempShape);
+                tempShape = null;
+            }
+            
+            // 그리기 상태 변수 초기화
+            isDrawingShape = false;
+            shapeDrawingStarted = false;
+            startPoint = new Point(0, 0);
+            
+            // 도형 옵션 패널 표시
+            ShowShapeOptions();
         }
 
         private void HighlightButton_Click(object? sender, RoutedEventArgs? e)
@@ -626,6 +749,191 @@ namespace CatchCapture
             drawingPoints.Clear();
         }
 
+        private void CreateTemporaryShape(Point start, Point current)
+        {
+            if (ImageCanvas == null) return;
+
+            double left = Math.Min(start.X, current.X);
+            double top = Math.Min(start.Y, current.Y);
+            double width = Math.Abs(current.X - start.X);
+            double height = Math.Abs(current.Y - start.Y);
+            
+            // 도형 유형에 따라 다른 도형 생성
+            switch (shapeType)
+            {
+                case ShapeType.Rectangle:
+                    var rectangle = new Rectangle
+                    {
+                        Stroke = new SolidColorBrush(shapeColor),
+                        StrokeThickness = shapeBorderThickness
+                    };
+                    
+                    if (shapeIsFilled)
+                    {
+                        rectangle.Fill = new SolidColorBrush(Color.FromArgb(128, shapeColor.R, shapeColor.G, shapeColor.B));
+                    }
+                    
+                    Canvas.SetLeft(rectangle, left);
+                    Canvas.SetTop(rectangle, top);
+                    rectangle.Width = width;
+                    rectangle.Height = height;
+                    
+                    tempShape = rectangle;
+                    break;
+                    
+                case ShapeType.Ellipse:
+                    var ellipse = new Ellipse
+                    {
+                        Stroke = new SolidColorBrush(shapeColor),
+                        StrokeThickness = shapeBorderThickness
+                    };
+                    
+                    if (shapeIsFilled)
+                    {
+                        ellipse.Fill = new SolidColorBrush(Color.FromArgb(128, shapeColor.R, shapeColor.G, shapeColor.B));
+                    }
+                    
+                    Canvas.SetLeft(ellipse, left);
+                    Canvas.SetTop(ellipse, top);
+                    ellipse.Width = width;
+                    ellipse.Height = height;
+                    
+                    tempShape = ellipse;
+                    break;
+                    
+                case ShapeType.Line:
+                    var line = new Line
+                    {
+                        X1 = start.X,
+                        Y1 = start.Y,
+                        X2 = current.X,
+                        Y2 = current.Y,
+                        Stroke = new SolidColorBrush(shapeColor),
+                        StrokeThickness = shapeBorderThickness,
+                        StrokeStartLineCap = PenLineCap.Round,
+                        StrokeEndLineCap = PenLineCap.Round
+                    };
+                    
+                    tempShape = line;
+                    break;
+                    
+                case ShapeType.Arrow:
+                    var arrow = CreateArrow(start, current);
+                    tempShape = arrow;
+                    break;
+            }
+            
+            // 임시 도형을 캔버스에 추가
+            if (tempShape != null && ImageCanvas != null)
+            {
+                ImageCanvas.Children.Add(tempShape);
+            }
+        }
+
+        private void ApplyTemporaryShape(Point endPoint)
+        {
+            // 임시 도형이 없으면 아무것도 하지 않음
+            if (tempShape == null) return;
+            
+            // 크기 확인
+            double width = Math.Abs(endPoint.X - startPoint.X);
+            double height = Math.Abs(endPoint.Y - startPoint.Y);
+            
+            // 너무 작은 도형은 무시 (선과 화살표 제외)
+            if ((width < 5 && height < 5) && (shapeType != ShapeType.Line && shapeType != ShapeType.Arrow))
+            {
+                if (ImageCanvas != null && tempShape != null)
+                {
+                    ImageCanvas.Children.Remove(tempShape);
+                }
+                tempShape = null;
+                isDrawingShape = false;
+                shapeDrawingStarted = false;
+                return;
+            }
+            
+            try
+            {
+                // 모든 임시 도형 요소를 제거하고 상태 초기화
+                if (ImageCanvas != null && tempShape != null)
+                {
+                    ImageCanvas.Children.Remove(tempShape);
+                }
+                tempShape = null;
+                
+                // 도형을 이미지에 적용
+                SaveForUndo();
+                currentImage = ImageEditUtility.ApplyShape(
+                    currentImage,
+                    startPoint,
+                    endPoint,
+                    shapeType,
+                    shapeColor,
+                    shapeBorderThickness,
+                    shapeIsFilled
+                );
+                UpdatePreviewImage();
+                
+                // 상태 초기화
+                isDrawingShape = false;
+                shapeDrawingStarted = false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"도형 적용 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                // 도형 그리기 모드 유지
+                currentEditMode = EditMode.Shape;
+                ImageCanvas.Cursor = Cursors.Cross;
+            }
+        }
+
+        private Path CreateArrow(Point start, Point end)
+        {
+            double arrowLength = Math.Sqrt(Math.Pow(end.X - start.X, 2) + Math.Pow(end.Y - start.Y, 2));
+            double arrowHeadWidth = Math.Min(10, arrowLength / 3); // 화살표 머리 너비 조정
+            
+            // 화살표 각도 계산
+            double angle = Math.Atan2(end.Y - start.Y, end.X - start.X);
+            double arrowHeadAngle1 = angle + Math.PI / 6; // 30도
+            double arrowHeadAngle2 = angle - Math.PI / 6; // -30도
+            
+            // 화살표 머리 끝점 계산
+            Point arrowHead1 = new Point(
+                end.X - arrowHeadWidth * Math.Cos(arrowHeadAngle1),
+                end.Y - arrowHeadWidth * Math.Sin(arrowHeadAngle1));
+                
+            Point arrowHead2 = new Point(
+                end.X - arrowHeadWidth * Math.Cos(arrowHeadAngle2),
+                end.Y - arrowHeadWidth * Math.Sin(arrowHeadAngle2));
+            
+            // 경로 생성
+            var pathGeometry = new PathGeometry();
+            var pathFigure = new PathFigure { StartPoint = start };
+            
+            // 선 추가
+            pathFigure.Segments.Add(new LineSegment(end, true));
+            
+            // 화살표 머리 추가
+            pathFigure.Segments.Add(new LineSegment(arrowHead1, true));
+            pathFigure.Segments.Add(new LineSegment(end, true));
+            pathFigure.Segments.Add(new LineSegment(arrowHead2, true));
+            
+            pathGeometry.Figures.Add(pathFigure);
+            
+            // Path 생성 및 반환
+            var path = new Path
+            {
+                Data = pathGeometry,
+                Stroke = new SolidColorBrush(shapeColor),
+                StrokeThickness = shapeBorderThickness
+            };
+            
+            return path;
+        }
+
         #endregion
 
         #region 도구 옵션 패널
@@ -965,6 +1273,214 @@ namespace CatchCapture
             EditToolPanel.Visibility = Visibility.Visible;
         }
 
+        private void ShowShapeOptions()
+        {
+            // 패널 제목 설정
+            ToolTitleText.Text = "도형 도구 옵션";
+            
+            EditToolContent.Children.Clear();
+            
+            // 도형 유형 선택
+            Border typeLabelWrapper = new Border { Margin = new Thickness(0, 0, 5, 0), VerticalAlignment = VerticalAlignment.Center };
+            TextBlock typeLabel = new TextBlock { Text = "도형 유형:", VerticalAlignment = VerticalAlignment.Center };
+            typeLabelWrapper.Child = typeLabel;
+            EditToolContent.Children.Add(typeLabelWrapper);
+            
+            StackPanel shapeTypesPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 10, 0) };
+            
+            // 사각형 버튼
+            rectButton = new Button 
+            { 
+                Content = "□",
+                FontSize = 16,
+                Width = 26, 
+                Height = 26, 
+                Margin = new Thickness(2, 0, 2, 0),
+                Background = shapeType == ShapeType.Rectangle ? Brushes.LightBlue : Brushes.Transparent,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalContentAlignment = HorizontalAlignment.Center,
+                VerticalContentAlignment = VerticalAlignment.Center,
+                Padding = new Thickness(0, -3, 0, 0) // 상하 중앙 정렬 조정
+            };
+            
+            rectButton.Click += (s, e) => {
+                shapeType = ShapeType.Rectangle;
+                UpdateShapeTypeButtons();
+            };
+            shapeTypesPanel.Children.Add(rectButton);
+            
+            // 타원 버튼
+            ellipseButton = new Button 
+            { 
+                Content = "○",
+                FontSize = 16,
+                Width = 26, 
+                Height = 26, 
+                Margin = new Thickness(2, 0, 2, 0),
+                Background = shapeType == ShapeType.Ellipse ? Brushes.LightBlue : Brushes.Transparent,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalContentAlignment = HorizontalAlignment.Center,
+                VerticalContentAlignment = VerticalAlignment.Center,
+                Padding = new Thickness(0, -3, 0, 0) // 상하 중앙 정렬 조정
+            };
+            
+            ellipseButton.Click += (s, e) => {
+                shapeType = ShapeType.Ellipse;
+                UpdateShapeTypeButtons();
+            };
+            shapeTypesPanel.Children.Add(ellipseButton);
+            
+            // 선 버튼
+            lineButton = new Button 
+            { 
+                Content = "−",
+                FontSize = 16,
+                Width = 26, 
+                Height = 26, 
+                Margin = new Thickness(2, 0, 2, 0),
+                Background = shapeType == ShapeType.Line ? Brushes.LightBlue : Brushes.Transparent,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalContentAlignment = HorizontalAlignment.Center,
+                VerticalContentAlignment = VerticalAlignment.Center,
+                Padding = new Thickness(0, -3, 0, 0) // 상하 중앙 정렬 조정
+            };
+            
+            lineButton.Click += (s, e) => {
+                shapeType = ShapeType.Line;
+                UpdateShapeTypeButtons();
+            };
+            shapeTypesPanel.Children.Add(lineButton);
+            
+            // 화살표 버튼
+            arrowButton = new Button 
+            { 
+                Content = "→",
+                FontSize = 16,
+                Width = 26, 
+                Height = 26, 
+                Margin = new Thickness(2, 0, 2, 0),
+                Background = shapeType == ShapeType.Arrow ? Brushes.LightBlue : Brushes.Transparent,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalContentAlignment = HorizontalAlignment.Center,
+                VerticalContentAlignment = VerticalAlignment.Center,
+                Padding = new Thickness(0, -3, 0, 0) // 상하 중앙 정렬 조정
+            };
+            
+            arrowButton.Click += (s, e) => {
+                shapeType = ShapeType.Arrow;
+                UpdateShapeTypeButtons();
+            };
+            shapeTypesPanel.Children.Add(arrowButton);
+            
+            EditToolContent.Children.Add(shapeTypesPanel);
+            
+            // 구분선 추가
+            EditToolContent.Children.Add(new Separator { Margin = new Thickness(5, 0, 5, 0), Width = 1, Height = 20 });
+            
+            // 색상 선택
+            Border colorLabelWrapper = new Border { Margin = new Thickness(5, 0, 5, 0), VerticalAlignment = VerticalAlignment.Center };
+            TextBlock colorLabel = new TextBlock { Text = "색상:", VerticalAlignment = VerticalAlignment.Center };
+            colorLabelWrapper.Child = colorLabel;
+            EditToolContent.Children.Add(colorLabelWrapper);
+            
+            StackPanel colorPanel = new StackPanel { Orientation = Orientation.Horizontal };
+            
+            Color[] colors = new Color[] 
+            { 
+                Colors.Black, Colors.Red, Colors.Blue, Colors.Green, 
+                Colors.Yellow, Colors.Orange, Colors.Purple, Colors.White 
+            };
+            
+            foreach (Color color in colors)
+            {
+                Border colorBorder = new Border
+                {
+                    Width = 18,
+                    Height = 18,
+                    Background = new SolidColorBrush(color),
+                    BorderBrush = color.Equals(shapeColor) ? Brushes.Black : Brushes.Transparent,
+                    BorderThickness = new Thickness(2),
+                    Margin = new Thickness(3, 0, 0, 0),
+                    CornerRadius = new CornerRadius(2)
+                };
+                
+                colorBorder.MouseLeftButtonDown += (s, e) =>
+                {
+                    shapeColor = color;
+                    foreach (UIElement element in colorPanel.Children)
+                    {
+                        if (element is Border border)
+                        {
+                            border.BorderBrush = border == s ? Brushes.Black : Brushes.Transparent;
+                        }
+                    }
+                };
+                
+                colorPanel.Children.Add(colorBorder);
+            }
+            
+            EditToolContent.Children.Add(colorPanel);
+            
+            // 구분선 추가
+            EditToolContent.Children.Add(new Separator { Margin = new Thickness(5, 0, 5, 0), Width = 1, Height = 20 });
+            
+            // 두께 선택
+            Border thicknessLabelWrapper = new Border { Margin = new Thickness(5, 0, 5, 0), VerticalAlignment = VerticalAlignment.Center };
+            TextBlock thicknessLabel = new TextBlock { Text = "두께:", VerticalAlignment = VerticalAlignment.Center };
+            thicknessLabelWrapper.Child = thicknessLabel;
+            EditToolContent.Children.Add(thicknessLabelWrapper);
+            
+            Slider thicknessSlider = new Slider
+            {
+                Minimum = 1,
+                Maximum = 10,
+                Value = shapeBorderThickness,
+                Width = 100,
+                IsSnapToTickEnabled = true,
+                TickFrequency = 1,
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(5, 0, 5, 0)
+            };
+            
+            thicknessSlider.ValueChanged += (s, e) =>
+            {
+                shapeBorderThickness = thicknessSlider.Value;
+            };
+            
+            EditToolContent.Children.Add(thicknessSlider);
+            
+            // 채우기 옵션
+            CheckBox fillCheckBox = new CheckBox
+            {
+                Content = "채우기",
+                IsChecked = shapeIsFilled,
+                Margin = new Thickness(5, 0, 0, 0),
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            
+            fillCheckBox.Checked += (s, e) => { shapeIsFilled = true; };
+            fillCheckBox.Unchecked += (s, e) => { shapeIsFilled = false; };
+            
+            EditToolContent.Children.Add(fillCheckBox);
+            
+            EditToolPanel.Visibility = Visibility.Visible;
+        }
+        
+        private void UpdateShapeTypeButtons()
+        {
+            if (rectButton != null)
+                rectButton.Background = shapeType == ShapeType.Rectangle ? Brushes.LightBlue : Brushes.Transparent;
+            
+            if (ellipseButton != null)
+                ellipseButton.Background = shapeType == ShapeType.Ellipse ? Brushes.LightBlue : Brushes.Transparent;
+            
+            if (lineButton != null)
+                lineButton.Background = shapeType == ShapeType.Line ? Brushes.LightBlue : Brushes.Transparent;
+            
+            if (arrowButton != null)
+                arrowButton.Background = shapeType == ShapeType.Arrow ? Brushes.LightBlue : Brushes.Transparent;
+        }
+
         #endregion
 
         #region 유틸리티 메서드
@@ -984,6 +1500,19 @@ namespace CatchCapture
 
         private void UpdatePreviewImage()
         {
+            if (PreviewImage == null || ImageCanvas == null) return;
+            
+            // 이미지 캔버스의 모든 임시 도형 요소 제거 (도형 그리기 모드일 때만)
+            if (currentEditMode == EditMode.Shape)
+            {
+                // 임시 도형 요소 제거
+                if (tempShape != null)
+                {
+                    ImageCanvas.Children.Remove(tempShape);
+                    tempShape = null;
+                }
+            }
+            
             PreviewImage.Source = currentImage;
             PreviewImage.Width = currentImage.PixelWidth;
             PreviewImage.Height = currentImage.PixelHeight;
@@ -1017,6 +1546,7 @@ namespace CatchCapture
         Highlight,
         Text,
         Mosaic,
-        Eraser
+        Eraser,
+        Shape
     }
 } 
