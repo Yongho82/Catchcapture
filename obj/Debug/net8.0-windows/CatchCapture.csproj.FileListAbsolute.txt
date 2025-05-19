@@ -105,3 +105,4 @@ C:\yonghoprogram\Multicapture\obj\Debug\net8.0-windows\CatchCapture.pdb
 C:\yonghoprogram\Multicapture\obj\Debug\net8.0-windows\CatchCapture.genruntimeconfig.cache
 C:\yonghoprogram\Multicapture\obj\Debug\net8.0-windows\ref\CatchCapture.dll
 C:\yonghoprogram\Multicapture\bin\Debug\net8.0-windows\icons\shape.png
+C:\yonghoprogram\Multicapture\bin\Debug\net8.0-windows\icons\camera.png
