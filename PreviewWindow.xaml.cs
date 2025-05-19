@@ -8,11 +8,14 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Microsoft.Win32;
+using System.Diagnostics;
+using System.IO;
 
 namespace CatchCapture
 {
     public partial class PreviewWindow : Window
     {
+        // 도형 관련 변수 정리
         private BitmapSource originalImage;
         private BitmapSource currentImage;
         private int imageIndex;
@@ -46,13 +49,28 @@ namespace CatchCapture
         private Button? arrowButton;
 
         private bool isDrawingShape = false;
-        private bool shapeDrawingStarted = false;
+        private bool isDragStarted = false; // 마우스 드래그가 시작되었는지
+
+        // 로그 파일 경로
+        private string logFilePath = "shape_debug.log";
 
         public event EventHandler<ImageUpdatedEventArgs>? ImageUpdated;
 
         public PreviewWindow(BitmapSource image, int index)
         {
             InitializeComponent();
+
+            // 로그 파일 초기화
+            try 
+            {
+                File.WriteAllText(logFilePath, $"===== 로그 시작: {DateTime.Now} =====\r\n");
+            }
+            catch (Exception ex) 
+            {
+                Debug.WriteLine($"로그 파일 생성 실패: {ex.Message}");
+            }
+            
+            WriteLog("PreviewWindow 생성됨");
 
             originalImage = image;
             currentImage = image;
@@ -104,37 +122,42 @@ namespace CatchCapture
 
         private void CancelCurrentEditMode()
         {
+            WriteLog($"CancelCurrentEditMode 호출: 이전 모드={currentEditMode}, tempShape={tempShape != null}");
+            
             // 현재 편집 모드 취소
             currentEditMode = EditMode.None;
             
             // 선택 영역 제거
             if (selectionRectangle != null && ImageCanvas != null)
             {
+                WriteLog("선택 영역 제거");
                 ImageCanvas.Children.Remove(selectionRectangle);
                 selectionRectangle = null;
             }
             
-            // 임시 도형 제거
-            if (tempShape != null && ImageCanvas != null)
-            {
-                ImageCanvas.Children.Remove(tempShape);
-                tempShape = null;
-            }
+            // 임시 도형 정리 - 헬퍼 메서드 호출
+            WriteLog("CancelCurrentEditMode에서 CleanupTemporaryShape 호출");
+            CleanupTemporaryShape();
             
             // 도구 패널 숨김
             if (EditToolPanel != null)
             {
+                WriteLog("도구 패널 숨김");
                 EditToolPanel.Visibility = Visibility.Collapsed;
             }
             
             // 마우스 커서 복원
             if (ImageCanvas != null)
             {
+                WriteLog("마우스 커서 복원: Arrow");
                 ImageCanvas.Cursor = Cursors.Arrow;
             }
             
             // 그리기 포인트 초기화
             drawingPoints.Clear();
+            isDrawingShape = false;
+            isDragStarted = false;
+            WriteLog("그리기 상태 초기화: isDrawingShape=false, isDragStarted=false");
         }
 
         #region 이벤트 핸들러
@@ -144,21 +167,17 @@ namespace CatchCapture
             if (ImageCanvas == null) return;
             
             Point clickPoint = e.GetPosition(ImageCanvas);
+            WriteLog($"MouseDown: 위치({clickPoint.X:F1}, {clickPoint.Y:F1}), 편집모드={currentEditMode}, isDrawingShape={isDrawingShape}");
             
             // 도형 모드에서의 처리
             if (currentEditMode == EditMode.Shape)
             {
-                // 캔버스에 임시 요소가 있다면 먼저 제거
-                if (tempShape != null)
-                {
-                    ImageCanvas.Children.Remove(tempShape);
-                    tempShape = null;
-                }
-                
-                // 새 그리기 시작 - 모든 상태 초기화
-                isDrawingShape = true;
-                shapeDrawingStarted = false;
+                // 클릭 위치 저장
                 startPoint = clickPoint;
+                // 드래그는 아직 시작되지 않음
+                isDragStarted = false;
+                isDrawingShape = true;
+                WriteLog($"도형 그리기 대기: 시작점({startPoint.X:F1}, {startPoint.Y:F1}), 도형타입={shapeType}");
                 e.Handled = true;
                 return;
             }
@@ -197,32 +216,52 @@ namespace CatchCapture
             // 도형 그리기 처리
             if (currentEditMode == EditMode.Shape && isDrawingShape)
             {
-                // 이전 임시 도형이 있으면 제거
-                if (tempShape != null && ImageCanvas != null)
+                // 드래그 거리 계산
+                double dragDistance = Math.Sqrt(
+                    Math.Pow(currentPoint.X - startPoint.X, 2) + 
+                    Math.Pow(currentPoint.Y - startPoint.Y, 2));
+                
+                // 드래그가 시작되지 않았고, 거리가 충분하면 드래그 시작
+                if (!isDragStarted && dragDistance > 5)
                 {
-                    ImageCanvas.Children.Remove(tempShape);
+                    isDragStarted = true;
+                    WriteLog($"드래그 시작 감지: 거리={dragDistance:F1}");
+                }
+                
+                // 이미 드래그가 시작되었다면 도형 그리기
+                if (isDragStarted)
+                {
+                    WriteLog($"MouseMove(도형): 위치({currentPoint.X:F1}, {currentPoint.Y:F1}), tempShape={tempShape != null}");
+                    
+                    // 이전 임시 도형 모두 제거
+                    List<UIElement> elementsToRemove = new List<UIElement>();
+                    foreach (UIElement element in ImageCanvas.Children)
+                    {
+                        if (element == tempShape)
+                        {
+                            elementsToRemove.Add(element);
+                            WriteLog("기존 tempShape를 제거 대상으로 추가");
+                        }
+                    }
+                    
+                    foreach (UIElement element in elementsToRemove)
+                    {
+                        ImageCanvas.Children.Remove(element);
+                        WriteLog("tempShape 제거됨");
+                    }
+                    
                     tempShape = null;
+                    
+                    // 임시 도형 새로 생성
+                    tempShape = CreateShape(startPoint, currentPoint);
+                    if (tempShape != null)
+                    {
+                        ImageCanvas.Children.Add(tempShape);
+                        WriteLog($"임시 도형 생성 및 추가됨: 타입={tempShape.GetType().Name}, 크기({Math.Abs(currentPoint.X - startPoint.X):F1}x{Math.Abs(currentPoint.Y - startPoint.Y):F1})");
+                    }
+                    
+                    e.Handled = true;
                 }
-                
-                // 최소 크기 확인 (너무 작은 움직임은 무시)
-                double width = Math.Abs(currentPoint.X - startPoint.X);
-                double height = Math.Abs(currentPoint.Y - startPoint.Y);
-                
-                if (width < 5 && height < 5)
-                {
-                    return;
-                }
-                
-                // 도형 생성 및 캔버스에 추가
-                CreateTemporaryShape(startPoint, currentPoint);
-                
-                // 유효한 도형이 생성되었을 때만 그리기 시작 상태 설정
-                if (tempShape != null)
-                {
-                    shapeDrawingStarted = true;
-                }
-                
-                e.Handled = true;
                 return;
             }
             
@@ -251,13 +290,33 @@ namespace CatchCapture
             
             // 마우스를 뗀 위치
             Point endPoint = e.GetPosition(ImageCanvas);
+            WriteLog($"MouseUp: 위치({endPoint.X:F1}, {endPoint.Y:F1}), 편집모드={currentEditMode}, isDrawingShape={isDrawingShape}, isDragStarted={isDragStarted}");
             
             // 도형 그리기 완료
-            if (currentEditMode == EditMode.Shape && isDrawingShape && shapeDrawingStarted)
+            if (currentEditMode == EditMode.Shape && isDrawingShape)
             {
-                ApplyTemporaryShape(endPoint);
+                // 드래그한 경우에만 도형 적용
+                if (isDragStarted)
+                {
+                    WriteLog($"도형 그리기 완료 시도: tempShape={tempShape != null}");
+                    ApplyShape(endPoint);
+                }
+                else
+                {
+                    // 클릭만 한 경우(드래그 없음)
+                    WriteLog("드래그 없이 클릭만 감지됨. 도형 그리기 취소");
+                    
+                    // 기존에 생성된 임시 도형이 있다면 유지
+                    if (tempShape != null)
+                    {
+                        WriteLog("기존 tempShape 유지");
+                    }
+                }
+                
+                // 상태 초기화
                 isDrawingShape = false;
-                shapeDrawingStarted = false;
+                isDragStarted = false;
+                
                 e.Handled = true;
                 return;
             }
@@ -376,27 +435,22 @@ namespace CatchCapture
 
         private void ShapeButton_Click(object sender, RoutedEventArgs e)
         {
-            // 현재 편집 모드 취소 (이미 구현된 함수 사용)
+            WriteLog("ShapeButton_Click 호출");
+            // 현재 편집 모드 취소
             CancelCurrentEditMode();
             
             // 도형 그리기 모드 설정
             currentEditMode = EditMode.Shape;
             ImageCanvas.Cursor = Cursors.Cross;
+            WriteLog("도형 그리기 모드 설정: EditMode.Shape");
             
-            // 임시 도형 요소가 있다면 제거
-            if (tempShape != null && ImageCanvas != null)
-            {
-                ImageCanvas.Children.Remove(tempShape);
-                tempShape = null;
-            }
-            
-            // 그리기 상태 변수 초기화
+            // 상태 초기화
             isDrawingShape = false;
-            shapeDrawingStarted = false;
-            startPoint = new Point(0, 0);
+            isDragStarted = false;
             
             // 도형 옵션 패널 표시
             ShowShapeOptions();
+            WriteLog("도형 옵션 패널 표시됨");
         }
 
         private void HighlightButton_Click(object? sender, RoutedEventArgs? e)
@@ -749,56 +803,53 @@ namespace CatchCapture
             drawingPoints.Clear();
         }
 
-        private void CreateTemporaryShape(Point start, Point current)
+        private UIElement? CreateShape(Point start, Point current)
         {
-            if (ImageCanvas == null) return;
+            if (ImageCanvas == null) return null;
+            
+            WriteLog($"CreateShape: 시작({start.X:F1}, {start.Y:F1}), 현재({current.X:F1}, {current.Y:F1}), 도형타입={shapeType}");
 
             double left = Math.Min(start.X, current.X);
             double top = Math.Min(start.Y, current.Y);
             double width = Math.Abs(current.X - start.X);
             double height = Math.Abs(current.Y - start.Y);
             
-            // 도형 유형에 따라 다른 도형 생성
+            // 도형 유형에 따라 다른 도형 생성 - 단순화
+            UIElement? result = null;
             switch (shapeType)
             {
                 case ShapeType.Rectangle:
                     var rectangle = new Rectangle
                     {
                         Stroke = new SolidColorBrush(shapeColor),
-                        StrokeThickness = shapeBorderThickness
+                        StrokeThickness = shapeBorderThickness,
+                        Fill = shapeIsFilled ? new SolidColorBrush(Color.FromArgb(128, shapeColor.R, shapeColor.G, shapeColor.B)) : null
                     };
-                    
-                    if (shapeIsFilled)
-                    {
-                        rectangle.Fill = new SolidColorBrush(Color.FromArgb(128, shapeColor.R, shapeColor.G, shapeColor.B));
-                    }
                     
                     Canvas.SetLeft(rectangle, left);
                     Canvas.SetTop(rectangle, top);
                     rectangle.Width = width;
                     rectangle.Height = height;
                     
-                    tempShape = rectangle;
+                    result = rectangle;
+                    WriteLog($"사각형 생성됨: 위치({left:F1}, {top:F1}), 크기({width:F1}x{height:F1})");
                     break;
                     
                 case ShapeType.Ellipse:
                     var ellipse = new Ellipse
                     {
                         Stroke = new SolidColorBrush(shapeColor),
-                        StrokeThickness = shapeBorderThickness
+                        StrokeThickness = shapeBorderThickness,
+                        Fill = shapeIsFilled ? new SolidColorBrush(Color.FromArgb(128, shapeColor.R, shapeColor.G, shapeColor.B)) : null
                     };
-                    
-                    if (shapeIsFilled)
-                    {
-                        ellipse.Fill = new SolidColorBrush(Color.FromArgb(128, shapeColor.R, shapeColor.G, shapeColor.B));
-                    }
                     
                     Canvas.SetLeft(ellipse, left);
                     Canvas.SetTop(ellipse, top);
                     ellipse.Width = width;
                     ellipse.Height = height;
                     
-                    tempShape = ellipse;
+                    result = ellipse;
+                    WriteLog($"타원 생성됨: 위치({left:F1}, {top:F1}), 크기({width:F1}x{height:F1})");
                     break;
                     
                 case ShapeType.Line:
@@ -814,83 +865,24 @@ namespace CatchCapture
                         StrokeEndLineCap = PenLineCap.Round
                     };
                     
-                    tempShape = line;
+                    result = line;
+                    WriteLog($"선 생성됨: 시작({start.X:F1}, {start.Y:F1}), 끝({current.X:F1}, {current.Y:F1})");
                     break;
                     
                 case ShapeType.Arrow:
-                    var arrow = CreateArrow(start, current);
-                    tempShape = arrow;
+                    result = CreateArrow(start, current);
+                    WriteLog($"화살표 생성됨: 시작({start.X:F1}, {start.Y:F1}), 끝({current.X:F1}, {current.Y:F1})");
                     break;
+                    
+                default:
+                    WriteLog("알 수 없는 도형 타입");
+                    return null;
             }
             
-            // 임시 도형을 캔버스에 추가
-            if (tempShape != null && ImageCanvas != null)
-            {
-                ImageCanvas.Children.Add(tempShape);
-            }
+            return result;
         }
 
-        private void ApplyTemporaryShape(Point endPoint)
-        {
-            // 임시 도형이 없으면 아무것도 하지 않음
-            if (tempShape == null) return;
-            
-            // 크기 확인
-            double width = Math.Abs(endPoint.X - startPoint.X);
-            double height = Math.Abs(endPoint.Y - startPoint.Y);
-            
-            // 너무 작은 도형은 무시 (선과 화살표 제외)
-            if ((width < 5 && height < 5) && (shapeType != ShapeType.Line && shapeType != ShapeType.Arrow))
-            {
-                if (ImageCanvas != null && tempShape != null)
-                {
-                    ImageCanvas.Children.Remove(tempShape);
-                }
-                tempShape = null;
-                isDrawingShape = false;
-                shapeDrawingStarted = false;
-                return;
-            }
-            
-            try
-            {
-                // 모든 임시 도형 요소를 제거하고 상태 초기화
-                if (ImageCanvas != null && tempShape != null)
-                {
-                    ImageCanvas.Children.Remove(tempShape);
-                }
-                tempShape = null;
-                
-                // 도형을 이미지에 적용
-                SaveForUndo();
-                currentImage = ImageEditUtility.ApplyShape(
-                    currentImage,
-                    startPoint,
-                    endPoint,
-                    shapeType,
-                    shapeColor,
-                    shapeBorderThickness,
-                    shapeIsFilled
-                );
-                UpdatePreviewImage();
-                
-                // 상태 초기화
-                isDrawingShape = false;
-                shapeDrawingStarted = false;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"도형 적용 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            finally
-            {
-                // 도형 그리기 모드 유지
-                currentEditMode = EditMode.Shape;
-                ImageCanvas.Cursor = Cursors.Cross;
-            }
-        }
-
-        private Path CreateArrow(Point start, Point end)
+        private System.Windows.Shapes.Path CreateArrow(Point start, Point end)
         {
             double arrowLength = Math.Sqrt(Math.Pow(end.X - start.X, 2) + Math.Pow(end.Y - start.Y, 2));
             double arrowHeadWidth = Math.Min(10, arrowLength / 3); // 화살표 머리 너비 조정
@@ -924,7 +916,7 @@ namespace CatchCapture
             pathGeometry.Figures.Add(pathFigure);
             
             // Path 생성 및 반환
-            var path = new Path
+            var path = new System.Windows.Shapes.Path
             {
                 Data = pathGeometry,
                 Stroke = new SolidColorBrush(shapeColor),
@@ -932,6 +924,81 @@ namespace CatchCapture
             };
             
             return path;
+        }
+
+        private void ApplyShape(Point endPoint)
+        {
+            WriteLog($"ApplyShape 시작: 끝점({endPoint.X:F1}, {endPoint.Y:F1}), tempShape={tempShape != null}");
+            
+            // 임시 도형 없이 바로 이미지에 도형 적용
+            double width = Math.Abs(endPoint.X - startPoint.X);
+            double height = Math.Abs(endPoint.Y - startPoint.Y);
+            WriteLog($"도형 크기: 너비={width:F1}, 높이={height:F1}, 도형타입={shapeType}");
+            
+            try
+            {
+                // 도형을 이미지에 적용
+                WriteLog("SaveForUndo 호출 및 도형 적용 시작");
+                SaveForUndo();
+                currentImage = ImageEditUtility.ApplyShape(
+                    currentImage,
+                    startPoint,
+                    endPoint,
+                    shapeType,
+                    shapeColor,
+                    shapeBorderThickness,
+                    shapeIsFilled
+                );
+                WriteLog("도형이 이미지에 성공적으로 적용됨");
+                
+                // 이미지 업데이트 및 임시 도형 정리
+                WriteLog("임시 도형 정리 및 이미지 업데이트 시작");
+                CleanupTemporaryShape();
+                
+                // 자식 요소 수를 로그로 기록
+                int childCount = ImageCanvas.Children.Count;
+                WriteLog($"UpdatePreviewImage 전 ImageCanvas.Children.Count={childCount}");
+                
+                UpdatePreviewImage();
+                
+                // 도형 그리기 모드 유지
+                currentEditMode = EditMode.Shape;
+                ImageCanvas.Cursor = Cursors.Cross;
+                WriteLog("도형 모드 유지: currentEditMode=Shape");
+            }
+            catch (Exception ex)
+            {
+                string errorMsg = $"도형 적용 중 오류가 발생했습니다: {ex.Message}";
+                WriteLog($"오류: {errorMsg}");
+                MessageBox.Show(errorMsg, "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        
+        // 임시 도형 정리 헬퍼 메서드 추가
+        private void CleanupTemporaryShape()
+        {
+            WriteLog($"CleanupTemporaryShape 호출: tempShape={tempShape != null}");
+            
+            if (tempShape != null && ImageCanvas != null)
+            {
+                try
+                {
+                    WriteLog($"tempShape 제거 시도: 타입={tempShape.GetType().Name}");
+                    ImageCanvas.Children.Remove(tempShape);
+                    WriteLog("tempShape 성공적으로 제거됨");
+                }
+                catch (Exception ex)
+                {
+                    WriteLog($"tempShape 제거 실패: {ex.Message}");
+                    // 예외 무시
+                }
+                tempShape = null;
+                WriteLog("tempShape = null 설정");
+            }
+            else
+            {
+                WriteLog("tempShape가 이미 null이거나 ImageCanvas가 null임");
+            }
         }
 
         #endregion
@@ -1500,19 +1567,18 @@ namespace CatchCapture
 
         private void UpdatePreviewImage()
         {
-            if (PreviewImage == null || ImageCanvas == null) return;
-            
-            // 이미지 캔버스의 모든 임시 도형 요소 제거 (도형 그리기 모드일 때만)
-            if (currentEditMode == EditMode.Shape)
+            WriteLog("UpdatePreviewImage 시작");
+            if (PreviewImage == null || ImageCanvas == null) 
             {
-                // 임시 도형 요소 제거
-                if (tempShape != null)
-                {
-                    ImageCanvas.Children.Remove(tempShape);
-                    tempShape = null;
-                }
+                WriteLog("UpdatePreviewImage 중단: PreviewImage 또는 ImageCanvas가 null임");
+                return;
             }
             
+            // 임시 도형 정리
+            WriteLog("UpdatePreviewImage에서 CleanupTemporaryShape 호출");
+            CleanupTemporaryShape();
+            
+            WriteLog($"이미지 소스 업데이트: {currentImage.PixelWidth}x{currentImage.PixelHeight}");
             PreviewImage.Source = currentImage;
             PreviewImage.Width = currentImage.PixelWidth;
             PreviewImage.Height = currentImage.PixelHeight;
@@ -1522,6 +1588,32 @@ namespace CatchCapture
             
             // 이미지 업데이트 이벤트 발생
             ImageUpdated?.Invoke(this, new ImageUpdatedEventArgs(imageIndex, currentImage));
+            WriteLog("UpdatePreviewImage 완료");
+            
+            // 자식 요소 갯수
+            WriteLog($"UpdatePreviewImage 완료 후 자식 요소 수: {ImageCanvas.Children.Count}");
+            var childCount = 0;
+            foreach (var child in ImageCanvas.Children)
+            {
+                childCount++;
+                WriteLog($"  - {childCount}번째 자식: {child.GetType().Name}");
+            }
+        }
+
+        // 로그 기록 헬퍼 메서드
+        private void WriteLog(string message)
+        {
+            string logMessage = $"[{DateTime.Now:HH:mm:ss.fff}] {message}";
+            Debug.WriteLine(logMessage);
+            
+            try
+            {
+                File.AppendAllText(logFilePath, logMessage + "\r\n");
+            }
+            catch
+            {
+                // 로그 저장 실패해도 계속 진행
+            }
         }
 
         #endregion
