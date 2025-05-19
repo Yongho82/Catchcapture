@@ -77,10 +77,11 @@
         
         <!-- 텍스트 렌더링 개선 스타일 -->
         <Style x:Key="ClearTextStyle" TargetType="TextBlock">
-            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
-            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
-            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="TextOptions.TextFormattingMode" Value="Ideal"/>
+            <Setter Property="TextOptions.TextRenderingMode" Value="Auto"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="UseLayoutRounding" Value="True"/>
         </Style>
     </Window.Resources>
     
@@ -108,7 +109,7 @@
             </Grid.RowDefinitions>
             
             <!-- 제목 영역 -->
-            <Border Grid.Row="0" Padding="10,2,10,2">
+            <Border Grid.Row="0" Padding="10,2,10,2" Background="Transparent" ClipToBounds="True">
                 <Grid>
                     <StackPanel Orientation="Horizontal">
                         <Image Source="/icons/simple_mode.png" Width="14" Height="14" Margin="0,0,5,0" 

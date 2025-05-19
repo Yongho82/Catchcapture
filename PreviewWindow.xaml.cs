@@ -238,7 +238,7 @@ namespace CatchCapture
                     {
                         tempShape = CreateShape(startPoint, currentPoint);
                         if (tempShape != null)
-                        {
+                {
                             ImageCanvas.Children.Add(tempShape);
                             WriteLog($"임시 도형 생성 및 추가됨: 타입={tempShape.GetType().Name}, 크기({Math.Abs(currentPoint.X - startPoint.X):F1}x{Math.Abs(currentPoint.Y - startPoint.Y):F1})");
                         }
@@ -250,7 +250,7 @@ namespace CatchCapture
                         WriteLog($"임시 도형 업데이트: 크기({Math.Abs(currentPoint.X - startPoint.X):F1}x{Math.Abs(currentPoint.Y - startPoint.Y):F1})");
                     }
                     
-                    e.Handled = true;
+                e.Handled = true;
                 }
                 return;
             }
@@ -287,7 +287,7 @@ namespace CatchCapture
             {
                 // 드래그한 경우에만 도형 적용
                 if (isDragStarted)
-                {
+            {
                     WriteLog($"도형 그리기 완료 시도: tempShape={tempShape != null}");
                     ApplyShape(endPoint);
                 }
@@ -1569,16 +1569,16 @@ namespace CatchCapture
         private void UpdateShapeTypeButtons()
         {
             if (rectButton != null)
-                rectButton.Background = shapeType == ShapeType.Rectangle ? Brushes.LightBlue : Brushes.Transparent;
+            rectButton.Background = shapeType == ShapeType.Rectangle ? Brushes.LightBlue : Brushes.Transparent;
             
             if (ellipseButton != null)
-                ellipseButton.Background = shapeType == ShapeType.Ellipse ? Brushes.LightBlue : Brushes.Transparent;
+            ellipseButton.Background = shapeType == ShapeType.Ellipse ? Brushes.LightBlue : Brushes.Transparent;
             
             if (lineButton != null)
-                lineButton.Background = shapeType == ShapeType.Line ? Brushes.LightBlue : Brushes.Transparent;
+            lineButton.Background = shapeType == ShapeType.Line ? Brushes.LightBlue : Brushes.Transparent;
             
             if (arrowButton != null)
-                arrowButton.Background = shapeType == ShapeType.Arrow ? Brushes.LightBlue : Brushes.Transparent;
+            arrowButton.Background = shapeType == ShapeType.Arrow ? Brushes.LightBlue : Brushes.Transparent;
         }
 
         #endregion

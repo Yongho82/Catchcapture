@@ -28,6 +28,7 @@ public partial class MainWindow : Window
     private Border? selectedBorder = null;
     private Settings settings;
     private SimpleModeWindow? simpleModeWindow = null;
+    private Point lastPosition;
 
     public MainWindow()
     {
@@ -39,6 +40,31 @@ public partial class MainWindow : Window
         
         // 로컬 단축키 등록
         AddKeyboardShortcuts();
+        
+        // 타이틀바 드래그 이벤트 설정
+        this.MouseLeftButtonDown += Window_MouseLeftButtonDown;
+    }
+
+    private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        // 타이틀바 영역에서만 드래그 가능하도록 설정
+        if (e.GetPosition(this).Y <= 24)
+        {
+            lastPosition = e.GetPosition(this);
+            this.DragMove();
+        }
+    }
+    
+    private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+    {
+        // 창 최소화
+        this.WindowState = WindowState.Minimized;
+    }
+
+    private void CloseButton_Click(object sender, RoutedEventArgs e)
+    {
+        // 프로그램 종료
+        Application.Current.Shutdown();
     }
 
     private void AddKeyboardShortcuts()

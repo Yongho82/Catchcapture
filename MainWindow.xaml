@@ -8,7 +8,16 @@
         Title="캣치" Height="500" Width="355" 
         MinWidth="350" MinHeight="500"
         WindowStartupLocation="CenterScreen"
-        Background="#F8F9FC">
+        WindowStyle="None" AllowsTransparency="True" 
+        Background="Transparent">
+    
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="24" 
+                     ResizeBorderThickness="0" 
+                     GlassFrameThickness="0" 
+                     CornerRadius="8" 
+                     UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
     
     <Window.Resources>
         <!-- 버튼 스타일 -->
@@ -55,96 +64,185 @@
         
         <!-- 그림자 효과 -->
         <DropShadowEffect x:Key="CardShadow" ShadowDepth="1" BlurRadius="5" Opacity="0.2" Direction="270"/>
+        
+        <!-- 닫기 버튼 스타일 -->
+        <Style x:Key="WindowControlButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="20"/>
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#50FFFFFF" TargetName="border"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#30FFFFFF" TargetName="border"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- 텍스트 렌더링 개선 스타일 -->
+        <Style x:Key="ClearTextStyle" TargetType="TextBlock">
+            <Setter Property="TextOptions.TextFormattingMode" Value="Ideal"/>
+            <Setter Property="TextOptions.TextRenderingMode" Value="Auto"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="UseLayoutRounding" Value="True"/>
+        </Style>
     </Window.Resources>
     
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="100" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
+        <Border CornerRadius="8" Background="#F8F9FC" BorderThickness="1" Margin="0">
+            <Border.BorderBrush>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#4361EE" Offset="0.0"/>
+                    <GradientStop Color="#3A56D4" Offset="1.0"/>
+                </LinearGradientBrush>
+            </Border.BorderBrush>
+            
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="24"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <!-- 제목 영역 -->
+                <Border Grid.Row="0" CornerRadius="8,8,0,0">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#4361EE" Offset="0.0"/>
+                            <GradientStop Color="#3A56D4" Offset="1.0"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Grid>
+                        <StackPanel Orientation="Horizontal" Margin="10,0,0,0">
+                            <Image Source="/icons/simple_mode.png" Width="14" Height="14" Margin="0,0,5,0" 
+                                   RenderOptions.BitmapScalingMode="HighQuality"/>
+                            <TextBlock Text="캣치 캡처" Foreground="White" FontWeight="SemiBold" FontSize="12"
+                                      Style="{StaticResource ClearTextStyle}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,10,0">
+                            <Button x:Name="MinimizeButton" Style="{StaticResource WindowControlButtonStyle}"
+                                    Click="MinimizeButton_Click" ToolTip="최소화" 
+                                    WindowChrome.IsHitTestVisibleInChrome="True" Margin="0,0,5,0">
+                                <TextBlock Text="_" FontSize="10" Foreground="White" Style="{StaticResource ClearTextStyle}" 
+                                          VerticalAlignment="Top" Margin="0,-3,0,0"/>
+                            </Button>
+                            <Button x:Name="CloseButton" Style="{StaticResource WindowControlButtonStyle}"
+                                    Click="CloseButton_Click" ToolTip="닫기" 
+                                    WindowChrome.IsHitTestVisibleInChrome="True">
+                                <TextBlock Text="✕" FontSize="10" Foreground="White" Style="{StaticResource ClearTextStyle}"/>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+                
+                <!-- 메인 콘텐츠 영역 -->
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
 
-        <!-- 왼쪽 버튼 영역 -->
-        <Border Grid.Column="0" Background="#FFFFFF" BorderThickness="0,0,1,0" BorderBrush="#E0E6F0" Effect="{StaticResource CardShadow}">
-            <StackPanel Margin="0,12,0,12">
-                <Button x:Name="AreaCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="AreaCaptureButton_Click">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="⬚" FontFamily="Segoe UI Symbol" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="영역 캡처" HorizontalAlignment="Left" FontSize="11"/>
-                    </StackPanel>
-                </Button>
-                
-                <Button x:Name="FullScreenCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="FullScreenCaptureButton_Click">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="▣" FontFamily="Segoe UI Symbol" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="전체화면" HorizontalAlignment="Left" FontSize="11"/>
-                    </StackPanel>
-                </Button>
-                
-                <Separator Style="{StaticResource SeparatorStyle}"/>
-                
-                <Button x:Name="CopySelectedButton" Style="{StaticResource SidebarButtonStyle}" Click="CopySelectedButton_Click" IsEnabled="False">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="📋" FontFamily="Segoe UI Symbol" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="복사" HorizontalAlignment="Left" FontSize="11"/>
-                    </StackPanel>
-                </Button>
-                
-                <Button x:Name="CopyAllButton" Style="{StaticResource SidebarButtonStyle}" Click="CopyAllButton_Click" IsEnabled="False">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="📋" FontFamily="Segoe UI Symbol" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="전체복사" HorizontalAlignment="Left" FontSize="11"/>
-                    </StackPanel>
-                </Button>
-                
-                <Separator Style="{StaticResource SeparatorStyle}"/>
-                
-                <Button x:Name="SaveSelectedButton" Style="{StaticResource SidebarButtonStyle}" Click="SaveSelectedButton_Click" IsEnabled="False">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="💾" FontFamily="Segoe UI Symbol" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="저장" HorizontalAlignment="Left" FontSize="11"/>
-                    </StackPanel>
-                </Button>
-                
-                <Button x:Name="SaveAllButton" Style="{StaticResource SidebarButtonStyle}" Click="SaveAllButton_Click" IsEnabled="False">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="💾" FontFamily="Segoe UI Symbol" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="전체저장" HorizontalAlignment="Left" FontSize="11"/>
-                    </StackPanel>
-                </Button>
-                
-                <Separator Style="{StaticResource SeparatorStyle}"/>
-                
-                <Button x:Name="DeleteSelectedButton" Style="{StaticResource SidebarButtonStyle}" Click="DeleteSelectedButton_Click" IsEnabled="False">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🗑️" FontFamily="Segoe UI Symbol" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="삭제" HorizontalAlignment="Left" FontSize="11"/>
-                    </StackPanel>
-                </Button>
-                
-                <Button x:Name="DeleteAllButton" Style="{StaticResource SidebarButtonStyle}" Click="DeleteAllButton_Click" IsEnabled="False">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🗑️" FontFamily="Segoe UI Symbol" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="전체삭제" HorizontalAlignment="Left" FontSize="11"/>
-                    </StackPanel>
-                </Button>
-                
-                <Separator Style="{StaticResource SeparatorStyle}"/>
-                
-                <Button x:Name="SimpleModeButton" Style="{StaticResource SidebarButtonStyle}" Click="SimpleModeButton_Click">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🔲" FontFamily="Segoe UI Symbol" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="간편 모드" HorizontalAlignment="Left" FontSize="11"/>
-                    </StackPanel>
-                </Button>
-            </StackPanel>
-        </Border>
+                    <!-- 왼쪽 버튼 영역 -->
+                    <Border Grid.Column="0" Background="#FFFFFF" BorderThickness="0,0,1,0" BorderBrush="#E0E6F0">
+                        <StackPanel Margin="0,12,0,12">
+                            <Button x:Name="AreaCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="AreaCaptureButton_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="⬚" FontFamily="Segoe UI Symbol" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="영역 캡처" HorizontalAlignment="Left" FontSize="11"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <Button x:Name="FullScreenCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="FullScreenCaptureButton_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="▣" FontFamily="Segoe UI Symbol" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="전체화면" HorizontalAlignment="Left" FontSize="11"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <Separator Style="{StaticResource SeparatorStyle}"/>
+                            
+                            <Button x:Name="CopySelectedButton" Style="{StaticResource SidebarButtonStyle}" Click="CopySelectedButton_Click" IsEnabled="False">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="📋" FontFamily="Segoe UI Symbol" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="복사" HorizontalAlignment="Left" FontSize="11"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <Button x:Name="CopyAllButton" Style="{StaticResource SidebarButtonStyle}" Click="CopyAllButton_Click" IsEnabled="False">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="📋" FontFamily="Segoe UI Symbol" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="전체복사" HorizontalAlignment="Left" FontSize="11"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <Separator Style="{StaticResource SeparatorStyle}"/>
+                            
+                            <Button x:Name="SaveSelectedButton" Style="{StaticResource SidebarButtonStyle}" Click="SaveSelectedButton_Click" IsEnabled="False">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="💾" FontFamily="Segoe UI Symbol" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="저장" HorizontalAlignment="Left" FontSize="11"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <Button x:Name="SaveAllButton" Style="{StaticResource SidebarButtonStyle}" Click="SaveAllButton_Click" IsEnabled="False">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="💾" FontFamily="Segoe UI Symbol" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="전체저장" HorizontalAlignment="Left" FontSize="11"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <Separator Style="{StaticResource SeparatorStyle}"/>
+                            
+                            <Button x:Name="DeleteSelectedButton" Style="{StaticResource SidebarButtonStyle}" Click="DeleteSelectedButton_Click" IsEnabled="False">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="🗑️" FontFamily="Segoe UI Symbol" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="삭제" HorizontalAlignment="Left" FontSize="11"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <Button x:Name="DeleteAllButton" Style="{StaticResource SidebarButtonStyle}" Click="DeleteAllButton_Click" IsEnabled="False">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="🗑️" FontFamily="Segoe UI Symbol" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="전체삭제" HorizontalAlignment="Left" FontSize="11"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <Separator Style="{StaticResource SeparatorStyle}"/>
+                            
+                            <Button x:Name="SimpleModeButton" Style="{StaticResource SidebarButtonStyle}" Click="SimpleModeButton_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="🔲" FontFamily="Segoe UI Symbol" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="간편 모드" HorizontalAlignment="Left" FontSize="11"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Border>
 
-        <!-- 오른쪽 캡처 표시 영역 -->
-        <Border Grid.Column="1" Background="#FFFFFF" Margin="1,1,1,1" CornerRadius="4">
-            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                <!-- 단일 세로 열로 표시 -->
-                <StackPanel x:Name="CaptureListPanel" Margin="10"/>
-            </ScrollViewer>
+                    <!-- 오른쪽 캡처 표시 영역 -->
+                    <Border Grid.Column="1" Background="#FFFFFF" Margin="0,0,0,0">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                            <!-- 단일 세로 열로 표시 -->
+                            <StackPanel x:Name="CaptureListPanel" Margin="10"/>
+                        </ScrollViewer>
+                    </Border>
+                </Grid>
+            </Grid>
         </Border>
     </Grid>
 </Window>
