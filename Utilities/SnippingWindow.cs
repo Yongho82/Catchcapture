@@ -22,9 +22,9 @@ namespace CatchCapture.Utilities
         private RectangleGeometry fullScreenGeometry;
         private RectangleGeometry selectionGeometry;
         private System.Diagnostics.Stopwatch moveStopwatch = new System.Diagnostics.Stopwatch();
-        private const int MinMoveIntervalMs = 8; // ~120Hz 업데이트 제한
+        private const int MinMoveIntervalMs = 4; // ~240Hz 업데이트 제한
         private Point lastUpdatePoint;
-        private const double MinMoveDelta = 2.0; // 최소 픽셀 이동 임계값
+        private const double MinMoveDelta = 1.0; // 최소 픽셀 이동 임계값
         private long lastSizeTextUpdateMs = 0;
         private const int SizeTextUpdateIntervalMs = 32; // 30~60Hz 텍스트 갱신
         // Rendering 프레임 병합용
@@ -44,8 +44,8 @@ namespace CatchCapture.Utilities
             WindowStyle = WindowStyle.None;
             ResizeMode = ResizeMode.NoResize;
             Topmost = true;
-            AllowsTransparency = true;
-            Background = new SolidColorBrush(Color.FromArgb(1, 0, 0, 0));
+            AllowsTransparency = false; // 투명창 비활성화: GPU 가속 유지로 드래그 끊김 감소
+            Background = Brushes.Black;
             Cursor = Cursors.Cross;
             ShowInTaskbar = false;
             WindowStartupLocation = WindowStartupLocation.Manual;
@@ -70,10 +70,10 @@ namespace CatchCapture.Utilities
             canvas.SnapsToDevicePixels = true;
             Content = canvas;
 
-            // 배경 스크린샷(정지 화면) 캡처 및 표시 - 동영상/애니메이션을 정지 상태로 보여줌
+            // 배경 스크린샷을 동기 캡처하여 즉시 정지 화면 제공 (오버레이와 동시에 상호작용 가능)
             screenCapture = ScreenCaptureUtility.CaptureScreen();
             screenImage = new Image { Source = screenCapture };
-            // 배경으로 추가
+            Panel.SetZIndex(screenImage, -1);
             canvas.Children.Add(screenImage);
 
             // 반투명 오버레이 생성: 전체를 어둡게, 선택 영역은 투명한 '구멍'
@@ -91,6 +91,7 @@ namespace CatchCapture.Utilities
                 Data = geometryGroup,
                 Fill = new SolidColorBrush(Color.FromArgb(140, 0, 0, 0)) // 약간 어둡게
             };
+            overlayPath.IsHitTestVisible = false;
             if (overlayPath.Fill is SolidColorBrush sb && sb.CanFreeze) sb.Freeze();
             // 렌더링 캐시 힌트로 성능 개선
             RenderOptions.SetCachingHint(overlayPath, CachingHint.Cache);
@@ -138,6 +139,7 @@ namespace CatchCapture.Utilities
                 StrokeDashArray = new DoubleCollection { 4, 2 },
                 Fill = Brushes.Transparent
             };
+            selectionRectangle.IsHitTestVisible = false;
             selectionRectangle.SnapsToDevicePixels = true;
             selectionRectangle.CacheMode = new BitmapCache();
             canvas.Children.Add(selectionRectangle);
@@ -148,6 +150,8 @@ namespace CatchCapture.Utilities
             MouseLeftButtonUp += SnippingWindow_MouseLeftButtonUp;
             KeyDown += SnippingWindow_KeyDown;
 
+            // 비동기 캡처 제거: 어둡게 되는 시점과 즉시 상호작용 가능 상태를 일치시킴
+
             moveStopwatch.Start();
         }
 
@@ -156,6 +160,7 @@ namespace CatchCapture.Utilities
             startPoint = e.GetPosition(canvas);
             isSelecting = true;
             hasPendingUpdate = false;
+            Mouse.Capture(this);
             CompositionTarget.Rendering += CompositionTarget_Rendering;
 
             // 선택 영역 초기화
@@ -198,6 +203,7 @@ namespace CatchCapture.Utilities
             if (!isSelecting) return;
             isSelecting = false;
             CompositionTarget.Rendering -= CompositionTarget_Rendering;
+            if (Mouse.Captured == this) Mouse.Capture(null);
             Point endPoint = e.GetPosition(canvas);
 
             // 선택된 영역 계산
