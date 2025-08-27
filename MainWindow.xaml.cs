@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -107,9 +107,9 @@ public partial class MainWindow : Window
 
         if (snippingWindow.ShowDialog() == true)
         {
-            // 선택된 영역 캡처
+            // 선택된 영역 캡처 - 동결된 프레임 우선 사용
             var selectedArea = snippingWindow.SelectedArea;
-            var capturedImage = ScreenCaptureUtility.CaptureArea(selectedArea);
+            var capturedImage = snippingWindow.SelectedFrozenImage ?? ScreenCaptureUtility.CaptureArea(selectedArea);
             AddCaptureToList(capturedImage);
         }
 
@@ -681,19 +681,19 @@ public partial class MainWindow : Window
             
             if (snippingWindow.ShowDialog() == true)
             {
-                // 선택된 영역 캡처
+                // 선택된 영역 캡처 - 동결된 프레임 우선 사용
                 var selectedArea = snippingWindow.SelectedArea;
-                var capturedImage = ScreenCaptureUtility.CaptureArea(selectedArea);
-                
+                var capturedImage = snippingWindow.SelectedFrozenImage ?? ScreenCaptureUtility.CaptureArea(selectedArea);
+
                 // 클립보드에 복사
                 ScreenCaptureUtility.CopyImageToClipboard(capturedImage);
-                
+
                 // 캡처 목록에 추가
                 AddCaptureToList(capturedImage);
+
+                // 간편모드 창 다시 표시
+                simpleModeWindow?.Show();
             }
-            
-            // 간편모드 창 다시 표시
-            simpleModeWindow?.Show();
         };
         
         simpleModeWindow.FullScreenCaptureRequested += (s, e) => 

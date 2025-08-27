@@ -38,6 +38,7 @@ namespace CatchCapture.Utilities
 
         public Int32Rect SelectedArea { get; private set; }
         public bool IsCancelled { get; private set; } = false;
+        public BitmapSource? SelectedFrozenImage { get; private set; }
 
         public SnippingWindow()
         {
@@ -230,6 +231,30 @@ namespace CatchCapture.Utilities
             int globalY = (int)Math.Round(vTop) + pxTop;
 
             SelectedArea = new Int32Rect(globalX, globalY, pxWidth, pxHeight);
+
+            // 동결된 배경(screenCapture)에서 선택 영역만 잘라 저장 (가능할 때)
+            try
+            {
+                if (screenCapture != null && pxWidth > 0 && pxHeight > 0)
+                {
+                    int relX = globalX - (int)Math.Round(vLeft);
+                    int relY = globalY - (int)Math.Round(vTop);
+
+                    // 경계 체크
+                    relX = Math.Max(0, Math.Min(relX, screenCapture.PixelWidth - 1));
+                    relY = Math.Max(0, Math.Min(relY, screenCapture.PixelHeight - 1));
+                    int cw = Math.Max(0, Math.Min(pxWidth, screenCapture.PixelWidth - relX));
+                    int ch = Math.Max(0, Math.Min(pxHeight, screenCapture.PixelHeight - relY));
+
+                    if (cw > 0 && ch > 0)
+                    {
+                        var cropRect = new Int32Rect(relX, relY, cw, ch);
+                        SelectedFrozenImage = new CroppedBitmap(screenCapture, cropRect);
+                    }
+                }
+            }
+            catch { /* ignore crop errors */ }
+
             DialogResult = true;
             Close();
         }
