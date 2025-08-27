@@ -40,7 +40,7 @@ namespace CatchCapture.Utilities
         public bool IsCancelled { get; private set; } = false;
         public BitmapSource? SelectedFrozenImage { get; private set; }
 
-        public SnippingWindow()
+        public SnippingWindow(bool showGuideText = false)
         {
             WindowStyle = WindowStyle.None;
             ResizeMode = ResizeMode.NoResize;
@@ -101,22 +101,25 @@ namespace CatchCapture.Utilities
             overlayPath.CacheMode = new BitmapCache();
             canvas.Children.Add(overlayPath);
 
-            // 가이드 텍스트 표시
-            infoTextBlock = new TextBlock
+            // 가이드 텍스트 (옵션)
+            if (showGuideText)
             {
-                Text = "영역을 선택하세요 (ESC 키를 눌러 취소)",
-                Foreground = Brushes.White,
-                Background = new SolidColorBrush(Color.FromArgb(150, 0, 0, 0)),
-                Padding = new Thickness(10),
-                FontSize = 14,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Top,
-                Margin = new Thickness(20)
-            };
-            if (infoTextBlock.Background is SolidColorBrush sb2 && sb2.CanFreeze) sb2.Freeze();
-            canvas.Children.Add(infoTextBlock);
-            Canvas.SetLeft(infoTextBlock, (vWidth - 300) / 2 + 0);
-            Canvas.SetTop(infoTextBlock, vTop + 20 - vTop);
+                infoTextBlock = new TextBlock
+                {
+                    Text = "영역을 선택하세요 (ESC 키를 눌러 취소)",
+                    Foreground = Brushes.White,
+                    Background = new SolidColorBrush(Color.FromArgb(150, 0, 0, 0)),
+                    Padding = new Thickness(10),
+                    FontSize = 14,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Top,
+                    Margin = new Thickness(20)
+                };
+                if (infoTextBlock.Background is SolidColorBrush sb2 && sb2.CanFreeze) sb2.Freeze();
+                canvas.Children.Add(infoTextBlock);
+                Canvas.SetLeft(infoTextBlock, (vWidth - 300) / 2 + 0);
+                Canvas.SetTop(infoTextBlock, vTop + 20 - vTop);
+            }
 
             // 크기 표시용 텍스트 블록 추가
             sizeTextBlock = new TextBlock

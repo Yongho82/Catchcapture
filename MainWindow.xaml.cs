@@ -237,15 +237,12 @@ public partial class MainWindow : Window
 
     private void StartAreaCapture()
     {
-        // 가이드 메시지 표시 (짧게 표시)
-        var guideWindow = new GuideWindow("영역을 선택하세요 (ESC 키를 눌러 취소)", TimeSpan.FromMilliseconds(800));
-        guideWindow.Owner = this;
-        guideWindow.Show();
-
-        // 영역 선택 창 표시
-        var snippingWindow = new SnippingWindow();
-        guideWindow.Close(); // 영역 선택 시작 전에 가이드 윈도우 닫기
+        // 먼저 메인 창을 숨긴 후 캡처 오버레이를 생성해야 정지 배경에 창이 비포함됨
         this.Hide();
+        System.Threading.Thread.Sleep(120); // 완전히 숨겨질 시간 확보
+
+        // 영역 선택 창 표시 (이 시점에 배경 스크린샷을 찍음)
+        var snippingWindow = new SnippingWindow(showGuideText: false);
 
         if (snippingWindow.ShowDialog() == true)
         {
