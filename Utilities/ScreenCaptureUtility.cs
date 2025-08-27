@@ -124,18 +124,32 @@ namespace CatchCapture.Utilities
         
         public static BitmapSource CaptureScreen()
         {
-            int screenWidth = (int)SystemParameters.PrimaryScreenWidth;
-            int screenHeight = (int)SystemParameters.PrimaryScreenHeight;
+            // Capture the entire virtual desktop across all monitors
+            int vx = (int)SystemParameters.VirtualScreenLeft;
+            int vy = (int)SystemParameters.VirtualScreenTop;
+            int vw = (int)SystemParameters.VirtualScreenWidth;
+            int vh = (int)SystemParameters.VirtualScreenHeight;
 
-            using (Bitmap bitmap = new Bitmap(screenWidth, screenHeight))
+            using (Bitmap bitmap = new Bitmap(vw, vh))
             {
                 using (Graphics graphics = Graphics.FromImage(bitmap))
                 {
-                    graphics.CopyFromScreen(0, 0, 0, 0, new System.Drawing.Size(screenWidth, screenHeight));
+                    graphics.CopyFromScreen(vx, vy, 0, 0, new System.Drawing.Size(vw, vh));
                 }
 
                 return ConvertBitmapToBitmapSource(bitmap);
             }
+        }
+
+        // Helper to get the virtual screen rectangle (multi-monitor bounds)
+        public static System.Drawing.Rectangle GetVirtualScreenRectangle()
+        {
+            return new System.Drawing.Rectangle(
+                (int)SystemParameters.VirtualScreenLeft,
+                (int)SystemParameters.VirtualScreenTop,
+                (int)SystemParameters.VirtualScreenWidth,
+                (int)SystemParameters.VirtualScreenHeight
+            );
         }
 
         public static BitmapSource CaptureArea(Int32Rect area)

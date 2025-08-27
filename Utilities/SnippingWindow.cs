@@ -17,6 +17,11 @@ namespace CatchCapture.Utilities
         private TextBlock infoTextBlock;
         private TextBlock sizeTextBlock;
         private BitmapSource screenCapture;
+        // Virtual screen bounds
+        private double vLeft;
+        private double vTop;
+        private double vWidth;
+        private double vHeight;
 
         public Int32Rect SelectedArea { get; private set; }
         public bool IsCancelled { get; private set; } = false;
@@ -25,21 +30,35 @@ namespace CatchCapture.Utilities
         {
             WindowStyle = WindowStyle.None;
             ResizeMode = ResizeMode.NoResize;
-            WindowState = WindowState.Maximized;
             Topmost = true;
             AllowsTransparency = true;
             Background = new SolidColorBrush(Color.FromArgb(1, 0, 0, 0));
             Cursor = Cursors.Cross;
             ShowInTaskbar = false;
+            WindowStartupLocation = WindowStartupLocation.Manual;
+
+            // Place and size the window to cover the entire virtual screen (all monitors)
+            vLeft = SystemParameters.VirtualScreenLeft;
+            vTop = SystemParameters.VirtualScreenTop;
+            vWidth = SystemParameters.VirtualScreenWidth;
+            vHeight = SystemParameters.VirtualScreenHeight;
+
+            Left = vLeft;
+            Top = vTop;
+            Width = vWidth;
+            Height = vHeight;
+            WindowState = WindowState.Normal; // Important: Normal to respect manual Left/Top/Size across monitors
 
             // 전체 화면 캡처
             screenCapture = ScreenCaptureUtility.CaptureScreen();
 
-            // 캔버스 설정
+            // 캔버스 설정 (virtual desktop size)
             canvas = new Canvas();
+            canvas.Width = vWidth;
+            canvas.Height = vHeight;
             Content = canvas;
 
-            // 화면 캡처 이미지 표시
+            // 화면 캡처 이미지 표시 (covers entire virtual desktop)
             Image screenImage = new Image
             {
                 Source = screenCapture,
@@ -60,9 +79,9 @@ namespace CatchCapture.Utilities
                 Margin = new Thickness(0, 20, 0, 0)
             };
             canvas.Children.Add(infoTextBlock);
-            Canvas.SetLeft(infoTextBlock, (SystemParameters.PrimaryScreenWidth - 300) / 2);
-            Canvas.SetTop(infoTextBlock, 20);
-            
+            Canvas.SetLeft(infoTextBlock, (vWidth - 300) / 2 + 0);
+            Canvas.SetTop(infoTextBlock, vTop + 20 - vTop);
+
             // 크기 표시용 텍스트 블록 추가
             sizeTextBlock = new TextBlock
             {
@@ -172,7 +191,17 @@ namespace CatchCapture.Utilities
                 return;
             }
 
-            SelectedArea = new Int32Rect((int)left, (int)top, (int)width, (int)height);
+            // Convert from WPF DIPs to device pixels and offset by virtual screen origin
+            var dpi = VisualTreeHelper.GetDpi(this);
+            int pxLeft = (int)Math.Round(left * dpi.DpiScaleX);
+            int pxTop = (int)Math.Round(top * dpi.DpiScaleY);
+            int pxWidth = (int)Math.Round(width * dpi.DpiScaleX);
+            int pxHeight = (int)Math.Round(height * dpi.DpiScaleY);
+
+            int globalX = (int)Math.Round(vLeft) + pxLeft;
+            int globalY = (int)Math.Round(vTop) + pxTop;
+
+            SelectedArea = new Int32Rect(globalX, globalY, pxWidth, pxHeight);
             DialogResult = true;
             Close();
         }
