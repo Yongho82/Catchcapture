@@ -216,20 +216,23 @@ public partial class MainWindow : Window
             captureDelaySeconds = 0;
         }
 
-        // 지연 안내 메시지 표시 후 캡처 시작
+        // 실시간 카운트다운 표시 후 캡처 시작
         if (captureDelaySeconds <= 0)
         {
             StartAreaCapture();
             return;
         }
 
-        ShowGuideMessage($"{captureDelaySeconds}초 후 캡처를 시작합니다...", TimeSpan.FromMilliseconds(900));
-        try
+        var countdown = new GuideWindow("", null)
         {
-            await Task.Delay(captureDelaySeconds * 1000);
-        }
-        catch { }
-        StartAreaCapture();
+            Owner = this
+        };
+        countdown.Show();
+        countdown.StartCountdown(captureDelaySeconds, () =>
+        {
+            // UI 스레드에서 실행
+            Dispatcher.Invoke(StartAreaCapture);
+        });
     }
 
     private void StartAreaCapture()

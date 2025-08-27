@@ -29,6 +29,10 @@ namespace CatchCapture.Utilities
         private const uint SWP_NOZORDER = 0x0004;
         private const uint SWP_SHOWWINDOW = 0x0040;
 
+        private TextBlock _messageBlock;
+        private System.Windows.Threading.DispatcherTimer? _countdownTimer;
+        private int _remainingSeconds;
+
         public GuideWindow(string message, TimeSpan? duration = null)
         {
             WindowStyle = WindowStyle.None;
@@ -41,17 +45,21 @@ namespace CatchCapture.Utilities
             BorderThickness = new Thickness(0);
 
             StackPanel panel = new StackPanel();
-            panel.Margin = new Thickness(20, 15, 20, 15);
+            panel.Margin = new Thickness(24, 22, 24, 62); // 하단 여백 증가로 숫자 클리핑 방지
 
-            TextBlock messageBlock = new TextBlock
+            _messageBlock = new TextBlock
             {
                 Text = message,
                 Foreground = Brushes.White,
                 FontSize = 11,
-                TextWrapping = TextWrapping.Wrap,
-                HorizontalAlignment = HorizontalAlignment.Center
+                TextWrapping = TextWrapping.NoWrap,
+                TextAlignment = TextAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
             };
-            panel.Children.Add(messageBlock);
+            TextOptions.SetTextRenderingMode(_messageBlock, TextRenderingMode.ClearType);
+            TextOptions.SetTextFormattingMode(_messageBlock, TextFormattingMode.Ideal);
+            panel.Children.Add(_messageBlock);
 
             if (message.Contains("ESC"))
             {
@@ -87,6 +95,73 @@ namespace CatchCapture.Utilities
                 };
                 timer.Start();
             }
+        }
+
+        public void UpdateMessage(string message, double? fontSize = null, bool? bold = null)
+        {
+            _messageBlock.Text = message;
+            if (fontSize.HasValue) _messageBlock.FontSize = fontSize.Value;
+            if (bold.HasValue) _messageBlock.FontWeight = bold.Value ? FontWeights.Bold : FontWeights.Normal;
+        }
+
+        public void StartCountdown(int seconds, Action onCompleted)
+        {
+            if (seconds <= 0)
+            {
+                onCompleted?.Invoke();
+                return;
+            }
+
+            _remainingSeconds = seconds;
+            // Make it visually prominent
+            _messageBlock.FontSize = 44;
+            _messageBlock.FontWeight = FontWeights.Bold;
+            _messageBlock.TextWrapping = TextWrapping.NoWrap;
+            _messageBlock.TextAlignment = TextAlignment.Center;
+            _messageBlock.Foreground = Brushes.White; // 가시성 보장
+            // 숫자가 아래로 잘리는 현상 방지: 줄 박스 높이와 마진 조정
+            _messageBlock.LineStackingStrategy = LineStackingStrategy.BlockLineHeight;
+            _messageBlock.LineHeight = _messageBlock.FontSize * 1.2; // 약간 여유
+            _messageBlock.Margin = new Thickness(0, 6, 0, 12);
+            // 미세한 그림자 효과로 대비 향상
+            _messageBlock.Effect = new System.Windows.Media.Effects.DropShadowEffect
+            {
+                Color = Colors.Black,
+                ShadowDepth = 0,
+                BlurRadius = 6,
+                Opacity = 0.6
+            };
+            _messageBlock.Text = _remainingSeconds.ToString();
+            _messageBlock.SnapsToDevicePixels = true;
+            _messageBlock.UseLayoutRounding = true;
+            _messageBlock.InvalidateMeasure();
+            _messageBlock.InvalidateArrange();
+            this.UpdateLayout();
+
+            _countdownTimer = new System.Windows.Threading.DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(1)
+            };
+            _countdownTimer.Tick += (s, e) =>
+            {
+                _remainingSeconds--;
+                if (_remainingSeconds <= 0)
+                {
+                    _countdownTimer!.Stop();
+                    Close();
+                    try { onCompleted?.Invoke(); } catch { }
+                }
+                else
+                {
+                    _messageBlock.Foreground = Brushes.White; // 혹시 스타일 간섭 방지
+                    _messageBlock.Text = _remainingSeconds.ToString();
+                    _messageBlock.InvalidateMeasure();
+                    _messageBlock.InvalidateArrange();
+                    _messageBlock.InvalidateVisual();
+                    this.UpdateLayout();
+                }
+            };
+            _countdownTimer.Start();
         }
 
         private void CenterWindowOnScreen()
