@@ -9,6 +9,7 @@
 
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/area_capture.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/camera.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/clock.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/copy_all.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/copy_selected.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/crop.png")]

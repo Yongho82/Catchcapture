@@ -15,6 +15,7 @@ using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace CatchCapture;
 
@@ -29,6 +30,7 @@ public partial class MainWindow : Window
     private Settings settings;
     private SimpleModeWindow? simpleModeWindow = null;
     private Point lastPosition;
+    private int captureDelaySeconds = 0;
 
     public MainWindow()
     {
@@ -183,6 +185,50 @@ public partial class MainWindow : Window
 
     private void AreaCaptureButton_Click(object sender, RoutedEventArgs e)
     {
+        StartAreaCapture();
+    }
+
+    private void DelayCaptureButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement fe)
+        {
+            if (fe.ContextMenu != null)
+            {
+                fe.ContextMenu.PlacementTarget = fe;
+                fe.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Right;
+                fe.ContextMenu.IsOpen = true;
+            }
+        }
+    }
+
+    private async void DelayMenuItem_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is MenuItem mi && mi.Tag is string tagStr && int.TryParse(tagStr, out int seconds))
+        {
+            captureDelaySeconds = seconds;
+        }
+        else if (sender is MenuItem mi2 && mi2.Tag is int tagInt)
+        {
+            captureDelaySeconds = tagInt;
+        }
+        else
+        {
+            captureDelaySeconds = 0;
+        }
+
+        // 지연 안내 메시지 표시 후 캡처 시작
+        if (captureDelaySeconds <= 0)
+        {
+            StartAreaCapture();
+            return;
+        }
+
+        ShowGuideMessage($"{captureDelaySeconds}초 후 캡처를 시작합니다...", TimeSpan.FromMilliseconds(900));
+        try
+        {
+            await Task.Delay(captureDelaySeconds * 1000);
+        }
+        catch { }
         StartAreaCapture();
     }
 
