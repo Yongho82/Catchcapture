@@ -75,14 +75,107 @@ public partial class MainWindow : Window
 
     private void MainWindow_KeyDown(object sender, KeyEventArgs e)
     {
-        // Ctrl+C 복사 단축키 처리
-        if (e.Key == Key.C && Keyboard.Modifiers == ModifierKeys.Control)
+        var mods = Keyboard.Modifiers;
+
+        // Ctrl+C: 선택 복사
+        if (e.Key == Key.C && mods == ModifierKeys.Control)
         {
             if (selectedIndex >= 0)
             {
                 CopySelectedImage();
                 e.Handled = true;
             }
+            return;
+        }
+
+        // Ctrl+Shift+C: 모두 복사
+        if (e.Key == Key.C && mods == (ModifierKeys.Control | ModifierKeys.Shift))
+        {
+            if (captures.Count > 0)
+            {
+                CopyAllImages();
+                e.Handled = true;
+            }
+            return;
+        }
+
+        // Ctrl+S: 선택 저장
+        if (e.Key == Key.S && mods == ModifierKeys.Control)
+        {
+            if (selectedIndex >= 0)
+            {
+                SaveSelectedImage();
+                e.Handled = true;
+            }
+            return;
+        }
+
+        // Ctrl+Shift+S: 모두 저장
+        if (e.Key == Key.S && mods == (ModifierKeys.Control | ModifierKeys.Shift))
+        {
+            if (captures.Count > 0)
+            {
+                SaveAllImages();
+                e.Handled = true;
+            }
+            return;
+        }
+
+        // Delete: 선택 삭제
+        if (e.Key == Key.Delete && mods == ModifierKeys.None)
+        {
+            if (selectedIndex >= 0)
+            {
+                DeleteSelectedImage();
+                e.Handled = true;
+            }
+            return;
+        }
+
+        // Ctrl+Shift+Delete: 모두 삭제
+        if (e.Key == Key.Delete && mods == (ModifierKeys.Control | ModifierKeys.Shift))
+        {
+            if (captures.Count > 0)
+            {
+                DeleteAllImages();
+                e.Handled = true;
+            }
+            return;
+        }
+
+        // Ctrl+A: 영역 캡처 시작
+        if (e.Key == Key.A && mods == ModifierKeys.Control)
+        {
+            StartAreaCapture();
+            e.Handled = true;
+            return;
+        }
+
+        // Ctrl+F: 전체 화면 캡처
+        if (e.Key == Key.F && mods == ModifierKeys.Control)
+        {
+            CaptureFullScreen();
+            e.Handled = true;
+            return;
+        }
+
+        // Ctrl+M: 간편 모드 토글
+        if (e.Key == Key.M && mods == ModifierKeys.Control)
+        {
+            ToggleSimpleMode();
+            e.Handled = true;
+            return;
+        }
+
+        // Ctrl+P: 선택 미리보기 열기
+        if (e.Key == Key.P && mods == ModifierKeys.Control)
+        {
+            if (selectedIndex >= 0 && selectedIndex < captures.Count)
+            {
+                ShowPreviewWindow(captures[selectedIndex].Image, selectedIndex);
+                e.Handled = true;
+            }
+            return;
         }
     }
 
