@@ -16,7 +16,9 @@ namespace CatchCapture.Utilities
         private bool isSelecting = false;
         private TextBlock infoTextBlock;
         private TextBlock sizeTextBlock;
-        private BitmapSource screenCapture;
+        private System.Windows.Shapes.Path overlayPath;
+        private RectangleGeometry fullScreenGeometry;
+        private RectangleGeometry selectionGeometry;
         // Virtual screen bounds
         private double vLeft;
         private double vTop;
@@ -49,22 +51,26 @@ namespace CatchCapture.Utilities
             Height = vHeight;
             WindowState = WindowState.Normal; // Important: Normal to respect manual Left/Top/Size across monitors
 
-            // 전체 화면 캡처
-            screenCapture = ScreenCaptureUtility.CaptureScreen();
-
             // 캔버스 설정 (virtual desktop size)
             canvas = new Canvas();
             canvas.Width = vWidth;
             canvas.Height = vHeight;
             Content = canvas;
 
-            // 화면 캡처 이미지 표시 (covers entire virtual desktop)
-            Image screenImage = new Image
+            // 반투명 오버레이 생성: 전체를 어둡게, 선택 영역은 투명한 '구멍'
+            fullScreenGeometry = new RectangleGeometry(new Rect(0, 0, vWidth, vHeight));
+            selectionGeometry = new RectangleGeometry(new Rect(0, 0, 0, 0));
+
+            var geometryGroup = new GeometryGroup { FillRule = FillRule.EvenOdd };
+            geometryGroup.Children.Add(fullScreenGeometry);
+            geometryGroup.Children.Add(selectionGeometry);
+
+            overlayPath = new System.Windows.Shapes.Path
             {
-                Source = screenCapture,
-                Opacity = 0.3
+                Data = geometryGroup,
+                Fill = new SolidColorBrush(Color.FromArgb(140, 0, 0, 0)) // 약간 어둡게
             };
-            canvas.Children.Add(screenImage);
+            canvas.Children.Add(overlayPath);
 
             // 가이드 텍스트 표시
             infoTextBlock = new TextBlock
@@ -94,13 +100,13 @@ namespace CatchCapture.Utilities
             };
             canvas.Children.Add(sizeTextBlock);
 
-            // 선택 영역 직사각형
+            // 선택 영역 직사각형(테두리만 표시)
             selectionRectangle = new Rectangle
             {
                 Stroke = Brushes.DeepSkyBlue,
                 StrokeThickness = 2,
                 StrokeDashArray = new DoubleCollection { 4, 2 },
-                Fill = new SolidColorBrush(Color.FromArgb(30, 173, 216, 230))
+                Fill = Brushes.Transparent
             };
             canvas.Children.Add(selectionRectangle);
 
@@ -142,6 +148,9 @@ namespace CatchCapture.Utilities
             Canvas.SetTop(selectionRectangle, top);
             selectionRectangle.Width = width;
             selectionRectangle.Height = height;
+
+            // 오버레이의 투명 영역(선택 영역)을 갱신
+            selectionGeometry.Rect = new Rect(left, top, width, height);
 
             // 정보 텍스트 업데이트
             infoTextBlock.Text = $"영역을 선택하세요 (ESC 키를 눌러 취소)";
