@@ -25,6 +25,7 @@ namespace CatchCapture.Utilities
         private TextBox _tbWidth = null!;
         private TextBox _tbHeight = null!;
         private Button _btnCapture = null!;
+        private Button _btnClose = null!;
         private TextBlock _sizeText = null!;
         private Border _headerBar = null!;
 
@@ -162,14 +163,30 @@ namespace CatchCapture.Utilities
             leftWrap.Children.Add(sizeLabel);
             leftWrap.Children.Add(_sizeText);
 
+            _btnClose = new Button
+            {
+                Content = new TextBlock { Text = "✕", Foreground = Brushes.White, FontWeight = FontWeights.SemiBold },
+                Padding = new Thickness(8, 0, 8, 0),
+                Background = Brushes.Transparent,
+                BorderThickness = new Thickness(0),
+                Cursor = Cursors.Hand,
+                ToolTip = "닫기"
+            };
+            _btnClose.Click += (s, e) => { DialogResult = false; Close(); };
+
             var headerGrid = new Grid();
-            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(12) });
-            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });   // left: size text
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(12) }); // gap
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });   // middle: capture + inputs
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); // spacer
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });   // right: close
+
             Grid.SetColumn(leftWrap, 0);
             Grid.SetColumn(headerWrap, 2);
+            Grid.SetColumn(_btnClose, 4);
             headerGrid.Children.Add(leftWrap);
             headerGrid.Children.Add(headerWrap);
+            headerGrid.Children.Add(_btnClose);
 
             _headerBar = new Border
             {
@@ -344,11 +361,27 @@ namespace CatchCapture.Utilities
             _sizeText.Text = $"{(int)rect.Width} x {(int)rect.Height}";
             _headerBar.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
             double hbh = _headerBar.DesiredSize.Height;
-            // Titlebar style: same width as selection and attached INSIDE at the top edge (so it is always visible)
+
+            // Ensure there is space ABOVE the rectangle for the header; if not, push the rectangle down.
+            if (rect.Top - hbh < 0)
+            {
+                double shiftDown = (hbh - rect.Top) + 8; // 8px padding
+                rect = new Rect(rect.Left, Math.Min(rect.Top + shiftDown, vHeight - rect.Height - 8), rect.Width, rect.Height);
+            }
+
+            // Update rectangle (in case we shifted it)
+            Canvas.SetLeft(_rect, rect.Left);
+            Canvas.SetTop(_rect, rect.Top);
+            _rect.Width = rect.Width;
+            _rect.Height = rect.Height;
+            _selectionGeometry.Rect = rect;
+            PositionThumbs(rect);
+
+            // Titlebar style: same width as selection and attached ABOVE the selection
             _headerBar.Width = Math.Max(120, rect.Width);
             double headerLeft = rect.Left;
-            double headerTop = rect.Top; // inside top edge
-            // Clamp within canvas bounds horizontally
+            double headerTop = rect.Top - hbh;
+            // Clamp horizontally, and ensure stay within vertical bounds
             headerLeft = Math.Max(0, Math.Min(headerLeft, vWidth - _headerBar.Width));
             headerTop = Math.Max(0, Math.Min(headerTop, vHeight - hbh));
             Canvas.SetLeft(_headerBar, headerLeft);
