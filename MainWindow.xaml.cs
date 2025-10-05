@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace CatchCapture;
 
@@ -31,6 +32,25 @@ public partial class MainWindow : Window
     private SimpleModeWindow? simpleModeWindow = null;
     private Point lastPosition;
     private int captureDelaySeconds = 0;
+
+    // Ensures any pending composition updates are presented (so hidden window is actually off-screen)
+    [DllImport("dwmapi.dll")]
+    private static extern int DwmFlush();
+
+    private void FlushUIAfterHide()
+    {
+        try
+        {
+            // Process pending dispatcher operations to reach idle
+            Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+            // Ensure DWM has presented the latest frame
+            DwmFlush();
+        }
+        catch
+        {
+            // Ignore flush errors; proceed to capture
+        }
+    }
 
     public MainWindow()
     {
@@ -327,7 +347,7 @@ public partial class MainWindow : Window
     {
         // 먼저 메인 창을 숨긴 후 캡처 오버레이를 생성해야 정지 배경에 창이 비포함됨
         this.Hide();
-        System.Threading.Thread.Sleep(120); // 완전히 숨겨질 시간 확보
+        FlushUIAfterHide();
 
         // 영역 선택 창 표시 (이 시점에 배경 스크린샷을 찍음)
         var snippingWindow = new SnippingWindow(showGuideText: false);
@@ -353,7 +373,7 @@ public partial class MainWindow : Window
     {
         // 전체 화면 캡처
         this.Hide();
-        System.Threading.Thread.Sleep(200); // 창이 완전히 사라질 때까지 대기
+        FlushUIAfterHide();
 
         var capturedImage = ScreenCaptureUtility.CaptureScreen();
         AddCaptureToList(capturedImage);
@@ -410,7 +430,7 @@ public partial class MainWindow : Window
         try
         {
             this.Hide();
-            System.Threading.Thread.Sleep(120);
+            FlushUIAfterHide();
 
             var designatedWindow = new CatchCapture.Utilities.DesignatedCaptureWindow();
             designatedWindow.Owner = this;
@@ -964,7 +984,7 @@ public partial class MainWindow : Window
         simpleModeWindow.FullScreenCaptureRequested += (s, e) => 
         {
             // 전체화면 캡처 수행
-            System.Threading.Thread.Sleep(200); // 간편모드 창이 사라질 때까지 잠시 대기
+            FlushUIAfterHide();
             
             var capturedImage = ScreenCaptureUtility.CaptureScreen();
             

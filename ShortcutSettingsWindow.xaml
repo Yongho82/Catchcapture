@@ -1,0 +1,372 @@
+<Window x:Class="CatchCapture.ShortcutSettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="단축키 설정" Height="500" Width="600"
+        WindowStartupLocation="CenterOwner"
+        Background="#F8F9FC">
+    
+    <Window.Resources>
+        <!-- 헤더 스타일 -->
+        <Style x:Key="HeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,15,0,10"/>
+            <Setter Property="Foreground" Value="#333333"/>
+        </Style>
+        
+        <!-- 단축키 항목 스타일 -->
+        <Style x:Key="ShortcutItemStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E0E6F0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+            <Setter Property="Padding" Value="15,12"/>
+        </Style>
+        
+        <!-- 단축키 설명 스타일 -->
+        <Style x:Key="DescriptionStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="#333333"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        
+        <!-- 단축키 표시 스타일 -->
+        <Style x:Key="KeyDisplayStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#4361EE"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        
+        <!-- 버튼 스타일 -->
+        <Style x:Key="ActionButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Padding" Value="20,0"/>
+            <Setter Property="Background" Value="#4361EE"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#3A56D4" TargetName="border"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#334DBF" TargetName="border"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- 제목 -->
+        <TextBlock Grid.Row="0" Text="단축키 설정" FontSize="20" FontWeight="SemiBold" 
+                   Foreground="#333333" Margin="0,0,0,20"/>
+        
+        <!-- 단축키 목록 -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel x:Name="ShortcutPanel">
+                <!-- 메인 창 단축키 -->
+                <TextBlock Text="메인 창 단축키" Style="{StaticResource HeaderStyle}"/>
+                
+                <Border Style="{StaticResource ShortcutItemStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="선택한 이미지 복사" Style="{StaticResource DescriptionStyle}"/>
+                        <TextBlock Grid.Column="1" Text="Ctrl+C" Style="{StaticResource KeyDisplayStyle}" x:Name="CopySelectedKey"/>
+                    </Grid>
+                </Border>
+                
+                <Border Style="{StaticResource ShortcutItemStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="모든 이미지 복사" Style="{StaticResource DescriptionStyle}"/>
+                        <TextBlock Grid.Column="1" Text="Ctrl+Shift+C" Style="{StaticResource KeyDisplayStyle}" x:Name="CopyAllKey"/>
+                    </Grid>
+                </Border>
+                
+                <Border Style="{StaticResource ShortcutItemStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="선택한 이미지 저장" Style="{StaticResource DescriptionStyle}"/>
+                        <TextBlock Grid.Column="1" Text="Ctrl+S" Style="{StaticResource KeyDisplayStyle}" x:Name="SaveSelectedKey"/>
+                    </Grid>
+                </Border>
+                
+                <Border Style="{StaticResource ShortcutItemStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="모든 이미지 저장" Style="{StaticResource DescriptionStyle}"/>
+                        <TextBlock Grid.Column="1" Text="Ctrl+Shift+S" Style="{StaticResource KeyDisplayStyle}" x:Name="SaveAllKey"/>
+                    </Grid>
+                </Border>
+                
+                <Border Style="{StaticResource ShortcutItemStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="선택한 이미지 삭제" Style="{StaticResource DescriptionStyle}"/>
+                        <TextBlock Grid.Column="1" Text="Delete" Style="{StaticResource KeyDisplayStyle}" x:Name="DeleteSelectedKey"/>
+                    </Grid>
+                </Border>
+                
+                <Border Style="{StaticResource ShortcutItemStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="모든 이미지 삭제" Style="{StaticResource DescriptionStyle}"/>
+                        <TextBlock Grid.Column="1" Text="Ctrl+Shift+Delete" Style="{StaticResource KeyDisplayStyle}" x:Name="DeleteAllKey"/>
+                    </Grid>
+                </Border>
+                
+                <Border Style="{StaticResource ShortcutItemStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="영역 캡처" Style="{StaticResource DescriptionStyle}"/>
+                        <TextBlock Grid.Column="1" Text="Ctrl+A" Style="{StaticResource KeyDisplayStyle}" x:Name="AreaCaptureKey"/>
+                    </Grid>
+                </Border>
+                
+                <Border Style="{StaticResource ShortcutItemStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="전체 화면 캡처" Style="{StaticResource DescriptionStyle}"/>
+                        <TextBlock Grid.Column="1" Text="Ctrl+F" Style="{StaticResource KeyDisplayStyle}" x:Name="FullScreenCaptureKey"/>
+                    </Grid>
+                </Border>
+                
+                <Border Style="{StaticResource ShortcutItemStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="간편 모드 토글" Style="{StaticResource DescriptionStyle}"/>
+                        <TextBlock Grid.Column="1" Text="Ctrl+M" Style="{StaticResource KeyDisplayStyle}" x:Name="ToggleSimpleModeKey"/>
+                    </Grid>
+                </Border>
+                
+                <Border Style="{StaticResource ShortcutItemStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="선택한 이미지 미리보기" Style="{StaticResource DescriptionStyle}"/>
+                        <TextBlock Grid.Column="1" Text="Ctrl+P" Style="{StaticResource KeyDisplayStyle}" x:Name="PreviewWindowKey"/>
+                    </Grid>
+                </Border>
+                
+                <Border Style="{StaticResource ShortcutItemStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="실행 취소" Style="{StaticResource DescriptionStyle}"/>
+                        <TextBlock Grid.Column="1" Text="Ctrl+Z" Style="{StaticResource KeyDisplayStyle}" x:Name="UndoKey"/>
+                    </Grid>
+                </Border>
+                
+                <Border Style="{StaticResource ShortcutItemStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="스크롤 캡처" Style="{StaticResource DescriptionStyle}"/>
+                        <TextBlock Grid.Column="1" Text="Ctrl+R" Style="{StaticResource KeyDisplayStyle}" x:Name="ScrollCaptureKey"/>
+                    </Grid>
+                </Border>
+                
+                <Border Style="{StaticResource ShortcutItemStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="지정 캡처" Style="{StaticResource DescriptionStyle}"/>
+                        <TextBlock Grid.Column="1" Text="Ctrl+D" Style="{StaticResource KeyDisplayStyle}" x:Name="DesignatedCaptureKey"/>
+                    </Grid>
+                </Border>
+                
+                <Border Style="{StaticResource ShortcutItemStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="이미지 열기" Style="{StaticResource DescriptionStyle}"/>
+                        <TextBlock Grid.Column="1" Text="Ctrl+O" Style="{StaticResource KeyDisplayStyle}" x:Name="OpenFileKey"/>
+                    </Grid>
+                </Border>
+                
+                <Border Style="{StaticResource ShortcutItemStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="새 캡처" Style="{StaticResource DescriptionStyle}"/>
+                        <TextBlock Grid.Column="1" Text="Ctrl+N" Style="{StaticResource KeyDisplayStyle}" x:Name="NewCaptureKey"/>
+                    </Grid>
+                </Border>
+                
+                <Border Style="{StaticResource ShortcutItemStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="항상 위 토글" Style="{StaticResource DescriptionStyle}"/>
+                        <TextBlock Grid.Column="1" Text="Ctrl+T" Style="{StaticResource KeyDisplayStyle}" x:Name="ToggleTopmostKey"/>
+                    </Grid>
+                </Border>
+                
+                <!-- 미리보기 창 단축키 -->
+                <TextBlock Text="미리보기 창 단축키" Style="{StaticResource HeaderStyle}"/>
+                
+                <Border Style="{StaticResource ShortcutItemStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="이미지 클립보드에 복사" Style="{StaticResource DescriptionStyle}"/>
+                        <TextBlock Grid.Column="1" Text="Ctrl+C" Style="{StaticResource KeyDisplayStyle}" x:Name="PreviewCopyKey"/>
+                    </Grid>
+                </Border>
+                
+                <Border Style="{StaticResource ShortcutItemStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="실행 취소" Style="{StaticResource DescriptionStyle}"/>
+                        <TextBlock Grid.Column="1" Text="Ctrl+Z" Style="{StaticResource KeyDisplayStyle}" x:Name="PreviewUndoKey"/>
+                    </Grid>
+                </Border>
+                
+                <Border Style="{StaticResource ShortcutItemStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="다시 실행" Style="{StaticResource DescriptionStyle}"/>
+                        <TextBlock Grid.Column="1" Text="Ctrl+Y" Style="{StaticResource KeyDisplayStyle}" x:Name="PreviewRedoKey"/>
+                    </Grid>
+                </Border>
+                
+                <Border Style="{StaticResource ShortcutItemStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="이미지 저장" Style="{StaticResource DescriptionStyle}"/>
+                        <TextBlock Grid.Column="1" Text="Ctrl+S" Style="{StaticResource KeyDisplayStyle}" x:Name="PreviewSaveKey"/>
+                    </Grid>
+                </Border>
+                
+                <Border Style="{StaticResource ShortcutItemStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="확대" Style="{StaticResource DescriptionStyle}"/>
+                        <TextBlock Grid.Column="1" Text="Ctrl+Shift++" Style="{StaticResource KeyDisplayStyle}" x:Name="ZoomInKey"/>
+                    </Grid>
+                </Border>
+                
+                <Border Style="{StaticResource ShortcutItemStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="축소" Style="{StaticResource DescriptionStyle}"/>
+                        <TextBlock Grid.Column="1" Text="Ctrl+-" Style="{StaticResource KeyDisplayStyle}" x:Name="ZoomOutKey"/>
+                    </Grid>
+                </Border>
+                
+                <Border Style="{StaticResource ShortcutItemStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="실제 크기로" Style="{StaticResource DescriptionStyle}"/>
+                        <TextBlock Grid.Column="1" Text="Ctrl+0" Style="{StaticResource KeyDisplayStyle}" x:Name="ResetZoomKey"/>
+                    </Grid>
+                </Border>
+                
+                <Border Style="{StaticResource ShortcutItemStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="편집 모드 취소" Style="{StaticResource DescriptionStyle}"/>
+                        <TextBlock Grid.Column="1" Text="Esc" Style="{StaticResource KeyDisplayStyle}" x:Name="CancelEditModeKey"/>
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+        
+        <!-- 하단 버튼 -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+            <Button Content="기본값으로 재설정" Style="{StaticResource ActionButtonStyle}" 
+                    Background="#6C757D" Margin="0,0,10,0" Click="ResetButton_Click"/>
+            <Button Content="닫기" Style="{StaticResource ActionButtonStyle}" 
+                    Background="#4361EE" Click="CloseButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
