@@ -341,12 +341,17 @@ namespace CatchCapture
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
+            // 자동 파일 이름 생성
+            string timestamp = DateTime.Now.ToString("yyyy-MM-dd HHmmss");
+            string defaultFileName = $"캡처 {timestamp}.jpg";
+            
             // 저장 대화 상자 표시
             var dialog = new SaveFileDialog
             {
                 Title = "이미지 저장",
-                Filter = "PNG 이미지|*.png|JPEG 이미지|*.jpg|모든 파일|*.*",
-                DefaultExt = ".png"
+                Filter = "JPEG 이미지|*.jpg|PNG 이미지|*.png|모든 파일|*.*",
+                DefaultExt = ".jpg",
+                FileName = defaultFileName
             };
 
             if (dialog.ShowDialog() == true)

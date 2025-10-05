@@ -14,7 +14,7 @@ namespace CatchCapture.Utilities
         private Rectangle selectionRectangle;
         private Canvas canvas;
         private bool isSelecting = false;
-        private TextBlock infoTextBlock;
+        private TextBlock? infoTextBlock;
         private TextBlock sizeTextBlock;
         private System.Windows.Shapes.Path overlayPath;
         private Image screenImage;
@@ -25,7 +25,6 @@ namespace CatchCapture.Utilities
         private const int MinMoveIntervalMs = 4; // ~240Hz 업데이트 제한
         private Point lastUpdatePoint;
         private const double MinMoveDelta = 1.0; // 최소 픽셀 이동 임계값
-        private long lastSizeTextUpdateMs = 0;
         private const int SizeTextUpdateIntervalMs = 32; // 30~60Hz 텍스트 갱신
         // Rendering 프레임 병합용
         private bool hasPendingUpdate = false;

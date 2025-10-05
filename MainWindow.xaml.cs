@@ -201,7 +201,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private async void DelayMenuItem_Click(object sender, RoutedEventArgs e)
+    private void DelayMenuItem_Click(object sender, RoutedEventArgs e)
     {
         if (sender is MenuItem mi && mi.Tag is string tagStr && int.TryParse(tagStr, out int seconds))
         {
@@ -571,7 +571,7 @@ public partial class MainWindow : Window
 
             for (int i = 0; i < captures.Count; i++)
             {
-                string fileName = System.IO.Path.Combine(folderPath, $"캡처_{timestamp}_{i + 1}.png");
+                string fileName = System.IO.Path.Combine(folderPath, $"캡처_{timestamp}_{i + 1}.jpg");
                 ScreenCaptureUtility.SaveImageToFile(captures[i].Image, fileName);
                 captures[i].IsSaved = true;
                 captures[i].SavedPath = fileName;
@@ -583,11 +583,16 @@ public partial class MainWindow : Window
 
     private void SaveImageToFile(CaptureImage captureImage)
     {
+        // 자동 파일 이름 생성
+        string timestamp = DateTime.Now.ToString("yyyy-MM-dd HHmmss");
+        string defaultFileName = $"캡처 {timestamp}.jpg";
+        
         var dialog = new SaveFileDialog
         {
             Title = "이미지 저장",
-            Filter = "PNG 이미지|*.png|JPEG 이미지|*.jpg|모든 파일|*.*",
-            DefaultExt = ".png"
+            Filter = "JPEG 이미지|*.jpg|PNG 이미지|*.png|모든 파일|*.*",
+            DefaultExt = ".jpg",
+            FileName = defaultFileName
         };
 
         if (dialog.ShowDialog() == true)
