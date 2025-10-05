@@ -50,6 +50,9 @@ namespace CatchCapture.Utilities
         private double vWidth;
         private double vHeight;
 
+        // Fired whenever a capture is performed (overlay stays open)
+        public event Action<System.Windows.Media.Imaging.BitmapSource>? CaptureCompleted;
+
         public DesignatedCaptureWindow()
         {
             WindowStyle = WindowStyle.None;
@@ -102,10 +105,9 @@ namespace CatchCapture.Utilities
             // Selection rectangle
             _rect = new Rectangle
             {
-                Stroke = Brushes.DeepSkyBlue,
+                Stroke = new SolidColorBrush(Color.FromRgb(72, 152, 255)),
                 StrokeThickness = 2,
-                Fill = Brushes.Transparent,
-                StrokeDashArray = new DoubleCollection { 4, 2 }
+                Fill = Brushes.Transparent
             };
             _rect.MouseLeftButtonDown += Rect_MouseLeftButtonDown;
             _rect.MouseMove += Rect_MouseMove;
@@ -220,7 +222,7 @@ namespace CatchCapture.Utilities
             };
             _headerBar.MouseLeftButtonUp += (s, e) => { if (Mouse.Captured == _headerBar) Mouse.Capture(null); _isHeaderDragging = false; };
 
-            _btnCapture.Click += (s, e) => ConfirmAndClose();
+            _btnCapture.Click += (s, e) => CaptureAndNotify();
             _tbWidth.LostKeyboardFocus += (s, e) => ApplyTextboxSize();
             _tbHeight.LostKeyboardFocus += (s, e) => ApplyTextboxSize();
             _tbWidth.KeyDown += (s, e) => { if (e.Key == Key.Enter) ApplyTextboxSize(); };
@@ -478,13 +480,13 @@ namespace CatchCapture.Utilities
             SetRect(new Rect(l, t, r.Width, r.Height));
         }
 
-        private void ConfirmAndClose()
+        private void CaptureAndNotify()
         {
             // Convert DIPs to device pixels and offset with virtual origin
             var dpi = VisualTreeHelper.GetDpi(this);
             Rect r = GetRect();
-            int pxLeft = (int)Math.Round(r.Left * dpi.DpiScaleX + vLeft);
-            int pxTop = (int)Math.Round(r.Top * dpi.DpiScaleY + vTop);
+            int pxLeft = (int)Math.Round((r.Left + vLeft) * dpi.DpiScaleX);
+            int pxTop = (int)Math.Round((r.Top + vTop) * dpi.DpiScaleY);
             int pxWidth = (int)Math.Round(r.Width * dpi.DpiScaleX);
             int pxHeight = (int)Math.Round(r.Height * dpi.DpiScaleY);
 
@@ -494,9 +496,19 @@ namespace CatchCapture.Utilities
                 return;
             }
 
-            SelectedArea = new Int32Rect(pxLeft, pxTop, pxWidth, pxHeight);
-            DialogResult = true;
-            Close();
+            // Capture the selected area and raise event (keep overlay open)
+            var area = new Int32Rect(pxLeft, pxTop, pxWidth, pxHeight);
+            var image = ScreenCaptureUtility.CaptureArea(area);
+            try { CaptureCompleted?.Invoke(image); } catch { }
+
+            // Show 1-second toast
+            try
+            {
+                var toast = new GuideWindow("캡처되었습니다.", TimeSpan.FromSeconds(1));
+                toast.Owner = this.Owner ?? this;
+                toast.Show();
+            }
+            catch { }
         }
     }
 }

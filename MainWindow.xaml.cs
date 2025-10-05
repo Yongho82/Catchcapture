@@ -326,15 +326,21 @@ public partial class MainWindow : Window
 
             var designatedWindow = new CatchCapture.Utilities.DesignatedCaptureWindow();
             designatedWindow.Owner = this;
-            bool? result = designatedWindow.ShowDialog();
 
-            if (result == true)
+            // Subscribe to continuous capture event
+            designatedWindow.CaptureCompleted += (img) =>
             {
-                // 사용자가 확정한 사각형 영역 캡처
-                var area = designatedWindow.SelectedArea;
-                var capturedImage = ScreenCaptureUtility.CaptureArea(area);
-                AddCaptureToList(capturedImage);
-            }
+                // Ensure UI thread
+                Dispatcher.Invoke(() =>
+                {
+                    AddCaptureToList(img);
+                    // Optionally also copy to clipboard
+                    CatchCapture.Utilities.ScreenCaptureUtility.CopyImageToClipboard(img);
+                });
+            };
+
+            // Block until user closes overlay via ✕ (DialogResult false)
+            designatedWindow.ShowDialog();
         }
         finally
         {
