@@ -194,11 +194,12 @@
                                 </StackPanel>
                             </Button>
                             
-                            <Button x:Name="ScrollCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="ScrollCaptureButton_Click">
+                            <!-- 지정 캡처 버튼 (스크롤캡처 대체) -->
+                            <Button x:Name="DesignatedCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="DesignatedCaptureButton_Click">
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="/icons/scroll_capture.png" Width="16" Height="16" Margin="0,0,5,0"
+                                    <Image Source="/icons/area_capture.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="스크롤캡처" HorizontalAlignment="Left" FontSize="11"/>
+                                    <TextBlock Text="지정캡처" HorizontalAlignment="Left" FontSize="11"/>
                                 </StackPanel>
                             </Button>
                             

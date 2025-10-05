@@ -316,6 +316,33 @@ public partial class MainWindow : Window
         }
     }
 
+    private void DesignatedCaptureButton_Click(object sender, RoutedEventArgs e)
+    {
+        // 지정 캡처 오버레이 표시
+        try
+        {
+            this.Hide();
+            System.Threading.Thread.Sleep(120);
+
+            var designatedWindow = new CatchCapture.Utilities.DesignatedCaptureWindow();
+            designatedWindow.Owner = this;
+            bool? result = designatedWindow.ShowDialog();
+
+            if (result == true)
+            {
+                // 사용자가 확정한 사각형 영역 캡처
+                var area = designatedWindow.SelectedArea;
+                var capturedImage = ScreenCaptureUtility.CaptureArea(area);
+                AddCaptureToList(capturedImage);
+            }
+        }
+        finally
+        {
+            this.Show();
+            this.Activate();
+        }
+    }
+
     private void AddCaptureToList(BitmapSource image)
     {
         // 캡처 이미지 객체 생성
