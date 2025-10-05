@@ -179,6 +179,94 @@ public partial class MainWindow : Window
             }
             return;
         }
+        
+        // Ctrl+Z: 실행 취소 (미리보기 창에서 편집된 경우 현재 선택된 이미지를 다시 로드)
+        if (e.Key == Key.Z && mods == ModifierKeys.Control)
+        {
+            if (selectedIndex >= 0 && selectedIndex < captures.Count)
+            {
+                // 현재 선택된 이미지를 원본으로 되돌림
+                captures[selectedIndex] = new CaptureImage(captures[selectedIndex].Image);
+                UpdateCaptureItemIndexes();
+                UpdateButtonStates();
+                e.Handled = true;
+            }
+            return;
+        }
+        
+        // Ctrl+R: 스크롤 캡처
+        if (e.Key == Key.R && mods == ModifierKeys.Control)
+        {
+            CaptureScrollableWindow();
+            e.Handled = true;
+            return;
+        }
+        
+        // Ctrl+D: 지정 캡처
+        if (e.Key == Key.D && mods == ModifierKeys.Control)
+        {
+            DesignatedCaptureButton_Click(this, new RoutedEventArgs());
+            e.Handled = true;
+            return;
+        }
+        
+        // Ctrl+O: 열기 (불러오기)
+        if (e.Key == Key.O && mods == ModifierKeys.Control)
+        {
+            OpenFileDialog_Click(this, new RoutedEventArgs());
+            e.Handled = true;
+            return;
+        }
+        
+        // Ctrl+N: 새 캡처 (영역 캡처)
+        if (e.Key == Key.N && mods == ModifierKeys.Control)
+        {
+            StartAreaCapture();
+            e.Handled = true;
+            return;
+        }
+        
+        // Ctrl+T: 상단most 토글
+        if (e.Key == Key.T && mods == ModifierKeys.Control)
+        {
+            ToggleTopmost();
+            e.Handled = true;
+            return;
+        }
+    }
+    
+    // 상단most 토글 기능
+    private void ToggleTopmost()
+    {
+        this.Topmost = !this.Topmost;
+        ShowGuideMessage($"상단 고정: {(this.Topmost ? "켜짐" : "꺼짐")}", TimeSpan.FromSeconds(1));
+    }
+    
+    // 파일 열기 다이얼로그
+    private void OpenFileDialog_Click(object? sender, RoutedEventArgs? e)
+    {
+        var dialog = new OpenFileDialog
+        {
+            Title = "이미지 열기",
+            Filter = "이미지 파일|*.png;*.jpg;*.jpeg;*.bmp;*.gif|모든 파일|*.*",
+            Multiselect = true
+        };
+        
+        if (dialog.ShowDialog() == true)
+        {
+            foreach (var fileName in dialog.FileNames)
+            {
+                try
+                {
+                    var bitmap = new BitmapImage(new Uri(fileName));
+                    AddCaptureToList(bitmap);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"파일을 열 수 없습니다: {fileName}\n오류: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
     }
 
     #region 캡처 기능

@@ -166,6 +166,131 @@ namespace CatchCapture
                 MessageBox.Show("이미지가 클립보드에 복사되었습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
                 e.Handled = true;
             }
+            else if (e.Key == Key.Z && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                // Ctrl+Z: 실행 취소
+                if (UndoButton?.IsEnabled == true)
+                {
+                    UndoButton_Click(this, new RoutedEventArgs());
+                }
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Y && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                // Ctrl+Y: 다시 실행
+                if (RedoButton?.IsEnabled == true)
+                {
+                    RedoButton_Click(this, new RoutedEventArgs());
+                }
+                e.Handled = true;
+            }
+            else if (e.Key == Key.S && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                // Ctrl+S: 저장
+                SaveButton_Click(this, new RoutedEventArgs());
+                e.Handled = true;
+            }
+            else if (e.Key == Key.OemPlus && Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift))
+            {
+                // Ctrl+Shift++: 확대
+                ZoomIn();
+                e.Handled = true;
+            }
+            else if (e.Key == Key.OemMinus && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                // Ctrl+-: 축소
+                ZoomOut();
+                e.Handled = true;
+            }
+            else if (e.Key == Key.D0 && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                // Ctrl+0: 실제 크기로
+                ResetZoom();
+                e.Handled = true;
+            }
+        }
+        
+        // 확대 기능
+        private void ZoomIn()
+        {
+            if (PreviewImage != null)
+            {
+                // 현재 스케일 가져오기
+                var scaleTransform = GetImageScaleTransform();
+                if (scaleTransform != null)
+                {
+                    // 10%씩 확대 (최대 500%)
+                    double newScale = Math.Min(scaleTransform.ScaleX * 1.1, 5.0);
+                    scaleTransform.ScaleX = newScale;
+                    scaleTransform.ScaleY = newScale;
+                }
+            }
+        }
+        
+        // 축소 기능
+        private void ZoomOut()
+        {
+            if (PreviewImage != null)
+            {
+                // 현재 스케일 가져오기
+                var scaleTransform = GetImageScaleTransform();
+                if (scaleTransform != null)
+                {
+                    // 10%씩 축소 (최소 10%)
+                    double newScale = Math.Max(scaleTransform.ScaleX * 0.9, 0.1);
+                    scaleTransform.ScaleX = newScale;
+                    scaleTransform.ScaleY = newScale;
+                }
+            }
+        }
+        
+        // 실제 크기로 리셋
+        private void ResetZoom()
+        {
+            if (PreviewImage != null)
+            {
+                var scaleTransform = GetImageScaleTransform();
+                if (scaleTransform != null)
+                {
+                    scaleTransform.ScaleX = 1.0;
+                    scaleTransform.ScaleY = 1.0;
+                }
+            }
+        }
+        
+        // 이미지의 스케일 트랜스폼 가져오기
+        private ScaleTransform? GetImageScaleTransform()
+        {
+            if (PreviewImage?.RenderTransform is ScaleTransform scale)
+            {
+                return scale;
+            }
+            else if (PreviewImage?.RenderTransform is TransformGroup group)
+            {
+                foreach (var transform in group.Children)
+                {
+                    if (transform is ScaleTransform scaleTransform)
+                    {
+                        return scaleTransform;
+                    }
+                }
+            }
+            else if (PreviewImage != null)
+            {
+                // 스케일 트랜스폼이 없으면 새로 생성
+                var scaleTransform = new ScaleTransform(1.0, 1.0);
+                if (PreviewImage.RenderTransform is TransformGroup existingGroup)
+                {
+                    existingGroup.Children.Add(scaleTransform);
+                }
+                else
+                {
+                    PreviewImage.RenderTransform = scaleTransform;
+                }
+                return scaleTransform;
+            }
+            
+            return null;
         }
 
         private void CancelCurrentEditMode()
