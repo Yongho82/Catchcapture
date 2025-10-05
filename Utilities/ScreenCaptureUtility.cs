@@ -688,7 +688,24 @@ namespace CatchCapture.Utilities
         {
             using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
             {
-                BitmapEncoder encoder = new PngBitmapEncoder();
+                BitmapEncoder encoder;
+                
+                // 파일 확장자에 따라 인코더 선택
+                string extension = System.IO.Path.GetExtension(filePath).ToLower();
+                
+                if (extension == ".jpg" || extension == ".jpeg")
+                {
+                    // JPG 인코더 사용 및 품질 설정 (Windows 기본 수준)
+                    JpegBitmapEncoder jpegEncoder = new JpegBitmapEncoder();
+                    jpegEncoder.QualityLevel = 85; // Windows 기본 수준 품질
+                    encoder = jpegEncoder;
+                }
+                else
+                {
+                    // PNG 인코더 사용
+                    encoder = new PngBitmapEncoder();
+                }
+                
                 encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
                 encoder.Save(fileStream);
             }
