@@ -41,6 +41,7 @@ namespace CatchCapture.Utilities
         // Header dragging
         private bool _isHeaderDragging;
         private Point _headerDragStart;
+        private bool _hasCentered = false;
 
         // Virtual screen bounds
         private double vLeft;
@@ -217,15 +218,10 @@ namespace CatchCapture.Utilities
             double initT = Math.Max(0, (vHeight - initH) / 2);
             SetRect(new Rect(initL, initT, initW, initH));
 
-            // Re-center after layout to handle DPI/layout quirks
-            Loaded += (s, e) =>
-            {
-                double w = Math.Min(400, vWidth - 20);
-                double h = Math.Min(400, vHeight - 20);
-                double l = Math.Max(0, (vWidth - w) / 2);
-                double t = Math.Max(0, (vHeight - h) / 2);
-                SetRect(new Rect(l, t, w, h));
-            };
+            // Re-center after layout/activation to handle DPI and multi-monitor quirks
+            Loaded += (s, e) => Dispatcher.BeginInvoke(new Action(EnsureFirstCenter));
+            ContentRendered += (s, e) => Dispatcher.BeginInvoke(new Action(EnsureFirstCenter));
+            Activated += (s, e) => Dispatcher.BeginInvoke(new Action(CenterSelection));
         }
 
         private void OnKeyDown(object sender, KeyEventArgs e)
@@ -348,15 +344,10 @@ namespace CatchCapture.Utilities
             _sizeText.Text = $"{(int)rect.Width} x {(int)rect.Height}";
             _headerBar.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
             double hbh = _headerBar.DesiredSize.Height;
-            // Titlebar style: same width as selection and attached to its top edge
+            // Titlebar style: same width as selection and attached INSIDE at the top edge (so it is always visible)
             _headerBar.Width = Math.Max(120, rect.Width);
             double headerLeft = rect.Left;
-            double headerTop = rect.Top - hbh; // stick just above the selection
-            // If not enough space above, place inside at the very top edge (no bottom placement)
-            if (headerTop < 0)
-            {
-                headerTop = rect.Top;
-            }
+            double headerTop = rect.Top; // inside top edge
             // Clamp within canvas bounds horizontally
             headerLeft = Math.Max(0, Math.Min(headerLeft, vWidth - _headerBar.Width));
             headerTop = Math.Max(0, Math.Min(headerTop, vHeight - hbh));
@@ -390,9 +381,68 @@ namespace CatchCapture.Utilities
             if (!int.TryParse(_tbHeight.Text, out int h) || h <= 0) return;
 
             Rect r = GetRect();
-            double newW = Math.Min(vWidth - r.Left, w);
-            double newH = Math.Min(vHeight - r.Top, h);
-            SetRect(new Rect(r.Left, r.Top, Math.Max(1, newW), Math.Max(1, newH)));
+            double newW = Math.Min(vWidth - 8, w);
+            double newH = Math.Min(vHeight - 8, h);
+
+            // If the new size would overflow to the right/bottom, shift left/up to keep visible
+            double left = r.Left;
+            double top = r.Top;
+            if (left + newW > vWidth - 8) left = Math.Max(8, vWidth - newW - 8);
+            if (top + newH > vHeight - 8) top = Math.Max(8, vHeight - newH - 8);
+
+            SetRect(new Rect(left, top, Math.Max(1, newW), Math.Max(1, newH)));
+        }
+
+        private void CenterSelection()
+        {
+            // Safety margin to keep header and rectangle away from edges
+            const double margin = 12;
+            double w = Math.Min(400, Math.Max(100, vWidth - margin * 2));
+            double h = Math.Min(400, Math.Max(100, vHeight - margin * 2));
+            double l = Math.Max(margin, (vWidth - w) / 2);
+            double t = Math.Max(margin, (vHeight - h) / 2);
+
+            // If current rect is largely offscreen (e.g., due to virtual origin), force center
+            Rect r = GetRect();
+            bool offLeft = r.Right < margin;
+            bool offTop = r.Bottom < margin;
+            bool offRight = r.Left > vWidth - margin;
+            bool offBottom = r.Top > vHeight - margin;
+            if (double.IsNaN(r.Left) || offLeft || offTop || offRight || offBottom)
+            {
+                SetRect(new Rect(l, t, w, h));
+            }
+            else
+            {
+                // Otherwise, just ensure fully visible
+                EnsureRectFullyVisible();
+            }
+        }
+
+        private void EnsureFirstCenter()
+        {
+            if (_hasCentered) { CenterSelection(); return; }
+            _hasCentered = true;
+
+            const double margin = 12;
+            double primW = SystemParameters.PrimaryScreenWidth;
+            double primH = SystemParameters.PrimaryScreenHeight;
+            double primOriginX = -vLeft;
+            double primOriginY = -vTop;
+            double w = Math.Min(400, Math.Max(100, primW - margin * 2));
+            double h = Math.Min(400, Math.Max(100, primH - margin * 2));
+            double l = primOriginX + Math.Max(margin, (primW - w) / 2);
+            double t = primOriginY + Math.Max(margin, (primH - h) / 2);
+            SetRect(new Rect(l, t, w, h));
+        }
+
+        private void EnsureRectFullyVisible()
+        {
+            const double margin = 8;
+            Rect r = GetRect();
+            double l = Math.Max(margin, Math.Min(r.Left, vWidth - r.Width - margin));
+            double t = Math.Max(margin, Math.Min(r.Top, vHeight - r.Height - margin));
+            SetRect(new Rect(l, t, r.Width, r.Height));
         }
 
         private void ConfirmAndClose()
