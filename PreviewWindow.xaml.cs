@@ -85,6 +85,9 @@ namespace CatchCapture
             ImageCanvas.Width = currentImage.PixelWidth;
             ImageCanvas.Height = currentImage.PixelHeight;
 
+            // 이미지 크기에 맞게 창 크기 조정 (최대 크기 제한 적용)
+            AdjustWindowSizeToFitImage();
+
             // 이벤트 핸들러 등록
             ImageCanvas.MouseLeftButtonDown += ImageCanvas_MouseLeftButtonDown;
             ImageCanvas.MouseMove += ImageCanvas_MouseMove;
@@ -102,6 +105,51 @@ namespace CatchCapture
                         HighlightButton_Click(null, null);
                     }));
             };
+        }
+
+        // 이미지 크기에 맞게 창 크기를 조정하는 메서드
+        private void AdjustWindowSizeToFitImage()
+        {
+            // 이미지 크기 가져오기
+            int imageWidth = currentImage.PixelWidth;
+            int imageHeight = currentImage.PixelHeight;
+
+            // 최대 창 크기 제한 (화면 크기를 벗어나지 않도록)
+            double maxWindowWidth = SystemParameters.WorkArea.Width * 0.9;
+            double maxWindowHeight = SystemParameters.WorkArea.Height * 0.9;
+
+            // 최소 창 크기 설정
+            double minWindowWidth = 400;
+            double minWindowHeight = 300;
+
+            // 도구 모음과 하단 패널의 높이 계산 (대략적인 값)
+            double toolbarHeight = 60; // 도구 모음 높이
+            double bottomPanelHeight = 80; // 하단 패널 높이
+            double windowChromeHeight = 40; // 창 테두리 및 제목 표시줄 높이
+
+            // 필요한 콘텐츠 높이 계산
+            double requiredContentHeight = imageHeight + toolbarHeight + bottomPanelHeight + windowChromeHeight;
+            double requiredContentWidth = imageWidth + 20; // 여백
+
+            // 창 크기 계산 (최대/최소 크기 제한 적용)
+            double windowWidth = Math.Max(minWindowWidth, Math.Min(maxWindowWidth, requiredContentWidth));
+            double windowHeight = Math.Max(minWindowHeight, Math.Min(maxWindowHeight, requiredContentHeight));
+
+            // 창 크기 설정
+            this.Width = windowWidth;
+            this.Height = windowHeight;
+
+            // 창을 소유자 중앙에 위치 (소유자가 있는 경우)
+            if (this.Owner != null)
+            {
+                this.Left = this.Owner.Left + (this.Owner.Width - this.Width) / 2;
+                this.Top = this.Owner.Top + (this.Owner.Height - this.Height) / 2;
+            }
+            else
+            {
+                // 소유자가 없는 경우 화면 중앙에 위치
+                this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            }
         }
 
         private void PreviewWindow_KeyDown(object sender, KeyEventArgs e)
