@@ -108,5 +108,3 @@ C:\yonghoprogram\Multicapture\bin\Debug\net8.0-windows\icons\shape.png
 C:\yonghoprogram\Multicapture\bin\Debug\net8.0-windows\icons\camera.png
 C:\yonghoprogram\Multicapture\bin\Debug\net8.0-windows\icons\scroll_capture.png
 C:\yonghoprogram\Multicapture\bin\Debug\net8.0-windows\icons\clock.png
-C:\yonghoprogram\Multicapture\obj\Debug\net8.0-windows\ShortcutSettingsWindow.baml
-C:\yonghoprogram\Multicapture\obj\Debug\net8.0-windows\ShortcutSettingsWindow.g.cs

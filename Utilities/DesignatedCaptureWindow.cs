@@ -496,9 +496,38 @@ namespace CatchCapture.Utilities
                 return;
             }
 
-            // Capture the selected area and raise event (keep overlay open)
-            var area = new Int32Rect(pxLeft, pxTop, pxWidth, pxHeight);
-            var image = ScreenCaptureUtility.CaptureArea(area);
+            // Prefer cropping from frozen background to avoid capturing overlay UI
+            BitmapSource? image = null;
+            try
+            {
+                // Translate to relative coords within the frozen background
+                int relX = pxLeft - (int)Math.Round(vLeft);
+                int relY = pxTop - (int)Math.Round(vTop);
+
+                // Clamp crop rect to background bounds
+                int cw = Math.Max(0, Math.Min(pxWidth, _screenCapture.PixelWidth - Math.Max(0, relX)));
+                int ch = Math.Max(0, Math.Min(pxHeight, _screenCapture.PixelHeight - Math.Max(0, relY)));
+                relX = Math.Max(0, Math.Min(relX, _screenCapture.PixelWidth - 1));
+                relY = Math.Max(0, Math.Min(relY, _screenCapture.PixelHeight - 1));
+
+                if (cw > 0 && ch > 0)
+                {
+                    var cropRect = new Int32Rect(relX, relY, cw, ch);
+                    image = new CroppedBitmap(_screenCapture, cropRect);
+                }
+            }
+            catch
+            {
+                // ignore and fallback
+            }
+
+            // Fallback to live capture only if cropping failed (should be rare)
+            if (image == null)
+            {
+                var area = new Int32Rect(pxLeft, pxTop, pxWidth, pxHeight);
+                image = ScreenCaptureUtility.CaptureArea(area);
+            }
+
             try { CaptureCompleted?.Invoke(image); } catch { }
 
             // Show 1-second toast
