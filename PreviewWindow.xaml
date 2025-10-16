@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CatchCapture"
         mc:Ignorable="d"
-        Title="이미지 편집" Height="600" Width="1050"
+        Title="이미지 편집" Height="800" Width="1200"
         WindowStartupLocation="CenterOwner"
         Background="#F8F9FC">
     

@@ -128,9 +128,9 @@ namespace CatchCapture
             double maxWindowWidth = SystemParameters.WorkArea.Width * 0.9;
             double maxWindowHeight = SystemParameters.WorkArea.Height * 0.9;
 
-            // 최소 창 크기 설정
-            double minWindowWidth = 400;
-            double minWindowHeight = 300;
+            // 최소(기본) 창 크기 설정: 요청대로 1200x800
+            double minWindowWidth = 1200;
+            double minWindowHeight = 800;
 
             // 도구 모음과 하단 패널의 높이 계산 (대략적인 값)
             double toolbarHeight = 60; // 도구 모음 높이
@@ -139,11 +139,11 @@ namespace CatchCapture
 
             // 필요한 콘텐츠 높이 계산
             double requiredContentHeight = imageHeight + toolbarHeight + bottomPanelHeight + windowChromeHeight;
-            double requiredContentWidth = imageWidth + 20; // 여백
+            double requiredContentWidth = imageWidth + 60; // 좌우 여유 포함
 
-            // 창 크기 계산 (최대/최소 크기 제한 적용)
-            double windowWidth = Math.Max(minWindowWidth, Math.Min(maxWindowWidth, requiredContentWidth));
-            double windowHeight = Math.Max(minWindowHeight, Math.Min(maxWindowHeight, requiredContentHeight));
+            // 창 크기 계산 (필요한 크기와 최소/최대 범위를 고려)
+            double windowWidth = Math.Min(maxWindowWidth, Math.Max(minWindowWidth, requiredContentWidth));
+            double windowHeight = Math.Min(maxWindowHeight, Math.Max(minWindowHeight, requiredContentHeight));
 
             // 창 크기 설정
             this.Width = windowWidth;
@@ -341,6 +341,9 @@ namespace CatchCapture
             isDrawingShape = false;
             isDragStarted = false;
             WriteLog("그리기 상태 초기화: isDrawingShape=false, isDragStarted=false");
+            
+            // 활성 강조 해제
+            SetActiveToolButton(null);
         }
 
         #region 이벤트 핸들러
@@ -591,6 +594,7 @@ namespace CatchCapture
             CancelCurrentEditMode();
             currentEditMode = EditMode.Crop;
             ImageCanvas.Cursor = Cursors.Cross;
+            SetActiveToolButton(CropButton);
         }
 
         private void RotateButton_Click(object sender, RoutedEventArgs e)
@@ -632,6 +636,7 @@ namespace CatchCapture
             // 도형 옵션 패널 표시
             ShowShapeOptions();
             WriteLog("도형 옵션 패널 표시됨");
+            SetActiveToolButton(ShapeButton);
         }
 
         private void HighlightButton_Click(object? sender, RoutedEventArgs? e)
@@ -641,6 +646,7 @@ namespace CatchCapture
             ImageCanvas.Cursor = Cursors.Pen;
             
             ShowHighlightOptionsPopup();
+            SetActiveToolButton(HighlightButton);
         }
 
         private void PenButton_Click(object sender, RoutedEventArgs e)
@@ -650,6 +656,7 @@ namespace CatchCapture
             ImageCanvas.Cursor = Cursors.Pen;
             
             ShowPenOptionsPopup();
+            SetActiveToolButton(PenButton);
         }
 
         private void TextButton_Click(object sender, RoutedEventArgs e)
@@ -659,6 +666,7 @@ namespace CatchCapture
             ImageCanvas.Cursor = Cursors.IBeam;
             
             ShowTextOptions();
+            SetActiveToolButton(TextButton);
         }
 
         private void MosaicButton_Click(object sender, RoutedEventArgs e)
@@ -668,6 +676,7 @@ namespace CatchCapture
             ImageCanvas.Cursor = Cursors.Cross;
             
             ShowMosaicOptions();
+            SetActiveToolButton(MosaicButton);
         }
 
         private void EraserButton_Click(object sender, RoutedEventArgs e)
@@ -677,6 +686,7 @@ namespace CatchCapture
             ImageCanvas.Cursor = Cursors.None;
             
             ShowEraserOptions();
+            SetActiveToolButton(EraserButton);
         }
 
         private void CloseOptionsButton_Click(object sender, RoutedEventArgs e)
@@ -2024,6 +2034,30 @@ namespace CatchCapture
             }
         }
 
+        // 활성화된 툴 버튼 강조 표시 색상 (호버 색상과 동일하게 유지)
+        private static readonly Brush ActiveToolBackground = (Brush)new BrushConverter().ConvertFromString("#E8F3FF")!;
+        private static readonly Brush InactiveToolBackground = Brushes.Transparent;
+
+        private void SetActiveToolButton(Button? active)
+        {
+            // 툴바의 편집 도구 버튼들만 대상으로 처리
+            var toolButtons = new List<Button?>
+            {
+                CropButton,
+                ShapeButton,
+                HighlightButton,
+                TextButton,
+                MosaicButton,
+                EraserButton,
+                PenButton
+            };
+
+            foreach (var b in toolButtons)
+            {
+                if (b == null) continue;
+                b.Background = (active != null && b == active) ? ActiveToolBackground : InactiveToolBackground;
+            }
+        }
         #endregion
     }
 
