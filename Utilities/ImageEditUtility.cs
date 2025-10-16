@@ -50,10 +50,8 @@ namespace CatchCapture.Utilities
                 // 원본 이미지 그리기
                 drawingContext.DrawImage(source, new Rect(0, 0, source.PixelWidth, source.PixelHeight));
 
-                // 하이라이트 그리기 - 반투명 색상 및 라운드 캡 적용
-                // 입력 색상이 불투명한 경우에만 알파를 낮춰서 형광펜 효과를 만듦
-                byte alpha = color.A == 255 ? (byte)100 : color.A; // 약 40% 투명도
-                var highlightBrush = new SolidColorBrush(Color.FromArgb(alpha, color.R, color.G, color.B));
+                // 하이라이트: 입력 알파를 그대로 사용하고, 하나의 폴리라인 경로로 그려 단절감을 줄임
+                var highlightBrush = new SolidColorBrush(Color.FromArgb(color.A, color.R, color.G, color.B));
                 if (highlightBrush.CanFreeze) highlightBrush.Freeze();
 
                 Pen pen = new Pen(highlightBrush, thickness)
@@ -64,10 +62,15 @@ namespace CatchCapture.Utilities
                 };
                 if (pen.CanFreeze) pen.Freeze();
 
-                for (int i = 0; i < points.Length - 1; i++)
+                // 연속 경로로 렌더링
+                var geometry = new StreamGeometry();
+                using (var gc = geometry.Open())
                 {
-                    drawingContext.DrawLine(pen, points[i], points[i + 1]);
+                    gc.BeginFigure(points[0], false, false);
+                    gc.PolyLineTo(points, true, true);
                 }
+                if (geometry.CanFreeze) geometry.Freeze();
+                drawingContext.DrawGeometry(null, pen, geometry);
             }
 
             // DrawingVisual을 RenderTargetBitmap으로 변환

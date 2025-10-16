@@ -25,12 +25,19 @@ namespace CatchCapture
         private Rectangle? selectionRectangle;
         private List<Point> drawingPoints = new List<Point>();
         private EditMode currentEditMode = EditMode.None;
+        // Pen & Highlight settings
+        private Color penColor = Colors.Black;
+        private double penThickness = 3;
         private ShapeType shapeType = ShapeType.Rectangle;
         private Color shapeColor = Colors.Red;
         private double shapeBorderThickness = 2;
         private bool shapeIsFilled = false;
-        private Color highlightColor = Colors.Yellow;
-        private double highlightThickness = 5;
+        // 기본 형광펜은 중간 투명도(약 45~50%)와 중간 두께로 시작
+        private Color highlightColor = Color.FromArgb(120, Colors.Yellow.R, Colors.Yellow.G, Colors.Yellow.B);
+        private double highlightThickness = 8;
+        // 형광펜 두께 미리보기용 보조 요소
+        private Canvas? thicknessPreviewCanvas;
+        private Rectangle? thicknessPreviewRect;
         private Color textColor = Colors.Red;
         private double textSize = 16;
         private double eraserSize = 10;
@@ -41,16 +48,16 @@ namespace CatchCapture
         private bool textShadowEnabled = false;
         private bool textUnderlineEnabled = false;
         private UIElement? tempShape;
-        private Color penColor = Colors.Black;
-        private double penThickness = 3;
-
+        // 라이브 스트로크 미리보기 (형광펜/펜 공용)
+        private System.Windows.Shapes.Path? liveStrokePath;
+        private PolyLineSegment? liveStrokeSegment;
+        
         // 도형 버튼을 멤버 변수로 선언
         private Button? rectButton;
         private Button? ellipseButton;
         private Button? lineButton;
         private Button? arrowButton;
-        private Button? penButton;
-
+        
         private bool isDrawingShape = false;
         private bool isDragStarted = false; // 마우스 드래그가 시작되었는지
 
@@ -750,47 +757,52 @@ namespace CatchCapture
         {
             drawingPoints.Clear();
             drawingPoints.Add(startPoint);
+            
+            // 라이브 경로 초기화 (펜/형광펜 모두 동일 방식으로 미리보기)
+            Color strokeColor;
+            double thickness;
+            double opacity = 1.0;
+            if (currentEditMode == EditMode.Pen)
+            {
+                strokeColor = penColor;
+                thickness = penThickness;
+                opacity = 1.0;
+            }
+            else // Highlight
+            {
+                strokeColor = highlightColor;
+                thickness = highlightThickness;
+                opacity = Math.Max(0.1, highlightColor.A / 255.0);
+            }
+            
+            var fig = new PathFigure { StartPoint = startPoint, IsClosed = false, IsFilled = false };
+            liveStrokeSegment = new PolyLineSegment();
+            fig.Segments.Add(liveStrokeSegment);
+            var geom = new PathGeometry();
+            geom.Figures.Add(fig);
+            
+            liveStrokePath = new System.Windows.Shapes.Path
+            {
+                Data = geom,
+                Stroke = new SolidColorBrush(strokeColor),
+                StrokeThickness = thickness,
+                StrokeStartLineCap = PenLineCap.Round,
+                StrokeEndLineCap = PenLineCap.Round,
+                StrokeLineJoin = PenLineJoin.Round,
+                Opacity = opacity
+            };
+            
+            ImageCanvas.Children.Add(liveStrokePath);
         }
 
         private void UpdateDrawing(Point currentPoint)
         {
             drawingPoints.Add(currentPoint);
             
-            // 임시 선 그리기
-            if (drawingPoints.Count > 1)
+            // 라이브 경로 갱신 (연속 경로여서 끊김 현상 방지)
+            if (liveStrokeSegment != null)
             {
-                Color strokeColor;
-                double thickness;
-                double opacity = 1.0;
-                if (currentEditMode == EditMode.Pen)
-                {
-                    strokeColor = penColor;
-                    thickness = penThickness;
-                    opacity = 1.0; // opaque pen
-                }
-                else // Highlight
-                {
-                    strokeColor = highlightColor;
-                    thickness = highlightThickness;
-                    opacity = highlightColor.A == 255 ? 0.4 : (highlightColor.A / 255.0);
-                }
-                
-                Line line = new Line
-                {
-                    X1 = drawingPoints[drawingPoints.Count - 2].X,
-                    Y1 = drawingPoints[drawingPoints.Count - 2].Y,
-                    X2 = currentPoint.X,
-                    Y2 = currentPoint.Y,
-                    Stroke = new SolidColorBrush(strokeColor),
-                    StrokeThickness = thickness,
-                    StrokeEndLineCap = PenLineCap.Round,
-                    StrokeStartLineCap = PenLineCap.Round
-                };
-                
-                // 미리보기 선을 도구에 맞게 표시
-                line.Opacity = opacity;
-                
-                ImageCanvas.Children.Add(line);
+                liveStrokeSegment.Points.Add(currentPoint);
             }
         }
 
@@ -809,22 +821,17 @@ namespace CatchCapture
             }
             UpdatePreviewImage();
             
-            // 임시 선 제거
-            List<UIElement> elementsToRemove = new List<UIElement>();
-            foreach (UIElement element in ImageCanvas.Children)
+            // 라이브 경로 제거
+            if (liveStrokePath != null)
             {
-                if (element is Line)
-                {
-                    elementsToRemove.Add(element);
-                }
-            }
-            
-            foreach (UIElement element in elementsToRemove)
-            {
-                ImageCanvas.Children.Remove(element);
+                ImageCanvas.Children.Remove(liveStrokePath);
+                liveStrokePath = null;
+                liveStrokeSegment = null;
             }
             
             drawingPoints.Clear();
+            // keep mode
+            ImageCanvas.Cursor = Cursors.Pen;
         }
 
         private void AddText()
@@ -1304,7 +1311,7 @@ namespace CatchCapture
                 colorPanel.Children.Add(colorBorder);
             }
             
-            // 두께 선택
+            // 두께 선택 라벨
             var thicknessLabel = new TextBlock { Text = "두께:", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(12,0,6,0) };
             ToolOptionsPopupContent.Children.Add(thicknessLabel);
             
@@ -1322,9 +1329,44 @@ namespace CatchCapture
             thicknessSlider.ValueChanged += (s, e) =>
             {
                 highlightThickness = thicknessSlider.Value;
+                // 미리보기 갱신
+                if (thicknessPreviewRect != null)
+                {
+                    thicknessPreviewRect.Height = Math.Max(1, highlightThickness);
+                    // 가운데 정렬
+                    Canvas.SetTop(thicknessPreviewRect, (thicknessPreviewCanvas.ActualHeight - thicknessPreviewRect.Height) / 2);
+                }
             };
             
             ToolOptionsPopupContent.Children.Add(thicknessSlider);
+            
+            // 두께 미리보기 (슬라이더 옆)
+            var previewWrapper = new Border { Width = 70, Height = 28, Margin = new Thickness(8,0,0,0), Background = Brushes.Transparent };
+            thicknessPreviewCanvas = new Canvas { Width = 70, Height = 28, Background = Brushes.Transparent };
+            thicknessPreviewRect = new Rectangle { Width = 60, Height = Math.Max(1, highlightThickness), Fill = new SolidColorBrush(highlightColor), RadiusX = 2, RadiusY = 2 };
+            Canvas.SetLeft(thicknessPreviewRect, 5);
+            Canvas.SetTop(thicknessPreviewRect, (28 - thicknessPreviewRect.Height) / 2);
+            thicknessPreviewCanvas.Children.Add(thicknessPreviewRect);
+            previewWrapper.Child = thicknessPreviewCanvas;
+            ToolOptionsPopupContent.Children.Add(previewWrapper);
+            
+            // 두께 프리셋 (1, 3, 5, 8, 12px)
+            var presets = new[] {1, 3, 5, 8, 12};
+            var presetPanel = new StackPanel { Orientation = Orientation.Vertical, Margin = new Thickness(12,0,0,0) };
+            foreach (var p in presets)
+            {
+                var sampleCanvas = new Canvas { Width = 80, Height = 18, Margin = new Thickness(0,2,0,2), Cursor = Cursors.Hand };
+                var r = new Rectangle { Width = 60, Height = p, Fill = new SolidColorBrush(highlightColor), RadiusX = 2, RadiusY = 2 };
+                Canvas.SetLeft(r, 4);
+                Canvas.SetTop(r, (18 - p) / 2.0);
+                sampleCanvas.Children.Add(r);
+                var label = new TextBlock { Text = $"{p}px", FontSize = 10, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(66,0,0,0) };
+                sampleCanvas.Children.Add(label);
+                int pv = p;
+                sampleCanvas.MouseLeftButtonDown += (s, e) => { thicknessSlider.Value = pv; };
+                presetPanel.Children.Add(sampleCanvas);
+            }
+            ToolOptionsPopupContent.Children.Add(presetPanel);
             
             // 투명도 선택 (두께 옆)
             var opacityLabel = new TextBlock { Text = "투명도:", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(12,0,6,0) };
@@ -1334,6 +1376,7 @@ namespace CatchCapture
             {
                 Minimum = 10,
                 Maximum = 100,
+                // 기본은 중간 단계 투명함
                 Value = Math.Max(10, (int)Math.Round((highlightColor.A / 255.0) * 100)),
                 Width = 120,
                 IsSnapToTickEnabled = true,
@@ -1344,6 +1387,29 @@ namespace CatchCapture
             {
                 byte a = (byte)Math.Max(26, Math.Min(255, Math.Round(opacitySlider.Value / 100.0 * 255)));
                 highlightColor = Color.FromArgb(a, highlightColor.R, highlightColor.G, highlightColor.B);
+                // 미리보기 색상 업데이트
+                if (thicknessPreviewRect != null)
+                {
+                    thicknessPreviewRect.Fill = new SolidColorBrush(highlightColor);
+                }
+                // 팝업 내 프리셋 샘플들도 동일 알파 적용
+                foreach (var child in ToolOptionsPopupContent.Children)
+                {
+                    if (child is StackPanel sp)
+                    {
+                        foreach (var sub in sp.Children)
+                        {
+                            if (sub is Canvas sc)
+                            {
+                                foreach (var elem in sc.Children)
+                                {
+                                    if (elem is Rectangle rr)
+                                        rr.Fill = new SolidColorBrush(highlightColor);
+                                }
+                            }
+                        }
+                    }
+                }
             };
             ToolOptionsPopupContent.Children.Add(opacitySlider);
             
