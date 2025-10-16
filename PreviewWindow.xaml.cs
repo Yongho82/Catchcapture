@@ -760,7 +760,9 @@ namespace CatchCapture
             
             ImageCanvas.Children.Remove(selectionRectangle);
             selectionRectangle = null;
-            currentEditMode = EditMode.None;
+            // 연속 자르기를 위해 크롭 모드 유지
+            currentEditMode = EditMode.Crop;
+            ImageCanvas.Cursor = Cursors.Cross;
         }
 
         private void StartDrawing()
