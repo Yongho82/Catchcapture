@@ -50,9 +50,19 @@ namespace CatchCapture.Utilities
                 // 원본 이미지 그리기
                 drawingContext.DrawImage(source, new Rect(0, 0, source.PixelWidth, source.PixelHeight));
 
-                // 하이라이트 그리기
-                Pen pen = new Pen(new SolidColorBrush(color), thickness);
-                pen.LineJoin = PenLineJoin.Round;
+                // 하이라이트 그리기 - 반투명 색상 및 라운드 캡 적용
+                // 입력 색상이 불투명한 경우에만 알파를 낮춰서 형광펜 효과를 만듦
+                byte alpha = color.A == 255 ? (byte)100 : color.A; // 약 40% 투명도
+                var highlightBrush = new SolidColorBrush(Color.FromArgb(alpha, color.R, color.G, color.B));
+                if (highlightBrush.CanFreeze) highlightBrush.Freeze();
+
+                Pen pen = new Pen(highlightBrush, thickness)
+                {
+                    LineJoin = PenLineJoin.Round,
+                    StartLineCap = PenLineCap.Round,
+                    EndLineCap = PenLineCap.Round
+                };
+                if (pen.CanFreeze) pen.Freeze();
 
                 for (int i = 0; i < points.Length - 1; i++)
                 {
@@ -277,6 +287,43 @@ namespace CatchCapture.Utilities
             return renderTargetBitmap;
         }
         
+        // 펜(불투명 자유곡선) 그리기
+        public static BitmapSource ApplyPen(BitmapSource source, System.Windows.Point[] points, System.Windows.Media.Color color, double thickness)
+        {
+            if (points == null || points.Length < 2)
+                return source;
+
+            DrawingVisual drawingVisual = new DrawingVisual();
+            using (DrawingContext drawingContext = drawingVisual.RenderOpen())
+            {
+                // 원본 이미지
+                drawingContext.DrawImage(source, new Rect(0, 0, source.PixelWidth, source.PixelHeight));
+
+                var brush = new SolidColorBrush(color);
+                if (brush.CanFreeze) brush.Freeze();
+
+                Pen pen = new Pen(brush, thickness)
+                {
+                    LineJoin = PenLineJoin.Round,
+                    StartLineCap = PenLineCap.Round,
+                    EndLineCap = PenLineCap.Round
+                };
+                if (pen.CanFreeze) pen.Freeze();
+
+                for (int i = 0; i < points.Length - 1; i++)
+                {
+                    drawingContext.DrawLine(pen, points[i], points[i + 1]);
+                }
+            }
+
+            RenderTargetBitmap rtb = new RenderTargetBitmap(
+                source.PixelWidth, source.PixelHeight,
+                source.DpiX, source.DpiY,
+                PixelFormats.Pbgra32);
+            rtb.Render(drawingVisual);
+            return rtb;
+        }
+        
         public static BitmapSource ApplyShape(BitmapSource source, System.Windows.Point startPoint, System.Windows.Point endPoint, ShapeType shapeType, System.Windows.Media.Color color, double thickness, bool isFilled)
         {
             double left = Math.Min(startPoint.X, endPoint.X);
@@ -290,7 +337,14 @@ namespace CatchCapture.Utilities
                 // 원본 이미지 그리기
                 drawingContext.DrawImage(source, new Rect(0, 0, source.PixelWidth, source.PixelHeight));
                 
-                Pen pen = new Pen(new SolidColorBrush(color), thickness);
+                Pen pen = new Pen(new SolidColorBrush(color), thickness)
+                {
+                    LineJoin = PenLineJoin.Round,
+                    StartLineCap = PenLineCap.Round,
+                    EndLineCap = PenLineCap.Round
+                };
+                if (pen.CanFreeze) pen.Freeze();
+
                 Brush fillBrush = isFilled ? new SolidColorBrush(Color.FromArgb(128, color.R, color.G, color.B)) : Brushes.Transparent;
                 
                 switch (shapeType)

@@ -143,6 +143,18 @@
                     
                     <Separator Style="{StaticResource ToolbarSeparatorStyle}"/>
                     
+                    <!-- 펜 버튼 (형광펜 앞에 배치) -->
+                    <Button x:Name="PenButton" Style="{StaticResource ToolbarButtonStyle}" Click="PenButton_Click" ToolTip="펜">
+                        <StackPanel>
+                            <!-- 아이콘 파일이 없으므로 임시 벡터 아이콘 사용 -->
+                            <Canvas Width="17" Height="17" Margin="0,2,0,2">
+                                <Path Stroke="#333" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Data="M2,14 L15,3"/>
+                                <Ellipse Stroke="#333" StrokeThickness="2" Width="3" Height="3" Canvas.Left="13" Canvas.Top="1"/>
+                            </Canvas>
+                            <TextBlock Text="펜" FontSize="11" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    
                     <Button x:Name="HighlightButton" Style="{StaticResource ToolbarButtonStyle}" Click="HighlightButton_Click" ToolTip="형광펜">
                         <StackPanel>
                             <Image Source="icons/highlight.png" Width="17" Height="17" Margin="0,2,0,2"/>
@@ -173,6 +185,13 @@
                 </StackPanel>
             </ScrollViewer>
         </Border>
+
+        <!-- 아이콘 하단에 표시되는 도구 옵션 팝업 -->
+        <Popup x:Name="ToolOptionsPopup" Placement="Bottom" StaysOpen="False" AllowsTransparency="True">
+            <Border Background="White" BorderBrush="#D0D7E5" BorderThickness="1" CornerRadius="6" Padding="10" Effect="{StaticResource MaterialShadow}">
+                <StackPanel x:Name="ToolOptionsPopupContent" Orientation="Horizontal" />
+            </Border>
+        </Popup>
 
         <!-- 이미지 표시 영역 -->
         <Border Grid.Row="1" Background="#ECEDF2" BorderThickness="0">
@@ -235,4 +254,4 @@
             </Grid>
         </Border>
     </Grid>
-</Window> 
+</Window>

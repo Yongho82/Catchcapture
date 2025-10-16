@@ -41,12 +41,15 @@ namespace CatchCapture
         private bool textShadowEnabled = false;
         private bool textUnderlineEnabled = false;
         private UIElement? tempShape;
-        
+        private Color penColor = Colors.Black;
+        private double penThickness = 3;
+
         // 도형 버튼을 멤버 변수로 선언
         private Button? rectButton;
         private Button? ellipseButton;
         private Button? lineButton;
         private Button? arrowButton;
+        private Button? penButton;
 
         private bool isDrawingShape = false;
         private bool isDragStarted = false; // 마우스 드래그가 시작되었는지
@@ -364,6 +367,7 @@ namespace CatchCapture
                     StartCrop();
                     break;
                 case EditMode.Highlight:
+                case EditMode.Pen:
                     StartDrawing();
                     break;
                 case EditMode.Text:
@@ -435,6 +439,7 @@ namespace CatchCapture
                     UpdateCropSelection(currentPoint);
                     break;
                 case EditMode.Highlight:
+                case EditMode.Pen:
                     UpdateDrawing(currentPoint);
                     break;
                 case EditMode.Mosaic:
@@ -491,6 +496,7 @@ namespace CatchCapture
                     FinishCrop(endPoint);
                     break;
                 case EditMode.Highlight:
+                case EditMode.Pen:
                     FinishDrawing();
                     break;
                 case EditMode.Mosaic:
@@ -627,7 +633,16 @@ namespace CatchCapture
             currentEditMode = EditMode.Highlight;
             ImageCanvas.Cursor = Cursors.Pen;
             
-            ShowHighlightOptions();
+            ShowHighlightOptionsPopup();
+        }
+
+        private void PenButton_Click(object sender, RoutedEventArgs e)
+        {
+            CancelCurrentEditMode();
+            currentEditMode = EditMode.Pen;
+            ImageCanvas.Cursor = Cursors.Pen;
+            
+            ShowPenOptionsPopup();
         }
 
         private void TextButton_Click(object sender, RoutedEventArgs e)
@@ -744,17 +759,36 @@ namespace CatchCapture
             // 임시 선 그리기
             if (drawingPoints.Count > 1)
             {
+                Color strokeColor;
+                double thickness;
+                double opacity = 1.0;
+                if (currentEditMode == EditMode.Pen)
+                {
+                    strokeColor = penColor;
+                    thickness = penThickness;
+                    opacity = 1.0; // opaque pen
+                }
+                else // Highlight
+                {
+                    strokeColor = highlightColor;
+                    thickness = highlightThickness;
+                    opacity = highlightColor.A == 255 ? 0.4 : (highlightColor.A / 255.0);
+                }
+                
                 Line line = new Line
                 {
                     X1 = drawingPoints[drawingPoints.Count - 2].X,
                     Y1 = drawingPoints[drawingPoints.Count - 2].Y,
                     X2 = currentPoint.X,
                     Y2 = currentPoint.Y,
-                    Stroke = new SolidColorBrush(highlightColor),
-                    StrokeThickness = highlightThickness,
+                    Stroke = new SolidColorBrush(strokeColor),
+                    StrokeThickness = thickness,
                     StrokeEndLineCap = PenLineCap.Round,
                     StrokeStartLineCap = PenLineCap.Round
                 };
+                
+                // 미리보기 선을 도구에 맞게 표시
+                line.Opacity = opacity;
                 
                 ImageCanvas.Children.Add(line);
             }
@@ -765,7 +799,14 @@ namespace CatchCapture
             if (drawingPoints.Count < 2) return;
             
             SaveForUndo();
-            currentImage = ImageEditUtility.ApplyHighlight(currentImage, drawingPoints.ToArray(), highlightColor, highlightThickness);
+            if (currentEditMode == EditMode.Pen)
+            {
+                currentImage = ImageEditUtility.ApplyPen(currentImage, drawingPoints.ToArray(), penColor, penThickness);
+            }
+            else
+            {
+                currentImage = ImageEditUtility.ApplyHighlight(currentImage, drawingPoints.ToArray(), highlightColor, highlightThickness);
+            }
             UpdatePreviewImage();
             
             // 임시 선 제거
@@ -1214,24 +1255,25 @@ namespace CatchCapture
 
         #endregion
 
-        #region 도구 옵션 패널
+        #region 도구 옵션 패널 / 팝업
 
-        private void ShowHighlightOptions()
+        private void ShowHighlightOptionsPopup()
         {
-            // 패널 제목 설정
-            ToolTitleText.Text = "형광펜 도구 옵션";
-            
-            EditToolContent.Children.Clear();
+            // Build popup content under the highlight icon
+            ToolOptionsPopupContent.Children.Clear();
             
             // 색상 선택
-            Border colorLabelWrapper = new Border { Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center };
-            TextBlock colorLabel = new TextBlock { Text = "색상:", VerticalAlignment = VerticalAlignment.Center };
-            colorLabelWrapper.Child = colorLabel;
-            EditToolContent.Children.Add(colorLabelWrapper);
+            var colorLabel = new TextBlock { Text = "색상:", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0,0,6,0) };
+            ToolOptionsPopupContent.Children.Add(colorLabel);
             
-            StackPanel colorPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 15, 0), VerticalAlignment = VerticalAlignment.Center };
+            StackPanel colorPanel = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+            ToolOptionsPopupContent.Children.Add(colorPanel);
             
-            Color[] colors = { Colors.Yellow, Colors.Red, Colors.Blue, Colors.Green, Colors.Black };
+            Color[] colors = new Color[] 
+            {
+                Colors.Yellow, Colors.Orange, Colors.Red, Colors.Blue, Colors.Green, Colors.White, Colors.Black, Color.FromRgb(255, 0, 255)
+            };
+            
             foreach (Color color in colors)
             {
                 Border colorBorder = new Border
@@ -1239,7 +1281,7 @@ namespace CatchCapture
                     Width = 18,
                     Height = 18,
                     Background = new SolidColorBrush(color),
-                    BorderBrush = color == highlightColor ? Brushes.Black : Brushes.Transparent,
+                    BorderBrush = (color.R == highlightColor.R && color.G == highlightColor.G && color.B == highlightColor.B) ? Brushes.Black : Brushes.Transparent,
                     BorderThickness = new Thickness(2),
                     Margin = new Thickness(3, 0, 0, 0),
                     CornerRadius = new CornerRadius(2)
@@ -1247,12 +1289,14 @@ namespace CatchCapture
                 
                 colorBorder.MouseLeftButtonDown += (s, e) =>
                 {
-                    highlightColor = color;
-                    foreach (UIElement element in colorPanel.Children)
+                    highlightColor = Color.FromArgb(highlightColor.A, color.R, color.G, color.B);
+                    // 테두리 업데이트
+                    foreach (var child in colorPanel.Children)
                     {
-                        if (element is Border border)
+                        if (child is Border b && b.Background is SolidColorBrush sc)
                         {
-                            border.BorderBrush = border == s ? Brushes.Black : Brushes.Transparent;
+                            var c = sc.Color;
+                            b.BorderBrush = (c.R == highlightColor.R && c.G == highlightColor.G && c.B == highlightColor.B) ? Brushes.Black : Brushes.Transparent;
                         }
                     }
                 };
@@ -1260,13 +1304,9 @@ namespace CatchCapture
                 colorPanel.Children.Add(colorBorder);
             }
             
-            EditToolContent.Children.Add(colorPanel);
-            
             // 두께 선택
-            Border thicknessLabelWrapper = new Border { Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center };
-            TextBlock thicknessLabel = new TextBlock { Text = "두께:", VerticalAlignment = VerticalAlignment.Center };
-            thicknessLabelWrapper.Child = thicknessLabel;
-            EditToolContent.Children.Add(thicknessLabelWrapper);
+            var thicknessLabel = new TextBlock { Text = "두께:", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(12,0,6,0) };
+            ToolOptionsPopupContent.Children.Add(thicknessLabel);
             
             Slider thicknessSlider = new Slider
             {
@@ -1284,10 +1324,99 @@ namespace CatchCapture
                 highlightThickness = thicknessSlider.Value;
             };
             
-            EditToolContent.Children.Add(thicknessSlider);
+            ToolOptionsPopupContent.Children.Add(thicknessSlider);
             
-            EditToolPanel.Visibility = Visibility.Visible;
+            // 투명도 선택 (두께 옆)
+            var opacityLabel = new TextBlock { Text = "투명도:", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(12,0,6,0) };
+            ToolOptionsPopupContent.Children.Add(opacityLabel);
+            
+            Slider opacitySlider = new Slider
+            {
+                Minimum = 10,
+                Maximum = 100,
+                Value = Math.Max(10, (int)Math.Round((highlightColor.A / 255.0) * 100)),
+                Width = 120,
+                IsSnapToTickEnabled = true,
+                TickFrequency = 5,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            opacitySlider.ValueChanged += (s, e) =>
+            {
+                byte a = (byte)Math.Max(26, Math.Min(255, Math.Round(opacitySlider.Value / 100.0 * 255)));
+                highlightColor = Color.FromArgb(a, highlightColor.R, highlightColor.G, highlightColor.B);
+            };
+            ToolOptionsPopupContent.Children.Add(opacitySlider);
+            
+            // Open under icon
+            ToolOptionsPopup.PlacementTarget = HighlightButton;
+            ToolOptionsPopup.IsOpen = true;
         }
+
+        private void ShowPenOptionsPopup()
+        {
+            ToolOptionsPopupContent.Children.Clear();
+            
+            // 색상
+            var colorLabel = new TextBlock { Text = "색상:", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0,0,6,0) };
+            ToolOptionsPopupContent.Children.Add(colorLabel);
+            
+            StackPanel colorPanel = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+            ToolOptionsPopupContent.Children.Add(colorPanel);
+            
+            Color[] colors = new Color[]
+            {
+                Colors.Black, Colors.Gray, Colors.Red, Colors.Orange, Colors.Yellow, Colors.Green, Colors.Blue, Colors.Purple
+            };
+            foreach (var c in colors)
+            {
+                Border swatch = new Border
+                {
+                    Width = 18,
+                    Height = 18,
+                    Background = new SolidColorBrush(c),
+                    BorderBrush = (c == penColor) ? Brushes.Black : Brushes.Transparent,
+                    BorderThickness = new Thickness(2),
+                    Margin = new Thickness(3,0,0,0),
+                    CornerRadius = new CornerRadius(2)
+                };
+                swatch.MouseLeftButtonDown += (s, e) =>
+                {
+                    penColor = c;
+                    foreach (var child in colorPanel.Children)
+                    {
+                        if (child is Border b && b.Background is SolidColorBrush sc)
+                        {
+                            b.BorderBrush = (sc.Color == penColor) ? Brushes.Black : Brushes.Transparent;
+                        }
+                    }
+                };
+                colorPanel.Children.Add(swatch);
+            }
+            
+            // 두께
+            var thicknessLabel = new TextBlock { Text = "두께:", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(12,0,6,0) };
+            ToolOptionsPopupContent.Children.Add(thicknessLabel);
+            
+            Slider thicknessSlider = new Slider
+            {
+                Minimum = 1,
+                Maximum = 20,
+                Value = penThickness,
+                Width = 120,
+                IsSnapToTickEnabled = true,
+                TickFrequency = 1,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            thicknessSlider.ValueChanged += (s, e) => { penThickness = thicknessSlider.Value; };
+            ToolOptionsPopupContent.Children.Add(thicknessSlider);
+            
+            ToolOptionsPopup.PlacementTarget = PenButton;
+            ToolOptionsPopup.IsOpen = true;
+        }
+
+        #endregion
+
+        #region 도구 옵션 패널
 
         private void ShowTextOptions()
         {
@@ -1846,10 +1975,11 @@ namespace CatchCapture
     {
         None,
         Crop,
+        Pen,
         Highlight,
         Text,
         Mosaic,
         Eraser,
         Shape
     }
-} 
+}
