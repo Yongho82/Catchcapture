@@ -770,9 +770,10 @@ namespace CatchCapture
             }
             else // Highlight
             {
-                strokeColor = highlightColor;
+                // 미리보기도 최종 렌더와 동일하게 브러시 알파를 사용
+                strokeColor = Color.FromArgb(highlightColor.A, highlightColor.R, highlightColor.G, highlightColor.B);
                 thickness = highlightThickness;
-                opacity = Math.Max(0.1, highlightColor.A / 255.0);
+                opacity = 1.0;
             }
             
             var fig = new PathFigure { StartPoint = startPoint, IsClosed = false, IsFilled = false };
@@ -819,7 +820,6 @@ namespace CatchCapture
             {
                 currentImage = ImageEditUtility.ApplyHighlight(currentImage, drawingPoints.ToArray(), highlightColor, highlightThickness);
             }
-            UpdatePreviewImage();
             
             // 라이브 경로 제거
             if (liveStrokePath != null)
@@ -828,6 +828,8 @@ namespace CatchCapture
                 liveStrokePath = null;
                 liveStrokeSegment = null;
             }
+            
+            UpdatePreviewImage();
             
             drawingPoints.Clear();
             // keep mode
@@ -1497,7 +1499,7 @@ namespace CatchCapture
             colorLabelWrapper.Child = colorLabel;
             EditToolContent.Children.Add(colorLabelWrapper);
             
-            StackPanel colorPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 15, 0), VerticalAlignment = VerticalAlignment.Center };
+            StackPanel colorPanel = new StackPanel { Orientation = Orientation.Horizontal };
             
             Color[] colors = { Colors.Red, Colors.Blue, Colors.Green, Colors.Black, Colors.White };
             foreach (Color color in colors)
@@ -2025,18 +2027,6 @@ namespace CatchCapture
         #endregion
     }
 
-    public class ImageUpdatedEventArgs : EventArgs
-    {
-        public int Index { get; }
-        public BitmapSource NewImage { get; }
-
-        public ImageUpdatedEventArgs(int index, BitmapSource newImage)
-        {
-            Index = index;
-            NewImage = newImage;
-        }
-    }
-
     public enum EditMode
     {
         None,
@@ -2047,5 +2037,17 @@ namespace CatchCapture
         Mosaic,
         Eraser,
         Shape
+    }
+
+    public class ImageUpdatedEventArgs : EventArgs
+    {
+        public int Index { get; }
+        public BitmapSource NewImage { get; }
+
+        public ImageUpdatedEventArgs(int index, BitmapSource newImage)
+        {
+            Index = index;
+            NewImage = newImage;
+        }
     }
 }

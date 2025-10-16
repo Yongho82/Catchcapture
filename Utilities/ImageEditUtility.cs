@@ -67,7 +67,9 @@ namespace CatchCapture.Utilities
                 using (var gc = geometry.Open())
                 {
                     gc.BeginFigure(points[0], false, false);
-                    gc.PolyLineTo(points, true, true);
+                    var rest = points.Skip(1).ToArray();
+                    if (rest.Length > 0)
+                        gc.PolyLineTo(rest, true, true);
                 }
                 if (geometry.CanFreeze) geometry.Freeze();
                 drawingContext.DrawGeometry(null, pen, geometry);

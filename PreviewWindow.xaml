@@ -31,10 +31,12 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#EBF0FF" TargetName="border"/>
+                                <!-- 옅은 하늘색 호버 색상 -->
+                                <Setter Property="Background" Value="#E8F3FF" TargetName="border"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="#D0DAFF" TargetName="border"/>
+                                <!-- 호버보다 약간 진한 하늘색 -->
+                                <Setter Property="Background" Value="#CCE4FF" TargetName="border"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.5" TargetName="border"/>
