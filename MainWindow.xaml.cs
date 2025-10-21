@@ -1007,6 +1007,8 @@ public partial class MainWindow : Window
             this.Activate();
         };
 
+        // 메인 창 숨기고 간편모드 표시
+        this.Hide();
         simpleModeWindow.Show();
     }
 

@@ -4,13 +4,21 @@
   "DefaultSaveFolder": "C:\\Users\\\uC5C4\uC6A9\uD638\\Pictures",
   "AutoSaveCapture": false,
   "Hotkeys": {
-    "SimpleCapture": {
+    "RegionCapture": {
       "Enabled": true,
       "Ctrl": true,
       "Shift": false,
       "Alt": false,
       "Win": false,
-      "Key": "M"
+      "Key": "A"
+    },
+    "DelayCapture": {
+      "Enabled": true,
+      "Ctrl": true,
+      "Shift": false,
+      "Alt": false,
+      "Win": false,
+      "Key": "K"
     },
     "FullScreen": {
       "Enabled": true,
@@ -20,6 +28,54 @@
       "Win": false,
       "Key": "F"
     },
+    "DesignatedCapture": {
+      "Enabled": true,
+      "Ctrl": false,
+      "Shift": false,
+      "Alt": false,
+      "Win": false,
+      "Key": ""
+    },
+    "SaveAll": {
+      "Enabled": true,
+      "Ctrl": false,
+      "Shift": false,
+      "Alt": false,
+      "Win": false,
+      "Key": ""
+    },
+    "DeleteAll": {
+      "Enabled": true,
+      "Ctrl": false,
+      "Shift": false,
+      "Alt": false,
+      "Win": false,
+      "Key": ""
+    },
+    "SimpleMode": {
+      "Enabled": true,
+      "Ctrl": false,
+      "Shift": false,
+      "Alt": false,
+      "Win": false,
+      "Key": ""
+    },
+    "OpenSettings": {
+      "Enabled": true,
+      "Ctrl": false,
+      "Shift": false,
+      "Alt": false,
+      "Win": false,
+      "Key": ""
+    },
+    "SimpleCapture": {
+      "Enabled": true,
+      "Ctrl": true,
+      "Shift": false,
+      "Alt": false,
+      "Win": false,
+      "Key": "M"
+    },
     "WindowCapture": {
       "Enabled": true,
       "Ctrl": true,
@@ -27,14 +83,6 @@
       "Alt": false,
       "Win": false,
       "Key": "W"
-    },
-    "RegionCapture": {
-      "Enabled": true,
-      "Ctrl": true,
-      "Shift": false,
-      "Alt": false,
-      "Win": false,
-      "Key": "A"
     },
     "SizeCapture": {
       "Enabled": true,

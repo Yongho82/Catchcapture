@@ -1,33 +1,40 @@
-===== 로그 시작: 2025-10-16 오후 11:06:26 =====
-[23:06:26.876] PreviewWindow 생성됨
-[23:06:26.903] CancelCurrentEditMode 호출: 이전 모드=None, tempShape=False
-[23:06:26.903] CancelCurrentEditMode에서 CleanupTemporaryShape 호출
-[23:06:26.903] CleanupTemporaryShape 호출: tempShape=False
-[23:06:26.904] tempShape가 이미 null이거나 ImageCanvas가 null임
-[23:06:26.904] 도구 패널 숨김
-[23:06:26.904] 마우스 커서 복원: Arrow
-[23:06:26.904] 그리기 상태 초기화: isDrawingShape=false, isDragStarted=false
-[23:06:30.646] CancelCurrentEditMode 호출: 이전 모드=Highlight, tempShape=False
-[23:06:30.646] CancelCurrentEditMode에서 CleanupTemporaryShape 호출
-[23:06:30.647] CleanupTemporaryShape 호출: tempShape=False
-[23:06:30.647] tempShape가 이미 null이거나 ImageCanvas가 null임
-[23:06:30.647] 도구 패널 숨김
-[23:06:30.647] 마우스 커서 복원: Arrow
-[23:06:30.647] 그리기 상태 초기화: isDrawingShape=false, isDragStarted=false
-[23:06:31.242] CancelCurrentEditMode 호출: 이전 모드=Highlight, tempShape=False
-[23:06:31.242] CancelCurrentEditMode에서 CleanupTemporaryShape 호출
-[23:06:31.242] CleanupTemporaryShape 호출: tempShape=False
-[23:06:31.243] tempShape가 이미 null이거나 ImageCanvas가 null임
-[23:06:31.243] 도구 패널 숨김
-[23:06:31.243] 마우스 커서 복원: Arrow
-[23:06:31.243] 그리기 상태 초기화: isDrawingShape=false, isDragStarted=false
-[23:06:34.444] MouseDown: 위치(395.0, 71.5), 편집모드=Highlight, isDrawingShape=False
-[23:06:34.840] MouseUp: 위치(657.0, 75.5), 편집모드=Highlight, isDrawingShape=False, isDragStarted=False
-[23:06:34.854] UpdatePreviewImage 시작
-[23:06:34.854] UpdatePreviewImage에서 CleanupTemporaryShape 호출
-[23:06:34.855] CleanupTemporaryShape 호출: tempShape=False
-[23:06:34.855] tempShape가 이미 null이거나 ImageCanvas가 null임
-[23:06:34.855] 이미지 소스 업데이트: 1064x561
-[23:06:34.855] UpdatePreviewImage 완료
-[23:06:34.856] UpdatePreviewImage 완료 후 자식 요소 수: 1
-[23:06:34.856]   - 1번째 자식: Image
+===== 로그 시작: 2025-10-21 오후 10:53:49 =====
+[22:53:49.197] PreviewWindow 생성됨
+[22:53:49.219] CancelCurrentEditMode 호출: 이전 모드=None, tempShape=False
+[22:53:49.220] CancelCurrentEditMode에서 CleanupTemporaryShape 호출
+[22:53:49.220] CleanupTemporaryShape 호출: tempShape=False
+[22:53:49.221] tempShape가 이미 null이거나 ImageCanvas가 null임
+[22:53:49.221] 도구 패널 숨김
+[22:53:49.221] 마우스 커서 복원: Arrow
+[22:53:49.221] 그리기 상태 초기화: isDrawingShape=false, isDragStarted=false
+[22:53:49.281] MouseUp: 위치(572.0, 51.5), 편집모드=Highlight, isDrawingShape=False, isDragStarted=False
+[22:53:53.719] MouseDown: 위치(400.0, 299.5), 편집모드=Highlight, isDrawingShape=False
+[22:53:54.256] MouseUp: 위치(360.0, 283.5), 편집모드=Highlight, isDrawingShape=False, isDragStarted=False
+[22:53:54.273] UpdatePreviewImage 시작
+[22:53:54.273] UpdatePreviewImage에서 CleanupTemporaryShape 호출
+[22:53:54.273] CleanupTemporaryShape 호출: tempShape=False
+[22:53:54.274] tempShape가 이미 null이거나 ImageCanvas가 null임
+[22:53:54.274] 이미지 소스 업데이트: 1034x537
+[22:53:54.275] UpdatePreviewImage 완료
+[22:53:54.275] UpdatePreviewImage 완료 후 자식 요소 수: 1
+[22:53:54.275]   - 1번째 자식: Image
+[22:53:55.119] MouseDown: 위치(357.0, 335.5), 편집모드=Highlight, isDrawingShape=False
+[22:53:55.377] MouseUp: 위치(709.0, 312.5), 편집모드=Highlight, isDrawingShape=False, isDragStarted=False
+[22:53:55.387] UpdatePreviewImage 시작
+[22:53:55.388] UpdatePreviewImage에서 CleanupTemporaryShape 호출
+[22:53:55.388] CleanupTemporaryShape 호출: tempShape=False
+[22:53:55.388] tempShape가 이미 null이거나 ImageCanvas가 null임
+[22:53:55.388] 이미지 소스 업데이트: 1034x537
+[22:53:55.389] UpdatePreviewImage 완료
+[22:53:55.389] UpdatePreviewImage 완료 후 자식 요소 수: 1
+[22:53:55.389]   - 1번째 자식: Image
+[22:53:58.228] MouseDown: 위치(523.0, 455.5), 편집모드=Highlight, isDrawingShape=False
+[22:53:58.699] MouseUp: 위치(87.0, 430.5), 편집모드=Highlight, isDrawingShape=False, isDragStarted=False
+[22:53:58.710] UpdatePreviewImage 시작
+[22:53:58.711] UpdatePreviewImage에서 CleanupTemporaryShape 호출
+[22:53:58.711] CleanupTemporaryShape 호출: tempShape=False
+[22:53:58.711] tempShape가 이미 null이거나 ImageCanvas가 null임
+[22:53:58.711] 이미지 소스 업데이트: 1034x537
+[22:53:58.711] UpdatePreviewImage 완료
+[22:53:58.712] UpdatePreviewImage 완료 후 자식 요소 수: 1
+[22:53:58.712]   - 1번째 자식: Image

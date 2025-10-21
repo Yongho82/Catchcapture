@@ -47,11 +47,15 @@ namespace CatchCapture
         private void LoadHotkeysPage()
         {
             var hk = _settings.Hotkeys;
-            BindHotkey(hk.SimpleCapture, HkSimpleEnabled, HkSimpleCtrl, HkSimpleShift, HkSimpleAlt, HkSimpleWin, HkSimpleKey);
-            BindHotkey(hk.FullScreen, HkFullEnabled, HkFullCtrl, HkFullShift, HkFullAlt, HkFullWin, HkFullKey);
-            BindHotkey(hk.WindowCapture, HkWindowEnabled, HkWindowCtrl, HkWindowShift, HkWindowAlt, HkWindowWin, HkWindowKey);
+            // New set
             BindHotkey(hk.RegionCapture, HkRegionEnabled, HkRegionCtrl, HkRegionShift, HkRegionAlt, HkRegionWin, HkRegionKey);
-            BindHotkey(hk.SizeCapture, HkSizeEnabled, HkSizeCtrl, HkSizeShift, HkSizeAlt, HkSizeWin, HkSizeKey);
+            BindHotkey(hk.DelayCapture, HkDelayEnabled, HkDelayCtrl, HkDelayShift, HkDelayAlt, HkDelayWin, HkDelayKey);
+            BindHotkey(hk.FullScreen, HkFullEnabled, HkFullCtrl, HkFullShift, HkFullAlt, HkFullWin, HkFullKey);
+            BindHotkey(hk.DesignatedCapture, HkDesignatedEnabled, HkDesignatedCtrl, HkDesignatedShift, HkDesignatedAlt, HkDesignatedWin, HkDesignatedKey);
+            BindHotkey(hk.SaveAll, HkSaveAllEnabled, HkSaveAllCtrl, HkSaveAllShift, HkSaveAllAlt, HkSaveAllWin, HkSaveAllKey);
+            BindHotkey(hk.DeleteAll, HkDeleteAllEnabled, HkDeleteAllCtrl, HkDeleteAllShift, HkDeleteAllAlt, HkDeleteAllWin, HkDeleteAllKey);
+            BindHotkey(hk.SimpleMode, HkSimpleModeEnabled, HkSimpleModeCtrl, HkSimpleModeShift, HkSimpleModeAlt, HkSimpleModeWin, HkSimpleModeKey);
+            BindHotkey(hk.OpenSettings, HkOpenSettingsEnabled, HkOpenSettingsCtrl, HkOpenSettingsShift, HkOpenSettingsAlt, HkOpenSettingsWin, HkOpenSettingsKey);
         }
 
         private static void BindHotkey(ToggleHotkey src, CheckBox en, CheckBox ctrl, CheckBox shift, CheckBox alt, CheckBox win, TextBox key)
@@ -91,12 +95,15 @@ namespace CatchCapture
             _settings.DefaultSaveFolder = TxtFolder.Text?.Trim() ?? string.Empty;
             _settings.AutoSaveCapture = ChkAutoSave.IsChecked == true;
 
-            // Hotkeys
-            ReadHotkey(_settings.Hotkeys.SimpleCapture, HkSimpleEnabled, HkSimpleCtrl, HkSimpleShift, HkSimpleAlt, HkSimpleWin, HkSimpleKey);
-            ReadHotkey(_settings.Hotkeys.FullScreen, HkFullEnabled, HkFullCtrl, HkFullShift, HkFullAlt, HkFullWin, HkFullKey);
-            ReadHotkey(_settings.Hotkeys.WindowCapture, HkWindowEnabled, HkWindowCtrl, HkWindowShift, HkWindowAlt, HkWindowWin, HkWindowKey);
+            // Hotkeys - new set
             ReadHotkey(_settings.Hotkeys.RegionCapture, HkRegionEnabled, HkRegionCtrl, HkRegionShift, HkRegionAlt, HkRegionWin, HkRegionKey);
-            ReadHotkey(_settings.Hotkeys.SizeCapture, HkSizeEnabled, HkSizeCtrl, HkSizeShift, HkSizeAlt, HkSizeWin, HkSizeKey);
+            ReadHotkey(_settings.Hotkeys.DelayCapture, HkDelayEnabled, HkDelayCtrl, HkDelayShift, HkDelayAlt, HkDelayWin, HkDelayKey);
+            ReadHotkey(_settings.Hotkeys.FullScreen, HkFullEnabled, HkFullCtrl, HkFullShift, HkFullAlt, HkFullWin, HkFullKey);
+            ReadHotkey(_settings.Hotkeys.DesignatedCapture, HkDesignatedEnabled, HkDesignatedCtrl, HkDesignatedShift, HkDesignatedAlt, HkDesignatedWin, HkDesignatedKey);
+            ReadHotkey(_settings.Hotkeys.SaveAll, HkSaveAllEnabled, HkSaveAllCtrl, HkSaveAllShift, HkSaveAllAlt, HkSaveAllWin, HkSaveAllKey);
+            ReadHotkey(_settings.Hotkeys.DeleteAll, HkDeleteAllEnabled, HkDeleteAllCtrl, HkDeleteAllShift, HkDeleteAllAlt, HkDeleteAllWin, HkDeleteAllKey);
+            ReadHotkey(_settings.Hotkeys.SimpleMode, HkSimpleModeEnabled, HkSimpleModeCtrl, HkSimpleModeShift, HkSimpleModeAlt, HkSimpleModeWin, HkSimpleModeKey);
+            ReadHotkey(_settings.Hotkeys.OpenSettings, HkOpenSettingsEnabled, HkOpenSettingsCtrl, HkOpenSettingsShift, HkOpenSettingsAlt, HkOpenSettingsWin, HkOpenSettingsKey);
 
             Settings.Save(_settings);
             DialogResult = true;

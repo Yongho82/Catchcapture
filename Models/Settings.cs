@@ -61,10 +61,19 @@ namespace CatchCapture.Models
 
     public class HotkeySettings
     {
+        // New set requested
+        public ToggleHotkey RegionCapture { get; set; } = new ToggleHotkey();        // 영역캡처
+        public ToggleHotkey DelayCapture { get; set; } = new ToggleHotkey();         // 지연캡처
+        public ToggleHotkey FullScreen { get; set; } = new ToggleHotkey();           // 전체화면
+        public ToggleHotkey DesignatedCapture { get; set; } = new ToggleHotkey();    // 지정캡처
+        public ToggleHotkey SaveAll { get; set; } = new ToggleHotkey();              // 전체저장
+        public ToggleHotkey DeleteAll { get; set; } = new ToggleHotkey();            // 전체삭제
+        public ToggleHotkey SimpleMode { get; set; } = new ToggleHotkey();           // 간편모드
+        public ToggleHotkey OpenSettings { get; set; } = new ToggleHotkey();         // 설정
+
+        // Legacy (kept for backward compatibility with older settings.json)
         public ToggleHotkey SimpleCapture { get; set; } = new ToggleHotkey();
-        public ToggleHotkey FullScreen { get; set; } = new ToggleHotkey();
         public ToggleHotkey WindowCapture { get; set; } = new ToggleHotkey();
-        public ToggleHotkey RegionCapture { get; set; } = new ToggleHotkey();
         public ToggleHotkey SizeCapture { get; set; } = new ToggleHotkey();
         public ToggleHotkey ScrollCapture { get; set; } = new ToggleHotkey();
         public ToggleHotkey ScreenRecord { get; set; } = new ToggleHotkey();
@@ -73,13 +82,22 @@ namespace CatchCapture.Models
         {
             return new HotkeySettings
             {
-                SimpleCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "M" },
-                FullScreen = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "F" },
-                WindowCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "W" },
+                // Reasonable defaults (Ctrl + letter)
                 RegionCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "A" },
-                SizeCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "S" },
-                ScrollCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "R" },
-                ScreenRecord = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "L" }
+                DelayCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "D" },
+                FullScreen = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "F" },
+                DesignatedCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "W" },
+                SaveAll = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "Z" },
+                DeleteAll = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "X" },
+                SimpleMode = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "M" },
+                OpenSettings = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "O" },
+
+                // Legacy defaults left as disabled
+                SimpleCapture = new ToggleHotkey { Enabled = false },
+                WindowCapture = new ToggleHotkey { Enabled = false },
+                SizeCapture = new ToggleHotkey { Enabled = false },
+                ScrollCapture = new ToggleHotkey { Enabled = false },
+                ScreenRecord = new ToggleHotkey { Enabled = false }
             };
         }
     }
