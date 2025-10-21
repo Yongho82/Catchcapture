@@ -1000,6 +1000,13 @@ public partial class MainWindow : Window
             simpleModeWindow?.Show();
         };
         
+        simpleModeWindow.DesignatedCaptureRequested += (s, e) =>
+        {
+            // 기존 지정 캡처 클릭 로직 재사용
+            DesignatedCaptureButton_Click(this, new RoutedEventArgs());
+            simpleModeWindow?.Show();
+        };
+        
         simpleModeWindow.ExitSimpleModeRequested += (s, e) => 
         {
             HideSimpleMode();

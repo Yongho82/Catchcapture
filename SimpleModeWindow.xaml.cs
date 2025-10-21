@@ -3,16 +3,19 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using CatchCapture.Utilities;
+using System.Windows.Threading;
 
 namespace CatchCapture
 {
     public partial class SimpleModeWindow : Window
     {
         private Point lastPosition;
+        private int _delaySeconds = 3; // default delay
         
         public event EventHandler? AreaCaptureRequested;
         public event EventHandler? FullScreenCaptureRequested;
         public event EventHandler? ExitSimpleModeRequested;
+        public event EventHandler? DesignatedCaptureRequested;
         
         public SimpleModeWindow()
         {
@@ -60,6 +63,14 @@ namespace CatchCapture
             ShowCopiedNotification();
         }
         
+        private void DesignatedButton_Click(object sender, RoutedEventArgs e)
+        {
+            Hide();
+            DesignatedCaptureRequested?.Invoke(this, EventArgs.Empty);
+            System.Threading.Thread.Sleep(100);
+            ShowCopiedNotification();
+        }
+        
         private void ExitSimpleModeButton_Click(object sender, RoutedEventArgs e)
         {
             ExitSimpleModeRequested?.Invoke(this, EventArgs.Empty);
@@ -80,6 +91,39 @@ namespace CatchCapture
             var win = new SettingsWindow();
             win.Owner = this;
             win.ShowDialog();
+        }
+
+        // Delay capture icon: open menu and run delayed area capture
+        private void DelayIconButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Toggle context menu
+            if (DelayContextMenu != null)
+            {
+                DelayContextMenu.IsOpen = true;
+            }
+        }
+
+        private void DelayOption_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is FrameworkElement fe && int.TryParse(fe.Tag?.ToString(), out var secs))
+            {
+                _delaySeconds = secs;
+                StartDelayedAreaCapture(_delaySeconds);
+            }
+        }
+
+        private void StartDelayedAreaCapture(int seconds)
+        {
+            Hide();
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(seconds) };
+            timer.Tick += (s, e) =>
+            {
+                (s as DispatcherTimer)?.Stop();
+                AreaCaptureRequested?.Invoke(this, EventArgs.Empty);
+                System.Threading.Thread.Sleep(100);
+                ShowCopiedNotification();
+            };
+            timer.Start();
         }
     }
 }

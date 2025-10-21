@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CatchCapture"
         mc:Ignorable="d"
-        Title="간편 모드" Height="75" Width="230"
+        Title="간편 모드" Height="85" Width="200"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         Topmost="True" ResizeMode="NoResize" ShowInTaskbar="False"
         MouseLeftButtonDown="Window_MouseLeftButtonDown">
@@ -13,7 +13,7 @@
     <Window.Resources>
         <!-- 버튼 스타일 -->
         <Style x:Key="SimpleModeButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="72"/>
+            <Setter Property="Width" Value="40"/>
             <Setter Property="Height" Value="32"/>
             <Setter Property="Margin" Value="1"/>
             <Setter Property="Background" Value="#FFFFFF"/>
@@ -38,6 +38,33 @@
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter Property="Background" Value="#D8E0FF" TargetName="border"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- 아이콘 전용 소형 버튼 스타일 -->
+        <Style x:Key="IconOnlyButtonStyle" TargetType="Button" BasedOn="{StaticResource SimpleModeButtonStyle}">
+            <Setter Property="Width" Value="44"/>
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="6">
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,2,0,0">
+                                <ContentPresenter HorizontalAlignment="Center"/>
+                                <TextBlock Text="{TemplateBinding Tag}" FontSize="9" Foreground="#333" Margin="0,2,0,0" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" TargetName="border" Value="#EEF2FF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" TargetName="border" Value="#D8E0FF"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -118,6 +145,10 @@
                                   Style="{StaticResource ClearTextStyle}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <!-- 일반 모드로 전환 아이콘 버튼 -->
+                        <Button x:Name="ExitToNormalButton" Style="{StaticResource SmallButtonStyle}" Click="ExitSimpleModeButton_Click" ToolTip="일반 모드로">
+                            <Image Source="/icons/simple_mode.png" Width="12" Height="12"/>
+                        </Button>
                         <Button x:Name="CloseButton" Style="{StaticResource SmallButtonStyle}"
                                 Click="CloseButton_Click" ToolTip="닫기">
                             <TextBlock Text="✕" FontSize="10" Foreground="White" Style="{StaticResource ClearTextStyle}"/>
@@ -129,28 +160,31 @@
             <!-- 버튼 영역 -->
             <Border Grid.Row="1" Padding="4,4,4,6">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Button x:Name="AreaCaptureButton" Style="{StaticResource SimpleModeButtonStyle}" Click="AreaCaptureButton_Click">
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="/icons/area_capture.png" Width="16" Height="16" Margin="0,0,3,0"
-                                  RenderOptions.BitmapScalingMode="HighQuality"/>
-                            <TextBlock Text="영역 캡처" Style="{StaticResource ClearTextStyle}" FontSize="11"/>
-                        </StackPanel>
+                    <!-- 영역 캡처 -->
+                    <Button x:Name="AreaCaptureButton" Style="{StaticResource IconOnlyButtonStyle}" Click="AreaCaptureButton_Click" ToolTip="영역 캡처" Tag="영역">
+                        <Image Source="/icons/area_capture.png" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
                     </Button>
                     
-                    <Button x:Name="FullScreenCaptureButton" Style="{StaticResource SimpleModeButtonStyle}" Click="FullScreenCaptureButton_Click">
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="/icons/full_screen.png" Width="16" Height="16" Margin="0,0,3,0"
-                                  RenderOptions.BitmapScalingMode="HighQuality"/>
-                            <TextBlock Text="전체화면" Style="{StaticResource ClearTextStyle}" FontSize="11"/>
-                        </StackPanel>
+                    <!-- 지연 캡처 아이콘 버튼 -->
+                    <Button x:Name="DelayIconButton" Style="{StaticResource IconOnlyButtonStyle}" Click="DelayIconButton_Click" ToolTip="지연 캡처" Tag="지연">
+                        <Image Source="/icons/clock.png" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        <Button.ContextMenu>
+                            <ContextMenu x:Name="DelayContextMenu" Placement="Bottom" PlacementTarget="{Binding ElementName=DelayIconButton}">
+                                <MenuItem Header="3초" Tag="3" Click="DelayOption_Click"/>
+                                <MenuItem Header="5초" Tag="5" Click="DelayOption_Click"/>
+                                <MenuItem Header="10초" Tag="10" Click="DelayOption_Click"/>
+                            </ContextMenu>
+                        </Button.ContextMenu>
                     </Button>
                     
-                    <Button x:Name="ExitSimpleModeButton" Style="{StaticResource SimpleModeButtonStyle}" Click="ExitSimpleModeButton_Click">
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="/icons/simple_mode.png" Width="16" Height="16" Margin="0,0,3,0"
-                                  RenderOptions.BitmapScalingMode="HighQuality"/>
-                            <TextBlock Text="일반 모드" Style="{StaticResource ClearTextStyle}" FontSize="11"/>
-                        </StackPanel>
+                    <!-- 전체화면 -->
+                    <Button x:Name="FullScreenCaptureButton" Style="{StaticResource IconOnlyButtonStyle}" Click="FullScreenCaptureButton_Click" ToolTip="전체화면" Tag="전체">
+                        <Image Source="/icons/full_screen.png" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
+                    </Button>
+                    
+                    <!-- 지정캡처 -->
+                    <Button x:Name="DesignatedButton" Style="{StaticResource IconOnlyButtonStyle}" Click="DesignatedButton_Click" ToolTip="지정캡처" Tag="지정">
+                        <Image Source="/icons/area_capture.png" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
                     </Button>
                 </StackPanel>
             </Border>
