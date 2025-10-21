@@ -15,6 +15,14 @@ namespace CatchCapture.Models
         public string DefaultSaveFolder { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
         public bool AutoSaveCapture { get; set; } = false;
 
+        // Persisted window states
+        public double LastMainLeft { get; set; } = double.NaN;
+        public double LastMainTop { get; set; } = double.NaN;
+        public double LastSimpleLeft { get; set; } = double.NaN;
+        public double LastSimpleTop { get; set; } = double.NaN;
+        public bool LastModeIsSimple { get; set; } = false;
+        public bool SimpleModeVertical { get; set; } = false;
+
         // Hotkeys
         public HotkeySettings Hotkeys { get; set; } = HotkeySettings.CreateDefaults();
 

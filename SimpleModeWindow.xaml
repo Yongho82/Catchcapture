@@ -139,13 +139,16 @@
             <Border Grid.Row="0" Padding="10,2,10,2" Background="Transparent" ClipToBounds="True">
                 <Grid>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="/icons/simple_mode.png" Width="14" Height="14" Margin="0,0,5,0" 
+                        <Image x:Name="TitleLeftIcon" Source="/icons/simple_mode.png" Width="14" Height="14" Margin="0,0,5,0" 
                                RenderOptions.BitmapScalingMode="HighQuality"/>
-                        <TextBlock Text="간편 캡처" Foreground="White" FontWeight="SemiBold" FontSize="12"
-                                  Style="{StaticResource ClearTextStyle}"/>
+                        <!-- 제목 텍스트 제거 요청: 간편 캡처 텍스트 숨김 -->
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <!-- 일반 모드로 전환 아이콘 버튼 -->
+                        <!-- 세로/가로 전환 아이콘 버튼 (항상 표시, 아이콘은 모드에 따라 ↕/↔ 전환) -->
+                        <Button x:Name="ToggleOrientationButton" Style="{StaticResource SmallButtonStyle}"
+                                Click="ToggleOrientationButton_Click" ToolTip="세로/가로 전환">
+                            <TextBlock x:Name="ToggleOrientationIcon" Text="↕" FontSize="12" Foreground="White" Style="{StaticResource ClearTextStyle}"/>
+                        </Button>
                         <Button x:Name="ExitToNormalButton" Style="{StaticResource SmallButtonStyle}" Click="ExitSimpleModeButton_Click" ToolTip="일반 모드로">
                             <Image Source="/icons/simple_mode.png" Width="12" Height="12"/>
                         </Button>
@@ -159,7 +162,7 @@
             
             <!-- 버튼 영역 -->
             <Border Grid.Row="1" Padding="4,4,4,6">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel x:Name="ButtonsPanel" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <!-- 영역 캡처 -->
                     <Button x:Name="AreaCaptureButton" Style="{StaticResource IconOnlyButtonStyle}" Click="AreaCaptureButton_Click" ToolTip="영역 캡처" Tag="영역">
                         <Image Source="/icons/area_capture.png" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>

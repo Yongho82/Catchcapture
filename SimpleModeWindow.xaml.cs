@@ -5,6 +5,8 @@ using System.Windows.Media.Imaging;
 using CatchCapture.Utilities;
 using System.Windows.Threading;
 using System.Windows.Controls.Primitives;
+using CatchCapture.Models;
+using System.Windows.Controls; // Orientation
 
 namespace CatchCapture
 {
@@ -12,6 +14,7 @@ namespace CatchCapture
     {
         private Point lastPosition;
         private int _delaySeconds = 3; // default delay
+        private bool _verticalMode;
         
         public event EventHandler? AreaCaptureRequested;
         public event EventHandler? FullScreenCaptureRequested;
@@ -24,6 +27,11 @@ namespace CatchCapture
             
             // 위치는 호출자가 지정 (MainWindow에서 설정)
             // PositionWindow();
+
+            // Load last orientation
+            var s = Settings.Load();
+            _verticalMode = s.SimpleModeVertical;
+            ApplyOrientation(_verticalMode, suppressPersist:true);
         }
         
         private void PositionWindow()
@@ -39,8 +47,59 @@ namespace CatchCapture
             DragMove();
         }
         
+        private void ToggleOrientationButton_Click(object sender, RoutedEventArgs e)
+        {
+            _verticalMode = !_verticalMode;
+            ApplyOrientation(_verticalMode);
+        }
+
+        private void ApplyOrientation(bool vertical, bool suppressPersist = false)
+        {
+            if (ButtonsPanel == null) return;
+
+            ButtonsPanel.Orientation = vertical ? System.Windows.Controls.Orientation.Vertical : System.Windows.Controls.Orientation.Horizontal;
+
+            // 타이틀바: 세로모드일 때 왼쪽 아이콘 숨김, 전환 아이콘은 ↔ / 가로모드일 때 ↕
+            TitleLeftIcon.Visibility = vertical ? Visibility.Collapsed : Visibility.Visible;
+            ToggleOrientationIcon.Text = vertical ? "↔" : "↕";
+
+            // 창 크기: 세로 60x200, 가로 200x85
+            if (vertical)
+            {
+                this.Width = 78;
+                this.Height = 217;
+            }
+            else
+            {
+                this.Width = 200;
+                this.Height = 85;
+            }
+
+            if (!suppressPersist)
+            {
+                try
+                {
+                    var s = Settings.Load();
+                    s.SimpleModeVertical = vertical;
+                    Settings.Save(s);
+                }
+                catch { }
+            }
+        }
+        
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
+            // X로 종료 시 마지막 간편모드 위치/모드 저장
+            try
+            {
+                var s = Settings.Load();
+                s.LastSimpleLeft = this.Left;
+                s.LastSimpleTop = this.Top;
+                s.LastModeIsSimple = true; // 간편모드로 종료
+                Settings.Save(s);
+            }
+            catch { /* ignore persistence errors */ }
+
             // 이제 X는 앱 종료
             Application.Current.Shutdown();
         }
@@ -62,7 +121,7 @@ namespace CatchCapture
             System.Threading.Thread.Sleep(100); // 캡처가 완료될 때까지 잠시 대기
             ShowCopiedNotification();
         }
-        
+
         private void DesignatedButton_Click(object sender, RoutedEventArgs e)
         {
             Hide();
@@ -79,8 +138,8 @@ namespace CatchCapture
         
         private void ShowCopiedNotification()
         {
-            // 클립보드 복사 알림 표시 (짧게 표시)
-            var notification = new GuideWindow("클립보드에 복사되었습니다", TimeSpan.FromSeconds(0.7));
+            // 클립보드 복사 알림 표시 (더 짧게 표시: 0.4s)
+            var notification = new GuideWindow("클립보드에 복사되었습니다", TimeSpan.FromSeconds(0.4));
             notification.Owner = this;
             Show(); // 다시 표시
             notification.Show();
