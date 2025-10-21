@@ -1,3 +1,64 @@
 {
-  "ShowSavePrompt": true
+  "ShowSavePrompt": true,
+  "FileSaveFormat": "PNG",
+  "DefaultSaveFolder": "C:\\Users\\\uC5C4\uC6A9\uD638\\Pictures",
+  "AutoSaveCapture": false,
+  "Hotkeys": {
+    "SimpleCapture": {
+      "Enabled": true,
+      "Ctrl": true,
+      "Shift": false,
+      "Alt": false,
+      "Win": false,
+      "Key": "M"
+    },
+    "FullScreen": {
+      "Enabled": true,
+      "Ctrl": true,
+      "Shift": false,
+      "Alt": false,
+      "Win": false,
+      "Key": "F"
+    },
+    "WindowCapture": {
+      "Enabled": true,
+      "Ctrl": true,
+      "Shift": false,
+      "Alt": false,
+      "Win": false,
+      "Key": "W"
+    },
+    "RegionCapture": {
+      "Enabled": true,
+      "Ctrl": true,
+      "Shift": false,
+      "Alt": false,
+      "Win": false,
+      "Key": "A"
+    },
+    "SizeCapture": {
+      "Enabled": true,
+      "Ctrl": true,
+      "Shift": false,
+      "Alt": false,
+      "Win": false,
+      "Key": "S"
+    },
+    "ScrollCapture": {
+      "Enabled": true,
+      "Ctrl": true,
+      "Shift": false,
+      "Alt": false,
+      "Win": false,
+      "Key": "R"
+    },
+    "ScreenRecord": {
+      "Enabled": true,
+      "Ctrl": true,
+      "Shift": false,
+      "Alt": false,
+      "Win": false,
+      "Key": "L"
+    }
+  }
 }

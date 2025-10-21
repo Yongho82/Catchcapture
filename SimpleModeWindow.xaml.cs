@@ -37,8 +37,9 @@ namespace CatchCapture
         
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            // 프로그램 전체 종료
-            Application.Current.Shutdown();
+            // 프로그램 종료 대신 메인 프로그램으로 복귀
+            ExitSimpleModeRequested?.Invoke(this, EventArgs.Empty);
+            this.Close();
         }
         
         private void AreaCaptureButton_Click(object sender, RoutedEventArgs e)
@@ -62,6 +63,7 @@ namespace CatchCapture
         private void ExitSimpleModeButton_Click(object sender, RoutedEventArgs e)
         {
             ExitSimpleModeRequested?.Invoke(this, EventArgs.Empty);
+            this.Close();
         }
         
         private void ShowCopiedNotification()
@@ -72,5 +74,12 @@ namespace CatchCapture
             Show(); // 다시 표시
             notification.Show();
         }
+
+        private void SettingsButton_Click(object sender, RoutedEventArgs e)
+        {
+            var win = new SettingsWindow();
+            win.Owner = this;
+            win.ShowDialog();
+        }
     }
-} 
+}

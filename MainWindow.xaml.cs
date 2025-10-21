@@ -777,7 +777,9 @@ public partial class MainWindow : Window
             int uiIndex = -1;
             for (int i = 0; i < CaptureListPanel.Children.Count; i++)
             {
-                if (CaptureListPanel.Children[i] is Border border && (int)border.Tag == selectedIndex)
+                if (CaptureListPanel.Children[i] is Border border && 
+                    border.Tag is int borderTag && 
+                    borderTag == selectedIndex)
                 {
                     uiIndex = i;
                     break;
@@ -1004,11 +1006,7 @@ public partial class MainWindow : Window
             this.Show();
             this.Activate();
         };
-        
-        // 메인 창 숨기기
-        this.Hide();
-        
-        // 간편모드 창 표시
+
         simpleModeWindow.Show();
     }
 
@@ -1026,4 +1024,12 @@ public partial class MainWindow : Window
     }
 
     #endregion
+
+    // 사이드바 설정 버튼 클릭
+    private void SettingsSideButton_Click(object sender, RoutedEventArgs e)
+    {
+        var win = new SettingsWindow();
+        win.Owner = this;
+        win.ShowDialog();
+    }
 }

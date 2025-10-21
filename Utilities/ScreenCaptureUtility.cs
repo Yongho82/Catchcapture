@@ -8,7 +8,7 @@ using System.Threading;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Drawing.Drawing2D;
-using System.Windows.Forms;
+using WinForms = System.Windows.Forms;
 using System.Windows.Input;
 using MessageBox = System.Windows.MessageBox;
 using System.Text;
@@ -713,7 +713,7 @@ namespace CatchCapture.Utilities
 
         public static void CopyImageToClipboard(BitmapSource bitmapSource)
         {
-            Clipboard.SetImage(bitmapSource);
+            System.Windows.Clipboard.SetImage(bitmapSource);
         }
 
         // 두 이미지가 거의 완전히 동일한지 비교 (스크롤 감지용)

@@ -1,0 +1,285 @@
+<Window x:Class="CatchCapture.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="설정" Height="500" Width="680"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="#FFFDFDFE"
+        ShowInTaskbar="False">
+    <Window.Resources>
+        <!-- Typography -->
+        <Style x:Key="H1" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#222"/>
+            <Setter Property="Margin" Value="0,0,0,14"/>
+        </Style>
+        <Style x:Key="Label" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="#444"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- Buttons -->
+        <Style x:Key="NavButton" TargetType="Button">
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="Margin" Value="10,6"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" CornerRadius="8" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter Margin="8,0"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#FFF2F4FF"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="#E6E9F5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Width" Value="96"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#E9655B"/>
+            <Setter Property="BorderBrush" Value="#E9655B"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border CornerRadius="8" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#E25449"/>
+                                <Setter Property="BorderBrush" Value="#E25449"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#D9493E"/>
+                                <Setter Property="BorderBrush" Value="#D9493E"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.6"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Foreground" Value="#333"/>
+            <Setter Property="Background" Value="#F3F4F6"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+        </Style>
+
+        <!-- Inputs -->
+        <Style TargetType="ComboBox">
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="Margin" Value="0,4,0,12"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="Margin" Value="0,4,0,12"/>
+        </Style>
+        <Style TargetType="CheckBox">
+            <Setter Property="Margin" Value="0,10,0,0"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Sidebar -->
+        <Border Background="#FFFAFAFA" BorderBrush="#EEE" BorderThickness="0,0,1,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Brand row -->
+                <DockPanel Grid.Row="0" Margin="12,14,12,6">
+                    <Image Source="/icons/camera.png" Width="16" Height="16" Margin="0,0,6,0"/>
+                    <TextBlock Text="CatchCapture" FontWeight="SemiBold" Foreground="#444"/>
+                </DockPanel>
+
+                <!-- Nav buttons -->
+                <StackPanel Grid.Row="1">
+                    <Button x:Name="NavCapture" Style="{StaticResource NavButton}" Click="NavCapture_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="8" Height="8" Fill="#FFDFE5FF" VerticalAlignment="Center"/>
+                            <TextBlock Text="  캡처 설정"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="NavHotkey" Style="{StaticResource NavButton}" Click="NavHotkey_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="8" Height="8" Fill="#FFEFEFEF" VerticalAlignment="Center"/>
+                            <TextBlock Text="  단축키 설정"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <!-- Bottom links truly stuck to bottom -->
+                <StackPanel Grid.Row="2" Margin="10" Orientation="Horizontal">
+                    <TextBlock Text="기본설정으로 복원" Foreground="#999" Cursor="Hand" MouseLeftButtonUp="RestoreDefaults_Click"/>
+                    <TextBlock Text="  ·  " Foreground="#CCC"/>
+                    <TextBlock Text="문의하기" Foreground="#999" Cursor="Hand" MouseLeftButtonUp="Contact_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Content -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="64"/>
+            </Grid.RowDefinitions>
+
+            <!-- Capture page -->
+            <Border x:Name="PageCapture" Margin="20" Background="#FFFFFFFF" CornerRadius="10" Padding="16" BorderBrush="#EEE" BorderThickness="1">
+                <StackPanel>
+                    <TextBlock Text="캡처 기능 설정" Style="{StaticResource H1}"/>
+                    <Grid Margin="0,6,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Row 0: File format -->
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="파일 저장 형식" Style="{StaticResource Label}"/>
+                        <ComboBox x:Name="CmbFormat" Grid.Row="0" Grid.Column="1" Width="200" HorizontalAlignment="Left" Margin="0,8,0,0">
+                            <ComboBoxItem Content="PNG"/>
+                            <ComboBoxItem Content="JPG"/>
+                            <ComboBoxItem Content="GIF"/>
+                        </ComboBox>
+
+                        <!-- Row 1: Default save folder -->
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="기본 저장 위치" Style="{StaticResource Label}" Margin="0,8,0,0"/>
+                        <TextBox x:Name="TxtFolder" Grid.Row="1" Grid.Column="1" Width="200" HorizontalAlignment="Left" Margin="0,12,0,0"/>
+                        <Button x:Name="BtnBrowse" Grid.Row="1" Grid.Column="2" Content="..." Width="34" Height="32" Margin="0,12,0,0" Click="BtnBrowse_Click"/>
+                    </Grid>
+
+                    <Separator Margin="0,15,0,8" Background="#EEE"/>
+                    <CheckBox x:Name="ChkAutoSave" Content="캡처 결과를 항상 자동 저장"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Hotkey page -->
+            <Border x:Name="PageHotkey" Grid.Row="0" Margin="20" Background="#FFFFFFFF" CornerRadius="10" Padding="16" BorderBrush="#EEE" BorderThickness="1" Visibility="Collapsed">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <Grid IsSharedSizeScope="True" Margin="0,0,0,4">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140" SharedSizeGroup="colLabel"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="70" SharedSizeGroup="colKey"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.ColumnSpan="3" Text="캡처 단축키 설정" Style="{StaticResource H1}"/>
+
+                    <!-- Row factory: label checkbox + modifiers + key box -->
+                    <!-- Simple -->
+                    <CheckBox x:Name="HkSimpleEnabled" Grid.Row="1" Grid.Column="0" Content="간편캡처" Margin="0,4,0,0"/>
+                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="0,6,8,2" VerticalAlignment="Center">
+                        <CheckBox x:Name="HkSimpleCtrl" Content="Ctrl" Margin="0,0,10,0"/>
+                        <CheckBox x:Name="HkSimpleShift" Content="Shift" Margin="0,0,10,0"/>
+                        <CheckBox x:Name="HkSimpleAlt" Content="Alt" Margin="0,0,10,0"/>
+                        <CheckBox x:Name="HkSimpleWin" Content="Win"/>
+                    </StackPanel>
+                    <TextBox x:Name="HkSimpleKey" Grid.Row="1" Grid.Column="2" Height="28" Margin="0,4,0,0" VerticalAlignment="Center"/>
+
+                    <!-- Full -->
+                    <CheckBox x:Name="HkFullEnabled" Grid.Row="2" Grid.Column="0" Content="전체화면" Margin="0,4,0,0"/>
+                    <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Margin="0,6,8,2" VerticalAlignment="Center">
+                        <CheckBox x:Name="HkFullCtrl" Content="Ctrl" Margin="0,0,10,0"/>
+                        <CheckBox x:Name="HkFullShift" Content="Shift" Margin="0,0,10,0"/>
+                        <CheckBox x:Name="HkFullAlt" Content="Alt" Margin="0,0,10,0"/>
+                        <CheckBox x:Name="HkFullWin" Content="Win"/>
+                    </StackPanel>
+                    <TextBox x:Name="HkFullKey" Grid.Row="2" Grid.Column="2" Height="28" Margin="0,4,0,0" VerticalAlignment="Center"/>
+
+                    <!-- Window -->
+                    <CheckBox x:Name="HkWindowEnabled" Grid.Row="3" Grid.Column="0" Content="창 캡처" Margin="0,4,0,0"/>
+                    <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Margin="0,6,8,2" VerticalAlignment="Center">
+                        <CheckBox x:Name="HkWindowCtrl" Content="Ctrl" Margin="0,0,10,0"/>
+                        <CheckBox x:Name="HkWindowShift" Content="Shift" Margin="0,0,10,0"/>
+                        <CheckBox x:Name="HkWindowAlt" Content="Alt" Margin="0,0,10,0"/>
+                        <CheckBox x:Name="HkWindowWin" Content="Win"/>
+                    </StackPanel>
+                    <TextBox x:Name="HkWindowKey" Grid.Row="3" Grid.Column="2" Height="28" Margin="0,4,0,0" VerticalAlignment="Center"/>
+
+                    <!-- Region -->
+                    <CheckBox x:Name="HkRegionEnabled" Grid.Row="4" Grid.Column="0" Content="단위영역" Margin="0,4,0,0"/>
+                    <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" Margin="0,6,8,2" VerticalAlignment="Center">
+                        <CheckBox x:Name="HkRegionCtrl" Content="Ctrl" Margin="0,0,10,0"/>
+                        <CheckBox x:Name="HkRegionShift" Content="Shift" Margin="0,0,10,0"/>
+                        <CheckBox x:Name="HkRegionAlt" Content="Alt" Margin="0,0,10,0"/>
+                        <CheckBox x:Name="HkRegionWin" Content="Win"/>
+                    </StackPanel>
+                    <TextBox x:Name="HkRegionKey" Grid.Row="4" Grid.Column="2" Height="28" Margin="0,4,0,0" VerticalAlignment="Center"/>
+
+                    <!-- Size -->
+                    <CheckBox x:Name="HkSizeEnabled" Grid.Row="5" Grid.Column="0" Content="크기지정" Margin="0,4,0,0"/>
+                    <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" Margin="0,6,8,2" VerticalAlignment="Center">
+                        <CheckBox x:Name="HkSizeCtrl" Content="Ctrl" Margin="0,0,10,0"/>
+                        <CheckBox x:Name="HkSizeShift" Content="Shift" Margin="0,0,10,0"/>
+                        <CheckBox x:Name="HkSizeAlt" Content="Alt" Margin="0,0,10,0"/>
+                        <CheckBox x:Name="HkSizeWin" Content="Win"/>
+                    </StackPanel>
+                    <TextBox x:Name="HkSizeKey" Grid.Row="5" Grid.Column="2" Height="28" Margin="0,4,0,0" VerticalAlignment="Center"/>
+                </Grid>
+                </ScrollViewer>
+            </Border>
+
+            <!-- Footer -->
+            <Border Grid.Row="1" Background="#FAFAFA" BorderBrush="#EEE" BorderThickness="1,1,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0">
+                        <TextBlock Text="변경사항은 저장후 적용됩니다" Foreground="#888"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,16,0">
+                        <Button Content="저장" Style="{StaticResource PrimaryButton}" Click="Save_Click"/>
+                        <Button Content="취소" Style="{StaticResource SecondaryButton}" Click="Cancel_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

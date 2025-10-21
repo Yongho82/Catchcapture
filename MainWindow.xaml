@@ -266,6 +266,14 @@
                                     <TextBlock Text="간편 모드" HorizontalAlignment="Left" FontSize="11"/>
                                 </StackPanel>
                             </Button>
+                            <!-- 간편 모드 아래 설정 버튼 -->
+                            <Button x:Name="SettingsSideButton" Style="{StaticResource SidebarButtonStyle}" Click="SettingsSideButton_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/icons/clock.png" Width="16" Height="16" Margin="0,0,5,0"
+                                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                                    <TextBlock Text="설정" HorizontalAlignment="Left" FontSize="11"/>
+                                </StackPanel>
+                            </Button>
                         </StackPanel>
                     </Border>
 
