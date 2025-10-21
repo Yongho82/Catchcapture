@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
@@ -44,10 +45,40 @@ namespace CatchCapture
             ChkAutoSave.IsChecked = _settings.AutoSaveCapture;
         }
 
+        private static void EnsureDefaultKey(ToggleHotkey hk, string defaultKey)
+        {
+            if (string.IsNullOrWhiteSpace(hk.Key))
+                hk.Key = defaultKey;
+        }
+
+        private static void NormalizeKey(TextBox keyBox)
+        {
+            if (keyBox == null) return;
+            var t = (keyBox.Text ?? string.Empty).Trim();
+            // keep first token, uppercase
+            if (t.Length > 0)
+            {
+                // if user typed more than one char, keep first non-space char
+                var first = t.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? t;
+                keyBox.Text = first.ToUpperInvariant();
+            }
+        }
+
         private void LoadHotkeysPage()
         {
             var hk = _settings.Hotkeys;
-            // New set
+
+            // Fill defaults if empty
+            EnsureDefaultKey(hk.RegionCapture, "A");
+            EnsureDefaultKey(hk.DelayCapture, "D");
+            EnsureDefaultKey(hk.FullScreen, "F");
+            EnsureDefaultKey(hk.DesignatedCapture, "W");
+            EnsureDefaultKey(hk.SaveAll, "Z");
+            EnsureDefaultKey(hk.DeleteAll, "X");
+            EnsureDefaultKey(hk.SimpleMode, "M");
+            EnsureDefaultKey(hk.OpenSettings, "O");
+
+            // Bind to UI
             BindHotkey(hk.RegionCapture, HkRegionEnabled, HkRegionCtrl, HkRegionShift, HkRegionAlt, HkRegionWin, HkRegionKey);
             BindHotkey(hk.DelayCapture, HkDelayEnabled, HkDelayCtrl, HkDelayShift, HkDelayAlt, HkDelayWin, HkDelayKey);
             BindHotkey(hk.FullScreen, HkFullEnabled, HkFullCtrl, HkFullShift, HkFullAlt, HkFullWin, HkFullKey);
@@ -65,17 +96,20 @@ namespace CatchCapture
             shift.IsChecked = src.Shift;
             alt.IsChecked = src.Alt;
             win.IsChecked = src.Win;
-            key.Text = src.Key;
+            key.Text = (src.Key ?? string.Empty).Trim().ToUpperInvariant();
         }
 
         private static void ReadHotkey(ToggleHotkey dst, CheckBox en, CheckBox ctrl, CheckBox shift, CheckBox alt, CheckBox win, TextBox key)
         {
+            // Normalize UI input first
+            NormalizeKey(key);
+
             dst.Enabled = en.IsChecked == true;
             dst.Ctrl = ctrl.IsChecked == true;
             dst.Shift = shift.IsChecked == true;
             dst.Alt = alt.IsChecked == true;
             dst.Win = win.IsChecked == true;
-            dst.Key = key.Text?.Trim() ?? string.Empty;
+            dst.Key = (key.Text ?? string.Empty).Trim().ToUpperInvariant();
         }
 
         private void BtnBrowse_Click(object sender, RoutedEventArgs e)
@@ -95,7 +129,7 @@ namespace CatchCapture
             _settings.DefaultSaveFolder = TxtFolder.Text?.Trim() ?? string.Empty;
             _settings.AutoSaveCapture = ChkAutoSave.IsChecked == true;
 
-            // Hotkeys - new set
+            // Hotkeys - read and normalize
             ReadHotkey(_settings.Hotkeys.RegionCapture, HkRegionEnabled, HkRegionCtrl, HkRegionShift, HkRegionAlt, HkRegionWin, HkRegionKey);
             ReadHotkey(_settings.Hotkeys.DelayCapture, HkDelayEnabled, HkDelayCtrl, HkDelayShift, HkDelayAlt, HkDelayWin, HkDelayKey);
             ReadHotkey(_settings.Hotkeys.FullScreen, HkFullEnabled, HkFullCtrl, HkFullShift, HkFullAlt, HkFullWin, HkFullKey);
@@ -104,6 +138,16 @@ namespace CatchCapture
             ReadHotkey(_settings.Hotkeys.DeleteAll, HkDeleteAllEnabled, HkDeleteAllCtrl, HkDeleteAllShift, HkDeleteAllAlt, HkDeleteAllWin, HkDeleteAllKey);
             ReadHotkey(_settings.Hotkeys.SimpleMode, HkSimpleModeEnabled, HkSimpleModeCtrl, HkSimpleModeShift, HkSimpleModeAlt, HkSimpleModeWin, HkSimpleModeKey);
             ReadHotkey(_settings.Hotkeys.OpenSettings, HkOpenSettingsEnabled, HkOpenSettingsCtrl, HkOpenSettingsShift, HkOpenSettingsAlt, HkOpenSettingsWin, HkOpenSettingsKey);
+
+            // Ensure defaults if user left any key empty
+            EnsureDefaultKey(_settings.Hotkeys.RegionCapture, "A");
+            EnsureDefaultKey(_settings.Hotkeys.DelayCapture, "D");
+            EnsureDefaultKey(_settings.Hotkeys.FullScreen, "F");
+            EnsureDefaultKey(_settings.Hotkeys.DesignatedCapture, "W");
+            EnsureDefaultKey(_settings.Hotkeys.SaveAll, "Z");
+            EnsureDefaultKey(_settings.Hotkeys.DeleteAll, "X");
+            EnsureDefaultKey(_settings.Hotkeys.SimpleMode, "M");
+            EnsureDefaultKey(_settings.Hotkeys.OpenSettings, "O");
 
             Settings.Save(_settings);
             DialogResult = true;

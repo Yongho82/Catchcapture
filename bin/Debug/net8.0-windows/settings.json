@@ -30,43 +30,43 @@
     },
     "DesignatedCapture": {
       "Enabled": true,
-      "Ctrl": false,
+      "Ctrl": true,
       "Shift": false,
       "Alt": false,
       "Win": false,
-      "Key": ""
+      "Key": "W"
     },
     "SaveAll": {
       "Enabled": true,
-      "Ctrl": false,
+      "Ctrl": true,
       "Shift": false,
       "Alt": false,
       "Win": false,
-      "Key": ""
+      "Key": "Z"
     },
     "DeleteAll": {
       "Enabled": true,
-      "Ctrl": false,
+      "Ctrl": true,
       "Shift": false,
       "Alt": false,
       "Win": false,
-      "Key": ""
+      "Key": "X"
     },
     "SimpleMode": {
       "Enabled": true,
-      "Ctrl": false,
+      "Ctrl": true,
       "Shift": false,
       "Alt": false,
       "Win": false,
-      "Key": ""
+      "Key": "M"
     },
     "OpenSettings": {
       "Enabled": true,
-      "Ctrl": false,
+      "Ctrl": true,
       "Shift": false,
       "Alt": false,
       "Win": false,
-      "Key": ""
+      "Key": "O"
     },
     "SimpleCapture": {
       "Enabled": true,
