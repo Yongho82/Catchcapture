@@ -1014,6 +1014,11 @@ public partial class MainWindow : Window
             this.Activate();
         };
 
+        // 메인 창 위치를 기준으로 간편모드 위치 지정
+        // 메인창 좌표 기준 좌측 상단에 살짝 여백을 두고 표시
+        simpleModeWindow.Left = this.Left + 10;
+        simpleModeWindow.Top = this.Top + 10;
+
         // 메인 창 숨기고 간편모드 표시
         this.Hide();
         simpleModeWindow.Show();

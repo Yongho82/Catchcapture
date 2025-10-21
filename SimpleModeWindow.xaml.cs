@@ -4,6 +4,7 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using CatchCapture.Utilities;
 using System.Windows.Threading;
+using System.Windows.Controls.Primitives;
 
 namespace CatchCapture
 {
@@ -21,13 +22,13 @@ namespace CatchCapture
         {
             InitializeComponent();
             
-            // 화면 좌측 상단에 위치
-            PositionWindow();
+            // 위치는 호출자가 지정 (MainWindow에서 설정)
+            // PositionWindow();
         }
         
         private void PositionWindow()
         {
-            // 좌측 상단으로 위치 설정
+            // 좌측 상단 기본값 (호출자가 지정하지 않은 경우에만 사용할 수 있도록 남겨둠)
             Left = 10;
             Top = 10;
         }
@@ -40,9 +41,8 @@ namespace CatchCapture
         
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            // 프로그램 종료 대신 메인 프로그램으로 복귀
-            ExitSimpleModeRequested?.Invoke(this, EventArgs.Empty);
-            this.Close();
+            // 이제 X는 앱 종료
+            Application.Current.Shutdown();
         }
         
         private void AreaCaptureButton_Click(object sender, RoutedEventArgs e)
@@ -79,8 +79,8 @@ namespace CatchCapture
         
         private void ShowCopiedNotification()
         {
-            // 클립보드 복사 알림 표시
-            var notification = new GuideWindow("클립보드에 복사되었습니다", TimeSpan.FromSeconds(1.5));
+            // 클립보드 복사 알림 표시 (짧게 표시)
+            var notification = new GuideWindow("클립보드에 복사되었습니다", TimeSpan.FromSeconds(0.7));
             notification.Owner = this;
             Show(); // 다시 표시
             notification.Show();
@@ -96,9 +96,13 @@ namespace CatchCapture
         // Delay capture icon: open menu and run delayed area capture
         private void DelayIconButton_Click(object sender, RoutedEventArgs e)
         {
-            // Toggle context menu
-            if (DelayContextMenu != null)
+            // 버튼 바로 아래에 컨텍스트 메뉴가 열리도록 강제 설정
+            if (DelayContextMenu != null && DelayIconButton != null)
             {
+                DelayContextMenu.PlacementTarget = DelayIconButton;
+                DelayContextMenu.Placement = PlacementMode.Bottom;
+                DelayContextMenu.HorizontalOffset = 0;
+                DelayContextMenu.VerticalOffset = 4;
                 DelayContextMenu.IsOpen = true;
             }
         }
@@ -114,16 +118,22 @@ namespace CatchCapture
 
         private void StartDelayedAreaCapture(int seconds)
         {
-            Hide();
-            var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(seconds) };
-            timer.Tick += (s, e) =>
+            // 일반모드와 동일하게 카운트 스티커(GuideWindow) 표시 후 캡처 시작
+            var countdown = new GuideWindow("", null)
             {
-                (s as DispatcherTimer)?.Stop();
-                AreaCaptureRequested?.Invoke(this, EventArgs.Empty);
-                System.Threading.Thread.Sleep(100);
-                ShowCopiedNotification();
+                Owner = this
             };
-            timer.Start();
+            countdown.Show();
+            countdown.StartCountdown(seconds, () =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    Hide();
+                    AreaCaptureRequested?.Invoke(this, EventArgs.Empty);
+                    System.Threading.Thread.Sleep(100);
+                    ShowCopiedNotification();
+                });
+            });
         }
     }
 }
