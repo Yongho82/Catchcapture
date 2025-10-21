@@ -141,7 +141,8 @@
                     <StackPanel Orientation="Horizontal">
                         <Image x:Name="TitleLeftIcon" Source="/icons/simple_mode.png" Width="14" Height="14" Margin="0,0,5,0" 
                                RenderOptions.BitmapScalingMode="HighQuality"/>
-                        <!-- 제목 텍스트 제거 요청: 간편 캡처 텍스트 숨김 -->
+                        <TextBlock x:Name="TitleText" Text="간편모드" Foreground="White" FontWeight="SemiBold" FontSize="12"
+                                   Style="{StaticResource ClearTextStyle}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <!-- 세로/가로 전환 아이콘 버튼 (항상 표시, 아이콘은 모드에 따라 ↕/↔ 전환) -->

@@ -59,8 +59,9 @@ namespace CatchCapture
 
             ButtonsPanel.Orientation = vertical ? System.Windows.Controls.Orientation.Vertical : System.Windows.Controls.Orientation.Horizontal;
 
-            // 타이틀바: 세로모드일 때 왼쪽 아이콘 숨김, 전환 아이콘은 ↔ / 가로모드일 때 ↕
+            // 타이틀바 표시 규칙
             TitleLeftIcon.Visibility = vertical ? Visibility.Collapsed : Visibility.Visible;
+            TitleText.Visibility = vertical ? Visibility.Collapsed : Visibility.Visible; // 가로모드에서만 "간편모드" 표시
             ToggleOrientationIcon.Text = vertical ? "↔" : "↕";
 
             // 창 크기: 세로 60x200, 가로 200x85
