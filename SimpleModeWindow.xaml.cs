@@ -67,8 +67,8 @@ namespace CatchCapture
             // 창 크기: 세로 60x200, 가로 200x85
             if (vertical)
             {
-                this.Width = 78;
-                this.Height = 217;
+                this.Width = 61;
+                this.Height = 218; // +5px
             }
             else
             {

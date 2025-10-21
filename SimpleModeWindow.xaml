@@ -148,7 +148,8 @@
                         <!-- 세로/가로 전환 아이콘 버튼 (항상 표시, 아이콘은 모드에 따라 ↕/↔ 전환) -->
                         <Button x:Name="ToggleOrientationButton" Style="{StaticResource SmallButtonStyle}"
                                 Click="ToggleOrientationButton_Click" ToolTip="세로/가로 전환">
-                            <TextBlock x:Name="ToggleOrientationIcon" Text="↕" FontSize="12" Foreground="White" Style="{StaticResource ClearTextStyle}"/>
+                            <TextBlock x:Name="ToggleOrientationIcon" Text="↕" FontSize="12" Foreground="White"
+                                       Style="{StaticResource ClearTextStyle}" VerticalAlignment="Center" Margin="0,-4,0,0"/>
                         </Button>
                         <Button x:Name="ExitToNormalButton" Style="{StaticResource SmallButtonStyle}" Click="ExitSimpleModeButton_Click" ToolTip="일반 모드로">
                             <Image Source="/icons/simple_mode.png" Width="12" Height="12"/>
