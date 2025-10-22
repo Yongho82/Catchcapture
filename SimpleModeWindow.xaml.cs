@@ -129,7 +129,7 @@ namespace CatchCapture
         {
             if (TitleRow != null && TitleBarBorder != null)
             {
-                TitleRow.Height = new GridLength(22); // title height
+                // Overlay title bar: only toggle visibility to avoid layout shifts
                 TitleBarBorder.Visibility = Visibility.Visible;
             }
         }
@@ -138,7 +138,7 @@ namespace CatchCapture
         {
             if (TitleRow != null && TitleBarBorder != null)
             {
-                TitleRow.Height = new GridLength(0);
+                // Overlay title bar: only toggle visibility to avoid layout shifts
                 TitleBarBorder.Visibility = Visibility.Collapsed;
             }
         }
@@ -149,25 +149,10 @@ namespace CatchCapture
             ApplyOrientation(_verticalMode);
         }
 
-        private void Window_MouseEnter_Dup(object sender, MouseEventArgs e)
-        {
-            _isMouseInside = true;
-            _hideTitleTimer.Stop();
-            ShowTitleBar();
-        }
-
-        private void Window_MouseLeave_Dup(object sender, MouseEventArgs e)
-        {
-            _isMouseInside = false;
-            _hideTitleTimer.Stop();
-            _hideTitleTimer.Start();
-        }
-
         private void ShowTitleBar_Dup()
         {
             if (TitleRow != null && TitleBarBorder != null)
             {
-                TitleRow.Height = new GridLength(22); // title height
                 TitleBarBorder.Visibility = Visibility.Visible;
             }
         }
@@ -176,7 +161,6 @@ namespace CatchCapture
         {
             if (TitleRow != null && TitleBarBorder != null)
             {
-                TitleRow.Height = new GridLength(0);
                 TitleBarBorder.Visibility = Visibility.Collapsed;
             }
         }
