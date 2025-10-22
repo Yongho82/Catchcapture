@@ -68,6 +68,8 @@ namespace CatchCapture.Utilities
             canvas.Width = vWidth;
             canvas.Height = vHeight;
             canvas.SnapsToDevicePixels = true;
+            // Always hit-testable even with transparent content
+            canvas.Background = Brushes.Transparent;
             Content = canvas;
 
             // 배경 스크린샷을 동기 캡처하여 즉시 정지 화면 제공 (오버레이와 동시에 상호작용 가능)
@@ -152,6 +154,10 @@ namespace CatchCapture.Utilities
             MouseMove += SnippingWindow_MouseMove;
             MouseLeftButtonUp += SnippingWindow_MouseLeftButtonUp;
             KeyDown += SnippingWindow_KeyDown;
+            // Keep drag active even if window momentarily deactivates or capture is lost
+            Deactivated += SnippingWindow_Deactivated;
+            LostMouseCapture += SnippingWindow_LostMouseCapture;
+            Loaded += (s, e) => { try { Activate(); Focus(); } catch { } };
 
             // 비동기 캡처 제거: 어둡게 되는 시점과 즉시 상호작용 가능 상태를 일치시킴
 
@@ -312,5 +318,36 @@ namespace CatchCapture.Utilities
                 Close();
             }
         }
+
+        private void SnippingWindow_Deactivated(object? sender, EventArgs e)
+        {
+            // If user is dragging and the window deactivates (e.g., OS focus glitch), re-activate and recapture
+            if (isSelecting)
+            {
+                try
+                {
+                    Topmost = true;
+                    Activate();
+                    if (Mouse.Captured != this && Mouse.LeftButton == MouseButtonState.Pressed)
+                    {
+                        Mouse.Capture(this);
+                    }
+                }
+                catch { }
+            }
+        }
+
+        private void SnippingWindow_LostMouseCapture(object? sender, MouseEventArgs e)
+        {
+            // During drag, if capture is lost while the left button is still down, recapture to keep visuals updating
+            if (isSelecting && Mouse.LeftButton == MouseButtonState.Pressed)
+            {
+                try
+                {
+                    Mouse.Capture(this);
+                }
+                catch { }
+            }
+        }
     }
-} 
+}

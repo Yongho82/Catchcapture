@@ -1,40 +1,1095 @@
-===== 로그 시작: 2025-10-21 오후 10:53:49 =====
-[22:53:49.197] PreviewWindow 생성됨
-[22:53:49.219] CancelCurrentEditMode 호출: 이전 모드=None, tempShape=False
-[22:53:49.220] CancelCurrentEditMode에서 CleanupTemporaryShape 호출
-[22:53:49.220] CleanupTemporaryShape 호출: tempShape=False
-[22:53:49.221] tempShape가 이미 null이거나 ImageCanvas가 null임
-[22:53:49.221] 도구 패널 숨김
-[22:53:49.221] 마우스 커서 복원: Arrow
-[22:53:49.221] 그리기 상태 초기화: isDrawingShape=false, isDragStarted=false
-[22:53:49.281] MouseUp: 위치(572.0, 51.5), 편집모드=Highlight, isDrawingShape=False, isDragStarted=False
-[22:53:53.719] MouseDown: 위치(400.0, 299.5), 편집모드=Highlight, isDrawingShape=False
-[22:53:54.256] MouseUp: 위치(360.0, 283.5), 편집모드=Highlight, isDrawingShape=False, isDragStarted=False
-[22:53:54.273] UpdatePreviewImage 시작
-[22:53:54.273] UpdatePreviewImage에서 CleanupTemporaryShape 호출
-[22:53:54.273] CleanupTemporaryShape 호출: tempShape=False
-[22:53:54.274] tempShape가 이미 null이거나 ImageCanvas가 null임
-[22:53:54.274] 이미지 소스 업데이트: 1034x537
-[22:53:54.275] UpdatePreviewImage 완료
-[22:53:54.275] UpdatePreviewImage 완료 후 자식 요소 수: 1
-[22:53:54.275]   - 1번째 자식: Image
-[22:53:55.119] MouseDown: 위치(357.0, 335.5), 편집모드=Highlight, isDrawingShape=False
-[22:53:55.377] MouseUp: 위치(709.0, 312.5), 편집모드=Highlight, isDrawingShape=False, isDragStarted=False
-[22:53:55.387] UpdatePreviewImage 시작
-[22:53:55.388] UpdatePreviewImage에서 CleanupTemporaryShape 호출
-[22:53:55.388] CleanupTemporaryShape 호출: tempShape=False
-[22:53:55.388] tempShape가 이미 null이거나 ImageCanvas가 null임
-[22:53:55.388] 이미지 소스 업데이트: 1034x537
-[22:53:55.389] UpdatePreviewImage 완료
-[22:53:55.389] UpdatePreviewImage 완료 후 자식 요소 수: 1
-[22:53:55.389]   - 1번째 자식: Image
-[22:53:58.228] MouseDown: 위치(523.0, 455.5), 편집모드=Highlight, isDrawingShape=False
-[22:53:58.699] MouseUp: 위치(87.0, 430.5), 편집모드=Highlight, isDrawingShape=False, isDragStarted=False
-[22:53:58.710] UpdatePreviewImage 시작
-[22:53:58.711] UpdatePreviewImage에서 CleanupTemporaryShape 호출
-[22:53:58.711] CleanupTemporaryShape 호출: tempShape=False
-[22:53:58.711] tempShape가 이미 null이거나 ImageCanvas가 null임
-[22:53:58.711] 이미지 소스 업데이트: 1034x537
-[22:53:58.711] UpdatePreviewImage 완료
-[22:53:58.712] UpdatePreviewImage 완료 후 자식 요소 수: 1
-[22:53:58.712]   - 1번째 자식: Image
+===== 로그 시작: 2025-10-22 오후 11:36:03 =====
+[23:36:03.508] PreviewWindow 생성됨
+[23:36:03.571] CancelCurrentEditMode 호출: 이전 모드=None, tempShape=False
+[23:36:03.572] CancelCurrentEditMode에서 CleanupTemporaryShape 호출
+[23:36:03.572] CleanupTemporaryShape 호출: tempShape=False
+[23:36:03.573] tempShape가 이미 null이거나 ImageCanvas가 null임
+[23:36:03.573] 도구 패널 숨김
+[23:36:03.573] 마우스 커서 복원: Arrow
+[23:36:03.574] 그리기 상태 초기화: isDrawingShape=false, isDragStarted=false
+[23:36:03.624] MouseUp: 위치(630.5, 34.0), 편집모드=Highlight, isDrawingShape=False, isDragStarted=False
+[23:36:05.449] MouseDown: 위치(281.5, 128.0), 편집모드=Highlight, isDrawingShape=False
+[23:36:05.947] MouseUp: 위치(473.5, 137.0), 편집모드=Highlight, isDrawingShape=False, isDragStarted=False
+[23:36:05.963] UpdatePreviewImage 시작
+[23:36:05.964] UpdatePreviewImage에서 CleanupTemporaryShape 호출
+[23:36:05.964] CleanupTemporaryShape 호출: tempShape=False
+[23:36:05.965] tempShape가 이미 null이거나 ImageCanvas가 null임
+[23:36:05.965] 이미지 소스 업데이트: 863x556
+[23:36:05.966] UpdatePreviewImage 완료
+[23:36:05.966] UpdatePreviewImage 완료 후 자식 요소 수: 1
+[23:36:05.966]   - 1번째 자식: Image
+[23:36:07.720] UpdatePreviewImage 시작
+[23:36:07.721] UpdatePreviewImage에서 CleanupTemporaryShape 호출
+[23:36:07.721] CleanupTemporaryShape 호출: tempShape=False
+[23:36:07.722] tempShape가 이미 null이거나 ImageCanvas가 null임
+[23:36:07.722] 이미지 소스 업데이트: 863x556
+[23:36:07.726] UpdatePreviewImage 완료
+[23:36:07.727] UpdatePreviewImage 완료 후 자식 요소 수: 1
+[23:36:07.727]   - 1번째 자식: Image
+[23:36:08.085] CancelCurrentEditMode 호출: 이전 모드=Highlight, tempShape=False
+[23:36:08.086] CancelCurrentEditMode에서 CleanupTemporaryShape 호출
+[23:36:08.086] CleanupTemporaryShape 호출: tempShape=False
+[23:36:08.087] tempShape가 이미 null이거나 ImageCanvas가 null임
+[23:36:08.087] 도구 패널 숨김
+[23:36:08.087] 마우스 커서 복원: Arrow
+[23:36:08.088] 그리기 상태 초기화: isDrawingShape=false, isDragStarted=false
+[23:36:09.565] CancelCurrentEditMode 호출: 이전 모드=Pen, tempShape=False
+[23:36:09.565] CancelCurrentEditMode에서 CleanupTemporaryShape 호출
+[23:36:09.565] CleanupTemporaryShape 호출: tempShape=False
+[23:36:09.566] tempShape가 이미 null이거나 ImageCanvas가 null임
+[23:36:09.566] 도구 패널 숨김
+[23:36:09.566] 마우스 커서 복원: Arrow
+[23:36:09.567] 그리기 상태 초기화: isDrawingShape=false, isDragStarted=false
+[23:36:11.119] CancelCurrentEditMode 호출: 이전 모드=Highlight, tempShape=False
+[23:36:11.120] CancelCurrentEditMode에서 CleanupTemporaryShape 호출
+[23:36:11.120] CleanupTemporaryShape 호출: tempShape=False
+[23:36:11.120] tempShape가 이미 null이거나 ImageCanvas가 null임
+[23:36:11.121] 도구 패널 숨김
+[23:36:11.121] 마우스 커서 복원: Arrow
+[23:36:11.121] 그리기 상태 초기화: isDrawingShape=false, isDragStarted=false
+[23:36:11.879] CancelCurrentEditMode 호출: 이전 모드=Pen, tempShape=False
+[23:36:11.880] CancelCurrentEditMode에서 CleanupTemporaryShape 호출
+[23:36:11.880] CleanupTemporaryShape 호출: tempShape=False
+[23:36:11.880] tempShape가 이미 null이거나 ImageCanvas가 null임
+[23:36:11.880] 도구 패널 숨김
+[23:36:11.881] 마우스 커서 복원: Arrow
+[23:36:11.881] 그리기 상태 초기화: isDrawingShape=false, isDragStarted=false
+[23:36:12.541] CancelCurrentEditMode 호출: 이전 모드=Highlight, tempShape=False
+[23:36:12.542] CancelCurrentEditMode에서 CleanupTemporaryShape 호출
+[23:36:12.542] CleanupTemporaryShape 호출: tempShape=False
+[23:36:12.542] tempShape가 이미 null이거나 ImageCanvas가 null임
+[23:36:12.543] 도구 패널 숨김
+[23:36:12.543] 마우스 커서 복원: Arrow
+[23:36:12.543] 그리기 상태 초기화: isDrawingShape=false, isDragStarted=false
+[23:36:12.951] CancelCurrentEditMode 호출: 이전 모드=Pen, tempShape=False
+[23:36:12.951] CancelCurrentEditMode에서 CleanupTemporaryShape 호출
+[23:36:12.951] CleanupTemporaryShape 호출: tempShape=False
+[23:36:12.952] tempShape가 이미 null이거나 ImageCanvas가 null임
+[23:36:12.952] 도구 패널 숨김
+[23:36:12.952] 마우스 커서 복원: Arrow
+[23:36:12.952] 그리기 상태 초기화: isDrawingShape=false, isDragStarted=false
+[23:36:13.525] CancelCurrentEditMode 호출: 이전 모드=Highlight, tempShape=False
+[23:36:13.526] CancelCurrentEditMode에서 CleanupTemporaryShape 호출
+[23:36:13.526] CleanupTemporaryShape 호출: tempShape=False
+[23:36:13.527] tempShape가 이미 null이거나 ImageCanvas가 null임
+[23:36:13.527] 도구 패널 숨김
+[23:36:13.527] 마우스 커서 복원: Arrow
+[23:36:13.528] 그리기 상태 초기화: isDrawingShape=false, isDragStarted=false
+[23:36:14.851] CancelCurrentEditMode 호출: 이전 모드=Text, tempShape=False
+[23:36:14.851] CancelCurrentEditMode에서 CleanupTemporaryShape 호출
+[23:36:14.851] CleanupTemporaryShape 호출: tempShape=False
+[23:36:14.852] tempShape가 이미 null이거나 ImageCanvas가 null임
+[23:36:14.852] 도구 패널 숨김
+[23:36:14.852] 마우스 커서 복원: Arrow
+[23:36:14.853] 그리기 상태 초기화: isDrawingShape=false, isDragStarted=false
+[23:36:15.633] CancelCurrentEditMode 호출: 이전 모드=Text, tempShape=False
+[23:36:15.633] CancelCurrentEditMode에서 CleanupTemporaryShape 호출
+[23:36:15.634] CleanupTemporaryShape 호출: tempShape=False
+[23:36:15.634] tempShape가 이미 null이거나 ImageCanvas가 null임
+[23:36:15.634] 도구 패널 숨김
+[23:36:15.634] 마우스 커서 복원: Arrow
+[23:36:15.635] 그리기 상태 초기화: isDrawingShape=false, isDragStarted=false
+[23:36:17.324] CancelCurrentEditMode 호출: 이전 모드=Mosaic, tempShape=False
+[23:36:17.325] CancelCurrentEditMode에서 CleanupTemporaryShape 호출
+[23:36:17.325] CleanupTemporaryShape 호출: tempShape=False
+[23:36:17.326] tempShape가 이미 null이거나 ImageCanvas가 null임
+[23:36:17.326] 도구 패널 숨김
+[23:36:17.326] 마우스 커서 복원: Arrow
+[23:36:17.327] 그리기 상태 초기화: isDrawingShape=false, isDragStarted=false
+[23:36:17.894] CancelCurrentEditMode 호출: 이전 모드=Mosaic, tempShape=False
+[23:36:17.895] CancelCurrentEditMode에서 CleanupTemporaryShape 호출
+[23:36:17.895] CleanupTemporaryShape 호출: tempShape=False
+[23:36:17.895] tempShape가 이미 null이거나 ImageCanvas가 null임
+[23:36:17.896] 도구 패널 숨김
+[23:36:17.896] 마우스 커서 복원: Arrow
+[23:36:17.896] 그리기 상태 초기화: isDrawingShape=false, isDragStarted=false
+[23:36:20.277] MouseDown: 위치(231.5, 74.5), 편집모드=Mosaic, isDrawingShape=False
+[23:36:20.680] MouseUp: 위치(466.5, 262.5), 편집모드=Mosaic, isDrawingShape=False, isDragStarted=False
+[23:36:20.688] UpdatePreviewImage 시작
+[23:36:20.688] UpdatePreviewImage에서 CleanupTemporaryShape 호출
+[23:36:20.689] CleanupTemporaryShape 호출: tempShape=False
+[23:36:20.689] tempShape가 이미 null이거나 ImageCanvas가 null임
+[23:36:20.689] 이미지 소스 업데이트: 863x556
+[23:36:20.690] UpdatePreviewImage 완료
+[23:36:20.690] UpdatePreviewImage 완료 후 자식 요소 수: 2
+[23:36:20.691]   - 1번째 자식: Image
+[23:36:20.691]   - 2번째 자식: Rectangle
+[23:36:21.425] MouseDown: 위치(72.5, 104.5), 편집모드=Mosaic, isDrawingShape=False
+[23:36:21.610] MouseUp: 위치(172.5, 243.5), 편집모드=Mosaic, isDrawingShape=False, isDragStarted=False
+[23:36:21.612] UpdatePreviewImage 시작
+[23:36:21.612] UpdatePreviewImage에서 CleanupTemporaryShape 호출
+[23:36:21.613] CleanupTemporaryShape 호출: tempShape=False
+[23:36:21.613] tempShape가 이미 null이거나 ImageCanvas가 null임
+[23:36:21.613] 이미지 소스 업데이트: 863x556
+[23:36:21.614] UpdatePreviewImage 완료
+[23:36:21.614] UpdatePreviewImage 완료 후 자식 요소 수: 2
+[23:36:21.614]   - 1번째 자식: Image
+[23:36:21.615]   - 2번째 자식: Rectangle
+[23:36:23.484] MouseDown: 위치(85.5, 232.5), 편집모드=Mosaic, isDrawingShape=False
+[23:36:23.723] MouseUp: 위치(174.5, 344.5), 편집모드=Mosaic, isDrawingShape=False, isDragStarted=False
+[23:36:23.725] UpdatePreviewImage 시작
+[23:36:23.725] UpdatePreviewImage에서 CleanupTemporaryShape 호출
+[23:36:23.725] CleanupTemporaryShape 호출: tempShape=False
+[23:36:23.726] tempShape가 이미 null이거나 ImageCanvas가 null임
+[23:36:23.726] 이미지 소스 업데이트: 863x556
+[23:36:23.726] UpdatePreviewImage 완료
+[23:36:23.727] UpdatePreviewImage 완료 후 자식 요소 수: 2
+[23:36:23.727]   - 1번째 자식: Image
+[23:36:23.727]   - 2번째 자식: Rectangle
+[23:36:25.011] CancelCurrentEditMode 호출: 이전 모드=Mosaic, tempShape=False
+[23:36:25.011] CancelCurrentEditMode에서 CleanupTemporaryShape 호출
+[23:36:25.012] CleanupTemporaryShape 호출: tempShape=False
+[23:36:25.012] tempShape가 이미 null이거나 ImageCanvas가 null임
+[23:36:25.013] 도구 패널 숨김
+[23:36:25.013] 마우스 커서 복원: Arrow
+[23:36:25.013] 그리기 상태 초기화: isDrawingShape=false, isDragStarted=false
+[23:36:25.760] MouseDown: 위치(135.5, 280.5), 편집모드=Eraser, isDrawingShape=False
+[23:36:26.553] MouseUp: 위치(152.5, 296.5), 편집모드=Eraser, isDrawingShape=False, isDragStarted=False
+[23:36:26.588] UpdatePreviewImage 시작
+[23:36:26.588] UpdatePreviewImage에서 CleanupTemporaryShape 호출
+[23:36:26.589] CleanupTemporaryShape 호출: tempShape=False
+[23:36:26.589] tempShape가 이미 null이거나 ImageCanvas가 null임
+[23:36:26.589] 이미지 소스 업데이트: 863x556
+[23:36:26.590] UpdatePreviewImage 완료
+[23:36:26.590] UpdatePreviewImage 완료 후 자식 요소 수: 901
+[23:36:26.591]   - 1번째 자식: Image
+[23:36:26.591]   - 2번째 자식: Ellipse
+[23:36:26.591]   - 3번째 자식: Ellipse
+[23:36:26.591]   - 4번째 자식: Ellipse
+[23:36:26.592]   - 5번째 자식: Ellipse
+[23:36:26.592]   - 6번째 자식: Ellipse
+[23:36:26.592]   - 7번째 자식: Ellipse
+[23:36:26.592]   - 8번째 자식: Ellipse
+[23:36:26.593]   - 9번째 자식: Ellipse
+[23:36:26.593]   - 10번째 자식: Ellipse
+[23:36:26.593]   - 11번째 자식: Ellipse
+[23:36:26.593]   - 12번째 자식: Ellipse
+[23:36:26.594]   - 13번째 자식: Ellipse
+[23:36:26.594]   - 14번째 자식: Ellipse
+[23:36:26.594]   - 15번째 자식: Ellipse
+[23:36:26.594]   - 16번째 자식: Ellipse
+[23:36:26.595]   - 17번째 자식: Ellipse
+[23:36:26.595]   - 18번째 자식: Ellipse
+[23:36:26.595]   - 19번째 자식: Ellipse
+[23:36:26.596]   - 20번째 자식: Ellipse
+[23:36:26.596]   - 21번째 자식: Ellipse
+[23:36:26.596]   - 22번째 자식: Ellipse
+[23:36:26.597]   - 23번째 자식: Ellipse
+[23:36:26.597]   - 24번째 자식: Ellipse
+[23:36:26.597]   - 25번째 자식: Ellipse
+[23:36:26.597]   - 26번째 자식: Ellipse
+[23:36:26.598]   - 27번째 자식: Ellipse
+[23:36:26.598]   - 28번째 자식: Ellipse
+[23:36:26.598]   - 29번째 자식: Ellipse
+[23:36:26.599]   - 30번째 자식: Ellipse
+[23:36:26.599]   - 31번째 자식: Ellipse
+[23:36:26.599]   - 32번째 자식: Ellipse
+[23:36:26.600]   - 33번째 자식: Ellipse
+[23:36:26.600]   - 34번째 자식: Ellipse
+[23:36:26.600]   - 35번째 자식: Ellipse
+[23:36:26.600]   - 36번째 자식: Ellipse
+[23:36:26.601]   - 37번째 자식: Ellipse
+[23:36:26.601]   - 38번째 자식: Ellipse
+[23:36:26.601]   - 39번째 자식: Ellipse
+[23:36:26.601]   - 40번째 자식: Ellipse
+[23:36:26.602]   - 41번째 자식: Ellipse
+[23:36:26.602]   - 42번째 자식: Ellipse
+[23:36:26.602]   - 43번째 자식: Ellipse
+[23:36:26.602]   - 44번째 자식: Ellipse
+[23:36:26.603]   - 45번째 자식: Ellipse
+[23:36:26.603]   - 46번째 자식: Ellipse
+[23:36:26.603]   - 47번째 자식: Ellipse
+[23:36:26.603]   - 48번째 자식: Ellipse
+[23:36:26.603]   - 49번째 자식: Ellipse
+[23:36:26.604]   - 50번째 자식: Ellipse
+[23:36:26.604]   - 51번째 자식: Ellipse
+[23:36:26.604]   - 52번째 자식: Ellipse
+[23:36:26.605]   - 53번째 자식: Ellipse
+[23:36:26.605]   - 54번째 자식: Ellipse
+[23:36:26.605]   - 55번째 자식: Ellipse
+[23:36:26.605]   - 56번째 자식: Ellipse
+[23:36:26.606]   - 57번째 자식: Ellipse
+[23:36:26.606]   - 58번째 자식: Ellipse
+[23:36:26.606]   - 59번째 자식: Ellipse
+[23:36:26.606]   - 60번째 자식: Ellipse
+[23:36:26.607]   - 61번째 자식: Ellipse
+[23:36:26.607]   - 62번째 자식: Ellipse
+[23:36:26.607]   - 63번째 자식: Ellipse
+[23:36:26.607]   - 64번째 자식: Ellipse
+[23:36:26.608]   - 65번째 자식: Ellipse
+[23:36:26.608]   - 66번째 자식: Ellipse
+[23:36:26.608]   - 67번째 자식: Ellipse
+[23:36:26.608]   - 68번째 자식: Ellipse
+[23:36:26.609]   - 69번째 자식: Ellipse
+[23:36:26.609]   - 70번째 자식: Ellipse
+[23:36:26.609]   - 71번째 자식: Ellipse
+[23:36:26.609]   - 72번째 자식: Ellipse
+[23:36:26.610]   - 73번째 자식: Ellipse
+[23:36:26.610]   - 74번째 자식: Ellipse
+[23:36:26.610]   - 75번째 자식: Ellipse
+[23:36:26.610]   - 76번째 자식: Ellipse
+[23:36:26.611]   - 77번째 자식: Ellipse
+[23:36:26.611]   - 78번째 자식: Ellipse
+[23:36:26.611]   - 79번째 자식: Ellipse
+[23:36:26.611]   - 80번째 자식: Ellipse
+[23:36:26.612]   - 81번째 자식: Ellipse
+[23:36:26.612]   - 82번째 자식: Ellipse
+[23:36:26.612]   - 83번째 자식: Ellipse
+[23:36:26.612]   - 84번째 자식: Ellipse
+[23:36:26.613]   - 85번째 자식: Ellipse
+[23:36:26.613]   - 86번째 자식: Ellipse
+[23:36:26.613]   - 87번째 자식: Ellipse
+[23:36:26.613]   - 88번째 자식: Ellipse
+[23:36:26.614]   - 89번째 자식: Ellipse
+[23:36:26.614]   - 90번째 자식: Ellipse
+[23:36:26.614]   - 91번째 자식: Ellipse
+[23:36:26.614]   - 92번째 자식: Ellipse
+[23:36:26.615]   - 93번째 자식: Ellipse
+[23:36:26.615]   - 94번째 자식: Ellipse
+[23:36:26.615]   - 95번째 자식: Ellipse
+[23:36:26.615]   - 96번째 자식: Ellipse
+[23:36:26.616]   - 97번째 자식: Ellipse
+[23:36:26.616]   - 98번째 자식: Ellipse
+[23:36:26.616]   - 99번째 자식: Ellipse
+[23:36:26.616]   - 100번째 자식: Ellipse
+[23:36:26.617]   - 101번째 자식: Ellipse
+[23:36:26.617]   - 102번째 자식: Ellipse
+[23:36:26.617]   - 103번째 자식: Ellipse
+[23:36:26.617]   - 104번째 자식: Ellipse
+[23:36:26.618]   - 105번째 자식: Ellipse
+[23:36:26.618]   - 106번째 자식: Ellipse
+[23:36:26.618]   - 107번째 자식: Ellipse
+[23:36:26.618]   - 108번째 자식: Ellipse
+[23:36:26.619]   - 109번째 자식: Ellipse
+[23:36:26.619]   - 110번째 자식: Ellipse
+[23:36:26.619]   - 111번째 자식: Ellipse
+[23:36:26.619]   - 112번째 자식: Ellipse
+[23:36:26.620]   - 113번째 자식: Ellipse
+[23:36:26.620]   - 114번째 자식: Ellipse
+[23:36:26.620]   - 115번째 자식: Ellipse
+[23:36:26.620]   - 116번째 자식: Ellipse
+[23:36:26.621]   - 117번째 자식: Ellipse
+[23:36:26.621]   - 118번째 자식: Ellipse
+[23:36:26.621]   - 119번째 자식: Ellipse
+[23:36:26.621]   - 120번째 자식: Ellipse
+[23:36:26.622]   - 121번째 자식: Ellipse
+[23:36:26.622]   - 122번째 자식: Ellipse
+[23:36:26.622]   - 123번째 자식: Ellipse
+[23:36:26.623]   - 124번째 자식: Ellipse
+[23:36:26.623]   - 125번째 자식: Ellipse
+[23:36:26.623]   - 126번째 자식: Ellipse
+[23:36:26.624]   - 127번째 자식: Ellipse
+[23:36:26.624]   - 128번째 자식: Ellipse
+[23:36:26.624]   - 129번째 자식: Ellipse
+[23:36:26.625]   - 130번째 자식: Ellipse
+[23:36:26.625]   - 131번째 자식: Ellipse
+[23:36:26.625]   - 132번째 자식: Ellipse
+[23:36:26.626]   - 133번째 자식: Ellipse
+[23:36:26.626]   - 134번째 자식: Ellipse
+[23:36:26.626]   - 135번째 자식: Ellipse
+[23:36:26.626]   - 136번째 자식: Ellipse
+[23:36:26.627]   - 137번째 자식: Ellipse
+[23:36:26.627]   - 138번째 자식: Ellipse
+[23:36:26.627]   - 139번째 자식: Ellipse
+[23:36:26.628]   - 140번째 자식: Ellipse
+[23:36:26.628]   - 141번째 자식: Ellipse
+[23:36:26.628]   - 142번째 자식: Ellipse
+[23:36:26.628]   - 143번째 자식: Ellipse
+[23:36:26.629]   - 144번째 자식: Ellipse
+[23:36:26.629]   - 145번째 자식: Ellipse
+[23:36:26.629]   - 146번째 자식: Ellipse
+[23:36:26.630]   - 147번째 자식: Ellipse
+[23:36:26.630]   - 148번째 자식: Ellipse
+[23:36:26.630]   - 149번째 자식: Ellipse
+[23:36:26.631]   - 150번째 자식: Ellipse
+[23:36:26.631]   - 151번째 자식: Ellipse
+[23:36:26.632]   - 152번째 자식: Ellipse
+[23:36:26.632]   - 153번째 자식: Ellipse
+[23:36:26.632]   - 154번째 자식: Ellipse
+[23:36:26.632]   - 155번째 자식: Ellipse
+[23:36:26.632]   - 156번째 자식: Ellipse
+[23:36:26.633]   - 157번째 자식: Ellipse
+[23:36:26.633]   - 158번째 자식: Ellipse
+[23:36:26.633]   - 159번째 자식: Ellipse
+[23:36:26.634]   - 160번째 자식: Ellipse
+[23:36:26.634]   - 161번째 자식: Ellipse
+[23:36:26.634]   - 162번째 자식: Ellipse
+[23:36:26.634]   - 163번째 자식: Ellipse
+[23:36:26.635]   - 164번째 자식: Ellipse
+[23:36:26.635]   - 165번째 자식: Ellipse
+[23:36:26.635]   - 166번째 자식: Ellipse
+[23:36:26.636]   - 167번째 자식: Ellipse
+[23:36:26.636]   - 168번째 자식: Ellipse
+[23:36:26.636]   - 169번째 자식: Ellipse
+[23:36:26.636]   - 170번째 자식: Ellipse
+[23:36:26.637]   - 171번째 자식: Ellipse
+[23:36:26.637]   - 172번째 자식: Ellipse
+[23:36:26.637]   - 173번째 자식: Ellipse
+[23:36:26.638]   - 174번째 자식: Ellipse
+[23:36:26.638]   - 175번째 자식: Ellipse
+[23:36:26.638]   - 176번째 자식: Ellipse
+[23:36:26.639]   - 177번째 자식: Ellipse
+[23:36:26.639]   - 178번째 자식: Ellipse
+[23:36:26.639]   - 179번째 자식: Ellipse
+[23:36:26.640]   - 180번째 자식: Ellipse
+[23:36:26.640]   - 181번째 자식: Ellipse
+[23:36:26.640]   - 182번째 자식: Ellipse
+[23:36:26.640]   - 183번째 자식: Ellipse
+[23:36:26.641]   - 184번째 자식: Ellipse
+[23:36:26.641]   - 185번째 자식: Ellipse
+[23:36:26.641]   - 186번째 자식: Ellipse
+[23:36:26.641]   - 187번째 자식: Ellipse
+[23:36:26.642]   - 188번째 자식: Ellipse
+[23:36:26.642]   - 189번째 자식: Ellipse
+[23:36:26.642]   - 190번째 자식: Ellipse
+[23:36:26.642]   - 191번째 자식: Ellipse
+[23:36:26.643]   - 192번째 자식: Ellipse
+[23:36:26.643]   - 193번째 자식: Ellipse
+[23:36:26.643]   - 194번째 자식: Ellipse
+[23:36:26.644]   - 195번째 자식: Ellipse
+[23:36:26.644]   - 196번째 자식: Ellipse
+[23:36:26.644]   - 197번째 자식: Ellipse
+[23:36:26.644]   - 198번째 자식: Ellipse
+[23:36:26.645]   - 199번째 자식: Ellipse
+[23:36:26.645]   - 200번째 자식: Ellipse
+[23:36:26.645]   - 201번째 자식: Ellipse
+[23:36:26.645]   - 202번째 자식: Ellipse
+[23:36:26.646]   - 203번째 자식: Ellipse
+[23:36:26.646]   - 204번째 자식: Ellipse
+[23:36:26.646]   - 205번째 자식: Ellipse
+[23:36:26.646]   - 206번째 자식: Ellipse
+[23:36:26.647]   - 207번째 자식: Ellipse
+[23:36:26.647]   - 208번째 자식: Ellipse
+[23:36:26.647]   - 209번째 자식: Ellipse
+[23:36:26.647]   - 210번째 자식: Ellipse
+[23:36:26.648]   - 211번째 자식: Ellipse
+[23:36:26.648]   - 212번째 자식: Ellipse
+[23:36:26.648]   - 213번째 자식: Ellipse
+[23:36:26.648]   - 214번째 자식: Ellipse
+[23:36:26.649]   - 215번째 자식: Ellipse
+[23:36:26.649]   - 216번째 자식: Ellipse
+[23:36:26.649]   - 217번째 자식: Ellipse
+[23:36:26.650]   - 218번째 자식: Ellipse
+[23:36:26.650]   - 219번째 자식: Ellipse
+[23:36:26.650]   - 220번째 자식: Ellipse
+[23:36:26.651]   - 221번째 자식: Ellipse
+[23:36:26.651]   - 222번째 자식: Ellipse
+[23:36:26.651]   - 223번째 자식: Ellipse
+[23:36:26.652]   - 224번째 자식: Ellipse
+[23:36:26.652]   - 225번째 자식: Ellipse
+[23:36:26.652]   - 226번째 자식: Ellipse
+[23:36:26.653]   - 227번째 자식: Ellipse
+[23:36:26.653]   - 228번째 자식: Ellipse
+[23:36:26.653]   - 229번째 자식: Ellipse
+[23:36:26.653]   - 230번째 자식: Ellipse
+[23:36:26.654]   - 231번째 자식: Ellipse
+[23:36:26.654]   - 232번째 자식: Ellipse
+[23:36:26.654]   - 233번째 자식: Ellipse
+[23:36:26.655]   - 234번째 자식: Ellipse
+[23:36:26.655]   - 235번째 자식: Ellipse
+[23:36:26.655]   - 236번째 자식: Ellipse
+[23:36:26.655]   - 237번째 자식: Ellipse
+[23:36:26.656]   - 238번째 자식: Ellipse
+[23:36:26.656]   - 239번째 자식: Ellipse
+[23:36:26.656]   - 240번째 자식: Ellipse
+[23:36:26.657]   - 241번째 자식: Ellipse
+[23:36:26.657]   - 242번째 자식: Ellipse
+[23:36:26.657]   - 243번째 자식: Ellipse
+[23:36:26.657]   - 244번째 자식: Ellipse
+[23:36:26.658]   - 245번째 자식: Ellipse
+[23:36:26.658]   - 246번째 자식: Ellipse
+[23:36:26.658]   - 247번째 자식: Ellipse
+[23:36:26.658]   - 248번째 자식: Ellipse
+[23:36:26.659]   - 249번째 자식: Ellipse
+[23:36:26.659]   - 250번째 자식: Ellipse
+[23:36:26.659]   - 251번째 자식: Ellipse
+[23:36:26.660]   - 252번째 자식: Ellipse
+[23:36:26.660]   - 253번째 자식: Ellipse
+[23:36:26.660]   - 254번째 자식: Ellipse
+[23:36:26.661]   - 255번째 자식: Ellipse
+[23:36:26.661]   - 256번째 자식: Ellipse
+[23:36:26.661]   - 257번째 자식: Ellipse
+[23:36:26.661]   - 258번째 자식: Ellipse
+[23:36:26.662]   - 259번째 자식: Ellipse
+[23:36:26.662]   - 260번째 자식: Ellipse
+[23:36:26.662]   - 261번째 자식: Ellipse
+[23:36:26.662]   - 262번째 자식: Ellipse
+[23:36:26.663]   - 263번째 자식: Ellipse
+[23:36:26.663]   - 264번째 자식: Ellipse
+[23:36:26.663]   - 265번째 자식: Ellipse
+[23:36:26.664]   - 266번째 자식: Ellipse
+[23:36:26.664]   - 267번째 자식: Ellipse
+[23:36:26.664]   - 268번째 자식: Ellipse
+[23:36:26.665]   - 269번째 자식: Ellipse
+[23:36:26.665]   - 270번째 자식: Ellipse
+[23:36:26.665]   - 271번째 자식: Ellipse
+[23:36:26.666]   - 272번째 자식: Ellipse
+[23:36:26.666]   - 273번째 자식: Ellipse
+[23:36:26.666]   - 274번째 자식: Ellipse
+[23:36:26.666]   - 275번째 자식: Ellipse
+[23:36:26.667]   - 276번째 자식: Ellipse
+[23:36:26.667]   - 277번째 자식: Ellipse
+[23:36:26.667]   - 278번째 자식: Ellipse
+[23:36:26.667]   - 279번째 자식: Ellipse
+[23:36:26.668]   - 280번째 자식: Ellipse
+[23:36:26.668]   - 281번째 자식: Ellipse
+[23:36:26.668]   - 282번째 자식: Ellipse
+[23:36:26.668]   - 283번째 자식: Ellipse
+[23:36:26.669]   - 284번째 자식: Ellipse
+[23:36:26.669]   - 285번째 자식: Ellipse
+[23:36:26.669]   - 286번째 자식: Ellipse
+[23:36:26.669]   - 287번째 자식: Ellipse
+[23:36:26.670]   - 288번째 자식: Ellipse
+[23:36:26.670]   - 289번째 자식: Ellipse
+[23:36:26.670]   - 290번째 자식: Ellipse
+[23:36:26.670]   - 291번째 자식: Ellipse
+[23:36:26.670]   - 292번째 자식: Ellipse
+[23:36:26.671]   - 293번째 자식: Ellipse
+[23:36:26.671]   - 294번째 자식: Ellipse
+[23:36:26.671]   - 295번째 자식: Ellipse
+[23:36:26.671]   - 296번째 자식: Ellipse
+[23:36:26.672]   - 297번째 자식: Ellipse
+[23:36:26.672]   - 298번째 자식: Ellipse
+[23:36:26.672]   - 299번째 자식: Ellipse
+[23:36:26.672]   - 300번째 자식: Ellipse
+[23:36:26.673]   - 301번째 자식: Ellipse
+[23:36:26.673]   - 302번째 자식: Ellipse
+[23:36:26.673]   - 303번째 자식: Ellipse
+[23:36:26.673]   - 304번째 자식: Ellipse
+[23:36:26.674]   - 305번째 자식: Ellipse
+[23:36:26.674]   - 306번째 자식: Ellipse
+[23:36:26.674]   - 307번째 자식: Ellipse
+[23:36:26.674]   - 308번째 자식: Ellipse
+[23:36:26.675]   - 309번째 자식: Ellipse
+[23:36:26.675]   - 310번째 자식: Ellipse
+[23:36:26.675]   - 311번째 자식: Ellipse
+[23:36:26.675]   - 312번째 자식: Ellipse
+[23:36:26.676]   - 313번째 자식: Ellipse
+[23:36:26.676]   - 314번째 자식: Ellipse
+[23:36:26.676]   - 315번째 자식: Ellipse
+[23:36:26.677]   - 316번째 자식: Ellipse
+[23:36:26.677]   - 317번째 자식: Ellipse
+[23:36:26.677]   - 318번째 자식: Ellipse
+[23:36:26.677]   - 319번째 자식: Ellipse
+[23:36:26.678]   - 320번째 자식: Ellipse
+[23:36:26.678]   - 321번째 자식: Ellipse
+[23:36:26.678]   - 322번째 자식: Ellipse
+[23:36:26.679]   - 323번째 자식: Ellipse
+[23:36:26.679]   - 324번째 자식: Ellipse
+[23:36:26.679]   - 325번째 자식: Ellipse
+[23:36:26.679]   - 326번째 자식: Ellipse
+[23:36:26.680]   - 327번째 자식: Ellipse
+[23:36:26.680]   - 328번째 자식: Ellipse
+[23:36:26.680]   - 329번째 자식: Ellipse
+[23:36:26.681]   - 330번째 자식: Ellipse
+[23:36:26.681]   - 331번째 자식: Ellipse
+[23:36:26.681]   - 332번째 자식: Ellipse
+[23:36:26.681]   - 333번째 자식: Ellipse
+[23:36:26.682]   - 334번째 자식: Ellipse
+[23:36:26.682]   - 335번째 자식: Ellipse
+[23:36:26.682]   - 336번째 자식: Ellipse
+[23:36:26.682]   - 337번째 자식: Ellipse
+[23:36:26.683]   - 338번째 자식: Ellipse
+[23:36:26.683]   - 339번째 자식: Ellipse
+[23:36:26.683]   - 340번째 자식: Ellipse
+[23:36:26.683]   - 341번째 자식: Ellipse
+[23:36:26.683]   - 342번째 자식: Ellipse
+[23:36:26.684]   - 343번째 자식: Ellipse
+[23:36:26.684]   - 344번째 자식: Ellipse
+[23:36:26.684]   - 345번째 자식: Ellipse
+[23:36:26.684]   - 346번째 자식: Ellipse
+[23:36:26.685]   - 347번째 자식: Ellipse
+[23:36:26.685]   - 348번째 자식: Ellipse
+[23:36:26.685]   - 349번째 자식: Ellipse
+[23:36:26.686]   - 350번째 자식: Ellipse
+[23:36:26.686]   - 351번째 자식: Ellipse
+[23:36:26.686]   - 352번째 자식: Ellipse
+[23:36:26.687]   - 353번째 자식: Ellipse
+[23:36:26.687]   - 354번째 자식: Ellipse
+[23:36:26.687]   - 355번째 자식: Ellipse
+[23:36:26.687]   - 356번째 자식: Ellipse
+[23:36:26.688]   - 357번째 자식: Ellipse
+[23:36:26.688]   - 358번째 자식: Ellipse
+[23:36:26.688]   - 359번째 자식: Ellipse
+[23:36:26.688]   - 360번째 자식: Ellipse
+[23:36:26.689]   - 361번째 자식: Ellipse
+[23:36:26.689]   - 362번째 자식: Ellipse
+[23:36:26.689]   - 363번째 자식: Ellipse
+[23:36:26.689]   - 364번째 자식: Ellipse
+[23:36:26.689]   - 365번째 자식: Ellipse
+[23:36:26.690]   - 366번째 자식: Ellipse
+[23:36:26.690]   - 367번째 자식: Ellipse
+[23:36:26.690]   - 368번째 자식: Ellipse
+[23:36:26.691]   - 369번째 자식: Ellipse
+[23:36:26.691]   - 370번째 자식: Ellipse
+[23:36:26.691]   - 371번째 자식: Ellipse
+[23:36:26.691]   - 372번째 자식: Ellipse
+[23:36:26.692]   - 373번째 자식: Ellipse
+[23:36:26.692]   - 374번째 자식: Ellipse
+[23:36:26.692]   - 375번째 자식: Ellipse
+[23:36:26.692]   - 376번째 자식: Ellipse
+[23:36:26.693]   - 377번째 자식: Ellipse
+[23:36:26.693]   - 378번째 자식: Ellipse
+[23:36:26.693]   - 379번째 자식: Ellipse
+[23:36:26.693]   - 380번째 자식: Ellipse
+[23:36:26.694]   - 381번째 자식: Ellipse
+[23:36:26.694]   - 382번째 자식: Ellipse
+[23:36:26.694]   - 383번째 자식: Ellipse
+[23:36:26.695]   - 384번째 자식: Ellipse
+[23:36:26.695]   - 385번째 자식: Ellipse
+[23:36:26.695]   - 386번째 자식: Ellipse
+[23:36:26.696]   - 387번째 자식: Ellipse
+[23:36:26.696]   - 388번째 자식: Ellipse
+[23:36:26.696]   - 389번째 자식: Ellipse
+[23:36:26.697]   - 390번째 자식: Ellipse
+[23:36:26.697]   - 391번째 자식: Ellipse
+[23:36:26.697]   - 392번째 자식: Ellipse
+[23:36:26.697]   - 393번째 자식: Ellipse
+[23:36:26.697]   - 394번째 자식: Ellipse
+[23:36:26.698]   - 395번째 자식: Ellipse
+[23:36:26.698]   - 396번째 자식: Ellipse
+[23:36:26.698]   - 397번째 자식: Ellipse
+[23:36:26.698]   - 398번째 자식: Ellipse
+[23:36:26.699]   - 399번째 자식: Ellipse
+[23:36:26.699]   - 400번째 자식: Ellipse
+[23:36:26.699]   - 401번째 자식: Ellipse
+[23:36:26.700]   - 402번째 자식: Ellipse
+[23:36:26.700]   - 403번째 자식: Ellipse
+[23:36:26.700]   - 404번째 자식: Ellipse
+[23:36:26.700]   - 405번째 자식: Ellipse
+[23:36:26.701]   - 406번째 자식: Ellipse
+[23:36:26.701]   - 407번째 자식: Ellipse
+[23:36:26.701]   - 408번째 자식: Ellipse
+[23:36:26.702]   - 409번째 자식: Ellipse
+[23:36:26.702]   - 410번째 자식: Ellipse
+[23:36:26.702]   - 411번째 자식: Ellipse
+[23:36:26.703]   - 412번째 자식: Ellipse
+[23:36:26.703]   - 413번째 자식: Ellipse
+[23:36:26.703]   - 414번째 자식: Ellipse
+[23:36:26.703]   - 415번째 자식: Ellipse
+[23:36:26.704]   - 416번째 자식: Ellipse
+[23:36:26.704]   - 417번째 자식: Ellipse
+[23:36:26.704]   - 418번째 자식: Ellipse
+[23:36:26.704]   - 419번째 자식: Ellipse
+[23:36:26.705]   - 420번째 자식: Ellipse
+[23:36:26.705]   - 421번째 자식: Ellipse
+[23:36:26.705]   - 422번째 자식: Ellipse
+[23:36:26.706]   - 423번째 자식: Ellipse
+[23:36:26.706]   - 424번째 자식: Ellipse
+[23:36:26.706]   - 425번째 자식: Ellipse
+[23:36:26.706]   - 426번째 자식: Ellipse
+[23:36:26.707]   - 427번째 자식: Ellipse
+[23:36:26.707]   - 428번째 자식: Ellipse
+[23:36:26.707]   - 429번째 자식: Ellipse
+[23:36:26.707]   - 430번째 자식: Ellipse
+[23:36:26.708]   - 431번째 자식: Ellipse
+[23:36:26.708]   - 432번째 자식: Ellipse
+[23:36:26.709]   - 433번째 자식: Ellipse
+[23:36:26.709]   - 434번째 자식: Ellipse
+[23:36:26.709]   - 435번째 자식: Ellipse
+[23:36:26.709]   - 436번째 자식: Ellipse
+[23:36:26.710]   - 437번째 자식: Ellipse
+[23:36:26.710]   - 438번째 자식: Ellipse
+[23:36:26.710]   - 439번째 자식: Ellipse
+[23:36:26.711]   - 440번째 자식: Ellipse
+[23:36:26.711]   - 441번째 자식: Ellipse
+[23:36:26.711]   - 442번째 자식: Ellipse
+[23:36:26.711]   - 443번째 자식: Ellipse
+[23:36:26.712]   - 444번째 자식: Ellipse
+[23:36:26.712]   - 445번째 자식: Ellipse
+[23:36:26.712]   - 446번째 자식: Ellipse
+[23:36:26.713]   - 447번째 자식: Ellipse
+[23:36:26.713]   - 448번째 자식: Ellipse
+[23:36:26.713]   - 449번째 자식: Ellipse
+[23:36:26.714]   - 450번째 자식: Ellipse
+[23:36:26.714]   - 451번째 자식: Ellipse
+[23:36:26.714]   - 452번째 자식: Ellipse
+[23:36:26.715]   - 453번째 자식: Ellipse
+[23:36:26.715]   - 454번째 자식: Ellipse
+[23:36:26.715]   - 455번째 자식: Ellipse
+[23:36:26.716]   - 456번째 자식: Ellipse
+[23:36:26.716]   - 457번째 자식: Ellipse
+[23:36:26.717]   - 458번째 자식: Ellipse
+[23:36:26.717]   - 459번째 자식: Ellipse
+[23:36:26.717]   - 460번째 자식: Ellipse
+[23:36:26.718]   - 461번째 자식: Ellipse
+[23:36:26.718]   - 462번째 자식: Ellipse
+[23:36:26.718]   - 463번째 자식: Ellipse
+[23:36:26.719]   - 464번째 자식: Ellipse
+[23:36:26.719]   - 465번째 자식: Ellipse
+[23:36:26.719]   - 466번째 자식: Ellipse
+[23:36:26.719]   - 467번째 자식: Ellipse
+[23:36:26.720]   - 468번째 자식: Ellipse
+[23:36:26.720]   - 469번째 자식: Ellipse
+[23:36:26.720]   - 470번째 자식: Ellipse
+[23:36:26.721]   - 471번째 자식: Ellipse
+[23:36:26.721]   - 472번째 자식: Ellipse
+[23:36:26.721]   - 473번째 자식: Ellipse
+[23:36:26.721]   - 474번째 자식: Ellipse
+[23:36:26.722]   - 475번째 자식: Ellipse
+[23:36:26.722]   - 476번째 자식: Ellipse
+[23:36:26.722]   - 477번째 자식: Ellipse
+[23:36:26.723]   - 478번째 자식: Ellipse
+[23:36:26.723]   - 479번째 자식: Ellipse
+[23:36:26.723]   - 480번째 자식: Ellipse
+[23:36:26.724]   - 481번째 자식: Ellipse
+[23:36:26.724]   - 482번째 자식: Ellipse
+[23:36:26.724]   - 483번째 자식: Ellipse
+[23:36:26.724]   - 484번째 자식: Ellipse
+[23:36:26.724]   - 485번째 자식: Ellipse
+[23:36:26.725]   - 486번째 자식: Ellipse
+[23:36:26.725]   - 487번째 자식: Ellipse
+[23:36:26.725]   - 488번째 자식: Ellipse
+[23:36:26.725]   - 489번째 자식: Ellipse
+[23:36:26.726]   - 490번째 자식: Ellipse
+[23:36:26.726]   - 491번째 자식: Ellipse
+[23:36:26.726]   - 492번째 자식: Ellipse
+[23:36:26.727]   - 493번째 자식: Ellipse
+[23:36:26.727]   - 494번째 자식: Ellipse
+[23:36:26.727]   - 495번째 자식: Ellipse
+[23:36:26.727]   - 496번째 자식: Ellipse
+[23:36:26.728]   - 497번째 자식: Ellipse
+[23:36:26.728]   - 498번째 자식: Ellipse
+[23:36:26.728]   - 499번째 자식: Ellipse
+[23:36:26.729]   - 500번째 자식: Ellipse
+[23:36:26.729]   - 501번째 자식: Ellipse
+[23:36:26.729]   - 502번째 자식: Ellipse
+[23:36:26.730]   - 503번째 자식: Ellipse
+[23:36:26.730]   - 504번째 자식: Ellipse
+[23:36:26.730]   - 505번째 자식: Ellipse
+[23:36:26.731]   - 506번째 자식: Ellipse
+[23:36:26.731]   - 507번째 자식: Ellipse
+[23:36:26.731]   - 508번째 자식: Ellipse
+[23:36:26.731]   - 509번째 자식: Ellipse
+[23:36:26.732]   - 510번째 자식: Ellipse
+[23:36:26.732]   - 511번째 자식: Ellipse
+[23:36:26.732]   - 512번째 자식: Ellipse
+[23:36:26.733]   - 513번째 자식: Ellipse
+[23:36:26.733]   - 514번째 자식: Ellipse
+[23:36:26.733]   - 515번째 자식: Ellipse
+[23:36:26.734]   - 516번째 자식: Ellipse
+[23:36:26.734]   - 517번째 자식: Ellipse
+[23:36:26.734]   - 518번째 자식: Ellipse
+[23:36:26.735]   - 519번째 자식: Ellipse
+[23:36:26.735]   - 520번째 자식: Ellipse
+[23:36:26.735]   - 521번째 자식: Ellipse
+[23:36:26.736]   - 522번째 자식: Ellipse
+[23:36:26.736]   - 523번째 자식: Ellipse
+[23:36:26.736]   - 524번째 자식: Ellipse
+[23:36:26.736]   - 525번째 자식: Ellipse
+[23:36:26.737]   - 526번째 자식: Ellipse
+[23:36:26.737]   - 527번째 자식: Ellipse
+[23:36:26.737]   - 528번째 자식: Ellipse
+[23:36:26.737]   - 529번째 자식: Ellipse
+[23:36:26.738]   - 530번째 자식: Ellipse
+[23:36:26.738]   - 531번째 자식: Ellipse
+[23:36:26.738]   - 532번째 자식: Ellipse
+[23:36:26.738]   - 533번째 자식: Ellipse
+[23:36:26.739]   - 534번째 자식: Ellipse
+[23:36:26.739]   - 535번째 자식: Ellipse
+[23:36:26.740]   - 536번째 자식: Ellipse
+[23:36:26.740]   - 537번째 자식: Ellipse
+[23:36:26.740]   - 538번째 자식: Ellipse
+[23:36:26.741]   - 539번째 자식: Ellipse
+[23:36:26.741]   - 540번째 자식: Ellipse
+[23:36:26.741]   - 541번째 자식: Ellipse
+[23:36:26.742]   - 542번째 자식: Ellipse
+[23:36:26.742]   - 543번째 자식: Ellipse
+[23:36:26.743]   - 544번째 자식: Ellipse
+[23:36:26.743]   - 545번째 자식: Ellipse
+[23:36:26.743]   - 546번째 자식: Ellipse
+[23:36:26.744]   - 547번째 자식: Ellipse
+[23:36:26.744]   - 548번째 자식: Ellipse
+[23:36:26.744]   - 549번째 자식: Ellipse
+[23:36:26.744]   - 550번째 자식: Ellipse
+[23:36:26.745]   - 551번째 자식: Ellipse
+[23:36:26.745]   - 552번째 자식: Ellipse
+[23:36:26.745]   - 553번째 자식: Ellipse
+[23:36:26.745]   - 554번째 자식: Ellipse
+[23:36:26.746]   - 555번째 자식: Ellipse
+[23:36:26.746]   - 556번째 자식: Ellipse
+[23:36:26.746]   - 557번째 자식: Ellipse
+[23:36:26.746]   - 558번째 자식: Ellipse
+[23:36:26.747]   - 559번째 자식: Ellipse
+[23:36:26.747]   - 560번째 자식: Ellipse
+[23:36:26.747]   - 561번째 자식: Ellipse
+[23:36:26.747]   - 562번째 자식: Ellipse
+[23:36:26.748]   - 563번째 자식: Ellipse
+[23:36:26.748]   - 564번째 자식: Ellipse
+[23:36:26.748]   - 565번째 자식: Ellipse
+[23:36:26.748]   - 566번째 자식: Ellipse
+[23:36:26.749]   - 567번째 자식: Ellipse
+[23:36:26.749]   - 568번째 자식: Ellipse
+[23:36:26.749]   - 569번째 자식: Ellipse
+[23:36:26.749]   - 570번째 자식: Ellipse
+[23:36:26.750]   - 571번째 자식: Ellipse
+[23:36:26.750]   - 572번째 자식: Ellipse
+[23:36:26.750]   - 573번째 자식: Ellipse
+[23:36:26.751]   - 574번째 자식: Ellipse
+[23:36:26.751]   - 575번째 자식: Ellipse
+[23:36:26.751]   - 576번째 자식: Ellipse
+[23:36:26.752]   - 577번째 자식: Ellipse
+[23:36:26.752]   - 578번째 자식: Ellipse
+[23:36:26.752]   - 579번째 자식: Ellipse
+[23:36:26.752]   - 580번째 자식: Ellipse
+[23:36:26.753]   - 581번째 자식: Ellipse
+[23:36:26.753]   - 582번째 자식: Ellipse
+[23:36:26.753]   - 583번째 자식: Ellipse
+[23:36:26.753]   - 584번째 자식: Ellipse
+[23:36:26.754]   - 585번째 자식: Ellipse
+[23:36:26.754]   - 586번째 자식: Ellipse
+[23:36:26.754]   - 587번째 자식: Ellipse
+[23:36:26.755]   - 588번째 자식: Ellipse
+[23:36:26.756]   - 589번째 자식: Ellipse
+[23:36:26.756]   - 590번째 자식: Ellipse
+[23:36:26.756]   - 591번째 자식: Ellipse
+[23:36:26.756]   - 592번째 자식: Ellipse
+[23:36:26.757]   - 593번째 자식: Ellipse
+[23:36:26.757]   - 594번째 자식: Ellipse
+[23:36:26.757]   - 595번째 자식: Ellipse
+[23:36:26.758]   - 596번째 자식: Ellipse
+[23:36:26.758]   - 597번째 자식: Ellipse
+[23:36:26.758]   - 598번째 자식: Ellipse
+[23:36:26.759]   - 599번째 자식: Ellipse
+[23:36:26.759]   - 600번째 자식: Ellipse
+[23:36:26.759]   - 601번째 자식: Ellipse
+[23:36:26.760]   - 602번째 자식: Ellipse
+[23:36:26.760]   - 603번째 자식: Ellipse
+[23:36:26.760]   - 604번째 자식: Ellipse
+[23:36:26.760]   - 605번째 자식: Ellipse
+[23:36:26.761]   - 606번째 자식: Ellipse
+[23:36:26.761]   - 607번째 자식: Ellipse
+[23:36:26.761]   - 608번째 자식: Ellipse
+[23:36:26.761]   - 609번째 자식: Ellipse
+[23:36:26.762]   - 610번째 자식: Ellipse
+[23:36:26.762]   - 611번째 자식: Ellipse
+[23:36:26.762]   - 612번째 자식: Ellipse
+[23:36:26.762]   - 613번째 자식: Ellipse
+[23:36:26.763]   - 614번째 자식: Ellipse
+[23:36:26.763]   - 615번째 자식: Ellipse
+[23:36:26.763]   - 616번째 자식: Ellipse
+[23:36:26.763]   - 617번째 자식: Ellipse
+[23:36:26.764]   - 618번째 자식: Ellipse
+[23:36:26.764]   - 619번째 자식: Ellipse
+[23:36:26.764]   - 620번째 자식: Ellipse
+[23:36:26.764]   - 621번째 자식: Ellipse
+[23:36:26.765]   - 622번째 자식: Ellipse
+[23:36:26.765]   - 623번째 자식: Ellipse
+[23:36:26.765]   - 624번째 자식: Ellipse
+[23:36:26.765]   - 625번째 자식: Ellipse
+[23:36:26.766]   - 626번째 자식: Ellipse
+[23:36:26.766]   - 627번째 자식: Ellipse
+[23:36:26.766]   - 628번째 자식: Ellipse
+[23:36:26.766]   - 629번째 자식: Ellipse
+[23:36:26.766]   - 630번째 자식: Ellipse
+[23:36:26.767]   - 631번째 자식: Ellipse
+[23:36:26.767]   - 632번째 자식: Ellipse
+[23:36:26.767]   - 633번째 자식: Ellipse
+[23:36:26.767]   - 634번째 자식: Ellipse
+[23:36:26.767]   - 635번째 자식: Ellipse
+[23:36:26.768]   - 636번째 자식: Ellipse
+[23:36:26.768]   - 637번째 자식: Ellipse
+[23:36:26.768]   - 638번째 자식: Ellipse
+[23:36:26.768]   - 639번째 자식: Ellipse
+[23:36:26.769]   - 640번째 자식: Ellipse
+[23:36:26.769]   - 641번째 자식: Ellipse
+[23:36:26.769]   - 642번째 자식: Ellipse
+[23:36:26.769]   - 643번째 자식: Ellipse
+[23:36:26.770]   - 644번째 자식: Ellipse
+[23:36:26.770]   - 645번째 자식: Ellipse
+[23:36:26.770]   - 646번째 자식: Ellipse
+[23:36:26.770]   - 647번째 자식: Ellipse
+[23:36:26.771]   - 648번째 자식: Ellipse
+[23:36:26.771]   - 649번째 자식: Ellipse
+[23:36:26.771]   - 650번째 자식: Ellipse
+[23:36:26.771]   - 651번째 자식: Ellipse
+[23:36:26.772]   - 652번째 자식: Ellipse
+[23:36:26.772]   - 653번째 자식: Ellipse
+[23:36:26.772]   - 654번째 자식: Ellipse
+[23:36:26.772]   - 655번째 자식: Ellipse
+[23:36:26.773]   - 656번째 자식: Ellipse
+[23:36:26.773]   - 657번째 자식: Ellipse
+[23:36:26.773]   - 658번째 자식: Ellipse
+[23:36:26.773]   - 659번째 자식: Ellipse
+[23:36:26.774]   - 660번째 자식: Ellipse
+[23:36:26.774]   - 661번째 자식: Ellipse
+[23:36:26.774]   - 662번째 자식: Ellipse
+[23:36:26.775]   - 663번째 자식: Ellipse
+[23:36:26.775]   - 664번째 자식: Ellipse
+[23:36:26.775]   - 665번째 자식: Ellipse
+[23:36:26.775]   - 666번째 자식: Ellipse
+[23:36:26.776]   - 667번째 자식: Ellipse
+[23:36:26.776]   - 668번째 자식: Ellipse
+[23:36:26.776]   - 669번째 자식: Ellipse
+[23:36:26.777]   - 670번째 자식: Ellipse
+[23:36:26.777]   - 671번째 자식: Ellipse
+[23:36:26.777]   - 672번째 자식: Ellipse
+[23:36:26.777]   - 673번째 자식: Ellipse
+[23:36:26.777]   - 674번째 자식: Ellipse
+[23:36:26.778]   - 675번째 자식: Ellipse
+[23:36:26.778]   - 676번째 자식: Ellipse
+[23:36:26.778]   - 677번째 자식: Ellipse
+[23:36:26.779]   - 678번째 자식: Ellipse
+[23:36:26.779]   - 679번째 자식: Ellipse
+[23:36:26.779]   - 680번째 자식: Ellipse
+[23:36:26.780]   - 681번째 자식: Ellipse
+[23:36:26.780]   - 682번째 자식: Ellipse
+[23:36:26.780]   - 683번째 자식: Ellipse
+[23:36:26.781]   - 684번째 자식: Ellipse
+[23:36:26.781]   - 685번째 자식: Ellipse
+[23:36:26.781]   - 686번째 자식: Ellipse
+[23:36:26.781]   - 687번째 자식: Ellipse
+[23:36:26.782]   - 688번째 자식: Ellipse
+[23:36:26.782]   - 689번째 자식: Ellipse
+[23:36:26.782]   - 690번째 자식: Ellipse
+[23:36:26.782]   - 691번째 자식: Ellipse
+[23:36:26.783]   - 692번째 자식: Ellipse
+[23:36:26.783]   - 693번째 자식: Ellipse
+[23:36:26.783]   - 694번째 자식: Ellipse
+[23:36:26.783]   - 695번째 자식: Ellipse
+[23:36:26.784]   - 696번째 자식: Ellipse
+[23:36:26.784]   - 697번째 자식: Ellipse
+[23:36:26.784]   - 698번째 자식: Ellipse
+[23:36:26.785]   - 699번째 자식: Ellipse
+[23:36:26.785]   - 700번째 자식: Ellipse
+[23:36:26.785]   - 701번째 자식: Ellipse
+[23:36:26.786]   - 702번째 자식: Ellipse
+[23:36:26.786]   - 703번째 자식: Ellipse
+[23:36:26.786]   - 704번째 자식: Ellipse
+[23:36:26.787]   - 705번째 자식: Ellipse
+[23:36:26.787]   - 706번째 자식: Ellipse
+[23:36:26.787]   - 707번째 자식: Ellipse
+[23:36:26.788]   - 708번째 자식: Ellipse
+[23:36:26.788]   - 709번째 자식: Ellipse
+[23:36:26.788]   - 710번째 자식: Ellipse
+[23:36:26.789]   - 711번째 자식: Ellipse
+[23:36:26.789]   - 712번째 자식: Ellipse
+[23:36:26.789]   - 713번째 자식: Ellipse
+[23:36:26.789]   - 714번째 자식: Ellipse
+[23:36:26.790]   - 715번째 자식: Ellipse
+[23:36:26.790]   - 716번째 자식: Ellipse
+[23:36:26.790]   - 717번째 자식: Ellipse
+[23:36:26.791]   - 718번째 자식: Ellipse
+[23:36:26.791]   - 719번째 자식: Ellipse
+[23:36:26.791]   - 720번째 자식: Ellipse
+[23:36:26.791]   - 721번째 자식: Ellipse
+[23:36:26.792]   - 722번째 자식: Ellipse
+[23:36:26.792]   - 723번째 자식: Ellipse
+[23:36:26.792]   - 724번째 자식: Ellipse
+[23:36:26.792]   - 725번째 자식: Ellipse
+[23:36:26.793]   - 726번째 자식: Ellipse
+[23:36:26.793]   - 727번째 자식: Ellipse
+[23:36:26.793]   - 728번째 자식: Ellipse
+[23:36:26.794]   - 729번째 자식: Ellipse
+[23:36:26.794]   - 730번째 자식: Ellipse
+[23:36:26.794]   - 731번째 자식: Ellipse
+[23:36:26.794]   - 732번째 자식: Ellipse
+[23:36:26.795]   - 733번째 자식: Ellipse
+[23:36:26.795]   - 734번째 자식: Ellipse
+[23:36:26.795]   - 735번째 자식: Ellipse
+[23:36:26.796]   - 736번째 자식: Ellipse
+[23:36:26.796]   - 737번째 자식: Ellipse
+[23:36:26.796]   - 738번째 자식: Ellipse
+[23:36:26.796]   - 739번째 자식: Ellipse
+[23:36:26.797]   - 740번째 자식: Ellipse
+[23:36:26.797]   - 741번째 자식: Ellipse
+[23:36:26.797]   - 742번째 자식: Ellipse
+[23:36:26.797]   - 743번째 자식: Ellipse
+[23:36:26.798]   - 744번째 자식: Ellipse
+[23:36:26.798]   - 745번째 자식: Ellipse
+[23:36:26.798]   - 746번째 자식: Ellipse
+[23:36:26.798]   - 747번째 자식: Ellipse
+[23:36:26.799]   - 748번째 자식: Ellipse
+[23:36:26.799]   - 749번째 자식: Ellipse
+[23:36:26.799]   - 750번째 자식: Ellipse
+[23:36:26.800]   - 751번째 자식: Ellipse
+[23:36:26.800]   - 752번째 자식: Ellipse
+[23:36:26.800]   - 753번째 자식: Ellipse
+[23:36:26.800]   - 754번째 자식: Ellipse
+[23:36:26.801]   - 755번째 자식: Ellipse
+[23:36:26.801]   - 756번째 자식: Ellipse
+[23:36:26.801]   - 757번째 자식: Ellipse
+[23:36:26.801]   - 758번째 자식: Ellipse
+[23:36:26.802]   - 759번째 자식: Ellipse
+[23:36:26.802]   - 760번째 자식: Ellipse
+[23:36:26.802]   - 761번째 자식: Ellipse
+[23:36:26.803]   - 762번째 자식: Ellipse
+[23:36:26.803]   - 763번째 자식: Ellipse
+[23:36:26.803]   - 764번째 자식: Ellipse
+[23:36:26.803]   - 765번째 자식: Ellipse
+[23:36:26.804]   - 766번째 자식: Ellipse
+[23:36:26.804]   - 767번째 자식: Ellipse
+[23:36:26.804]   - 768번째 자식: Ellipse
+[23:36:26.804]   - 769번째 자식: Ellipse
+[23:36:26.805]   - 770번째 자식: Ellipse
+[23:36:26.805]   - 771번째 자식: Ellipse
+[23:36:26.805]   - 772번째 자식: Ellipse
+[23:36:26.805]   - 773번째 자식: Ellipse
+[23:36:26.806]   - 774번째 자식: Ellipse
+[23:36:26.806]   - 775번째 자식: Ellipse
+[23:36:26.806]   - 776번째 자식: Ellipse
+[23:36:26.806]   - 777번째 자식: Ellipse
+[23:36:26.807]   - 778번째 자식: Ellipse
+[23:36:26.807]   - 779번째 자식: Ellipse
+[23:36:26.807]   - 780번째 자식: Ellipse
+[23:36:26.807]   - 781번째 자식: Ellipse
+[23:36:26.808]   - 782번째 자식: Ellipse
+[23:36:26.808]   - 783번째 자식: Ellipse
+[23:36:26.808]   - 784번째 자식: Ellipse
+[23:36:26.809]   - 785번째 자식: Ellipse
+[23:36:26.809]   - 786번째 자식: Ellipse
+[23:36:26.809]   - 787번째 자식: Ellipse
+[23:36:26.809]   - 788번째 자식: Ellipse
+[23:36:26.810]   - 789번째 자식: Ellipse
+[23:36:26.810]   - 790번째 자식: Ellipse
+[23:36:26.810]   - 791번째 자식: Ellipse
+[23:36:26.810]   - 792번째 자식: Ellipse
+[23:36:26.811]   - 793번째 자식: Ellipse
+[23:36:26.811]   - 794번째 자식: Ellipse
+[23:36:26.811]   - 795번째 자식: Ellipse
+[23:36:26.811]   - 796번째 자식: Ellipse
+[23:36:26.812]   - 797번째 자식: Ellipse
+[23:36:26.812]   - 798번째 자식: Ellipse
+[23:36:26.812]   - 799번째 자식: Ellipse
+[23:36:26.812]   - 800번째 자식: Ellipse
+[23:36:26.813]   - 801번째 자식: Ellipse
+[23:36:26.813]   - 802번째 자식: Ellipse
+[23:36:26.813]   - 803번째 자식: Ellipse
+[23:36:26.813]   - 804번째 자식: Ellipse
+[23:36:26.814]   - 805번째 자식: Ellipse
+[23:36:26.814]   - 806번째 자식: Ellipse
+[23:36:26.814]   - 807번째 자식: Ellipse
+[23:36:26.814]   - 808번째 자식: Ellipse
+[23:36:26.815]   - 809번째 자식: Ellipse
+[23:36:26.815]   - 810번째 자식: Ellipse
+[23:36:26.815]   - 811번째 자식: Ellipse
+[23:36:26.815]   - 812번째 자식: Ellipse
+[23:36:26.816]   - 813번째 자식: Ellipse
+[23:36:26.816]   - 814번째 자식: Ellipse
+[23:36:26.816]   - 815번째 자식: Ellipse
+[23:36:26.816]   - 816번째 자식: Ellipse
+[23:36:26.817]   - 817번째 자식: Ellipse
+[23:36:26.817]   - 818번째 자식: Ellipse
+[23:36:26.817]   - 819번째 자식: Ellipse
+[23:36:26.817]   - 820번째 자식: Ellipse
+[23:36:26.818]   - 821번째 자식: Ellipse
+[23:36:26.818]   - 822번째 자식: Ellipse
+[23:36:26.818]   - 823번째 자식: Ellipse
+[23:36:26.819]   - 824번째 자식: Ellipse
+[23:36:26.819]   - 825번째 자식: Ellipse
+[23:36:26.819]   - 826번째 자식: Ellipse
+[23:36:26.819]   - 827번째 자식: Ellipse
+[23:36:26.820]   - 828번째 자식: Ellipse
+[23:36:26.820]   - 829번째 자식: Ellipse
+[23:36:26.820]   - 830번째 자식: Ellipse
+[23:36:26.820]   - 831번째 자식: Ellipse
+[23:36:26.821]   - 832번째 자식: Ellipse
+[23:36:26.821]   - 833번째 자식: Ellipse
+[23:36:26.821]   - 834번째 자식: Ellipse
+[23:36:26.821]   - 835번째 자식: Ellipse
+[23:36:26.822]   - 836번째 자식: Ellipse
+[23:36:26.822]   - 837번째 자식: Ellipse
+[23:36:26.822]   - 838번째 자식: Ellipse
+[23:36:26.822]   - 839번째 자식: Ellipse
+[23:36:26.823]   - 840번째 자식: Ellipse
+[23:36:26.823]   - 841번째 자식: Ellipse
+[23:36:26.823]   - 842번째 자식: Ellipse
+[23:36:26.824]   - 843번째 자식: Ellipse
+[23:36:26.824]   - 844번째 자식: Ellipse
+[23:36:26.824]   - 845번째 자식: Ellipse
+[23:36:26.824]   - 846번째 자식: Ellipse
+[23:36:26.825]   - 847번째 자식: Ellipse
+[23:36:26.825]   - 848번째 자식: Ellipse
+[23:36:26.825]   - 849번째 자식: Ellipse
+[23:36:26.825]   - 850번째 자식: Ellipse
+[23:36:26.826]   - 851번째 자식: Ellipse
+[23:36:26.826]   - 852번째 자식: Ellipse
+[23:36:26.826]   - 853번째 자식: Ellipse
+[23:36:26.826]   - 854번째 자식: Ellipse
+[23:36:26.827]   - 855번째 자식: Ellipse
+[23:36:26.827]   - 856번째 자식: Ellipse
+[23:36:26.827]   - 857번째 자식: Ellipse
+[23:36:26.827]   - 858번째 자식: Ellipse
+[23:36:26.828]   - 859번째 자식: Ellipse
+[23:36:26.828]   - 860번째 자식: Ellipse
+[23:36:26.828]   - 861번째 자식: Ellipse
+[23:36:26.829]   - 862번째 자식: Ellipse
+[23:36:26.829]   - 863번째 자식: Ellipse
+[23:36:26.829]   - 864번째 자식: Ellipse
+[23:36:26.830]   - 865번째 자식: Ellipse
+[23:36:26.830]   - 866번째 자식: Ellipse
+[23:36:26.830]   - 867번째 자식: Ellipse
+[23:36:26.830]   - 868번째 자식: Ellipse
+[23:36:26.831]   - 869번째 자식: Ellipse
+[23:36:26.831]   - 870번째 자식: Ellipse
+[23:36:26.831]   - 871번째 자식: Ellipse
+[23:36:26.831]   - 872번째 자식: Ellipse
+[23:36:26.832]   - 873번째 자식: Ellipse
+[23:36:26.832]   - 874번째 자식: Ellipse
+[23:36:26.832]   - 875번째 자식: Ellipse
+[23:36:26.833]   - 876번째 자식: Ellipse
+[23:36:26.833]   - 877번째 자식: Ellipse
+[23:36:26.833]   - 878번째 자식: Ellipse
+[23:36:26.833]   - 879번째 자식: Ellipse
+[23:36:26.834]   - 880번째 자식: Ellipse
+[23:36:26.834]   - 881번째 자식: Ellipse
+[23:36:26.834]   - 882번째 자식: Ellipse
+[23:36:26.835]   - 883번째 자식: Ellipse
+[23:36:26.835]   - 884번째 자식: Ellipse
+[23:36:26.835]   - 885번째 자식: Ellipse
+[23:36:26.836]   - 886번째 자식: Ellipse
+[23:36:26.836]   - 887번째 자식: Ellipse
+[23:36:26.836]   - 888번째 자식: Ellipse
+[23:36:26.836]   - 889번째 자식: Ellipse
+[23:36:26.837]   - 890번째 자식: Ellipse
+[23:36:26.837]   - 891번째 자식: Ellipse
+[23:36:26.837]   - 892번째 자식: Ellipse
+[23:36:26.838]   - 893번째 자식: Ellipse
+[23:36:26.838]   - 894번째 자식: Ellipse
+[23:36:26.839]   - 895번째 자식: Ellipse
+[23:36:26.839]   - 896번째 자식: Ellipse
+[23:36:26.839]   - 897번째 자식: Ellipse
+[23:36:26.840]   - 898번째 자식: Ellipse
+[23:36:26.840]   - 899번째 자식: Ellipse
+[23:36:26.840]   - 900번째 자식: Ellipse
+[23:36:26.841]   - 901번째 자식: Ellipse
+[23:36:29.606] UpdatePreviewImage 시작
+[23:36:29.607] UpdatePreviewImage에서 CleanupTemporaryShape 호출
+[23:36:29.607] CleanupTemporaryShape 호출: tempShape=False
+[23:36:29.607] tempShape가 이미 null이거나 ImageCanvas가 null임
+[23:36:29.608] 이미지 소스 업데이트: 863x556
+[23:36:29.608] UpdatePreviewImage 완료
+[23:36:29.608] UpdatePreviewImage 완료 후 자식 요소 수: 1
+[23:36:29.609]   - 1번째 자식: Image
+[23:36:31.954] UpdatePreviewImage 시작
+[23:36:31.955] UpdatePreviewImage에서 CleanupTemporaryShape 호출
+[23:36:31.955] CleanupTemporaryShape 호출: tempShape=False
+[23:36:31.956] tempShape가 이미 null이거나 ImageCanvas가 null임
+[23:36:31.956] 이미지 소스 업데이트: 863x556
+[23:36:31.956] UpdatePreviewImage 완료
+[23:36:31.956] UpdatePreviewImage 완료 후 자식 요소 수: 1
+[23:36:31.957]   - 1번째 자식: Image
+[23:36:32.559] UpdatePreviewImage 시작
+[23:36:32.560] UpdatePreviewImage에서 CleanupTemporaryShape 호출
+[23:36:32.560] CleanupTemporaryShape 호출: tempShape=False
+[23:36:32.560] tempShape가 이미 null이거나 ImageCanvas가 null임
+[23:36:32.561] 이미지 소스 업데이트: 863x556
+[23:36:32.561] UpdatePreviewImage 완료
+[23:36:32.562] UpdatePreviewImage 완료 후 자식 요소 수: 1
+[23:36:32.562]   - 1번째 자식: Image
+[23:36:32.933] UpdatePreviewImage 시작
+[23:36:32.934] UpdatePreviewImage에서 CleanupTemporaryShape 호출
+[23:36:32.934] CleanupTemporaryShape 호출: tempShape=False
+[23:36:32.934] tempShape가 이미 null이거나 ImageCanvas가 null임
+[23:36:32.935] 이미지 소스 업데이트: 863x556
+[23:36:32.935] UpdatePreviewImage 완료
+[23:36:32.936] UpdatePreviewImage 완료 후 자식 요소 수: 1
+[23:36:32.936]   - 1번째 자식: Image
+[23:36:33.266] UpdatePreviewImage 시작
+[23:36:33.267] UpdatePreviewImage에서 CleanupTemporaryShape 호출
+[23:36:33.267] CleanupTemporaryShape 호출: tempShape=False
+[23:36:33.267] tempShape가 이미 null이거나 ImageCanvas가 null임
+[23:36:33.268] 이미지 소스 업데이트: 863x556
+[23:36:33.268] UpdatePreviewImage 완료
+[23:36:33.268] UpdatePreviewImage 완료 후 자식 요소 수: 1
+[23:36:33.268]   - 1번째 자식: Image
