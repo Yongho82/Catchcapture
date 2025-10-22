@@ -8,7 +8,7 @@
         Title="간편 모드" Height="85" Width="200"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         Topmost="True" ResizeMode="NoResize" ShowInTaskbar="False"
-        MouseLeftButtonDown="Window_MouseLeftButtonDown">
+        MouseLeftButtonDown="Window_MouseLeftButtonDown" MouseEnter="Window_MouseEnter" MouseLeave="Window_MouseLeave">
     
     <Window.Resources>
         <!-- 버튼 스타일 -->
@@ -112,31 +112,16 @@
         </Style>
     </Window.Resources>
     
-    <Border CornerRadius="8" BorderThickness="1">
-        <Border.Effect>
-            <DropShadowEffect ShadowDepth="2" BlurRadius="8" Opacity="0.3" Direction="270"/>
-        </Border.Effect>
-        <Border.BorderBrush>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="#4361EE" Offset="0.0"/>
-                <GradientStop Color="#3A56D4" Offset="1.0"/>
-            </LinearGradientBrush>
-        </Border.BorderBrush>
-        <Border.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="#4361EE" Offset="0.0"/>
-                <GradientStop Color="#3A56D4" Offset="1.0"/>
-            </LinearGradientBrush>
-        </Border.Background>
-        
+    <Border CornerRadius="8" BorderThickness="0" BorderBrush="Transparent" Background="Transparent">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="24"/>
+                <RowDefinition x:Name="TitleRow" Height="0"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             
-            <!-- 제목 영역 -->
-            <Border Grid.Row="0" Padding="10,2,10,2" Background="Transparent" ClipToBounds="True">
+            <!-- 제목 영역 (호버 시에만 표시) -->
+            <Border x:Name="TitleBarBorder" Grid.Row="0" Padding="10,2,10,2" Background="#3B82F6" ClipToBounds="True" Visibility="Collapsed"
+                    MouseEnter="TitleBarBorder_MouseEnter" MouseLeave="TitleBarBorder_MouseLeave">
                 <Grid>
                     <StackPanel Orientation="Horizontal">
                         <Image x:Name="TitleLeftIcon" Source="/icons/simple_mode.png" Width="14" Height="14" Margin="0,0,5,0" 
@@ -145,11 +130,11 @@
                                    Style="{StaticResource ClearTextStyle}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <!-- 세로/가로 전환 아이콘 버튼 (항상 표시, 아이콘은 모드에 따라 ↕/↔ 전환) -->
+                        <!-- 우측 아이콘 버튼: 제목 숨김 시에도 항상 보이도록 오버레이 배치 -->
                         <Button x:Name="ToggleOrientationButton" Style="{StaticResource SmallButtonStyle}"
                                 Click="ToggleOrientationButton_Click" ToolTip="세로/가로 전환">
                             <TextBlock x:Name="ToggleOrientationIcon" Text="↕" FontSize="12" Foreground="White"
-                                       Style="{StaticResource ClearTextStyle}" VerticalAlignment="Center" Margin="0,-4,0,0"/>
+                                       Style="{StaticResource ClearTextStyle}" VerticalAlignment="Center" Margin="0,-1,0,0"/>
                         </Button>
                         <Button x:Name="ExitToNormalButton" Style="{StaticResource SmallButtonStyle}" Click="ExitSimpleModeButton_Click" ToolTip="일반 모드로">
                             <Image Source="/icons/simple_mode.png" Width="12" Height="12"/>
@@ -163,35 +148,38 @@
             </Border>
             
             <!-- 버튼 영역 -->
-            <Border Grid.Row="1" Padding="4,4,4,6">
-                <StackPanel x:Name="ButtonsPanel" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <!-- 영역 캡처 -->
-                    <Button x:Name="AreaCaptureButton" Style="{StaticResource IconOnlyButtonStyle}" Click="AreaCaptureButton_Click" ToolTip="영역 캡처" Tag="영역">
-                        <Image Source="/icons/area_capture.png" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
-                    </Button>
-                    
-                    <!-- 지연 캡처 아이콘 버튼 -->
-                    <Button x:Name="DelayIconButton" Style="{StaticResource IconOnlyButtonStyle}" Click="DelayIconButton_Click" ToolTip="지연 캡처" Tag="지연">
-                        <Image Source="/icons/clock.png" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
-                        <Button.ContextMenu>
-                            <ContextMenu x:Name="DelayContextMenu" Placement="Bottom" PlacementTarget="{Binding ElementName=DelayIconButton}">
-                                <MenuItem Header="3초" Tag="3" Click="DelayOption_Click"/>
-                                <MenuItem Header="5초" Tag="5" Click="DelayOption_Click"/>
-                                <MenuItem Header="10초" Tag="10" Click="DelayOption_Click"/>
-                            </ContextMenu>
-                        </Button.ContextMenu>
-                    </Button>
-                    
-                    <!-- 전체화면 -->
-                    <Button x:Name="FullScreenCaptureButton" Style="{StaticResource IconOnlyButtonStyle}" Click="FullScreenCaptureButton_Click" ToolTip="전체화면" Tag="전체">
-                        <Image Source="/icons/full_screen.png" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
-                    </Button>
-                    
-                    <!-- 지정캡처 -->
-                    <Button x:Name="DesignatedButton" Style="{StaticResource IconOnlyButtonStyle}" Click="DesignatedButton_Click" ToolTip="지정캡처" Tag="지정">
-                        <Image Source="/icons/area_capture.png" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
-                    </Button>
-                </StackPanel>
+            <Border Grid.Row="1" Padding="0">
+                <Grid>
+                    <StackPanel x:Name="ButtonsPanel" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0"
+                                MouseEnter="ButtonsPanel_MouseEnter" MouseLeave="ButtonsPanel_MouseLeave">
+                        <!-- 영역 캡처 -->
+                        <Button x:Name="AreaCaptureButton" Style="{StaticResource IconOnlyButtonStyle}" Click="AreaCaptureButton_Click" ToolTip="영역 캡처" Tag="영역">
+                            <Image Source="/icons/area_capture.png" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </Button>
+                        
+                        <!-- 지연 캡처 아이콘 버튼 -->
+                        <Button x:Name="DelayIconButton" Style="{StaticResource IconOnlyButtonStyle}" Click="DelayIconButton_Click" ToolTip="지연 캡처" Tag="지연">
+                            <Image Source="/icons/clock.png" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
+                            <Button.ContextMenu>
+                                <ContextMenu x:Name="DelayContextMenu" Placement="Bottom" PlacementTarget="{Binding ElementName=DelayIconButton}">
+                                    <MenuItem Header="3초" Tag="3" Click="DelayOption_Click"/>
+                                    <MenuItem Header="5초" Tag="5" Click="DelayOption_Click"/>
+                                    <MenuItem Header="10초" Tag="10" Click="DelayOption_Click"/>
+                                </ContextMenu>
+                            </Button.ContextMenu>
+                        </Button>
+                        
+                        <!-- 전체화면 -->
+                        <Button x:Name="FullScreenCaptureButton" Style="{StaticResource IconOnlyButtonStyle}" Click="FullScreenCaptureButton_Click" ToolTip="전체화면" Tag="전체">
+                            <Image Source="/icons/full_screen.png" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </Button>
+                        
+                        <!-- 지정캡처 -->
+                        <Button x:Name="DesignatedButton" Style="{StaticResource IconOnlyButtonStyle}" Click="DesignatedButton_Click" ToolTip="지정캡처" Tag="지정">
+                            <Image Source="/icons/area_capture.png" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
             </Border>
         </Grid>
     </Border>

@@ -15,6 +15,8 @@ namespace CatchCapture
         private Point lastPosition;
         private int _delaySeconds = 3; // default delay
         private bool _verticalMode;
+        private readonly DispatcherTimer _hideTitleTimer = new DispatcherTimer();
+        private bool _isMouseInside;
         
         public event EventHandler? AreaCaptureRequested;
         public event EventHandler? FullScreenCaptureRequested;
@@ -32,6 +34,40 @@ namespace CatchCapture
             var s = Settings.Load();
             _verticalMode = s.SimpleModeVertical;
             ApplyOrientation(_verticalMode, suppressPersist:true);
+
+            // Hover hide timer setup (slightly longer for stickier hover)
+            _hideTitleTimer.Interval = TimeSpan.FromMilliseconds(800);
+            _hideTitleTimer.Tick += (s2, e2) =>
+            {
+                _hideTitleTimer.Stop();
+                // Keep showing if context menu is open
+                if (DelayContextMenu != null && DelayContextMenu.IsOpen)
+                {
+                    ShowTitleBar();
+                    return;
+                }
+                if (!_isMouseInside)
+                {
+                    HideTitleBar();
+                }
+            };
+
+            // Ensure title bar stays while menu open; hide after it closes (if mouse is out)
+            if (DelayContextMenu != null)
+            {
+                DelayContextMenu.Opened += (o, e) =>
+                {
+                    ShowTitleBar();
+                };
+                DelayContextMenu.Closed += (o, e) =>
+                {
+                    if (!_isMouseInside)
+                    {
+                        _hideTitleTimer.Stop();
+                        _hideTitleTimer.Start();
+                    }
+                };
+            }
         }
         
         private void PositionWindow()
@@ -46,6 +82,66 @@ namespace CatchCapture
             lastPosition = e.GetPosition(this);
             DragMove();
         }
+
+        private void Window_MouseEnter(object sender, MouseEventArgs e)
+        {
+            _isMouseInside = true;
+            _hideTitleTimer.Stop();
+            ShowTitleBar();
+        }
+
+        private void Window_MouseLeave(object sender, MouseEventArgs e)
+        {
+            _isMouseInside = false;
+            _hideTitleTimer.Stop();
+            _hideTitleTimer.Start();
+        }
+
+        private void TitleBarBorder_MouseEnter(object sender, MouseEventArgs e)
+        {
+            _isMouseInside = true;
+            _hideTitleTimer.Stop();
+            ShowTitleBar();
+        }
+
+        private void TitleBarBorder_MouseLeave(object sender, MouseEventArgs e)
+        {
+            _isMouseInside = false;
+            _hideTitleTimer.Stop();
+            _hideTitleTimer.Start();
+        }
+
+        private void ButtonsPanel_MouseEnter(object sender, MouseEventArgs e)
+        {
+            _isMouseInside = true;
+            _hideTitleTimer.Stop();
+            ShowTitleBar();
+        }
+
+        private void ButtonsPanel_MouseLeave(object sender, MouseEventArgs e)
+        {
+            _isMouseInside = false;
+            _hideTitleTimer.Stop();
+            _hideTitleTimer.Start();
+        }
+
+        private void ShowTitleBar()
+        {
+            if (TitleRow != null && TitleBarBorder != null)
+            {
+                TitleRow.Height = new GridLength(22); // title height
+                TitleBarBorder.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void HideTitleBar()
+        {
+            if (TitleRow != null && TitleBarBorder != null)
+            {
+                TitleRow.Height = new GridLength(0);
+                TitleBarBorder.Visibility = Visibility.Collapsed;
+            }
+        }
         
         private void ToggleOrientationButton_Click(object sender, RoutedEventArgs e)
         {
@@ -53,6 +149,44 @@ namespace CatchCapture
             ApplyOrientation(_verticalMode);
         }
 
+        private void Window_MouseEnter_Dup(object sender, MouseEventArgs e)
+        {
+            _isMouseInside = true;
+            _hideTitleTimer.Stop();
+            ShowTitleBar();
+        }
+
+        private void Window_MouseLeave_Dup(object sender, MouseEventArgs e)
+        {
+            _isMouseInside = false;
+            _hideTitleTimer.Stop();
+            _hideTitleTimer.Start();
+        }
+
+        private void ShowTitleBar_Dup()
+        {
+            if (TitleRow != null && TitleBarBorder != null)
+            {
+                TitleRow.Height = new GridLength(22); // title height
+                TitleBarBorder.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void HideTitleBar_Dup()
+        {
+            if (TitleRow != null && TitleBarBorder != null)
+            {
+                TitleRow.Height = new GridLength(0);
+                TitleBarBorder.Visibility = Visibility.Collapsed;
+            }
+        }
+        
+        private void ToggleOrientationButton_Click_Dup(object sender, RoutedEventArgs e)
+        {
+            _verticalMode = !_verticalMode;
+            ApplyOrientation(_verticalMode);
+        }
+        
         private void ApplyOrientation(bool vertical, bool suppressPersist = false)
         {
             if (ButtonsPanel == null) return;
