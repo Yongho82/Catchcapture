@@ -65,6 +65,10 @@ public partial class MainWindow : Window
         
         // 타이틀바 드래그 이벤트 설정
         this.MouseLeftButtonDown += Window_MouseLeftButtonDown;
+        
+        // 간편모드 활성 중에는 작업표시줄 클릭으로 본체가 튀어나오지 않도록 제어
+        this.StateChanged += MainWindow_StateChanged;
+        this.Activated += MainWindow_Activated;
     }
 
     private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -959,7 +963,10 @@ public partial class MainWindow : Window
     private void ShowSimpleMode()
     {
         simpleModeWindow = new SimpleModeWindow();
-        
+        // 간편모드를 작업표시줄 대표로 사용하기 위해 Owner 해제 및 Taskbar 표시
+        // (Owner를 설정하면 작업표시줄에 나타나지 않으므로 설정하지 않음)
+        // simpleModeWindow.Owner = this; // 사용하지 않음
+         
         // 이벤트 핸들러 등록
         simpleModeWindow.AreaCaptureRequested += (s, e) => 
         {
@@ -1019,22 +1026,74 @@ public partial class MainWindow : Window
         simpleModeWindow.Left = this.Left + 10;
         simpleModeWindow.Top = this.Top + 10;
 
-        // 메인 창 숨기고 간편모드 표시
-        this.Hide();
+        // 작업표시줄 대표를 간편모드로 전환
+        this.ShowInTaskbar = false;   // 본체는 작업표시줄에서 숨김
+        this.Hide();                  // 본체 창 숨김 (복원 방지)
+
+        simpleModeWindow.ShowInTaskbar = true; // 간편모드를 작업표시줄 대표로
+        simpleModeWindow.Topmost = true;
         simpleModeWindow.Show();
+
+        // 앱의 MainWindow를 간편모드로 전환하여 작업표시줄 포커스가 간편모드로 가도록 함
+        Application.Current.MainWindow = simpleModeWindow;
     }
 
     private void HideSimpleMode()
     {
         if (simpleModeWindow != null)
         {
+            // 작업표시줄 대표를 다시 본체로 복구
+            simpleModeWindow.ShowInTaskbar = false;
             simpleModeWindow.Close();
             simpleModeWindow = null;
         }
         
-        // 메인 창 표시
+        // 메인 창 복원 및 작업표시줄 아이콘 다시 표시
+        this.ShowInTaskbar = true;
+        this.WindowState = WindowState.Normal;
         this.Show();
         this.Activate();
+
+        // 앱의 MainWindow를 본체로 복구
+        Application.Current.MainWindow = this;
+    }
+
+    // 간편모드가 떠 있는 동안 작업표시줄 클릭으로 본체가 튀어나오지 않도록 제어
+    private void MainWindow_StateChanged(object? sender, EventArgs e)
+    {
+        if (simpleModeWindow != null && simpleModeWindow.IsVisible)
+        {
+            if (this.WindowState != WindowState.Minimized)
+            {
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    this.WindowState = WindowState.Minimized;
+                    // 간편모드를 앞으로
+                    if (simpleModeWindow != null)
+                    {
+                        simpleModeWindow.Topmost = false;
+                        simpleModeWindow.Topmost = true;
+                    }
+                }), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+            }
+        }
+    }
+
+    // 간편모드가 떠 있는 동안 본체가 활성화되면 다시 최소화하고 간편모드를 전면으로
+    private void MainWindow_Activated(object? sender, EventArgs e)
+    {
+        if (simpleModeWindow != null && simpleModeWindow.IsVisible)
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                this.WindowState = WindowState.Minimized;
+                if (simpleModeWindow != null)
+                {
+                    simpleModeWindow.Topmost = false;
+                    simpleModeWindow.Topmost = true;
+                }
+            }), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+        }
     }
 
     #endregion
