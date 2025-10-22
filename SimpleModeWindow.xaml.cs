@@ -35,6 +35,13 @@ namespace CatchCapture
             _verticalMode = s.SimpleModeVertical;
             ApplyOrientation(_verticalMode, suppressPersist:true);
 
+            // Ensure we can receive keyboard input
+            this.Focusable = true;
+            this.Loaded += (_, __) =>
+            {
+                try { this.Focus(); Keyboard.Focus(this); } catch { }
+            };
+
             // Keep always-on-top even after losing focus (e.g., clicking taskbar)
             this.Deactivated += SimpleModeWindow_Deactivated;
 
@@ -325,6 +332,17 @@ namespace CatchCapture
                 Topmost = false; // toggle to refresh z-order
                 Topmost = true;
             }), DispatcherPriority.ApplicationIdle);
+        }
+
+        private void SimpleModeWindow_KeyDown(object sender, KeyEventArgs e)
+        {
+            // Ctrl+M: exit Simple Mode (toggle back to normal mode)
+            if (e.Key == Key.M && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                ExitSimpleModeRequested?.Invoke(this, EventArgs.Empty);
+                this.Close();
+                e.Handled = true;
+            }
         }
     }
 }

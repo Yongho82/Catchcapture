@@ -8,7 +8,8 @@
         Title="간편 모드" Height="85" Width="200"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         Topmost="True" ResizeMode="NoResize" ShowInTaskbar="False"
-        MouseLeftButtonDown="Window_MouseLeftButtonDown" MouseEnter="Window_MouseEnter" MouseLeave="Window_MouseLeave">
+        MouseLeftButtonDown="Window_MouseLeftButtonDown" MouseEnter="Window_MouseEnter" MouseLeave="Window_MouseLeave"
+        KeyDown="SimpleModeWindow_KeyDown">
     
     <Window.Resources>
         <!-- 버튼 스타일 -->
