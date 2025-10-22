@@ -35,6 +35,9 @@ namespace CatchCapture
             _verticalMode = s.SimpleModeVertical;
             ApplyOrientation(_verticalMode, suppressPersist:true);
 
+            // Keep always-on-top even after losing focus (e.g., clicking taskbar)
+            this.Deactivated += SimpleModeWindow_Deactivated;
+
             // Hover hide timer setup (slightly longer for stickier hover)
             _hideTitleTimer.Interval = TimeSpan.FromMilliseconds(800);
             _hideTitleTimer.Tick += (s2, e2) =>
@@ -312,6 +315,16 @@ namespace CatchCapture
                     ShowCopiedNotification();
                 });
             });
+        }
+
+        private void SimpleModeWindow_Deactivated(object? sender, EventArgs e)
+        {
+            // Reassert Topmost to keep window above normal windows (taskbar still stays above)
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                Topmost = false; // toggle to refresh z-order
+                Topmost = true;
+            }), DispatcherPriority.ApplicationIdle);
         }
     }
 }
