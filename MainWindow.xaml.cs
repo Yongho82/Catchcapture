@@ -103,6 +103,17 @@ public partial class MainWindow : Window
     {
         var mods = Keyboard.Modifiers;
 
+        // 1) Settings 기반 핫키를 최우선으로 처리
+        try
+        {
+            if (HandleSettingsHotkeys(e))
+            {
+                e.Handled = true;
+                return;
+            }
+        }
+        catch { /* ignore hotkey errors to avoid blocking */ }
+
         // Ctrl+C: 선택 복사
         if (e.Key == Key.C && mods == ModifierKeys.Control)
         {
@@ -1104,5 +1115,113 @@ public partial class MainWindow : Window
         var win = new SettingsWindow();
         win.Owner = this;
         win.ShowDialog();
+    }
+
+    private static bool MatchHotkey(CatchCapture.Models.ToggleHotkey hk, KeyEventArgs e)
+    {
+        if (!hk.Enabled) return false;
+        // Normalize key text to uppercase single token
+        var keyText = (hk.Key ?? string.Empty).Trim().ToUpperInvariant();
+        if (string.IsNullOrWhiteSpace(keyText)) return false;
+
+        // Modifier check
+        var mods = Keyboard.Modifiers;
+        if ((hk.Ctrl && (mods & ModifierKeys.Control) == 0) || (!hk.Ctrl && (mods & ModifierKeys.Control) != 0)) return false;
+        if ((hk.Shift && (mods & ModifierKeys.Shift) == 0) || (!hk.Shift && (mods & ModifierKeys.Shift) != 0)) return false;
+        if ((hk.Alt && (mods & ModifierKeys.Alt) == 0) || (!hk.Alt && (mods & ModifierKeys.Alt) != 0)) return false;
+        if (hk.Win && (mods & ModifierKeys.Windows) == 0) return false;
+        if (!hk.Win && (mods & ModifierKeys.Windows) != 0) return false;
+
+        // Key check: accept letters and function keys
+        var pressedKey = e.Key == Key.System ? e.SystemKey : e.Key;
+        string pressedName = pressedKey.ToString().ToUpperInvariant();
+        if (pressedName.Length == 1)
+        {
+            // Single character letter/digit
+            return pressedName == keyText;
+        }
+        else
+        {
+            // F1..F24 etc.
+            return pressedName == keyText;
+        }
+    }
+
+    private bool HandleSettingsHotkeys(KeyEventArgs e)
+    {
+        var hk = settings.Hotkeys;
+        // 영역 캡처
+        if (MatchHotkey(hk.RegionCapture, e))
+        {
+            StartAreaCapture();
+            return true;
+        }
+        // 지연 캡처: 기본 3초 바로 실행
+        if (MatchHotkey(hk.DelayCapture, e))
+        {
+            StartDelayedAreaCaptureSeconds(3);
+            return true;
+        }
+        // 전체화면
+        if (MatchHotkey(hk.FullScreen, e))
+        {
+            CaptureFullScreen();
+            return true;
+        }
+        // 지정캡처
+        if (MatchHotkey(hk.DesignatedCapture, e))
+        {
+            DesignatedCaptureButton_Click(this, new RoutedEventArgs());
+            return true;
+        }
+        // 전체저장
+        if (MatchHotkey(hk.SaveAll, e))
+        {
+            SaveAllImages();
+            return true;
+        }
+        // 전체삭제
+        if (MatchHotkey(hk.DeleteAll, e))
+        {
+            DeleteAllImages();
+            return true;
+        }
+        // 간편모드 토글
+        if (MatchHotkey(hk.SimpleMode, e))
+        {
+            ToggleSimpleMode();
+            return true;
+        }
+        // 설정 열기
+        if (MatchHotkey(hk.OpenSettings, e))
+        {
+            var win = new SettingsWindow();
+            win.Owner = this;
+            win.ShowDialog();
+            // Reload settings after potential changes
+            settings = Settings.Load();
+            return true;
+        }
+        return false;
+    }
+
+    // 설정기반 지연 캡처(초)
+    private void StartDelayedAreaCaptureSeconds(int seconds)
+    {
+        if (seconds <= 0)
+        {
+            StartAreaCapture();
+            return;
+        }
+        var countdown = new GuideWindow("", null)
+        {
+            Owner = this
+        };
+        countdown.Show();
+        countdown.StartCountdown(seconds, () =>
+        {
+            // UI 스레드에서 실행
+            Dispatcher.Invoke(StartAreaCapture);
+        });
     }
 }

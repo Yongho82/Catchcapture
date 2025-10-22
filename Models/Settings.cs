@@ -26,10 +26,17 @@ namespace CatchCapture.Models
         // Hotkeys
         public HotkeySettings Hotkeys { get; set; } = HotkeySettings.CreateDefaults();
 
+        private static string GetSettingsPath()
+        {
+            string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string dir = Path.Combine(appData, "CatchCapture");
+            try { if (!Directory.Exists(dir)) Directory.CreateDirectory(dir); } catch { }
+            return Path.Combine(dir, "settings.json");
+        }
+
         public static Settings Load()
         {
-            string appPath = AppDomain.CurrentDomain.BaseDirectory;
-            string settingsPath = Path.Combine(appPath, "settings.json");
+            string settingsPath = GetSettingsPath();
 
             if (!File.Exists(settingsPath))
             {
@@ -52,8 +59,7 @@ namespace CatchCapture.Models
 
         public static void Save(Settings settings)
         {
-            string appPath = AppDomain.CurrentDomain.BaseDirectory;
-            string settingsPath = Path.Combine(appPath, "settings.json");
+            string settingsPath = GetSettingsPath();
 
             try
             {
