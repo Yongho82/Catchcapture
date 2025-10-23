@@ -124,7 +124,7 @@ namespace CatchCapture.Utilities
                 VerticalAlignment = VerticalAlignment.Center
             };
 
-            // Build header content: size text + inputs + capture button
+            // Build header content: inputs + capture button (픽셀 라벨 완전 제거)
             var headerWrap = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
             _btnCapture = new Button
             {
@@ -133,20 +133,17 @@ namespace CatchCapture.Utilities
                 Background = new SolidColorBrush(Color.FromArgb(60, 255, 255, 255)),
                 BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
-                Margin = new Thickness(0, 0, 8, 0)
+                Margin = new Thickness(8, 0, 0, 0) // 왼쪽 마진으로 변경
             };
             _tbWidth = new TextBox { Width = 70, Height = 24, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 6, 0) };
             var times = new TextBlock { Text = "x", Foreground = Brushes.White, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 6, 0) };
-            _tbHeight = new TextBox { Width = 70, Height = 24, TextAlignment = TextAlignment.Center };
+            _tbHeight = new TextBox { Width = 70, Height = 24, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 8, 0) };
 
-            headerWrap.Children.Add(_btnCapture);
+            // 텍스트박스들을 먼저 추가하고 캡처 버튼을 마지막에 추가
             headerWrap.Children.Add(_tbWidth);
             headerWrap.Children.Add(times);
             headerWrap.Children.Add(_tbHeight);
-
-            // Put size text at the leftmost with some margin (크기: 라벨 제거)
-            var leftWrap = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
-            leftWrap.Children.Add(_sizeText);
+            headerWrap.Children.Add(_btnCapture);
 
             _btnClose = new Button
             {
@@ -160,16 +157,12 @@ namespace CatchCapture.Utilities
             _btnClose.Click += (s, e) => { Close(); };
 
             var headerGrid = new Grid();
-            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });   // left: size text
-            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(12) }); // gap
-            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });   // middle: capture + inputs
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });   // left: inputs + capture button
             headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); // spacer
             headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });   // right: close
 
-            Grid.SetColumn(leftWrap, 0);
-            Grid.SetColumn(headerWrap, 2);
-            Grid.SetColumn(_btnClose, 4);
-            headerGrid.Children.Add(leftWrap);
+            Grid.SetColumn(headerWrap, 0);
+            Grid.SetColumn(_btnClose, 2);
             headerGrid.Children.Add(headerWrap);
             headerGrid.Children.Add(_btnClose);
 
@@ -391,8 +384,7 @@ namespace CatchCapture.Utilities
             // Move thumbs
             PositionThumbs(rect);
 
-            // Update header text and position at top-left inside the rectangle
-            _sizeText.Text = $"{(int)rect.Width} x {(int)rect.Height}";
+            // 픽셀 라벨 업데이트 제거 (더 이상 표시하지 않음)
             _headerBar.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
             double hbh = _headerBar.DesiredSize.Height;
 
