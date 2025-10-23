@@ -55,11 +55,12 @@ namespace CatchCapture.Utilities
 
         public DesignatedCaptureWindow()
         {
+            // 투명한 창으로 시작 (사진처럼)
             WindowStyle = WindowStyle.None;
             ResizeMode = ResizeMode.NoResize;
             Topmost = true;
-            AllowsTransparency = false; // better performance
-            Background = Brushes.Black;
+            AllowsTransparency = true; // 투명도 허용
+            Background = Brushes.Transparent; // 완전 투명 배경
             Cursor = Cursors.Arrow;
             ShowInTaskbar = false;
             WindowStartupLocation = WindowStartupLocation.Manual;
@@ -71,36 +72,20 @@ namespace CatchCapture.Utilities
             vWidth = SystemParameters.VirtualScreenWidth;
             vHeight = SystemParameters.VirtualScreenHeight;
 
-            Left = vLeft;
-            Top = vTop;
-            Width = vWidth;
-            Height = vHeight;
-            WindowState = WindowState.Normal;
+            // 작은 창으로 시작 (전체화면 아님)
+            Width = 400;
+            Height = 300;
+            Left = (SystemParameters.PrimaryScreenWidth - Width) / 2;
+            Top = (SystemParameters.PrimaryScreenHeight - Height) / 2;
 
-            // Canvas
-            _canvas = new Canvas { Width = vWidth, Height = vHeight, SnapsToDevicePixels = true };
+            // 투명한 캔버스 생성
+            _canvas = new Canvas { Width = Width, Height = Height, SnapsToDevicePixels = true };
+            _canvas.Background = Brushes.Transparent;
             Content = _canvas;
 
-            // Freeze background frame for smooth overlay
-            _screenCapture = ScreenCaptureUtility.CaptureScreen();
-            _screenImage = new Image { Source = _screenCapture };
-            Panel.SetZIndex(_screenImage, -2);
-            _canvas.Children.Add(_screenImage);
-
-            // Dim overlay with hole for selection
-            _fullGeometry = new RectangleGeometry(new Rect(0, 0, vWidth, vHeight));
+            // 지오메트리 초기화 (오버레이용이지만 투명하게 유지)
+            _fullGeometry = new RectangleGeometry(new Rect(0, 0, Width, Height));
             _selectionGeometry = new RectangleGeometry(new Rect(0, 0, 0, 0));
-            var group = new GeometryGroup { FillRule = FillRule.EvenOdd };
-            group.Children.Add(_fullGeometry);
-            group.Children.Add(_selectionGeometry);
-
-            _overlayPath = new System.Windows.Shapes.Path
-            {
-                Data = group,
-                Fill = new SolidColorBrush(Color.FromArgb(140, 0, 0, 0))
-            };
-            _overlayPath.IsHitTestVisible = false;
-            _canvas.Children.Add(_overlayPath);
 
             // Selection rectangle
             _rect = new Rectangle
@@ -159,10 +144,8 @@ namespace CatchCapture.Utilities
             headerWrap.Children.Add(times);
             headerWrap.Children.Add(_tbHeight);
 
-            // Put size text at the leftmost with some margin
+            // Put size text at the leftmost with some margin (크기: 라벨 제거)
             var leftWrap = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
-            var sizeLabel = new TextBlock { Text = "크기:", Foreground = Brushes.White, Margin = new Thickness(0, 0, 6, 0) };
-            leftWrap.Children.Add(sizeLabel);
             leftWrap.Children.Add(_sizeText);
 
             _btnClose = new Button
@@ -174,7 +157,7 @@ namespace CatchCapture.Utilities
                 Cursor = Cursors.Hand,
                 ToolTip = "닫기"
             };
-            _btnClose.Click += (s, e) => { DialogResult = false; Close(); };
+            _btnClose.Click += (s, e) => { Close(); };
 
             var headerGrid = new Grid();
             headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });   // left: size text
@@ -208,17 +191,37 @@ namespace CatchCapture.Utilities
             };
             _headerBar.Child = headerGrid;
 
-            // Interactions for dragging by header
-            _headerBar.MouseLeftButtonDown += (s, e) => { _isHeaderDragging = true; _headerDragStart = e.GetPosition(_canvas); _rectStart = GetRect(); Mouse.Capture(_headerBar); };
+            // Interactions for dragging by header - 창 전체를 이동
+            _headerBar.MouseLeftButtonDown += (s, e) => 
+            { 
+                _isHeaderDragging = true; 
+                _headerDragStart = e.GetPosition(this); // 창 기준 좌표로 변경
+                Mouse.Capture(_headerBar); 
+            };
             _headerBar.MouseMove += (s, e) =>
             {
                 if (!_isHeaderDragging) return;
-                var p = e.GetPosition(_canvas);
-                var dx = p.X - _headerDragStart.X;
-                var dy = p.Y - _headerDragStart.Y;
-                Rect nr = new Rect(_rectStart.X + dx, _rectStart.Y + dy, _rectStart.Width, _rectStart.Height);
-                nr = ClampToBounds(nr);
-                SetRect(nr);
+                var currentPos = e.GetPosition(this); // 창 기준 좌표
+                var dx = currentPos.X - _headerDragStart.X;
+                var dy = currentPos.Y - _headerDragStart.Y;
+                
+                // 창의 위치를 직접 변경
+                var newLeft = Left + dx;
+                var newTop = Top + dy;
+                
+                // 화면 경계 내에서만 이동 허용
+                var screenBounds = new Rect(
+                    SystemParameters.VirtualScreenLeft,
+                    SystemParameters.VirtualScreenTop,
+                    SystemParameters.VirtualScreenWidth,
+                    SystemParameters.VirtualScreenHeight
+                );
+                
+                newLeft = Math.Max(screenBounds.Left, Math.Min(newLeft, screenBounds.Right - Width));
+                newTop = Math.Max(screenBounds.Top, Math.Min(newTop, screenBounds.Bottom - Height));
+                
+                Left = newLeft;
+                Top = newTop;
             };
             _headerBar.MouseLeftButtonUp += (s, e) => { if (Mouse.Captured == _headerBar) Mouse.Capture(null); _isHeaderDragging = false; };
 
@@ -230,24 +233,18 @@ namespace CatchCapture.Utilities
 
             _canvas.Children.Add(_headerBar);
 
-            // Initial rectangle centered at 400x400 px (clamped to screen)
-            double initW = Math.Min(400, vWidth - 20);
-            double initH = Math.Min(400, vHeight - 20);
-            double initL = Math.Max(0, (vWidth - initW) / 2);
-            double initT = Math.Max(0, (vHeight - initH) / 2);
+            // 작은 창 내에서 초기 사각형 설정 (창 크기 기준)
+            double initW = Width * 0.8; // 창 크기의 80%
+            double initH = Height * 0.7; // 창 크기의 70%
+            double initL = (Width - initW) / 2;
+            double initT = (Height - initH) / 2;
             SetRect(new Rect(initL, initT, initW, initH));
-
-            // Re-center after layout/activation to handle DPI and multi-monitor quirks
-            Loaded += (s, e) => Dispatcher.BeginInvoke(new Action(EnsureFirstCenter));
-            ContentRendered += (s, e) => Dispatcher.BeginInvoke(new Action(EnsureFirstCenter));
-            Activated += (s, e) => Dispatcher.BeginInvoke(new Action(CenterSelection));
         }
 
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Escape)
             {
-                DialogResult = false;
                 Close();
             }
         }
@@ -267,28 +264,57 @@ namespace CatchCapture.Utilities
 
         private void Rect_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            _isDragging = true;
-            _dragStart = e.GetPosition(_canvas);
-            _rectStart = GetRect();
-            Mouse.Capture(_rect);
+            try
+            {
+                _isDragging = true;
+                _dragStart = e.GetPosition(_canvas);
+                _rectStart = GetRect();
+                Mouse.Capture(_rect);
+                e.Handled = true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Rect_MouseLeftButtonDown 오류: {ex.Message}");
+                _isDragging = false;
+            }
         }
 
         private void Rect_MouseMove(object sender, MouseEventArgs e)
         {
-            if (!_isDragging) return;
-            Point p = e.GetPosition(_canvas);
-            double dx = p.X - _dragStart.X;
-            double dy = p.Y - _dragStart.Y;
+            try
+            {
+                if (!_isDragging) return;
+                
+                Point p = e.GetPosition(_canvas);
+                double dx = p.X - _dragStart.X;
+                double dy = p.Y - _dragStart.Y;
 
-            Rect newRect = new Rect(_rectStart.X + dx, _rectStart.Y + dy, _rectStart.Width, _rectStart.Height);
-            newRect = ClampToBounds(newRect);
-            SetRect(newRect);
+                Rect newRect = new Rect(_rectStart.X + dx, _rectStart.Y + dy, _rectStart.Width, _rectStart.Height);
+                newRect = ClampToBounds(newRect);
+                SetRect(newRect);
+                e.Handled = true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Rect_MouseMove 오류: {ex.Message}");
+                _isDragging = false;
+                if (Mouse.Captured == _rect) Mouse.Capture(null);
+            }
         }
 
         private void Rect_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (Mouse.Captured == _rect) Mouse.Capture(null);
-            _isDragging = false;
+            try
+            {
+                if (Mouse.Captured == _rect) Mouse.Capture(null);
+                _isDragging = false;
+                e.Handled = true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Rect_MouseLeftButtonUp 오류: {ex.Message}");
+                _isDragging = false;
+            }
         }
 
         private void ResizeFromCorner(bool isLeft, bool isTop, DragDeltaEventArgs e)
@@ -322,16 +348,22 @@ namespace CatchCapture.Utilities
             }
 
             Rect nr = new Rect(newLeft, newTop, newRight - newLeft, newBottom - newTop);
+            
+            // 창 크기를 선택 영역에 맞게 동적으로 조정
+            AdjustWindowSizeForRect(nr);
+            
+            // 조정된 창 크기 기준으로 다시 제한
             nr = ClampToBounds(nr);
             SetRect(nr);
         }
 
         private Rect ClampToBounds(Rect rect)
         {
+            // 창 크기 기준으로 제한 (투명한 창이므로)
             double l = Math.Max(0, rect.Left);
             double t = Math.Max(0, rect.Top);
-            double r = Math.Min(vWidth, rect.Right);
-            double b = Math.Min(vHeight, rect.Bottom);
+            double r = Math.Min(Width, rect.Right);
+            double b = Math.Min(Height, rect.Bottom);
             double w = Math.Max(1, r - l);
             double h = Math.Max(1, b - t);
             return new Rect(l, t, w, h);
@@ -425,7 +457,12 @@ namespace CatchCapture.Utilities
             if (left + newW > vWidth - 8) left = Math.Max(8, vWidth - newW - 8);
             if (top + newH > vHeight - 8) top = Math.Max(8, vHeight - newH - 8);
 
-            SetRect(new Rect(left, top, Math.Max(1, newW), Math.Max(1, newH)));
+            var newRect = new Rect(left, top, Math.Max(1, newW), Math.Max(1, newH));
+            
+            // 창 크기를 선택 영역에 맞게 동적으로 조정
+            AdjustWindowSizeForRect(newRect);
+            
+            SetRect(newRect);
         }
 
         private void CenterSelection()
@@ -480,13 +517,52 @@ namespace CatchCapture.Utilities
             SetRect(new Rect(l, t, r.Width, r.Height));
         }
 
+        private void AdjustWindowSizeForRect(Rect rect)
+        {
+            // 선택 영역이 창 크기를 넘어서면 창을 확장
+            const double margin = 50; // 여유 공간
+            
+            double requiredWidth = rect.Right + margin;
+            double requiredHeight = rect.Bottom + margin;
+            
+            bool needsResize = false;
+            double newWidth = Width;
+            double newHeight = Height;
+            
+            if (requiredWidth > Width)
+            {
+                newWidth = Math.Min(requiredWidth, SystemParameters.VirtualScreenWidth * 0.9);
+                needsResize = true;
+            }
+            
+            if (requiredHeight > Height)
+            {
+                newHeight = Math.Min(requiredHeight, SystemParameters.VirtualScreenHeight * 0.9);
+                needsResize = true;
+            }
+            
+            if (needsResize)
+            {
+                Width = newWidth;
+                Height = newHeight;
+                
+                // 캔버스 크기도 함께 조정
+                _canvas.Width = newWidth;
+                _canvas.Height = newHeight;
+                
+                // 지오메트리 업데이트
+                _fullGeometry.Rect = new Rect(0, 0, newWidth, newHeight);
+            }
+        }
+
         private void CaptureAndNotify()
         {
-            // Convert DIPs to device pixels and offset with virtual origin
             var dpi = VisualTreeHelper.GetDpi(this);
             Rect r = GetRect();
-            int pxLeft = (int)Math.Round((r.Left + vLeft) * dpi.DpiScaleX);
-            int pxTop = (int)Math.Round((r.Top + vTop) * dpi.DpiScaleY);
+            
+            // 창의 위치를 고려한 실제 화면 좌표 계산
+            int pxLeft = (int)Math.Round((Left + r.Left) * dpi.DpiScaleX);
+            int pxTop = (int)Math.Round((Top + r.Top) * dpi.DpiScaleY);
             int pxWidth = (int)Math.Round(r.Width * dpi.DpiScaleX);
             int pxHeight = (int)Math.Round(r.Height * dpi.DpiScaleY);
 
@@ -496,48 +572,43 @@ namespace CatchCapture.Utilities
                 return;
             }
 
-            // Prefer cropping from frozen background to avoid capturing overlay UI
+            // 창을 숨기고 캡처한 후 다시 보이게 하여 창 사각형이 캡처되지 않도록 함
             BitmapSource? image = null;
             try
             {
-                // Translate to relative coords within the frozen background
-                int relX = pxLeft - (int)Math.Round(vLeft);
-                int relY = pxTop - (int)Math.Round(vTop);
-
-                // Clamp crop rect to background bounds
-                int cw = Math.Max(0, Math.Min(pxWidth, _screenCapture.PixelWidth - Math.Max(0, relX)));
-                int ch = Math.Max(0, Math.Min(pxHeight, _screenCapture.PixelHeight - Math.Max(0, relY)));
-                relX = Math.Max(0, Math.Min(relX, _screenCapture.PixelWidth - 1));
-                relY = Math.Max(0, Math.Min(relY, _screenCapture.PixelHeight - 1));
-
-                if (cw > 0 && ch > 0)
-                {
-                    var cropRect = new Int32Rect(relX, relY, cw, ch);
-                    image = new CroppedBitmap(_screenCapture, cropRect);
-                }
-            }
-            catch
-            {
-                // ignore and fallback
-            }
-
-            // Fallback to live capture only if cropping failed (should be rare)
-            if (image == null)
-            {
+                // 창을 잠시 숨김
+                Hide();
+                
+                // 약간의 지연을 주어 창이 완전히 숨겨지도록 함
+                System.Threading.Thread.Sleep(50);
+                
                 var area = new Int32Rect(pxLeft, pxTop, pxWidth, pxHeight);
                 image = ScreenCaptureUtility.CaptureArea(area);
+                
+                // 창을 다시 보임
+                Show();
             }
-
-            try { CaptureCompleted?.Invoke(image); } catch { }
-
-            // Show 1-second toast
-            try
+            catch (Exception ex)
             {
-                var toast = new GuideWindow("캡처되었습니다.", TimeSpan.FromSeconds(1));
-                toast.Owner = this.Owner ?? this;
-                toast.Show();
+                // 오류 발생 시에도 창을 다시 보이게 함
+                Show();
+                MessageBox.Show($"캡처 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
-            catch { }
+
+            if (image != null)
+            {
+                try { CaptureCompleted?.Invoke(image); } catch { }
+
+                // Show 1-second toast
+                try
+                {
+                    var toast = new GuideWindow("캡처되었습니다.", TimeSpan.FromSeconds(1));
+                    toast.Owner = this.Owner ?? this;
+                    toast.Show();
+                }
+                catch { }
+            }
         }
     }
 }
