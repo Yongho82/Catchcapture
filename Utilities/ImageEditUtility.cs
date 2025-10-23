@@ -485,6 +485,7 @@ namespace CatchCapture.Utilities
         Rectangle,
         Ellipse,
         Line,
-        Arrow
+        Arrow,
+        SpeechBubble
     }
 } 

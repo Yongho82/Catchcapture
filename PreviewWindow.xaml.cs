@@ -10,6 +10,8 @@ using System.Windows.Shapes;
 using Microsoft.Win32;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Windows.Controls.Primitives;
 
 namespace CatchCapture
 {
@@ -620,23 +622,43 @@ namespace CatchCapture
 
         private void ShapeButton_Click(object sender, RoutedEventArgs e)
         {
-            WriteLog("ShapeButton_Click 호출");
+            WriteLog("ShapeButton_Click 호출 - 기본 도형 그리기 모드");
+            
             // 현재 편집 모드 취소
             CancelCurrentEditMode();
             
-            // 도형 그리기 모드 설정
+            // 기본 설정으로 도형 그리기 모드 설정
             currentEditMode = EditMode.Shape;
             ImageCanvas.Cursor = Cursors.Cross;
-            WriteLog("도형 그리기 모드 설정: EditMode.Shape");
+            
+            // 기본값 설정 (사각형, 검정색, 윤곽선)
+            shapeType = ShapeType.Rectangle;
+            shapeColor = Colors.Black;
+            shapeBorderThickness = 2;
+            shapeIsFilled = false;
             
             // 상태 초기화
             isDrawingShape = false;
             isDragStarted = false;
             
-            // 도형 옵션 패널 표시
-            ShowShapeOptions();
-            WriteLog("도형 옵션 패널 표시됨");
+            WriteLog("기본 도형 그리기 모드 설정: 사각형, 검정색, 윤곽선");
             SetActiveToolButton(ShapeButton);
+        }
+        
+        private void ShapeOptionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            WriteLog("ShapeOptionsButton_Click 호출 - 옵션 팝업 표시");
+            
+            // 팝업이 이미 열려있으면 닫기
+            if (ToolOptionsPopup.IsOpen)
+            {
+                ToolOptionsPopup.IsOpen = false;
+                return;
+            }
+            
+            // 도형 옵션 팝업 표시
+            ShowShapeOptionsPopup();
+            WriteLog("도형 옵션 팝업 표시됨");
         }
 
         private void HighlightButton_Click(object? sender, RoutedEventArgs? e)
@@ -1344,11 +1366,12 @@ namespace CatchCapture
             {
                 highlightThickness = thicknessSlider.Value;
                 // 미리보기 갱신
-                if (thicknessPreviewRect != null)
+                if (thicknessPreviewRect != null && thicknessPreviewCanvas != null)
                 {
                     thicknessPreviewRect.Height = Math.Max(1, highlightThickness);
                     // 가운데 정렬
-                    Canvas.SetTop(thicknessPreviewRect, (thicknessPreviewCanvas.ActualHeight - thicknessPreviewRect.Height) / 2);
+                    var canvasHeight = thicknessPreviewCanvas.ActualHeight > 0 ? thicknessPreviewCanvas.ActualHeight : 28;
+                    Canvas.SetTop(thicknessPreviewRect, (canvasHeight - thicknessPreviewRect.Height) / 2);
                 }
             };
             
@@ -1758,6 +1781,382 @@ namespace CatchCapture
             EditToolContent.Children.Add(previewWrapper);
             
             EditToolPanel.Visibility = Visibility.Visible;
+        }
+
+        private void ShowShapeOptionsPopup()
+        {
+            // 팝업 내용 초기화
+            ToolOptionsPopupContent.Children.Clear();
+            ToolOptionsPopupContent.Orientation = Orientation.Vertical;
+            
+            // 버튼 리스트 초기화
+            shapeTypeButtons.Clear();
+            fillButtons.Clear();
+            colorButtons.Clear();
+            
+            // 메인 컨테이너 (더 컴팩트하게)
+            var mainPanel = new StackPanel { Orientation = Orientation.Vertical, Width = 240 };
+            
+            // 1. 도형 종류 섹션
+            var shapeTypePanel = CreateShapeTypeSection();
+            mainPanel.Children.Add(shapeTypePanel);
+            
+            // 얇은 구분선
+            mainPanel.Children.Add(new Separator { 
+                Margin = new Thickness(0, 6, 0, 6), 
+                Height = 1,
+                Background = new SolidColorBrush(Color.FromRgb(230, 230, 230))
+            });
+            
+            // 2. 선 스타일 섹션
+            var lineStylePanel = CreateLineStyleSection();
+            mainPanel.Children.Add(lineStylePanel);
+            
+            // 얇은 구분선
+            mainPanel.Children.Add(new Separator { 
+                Margin = new Thickness(0, 6, 0, 6), 
+                Height = 1,
+                Background = new SolidColorBrush(Color.FromRgb(230, 230, 230))
+            });
+            
+            // 3. 색상 팔레트 섹션
+            var colorPanel = CreateColorPaletteSection();
+            mainPanel.Children.Add(colorPanel);
+            
+            ToolOptionsPopupContent.Children.Add(mainPanel);
+            
+            // 팝업 위치 설정 (ShapeButton 아래)
+            ToolOptionsPopup.PlacementTarget = ShapeButton;
+            ToolOptionsPopup.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+            ToolOptionsPopup.HorizontalOffset = 0;
+            ToolOptionsPopup.VerticalOffset = 5;
+            
+            // 팝업 열기
+            ToolOptionsPopup.IsOpen = true;
+        }
+        
+        private StackPanel CreateShapeTypeSection()
+        {
+            var panel = new StackPanel { Orientation = Orientation.Vertical };
+            
+            // 제목
+            var title = new TextBlock 
+            { 
+                Text = "도형", 
+                FontWeight = FontWeights.SemiBold, 
+                FontSize = 11,
+                Margin = new Thickness(0, 0, 0, 4),
+                Foreground = new SolidColorBrush(Color.FromRgb(60, 60, 60))
+            };
+            panel.Children.Add(title);
+            
+            // 도형 버튼들 (1행 배치, 더 컴팩트하게)
+            var shapesPanel = new StackPanel { Orientation = Orientation.Horizontal };
+            
+            var rectBtn = CreateShapeButton("▢", ShapeType.Rectangle);
+            var ellipseBtn = CreateShapeButton("○", ShapeType.Ellipse);
+            var lineBtn = CreateShapeButton("╱", ShapeType.Line);
+            var arrowBtn = CreateShapeButton("↗", ShapeType.Arrow);
+            
+            shapesPanel.Children.Add(rectBtn);
+            shapesPanel.Children.Add(ellipseBtn);
+            shapesPanel.Children.Add(lineBtn);
+            shapesPanel.Children.Add(arrowBtn);
+            
+            panel.Children.Add(shapesPanel);
+            return panel;
+        }
+        
+        private Button CreateShapeButton(string content, ShapeType type)
+        {
+            var button = new Button
+            {
+                Content = content,
+                Width = 40,
+                Height = 32,
+                Margin = new Thickness(3, 2, 3, 2),
+                FontSize = 14,
+                Background = shapeType == type ? new SolidColorBrush(Color.FromRgb(72, 152, 255)) : Brushes.White,
+                Foreground = shapeType == type ? Brushes.White : new SolidColorBrush(Color.FromRgb(60, 60, 60)),
+                BorderBrush = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                BorderThickness = new Thickness(1),
+                HorizontalContentAlignment = HorizontalAlignment.Center,
+                VerticalContentAlignment = VerticalAlignment.Center,
+                Style = null, // 기본 스타일 제거
+                Tag = type // 타입 저장
+            };
+            
+            // 리스트에 추가
+            shapeTypeButtons.Add(button);
+            
+            // 호버 효과
+            button.MouseEnter += (s, e) => {
+                if (shapeType != type)
+                {
+                    button.Background = new SolidColorBrush(Color.FromRgb(240, 248, 255));
+                }
+            };
+            
+            button.MouseLeave += (s, e) => {
+                if (shapeType != type)
+                {
+                    button.Background = Brushes.White;
+                }
+            };
+            
+            button.Click += (s, e) => {
+                shapeType = type;
+                UpdateShapeTypeButtonsInPopup();
+                
+                // 도형 그리기 모드 설정
+                CancelCurrentEditMode();
+                currentEditMode = EditMode.Shape;
+                ImageCanvas.Cursor = Cursors.Cross;
+                isDrawingShape = false;
+                isDragStarted = false;
+                SetActiveToolButton(ShapeButton);
+                
+                // 팝업 닫기
+                ToolOptionsPopup.IsOpen = false;
+            };
+            
+            return button;
+        }
+        
+        private StackPanel CreateLineStyleSection()
+        {
+            var panel = new StackPanel { Orientation = Orientation.Vertical };
+            
+            // 제목
+            var title = new TextBlock 
+            { 
+                Text = "선 스타일", 
+                FontWeight = FontWeights.SemiBold, 
+                FontSize = 11,
+                Margin = new Thickness(0, 0, 0, 4),
+                Foreground = new SolidColorBrush(Color.FromRgb(60, 60, 60))
+            };
+            panel.Children.Add(title);
+            
+            // 채우기 옵션 (더 컴팩트하게)
+            var fillPanel = new StackPanel { Orientation = Orientation.Horizontal };
+            
+            var outlineBtn = CreateFillButton("윤곽선", false);
+            var fillBtn = CreateFillButton("채우기", true);
+            
+            fillPanel.Children.Add(outlineBtn);
+            fillPanel.Children.Add(fillBtn);
+            panel.Children.Add(fillPanel);
+            
+            return panel;
+        }
+        
+        private Button CreateLineStyleButton(string content, bool isDashed, double thickness, int row, int col)
+        {
+            var button = new Button
+            {
+                Content = content,
+                Width = 60,
+                Height = 30,
+                Margin = new Thickness(2),
+                FontSize = 12,
+                Background = Brushes.White,
+                BorderBrush = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                BorderThickness = new Thickness(1)
+            };
+            
+            button.Click += (s, e) => {
+                shapeBorderThickness = thickness;
+                // 점선/파선 스타일 적용 로직 추가 가능
+            };
+            
+            Grid.SetRow(button, row);
+            Grid.SetColumn(button, col);
+            
+            return button;
+        }
+        
+        private Button CreateFillButton(string text, bool isFilled)
+        {
+            var button = new Button
+            {
+                Content = text,
+                Width = 65,
+                Height = 28,
+                Margin = new Thickness(2, 0, 2, 0),
+                FontSize = 10,
+                Background = shapeIsFilled == isFilled ? new SolidColorBrush(Color.FromRgb(72, 152, 255)) : Brushes.White,
+                Foreground = shapeIsFilled == isFilled ? Brushes.White : new SolidColorBrush(Color.FromRgb(60, 60, 60)),
+                BorderBrush = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                BorderThickness = new Thickness(1),
+                Style = null, // 기본 스타일 제거
+                Tag = isFilled // 채우기 상태 저장
+            };
+            
+            // 리스트에 추가
+            fillButtons.Add(button);
+            
+            // 호버 효과
+            button.MouseEnter += (s, e) => {
+                if (shapeIsFilled != isFilled)
+                {
+                    button.Background = new SolidColorBrush(Color.FromRgb(240, 248, 255));
+                }
+            };
+            
+            button.MouseLeave += (s, e) => {
+                if (shapeIsFilled != isFilled)
+                {
+                    button.Background = Brushes.White;
+                }
+            };
+            
+            button.Click += (s, e) => {
+                shapeIsFilled = isFilled;
+                UpdateFillButtonsInPopup();
+            };
+            
+            return button;
+        }
+        
+        private StackPanel CreateColorPaletteSection()
+        {
+            var panel = new StackPanel { Orientation = Orientation.Vertical };
+            
+            // 제목
+            var title = new TextBlock 
+            { 
+                Text = "색상", 
+                FontWeight = FontWeights.SemiBold, 
+                FontSize = 11,
+                Margin = new Thickness(0, 0, 0, 4),
+                Foreground = new SolidColorBrush(Color.FromRgb(60, 60, 60))
+            };
+            panel.Children.Add(title);
+            
+            // 색상 팔레트 (2행 5열)
+            var colorGrid = new UniformGrid { Rows = 2, Columns = 5 };
+            
+            // 첫 번째 행 색상들
+            var colors1 = new Color[] {
+                Colors.Black, Colors.Gray, Colors.Red, Colors.Orange, Colors.LimeGreen
+            };
+            
+            // 두 번째 행 색상들  
+            var colors2 = new Color[] {
+                Colors.Green, Colors.Cyan, Colors.Blue, Colors.Purple, Colors.Magenta
+            };
+            
+            foreach (var color in colors1.Concat(colors2))
+            {
+                var colorBtn = CreateColorButton(color);
+                colorGrid.Children.Add(colorBtn);
+            }
+            
+            panel.Children.Add(colorGrid);
+            return panel;
+        }
+        
+        private Button CreateColorButton(Color color)
+        {
+            var button = new Button
+            {
+                Width = 22,
+                Height = 22,
+                Margin = new Thickness(2),
+                Background = new SolidColorBrush(color),
+                BorderBrush = shapeColor == color ? new SolidColorBrush(Color.FromRgb(72, 152, 255)) : new SolidColorBrush(Color.FromRgb(180, 180, 180)),
+                BorderThickness = new Thickness(shapeColor == color ? 3 : 1),
+                Style = null, // 기본 스타일 제거
+                Content = "", // 내용 없음
+                Tag = color // 색상 저장
+            };
+            
+            // 리스트에 추가
+            colorButtons.Add(button);
+            
+            // 호버 효과
+            button.MouseEnter += (s, e) => {
+                if (shapeColor != color)
+                {
+                    button.BorderBrush = new SolidColorBrush(Color.FromRgb(120, 120, 120));
+                    button.BorderThickness = new Thickness(2);
+                }
+            };
+            
+            button.MouseLeave += (s, e) => {
+                if (shapeColor != color)
+                {
+                    button.BorderBrush = new SolidColorBrush(Color.FromRgb(180, 180, 180));
+                    button.BorderThickness = new Thickness(1);
+                }
+            };
+            
+            button.Click += (s, e) => {
+                shapeColor = color;
+                UpdateColorButtonsInPopup();
+            };
+            
+            return button;
+        }
+        
+        // 팝업 내 버튼들 참조 저장용
+        private List<Button> shapeTypeButtons = new List<Button>();
+        private List<Button> fillButtons = new List<Button>();
+        private List<Button> colorButtons = new List<Button>();
+        
+        private void UpdateShapeTypeButtonsInPopup()
+        {
+            foreach (var button in shapeTypeButtons)
+            {
+                var buttonType = (ShapeType)button.Tag;
+                if (buttonType == shapeType)
+                {
+                    button.Background = new SolidColorBrush(Color.FromRgb(72, 152, 255));
+                    button.Foreground = Brushes.White;
+                }
+                else
+                {
+                    button.Background = Brushes.White;
+                    button.Foreground = new SolidColorBrush(Color.FromRgb(60, 60, 60));
+                }
+            }
+        }
+        
+        private void UpdateFillButtonsInPopup()
+        {
+            foreach (var button in fillButtons)
+            {
+                var buttonIsFilled = (bool)button.Tag;
+                if (buttonIsFilled == shapeIsFilled)
+                {
+                    button.Background = new SolidColorBrush(Color.FromRgb(72, 152, 255));
+                    button.Foreground = Brushes.White;
+                }
+                else
+                {
+                    button.Background = Brushes.White;
+                    button.Foreground = new SolidColorBrush(Color.FromRgb(60, 60, 60));
+                }
+            }
+        }
+        
+        private void UpdateColorButtonsInPopup()
+        {
+            foreach (var button in colorButtons)
+            {
+                var buttonColor = (Color)button.Tag;
+                if (buttonColor == shapeColor)
+                {
+                    button.BorderBrush = new SolidColorBrush(Color.FromRgb(72, 152, 255));
+                    button.BorderThickness = new Thickness(3);
+                }
+                else
+                {
+                    button.BorderBrush = new SolidColorBrush(Color.FromRgb(180, 180, 180));
+                    button.BorderThickness = new Thickness(1);
+                }
+            }
         }
 
         private void ShowShapeOptions()

@@ -16,12 +16,9 @@ namespace CatchCapture.Utilities
 
         // Visuals
         private Canvas _canvas = null!;
-        private Image _screenImage = null!;
-        private BitmapSource _screenCapture = null!;
         private Rectangle _rect = null!;
         private RectangleGeometry _fullGeometry = null!;
         private RectangleGeometry _selectionGeometry = null!;
-        private System.Windows.Shapes.Path _overlayPath = null!;
         private TextBox _tbWidth = null!;
         private TextBox _tbHeight = null!;
         private Button _btnCapture = null!;
