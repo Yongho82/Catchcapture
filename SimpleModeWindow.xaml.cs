@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
@@ -12,10 +13,31 @@ namespace CatchCapture
 {
     public partial class SimpleModeWindow : Window
     {
+        // Win32 API 상수 및 메서드
+        private const int HWND_TOPMOST = -1;
+        private const int HWND_NOTOPMOST = -2;
+        private const int SWP_NOMOVE = 0x0002;
+        private const int SWP_NOSIZE = 0x0001;
+        private const int SWP_NOACTIVATE = 0x0010;
+        private const int SWP_SHOWWINDOW = 0x0040;
+
+        [DllImport("user32.dll")]
+        private static extern bool SetWindowPos(IntPtr hWnd, int hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
+
+        [DllImport("user32.dll")]
+        private static extern bool BringWindowToTop(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
+
         private Point lastPosition;
         private int _delaySeconds = 3; // default delay
         private bool _verticalMode;
         private readonly DispatcherTimer _hideTitleTimer = new DispatcherTimer();
+        private readonly DispatcherTimer _topmostCheckTimer = new DispatcherTimer();
         private bool _isMouseInside;
         
         public event EventHandler? AreaCaptureRequested;
@@ -26,6 +48,10 @@ namespace CatchCapture
         public SimpleModeWindow()
         {
             InitializeComponent();
+            
+            // 최상위 창 설정을 더 강력하게 적용
+            Topmost = true;
+            ShowInTaskbar = true; // 작업표시줄에 표시하여 독립적인 창으로 인식
             
             // 위치는 호출자가 지정 (MainWindow에서 설정)
             // PositionWindow();
@@ -39,11 +65,17 @@ namespace CatchCapture
             this.Focusable = true;
             this.Loaded += (_, __) =>
             {
-                try { this.Focus(); Keyboard.Focus(this); } catch { }
+                try { 
+                    this.Focus(); 
+                    Keyboard.Focus(this);
+                    // 로드 후 Win32 API로 최상위 강제 설정
+                    ForceTopmost();
+                } catch { }
             };
 
             // Keep always-on-top even after losing focus (e.g., clicking taskbar)
             this.Deactivated += SimpleModeWindow_Deactivated;
+            this.Activated += SimpleModeWindow_Activated;
 
             // Hover hide timer setup (slightly longer for stickier hover)
             _hideTitleTimer.Interval = TimeSpan.FromMilliseconds(800);
@@ -78,6 +110,26 @@ namespace CatchCapture
                     }
                 };
             }
+
+            // 주기적으로 최상위 상태 확인하는 타이머 설정 (1초마다 더 자주)
+            _topmostCheckTimer.Interval = TimeSpan.FromSeconds(1);
+            _topmostCheckTimer.Tick += (s, e) =>
+            {
+                // 창이 보이고 최소화되지 않은 상태에서만 확인
+                if (IsVisible && WindowState != WindowState.Minimized)
+                {
+                    // 현재 포그라운드 창이 다른 창인지 확인
+                    var foregroundWindow = GetForegroundWindow();
+                    var thisWindow = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+                    
+                    if (foregroundWindow != thisWindow && thisWindow != IntPtr.Zero)
+                    {
+                        // 다른 창이 포그라운드에 있으면 강제로 최상위 재설정
+                        AggressiveForceTopmost();
+                    }
+                }
+            };
+            _topmostCheckTimer.Start();
         }
         
         private void PositionWindow()
@@ -229,8 +281,28 @@ namespace CatchCapture
             }
             catch { /* ignore persistence errors */ }
 
+            // 타이머 정리
+            CleanupTimers();
+
             // 이제 X는 앱 종료
             Application.Current.Shutdown();
+        }
+
+        private void CleanupTimers()
+        {
+            try
+            {
+                _hideTitleTimer?.Stop();
+                _topmostCheckTimer?.Stop();
+            }
+            catch { /* 정리 중 오류 무시 */ }
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            // 창이 닫힐 때 타이머 정리
+            CleanupTimers();
+            base.OnClosed(e);
         }
         
         private void AreaCaptureButton_Click(object sender, RoutedEventArgs e)
@@ -326,12 +398,82 @@ namespace CatchCapture
 
         private void SimpleModeWindow_Deactivated(object? sender, EventArgs e)
         {
-            // Reassert Topmost to keep window above normal windows (taskbar still stays above)
+            // 더 강력한 방법으로 최상위 유지 - 즉시 실행
+            try
+            {
+                if (WindowState != WindowState.Minimized && IsVisible)
+                {
+                    var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+                    if (hwnd != IntPtr.Zero)
+                    {
+                        // 먼저 TOPMOST 해제 후 다시 설정 (Z-order 새로고침)
+                        SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+                        SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+                        
+                        // 추가로 BringWindowToTop 호출
+                        BringWindowToTop(hwnd);
+                    }
+                }
+            }
+            catch { /* 오류 무시 */ }
+            
+            // 추가로 지연된 재확인도 수행
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                Topmost = false; // toggle to refresh z-order
-                Topmost = true;
-            }), DispatcherPriority.ApplicationIdle);
+                ForceTopmost();
+            }), DispatcherPriority.Background);
+        }
+
+        private void SimpleModeWindow_Activated(object? sender, EventArgs e)
+        {
+            // 활성화될 때도 최상위 상태 확인
+            ForceTopmost();
+        }
+
+        private void ForceTopmost()
+        {
+            try
+            {
+                var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+                if (hwnd != IntPtr.Zero)
+                {
+                    SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, 
+                        SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+                }
+            }
+            catch { /* 오류 무시 */ }
+        }
+
+        private void AggressiveForceTopmost()
+        {
+            try
+            {
+                var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+                if (hwnd != IntPtr.Zero)
+                {
+                    // 더 적극적인 방법: 여러 단계로 최상위 설정
+                    
+                    // 1단계: TOPMOST 해제
+                    SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+                    
+                    // 2단계: 창을 맨 위로 가져오기
+                    BringWindowToTop(hwnd);
+                    
+                    // 3단계: TOPMOST 재설정
+                    SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+                    
+                    // 4단계: WPF 속성도 동기화
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        if (IsVisible && WindowState != WindowState.Minimized)
+                        {
+                            Topmost = false;
+                            Topmost = true;
+                        }
+                    }), DispatcherPriority.Background);
+                }
+            }
+            catch { /* 오류 무시 */ }
         }
 
         private void SimpleModeWindow_KeyDown(object sender, KeyEventArgs e)

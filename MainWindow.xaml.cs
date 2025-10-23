@@ -365,7 +365,7 @@ public partial class MainWindow : Window
         FlushUIAfterHide();
 
         // 영역 선택 창 표시 (이 시점에 배경 스크린샷을 찍음)
-        var snippingWindow = new SnippingWindow(showGuideText: false);
+        using var snippingWindow = new SnippingWindow(showGuideText: false);
 
         if (snippingWindow.ShowDialog() == true)
         {
@@ -950,6 +950,15 @@ public partial class MainWindow : Window
         }
     }
 
+    private void UnregisterGlobalHotkeys()
+    {
+        try
+        {
+            // 여기에 글로벌 단축키 등록 해제 코드 추가 (필요시)
+        }
+        catch { /* 해제 중 오류 무시 */ }
+    }
+
     #endregion
 
     #region 간편 모드
@@ -982,7 +991,7 @@ public partial class MainWindow : Window
         simpleModeWindow.AreaCaptureRequested += (s, e) => 
         {
             // 영역 캡처 수행
-            var snippingWindow = new SnippingWindow();
+            using var snippingWindow = new SnippingWindow();
             
             if (snippingWindow.ShowDialog() == true)
             {
@@ -1114,7 +1123,15 @@ public partial class MainWindow : Window
     {
         var win = new SettingsWindow();
         win.Owner = this;
-        win.ShowDialog();
+        var result = win.ShowDialog();
+        if (result == true)
+        {
+            // Reload updated settings so hotkeys and options apply immediately
+            settings = Settings.Load();
+            // If you later enable global hotkeys, you can re-register here as well.
+            // RegisterGlobalHotkeysFromSettings();
+            ShowGuideMessage("설정이 적용되었습니다.", TimeSpan.FromSeconds(1));
+        }
     }
 
     private static bool MatchHotkey(CatchCapture.Models.ToggleHotkey hk, KeyEventArgs e)
@@ -1223,5 +1240,50 @@ public partial class MainWindow : Window
             // UI 스레드에서 실행
             Dispatcher.Invoke(StartAreaCapture);
         });
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        // 리소스 정리
+        CleanupMainWindowResources();
+        base.OnClosed(e);
+    }
+
+    private void CleanupMainWindowResources()
+    {
+        try
+        {
+            // 전역 핫키 해제
+            UnregisterGlobalHotkeys();
+
+            // 간편 모드 창 정리
+            if (simpleModeWindow != null)
+            {
+                simpleModeWindow.Close();
+                simpleModeWindow = null;
+            }
+
+            // 캡처 이미지들의 메모리 정리
+            foreach (var capture in captures)
+            {
+                capture?.Dispose();
+            }
+            captures.Clear();
+
+            // UI 요소들 정리
+            CaptureListPanel?.Children.Clear();
+
+            // 이벤트 핸들러 해제
+            this.MouseLeftButtonDown -= Window_MouseLeftButtonDown;
+            this.StateChanged -= MainWindow_StateChanged;
+            this.Activated -= MainWindow_Activated;
+            this.KeyDown -= MainWindow_KeyDown;
+
+            // 강제 가비지 컬렉션으로 메모리 누수 방지
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+        }
+        catch { /* 정리 중 오류 무시 */ }
     }
 }

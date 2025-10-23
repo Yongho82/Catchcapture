@@ -8,32 +8,33 @@ using System.Windows.Shapes;
 
 namespace CatchCapture.Utilities
 {
-    public class SnippingWindow : Window
+    public class SnippingWindow : Window, IDisposable
     {
         private Point startPoint;
-        private Rectangle selectionRectangle;
-        private Canvas canvas;
+        private readonly Rectangle selectionRectangle;
+        private readonly Canvas canvas;
         private bool isSelecting = false;
-        private TextBlock? infoTextBlock;
-        private TextBlock sizeTextBlock;
-        private System.Windows.Shapes.Path overlayPath;
-        private Image screenImage;
-        private BitmapSource screenCapture;
-        private RectangleGeometry fullScreenGeometry;
-        private RectangleGeometry selectionGeometry;
-        private System.Diagnostics.Stopwatch moveStopwatch = new System.Diagnostics.Stopwatch();
+        private readonly TextBlock? infoTextBlock;
+        private readonly TextBlock sizeTextBlock;
+        private readonly System.Windows.Shapes.Path overlayPath;
+        private readonly Image screenImage;
+        private readonly BitmapSource screenCapture;
+        private readonly RectangleGeometry fullScreenGeometry;
+        private readonly RectangleGeometry selectionGeometry;
+        private readonly System.Diagnostics.Stopwatch moveStopwatch = new();
         private const int MinMoveIntervalMs = 4; // ~240Hz 업데이트 제한
         private Point lastUpdatePoint;
         private const double MinMoveDelta = 1.0; // 최소 픽셀 이동 임계값
-        private const int SizeTextUpdateIntervalMs = 32; // 30~60Hz 텍스트 갱신
         // Rendering 프레임 병합용
         private bool hasPendingUpdate = false;
         private Rect pendingRect;
         // Virtual screen bounds
-        private double vLeft;
-        private double vTop;
-        private double vWidth;
-        private double vHeight;
+        private readonly double vLeft;
+        private readonly double vTop;
+        private readonly double vWidth;
+        private readonly double vHeight;
+        private bool disposed = false;
+        private System.Windows.Threading.DispatcherTimer? memoryCleanupTimer;
 
         public Int32Rect SelectedArea { get; private set; }
         public bool IsCancelled { get; private set; } = false;
@@ -162,6 +163,18 @@ namespace CatchCapture.Utilities
             // 비동기 캡처 제거: 어둡게 되는 시점과 즉시 상호작용 가능 상태를 일치시킴
 
             moveStopwatch.Start();
+
+            // 메모리 정리 타이머 설정 (30초마다 실행)
+            memoryCleanupTimer = new System.Windows.Threading.DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(30)
+            };
+            memoryCleanupTimer.Tick += (s, e) => 
+            {
+                // 주기적으로 메모리 정리
+                GC.Collect(0, GCCollectionMode.Optimized);
+            };
+            memoryCleanupTimer.Start();
         }
 
         private void SnippingWindow_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -348,6 +361,80 @@ namespace CatchCapture.Utilities
                 }
                 catch { }
             }
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            // 창이 닫힐 때 리소스 정리
+            CleanupResources();
+            base.OnClosed(e);
+        }
+
+        private void CleanupResources()
+        {
+            if (disposed) return;
+
+            try
+            {
+                // 메모리 정리 타이머 정지
+                if (memoryCleanupTimer != null)
+                {
+                    memoryCleanupTimer.Stop();
+                    memoryCleanupTimer = null;
+                }
+
+                // 이벤트 핸들러 해제
+                CompositionTarget.Rendering -= CompositionTarget_Rendering;
+                
+                // 마우스 캡처 해제
+                if (Mouse.Captured == this)
+                {
+                    Mouse.Capture(null);
+                }
+
+                // 스톱워치 정지
+                moveStopwatch?.Stop();
+
+                // 캐시 모드 해제로 GPU 메모리 정리
+                if (overlayPath?.CacheMode is BitmapCache cache)
+                {
+                    overlayPath.CacheMode = null;
+                }
+                
+                if (selectionRectangle?.CacheMode is BitmapCache cache2)
+                {
+                    selectionRectangle.CacheMode = null;
+                }
+
+                // 강제 가비지 컬렉션 (메모리 누수 방지)
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+            }
+            catch { /* 정리 중 오류 무시 */ }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    CleanupResources();
+                }
+                disposed = true;
+            }
+        }
+
+        ~SnippingWindow()
+        {
+            Dispose(false);
         }
     }
 }

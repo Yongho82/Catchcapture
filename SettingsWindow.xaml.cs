@@ -38,8 +38,9 @@ namespace CatchCapture
             // Format
             CmbFormat.SelectedIndex = _settings.FileSaveFormat.Equals("JPG", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
             // Folder
+            var defaultInstallFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture");
             TxtFolder.Text = string.IsNullOrWhiteSpace(_settings.DefaultSaveFolder)
-                ? Environment.GetFolderPath(Environment.SpecialFolder.MyPictures)
+                ? defaultInstallFolder
                 : _settings.DefaultSaveFolder;
             // Auto-save
             ChkAutoSave.IsChecked = _settings.AutoSaveCapture;
@@ -126,8 +127,20 @@ namespace CatchCapture
         {
             // Capture options
             _settings.FileSaveFormat = (CmbFormat.SelectedIndex == 1) ? "JPG" : "PNG";
-            _settings.DefaultSaveFolder = TxtFolder.Text?.Trim() ?? string.Empty;
+            var desiredFolder = (TxtFolder.Text ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(desiredFolder))
+            {
+                desiredFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture");
+            }
+            _settings.DefaultSaveFolder = desiredFolder;
             _settings.AutoSaveCapture = ChkAutoSave.IsChecked == true;
+
+            // Ensure folder exists if autosave is enabled
+            if (_settings.AutoSaveCapture)
+            {
+                try { if (!System.IO.Directory.Exists(_settings.DefaultSaveFolder)) System.IO.Directory.CreateDirectory(_settings.DefaultSaveFolder); }
+                catch { /* ignore create errors; user may fix path later */ }
+            }
 
             // Hotkeys - read and normalize
             ReadHotkey(_settings.Hotkeys.RegionCapture, HkRegionEnabled, HkRegionCtrl, HkRegionShift, HkRegionAlt, HkRegionWin, HkRegionKey);
@@ -150,6 +163,26 @@ namespace CatchCapture
             EnsureDefaultKey(_settings.Hotkeys.OpenSettings, "O");
 
             Settings.Save(_settings);
+            try
+            {
+                // Verify persistence
+                var reloaded = Settings.Load();
+                // Very light check: ensure one of the hotkeys round-trips (e.g., RegionCapture)
+                bool ok = reloaded?.Hotkeys?.RegionCapture?.Key == _settings.Hotkeys.RegionCapture.Key;
+                var pathInfo = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture", "settings.json");
+                if (ok)
+                {
+                    MessageBox.Show($"설정이 저장되었습니다.\n{pathInfo}", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    MessageBox.Show($"설정 저장 확인에 실패했습니다.\n경로: {pathInfo}", "경고", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+            }
+            catch
+            {
+                MessageBox.Show("설정을 저장했지만 확인 중 오류가 발생했습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
             DialogResult = true;
             Close();
         }

@@ -1,11 +1,10 @@
 using System;
 using System.ComponentModel;
-using System.IO;
 using System.Windows.Media.Imaging;
 
 namespace CatchCapture.Models
 {
-    public class CaptureImage : INotifyPropertyChanged
+    public class CaptureImage : INotifyPropertyChanged, IDisposable
     {
         private BitmapSource _image = null!;
         private DateTime _captureTime;
@@ -78,5 +77,32 @@ namespace CatchCapture.Models
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        private bool disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    // 이미지 참조 해제
+                    _image = null!;
+                    PropertyChanged = null;
+                }
+                disposed = true;
+            }
+        }
+
+        ~CaptureImage()
+        {
+            Dispose(false);
+        }
     }
-} 
+}

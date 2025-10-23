@@ -12,7 +12,7 @@ namespace CatchCapture.Models
 
         // Capture save options
         public string FileSaveFormat { get; set; } = "PNG"; // PNG or JPG
-        public string DefaultSaveFolder { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+        public string DefaultSaveFolder { get; set; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture");
         public bool AutoSaveCapture { get; set; } = false;
 
         // Persisted window states
@@ -28,11 +28,21 @@ namespace CatchCapture.Models
 
         private static string GetSettingsPath()
         {
-            string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            string dir = Path.Combine(appData, "CatchCapture");
+            string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string dir = Path.Combine(localAppData, "CatchCapture");
             try { if (!Directory.Exists(dir)) Directory.CreateDirectory(dir); } catch { }
             return Path.Combine(dir, "settings.json");
         }
+
+        // Legacy roaming path (for one-time import)
+        private static string GetLegacySettingsPath()
+        {
+            string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string dir = Path.Combine(appData, "CatchCapture");
+            return Path.Combine(dir, "settings.json");
+        }
+
+        public static string SettingsPath => GetSettingsPath();
 
         public static Settings Load()
         {
@@ -40,6 +50,22 @@ namespace CatchCapture.Models
 
             if (!File.Exists(settingsPath))
             {
+                // One-time import from legacy path if exists
+                string legacyPath = GetLegacySettingsPath();
+                if (File.Exists(legacyPath))
+                {
+                    try
+                    {
+                        string legacyJson = File.ReadAllText(legacyPath);
+                        var legacy = JsonSerializer.Deserialize<Settings>(legacyJson);
+                        if (legacy != null)
+                        {
+                            Save(legacy); // persist to new local appdata path
+                            return legacy;
+                        }
+                    }
+                    catch { /* ignore and create new */ }
+                }
                 var defaultSettings = new Settings();
                 Save(defaultSettings);
                 return defaultSettings;
@@ -59,16 +85,38 @@ namespace CatchCapture.Models
 
         public static void Save(Settings settings)
         {
-            string settingsPath = GetSettingsPath();
+            TrySave(settings, out _);
+        }
 
+        public static bool TrySave(Settings settings, out string? error)
+        {
+            error = null;
             try
             {
+                string settingsPath = GetSettingsPath();
+                var dir = Path.GetDirectoryName(settingsPath);
+                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
+
+                // Serialize
                 string json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(settingsPath, json);
+
+                // Atomic write: write to temp and replace
+                string tmp = settingsPath + ".tmp";
+                File.WriteAllText(tmp, json);
+                if (File.Exists(settingsPath))
+                {
+                    File.Replace(tmp, settingsPath, settingsPath + ".bak", ignoreMetadataErrors: true);
+                }
+                else
+                {
+                    File.Move(tmp, settingsPath);
+                }
+                return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // 저장 실패 시 기본 설정 사용
+                error = ex.Message;
+                return false;
             }
         }
     }

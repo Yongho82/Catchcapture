@@ -7,7 +7,8 @@ AppName=CatchCapture
 AppVersion=1.0.0
 AppVerName=CatchCapture 1.0.0
 AppPublisher=Yongho
-DefaultDirName={autopf}\CatchCapture
+DefaultDirName={localappdata}\CatchCapture
+PrivilegesRequired=lowest
 DefaultGroupName=CatchCapture
 DisableDirPage=no
 DisableProgramGroupPage=no
@@ -46,7 +47,7 @@ Source: "..\\cons\\catcha.ico"; DestDir: "{app}\\icons"; Flags: ignoreversion sk
 ; Start Menu shortcut
 Name: "{group}\\CatchCapture"; Filename: "{app}\\CatchCapture.exe"; WorkingDir: "{app}"; IconFilename: "{app}\\icons\\catcha.ico"; Tasks: startmenu
 ; Desktop shortcut (optional)
-Name: "{commondesktop}\\CatchCapture"; Filename: "{app}\\CatchCapture.exe"; WorkingDir: "{app}"; IconFilename: "{app}\\icons\\catcha.ico"; Tasks: desktopicon
+Name: "{userdesktop}\\CatchCapture"; Filename: "{app}\\CatchCapture.exe"; WorkingDir: "{app}"; IconFilename: "{app}\\icons\\catcha.ico"; Tasks: desktopicon
 
 [Run]
 Filename: "{app}\\CatchCapture.exe"; Description: "설치가 끝나면 실행"; Flags: nowait postinstall skipifsilent
