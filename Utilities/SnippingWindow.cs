@@ -17,8 +17,8 @@ namespace CatchCapture.Utilities
         private readonly TextBlock? infoTextBlock;
         private readonly TextBlock sizeTextBlock;
         private readonly System.Windows.Shapes.Path overlayPath;
-        private readonly Image screenImage;
-        private readonly BitmapSource screenCapture;
+        private Image screenImage;
+        private BitmapSource? screenCapture;
         private readonly RectangleGeometry fullScreenGeometry;
         private readonly RectangleGeometry selectionGeometry;
         private readonly System.Diagnostics.Stopwatch moveStopwatch = new();
@@ -40,7 +40,7 @@ namespace CatchCapture.Utilities
         public bool IsCancelled { get; private set; } = false;
         public BitmapSource? SelectedFrozenImage { get; private set; }
 
-        public SnippingWindow(bool showGuideText = false)
+        public SnippingWindow(bool showGuideText = false, BitmapSource? cachedScreenshot = null)
         {
             WindowStyle = WindowStyle.None;
             ResizeMode = ResizeMode.NoResize;
@@ -73,11 +73,22 @@ namespace CatchCapture.Utilities
             canvas.Background = Brushes.Transparent;
             Content = canvas;
 
-            // 배경 스크린샷을 동기 캡처하여 즉시 정지 화면 제공 (오버레이와 동시에 상호작용 가능)
-            screenCapture = ScreenCaptureUtility.CaptureScreen();
-            screenImage = new Image { Source = screenCapture };
-            Panel.SetZIndex(screenImage, -1);
-            canvas.Children.Add(screenImage);
+            // 캐시된 스크린샷이 있으면 즉시 사용, 없으면 새로 캡처
+            if (cachedScreenshot != null)
+            {
+                screenCapture = cachedScreenshot;
+                screenImage = new Image { Source = screenCapture };
+                Panel.SetZIndex(screenImage, -1);
+                canvas.Children.Add(screenImage);
+            }
+            else
+            {
+                // 기존 방식: 동기 캡처
+                screenCapture = ScreenCaptureUtility.CaptureScreen();
+                screenImage = new Image { Source = screenCapture };
+                Panel.SetZIndex(screenImage, -1);
+                canvas.Children.Add(screenImage);
+            }
 
             // 반투명 오버레이 생성: 전체를 어둡게, 선택 영역은 투명한 '구멍'
             fullScreenGeometry = new RectangleGeometry(new Rect(0, 0, vWidth, vHeight));
@@ -431,6 +442,8 @@ namespace CatchCapture.Utilities
                 disposed = true;
             }
         }
+
+
 
         ~SnippingWindow()
         {

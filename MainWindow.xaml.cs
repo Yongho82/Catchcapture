@@ -32,6 +32,12 @@ public partial class MainWindow : Window
     private SimpleModeWindow? simpleModeWindow = null;
     private Point lastPosition;
     private int captureDelaySeconds = 0;
+    
+    // 스크린샷 캐시 (성능 최적화용)
+    private BitmapSource? cachedScreenshot = null;
+    private DateTime lastScreenshotTime = DateTime.MinValue;
+    private readonly TimeSpan screenshotCacheTimeout = TimeSpan.FromSeconds(2);
+    private System.Windows.Threading.DispatcherTimer? screenshotCacheTimer;
 
     // Ensures any pending composition updates are presented (so hidden window is actually off-screen)
     [DllImport("dwmapi.dll")]
@@ -41,10 +47,10 @@ public partial class MainWindow : Window
     {
         try
         {
-            // Process pending dispatcher operations to reach idle
-            Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
-            // Ensure DWM has presented the latest frame
-            DwmFlush();
+            // 최소한의 UI 처리만 수행 (ApplicationIdle 대신 Normal 우선순위 사용)
+            Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.Normal);
+            // DwmFlush는 선택적으로만 수행
+            // DwmFlush(); // 제거하여 딜레이 최소화
         }
         catch
         {
@@ -69,6 +75,9 @@ public partial class MainWindow : Window
         // 간편모드 활성 중에는 작업표시줄 클릭으로 본체가 튀어나오지 않도록 제어
         this.StateChanged += MainWindow_StateChanged;
         this.Activated += MainWindow_Activated;
+        
+        // 백그라운드 스크린샷 캐시 시스템 초기화
+        InitializeScreenshotCache();
     }
 
     private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -358,13 +367,30 @@ public partial class MainWindow : Window
         });
     }
 
+    private BitmapSource GetCachedOrFreshScreenshot()
+    {
+        var now = DateTime.Now;
+        
+        // 캐시가 유효한지 확인 (2초 이내)
+        if (cachedScreenshot != null && (now - lastScreenshotTime) < screenshotCacheTimeout)
+        {
+            return cachedScreenshot;
+        }
+        
+        // 새로운 스크린샷 캡처 및 캐시 업데이트
+        cachedScreenshot = ScreenCaptureUtility.CaptureScreen();
+        lastScreenshotTime = now;
+        
+        return cachedScreenshot;
+    }
+
     private void StartAreaCapture()
     {
-        // 먼저 메인 창을 숨긴 후 캡처 오버레이를 생성해야 정지 배경에 창이 비포함됨
+        // 메인 창을 숨기고 즉시 캡처 오버레이 생성 (딜레이 제거)
         this.Hide();
-        FlushUIAfterHide();
+        // FlushUIAfterHide(); // 완전히 제거하여 딜레이 최소화
 
-        // 영역 선택 창 표시 (이 시점에 배경 스크린샷을 찍음)
+        // 즉시 SnippingWindow 생성 (캐시 없이 빠른 실행)
         using var snippingWindow = new SnippingWindow(showGuideText: false);
 
         if (snippingWindow.ShowDialog() == true)
@@ -959,6 +985,46 @@ public partial class MainWindow : Window
         catch { /* 해제 중 오류 무시 */ }
     }
 
+    private void InitializeScreenshotCache()
+    {
+        // 백그라운드에서 주기적으로 스크린샷을 미리 캐시하는 타이머 설정
+        screenshotCacheTimer = new System.Windows.Threading.DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(1) // 1초마다 캐시 갱신 확인
+        };
+        
+        screenshotCacheTimer.Tick += (s, e) =>
+        {
+            var now = DateTime.Now;
+            
+            // 캐시가 만료되었거나 없으면 백그라운드에서 새로 캡처
+            if (cachedScreenshot == null || (now - lastScreenshotTime) > screenshotCacheTimeout)
+            {
+                // 백그라운드 스레드에서 스크린샷 캡처 (UI 블로킹 방지)
+                System.Threading.Tasks.Task.Run(() =>
+                {
+                    try
+                    {
+                        var newScreenshot = ScreenCaptureUtility.CaptureScreen();
+                        
+                        // UI 스레드에서 캐시 업데이트
+                        Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            cachedScreenshot = newScreenshot;
+                            lastScreenshotTime = now;
+                        }), System.Windows.Threading.DispatcherPriority.Background);
+                    }
+                    catch
+                    {
+                        // 스크린샷 캡처 실패 시 무시
+                    }
+                });
+            }
+        };
+        
+        screenshotCacheTimer.Start();
+    }
+
     #endregion
 
     #region 간편 모드
@@ -990,8 +1056,9 @@ public partial class MainWindow : Window
         // 이벤트 핸들러 등록
         simpleModeWindow.AreaCaptureRequested += (s, e) => 
         {
-            // 영역 캡처 수행
-            using var snippingWindow = new SnippingWindow();
+            // 캐시된 스크린샷을 사용하여 빠른 영역 캡처
+            var cachedScreen = GetCachedOrFreshScreenshot();
+            using var snippingWindow = new SnippingWindow(false, cachedScreen);
             
             if (snippingWindow.ShowDialog() == true)
             {
