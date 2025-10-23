@@ -498,6 +498,36 @@ public partial class MainWindow : Window
         }
     }
 
+    // 간편모드 전용 지정캡처 메서드 (메인창을 표시하지 않음)
+    private void PerformDesignatedCaptureForSimpleMode()
+    {
+        try
+        {
+            var designatedWindow = new CatchCapture.Utilities.DesignatedCaptureWindow();
+            designatedWindow.Owner = simpleModeWindow;
+
+            // Subscribe to continuous capture event
+            designatedWindow.CaptureCompleted += (img) =>
+            {
+                // Ensure UI thread
+                Dispatcher.Invoke(() =>
+                {
+                    AddCaptureToList(img);
+                    // 클립보드에 복사
+                    CatchCapture.Utilities.ScreenCaptureUtility.CopyImageToClipboard(img);
+                });
+            };
+
+            // Block until user closes overlay via ✕
+            designatedWindow.ShowDialog();
+        }
+        finally
+        {
+            // 간편모드 창만 다시 표시 (메인창은 표시하지 않음)
+            simpleModeWindow?.Show();
+        }
+    }
+
     private void AddCaptureToList(BitmapSource image)
     {
         // 캡처 이미지 객체 생성
@@ -1096,9 +1126,8 @@ public partial class MainWindow : Window
         
         simpleModeWindow.DesignatedCaptureRequested += (s, e) =>
         {
-            // 기존 지정 캡처 클릭 로직 재사용
-            DesignatedCaptureButton_Click(this, new RoutedEventArgs());
-            simpleModeWindow?.Show();
+            // 간편모드 전용 지정캡처 로직 (메인창 표시하지 않음)
+            PerformDesignatedCaptureForSimpleMode();
         };
         
         simpleModeWindow.ExitSimpleModeRequested += (s, e) => 
@@ -1131,7 +1160,9 @@ public partial class MainWindow : Window
         {
             // 작업표시줄 대표를 다시 본체로 복구
             simpleModeWindow.ShowInTaskbar = false;
-            simpleModeWindow.Close();
+            // Close() 대신 Hide()를 사용하여 프로그램 종료 방지
+            simpleModeWindow.Hide();
+            // 간편모드 창 참조 해제 (이벤트 핸들러는 자동으로 해제됨)
             simpleModeWindow = null;
         }
         
