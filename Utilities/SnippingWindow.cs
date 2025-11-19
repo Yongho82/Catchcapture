@@ -149,16 +149,21 @@ namespace CatchCapture.Utilities
             canvas.Children.Add(sizeTextBlock);
 
             // 선택 영역 직사각형(테두리만 표시)
+            var strokeBrush = new SolidColorBrush(Colors.DeepSkyBlue);
+            strokeBrush.Freeze(); // GC로부터 보호
+            
+            var dashArray = new DoubleCollection { 4, 2 };
+            dashArray.Freeze(); // GC로부터 보호
+            
             selectionRectangle = new Rectangle
             {
-                Stroke = Brushes.DeepSkyBlue,
+                Stroke = strokeBrush,
                 StrokeThickness = 2,
-                StrokeDashArray = new DoubleCollection { 4, 2 },
+                StrokeDashArray = dashArray,
                 Fill = Brushes.Transparent
             };
             selectionRectangle.IsHitTestVisible = false;
             selectionRectangle.SnapsToDevicePixels = true;
-            selectionRectangle.CacheMode = new BitmapCache();
             canvas.Children.Add(selectionRectangle);
 
             // 이벤트 핸들러 등록
