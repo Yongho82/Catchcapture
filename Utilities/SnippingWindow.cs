@@ -180,15 +180,16 @@ namespace CatchCapture.Utilities
 
             moveStopwatch.Start();
 
-            // 메모리 정리 타이머 설정 (30초마다 실행)
+            // 메모리 모니터링 타이머 설정 (5분마다 실행)
             memoryCleanupTimer = new System.Windows.Threading.DispatcherTimer
             {
-                Interval = TimeSpan.FromSeconds(30)
+                Interval = TimeSpan.FromMinutes(5) // 30초 → 5분으로 변경
             };
             memoryCleanupTimer.Tick += (s, e) => 
             {
-                // 주기적으로 메모리 정리
-                GC.Collect(0, GCCollectionMode.Optimized);
+                // 강제 GC 대신 메모리 사용량만 로깅
+                var memoryUsed = GC.GetTotalMemory(false) / 1024 / 1024;
+                System.Diagnostics.Debug.WriteLine($"SnippingWindow 메모리 사용량: {memoryUsed}MB");
             };
             memoryCleanupTimer.Start();
         }
