@@ -50,6 +50,30 @@
         
         <Grid Margin="10,15">
             <StackPanel VerticalAlignment="Top">
+                <!-- 항상 위 토글 버튼 -->
+                <Button x:Name="TopmostButton" Style="{StaticResource IconButtonStyle}" 
+                        Click="TopmostButton_Click" ToolTip="항상 위">
+                    <TextBlock x:Name="TopmostIcon" Text="📌" FontSize="20" 
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Button>
+                
+                <!-- 캡처 카운터 버튼 -->
+                <Button x:Name="CaptureCounterButton" Style="{StaticResource IconButtonStyle}" 
+                        Click="CaptureCounterButton_Click" ToolTip="캡처 목록 보기">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <TextBlock Text="📸" FontSize="16" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="CaptureCountText" 
+                                   Text="0" 
+                                   FontSize="14" 
+                                   FontWeight="Bold"
+                                   Margin="2,0,0,0"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                
+                <!-- 구분선 -->
+                <Separator Margin="5,10" Background="#E0E6F0" Height="1"/>
+                
                 <!-- 영역 캡처 -->
                 <Button x:Name="AreaCaptureButton" Style="{StaticResource IconButtonStyle}" 
                         Click="AreaCaptureButton_Click" ToolTip="영역 캡처">

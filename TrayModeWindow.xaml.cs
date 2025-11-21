@@ -30,8 +30,61 @@ namespace CatchCapture
 
         private void Window_Deactivated(object sender, EventArgs e)
         {
-            // 창 밖 클릭 시 숨기기
+            // 항상 위가 비활성화되어 있을 때만 창 밖 클릭 시 숨기기
+            if (!this.Topmost)
+            {
+                this.Hide();
+            }
+        }
+
+        private void TopmostButton_Click(object sender, RoutedEventArgs e)
+        {
+            // 항상 위 토글
+            this.Topmost = !this.Topmost;
+            UpdateTopmostIcon();
+        }
+
+        private void UpdateTopmostIcon()
+        {
+            // 아이콘 투명도 업데이트 (활성화 시 진하게, 비활성화 시 연하게)
+            if (this.Topmost)
+            {
+                TopmostIcon.Opacity = 1.0; // 진한 회색 (활성)
+            }
+            else
+            {
+                TopmostIcon.Opacity = 0.3; // 연한 회색 (비활성)
+            }
+        }
+
+        public void UpdateCaptureCount(int count)
+        {
+            CaptureCountText.Text = count.ToString();
+            
+            // 간단한 스케일 애니메이션
+            if (count > 0)
+            {
+                var scaleTransform = new System.Windows.Media.ScaleTransform(1.0, 1.0);
+                CaptureCounterButton.RenderTransform = scaleTransform;
+                CaptureCounterButton.RenderTransformOrigin = new System.Windows.Point(0.5, 0.5);
+                
+                var animation = new System.Windows.Media.Animation.DoubleAnimation
+                {
+                    From = 1.3,
+                    To = 1.0,
+                    Duration = TimeSpan.FromMilliseconds(200)
+                };
+                
+                scaleTransform.BeginAnimation(System.Windows.Media.ScaleTransform.ScaleXProperty, animation);
+                scaleTransform.BeginAnimation(System.Windows.Media.ScaleTransform.ScaleYProperty, animation);
+            }
+        }
+
+        private void CaptureCounterButton_Click(object sender, RoutedEventArgs e)
+        {
+            // 일반 모드로 전환하여 캡처 목록 확인
             this.Hide();
+            mainWindow.SwitchToNormalMode();
         }
 
         // 캡처 버튼 이벤트 핸들러들

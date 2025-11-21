@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CatchCapture"
         mc:Ignorable="d"
-        Title="캐치 캡처" Height="570" Width="350" 
-        MinWidth="350" MinHeight="570"
+        Title="캐치 캡처" Height="610" Width="350" 
+        MinWidth="350" MinHeight="610"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None" AllowsTransparency="True" 
         Background="Transparent">
@@ -264,6 +264,15 @@
                                     <Image Source="/icons/simple_mode.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
                                     <TextBlock Text="간편 모드" HorizontalAlignment="Left" FontSize="11"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <!-- 트레이 모드 버튼 -->
+                            <Button x:Name="TrayModeButton" Style="{StaticResource SidebarButtonStyle}" Click="TrayModeButton_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/icons/simple_mode.png" Width="16" Height="16" Margin="0,0,5,0"
+                                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                                    <TextBlock Text="트레이 모드" HorizontalAlignment="Left" FontSize="11"/>
                                 </StackPanel>
                             </Button>
                             <!-- 간편 모드 아래 설정 버튼 -->
