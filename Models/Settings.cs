@@ -22,6 +22,9 @@ namespace CatchCapture.Models
         public double LastSimpleTop { get; set; } = double.NaN;
         public bool LastModeIsSimple { get; set; } = false;
         public bool SimpleModeVertical { get; set; } = false;
+        public bool IsTrayMode { get; set; } = false;
+        public double LastTrayLeft { get; set; } = double.NaN;
+        public double LastTrayTop { get; set; } = double.NaN;
 
         // Hotkeys
         public HotkeySettings Hotkeys { get; set; } = HotkeySettings.CreateDefaults();

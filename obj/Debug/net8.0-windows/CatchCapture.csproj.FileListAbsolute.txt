@@ -112,3 +112,5 @@ C:\yonghoprogram\Multicapture\obj\Debug\net8.0-windows\SettingsWindow.baml
 C:\yonghoprogram\Multicapture\obj\Debug\net8.0-windows\SettingsWindow.g.cs
 C:\yonghoprogram\Multicapture\obj\Debug\net8.0-windows\SimpleModeSettingsButton.baml
 C:\yonghoprogram\Multicapture\obj\Debug\net8.0-windows\SimpleModeSettingsButton.g.cs
+C:\yonghoprogram\Multicapture\obj\Debug\net8.0-windows\TrayModeWindow.baml
+C:\yonghoprogram\Multicapture\obj\Debug\net8.0-windows\TrayModeWindow.g.cs

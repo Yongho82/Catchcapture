@@ -42,6 +42,7 @@ public partial class MainWindow : Window
     // 트레이 아이콘
     private System.Windows.Forms.NotifyIcon? notifyIcon;
     private bool isExit = false;
+    private TrayModeWindow? trayModeWindow;
 
     // Ensures any pending composition updates are presented (so hidden window is actually off-screen)
     [DllImport("dwmapi.dll")]
@@ -104,12 +105,21 @@ public partial class MainWindow : Window
         notifyIcon.Visible = true;
         notifyIcon.Text = "캐치캡처";
         
-        // 더블 클릭 시 창 복원
-        notifyIcon.DoubleClick += (s, e) => ShowMainWindow();
+        // 클릭 시 트레이 모드 창 토글
+        notifyIcon.Click += (s, e) =>
+        {
+            if (e is System.Windows.Forms.MouseEventArgs me && me.Button == System.Windows.Forms.MouseButtons.Left)
+            {
+                ToggleTrayModeWindow();
+            }
+        };
 
         // 컨텍스트 메뉴
         var contextMenu = new System.Windows.Forms.ContextMenuStrip();
-        contextMenu.Items.Add("열기", null, (s, e) => ShowMainWindow());
+        contextMenu.Items.Add("일반 모드", null, (s, e) => SwitchToNormalMode());
+        contextMenu.Items.Add("간편 모드", null, (s, e) => SwitchToSimpleMode());
+        contextMenu.Items.Add("트레이 모드", null, (s, e) => SwitchToTrayMode());
+        contextMenu.Items.Add("-");
         contextMenu.Items.Add("종료", null, (s, e) => 
         {
             isExit = true;
@@ -124,6 +134,98 @@ public partial class MainWindow : Window
         this.Show();
         this.WindowState = WindowState.Normal;
         this.Activate();
+    }
+
+    private void ToggleTrayModeWindow()
+    {
+        if (trayModeWindow == null || !trayModeWindow.IsVisible)
+        {
+            ShowTrayModeWindow();
+        }
+        else
+        {
+            trayModeWindow.Hide();
+        }
+    }
+
+    private void ShowTrayModeWindow()
+    {
+        // 트레이 모드 설정
+        settings.IsTrayMode = true;
+        
+        // 트레이 모드 창 생성 또는 표시
+        if (trayModeWindow == null)
+        {
+            trayModeWindow = new TrayModeWindow(this);
+        }
+        
+        trayModeWindow.Show();
+        trayModeWindow.Activate();
+        
+        // 메인 창 숨기기
+        this.Hide();
+        
+        // 설정 저장
+        Settings.Save(settings);
+    }
+
+    private void PositionTrayModeWindow()
+    {
+        // 화면 작업 영역 가져오기 (태스크바 제외)
+        var workArea = SystemParameters.WorkArea;
+        
+        // 우측 하단에 위치 (트레이 근처)
+        this.Left = workArea.Right - this.Width - 10;
+        this.Top = workArea.Bottom - this.Height - 10;
+        
+        // 위치 저장
+        settings.LastTrayLeft = this.Left;
+        settings.LastTrayTop = this.Top;
+    }
+
+    private void SwitchToTrayMode()
+    {
+        ShowTrayModeWindow();
+    }
+
+    private void SwitchToNormalMode()
+    {
+        // 트레이 모드 해제
+        settings.IsTrayMode = false;
+        
+        // 창 스타일 복원
+        this.WindowStyle = WindowStyle.None;
+        this.ResizeMode = ResizeMode.CanResize;
+        this.Topmost = false;
+        
+        // 기본 크기로 복원
+        this.Width = 350;
+        this.Height = 570;
+        
+        // 저장된 위치로 복원 또는 중앙 배치
+        if (!double.IsNaN(settings.LastMainLeft) && !double.IsNaN(settings.LastMainTop))
+        {
+            this.Left = settings.LastMainLeft;
+            this.Top = settings.LastMainTop;
+        }
+        else
+        {
+            this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+        }
+        
+        // 창 표시
+        this.Show();
+        this.WindowState = WindowState.Normal;
+        this.Activate();
+        
+        // 설정 저장
+        Settings.Save(settings);
+    }
+
+    private void SwitchToSimpleMode()
+    {
+        // 기존 간편 모드 로직 호출
+        SimpleModeButton_Click(null, null);
     }
 
     protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
@@ -1449,4 +1551,68 @@ public partial class MainWindow : Window
         }
         catch { /* 정리 중 오류 무시 */ }
     }
+
+    #region Trigger Methods for TrayModeWindow
+
+    public void TriggerAreaCapture()
+    {
+        AreaCaptureButton_Click(null, null);
+    }
+
+    public void TriggerDelayCapture()
+    {
+        DelayCaptureButton_Click(null, null);
+    }
+
+    public void TriggerFullScreenCapture()
+    {
+        FullScreenCaptureButton_Click(null, null);
+    }
+
+    public void TriggerDesignatedCapture()
+    {
+        DesignatedCaptureButton_Click(null, null);
+    }
+
+    public void TriggerCopySelected()
+    {
+        CopySelectedButton_Click(null, null);
+    }
+
+    public void TriggerCopyAll()
+    {
+        CopyAllButton_Click(null, null);
+    }
+
+    public void TriggerSaveSelected()
+    {
+        SaveSelectedButton_Click(null, null);
+    }
+
+    public void TriggerSaveAll()
+    {
+        SaveAllButton_Click(null, null);
+    }
+
+    public void TriggerDeleteSelected()
+    {
+        DeleteSelectedButton_Click(null, null);
+    }
+
+    public void TriggerDeleteAll()
+    {
+        DeleteAllButton_Click(null, null);
+    }
+
+    public void TriggerSimpleMode()
+    {
+        SimpleModeButton_Click(null, null);
+    }
+
+    public void TriggerSettings()
+    {
+        SettingsSideButton_Click(null, null);
+    }
+
+    #endregion
 }
