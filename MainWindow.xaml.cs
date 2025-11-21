@@ -39,6 +39,10 @@ public partial class MainWindow : Window
     private readonly TimeSpan screenshotCacheTimeout = TimeSpan.FromSeconds(2);
     private System.Windows.Threading.DispatcherTimer? screenshotCacheTimer;
 
+    // 트레이 아이콘
+    private System.Windows.Forms.NotifyIcon? notifyIcon;
+    private bool isExit = false;
+
     // Ensures any pending composition updates are presented (so hidden window is actually off-screen)
     [DllImport("dwmapi.dll")]
     private static extern int DwmFlush();
@@ -63,6 +67,9 @@ public partial class MainWindow : Window
         InitializeComponent();
         settings = Settings.Load();
         
+        // 트레이 아이콘 초기화
+        InitializeNotifyIcon();
+        
         // 글로벌 단축키 등록
         RegisterGlobalHotkeys();
         
@@ -78,6 +85,64 @@ public partial class MainWindow : Window
         
         // 백그라운드 스크린샷 캐시 시스템 초기화
         InitializeScreenshotCache();
+    }
+
+    private void InitializeNotifyIcon()
+    {
+        notifyIcon = new System.Windows.Forms.NotifyIcon();
+        try
+        {
+            // 실행 파일의 아이콘을 사용
+            notifyIcon.Icon = System.Drawing.Icon.ExtractAssociatedIcon(System.Reflection.Assembly.GetExecutingAssembly().Location);
+        }
+        catch
+        {
+            // 아이콘 로드 실패 시 기본 시스템 아이콘 사용 (fallback)
+            notifyIcon.Icon = System.Drawing.SystemIcons.Application;
+        }
+        
+        notifyIcon.Visible = true;
+        notifyIcon.Text = "캐치캡처";
+        
+        // 더블 클릭 시 창 복원
+        notifyIcon.DoubleClick += (s, e) => ShowMainWindow();
+
+        // 컨텍스트 메뉴
+        var contextMenu = new System.Windows.Forms.ContextMenuStrip();
+        contextMenu.Items.Add("열기", null, (s, e) => ShowMainWindow());
+        contextMenu.Items.Add("종료", null, (s, e) => 
+        {
+            isExit = true;
+            Close();
+        });
+        
+        notifyIcon.ContextMenuStrip = contextMenu;
+    }
+
+    private void ShowMainWindow()
+    {
+        this.Show();
+        this.WindowState = WindowState.Normal;
+        this.Activate();
+    }
+
+    protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+    {
+        if (!isExit)
+        {
+            e.Cancel = true; // 종료 취소
+            this.Hide(); // 창 숨기기 (트레이로 이동 효과)
+        }
+        else
+        {
+            // 종료 시 트레이 아이콘 정리
+            if (notifyIcon != null)
+            {
+                notifyIcon.Visible = false;
+                notifyIcon.Dispose();
+            }
+            base.OnClosing(e);
+        }
     }
 
     private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -98,8 +163,8 @@ public partial class MainWindow : Window
 
     private void CloseButton_Click(object sender, RoutedEventArgs e)
     {
-        // 프로그램 종료
-        Application.Current.Shutdown();
+        // 닫기 버튼 클릭 시 트레이로 숨기기 (종료 아님)
+        this.Hide();
     }
 
     private void AddKeyboardShortcuts()
