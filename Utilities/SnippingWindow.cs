@@ -433,17 +433,25 @@ namespace CatchCapture.Utilities
                         // 확대된 이미지 그리기
                         drawingContext.DrawImage(transformedBitmap, new Rect(0, 0, transformedBitmap.PixelWidth, transformedBitmap.PixelHeight));
                         
-                        // 십자선 그리기 (중앙)
+                        // 십자선 그리기 (중앙에 작은 십자가)
                         double centerXPos = transformedBitmap.PixelWidth / 2.0;
                         double centerYPos = transformedBitmap.PixelHeight / 2.0;
-                        
+
                         var redPen = new Pen(Brushes.Red, 2);
+                        redPen.DashStyle = new DashStyle(new double[] { 2, 2 }, 0); // 2픽셀 선, 2픽셀 공백
                         redPen.Freeze();
-                        
-                        // 가로선
-                        drawingContext.DrawLine(redPen, new Point(0, centerYPos), new Point(transformedBitmap.PixelWidth, centerYPos));
-                        // 세로선
-                        drawingContext.DrawLine(redPen, new Point(centerXPos, 0), new Point(centerXPos, transformedBitmap.PixelHeight));
+
+                        // 십자선 길이 (작게)
+                        double crosshairLength = 30;
+
+                        // 가로선 (중앙에서 좌우로 작게)
+                        drawingContext.DrawLine(redPen, 
+                            new Point(centerXPos - crosshairLength, centerYPos), 
+                            new Point(centerXPos + crosshairLength, centerYPos));
+                        // 세로선 (중앙에서 위아래로 작게)
+                        drawingContext.DrawLine(redPen, 
+                            new Point(centerXPos, centerYPos - crosshairLength), 
+                            new Point(centerXPos, centerYPos + crosshairLength));
                     }
                     
                     // RenderTargetBitmap으로 변환
