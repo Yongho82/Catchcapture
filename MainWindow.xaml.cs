@@ -574,6 +574,25 @@ public partial class MainWindow : Window
             var capturedImage = snippingWindow.SelectedFrozenImage ?? ScreenCaptureUtility.CaptureArea(selectedArea);
             AddCaptureToList(capturedImage);
         }
+        else
+        {
+            // 캡처 취소 시
+            if (!settings.IsTrayMode)
+            {
+                // 일반 모드: 메인 창 표시
+                this.Show();
+                this.Activate();
+            }
+            else
+            {
+                // 트레이 모드: 트레이 모드 창 다시 표시
+                if (trayModeWindow != null)
+                {
+                    trayModeWindow.Show();
+                    trayModeWindow.Activate();
+                }
+            }
+        }
     }
 
     private void FullScreenCaptureButton_Click(object sender, RoutedEventArgs e)
