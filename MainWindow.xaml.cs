@@ -636,7 +636,22 @@ public partial class MainWindow : Window
 
     private void ScrollCaptureButton_Click(object sender, RoutedEventArgs e)
     {
-        CaptureScrollableWindow();
+        try
+        {
+            this.Hide();
+            System.Threading.Thread.Sleep(100);
+
+            var scrollCaptureWindow = new ScrollCaptureWindow();
+            
+            if (scrollCaptureWindow.ShowDialog() == true && scrollCaptureWindow.CapturedImage != null)
+            {
+                AddCaptureToList(scrollCaptureWindow.CapturedImage);
+            }
+        }
+        finally
+        {
+            // 창 표시는 AddCaptureToList에서 처리
+        }
     }
     
     private void CaptureScrollableWindow()
@@ -744,6 +759,7 @@ public partial class MainWindow : Window
             // 창 표시는 AddCaptureToList에서 처리
         }
     }
+
     // 간편모드 전용 지정캡처 메서드 (메인창을 표시하지 않음)
     private void PerformDesignatedCaptureForSimpleMode()
     {

@@ -220,6 +220,15 @@
                                 </StackPanel>
                             </Button>
                             
+                            <!-- 스크롤 캡처 버튼 -->
+                            <Button x:Name="ScrollCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="ScrollCaptureButton_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/icons/full_screen.png" Width="16" Height="16" Margin="0,0,5,0"
+                                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                                    <TextBlock Text="스크롤 캡처" HorizontalAlignment="Left" FontSize="11"/>
+                                </StackPanel>
+                            </Button>
+                            
                             <Separator Style="{StaticResource SeparatorStyle}"/>
                             
                             
