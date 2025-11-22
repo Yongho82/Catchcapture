@@ -40,7 +40,7 @@ public partial class MainWindow : Window
     private System.Windows.Threading.DispatcherTimer? screenshotCacheTimer;
 
     // 트레이 아이콘
-    private System.Windows.Forms.NotifyIcon? notifyIcon;
+    public System.Windows.Forms.NotifyIcon? notifyIcon;  // private를 public으로 변경
     private bool isExit = false;
     private TrayModeWindow? trayModeWindow;
 
@@ -269,7 +269,8 @@ public partial class MainWindow : Window
     {
         // 닫기 버튼 클릭 시 트레이로 숨기기 (종료 아님)
         this.Hide();
-    }
+        
+    } 
 
     private void AddKeyboardShortcuts()
     {
@@ -555,21 +556,24 @@ public partial class MainWindow : Window
 
     private void StartAreaCapture()
     {
-        // 메인 창을 숨기고 즉시 캡처 오버레이 생성 (딜레이 제거)
+        // 창 숨기기
         this.Hide();
-        // FlushUIAfterHide(); // 완전히 제거하여 딜레이 최소화
+        
+        // 짧은 대기로 창이 완전히 숨겨지도록 (최소한의 딜레이)
+        System.Threading.Thread.Sleep(50); // 50ms만 대기
+        
+        // 스크린샷 캡처 (메인창이 숨겨진 상태)
+        var screenshot = ScreenCaptureUtility.CaptureScreen();
 
-        // 즉시 SnippingWindow 생성 (캐시 없이 빠른 실행)
-        using var snippingWindow = new SnippingWindow(showGuideText: false);
+        // 캡처된 스크린샷을 전달하여 SnippingWindow가 즉시 표시되도록
+        using var snippingWindow = new SnippingWindow(showGuideText: false, cachedScreenshot: screenshot);
 
         if (snippingWindow.ShowDialog() == true)
         {
-            // 선택된 영역 캡처 - 동결된 프레임 우선 사용
             var selectedArea = snippingWindow.SelectedArea;
             var capturedImage = snippingWindow.SelectedFrozenImage ?? ScreenCaptureUtility.CaptureArea(selectedArea);
             AddCaptureToList(capturedImage);
         }
-
     }
 
     private void FullScreenCaptureButton_Click(object sender, RoutedEventArgs e)

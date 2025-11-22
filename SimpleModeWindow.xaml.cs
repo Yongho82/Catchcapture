@@ -262,6 +262,7 @@ namespace CatchCapture
 
             // 이제 X는 앱 종료가 아니라 트레이로 숨기기
             this.Hide();
+        
         }
 
         private void CleanupTimers()

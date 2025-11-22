@@ -36,6 +36,16 @@ namespace CatchCapture.Utilities
         private bool disposed = false;
         private System.Windows.Threading.DispatcherTimer? memoryCleanupTimer;
 
+        // 돋보기 관련 필드 추가
+        private Border? magnifierBorder;
+        private Image? magnifierImage;
+        private const double MagnifierSize = 150; // 돋보기 크기
+        private const double MagnificationFactor = 3.0; // 확대 배율
+
+        // 십자선 관련 필드 추가
+        private Line? crosshairHorizontal;
+        private Line? crosshairVertical;
+
         public Int32Rect SelectedArea { get; private set; }
         public bool IsCancelled { get; private set; } = false;
         public BitmapSource? SelectedFrozenImage { get; private set; }
@@ -165,6 +175,8 @@ namespace CatchCapture.Utilities
             selectionRectangle.IsHitTestVisible = false;
             selectionRectangle.SnapsToDevicePixels = true;
             canvas.Children.Add(selectionRectangle);
+            // 돋보기 생성
+            CreateMagnifier();
 
             // 이벤트 핸들러 등록
             MouseLeftButtonDown += SnippingWindow_MouseLeftButtonDown;
@@ -194,6 +206,42 @@ namespace CatchCapture.Utilities
             memoryCleanupTimer.Start();
         }
 
+        private void CreateMagnifier()
+        {
+            // 돋보기 이미지
+            magnifierImage = new Image
+            {
+                Width = MagnifierSize,
+                Height = MagnifierSize,
+                Stretch = Stretch.None
+            };
+            RenderOptions.SetBitmapScalingMode(magnifierImage, BitmapScalingMode.NearestNeighbor);
+
+            // 돋보기 테두리
+            magnifierBorder = new Border
+            {
+                Width = MagnifierSize,
+                Height = MagnifierSize,
+                BorderBrush = Brushes.White,
+                BorderThickness = new Thickness(2),
+                Background = Brushes.Black,
+                Child = magnifierImage,
+                CornerRadius = new CornerRadius(MagnifierSize / 2), // 원형
+                Visibility = Visibility.Collapsed
+            };
+            
+            // 그림자 효과
+            magnifierBorder.Effect = new System.Windows.Media.Effects.DropShadowEffect
+            {
+                Color = Colors.Black,
+                BlurRadius = 10,
+                ShadowDepth = 3,
+                Opacity = 0.7
+            };
+
+            canvas.Children.Add(magnifierBorder);
+            Panel.SetZIndex(magnifierBorder, 1000); // 최상위 표시
+        }
         private void SnippingWindow_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             startPoint = e.GetPosition(canvas);
@@ -211,38 +259,17 @@ namespace CatchCapture.Utilities
             // 크기 표시 숨기기
             sizeTextBlock.Visibility = Visibility.Collapsed;
         }
-
-        private void SnippingWindow_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (!isSelecting) return;
-            if (moveStopwatch.ElapsedMilliseconds < MinMoveIntervalMs) return;
-            moveStopwatch.Restart();
-
-            Point currentPoint = e.GetPosition(canvas);
-
-            // 너무 작은 이동은 무시
-            if (Math.Abs(currentPoint.X - lastUpdatePoint.X) < MinMoveDelta &&
-                Math.Abs(currentPoint.Y - lastUpdatePoint.Y) < MinMoveDelta)
-            {
-                return;
-            }
-            lastUpdatePoint = currentPoint;
-
-            // 마우스 위치로부터 목표 사각형만 계산하고, 실제 UI 업데이트는 Rendering 시에 수행
-            double left = Math.Min(startPoint.X, currentPoint.X);
-            double top = Math.Min(startPoint.Y, currentPoint.Y);
-            double width = Math.Abs(currentPoint.X - startPoint.X);
-            double height = Math.Abs(currentPoint.Y - startPoint.Y);
-            pendingRect = new Rect(left, top, width, height);
-            hasPendingUpdate = true;
-        }
-
         private void SnippingWindow_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             if (!isSelecting) return;
             isSelecting = false;
             CompositionTarget.Rendering -= CompositionTarget_Rendering;
             if (Mouse.Captured == this) Mouse.Capture(null);
+            
+            // 돋보기 숨기기
+            if (magnifierBorder != null)
+                magnifierBorder.Visibility = Visibility.Collapsed;
+            
             Point endPoint = e.GetPosition(canvas);
 
             // 선택된 영역 계산
@@ -296,8 +323,35 @@ namespace CatchCapture.Utilities
             DialogResult = true;
             Close();
         }
+        private void SnippingWindow_MouseMove(object sender, MouseEventArgs e)
+        {
+            Point currentPoint = e.GetPosition(canvas);
+            
+            // 돋보기 업데이트 (선택 중이 아닐 때도 표시)
+            UpdateMagnifier(currentPoint);
+            
+            if (!isSelecting) return;
+            if (moveStopwatch.ElapsedMilliseconds < MinMoveIntervalMs) return;
+            moveStopwatch.Restart();
 
-        private string? lastSizeText;
+            // 너무 작은 이동은 무시
+            if (Math.Abs(currentPoint.X - lastUpdatePoint.X) < MinMoveDelta &&
+                Math.Abs(currentPoint.Y - lastUpdatePoint.Y) < MinMoveDelta)
+            {
+                return;
+            }
+            lastUpdatePoint = currentPoint;
+
+            // 마우스 위치로부터 목표 사각형만 계산하고, 실제 UI 업데이트는 Rendering 시에 수행
+            double left = Math.Min(startPoint.X, currentPoint.X);
+            double top = Math.Min(startPoint.Y, currentPoint.Y);
+            double width = Math.Abs(currentPoint.X - startPoint.X);
+            double height = Math.Abs(currentPoint.Y - startPoint.Y);
+            pendingRect = new Rect(left, top, width, height);
+            hasPendingUpdate = true;
+        }
+
+         private string? lastSizeText;
         private void CompositionTarget_Rendering(object? sender, EventArgs e)
         {
             if (!hasPendingUpdate) return;
@@ -338,7 +392,109 @@ namespace CatchCapture.Utilities
                 sizeTextBlock.Visibility = Visibility.Collapsed;
             }
         }
+        private void UpdateMagnifier(Point mousePos)
+        {
+            if (magnifierBorder == null || magnifierImage == null || screenCapture == null)
+                return;
 
+            try
+            {
+                // 돋보기 표시
+                magnifierBorder.Visibility = Visibility.Visible;
+
+                // 마우스 위치를 픽셀 좌표로 변환
+                var dpi = VisualTreeHelper.GetDpi(this);
+                int centerX = (int)(mousePos.X * dpi.DpiScaleX);
+                int centerY = (int)(mousePos.Y * dpi.DpiScaleY);
+
+                // 확대할 영역 크기 계산
+                int cropSize = (int)(MagnifierSize / MagnificationFactor);
+                int halfCrop = cropSize / 2;
+
+                // 크롭 영역 계산 (경계 체크)
+                int cropX = Math.Max(0, Math.Min(centerX - halfCrop, screenCapture.PixelWidth - cropSize));
+                int cropY = Math.Max(0, Math.Min(centerY - halfCrop, screenCapture.PixelHeight - cropSize));
+                int cropW = Math.Min(cropSize, screenCapture.PixelWidth - cropX);
+                int cropH = Math.Min(cropSize, screenCapture.PixelHeight - cropY);
+
+                if (cropW > 0 && cropH > 0)
+                {
+                    // 영역 크롭
+                    var croppedBitmap = new CroppedBitmap(screenCapture, new Int32Rect(cropX, cropY, cropW, cropH));
+                    
+                    // 확대
+                    var transform = new ScaleTransform(MagnificationFactor, MagnificationFactor);
+                    var transformedBitmap = new TransformedBitmap(croppedBitmap, transform);
+                    
+                    // DrawingVisual을 사용하여 십자선 추가
+                    var drawingVisual = new DrawingVisual();
+                    using (var drawingContext = drawingVisual.RenderOpen())
+                    {
+                        // 확대된 이미지 그리기
+                        drawingContext.DrawImage(transformedBitmap, new Rect(0, 0, transformedBitmap.PixelWidth, transformedBitmap.PixelHeight));
+                        
+                        // 십자선 그리기 (중앙)
+                        double centerXPos = transformedBitmap.PixelWidth / 2.0;
+                        double centerYPos = transformedBitmap.PixelHeight / 2.0;
+                        
+                        var redPen = new Pen(Brushes.Red, 2);
+                        redPen.Freeze();
+                        
+                        // 가로선
+                        drawingContext.DrawLine(redPen, new Point(0, centerYPos), new Point(transformedBitmap.PixelWidth, centerYPos));
+                        // 세로선
+                        drawingContext.DrawLine(redPen, new Point(centerXPos, 0), new Point(centerXPos, transformedBitmap.PixelHeight));
+                    }
+                    
+                    // RenderTargetBitmap으로 변환
+                    var renderBitmap = new RenderTargetBitmap(
+                        transformedBitmap.PixelWidth,
+                        transformedBitmap.PixelHeight,
+                        96, 96,
+                        PixelFormats.Pbgra32);
+                    renderBitmap.Render(drawingVisual);
+                    renderBitmap.Freeze();
+                    
+                    magnifierImage.Source = renderBitmap;
+                }
+
+                // 돋보기 위치 설정 (마우스 오른쪽 위)
+                double offsetX = 20;
+                double offsetY = -MagnifierSize - 20;
+                
+                double magnifierX = mousePos.X + offsetX;
+                double magnifierY = mousePos.Y + offsetY;
+                
+                // 화면 경계 체크
+                if (magnifierX + MagnifierSize > vWidth)
+                    magnifierX = mousePos.X - MagnifierSize - offsetX;
+                if (magnifierY < 0)
+                    magnifierY = mousePos.Y + offsetX;
+
+                Canvas.SetLeft(magnifierBorder, magnifierX);
+                Canvas.SetTop(magnifierBorder, magnifierY);
+                
+                // 십자선 업데이트
+                if (crosshairHorizontal != null && crosshairVertical != null)
+                {
+                    crosshairHorizontal.Visibility = Visibility.Visible;
+                    crosshairVertical.Visibility = Visibility.Visible;
+                    
+                    crosshairHorizontal.Y1 = mousePos.Y;
+                    crosshairHorizontal.Y2 = mousePos.Y;
+                    
+                    crosshairVertical.X1 = mousePos.X;
+                    crosshairVertical.X2 = mousePos.X;
+                }
+            }
+            catch
+            {
+                // 돋보기 업데이트 실패 시 숨김
+                magnifierBorder.Visibility = Visibility.Collapsed;
+                if (crosshairHorizontal != null) crosshairHorizontal.Visibility = Visibility.Collapsed;
+                if (crosshairVertical != null) crosshairVertical.Visibility = Visibility.Collapsed;
+            }
+        }
         private void SnippingWindow_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Escape)
