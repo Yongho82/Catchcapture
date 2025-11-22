@@ -1784,8 +1784,8 @@ public partial class MainWindow : Window
         {
             // Reload updated settings so hotkeys and options apply immediately
             settings = Settings.Load();
-            // If you later enable global hotkeys, you can re-register here as well.
-            // RegisterGlobalHotkeysFromSettings();
+            // 단축키 재등록
+            RegisterGlobalHotkeys();  // ← 주석 해제하고 메서드명 수정
             ShowGuideMessage("설정이 적용되었습니다.", TimeSpan.FromSeconds(1));
         }
     }
