@@ -188,7 +188,7 @@ public partial class MainWindow : Window
         ShowTrayModeWindow();
     }
 
-    private void SwitchToNormalMode()
+    public void SwitchToNormalMode()
     {
         // 트레이 모드 해제
         settings.IsTrayMode = false;
@@ -217,10 +217,12 @@ public partial class MainWindow : Window
         this.Show();
         this.WindowState = WindowState.Normal;
         this.Activate();
-        
-        // 설정 저장
         Settings.Save(settings);
     }
+        private void TrayModeButton_Click(object sender, RoutedEventArgs e)
+    {
+        SwitchToTrayMode();
+    }    
 
     private void SwitchToSimpleMode()
     {
@@ -568,8 +570,6 @@ public partial class MainWindow : Window
             AddCaptureToList(capturedImage);
         }
 
-        this.Show();
-        this.Activate();
     }
 
     private void FullScreenCaptureButton_Click(object sender, RoutedEventArgs e)
@@ -586,8 +586,6 @@ public partial class MainWindow : Window
         var capturedImage = ScreenCaptureUtility.CaptureScreen();
         AddCaptureToList(capturedImage);
 
-        this.Show();
-        this.Activate();
     }
 
     private void ScrollCaptureButton_Click(object sender, RoutedEventArgs e)
@@ -627,8 +625,6 @@ public partial class MainWindow : Window
         finally
         {
             // 창이 닫히지 않도록 항상 메인 창을 다시 표시
-            this.Show();
-            this.Activate();
         }
     }
 
@@ -660,8 +656,7 @@ public partial class MainWindow : Window
         }
         finally
         {
-            this.Show();
-            this.Activate();
+
         }
     }
 
@@ -711,8 +706,29 @@ public partial class MainWindow : Window
         // 버튼 상태 업데이트
         UpdateButtonStates();
         
-        // 캡처 개수 업데이트
-        UpdateCaptureCount();
+        // 트레이 모드일 때 처리
+        if (settings.IsTrayMode)
+        {
+            // 트레이 창이 없거나 닫혔으면 다시 생성/표시
+            if (trayModeWindow == null)
+            {
+                trayModeWindow = new TrayModeWindow(this);
+            }
+            
+            // 캡처 도중 숨겨졌을 수 있으므로 다시 표시
+            trayModeWindow.Show();
+            trayModeWindow.UpdateCaptureCount(captures.Count);
+        }
+        else
+        {
+            // 캡처 개수 업데이트 (일반 모드용)
+            UpdateCaptureCount();
+            
+            // 창 표시 (트레이 모드가 아닐 때만)
+            this.Show();
+            this.WindowState = WindowState.Normal;
+            this.Activate();
+        }
     }
 
     private Border CreateCaptureItem(CaptureImage captureImage, int index)
