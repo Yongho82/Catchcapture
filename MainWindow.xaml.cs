@@ -774,25 +774,23 @@ public partial class MainWindow : Window
         
         RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
 
-        // 인덱스를 태그로 저장하여 나중에 참조할 수 있게 함
+        // 인덱스를 태그로 저장
         image.Tag = index;
 
-        // 이벤트 연결
+        // 더블 클릭 이벤트 (미리보기)
         image.MouseDown += (s, e) => 
         {
             if (e.ClickCount == 2)
             {
-                // 태그에서 실제 인덱스 가져오기
                 int actualIndex = (int)((Image)s).Tag;
                 ShowPreviewWindow(captureImage.Image, actualIndex);
                 e.Handled = true;
             }
         };
 
-        // 그리드에 이미지 추가
         grid.Children.Add(image);
         
-        // 이미지 크기 텍스트 표시
+        // 이미지 크기 텍스트
         Border sizeBorder = new Border
         {
             Background = new SolidColorBrush(Color.FromArgb(180, 0, 0, 0)),
@@ -813,7 +811,88 @@ public partial class MainWindow : Window
         sizeBorder.Child = sizeText;
         grid.Children.Add(sizeBorder);
 
-        // 테두리 생성
+        // --- 호버 오버레이 버튼 패널 추가 ---
+        StackPanel buttonPanel = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            HorizontalAlignment = HorizontalAlignment.Right,
+            VerticalAlignment = VerticalAlignment.Top,
+            Margin = new Thickness(0, 5, 5, 0),
+            Visibility = Visibility.Collapsed // 평소엔 숨김
+        };
+
+        // 버튼 생성 헬퍼 함수
+        Button CreateHoverButton(string iconPath, string toolTip)
+        {
+            var btn = new Button
+            {
+                Width = 28, Height = 28, Margin = new Thickness(0, 0, 5, 0),
+                Background = new SolidColorBrush(Color.FromArgb(230, 255, 255, 255)),
+                BorderThickness = new Thickness(1),
+                BorderBrush = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0)),
+                Cursor = Cursors.Hand, ToolTip = toolTip
+            };
+            
+            // 둥근 버튼 스타일 적용
+            var template = new ControlTemplate(typeof(Button));
+            var borderFactory = new FrameworkElementFactory(typeof(Border));
+            borderFactory.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Button.BackgroundProperty));
+            borderFactory.SetValue(Border.BorderBrushProperty, new TemplateBindingExtension(Button.BorderBrushProperty));
+            borderFactory.SetValue(Border.BorderThicknessProperty, new TemplateBindingExtension(Button.BorderThicknessProperty));
+            borderFactory.SetValue(Border.CornerRadiusProperty, new CornerRadius(14));
+            var contentPresenter = new FrameworkElementFactory(typeof(ContentPresenter));
+            contentPresenter.SetValue(ContentPresenter.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+            contentPresenter.SetValue(ContentPresenter.VerticalAlignmentProperty, VerticalAlignment.Center);
+            borderFactory.AppendChild(contentPresenter);
+            template.VisualTree = borderFactory;
+            btn.Template = template;
+
+            // 아이콘 설정
+            var icon = new Image
+            {
+                Source = new BitmapImage(new Uri($"pack://application:,,,/icons/{iconPath}")),
+                Width = 14, Height = 14, Stretch = Stretch.Uniform
+            };
+            RenderOptions.SetBitmapScalingMode(icon, BitmapScalingMode.HighQuality);
+            btn.Content = icon;
+            return btn;
+        }
+
+        // 저장 버튼 추가
+        Button saveBtn = CreateHoverButton("save_selected.png", "저장");
+        saveBtn.Click += (s, e) => { e.Handled = true; SaveImageToFile(captureImage); };
+
+        // 삭제 버튼 추가
+        Button deleteBtn = CreateHoverButton("delete_selected.png", "삭제");
+        deleteBtn.Click += (s, e) => 
+        {
+            e.Handled = true;
+            if (settings.ShowSavePrompt && !captureImage.IsSaved)
+            {
+                if (MessageBox.Show("저장되지 않은 이미지입니다. 삭제하시겠습니까?", "확인", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                    return;
+            }
+
+            // 리스트에서 제거 로직
+            Border currentBorder = null;
+            foreach (var child in CaptureListPanel.Children) {
+                if (child is Border b && b.Child == grid) { currentBorder = b; break; }
+            }
+            if (currentBorder != null) {
+                CaptureListPanel.Children.Remove(currentBorder);
+                captures.Remove(captureImage);
+                UpdateCaptureItemIndexes();
+                UpdateCaptureCount();
+                UpdateButtonStates();
+                selectedBorder = null; selectedIndex = -1;
+            }
+        };
+
+        buttonPanel.Children.Add(saveBtn);
+        buttonPanel.Children.Add(deleteBtn);
+        grid.Children.Add(buttonPanel);
+
+        // 메인 테두리 생성
         Border border = new Border
         {
             Child = grid,
@@ -822,23 +901,19 @@ public partial class MainWindow : Window
             BorderBrush = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0)),
             Background = Brushes.White,
             CornerRadius = new CornerRadius(6),
-            Effect = new DropShadowEffect
-            {
-                ShadowDepth = 1,
-                BlurRadius = 5,
-                Opacity = 0.2,
-                Direction = 270
-            },
-            Tag = index, // 인덱스를 태그로 저장
-            Width = thumbWidth,
-            Height = thumbHeight
+            Effect = new DropShadowEffect { ShadowDepth = 1, BlurRadius = 5, Opacity = 0.2, Direction = 270 },
+            Tag = index,
+            Width = thumbWidth, Height = thumbHeight
         };
 
-        // 마우스 클릭 이벤트 추가
+        // 호버 이벤트 연결 (마우스 올리면 버튼 보임)
+        border.MouseEnter += (s, e) => buttonPanel.Visibility = Visibility.Visible;
+        border.MouseLeave += (s, e) => buttonPanel.Visibility = Visibility.Collapsed;
+
+        // 클릭 이벤트 (선택)
         border.MouseLeftButtonDown += (s, e) => 
         {
-            if (s is Border clickedBorder)
-            {
+            if (s is Border clickedBorder) {
                 int clickedIndex = (int)clickedBorder.Tag;
                 SelectCapture(clickedBorder, clickedIndex);
             }
@@ -874,11 +949,11 @@ public partial class MainWindow : Window
         CopyAllButton.IsEnabled = hasCaptures;
 
         // 저장 버튼 상태 업데이트
-        SaveSelectedButton.IsEnabled = hasSelection;
+        // SaveSelectedButton.IsEnabled = hasSelection; // <-- 이 줄 삭제 또는 주석 처리
         SaveAllButton.IsEnabled = hasCaptures;
 
         // 삭제 버튼 상태 업데이트
-        DeleteSelectedButton.IsEnabled = hasSelection;
+        // DeleteSelectedButton.IsEnabled = hasSelection; // <-- 이 줄 삭제 또는 주석 처리
         DeleteAllButton.IsEnabled = hasCaptures;
     }
 

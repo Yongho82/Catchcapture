@@ -202,6 +202,15 @@
                                     <TextBlock Text="지정캡처" HorizontalAlignment="Left" FontSize="11"/>
                                 </StackPanel>
                             </Button>
+                            <!-- 창 캡처 버튼 -->
+                            <Button x:Name="WindowCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="WindowCaptureButton_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/icons/full_screen.png" Width="16" Height="16" Margin="0,0,5,0"
+                                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                                    <TextBlock Text="창 캡처" HorizontalAlignment="Left" FontSize="11"/>
+                                </StackPanel>
+                            </Button>                          
+                            <Separator Style="{StaticResource SeparatorStyle}"/>
                             
                             <Separator Style="{StaticResource SeparatorStyle}"/>
                             
@@ -223,14 +232,6 @@
                             
                             <Separator Style="{StaticResource SeparatorStyle}"/>
                             
-                            <Button x:Name="SaveSelectedButton" Style="{StaticResource SidebarButtonStyle}" Click="SaveSelectedButton_Click" IsEnabled="False">
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="/icons/save_selected.png" Width="16" Height="16" Margin="0,0,5,0"
-                                           RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="저장" HorizontalAlignment="Left" FontSize="11"/>
-                                </StackPanel>
-                            </Button>
-                            
                             <Button x:Name="SaveAllButton" Style="{StaticResource SidebarButtonStyle}" Click="SaveAllButton_Click" IsEnabled="False">
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/save_all.png" Width="16" Height="16" Margin="0,0,5,0"
@@ -240,15 +241,7 @@
                             </Button>
                             
                             <Separator Style="{StaticResource SeparatorStyle}"/>
-                            
-                            <Button x:Name="DeleteSelectedButton" Style="{StaticResource SidebarButtonStyle}" Click="DeleteSelectedButton_Click" IsEnabled="False">
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="/icons/delete_selected.png" Width="16" Height="16" Margin="0,0,5,0"
-                                           RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="삭제" HorizontalAlignment="Left" FontSize="11"/>
-                                </StackPanel>
-                            </Button>
-                            
+                        
                             <Button x:Name="DeleteAllButton" Style="{StaticResource SidebarButtonStyle}" Click="DeleteAllButton_Click" IsEnabled="False">
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/delete_all.png" Width="16" Height="16" Margin="0,0,5,0"
@@ -257,8 +250,6 @@
                                 </StackPanel>
                             </Button>
                             
-                            <Separator Style="{StaticResource SeparatorStyle}"/>
-                            
                             <Button x:Name="SimpleModeButton" Style="{StaticResource SidebarButtonStyle}" Click="SimpleModeButton_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/simple_mode.png" Width="16" Height="16" Margin="0,0,5,0"
@@ -266,14 +257,7 @@
                                     <TextBlock Text="간편 모드" HorizontalAlignment="Left" FontSize="11"/>
                                 </StackPanel>
                             </Button>
-                            <!-- 창 캡처 버튼 -->
-                            <Button x:Name="WindowCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="WindowCaptureButton_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="/icons/full_screen.png" Width="16" Height="16" Margin="0,0,5,0"
-                                           RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="창 캡처" HorizontalAlignment="Left" FontSize="11"/>
-                                </StackPanel>
-                            </Button>
+
                             
                             <Separator Style="{StaticResource SeparatorStyle}"/>
                             
