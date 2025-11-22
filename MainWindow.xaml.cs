@@ -1309,7 +1309,80 @@ public partial class MainWindow : Window
         guideWindow.Owner = this;
         guideWindow.Show();
     }
+    
+    // 구글 렌즈 검색 기능 (HTML 리다이렉트 방식 - 2025년 대응)
+    private void SearchImageOnGoogle(BitmapSource image)
+    {
+        try
+        {
+            // 1. 이미지 리사이징 (Base64 길이 최적화)
+            // 긴 변을 400px로 제한 (검색 정확도와 용량의 균형)
+            double scale = 1.0;
+            double maxSide = 400.0;
+            if (image.PixelWidth > maxSide || image.PixelHeight > maxSide)
+            {
+                scale = Math.Min(maxSide / image.PixelWidth, maxSide / image.PixelHeight);
+            }
 
+            var transformedBitmap = new TransformedBitmap(image, new ScaleTransform(scale, scale));
+
+            // 2. JPEG로 압축 (품질 70%)
+            var encoder = new JpegBitmapEncoder { QualityLevel = 70 }; 
+            encoder.Frames.Add(BitmapFrame.Create(transformedBitmap));
+            
+            using var ms = new MemoryStream();
+            encoder.Save(ms);
+            byte[] imageBytes = ms.ToArray();
+
+            // 3. Base64 인코딩
+            string base64 = Convert.ToBase64String(imageBytes);
+            
+            // 4. 구글 렌즈 URL 생성
+            string lensUrl = $"https://lens.google.com/upload?ep=gsbubb&hl=ko&re=df&st={DateTimeOffset.Now.ToUnixTimeMilliseconds()}#base64:{base64}";
+
+            // 5. 임시 HTML 파일 생성 (커맨드라인 길이 제한 우회)
+            string tempPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"google_lens_{DateTime.Now.Ticks}.html");
+            
+            string htmlContent = $@"
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <title>Google Lens</title>
+</head>
+<body>
+    <p>구글 렌즈로 이동 중...</p>
+    <script>
+        window.location.href = ""{lensUrl}"";
+    </script>
+</body>
+</html>";
+
+            System.IO.File.WriteAllText(tempPath, htmlContent);
+
+            // 6. 브라우저로 HTML 파일 실행
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = tempPath,
+                UseShellExecute = true
+            });
+            
+            // 안내 메시지
+            ShowGuideMessage("구글 렌즈로 검색합니다...", TimeSpan.FromSeconds(2));
+        }
+        catch (Exception ex)
+        {
+            // 실패 시 클립보드 폴백
+            ScreenCaptureUtility.CopyImageToClipboard(image);
+            MessageBox.Show($"검색 실행 실패: {ex.Message}\n이미지가 클립보드에 복사되었습니다.", "오류");
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = "https://www.google.com/imghp?hl=ko",
+                UseShellExecute = true
+            });
+        }
+    }
+    
     private void RegisterGlobalHotkeys()
     {
         // 단축키 등록
