@@ -17,6 +17,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using System.Windows.Interop; 
+
 
 namespace CatchCapture;
 
@@ -43,7 +45,19 @@ public partial class MainWindow : Window
     public System.Windows.Forms.NotifyIcon? notifyIcon;  // private를 public으로 변경
     private bool isExit = false;
     private TrayModeWindow? trayModeWindow;
+    // 글로벌 단축키 관련
+    private const int WM_HOTKEY = 0x0312;
+    private const int HOTKEY_ID_AREA = 9000;
+    private const int HOTKEY_ID_FULLSCREEN = 9001;
+    private const int HOTKEY_ID_WINDOW = 9002;
 
+    [DllImport("user32.dll")]
+    private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
+
+    [DllImport("user32.dll")]
+    private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+
+    private HwndSource? hwndSource;
     // Ensures any pending composition updates are presented (so hidden window is actually off-screen)
     [DllImport("dwmapi.dll")]
     private static extern int DwmFlush();
@@ -86,6 +100,15 @@ public partial class MainWindow : Window
         
         // 백그라운드 스크린샷 캐시 시스템 초기화
         InitializeScreenshotCache();
+        
+        this.Loaded += (s, e) =>
+        {
+            var helper = new WindowInteropHelper(this);
+            hwndSource = HwndSource.FromHwnd(helper.Handle);
+            hwndSource?.AddHook(HwndHook);
+            RegisterGlobalHotkeys();
+        };
+
     }
 
     private void InitializeNotifyIcon()
@@ -1441,10 +1464,36 @@ public partial class MainWindow : Window
     }
     private void RegisterGlobalHotkeys()
     {
-        // 단축키 등록
         try
         {
-            // 여기에 글로벌 단축키 등록 코드 추가 (필요시)
+            if (hwndSource == null) return;
+            
+            var helper = new WindowInteropHelper(this);
+            IntPtr hwnd = helper.Handle;
+            
+            // 기존 단축키 해제
+            UnregisterHotKey(hwnd, HOTKEY_ID_AREA);
+            UnregisterHotKey(hwnd, HOTKEY_ID_FULLSCREEN);
+            UnregisterHotKey(hwnd, HOTKEY_ID_WINDOW);
+            
+            // 설정에서 단축키 가져오기
+            if (settings.Hotkeys.RegionCapture.Enabled)
+            {
+                var (modifiers, key) = ConvertToggleHotkey(settings.Hotkeys.RegionCapture);
+                RegisterHotKey(hwnd, HOTKEY_ID_AREA, modifiers, key);
+            }
+
+            if (settings.Hotkeys.FullScreen.Enabled)
+            {
+                var (modifiers, key) = ConvertToggleHotkey(settings.Hotkeys.FullScreen);
+                RegisterHotKey(hwnd, HOTKEY_ID_FULLSCREEN, modifiers, key);
+            }
+
+            if (settings.Hotkeys.DesignatedCapture.Enabled)
+            {
+                var (modifiers, key) = ConvertToggleHotkey(settings.Hotkeys.DesignatedCapture);
+                RegisterHotKey(hwnd, HOTKEY_ID_WINDOW, modifiers, key);
+            }
         }
         catch (Exception ex)
         {
@@ -1456,9 +1505,72 @@ public partial class MainWindow : Window
     {
         try
         {
-            // 여기에 글로벌 단축키 등록 해제 코드 추가 (필요시)
+            var helper = new WindowInteropHelper(this);
+            IntPtr hwnd = helper.Handle;
+            
+            UnregisterHotKey(hwnd, HOTKEY_ID_AREA);
+            UnregisterHotKey(hwnd, HOTKEY_ID_FULLSCREEN);
+            UnregisterHotKey(hwnd, HOTKEY_ID_WINDOW);
+            
+            hwndSource?.RemoveHook(HwndHook);
         }
         catch { /* 해제 중 오류 무시 */ }
+    }
+
+    private (uint modifiers, uint key) ConvertToggleHotkey(ToggleHotkey hotkey)
+    {
+        uint modifiers = 0;
+        uint key = 0;
+        
+        if (hotkey.Ctrl) modifiers |= 0x0002; // MOD_CONTROL
+        if (hotkey.Alt) modifiers |= 0x0001; // MOD_ALT
+        if (hotkey.Shift) modifiers |= 0x0004; // MOD_SHIFT
+        if (hotkey.Win) modifiers |= 0x0008; // MOD_WIN
+        
+        // 키 변환
+        if (!string.IsNullOrEmpty(hotkey.Key))
+        {
+            if (hotkey.Key.Length == 1)
+            {
+                key = (uint)char.ToUpper(hotkey.Key[0]);
+            }
+            else if (hotkey.Key.StartsWith("F", StringComparison.OrdinalIgnoreCase) && 
+                    int.TryParse(hotkey.Key.Substring(1), out int fNum) && fNum >= 1 && fNum <= 12)
+            {
+                key = (uint)(0x70 + fNum - 1); // VK_F1 = 0x70
+            }
+        }
+        
+        return (modifiers, key);
+    }
+
+    // Windows 메시지 처리 (단축키 이벤트 수신)
+    private IntPtr HwndHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+    {
+        if (msg == WM_HOTKEY)
+        {
+            int id = wParam.ToInt32();
+            
+            switch (id)
+            {
+                case HOTKEY_ID_AREA:
+                    Dispatcher.Invoke(() => StartAreaCapture());
+                    handled = true;
+                    break;
+                    
+                case HOTKEY_ID_FULLSCREEN:
+                    Dispatcher.Invoke(() => CaptureFullScreen());
+                    handled = true;
+                    break;
+                    
+                case HOTKEY_ID_WINDOW:
+                Dispatcher.Invoke(() => DesignatedCaptureButton_Click(null, null));
+                handled = true;
+                break;
+            }
+        }
+        
+        return IntPtr.Zero;
     }
 
     private void InitializeScreenshotCache()
