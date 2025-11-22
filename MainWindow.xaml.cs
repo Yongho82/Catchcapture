@@ -1315,6 +1315,7 @@ public partial class MainWindow : Window
     {
         try
         {
+            ScreenCaptureUtility.CopyImageToClipboard(image);
             // 1. 이미지 리사이징 (Base64 길이 최적화)
             // 긴 변을 400px로 제한 (검색 정확도와 용량의 균형)
             double scale = 1.0;
@@ -1369,6 +1370,14 @@ public partial class MainWindow : Window
             
             // 안내 메시지
             ShowGuideMessage("구글 렌즈로 검색합니다...", TimeSpan.FromSeconds(2));
+                        // 추가: 2초 후 자동으로 Ctrl+V 입력
+            Task.Delay(2000).ContinueWith(_ => 
+            {
+                Dispatcher.Invoke(() => 
+                {
+                    SendCtrlV();
+                });
+            });
         }
         catch (Exception ex)
         {
@@ -1383,6 +1392,34 @@ public partial class MainWindow : Window
         }
     }
     
+    [DllImport("user32.dll")]
+    private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
+
+    private const int VK_CONTROL = 0x11;
+    private const int VK_V = 0x56;
+    private const uint KEYEVENTF_KEYUP = 0x0002;
+
+    private void SendCtrlV()
+    {
+        try
+        {
+            // Ctrl 누름
+            keybd_event(VK_CONTROL, 0, 0, UIntPtr.Zero);
+            Thread.Sleep(50); // 짧은 딜레이
+            // V 누름
+            keybd_event(VK_V, 0, 0, UIntPtr.Zero);
+            Thread.Sleep(50);
+            // V 뗌
+            keybd_event(VK_V, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
+            Thread.Sleep(50);
+            // Ctrl 뗌
+            keybd_event(VK_CONTROL, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
+        }
+        catch
+        {
+            // 실패해도 무시
+        }
+    }
     private void RegisterGlobalHotkeys()
     {
         // 단축키 등록
