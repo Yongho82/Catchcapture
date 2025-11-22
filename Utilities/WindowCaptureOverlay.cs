@@ -205,42 +205,52 @@ namespace CatchCapture.Utilities
             return CallNextHookEx(_hookID, nCode, wParam, lParam);
         }
 
+        [DllImport("dwmapi.dll")]
+        private static extern int DwmGetWindowAttribute(IntPtr hwnd, int dwAttribute, out RECT pvAttribute, int cbAttribute);
+
+        private const int DWMWA_EXTENDED_FRAME_BOUNDS = 9;
+
         private void UpdateHighlight(POINT pt)
         {
             IntPtr hWnd = WindowFromPoint(pt);
             
             if (hWnd == IntPtr.Zero) return;
 
-            // 루트 윈도우 찾기 (버튼 같은 자식 컨트롤 대신 전체 창 선택)
+            // 루트 윈도우 찾기
             IntPtr rootWnd = GetAncestor(hWnd, GA_ROOT);
             if (rootWnd != IntPtr.Zero) hWnd = rootWnd;
 
             if (hWnd == currentTargetWindow) return;
 
-            if (GetWindowRect(hWnd, out RECT rect))
+            RECT rect;
+            // 그림자 제외한 실제 영역 가져오기 시도
+            if (DwmGetWindowAttribute(hWnd, DWMWA_EXTENDED_FRAME_BOUNDS, out rect, Marshal.SizeOf(typeof(RECT))) != 0)
             {
-                currentTargetWindow = hWnd;
-                
-                // UI 업데이트는 Dispatcher를 통해
-                Dispatcher.Invoke(() =>
-                {
-                    // 좌표 변환
-                    var topLeft = PointFromScreen(new Point(rect.Left, rect.Top));
-                    var bottomRight = PointFromScreen(new Point(rect.Right, rect.Bottom));
-
-                    double w = bottomRight.X - topLeft.X;
-                    double h = bottomRight.Y - topLeft.Y;
-
-                    if (w > 0 && h > 0)
-                    {
-                        Canvas.SetLeft(highlightRect, topLeft.X);
-                        Canvas.SetTop(highlightRect, topLeft.Y);
-                        highlightRect.Width = w;
-                        highlightRect.Height = h;
-                        highlightRect.Visibility = Visibility.Visible;
-                    }
-                });
+                // 실패하면 일반 영역 가져오기
+                if (!GetWindowRect(hWnd, out rect)) return;
             }
+
+            currentTargetWindow = hWnd;
+            
+            // UI 업데이트는 Dispatcher를 통해
+            Dispatcher.Invoke(() =>
+            {
+                // 좌표 변환
+                var topLeft = PointFromScreen(new Point(rect.Left, rect.Top));
+                var bottomRight = PointFromScreen(new Point(rect.Right, rect.Bottom));
+
+                double w = bottomRight.X - topLeft.X;
+                double h = bottomRight.Y - topLeft.Y;
+
+                if (w > 0 && h > 0)
+                {
+                    Canvas.SetLeft(highlightRect, topLeft.X);
+                    Canvas.SetTop(highlightRect, topLeft.Y);
+                    highlightRect.Width = w;
+                    highlightRect.Height = h;
+                    highlightRect.Visibility = Visibility.Visible;
+                }
+            });
         }
 
         private void CaptureTargetWindow()
@@ -249,30 +259,36 @@ namespace CatchCapture.Utilities
 
             try
             {
-                if (GetWindowRect(currentTargetWindow, out RECT rect))
+                RECT rect;
+                // 그림자 제외한 실제 영역 가져오기 시도
+                if (DwmGetWindowAttribute(currentTargetWindow, DWMWA_EXTENDED_FRAME_BOUNDS, out rect, Marshal.SizeOf(typeof(RECT))) != 0)
                 {
-                    int width = rect.Right - rect.Left;
-                    int height = rect.Bottom - rect.Top;
+                    GetWindowRect(currentTargetWindow, out rect);
+                }
 
-                    var bitmap = new System.Drawing.Bitmap(width, height);
-                    using (var g = System.Drawing.Graphics.FromImage(bitmap))
-                    {
-                        // 화면에서 직접 복사
-                        g.CopyFromScreen(rect.Left, rect.Top, 0, 0, new System.Drawing.Size(width, height));
-                    }
+                int width = rect.Right - rect.Left;
+                int height = rect.Bottom - rect.Top;
 
-                    var hBitmap = bitmap.GetHbitmap();
-                    try
-                    {
-                        var source = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
-                            hBitmap, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-                        source.Freeze();
-                        CapturedImage = source;
-                    }
-                    finally
-                    {
-                        DeleteObject(hBitmap);
-                    }
+                if (width <= 0 || height <= 0) return;
+
+                var bitmap = new System.Drawing.Bitmap(width, height);
+                using (var g = System.Drawing.Graphics.FromImage(bitmap))
+                {
+                    // 화면에서 직접 복사
+                    g.CopyFromScreen(rect.Left, rect.Top, 0, 0, new System.Drawing.Size(width, height));
+                }
+
+                var hBitmap = bitmap.GetHbitmap();
+                try
+                {
+                    var source = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
+                        hBitmap, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                    source.Freeze();
+                    CapturedImage = source;
+                }
+                finally
+                {
+                    DeleteObject(hBitmap);
                 }
             }
             catch { }
