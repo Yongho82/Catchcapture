@@ -663,7 +663,25 @@ public partial class MainWindow : Window
 
         }
     }
+    private void WindowCaptureButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            this.Hide();
+            System.Threading.Thread.Sleep(100); // 창이 숨겨질 시간
 
+            var windowCaptureOverlay = new CatchCapture.Utilities.WindowCaptureOverlay();
+            
+            if (windowCaptureOverlay.ShowDialog() == true && windowCaptureOverlay.CapturedImage != null)
+            {
+                AddCaptureToList(windowCaptureOverlay.CapturedImage);
+            }
+        }
+        finally
+        {
+            // 창 표시는 AddCaptureToList에서 처리
+        }
+    }
     // 간편모드 전용 지정캡처 메서드 (메인창을 표시하지 않음)
     private void PerformDesignatedCaptureForSimpleMode()
     {

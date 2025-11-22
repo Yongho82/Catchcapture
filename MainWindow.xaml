@@ -266,6 +266,16 @@
                                     <TextBlock Text="간편 모드" HorizontalAlignment="Left" FontSize="11"/>
                                 </StackPanel>
                             </Button>
+                            <!-- 창 캡처 버튼 -->
+                            <Button x:Name="WindowCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="WindowCaptureButton_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/icons/full_screen.png" Width="16" Height="16" Margin="0,0,5,0"
+                                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                                    <TextBlock Text="창 캡처" HorizontalAlignment="Left" FontSize="11"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <Separator Style="{StaticResource SeparatorStyle}"/>
                             
                             <!-- 트레이 모드 버튼 -->
                             <Button x:Name="TrayModeButton" Style="{StaticResource SidebarButtonStyle}" Click="TrayModeButton_Click">
