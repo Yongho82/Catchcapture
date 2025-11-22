@@ -1184,13 +1184,8 @@ public partial class MainWindow : Window
         };
         
         previewWindow.Owner = this;
-        previewWindow.ShowDialog();
+        previewWindow.Show();
     }
-
-    #endregion
-
-    #region 유틸리티 기능
-
     private void ShowGuideMessage(string message, TimeSpan? duration = null)
     {
         GuideWindow guideWindow = new GuideWindow(message, duration);
