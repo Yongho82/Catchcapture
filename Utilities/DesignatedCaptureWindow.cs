@@ -508,29 +508,26 @@ namespace CatchCapture.Utilities
 
         private void AdjustWindowSizeForRect(Rect rect)
         {
-            // 선택 영역이 창 크기를 넘어서면 창을 확장
-            const double margin = 50; // 여유 공간
+            // 선택 영역에 맞춰 창 크기를 동적으로 조정 (확장 및 축소)
+            const double margin = 0; // 여유 공간
+            const double minWindowSize = 50; // 최소 창 크기
             
             double requiredWidth = rect.Right + margin;
             double requiredHeight = rect.Bottom + margin;
             
-            bool needsResize = false;
-            double newWidth = Width;
-            double newHeight = Height;
+            // 최소 크기 보장
+            requiredWidth = Math.Max(requiredWidth, minWindowSize);
+            requiredHeight = Math.Max(requiredHeight, minWindowSize);
             
-            if (requiredWidth > Width)
-            {
-                newWidth = Math.Min(requiredWidth, SystemParameters.VirtualScreenWidth * 0.9);
-                needsResize = true;
-            }
+            // 화면 크기 제한
+            double maxWidth = SystemParameters.VirtualScreenWidth * 0.9;
+            double maxHeight = SystemParameters.VirtualScreenHeight * 0.9;
             
-            if (requiredHeight > Height)
-            {
-                newHeight = Math.Min(requiredHeight, SystemParameters.VirtualScreenHeight * 0.9);
-                needsResize = true;
-            }
+            double newWidth = Math.Min(requiredWidth, maxWidth);
+            double newHeight = Math.Min(requiredHeight, maxHeight);
             
-            if (needsResize)
+            // 창 크기가 변경되었을 때만 업데이트
+            if (Math.Abs(newWidth - Width) > 1 || Math.Abs(newHeight - Height) > 1)
             {
                 Width = newWidth;
                 Height = newHeight;
