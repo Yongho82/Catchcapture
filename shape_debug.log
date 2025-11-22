@@ -1,10 +1,10 @@
-===== 로그 시작: 2025-11-23 오전 12:45:08 =====
-[00:45:08.658] PreviewWindow 생성됨
-[00:45:08.692] CancelCurrentEditMode 호출: 이전 모드=None, tempShape=False
-[00:45:08.693] CancelCurrentEditMode에서 CleanupTemporaryShape 호출
-[00:45:08.693] CleanupTemporaryShape 호출: tempShape=False
-[00:45:08.693] tempShape가 이미 null이거나 ImageCanvas가 null임
-[00:45:08.693] 도구 패널 숨김
-[00:45:08.694] 마우스 커서 복원: Arrow
-[00:45:08.694] 그리기 상태 초기화: isDrawingShape=false, isDragStarted=false
-[00:45:08.791] MouseUp: 위치(898.5, 152.0), 편집모드=Highlight, isDrawingShape=False, isDragStarted=False
+===== 로그 시작: 2025-11-23 오전 1:11:35 =====
+[01:11:35.137] PreviewWindow 생성됨
+[01:11:35.164] CancelCurrentEditMode 호출: 이전 모드=None, tempShape=False
+[01:11:35.164] CancelCurrentEditMode에서 CleanupTemporaryShape 호출
+[01:11:35.165] CleanupTemporaryShape 호출: tempShape=False
+[01:11:35.165] tempShape가 이미 null이거나 ImageCanvas가 null임
+[01:11:35.165] 도구 패널 숨김
+[01:11:35.166] 마우스 커서 복원: Arrow
+[01:11:35.166] 그리기 상태 초기화: isDrawingShape=false, isDragStarted=false
+[01:11:35.270] MouseUp: 위치(662.5, 126.0), 편집모드=Highlight, isDrawingShape=False, isDragStarted=False

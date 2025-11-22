@@ -189,6 +189,7 @@ namespace CatchCapture
                 {
                     if (currentTargetElement != IntPtr.Zero)
                     {
+                        var clickPoint = hookStruct.pt; // 클릭한 좌표 저장
                         Dispatcher.BeginInvoke(new Action(async () => 
                         {
                             // 후킹 해제
@@ -200,13 +201,13 @@ namespace CatchCapture
                             
                             await Task.Delay(200);
                             
-                            await PerformScrollCapture(currentTargetElement);
+                            await PerformScrollCapture(currentTargetElement, clickPoint);
                             
                             DialogResult = CapturedImage != null;
                             Close();
                         }));
 
-                        return (IntPtr)1;
+                        return (IntPtr)1; // 클릭 이벤트 막음 (우리가 다시 클릭할 것이므로)
                     }
                 }
                 else if (wParam == (IntPtr)WM_RBUTTONDOWN)
@@ -252,105 +253,115 @@ namespace CatchCapture
             });
         }
 
-        private async Task PerformScrollCapture(IntPtr hWnd)
+        private async Task PerformScrollCapture(IntPtr hWnd, POINT clickPt)
         {
             var screenshots = new List<Bitmap>();
             
             try
             {
+                // 1. 포커스 잡기 (사용자가 클릭한 위치를 다시 클릭)
+                SetCursorPos(clickPt.X, clickPt.Y);
+                mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, UIntPtr.Zero);
+                mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, UIntPtr.Zero);
+                
+                // 창 활성화 보장
+                SetForegroundWindow(hWnd);
+                await Task.Delay(500); // 충분한 대기 시간
+
                 // Win32 핸들로 AutomationElement 생성
                 var element = AutomationElement.FromHandle(hWnd);
-                if (element == null) return;
-
-                // 스크롤 패턴 찾기 (현재 요소 -> 부모 -> 자식 순으로 탐색)
+                
+                // 스크롤 패턴 찾기 (옵션 - 없어도 진행)
                 ScrollPattern? scrollPattern = null;
-                object patternObj;
-                
-                // 1. 현재 요소에서 확인
-                if (element.TryGetCurrentPattern(ScrollPattern.Pattern, out patternObj))
+                if (element != null)
                 {
-                    scrollPattern = (ScrollPattern)patternObj;
+                    object patternObj;
+                    if (element.TryGetCurrentPattern(ScrollPattern.Pattern, out patternObj))
+                        scrollPattern = (ScrollPattern)patternObj;
+                    else
+                        scrollPattern = FindScrollPatternInChildren(element);
                 }
-                
-                // 2. 부모에서 확인 (컨테이너가 스크롤을 담당하는 경우)
-                if (scrollPattern == null)
+
+                // 캡처 영역 결정: 항상 전체 창 (첫 헤더 포함을 위해)
+                RECT captureRect;
+                GetWindowRect(hWnd, out var winRect);
+                captureRect = winRect;
+
+                // 헤더 높이 계산 (스티칭 시 Sticky Header 제거용)
+                int headerHeight = 0;
+                if (scrollPattern != null)
                 {
-                    var walker = TreeWalker.ControlViewWalker;
-                    var parent = walker.GetParent(element);
-                    while (parent != null && parent != AutomationElement.RootElement)
+                    try 
                     {
-                        if (parent.TryGetCurrentPattern(ScrollPattern.Pattern, out patternObj))
+                        var scrollableElement = element;
+                        if (!element.TryGetCurrentPattern(ScrollPattern.Pattern, out _))
                         {
-                            scrollPattern = (ScrollPattern)patternObj;
-                            break;
+                             var condition = new PropertyCondition(AutomationElement.IsScrollPatternAvailableProperty, true);
+                             var child = element.FindFirst(TreeScope.Descendants, condition);
+                             if (child != null) scrollableElement = child;
                         }
-                        parent = walker.GetParent(parent);
+
+                        var elemRect = scrollableElement.Current.BoundingRectangle;
+                        
+                        // 헤더 높이 = 스크롤 영역 시작점 - 창 시작점
+                        headerHeight = (int)(elemRect.Top - winRect.Top);
+                        if (headerHeight < 0) headerHeight = 0;
+                        
+                        // 너무 크면(창의 50% 이상) 오류일 수 있으므로 제한
+                        if (headerHeight > (winRect.Bottom - winRect.Top) / 2) headerHeight = 0;
                     }
+                    catch { }
                 }
 
-                // 3. 자식에서 확인 (가장 중요! 브라우저 콘텐츠 영역은 자식임)
-                if (scrollPattern == null)
+                int width = captureRect.Right - captureRect.Left;
+                int height = captureRect.Bottom - captureRect.Top;
+                
+                // 스크롤바 영역 제외 (우측 25px)
+                if (width > 50) width -= 25; 
+                
+                // 윈도우 경계 보정 (좌측, 하단 테두리 살짝 제외)
+                if (width > 20) 
                 {
-                    // 첫 번째 자식부터 깊이 우선 탐색 (너무 깊지 않게)
-                    scrollPattern = FindScrollPatternInChildren(element);
+                    captureRect.Left += 8; 
+                    width -= 16;
                 }
-
-                RECT rect;
-                GetWindowRect(hWnd, out rect);
-                int width = rect.Right - rect.Left;
-                int height = rect.Bottom - rect.Top;
+                if (height > 20) height -= 8;
 
                 // 1. 첫 화면 캡처
-                screenshots.Add(CaptureRegion(rect.Left, rect.Top, width, height));
+                screenshots.Add(CaptureRegion(captureRect.Left, captureRect.Top, width, height));
 
-                if (scrollPattern != null && scrollPattern.Current.VerticallyScrollable)
+                // 강제 스크롤 시도
+                int maxScrolls = 30;
+
+                for (int i = 0; i < maxScrolls; i++)
                 {
-                    int maxScrolls = 20;
-
-                    // 1. 마우스 커서를 창 중앙으로 이동 및 클릭하여 포커스 확보
-                    int centerX = rect.Left + width / 2;
-                    int centerY = rect.Top + height / 2;
-                    SetCursorPos(centerX, centerY);
-                    
-                    // 클릭 (포커스 잡기)
-                    mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, UIntPtr.Zero);
-                    mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, UIntPtr.Zero);
-                    await Task.Delay(200);
-
-                    for (int i = 0; i < maxScrolls; i++)
+                    // 스크롤 다운
+                    try
                     {
-                        // 스크롤 다운 (마우스 휠 사용)
-                        try
+                        mouse_event(MOUSEEVENTF_WHEEL, 0, 0, unchecked((uint)-200), UIntPtr.Zero);
+                    }
+                    catch { }
+                    
+                    await Task.Delay(600); 
+
+                    // 캡처
+                    var newShot = CaptureRegion(captureRect.Left, captureRect.Top, width, height);
+
+                    // 중복 검사
+                    if (screenshots.Count > 0)
+                    {
+                        var lastShot = screenshots[screenshots.Count - 1];
+                        if (AreBitmapsIdentical(lastShot, newShot))
                         {
-                            // 휠을 적당히 굴림 (120 * 3.3 = 400)
-                            mouse_event(MOUSEEVENTF_WHEEL, 0, 0, unchecked((uint)-400), UIntPtr.Zero);
-                        }
-                        catch
-                        {
+                            newShot.Dispose();
                             break; 
                         }
-                        
-                        await Task.Delay(800); // 렌더링 대기
-
-                        // 캡처
-                        var newShot = CaptureRegion(rect.Left, rect.Top, width, height);
-
-                        // 이전 화면과 비교 (스크롤이 안 되었으면 중단)
-                        if (screenshots.Count > 0)
-                        {
-                            var lastShot = screenshots[screenshots.Count - 1];
-                            if (AreBitmapsIdentical(lastShot, newShot))
-                            {
-                                newShot.Dispose();
-                                break; // 스크롤이 안 됨 -> 종료
-                            }
-                        }
-
-                        screenshots.Add(newShot);
                     }
+
+                    screenshots.Add(newShot);
                 }
 
-                CapturedImage = MergeScreenshots(screenshots);
+                CapturedImage = MergeScreenshots(screenshots, headerHeight);
                 foreach (var s in screenshots) s.Dispose();
             }
             catch (Exception ex)
@@ -422,7 +433,7 @@ namespace CatchCapture
             return true;
         }
 
-        private BitmapSource MergeScreenshots(List<Bitmap> screenshots)
+        private BitmapSource MergeScreenshots(List<Bitmap> screenshots, int headerHeight)
         {
             if (screenshots.Count == 0) return null!;
             if (screenshots.Count == 1) return ConvertBitmapToBitmapSource(screenshots[0]);
@@ -432,8 +443,8 @@ namespace CatchCapture
 
             for (int i = 1; i < screenshots.Count; i++)
             {
-                // 다음 이미지와 합치기 (중복 제거 포함)
-                finalImage = StitchImages(finalImage, screenshots[i]);
+                // 다음 이미지와 합치기 (헤더 높이 전달)
+                finalImage = StitchImages(finalImage, screenshots[i], headerHeight);
             }
 
             var result = ConvertBitmapToBitmapSource(finalImage);
@@ -441,34 +452,33 @@ namespace CatchCapture
             return result;
         }
 
-        private Bitmap StitchImages(Bitmap top, Bitmap bottom)
+        private Bitmap StitchImages(Bitmap top, Bitmap bottom, int headerHeight)
         {
-            // "Top-Matching 스티칭" (사용자 제안 방식)
-            // 새 이미지(Bottom)의 상단 특정 라인(Probe)을 이전 이미지(Top)의 하단에서 찾습니다.
-            // 장점: 이전 이미지의 하단(푸터 등)을 자연스럽게 잘라내고, 새 이미지의 깨끗한 내용으로 이을 수 있습니다.
-
-            // 1. Probe 라인 설정 (새 이미지의 상단에서 헤더를 피한 위치)
-            int headerAvoidance = 150; // 상단 고정 헤더 회피용
-            if (bottom.Height <= headerAvoidance) headerAvoidance = 0;
+            // "Smart Stitching"
+            // Bottom 이미지의 상단(headerHeight)은 Sticky Header이므로 무시하고 매칭을 시도합니다.
             
-            int probeY_in_Bottom = headerAvoidance; 
+            // Probe 라인: 헤더 바로 아래부터 시작
+            int probeY_in_Bottom = headerHeight; 
+            
+            // 안전 장치: 헤더가 너무 크거나 이미지가 작으면 0으로
+            if (probeY_in_Bottom >= bottom.Height - 50) probeY_in_Bottom = 0;
+
             int matchY_in_Top = -1;
 
-            // 2. 이전 이미지(Top)의 하단에서부터 위로 탐색
-            // Top의 바닥부터 위로 훑으면서, Bottom의 probeY 라인과 일치하는 곳을 찾음
-            int searchLimit = top.Height / 2; // Top의 하단 50%만 검색
-            
-            for (int y = top.Height - 1; y >= top.Height - searchLimit; y--)
+            // Top 이미지 탐색
+            int startSearchY = headerHeight; // Top에서도 헤더 부분은 매칭 대상에서 제외 (오탐 방지)
+            int endSearchY = top.Height - 50;
+
+            for (int y = startSearchY; y < endSearchY; y++)
             {
                 if (IsRowMatch(top, y, bottom, probeY_in_Bottom))
                 {
-                    // 일치 후보 발견! 주변 라인 검증
                     bool fullMatch = true;
-                    int checkRange = 10;
+                    int checkRange = 20; 
+                    
                     for (int k = 1; k < checkRange; k++)
                     {
-                        if (!IsRowMatch(top, y + k, bottom, probeY_in_Bottom + k) ||
-                            !IsRowMatch(top, y - k, bottom, probeY_in_Bottom - k))
+                        if (!IsRowMatch(top, y + k, bottom, probeY_in_Bottom + k))
                         {
                             fullMatch = false;
                             break;
@@ -478,7 +488,7 @@ namespace CatchCapture
                     if (fullMatch)
                     {
                         matchY_in_Top = y;
-                        break; // 가장 아래쪽(최신) 매칭을 찾으면 중단
+                        break; 
                     }
                 }
             }
@@ -486,14 +496,8 @@ namespace CatchCapture
             if (matchY_in_Top != -1)
             {
                 // 매칭 성공!
-                // Top의 matchY 지점이 Bottom의 probeY 지점과 같음.
-                // 즉, Top은 matchY까지만 유효하고, 그 이후는 Bottom의 probeY부터 시작하는 내용으로 대체해야 함.
-                
-                // Top을 matchY까지 자름 (푸터 제거 효과)
-                // Bottom을 probeY부터 붙임 (헤더 제거 효과)
-                
                 int topCutHeight = matchY_in_Top;
-                int bottomStartY = probeY_in_Bottom;
+                int bottomStartY = probeY_in_Bottom; // 여기서부터 붙임 (즉, 위쪽 headerHeight 만큼은 버려짐)
                 int bottomContentHeight = bottom.Height - bottomStartY;
 
                 int newTotalHeight = topCutHeight + bottomContentHeight;
@@ -501,12 +505,12 @@ namespace CatchCapture
 
                 using (var g = Graphics.FromImage(result))
                 {
-                    // Top 그리기 (0 ~ matchY)
+                    // Top 그리기
                     var topSrcRect = new System.Drawing.Rectangle(0, 0, top.Width, topCutHeight);
                     var topDestRect = new System.Drawing.Rectangle(0, 0, top.Width, topCutHeight);
                     g.DrawImage(top, topDestRect, topSrcRect, GraphicsUnit.Pixel);
 
-                    // Bottom 그리기 (probeY ~ 끝)
+                    // Bottom 그리기 (Sticky Header 제외하고 붙임)
                     var bottomSrcRect = new System.Drawing.Rectangle(0, bottomStartY, bottom.Width, bottomContentHeight);
                     var bottomDestRect = new System.Drawing.Rectangle(0, topCutHeight, bottom.Width, bottomContentHeight);
                     g.DrawImage(bottom, bottomDestRect, bottomSrcRect, GraphicsUnit.Pixel);
@@ -517,7 +521,7 @@ namespace CatchCapture
             }
             else
             {
-                // 매칭 실패: 그냥 이어붙임 (중복 발생 가능성 있음)
+                // 매칭 실패
                 int newHeight = top.Height + bottom.Height;
                 var result = new Bitmap(Math.Max(top.Width, bottom.Width), newHeight);
                 
@@ -546,7 +550,7 @@ namespace CatchCapture
                 var c1 = bmp1.GetPixel(x, y1);
                 var c2 = bmp2.GetPixel(x, y2);
                 
-                if (Math.Abs(c1.R - c2.R) > 15 || Math.Abs(c1.G - c2.G) > 15 || Math.Abs(c1.B - c2.B) > 15)
+                if (Math.Abs(c1.R - c2.R) > 10 || Math.Abs(c1.G - c2.G) > 10 || Math.Abs(c1.B - c2.B) > 10)
                 {
                     return false;
                 }
