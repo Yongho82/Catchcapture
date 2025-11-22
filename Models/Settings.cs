@@ -138,6 +138,7 @@ namespace CatchCapture.Models
         public ToggleHotkey DeleteAll { get; set; } = new ToggleHotkey();            // 전체삭제
         public ToggleHotkey SimpleMode { get; set; } = new ToggleHotkey();           // 간편모드
         public ToggleHotkey OpenSettings { get; set; } = new ToggleHotkey();         // 설정
+        public ToggleHotkey ElementCapture { get; set; } = new ToggleHotkey();       // 단위 캡처
 
         // Legacy (kept for backward compatibility with older settings.json)
         public ToggleHotkey SimpleCapture { get; set; } = new ToggleHotkey();
@@ -159,6 +160,7 @@ namespace CatchCapture.Models
             DeleteAll = new ToggleHotkey { Enabled = false, Ctrl = true, Key = "X" },
             SimpleMode = new ToggleHotkey { Enabled = false, Ctrl = true, Key = "M" },
             OpenSettings = new ToggleHotkey { Enabled = false, Ctrl = true, Key = "O" },
+            ElementCapture = new ToggleHotkey { Enabled = false, Ctrl = true, Key = "E" },
 
             // Legacy defaults left as disabled
             SimpleCapture = new ToggleHotkey { Enabled = false },

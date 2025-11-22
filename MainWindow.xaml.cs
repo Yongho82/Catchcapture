@@ -724,6 +724,26 @@ public partial class MainWindow : Window
             // 창 표시는 AddCaptureToList에서 처리
         }
     }
+    
+    private void ElementCaptureButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            this.Hide();
+            System.Threading.Thread.Sleep(100);
+
+            var elementCaptureWindow = new ElementCaptureWindow();
+            
+            if (elementCaptureWindow.ShowDialog() == true && elementCaptureWindow.CapturedImage != null)
+            {
+                AddCaptureToList(elementCaptureWindow.CapturedImage);
+            }
+        }
+        finally
+        {
+            // 창 표시는 AddCaptureToList에서 처리
+        }
+    }
     // 간편모드 전용 지정캡처 메서드 (메인창을 표시하지 않음)
     private void PerformDesignatedCaptureForSimpleMode()
     {

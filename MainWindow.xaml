@@ -209,7 +209,17 @@
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
                                     <TextBlock Text="창 캡처" HorizontalAlignment="Left" FontSize="11"/>
                                 </StackPanel>
-                            </Button>                          
+                            </Button>
+                            
+                            <!-- 단위 캡처 버튼 -->
+                            <Button x:Name="ElementCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="ElementCaptureButton_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/icons/area_capture.png" Width="16" Height="16" Margin="0,0,5,0"
+                                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                                    <TextBlock Text="단위 캡처" HorizontalAlignment="Left" FontSize="11"/>
+                                </StackPanel>
+                            </Button>
+                            
                             <Separator Style="{StaticResource SeparatorStyle}"/>
                             
                             
