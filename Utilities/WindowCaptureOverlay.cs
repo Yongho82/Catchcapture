@@ -109,8 +109,8 @@ namespace CatchCapture.Utilities
             highlightRect = new Rectangle
             {
                 Stroke = Brushes.Red,
-                StrokeThickness = 4,
-                Fill = new SolidColorBrush(Color.FromArgb(20, 255, 0, 0)), // 약간의 붉은 틴트
+                StrokeThickness = 2,
+                Fill = new SolidColorBrush(Color.FromArgb(5, 255, 0, 0)), // 아주 연한 붉은 틴트
                 Visibility = Visibility.Collapsed
             };
             canvas.Children.Add(highlightRect);
