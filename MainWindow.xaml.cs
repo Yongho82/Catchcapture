@@ -821,6 +821,46 @@ public partial class MainWindow : Window
             Visibility = Visibility.Collapsed // 평소엔 숨김
         };
 
+        // 구글 버튼 생성
+        Button googleBtn = new Button
+        {
+            Width = 28, Height = 28, Margin = new Thickness(0, 0, 5, 0),
+            Background = new SolidColorBrush(Color.FromArgb(230, 255, 255, 255)),
+            BorderThickness = new Thickness(1),
+            BorderBrush = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0)),
+            Cursor = Cursors.Hand, ToolTip = "구글 이미지 검색"
+        };
+        
+        // 둥근 버튼 스타일 적용 (템플릿)
+        var gTemplate = new ControlTemplate(typeof(Button));
+        var gBorderFactory = new FrameworkElementFactory(typeof(Border));
+        gBorderFactory.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Button.BackgroundProperty));
+        gBorderFactory.SetValue(Border.BorderBrushProperty, new TemplateBindingExtension(Button.BorderBrushProperty));
+        gBorderFactory.SetValue(Border.BorderThicknessProperty, new TemplateBindingExtension(Button.BorderThicknessProperty));
+        gBorderFactory.SetValue(Border.CornerRadiusProperty, new CornerRadius(14));
+        var gContentPresenter = new FrameworkElementFactory(typeof(ContentPresenter));
+        gContentPresenter.SetValue(ContentPresenter.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+        gContentPresenter.SetValue(ContentPresenter.VerticalAlignmentProperty, VerticalAlignment.Center);
+        gBorderFactory.AppendChild(gContentPresenter);
+        gTemplate.VisualTree = gBorderFactory;
+        googleBtn.Template = gTemplate;
+
+        // 'G' 텍스트 설정 (파란색)
+        googleBtn.Content = new TextBlock 
+        { 
+            Text = "G", 
+            FontWeight = FontWeights.Bold, 
+            Foreground = new SolidColorBrush(Color.FromRgb(66, 133, 244)), // Google Blue
+            FontSize = 14
+        };
+        
+        // 클릭 이벤트 연결
+        googleBtn.Click += (s, e) => 
+        {
+            e.Handled = true;
+            SearchImageOnGoogle(captureImage.Image);
+        };
+
         // 버튼 생성 헬퍼 함수
         Button CreateHoverButton(string iconPath, string toolTip)
         {
@@ -888,6 +928,8 @@ public partial class MainWindow : Window
             }
         };
 
+        // 패널에 버튼 추가 (구글 -> 저장 -> 삭제)
+        buttonPanel.Children.Add(googleBtn);
         buttonPanel.Children.Add(saveBtn);
         buttonPanel.Children.Add(deleteBtn);
         grid.Children.Add(buttonPanel);
