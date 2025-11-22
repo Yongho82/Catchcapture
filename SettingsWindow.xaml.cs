@@ -17,9 +17,31 @@ namespace CatchCapture
         {
             InitializeComponent();
             _settings = Settings.Load();
+            InitKeyComboBoxes(); // 콤보박스 초기화
             LoadCapturePage();
             LoadHotkeysPage();
             HighlightNav(NavCapture, true);
+        }
+
+        private void InitKeyComboBoxes()
+        {
+            var keys = new System.Collections.Generic.List<string>();
+            // A-Z
+            for (char c = 'A'; c <= 'Z'; c++) keys.Add(c.ToString());
+            // 0-9
+            for (char c = '0'; c <= '9'; c++) keys.Add(c.ToString());
+            // F1-F12
+            for (int i = 1; i <= 12; i++) keys.Add($"F{i}");
+
+            var boxes = new[] { 
+                HkRegionKey, HkDelayKey, HkFullKey, HkDesignatedKey, 
+                HkSaveAllKey, HkDeleteAllKey, HkSimpleModeKey, HkOpenSettingsKey 
+            };
+
+            foreach (var box in boxes)
+            {
+                box.ItemsSource = keys;
+            }
         }
 
         private void HighlightNav(Button btn, bool capture)
@@ -30,13 +52,22 @@ namespace CatchCapture
             PageHotkey.Visibility = capture ? Visibility.Collapsed : Visibility.Visible;
         }
 
-        private void NavCapture_Click(object sender, RoutedEventArgs e) => HighlightNav(NavCapture, true);
-        private void NavHotkey_Click(object sender, RoutedEventArgs e) => HighlightNav(NavHotkey, false);
+        private void Nav_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is string tag)
+            {
+                HighlightNav(btn, tag == "Capture");
+            }
+        }
 
         private void LoadCapturePage()
         {
             // Format
-            CmbFormat.SelectedIndex = _settings.FileSaveFormat.Equals("JPG", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
+            // Format
+            if (_settings.FileSaveFormat.Equals("JPG", StringComparison.OrdinalIgnoreCase))
+                RadioJpg.IsChecked = true;
+            else
+                RadioPng.IsChecked = true;
             // Folder
             var defaultInstallFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture");
             TxtFolder.Text = string.IsNullOrWhiteSpace(_settings.DefaultSaveFolder)
@@ -52,18 +83,7 @@ namespace CatchCapture
                 hk.Key = defaultKey;
         }
 
-        private static void NormalizeKey(TextBox keyBox)
-        {
-            if (keyBox == null) return;
-            var t = (keyBox.Text ?? string.Empty).Trim();
-            // keep first token, uppercase
-            if (t.Length > 0)
-            {
-                // if user typed more than one char, keep first non-space char
-                var first = t.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? t;
-                keyBox.Text = first.ToUpperInvariant();
-            }
-        }
+
 
         private void LoadHotkeysPage()
         {
@@ -90,27 +110,24 @@ namespace CatchCapture
             BindHotkey(hk.OpenSettings, HkOpenSettingsEnabled, HkOpenSettingsCtrl, HkOpenSettingsShift, HkOpenSettingsAlt, HkOpenSettingsWin, HkOpenSettingsKey);
         }
 
-        private static void BindHotkey(ToggleHotkey src, CheckBox en, CheckBox ctrl, CheckBox shift, CheckBox alt, CheckBox win, TextBox key)
+        private static void BindHotkey(ToggleHotkey src, CheckBox en, CheckBox ctrl, CheckBox shift, CheckBox alt, CheckBox win, ComboBox key)
         {
             en.IsChecked = src.Enabled;
             ctrl.IsChecked = src.Ctrl;
             shift.IsChecked = src.Shift;
             alt.IsChecked = src.Alt;
             win.IsChecked = src.Win;
-            key.Text = (src.Key ?? string.Empty).Trim().ToUpperInvariant();
+            key.SelectedItem = (src.Key ?? string.Empty).Trim().ToUpperInvariant();
         }
 
-        private static void ReadHotkey(ToggleHotkey dst, CheckBox en, CheckBox ctrl, CheckBox shift, CheckBox alt, CheckBox win, TextBox key)
+        private static void ReadHotkey(ToggleHotkey dst, CheckBox en, CheckBox ctrl, CheckBox shift, CheckBox alt, CheckBox win, ComboBox key)
         {
-            // Normalize UI input first
-            NormalizeKey(key);
-
             dst.Enabled = en.IsChecked == true;
             dst.Ctrl = ctrl.IsChecked == true;
             dst.Shift = shift.IsChecked == true;
             dst.Alt = alt.IsChecked == true;
             dst.Win = win.IsChecked == true;
-            dst.Key = (key.Text ?? string.Empty).Trim().ToUpperInvariant();
+            dst.Key = (key.SelectedItem as string ?? string.Empty).Trim().ToUpperInvariant();
         }
 
         private void BtnBrowse_Click(object sender, RoutedEventArgs e)
@@ -126,7 +143,8 @@ namespace CatchCapture
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             // Capture options
-            _settings.FileSaveFormat = (CmbFormat.SelectedIndex == 1) ? "JPG" : "PNG";
+            // Capture options
+            _settings.FileSaveFormat = (RadioJpg.IsChecked == true) ? "JPG" : "PNG";
             var desiredFolder = (TxtFolder.Text ?? string.Empty).Trim();
             if (string.IsNullOrWhiteSpace(desiredFolder))
             {

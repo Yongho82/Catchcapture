@@ -169,6 +169,8 @@ namespace CatchCapture.Models
         };
     }
 
+    }
+
     public class ToggleHotkey
     {
         public bool Enabled { get; set; } = true;
