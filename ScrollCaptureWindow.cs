@@ -335,10 +335,10 @@ namespace CatchCapture
 
                 for (int i = 0; i < maxScrolls; i++)
                 {
-                    // 스크롤 다운
+                    // 스크롤 다운 (증가된 스크롤 양으로 오버랩 감소)
                     try
                     {
-                        mouse_event(MOUSEEVENTF_WHEEL, 0, 0, unchecked((uint)-200), UIntPtr.Zero);
+                        mouse_event(MOUSEEVENTF_WHEEL, 0, 0, unchecked((uint)-500), UIntPtr.Zero);
                     }
                     catch { }
                     
@@ -465,16 +465,21 @@ namespace CatchCapture
 
             int matchY_in_Top = -1;
 
-            // Top 이미지 탐색
+            // Top 이미지 탐색 (Bottom-Up: 아래에서 위로 탐색하여 더 고유한 영역 우선 매칭)
             int startSearchY = headerHeight; // Top에서도 헤더 부분은 매칭 대상에서 제외 (오탐 방지)
             int endSearchY = top.Height - 50;
 
-            for (int y = startSearchY; y < endSearchY; y++)
+            // Bottom-Up 방식: 아래쪽이 더 고유한 콘텐츠를 포함할 가능성이 높음
+            for (int y = endSearchY; y >= startSearchY; y--)
             {
                 if (IsRowMatch(top, y, bottom, probeY_in_Bottom))
                 {
                     bool fullMatch = true;
-                    int checkRange = 20; 
+                    
+                    // 검증 범위를 안전하게 계산 (이미지 범위 초과 방지)
+                    int maxCheckRange = Math.Min(50, top.Height - y - 1);
+                    maxCheckRange = Math.Min(maxCheckRange, bottom.Height - probeY_in_Bottom - 1);
+                    int checkRange = Math.Max(20, maxCheckRange); // 최소 20, 최대 50
                     
                     for (int k = 1; k < checkRange; k++)
                     {
@@ -521,14 +526,22 @@ namespace CatchCapture
             }
             else
             {
-                // 매칭 실패
-                int newHeight = top.Height + bottom.Height;
+                // 매칭 실패 - 헤더를 제외하고 붙이기 (중복 최소화)
+                int bottomStartY = Math.Max(headerHeight, 0);
+                int bottomContentHeight = bottom.Height - bottomStartY;
+                
+                int newHeight = top.Height + bottomContentHeight;
                 var result = new Bitmap(Math.Max(top.Width, bottom.Width), newHeight);
                 
                 using (var g = Graphics.FromImage(result))
                 {
+                    // Top 전체 그리기
                     g.DrawImage(top, 0, 0);
-                    g.DrawImage(bottom, 0, top.Height);
+                    
+                    // Bottom 그리기 (헤더 제외)
+                    var bottomSrcRect = new System.Drawing.Rectangle(0, bottomStartY, bottom.Width, bottomContentHeight);
+                    var bottomDestRect = new System.Drawing.Rectangle(0, top.Height, bottom.Width, bottomContentHeight);
+                    g.DrawImage(bottom, bottomDestRect, bottomSrcRect, GraphicsUnit.Pixel);
                 }
                 
                 top.Dispose();
@@ -550,7 +563,8 @@ namespace CatchCapture
                 var c1 = bmp1.GetPixel(x, y1);
                 var c2 = bmp2.GetPixel(x, y2);
                 
-                if (Math.Abs(c1.R - c2.R) > 10 || Math.Abs(c1.G - c2.G) > 10 || Math.Abs(c1.B - c2.B) > 10)
+                // 최적화된 픽셀 비교 (오차 허용 범위: 7 - 미세한 렌더링 차이 허용)
+                if (Math.Abs(c1.R - c2.R) > 7 || Math.Abs(c1.G - c2.G) > 7 || Math.Abs(c1.B - c2.B) > 7)
                 {
                     return false;
                 }
