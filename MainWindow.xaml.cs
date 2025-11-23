@@ -195,7 +195,7 @@ public partial class MainWindow : Window
         // 설정 저장
         Settings.Save(settings);
     }
-    
+
     private void PositionTrayModeWindow()
     {
         // 화면 작업 영역 가져오기 (태스크바 제외)
@@ -1681,6 +1681,28 @@ public partial class MainWindow : Window
         return (modifiers, key);
     }
 
+    private void RealTimeCaptureButton_Click(object sender, RoutedEventArgs e)
+    {
+        StartRealTimeCaptureMode();
+    }
+
+    private const int HOTKEY_ID_REALTIME = 9003;
+
+    // 실시간 캡처 모드 시작 (F1 대기)
+    public void StartRealTimeCaptureMode()
+    {
+        // 메인 창 숨기기
+        this.Hide();
+        
+        // F1 키 등록 (Modifiers.None, Key.F1 = 0x70)
+        var helper = new WindowInteropHelper(this);
+        RegisterHotKey(helper.Handle, HOTKEY_ID_REALTIME, 0, 0x70); 
+
+        // 안내 메시지 표시
+        var guide = new GuideWindow("원하는 화면을 띄우고 [F1] 키를 누르세요", null);
+        guide.Show();
+    }
+
     // Windows 메시지 처리 (단축키 이벤트 수신)
     private IntPtr HwndHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
     {
@@ -1701,9 +1723,25 @@ public partial class MainWindow : Window
                     break;
                     
                 case HOTKEY_ID_WINDOW:
-                Dispatcher.Invoke(() => DesignatedCaptureButton_Click(null, null));
-                handled = true;
-                break;
+                    Dispatcher.Invoke(() => DesignatedCaptureButton_Click(null, null));
+                    handled = true;
+                    break;
+
+                // [여기부터 추가해주세요] --------------------------------
+                case HOTKEY_ID_REALTIME:
+                    // 1. 핫키 해제 (일회성이므로)
+                    UnregisterHotKey(hwnd, HOTKEY_ID_REALTIME);
+                    
+                    // 2. 안내창 닫기
+                    foreach (Window win in Application.Current.Windows)
+                    {
+                        if (win is GuideWindow) win.Close();
+                    }
+
+                    // 3. 영역 캡처 시작
+                    Dispatcher.Invoke(() => StartAreaCapture());
+                    handled = true;
+                    break;
             }
         }
         
