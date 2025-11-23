@@ -81,6 +81,13 @@
                 <!-- 지연 캡처 -->
                 <Button x:Name="DelayCaptureButton" Style="{StaticResource IconButtonStyle}" 
                         Click="DelayCaptureButton_Click" ToolTip="지연 캡처">
+                    <Button.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="3초 후 캡처" Tag="3" Click="DelayMenuItem_Click"/>
+                            <MenuItem Header="5초 후 캡처" Tag="5" Click="DelayMenuItem_Click"/>
+                            <MenuItem Header="10초 후 캡처" Tag="10" Click="DelayMenuItem_Click"/>
+                        </ContextMenu>
+                    </Button.ContextMenu>
                     <Image Source="/icons/clock.png" Width="24" Height="24"
                            RenderOptions.BitmapScalingMode="HighQuality"/>
                 </Button>

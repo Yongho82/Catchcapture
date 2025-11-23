@@ -96,8 +96,22 @@ namespace CatchCapture
 
         private void DelayCaptureButton_Click(object sender, RoutedEventArgs e)
         {
-            this.Hide();
-            mainWindow.TriggerDelayCapture();
+            // 컨텍스트 메뉴 표시
+            if (sender is FrameworkElement fe && fe.ContextMenu != null)
+            {
+                fe.ContextMenu.PlacementTarget = fe;
+                fe.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Right;
+                fe.ContextMenu.IsOpen = true;
+            }
+        }
+
+        private void DelayMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is System.Windows.Controls.MenuItem mi && mi.Tag is string tagStr && int.TryParse(tagStr, out int seconds))
+            {
+                this.Hide();
+                mainWindow.TriggerDelayCapture(seconds);
+            }
         }
 
         private void FullScreenButton_Click(object sender, RoutedEventArgs e)

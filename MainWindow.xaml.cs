@@ -2063,7 +2063,33 @@ public partial class MainWindow : Window
     }
 
     #region Trigger Methods for TrayModeWindow
+    
+    public void TriggerDelayCapture(int seconds = 0)
+    {
+        if (seconds > 0)
+        {
+            captureDelaySeconds = seconds;
+        }
+        
+        // 실시간 카운트다운 표시 후 캡처 시작
+        if (captureDelaySeconds <= 0)
+        {
+            StartAreaCapture();
+            return;
+        }
 
+        var countdown = new GuideWindow("", null)
+        {
+            Owner = null, // 트레이 모드에서는 Owner를 null로 설정
+            Topmost = true
+        };
+        countdown.Show();
+        countdown.StartCountdown(captureDelaySeconds, () =>
+        {
+            // UI 스레드에서 실행
+            Dispatcher.Invoke(StartAreaCapture);
+        });
+    }
     public void TriggerAreaCapture()
     {
         AreaCaptureButton_Click(null, null);
