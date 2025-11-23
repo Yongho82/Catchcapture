@@ -1,6 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using CatchCapture.Models;
 
 namespace CatchCapture
@@ -8,12 +12,16 @@ namespace CatchCapture
     public partial class TrayModeWindow : Window
     {
         private MainWindow mainWindow;
+        private Settings settings;
 
         public TrayModeWindow(MainWindow owner)
         {
             InitializeComponent();
             mainWindow = owner;
+            settings = Settings.Load();  // 추가
             
+            BuildIconButtons();  // 추가
+
             // 창 위치 설정
             PositionWindow();
         }
@@ -184,6 +192,294 @@ namespace CatchCapture
         {
             this.Hide();
             mainWindow.TriggerSettings();
+        }
+        private void BuildIconButtons()
+        {
+            // ButtonsPanel을 찾아서 기존 버튼들 제거 (캡처 카운터와 상단 컨트롤 제외)
+            // settings.TrayModeIcons 리스트를 기반으로 동적으로 버튼 생성
+            
+            var buttonsPanel = FindButtonsPanel();
+            if (buttonsPanel == null) return;
+            
+            // 기존 캡처 버튼들 제거 (구분선 이후)
+            ClearCaptureButtons(buttonsPanel);
+            
+            // 설정에 있는 아이콘들만 추가
+            foreach (var iconName in settings.TrayModeIcons)
+            {
+                AddIconButton(buttonsPanel, iconName);
+            }
+            
+            // 빈 슬롯 추가 (+ 버튼)
+            AddEmptySlot(buttonsPanel);
+        }
+
+        private void AddIconButton(StackPanel panel, string iconName)
+        {
+            // Grid로 감싸서 버튼 + 호버 시 - 버튼 추가
+            var grid = new Grid();
+            
+            // 메인 버튼
+            var button = CreateIconButton(iconName);
+            grid.Children.Add(button);
+            
+            // - 버튼 (우측 상단, 기본 숨김)
+            var removeButton = CreateRemoveButton(iconName);
+            removeButton.Visibility = Visibility.Collapsed;
+            grid.Children.Add(removeButton);
+            
+            // 호버 이벤트
+            grid.MouseEnter += (s, e) => removeButton.Visibility = Visibility.Visible;
+            grid.MouseLeave += (s, e) => removeButton.Visibility = Visibility.Collapsed;
+            
+            panel.Children.Add(grid);
+        }
+
+        private StackPanel? FindButtonsPanel()
+        {
+            // XAML에서 ButtonsPanel 찾기
+            return this.FindName("ButtonsPanel") as StackPanel;
+        }
+
+        private void ClearCaptureButtons(StackPanel panel)
+        {
+            // 구분선 이후의 모든 버튼 제거
+            // 상단 컨트롤(일반/간편모드), TopmostButton, CaptureCounterButton, 첫 번째 Separator는 유지
+            // 그 이후의 모든 요소 제거
+            
+            var itemsToRemove = new List<UIElement>();
+            bool foundFirstSeparator = false;
+            
+            foreach (UIElement child in panel.Children)
+            {
+                if (child is Separator)
+                {
+                    if (!foundFirstSeparator)
+                    {
+                        foundFirstSeparator = true;
+                        continue;
+                    }
+                }
+                
+                if (foundFirstSeparator)
+                {
+                    itemsToRemove.Add(child);
+                }
+            }
+            
+            foreach (var item in itemsToRemove)
+            {
+                panel.Children.Remove(item);
+            }
+        }
+
+        private Button CreateIconButton(string iconName)
+        {
+            var button = new Button
+            {
+                Style = this.FindResource("IconButtonStyle") as Style,
+                ToolTip = GetIconDisplayName(iconName)
+            };
+            
+            // 아이콘에 따라 클릭 이벤트 연결
+            switch (iconName)
+            {
+                case "AreaCapture":
+                    button.Click += AreaCaptureButton_Click;
+                    button.Content = CreateImage("/icons/area_capture.png");
+                    break;
+                case "DelayCapture":
+                    button.Click += DelayCaptureButton_Click;
+                    button.Content = CreateImage("/icons/clock.png");
+                    // ContextMenu 추가
+                    button.ContextMenu = CreateDelayContextMenu();
+                    break;
+                case "FullScreen":
+                    button.Click += FullScreenButton_Click;
+                    button.Content = CreateImage("/icons/full_screen.png");
+                    break;
+                case "DesignatedCapture":
+                    button.Click += DesignatedCaptureButton_Click;
+                    button.Content = CreateImage("/icons/area_capture.png");
+                    break;
+                case "WindowCapture":
+                    button.Click += WindowCaptureButton_Click;
+                    button.Content = CreateImage("/icons/window_capture.png");
+                    break;
+                case "UnitCapture":
+                    button.Click += UnitCaptureButton_Click;
+                    button.Content = CreateImage("/icons/unit_capture.png");
+                    break;
+                case "Copy":
+                    button.Click += CopyButton_Click;
+                    button.Content = CreateImage("/icons/copy_selected.png");
+                    break;
+                case "CopyAll":
+                    button.Click += CopyAllButton_Click;
+                    button.Content = CreateImage("/icons/copy_all.png");
+                    break;
+                case "Save":
+                    button.Click += SaveButton_Click;
+                    button.Content = CreateImage("/icons/save_selected.png");
+                    break;
+                case "SaveAll":
+                    button.Click += SaveAllButton_Click;
+                    button.Content = CreateImage("/icons/save_all.png");
+                    break;
+                case "Delete":
+                    button.Click += DeleteButton_Click;
+                    button.Content = CreateImage("/icons/delete_selected.png");
+                    break;
+                case "DeleteAll":
+                    button.Click += DeleteAllButton_Click;
+                    button.Content = CreateImage("/icons/delete_all.png");
+                    break;
+                case "Settings":
+                    button.Click += SettingsButton_Click;
+                    button.Content = CreateImage("/icons/clock.png");
+                    break;
+            }
+            
+            return button;
+        }
+
+        private Image CreateImage(string source)
+        {
+            var image = new Image
+            {
+                Source = new BitmapImage(new Uri(source, UriKind.Relative)),
+                Width = 24,
+                Height = 24
+            };
+            
+            RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
+            
+            return image;
+        }
+
+        private ContextMenu CreateDelayContextMenu()
+        {
+            var menu = new ContextMenu();
+            menu.Items.Add(new MenuItem { Header = "3초 후 캡처", Tag = "3" });
+            menu.Items.Add(new MenuItem { Header = "5초 후 캡처", Tag = "5" });
+            menu.Items.Add(new MenuItem { Header = "10초 후 캡처", Tag = "10" });
+            
+            foreach (MenuItem item in menu.Items)
+            {
+                item.Click += DelayMenuItem_Click;
+            }
+            
+            return menu;
+        }
+
+
+        private Button CreateRemoveButton(string iconName)
+        {
+            // 작은 - 버튼 생성 (우측 상단 배치)
+            var btn = new Button
+            {
+                Content = "−",
+                Width = 16,
+                Height = 16,
+                FontSize = 12,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                VerticalAlignment = VerticalAlignment.Top,
+                Margin = new Thickness(0, 2, 2, 0)
+            };
+            
+            btn.Click += (s, e) => RemoveIcon(iconName);
+            return btn;
+        }
+
+        private void RemoveIcon(string iconName)
+        {
+            settings.TrayModeIcons.Remove(iconName);
+            Settings.Save(settings);
+            BuildIconButtons(); // 다시 빌드
+        }
+
+        private void AddEmptySlot(StackPanel panel)
+        {
+            // + 버튼 (호버 시만 표시)
+            var grid = new Grid 
+            { 
+                Height = 50,
+                Background = Brushes.Transparent  // 투명 배경 추가 (호버 감지용)
+            };
+            
+            var addButton = new Button
+            {
+                Content = "+",
+                FontSize = 24,
+                FontWeight = FontWeights.Bold,
+                Style = this.FindResource("IconButtonStyle") as Style,
+                ToolTip = "아이콘 추가",
+                Opacity = 0.3  // 기본적으로 반투명하게 표시
+            };
+            
+            addButton.Click += ShowAddIconMenu;
+            grid.Children.Add(addButton);
+            
+            // 호버 시 완전히 보이게
+            grid.MouseEnter += (s, e) => addButton.Opacity = 1.0;
+            grid.MouseLeave += (s, e) => addButton.Opacity = 0.3;
+            
+            panel.Children.Add(grid);
+        }
+
+        private void ShowAddIconMenu(object sender, RoutedEventArgs e)
+        {
+            // 추가 가능한 아이콘 목록 표시 (ContextMenu)
+            var menu = new ContextMenu();
+            
+            var allIcons = new[] { 
+                "AreaCapture", "DelayCapture", "FullScreen", 
+                "DesignatedCapture", "WindowCapture", "UnitCapture",
+                "Copy", "CopyAll", "Save", "SaveAll", 
+                "Delete", "DeleteAll", "Settings"
+            };
+            
+            foreach (var icon in allIcons)
+            {
+                if (!settings.TrayModeIcons.Contains(icon))
+                {
+                    var item = new MenuItem { Header = GetIconDisplayName(icon) };
+                    item.Click += (s2, e2) => AddIcon(icon);
+                    menu.Items.Add(item);
+                }
+            }
+            
+            menu.PlacementTarget = sender as Button;
+            menu.IsOpen = true;
+        }
+
+        private void AddIcon(string iconName)
+        {
+            settings.TrayModeIcons.Add(iconName);
+            Settings.Save(settings);
+            BuildIconButtons();
+        }
+
+        private string GetIconDisplayName(string iconName)
+        {
+            // 아이콘 이름을 한글로 변환
+            return iconName switch
+            {
+                "AreaCapture" => "영역 캡처",
+                "DelayCapture" => "지연 캡처",
+                "FullScreen" => "전체화면",
+                "DesignatedCapture" => "지정 캡처",
+                "WindowCapture" => "창 캡처",
+                "UnitCapture" => "단위 캡처",
+                "Copy" => "복사",
+                "CopyAll" => "전체 복사",
+                "Save" => "저장",
+                "SaveAll" => "전체 저장",
+                "Delete" => "삭제",
+                "DeleteAll" => "전체 삭제",
+                "Settings" => "설정",
+                _ => iconName
+            };
         }
     }
 }

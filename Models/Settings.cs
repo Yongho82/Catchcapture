@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic; 
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -27,6 +28,13 @@ namespace CatchCapture.Models
         public bool SimpleModeVertical { get; set; } = false;
         public bool IsTrayMode { get; set; } = false;
 
+
+        // Tray mode icon customization  
+        public List<string> TrayModeIcons { get; set; } = new List<string>
+        {
+            "AreaCapture", "DelayCapture", "FullScreen", 
+            "DesignatedCapture", "WindowCapture", "UnitCapture"
+        };
         // Hotkeys
         public HotkeySettings Hotkeys { get; set; } = HotkeySettings.CreateDefaults();
 

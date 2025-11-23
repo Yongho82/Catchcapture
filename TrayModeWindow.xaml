@@ -78,7 +78,7 @@
         </Border.Effect>
         
         <Grid Margin="10,15">
-            <StackPanel VerticalAlignment="Top">
+            <StackPanel x:Name="ButtonsPanel" VerticalAlignment="Top">
                 <!-- 상단 컨트롤 (일반모드 / 간편모드) -->
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,5">
                     <!-- 일반 모드 전환 버튼 -->
