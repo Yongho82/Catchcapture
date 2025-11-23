@@ -684,7 +684,7 @@ namespace CatchCapture.Utilities
             }
         }
 
-        public static void SaveImageToFile(BitmapSource bitmapSource, string filePath)
+        public static void SaveImageToFile(BitmapSource bitmapSource, string filePath, int quality = 100)
         {
             using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
             {
@@ -693,17 +693,29 @@ namespace CatchCapture.Utilities
                 // 파일 확장자에 따라 인코더 선택
                 string extension = System.IO.Path.GetExtension(filePath).ToLower();
                 
-                if (extension == ".jpg" || extension == ".jpeg")
+                switch (extension)
                 {
-                    // JPG 인코더 사용 및 품질 설정 (Windows 기본 수준)
-                    JpegBitmapEncoder jpegEncoder = new JpegBitmapEncoder();
-                    jpegEncoder.QualityLevel = 85; // Windows 기본 수준 품질
-                    encoder = jpegEncoder;
-                }
-                else
-                {
-                    // PNG 인코더 사용
-                    encoder = new PngBitmapEncoder();
+                    case ".jpg":
+                    case ".jpeg":
+                        var jpegEncoder = new JpegBitmapEncoder();
+                        jpegEncoder.QualityLevel = quality;
+                        encoder = jpegEncoder;
+                        break;
+                    case ".bmp":
+                        encoder = new BmpBitmapEncoder();
+                        break;
+                    case ".gif":
+                        encoder = new GifBitmapEncoder();
+                        break;
+                    case ".webp":
+                        // WPF는 기본적으로 WebP 저장을 지원하지 않으므로 PNG로 대체하거나 외부 라이브러리가 필요합니다.
+                        // 현재는 오류 방지를 위해 PNG 인코더를 사용합니다.
+                        encoder = new PngBitmapEncoder(); 
+                        break;
+                    case ".png":
+                    default:
+                        encoder = new PngBitmapEncoder();
+                        break;
                 }
                 
                 encoder.Frames.Add(BitmapFrame.Create(bitmapSource));

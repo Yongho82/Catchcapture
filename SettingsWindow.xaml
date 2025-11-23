@@ -200,11 +200,27 @@
                                 <Button x:Name="BtnBrowse" Grid.Column="1" Content="변경" Margin="10,0,0,0" Padding="10,0" Click="BtnBrowse_Click" Style="{StaticResource MacButtonSecondary}" Height="30"/>
                             </Grid>
                             
-                            <TextBlock Text="파일 형식" Foreground="{StaticResource TextSecondary}" Margin="0,0,0,5"/>
-                            <StackPanel Orientation="Horizontal">
-                                <RadioButton x:Name="RadioPng" Content="PNG (고화질)" GroupName="Format" Margin="0,0,20,0" IsChecked="True"/>
-                                <RadioButton x:Name="RadioJpg" Content="JPG (작은 용량)" GroupName="Format"/>
-                            </StackPanel>
+                            <Grid Margin="0,10,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="30"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="80"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <TextBlock Grid.Column="0" Text="파일 포맷" VerticalAlignment="Center" Foreground="{StaticResource TextSecondary}" Margin="0,0,10,0"/>
+                                <ComboBox x:Name="CboFormat" Grid.Column="1" SelectionChanged="CboFormat_SelectionChanged">
+                                    <ComboBoxItem Content="PNG"/>
+                                    <ComboBoxItem Content="JPG"/>
+                                    <ComboBoxItem Content="BMP"/>
+                                    <ComboBoxItem Content="GIF"/>
+                                    <ComboBoxItem Content="WEBP"/>
+                                </ComboBox>
+
+                                <TextBlock Grid.Column="3" Text="품질" VerticalAlignment="Center" Foreground="{StaticResource TextSecondary}" Margin="0,0,10,0"/>
+                                <TextBox x:Name="TxtQuality" Grid.Column="4" Height="26" VerticalContentAlignment="Center" Padding="5,0" PreviewTextInput="TxtQuality_PreviewTextInput" MaxLength="3"/>
+                            </Grid>
                         </StackPanel>
                     </GroupBox>
 

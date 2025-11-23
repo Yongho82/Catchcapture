@@ -64,10 +64,16 @@ namespace CatchCapture
         {
             // Format
             // Format
-            if (_settings.FileSaveFormat.Equals("JPG", StringComparison.OrdinalIgnoreCase))
-                RadioJpg.IsChecked = true;
-            else
-                RadioPng.IsChecked = true;
+            string fmt = _settings.FileSaveFormat ?? "PNG";
+            foreach (ComboBoxItem item in CboFormat.Items)
+            {
+                if (item.Content.ToString().Equals(fmt, StringComparison.OrdinalIgnoreCase))
+                {
+                    CboFormat.SelectedItem = item;
+                    break;
+                }
+            }
+            TxtQuality.Text = _settings.ImageQuality.ToString();
             // Folder
             var defaultInstallFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture");
             TxtFolder.Text = string.IsNullOrWhiteSpace(_settings.DefaultSaveFolder)
@@ -144,7 +150,19 @@ namespace CatchCapture
         {
             // Capture options
             // Capture options
-            _settings.FileSaveFormat = (RadioJpg.IsChecked == true) ? "JPG" : "PNG";
+            if (CboFormat.SelectedItem is ComboBoxItem item)
+            {
+                _settings.FileSaveFormat = item.Content.ToString();
+            }
+            
+            if (int.TryParse(TxtQuality.Text, out int q))
+            {
+                _settings.ImageQuality = Math.Max(1, Math.Min(100, q));
+            }
+            else
+            {
+                _settings.ImageQuality = 100;
+            }
             var desiredFolder = (TxtFolder.Text ?? string.Empty).Trim();
             if (string.IsNullOrWhiteSpace(desiredFolder))
             {
@@ -235,6 +253,34 @@ namespace CatchCapture
             {
                 MessageBox.Show("기본 메일 클라이언트를 열 수 없습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
             }
+        }
+
+
+        private void CboFormat_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (CboFormat.SelectedItem is ComboBoxItem item && TxtQuality != null)
+            {
+                string format = item.Content.ToString();
+                if (format == "PNG")
+                {
+                    TxtQuality.Text = "100";
+                    TxtQuality.IsEnabled = false;
+                }
+                else
+                {
+                    TxtQuality.IsEnabled = true;
+                }
+            }
+        }
+
+        private void TxtQuality_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
+        {
+            e.Handled = !IsTextAllowed(e.Text);
+        }
+
+        private static bool IsTextAllowed(string text)
+        {
+            return System.Text.RegularExpressions.Regex.IsMatch(text, "^[0-9]+$");
         }
     }
 }
