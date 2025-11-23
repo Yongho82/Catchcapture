@@ -18,12 +18,18 @@ namespace CatchCapture
         {
             InitializeComponent();
             mainWindow = owner;
-            settings = Settings.Load();  // 추가
             
-            BuildIconButtons();  // 추가
-
+            // 설정 로드 및 초기화
+            LoadSettings();
+            
             // 창 위치 설정
             PositionWindow();
+        }
+
+        private void LoadSettings()
+        {
+            settings = Settings.Load();
+            BuildIconButtons();
         }
 
         private void PositionWindow()
@@ -44,7 +50,12 @@ namespace CatchCapture
                 this.Hide();
             }
         }
-
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            // 창 닫힐 때 현재 설정 저장
+            Settings.Save(settings);
+            base.OnClosing(e);
+        }
         private void SwitchToNormalModeButton_Click(object sender, RoutedEventArgs e)
         {
             this.Hide();
@@ -486,9 +497,13 @@ namespace CatchCapture
             
             if (result == MessageBoxResult.Yes)
             {
+                // 설정 다시 로드 (최신 상태 확보)
+                settings = Settings.Load();
+                
                 settings.TrayModeIcons.Remove(iconName);
                 Settings.Save(settings);
-                BuildIconButtons(); // 다시 빌드
+                
+                BuildIconButtons();
             }
         }
 
@@ -549,8 +564,12 @@ namespace CatchCapture
 
         private void AddIcon(string iconName)
         {
+            // 설정 다시 로드 (최신 상태 확보)
+            settings = Settings.Load();
+            
             settings.TrayModeIcons.Add(iconName);
             Settings.Save(settings);
+            
             BuildIconButtons();
         }
 

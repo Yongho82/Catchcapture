@@ -864,6 +864,10 @@ public partial class MainWindow : Window
             // 캡처 도중 숨겨졌을 수 있으므로 다시 표시
             trayModeWindow.Show();
             trayModeWindow.UpdateCaptureCount(captures.Count);
+            
+            // 트레이모드에서는 자동으로 클립보드에 복사
+            ScreenCaptureUtility.CopyImageToClipboard(image);
+            ShowGuideMessage("캡처가 클립보드에 복사되었습니다.", TimeSpan.FromSeconds(1));
         }
         else if (simpleModeWindow == null)
         {

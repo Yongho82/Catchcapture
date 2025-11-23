@@ -45,7 +45,7 @@ namespace CatchCapture.Utilities
             BorderThickness = new Thickness(0);
 
             StackPanel panel = new StackPanel();
-            panel.Margin = new Thickness(24, 22, 24, 62); // 하단 여백 증가로 숫자 클리핑 방지
+            panel.Margin = new Thickness(20, 12, 20, 12); // 여백 줄이기
 
             _messageBlock = new TextBlock
             {
@@ -81,7 +81,11 @@ namespace CatchCapture.Utilities
                 CenterWindowOnScreen();
                 MakeWindowRounded();
             };
-
+            // 창 크기 변경 시에도 둥근 모서리 다시 적용
+            SizeChanged += (s, e) =>
+            {
+                MakeWindowRounded();
+            };
             if (duration.HasValue)
             {
                 var timer = new System.Windows.Threading.DispatcherTimer
@@ -114,15 +118,15 @@ namespace CatchCapture.Utilities
 
             _remainingSeconds = seconds;
             // Make it visually prominent
-            _messageBlock.FontSize = 44;
+            _messageBlock.FontSize = 36; // 44 → 36 (숫자 크기 줄이기)
             _messageBlock.FontWeight = FontWeights.Bold;
             _messageBlock.TextWrapping = TextWrapping.NoWrap;
             _messageBlock.TextAlignment = TextAlignment.Center;
             _messageBlock.Foreground = Brushes.White; // 가시성 보장
             // 숫자가 아래로 잘리는 현상 방지: 줄 박스 높이와 마진 조정
             _messageBlock.LineStackingStrategy = LineStackingStrategy.BlockLineHeight;
-            _messageBlock.LineHeight = _messageBlock.FontSize * 1.2; // 약간 여유
-            _messageBlock.Margin = new Thickness(0, 6, 0, 12);
+            _messageBlock.LineHeight = _messageBlock.FontSize * 1.1; // 1.2 → 1.1 (줄 간격 줄이기)
+            _messageBlock.Margin = new Thickness(0, 2, 0, 2); // (0, 6, 0, 12) → (0, 2, 0, 2) (상하 여백 줄이기)
             // 미세한 그림자 효과로 대비 향상
             _messageBlock.Effect = new System.Windows.Media.Effects.DropShadowEffect
             {
@@ -182,12 +186,23 @@ namespace CatchCapture.Utilities
         private void MakeWindowRounded()
         {
             IntPtr hwnd = new WindowInteropHelper(this).Handle;
+            if (hwnd == IntPtr.Zero) return; // 핸들이 없으면 리턴
+            
             int style = GetWindowLong(hwnd, GWL_STYLE);
             SetWindowLong(hwnd, GWL_STYLE, style & ~WS_CAPTION);
 
             try
             {
-                IntPtr region = CreateRoundRectRgn(0, 0, (int)ActualWidth, (int)ActualHeight, 10, 10);
+                // 현재 창 크기 가져오기
+                int width = (int)Math.Ceiling(this.ActualWidth);
+                int height = (int)Math.Ceiling(this.ActualHeight);
+                
+                // 이전 Region 해제 (메모리 누수 방지)
+                Win32.SetWindowRgn(hwnd, IntPtr.Zero, false);
+                
+                // 새 Region 생성 (오른쪽/하단 경계 포함을 위해 +1)
+                IntPtr region = CreateRoundRectRgn(0, 0, width + 1, height + 1, 10, 10);
+                
                 var hwndSource = HwndSource.FromHwnd(hwnd);
                 if (hwndSource?.CompositionTarget != null)
                 {
