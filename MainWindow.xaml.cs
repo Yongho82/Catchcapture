@@ -1881,16 +1881,6 @@ public partial class MainWindow : Window
         }
     }
 
-    public void TriggerWindowCapture()
-    {
-        WindowCaptureButton_Click(this, new RoutedEventArgs());
-    }
-
-    public void TriggerUnitCapture()
-    {
-        ElementCaptureButton_Click(this, new RoutedEventArgs());
-    }
-
     #endregion
 
     // 사이드바 설정 버튼 클릭
@@ -2078,7 +2068,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        var countdown = new GuideWindow("", null)
+        var countdown = new GuideWindow("", null!)
         {
             Owner = null, // 트레이 모드에서는 Owner를 null로 설정
             Topmost = true
@@ -2090,64 +2080,70 @@ public partial class MainWindow : Window
             Dispatcher.Invoke(StartAreaCapture);
         });
     }
+
     public void TriggerAreaCapture()
     {
-        AreaCaptureButton_Click(null, null);
-    }
-
-    public void TriggerDelayCapture()
-    {
-        DelayCaptureButton_Click(null, null);
+        AreaCaptureButton_Click(null!, new RoutedEventArgs());
     }
 
     public void TriggerFullScreenCapture()
     {
-        FullScreenCaptureButton_Click(null, null);
+        FullScreenCaptureButton_Click(null!, new RoutedEventArgs());
     }
 
     public void TriggerDesignatedCapture()
     {
-        DesignatedCaptureButton_Click(null, null);
+        DesignatedCaptureButton_Click(null!, new RoutedEventArgs());
+    }
+
+    public void TriggerWindowCapture()
+    {
+        WindowCaptureButton_Click(this, new RoutedEventArgs());
+    }
+
+    public void TriggerUnitCapture()
+    {
+        ElementCaptureButton_Click(this, new RoutedEventArgs());
     }
 
     public void TriggerCopySelected()
     {
-        CopySelectedButton_Click(null, null);
+        CopySelectedButton_Click(null!, new RoutedEventArgs());
     }
 
     public void TriggerCopyAll()
     {
-        CopyAllButton_Click(null, null);
+        CopyAllButton_Click(null!, new RoutedEventArgs());
     }
 
     public void TriggerSaveSelected()
     {
-        SaveSelectedButton_Click(null, null);
+        SaveSelectedButton_Click(null!, new RoutedEventArgs());
     }
 
     public void TriggerSaveAll()
     {
-        SaveAllButton_Click(null, null);
+        SaveAllButton_Click(null!, new RoutedEventArgs());
     }
 
     public void TriggerDeleteSelected()
     {
-        DeleteSelectedButton_Click(null, null);
+        DeleteSelectedButton_Click(null!, new RoutedEventArgs());
     }
 
     public void TriggerDeleteAll()
     {
-        DeleteAllButton_Click(null, null);
+        DeleteAllButton_Click(null!, new RoutedEventArgs());
     }
 
     public void TriggerSimpleMode()
     {
-        SimpleModeButton_Click(null, null);
+        SimpleModeButton_Click(null!, new RoutedEventArgs());
     }
 
     public void TriggerSettings()
     {
-        SettingsSideButton_Click(null, null);
+        SettingsSideButton_Click(null!, new RoutedEventArgs());
     }
 
     #endregion

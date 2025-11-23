@@ -67,7 +67,7 @@ namespace CatchCapture
             string fmt = _settings.FileSaveFormat ?? "PNG";
             foreach (ComboBoxItem item in CboFormat.Items)
             {
-                if (item.Content.ToString().Equals(fmt, StringComparison.OrdinalIgnoreCase))
+                if (item.Content?.ToString()?.Equals(fmt, StringComparison.OrdinalIgnoreCase) == true)
                 {
                     CboFormat.SelectedItem = item;
                     break;
@@ -152,7 +152,7 @@ namespace CatchCapture
             // Capture options
             if (CboFormat.SelectedItem is ComboBoxItem item)
             {
-                _settings.FileSaveFormat = item.Content.ToString();
+                _settings.FileSaveFormat = item.Content?.ToString() ?? "PNG";
             }
             
             if (int.TryParse(TxtQuality.Text, out int q))
@@ -260,7 +260,7 @@ namespace CatchCapture
         {
             if (CboFormat.SelectedItem is ComboBoxItem item && TxtQuality != null)
             {
-                string format = item.Content.ToString();
+                string? format = item.Content?.ToString();
                 if (format == "PNG")
                 {
                     TxtQuality.Text = "100";

@@ -303,7 +303,7 @@ namespace CatchCapture
 
                 // 헤더 높이 계산 (스티칭 시 Sticky Header 제거용)
                 int headerHeight = 0;
-                if (scrollPattern != null)
+                if (scrollPattern != null && element != null)
                 {
                     try 
                     {
@@ -315,14 +315,17 @@ namespace CatchCapture
                              if (child != null) scrollableElement = child;
                         }
 
-                        var elemRect = scrollableElement.Current.BoundingRectangle;
-                        
-                        // 헤더 높이 = 스크롤 영역 시작점 - 창 시작점
-                        headerHeight = (int)(elemRect.Top - winRect.Top);
-                        if (headerHeight < 0) headerHeight = 0;
-                        
-                        // 너무 크면(창의 50% 이상) 오류일 수 있으므로 제한
-                        if (headerHeight > (winRect.Bottom - winRect.Top) / 2) headerHeight = 0;
+                        if (scrollableElement != null)
+                        {
+                            var elemRect = scrollableElement.Current.BoundingRectangle;
+                            
+                            // 헤더 높이 = 스크롤 영역 시작점 - 창 시작점
+                            headerHeight = (int)(elemRect.Top - winRect.Top);
+                            if (headerHeight < 0) headerHeight = 0;
+                            
+                            // 너무 크면(창의 50% 이상) 오류일 수 있으므로 제한
+                            if (headerHeight > (winRect.Bottom - winRect.Top) / 2) headerHeight = 0;
+                        }
                     }
                     catch { }
                 }

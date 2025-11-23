@@ -241,7 +241,31 @@ namespace CatchCapture.Utilities
 
             canvas.Children.Add(magnifierBorder);
             Panel.SetZIndex(magnifierBorder, 1000); // 최상위 표시
+            // --- 여기부터 추가된 코드 ---
+            // 십자선 초기화
+            crosshairHorizontal = new Line
+            {
+                Stroke = Brushes.Red,
+                StrokeThickness = 1,
+                StrokeDashArray = new DoubleCollection { 2, 2 },
+                Visibility = Visibility.Collapsed
+            };
+            crosshairVertical = new Line
+            {
+                Stroke = Brushes.Red,
+                StrokeThickness = 1,
+                StrokeDashArray = new DoubleCollection { 2, 2 },
+                Visibility = Visibility.Collapsed
+            };
+            
+            // 캔버스에 추가 (돋보기보다 위에)
+            canvas.Children.Add(crosshairHorizontal);
+            canvas.Children.Add(crosshairVertical);
+            Panel.SetZIndex(crosshairHorizontal, 1001);
+            Panel.SetZIndex(crosshairVertical, 1001);
+            // --- 여기까지 ---
         }
+        
         private void SnippingWindow_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             startPoint = e.GetPosition(canvas);
