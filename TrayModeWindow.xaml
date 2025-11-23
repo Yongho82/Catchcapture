@@ -41,6 +41,35 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- 상단 작은 버튼 스타일 -->
+        <Style x:Key="SmallIconButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="18"/>
+            <Setter Property="Height" Value="18"/>
+            <Setter Property="Margin" Value="1,0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                CornerRadius="4"
+                                Padding="1">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#E8F3FF" TargetName="border"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#D0DAFF" TargetName="border"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
     
     <Border Background="White" CornerRadius="12" BorderThickness="1" BorderBrush="#E0E6F0">
@@ -50,6 +79,23 @@
         
         <Grid Margin="10,15">
             <StackPanel VerticalAlignment="Top">
+                <!-- 상단 컨트롤 (일반모드 / 간편모드) -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,5">
+                    <!-- 일반 모드 전환 버튼 -->
+                    <Button x:Name="SwitchToNormalModeButton" Style="{StaticResource SmallIconButtonStyle}" 
+                            Click="SwitchToNormalModeButton_Click" ToolTip="일반 모드로 전환">
+                        <Image Source="/icons/window_capture.png" Width="12" Height="12"
+                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                    </Button>
+
+                    <!-- 간편 모드 버튼 -->
+                    <Button x:Name="SimpleModeButton" Style="{StaticResource SmallIconButtonStyle}" 
+                            Click="SimpleModeButton_Click" ToolTip="간편 모드">
+                        <Image Source="/icons/simple_mode.png" Width="12" Height="12"
+                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                    </Button>
+                </StackPanel>
+
                 <!-- 항상 위 토글 버튼 -->
                 <Button x:Name="TopmostButton" Style="{StaticResource IconButtonStyle}" 
                         Click="TopmostButton_Click" ToolTip="항상 위">
@@ -173,13 +219,6 @@
                 
                 <!-- 구분선 -->
                 <Separator Margin="5,10" Background="#E0E6F0" Height="1"/>
-                
-                <!-- 간편 모드 -->
-                <Button x:Name="SimpleModeButton" Style="{StaticResource IconButtonStyle}" 
-                        Click="SimpleModeButton_Click" ToolTip="간편 모드">
-                    <Image Source="/icons/simple_mode.png" Width="24" Height="24"
-                           RenderOptions.BitmapScalingMode="HighQuality"/>
-                </Button>
                 
                 <!-- 설정 -->
                 <Button x:Name="SettingsButton" Style="{StaticResource IconButtonStyle}" 

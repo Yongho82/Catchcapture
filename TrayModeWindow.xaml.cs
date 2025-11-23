@@ -37,6 +37,12 @@ namespace CatchCapture
             }
         }
 
+        private void SwitchToNormalModeButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Hide();
+            mainWindow.SwitchToNormalMode();
+        }
+
         private void TopmostButton_Click(object sender, RoutedEventArgs e)
         {
             // 항상 위 토글
