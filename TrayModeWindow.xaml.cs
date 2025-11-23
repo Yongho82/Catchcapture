@@ -336,7 +336,7 @@ namespace CatchCapture
                     break;
                 case "RealTimeCapture":
                     button.Click += RealTimeCaptureButton_Click;
-                    button.Content = CreateImage("/icons/clock.png");
+                    button.Content = CreateImage("/icons/real-time.png");
                     break;
                 case "FullScreen":
                     button.Click += FullScreenButton_Click;
@@ -344,11 +344,11 @@ namespace CatchCapture
                     break;
                 case "DesignatedCapture":
                     button.Click += DesignatedCaptureButton_Click;
-                    button.Content = CreateImage("/icons/area_capture.png");
+                    button.Content = CreateImage("/icons/designated.png");
                     break;
                 case "WindowCapture":
                     button.Click += WindowCaptureButton_Click;
-                    button.Content = CreateImage("/icons/window_capture.png");
+                    button.Content = CreateImage("/icons/window_cap.png");
                     break;
                 case "UnitCapture":
                     button.Click += UnitCaptureButton_Click;
@@ -380,7 +380,7 @@ namespace CatchCapture
                     break;
                 case "Settings":
                     button.Click += SettingsButton_Click;
-                    button.Content = CreateImage("/icons/clock.png");
+                    button.Content = CreateImage("/icons/setting.png");
                     break;
             }
             

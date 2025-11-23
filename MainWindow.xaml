@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CatchCapture"
         mc:Ignorable="d"
-        Title="캐치 캡처" Height="650" Width="350" 
-        MinWidth="350" MinHeight="650"
+        Title="캐치 캡처" Height="700" Width="350" 
+        MinWidth="350" MinHeight="700"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None" AllowsTransparency="True" 
         Background="Transparent">
@@ -189,7 +189,7 @@
                             <!-- 실시간 캡처 버튼 -->
                             <Button x:Name="RealTimeCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="RealTimeCaptureButton_Click">
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="/icons/clock.png" Width="16" Height="16" Margin="0,0,5,0"
+                                    <Image Source="/icons/real-time.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
                                     <TextBlock Text="실시간 캡처" HorizontalAlignment="Left" FontSize="11"/>
                                 </StackPanel>
@@ -206,7 +206,7 @@
                             <!-- 지정 캡처 버튼 (스크롤캡처 대체) -->
                             <Button x:Name="DesignatedCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="DesignatedCaptureButton_Click">
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="/icons/area_capture.png" Width="16" Height="16" Margin="0,0,5,0"
+                                    <Image Source="/icons/designated.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
                                     <TextBlock Text="지정캡처" HorizontalAlignment="Left" FontSize="11"/>
                                 </StackPanel>
@@ -214,7 +214,7 @@
                             <!-- 창 캡처 버튼 -->
                             <Button x:Name="WindowCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="WindowCaptureButton_Click">
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="/icons/full_screen.png" Width="16" Height="16" Margin="0,0,5,0"
+                                    <Image Source="/icons/window_cap.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
                                     <TextBlock Text="창 캡처" HorizontalAlignment="Left" FontSize="11"/>
                                 </StackPanel>
@@ -223,7 +223,7 @@
                             <!-- 단위 캡처 버튼 -->
                             <Button x:Name="ElementCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="ElementCaptureButton_Click">
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="/icons/area_capture.png" Width="16" Height="16" Margin="0,0,5,0"
+                                    <Image Source="/icons/unit_capture.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
                                     <TextBlock Text="단위 캡처" HorizontalAlignment="Left" FontSize="11"/>
                                 </StackPanel>
@@ -232,7 +232,7 @@
                             <!-- 스크롤 캡처 버튼 -->
                             <Button x:Name="ScrollCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="ScrollCaptureButton_Click">
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="/icons/full_screen.png" Width="16" Height="16" Margin="0,0,5,0"
+                                    <Image Source="/icons/scroll_capture.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
                                     <TextBlock Text="스크롤 캡처" HorizontalAlignment="Left" FontSize="11"/>
                                 </StackPanel>
@@ -288,7 +288,7 @@
                             <!-- 트레이 모드 버튼 -->
                             <Button x:Name="TrayModeButton" Style="{StaticResource SidebarButtonStyle}" Click="TrayModeButton_Click">
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="/icons/simple_mode.png" Width="16" Height="16" Margin="0,0,5,0"
+                                    <Image Source="/icons/tray_mode.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
                                     <TextBlock Text="트레이모드" HorizontalAlignment="Left" FontSize="11"/>
                                 </StackPanel>
@@ -299,7 +299,7 @@
                             <!-- 간편 모드 아래 설정 버튼 -->
                             <Button x:Name="SettingsSideButton" Style="{StaticResource SidebarButtonStyle}" Click="SettingsSideButton_Click">
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="/icons/clock.png" Width="16" Height="16" Margin="0,0,5,0"
+                                    <Image Source="/icons/setting.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
                                     <TextBlock Text="설정" HorizontalAlignment="Left" FontSize="11"/>
                                 </StackPanel>
