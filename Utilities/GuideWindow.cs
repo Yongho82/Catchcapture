@@ -148,8 +148,15 @@ namespace CatchCapture.Utilities
                 if (_remainingSeconds <= 0)
                 {
                     _countdownTimer!.Stop();
-                    Close();
-                    try { onCompleted?.Invoke(); } catch { }
+                    // 먼저 창을 즉시 숨김 (캡처 전에 화면에서 제거)
+                    this.Hide();
+                    // 약간의 딜레이 후 콜백 실행 (창이 완전히 숨겨질 시간 확보)
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        try { onCompleted?.Invoke(); } catch { }
+                        // 콜백 완료 후 창 닫기
+                        Close();
+                    }), System.Windows.Threading.DispatcherPriority.Background);
                 }
                 else
                 {

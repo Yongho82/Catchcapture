@@ -865,18 +865,24 @@ public partial class MainWindow : Window
             trayModeWindow.Show();
             trayModeWindow.UpdateCaptureCount(captures.Count);
         }
-        else
+        else if (simpleModeWindow == null)
         {
+            // 간편모드가 활성화되지 않은 경우에만 일반 모드 창 표시
             // 캡처 개수 업데이트 (일반 모드용)
             UpdateCaptureCount();
             
-            // 창 표시 (트레이 모드가 아닐 때만)
+            // 창 표시 (트레이 모드가 아니고 간편모드가 아닐 때만)
             this.Show();
             this.WindowState = WindowState.Normal;
             this.Activate();
         }
+        else
+        {
+            // 간편모드가 활성화된 경우 캡처 개수만 업데이트
+            UpdateCaptureCount();
+        }
     }
-
+    
     private Border CreateCaptureItem(CaptureImage captureImage, int index)
     {
         // 썸네일 크기 고정
