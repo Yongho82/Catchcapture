@@ -231,12 +231,17 @@ namespace CatchCapture
             int baseHeight = 30 + 50 + 50 + 21 + 50 + 30; // 상단 + TopmostButton + Counter + Separator + + 버튼 + 여백
             int iconsHeight = iconCount * 50;
             
-            int totalHeight = baseHeight + iconsHeight;
+            int newHeight = baseHeight + iconsHeight;
             
             // 최소/최대 높이 제한
-            totalHeight = Math.Max(200, Math.Min(totalHeight, 800));
+            newHeight = Math.Max(200, Math.Min(newHeight, 800));
             
-            this.Height = totalHeight;
+            // 현재 높이와 새 높이의 차이 계산
+            double heightDiff = newHeight - this.Height;
+            
+            // 하단 기준으로 높이 조절 (Top 위치를 위로 이동)
+            this.Top -= heightDiff;
+            this.Height = newHeight;
         }
         private void AddIconButton(StackPanel panel, string iconName)
         {
@@ -403,39 +408,39 @@ namespace CatchCapture
             var btn = new Button
             {
                 Content = "−",
-                Width = 18,
-                Height = 18,
-                FontSize = 16,
+                Width = 12,  // 14 → 12
+                Height = 12, // 14 → 12
+                FontSize = 10, // 12 → 10
                 FontWeight = FontWeights.Bold,
                 Background = new SolidColorBrush(Color.FromArgb(200, 255, 80, 80)), // 반투명 빨강
                 Foreground = Brushes.White,
                 BorderThickness = new Thickness(0),
                 HorizontalAlignment = HorizontalAlignment.Right,
                 VerticalAlignment = VerticalAlignment.Top,
-                Margin = new Thickness(0, 2, 2, 0),
+                Margin = new Thickness(0, 0, 0, 0), // (0, 1, 1, 0) → (0, 0, 0, 0) - 더 위로
                 Cursor = Cursors.Hand,
-                Padding = new Thickness(0, -5, 0, 0) // - 기호 중앙 정렬
+                Padding = new Thickness(0, -5, 0, 0) // -4 → -5 (더 위로)
             };
             
             // 둥근 모서리
             var border = new Border
             {
-                CornerRadius = new CornerRadius(9),
+                CornerRadius = new CornerRadius(6), // 7 → 6
                 Background = btn.Background,
-                Width = 13,
-                Height = 13,
+                Width = 8,  // 10 → 8
+                Height = 8, // 10 → 8
                 HorizontalAlignment = HorizontalAlignment.Right,
                 VerticalAlignment = VerticalAlignment.Top,
-                Margin = new Thickness(0, 2, 2, 0),
+                Margin = new Thickness(0, 0, 0, 0), // (0, 1, 1, 0) → (0, 0, 0, 0)
                 Child = new TextBlock
                 {
                     Text = "−",
-                    FontSize = 16,
+                    FontSize = 10, // 12 → 10
                     FontWeight = FontWeights.Bold,
                     Foreground = Brushes.White,
                     HorizontalAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Center,
-                    Margin = new Thickness(0, -2, 0, 0)
+                    Margin = new Thickness(0, -3, 0, 0) // -2 → -3 (더 위로)
                 }
             };
             
@@ -445,21 +450,20 @@ namespace CatchCapture
                 e.Handled = true;
             };
             
-            // Border를 반환하도록 변경 필요
-            // 하지만 Button 타입을 유지하려면 Template 사용
-            
+            // Template 설정
             var template = new ControlTemplate(typeof(Button));
             var factory = new FrameworkElementFactory(typeof(Border));
-            factory.SetValue(Border.CornerRadiusProperty, new CornerRadius(9));
+            factory.SetValue(Border.CornerRadiusProperty, new CornerRadius(6)); // 7 → 6
             factory.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Button.BackgroundProperty));
             
             var textFactory = new FrameworkElementFactory(typeof(TextBlock));
             textFactory.SetValue(TextBlock.TextProperty, "−");
-            textFactory.SetValue(TextBlock.FontSizeProperty, 16.0);
+            textFactory.SetValue(TextBlock.FontSizeProperty, 10.0); // 12.0 → 10.0
             textFactory.SetValue(TextBlock.FontWeightProperty, FontWeights.Bold);
             textFactory.SetValue(TextBlock.ForegroundProperty, Brushes.White);
             textFactory.SetValue(TextBlock.HorizontalAlignmentProperty, HorizontalAlignment.Center);
             textFactory.SetValue(TextBlock.VerticalAlignmentProperty, VerticalAlignment.Center);
+            textFactory.SetValue(TextBlock.MarginProperty, new Thickness(0, -3, 0, 0)); // 추가
             
             factory.AppendChild(textFactory);
             template.VisualTree = factory;
@@ -472,9 +476,20 @@ namespace CatchCapture
 
         private void RemoveIcon(string iconName)
         {
-            settings.TrayModeIcons.Remove(iconName);
-            Settings.Save(settings);
-            BuildIconButtons(); // 다시 빌드
+            // 삭제 확인 메시지
+            var result = MessageBox.Show(
+                $"'{GetIconDisplayName(iconName)}' 아이콘을 삭제하시겠습니까?",
+                "아이콘 삭제",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question
+            );
+            
+            if (result == MessageBoxResult.Yes)
+            {
+                settings.TrayModeIcons.Remove(iconName);
+                Settings.Save(settings);
+                BuildIconButtons(); // 다시 빌드
+            }
         }
 
         private void AddEmptySlot(StackPanel panel)
