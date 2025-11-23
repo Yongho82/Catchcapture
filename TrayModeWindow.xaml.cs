@@ -112,6 +112,18 @@ namespace CatchCapture
             mainWindow.TriggerDesignatedCapture();
         }
 
+        private void WindowCaptureButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Hide();
+            mainWindow.TriggerWindowCapture();
+        }
+
+        private void UnitCaptureButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Hide();
+            mainWindow.TriggerUnitCapture();
+        }
+
         private void CopyButton_Click(object sender, RoutedEventArgs e)
         {
             mainWindow.TriggerCopySelected();

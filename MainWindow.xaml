@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CatchCapture"
         mc:Ignorable="d"
-        Title="캐치 캡처" Height="610" Width="350" 
-        MinWidth="350" MinHeight="610"
+        Title="캐치 캡처" Height="650" Width="350" 
+        MinWidth="350" MinHeight="650"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None" AllowsTransparency="True" 
         Background="Transparent">

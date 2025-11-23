@@ -811,6 +811,36 @@ public partial class MainWindow : Window
         // 캡처 이미지 객체 생성
         var captureImage = new CaptureImage(image);
         captures.Add(captureImage);
+        try 
+        {
+            var currentSettings = CatchCapture.Models.Settings.Load();
+            if (currentSettings.AutoSaveCapture)
+            {
+                string saveFolder = currentSettings.DefaultSaveFolder;
+                // 폴더 경로가 비어있으면 기본 경로 설정
+                if (string.IsNullOrWhiteSpace(saveFolder))
+                {
+                    saveFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture");
+                }
+                
+                // 폴더가 없으면 생성
+                if (!System.IO.Directory.Exists(saveFolder))
+                {
+                    System.IO.Directory.CreateDirectory(saveFolder);
+                }
+
+                string timestamp = DateTime.Now.ToString("yyyy-MM-dd HHmmss");
+                string ext = currentSettings.FileSaveFormat.Equals("PNG", StringComparison.OrdinalIgnoreCase) ? ".png" : ".jpg";
+                string filename = $"AutoSave_{timestamp}_{captures.Count}{ext}";
+                string fullPath = System.IO.Path.Combine(saveFolder, filename);
+
+                CatchCapture.Utilities.ScreenCaptureUtility.SaveImageToFile(image, fullPath);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"자동 저장 실패: {ex.Message}");
+        }
 
         // UI에 이미지 추가 - 최신 캡처를 위에 표시하기 위해 인덱스 0에 추가
         var border = CreateCaptureItem(captureImage, captures.Count - 1);
@@ -1822,6 +1852,16 @@ public partial class MainWindow : Window
                 }
             }), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         }
+    }
+
+    public void TriggerWindowCapture()
+    {
+        WindowCaptureButton_Click(this, new RoutedEventArgs());
+    }
+
+    public void TriggerUnitCapture()
+    {
+        ElementCaptureButton_Click(this, new RoutedEventArgs());
     }
 
     #endregion

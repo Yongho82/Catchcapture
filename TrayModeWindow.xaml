@@ -98,6 +98,20 @@
                     <Image Source="/icons/area_capture.png" Width="24" Height="24"
                            RenderOptions.BitmapScalingMode="HighQuality"/>
                 </Button>
+
+                <!-- 창 캡처 -->
+                <Button x:Name="WindowCaptureButton" Style="{StaticResource IconButtonStyle}" 
+                        Click="WindowCaptureButton_Click" ToolTip="창 캡처">
+                    <Image Source="/icons/window_capture.png" Width="24" Height="24"
+                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                </Button>
+
+                <!-- 단위 캡처 -->
+                <Button x:Name="UnitCaptureButton" Style="{StaticResource IconButtonStyle}" 
+                        Click="UnitCaptureButton_Click" ToolTip="단위 캡처">
+                    <Image Source="/icons/unit_capture.png" Width="24" Height="24"
+                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                </Button>
                 
                 <!-- 구분선 -->
                 <Separator Margin="5,10" Background="#E0E6F0" Height="1"/>

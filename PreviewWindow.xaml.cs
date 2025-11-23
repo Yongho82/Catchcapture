@@ -534,15 +534,28 @@ namespace CatchCapture
         {
             // 자동 파일 이름 생성
             string timestamp = DateTime.Now.ToString("yyyy-MM-dd HHmmss");
-            string defaultFileName = $"캡처 {timestamp}.jpg";
+
+            // 설정 불러오기
+            var settings = CatchCapture.Models.Settings.Load();
+            bool isPng = settings.FileSaveFormat.Equals("PNG", StringComparison.OrdinalIgnoreCase);
+            
+            // 확장자 설정
+            string ext = isPng ? ".png" : ".jpg";
+            string defaultFileName = $"캡처 {timestamp}{ext}";
+
+            // 필터 순서 변경 (설정된 포맷을 무조건 첫 번째로 배치)
+            string filter = isPng 
+                ? "PNG 이미지|*.png|JPEG 이미지|*.jpg|모든 파일|*.*" 
+                : "JPEG 이미지|*.jpg|PNG 이미지|*.png|모든 파일|*.*";
 
             // 저장 대화 상자 표시
             var dialog = new SaveFileDialog
             {
                 Title = "이미지 저장",
-                Filter = "JPEG 이미지|*.jpg|PNG 이미지|*.png|모든 파일|*.*",
-                DefaultExt = ".jpg",
-                FileName = defaultFileName
+                Filter = filter,
+                DefaultExt = ext,
+                FileName = defaultFileName,
+                FilterIndex = 1 // 항상 첫 번째 항목(설정된 포맷)이 선택됨
             };
 
             if (dialog.ShowDialog() == true)
