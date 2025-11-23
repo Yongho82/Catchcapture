@@ -1210,27 +1210,81 @@ public partial class MainWindow : Window
         SaveAllImages();
     }
 
-    private void SaveAllImages()
+    private void SaveImageToFile(CaptureImage captureImage)
     {
-        if (captures.Count == 0) return;
-
-        // 저장 폴더 선택
+        // 자동 파일 이름 생성
+        string timestamp = DateTime.Now.ToString("yyyy-MM-dd HHmmss");
+        
+        // 설정에서 포맷 가져오기
+        string format = settings.FileSaveFormat; // PNG, JPG, BMP, GIF, WEBP
+        string ext = $".{format.ToLower()}";
+        
+        string defaultFileName = $"캡처 {timestamp}{ext}";
+        
+        // 필터 생성 (설정된 포맷을 최우선으로)
+        string filter = "모든 파일|*.*";
+        if (format.Equals("PNG", StringComparison.OrdinalIgnoreCase))
+            filter = "PNG 이미지|*.png|JPEG 이미지|*.jpg|BMP 이미지|*.bmp|GIF 이미지|*.gif|WEBP 이미지|*.webp|" + filter;
+        else if (format.Equals("JPG", StringComparison.OrdinalIgnoreCase))
+            filter = "JPEG 이미지|*.jpg|PNG 이미지|*.png|BMP 이미지|*.bmp|GIF 이미지|*.gif|WEBP 이미지|*.webp|" + filter;
+        else if (format.Equals("BMP", StringComparison.OrdinalIgnoreCase))
+            filter = "BMP 이미지|*.bmp|PNG 이미지|*.png|JPEG 이미지|*.jpg|GIF 이미지|*.gif|WEBP 이미지|*.webp|" + filter;
+        else if (format.Equals("GIF", StringComparison.OrdinalIgnoreCase))
+            filter = "GIF 이미지|*.gif|PNG 이미지|*.png|JPEG 이미지|*.jpg|BMP 이미지|*.bmp|WEBP 이미지|*.webp|" + filter;
+        else if (format.Equals("WEBP", StringComparison.OrdinalIgnoreCase))
+            filter = "WEBP 이미지|*.webp|PNG 이미지|*.png|JPEG 이미지|*.jpg|BMP 이미지|*.bmp|GIF 이미지|*.gif|" + filter;
+        
         var dialog = new SaveFileDialog
         {
-            Title = "저장 폴더 선택",
-            FileName = "folder_selection",
-            Filter = "폴더|*.folder"
+            Title = "이미지 저장",
+            Filter = filter,
+            DefaultExt = ext,
+            FileName = defaultFileName,
+            FilterIndex = 1 
         };
 
         if (dialog.ShowDialog() == true)
         {
-            string folderPath = System.IO.Path.GetDirectoryName(dialog.FileName) ?? Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+            try
+            {
+                // 설정된 품질 사용
+                ScreenCaptureUtility.SaveImageToFile(captureImage.Image, dialog.FileName, settings.ImageQuality);
+                captureImage.IsSaved = true;
+                captureImage.SavedPath = dialog.FileName;
+                ShowGuideMessage("이미지가 저장되었습니다.", TimeSpan.FromSeconds(1));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"저장 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+    }
+    private void SaveAllImages()
+    {
+        if (captures.Count == 0) return;
+
+        // 저장 폴더 선택 (폴더 선택 다이얼로그 대용으로 SaveFileDialog 사용)
+        // 실제로는 사용자가 폴더를 지정하기 위한 용도
+        var dialog = new System.Windows.Forms.FolderBrowserDialog
+        {
+            Description = "저장할 폴더를 선택하세요",
+            ShowNewFolderButton = true
+        };
+
+        if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+        {
+            string folderPath = dialog.SelectedPath;
             string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+            
+            // 설정에서 포맷과 품질 가져오기
+            string format = settings.FileSaveFormat.ToLower();
+            string ext = $".{format}";
+            int quality = settings.ImageQuality;
 
             for (int i = 0; i < captures.Count; i++)
             {
-                string fileName = System.IO.Path.Combine(folderPath, $"캡처_{timestamp}_{i + 1}.jpg");
-                ScreenCaptureUtility.SaveImageToFile(captures[i].Image, fileName);
+                string fileName = System.IO.Path.Combine(folderPath, $"캡처_{timestamp}_{i + 1}{ext}");
+                ScreenCaptureUtility.SaveImageToFile(captures[i].Image, fileName, quality);
                 captures[i].IsSaved = true;
                 captures[i].SavedPath = fileName;
             }
@@ -1238,33 +1292,6 @@ public partial class MainWindow : Window
             ShowGuideMessage("모든 이미지가 저장되었습니다.", TimeSpan.FromSeconds(1));
         }
     }
-
-    private void SaveImageToFile(CaptureImage captureImage)
-    {
-        // 자동 파일 이름 생성
-        string timestamp = DateTime.Now.ToString("yyyy-MM-dd HHmmss");
-        string defaultFileName = $"캡처 {timestamp}.jpg";
-        
-        var dialog = new SaveFileDialog
-        {
-            Title = "이미지 저장",
-            Filter = "JPEG 이미지|*.jpg|PNG 이미지|*.png|모든 파일|*.*",
-            DefaultExt = ".jpg",
-            FileName = defaultFileName
-        };
-
-        if (dialog.ShowDialog() == true)
-        {
-            ScreenCaptureUtility.SaveImageToFile(captureImage.Image, dialog.FileName);
-            captureImage.IsSaved = true;
-            captureImage.SavedPath = dialog.FileName;
-            ShowGuideMessage("이미지가 저장되었습니다.", TimeSpan.FromSeconds(1));
-        }
-    }
-
-    #endregion
-
-    #region 삭제 기능
 
     private void DeleteSelectedButton_Click(object sender, RoutedEventArgs e)
     {
