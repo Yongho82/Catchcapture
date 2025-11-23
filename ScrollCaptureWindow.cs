@@ -335,10 +335,10 @@ namespace CatchCapture
 
                 for (int i = 0; i < maxScrolls; i++)
                 {
-                    // 스크롤 다운 (증가된 스크롤 양으로 오버랩 감소)
+                    // 스크롤 다운 (적절한 오버랩 유지: 약 30-40%)
                     try
                     {
-                        mouse_event(MOUSEEVENTF_WHEEL, 0, 0, unchecked((uint)-500), UIntPtr.Zero);
+                        mouse_event(MOUSEEVENTF_WHEEL, 0, 0, unchecked((uint)-300), UIntPtr.Zero);
                     }
                     catch { }
                     
