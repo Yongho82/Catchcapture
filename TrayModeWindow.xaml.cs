@@ -334,6 +334,10 @@ namespace CatchCapture
                     // ContextMenu 추가
                     button.ContextMenu = CreateDelayContextMenu();
                     break;
+                case "RealTimeCapture":
+                    button.Click += RealTimeCaptureButton_Click;
+                    button.Content = CreateImage("/icons/clock.png");
+                    break;
                 case "FullScreen":
                     button.Click += FullScreenButton_Click;
                     button.Content = CreateImage("/icons/full_screen.png");
@@ -542,7 +546,7 @@ namespace CatchCapture
             var menu = new ContextMenu();
             
             var allIcons = new[] { 
-                "AreaCapture", "DelayCapture", "FullScreen", 
+                "AreaCapture", "DelayCapture", "FullScreen", "RealTimeCapture",
                 "DesignatedCapture", "WindowCapture", "UnitCapture",
                 "Copy", "CopyAll", "Save", "SaveAll", 
                 "Delete", "DeleteAll", "Settings"
@@ -573,6 +577,10 @@ namespace CatchCapture
             BuildIconButtons();
         }
 
+        private void RealTimeCaptureButton_Click(object sender, RoutedEventArgs e)
+        {
+            mainWindow.TriggerRealTimeCapture();
+        }
         private string GetIconDisplayName(string iconName)
         {
             // 아이콘 이름을 한글로 변환
@@ -580,6 +588,7 @@ namespace CatchCapture
             {
                 "AreaCapture" => "영역 캡처",
                 "DelayCapture" => "지연 캡처",
+                "RealTimeCapture" => "실시간 캡처", 
                 "FullScreen" => "전체화면",
                 "DesignatedCapture" => "지정 캡처",
                 "WindowCapture" => "창 캡처",

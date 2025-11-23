@@ -1687,6 +1687,7 @@ public partial class MainWindow : Window
     }
 
     private const int HOTKEY_ID_REALTIME = 9003;
+    private const int HOTKEY_ID_REALTIME_CANCEL = 9004;
 
     // 실시간 캡처 모드 시작 (F1 대기)
     public void StartRealTimeCaptureMode()
@@ -1697,9 +1698,12 @@ public partial class MainWindow : Window
         // F1 키 등록 (Modifiers.None, Key.F1 = 0x70)
         var helper = new WindowInteropHelper(this);
         RegisterHotKey(helper.Handle, HOTKEY_ID_REALTIME, 0, 0x70); 
+        
+        // ESC 키 등록 (Modifiers.None, Key.Escape = 0x1B)
+        RegisterHotKey(helper.Handle, HOTKEY_ID_REALTIME_CANCEL, 0, 0x1B);
 
         // 안내 메시지 표시
-        var guide = new GuideWindow("원하는 화면을 띄우고 [F1] 키를 누르세요", null);
+        var guide = new GuideWindow("원하는 화면을 띄우고 [F1] 키를 누르세요\n(취소: ESC)", null);
         guide.Show();
     }
 
@@ -1727,10 +1731,10 @@ public partial class MainWindow : Window
                     handled = true;
                     break;
 
-                // [여기부터 추가해주세요] --------------------------------
                 case HOTKEY_ID_REALTIME:
-                    // 1. 핫키 해제 (일회성이므로)
+                    // 1. 핫키 해제
                     UnregisterHotKey(hwnd, HOTKEY_ID_REALTIME);
+                    UnregisterHotKey(hwnd, HOTKEY_ID_REALTIME_CANCEL);
                     
                     // 2. 안내창 닫기
                     foreach (Window win in Application.Current.Windows)
@@ -1740,6 +1744,34 @@ public partial class MainWindow : Window
 
                     // 3. 영역 캡처 시작
                     Dispatcher.Invoke(() => StartAreaCapture());
+                    handled = true;
+                    break;
+
+                case HOTKEY_ID_REALTIME_CANCEL:
+                    // 1. 핫키 해제
+                    UnregisterHotKey(hwnd, HOTKEY_ID_REALTIME);
+                    UnregisterHotKey(hwnd, HOTKEY_ID_REALTIME_CANCEL);
+                    
+                    // 2. 안내창 닫기
+                    foreach (Window win in Application.Current.Windows)
+                    {
+                        if (win is GuideWindow) win.Close();
+                    }
+
+                    // 3. 취소 후 창 복원
+                    if (settings.IsTrayMode)
+                    {
+                        if (trayModeWindow != null) 
+                        {
+                            trayModeWindow.Show();
+                            trayModeWindow.Activate();
+                        }
+                    }
+                    else
+                    {
+                        this.Show();
+                        this.Activate();
+                    }
                     handled = true;
                     break;
             }
@@ -2053,6 +2085,10 @@ public partial class MainWindow : Window
         return false;
     }
 
+    public void TriggerRealTimeCapture()
+    {
+        StartRealTimeCaptureMode();
+    }
     // 설정기반 지연 캡처(초)
     private void StartDelayedAreaCaptureSeconds(int seconds)
     {
