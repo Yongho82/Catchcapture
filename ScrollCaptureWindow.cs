@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
@@ -102,10 +103,23 @@ namespace CatchCapture
             public int Bottom;
         }
 
+
         // Fields
         private System.Windows.Shapes.Rectangle highlightRect;
         private IntPtr currentTargetElement = IntPtr.Zero;
         public BitmapSource? CapturedImage { get; private set; }
+        private static readonly string LogFilePath = System.IO.Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.Desktop), 
+            "scroll_capture_log.txt");
+
+        private static void Log(string message)
+        {
+            try
+            {
+                File.AppendAllText(LogFilePath, $"[{DateTime.Now:HH:mm:ss}] {message}\n");
+            }
+            catch { }
+        }
 
         public ScrollCaptureWindow()
         {
@@ -327,22 +341,24 @@ namespace CatchCapture
                 }
                 if (height > 20) height -= 8;
 
-                // 1. 첫 화면 캡처
+                // 1. 첫 화면 캡처 전 안정화
+                await Task.Delay(300); 
                 screenshots.Add(CaptureRegion(captureRect.Left, captureRect.Top, width, height));
 
                 // 강제 스크롤 시도
                 int maxScrolls = 30;
+                int scrollAmount = -350; // 헤더가 큰 페이지를 위한 스크롤 양
 
                 for (int i = 0; i < maxScrolls; i++)
                 {
-                    // 스크롤 다운 (적절한 오버랩 유지: 약 30-40%)
+                    // 스크롤 다운
                     try
                     {
-                        mouse_event(MOUSEEVENTF_WHEEL, 0, 0, unchecked((uint)-300), UIntPtr.Zero);
+                        mouse_event(MOUSEEVENTF_WHEEL, 0, 0, unchecked((uint)scrollAmount), UIntPtr.Zero);
                     }
                     catch { }
                     
-                    await Task.Delay(600); 
+                    await Task.Delay(400); // 스크롤 후 대기
 
                     // 캡처
                     var newShot = CaptureRegion(captureRect.Left, captureRect.Top, width, height);
@@ -361,6 +377,7 @@ namespace CatchCapture
                     screenshots.Add(newShot);
                 }
 
+                Log($"스크롤 캡처 총 {screenshots.Count}개 스크린샷 캡처됨");
                 CapturedImage = MergeScreenshots(screenshots, headerHeight);
                 foreach (var s in screenshots) s.Dispose();
             }
@@ -407,30 +424,37 @@ namespace CatchCapture
 
             try
             {
-                // 1. 중앙 픽셀 비교
-                int centerX = bmp1.Width / 2;
-                int centerY = bmp1.Height / 2;
-                if (bmp1.GetPixel(centerX, centerY) != bmp2.GetPixel(centerX, centerY)) return false;
-
-                // 2. 5군데 샘플링 비교
-                if (bmp1.GetPixel(10, 10) != bmp2.GetPixel(10, 10)) return false;
-                if (bmp1.GetPixel(bmp1.Width - 10, bmp1.Height - 10) != bmp2.GetPixel(bmp1.Width - 10, bmp1.Height - 10)) return false;
-
-                // 3. 전체 스캔 (100픽셀 간격)
-                for (int y = 0; y < bmp1.Height; y += 100)
+                int differentPixels = 0;
+                int totalChecked = 0;
+                
+                // 50픽셀 간격으로 더 정밀하게 스캔
+                for (int y = 0; y < bmp1.Height; y += 50)
                 {
-                    for (int x = 0; x < bmp1.Width; x += 100)
+                    for (int x = 0; x < bmp1.Width; x += 50)
                     {
-                        if (bmp1.GetPixel(x, y) != bmp2.GetPixel(x, y)) return false;
+                        var c1 = bmp1.GetPixel(x, y);
+                        var c2 = bmp2.GetPixel(x, y);
+                        
+                        totalChecked++;
+                        
+                        // 10 이상 차이나면 다른 픽셀로 간주
+                        if (Math.Abs(c1.R - c2.R) > 10 || 
+                            Math.Abs(c1.G - c2.G) > 10 || 
+                            Math.Abs(c1.B - c2.B) > 10)
+                        {
+                            differentPixels++;
+                        }
                     }
                 }
+                
+                // 98% 이상 같으면 동일한 이미지로 판단 (더 엄격하게)
+                double similarity = 1.0 - ((double)differentPixels / totalChecked);
+                return similarity > 0.98;
             }
             catch
             {
                 return false;
             }
-
-            return true;
         }
 
         private BitmapSource MergeScreenshots(List<Bitmap> screenshots, int headerHeight)
@@ -454,22 +478,23 @@ namespace CatchCapture
 
         private Bitmap StitchImages(Bitmap top, Bitmap bottom, int headerHeight)
         {
-            // "Smart Stitching"
-            // Bottom 이미지의 상단(headerHeight)은 Sticky Header이므로 무시하고 매칭을 시도합니다.
+            // "Smart Stitching" - 적절한 매칭 지점 전략 (쇼핑 페이지 성공 버전)
+            // Bottom 이미지의 상단 30% 지점 사용 (오버랩 내에서 고유한 영역)
             
-            // Probe 라인: 헤더 바로 아래부터 시작
-            int probeY_in_Bottom = headerHeight; 
+            // Probe 라인: Bottom 이미지의 30% 지점
+            int probeY_in_Bottom = Math.Max(headerHeight, (int)(bottom.Height * 0.3)); 
             
-            // 안전 장치: 헤더가 너무 크거나 이미지가 작으면 0으로
-            if (probeY_in_Bottom >= bottom.Height - 50) probeY_in_Bottom = 0;
+            // 안전 장치: 너무 크면 headerHeight 사용
+            if (probeY_in_Bottom >= bottom.Height - 50) 
+                probeY_in_Bottom = headerHeight;
 
             int matchY_in_Top = -1;
 
-            // Top 이미지 탐색 (Bottom-Up: 아래에서 위로 탐색하여 더 고유한 영역 우선 매칭)
-            int startSearchY = headerHeight; // Top에서도 헤더 부분은 매칭 대상에서 제외 (오탐 방지)
+            // Top 이미지 탐색 (Bottom-Up: 아래에서 위로, 더 고유한 영역 우선)
+            int startSearchY = headerHeight; // Top에서도 헤더 부분은 매칭 대상에서 제외
             int endSearchY = top.Height - 50;
 
-            // Bottom-Up 방식: 아래쪽이 더 고유한 콘텐츠를 포함할 가능성이 높음
+            // Bottom-Up 방식: 아래쪽 고유 콘텐츠부터 탐색 (조기 매칭 방지)
             for (int y = endSearchY; y >= startSearchY; y--)
             {
                 if (IsRowMatch(top, y, bottom, probeY_in_Bottom))
@@ -477,9 +502,9 @@ namespace CatchCapture
                     bool fullMatch = true;
                     
                     // 검증 범위를 안전하게 계산 (이미지 범위 초과 방지)
-                    int maxCheckRange = Math.Min(50, top.Height - y - 1);
+                    int maxCheckRange = Math.Min(15, top.Height - y - 1);
                     maxCheckRange = Math.Min(maxCheckRange, bottom.Height - probeY_in_Bottom - 1);
-                    int checkRange = Math.Max(20, maxCheckRange); // 최소 20, 최대 50
+                    int checkRange = Math.Max(10, maxCheckRange); // 최소 10, 최대 15 (동적 콘텐츠 대응)
                     
                     for (int k = 1; k < checkRange; k++)
                     {
@@ -498,9 +523,17 @@ namespace CatchCapture
                 }
             }
 
+            // matchY가 너무 작으면 실제로는 같은 이미지 (스크롤 안 됨)
+            if (matchY_in_Top != -1 && matchY_in_Top < 50)
+            {
+                Log($"매칭 위치가 너무 작음 (matchY={matchY_in_Top}), 매칭 실패로 처리");
+                matchY_in_Top = -1;
+            }
+
             if (matchY_in_Top != -1)
             {
                 // 매칭 성공!
+                Log($"매칭 성공: matchY={matchY_in_Top}, probeY={probeY_in_Bottom}");
                 int topCutHeight = matchY_in_Top;
                 int bottomStartY = probeY_in_Bottom; // 여기서부터 붙임 (즉, 위쪽 headerHeight 만큼은 버려짐)
                 int bottomContentHeight = bottom.Height - bottomStartY;
@@ -527,6 +560,8 @@ namespace CatchCapture
             else
             {
                 // 매칭 실패 - 헤더를 제외하고 붙이기 (중복 최소화)
+                Log($"매칭 실패! Top({top.Width}x{top.Height}), Bottom({bottom.Width}x{bottom.Height}), " +
+                    $"headerHeight={headerHeight}, probeY={probeY_in_Bottom}, 탐색범위={startSearchY}~{endSearchY}");
                 int bottomStartY = Math.Max(headerHeight, 0);
                 int bottomContentHeight = bottom.Height - bottomStartY;
                 
@@ -558,13 +593,13 @@ namespace CatchCapture
             int startX = (int)(width * 0.1); // 왼쪽 10% 무시
             int endX = (int)(width * 0.9);   // 오른쪽 10% (스크롤바) 무시
 
-            for (int x = startX; x < endX; x += 10) // 10픽셀 간격 샘플링
+            for (int x = startX; x < endX; x += 10) // 10픽셀 간격 샘플링 (속도와 안정성)
             {
                 var c1 = bmp1.GetPixel(x, y1);
                 var c2 = bmp2.GetPixel(x, y2);
                 
-                // 최적화된 픽셀 비교 (오차 허용 범위: 7 - 미세한 렌더링 차이 허용)
-                if (Math.Abs(c1.R - c2.R) > 7 || Math.Abs(c1.G - c2.G) > 7 || Math.Abs(c1.B - c2.B) > 7)
+                // 균형잡힌 픽셀 비교 (오차 허용: 12 - 정확도와 관대함의 균형)
+                if (Math.Abs(c1.R - c2.R) > 12 || Math.Abs(c1.G - c2.G) > 12 || Math.Abs(c1.B - c2.B) > 12)
                 {
                     return false;
                 }
