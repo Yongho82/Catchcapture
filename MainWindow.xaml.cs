@@ -191,7 +191,6 @@ public partial class MainWindow : Window
         // 설정 저장
         Settings.Save(settings);
     }
-
     private void PositionTrayModeWindow()
     {
         // 화면 작업 영역 가져오기 (태스크바 제외)
@@ -213,9 +212,19 @@ public partial class MainWindow : Window
 
     public void SwitchToNormalMode()
     {
+        // 간편 모드가 켜져 있다면 종료
+        if (simpleModeWindow != null)
+        {
+            simpleModeWindow.Close();
+            simpleModeWindow = null;
+        }
+
         // 트레이 모드 해제
         settings.IsTrayMode = false;
         
+        // 작업표시줄 표시
+        this.ShowInTaskbar = true;
+
         // 창 스타일 복원
         this.WindowStyle = WindowStyle.None;
         this.ResizeMode = ResizeMode.CanResize;
@@ -225,15 +234,20 @@ public partial class MainWindow : Window
         this.Width = 350;
         this.Height = 570;
         
-        // 저장된 위치로 복원 또는 중앙 배치
-        if (!double.IsNaN(settings.LastMainLeft) && !double.IsNaN(settings.LastMainTop))
+        // 저장된 위치로 복원 (0,0은 초기값일 수 있으므로 제외하고 우측 하단으로)
+        if (!double.IsNaN(settings.LastMainLeft) && !double.IsNaN(settings.LastMainTop) &&
+            !(settings.LastMainLeft == 0 && settings.LastMainTop == 0))
         {
             this.Left = settings.LastMainLeft;
             this.Top = settings.LastMainTop;
         }
         else
         {
-            this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            // 기본 위치: 화면 우측 하단 (트레이 아이콘 근처)
+            var workArea = SystemParameters.WorkArea;
+            this.Left = workArea.Right - this.Width - 20;
+            this.Top = workArea.Bottom - this.Height - 20;
+            this.WindowStartupLocation = WindowStartupLocation.Manual;
         }
         
         // 창 표시
@@ -242,10 +256,11 @@ public partial class MainWindow : Window
         this.Activate();
         Settings.Save(settings);
     }
-        private void TrayModeButton_Click(object sender, RoutedEventArgs e)
+
+    private void TrayModeButton_Click(object sender, RoutedEventArgs e)
     {
         SwitchToTrayMode();
-    }    
+    }
 
     private void SwitchToSimpleMode()
     {
