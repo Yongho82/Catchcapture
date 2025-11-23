@@ -354,22 +354,20 @@ namespace CatchCapture
 
         private void StartDelayedAreaCapture(int seconds)
         {
-            // 간편모드 창을 먼저 숨김 (카운트다운 중에도 캡처에 포함되지 않도록)
-            this.Hide();
-            
             // 일반모드와 동일하게 카운트 스티커(GuideWindow) 표시 후 캡처 시작
-            var countdown = new GuideWindow("", null);
-            // Owner 설정 제거: 간편모드 창이 다시 나타날 때 GuideWindow가 함께 보이는 문제 방지
-            // countdown.Owner = this;
-            countdown.Topmost = true; // 최상위 유지
+            var countdown = new GuideWindow("", null)
+            {
+                Owner = this
+            };
             countdown.Show();
             countdown.StartCountdown(seconds, () =>
             {
                 Dispatcher.Invoke(() =>
                 {
-                    // 간편모드 창은 이미 숨겨져 있음
+                    Hide();
                     AreaCaptureRequested?.Invoke(this, EventArgs.Empty);
-                    // 지연캡처는 카운트다운으로 충분한 피드백 제공, 추가 알림 불필요
+                    System.Threading.Thread.Sleep(100);
+                    ShowCopiedNotification();
                 });
             });
         }

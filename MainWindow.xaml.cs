@@ -183,6 +183,10 @@ public partial class MainWindow : Window
         }
         
         trayModeWindow.Show();
+        
+        // [추가] 현재 캡처 개수 업데이트
+        trayModeWindow.UpdateCaptureCount(captures.Count);
+        
         trayModeWindow.Activate();
         
         // 메인 창 숨기기
@@ -191,6 +195,7 @@ public partial class MainWindow : Window
         // 설정 저장
         Settings.Save(settings);
     }
+    
     private void PositionTrayModeWindow()
     {
         // 화면 작업 영역 가져오기 (태스크바 제외)
@@ -256,6 +261,9 @@ public partial class MainWindow : Window
         this.WindowState = WindowState.Normal;
         this.Activate();
         Settings.Save(settings);
+
+        // 설정을 다시 로드하여 메모리와 파일 동기화
+        settings = Settings.Load();
     }
 
     private void TrayModeButton_Click(object sender, RoutedEventArgs e)
@@ -595,6 +603,15 @@ public partial class MainWindow : Window
 
     private void StartAreaCapture()
     {
+        // [추가된 코드 시작] -----------------------------------------
+        // 캡처 시작 전 메인 창이 보인다면 일반 모드로 확실히 설정
+        if (this.Visibility == Visibility.Visible)
+        {
+            settings.IsTrayMode = false;
+            Settings.Save(settings);
+        }
+        // [추가된 코드 끝] -------------------------------------------
+
         // 창 숨기기
         this.Hide();
         
@@ -851,6 +868,7 @@ public partial class MainWindow : Window
 
         // 버튼 상태 업데이트
         UpdateButtonStates();
+        
         
         // 트레이 모드일 때 처리
         if (settings.IsTrayMode)
@@ -2000,6 +2018,15 @@ public partial class MainWindow : Window
     // 설정기반 지연 캡처(초)
     private void StartDelayedAreaCaptureSeconds(int seconds)
     {
+        // [추가된 코드 시작] -----------------------------------------
+        // 지연 캡처 시작 전 메인 창이 보인다면 일반 모드로 확실히 설정
+        if (this.Visibility == Visibility.Visible)
+        {
+            settings.IsTrayMode = false;
+            Settings.Save(settings);
+        }
+        // [추가된 코드 끝] -------------------------------------------
+
         if (seconds <= 0)
         {
             StartAreaCapture();
@@ -2015,13 +2042,6 @@ public partial class MainWindow : Window
             // UI 스레드에서 실행
             Dispatcher.Invoke(StartAreaCapture);
         });
-    }
-
-    protected override void OnClosed(EventArgs e)
-    {
-        // 리소스 정리
-        CleanupMainWindowResources();
-        base.OnClosed(e);
     }
 
     private void CleanupMainWindowResources()
