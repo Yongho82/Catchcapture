@@ -245,6 +245,29 @@
                     </Grid.RowDefinitions>
                     
                     <TextBlock Text="단축키 설정" Style="{StaticResource SectionTitle}" Grid.Row="0"/>
+                    
+                    <!-- Print Screen 키 설정 -->
+                    <StackPanel Grid.Row="0" Margin="0,40,0,20">
+                        <GroupBox Header="Print Screen 키 사용" BorderBrush="{StaticResource BorderColor}" Padding="15">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="20"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="200"/>
+                                </Grid.ColumnDefinitions>
+                                <CheckBox x:Name="ChkUsePrintScreen" Grid.Column="0" Content="Print Screen 키를 사용" VerticalAlignment="Center"/>
+                                <ComboBox x:Name="CboPrintScreenAction" Grid.Column="4">
+                                    <ComboBoxItem Content="영역 캡처"/>
+                                    <ComboBoxItem Content="전체화면"/>
+                                    <ComboBoxItem Content="지정 캡처"/>
+                                    <ComboBoxItem Content="창 캡처"/>
+                                    <ComboBoxItem Content="단위 캡처"/>
+                                </ComboBox>
+                            </Grid>
+                        </GroupBox>
+                    </StackPanel>
 
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0">
                         <Grid>

@@ -11,6 +11,9 @@ namespace CatchCapture.Models
         // General
         public bool ShowSavePrompt { get; set; } = true;
         public bool ShowPreviewAfterCapture { get; set; } = false;
+        // Print Screen key
+        public bool UsePrintScreenKey { get; set; } = false;
+        public string PrintScreenAction { get; set; } = "영역 캡처";
 
         // Capture save options
         public string FileSaveFormat { get; set; } = "PNG"; // PNG, JPG, BMP, GIF, WEBP

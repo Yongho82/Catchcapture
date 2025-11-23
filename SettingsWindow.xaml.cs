@@ -83,6 +83,19 @@ namespace CatchCapture
             ChkAutoSave.IsChecked = _settings.AutoSaveCapture;
             // Show preview
             ChkShowPreview.IsChecked = _settings.ShowPreviewAfterCapture;
+            
+            // Print Screen key
+            ChkUsePrintScreen.IsChecked = _settings.UsePrintScreenKey;
+            foreach (ComboBoxItem item in CboPrintScreenAction.Items)
+            {
+                if (item.Content?.ToString() == _settings.PrintScreenAction)
+                {
+                    CboPrintScreenAction.SelectedItem = item;
+                    break;
+                }
+            }
+            if (CboPrintScreenAction.SelectedItem == null)
+                CboPrintScreenAction.SelectedIndex = 0;
         }
 
         private static void EnsureDefaultKey(ToggleHotkey hk, string defaultKey)
@@ -173,6 +186,13 @@ namespace CatchCapture
             _settings.DefaultSaveFolder = desiredFolder;
             _settings.AutoSaveCapture = ChkAutoSave.IsChecked == true;
             _settings.ShowPreviewAfterCapture = ChkShowPreview.IsChecked == true;
+            
+            // Print Screen key
+            _settings.UsePrintScreenKey = ChkUsePrintScreen.IsChecked == true;
+            if (CboPrintScreenAction.SelectedItem is ComboBoxItem actionItem)
+            {
+                _settings.PrintScreenAction = actionItem.Content?.ToString() ?? "영역 캡처";
+            }
 
             // Ensure folder exists if autosave is enabled
             if (_settings.AutoSaveCapture)

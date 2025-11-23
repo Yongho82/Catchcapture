@@ -76,11 +76,13 @@ public partial class MainWindow : Window
             // Ignore flush errors; proceed to capture
         }
     }
-
     public MainWindow()
     {
         InitializeComponent();
         settings = Settings.Load();
+        
+        // Print Screen 키 감지
+        this.PreviewKeyDown += MainWindow_PreviewKeyDown;
         
         // 트레이 아이콘 초기화
         InitializeNotifyIcon();
@@ -108,7 +110,38 @@ public partial class MainWindow : Window
             hwndSource?.AddHook(HwndHook);
             RegisterGlobalHotkeys();
         };
+    }
 
+    private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        // Print Screen 키 감지
+        if (e.Key == Key.PrintScreen || e.Key == Key.Snapshot)
+        {
+            if (settings.UsePrintScreenKey)
+            {
+                e.Handled = true; // 기본 동작 방지
+                
+                // 설정된 액션 실행
+                switch (settings.PrintScreenAction)
+                {
+                    case "영역 캡처":
+                        AreaCaptureButton_Click(this, new RoutedEventArgs());
+                        break;
+                    case "전체화면":
+                        FullScreenCaptureButton_Click(this, new RoutedEventArgs());
+                        break;
+                    case "지정 캡처":
+                        DesignatedCaptureButton_Click(this, new RoutedEventArgs());
+                        break;
+                    case "창 캡처":
+                        WindowCaptureButton_Click(this, new RoutedEventArgs());
+                        break;
+                    case "단위 캡처":
+                        ElementCaptureButton_Click(this, new RoutedEventArgs());
+                        break;
+                }
+            }
+        }
     }
 
     private void InitializeNotifyIcon()
