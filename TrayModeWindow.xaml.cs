@@ -212,8 +212,32 @@ namespace CatchCapture
             
             // 빈 슬롯 추가 (+ 버튼)
             AddEmptySlot(buttonsPanel);
+    
+            // 창 높이 자동 조절
+            AdjustWindowHeight();
         }
-
+        private void AdjustWindowHeight()
+        {
+            // 아이콘 개수에 따라 창 높이 계산
+            // 상단 컨트롤: ~30px
+            // TopmostButton: 50px
+            // CaptureCounter: 50px
+            // 첫 번째 Separator: 21px
+            // 각 아이콘: 50px
+            // + 버튼: 50px
+            // 여백: 30px (상하)
+            
+            int iconCount = settings.TrayModeIcons.Count;
+            int baseHeight = 30 + 50 + 50 + 21 + 50 + 30; // 상단 + TopmostButton + Counter + Separator + + 버튼 + 여백
+            int iconsHeight = iconCount * 50;
+            
+            int totalHeight = baseHeight + iconsHeight;
+            
+            // 최소/최대 높이 제한
+            totalHeight = Math.Max(200, Math.Min(totalHeight, 800));
+            
+            this.Height = totalHeight;
+        }
         private void AddIconButton(StackPanel panel, string iconName)
         {
             // Grid로 감싸서 버튼 + 호버 시 - 버튼 추가
@@ -379,15 +403,70 @@ namespace CatchCapture
             var btn = new Button
             {
                 Content = "−",
-                Width = 16,
-                Height = 16,
-                FontSize = 12,
+                Width = 18,
+                Height = 18,
+                FontSize = 16,
+                FontWeight = FontWeights.Bold,
+                Background = new SolidColorBrush(Color.FromArgb(200, 255, 80, 80)), // 반투명 빨강
+                Foreground = Brushes.White,
+                BorderThickness = new Thickness(0),
                 HorizontalAlignment = HorizontalAlignment.Right,
                 VerticalAlignment = VerticalAlignment.Top,
-                Margin = new Thickness(0, 2, 2, 0)
+                Margin = new Thickness(0, 2, 2, 0),
+                Cursor = Cursors.Hand,
+                Padding = new Thickness(0, -5, 0, 0) // - 기호 중앙 정렬
             };
             
+            // 둥근 모서리
+            var border = new Border
+            {
+                CornerRadius = new CornerRadius(9),
+                Background = btn.Background,
+                Width = 13,
+                Height = 13,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                VerticalAlignment = VerticalAlignment.Top,
+                Margin = new Thickness(0, 2, 2, 0),
+                Child = new TextBlock
+                {
+                    Text = "−",
+                    FontSize = 16,
+                    FontWeight = FontWeights.Bold,
+                    Foreground = Brushes.White,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Margin = new Thickness(0, -2, 0, 0)
+                }
+            };
+            
+            border.MouseLeftButtonDown += (s, e) => 
+            {
+                RemoveIcon(iconName);
+                e.Handled = true;
+            };
+            
+            // Border를 반환하도록 변경 필요
+            // 하지만 Button 타입을 유지하려면 Template 사용
+            
+            var template = new ControlTemplate(typeof(Button));
+            var factory = new FrameworkElementFactory(typeof(Border));
+            factory.SetValue(Border.CornerRadiusProperty, new CornerRadius(9));
+            factory.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Button.BackgroundProperty));
+            
+            var textFactory = new FrameworkElementFactory(typeof(TextBlock));
+            textFactory.SetValue(TextBlock.TextProperty, "−");
+            textFactory.SetValue(TextBlock.FontSizeProperty, 16.0);
+            textFactory.SetValue(TextBlock.FontWeightProperty, FontWeights.Bold);
+            textFactory.SetValue(TextBlock.ForegroundProperty, Brushes.White);
+            textFactory.SetValue(TextBlock.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+            textFactory.SetValue(TextBlock.VerticalAlignmentProperty, VerticalAlignment.Center);
+            
+            factory.AppendChild(textFactory);
+            template.VisualTree = factory;
+            
+            btn.Template = template;
             btn.Click += (s, e) => RemoveIcon(iconName);
+            
             return btn;
         }
 
