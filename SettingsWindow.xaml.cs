@@ -81,6 +81,8 @@ namespace CatchCapture
                 : _settings.DefaultSaveFolder;
             // Auto-save
             ChkAutoSave.IsChecked = _settings.AutoSaveCapture;
+            // Show preview
+            ChkShowPreview.IsChecked = _settings.ShowPreviewAfterCapture;
         }
 
         private static void EnsureDefaultKey(ToggleHotkey hk, string defaultKey)
@@ -170,6 +172,7 @@ namespace CatchCapture
             }
             _settings.DefaultSaveFolder = desiredFolder;
             _settings.AutoSaveCapture = ChkAutoSave.IsChecked == true;
+            _settings.ShowPreviewAfterCapture = ChkShowPreview.IsChecked == true;
 
             // Ensure folder exists if autosave is enabled
             if (_settings.AutoSaveCapture)

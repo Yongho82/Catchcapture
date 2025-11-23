@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CatchCapture"
         mc:Ignorable="d"
-        Title="캐치 캡처" Height="700" Width="350" 
-        MinWidth="350" MinHeight="700"
+        Title="캐치 캡처" Height="550" Width="350" 
+        MinWidth="350" MinHeight="550"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None" AllowsTransparency="True" 
         Background="Transparent">
@@ -157,9 +157,13 @@
                         <ColumnDefinition Width="100" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                    <!-- 왼쪽 버튼 영역 -->
-                    <Border Grid.Column="0" Background="#FFFFFF" BorderThickness="0,0,1,0" BorderBrush="#E0E6F0">
+                    <!-- 왼쪽 버튼 영역 (전체 높이) -->
+                    <Border Grid.Column="0" Grid.RowSpan="2" Background="#FFFFFF" BorderThickness="0,0,1,0" BorderBrush="#E0E6F0">
                         <StackPanel Margin="0,12,0,12">
                             <Button x:Name="AreaCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="AreaCaptureButton_Click">
                                 <StackPanel Orientation="Horizontal">
@@ -238,43 +242,6 @@
                                 </StackPanel>
                             </Button>
                             
-                            <Separator Style="{StaticResource SeparatorStyle}"/>
-                            
-                            
-                            <Button x:Name="CopySelectedButton" Style="{StaticResource SidebarButtonStyle}" Click="CopySelectedButton_Click" IsEnabled="False">
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="/icons/copy_selected.png" Width="16" Height="16" Margin="0,0,5,0"
-                                           RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="복사" HorizontalAlignment="Left" FontSize="11"/>
-                                </StackPanel>
-                            </Button>
-                            
-                            <Button x:Name="CopyAllButton" Style="{StaticResource SidebarButtonStyle}" Click="CopyAllButton_Click" IsEnabled="False">
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="/icons/copy_all.png" Width="16" Height="16" Margin="0,0,5,0"
-                                           RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="전체복사" HorizontalAlignment="Left" FontSize="11"/>
-                                </StackPanel>
-                            </Button>
-                            
-                            <Separator Style="{StaticResource SeparatorStyle}"/>
-                            
-                            <Button x:Name="SaveAllButton" Style="{StaticResource SidebarButtonStyle}" Click="SaveAllButton_Click" IsEnabled="False">
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="/icons/save_all.png" Width="16" Height="16" Margin="0,0,5,0"
-                                           RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="전체저장" HorizontalAlignment="Left" FontSize="11"/>
-                                </StackPanel>
-                            </Button>
-                                                    
-                            <Button x:Name="DeleteAllButton" Style="{StaticResource SidebarButtonStyle}" Click="DeleteAllButton_Click" IsEnabled="False">
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="/icons/delete_all.png" Width="16" Height="16" Margin="0,0,5,0"
-                                           RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="전체삭제" HorizontalAlignment="Left" FontSize="11"/>
-                                </StackPanel>
-                            </Button>
-
                             <Separator Style="{StaticResource SeparatorStyle}"/>    
 
                             <Button x:Name="SimpleModeButton" Style="{StaticResource SidebarButtonStyle}" Click="SimpleModeButton_Click">
@@ -294,25 +261,71 @@
                                 </StackPanel>
                             </Button>
 
-                           <Separator Style="{StaticResource SeparatorStyle}"/>    
-
-                            <!-- 간편 모드 아래 설정 버튼 -->
-                            <Button x:Name="SettingsSideButton" Style="{StaticResource SidebarButtonStyle}" Click="SettingsSideButton_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="/icons/setting.png" Width="16" Height="16" Margin="0,0,5,0"
-                                           RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="설정" HorizontalAlignment="Left" FontSize="11"/>
-                                </StackPanel>
-                            </Button>
                         </StackPanel>
                     </Border>
 
                     <!-- 오른쪽 캡처 표시 영역 -->
-                    <Border Grid.Column="1" Background="#FFFFFF" Margin="0,0,0,0">
+                    <Border Grid.Column="1" Grid.Row="0" Background="#FFFFFF" Margin="0,0,0,0">
                         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                             <!-- 단일 세로 열로 표시 -->
                             <StackPanel x:Name="CaptureListPanel" Margin="10"/>
                         </ScrollViewer>
+                    </Border>
+
+                    <!-- 하단 고정 아이콘 바 -->
+                    <Border Grid.Column="1" Grid.Row="1" Background="#F8F9FC" BorderThickness="0,1,0,0" BorderBrush="#E0E6F0" Height="60">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <!-- 복사 버튼 -->
+                            <Button x:Name="CopySelectedButton" Click="CopySelectedButton_Click" IsEnabled="False"
+                                    Width="40" Height="50" Margin="2" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                                <StackPanel>
+                                    <Image Source="/icons/copy_selected.png" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,0,2"/>
+                                    <TextBlock Text="복사" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="#666"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <!-- 전체 복사 버튼 -->
+                            <Button x:Name="CopyAllButton" Click="CopyAllButton_Click" IsEnabled="False"
+                                    Width="40" Height="50" Margin="2" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                                <StackPanel>
+                                    <Image Source="/icons/copy_all.png" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,0,2"/>
+                                    <TextBlock Text="전체복사" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="#666"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <Separator Width="1" Height="40" Margin="5,0" Background="#E0E6F0"/>
+                            
+                            <!-- 전체 저장 버튼 -->
+                            <Button x:Name="SaveAllButton" Click="SaveAllButton_Click" IsEnabled="False"
+                                    Width="40" Height="50" Margin="2" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                                <StackPanel>
+                                    <Image Source="/icons/save_all.png" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,0,2"/>
+                                    <TextBlock Text="전체저장" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="#666"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <Separator Width="1" Height="40" Margin="2,0" Background="#E0E6F0"/>
+                            
+                            <!-- 전체 삭제 버튼 -->
+                            <Button x:Name="DeleteAllButton" Click="DeleteAllButton_Click" IsEnabled="False"
+                                    Width="40" Height="50" Margin="2" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                                <StackPanel>
+                                    <Image Source="/icons/delete_all.png" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,0,2"/>
+                                    <TextBlock Text="전체삭제" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="#666"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <Separator Width="1" Height="40" Margin="2,0" Background="#E0E6F0"/>
+                            
+                            <!-- 설정 버튼 -->
+                            <Button x:Name="SettingsBottomButton" Click="SettingsSideButton_Click"
+                                    Width="40" Height="50" Margin="2" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                                <StackPanel>
+                                    <Image Source="/icons/setting.png" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,0,2"/>
+                                    <TextBlock Text="설정" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="#666"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
                     </Border>
                 </Grid>
             </Grid>

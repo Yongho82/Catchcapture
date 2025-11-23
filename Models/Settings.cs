@@ -10,6 +10,7 @@ namespace CatchCapture.Models
     {
         // General
         public bool ShowSavePrompt { get; set; } = true;
+        public bool ShowPreviewAfterCapture { get; set; } = false;
 
         // Capture save options
         public string FileSaveFormat { get; set; } = "PNG"; // PNG, JPG, BMP, GIF, WEBP

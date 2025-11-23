@@ -251,8 +251,8 @@ public partial class MainWindow : Window
         {
             // 기본 위치: 화면 우측 하단 (트레이 아이콘 근처)
             var workArea = SystemParameters.WorkArea;
-            this.Left = workArea.Right - this.Width - 20;
-            this.Top = workArea.Bottom - this.Height - 20;
+            this.Left = workArea.Right - this.Width - 10;
+            this.Top = workArea.Bottom - this.Height - 10;
             this.WindowStartupLocation = WindowStartupLocation.Manual;
         }
         
@@ -902,6 +902,14 @@ public partial class MainWindow : Window
         {
             // 간편모드가 활성화된 경우 캡처 개수만 업데이트
             UpdateCaptureCount();
+        }
+        
+        // 캡처 후 미리보기 표시 설정 확인
+        if (settings.ShowPreviewAfterCapture)
+        {
+            var preview = new PreviewWindow(image, captures.Count - 1);
+            preview.Owner = this;
+            preview.ShowDialog();
         }
     }
     
