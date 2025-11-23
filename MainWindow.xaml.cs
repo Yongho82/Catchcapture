@@ -213,6 +213,7 @@ public partial class MainWindow : Window
     public void SwitchToNormalMode()
     {
         // 간편 모드가 켜져 있다면 종료
+        Application.Current.MainWindow = this; 
         if (simpleModeWindow != null)
         {
             simpleModeWindow.Close();
