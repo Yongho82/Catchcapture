@@ -31,7 +31,7 @@ namespace CatchCapture.Models
         public bool LastModeIsSimple { get; set; } = false;
         public bool SimpleModeVertical { get; set; } = false;
         public bool IsTrayMode { get; set; } = false;
-
+        public string LastActiveMode { get; set; } = "Normal"; // "Normal", "Simple", "Tray"
 
         // Tray mode icon customization  
         public List<string> TrayModeIcons { get; set; } = new List<string>

@@ -166,7 +166,7 @@ public partial class MainWindow : Window
         {
             if (e is System.Windows.Forms.MouseEventArgs me && me.Button == System.Windows.Forms.MouseButtons.Left)
             {
-                ToggleTrayModeWindow();
+                RestoreLastMode();
             }
         };
 
@@ -201,6 +201,41 @@ public partial class MainWindow : Window
         else
         {
             trayModeWindow.Hide();
+        }
+    }
+
+    private void RestoreLastMode()
+    {
+        var lastMode = settings.LastActiveMode ?? "Normal";
+        
+        switch (lastMode)
+        {
+            case "Simple":
+                if (simpleModeWindow == null || !simpleModeWindow.IsVisible)
+                {
+                    SwitchToSimpleMode();
+                }
+                else
+                {
+                    simpleModeWindow.Hide();
+                }
+                break;
+                
+            case "Tray":
+                ToggleTrayModeWindow();
+                break;
+                
+            case "Normal":
+            default:
+                if (this.IsVisible)
+                {
+                    this.Hide();
+                }
+                else
+                {
+                    SwitchToNormalMode();
+                }
+                break;
         }
     }
 
@@ -245,11 +280,13 @@ public partial class MainWindow : Window
 
     private void SwitchToTrayMode()
     {
+        settings.LastActiveMode = "Tray";  // 이 줄 추가
         ShowTrayModeWindow();
     }
 
     public void SwitchToNormalMode()
     {
+        settings.LastActiveMode = "Normal";  // 이 줄 추가
         // 간편 모드가 켜져 있다면 종료
         Application.Current.MainWindow = this; 
         if (simpleModeWindow != null)
@@ -306,6 +343,7 @@ public partial class MainWindow : Window
 
     private void SwitchToSimpleMode()
     {
+        settings.LastActiveMode = "Simple";  // 이 줄 추가
         // 기존 간편 모드 로직 호출
         SimpleModeButton_Click(null, null);
     }
