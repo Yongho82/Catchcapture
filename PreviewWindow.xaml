@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:controls="clr-namespace:CatchCapture.Controls"
         xmlns:local="clr-namespace:CatchCapture"
         mc:Ignorable="d"
         Title="이미지 편집" Height="800" Width="1200"
@@ -203,20 +204,22 @@
                     
                     <Separator Style="{StaticResource ToolbarSeparatorStyle}"/>
                     
-                    <!-- 펜 버튼 (형광펜 앞에 배치) -->
-                    <Button x:Name="PenButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="PenButton_Click" ToolTip="펜">
-                        <StackPanel VerticalAlignment="Top">
-                            <!-- 아이콘 파일이 없으므로 임시 벡터 아이콘 사용 -->
-                            <Canvas Width="20" Height="20" Margin="0,2,0,2">
+                        <controls:TwoTierToolButton 
+                            x:Name="PenToolButton"
+                            Label="펜" 
+                            ToolTipText="펜 (기본: 검정, 3px)"
+                            MainButtonClick="PenButton_Click"
+                            OptionsButtonClick="PenOptionsButton_Click">
+                        <controls:TwoTierToolButton.IconContent>
+                            <Canvas Width="20" Height="20">
                                 <Canvas.LayoutTransform>
                                     <ScaleTransform ScaleX="1.2" ScaleY="1.2"/>
                                 </Canvas.LayoutTransform>
                                 <Path Stroke="#333" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Data="M2,14 L15,3"/>
                                 <Ellipse Stroke="#333" StrokeThickness="2" Width="3" Height="3" Canvas.Left="13" Canvas.Top="1"/>
                             </Canvas>
-                            <TextBlock Text="펜" FontSize="12" HorizontalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
+                        </controls:TwoTierToolButton.IconContent>
+                    </controls:TwoTierToolButton>
                     
                     <Button x:Name="HighlightButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="HighlightButton_Click" ToolTip="형광펜">
                         <StackPanel VerticalAlignment="Top">

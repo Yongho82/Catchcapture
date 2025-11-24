@@ -10,11 +10,11 @@ none
 false
 TRACE;DEBUG;NET;NET8_0;NETCOREAPP
 C:\yonghoprogram\Catchcapture\App.xaml
-6-2127978828
+71195229315
 341541051115
-221296740858
+23-1172572832
 2081205817799
-MainWindow.xaml;PreviewWindow.xaml;SettingsWindow.xaml;SimpleModeSettingsButton.xaml;SimpleModeWindow.xaml;TrayModeWindow.xaml;
+Controls\TwoTierToolButton.xaml;MainWindow.xaml;PreviewWindow.xaml;SettingsWindow.xaml;SimpleModeSettingsButton.xaml;SimpleModeWindow.xaml;TrayModeWindow.xaml;
 
 False
 

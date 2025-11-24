@@ -34,6 +34,7 @@ namespace CatchCapture
         private double penThickness = 3;
         private ShapeType shapeType = ShapeType.Rectangle;
         private Color shapeColor = Colors.Red;
+        private List<Color> customColors = new List<Color>();
         private double shapeBorderThickness = 2;
         private bool shapeIsFilled = false;
         // 기본 형광펜은 중간 투명도(약 45~50%)와 중간 두께로 시작
@@ -705,8 +706,272 @@ namespace CatchCapture
             currentEditMode = EditMode.Pen;
             ImageCanvas.Cursor = Cursors.Pen;
 
+            // 기본값 설정 (검정, 3px)
+            penColor = Colors.Black;
+            penThickness = 3;
+            
+            // 바로 그리기 시작 (팝업 표시 안 함)
+        }
+
+        // 새로 추가: 옵션 버튼 클릭 핸들러
+        private void PenOptionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            // 팝업이 이미 열려있으면 닫기
+            if (ToolOptionsPopup.IsOpen)
+            {
+                ToolOptionsPopup.IsOpen = false;
+                return;
+            }
+
+            // 펜 옵션 팝업 표시
             ShowPenOptionsPopup();
-            SetActiveToolButton(PenButton);
+        }
+
+        private void ShowPenOptionsPopup()
+        
+        {
+            ToolOptionsPopupContent.Children.Clear();
+
+            // 메인 그리드 (좌: 색상, 중: 구분선, 우: 두께)
+            Grid mainGrid = new Grid();
+            mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 색상
+            mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 구분선
+            mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 두께
+
+            // --- 1. 왼쪽: 색상 섹션 ---
+            StackPanel colorSection = new StackPanel { Margin = new Thickness(0, 0, 15, 0) };
+            
+            // 라벨
+            TextBlock colorLabel = new TextBlock 
+            { 
+                Text = "색상", 
+                FontWeight = FontWeights.SemiBold, 
+                Margin = new Thickness(0, 0, 0, 8) 
+            };
+            colorSection.Children.Add(colorLabel);
+
+            // 색상 그리드 (WrapPanel)
+            WrapPanel colorGrid = new WrapPanel { Width = 130 }; // 5개씩 배치될 정도의 너비
+            
+            // 기본 색상들
+            Color[] colors = new Color[]
+            {
+                Colors.Black, Colors.White, Colors.Red, Colors.Blue, Colors.Green,
+                Colors.Yellow, Colors.Purple, Colors.DeepSkyBlue, Colors.Gray
+            };
+
+            foreach (var c in colors)
+            {
+                colorGrid.Children.Add(CreateColorSwatch(c, colorGrid));
+            }
+
+            // [+] 버튼 (색상 추가)
+            Button addButton = new Button
+            {
+                Width = 20, Height = 20, Margin = new Thickness(2),
+                Background = Brushes.White, 
+                BorderBrush = new SolidColorBrush(Color.FromRgb(220, 220, 220)), 
+                BorderThickness = new Thickness(1),
+                Content = new TextBlock { Text = "+", FontWeight = FontWeights.Bold, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center },
+                Cursor = Cursors.Hand,
+                ToolTip = "색상 추가"
+            };
+            
+            // 둥근 모서리 스타일 적용
+            ControlTemplate buttonTemplate = new ControlTemplate(typeof(Button));
+            FrameworkElementFactory borderFactory = new FrameworkElementFactory(typeof(Border));
+            borderFactory.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Button.BackgroundProperty));
+            borderFactory.SetValue(Border.BorderBrushProperty, new TemplateBindingExtension(Button.BorderBrushProperty));
+            borderFactory.SetValue(Border.BorderThicknessProperty, new TemplateBindingExtension(Button.BorderThicknessProperty));
+            borderFactory.SetValue(Border.CornerRadiusProperty, new CornerRadius(4));
+            FrameworkElementFactory contentPresenter = new FrameworkElementFactory(typeof(ContentPresenter));
+            contentPresenter.SetValue(ContentPresenter.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+            contentPresenter.SetValue(ContentPresenter.VerticalAlignmentProperty, VerticalAlignment.Center);
+            borderFactory.AppendChild(contentPresenter);
+            buttonTemplate.VisualTree = borderFactory;
+            addButton.Template = buttonTemplate;
+
+            addButton.Click += (s, e) => 
+            {
+                var dialog = new System.Windows.Forms.ColorDialog();
+                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    var newColor = Color.FromArgb(dialog.Color.A, dialog.Color.R, dialog.Color.G, dialog.Color.B);
+                    
+                    // 1. [+] 버튼을 잠시 제거
+                    colorGrid.Children.Remove(addButton);
+
+                    // 2. 새 색상 버튼 추가
+                    var newSwatch = CreateColorSwatch(newColor, colorGrid);
+                    colorGrid.Children.Add(newSwatch);
+
+                    // 3. [+] 버튼 다시 추가 (맨 뒤로)
+                    colorGrid.Children.Add(addButton);
+                    
+                    // 4. 바로 선택 처리
+                    penColor = newColor;
+                    UpdateColorSelection(colorGrid);
+                }
+            };
+            colorGrid.Children.Add(addButton);
+            colorSection.Children.Add(colorGrid);
+            
+            Grid.SetColumn(colorSection, 0);
+            mainGrid.Children.Add(colorSection);
+
+            // --- 2. 가운데: 구분선 ---
+            Border separator = new Border
+            {
+                Width = 1,
+                Background = new SolidColorBrush(Color.FromRgb(230, 230, 230)),
+                Margin = new Thickness(0, 5, 15, 5)
+            };
+            Grid.SetColumn(separator, 1);
+            mainGrid.Children.Add(separator);
+
+            // --- 3. 오른쪽: 두께 섹션 ---
+            StackPanel thicknessSection = new StackPanel();
+
+            // 라벨
+            TextBlock thicknessLabel = new TextBlock 
+            { 
+                Text = "두께", 
+                FontWeight = FontWeights.SemiBold, 
+                Margin = new Thickness(0, 0, 0, 8) 
+            };
+            thicknessSection.Children.Add(thicknessLabel);
+
+            // 두께 프리셋 리스트
+            StackPanel thicknessList = new StackPanel();
+            int[] presets = new int[] { 1, 3, 5, 8, 12 };
+
+            foreach (var p in presets)
+            {
+                Grid item = new Grid { Margin = new Thickness(0, 0, 0, 8), Cursor = Cursors.Hand, Background = Brushes.Transparent };
+                item.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(30) }); // 선
+                item.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });    // 텍스트
+
+                // 선 (시각적 표시)
+                Border line = new Border
+                {
+                    Height = p,
+                    Width = 30,
+                    Background = Brushes.Black,
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                Grid.SetColumn(line, 0);
+                item.Children.Add(line);
+
+                // 텍스트 (예: 3px)
+                TextBlock text = new TextBlock
+                {
+                    Text = $"{p}px",
+                    FontSize = 11,
+                    Foreground = Brushes.Gray,
+                    Margin = new Thickness(8, 0, 0, 0),
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                Grid.SetColumn(text, 1);
+                item.Children.Add(text);
+
+                // 선택 표시 (배경색)
+                if (penThickness == p)
+                {
+                    item.Background = new SolidColorBrush(Color.FromRgb(240, 240, 255)); // 연한 파랑
+                    text.Foreground = Brushes.Black;
+                    text.FontWeight = FontWeights.Bold;
+                }
+
+                // 클릭 이벤트
+                item.MouseLeftButtonDown += (s, e) =>
+                {
+                    penThickness = p;
+                    // 다시 그리기 (선택 상태 업데이트)
+                    ShowPenOptionsPopup(); 
+                };
+
+                thicknessList.Children.Add(item);
+            }
+            thicknessSection.Children.Add(thicknessList);
+
+            Grid.SetColumn(thicknessSection, 2);
+            mainGrid.Children.Add(thicknessSection);
+
+            // 팝업에 추가
+            ToolOptionsPopupContent.Children.Add(mainGrid);
+
+            // 팝업 위치 설정
+            var penToolButton = this.FindName("PenToolButton") as FrameworkElement;
+            if (penToolButton != null)
+            {
+                ToolOptionsPopup.PlacementTarget = penToolButton;
+            }
+            else
+            {
+                ToolOptionsPopup.PlacementTarget = this;
+            }
+
+            ToolOptionsPopup.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+            ToolOptionsPopup.IsOpen = true;
+        }
+
+        // 색상 버튼 생성 헬퍼
+        private Border CreateColorSwatch(Color c, WrapPanel parentPanel)
+        {
+            Border swatch = new Border
+            {
+                Width = 20,
+                Height = 20,
+                Background = new SolidColorBrush(c),
+                BorderBrush = (c == penColor) ? Brushes.Black : new SolidColorBrush(Color.FromRgb(220, 220, 220)),
+                BorderThickness = new Thickness(c == penColor ? 2 : 1),
+                Margin = new Thickness(2),
+                CornerRadius = new CornerRadius(4), // 둥근 모서리
+                Cursor = Cursors.Hand
+            };
+
+            // 선택 표시용 내부 원 (선택된 경우에만)
+            if (c == penColor)
+            {
+                // 흰색 테두리 효과를 위해
+                swatch.Effect = new System.Windows.Media.Effects.DropShadowEffect
+                {
+                    Color = Colors.Black,
+                    BlurRadius = 2,
+                    ShadowDepth = 0,
+                    Opacity = 0.5
+                };
+            }
+
+            swatch.MouseLeftButtonDown += (s, e) =>
+            {
+                penColor = c;
+                UpdateColorSelection(parentPanel);
+            };
+
+            return swatch;
+        }
+
+        // 색상 선택 상태 업데이트 헬퍼
+        private void UpdateColorSelection(WrapPanel panel)
+        {
+            foreach (var child in panel.Children)
+            {
+                if (child is Border b && b.Background is SolidColorBrush sc)
+                {
+                    bool isSelected = (sc.Color == penColor);
+                    b.BorderBrush = isSelected ? Brushes.Black : new SolidColorBrush(Color.FromRgb(220, 220, 220));
+                    b.BorderThickness = new Thickness(isSelected ? 2 : 1);
+                    b.Effect = isSelected ? new System.Windows.Media.Effects.DropShadowEffect
+                    {
+                        Color = Colors.Black,
+                        BlurRadius = 2,
+                        ShadowDepth = 0,
+                        Opacity = 0.5
+                    } : null;
+                }
+            }
         }
 
         private void TextButton_Click(object sender, RoutedEventArgs e)
@@ -1480,68 +1745,6 @@ namespace CatchCapture
 
             // Open under icon
             ToolOptionsPopup.PlacementTarget = HighlightButton;
-            ToolOptionsPopup.IsOpen = true;
-        }
-
-        private void ShowPenOptionsPopup()
-        {
-            ToolOptionsPopupContent.Children.Clear();
-
-            // 색상
-            var colorLabel = new TextBlock { Text = "색상:", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 6, 0) };
-            ToolOptionsPopupContent.Children.Add(colorLabel);
-
-            StackPanel colorPanel = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
-            ToolOptionsPopupContent.Children.Add(colorPanel);
-
-            Color[] colors = new Color[]
-            {
-                Colors.Black, Colors.Gray, Colors.Red, Colors.Orange, Colors.Yellow, Colors.Green, Colors.Blue, Colors.Purple
-            };
-            foreach (var c in colors)
-            {
-                Border swatch = new Border
-                {
-                    Width = 18,
-                    Height = 18,
-                    Background = new SolidColorBrush(c),
-                    BorderBrush = (c == penColor) ? Brushes.Black : Brushes.Transparent,
-                    BorderThickness = new Thickness(2),
-                    Margin = new Thickness(3, 0, 0, 0),
-                    CornerRadius = new CornerRadius(2)
-                };
-                swatch.MouseLeftButtonDown += (s, e) =>
-                {
-                    penColor = c;
-                    foreach (var child in colorPanel.Children)
-                    {
-                        if (child is Border b && b.Background is SolidColorBrush sc)
-                        {
-                            b.BorderBrush = (sc.Color == penColor) ? Brushes.Black : Brushes.Transparent;
-                        }
-                    }
-                };
-                colorPanel.Children.Add(swatch);
-            }
-
-            // 두께
-            var thicknessLabel = new TextBlock { Text = "두께:", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(12, 0, 6, 0) };
-            ToolOptionsPopupContent.Children.Add(thicknessLabel);
-
-            Slider thicknessSlider = new Slider
-            {
-                Minimum = 1,
-                Maximum = 20,
-                Value = penThickness,
-                Width = 120,
-                IsSnapToTickEnabled = true,
-                TickFrequency = 1,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-            thicknessSlider.ValueChanged += (s, e) => { penThickness = thicknessSlider.Value; };
-            ToolOptionsPopupContent.Children.Add(thicknessSlider);
-
-            ToolOptionsPopup.PlacementTarget = PenButton;
             ToolOptionsPopup.IsOpen = true;
         }
 
@@ -2407,7 +2610,6 @@ namespace CatchCapture
                 TextButton,
                 MosaicButton,
                 EraserButton,
-                PenButton
             };
 
             foreach (var b in toolButtons)

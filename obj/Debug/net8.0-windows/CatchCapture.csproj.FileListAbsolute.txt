@@ -185,3 +185,6 @@ C:\yonghoprogram\Catchcapture\bin\Debug\net8.0-windows\icons\window_cap.png
 C:\yonghoprogram\Catchcapture\bin\Debug\net8.0-windows\icons\tray_mode.png
 C:\yonghoprogram\Catchcapture\bin\Debug\net8.0-windows\icons\setting.png
 C:\yonghoprogram\Catchcapture\bin\Debug\net8.0-windows\icons\multi_capture.png
+C:\yonghoprogram\Catchcapture\obj\Debug\net8.0-windows\Controls\TwoTierToolButton.baml
+C:\yonghoprogram\Catchcapture\obj\Debug\net8.0-windows\Controls\TwoTierToolButton.g.cs
+C:\yonghoprogram\Catchcapture\obj\Debug\net8.0-windows\GeneratedInternalTypeHelper.g.cs
