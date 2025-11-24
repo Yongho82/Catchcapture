@@ -295,6 +295,13 @@ public partial class MainWindow : Window
             simpleModeWindow = null;
         }
 
+        // 트레이 모드 창 닫기 추가
+        if (trayModeWindow != null)
+        {
+            trayModeWindow.Close();
+            trayModeWindow = null;
+        }
+
         // 트레이 모드 해제
         settings.IsTrayMode = false;
         
@@ -343,7 +350,18 @@ public partial class MainWindow : Window
 
     private void SwitchToSimpleMode()
     {
-        settings.LastActiveMode = "Simple";  // 이 줄 추가
+        settings.LastActiveMode = "Simple";
+        
+        // 트레이 모드 창 닫기
+        if (trayModeWindow != null)
+        {
+            trayModeWindow.Close();
+            trayModeWindow = null;
+        }
+        
+        // 트레이 모드 해제
+        settings.IsTrayMode = false;
+        
         // 기존 간편 모드 로직 호출
         SimpleModeButton_Click(null, null);
     }
