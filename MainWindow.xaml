@@ -55,7 +55,39 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        
+
+        <!-- 하단 버튼 스타일 (호버 효과 추가) -->
+        <Style x:Key="BottomButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#EBF0FF" TargetName="border"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#D0DAFF" TargetName="border"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5" TargetName="border"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+
         <!-- 구분선 스타일 -->
         <Style x:Key="SeparatorStyle" TargetType="Separator">
             <Setter Property="Margin" Value="10,3,10,3"/>
@@ -287,7 +319,7 @@
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                             <!-- 복사 버튼 -->
                             <Button x:Name="CopySelectedButton" Click="CopySelectedButton_Click" IsEnabled="False"
-                                    Width="40" Height="50" Margin="2" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                                    Style="{StaticResource BottomButtonStyle}">
                                 <StackPanel>
                                     <Image Source="/icons/copy_selected.png" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,0,2"/>
                                     <TextBlock Text="복사" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="#666"/>
@@ -296,7 +328,7 @@
                             
                             <!-- 전체 복사 버튼 -->
                             <Button x:Name="CopyAllButton" Click="CopyAllButton_Click" IsEnabled="False"
-                                    Width="40" Height="50" Margin="2" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                                    Style="{StaticResource BottomButtonStyle}">
                                 <StackPanel>
                                     <Image Source="/icons/copy_all.png" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,0,2"/>
                                     <TextBlock Text="전체복사" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="#666"/>
@@ -307,7 +339,7 @@
                             
                             <!-- 전체 저장 버튼 -->
                             <Button x:Name="SaveAllButton" Click="SaveAllButton_Click" IsEnabled="False"
-                                    Width="40" Height="50" Margin="2" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                                    Style="{StaticResource BottomButtonStyle}">
                                 <StackPanel>
                                     <Image Source="/icons/save_all.png" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,0,2"/>
                                     <TextBlock Text="전체저장" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="#666"/>
@@ -318,7 +350,7 @@
                             
                             <!-- 전체 삭제 버튼 -->
                             <Button x:Name="DeleteAllButton" Click="DeleteAllButton_Click" IsEnabled="False"
-                                    Width="40" Height="50" Margin="2" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                                    Style="{StaticResource BottomButtonStyle}">
                                 <StackPanel>
                                     <Image Source="/icons/delete_all.png" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,0,2"/>
                                     <TextBlock Text="전체삭제" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="#666"/>
@@ -329,7 +361,7 @@
                             
                             <!-- 설정 버튼 -->
                             <Button x:Name="SettingsBottomButton" Click="SettingsSideButton_Click"
-                                    Width="40" Height="50" Margin="2" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                                    Style="{StaticResource BottomButtonStyle}">
                                 <StackPanel>
                                     <Image Source="/icons/setting.png" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,0,2"/>
                                     <TextBlock Text="설정" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="#666"/>
