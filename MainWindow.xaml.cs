@@ -1016,38 +1016,16 @@ public partial class MainWindow : Window
                 trayModeWindow.Show();
                 trayModeWindow.UpdateCaptureCount(captures.Count);
                 
-                // 트레이모드에서는 자동으로 클립보드에 복사 (재시도 로직 포함)
+                // 트레이모드에서는 자동으로 클립보드에 복사
                 try
                 {
-                    // 클립보드 복사 재시도 (최대 5번)
-                    int retryCount = 0;
-                    bool copied = false;
-                    while (!copied && retryCount < 5)
-                    {
-                        try
-                        {
-                            ScreenCaptureUtility.CopyImageToClipboard(image);
-                            copied = true;
-                            ShowGuideMessage("캡처가 클립보드에 복사되었습니다.", TimeSpan.FromSeconds(1));
-                        }
-                        catch
-                        {
-                            retryCount++;
-                            if (retryCount < 5)
-                            {
-                                System.Threading.Thread.Sleep(200); // 200ms 대기 후 재시도 (100ms -> 200ms)
-                            }
-                        }
-                    }
-                    
-                    if (!copied)
-                    {
-                        ShowGuideMessage("클립보드 복사 실패. 다른 프로그램이 클립보드를 사용 중입니다.", TimeSpan.FromSeconds(2));
-                    }
+                    ScreenCaptureUtility.CopyImageToClipboard(image);
+                    ShowGuideMessage("캡처가 클립보드에 복사되었습니다.", TimeSpan.FromSeconds(1));
                 }
                 catch
                 {
-                    // 클립보드 복사 실패해도 프로그램은 계속 실행
+                    // 실패 시 재시도 없이 안내 메시지 표시하고 종료 (프로그램 멈춤 방지)
+                    ShowGuideMessage("클립보드 복사 실패: 다른 프로그램이 사용 중입니다.\n일반 모드에서 수동으로 복사해주세요.", TimeSpan.FromSeconds(3));
                 }
             }
             else if (simpleModeWindow == null)
@@ -1090,7 +1068,6 @@ public partial class MainWindow : Window
             catch { }
         }
     }
-    
     private Border CreateCaptureItem(CaptureImage captureImage, int index)
     {
         // 썸네일 크기 고정
