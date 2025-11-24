@@ -32,6 +32,7 @@ namespace CatchCapture.Utilities
         private double offsetY;
         
         public BitmapSource? FinalCompositeImage { get; private set; }
+        public List<BitmapSource> IndividualImages { get; private set; }
         
         private class CapturedRegion
         {
@@ -317,13 +318,12 @@ namespace CatchCapture.Utilities
         
         private void UpdateGuideText()
         {
-            if (capturedRegions.Count == 0)
+            if (guideText != null)
             {
-                guideText.Text = "영역을 드래그하여 캡처하세요. Enter: 완료 | ESC: 취소";
-            }
-            else
-            {
-                guideText.Text = $"{capturedRegions.Count}개 영역 캡처됨. 계속 캡처하거나 Enter: 완료 | ESC: 취소";
+                if (capturedRegions.Count == 0)
+                    guideText.Text = "영역을 드래그하여 선택하세요\n[Enter]: 모두 합쳐서 저장  |  [F1]: 각각 따로 저장  |  [ESC]: 취소\n[우클릭]: 마지막 영역 취소";
+                else
+                    guideText.Text = $"{capturedRegions.Count}개 선택됨\n[Enter]: 모두 합쳐서 저장  |  [F1]: 각각 따로 저장  |  [ESC]: 취소\n[우클릭]: 마지막 영역 취소";
             }
         }
         
@@ -334,6 +334,21 @@ namespace CatchCapture.Utilities
                 if (capturedRegions.Count > 0)
                 {
                     ComposeImages();
+                    DialogResult = true;
+                    Close();
+                }
+                else
+                {
+                    MessageBox.Show("최소 1개 이상의 영역을 캡처해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                e.Handled = true;
+            }
+            else if (e.Key == Key.F1)
+            {
+                // 개별 이미지 저장 모드
+                if (capturedRegions.Count > 0)
+                {
+                    IndividualImages = capturedRegions.Select(r => r.Image).ToList();
                     DialogResult = true;
                     Close();
                 }

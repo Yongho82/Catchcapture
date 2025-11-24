@@ -899,9 +899,21 @@ public partial class MainWindow : Window
 
         using (var multiCaptureWindow = new CatchCapture.Utilities.MultiCaptureWindow())
         {
-            if (multiCaptureWindow.ShowDialog() == true && multiCaptureWindow.FinalCompositeImage != null)
+            if (multiCaptureWindow.ShowDialog() == true)
             {
-                AddCaptureToList(multiCaptureWindow.FinalCompositeImage);
+                // 1. 개별 이미지 모드 (F1)
+                if (multiCaptureWindow.IndividualImages != null && multiCaptureWindow.IndividualImages.Count > 0)
+                {
+                    foreach (var img in multiCaptureWindow.IndividualImages)
+                    {
+                        AddCaptureToList(img);
+                    }
+                }
+                // 2. 합치기 모드 (Enter)
+                else if (multiCaptureWindow.FinalCompositeImage != null)
+                {
+                    AddCaptureToList(multiCaptureWindow.FinalCompositeImage);
+                }
             }
             else
             {
