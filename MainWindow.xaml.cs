@@ -38,7 +38,7 @@ public partial class MainWindow : Window
     // 스크린샷 캐시 (성능 최적화용)
     private BitmapSource? cachedScreenshot = null;
     private DateTime lastScreenshotTime = DateTime.MinValue;
-    private readonly TimeSpan screenshotCacheTimeout = TimeSpan.FromSeconds(2);
+    private readonly TimeSpan screenshotCacheTimeout = TimeSpan.FromSeconds(5);
     private System.Windows.Threading.DispatcherTimer? screenshotCacheTimer;
 
     // 트레이 아이콘
@@ -690,25 +690,11 @@ public partial class MainWindow : Window
         return cachedScreenshot;
     }
 
-    private void StartAreaCapture()
+    private async Task StartAreaCaptureAsync()
     {
-        // [추가된 코드 시작] -----------------------------------------
-        // 캡처 시작 전 메인 창이 보인다면 일반 모드로 확실히 설정
-        if (this.Visibility == Visibility.Visible)
-        {
-            settings.IsTrayMode = false;
-            Settings.Save(settings);
-        }
-        // [추가된 코드 끝] -------------------------------------------
-
-        // 창 숨기기
         this.Hide();
-        
-        // 짧은 대기로 창이 완전히 숨겨지도록 (최소한의 딜레이)
-        System.Threading.Thread.Sleep(50); // 50ms만 대기
-        
-        // 스크린샷 캡처 (메인창이 숨겨진 상태)
-        var screenshot = ScreenCaptureUtility.CaptureScreen();
+        await Task.Delay(10);  // 비동기 대기
+        var screenshot = await Task.Run(() => ScreenCaptureUtility.CaptureScreen());
 
         // 캡처된 스크린샷을 전달하여 SnippingWindow가 즉시 표시되도록
         using var snippingWindow = new SnippingWindow(showGuideText: false, cachedScreenshot: screenshot);
@@ -739,7 +725,11 @@ public partial class MainWindow : Window
             }
         }
     }
-
+    // 동기 래퍼 메서드 (기존 호출 호환성 유지)
+    private void StartAreaCapture()
+    {
+        _ = StartAreaCaptureAsync();  // Fire and forget
+    }
     private void FullScreenCaptureButton_Click(object sender, RoutedEventArgs e)
     {
         CaptureFullScreen();
@@ -761,7 +751,7 @@ public partial class MainWindow : Window
         try
         {
             this.Hide();
-            System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(10);
 
             var scrollCaptureWindow = new ScrollCaptureWindow();
             
@@ -847,7 +837,7 @@ public partial class MainWindow : Window
         try
         {
             this.Hide();
-            System.Threading.Thread.Sleep(100); // 창이 숨겨질 시간
+            System.Threading.Thread.Sleep(10); // 창이 숨겨질 시간
 
             var windowCaptureOverlay = new CatchCapture.Utilities.WindowCaptureOverlay();
             
@@ -867,7 +857,7 @@ public partial class MainWindow : Window
         try
         {
             this.Hide();
-            System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(10);
 
             var elementCaptureWindow = new ElementCaptureWindow();
             
@@ -895,7 +885,7 @@ public partial class MainWindow : Window
         this.Hide();
         
         // 짧은 대기로 창이 완전히 숨겨지도록
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(10);
 
         using (var multiCaptureWindow = new CatchCapture.Utilities.MultiCaptureWindow())
         {

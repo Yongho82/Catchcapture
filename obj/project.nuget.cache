@@ -1,17 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "szD9rhZlzKo=",
+  "dgSpecHash": "MjLRJ2OE67I=",
   "success": true,
-  "projectFilePath": "C:\\Yonghoprogram\\Catchcapture\\CatchCapture.csproj",
+  "projectFilePath": "C:\\yonghoprogram\\Catchcapture\\CatchCapture.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\엄용호 회사\\.nuget\\packages\\microsoft.win32.systemevents\\8.0.0\\microsoft.win32.systemevents.8.0.0.nupkg.sha512",
-    "C:\\Users\\엄용호 회사\\.nuget\\packages\\microsoft.xaml.behaviors.wpf\\1.1.77\\microsoft.xaml.behaviors.wpf.1.1.77.nupkg.sha512",
-    "C:\\Users\\엄용호 회사\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
-    "C:\\Users\\엄용호 회사\\.nuget\\packages\\system.drawing.common\\8.0.0\\system.drawing.common.8.0.0.nupkg.sha512",
-    "C:\\Users\\엄용호 회사\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.13\\microsoft.netcore.app.ref.8.0.13.nupkg.sha512",
-    "C:\\Users\\엄용호 회사\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.13\\microsoft.windowsdesktop.app.ref.8.0.13.nupkg.sha512",
-    "C:\\Users\\엄용호 회사\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.13\\microsoft.aspnetcore.app.ref.8.0.13.nupkg.sha512",
-    "C:\\Users\\엄용호 회사\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\8.0.13\\microsoft.netcore.app.host.win-x64.8.0.13.nupkg.sha512"
+    "C:\\Users\\엄용호\\.nuget\\packages\\microsoft.win32.systemevents\\8.0.0\\microsoft.win32.systemevents.8.0.0.nupkg.sha512",
+    "C:\\Users\\엄용호\\.nuget\\packages\\microsoft.xaml.behaviors.wpf\\1.1.77\\microsoft.xaml.behaviors.wpf.1.1.77.nupkg.sha512",
+    "C:\\Users\\엄용호\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
+    "C:\\Users\\엄용호\\.nuget\\packages\\system.drawing.common\\8.0.0\\system.drawing.common.8.0.0.nupkg.sha512"
   ],
   "logs": []
 }

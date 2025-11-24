@@ -566,7 +566,7 @@ namespace CatchCapture.Utilities
                 Hide();
                 
                 // 약간의 지연을 주어 창이 완전히 숨겨지도록 함
-                System.Threading.Thread.Sleep(50);
+                System.Threading.Thread.Sleep(10);
                 
                 var area = new Int32Rect(pxLeft, pxTop, pxWidth, pxHeight);
                 image = ScreenCaptureUtility.CaptureArea(area);

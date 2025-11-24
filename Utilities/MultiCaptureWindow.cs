@@ -123,7 +123,7 @@ namespace CatchCapture.Utilities
             
             // 전체 화면 스크린샷 캡처
             this.Hide();
-            System.Threading.Thread.Sleep(50);
+            System.Threading.Thread.Sleep(10);
             screenshot = ScreenCaptureUtility.CaptureScreen();
 
             // 멀티모니터 오프셋 계산
