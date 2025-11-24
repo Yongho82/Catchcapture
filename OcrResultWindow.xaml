@@ -1,0 +1,46 @@
+<Window x:Class="CatchCapture.OcrResultWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="텍스트 추출 결과" Height="580" Width="500"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="#F8F9FC">
+    
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="추출된 텍스트" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+
+        <TextBox x:Name="ResultTextBox" Grid.Row="1" 
+                 AcceptsReturn="True" TextWrapping="Wrap" 
+                 VerticalScrollBarVisibility="Auto"
+                 Padding="10" FontSize="13"
+                 BorderBrush="#D0D7E5"/>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
+            <Button x:Name="CopyButton" Content="복사" Width="80" Height="35" 
+                    Background="#4B6EF5" Foreground="White" BorderThickness="0"
+                    Cursor="Hand" Click="CopyButton_Click" Margin="0,0,10,0">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="4"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+            
+            <Button x:Name="CloseButton" Content="닫기" Width="80" Height="35" 
+                    Background="White" BorderBrush="#D0D7E5" BorderThickness="1"
+                    Cursor="Hand" Click="CloseButton_Click">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="4"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>

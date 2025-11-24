@@ -203,12 +203,12 @@
                     </Grid>
                     
                   
-                        <controls:TwoTierToolButton 
-                            x:Name="PenToolButton"
-                            Label="펜" 
-                            ToolTipText="펜 (기본: 검정, 3px)"
-                            MainButtonClick="PenButton_Click"
-                            OptionsButtonClick="PenOptionsButton_Click">
+                    <controls:TwoTierToolButton 
+                        x:Name="PenToolButton"
+                        Label="펜" 
+                        ToolTipText="펜 (기본: 검정, 3px)"
+                        MainButtonClick="PenButton_Click"
+                        OptionsButtonClick="PenOptionsButton_Click">
                         <controls:TwoTierToolButton.IconContent>
                             <Canvas Width="20" Height="20">
                                 <Canvas.LayoutTransform>
@@ -262,7 +262,14 @@
                         <controls:TwoTierToolButton.IconContent>
                             <Image Source="icons/eraser.png" Width="20" Height="20"/>
                         </controls:TwoTierToolButton.IconContent>
-                    </controls:TwoTierToolButton>      
+                    </controls:TwoTierToolButton>   
+
+                    <Button x:Name="OcrButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="OcrButton_Click" ToolTip="텍스트 추출">
+                        <StackPanel VerticalAlignment="Top">
+                            <TextBlock Text="OCR" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                            <TextBlock Text="추출" FontSize="12" HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Button> 
                 </StackPanel>
             </ScrollViewer>
         </Border>

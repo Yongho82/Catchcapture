@@ -400,6 +400,38 @@ namespace CatchCapture
             ScreenCaptureUtility.CopyImageToClipboard(currentImage);
             ShowToastMessage("이미지가 클립보드에 복사되었습니다.");
         }
+                private async void OcrButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (currentImage == null) return;
+
+            try
+            {
+                // 로딩 표시 (커서 변경)
+                this.Cursor = Cursors.Wait;
+
+                // OCR 실행
+                string extractedText = await CatchCapture.Utilities.OcrUtility.ExtractTextFromImageAsync(currentImage);
+
+                // 커서 복원
+                this.Cursor = Cursors.Arrow;
+
+                if (string.IsNullOrWhiteSpace(extractedText))
+                {
+                    MessageBox.Show("추출된 텍스트가 없습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                // 결과창 표시
+                var resultWindow = new OcrResultWindow(extractedText);
+                resultWindow.Owner = this;
+                resultWindow.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                this.Cursor = Cursors.Arrow;
+                MessageBox.Show($"텍스트 추출 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
         // 토스트 메시지 표시 메서드
         private void ShowToastMessage(string message)
         {
