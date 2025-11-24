@@ -84,14 +84,14 @@
                     <!-- 일반 모드 전환 버튼 -->
                     <Button x:Name="SwitchToNormalModeButton" Style="{StaticResource SmallIconButtonStyle}" 
                             Click="SwitchToNormalModeButton_Click" ToolTip="일반 모드로 전환">
-                        <Image Source="/icons/window_capture.png" Width="12" Height="12"
+                        <Image Source="/icons/area_capture.png" Width="14" Height="14"
                                RenderOptions.BitmapScalingMode="HighQuality"/>
                     </Button>
 
                     <!-- 간편 모드 버튼 -->
                     <Button x:Name="SimpleModeButton" Style="{StaticResource SmallIconButtonStyle}" 
                             Click="SimpleModeButton_Click" ToolTip="간편 모드">
-                        <Image Source="/icons/simple_mode.png" Width="12" Height="12"
+                        <Image Source="/icons/simple_mode.png" Width="14" Height="14"
                                RenderOptions.BitmapScalingMode="HighQuality"/>
                     </Button>
                 </StackPanel>
@@ -223,8 +223,15 @@
                 <!-- 설정 -->
                 <Button x:Name="SettingsButton" Style="{StaticResource IconButtonStyle}" 
                         Click="SettingsButton_Click" ToolTip="설정">
-                    <Image Source="/icons/clock.png" Width="24" Height="24"
+                    <Image Source="/icons/setting.png" Width="24" Height="24"
                            RenderOptions.BitmapScalingMode="HighQuality"/>
+                </Button>
+                
+                <!-- 접기/펼치기 버튼 -->
+                <Button x:Name="FoldButton" Style="{StaticResource IconButtonStyle}" 
+                        Click="FoldButton_Click" ToolTip="접기">
+                    <TextBlock x:Name="FoldIcon" Text="▼" FontSize="14" FontWeight="Bold" Foreground="#666"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Button>
             </StackPanel>
         </Grid>

@@ -13,6 +13,7 @@ namespace CatchCapture
     {
         private MainWindow mainWindow;
         private Settings settings;
+        private bool isFolded = false;
 
         public TrayModeWindow(MainWindow owner)
         {
@@ -203,6 +204,64 @@ namespace CatchCapture
         {
             this.Hide();
             mainWindow.TriggerSettings();
+            this.Hide();
+            mainWindow.TriggerSettings();
+        }
+
+        private void FoldButton_Click(object sender, RoutedEventArgs e)
+        {
+            isFolded = !isFolded;
+            
+            if (isFolded)
+            {
+                // 접기: 아이콘 변경 및 UI 숨김
+                FoldIcon.Text = "▲";
+                FoldButton.ToolTip = "펼치기";
+                
+                // 버튼 패널의 자식들 중 숨길 것들 숨기기
+                ToggleButtonsVisibility(Visibility.Collapsed);
+                
+                // 창 높이 줄이기 (상단 컨트롤 + 접기버튼 + 여백)
+                // 30(상단) + 50(접기) + 30(여백) = 110
+                double foldedHeight = 110;
+                
+                // 하단 기준 높이 조절
+                double heightDiff = foldedHeight - this.Height;
+                this.Top -= heightDiff;
+                this.Height = foldedHeight;
+            }
+            else
+            {
+                // 펼치기: 아이콘 변경 및 UI 보이기
+                FoldIcon.Text = "▼";
+                FoldButton.ToolTip = "접기";
+                
+                // 버튼 패널의 자식들 보이기
+                ToggleButtonsVisibility(Visibility.Visible);
+                
+                // 창 높이 자동 조절 (원래대로)
+                AdjustWindowHeight();
+            }
+        }
+
+        private void ToggleButtonsVisibility(Visibility visibility)
+        {
+            var buttonsPanel = FindButtonsPanel();
+            if (buttonsPanel == null) return;
+            
+            for (int i = 0; i < buttonsPanel.Children.Count; i++)
+            {
+                var child = buttonsPanel.Children[i];
+
+                // 1. FoldButton은 항상 보임
+                if (child is Button btn && btn.Name == "FoldButton") continue;
+
+                // 2. 첫 번째 요소(상단 컨트롤 패널)는 항상 보임
+                if (i == 0) continue;
+
+                // 나머지는 숨김/보임 처리 (핀, 카운트, 구분선, 캡처버튼 등)
+                child.Visibility = visibility;
+            }
         }
         private void BuildIconButtons()
         {
@@ -223,12 +282,21 @@ namespace CatchCapture
             
             // 빈 슬롯 추가 (+ 버튼)
             AddEmptySlot(buttonsPanel);
+            
+            // FoldButton을 맨 아래로 이동 (순서 보장)
+            if (FoldButton != null)
+            {
+                buttonsPanel.Children.Remove(FoldButton);
+                buttonsPanel.Children.Add(FoldButton);
+            }
     
             // 창 높이 자동 조절
             AdjustWindowHeight();
         }
         private void AdjustWindowHeight()
         {
+            if (isFolded) return;
+
             // 아이콘 개수에 따라 창 높이 계산
             // 상단 컨트롤: ~30px
             // TopmostButton: 50px
@@ -236,10 +304,11 @@ namespace CatchCapture
             // 첫 번째 Separator: 21px
             // 각 아이콘: 50px
             // + 버튼: 50px
+            // FoldButton: 50px (추가됨)
             // 여백: 30px (상하)
             
             int iconCount = settings.TrayModeIcons.Count;
-            int baseHeight = 30 + 50 + 50 + 21 + 50 + 30; // 상단 + TopmostButton + Counter + Separator + + 버튼 + 여백
+            int baseHeight = 30 + 50 + 50 + 21 + 50 + 50 + 30; // 상단 + TopmostButton + Counter + Separator + + 버튼 + FoldButton + 여백
             int iconsHeight = iconCount * 50;
             
             int newHeight = baseHeight + iconsHeight;
@@ -303,6 +372,9 @@ namespace CatchCapture
                 
                 if (foundFirstSeparator)
                 {
+                    // FoldButton은 지우지 않음
+                    if (child is Button btn && btn.Name == "FoldButton") continue;
+
                     itemsToRemove.Add(child);
                 }
             }
