@@ -71,7 +71,7 @@ namespace CatchCapture
         private Rectangle? thicknessPreviewRect;
         private Color textColor = Colors.Red;
         private double textSize = 16;
-        private double eraserSize = 30;
+        private double eraserSize = 20;
         private int mosaicSize = 10;
         private FontWeight textFontWeight = FontWeights.Normal;
         private FontStyle textFontStyle = FontStyles.Normal;

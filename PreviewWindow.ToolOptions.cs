@@ -279,6 +279,38 @@ namespace CatchCapture
             // --- 3. 오른쪽: 크기+스타일 섹션 ---
             StackPanel rightSection = new StackPanel();
 
+            // 폰트 선택
+            TextBlock fontLabel = new TextBlock 
+            { 
+                Text = "폰트", 
+                FontWeight = FontWeights.SemiBold, 
+                Margin = new Thickness(0, 0, 0, 4) 
+            };
+            rightSection.Children.Add(fontLabel);
+
+            ComboBox fontComboBox = new ComboBox
+            {
+                Width = 120,
+                Height = 25,
+                Margin = new Thickness(0, 0, 0, 10),
+                // 주요 폰트만 표시 (시스템 전체 폰트는 너무 많아서 로딩 지연 가능성)
+                ItemsSource = new List<string> { 
+                    "맑은 고딕", "굴림", "돋움", "바탕", "궁서", 
+                    "Arial", "Segoe UI", "Verdana", "Tahoma", "Times New Roman", 
+                    "Consolas", "Impact", "Comic Sans MS" 
+                },
+                SelectedItem = textFontFamily
+            };
+            
+            fontComboBox.SelectionChanged += (s, e) =>
+            {
+                if (fontComboBox.SelectedItem is string fontName)
+                {
+                    textFontFamily = fontName;
+                }
+            };
+            rightSection.Children.Add(fontComboBox);
+
             // 크기 라벨
             TextBlock sizeLabel = new TextBlock 
             { 
