@@ -9,7 +9,8 @@
         MinWidth="350" MinHeight="550"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None" AllowsTransparency="True" 
-        Background="Transparent">
+        Background="Transparent"
+        FontFamily="Segoe UI">
     
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="24" 
@@ -154,7 +155,7 @@
                 <!-- 메인 콘텐츠 영역 -->
                 <Grid Grid.Row="1">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="100" />
+                        <ColumnDefinition Width="110" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
@@ -169,7 +170,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/area_capture.png" Width="16" Height="16" Margin="0,0,5,0" 
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="영역 캡처" HorizontalAlignment="Left" FontSize="11"/>
+                                    <TextBlock Text="영역 캡처" HorizontalAlignment="Left" FontSize="12"/>
                                 </StackPanel>
                             </Button>
 
@@ -186,7 +187,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/clock.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="지연 캡처" HorizontalAlignment="Left" FontSize="11"/>
+                                    <TextBlock Text="지연 캡처" HorizontalAlignment="Left" FontSize="12"/>
                                 </StackPanel>
                             </Button>
                             
@@ -195,7 +196,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/real-time.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="실시간 캡처" HorizontalAlignment="Left" FontSize="11"/>
+                                    <TextBlock Text="순간 캡처" HorizontalAlignment="Left" FontSize="12"/>
                                 </StackPanel>
                             </Button>
                             
@@ -204,7 +205,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/multi_capture.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="멀티 캡처" HorizontalAlignment="Left" FontSize="11"/>
+                                    <TextBlock Text="멀티 캡처" HorizontalAlignment="Left" FontSize="12"/>
                                 </StackPanel>
                             </Button>
                             
@@ -212,7 +213,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/full_screen.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="전체화면" HorizontalAlignment="Left" FontSize="11"/>
+                                    <TextBlock Text="전체화면" HorizontalAlignment="Left" FontSize="12"/>
                                 </StackPanel>
                             </Button>
                             
@@ -221,7 +222,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/designated.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="지정캡처" HorizontalAlignment="Left" FontSize="11"/>
+                                    <TextBlock Text="지정캡처" HorizontalAlignment="Left" FontSize="12"/>
                                 </StackPanel>
                             </Button>
                             <!-- 창 캡처 버튼 -->
@@ -229,7 +230,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/window_cap.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="창 캡처" HorizontalAlignment="Left" FontSize="11"/>
+                                    <TextBlock Text="창 캡처" HorizontalAlignment="Left" FontSize="12"/>
                                 </StackPanel>
                             </Button>
                             
@@ -238,7 +239,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/unit_capture.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="단위 캡처" HorizontalAlignment="Left" FontSize="11"/>
+                                    <TextBlock Text="단위 캡처" HorizontalAlignment="Left" FontSize="12"/>
                                 </StackPanel>
                             </Button>
                             
@@ -247,7 +248,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/scroll_capture.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="스크롤 캡처" HorizontalAlignment="Left" FontSize="11"/>
+                                    <TextBlock Text="스크롤 캡처" HorizontalAlignment="Left" FontSize="12"/>
                                 </StackPanel>
                             </Button>
                             
@@ -257,7 +258,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/simple_mode.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="간편 모드" HorizontalAlignment="Left" FontSize="11"/>
+                                    <TextBlock Text="간편 모드" HorizontalAlignment="Left" FontSize="12"/>
                                 </StackPanel>
                             </Button>
                     
@@ -266,7 +267,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/tray_mode.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="트레이모드" HorizontalAlignment="Left" FontSize="11"/>
+                                    <TextBlock Text="트레이모드" HorizontalAlignment="Left" FontSize="12"/>
                                 </StackPanel>
                             </Button>
 
