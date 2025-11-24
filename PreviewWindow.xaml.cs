@@ -2251,16 +2251,16 @@ namespace CatchCapture
             {
                 // 숨기기
                 CaptureListBorder.Visibility = Visibility.Collapsed;
-                // 화살표를 < 방향으로 (닫힘)
-                ToggleButton.RenderTransform = new RotateTransform(0);
+                // 화살표를 > 방향으로 (닫힘 - 열기 유도)
+                ToggleButton.RenderTransform = new RotateTransform(180);
+                ToggleButton.RenderTransformOrigin = new Point(0.5, 0.5);
             }
             else
             {
                 // 보이기
                 CaptureListBorder.Visibility = Visibility.Visible;
-                // 화살표를 > 방향으로 (열림)
-                ToggleButton.RenderTransform = new RotateTransform(180);
-                ToggleButton.RenderTransformOrigin = new Point(0.5, 0.5);
+                // 화살표를 < 방향으로 (열림 - 닫기 유도)
+                ToggleButton.RenderTransform = new RotateTransform(0);
             }
             
             isPanelVisible = !isPanelVisible;
