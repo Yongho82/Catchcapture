@@ -1099,7 +1099,7 @@ public partial class MainWindow : Window
             HorizontalAlignment = HorizontalAlignment.Center
         };
         
-        RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
+        RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.NearestNeighbor);
 
         // 인덱스를 태그로 저장
         image.Tag = index;
