@@ -23,6 +23,7 @@
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/full_screen.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/highlight.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/mosaic.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/multi_capture.png.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/program_icon.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/real-time.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/redo.png")]

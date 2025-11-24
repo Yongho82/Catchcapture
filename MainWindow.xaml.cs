@@ -826,6 +826,48 @@ public partial class MainWindow : Window
         }
     }
 
+    private void MultiCaptureButton_Click(object sender, RoutedEventArgs e)
+    {
+        // 캡처 시작 전 메인 창이 보인다면 일반 모드로 확실히 설정
+        if (this.Visibility == Visibility.Visible)
+        {
+            settings.IsTrayMode = false;
+            Settings.Save(settings);
+        }
+
+        // 창 숨기기
+        this.Hide();
+        
+        // 짧은 대기로 창이 완전히 숨겨지도록
+        System.Threading.Thread.Sleep(100);
+
+        using (var multiCaptureWindow = new CatchCapture.Utilities.MultiCaptureWindow())
+        {
+            if (multiCaptureWindow.ShowDialog() == true && multiCaptureWindow.FinalCompositeImage != null)
+            {
+                AddCaptureToList(multiCaptureWindow.FinalCompositeImage);
+            }
+            else
+            {
+                // 캡처 취소 시
+                if (!settings.IsTrayMode)
+                {
+                    // 일반 모드: 메인 창 표시
+                    this.Show();
+                    this.Activate();
+                }
+                else
+                {
+                    // 트레이 모드: 트레이 모드 창 다시 표시
+                    if (trayModeWindow != null)
+                    {
+                        trayModeWindow.Show();
+                        trayModeWindow.Activate();
+                    }
+                }
+            }
+        }
+    }
     // 간편모드 전용 지정캡처 메서드 (메인창을 표시하지 않음)
     private void PerformDesignatedCaptureForSimpleMode()
     {
