@@ -956,91 +956,138 @@ public partial class MainWindow : Window
 
     private void AddCaptureToList(BitmapSource image)
     {
-        // 캡처 이미지 객체 생성
-        var captureImage = new CaptureImage(image);
-        captures.Add(captureImage);
-        try 
+        try
         {
-            var currentSettings = CatchCapture.Models.Settings.Load();
-            if (currentSettings.AutoSaveCapture)
+            // 캡처 이미지 객체 생성
+            var captureImage = new CaptureImage(image);
+            captures.Add(captureImage);
+            try 
             {
-                string saveFolder = currentSettings.DefaultSaveFolder;
-                // 폴더 경로가 비어있으면 기본 경로 설정
-                if (string.IsNullOrWhiteSpace(saveFolder))
+                var currentSettings = CatchCapture.Models.Settings.Load();
+                if (currentSettings.AutoSaveCapture)
                 {
-                    saveFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture");
+                    string saveFolder = currentSettings.DefaultSaveFolder;
+                    // 폴더 경로가 비어있으면 기본 경로 설정
+                    if (string.IsNullOrWhiteSpace(saveFolder))
+                    {
+                        saveFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture");
+                    }
+                    
+                    // 폴더가 없으면 생성
+                    if (!System.IO.Directory.Exists(saveFolder))
+                    {
+                        System.IO.Directory.CreateDirectory(saveFolder);
+                    }
+
+                    string timestamp = DateTime.Now.ToString("yyyy-MM-dd HHmmss");
+                    string ext = currentSettings.FileSaveFormat.Equals("PNG", StringComparison.OrdinalIgnoreCase) ? ".png" : ".jpg";
+                    string filename = $"AutoSave_{timestamp}_{captures.Count}{ext}";
+                    string fullPath = System.IO.Path.Combine(saveFolder, filename);
+
+                    CatchCapture.Utilities.ScreenCaptureUtility.SaveImageToFile(image, fullPath);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"자동 저장 실패: {ex.Message}");
+            }
+
+            // UI에 이미지 추가 - 최신 캡처를 위에 표시하기 위해 인덱스 0에 추가
+            var border = CreateCaptureItem(captureImage, captures.Count - 1);
+            CaptureListPanel.Children.Insert(0, border);
+
+            // 추가된 이미지 선택
+            SelectCapture(border, captures.Count - 1);
+
+            // 버튼 상태 업데이트
+            UpdateButtonStates();
+            
+            
+            // 트레이 모드일 때 처리
+            if (settings.IsTrayMode)
+            {
+                // 트레이 창이 없거나 닫혔으면 다시 생성/표시
+                if (trayModeWindow == null || !trayModeWindow.IsLoaded)
+                {
+                    trayModeWindow = new TrayModeWindow(this);
                 }
                 
-                // 폴더가 없으면 생성
-                if (!System.IO.Directory.Exists(saveFolder))
+                // 캡처 도중 숨겨졌을 수 있으므로 다시 표시
+                trayModeWindow.Show();
+                trayModeWindow.UpdateCaptureCount(captures.Count);
+                
+                // 트레이모드에서는 자동으로 클립보드에 복사 (재시도 로직 포함)
+                try
                 {
-                    System.IO.Directory.CreateDirectory(saveFolder);
+                    // 클립보드 복사 재시도 (최대 5번)
+                    int retryCount = 0;
+                    bool copied = false;
+                    while (!copied && retryCount < 5)
+                    {
+                        try
+                        {
+                            ScreenCaptureUtility.CopyImageToClipboard(image);
+                            copied = true;
+                            ShowGuideMessage("캡처가 클립보드에 복사되었습니다.", TimeSpan.FromSeconds(1));
+                        }
+                        catch
+                        {
+                            retryCount++;
+                            if (retryCount < 5)
+                            {
+                                System.Threading.Thread.Sleep(200); // 200ms 대기 후 재시도 (100ms -> 200ms)
+                            }
+                        }
+                    }
+                    
+                    if (!copied)
+                    {
+                        ShowGuideMessage("클립보드 복사 실패. 다른 프로그램이 클립보드를 사용 중입니다.", TimeSpan.FromSeconds(2));
+                    }
                 }
-
-                string timestamp = DateTime.Now.ToString("yyyy-MM-dd HHmmss");
-                string ext = currentSettings.FileSaveFormat.Equals("PNG", StringComparison.OrdinalIgnoreCase) ? ".png" : ".jpg";
-                string filename = $"AutoSave_{timestamp}_{captures.Count}{ext}";
-                string fullPath = System.IO.Path.Combine(saveFolder, filename);
-
-                CatchCapture.Utilities.ScreenCaptureUtility.SaveImageToFile(image, fullPath);
+                catch
+                {
+                    // 클립보드 복사 실패해도 프로그램은 계속 실행
+                }
+            }
+            else if (simpleModeWindow == null)
+            {
+                // 간편모드가 활성화되지 않은 경우에만 일반 모드 창 표시
+                // 캡처 개수 업데이트 (일반 모드용)
+                UpdateCaptureCount();
+                
+                // 창 표시 (트레이 모드가 아니고 간편모드가 아닐 때만)
+                this.Show();
+                this.WindowState = WindowState.Normal;
+                this.Activate();
+            }
+            else
+            {
+                // 간편모드가 활성화된 경우 캡처 개수만 업데이트
+                UpdateCaptureCount();
+            }
+            
+            // 캡처 후 미리보기 표시 설정 확인
+            if (settings.ShowPreviewAfterCapture)
+            {
+                var preview = new PreviewWindow(image, captures.Count - 1);
+                preview.Owner = this;
+                preview.ShowDialog();
             }
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"자동 저장 실패: {ex.Message}");
-        }
-
-        // UI에 이미지 추가 - 최신 캡처를 위에 표시하기 위해 인덱스 0에 추가
-        var border = CreateCaptureItem(captureImage, captures.Count - 1);
-        CaptureListPanel.Children.Insert(0, border);
-
-        // 추가된 이미지 선택
-        SelectCapture(border, captures.Count - 1);
-
-        // 버튼 상태 업데이트
-        UpdateButtonStates();
-        
-        
-        // 트레이 모드일 때 처리
-        if (settings.IsTrayMode)
-        {
-            // 트레이 창이 없거나 닫혔으면 다시 생성/표시
-            if (trayModeWindow == null)
+            // 에러를 바탕화면 파일로 저장
+            try
             {
-                trayModeWindow = new TrayModeWindow(this);
+                var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                var errorFilePath = System.IO.Path.Combine(desktopPath, "CatchCapture_Error.txt");
+                var errorMessage = $"=== 에러 발생 ===\n시간: {DateTime.Now:yyyy-MM-dd HH:mm:ss}\n\n에러 메시지:\n{ex.Message}\n\n스택 트레이스:\n{ex.StackTrace}\n\n설정 정보:\nIsTrayMode: {settings.IsTrayMode}\ntrayModeWindow: {(trayModeWindow == null ? "null" : "exists")}\nsimpleModeWindow: {(simpleModeWindow == null ? "null" : "exists")}\n==================\n\n";
+                System.IO.File.AppendAllText(errorFilePath, errorMessage);
+                
+                MessageBox.Show($"캡처 중 오류가 발생했습니다.\n에러 로그가 바탕화면에 저장되었습니다.\n\n{ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            
-            // 캡처 도중 숨겨졌을 수 있으므로 다시 표시
-            trayModeWindow.Show();
-            trayModeWindow.UpdateCaptureCount(captures.Count);
-            
-            // 트레이모드에서는 자동으로 클립보드에 복사
-            ScreenCaptureUtility.CopyImageToClipboard(image);
-            ShowGuideMessage("캡처가 클립보드에 복사되었습니다.", TimeSpan.FromSeconds(1));
-        }
-        else if (simpleModeWindow == null)
-        {
-            // 간편모드가 활성화되지 않은 경우에만 일반 모드 창 표시
-            // 캡처 개수 업데이트 (일반 모드용)
-            UpdateCaptureCount();
-            
-            // 창 표시 (트레이 모드가 아니고 간편모드가 아닐 때만)
-            this.Show();
-            this.WindowState = WindowState.Normal;
-            this.Activate();
-        }
-        else
-        {
-            // 간편모드가 활성화된 경우 캡처 개수만 업데이트
-            UpdateCaptureCount();
-        }
-        
-        // 캡처 후 미리보기 표시 설정 확인
-        if (settings.ShowPreviewAfterCapture)
-        {
-            var preview = new PreviewWindow(image, captures.Count - 1);
-            preview.Owner = this;
-            preview.ShowDialog();
+            catch { }
         }
     }
     
@@ -1827,10 +1874,20 @@ public partial class MainWindow : Window
 
     private const int HOTKEY_ID_REALTIME = 9003;
     private const int HOTKEY_ID_REALTIME_CANCEL = 9004;
-
-    // 실시간 캡처 모드 시작 (F1 대기)
+    private bool wasInTrayModeBeforeRealTimeCapture = false;
+// 실시간 캡처 모드 시작 (F1 대기)
     public void StartRealTimeCaptureMode()
     {
+        // 원래 모드 기억
+        wasInTrayModeBeforeRealTimeCapture = settings.IsTrayMode;
+        
+        // 캡처 시작 전 메인 창이 보인다면 일반 모드로 확실히 설정
+        if (this.Visibility == Visibility.Visible)
+        {
+            settings.IsTrayMode = false;
+            Settings.Save(settings);
+        }
+        
         // 메인 창 숨기기
         this.Hide();
         
@@ -1881,7 +1938,14 @@ public partial class MainWindow : Window
                         if (win is GuideWindow) win.Close();
                     }
 
-                    // 3. 영역 캡처 시작
+                    // 3. 원래 트레이 모드였다면 복원
+                    if (wasInTrayModeBeforeRealTimeCapture)
+                    {
+                        settings.IsTrayMode = true;
+                        Settings.Save(settings);
+                    }
+
+                    // 4. 영역 캡처 시작
                     Dispatcher.Invoke(() => StartAreaCapture());
                     handled = true;
                     break;
@@ -1897,9 +1961,11 @@ public partial class MainWindow : Window
                         if (win is GuideWindow) win.Close();
                     }
 
-                    // 3. 취소 후 창 복원
-                    if (settings.IsTrayMode)
+                    // 3. 취소 후 창 복원 - 원래 모드로 복원
+                    if (wasInTrayModeBeforeRealTimeCapture)
                     {
+                        settings.IsTrayMode = true;
+                        Settings.Save(settings);
                         if (trayModeWindow != null) 
                         {
                             trayModeWindow.Show();
