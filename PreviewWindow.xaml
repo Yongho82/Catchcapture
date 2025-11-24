@@ -459,5 +459,11 @@
                 </ScrollViewer>
             </Grid>
         </Border>
+        <!-- 토스트 메시지 -->
+        <Border x:Name="ToastBorder" Background="#333333" CornerRadius="4" Padding="15,10" 
+                HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,100"
+                Opacity="0" IsHitTestVisible="False" Grid.Row="1" Grid.ColumnSpan="2">
+            <TextBlock x:Name="ToastText" Text="메시지" Foreground="White" FontSize="14"/>
+        </Border>
     </Grid>
 </Window>

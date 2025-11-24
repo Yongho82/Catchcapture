@@ -216,7 +216,7 @@ namespace CatchCapture
             {
                 // Ctrl+C: 현재 이미지 복사
                 ScreenCaptureUtility.CopyImageToClipboard(currentImage);
-                MessageBox.Show("이미지가 클립보드에 복사되었습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                ShowToastMessage("이미지가 클립보드에 복사되었습니다.");
                 e.Handled = true;
             }
             else if (e.Key == Key.Z && Keyboard.Modifiers == ModifierKeys.Control)
@@ -398,9 +398,31 @@ namespace CatchCapture
         private void CopyButton_Click(object sender, RoutedEventArgs e)
         {
             ScreenCaptureUtility.CopyImageToClipboard(currentImage);
-            MessageBox.Show("이미지가 클립보드에 복사되었습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+            ShowToastMessage("이미지가 클립보드에 복사되었습니다.");
         }
+        // 토스트 메시지 표시 메서드
+        private void ShowToastMessage(string message)
+        {
+            if (ToastBorder == null || ToastText == null) return;
 
+            ToastText.Text = message;
+            
+            // 애니메이션으로 표시
+            var fadeIn = new System.Windows.Media.Animation.DoubleAnimation(0, 1, TimeSpan.FromSeconds(0.2));
+            var fadeOut = new System.Windows.Media.Animation.DoubleAnimation(1, 0, TimeSpan.FromSeconds(0.2));
+            fadeOut.BeginTime = TimeSpan.FromSeconds(2.0); // 2초 후 사라짐
+
+            var storyboard = new System.Windows.Media.Animation.Storyboard();
+            storyboard.Children.Add(fadeIn);
+            storyboard.Children.Add(fadeOut);
+            
+            System.Windows.Media.Animation.Storyboard.SetTarget(fadeIn, ToastBorder);
+            System.Windows.Media.Animation.Storyboard.SetTargetProperty(fadeIn, new PropertyPath("Opacity"));
+            System.Windows.Media.Animation.Storyboard.SetTarget(fadeOut, ToastBorder);
+            System.Windows.Media.Animation.Storyboard.SetTargetProperty(fadeOut, new PropertyPath("Opacity"));
+
+            storyboard.Begin();
+        }
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             // 자동 파일 이름 생성
