@@ -7,6 +7,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using CatchCapture.Utilities;
+using CatchCapture.Models;
 
 namespace CatchCapture
 {
@@ -61,14 +62,27 @@ namespace CatchCapture
             }
         }
 
+        // 지우개 커서
+        private Ellipse? eraserCursor;
+
         private void ImageCanvas_MouseMove(object sender, MouseEventArgs e)
         {
-            // 왼쪽 버튼이 눌려 있지 않으면 아무것도 하지 않음
-            if (e.LeftButton != MouseButtonState.Pressed) return;
-
             if (ImageCanvas == null) return;
 
             Point currentPoint = e.GetPosition(ImageCanvas);
+
+            // 지우개 모드일 때 커서 표시 (클릭 여부 상관없이)
+            if (currentEditMode == EditMode.Eraser)
+            {
+                UpdateEraserCursor(currentPoint);
+            }
+            else
+            {
+                HideEraserCursor();
+            }
+
+            // 왼쪽 버튼이 눌려 있지 않으면 드래그 로직은 실행하지 않음
+            if (e.LeftButton != MouseButtonState.Pressed) return;
 
             // 도형 모드 처리
             if (currentEditMode == EditMode.Shape && isDrawingShape)
@@ -116,6 +130,42 @@ namespace CatchCapture
                 case EditMode.Eraser:
                     UpdateEraser(currentPoint);
                     break;
+            }
+        }
+
+        private void UpdateEraserCursor(Point point)
+        {
+            if (eraserCursor == null)
+            {
+                eraserCursor = new Ellipse
+                {
+                    Width = eraserSize,
+                    Height = eraserSize,
+                    Stroke = Brushes.Black,
+                    StrokeThickness = 1,
+                    Fill = new SolidColorBrush(Color.FromArgb(50, 255, 255, 255)), // 반투명 흰색
+                    IsHitTestVisible = false // 마우스 이벤트 통과
+                };
+                ImageCanvas.Children.Add(eraserCursor);
+            }
+
+            // 크기 업데이트 (지우개 크기 변경 시 반영)
+            if (eraserCursor.Width != eraserSize)
+            {
+                eraserCursor.Width = eraserSize;
+                eraserCursor.Height = eraserSize;
+            }
+
+            Canvas.SetLeft(eraserCursor, point.X - eraserSize / 2);
+            Canvas.SetTop(eraserCursor, point.Y - eraserSize / 2);
+        }
+
+        private void HideEraserCursor()
+        {
+            if (eraserCursor != null)
+            {
+                ImageCanvas.Children.Remove(eraserCursor);
+                eraserCursor = null;
             }
         }
 
@@ -226,39 +276,19 @@ namespace CatchCapture
 
             SaveForUndo();
 
-            RenderTargetBitmap rtb = new RenderTargetBitmap(
-                (int)currentImage.PixelWidth, (int)currentImage.PixelHeight,
-                96, 96, PixelFormats.Pbgra32);
-
-            DrawingVisual dv = new DrawingVisual();
-            using (DrawingContext dc = dv.RenderOpen())
+            // 레이어에 추가
+            var layer = new DrawingLayer
             {
-                dc.DrawImage(currentImage, new Rect(0, 0, currentImage.PixelWidth, currentImage.PixelHeight));
+                LayerId = nextLayerId++,
+                Type = currentEditMode == EditMode.Pen ? DrawingLayerType.Pen : DrawingLayerType.Highlight,
+                Points = drawingPoints.ToArray(),
+                Color = currentEditMode == EditMode.Pen ? penColor : highlightColor,
+                Thickness = currentEditMode == EditMode.Pen ? penThickness : highlightThickness
+            };
+            drawingLayers.Add(layer);
 
-                StreamGeometry geometry = new StreamGeometry();
-                using (StreamGeometryContext ctx = geometry.Open())
-                {
-                    ctx.BeginFigure(drawingPoints[0], false, false);
-                    ctx.PolyLineTo(drawingPoints, true, true);
-                }
-
-                Pen pen = new Pen(
-                    currentEditMode == EditMode.Pen
-                        ? new SolidColorBrush(penColor)
-                        : new SolidColorBrush(highlightColor),
-                    currentEditMode == EditMode.Pen ? penThickness : highlightThickness
-                )
-                {
-                    StartLineCap = PenLineCap.Round,
-                    EndLineCap = PenLineCap.Round,
-                    LineJoin = PenLineJoin.Round
-                };
-
-                dc.DrawGeometry(null, pen, geometry);
-            }
-
-            rtb.Render(dv);
-            currentImage = rtb;
+            // 레이어 렌더링
+            currentImage = LayerRenderer.RenderLayers(originalImage, drawingLayers);
             UpdatePreviewImage();
 
             if (liveStrokePath != null)
@@ -374,37 +404,18 @@ namespace CatchCapture
         {
             if (drawingPoints.Count == 0) return;
 
-            int width = currentImage.PixelWidth;
-            int height = currentImage.PixelHeight;
-            int stride = width * 4;
-            byte[] pixels = new byte[height * stride];
-            currentImage.CopyPixels(pixels, stride, 0);
-
+            // 각 지우개 포인트에서 겹치는 레이어 찾기
             foreach (var pt in drawingPoints)
             {
-                int centerX = (int)pt.X;
-                int centerY = (int)pt.Y;
-                int radius = (int)(eraserSize / 2);
-
-                for (int y = centerY - radius; y <= centerY + radius; y++)
+                var affectedLayers = LayerRenderer.FindLayersInRegion(drawingLayers, pt, eraserSize / 2);
+                foreach (var layerIndex in affectedLayers)
                 {
-                    for (int x = centerX - radius; x <= centerX + radius; x++)
-                    {
-                        if (x >= 0 && x < width && y >= 0 && y < height)
-                        {
-                            double distance = Math.Sqrt((x - centerX) * (x - centerX) + (y - centerY) * (y - centerY));
-                            if (distance <= radius)
-                            {
-                                int index = (y * stride) + (x * 4);
-                                pixels[index + 3] = 0; // Alpha = 0 (투명)
-                            }
-                        }
-                    }
+                    drawingLayers[layerIndex].IsErased = true;
                 }
             }
 
-            BitmapSource newImage = BitmapSource.Create(width, height, 96, 96, PixelFormats.Pbgra32, null, pixels, stride);
-            currentImage = newImage;
+            // 레이어 재렌더링
+            currentImage = LayerRenderer.RenderLayers(originalImage, drawingLayers);
             UpdatePreviewImage();
         }
 

@@ -71,7 +71,7 @@ namespace CatchCapture
         private Rectangle? thicknessPreviewRect;
         private Color textColor = Colors.Red;
         private double textSize = 16;
-        private double eraserSize = 10;
+        private double eraserSize = 30;
         private int mosaicSize = 10;
         private FontWeight textFontWeight = FontWeights.Normal;
         private FontStyle textFontStyle = FontStyles.Normal;
@@ -97,6 +97,9 @@ namespace CatchCapture
 
         public event EventHandler<ImageUpdatedEventArgs>? ImageUpdated;
         private List<CaptureImage>? allCaptures; // 클래스 멤버 변수로 추가 (20줄 부근)
+
+        private List<CatchCapture.Models.DrawingLayer> drawingLayers = new List<CatchCapture.Models.DrawingLayer>();
+        private int nextLayerId = 1;
 
         public PreviewWindow(BitmapSource image, int index, List<CaptureImage>? captures = null)
         {
@@ -606,7 +609,7 @@ namespace CatchCapture
         {
             CancelCurrentEditMode();
             currentEditMode = EditMode.Eraser;
-            ImageCanvas.Cursor = Cursors.None;
+            ImageCanvas.Cursor = Cursors.Arrow;  // 또는 Cursors.Cross (십자 모양)
 
             SetActiveToolButton(EraserToolButton);
         }

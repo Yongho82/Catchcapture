@@ -348,9 +348,10 @@
             </Grid>
         </Border>
 
-        <!-- 하단 옵션 패널 (편집 도구 옵션) - 컴팩트하게 변경 -->
-        <Border x:Name="EditToolPanel" Grid.Row="2" Grid.ColumnSpan="2" Background="White" BorderBrush="#D0D7E5" 
-                BorderThickness="0,1,0,0" Visibility="Collapsed" Effect="{StaticResource MaterialShadow}">
+        <!-- 하단 옵션 패널 (편집 도구 옵션) - 이미지 위에 오버레이 -->
+        <Border x:Name="EditToolPanel" Grid.Row="1" Grid.ColumnSpan="2" Background="White" BorderBrush="#D0D7E5" 
+                BorderThickness="0,1,0,0" Visibility="Collapsed" Effect="{StaticResource MaterialShadow}"
+                VerticalAlignment="Bottom">
             <Grid Margin="0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
