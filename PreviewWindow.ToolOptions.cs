@@ -19,95 +19,214 @@ namespace CatchCapture
         {
             ToolOptionsPopupContent.Children.Clear();
 
-            // 색상 선택
-            var colorLabel = new TextBlock { Text = "색상:", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 6, 0) };
-            ToolOptionsPopupContent.Children.Add(colorLabel);
+            // 메인 그리드 (좌: 색상, 중: 구분선, 우: 두께+투명도)
+            Grid mainGrid = new Grid();
+            mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 색상
+            mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 구분선
+            mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 두께+투명도
 
-            StackPanel colorPanel = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
-            ToolOptionsPopupContent.Children.Add(colorPanel);
+            // --- 1. 왼쪽: 색상 섹션 ---
+            StackPanel colorSection = new StackPanel { Margin = new Thickness(0, 0, 15, 0) };
+            
+            TextBlock colorLabel = new TextBlock 
+            { 
+                Text = "색상", 
+                FontWeight = FontWeights.SemiBold, 
+                Margin = new Thickness(0, 0, 0, 8) 
+            };
+            colorSection.Children.Add(colorLabel);
 
-            foreach (Color color in SharedColorPalette)
+            // 색상 그리드 (WrapPanel)
+            WrapPanel colorGrid = new WrapPanel { Width = 130 };
+            
+            foreach (var c in SharedColorPalette)
             {
-                if (color == Colors.Transparent) continue;
-
-                Border colorBorder = new Border
-                {
-                    Width = 18,
-                    Height = 18,
-                    Background = new SolidColorBrush(color),
-                    BorderBrush = (color.R == highlightColor.R && color.G == highlightColor.G && color.B == highlightColor.B) ? Brushes.Black : Brushes.Transparent,
-                    BorderThickness = new Thickness(2),
-                    Margin = new Thickness(3, 0, 0, 0),
-                    CornerRadius = new CornerRadius(2)
-                };
-
-                colorPanel.Children.Add(colorBorder);
+                if (c == Colors.Transparent) continue;
+                colorGrid.Children.Add(CreateHighlightColorSwatch(c, colorGrid));
             }
 
-            // 두께 선택 라벨
-            var thicknessLabel = new TextBlock { Text = "두께:", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(12, 0, 6, 0) };
-            ToolOptionsPopupContent.Children.Add(thicknessLabel);
+            colorSection.Children.Add(colorGrid);
+            Grid.SetColumn(colorSection, 0);
+            mainGrid.Children.Add(colorSection);
 
-            Slider thicknessSlider = new Slider
+            // --- 2. 가운데: 구분선 ---
+            Border separator = new Border
             {
-                Minimum = 1,
-                Maximum = 20,
-                Value = highlightThickness,
-                Width = 100,
-                VerticalAlignment = VerticalAlignment.Center
+                Width = 1,
+                Background = new SolidColorBrush(Color.FromRgb(230, 230, 230)),
+                Margin = new Thickness(0, 5, 15, 5)
             };
-            thicknessSlider.ValueChanged += (s, e) => highlightThickness = e.NewValue;
-            ToolOptionsPopupContent.Children.Add(thicknessSlider);
+            Grid.SetColumn(separator, 1);
+            mainGrid.Children.Add(separator);
 
-            TextBlock thicknessValue = new TextBlock
+            // --- 3. 오른쪽: 두께+투명도 섹션 ---
+            StackPanel rightSection = new StackPanel();
+
+            // 두께 라벨
+            TextBlock thicknessLabel = new TextBlock 
+            { 
+                Text = "두께", 
+                FontWeight = FontWeights.SemiBold, 
+                Margin = new Thickness(0, 0, 0, 8) 
+            };
+            rightSection.Children.Add(thicknessLabel);
+
+            // 두께 프리셋 리스트
+            StackPanel thicknessList = new StackPanel();
+            int[] presets = new int[] { 1, 3, 5, 8, 12 };
+
+            foreach (var p in presets)
             {
-                Text = $"{highlightThickness:F0}px",
-                VerticalAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(6, 0, 0, 0)
-            };
-            thicknessSlider.ValueChanged += (s, e) => thicknessValue.Text = $"{e.NewValue:F0}px";
-            ToolOptionsPopupContent.Children.Add(thicknessValue);
+                Grid item = new Grid 
+                { 
+                    Margin = new Thickness(0, 0, 0, 8), 
+                    Cursor = Cursors.Hand, 
+                    Background = Brushes.Transparent 
+                };
+                item.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(30) });
+                item.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
-            // 투명도 선택 라벨
-            var opacityLabel = new TextBlock { Text = "투명도:", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(12, 0, 6, 0) };
-            ToolOptionsPopupContent.Children.Add(opacityLabel);
+                Border line = new Border
+                {
+                    Height = p,
+                    Width = 30,
+                    Background = Brushes.Black,
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                Grid.SetColumn(line, 0);
+                item.Children.Add(line);
+
+                TextBlock text = new TextBlock
+                {
+                    Text = $"{p}px",
+                    FontSize = 11,
+                    Foreground = Brushes.Gray,
+                    Margin = new Thickness(8, 0, 0, 0),
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                Grid.SetColumn(text, 1);
+                item.Children.Add(text);
+
+                if (highlightThickness == p)
+                {
+                    item.Background = new SolidColorBrush(Color.FromRgb(240, 240, 255));
+                    text.Foreground = Brushes.Black;
+                    text.FontWeight = FontWeights.Bold;
+                }
+
+                int thickness = p;
+                item.MouseLeftButtonDown += (s, e) =>
+                {
+                    highlightThickness = thickness;
+                    ShowHighlightOptionsPopup();
+                };
+
+                thicknessList.Children.Add(item);
+            }
+            rightSection.Children.Add(thicknessList);
+
+            // 투명도 섹션
+            rightSection.Children.Add(new Border { Height = 10 }); // 간격
+
+            TextBlock opacityLabel = new TextBlock 
+            { 
+                Text = "투명도", 
+                FontWeight = FontWeights.SemiBold, 
+                Margin = new Thickness(0, 0, 0, 4) 
+            };
+            rightSection.Children.Add(opacityLabel);
 
             Slider opacitySlider = new Slider
             {
                 Minimum = 10,
                 Maximum = 255,
                 Value = highlightColor.A,
-                Width = 100,
+                Width = 80,
                 VerticalAlignment = VerticalAlignment.Center
             };
-            opacitySlider.ValueChanged += (s, e) =>
-            {
-                highlightColor = Color.FromArgb((byte)e.NewValue, highlightColor.R, highlightColor.G, highlightColor.B);
-            };
-            ToolOptionsPopupContent.Children.Add(opacitySlider);
-
+            
             TextBlock opacityValue = new TextBlock
             {
                 Text = $"{(highlightColor.A / 255.0 * 100):F0}%",
-                VerticalAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(6, 0, 0, 0)
+                FontSize = 11,
+                Foreground = Brushes.Gray,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                Margin = new Thickness(0, 2, 0, 0)
             };
-            opacitySlider.ValueChanged += (s, e) => opacityValue.Text = $"{(e.NewValue / 255.0 * 100):F0}%";
-            ToolOptionsPopupContent.Children.Add(opacityValue);
 
-            // 팝업 위치 설정
-            var highlightButton = this.FindName("HighlightButton") as FrameworkElement;
-            if (highlightButton != null)
+            opacitySlider.ValueChanged += (s, e) =>
             {
-                ToolOptionsPopup.PlacementTarget = highlightButton;
-            }
-            else
-            {
-                ToolOptionsPopup.PlacementTarget = this;
-            }
+                highlightColor = Color.FromArgb((byte)e.NewValue, highlightColor.R, highlightColor.G, highlightColor.B);
+                opacityValue.Text = $"{(e.NewValue / 255.0 * 100):F0}%";
+            };
 
+            rightSection.Children.Add(opacitySlider);
+            rightSection.Children.Add(opacityValue);
+
+            Grid.SetColumn(rightSection, 2);
+            mainGrid.Children.Add(rightSection);
+
+            ToolOptionsPopupContent.Children.Add(mainGrid);
+
+            var highlightButton = this.FindName("HighlightToolButton") as FrameworkElement;
+            ToolOptionsPopup.PlacementTarget = highlightButton ?? this;
             ToolOptionsPopup.Placement = PlacementMode.Bottom;
             ToolOptionsPopup.IsOpen = true;
+        }
+
+        private Border CreateHighlightColorSwatch(Color c, WrapPanel parentPanel)
+        {
+            Border swatch = new Border
+            {
+                Width = 20,
+                Height = 20,
+                Background = new SolidColorBrush(c),
+                BorderBrush = (c.R == highlightColor.R && c.G == highlightColor.G && c.B == highlightColor.B) ? Brushes.Black : new SolidColorBrush(Color.FromRgb(220, 220, 220)),
+                BorderThickness = new Thickness((c.R == highlightColor.R && c.G == highlightColor.G && c.B == highlightColor.B) ? 2 : 1),
+                Margin = new Thickness(2),
+                CornerRadius = new CornerRadius(4),
+                Cursor = Cursors.Hand
+            };
+
+            if (c.R == highlightColor.R && c.G == highlightColor.G && c.B == highlightColor.B)
+            {
+                swatch.Effect = new System.Windows.Media.Effects.DropShadowEffect
+                {
+                    Color = Colors.Black,
+                    BlurRadius = 2,
+                    ShadowDepth = 0,
+                    Opacity = 0.5
+                };
+            }
+
+            swatch.MouseLeftButtonDown += (s, e) =>
+            {
+                highlightColor = Color.FromArgb(highlightColor.A, c.R, c.G, c.B);
+                UpdateHighlightColorSelection(parentPanel);
+            };
+
+            return swatch;
+        }
+
+        private void UpdateHighlightColorSelection(WrapPanel panel)
+        {
+            foreach (var child in panel.Children)
+            {
+                if (child is Border b && b.Background is SolidColorBrush sc)
+                {
+                    bool isSelected = (sc.Color.R == highlightColor.R && sc.Color.G == highlightColor.G && sc.Color.B == highlightColor.B);
+                    b.BorderBrush = isSelected ? Brushes.Black : new SolidColorBrush(Color.FromRgb(220, 220, 220));
+                    b.BorderThickness = new Thickness(isSelected ? 2 : 1);
+                    b.Effect = isSelected ? new System.Windows.Media.Effects.DropShadowEffect
+                    {
+                        Color = Colors.Black,
+                        BlurRadius = 2,
+                        ShadowDepth = 0,
+                        Opacity = 0.5
+                    } : null;
+                }
+            }
         }
 
         #endregion
@@ -118,127 +237,202 @@ namespace CatchCapture
         {
             ToolOptionsPopupContent.Children.Clear();
 
-            // 폰트 크기
-            var sizeLabel = new TextBlock { Text = "크기:", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 6, 0) };
-            ToolOptionsPopupContent.Children.Add(sizeLabel);
+            // 메인 그리드 (좌: 색상, 중: 구분선, 우: 크기+스타일)
+            Grid mainGrid = new Grid();
+            mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            // --- 1. 왼쪽: 색상 섹션 ---
+            StackPanel colorSection = new StackPanel { Margin = new Thickness(0, 0, 15, 0) };
+            
+            TextBlock colorLabel = new TextBlock 
+            { 
+                Text = "색상", 
+                FontWeight = FontWeights.SemiBold, 
+                Margin = new Thickness(0, 0, 0, 8) 
+            };
+            colorSection.Children.Add(colorLabel);
+
+            WrapPanel colorGrid = new WrapPanel { Width = 130 };
+            
+            foreach (var c in SharedColorPalette)
+            {
+                if (c == Colors.Transparent) continue;
+                colorGrid.Children.Add(CreateTextColorSwatch(c, colorGrid));
+            }
+
+            colorSection.Children.Add(colorGrid);
+            Grid.SetColumn(colorSection, 0);
+            mainGrid.Children.Add(colorSection);
+
+            // --- 2. 가운데: 구분선 ---
+            Border separator = new Border
+            {
+                Width = 1,
+                Background = new SolidColorBrush(Color.FromRgb(230, 230, 230)),
+                Margin = new Thickness(0, 5, 15, 5)
+            };
+            Grid.SetColumn(separator, 1);
+            mainGrid.Children.Add(separator);
+
+            // --- 3. 오른쪽: 크기+스타일 섹션 ---
+            StackPanel rightSection = new StackPanel();
+
+            // 크기 라벨
+            TextBlock sizeLabel = new TextBlock 
+            { 
+                Text = "크기", 
+                FontWeight = FontWeights.SemiBold, 
+                Margin = new Thickness(0, 0, 0, 4) 
+            };
+            rightSection.Children.Add(sizeLabel);
 
             Slider sizeSlider = new Slider
             {
                 Minimum = 8,
                 Maximum = 72,
                 Value = textSize,
-                Width = 100,
+                Width = 120,
                 VerticalAlignment = VerticalAlignment.Center
             };
-            sizeSlider.ValueChanged += (s, e) => textSize = e.NewValue;
-            ToolOptionsPopupContent.Children.Add(sizeSlider);
-
+            
             TextBlock sizeValue = new TextBlock
             {
                 Text = $"{textSize:F0}px",
-                VerticalAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(6, 0, 0, 0)
+                FontSize = 11,
+                Foreground = Brushes.Gray,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                Margin = new Thickness(0, 2, 0, 0)
             };
-            sizeSlider.ValueChanged += (s, e) => sizeValue.Text = $"{e.NewValue:F0}px";
-            ToolOptionsPopupContent.Children.Add(sizeValue);
 
-            // 색상 선택
-            var colorLabel = new TextBlock { Text = "색상:", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(12, 0, 6, 0) };
-            ToolOptionsPopupContent.Children.Add(colorLabel);
-
-            StackPanel colorPanel = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
-            ToolOptionsPopupContent.Children.Add(colorPanel);
-
-            foreach (Color color in SharedColorPalette)
+            sizeSlider.ValueChanged += (s, e) =>
             {
-                if (color == Colors.Transparent) continue;
-                Border colorBorder = new Border
-                {
-                    Width = 18,
-                    Height = 18,
-                    Background = new SolidColorBrush(color),
-                    BorderBrush = (color == textColor) ? Brushes.Black : Brushes.Transparent,
-                    BorderThickness = new Thickness(2),
-                    Margin = new Thickness(3, 0, 0, 0),
-                    CornerRadius = new CornerRadius(2)
-                };
+                textSize = e.NewValue;
+                sizeValue.Text = $"{e.NewValue:F0}px";
+            };
 
-                colorBorder.MouseLeftButtonDown += (s, e) =>
-                {
-                    textColor = color;
-                    foreach (var child in colorPanel.Children)
-                    {
-                        if (child is Border b)
-                        {
-                            b.BorderBrush = (b.Background is SolidColorBrush sc && sc.Color == textColor) ? Brushes.Black : Brushes.Transparent;
-                        }
-                    }
-                };
+            rightSection.Children.Add(sizeSlider);
+            rightSection.Children.Add(sizeValue);
 
-                colorPanel.Children.Add(colorBorder);
-            }
+            // 스타일 섹션
+            rightSection.Children.Add(new Border { Height = 10 });
 
-            // 폰트 스타일
-            var styleLabel = new TextBlock { Text = "스타일:", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(12, 0, 6, 0) };
-            ToolOptionsPopupContent.Children.Add(styleLabel);
+            TextBlock styleLabel = new TextBlock 
+            { 
+                Text = "스타일", 
+                FontWeight = FontWeights.SemiBold, 
+                Margin = new Thickness(0, 0, 0, 4) 
+            };
+            rightSection.Children.Add(styleLabel);
+
+            StackPanel stylePanel = new StackPanel { Orientation = Orientation.Vertical };
 
             CheckBox boldCheckBox = new CheckBox
             {
                 Content = "굵게",
                 IsChecked = textFontWeight == FontWeights.Bold,
-                VerticalAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(3, 0, 0, 0)
+                Margin = new Thickness(0, 2, 0, 2)
             };
             boldCheckBox.Checked += (s, e) => textFontWeight = FontWeights.Bold;
             boldCheckBox.Unchecked += (s, e) => textFontWeight = FontWeights.Normal;
-            ToolOptionsPopupContent.Children.Add(boldCheckBox);
+            stylePanel.Children.Add(boldCheckBox);
 
             CheckBox italicCheckBox = new CheckBox
             {
                 Content = "기울임",
                 IsChecked = textFontStyle == FontStyles.Italic,
-                VerticalAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(6, 0, 0, 0)
+                Margin = new Thickness(0, 2, 0, 2)
             };
             italicCheckBox.Checked += (s, e) => textFontStyle = FontStyles.Italic;
             italicCheckBox.Unchecked += (s, e) => textFontStyle = FontStyles.Normal;
-            ToolOptionsPopupContent.Children.Add(italicCheckBox);
+            stylePanel.Children.Add(italicCheckBox);
 
             CheckBox underlineCheckBox = new CheckBox
             {
                 Content = "밑줄",
                 IsChecked = textUnderlineEnabled,
-                VerticalAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(6, 0, 0, 0)
+                Margin = new Thickness(0, 2, 0, 2)
             };
             underlineCheckBox.Checked += (s, e) => textUnderlineEnabled = true;
             underlineCheckBox.Unchecked += (s, e) => textUnderlineEnabled = false;
-            ToolOptionsPopupContent.Children.Add(underlineCheckBox);
+            stylePanel.Children.Add(underlineCheckBox);
 
             CheckBox shadowCheckBox = new CheckBox
             {
                 Content = "그림자",
                 IsChecked = textShadowEnabled,
-                VerticalAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(6, 0, 0, 0)
+                Margin = new Thickness(0, 2, 0, 2)
             };
             shadowCheckBox.Checked += (s, e) => textShadowEnabled = true;
             shadowCheckBox.Unchecked += (s, e) => textShadowEnabled = false;
-            ToolOptionsPopupContent.Children.Add(shadowCheckBox);
+            stylePanel.Children.Add(shadowCheckBox);
 
-            // 팝업 위치 설정
-            var textButton = this.FindName("TextButton") as FrameworkElement;
-            if (textButton != null)
-            {
-                ToolOptionsPopup.PlacementTarget = textButton;
-            }
-            else
-            {
-                ToolOptionsPopup.PlacementTarget = this;
-            }
+            rightSection.Children.Add(stylePanel);
 
+            Grid.SetColumn(rightSection, 2);
+            mainGrid.Children.Add(rightSection);
+
+            ToolOptionsPopupContent.Children.Add(mainGrid);
+
+            var textButton = this.FindName("TextToolButton") as FrameworkElement;
+            ToolOptionsPopup.PlacementTarget = textButton ?? this;
             ToolOptionsPopup.Placement = PlacementMode.Bottom;
             ToolOptionsPopup.IsOpen = true;
+        }
+
+        private Border CreateTextColorSwatch(Color c, WrapPanel parentPanel)
+        {
+            Border swatch = new Border
+            {
+                Width = 20,
+                Height = 20,
+                Background = new SolidColorBrush(c),
+                BorderBrush = (c == textColor) ? Brushes.Black : new SolidColorBrush(Color.FromRgb(220, 220, 220)),
+                BorderThickness = new Thickness((c == textColor) ? 2 : 1),
+                Margin = new Thickness(2),
+                CornerRadius = new CornerRadius(4),
+                Cursor = Cursors.Hand
+            };
+
+            if (c == textColor)
+            {
+                swatch.Effect = new System.Windows.Media.Effects.DropShadowEffect
+                {
+                    Color = Colors.Black,
+                    BlurRadius = 2,
+                    ShadowDepth = 0,
+                    Opacity = 0.5
+                };
+            }
+
+            swatch.MouseLeftButtonDown += (s, e) =>
+            {
+                textColor = c;
+                UpdateTextColorSelection(parentPanel);
+            };
+
+            return swatch;
+        }
+
+        private void UpdateTextColorSelection(WrapPanel panel)
+        {
+            foreach (var child in panel.Children)
+            {
+                if (child is Border b && b.Background is SolidColorBrush sc)
+                {
+                    bool isSelected = (sc.Color == textColor);
+                    b.BorderBrush = isSelected ? Brushes.Black : new SolidColorBrush(Color.FromRgb(220, 220, 220));
+                    b.BorderThickness = new Thickness(isSelected ? 2 : 1);
+                    b.Effect = isSelected ? new System.Windows.Media.Effects.DropShadowEffect
+                    {
+                        Color = Colors.Black,
+                        BlurRadius = 2,
+                        ShadowDepth = 0,
+                        Opacity = 0.5
+                    } : null;
+                }
+            }
         }
 
         #endregion
@@ -272,7 +466,7 @@ namespace CatchCapture
             sizeSlider.ValueChanged += (s, e) => sizeValue.Text = $"{(int)e.NewValue}px";
             ToolOptionsPopupContent.Children.Add(sizeValue);
 
-            ToolOptionsPopup.PlacementTarget = this.FindName("MosaicButton") as FrameworkElement ?? this;
+            ToolOptionsPopup.PlacementTarget = this.FindName("MosaicToolButton") as FrameworkElement ?? this;
             ToolOptionsPopup.Placement = PlacementMode.Bottom;
             ToolOptionsPopup.IsOpen = true;
         }
@@ -308,9 +502,53 @@ namespace CatchCapture
             sizeSlider.ValueChanged += (s, e) => sizeValue.Text = $"{(int)e.NewValue}px";
             ToolOptionsPopupContent.Children.Add(sizeValue);
 
-            ToolOptionsPopup.PlacementTarget = this.FindName("EraserButton") as FrameworkElement ?? this;
+            ToolOptionsPopup.PlacementTarget = this.FindName("EraserToolButton") as FrameworkElement ?? this;
             ToolOptionsPopup.Placement = PlacementMode.Bottom;
             ToolOptionsPopup.IsOpen = true;
+        }
+
+        #endregion
+
+        #region 옵션 버튼 클릭 핸들러
+
+        private void HighlightOptionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (ToolOptionsPopup.IsOpen)
+            {
+                ToolOptionsPopup.IsOpen = false;
+                return;
+            }
+            ShowHighlightOptionsPopup();
+        }
+
+        private void TextOptionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (ToolOptionsPopup.IsOpen)
+            {
+                ToolOptionsPopup.IsOpen = false;
+                return;
+            }
+            ShowTextOptions();
+        }
+
+        private void MosaicOptionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (ToolOptionsPopup.IsOpen)
+            {
+                ToolOptionsPopup.IsOpen = false;
+                return;
+            }
+            ShowMosaicOptions();
+        }
+
+        private void EraserOptionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (ToolOptionsPopup.IsOpen)
+            {
+                ToolOptionsPopup.IsOpen = false;
+                return;
+            }
+            ShowEraserOptions();
         }
 
         #endregion

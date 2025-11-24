@@ -548,8 +548,12 @@ namespace CatchCapture
             currentEditMode = EditMode.Highlight;
             ImageCanvas.Cursor = Cursors.Pen;
 
-            ShowHighlightOptionsPopup();
-            SetActiveToolButton(HighlightButton);
+            // 기본값 설정 (노란색, 중간 투명도, 8px)
+            highlightColor = Color.FromArgb(120, Colors.Yellow.R, Colors.Yellow.G, Colors.Yellow.B);
+            highlightThickness = 8;
+            
+            // 바로 그리기 시작 (팝업 표시 안 함)
+            SetActiveToolButton(HighlightToolButton);
         }
 
         private void PenButton_Click(object sender, RoutedEventArgs e)
@@ -563,6 +567,7 @@ namespace CatchCapture
             penThickness = 3;
             
             // 바로 그리기 시작 (팝업 표시 안 함)
+            SetActiveToolButton(PenToolButton);  // ← 이 줄 추가
         }
 
         // 새로 추가: 옵션 버튼 클릭 핸들러
@@ -585,8 +590,7 @@ namespace CatchCapture
             currentEditMode = EditMode.Text;
             ImageCanvas.Cursor = Cursors.IBeam;
 
-            ShowTextOptions();
-            SetActiveToolButton(TextButton);
+            SetActiveToolButton(TextToolButton);
         }
 
         private void MosaicButton_Click(object sender, RoutedEventArgs e)
@@ -595,8 +599,7 @@ namespace CatchCapture
             currentEditMode = EditMode.Mosaic;
             ImageCanvas.Cursor = Cursors.Cross;
 
-            ShowMosaicOptions();
-            SetActiveToolButton(MosaicButton);
+            SetActiveToolButton(MosaicToolButton);
         }
 
         private void EraserButton_Click(object sender, RoutedEventArgs e)
@@ -605,8 +608,7 @@ namespace CatchCapture
             currentEditMode = EditMode.Eraser;
             ImageCanvas.Cursor = Cursors.None;
 
-            ShowEraserOptions();
-            SetActiveToolButton(EraserButton);
+            SetActiveToolButton(EraserToolButton);
         }
 
         private void CloseOptionsButton_Click(object sender, RoutedEventArgs e)
@@ -750,23 +752,44 @@ namespace CatchCapture
         private static readonly Brush ActiveToolBackground = (Brush)new BrushConverter().ConvertFromString("#E8F3FF")!;
         private static readonly Brush InactiveToolBackground = Brushes.Transparent;
 
-        private void SetActiveToolButton(Button? active)
+        private void SetActiveToolButton(FrameworkElement? active)
         {
             // 툴바의 편집 도구 버튼들만 대상으로 처리
-            var toolButtons = new List<Button?>
+            var toolButtons = new List<FrameworkElement?>
             {
                 CropButton,
                 ShapeButton,
-                HighlightButton,
-                TextButton,
-                MosaicButton,
-                EraserButton,
+                HighlightToolButton,
+                PenToolButton,        // 펜 버튼 추가
+                TextToolButton,
+                MosaicToolButton,
+                EraserToolButton,
             };
 
-            foreach (var b in toolButtons)
+            foreach (var element in toolButtons)
             {
-                if (b == null) continue;
-                b.Background = (active != null && b == active) ? ActiveToolBackground : InactiveToolBackground;
+                if (element == null) continue;
+                
+                bool isActive = (active != null && element == active);
+                var bgColor = isActive ? ActiveToolBackground : InactiveToolBackground;
+                
+                // Button인 경우 (CropButton, ShapeButton)
+                if (element is Button b)
+                {
+                    b.Background = bgColor;
+                }
+                // TwoTierToolButton인 경우 (펜, 형광펜, 텍스트, 모자이크, 지우개)
+                else if (element is CatchCapture.Controls.TwoTierToolButton ttb)
+                {
+                    // 내부 메인 버튼과 옵션 버튼 모두 색상 변경
+                    ttb.SetButtonsBackground(bgColor);
+                }
+            }
+            
+            // 도형 버튼의 옵션 버튼도 색상 변경
+            if (ShapeOptionsButton != null)
+            {
+                ShapeOptionsButton.Background = (active == ShapeButton) ? ActiveToolBackground : InactiveToolBackground;
             }
         }
         #endregion

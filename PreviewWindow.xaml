@@ -144,8 +144,8 @@
                     <!-- 도형 버튼 그룹 (메인 버튼 + 드롭다운) -->
                     <Grid Width="65" Height="65" Margin="2,0">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="42"/>
-                            <RowDefinition Height="23"/>
+                            <RowDefinition Height="52"/>
+                            <RowDefinition Height="13"/>
                         </Grid.RowDefinitions>
                         
                         <!-- 메인 도형 버튼 (기존 사이즈 유지) -->
@@ -183,8 +183,8 @@
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="border" Background="{TemplateBinding Background}" 
-                                            BorderBrush="#E0E6F0" 
-                                            BorderThickness="0,1,0,0"
+                                            BorderBrush="Transparent" 
+                                            BorderThickness="0"
                                             CornerRadius="0,0,6,6"
                                             Height="13">
                                         <TextBlock Text="▼" FontSize="8" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#888"/>
@@ -202,8 +202,7 @@
                         </Button>
                     </Grid>
                     
-                    <Separator Style="{StaticResource ToolbarSeparatorStyle}"/>
-                    
+                  
                         <controls:TwoTierToolButton 
                             x:Name="PenToolButton"
                             Label="펜" 
@@ -221,33 +220,49 @@
                         </controls:TwoTierToolButton.IconContent>
                     </controls:TwoTierToolButton>
                     
-                    <Button x:Name="HighlightButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="HighlightButton_Click" ToolTip="형광펜">
-                        <StackPanel VerticalAlignment="Top">
-                            <Image Source="icons/highlight.png" Width="20" Height="20" Margin="0,2,0,2"/>
-                            <TextBlock Text="형광펜" FontSize="12" HorizontalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
+                    <controls:TwoTierToolButton 
+                        x:Name="HighlightToolButton"
+                        Label="형광펜" 
+                        ToolTipText="형광펜"
+                        MainButtonClick="HighlightButton_Click"
+                        OptionsButtonClick="HighlightOptionsButton_Click">
+                        <controls:TwoTierToolButton.IconContent>
+                            <Image Source="icons/highlight.png" Width="20" Height="20"/>
+                        </controls:TwoTierToolButton.IconContent>
+                    </controls:TwoTierToolButton>
                     
-                    <Button x:Name="TextButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="TextButton_Click" ToolTip="텍스트 추가">
-                        <StackPanel VerticalAlignment="Top">
-                            <Image Source="icons/text.png" Width="20" Height="20" Margin="0,2,0,2"/>
-                            <TextBlock Text="텍스트" FontSize="12" HorizontalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
+                    <controls:TwoTierToolButton 
+                        x:Name="TextToolButton"
+                        Label="텍스트" 
+                        ToolTipText="텍스트 추가"
+                        MainButtonClick="TextButton_Click"
+                        OptionsButtonClick="TextOptionsButton_Click">
+                        <controls:TwoTierToolButton.IconContent>
+                            <Image Source="icons/text.png" Width="20" Height="20"/>
+                        </controls:TwoTierToolButton.IconContent>
+                    </controls:TwoTierToolButton>
                     
-                    <Button x:Name="MosaicButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="MosaicButton_Click" ToolTip="모자이크">
-                        <StackPanel VerticalAlignment="Top">
-                            <Image Source="icons/mosaic.png" Width="20" Height="20" Margin="0,2,0,2"/>
-                            <TextBlock Text="모자이크" FontSize="12" HorizontalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
+                    <controls:TwoTierToolButton 
+                        x:Name="MosaicToolButton"
+                        Label="모자이크" 
+                        ToolTipText="모자이크"
+                        MainButtonClick="MosaicButton_Click"
+                        OptionsButtonClick="MosaicOptionsButton_Click">
+                        <controls:TwoTierToolButton.IconContent>
+                            <Image Source="icons/mosaic.png" Width="20" Height="20"/>
+                        </controls:TwoTierToolButton.IconContent>
+                    </controls:TwoTierToolButton>
                     
-                    <Button x:Name="EraserButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="EraserButton_Click" ToolTip="지우개">
-                        <StackPanel VerticalAlignment="Top">
-                            <Image Source="icons/eraser.png" Width="20" Height="20" Margin="0,2,0,2"/>
-                            <TextBlock Text="지우개" FontSize="12" HorizontalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
+                    <controls:TwoTierToolButton 
+                        x:Name="EraserToolButton"
+                        Label="지우개" 
+                        ToolTipText="지우개"
+                        MainButtonClick="EraserButton_Click"
+                        OptionsButtonClick="EraserOptionsButton_Click">
+                        <controls:TwoTierToolButton.IconContent>
+                            <Image Source="icons/eraser.png" Width="20" Height="20"/>
+                        </controls:TwoTierToolButton.IconContent>
+                    </controls:TwoTierToolButton>      
                 </StackPanel>
             </ScrollViewer>
         </Border>

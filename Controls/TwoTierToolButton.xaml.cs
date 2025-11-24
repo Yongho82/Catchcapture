@@ -58,5 +58,20 @@ namespace CatchCapture.Controls
         {
             OptionsButtonClick?.Invoke(this, e);
         }
+
+        /// <summary>
+        /// 메인 버튼과 옵션 버튼의 배경색을 동시에 설정
+        /// </summary>
+        public void SetButtonsBackground(System.Windows.Media.Brush brush)
+        {
+            if (MainButton != null)
+            {
+                MainButton.Background = brush;
+            }
+            if (OptionsButton != null)
+            {
+                OptionsButton.Background = brush;
+            }
+        }
     }
 }
