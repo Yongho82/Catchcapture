@@ -26,13 +26,10 @@ namespace CatchCapture
             StackPanel colorPanel = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
             ToolOptionsPopupContent.Children.Add(colorPanel);
 
-            Color[] colors = new Color[]
+            foreach (Color color in SharedColorPalette)
             {
-                Colors.Yellow, Colors.Orange, Colors.Red, Colors.Blue, Colors.Green, Colors.White, Colors.Black, Color.FromRgb(255, 0, 255)
-            };
+                if (color == Colors.Transparent) continue;
 
-            foreach (Color color in colors)
-            {
                 Border colorBorder = new Border
                 {
                     Width = 18,
@@ -42,20 +39,6 @@ namespace CatchCapture
                     BorderThickness = new Thickness(2),
                     Margin = new Thickness(3, 0, 0, 0),
                     CornerRadius = new CornerRadius(2)
-                };
-
-                colorBorder.MouseLeftButtonDown += (s, e) =>
-                {
-                    highlightColor = Color.FromArgb(highlightColor.A, color.R, color.G, color.B);
-                    // 테두리 업데이트
-                    foreach (var child in colorPanel.Children)
-                    {
-                        if (child is Border b && b.Background is SolidColorBrush sc)
-                        {
-                            var c = sc.Color;
-                            b.BorderBrush = (c.R == highlightColor.R && c.G == highlightColor.G && c.B == highlightColor.B) ? Brushes.Black : Brushes.Transparent;
-                        }
-                    }
                 };
 
                 colorPanel.Children.Add(colorBorder);
@@ -166,13 +149,9 @@ namespace CatchCapture
             StackPanel colorPanel = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
             ToolOptionsPopupContent.Children.Add(colorPanel);
 
-            Color[] colors = new Color[]
+            foreach (Color color in SharedColorPalette)
             {
-                Colors.Black, Colors.White, Colors.Red, Colors.Blue, Colors.Green, Colors.Yellow
-            };
-
-            foreach (Color color in colors)
-            {
+                if (color == Colors.Transparent) continue;
                 Border colorBorder = new Border
                 {
                     Width = 18,

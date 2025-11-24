@@ -35,6 +35,32 @@ namespace CatchCapture
         private ShapeType shapeType = ShapeType.Rectangle;
         private Color shapeColor = Colors.Red;
         private List<Color> customColors = new List<Color>();
+
+        // 공용 색상 팔레트 정의
+        private static readonly Color[] SharedColorPalette = new Color[]
+        {
+            // 1행
+            Colors.Black,
+            Color.FromRgb(128, 128, 128),
+            Colors.White,
+            Colors.Red,
+            Color.FromRgb(255, 193, 7),
+            Color.FromRgb(40, 167, 69),
+            // 2행
+            Color.FromRgb(32, 201, 151),
+            Color.FromRgb(23, 162, 184),
+            Color.FromRgb(0, 123, 255),
+            Color.FromRgb(108, 117, 125),
+            Color.FromRgb(220, 53, 69),
+            Color.FromRgb(255, 133, 27),
+            // 3행
+            Color.FromRgb(111, 66, 193),
+            Color.FromRgb(232, 62, 140),
+            Color.FromRgb(13, 110, 253),
+            Color.FromRgb(25, 135, 84),
+            Color.FromRgb(102, 16, 242),
+            Colors.Transparent
+        };
         private double shapeBorderThickness = 2;
         private bool shapeIsFilled = false;
         // 기본 형광펜은 중간 투명도(약 45~50%)와 중간 두께로 시작
@@ -590,256 +616,6 @@ namespace CatchCapture
         }
 
         #endregion
-
-        private void ShowShapeOptionsPopup_OLD()
-        {
-            // 팝업 내용 초기화
-            ToolOptionsPopupContent.Children.Clear();
-            ToolOptionsPopupContent.Orientation = Orientation.Vertical;
-
-            // 버튼 리스트 초기화
-            shapeTypeButtons.Clear();
-            fillButtons.Clear();
-            colorButtons.Clear();
-
-            // 메인 컨테이너 (적절한 크기로)
-            var mainPanel = new StackPanel
-            {
-                Orientation = Orientation.Vertical,
-                Width = 240,
-                Margin = new Thickness(6)
-            };
-
-            // 1. 도형 종류 섹션
-            var shapeTypePanel = CreateShapeTypeSection();
-            mainPanel.Children.Add(shapeTypePanel);
-
-            // 2. 선 스타일 섹션 (도형 바로 아래, 간격 더 줄임)
-            var lineStylePanel = CreateLineStyleSection();
-            lineStylePanel.Margin = new Thickness(0, 4, 0, 0);
-            mainPanel.Children.Add(lineStylePanel);
-
-            // 구분선 (더 얇고 간격 더 줄임)
-            var separator = new Border
-            {
-                Height = 1,
-                Background = new SolidColorBrush(Color.FromRgb(230, 230, 230)),
-                Margin = new Thickness(0, 6, 0, 6)
-            };
-            mainPanel.Children.Add(separator);
-
-            // 3. 색상 팔레트 섹션
-            var colorPanel = CreateColorPaletteSection();
-            mainPanel.Children.Add(colorPanel);
-
-            ToolOptionsPopupContent.Children.Add(mainPanel);
-
-            // 팝업 위치 설정 (ShapeButton 아래)
-            ToolOptionsPopup.PlacementTarget = ShapeButton;
-            ToolOptionsPopup.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
-            ToolOptionsPopup.HorizontalOffset = 0;
-            ToolOptionsPopup.VerticalOffset = 5;
-
-            // 팝업 열기
-            ToolOptionsPopup.IsOpen = true;
-        }
-
-        private void ShowShapeOptions_OLD()
-        {
-            // 패널 제목 설정
-            ToolTitleText.Text = "도형 도구 옵션";
-
-            EditToolContent.Children.Clear();
-
-            // 도형 유형 선택
-            Border typeLabelWrapper = new Border { Margin = new Thickness(0, 0, 5, 0), VerticalAlignment = VerticalAlignment.Center };
-            TextBlock typeLabel = new TextBlock { Text = "도형 유형:", VerticalAlignment = VerticalAlignment.Center };
-            typeLabelWrapper.Child = typeLabel;
-            EditToolContent.Children.Add(typeLabelWrapper);
-
-            StackPanel shapeTypesPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 10, 0) };
-
-            // 사각형 버튼
-            rectButton = new Button
-            {
-                Content = "□",
-                FontSize = 16,
-                Width = 26,
-                Height = 26,
-                Margin = new Thickness(2, 0, 2, 0),
-                Background = shapeType == ShapeType.Rectangle ? Brushes.LightBlue : Brushes.Transparent,
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalContentAlignment = HorizontalAlignment.Center,
-                VerticalContentAlignment = VerticalAlignment.Center,
-                Padding = new Thickness(0, -3, 0, 0) // 상하 중앙 정렬 조정
-            };
-
-            rectButton.Click += (s, e) =>
-            {
-                shapeType = ShapeType.Rectangle;
-                UpdateShapeTypeButtons();
-            };
-            shapeTypesPanel.Children.Add(rectButton);
-
-            // 타원 버튼
-            ellipseButton = new Button
-            {
-                Content = "○",
-                FontSize = 16,
-                Width = 26,
-                Height = 26,
-                Margin = new Thickness(2, 0, 2, 0),
-                Background = shapeType == ShapeType.Ellipse ? Brushes.LightBlue : Brushes.Transparent,
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalContentAlignment = HorizontalAlignment.Center,
-                VerticalContentAlignment = VerticalAlignment.Center,
-                Padding = new Thickness(0, -3, 0, 0) // 상하 중앙 정렬 조정
-            };
-
-            ellipseButton.Click += (s, e) =>
-            {
-                shapeType = ShapeType.Ellipse;
-                UpdateShapeTypeButtons();
-            };
-            shapeTypesPanel.Children.Add(ellipseButton);
-
-            // 선 버튼
-            lineButton = new Button
-            {
-                Content = "−",
-                FontSize = 16,
-                Width = 26,
-                Height = 26,
-                Margin = new Thickness(2, 0, 2, 0),
-                Background = shapeType == ShapeType.Line ? Brushes.LightBlue : Brushes.Transparent,
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalContentAlignment = HorizontalAlignment.Center,
-                VerticalContentAlignment = VerticalAlignment.Center,
-                Padding = new Thickness(0, -3, 0, 0) // 상하 중앙 정렬 조정
-            };
-
-            lineButton.Click += (s, e) =>
-            {
-                shapeType = ShapeType.Line;
-                UpdateShapeTypeButtons();
-            };
-            shapeTypesPanel.Children.Add(lineButton);
-
-            // 화살표 버튼
-            arrowButton = new Button
-            {
-                Content = "→",
-                FontSize = 16,
-                Width = 26,
-                Height = 26,
-                Margin = new Thickness(2, 0, 2, 0),
-                Background = shapeType == ShapeType.Arrow ? Brushes.LightBlue : Brushes.Transparent,
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalContentAlignment = HorizontalAlignment.Center,
-                VerticalContentAlignment = VerticalAlignment.Center,
-                Padding = new Thickness(0, -3, 0, 0) // 상하 중앙 정렬 조정
-            };
-
-            arrowButton.Click += (s, e) =>
-            {
-                shapeType = ShapeType.Arrow;
-                UpdateShapeTypeButtons();
-            };
-            shapeTypesPanel.Children.Add(arrowButton);
-
-            EditToolContent.Children.Add(shapeTypesPanel);
-
-            // 구분선 추가
-            EditToolContent.Children.Add(new Separator { Margin = new Thickness(5, 0, 5, 0), Width = 1, Height = 20 });
-
-            // 색상 선택
-            Border colorLabelWrapper = new Border { Margin = new Thickness(5, 0, 5, 0), VerticalAlignment = VerticalAlignment.Center };
-            TextBlock colorLabel = new TextBlock { Text = "색상:", VerticalAlignment = VerticalAlignment.Center };
-            colorLabelWrapper.Child = colorLabel;
-            EditToolContent.Children.Add(colorLabelWrapper);
-
-            StackPanel colorPanel = new StackPanel { Orientation = Orientation.Horizontal };
-
-            Color[] colors = new Color[]
-            {
-                Colors.Black, Colors.Red, Colors.Blue, Colors.Green,
-                Colors.Yellow, Colors.Orange, Colors.Purple, Colors.White
-            };
-
-            foreach (Color color in colors)
-            {
-                Border colorBorder = new Border
-                {
-                    Width = 18,
-                    Height = 18,
-                    Background = new SolidColorBrush(color),
-                    BorderBrush = color.Equals(shapeColor) ? Brushes.Black : Brushes.Transparent,
-                    BorderThickness = new Thickness(2),
-                    Margin = new Thickness(3, 0, 0, 0),
-                    CornerRadius = new CornerRadius(2)
-                };
-
-                colorBorder.MouseLeftButtonDown += (s, e) =>
-                {
-                    shapeColor = color;
-                    foreach (UIElement element in colorPanel.Children)
-                    {
-                        if (element is Border border)
-                        {
-                            border.BorderBrush = border == s ? Brushes.Black : Brushes.Transparent;
-                        }
-                    }
-                };
-
-                colorPanel.Children.Add(colorBorder);
-            }
-
-            EditToolContent.Children.Add(colorPanel);
-
-            // 구분선 추가
-            EditToolContent.Children.Add(new Separator { Margin = new Thickness(5, 0, 5, 0), Width = 1, Height = 20 });
-
-            // 두께 선택
-            Border thicknessLabelWrapper = new Border { Margin = new Thickness(5, 0, 5, 0), VerticalAlignment = VerticalAlignment.Center };
-            TextBlock thicknessLabel = new TextBlock { Text = "두께:", VerticalAlignment = VerticalAlignment.Center };
-            thicknessLabelWrapper.Child = thicknessLabel;
-            EditToolContent.Children.Add(thicknessLabelWrapper);
-
-            Slider thicknessSlider = new Slider
-            {
-                Minimum = 1,
-                Maximum = 10,
-                Value = shapeBorderThickness,
-                Width = 100,
-                IsSnapToTickEnabled = true,
-                TickFrequency = 1,
-                VerticalAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(5, 0, 5, 0)
-            };
-
-            thicknessSlider.ValueChanged += (s, e) =>
-            {
-                shapeBorderThickness = thicknessSlider.Value;
-            };
-
-            EditToolContent.Children.Add(thicknessSlider);
-
-            // 채우기 옵션
-            CheckBox fillCheckBox = new CheckBox
-            {
-                Content = "채우기",
-                IsChecked = shapeIsFilled,
-                Margin = new Thickness(5, 0, 0, 0),
-                VerticalAlignment = VerticalAlignment.Center
-            };
-
-            fillCheckBox.Checked += (s, e) => { shapeIsFilled = true; };
-            fillCheckBox.Unchecked += (s, e) => { shapeIsFilled = false; };
-
-            EditToolContent.Children.Add(fillCheckBox);
-
-            EditToolPanel.Visibility = Visibility.Visible;
-        }
 
         private void ZoomOutButton_Click(object sender, RoutedEventArgs e)
         {

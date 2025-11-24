@@ -1,9 +1,74 @@
-===== 로그 시작: 2025-11-24 오후 10:18:45 =====
-[22:18:45.255] PreviewWindow 생성됨
-[22:18:45.286] CancelCurrentEditMode 호출: 이전 모드=None, tempShape=False
-[22:18:45.286] CancelCurrentEditMode에서 CleanupTemporaryShape 호출
-[22:18:45.287] CleanupTemporaryShape: tempShape is already null
-[22:18:45.287] 도구 패널 숨김
-[22:18:45.287] 마우스 커서 복원: Arrow
-[22:18:45.288] 그리기 상태 초기화: isDrawingShape=false, isDragStarted=false
-[22:18:45.362] MouseUp: 위치(592.0, 69.5), 편집모드=Highlight, isDrawingShape=False, isDragStarted=False
+===== 로그 시작: 2025-11-24 오후 10:45:41 =====
+[22:45:41.770] PreviewWindow 생성됨
+[22:45:41.812] CancelCurrentEditMode 호출: 이전 모드=None, tempShape=False
+[22:45:41.813] CancelCurrentEditMode에서 CleanupTemporaryShape 호출
+[22:45:41.813] CleanupTemporaryShape: tempShape is already null
+[22:45:41.813] 도구 패널 숨김
+[22:45:41.813] 마우스 커서 복원: Arrow
+[22:45:41.814] 그리기 상태 초기화: isDrawingShape=false, isDragStarted=false
+[22:45:50.271] ShapeOptionsButton_Click 호출 - 옵션 팝업 표시
+[22:45:50.292] 도형 옵션 팝업 표시됨
+[22:45:52.101] CancelCurrentEditMode 호출: 이전 모드=Highlight, tempShape=False
+[22:45:52.102] CancelCurrentEditMode에서 CleanupTemporaryShape 호출
+[22:45:52.102] CleanupTemporaryShape: tempShape is already null
+[22:45:52.102] 도구 패널 숨김
+[22:45:52.102] 마우스 커서 복원: Arrow
+[22:45:52.102] 그리기 상태 초기화: isDrawingShape=false, isDragStarted=false
+[22:45:55.967] ShapeOptionsButton_Click 호출 - 옵션 팝업 표시
+[22:45:55.980] 도형 옵션 팝업 표시됨
+[22:46:03.923] ShapeOptionsButton_Click 호출 - 옵션 팝업 표시
+[22:46:03.936] 도형 옵션 팝업 표시됨
+[22:46:16.758] ShapeOptionsButton_Click 호출 - 옵션 팝업 표시
+[22:46:16.771] 도형 옵션 팝업 표시됨
+[22:46:28.816] ShapeOptionsButton_Click 호출 - 옵션 팝업 표시
+[22:46:28.830] 도형 옵션 팝업 표시됨
+[22:47:43.077] ShapeOptionsButton_Click 호출 - 옵션 팝업 표시
+[22:47:43.091] 도형 옵션 팝업 표시됨
+[22:47:49.523] MouseDown: 위치(372.2, 124.5), 편집모드=Pen, isDrawingShape=False
+[22:47:49.603] MouseUp: 위치(372.2, 124.5), 편집모드=Pen, isDrawingShape=False, isDragStarted=False
+[22:47:49.611] UpdatePreviewImage 시작
+[22:47:49.611] UpdatePreviewImage에서 CleanupTemporaryShape 호출
+[22:47:49.612] CleanupTemporaryShape: tempShape is already null
+[22:47:49.612] 이미지 소스 업데이트: 598x540
+[22:47:49.612] UpdatePreviewImage 완료
+[22:47:49.613] UpdatePreviewImage 완료 후 자식 요소 수: 2
+[22:47:49.613]   - 1번째 자식: Image
+[22:47:49.613]   - 2번째 자식: Path
+[22:47:50.123] MouseDown: 위치(101.2, 113.5), 편집모드=Pen, isDrawingShape=False
+[22:47:50.551] MouseUp: 위치(331.2, 251.5), 편집모드=Pen, isDrawingShape=False, isDragStarted=False
+[22:47:50.558] UpdatePreviewImage 시작
+[22:47:50.558] UpdatePreviewImage에서 CleanupTemporaryShape 호출
+[22:47:50.558] CleanupTemporaryShape: tempShape is already null
+[22:47:50.559] 이미지 소스 업데이트: 598x540
+[22:47:50.559] UpdatePreviewImage 완료
+[22:47:50.559] UpdatePreviewImage 완료 후 자식 요소 수: 2
+[22:47:50.560]   - 1번째 자식: Image
+[22:47:50.560]   - 2번째 자식: Path
+[22:47:51.296] ShapeButton_Click 호출 - 기본 도형 그리기 모드
+[22:47:51.297] CancelCurrentEditMode 호출: 이전 모드=Pen, tempShape=False
+[22:47:51.297] CancelCurrentEditMode에서 CleanupTemporaryShape 호출
+[22:47:51.297] CleanupTemporaryShape: tempShape is already null
+[22:47:51.298] 도구 패널 숨김
+[22:47:51.298] 마우스 커서 복원: Arrow
+[22:47:51.298] 그리기 상태 초기화: isDrawingShape=false, isDragStarted=false
+[22:47:51.298] 기본 도형 그리기 모드 설정: 사각형, 검정색, 윤곽선
+[22:47:51.899] MouseDown: 위치(133.2, 137.5), 편집모드=Shape, isDrawingShape=False
+[22:47:51.900] 도형 그리기 대기: 시작점(133.2, 137.5), 도형타입=Rectangle
+[22:47:51.919] 드래그 시작: 현재점(133.2, 139.5)
+[22:47:51.920] CreateShape 호출: 타입=Rectangle, 위치(133.2, 137.5), 크기(0.0x2.0)
+[22:47:51.920] 도형 생성 성공: Rectangle
+[22:47:51.920] 임시 도형 생성: Rectangle
+[22:47:52.327] MouseUp: 위치(402.2, 319.5), 편집모드=Shape, isDrawingShape=True, isDragStarted=True
+[22:47:52.328] 도형 완성: 시작(133.2, 137.5), 끝(402.2, 319.5)
+[22:47:52.328] ApplyShape 시작: tempShape=Rectangle
+[22:47:52.335] UpdatePreviewImage 시작
+[22:47:52.336] UpdatePreviewImage에서 CleanupTemporaryShape 호출
+[22:47:52.336] CleanupTemporaryShape: Rectangle 제거
+[22:47:52.336] 이미지 소스 업데이트: 598x540
+[22:47:52.336] UpdatePreviewImage 완료
+[22:47:52.337] UpdatePreviewImage 완료 후 자식 요소 수: 1
+[22:47:52.337]   - 1번째 자식: Image
+[22:47:52.337] CleanupTemporaryShape: tempShape is already null
+[22:47:52.337] ApplyShape 완료
+[22:50:05.826] ShapeOptionsButton_Click 호출 - 옵션 팝업 표시
+[22:50:05.841] 도형 옵션 팝업 표시됨

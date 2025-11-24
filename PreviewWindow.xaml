@@ -428,11 +428,11 @@
                             
                             <TextBlock Grid.Column="0" Text="크기" FontSize="10" Foreground="#666" VerticalAlignment="Center" Margin="0,0,8,0"/>
                             <Slider x:Name="ThumbnailSizeSlider" Grid.Column="1" 
-                                    Minimum="80" Maximum="200" Value="120" 
+                                    Minimum="80" Maximum="200" Value="80" 
                                     TickFrequency="10" IsSnapToTickEnabled="True"
                                     VerticalAlignment="Center"
                                     ValueChanged="ThumbnailSizeSlider_ValueChanged"/>
-                            <TextBlock x:Name="ThumbnailSizeText" Grid.Column="2" Text="120" FontSize="10" Foreground="#666" VerticalAlignment="Center" Margin="8,0,0,0" Width="30"/>
+                            <TextBlock x:Name="ThumbnailSizeText" Grid.Column="2" Text="80" FontSize="10" Foreground="#666" VerticalAlignment="Center" Margin="8,0,0,0" Width="30"/>
                         </Grid>
                     </Grid>
                 </Border>

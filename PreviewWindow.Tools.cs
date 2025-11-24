@@ -45,16 +45,10 @@ namespace CatchCapture
             // 색상 그리드 (WrapPanel)
             WrapPanel colorGrid = new WrapPanel { Width = 130 }; // 5개씩 배치될 정도의 너비
             
-            // 기본 색상들
-            Color[] defaultColors = new Color[]
+            // 기본 색상들 (공용 팔레트 사용, 투명 제외)
+            foreach (var c in SharedColorPalette)
             {
-                Colors.Black, Colors.White, Colors.Red, Colors.Blue, Colors.Green,
-                Colors.Yellow, Colors.Purple, Colors.DeepSkyBlue, Colors.Gray
-            };
-
-            // 기본 색상 추가
-            foreach (var c in defaultColors)
-            {
+                if (c == Colors.Transparent) continue;
                 colorGrid.Children.Add(CreateColorSwatch(c, colorGrid));
             }
 

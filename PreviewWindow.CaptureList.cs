@@ -164,7 +164,7 @@ namespace CatchCapture
 
         #region 썸네일 크기 조절
 
-        private double currentThumbnailSize = 120;
+        private double currentThumbnailSize = 80;
 
         private void ThumbnailSizeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {

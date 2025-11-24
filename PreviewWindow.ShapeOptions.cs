@@ -401,37 +401,7 @@ namespace CatchCapture
                 Margin = new Thickness(0, 4, 0, 0)
             };
 
-            // 첫 번째 행 색상들 (기본 색상)
-            var colors1 = new Color[] {
-                Colors.Black,
-                Color.FromRgb(128, 128, 128),
-                Colors.White,
-                Colors.Red,
-                Color.FromRgb(255, 193, 7),
-                Color.FromRgb(40, 167, 69)
-            };
-
-            // 두 번째 행 색상들 (중간 톤)
-            var colors2 = new Color[] {
-                Color.FromRgb(32, 201, 151),
-                Color.FromRgb(23, 162, 184),
-                Color.FromRgb(0, 123, 255),
-                Color.FromRgb(108, 117, 125),
-                Color.FromRgb(220, 53, 69),
-                Color.FromRgb(255, 133, 27)
-            };
-
-            // 세 번째 행 색상들 (추가 색상)
-            var colors3 = new Color[] {
-                Color.FromRgb(111, 66, 193),
-                Color.FromRgb(232, 62, 140),
-                Color.FromRgb(13, 110, 253),
-                Color.FromRgb(25, 135, 84),
-                Color.FromRgb(102, 16, 242),
-                Colors.Transparent
-            };
-
-            foreach (var color in colors1.Concat(colors2).Concat(colors3))
+            foreach (var color in SharedColorPalette)
             {
                 var colorBtn = CreateColorButton(color);
                 colorGrid.Children.Add(colorBtn);
