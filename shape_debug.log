@@ -1,80 +1,10 @@
-===== 로그 시작: 2025-11-24 오후 5:22:55 =====
-[17:22:55.953] PreviewWindow 생성됨
-[17:22:55.997] CancelCurrentEditMode 호출: 이전 모드=None, tempShape=False
-[17:22:55.998] CancelCurrentEditMode에서 CleanupTemporaryShape 호출
-[17:22:55.999] CleanupTemporaryShape 호출: tempShape=False
-[17:22:55.999] tempShape가 이미 null이거나 ImageCanvas가 null임
-[17:22:55.999] 도구 패널 숨김
-[17:22:56.000] 마우스 커서 복원: Arrow
-[17:22:56.000] 그리기 상태 초기화: isDrawingShape=false, isDragStarted=false
-[17:22:57.740] UpdatePreviewImage 시작
-[17:22:57.740] UpdatePreviewImage에서 CleanupTemporaryShape 호출
-[17:22:57.741] CleanupTemporaryShape 호출: tempShape=False
-[17:22:57.741] tempShape가 이미 null이거나 ImageCanvas가 null임
-[17:22:57.741] 이미지 소스 업데이트: 573x419
-[17:22:57.742] UpdatePreviewImage 완료
-[17:22:57.743] UpdatePreviewImage 완료 후 자식 요소 수: 1
-[17:22:57.743]   - 1번째 자식: Image
-[17:22:58.258] UpdatePreviewImage 시작
-[17:22:58.259] UpdatePreviewImage에서 CleanupTemporaryShape 호출
-[17:22:58.259] CleanupTemporaryShape 호출: tempShape=False
-[17:22:58.260] tempShape가 이미 null이거나 ImageCanvas가 null임
-[17:22:58.260] 이미지 소스 업데이트: 493x312
-[17:22:58.261] UpdatePreviewImage 완료
-[17:22:58.261] UpdatePreviewImage 완료 후 자식 요소 수: 1
-[17:22:58.261]   - 1번째 자식: Image
-[17:22:58.618] UpdatePreviewImage 시작
-[17:22:58.619] UpdatePreviewImage에서 CleanupTemporaryShape 호출
-[17:22:58.620] CleanupTemporaryShape 호출: tempShape=False
-[17:22:58.620] tempShape가 이미 null이거나 ImageCanvas가 null임
-[17:22:58.621] 이미지 소스 업데이트: 573x419
-[17:22:58.621] UpdatePreviewImage 완료
-[17:22:58.622] UpdatePreviewImage 완료 후 자식 요소 수: 1
-[17:22:58.622]   - 1번째 자식: Image
-[17:23:19.460] MouseDown: 위치(304.5, 257.5), 편집모드=Highlight, isDrawingShape=False
-[17:23:19.923] MouseUp: 위치(288.5, 224.5), 편집모드=Highlight, isDrawingShape=False, isDragStarted=False
-[17:23:19.941] UpdatePreviewImage 시작
-[17:23:19.941] UpdatePreviewImage에서 CleanupTemporaryShape 호출
-[17:23:19.942] CleanupTemporaryShape 호출: tempShape=False
-[17:23:19.942] tempShape가 이미 null이거나 ImageCanvas가 null임
-[17:23:19.943] 이미지 소스 업데이트: 573x419
-[17:23:19.943] UpdatePreviewImage 완료
-[17:23:19.943] UpdatePreviewImage 완료 후 자식 요소 수: 1
-[17:23:19.944]   - 1번째 자식: Image
-[17:23:21.195] CancelCurrentEditMode 호출: 이전 모드=Highlight, tempShape=False
-[17:23:21.195] CancelCurrentEditMode에서 CleanupTemporaryShape 호출
-[17:23:21.196] CleanupTemporaryShape 호출: tempShape=False
-[17:23:21.196] tempShape가 이미 null이거나 ImageCanvas가 null임
-[17:23:21.197] 도구 패널 숨김
-[17:23:21.197] 마우스 커서 복원: Arrow
-[17:23:21.197] 그리기 상태 초기화: isDrawingShape=false, isDragStarted=false
-[17:23:21.798] MouseDown: 위치(134.5, 215.5), 편집모드=Pen, isDrawingShape=False
-[17:23:22.547] MouseUp: 위치(144.5, 209.5), 편집모드=Pen, isDrawingShape=False, isDragStarted=False
-[17:23:22.555] UpdatePreviewImage 시작
-[17:23:22.555] UpdatePreviewImage에서 CleanupTemporaryShape 호출
-[17:23:22.556] CleanupTemporaryShape 호출: tempShape=False
-[17:23:22.556] tempShape가 이미 null이거나 ImageCanvas가 null임
-[17:23:22.557] 이미지 소스 업데이트: 573x419
-[17:23:22.557] UpdatePreviewImage 완료
-[17:23:22.558] UpdatePreviewImage 완료 후 자식 요소 수: 1
-[17:23:22.558]   - 1번째 자식: Image
-[17:23:23.618] MouseDown: 위치(321.5, 71.5), 편집모드=Pen, isDrawingShape=False
-[17:23:24.122] MouseUp: 위치(297.5, 68.5), 편집모드=Pen, isDrawingShape=False, isDragStarted=False
-[17:23:24.129] UpdatePreviewImage 시작
-[17:23:24.130] UpdatePreviewImage에서 CleanupTemporaryShape 호출
-[17:23:24.130] CleanupTemporaryShape 호출: tempShape=False
-[17:23:24.130] tempShape가 이미 null이거나 ImageCanvas가 null임
-[17:23:24.131] 이미지 소스 업데이트: 573x419
-[17:23:24.131] UpdatePreviewImage 완료
-[17:23:24.132] UpdatePreviewImage 완료 후 자식 요소 수: 1
-[17:23:24.132]   - 1번째 자식: Image
-[17:23:24.642] MouseDown: 위치(480.5, 180.5), 편집모드=Pen, isDrawingShape=False
-[17:23:25.106] MouseUp: 위치(473.5, 199.5), 편집모드=Pen, isDrawingShape=False, isDragStarted=False
-[17:23:25.113] UpdatePreviewImage 시작
-[17:23:25.114] UpdatePreviewImage에서 CleanupTemporaryShape 호출
-[17:23:25.114] CleanupTemporaryShape 호출: tempShape=False
-[17:23:25.115] tempShape가 이미 null이거나 ImageCanvas가 null임
-[17:23:25.115] 이미지 소스 업데이트: 573x419
-[17:23:25.115] UpdatePreviewImage 완료
-[17:23:25.116] UpdatePreviewImage 완료 후 자식 요소 수: 1
-[17:23:25.116]   - 1번째 자식: Image
+===== 로그 시작: 2025-11-24 오후 6:23:28 =====
+[18:23:28.418] PreviewWindow 생성됨
+[18:23:28.474] CancelCurrentEditMode 호출: 이전 모드=None, tempShape=False
+[18:23:28.475] CancelCurrentEditMode에서 CleanupTemporaryShape 호출
+[18:23:28.475] CleanupTemporaryShape 호출: tempShape=False
+[18:23:28.476] tempShape가 이미 null이거나 ImageCanvas가 null임
+[18:23:28.476] 도구 패널 숨김
+[18:23:28.477] 마우스 커서 복원: Arrow
+[18:23:28.477] 그리기 상태 초기화: isDrawingShape=false, isDragStarted=false
+[18:23:28.510] MouseUp: 위치(576.0, 92.5), 편집모드=Highlight, isDrawingShape=False, isDragStarted=False

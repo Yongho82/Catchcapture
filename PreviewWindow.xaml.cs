@@ -2241,6 +2241,30 @@ namespace CatchCapture
             UpdateImageInfo();
         }
 
+        private bool isPanelVisible = true;
+
+        private void ToggleButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (CaptureListBorder == null || ToggleButton == null) return;
+
+            if (isPanelVisible)
+            {
+                // 숨기기
+                CaptureListBorder.Visibility = Visibility.Collapsed;
+                // 화살표를 < 방향으로 (닫힘)
+                ToggleButton.RenderTransform = new RotateTransform(0);
+            }
+            else
+            {
+                // 보이기
+                CaptureListBorder.Visibility = Visibility.Visible;
+                // 화살표를 > 방향으로 (열림)
+                ToggleButton.RenderTransform = new RotateTransform(180);
+                ToggleButton.RenderTransformOrigin = new Point(0.5, 0.5);
+            }
+            
+            isPanelVisible = !isPanelVisible;
+        }
 
         private void UpdateImageInfo()
         {
@@ -2416,6 +2440,29 @@ namespace CatchCapture
         {
             Index = index;
             NewImage = newImage;
+        }
+    }
+    public class GridLengthAnimation : System.Windows.Media.Animation.AnimationTimeline
+    {
+        public GridLength? From { get; set; }
+        public GridLength? To { get; set; }
+
+        public override Type TargetPropertyType => typeof(GridLength);
+
+        protected override System.Windows.Freezable CreateInstanceCore()
+        {
+            return new GridLengthAnimation();
+        }
+
+        public override object GetCurrentValue(object defaultOriginValue, object defaultDestinationValue, System.Windows.Media.Animation.AnimationClock animationClock)
+        {
+            double fromVal = ((GridLength)(From ?? (GridLength)defaultOriginValue)).Value;
+            double toVal = ((GridLength)(To ?? (GridLength)defaultDestinationValue)).Value;
+
+            if (fromVal > toVal)
+                return new GridLength((1 - animationClock.CurrentProgress.Value) * (fromVal - toVal) + toVal, GridUnitType.Pixel);
+            else
+                return new GridLength(animationClock.CurrentProgress.Value * (toVal - fromVal) + fromVal, GridUnitType.Pixel);
         }
     }
 }

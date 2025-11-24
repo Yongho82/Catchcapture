@@ -66,7 +66,7 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="250"/>
+            <ColumnDefinition x:Name="RightPanelColumn" Width="Auto"/>
         </Grid.ColumnDefinitions>
 
         <!-- 도구 모음 -->
@@ -265,6 +265,45 @@
                     </Canvas>
                 </ScrollViewer>
                 
+                <!-- 토글 버튼 (오른쪽 끝에 고정) -->
+                <Button x:Name="ToggleButton" 
+                        Width="12" 
+                        Height="60"
+                        Background="#F5F5F5" 
+                        BorderBrush="#D0D0D0"
+                        BorderThickness="1"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Cursor="Hand"
+                        Click="ToggleButton_Click"
+                        Panel.ZIndex="1000">
+                    <Button.Effect>
+                        <DropShadowEffect ShadowDepth="2" BlurRadius="4" Opacity="0.3" Direction="0"/>
+                    </Button.Effect>
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}" 
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="4,0,0,4">
+                                <Path x:Name="Arrow" 
+                                      Data="M 4,0 L 8,5 L 4,10 Z" 
+                                      Fill="#888888" 
+                                      Stretch="Uniform"
+                                      Width="6"
+                                      Height="12"
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Arrow" Property="Fill" Value="#555555"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+                
                 <!-- 하단 중앙 이미지 정보 바 -->
                 <Border HorizontalAlignment="Center" VerticalAlignment="Bottom" 
                         Background="#E6000000" CornerRadius="4" Padding="12,6" Margin="0,0,0,15">
@@ -342,14 +381,26 @@
                 </Grid>
             </Grid>
         </Border>
-        <!-- 우측 캡처 리스트 패널 (AlCapture 스타일) -->
-        <Border Grid.Row="1" Grid.Column="1" Background="#FFFFFF" BorderBrush="#E0E6F0" BorderThickness="1,0,0,0">
+        
+        <!-- 우측 캡처 리스트 패널 -->
+        <Border x:Name="CaptureListBorder" 
+                Grid.Row="1" Grid.Column="1"
+                Background="#FFFFFF" 
+                BorderBrush="#E0E6F0" 
+                BorderThickness="1,0,0,0">
+            <Border.Effect>
+                <DropShadowEffect ShadowDepth="0" BlurRadius="8" Opacity="0.15" Direction="180"/>
+            </Border.Effect>
+            <Border.RenderTransform>
+                <TranslateTransform x:Name="PanelTransform" X="0"/>
+            </Border.RenderTransform>
+            
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                
+                                
                 <!-- 헤더 영역 -->
                 <Border Grid.Row="0" Background="#F8F9FC" BorderThickness="0,0,0,1" BorderBrush="#E0E6F0" Padding="12,10">
                     <Grid>
