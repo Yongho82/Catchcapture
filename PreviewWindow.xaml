@@ -64,9 +64,13 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="250"/>
+        </Grid.ColumnDefinitions>
 
         <!-- 도구 모음 -->
-        <Border Grid.Row="0" Background="White" BorderBrush="#E0E6F0" BorderThickness="0,0,0,1" Effect="{StaticResource MaterialShadow}">
+        <Border Grid.Row="0" Grid.ColumnSpan="2" Background="White" BorderBrush="#E0E6F0" BorderThickness="0,0,0,1" Effect="{StaticResource MaterialShadow}">
             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
                 <StackPanel Orientation="Horizontal" Margin="10,8">
                     <Button x:Name="CopyButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="CopyButton_Click" ToolTip="클립보드에 복사">
@@ -253,16 +257,42 @@
         </Popup>
 
         <!-- 이미지 표시 영역 -->
-        <Border Grid.Row="1" Background="#ECEDF2" BorderThickness="0">
-            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                <Canvas x:Name="ImageCanvas" Background="#ECEDF2">
-                    <Image x:Name="PreviewImage" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
-                </Canvas>
-            </ScrollViewer>
+        <Border Grid.Row="1" Grid.Column="0" Background="#ECEDF2" BorderThickness="0">
+            <Grid>
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                    <Canvas x:Name="ImageCanvas" Background="#ECEDF2">
+                        <Image x:Name="PreviewImage" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+                    </Canvas>
+                </ScrollViewer>
+                
+                <!-- 하단 중앙 이미지 정보 바 -->
+                <Border HorizontalAlignment="Center" VerticalAlignment="Bottom" 
+                        Background="#E6000000" CornerRadius="4" Padding="12,6" Margin="0,0,0,15">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock x:Name="ImageInfoText" Text="이미지 사이즈 : 808 x 428" 
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" Margin="0,0,15,0"/>
+                        <TextBlock Text="—" Foreground="#999" FontSize="12" VerticalAlignment="Center" Margin="0,0,15,0"/>
+                        <TextBlock x:Name="ZoomLevelText" Text="100 %" 
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" Margin="0,0,15,0"/>
+                        <Button x:Name="ZoomOutButton" Content="−" 
+                                Background="Transparent" Foreground="White" BorderThickness="0" 
+                                Padding="8,4" FontSize="16" Cursor="Hand" Click="ZoomOutButton_Click"
+                                Margin="0,0,5,0" ToolTip="축소"/>
+                        <Button x:Name="ZoomInButton" Content="+" 
+                                Background="Transparent" Foreground="White" BorderThickness="0" 
+                                Padding="8,4" FontSize="16" Cursor="Hand" Click="ZoomInButton_Click"
+                                Margin="0,0,5,0" ToolTip="확대"/>
+                        <Button x:Name="ZoomResetButton" Content="원본" 
+                                Background="Transparent" Foreground="White" BorderThickness="0" 
+                                Padding="8,2" FontSize="11" Cursor="Hand" Click="ZoomResetButton_Click"
+                                ToolTip="100%"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
         </Border>
 
         <!-- 하단 옵션 패널 (편집 도구 옵션) - 컴팩트하게 변경 -->
-        <Border x:Name="EditToolPanel" Grid.Row="2" Background="White" BorderBrush="#D0D7E5" 
+        <Border x:Name="EditToolPanel" Grid.Row="2" Grid.ColumnSpan="2" Background="White" BorderBrush="#D0D7E5" 
                 BorderThickness="0,1,0,0" Visibility="Collapsed" Effect="{StaticResource MaterialShadow}">
             <Grid Margin="0">
                 <Grid.RowDefinitions>
@@ -310,6 +340,53 @@
                         </Button.Template>
                     </Button>
                 </Grid>
+            </Grid>
+        </Border>
+        <!-- 우측 캡처 리스트 패널 (AlCapture 스타일) -->
+        <Border Grid.Row="1" Grid.Column="1" Background="#FFFFFF" BorderBrush="#E0E6F0" BorderThickness="1,0,0,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <!-- 헤더 영역 -->
+                <Border Grid.Row="0" Background="#F8F9FC" BorderThickness="0,0,0,1" BorderBrush="#E0E6F0" Padding="12,10">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <!-- 제목과 캡처 개수 -->
+                        <Grid Grid.Row="0">
+                            <TextBlock Text="최근 캡처 목록" FontWeight="SemiBold" FontSize="13" Foreground="#333" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="CaptureCountText" Text="(0)" FontSize="12" Foreground="#888" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+                        
+                        <!-- 썸네일 크기 조절 슬라이더 -->
+                        <Grid Grid.Row="1" Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <TextBlock Grid.Column="0" Text="크기" FontSize="10" Foreground="#666" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <Slider x:Name="ThumbnailSizeSlider" Grid.Column="1" 
+                                    Minimum="80" Maximum="200" Value="120" 
+                                    TickFrequency="10" IsSnapToTickEnabled="True"
+                                    VerticalAlignment="Center"
+                                    ValueChanged="ThumbnailSizeSlider_ValueChanged"/>
+                            <TextBlock x:Name="ThumbnailSizeText" Grid.Column="2" Text="120" FontSize="10" Foreground="#666" VerticalAlignment="Center" Margin="8,0,0,0" Width="30"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+                
+                <!-- 캡처 리스트 스크롤 영역 -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel x:Name="CaptureListPanel" Margin="10"/>
+                </ScrollViewer>
             </Grid>
         </Border>
     </Grid>

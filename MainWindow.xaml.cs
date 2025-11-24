@@ -1627,7 +1627,7 @@ public partial class MainWindow : Window
     private void ShowPreviewWindow(BitmapSource image, int index)
     {
         // 미리보기 창 생성
-        PreviewWindow previewWindow = new PreviewWindow(image, index);
+        PreviewWindow previewWindow = new PreviewWindow(captures[index].Image, index, captures);
         previewWindow.ImageUpdated += (sender, e) => 
         {
             if (e.Index >= 0 && e.Index < captures.Count)

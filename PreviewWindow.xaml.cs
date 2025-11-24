@@ -12,6 +12,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows.Controls.Primitives;
+using CatchCapture.Models;
+using System.Windows.Media.Effects;
 
 namespace CatchCapture
 {
@@ -67,8 +69,9 @@ namespace CatchCapture
         private string logFilePath = "shape_debug.log";
 
         public event EventHandler<ImageUpdatedEventArgs>? ImageUpdated;
+        private List<CaptureImage>? allCaptures; // 클래스 멤버 변수로 추가 (20줄 부근)
 
-        public PreviewWindow(BitmapSource image, int index)
+        public PreviewWindow(BitmapSource image, int index, List<CaptureImage>? captures = null)
         {
             InitializeComponent();
 
@@ -87,6 +90,7 @@ namespace CatchCapture
             originalImage = image;
             currentImage = image;
             imageIndex = index;
+            allCaptures = captures;
 
             // 이미지 표시
             PreviewImage.Source = currentImage;
@@ -106,10 +110,17 @@ namespace CatchCapture
             ImageCanvas.MouseLeftButtonUp += ImageCanvas_MouseLeftButtonUp;
             KeyDown += PreviewWindow_KeyDown;
 
+            // 캡처 리스트 표시
+            if (allCaptures != null && allCaptures.Count > 0)
+            {
+                LoadCaptureList();
+            }
+
+            // 이미지 정보 업데이트
+            UpdateImageInfo();  // 이 줄 추가
             // 창이 로드된 후 하이라이트 모드 활성화
             this.Loaded += (s, e) =>
             {
-                // 약간의 지연 후 하이라이트 모드 활성화 (UI가 완전히 로드된 후)
                 System.Windows.Threading.Dispatcher.CurrentDispatcher.BeginInvoke(
                     System.Windows.Threading.DispatcherPriority.Loaded,
                     new Action(() =>
@@ -227,7 +238,6 @@ namespace CatchCapture
         {
             if (PreviewImage != null)
             {
-                // 현재 스케일 가져오기
                 var scaleTransform = GetImageScaleTransform();
                 if (scaleTransform != null)
                 {
@@ -235,6 +245,9 @@ namespace CatchCapture
                     double newScale = Math.Min(scaleTransform.ScaleX * 1.1, 5.0);
                     scaleTransform.ScaleX = newScale;
                     scaleTransform.ScaleY = newScale;
+                    
+                    // RenderTransformOrigin을 중앙으로 설정
+                    PreviewImage.RenderTransformOrigin = new Point(0.5, 0.5);
                 }
             }
         }
@@ -244,14 +257,16 @@ namespace CatchCapture
         {
             if (PreviewImage != null)
             {
-                // 현재 스케일 가져오기
                 var scaleTransform = GetImageScaleTransform();
                 if (scaleTransform != null)
                 {
                     // 10%씩 축소 (최소 10%)
-                    double newScale = Math.Max(scaleTransform.ScaleX * 0.9, 0.1);
+                    double newScale = Math.Max(scaleTransform.ScaleX / 1.1, 0.1);
                     scaleTransform.ScaleX = newScale;
                     scaleTransform.ScaleY = newScale;
+                    
+                    // RenderTransformOrigin을 중앙으로 설정
+                    PreviewImage.RenderTransformOrigin = new Point(0.5, 0.5);
                 }
             }
         }
@@ -2061,6 +2076,228 @@ namespace CatchCapture
                 arrowButton.Background = shapeType == ShapeType.Arrow ? Brushes.LightBlue : Brushes.Transparent;
         }
 
+        private void LoadCaptureList()
+        {
+            if (CaptureListPanel == null || allCaptures == null) return;
+
+            CaptureListPanel.Children.Clear();
+
+            // 캡처 개수 업데이트
+            if (CaptureCountText != null)
+            {
+                CaptureCountText.Text = $"({allCaptures.Count})";
+            }
+
+            // 각 캡처 아이템 생성
+            for (int i = 0; i < allCaptures.Count; i++)
+            {
+                var captureImage = allCaptures[i];
+                var itemBorder = CreateCaptureListItem(captureImage, i);
+                CaptureListPanel.Children.Add(itemBorder);
+            }
+        }
+
+        private Border CreateCaptureListItem(CaptureImage captureImage, int index)
+        {
+            // 썸네일 크기
+            double aspectRatio = currentThumbnailSize / 120.0;
+            double thumbWidth = 200 * aspectRatio;
+            double thumbHeight = currentThumbnailSize;
+
+            // 그리드 생성
+            Grid grid = new Grid();
+
+            // 이미지
+            Image img = new Image
+            {
+                Source = captureImage.Image,
+                Width = thumbWidth,
+                Height = thumbHeight,
+                Stretch = Stretch.Uniform,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            RenderOptions.SetBitmapScalingMode(img, BitmapScalingMode.HighQuality);
+            grid.Children.Add(img);
+
+            // 크기 정보 표시
+            Border sizeBorder = new Border
+            {
+                Background = new SolidColorBrush(Color.FromArgb(180, 0, 0, 0)),
+                CornerRadius = new CornerRadius(3),
+                Padding = new Thickness(4, 2, 4, 2),
+                HorizontalAlignment = HorizontalAlignment.Right,
+                VerticalAlignment = VerticalAlignment.Bottom,
+                Margin = new Thickness(0, 0, 6, 6)
+            };
+
+            TextBlock sizeText = new TextBlock
+            {
+                Text = $"{captureImage.Image.PixelWidth} x {captureImage.Image.PixelHeight}",
+                Foreground = Brushes.White,
+                FontSize = 10
+            };
+
+            sizeBorder.Child = sizeText;
+            grid.Children.Add(sizeBorder);
+
+            // 메인 테두리
+            Border border = new Border
+            {
+                Child = grid,
+                Margin = new Thickness(0, 6, 0, 6),
+                BorderThickness = new Thickness(2),
+                BorderBrush = index == imageIndex ? Brushes.DodgerBlue : new SolidColorBrush(Color.FromArgb(30, 0, 0, 0)),
+                Background = Brushes.White,
+                CornerRadius = new CornerRadius(6),
+                Effect = new DropShadowEffect { ShadowDepth = 1, BlurRadius = 5, Opacity = 0.2, Direction = 270 },
+                Tag = index,
+                Cursor = Cursors.Hand
+            };
+
+            // 클릭 이벤트
+            border.MouseLeftButtonDown += (s, e) =>
+            {
+                if (s is Border clickedBorder && clickedBorder.Tag is int clickedIndex)
+                {
+                    // 다른 이미지 선택 시 이미지만 교체 (창 재생성 없이)
+                    if (clickedIndex != imageIndex && allCaptures != null)
+                    {
+                        SwitchToCapture(clickedIndex);
+                    }
+                }
+            };
+
+            return border;
+        }
+
+        // 다른 캡처로 전환 (깜빡임 없이)
+        private void SwitchToCapture(int newIndex)
+        {
+            if (allCaptures == null || newIndex < 0 || newIndex >= allCaptures.Count) return;
+
+            // 이전 인덱스 저장
+            int oldIndex = imageIndex;
+
+            // 새 이미지로 전환
+            imageIndex = newIndex;
+            originalImage = allCaptures[newIndex].Image;
+            currentImage = allCaptures[newIndex].Image;
+
+            // Undo/Redo 스택 초기화
+            undoStack.Clear();
+            redoStack.Clear();
+            UpdateUndoRedoButtons();
+
+            // 이미지 업데이트
+            UpdatePreviewImage();
+
+            // 리스트에서 선택 상태 업데이트
+            UpdateCaptureListSelection(oldIndex, newIndex);
+        }
+
+        // 캡처 리스트의 선택 상태 업데이트
+        private void UpdateCaptureListSelection(int oldIndex, int newIndex)
+        {
+            if (CaptureListPanel == null) return;
+
+            foreach (var child in CaptureListPanel.Children)
+            {
+                if (child is Border border && border.Tag is int index)
+                {
+                    if (index == newIndex)
+                    {
+                        // 새로 선택된 항목 강조
+                        border.BorderBrush = Brushes.DodgerBlue;
+                        border.BorderThickness = new Thickness(2);
+                    }
+                    else if (index == oldIndex)
+                    {
+                        // 이전 선택 항목 강조 해제
+                        border.BorderBrush = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0));
+                        border.BorderThickness = new Thickness(2);
+                    }
+                }
+            }
+        }
+
+        #endregion
+
+        private void ZoomOutButton_Click(object sender, RoutedEventArgs e)
+        {
+            ZoomOut();
+            UpdateImageInfo();
+        }
+
+        private void ZoomInButton_Click(object sender, RoutedEventArgs e)
+        {
+            ZoomIn();
+            UpdateImageInfo();
+        }
+
+        private void ZoomResetButton_Click(object sender, RoutedEventArgs e)
+        {
+            ResetZoom();
+            UpdateImageInfo();
+        }
+
+
+        private void UpdateImageInfo()
+        {
+            if (ImageInfoText != null && currentImage != null)
+            {
+                ImageInfoText.Text = $"이미지 사이즈 : {currentImage.PixelWidth} x {currentImage.PixelHeight}";
+            }
+
+            if (ZoomLevelText != null)
+            {
+                var scaleTransform = GetImageScaleTransform();
+                if (scaleTransform != null)
+                {
+                    int zoomPercent = (int)(scaleTransform.ScaleX * 100);
+                    ZoomLevelText.Text = $"{zoomPercent} %";
+                }
+            }
+        }
+
+        #region 썸네일 크기 조절
+
+        private double currentThumbnailSize = 120;
+
+        private void ThumbnailSizeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (ThumbnailSizeText != null)
+            {
+                ThumbnailSizeText.Text = ((int)e.NewValue).ToString();
+                currentThumbnailSize = e.NewValue;
+                
+                // 기존 캡처 아이템들의 크기 업데이트
+                UpdateAllThumbnailSizes();
+            }
+        }
+
+        private void UpdateAllThumbnailSizes()
+        {
+            if (CaptureListPanel == null) return;
+            
+            foreach (var child in CaptureListPanel.Children)
+            {
+                if (child is Border border && border.Child is Grid grid)
+                {
+                    // 그리드 내부의 이미지 찾기
+                    foreach (var gridChild in grid.Children)
+                    {
+                        if (gridChild is Image img)
+                        {
+                            double aspectRatio = currentThumbnailSize / 120.0; // 기본 120 기준
+                            img.Width = 200 * aspectRatio;
+                            img.Height = currentThumbnailSize;
+                        }
+                    }
+                }
+            }
+        }
+
         #endregion
 
         #region 유틸리티 메서드
@@ -2102,6 +2339,8 @@ namespace CatchCapture
             // 이미지 업데이트 이벤트 발생
             ImageUpdated?.Invoke(this, new ImageUpdatedEventArgs(imageIndex, currentImage));
             WriteLog("UpdatePreviewImage 완료");
+            // 이미지 정보 업데이트
+            UpdateImageInfo();  // 이 줄 추가
 
             // 자식 요소 갯수
             WriteLog($"UpdatePreviewImage 완료 후 자식 요소 수: {ImageCanvas.Children.Count}");
