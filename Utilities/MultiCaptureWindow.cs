@@ -32,7 +32,7 @@ namespace CatchCapture.Utilities
         private double offsetY;
         
         public BitmapSource? FinalCompositeImage { get; private set; }
-        public List<BitmapSource> IndividualImages { get; private set; }
+        public List<BitmapSource>? IndividualImages { get; private set; }
         
         private class CapturedRegion
         {

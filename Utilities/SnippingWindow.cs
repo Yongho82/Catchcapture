@@ -506,17 +506,23 @@ namespace CatchCapture.Utilities
                 Canvas.SetLeft(magnifierBorder, magnifierX);
                 Canvas.SetTop(magnifierBorder, magnifierY);
                 
-                // 십자선 업데이트
+                // 십자선 업데이트 (화면 전체에 걸쳐 표시)
                 if (crosshairHorizontal != null && crosshairVertical != null)
                 {
                     crosshairHorizontal.Visibility = Visibility.Visible;
                     crosshairVertical.Visibility = Visibility.Visible;
                     
+                    // 가로선 (화면 왼쪽 끝에서 오른쪽 끝까지)
+                    crosshairHorizontal.X1 = 0;
+                    crosshairHorizontal.X2 = vWidth;
                     crosshairHorizontal.Y1 = mousePos.Y;
                     crosshairHorizontal.Y2 = mousePos.Y;
                     
+                    // 세로선 (화면 위쪽 끝에서 아래쪽 끝까지)
                     crosshairVertical.X1 = mousePos.X;
                     crosshairVertical.X2 = mousePos.X;
+                    crosshairVertical.Y1 = 0;
+                    crosshairVertical.Y2 = vHeight;
                 }
             }
             catch

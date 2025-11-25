@@ -374,7 +374,7 @@ public partial class MainWindow : Window
         settings.IsTrayMode = false;
         
         // 기존 간편 모드 로직 호출
-        SimpleModeButton_Click(null, null);
+        SimpleModeButton_Click(this, new RoutedEventArgs());
     }
 
     protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
@@ -1242,7 +1242,7 @@ public partial class MainWindow : Window
             }
 
             // 리스트에서 제거 로직
-            Border currentBorder = null;
+           Border? currentBorder = null;
             foreach (var child in CaptureListPanel.Children) {
                 if (child is Border b && b.Child == grid) { currentBorder = b; break; }
             }
@@ -1922,7 +1922,7 @@ public partial class MainWindow : Window
                     break;
                     
                 case HOTKEY_ID_WINDOW:
-                    Dispatcher.Invoke(() => DesignatedCaptureButton_Click(null, null));
+                    Dispatcher.Invoke(() => DesignatedCaptureButton_Click(this, new RoutedEventArgs()));
                     handled = true;
                     break;
 

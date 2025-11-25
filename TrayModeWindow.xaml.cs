@@ -12,7 +12,7 @@ namespace CatchCapture
     public partial class TrayModeWindow : Window
     {
         private MainWindow mainWindow;
-        private Settings settings;
+        private Settings? settings;
         private bool isFolded = false;
 
         public TrayModeWindow(MainWindow owner)
@@ -54,7 +54,10 @@ namespace CatchCapture
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
             // 창 닫힐 때 현재 설정 저장
-            Settings.Save(settings);
+            if (settings != null)
+            {
+                Settings.Save(settings);
+            }
             base.OnClosing(e);
         }
         private void SwitchToNormalModeButton_Click(object sender, RoutedEventArgs e)
@@ -275,9 +278,12 @@ namespace CatchCapture
             ClearCaptureButtons(buttonsPanel);
             
             // 설정에 있는 아이콘들만 추가
-            foreach (var iconName in settings.TrayModeIcons)
+            if (settings != null)
             {
-                AddIconButton(buttonsPanel, iconName);
+                foreach (var iconName in settings.TrayModeIcons)
+                {
+                    AddIconButton(buttonsPanel, iconName);
+                }
             }
             
             // 빈 슬롯 추가 (+ 버튼)
@@ -295,7 +301,7 @@ namespace CatchCapture
         }
         private void AdjustWindowHeight()
         {
-            if (isFolded) return;
+            if (isFolded || settings == null) return;
 
             // 아이콘 개수에 따라 창 높이 계산
             // 상단 컨트롤: ~30px
@@ -624,13 +630,16 @@ namespace CatchCapture
                 "Delete", "DeleteAll", "Settings"
             };
             
-            foreach (var icon in allIcons)
+            if (settings != null)
             {
-                if (!settings.TrayModeIcons.Contains(icon))
+                foreach (var icon in allIcons)
                 {
-                    var item = new MenuItem { Header = GetIconDisplayName(icon) };
-                    item.Click += (s2, e2) => AddIcon(icon);
-                    menu.Items.Add(item);
+                    if (!settings.TrayModeIcons.Contains(icon))
+                    {
+                        var item = new MenuItem { Header = GetIconDisplayName(icon) };
+                        item.Click += (s2, e2) => AddIcon(icon);
+                        menu.Items.Add(item);
+                    }
                 }
             }
             

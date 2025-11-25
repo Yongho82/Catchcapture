@@ -66,9 +66,6 @@ namespace CatchCapture
         // 기본 형광펜은 중간 투명도(약 45~50%)와 중간 두께로 시작
         private Color highlightColor = Color.FromArgb(120, Colors.Yellow.R, Colors.Yellow.G, Colors.Yellow.B);
         private double highlightThickness = 8;
-        // 형광펜 두께 미리보기용 보조 요소
-        private Canvas? thicknessPreviewCanvas;
-        private Rectangle? thicknessPreviewRect;
         private Color textColor = Colors.Red;
         private double textSize = 16;
         private double eraserSize = 20;
@@ -893,9 +890,9 @@ namespace CatchCapture
             double toVal = ((GridLength)(To ?? (GridLength)defaultDestinationValue)).Value;
 
             if (fromVal > toVal)
-                return new GridLength((1 - animationClock.CurrentProgress.Value) * (fromVal - toVal) + toVal, GridUnitType.Pixel);
+                return new GridLength((1 - (animationClock.CurrentProgress ?? 0)) * (fromVal - toVal) + toVal, GridUnitType.Pixel);
             else
-                return new GridLength(animationClock.CurrentProgress.Value * (toVal - fromVal) + fromVal, GridUnitType.Pixel);
+                return new GridLength((animationClock.CurrentProgress ?? 0) * (toVal - fromVal) + fromVal, GridUnitType.Pixel);
         }
     }
 }
