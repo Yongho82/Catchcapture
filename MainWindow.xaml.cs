@@ -2413,7 +2413,10 @@ public partial class MainWindow : Window
     {
         ElementCaptureButton_Click(this, new RoutedEventArgs());
     }
-
+    public void TriggerScrollCapture()
+    {
+        ScrollCaptureButton_Click(this, new RoutedEventArgs());
+    }
     public void TriggerCopySelected()
     {
         CopySelectedButton_Click(null!, new RoutedEventArgs());

@@ -35,7 +35,8 @@ namespace CatchCapture
             for (int i = 1; i <= 12; i++) keys.Add($"F{i}");
 
             var boxes = new[] { 
-                HkRegionKey, HkDelayKey, HkFullKey, HkDesignatedKey, 
+                HkRegionKey, HkDelayKey, HkFullKey, HkDesignatedKey,
+                HkWindowCaptureKey, HkElementCaptureKey, HkScrollCaptureKey,
                 HkSaveAllKey, HkDeleteAllKey, HkSimpleModeKey, HkOpenSettingsKey 
             };
 
@@ -134,8 +135,11 @@ namespace CatchCapture
             EnsureDefaultKey(hk.RegionCapture, "A");
             EnsureDefaultKey(hk.DelayCapture, "D");
             EnsureDefaultKey(hk.FullScreen, "F");
-            EnsureDefaultKey(hk.DesignatedCapture, "W");
-            EnsureDefaultKey(hk.SaveAll, "Z");
+            EnsureDefaultKey(hk.DesignatedCapture, "G");
+            EnsureDefaultKey(hk.WindowCapture, "W");
+            EnsureDefaultKey(hk.ElementCapture, "E");
+            EnsureDefaultKey(hk.ScrollCapture, "R");
+            EnsureDefaultKey(hk.SaveAll, "S");
             EnsureDefaultKey(hk.DeleteAll, "X");
             EnsureDefaultKey(hk.SimpleMode, "M");
             EnsureDefaultKey(hk.OpenSettings, "O");
@@ -145,6 +149,9 @@ namespace CatchCapture
             BindHotkey(hk.DelayCapture, HkDelayEnabled, HkDelayCtrl, HkDelayShift, HkDelayAlt, HkDelayWin, HkDelayKey);
             BindHotkey(hk.FullScreen, HkFullEnabled, HkFullCtrl, HkFullShift, HkFullAlt, HkFullWin, HkFullKey);
             BindHotkey(hk.DesignatedCapture, HkDesignatedEnabled, HkDesignatedCtrl, HkDesignatedShift, HkDesignatedAlt, HkDesignatedWin, HkDesignatedKey);
+            BindHotkey(hk.WindowCapture, HkWindowCaptureEnabled, HkWindowCaptureCtrl, HkWindowCaptureShift, HkWindowCaptureAlt, HkWindowCaptureWin, HkWindowCaptureKey);
+            BindHotkey(hk.ElementCapture, HkElementCaptureEnabled, HkElementCaptureCtrl, HkElementCaptureShift, HkElementCaptureAlt, HkElementCaptureWin, HkElementCaptureKey);
+            BindHotkey(hk.ScrollCapture, HkScrollCaptureEnabled, HkScrollCaptureCtrl, HkScrollCaptureShift, HkScrollCaptureAlt, HkScrollCaptureWin, HkScrollCaptureKey);
             BindHotkey(hk.SaveAll, HkSaveAllEnabled, HkSaveAllCtrl, HkSaveAllShift, HkSaveAllAlt, HkSaveAllWin, HkSaveAllKey);
             BindHotkey(hk.DeleteAll, HkDeleteAllEnabled, HkDeleteAllCtrl, HkDeleteAllShift, HkDeleteAllAlt, HkDeleteAllWin, HkDeleteAllKey);
             BindHotkey(hk.SimpleMode, HkSimpleModeEnabled, HkSimpleModeCtrl, HkSimpleModeShift, HkSimpleModeAlt, HkSimpleModeWin, HkSimpleModeKey);
@@ -226,6 +233,9 @@ namespace CatchCapture
             ReadHotkey(_settings.Hotkeys.DelayCapture, HkDelayEnabled, HkDelayCtrl, HkDelayShift, HkDelayAlt, HkDelayWin, HkDelayKey);
             ReadHotkey(_settings.Hotkeys.FullScreen, HkFullEnabled, HkFullCtrl, HkFullShift, HkFullAlt, HkFullWin, HkFullKey);
             ReadHotkey(_settings.Hotkeys.DesignatedCapture, HkDesignatedEnabled, HkDesignatedCtrl, HkDesignatedShift, HkDesignatedAlt, HkDesignatedWin, HkDesignatedKey);
+            ReadHotkey(_settings.Hotkeys.WindowCapture, HkWindowCaptureEnabled, HkWindowCaptureCtrl, HkWindowCaptureShift, HkWindowCaptureAlt, HkWindowCaptureWin, HkWindowCaptureKey);
+            ReadHotkey(_settings.Hotkeys.ElementCapture, HkElementCaptureEnabled, HkElementCaptureCtrl, HkElementCaptureShift, HkElementCaptureAlt, HkElementCaptureWin, HkElementCaptureKey);
+            ReadHotkey(_settings.Hotkeys.ScrollCapture, HkScrollCaptureEnabled, HkScrollCaptureCtrl, HkScrollCaptureShift, HkScrollCaptureAlt, HkScrollCaptureWin, HkScrollCaptureKey);
             ReadHotkey(_settings.Hotkeys.SaveAll, HkSaveAllEnabled, HkSaveAllCtrl, HkSaveAllShift, HkSaveAllAlt, HkSaveAllWin, HkSaveAllKey);
             ReadHotkey(_settings.Hotkeys.DeleteAll, HkDeleteAllEnabled, HkDeleteAllCtrl, HkDeleteAllShift, HkDeleteAllAlt, HkDeleteAllWin, HkDeleteAllKey);
             ReadHotkey(_settings.Hotkeys.SimpleMode, HkSimpleModeEnabled, HkSimpleModeCtrl, HkSimpleModeShift, HkSimpleModeAlt, HkSimpleModeWin, HkSimpleModeKey);
@@ -235,8 +245,11 @@ namespace CatchCapture
             EnsureDefaultKey(_settings.Hotkeys.RegionCapture, "A");
             EnsureDefaultKey(_settings.Hotkeys.DelayCapture, "D");
             EnsureDefaultKey(_settings.Hotkeys.FullScreen, "F");
-            EnsureDefaultKey(_settings.Hotkeys.DesignatedCapture, "W");
-            EnsureDefaultKey(_settings.Hotkeys.SaveAll, "Z");
+            EnsureDefaultKey(_settings.Hotkeys.DesignatedCapture, "G");
+            EnsureDefaultKey(_settings.Hotkeys.WindowCapture, "W");
+            EnsureDefaultKey(_settings.Hotkeys.ElementCapture, "E");
+            EnsureDefaultKey(_settings.Hotkeys.ScrollCapture, "R");
+            EnsureDefaultKey(_settings.Hotkeys.SaveAll, "S");
             EnsureDefaultKey(_settings.Hotkeys.DeleteAll, "X");
             EnsureDefaultKey(_settings.Hotkeys.SimpleMode, "M");
             EnsureDefaultKey(_settings.Hotkeys.OpenSettings, "O");

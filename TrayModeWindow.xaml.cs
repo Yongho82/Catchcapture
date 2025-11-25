@@ -167,6 +167,12 @@ namespace CatchCapture
             mainWindow.TriggerUnitCapture();
         }
 
+        private void ScrollCaptureButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Hide();
+            mainWindow.TriggerScrollCapture();
+        }
+
         private void CopyButton_Click(object sender, RoutedEventArgs e)
         {
             mainWindow.TriggerCopySelected();
@@ -432,6 +438,10 @@ namespace CatchCapture
                     button.Click += UnitCaptureButton_Click;
                     button.Content = CreateImage("/icons/unit_capture.png");
                     break;
+                case "ScrollCapture":
+                    button.Click += ScrollCaptureButton_Click;
+                    button.Content = CreateImage("/icons/scroll_capture.png");
+                    break;
                 case "Copy":
                     button.Click += CopyButton_Click;
                     button.Content = CreateImage("/icons/copy_selected.png");
@@ -625,7 +635,7 @@ namespace CatchCapture
             
             var allIcons = new[] { 
                 "AreaCapture", "DelayCapture", "FullScreen", "RealTimeCapture",
-                "DesignatedCapture", "WindowCapture", "UnitCapture",
+                "DesignatedCapture", "WindowCapture", "UnitCapture", "ScrollCapture",
                 "Copy", "CopyAll", "Save", "SaveAll", 
                 "Delete", "DeleteAll", "Settings"
             };
@@ -669,11 +679,12 @@ namespace CatchCapture
             {
                 "AreaCapture" => "영역 캡처",
                 "DelayCapture" => "지연 캡처",
-                "RealTimeCapture" => "실시간 캡처", 
+                "RealTimeCapture" => "순간 캡처", 
                 "FullScreen" => "전체화면",
                 "DesignatedCapture" => "지정 캡처",
                 "WindowCapture" => "창 캡처",
                 "UnitCapture" => "단위 캡처",
+                "ScrollCapture" => "스크롤 캡처",
                 "Copy" => "복사",
                 "CopyAll" => "전체 복사",
                 "Save" => "저장",

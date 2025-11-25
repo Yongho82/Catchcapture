@@ -126,26 +126,30 @@ namespace CatchCapture.Utilities
             
             _tbWidth = new TextBox { 
                 Width = 50, 
-                Height = 22, 
+                Height = 24, 
                 TextAlignment = TextAlignment.Center, 
                 VerticalAlignment = VerticalAlignment.Center, 
-                VerticalContentAlignment = VerticalAlignment.Center, // 텍스트 수직 중앙
+                VerticalContentAlignment = VerticalAlignment.Center,
+                Padding = new Thickness(0, 3, 0, 0), // 상단 패딩으로 중앙 맞춤
                 Margin = new Thickness(0, 0, 4, 0), 
                 Background = new SolidColorBrush(Color.FromArgb(50, 255, 255, 255)), 
                 Foreground = Brushes.White, 
-                BorderThickness = new Thickness(0) 
+                BorderThickness = new Thickness(0),
+                FontSize = 11
             };
             var times = new TextBlock { Text = "x", Foreground = Brushes.Gray, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 4, 0), FontSize = 11 };
             _tbHeight = new TextBox { 
                 Width = 50, 
-                Height = 22, 
+                Height = 24, 
                 TextAlignment = TextAlignment.Center, 
                 VerticalAlignment = VerticalAlignment.Center, 
-                VerticalContentAlignment = VerticalAlignment.Center, // 텍스트 수직 중앙
+                VerticalContentAlignment = VerticalAlignment.Center,
+                Padding = new Thickness(0, 3, 0, 0), // 상단 패딩으로 중앙 맞춤
                 Margin = new Thickness(0, 0, 8, 0), 
                 Background = new SolidColorBrush(Color.FromArgb(50, 255, 255, 255)), 
                 Foreground = Brushes.White, 
-                BorderThickness = new Thickness(0) 
+                BorderThickness = new Thickness(0),
+                FontSize = 11
             };
 
             // 잠금 버튼 (금색 아이콘)
