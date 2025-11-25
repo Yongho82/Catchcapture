@@ -434,7 +434,7 @@ namespace CatchCapture.Utilities
 
             // 상단 충돌 체크: 창의 절대 위치 + 사각형 상단 위치로 화면 좌표 계산
             double screenTop = Top + rect.Top;
-            bool shouldPlaceAtBottom = screenTop < 100;
+            bool shouldPlaceAtBottom = screenTop < 40;
 
             double headerLeft = rect.Left;
             double headerTop;
@@ -559,7 +559,7 @@ namespace CatchCapture.Utilities
         private void AdjustWindowSizeForRect(Rect rect)
         {
             // 선택 영역에 맞춰 창 크기를 동적으로 조정 (확장 및 축소)
-            const double margin = 0; // 여유 공간
+            const double margin = 60; // 하단 여유 공간
             const double minWindowSize = 50; // 최소 창 크기
             
             double requiredWidth = rect.Right + margin;
