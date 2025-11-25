@@ -159,6 +159,7 @@
                 <!-- Navigation -->
                 <TextBlock Text="일반" FontSize="12" Foreground="{StaticResource TextSecondary}" Margin="25,0,0,5" FontWeight="SemiBold"/>
                 <Button x:Name="NavCapture" Content="캡처 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Capture"/>
+                <Button x:Name="NavSystem" Content="시스템 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="System"/>
                 <Button x:Name="NavHotkey" Content="단축키 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Hotkey"/>
                 
                 <!-- Bottom Info -->
@@ -364,6 +365,46 @@
                         </Grid>
                     </ScrollViewer>
                 </Grid>
+            </Border>
+
+            <!-- System Page -->
+            <Border x:Name="PageSystem" Grid.Row="0" Background="{StaticResource ContentBackground}" CornerRadius="8" Padding="30" Visibility="Collapsed">
+                <Border.Effect>
+                    <DropShadowEffect Color="Black" Direction="270" ShadowDepth="1" Opacity="0.05" BlurRadius="10"/>
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock Text="시스템 설정" Style="{StaticResource SectionTitle}"/>
+                    
+                    <GroupBox Header="시작 설정" Margin="0,0,0,20" BorderBrush="{StaticResource BorderColor}" Padding="15">
+                        <StackPanel>
+                            <!-- 윈도우 시작 시 자동 실행 -->
+                            <CheckBox x:Name="StartWithWindowsCheckBox" 
+                                      Content="윈도우 시작 시 자동 실행" 
+                                      Margin="0,5"/>
+                            
+                            <!-- 시작 모드 선택 -->
+                            <TextBlock Text="시작 모드" FontWeight="SemiBold" Margin="0,20,0,10" Foreground="{StaticResource TextSecondary}"/>
+                            <RadioButton x:Name="StartupModeTrayRadio" 
+                                         Content="트레이 모드로 시작" 
+                                         GroupName="StartupMode" 
+                                         IsChecked="True" 
+                                         Margin="0,5"/>
+                            <RadioButton x:Name="StartupModeNormalRadio" 
+                                         Content="일반 모드로 시작" 
+                                         GroupName="StartupMode" 
+                                         Margin="0,5"/>
+                            <RadioButton x:Name="StartupModeSimpleRadio" 
+                                         Content="간편 모드로 시작" 
+                                         GroupName="StartupMode" 
+                                         Margin="0,5"/>
+                        </StackPanel>
+                    </GroupBox>
+                    
+                    <TextBlock Text="※ 시작 모드는 프로그램이 실행될 때 처음 표시되는 화면을 설정합니다." 
+                               FontSize="11" 
+                               Foreground="{StaticResource TextSecondary}" 
+                               Margin="5,10,0,0"/>
+                </StackPanel>
             </Border>
 
             <!-- Action Buttons -->

@@ -109,6 +109,17 @@ public partial class MainWindow : Window
             hwndSource = HwndSource.FromHwnd(helper.Handle);
             hwndSource?.AddHook(HwndHook);
             RegisterGlobalHotkeys();
+
+            // 시작 모드에 따라 초기 모드 설정
+            if (settings.StartupMode == "Tray")
+            {
+                SwitchToTrayMode();
+            }
+            else if (settings.StartupMode == "Simple")
+            {
+                SwitchToSimpleMode();
+            }
+            // Normal 모드는 기본값이므로 별도 처리 불필요
         };
     }
 

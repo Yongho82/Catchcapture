@@ -19,8 +19,9 @@ namespace CatchCapture
             _settings = Settings.Load();
             InitKeyComboBoxes(); // 콤보박스 초기화
             LoadCapturePage();
+            LoadSystemPage();
             LoadHotkeysPage();
-            HighlightNav(NavCapture, true);
+            HighlightNav(NavCapture, "Capture");
         }
 
         private void InitKeyComboBoxes()
@@ -44,19 +45,22 @@ namespace CatchCapture
             }
         }
 
-        private void HighlightNav(Button btn, bool capture)
+        private void HighlightNav(Button btn, string tag)
         {
-            NavCapture.FontWeight = capture ? FontWeights.Bold : FontWeights.Normal;
-            NavHotkey.FontWeight = capture ? FontWeights.Normal : FontWeights.Bold;
-            PageCapture.Visibility = capture ? Visibility.Visible : Visibility.Collapsed;
-            PageHotkey.Visibility = capture ? Visibility.Collapsed : Visibility.Visible;
+            NavCapture.FontWeight = tag == "Capture" ? FontWeights.Bold : FontWeights.Normal;
+            NavSystem.FontWeight = tag == "System" ? FontWeights.Bold : FontWeights.Normal;
+            NavHotkey.FontWeight = tag == "Hotkey" ? FontWeights.Bold : FontWeights.Normal;
+            
+            PageCapture.Visibility = tag == "Capture" ? Visibility.Visible : Visibility.Collapsed;
+            PageSystem.Visibility = tag == "System" ? Visibility.Visible : Visibility.Collapsed;
+            PageHotkey.Visibility = tag == "Hotkey" ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void Nav_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.Tag is string tag)
             {
-                HighlightNav(btn, tag == "Capture");
+                HighlightNav(btn, tag);
             }
         }
 
@@ -96,6 +100,22 @@ namespace CatchCapture
             }
             if (CboPrintScreenAction.SelectedItem == null)
                 CboPrintScreenAction.SelectedIndex = 0;
+        }
+
+        private void LoadSystemPage()
+        {
+            // 윈도우 시작 시 자동 실행
+            StartWithWindowsCheckBox.IsChecked = _settings.StartWithWindows;
+            
+            // 시작 모드
+            if (_settings.StartupMode == "Tray")
+                StartupModeTrayRadio.IsChecked = true;
+            else if (_settings.StartupMode == "Normal")
+                StartupModeNormalRadio.IsChecked = true;
+            else if (_settings.StartupMode == "Simple")
+                StartupModeSimpleRadio.IsChecked = true;
+            else
+                StartupModeTrayRadio.IsChecked = true; // 기본값
         }
 
         private static void EnsureDefaultKey(ToggleHotkey hk, string defaultKey)
@@ -221,6 +241,18 @@ namespace CatchCapture
             EnsureDefaultKey(_settings.Hotkeys.SimpleMode, "M");
             EnsureDefaultKey(_settings.Hotkeys.OpenSettings, "O");
 
+            // 시스템 설정
+            _settings.StartWithWindows = StartWithWindowsCheckBox.IsChecked == true;
+            if (StartupModeTrayRadio.IsChecked == true)
+                _settings.StartupMode = "Tray";
+            else if (StartupModeNormalRadio.IsChecked == true)
+                _settings.StartupMode = "Normal";
+            else if (StartupModeSimpleRadio.IsChecked == true)
+                _settings.StartupMode = "Simple";
+            
+            // 윈도우 시작 프로그램 등록/해제
+            SetStartup(_settings.StartWithWindows);
+
             Settings.Save(_settings);
             try
             {
@@ -258,8 +290,34 @@ namespace CatchCapture
             _settings = new Settings();
             Settings.Save(_settings);
             LoadCapturePage();
+            LoadSystemPage();
             LoadHotkeysPage();
             MessageBox.Show("기본 설정으로 복원되었습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void SetStartup(bool enable)
+        {
+            try
+            {
+                string appName = "CatchCapture";
+                string exePath = System.Reflection.Assembly.GetExecutingAssembly().Location.Replace(".dll", ".exe");
+                
+                using (var key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true))
+                {
+                    if (enable)
+                    {
+                        key?.SetValue(appName, $"\"{exePath}\"");
+                    }
+                    else
+                    {
+                        key?.DeleteValue(appName, false);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"시작 프로그램 설정 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void Contact_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
