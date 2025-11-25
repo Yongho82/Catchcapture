@@ -188,7 +188,7 @@ namespace CatchCapture.Models
 
     public class ToggleHotkey
     {
-        public bool Enabled { get; set; } = true;
+        public bool Enabled { get; set; } = false;
         public bool Ctrl { get; set; }
         public bool Shift { get; set; }
         public bool Alt { get; set; }

@@ -1272,7 +1272,16 @@ public partial class MainWindow : Window
         // 클릭 이벤트 (선택)
         border.MouseLeftButtonDown += (s, e) => 
         {
-            if (s is Border clickedBorder) {
+            // 더블클릭 시 미리보기 창 열기
+            if (e.ClickCount == 2)
+            {
+                int actualIndex = (int)((Border)s).Tag;
+                ShowPreviewWindow(captureImage.Image, actualIndex);
+                e.Handled = true;
+            }
+            // 싱글클릭 시 선택
+            else if (s is Border clickedBorder)
+            {
                 int clickedIndex = (int)clickedBorder.Tag;
                 SelectCapture(clickedBorder, clickedIndex);
             }

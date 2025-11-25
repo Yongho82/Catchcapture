@@ -10,6 +10,7 @@
         WindowStartupLocation="CenterScreen"
         WindowStyle="None" AllowsTransparency="True" 
         Background="Transparent"
+        Icon="icons/catcha.ico" 
         FontFamily="Segoe UI">
     
     <WindowChrome.WindowChrome>

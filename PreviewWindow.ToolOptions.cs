@@ -37,7 +37,7 @@ namespace CatchCapture
             colorSection.Children.Add(colorLabel);
 
             // 색상 그리드 (WrapPanel)
-            WrapPanel colorGrid = new WrapPanel { Width = 130 };
+            WrapPanel colorGrid = new WrapPanel { Width = 150 };
             
             foreach (var c in SharedColorPalette)
             {
@@ -254,7 +254,7 @@ namespace CatchCapture
             };
             colorSection.Children.Add(colorLabel);
 
-            WrapPanel colorGrid = new WrapPanel { Width = 130 };
+            WrapPanel colorGrid = new WrapPanel { Width = 150 };
             
             foreach (var c in SharedColorPalette)
             {
