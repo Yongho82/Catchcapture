@@ -40,6 +40,12 @@ namespace CatchCapture.Models
             "DesignatedCapture", "WindowCapture", "UnitCapture"
         };
         
+        // Simple mode icon customization (이 부분 추가)
+        public List<string> SimpleModeIcons { get; set; } = new List<string>
+        {
+            "AreaCapture", "DelayCapture", "FullScreen", "DesignatedCapture"
+        };
+
         // System settings
         public bool StartWithWindows { get; set; } = false;
         public string StartupMode { get; set; } = "Tray"; // "Normal", "Simple", "Tray"

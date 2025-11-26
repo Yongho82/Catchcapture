@@ -36,7 +36,7 @@
         <!-- 아이콘 버튼 스타일 -->
         <Style x:Key="IconButtonStyle" TargetType="Button" BasedOn="{StaticResource SimpleModeButtonStyle}">
             <Setter Property="Width" Value="36"/>
-            <Setter Property="Height" Value="36"/>
+            <Setter Property="Height" Value="50"/>
             <Setter Property="Margin" Value="2"/>
         </Style>
 
@@ -46,6 +46,14 @@
             <Setter Property="Height" Value="20"/>
             <Setter Property="Margin" Value="1"/>
             <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        
+        <!-- + 버튼 스타일 -->
+        <Style x:Key="AddButtonStyle" TargetType="Button" BasedOn="{StaticResource SimpleModeButtonStyle}">
+            <Setter Property="Width" Value="36"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Opacity" Value="0.3"/>
         </Style>
     </Window.Resources>
 
@@ -76,28 +84,8 @@
                     </Grid>
                 </Border>
                 
-                <!-- 버튼 영역 -->
-                <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Button Style="{StaticResource IconButtonStyle}" Click="AreaCaptureButton_Click" ToolTip="영역 캡처">
-                        <Image Source="/icons/area_capture.png" Width="20" Height="20"/>
-                    </Button>
-                    <Button x:Name="DelayBtnH" Style="{StaticResource IconButtonStyle}" Click="DelayIconButton_Click" ToolTip="지연 캡처">
-                        <Image Source="/icons/clock.png" Width="20" Height="20"/>
-                        <Button.ContextMenu>
-                            <ContextMenu x:Name="DelayMenuH">
-                                <MenuItem Header="3초" Tag="3" Click="DelayOption_Click"/>
-                                <MenuItem Header="5초" Tag="5" Click="DelayOption_Click"/>
-                                <MenuItem Header="10초" Tag="10" Click="DelayOption_Click"/>
-                            </ContextMenu>
-                        </Button.ContextMenu>
-                    </Button>
-                    <Button Style="{StaticResource IconButtonStyle}" Click="FullScreenCaptureButton_Click" ToolTip="전체화면">
-                        <Image Source="/icons/full_screen.png" Width="20" Height="20"/>
-                    </Button>
-                    <Button Style="{StaticResource IconButtonStyle}" Click="DesignatedButton_Click" ToolTip="지정캡처">
-                        <Image Source="/icons/designated.png" Width="20" Height="20"/>
-                    </Button>
-                </StackPanel>
+                <!-- 버튼 영역 (동적 생성) -->
+                <StackPanel x:Name="ButtonsPanelH" Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Grid>
         </Border>
 
@@ -115,28 +103,8 @@
                     <TextBlock Text="≡" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#999" FontWeight="Bold"/>
                 </Border>
 
-                <!-- 캡처 버튼들 -->
-                <StackPanel Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,5">
-                    <Button Style="{StaticResource IconButtonStyle}" Click="AreaCaptureButton_Click" ToolTip="영역 캡처">
-                        <Image Source="/icons/area_capture.png" Width="20" Height="20"/>
-                    </Button>
-                    <Button x:Name="DelayBtnV" Style="{StaticResource IconButtonStyle}" Click="DelayIconButton_Click" ToolTip="지연 캡처">
-                        <Image Source="/icons/clock.png" Width="20" Height="20"/>
-                        <Button.ContextMenu>
-                            <ContextMenu x:Name="DelayMenuV">
-                                <MenuItem Header="3초" Tag="3" Click="DelayOption_Click"/>
-                                <MenuItem Header="5초" Tag="5" Click="DelayOption_Click"/>
-                                <MenuItem Header="10초" Tag="10" Click="DelayOption_Click"/>
-                            </ContextMenu>
-                        </Button.ContextMenu>
-                    </Button>
-                    <Button Style="{StaticResource IconButtonStyle}" Click="FullScreenCaptureButton_Click" ToolTip="전체화면">
-                        <Image Source="/icons/full_screen.png" Width="20" Height="20"/>
-                    </Button>
-                    <Button Style="{StaticResource IconButtonStyle}" Click="DesignatedButton_Click" ToolTip="지정캡처">
-                        <Image Source="/icons/designated.png" Width="20" Height="20"/>
-                    </Button>
-                </StackPanel>
+                <!-- 캡처 버튼들 (동적 생성) -->
+                <StackPanel x:Name="ButtonsPanelV" Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,5"/>
 
                 <!-- 하단 제어 버튼들 (닫기만 남김) -->
                 <Border Grid.Row="2" BorderBrush="#E0E0E0" BorderThickness="0,1,0,0" Padding="0,5">

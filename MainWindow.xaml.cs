@@ -754,8 +754,20 @@ public partial class MainWindow : Window
 
     private async Task StartAreaCaptureAsync()
     {
+        // 간편모드 체크 추가
+        bool isSimpleMode = simpleModeWindow != null && simpleModeWindow.IsVisible;
+        
+        // 1단계: 투명하게
+        this.Opacity = 0;
+        await Task.Delay(50);
+        
+        // 2단계: 숨기기
         this.Hide();
-        await Task.Delay(10);  // 비동기 대기
+        
+        // 3단계: UI 업데이트 강제 대기
+        await Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.Render);
+        await Task.Delay(50);
+        
         var screenshot = await Task.Run(() => ScreenCaptureUtility.CaptureScreen());
 
         // 캡처된 스크린샷을 전달하여 SnippingWindow가 즉시 표시되도록
@@ -765,12 +777,28 @@ public partial class MainWindow : Window
         {
             var selectedArea = snippingWindow.SelectedArea;
             var capturedImage = snippingWindow.SelectedFrozenImage ?? ScreenCaptureUtility.CaptureArea(selectedArea);
+            
+            // 4단계: Opacity 복원
+            this.Opacity = 1;
+            
             AddCaptureToList(capturedImage);
         }
         else
         {
+            // 4단계: Opacity 복원
+            this.Opacity = 1;
+            
             // 캡처 취소 시
-            if (!settings.IsTrayMode)
+            if (isSimpleMode)
+            {
+                // 간편 모드: 간편모드 창만 다시 표시
+                if (simpleModeWindow != null)
+                {
+                    simpleModeWindow.Show();
+                    simpleModeWindow.Activate();
+                }
+            }
+            else if (!settings.IsTrayMode)
             {
                 // 일반 모드: 메인 창 표시
                 this.Show();
@@ -2101,14 +2129,14 @@ public partial class MainWindow : Window
     {
         simpleModeWindow = new SimpleModeWindow(this);
         // 간편모드를 작업표시줄 대표로 사용하기 위해 Owner 해제 및 Taskbar 표시
-        // (Owner를 설정하면 작업표시줄에 나타나지 않으므로 설정하지 않음)
-        // simpleModeWindow.Owner = this; // 사용하지 않음
          
         // 이벤트 핸들러 등록
-        simpleModeWindow.AreaCaptureRequested += (s, e) => 
+        simpleModeWindow.AreaCaptureRequested += async (s, e) => 
         {
             // 캐시된 스크린샷을 사용하여 빠른 영역 캡처
-            var cachedScreen = GetCachedOrFreshScreenshot();
+            var cachedScreen = await Task.Run(() => ScreenCaptureUtility.CaptureScreen());
+            
+            // SnippingWindow 표시 (여기서 사용자가 영역 선택)
             using var snippingWindow = new SnippingWindow(false, cachedScreen);
             
             if (snippingWindow.ShowDialog() == true)
@@ -2123,10 +2151,23 @@ public partial class MainWindow : Window
                 // 캡처 목록에 추가
                 AddCaptureToList(capturedImage);
 
-                // 간편모드 창 다시 표시
+                // 간편모드 창 다시 표시 및 알림
                 simpleModeWindow?.Show();
-                simpleModeWindow?.Activate();      // null 조건 연산자 추가
-                if (simpleModeWindow != null) simpleModeWindow.Topmost = true;  // null 체크 추가
+                simpleModeWindow?.Activate();
+                if (simpleModeWindow != null)
+                {
+                    simpleModeWindow.Topmost = true;
+                    // 여기서 알림 표시
+                    var notification = new GuideWindow("클립보드에 복사되었습니다", TimeSpan.FromSeconds(0.4));
+                    notification.Owner = simpleModeWindow;
+                    notification.Show();
+                }
+            }
+            else
+            {
+                // 캡처 취소 시 간편모드 창 다시 표시
+                simpleModeWindow?.Show();
+                simpleModeWindow?.Activate();
             }
         };
         
