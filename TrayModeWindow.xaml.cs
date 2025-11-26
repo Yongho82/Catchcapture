@@ -515,7 +515,7 @@ namespace CatchCapture
             var textBlock = new TextBlock
             {
                 Text = labelText,
-                FontSize = 8,
+                FontSize = 9,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
                 Margin = new Thickness(0, 1, 0, 0),
@@ -533,8 +533,8 @@ namespace CatchCapture
             var image = new Image
             {
                 Source = new BitmapImage(new Uri(source, UriKind.Relative)),
-                Width = 20,
-                Height = 20
+                Width = 24,
+                Height = 24
             };
             
             RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
