@@ -1067,8 +1067,14 @@ public partial class MainWindow : Window
             UpdateButtonStates();
             
             
+            // 간편모드가 활성화된 경우 (최우선 체크)
+            if (simpleModeWindow != null)
+            {
+                // 간편모드에서는 캡처 개수만 업데이트하고 창을 표시하지 않음
+                UpdateCaptureCount();
+            }
             // 트레이 모드일 때 처리
-            if (settings.IsTrayMode)
+            else if (settings.IsTrayMode)
             {
                 // 트레이 창이 없거나 닫혔으면 다시 생성/표시
                 if (trayModeWindow == null || !trayModeWindow.IsLoaded)
@@ -1092,9 +1098,9 @@ public partial class MainWindow : Window
                     ShowGuideMessage("클립보드 복사 실패: 다른 프로그램이 사용 중입니다.\n일반 모드에서 수동으로 복사해주세요.", TimeSpan.FromSeconds(3));
                 }
             }
-            else if (simpleModeWindow == null)
+            else
             {
-                // 간편모드가 활성화되지 않은 경우에만 일반 모드 창 표시
+                // 일반 모드: 창 표시
                 // 캡처 개수 업데이트 (일반 모드용)
                 UpdateCaptureCount();
                 
@@ -1102,11 +1108,6 @@ public partial class MainWindow : Window
                 this.Show();
                 this.WindowState = WindowState.Normal;
                 this.Activate();
-            }
-            else
-            {
-                // 간편모드가 활성화된 경우 캡처 개수만 업데이트
-                UpdateCaptureCount();
             }
             
             // 캡처 후 미리보기 표시 설정 확인
