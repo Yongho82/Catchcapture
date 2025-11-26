@@ -119,7 +119,15 @@ public partial class MainWindow : Window
             {
                 SwitchToSimpleMode();
             }
-            // Normal 모드는 기본값이므로 별도 처리 불필요
+            else
+            {
+                // Normal 모드: 창을 명시적으로 표시하고 활성화
+                this.Show();
+                this.WindowState = WindowState.Normal;
+                this.Activate();
+                this.Topmost = true;
+                this.Topmost = false;
+            }
         };
     }
 
@@ -250,29 +258,61 @@ public partial class MainWindow : Window
         }
     }
 
-    private void ShowTrayModeWindow()
+    public void SwitchToTrayMode()
     {
-        // 트레이 모드 설정
-        settings.IsTrayMode = true;
+        settings.LastActiveMode = "Tray";
         
-        // 트레이 모드 창 생성 또는 표시
-        if (trayModeWindow == null)
+        // SimpleModeWindow가 열려 있다면 닫기
+        if (simpleModeWindow != null)
         {
-            trayModeWindow = new TrayModeWindow(this);
+            // 중요: SimpleModeWindow를 닫기 전에 MainWindow를 Application.MainWindow로 복원
+            Application.Current.MainWindow = this;
+            simpleModeWindow.Close();
+            simpleModeWindow = null;
         }
         
-        trayModeWindow.Show();
-        
-        // [추가] 현재 캡처 개수 업데이트
-        trayModeWindow.UpdateCaptureCount(captures.Count);
-        
-        trayModeWindow.Activate();
-        
-        // 메인 창 숨기기
+        // MainWindow를 먼저 숨기기
         this.Hide();
         
-        // 설정 저장
-        Settings.Save(settings);
+        ShowTrayModeWindow();
+    }
+
+    private void ShowTrayModeWindow()
+    {
+        try
+        {
+            // 트레이 모드 설정
+            settings.IsTrayMode = true;
+            
+            // 트레이 모드 창 생성 또는 표시
+            if (trayModeWindow == null)
+            {
+                trayModeWindow = new TrayModeWindow(this);
+                trayModeWindow.Show();
+            }
+            else if (!trayModeWindow.IsVisible)
+            {
+                // 창이 존재하지만 숨겨진 경우에만 Show 호출
+                trayModeWindow.Show();
+            }
+            
+            // [추가] 현재 캡처 개수 업데이트
+            trayModeWindow.UpdateCaptureCount(captures.Count);
+            
+            trayModeWindow.Activate();
+            trayModeWindow.Topmost = true;
+            
+            // 설정 저장
+            Settings.Save(settings);
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show($"TrayModeWindow 오류:\n{ex.Message}\n\n임시로 MainWindow를 표시합니다.");
+            
+            // 오류 발생 시 MainWindow 다시 표시
+            this.Show();
+            this.Activate();
+        }
     }
 
     private void PositionTrayModeWindow()
@@ -287,12 +327,6 @@ public partial class MainWindow : Window
         // 위치 저장
         settings.LastTrayLeft = this.Left;
         settings.LastTrayTop = this.Top;
-    }
-
-    public void SwitchToTrayMode()
-    {
-        settings.LastActiveMode = "Tray";  // 이 줄 추가
-        ShowTrayModeWindow();
     }
 
     public void SwitchToNormalMode()
@@ -386,12 +420,29 @@ public partial class MainWindow : Window
         }
         else
         {
+            // 모든 창 닫기
+            if (simpleModeWindow != null)
+            {
+                simpleModeWindow.Close();
+                simpleModeWindow = null;
+            }
+            
+            if (trayModeWindow != null)
+            {
+                trayModeWindow.Close();
+                trayModeWindow = null;
+            }
+            
             // 종료 시 트레이 아이콘 정리
             if (notifyIcon != null)
             {
                 notifyIcon.Visible = false;
                 notifyIcon.Dispose();
             }
+            
+            // 애플리케이션 완전 종료
+            Application.Current.Shutdown();
+            
             base.OnClosing(e);
         }
     }
@@ -2047,7 +2098,7 @@ public partial class MainWindow : Window
 
     private void ShowSimpleMode()
     {
-        simpleModeWindow = new SimpleModeWindow();
+        simpleModeWindow = new SimpleModeWindow(this);
         // 간편모드를 작업표시줄 대표로 사용하기 위해 Owner 해제 및 Taskbar 표시
         // (Owner를 설정하면 작업표시줄에 나타나지 않으므로 설정하지 않음)
         // simpleModeWindow.Owner = this; // 사용하지 않음
@@ -2073,6 +2124,8 @@ public partial class MainWindow : Window
 
                 // 간편모드 창 다시 표시
                 simpleModeWindow?.Show();
+                simpleModeWindow?.Activate();      // null 조건 연산자 추가
+                if (simpleModeWindow != null) simpleModeWindow.Topmost = true;  // null 체크 추가
             }
         };
         

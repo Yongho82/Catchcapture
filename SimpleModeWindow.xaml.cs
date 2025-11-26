@@ -29,16 +29,17 @@ namespace CatchCapture
         private DispatcherTimer _collapseTimer;
         
         private int _delaySeconds = 3;
+        private MainWindow? _mainWindow; 
         
         public event EventHandler? AreaCaptureRequested;
         public event EventHandler? FullScreenCaptureRequested;
         public event EventHandler? ExitSimpleModeRequested;
         public event EventHandler? DesignatedCaptureRequested;
         
-        public SimpleModeWindow()
+        public SimpleModeWindow(MainWindow mainWindow)
         {
             InitializeComponent();
-            
+            _mainWindow = mainWindow;  // 이 줄 추가
             Topmost = true;
             ShowInTaskbar = true;
             
@@ -239,13 +240,11 @@ namespace CatchCapture
 
         private void MinimizeToTrayButton_Click(object sender, RoutedEventArgs e)
         {
-            if (Application.Current.MainWindow is MainWindow mw)
+            if (_mainWindow != null)
             {
-                mw.SwitchToTrayMode();
+                _mainWindow.SwitchToTrayMode();
             }
-            Close();
         }
-
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             if (Application.Current.MainWindow is MainWindow mw && mw.notifyIcon != null)
