@@ -121,42 +121,103 @@ namespace CatchCapture.Utilities
                 VerticalAlignment = VerticalAlignment.Center
             };
 
-            // Build header content: inputs + capture button (픽셀 라벨 완전 제거)
+            // Build header content: 타사 스타일 - 심플한 UI
             var headerWrap = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
-            _btnCapture = new Button
+            
+            _tbWidth = new TextBox { 
+                Width = 50, 
+                Height = 24, 
+                TextAlignment = TextAlignment.Center, 
+                VerticalAlignment = VerticalAlignment.Center, 
+                VerticalContentAlignment = VerticalAlignment.Center,
+                Padding = new Thickness(0, 3, 0, 0), // 상단 패딩으로 중앙 맞춤
+                Margin = new Thickness(0, 0, 4, 0), 
+                Background = new SolidColorBrush(Color.FromArgb(50, 255, 255, 255)), 
+                Foreground = Brushes.White, 
+                BorderThickness = new Thickness(0),
+                FontSize = 11
+            };
+            var times = new TextBlock { Text = "x", Foreground = Brushes.Gray, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 4, 0), FontSize = 11 };
+            _tbHeight = new TextBox { 
+                Width = 50, 
+                Height = 24, 
+                TextAlignment = TextAlignment.Center, 
+                VerticalAlignment = VerticalAlignment.Center, 
+                VerticalContentAlignment = VerticalAlignment.Center,
+                Padding = new Thickness(0, 3, 0, 0), // 상단 패딩으로 중앙 맞춤
+                Margin = new Thickness(0, 0, 8, 0), 
+                Background = new SolidColorBrush(Color.FromArgb(50, 255, 255, 255)), 
+                Foreground = Brushes.White, 
+                BorderThickness = new Thickness(0),
+                FontSize = 11
+            };
+
+            // 잠금 버튼 (금색 아이콘)
+            var btnLock = new Button
             {
-                Content = new TextBlock { Text = "캡처", Foreground = Brushes.White, FontWeight = FontWeights.SemiBold },
-                Padding = new Thickness(10, 4, 10, 4),
-                Background = new SolidColorBrush(Color.FromArgb(60, 255, 255, 255)),
+                Content = new TextBlock { Text = "🔓", Foreground = new SolidColorBrush(Color.FromRgb(255, 215, 0)), FontSize = 13, VerticalAlignment = VerticalAlignment.Center }, // 금색
+                Width = 24, Height = 24,
+                VerticalAlignment = VerticalAlignment.Center,
+                Background = Brushes.Transparent,
                 BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
-                Margin = new Thickness(8, 0, 0, 0) // 왼쪽 마진으로 변경
+                Margin = new Thickness(0, 0, 4, 0),
+                ToolTip = "위치/크기 잠금"
             };
-            _tbWidth = new TextBox { Width = 70, Height = 24, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 6, 0) };
-            var times = new TextBlock { Text = "x", Foreground = Brushes.White, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 6, 0) };
-            _tbHeight = new TextBox { Width = 70, Height = 24, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 8, 0) };
+            
+            var isLockedFlag = false;
+            btnLock.Click += (s, e) => 
+            {
+                isLockedFlag = !isLockedFlag;
+                var lockText = (TextBlock)btnLock.Content;
+                lockText.Text = isLockedFlag ? "🔒" : "🔓";
+                lockText.Foreground = new SolidColorBrush(Color.FromRgb(255, 215, 0)); // 금색 유지
+                btnLock.Background = isLockedFlag ? new SolidColorBrush(Color.FromArgb(30, 255, 215, 0)) : Brushes.Transparent;
+                
+                // 잠금 시 Thumb 숨기기
+                _thumbTopLeft.Visibility = isLockedFlag ? Visibility.Collapsed : Visibility.Visible;
+                _thumbTopRight.Visibility = isLockedFlag ? Visibility.Collapsed : Visibility.Visible;
+                _thumbBottomLeft.Visibility = isLockedFlag ? Visibility.Collapsed : Visibility.Visible;
+                _thumbBottomRight.Visibility = isLockedFlag ? Visibility.Collapsed : Visibility.Visible;
+            };
+            
+            // 캡처 버튼
+            _btnCapture = new Button
+            {
+                Content = new TextBlock { Text = "캡처", Foreground = Brushes.White, FontSize = 12, FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center },
+                Padding = new Thickness(8, 0, 8, 0),
+                Height = 24,
+                VerticalAlignment = VerticalAlignment.Center,
+                Background = new SolidColorBrush(Color.FromRgb(0, 120, 215)),
+                BorderThickness = new Thickness(0),
+                Cursor = Cursors.Hand,
+                Margin = new Thickness(4, 0, 4, 0)
+            };
 
-            // 텍스트박스들을 먼저 추가하고 캡처 버튼을 마지막에 추가
-            headerWrap.Children.Add(_tbWidth);
-            headerWrap.Children.Add(times);
-            headerWrap.Children.Add(_tbHeight);
-            headerWrap.Children.Add(_btnCapture);
-
+            // 닫기 버튼
             _btnClose = new Button
             {
-                Content = new TextBlock { Text = "✕", Foreground = Brushes.White, FontWeight = FontWeights.SemiBold },
-                Padding = new Thickness(8, 0, 8, 0),
+                Content = new TextBlock { Text = "✕", Foreground = Brushes.White, FontSize = 10, VerticalAlignment = VerticalAlignment.Center },
+                Width = 24, Height = 24,
+                VerticalAlignment = VerticalAlignment.Center,
                 Background = Brushes.Transparent,
                 BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
                 ToolTip = "닫기"
             };
-            _btnClose.Click += (s, e) => { Close(); };
+            _btnClose.Click += (s, e) => Close();
 
+            headerWrap.Children.Add(_tbWidth);
+            headerWrap.Children.Add(times);
+            headerWrap.Children.Add(_tbHeight);
+            headerWrap.Children.Add(btnLock);
+            headerWrap.Children.Add(_btnCapture);
+
+            // Grid로 좌우 분리 (좌측: 컨트롤, 우측: X 버튼)
             var headerGrid = new Grid();
-            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });   // left: inputs + capture button
-            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); // spacer
-            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });   // right: close
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
             Grid.SetColumn(headerWrap, 0);
             Grid.SetColumn(_btnClose, 2);
@@ -165,21 +226,13 @@ namespace CatchCapture.Utilities
 
             _headerBar = new Border
             {
-                CornerRadius = new CornerRadius(8),
-                Effect = new System.Windows.Media.Effects.DropShadowEffect
-                {
-                    BlurRadius = 12,
-                    ShadowDepth = 2,
-                    Opacity = 0.35,
-                    Direction = 270
-                },
-                Padding = new Thickness(10),
-                Background = new LinearGradientBrush(
-                    Color.FromRgb(67, 97, 238),
-                    Color.FromRgb(58, 86, 212),
-                    new Point(0, 0), new Point(1, 1))
+                Child = headerGrid,
+                Background = new SolidColorBrush(Color.FromArgb(230, 40, 40, 40)),
+                CornerRadius = new CornerRadius(4),
+                Padding = new Thickness(6, 4, 6, 4),
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Top
             };
-            _headerBar.Child = headerGrid;
 
             // Interactions for dragging by header - 창 전체를 이동
             _headerBar.MouseLeftButtonDown += (s, e) => 
@@ -199,19 +252,13 @@ namespace CatchCapture.Utilities
                 var newLeft = Left + dx;
                 var newTop = Top + dy;
                 
-                // 화면 경계 내에서만 이동 허용
-                var screenBounds = new Rect(
-                    SystemParameters.VirtualScreenLeft,
-                    SystemParameters.VirtualScreenTop,
-                    SystemParameters.VirtualScreenWidth,
-                    SystemParameters.VirtualScreenHeight
-                );
-                
-                newLeft = Math.Max(screenBounds.Left, Math.Min(newLeft, screenBounds.Right - Width));
-                newTop = Math.Max(screenBounds.Top, Math.Min(newTop, screenBounds.Bottom - Height));
+                // 화면 경계 제한 제거 (모니터 끝까지 이동 가능)
                 
                 Left = newLeft;
                 Top = newTop;
+                
+                // 타이틀바 위치 업데이트 (상단 충돌 시 하단 이동)
+                SetRect(GetRect());
             };
             _headerBar.MouseLeftButtonUp += (s, e) => { if (Mouse.Captured == _headerBar) Mouse.Capture(null); _isHeaderDragging = false; };
 
@@ -385,28 +432,31 @@ namespace CatchCapture.Utilities
             _headerBar.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
             double hbh = _headerBar.DesiredSize.Height;
 
-            // Ensure there is space ABOVE the rectangle for the header; if not, push the rectangle down.
-            if (rect.Top - hbh < 0)
+            // 상단 충돌 체크: 창의 절대 위치 + 사각형 상단 위치로 화면 좌표 계산
+            double screenTop = Top + rect.Top;
+            bool shouldPlaceAtBottom = screenTop < 40;
+
+            double headerLeft = rect.Left;
+            double headerTop;
+
+            if (shouldPlaceAtBottom)
             {
-                double shiftDown = (hbh - rect.Top) + 8; // 8px padding
-                rect = new Rect(rect.Left, Math.Min(rect.Top + shiftDown, vHeight - rect.Height - 8), rect.Width, rect.Height);
+                // 사각형 아래쪽에 배치
+                headerTop = rect.Bottom + 10;
+            }
+            else
+            {
+                // 사각형 위쪽에 배치 (기본)
+                headerTop = rect.Top - hbh;
             }
 
-            // Update rectangle (in case we shifted it)
-            Canvas.SetLeft(_rect, rect.Left);
-            Canvas.SetTop(_rect, rect.Top);
-            _rect.Width = rect.Width;
-            _rect.Height = rect.Height;
-            _selectionGeometry.Rect = rect;
-            PositionThumbs(rect);
-
-            // Titlebar style: same width as selection and attached ABOVE the selection
+            // Titlebar style: same width as selection
             _headerBar.Width = Math.Max(120, rect.Width);
-            double headerLeft = rect.Left;
-            double headerTop = rect.Top - hbh;
-            // Clamp horizontally, and ensure stay within vertical bounds
-            headerLeft = Math.Max(0, Math.Min(headerLeft, vWidth - _headerBar.Width));
-            headerTop = Math.Max(0, Math.Min(headerTop, vHeight - hbh));
+            
+            // Clamp horizontally and vertically
+            headerLeft = Math.Max(0, Math.Min(headerLeft, Width - _headerBar.Width));
+            headerTop = Math.Max(0, Math.Min(headerTop, Height - hbh));
+            
             Canvas.SetLeft(_headerBar, headerLeft);
             Canvas.SetTop(_headerBar, headerTop);
 
@@ -509,7 +559,7 @@ namespace CatchCapture.Utilities
         private void AdjustWindowSizeForRect(Rect rect)
         {
             // 선택 영역에 맞춰 창 크기를 동적으로 조정 (확장 및 축소)
-            const double margin = 0; // 여유 공간
+            const double margin = 60; // 하단 여유 공간
             const double minWindowSize = 50; // 최소 창 크기
             
             double requiredWidth = rect.Right + margin;

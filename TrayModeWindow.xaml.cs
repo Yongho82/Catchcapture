@@ -25,6 +25,9 @@ namespace CatchCapture
             
             // 창 위치 설정
             PositionWindow();
+            
+            // 고정 아이콘 초기 상태 설정
+            UpdateTopmostIcon();
         }
 
         private void LoadSettings()
@@ -38,9 +41,9 @@ namespace CatchCapture
             // 주 모니터의 작업 영역 가져오기
             var workArea = SystemParameters.WorkArea;
             
-            // 우측 하단에 위치 (트레이 근처)
-            this.Left = workArea.Right - this.Width - 10;
-            this.Top = workArea.Bottom - this.Height - 10;
+            // 우측 하단에 위치 (화면 끝에 딱 붙임)
+            this.Left = workArea.Right - this.Width;
+            this.Top = workArea.Bottom - this.Height;
         }
 
         private void Window_Deactivated(object sender, EventArgs e)
@@ -75,14 +78,18 @@ namespace CatchCapture
 
         private void UpdateTopmostIcon()
         {
-            // 아이콘 투명도 업데이트 (활성화 시 진하게, 비활성화 시 연하게)
+            // 이모지 색상 제어 시도 (이모지는 시스템 폰트이므로 색상 변경이 제한적일 수 있음)
             if (this.Topmost)
             {
-                TopmostIcon.Opacity = 1.0; // 진한 회색 (활성)
+                // 활성화: 진하게 + 빨간색 시도
+                TopmostIcon.Opacity = 1.0;
+                TopmostIcon.Foreground = new SolidColorBrush(Color.FromRgb(255, 80, 80)); // 빨간색
             }
             else
             {
-                TopmostIcon.Opacity = 0.3; // 연한 회색 (비활성)
+                // 비활성화: 연하게 + 기본 색상
+                TopmostIcon.Opacity = 0.3;
+                TopmostIcon.Foreground = Brushes.Black; // 기본 검정색
             }
         }
 
@@ -167,6 +174,12 @@ namespace CatchCapture
             mainWindow.TriggerUnitCapture();
         }
 
+        private void ScrollCaptureButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Hide();
+            mainWindow.TriggerScrollCapture();
+        }
+
         private void CopyButton_Click(object sender, RoutedEventArgs e)
         {
             mainWindow.TriggerCopySelected();
@@ -225,8 +238,8 @@ namespace CatchCapture
                 ToggleButtonsVisibility(Visibility.Collapsed);
                 
                 // 창 높이 줄이기 (상단 컨트롤 + 접기버튼 + 여백)
-                // 30(상단) + 50(접기) + 30(여백) = 110
-                double foldedHeight = 110;
+                // 20(상단) + 30(접기 28+2) + 10(여백) = 60
+                double foldedHeight = 60;
                 
                 // 하단 기준 높이 조절
                 double heightDiff = foldedHeight - this.Height;
@@ -304,18 +317,18 @@ namespace CatchCapture
             if (isFolded || settings == null) return;
 
             // 아이콘 개수에 따라 창 높이 계산
-            // 상단 컨트롤: ~30px
-            // TopmostButton: 50px
-            // CaptureCounter: 50px
+            // 상단 컨트롤: ~20px
+            // TopmostButton: 30px (28 + margin 2)
+            // CaptureCounter: 30px (28 + margin 2)
             // 첫 번째 Separator: 21px
-            // 각 아이콘: 50px
-            // + 버튼: 50px
-            // FoldButton: 50px (추가됨)
-            // 여백: 30px (상하)
+            // 각 아이콘: 52px (48 + margin 4)
+            // + 버튼: 30px (28 + margin 2)
+            // FoldButton: 30px (28 + margin 2)
+            // 여백: 10px (상하, Grid margin 2,5)
             
             int iconCount = settings.TrayModeIcons.Count;
-            int baseHeight = 30 + 50 + 50 + 21 + 50 + 50 + 30; // 상단 + TopmostButton + Counter + Separator + + 버튼 + FoldButton + 여백
-            int iconsHeight = iconCount * 50;
+            int baseHeight = 20 + 30 + 30 + 21 + 30 + 30 + 10; // 상단 + TopmostButton + Counter + Separator + + 버튼 + FoldButton + 여백
+            int iconsHeight = iconCount * 52;
             
             int newHeight = baseHeight + iconsHeight;
             
@@ -399,68 +412,118 @@ namespace CatchCapture
                 ToolTip = GetIconDisplayName(iconName)
             };
             
-            // 아이콘에 따라 클릭 이벤트 연결
+            // 아이콘과 텍스트를 담을 StackPanel 생성
+            var stackPanel = new StackPanel
+            {
+                Orientation = Orientation.Vertical,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            
+            Image? iconImage = null;
+            string labelText = "";
+            
+            // 아이콘에 따라 클릭 이벤트 및 이미지 설정
             switch (iconName)
             {
                 case "AreaCapture":
                     button.Click += AreaCaptureButton_Click;
-                    button.Content = CreateImage("/icons/area_capture.png");
+                    iconImage = CreateImage("/icons/area_capture.png");
+                    labelText = "영역";
                     break;
                 case "DelayCapture":
                     button.Click += DelayCaptureButton_Click;
-                    button.Content = CreateImage("/icons/clock.png");
+                    iconImage = CreateImage("/icons/clock.png");
+                    labelText = "지연";
                     // ContextMenu 추가
                     button.ContextMenu = CreateDelayContextMenu();
                     break;
                 case "RealTimeCapture":
                     button.Click += RealTimeCaptureButton_Click;
-                    button.Content = CreateImage("/icons/real-time.png");
+                    iconImage = CreateImage("/icons/real-time.png");
+                    labelText = "순간";
                     break;
                 case "FullScreen":
                     button.Click += FullScreenButton_Click;
-                    button.Content = CreateImage("/icons/full_screen.png");
+                    iconImage = CreateImage("/icons/full_screen.png");
+                    labelText = "전체";
                     break;
                 case "DesignatedCapture":
                     button.Click += DesignatedCaptureButton_Click;
-                    button.Content = CreateImage("/icons/designated.png");
+                    iconImage = CreateImage("/icons/designated.png");
+                    labelText = "지정";
                     break;
                 case "WindowCapture":
                     button.Click += WindowCaptureButton_Click;
-                    button.Content = CreateImage("/icons/window_cap.png");
+                    iconImage = CreateImage("/icons/window_cap.png");
+                    labelText = "창";
                     break;
                 case "UnitCapture":
                     button.Click += UnitCaptureButton_Click;
-                    button.Content = CreateImage("/icons/unit_capture.png");
+                    iconImage = CreateImage("/icons/unit_capture.png");
+                    labelText = "단위";
+                    break;
+                case "ScrollCapture":
+                    button.Click += ScrollCaptureButton_Click;
+                    iconImage = CreateImage("/icons/scroll_capture.png");
+                    labelText = "스크롤";
                     break;
                 case "Copy":
                     button.Click += CopyButton_Click;
-                    button.Content = CreateImage("/icons/copy_selected.png");
+                    iconImage = CreateImage("/icons/copy_selected.png");
+                    labelText = "복사";
                     break;
                 case "CopyAll":
                     button.Click += CopyAllButton_Click;
-                    button.Content = CreateImage("/icons/copy_all.png");
+                    iconImage = CreateImage("/icons/copy_all.png");
+                    labelText = "전체복사";
                     break;
                 case "Save":
                     button.Click += SaveButton_Click;
-                    button.Content = CreateImage("/icons/save_selected.png");
+                    iconImage = CreateImage("/icons/save_selected.png");
+                    labelText = "저장";
                     break;
                 case "SaveAll":
                     button.Click += SaveAllButton_Click;
-                    button.Content = CreateImage("/icons/save_all.png");
+                    iconImage = CreateImage("/icons/save_all.png");
+                    labelText = "전체저장";
                     break;
                 case "Delete":
                     button.Click += DeleteButton_Click;
-                    button.Content = CreateImage("/icons/delete_selected.png");
+                    iconImage = CreateImage("/icons/delete_selected.png");
+                    labelText = "삭제";
                     break;
                 case "DeleteAll":
                     button.Click += DeleteAllButton_Click;
-                    button.Content = CreateImage("/icons/delete_all.png");
+                    iconImage = CreateImage("/icons/delete_all.png");
+                    labelText = "전체삭제";
                     break;
                 case "Settings":
                     button.Click += SettingsButton_Click;
-                    button.Content = CreateImage("/icons/setting.png");
+                    iconImage = CreateImage("/icons/setting.png");
+                    labelText = "설정";
                     break;
             }
+            
+            // 아이콘 추가
+            if (iconImage != null)
+            {
+                stackPanel.Children.Add(iconImage);
+            }
+            
+            // 텍스트 레이블 추가
+            var textBlock = new TextBlock
+            {
+                Text = labelText,
+                FontSize = 8,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                TextAlignment = TextAlignment.Center,
+                Margin = new Thickness(0, 1, 0, 0),
+                Foreground = new SolidColorBrush(Color.FromRgb(102, 102, 102)) // #666666
+            };
+            stackPanel.Children.Add(textBlock);
+            
+            button.Content = stackPanel;
             
             return button;
         }
@@ -470,8 +533,8 @@ namespace CatchCapture
             var image = new Image
             {
                 Source = new BitmapImage(new Uri(source, UriKind.Relative)),
-                Width = 24,
-                Height = 24
+                Width = 20,
+                Height = 20
             };
             
             RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
@@ -594,16 +657,16 @@ namespace CatchCapture
             // + 버튼 (호버 시만 표시)
             var grid = new Grid 
             { 
-                Height = 50,
+                Height = 30,
                 Background = Brushes.Transparent  // 투명 배경 추가 (호버 감지용)
             };
             
             var addButton = new Button
             {
                 Content = "+",
-                FontSize = 24,
+                FontSize = 18,
                 FontWeight = FontWeights.Bold,
-                Style = this.FindResource("IconButtonStyle") as Style,
+                Style = this.FindResource("TinyButtonStyle") as Style,
                 ToolTip = "아이콘 추가",
                 Opacity = 0.3  // 기본적으로 반투명하게 표시
             };
@@ -625,7 +688,7 @@ namespace CatchCapture
             
             var allIcons = new[] { 
                 "AreaCapture", "DelayCapture", "FullScreen", "RealTimeCapture",
-                "DesignatedCapture", "WindowCapture", "UnitCapture",
+                "DesignatedCapture", "WindowCapture", "UnitCapture", "ScrollCapture",
                 "Copy", "CopyAll", "Save", "SaveAll", 
                 "Delete", "DeleteAll", "Settings"
             };
@@ -669,11 +732,12 @@ namespace CatchCapture
             {
                 "AreaCapture" => "영역 캡처",
                 "DelayCapture" => "지연 캡처",
-                "RealTimeCapture" => "실시간 캡처", 
+                "RealTimeCapture" => "순간 캡처", 
                 "FullScreen" => "전체화면",
                 "DesignatedCapture" => "지정 캡처",
                 "WindowCapture" => "창 캡처",
                 "UnitCapture" => "단위 캡처",
+                "ScrollCapture" => "스크롤 캡처",
                 "Copy" => "복사",
                 "CopyAll" => "전체 복사",
                 "Save" => "저장",

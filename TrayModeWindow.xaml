@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="캐치캡처" Height="600" Width="60" 
+        Title="캐치캡처" Height="600" Width="56" 
         WindowStyle="None" AllowsTransparency="True" 
         Background="Transparent"
         ResizeMode="NoResize"
@@ -15,9 +15,9 @@
     <Window.Resources>
         <!-- 아이콘 버튼 스타일 -->
         <Style x:Key="IconButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="40"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Margin" Value="0,5"/>
+            <Setter Property="Width" Value="48"/>
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="Margin" Value="0,2"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -25,8 +25,8 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="border" Background="{TemplateBinding Background}" 
-                                CornerRadius="8"
-                                Padding="8">
+                                CornerRadius="6"
+                                Padding="4">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -70,17 +70,46 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- 접기/펼치기 버튼 전용 스타일 -->
+        <Style x:Key="TinyButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Margin" Value="0,1"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                CornerRadius="6"
+                                Padding="2">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#E8F3FF" TargetName="border"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#D0DAFF" TargetName="border"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
     
-    <Border Background="White" CornerRadius="12" BorderThickness="1" BorderBrush="#E0E6F0">
+    <Border Background="White" CornerRadius="8" BorderThickness="1" BorderBrush="#E0E6F0">
         <Border.Effect>
             <DropShadowEffect ShadowDepth="2" BlurRadius="10" Opacity="0.3" Direction="270"/>
         </Border.Effect>
         
-        <Grid Margin="10,15">
+        <Grid Margin="2,5">
             <StackPanel x:Name="ButtonsPanel" VerticalAlignment="Top">
                 <!-- 상단 컨트롤 (일반모드 / 간편모드) -->
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,5">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,1">
                     <!-- 일반 모드 전환 버튼 -->
                     <Button x:Name="SwitchToNormalModeButton" Style="{StaticResource SmallIconButtonStyle}" 
                             Click="SwitchToNormalModeButton_Click" ToolTip="일반 모드로 전환">
@@ -97,14 +126,14 @@
                 </StackPanel>
 
                 <!-- 항상 위 토글 버튼 -->
-                <Button x:Name="TopmostButton" Style="{StaticResource IconButtonStyle}" 
+                <Button x:Name="TopmostButton" Style="{StaticResource TinyButtonStyle}" 
                         Click="TopmostButton_Click" ToolTip="항상 위">
-                    <TextBlock x:Name="TopmostIcon" Text="📌" FontSize="20" 
-                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="TopmostIcon" Text="📌" FontSize="18" 
+                               HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.3"/>
                 </Button>
                 
                 <!-- 캡처 카운터 버튼 -->
-                <Button x:Name="CaptureCounterButton" Style="{StaticResource IconButtonStyle}" 
+                <Button x:Name="CaptureCounterButton" Style="{StaticResource TinyButtonStyle}" 
                         Click="CaptureCounterButton_Click" ToolTip="캡처 목록 보기">
                     <TextBlock x:Name="CaptureCountText" 
                                Text="0" 
@@ -228,7 +257,7 @@
                 </Button>
                 
                 <!-- 접기/펼치기 버튼 -->
-                <Button x:Name="FoldButton" Style="{StaticResource IconButtonStyle}" 
+                <Button x:Name="FoldButton" Style="{StaticResource TinyButtonStyle}" 
                         Click="FoldButton_Click" ToolTip="접기">
                     <TextBlock x:Name="FoldIcon" Text="▼" FontSize="14" FontWeight="Bold" Foreground="#666"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>

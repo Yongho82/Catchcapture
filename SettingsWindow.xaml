@@ -285,7 +285,10 @@
                                 <RowDefinition Height="32"/> <!-- Region -->
                                 <RowDefinition Height="32"/> <!-- Delay -->
                                 <RowDefinition Height="32"/> <!-- Full -->
-                                <RowDefinition Height="32"/> <!-- Window -->
+                                <RowDefinition Height="32"/> <!-- Designated -->
+                                <RowDefinition Height="32"/> <!-- Window 추가 -->
+                                <RowDefinition Height="32"/> <!-- Element 추가 -->
+                                <RowDefinition Height="32"/> <!-- Scroll 추가 -->
                                 <RowDefinition Height="32"/> <!-- Save -->
                                 <RowDefinition Height="32"/> <!-- Delete -->
                                 <RowDefinition Height="32"/> <!-- Simple -->
@@ -330,38 +333,62 @@
                             <CheckBox x:Name="HkDesignatedAlt" Grid.Row="4" Grid.Column="3" HorizontalAlignment="Center"/>
                             <CheckBox x:Name="HkDesignatedWin" Grid.Row="4" Grid.Column="4" HorizontalAlignment="Center"/>
                             <ComboBox x:Name="HkDesignatedKey" Grid.Row="4" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
+                            
+                            <!-- 창 캡처 -->
+                            <CheckBox x:Name="HkWindowCaptureEnabled" Grid.Row="5" Grid.Column="0" Content="창 캡처" FontWeight="SemiBold"/>
+                            <CheckBox x:Name="HkWindowCaptureCtrl" Grid.Row="5" Grid.Column="1" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkWindowCaptureShift" Grid.Row="5" Grid.Column="2" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkWindowCaptureAlt" Grid.Row="5" Grid.Column="3" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkWindowCaptureWin" Grid.Row="5" Grid.Column="4" HorizontalAlignment="Center"/>
+                            <ComboBox x:Name="HkWindowCaptureKey" Grid.Row="5" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
+
+                            <!-- 단위 캡처 -->
+                            <CheckBox x:Name="HkElementCaptureEnabled" Grid.Row="6" Grid.Column="0" Content="단위 캡처" FontWeight="SemiBold"/>
+                            <CheckBox x:Name="HkElementCaptureCtrl" Grid.Row="6" Grid.Column="1" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkElementCaptureShift" Grid.Row="6" Grid.Column="2" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkElementCaptureAlt" Grid.Row="6" Grid.Column="3" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkElementCaptureWin" Grid.Row="6" Grid.Column="4" HorizontalAlignment="Center"/>
+                            <ComboBox x:Name="HkElementCaptureKey" Grid.Row="6" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
+
+                            <!-- 스크롤 캡처 -->
+                            <CheckBox x:Name="HkScrollCaptureEnabled" Grid.Row="7" Grid.Column="0" Content="스크롤 캡처" FontWeight="SemiBold"/>
+                            <CheckBox x:Name="HkScrollCaptureCtrl" Grid.Row="7" Grid.Column="1" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkScrollCaptureShift" Grid.Row="7" Grid.Column="2" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkScrollCaptureAlt" Grid.Row="7" Grid.Column="3" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkScrollCaptureWin" Grid.Row="7" Grid.Column="4" HorizontalAlignment="Center"/>
+                            <ComboBox x:Name="HkScrollCaptureKey" Grid.Row="7" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
 
                             <!-- Save All -->
-                            <CheckBox x:Name="HkSaveAllEnabled" Grid.Row="5" Grid.Column="0" Content="전체 저장" FontWeight="SemiBold"/>
-                            <CheckBox x:Name="HkSaveAllCtrl" Grid.Row="5" Grid.Column="1" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkSaveAllShift" Grid.Row="5" Grid.Column="2" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkSaveAllAlt" Grid.Row="5" Grid.Column="3" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkSaveAllWin" Grid.Row="5" Grid.Column="4" HorizontalAlignment="Center"/>
-                            <ComboBox x:Name="HkSaveAllKey" Grid.Row="5" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
+                            <CheckBox x:Name="HkSaveAllEnabled" Grid.Row="8" Grid.Column="0" Content="전체 저장" FontWeight="SemiBold"/>
+                            <CheckBox x:Name="HkSaveAllCtrl" Grid.Row="8" Grid.Column="1" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkSaveAllShift" Grid.Row="8" Grid.Column="2" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkSaveAllAlt" Grid.Row="8" Grid.Column="3" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkSaveAllWin" Grid.Row="8" Grid.Column="4" HorizontalAlignment="Center"/>
+                            <ComboBox x:Name="HkSaveAllKey" Grid.Row="8" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
 
                             <!-- Delete All -->
-                            <CheckBox x:Name="HkDeleteAllEnabled" Grid.Row="6" Grid.Column="0" Content="전체 삭제" FontWeight="SemiBold"/>
-                            <CheckBox x:Name="HkDeleteAllCtrl" Grid.Row="6" Grid.Column="1" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkDeleteAllShift" Grid.Row="6" Grid.Column="2" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkDeleteAllAlt" Grid.Row="6" Grid.Column="3" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkDeleteAllWin" Grid.Row="6" Grid.Column="4" HorizontalAlignment="Center"/>
-                            <ComboBox x:Name="HkDeleteAllKey" Grid.Row="6" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
+                            <CheckBox x:Name="HkDeleteAllEnabled" Grid.Row="9" Grid.Column="0" Content="전체 삭제" FontWeight="SemiBold"/>
+                            <CheckBox x:Name="HkDeleteAllCtrl" Grid.Row="9" Grid.Column="1" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkDeleteAllShift" Grid.Row="9" Grid.Column="2" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkDeleteAllAlt" Grid.Row="9" Grid.Column="3" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkDeleteAllWin" Grid.Row="9" Grid.Column="4" HorizontalAlignment="Center"/>
+                            <ComboBox x:Name="HkDeleteAllKey" Grid.Row="9" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
 
                             <!-- Simple Mode -->
-                            <CheckBox x:Name="HkSimpleModeEnabled" Grid.Row="7" Grid.Column="0" Content="간편 모드" FontWeight="SemiBold"/>
-                            <CheckBox x:Name="HkSimpleModeCtrl" Grid.Row="7" Grid.Column="1" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkSimpleModeShift" Grid.Row="7" Grid.Column="2" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkSimpleModeAlt" Grid.Row="7" Grid.Column="3" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkSimpleModeWin" Grid.Row="7" Grid.Column="4" HorizontalAlignment="Center"/>
-                            <ComboBox x:Name="HkSimpleModeKey" Grid.Row="7" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
+                            <CheckBox x:Name="HkSimpleModeEnabled" Grid.Row="10" Grid.Column="0" Content="간편 모드" FontWeight="SemiBold"/>
+                            <CheckBox x:Name="HkSimpleModeCtrl" Grid.Row="10" Grid.Column="1" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkSimpleModeShift" Grid.Row="10" Grid.Column="2" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkSimpleModeAlt" Grid.Row="10" Grid.Column="3" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkSimpleModeWin" Grid.Row="10" Grid.Column="4" HorizontalAlignment="Center"/>
+                            <ComboBox x:Name="HkSimpleModeKey" Grid.Row="10" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
 
                             <!-- Open Settings -->
-                            <CheckBox x:Name="HkOpenSettingsEnabled" Grid.Row="8" Grid.Column="0" Content="설정 열기" FontWeight="SemiBold"/>
-                            <CheckBox x:Name="HkOpenSettingsCtrl" Grid.Row="8" Grid.Column="1" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkOpenSettingsShift" Grid.Row="8" Grid.Column="2" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkOpenSettingsAlt" Grid.Row="8" Grid.Column="3" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkOpenSettingsWin" Grid.Row="8" Grid.Column="4" HorizontalAlignment="Center"/>
-                            <ComboBox x:Name="HkOpenSettingsKey" Grid.Row="8" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
+                            <CheckBox x:Name="HkOpenSettingsEnabled" Grid.Row="11" Grid.Column="0" Content="설정 열기" FontWeight="SemiBold"/>
+                            <CheckBox x:Name="HkOpenSettingsCtrl" Grid.Row="11" Grid.Column="1" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkOpenSettingsShift" Grid.Row="11" Grid.Column="2" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkOpenSettingsAlt" Grid.Row="11" Grid.Column="3" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkOpenSettingsWin" Grid.Row="11" Grid.Column="4" HorizontalAlignment="Center"/>
+                            <ComboBox x:Name="HkOpenSettingsKey" Grid.Row="11" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
                         </Grid>
                     </ScrollViewer>
                 </Grid>
