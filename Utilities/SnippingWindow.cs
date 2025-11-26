@@ -36,8 +36,24 @@ namespace CatchCapture.Utilities
         private bool disposed = false;
         private System.Windows.Threading.DispatcherTimer? memoryCleanupTimer;
         private bool instantEditMode = false; 
-
-        // 돋보기 관련 필드 추가
+        private Border? colorPalette;
+        private Color selectedColor = Colors.Black;
+        private List<Color> customColors = new List<Color>();
+        // PreviewWindow와 동일한 공용 색상 팔레트
+        private static readonly Color[] SharedColorPalette = new[]
+        {
+            Colors.Black, Colors.White, Colors.Red, Colors.Orange,
+            Colors.Yellow, Colors.Green, Colors.Blue, Colors.Purple,
+            Color.FromRgb(139, 69, 19), Color.FromRgb(255, 192, 203)
+        };
+        private string currentTool = ""; 
+        private bool isDrawingEnabled = false; 
+        private List<UIElement> drawnElements = new List<UIElement>();
+        private Point lastDrawPoint; 
+        private Polyline? currentPolyline; 
+        private int penThickness = 3; 
+        private int highlightThickness = 8; 
+        private Button? activeToolButton; 
         private Border? magnifierBorder;
         private Image? magnifierImage;
         private const double MagnifierSize = 150; // 돋보기 크기
@@ -666,6 +682,7 @@ namespace CatchCapture.Utilities
         {
             // 선택 모드 종료
             isSelecting = false;
+            
             // 마우스 이벤트 핸들러 해제
             MouseMove -= SnippingWindow_MouseMove;
             MouseLeftButtonDown -= SnippingWindow_MouseLeftButtonDown;
@@ -685,52 +702,568 @@ namespace CatchCapture.Utilities
             // 마우스 커서 변경
             Cursor = Cursors.Arrow;
             
-            // 하단에 편집 툴바 추가
+            // 선택 영역 위치 계산
+            double selectionLeft = Canvas.GetLeft(selectionRectangle);
+            double selectionTop = Canvas.GetTop(selectionRectangle);
+            double selectionWidth = selectionRectangle.Width;
+            double selectionHeight = selectionRectangle.Height;
+            
+            // 편집 툴바 생성
             var toolbar = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
-                Background = new SolidColorBrush(Color.FromArgb(240, 255, 255, 255)),
-                Height = 50,
-                HorizontalAlignment = HorizontalAlignment.Center
+                Background = new SolidColorBrush(Color.FromArgb(250, 255, 255, 255)),
+                Height = 48
             };
             
+            // 툴바에 그림자 효과 추가
+            toolbar.Effect = new System.Windows.Media.Effects.DropShadowEffect
+            {
+                Color = Colors.Black,
+                BlurRadius = 8,
+                ShadowDepth = 2,
+                Opacity = 0.3
+            };
+
+
             // 펜 버튼
-            var penButton = CreateToolButton("✏️", "펜");
+            var penButton = CreateToolButton("🖊️", "펜");
+            penButton.Click += (s, e) => 
+            {
+                currentTool = "펜";
+                SetActiveToolButton(penButton); // 활성화 표시
+                ShowColorPalette("펜", selectionLeft, selectionTop + selectionHeight + 60);
+                EnableDrawingMode();
+            };
+            
             // 형광펜 버튼
             var highlighterButton = CreateToolButton("🖍️", "형광펜");
+            highlighterButton.Click += (s, e) => 
+            {
+                currentTool = "형광펜";
+                SetActiveToolButton(highlighterButton); // 활성화 표시
+                ShowColorPalette("형광펜", selectionLeft, selectionTop + selectionHeight + 60);
+                EnableDrawingMode();
+            };
+            // 텍스트 버튼
+            var textButton = CreateToolButton("📝", "텍스트");
+            textButton.Click += (s, e) => ShowColorPalette("텍스트", selectionLeft, selectionTop + selectionHeight + 60);
+            
+            // 도형 버튼
+            var shapeButton = CreateToolButton("🔲", "도형");
+            shapeButton.Click += (s, e) => ShowColorPalette("도형", selectionLeft, selectionTop + selectionHeight + 60);
+            
+            // 모자이크 버튼
+            var mosaicButton = CreateToolButton("🎨", "모자이크");
+            mosaicButton.Click += (s, e) => { currentTool = "모자이크"; HideColorPalette(); };
+            
             // 지우개 버튼
             var eraserButton = CreateToolButton("🧹", "지우개");
+            eraserButton.Click += (s, e) => { currentTool = "지우개"; HideColorPalette(); };
+            
+            // 구분선
+            var separator = new Border
+            {
+                Width = 1,
+                Height = 30,
+                Background = new SolidColorBrush(Color.FromArgb(100, 0, 0, 0)),
+                Margin = new Thickness(5, 0, 5, 0)
+            };
+            
             // 완료 버튼
-            var doneButton = CreateToolButton("✓", "완료");
+            var doneButton = new Button
+            {
+                Content = "✓",
+                Width = 36,
+                Height = 36,
+                Margin = new Thickness(4),
+                ToolTip = "완료",
+                FontSize = 18,
+                FontWeight = FontWeights.Bold,
+                Background = new SolidColorBrush(Color.FromArgb(0, 255, 255, 255)), // 투명 배경
+                Foreground = new SolidColorBrush(Color.FromArgb(255, 100, 100, 100)), // 회색 텍스트
+                BorderBrush = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0)),
+                BorderThickness = new Thickness(0),
+                Cursor = Cursors.Hand,
+                Style = null
+            };
+            
+            // 호버 효과
+            doneButton.MouseEnter += (s, e) =>
+            {
+                doneButton.Background = new SolidColorBrush(Color.FromArgb(40, 0, 0, 0));
+                doneButton.Foreground = new SolidColorBrush(Color.FromArgb(255, 0, 120, 212)); // 호버 시 파란색
+            };
+            
+            doneButton.MouseLeave += (s, e) =>
+            {
+                doneButton.Background = new SolidColorBrush(Color.FromArgb(0, 255, 255, 255));
+                doneButton.Foreground = new SolidColorBrush(Color.FromArgb(255, 100, 100, 100)); // 기본 회색
+            };
             
             // 완료 버튼 클릭 이벤트
             doneButton.Click += (s, e) =>
             {
+                // 그린 내용을 이미지에 합성
+                if (drawnElements.Count > 0)
+                {
+                    SaveDrawingsToImage();
+                }
+                
                 DialogResult = true;
                 Close();
             };
-            
             toolbar.Children.Add(penButton);
             toolbar.Children.Add(highlighterButton);
+            toolbar.Children.Add(textButton);
+            toolbar.Children.Add(shapeButton);
+            toolbar.Children.Add(mosaicButton);
             toolbar.Children.Add(eraserButton);
+            toolbar.Children.Add(separator);
             toolbar.Children.Add(doneButton);
             
-            // 캔버스 하단에 툴바 배치
+            // 툴바를 선택 영역 바로 아래에 배치
             canvas.Children.Add(toolbar);
-            Canvas.SetLeft(toolbar, (vWidth - 300) / 2);
-            Canvas.SetBottom(toolbar, 20);
+            
+            // 툴바 크기 측정
+            toolbar.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            double toolbarWidth = toolbar.DesiredSize.Width;
+            
+            // 선택 영역 중앙 하단에 배치
+            double toolbarLeft = selectionLeft + (selectionWidth - toolbarWidth) / 2;
+            double toolbarTop = selectionTop + selectionHeight + 10;
+            
+            // 화면 경계 체크
+            if (toolbarLeft + toolbarWidth > vWidth)
+                toolbarLeft = vWidth - toolbarWidth - 10;
+            if (toolbarLeft < 10)
+                toolbarLeft = 10;
+            if (toolbarTop + 44 > vHeight)
+                toolbarTop = selectionTop - 44 - 10; // 위쪽에 배치
+            
+            Canvas.SetLeft(toolbar, toolbarLeft);
+            Canvas.SetTop(toolbar, toolbarTop);
         }
 
         private Button CreateToolButton(string icon, string tooltip)
         {
-            return new Button
+            var button = new Button
             {
                 Content = icon,
-                Width = 50,
-                Height = 40,
-                Margin = new Thickness(5),
-                ToolTip = tooltip
+                Width = 36,
+                Height = 36,
+                Margin = new Thickness(4),
+                ToolTip = tooltip,
+                FontSize = 16,
+                Background = new SolidColorBrush(Color.FromArgb(0, 255, 255, 255)),
+                BorderBrush = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0)),
+                BorderThickness = new Thickness(0),
+                Cursor = Cursors.Hand,
+                Style = null
             };
+            
+            // 호버 효과
+            button.MouseEnter += (s, e) =>
+            {
+                if (button != activeToolButton)
+                    button.Background = new SolidColorBrush(Color.FromArgb(40, 0, 0, 0));
+            };
+            
+            button.MouseLeave += (s, e) =>
+            {
+                if (button != activeToolButton)
+                    button.Background = new SolidColorBrush(Color.FromArgb(0, 255, 255, 255));
+            };
+            
+            return button;
+        }
+        
+        private void SetActiveToolButton(Button button)
+        {
+            // 이전 활성 버튼 초기화
+            if (activeToolButton != null)
+            {
+                activeToolButton.Background = new SolidColorBrush(Color.FromArgb(0, 255, 255, 255));
+            }
+            
+            // 새 활성 버튼 설정
+            activeToolButton = button;
+            if (activeToolButton != null)
+            {
+                activeToolButton.Background = new SolidColorBrush(Color.FromArgb(80, 0, 120, 212)); // 파란색 호버
+            }
+        }
+        private void ShowColorPalette(string tool, double left, double top)
+        {
+            currentTool = tool;
+            
+            // 기존 팔레트 제거
+            HideColorPalette();
+            
+            // PreviewWindow 스타일의 색상 팔레트 생성
+            var mainGrid = new Grid();
+            mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            
+            // 배경
+            var background = new Border
+            {
+                Background = new SolidColorBrush(Color.FromArgb(250, 255, 255, 255)),
+                BorderBrush = new SolidColorBrush(Color.FromRgb(208, 215, 229)),
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(6),
+                Padding = new Thickness(10),
+                Child = mainGrid
+            };
+            
+            background.Effect = new System.Windows.Media.Effects.DropShadowEffect
+            {
+                Color = Colors.Black,
+                BlurRadius = 5,
+                ShadowDepth = 1,
+                Opacity = 0.2
+            };
+            
+            // 색상 섹션
+            var colorSection = new StackPanel { Margin = new Thickness(0, 0, 15, 0) };
+            var colorLabel = new TextBlock
+            {
+                Text = "색상",
+                FontWeight = FontWeights.SemiBold,
+                Margin = new Thickness(0, 0, 0, 8)
+            };
+            colorSection.Children.Add(colorLabel);
+            
+            var colorGrid = new WrapPanel { Width = 130 };
+            
+            foreach (var c in SharedColorPalette)
+            {
+                colorGrid.Children.Add(CreateColorSwatch(c, colorGrid));
+            }
+            
+            foreach (var c in customColors)
+            {
+                colorGrid.Children.Add(CreateColorSwatch(c, colorGrid));
+            }
+            
+            // [+] 버튼
+            var addButton = new Button
+            {
+                Width = 20,
+                Height = 20,
+                Margin = new Thickness(2),
+                Background = Brushes.White,
+                BorderBrush = new SolidColorBrush(Color.FromRgb(220, 220, 220)),
+                BorderThickness = new Thickness(1),
+                Content = "+",
+                Cursor = Cursors.Hand,
+                ToolTip = "색상 추가"
+            };
+            
+            addButton.Click += (s, e) =>
+            {
+                var dialog = new System.Windows.Forms.ColorDialog();
+                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    var newColor = Color.FromArgb(dialog.Color.A, dialog.Color.R, dialog.Color.G, dialog.Color.B);
+                    if (!customColors.Contains(newColor))
+                    {
+                        customColors.Add(newColor);
+                    }
+                    colorGrid.Children.Remove(addButton);
+                    var newSwatch = CreateColorSwatch(newColor, colorGrid);
+                    colorGrid.Children.Add(newSwatch);
+                    colorGrid.Children.Add(addButton);
+                    selectedColor = newColor;
+                    UpdateColorSelection(colorGrid);
+                }
+            };
+            colorGrid.Children.Add(addButton);
+            colorSection.Children.Add(colorGrid);
+            Grid.SetColumn(colorSection, 0);
+            mainGrid.Children.Add(colorSection);
+            
+            // 구분선
+            var separator = new Border
+            {
+                Width = 1,
+                Background = new SolidColorBrush(Color.FromRgb(230, 230, 230)),
+                Margin = new Thickness(0, 5, 15, 5)
+            };
+            Grid.SetColumn(separator, 1);
+            mainGrid.Children.Add(separator);
+            
+            // 두께 섹션
+            var thicknessSection = new StackPanel();
+            var thicknessLabel = new TextBlock
+            {
+                Text = "두께",
+                FontWeight = FontWeights.SemiBold,
+                Margin = new Thickness(0, 0, 0, 8)
+            };
+            thicknessSection.Children.Add(thicknessLabel);
+            
+            var thicknessList = new StackPanel();
+            int[] presets = new int[] { 1, 3, 5, 8, 12 };
+            
+            foreach (var p in presets)
+            {
+                var item = new Grid
+                {
+                    Margin = new Thickness(0, 0, 0, 8),
+                    Cursor = Cursors.Hand,
+                    Background = Brushes.Transparent
+                };
+                item.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(30) });
+                item.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                
+                var line = new Border
+                {
+                    Height = p,
+                    Width = 30,
+                    Background = Brushes.Black,
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                Grid.SetColumn(line, 0);
+                item.Children.Add(line);
+                
+                var text = new TextBlock
+                {
+                    Text = $"{p}px",
+                    FontSize = 11,
+                    Foreground = Brushes.Gray,
+                    Margin = new Thickness(8, 0, 0, 0),
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                Grid.SetColumn(text, 1);
+                item.Children.Add(text);
+                
+                thicknessList.Children.Add(item);
+            }
+            thicknessSection.Children.Add(thicknessList);
+            Grid.SetColumn(thicknessSection, 2);
+            mainGrid.Children.Add(thicknessSection);
+            
+            // 캔버스에 추가
+            canvas.Children.Add(background);
+            Canvas.SetLeft(background, left);
+            Canvas.SetTop(background, top);
+            
+            colorPalette = background;
+        }
+        
+        private Border CreateColorSwatch(Color c, WrapPanel parentPanel)
+        {
+            var swatch = new Border
+            {
+                Width = 20,
+                Height = 20,
+                Background = new SolidColorBrush(c),
+                BorderBrush = (c == selectedColor) ? Brushes.Black : new SolidColorBrush(Color.FromRgb(220, 220, 220)),
+                BorderThickness = new Thickness(c == selectedColor ? 2 : 1),
+                Margin = new Thickness(2),
+                CornerRadius = new CornerRadius(4),
+                Cursor = Cursors.Hand
+            };
+            
+            if (c == selectedColor)
+            {
+                swatch.Effect = new System.Windows.Media.Effects.DropShadowEffect
+                {
+                    Color = Colors.Black,
+                    BlurRadius = 2,
+                    ShadowDepth = 0,
+                    Opacity = 0.5
+                };
+            }
+            
+            swatch.MouseLeftButtonDown += (s, e) =>
+            {
+                selectedColor = c;
+                UpdateColorSelection(parentPanel);
+                
+                // 색상 선택 후 그리기 모드 활성화
+                EnableDrawingMode();
+            };
+            
+            return swatch;
+        }
+        
+        private void UpdateColorSelection(WrapPanel panel)
+        {
+            foreach (var child in panel.Children)
+            {
+                if (child is Border b && b.Background is SolidColorBrush sc)
+                {
+                    bool isSelected = (sc.Color == selectedColor);
+                    b.BorderBrush = isSelected ? Brushes.Black : new SolidColorBrush(Color.FromRgb(220, 220, 220));
+                    b.BorderThickness = new Thickness(isSelected ? 2 : 1);
+                    b.Effect = isSelected ? new System.Windows.Media.Effects.DropShadowEffect
+                    {
+                        Color = Colors.Black,
+                        BlurRadius = 2,
+                        ShadowDepth = 0,
+                        Opacity = 0.5
+                    } : null;
+                }
+            }
+        }
+        
+        private void HideColorPalette()
+        {
+            if (colorPalette != null && canvas.Children.Contains(colorPalette))
+            {
+                canvas.Children.Remove(colorPalette);
+                colorPalette = null;
+            }
+        }
+                private void EnableDrawingMode()
+        {
+            isDrawingEnabled = true;
+            Cursor = Cursors.Pen;
+            
+            // 마우스 이벤트 다시 등록
+            canvas.MouseLeftButtonDown += Canvas_DrawMouseDown;
+            canvas.MouseMove += Canvas_DrawMouseMove;
+            canvas.MouseLeftButtonUp += Canvas_DrawMouseUp;
+        }
+        
+        private void Canvas_DrawMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (!isDrawingEnabled) return;
+            
+            Point clickPoint = e.GetPosition(canvas);
+            
+            // 선택 영역 내부인지 확인
+            if (!IsPointInSelection(clickPoint))
+                return;
+            
+            lastDrawPoint = clickPoint;
+            
+            // 새 선 시작
+            currentPolyline = new Polyline
+            {
+                Stroke = new SolidColorBrush(selectedColor),
+                StrokeThickness = currentTool == "형광펜" ? highlightThickness : penThickness,
+                StrokeStartLineCap = PenLineCap.Round,
+                StrokeEndLineCap = PenLineCap.Round,
+                StrokeLineJoin = PenLineJoin.Round
+            };
+            
+            // 형광펜일 경우 투명도 적용
+            if (currentTool == "형광펜")
+            {
+                currentPolyline.Opacity = 0.5;
+            }
+            
+            currentPolyline.Points.Add(lastDrawPoint);
+            canvas.Children.Add(currentPolyline);
+            drawnElements.Add(currentPolyline);
+            
+            canvas.CaptureMouse();
+        }
+        
+        private void Canvas_DrawMouseMove(object sender, MouseEventArgs e)
+        {
+            if (!isDrawingEnabled || currentPolyline == null) return;
+            if (e.LeftButton != MouseButtonState.Pressed) return;
+            
+            Point currentPoint = e.GetPosition(canvas);
+            
+            // 선택 영역 내부인지 확인
+            if (!IsPointInSelection(currentPoint))
+                return;
+            
+            currentPolyline.Points.Add(currentPoint);
+            lastDrawPoint = currentPoint;
+        }
+        
+        private void Canvas_DrawMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (!isDrawingEnabled) return;
+            
+            currentPolyline = null;
+            canvas.ReleaseMouseCapture();
+        }
+        private void SaveDrawingsToImage()
+        {
+            // 선택 영역의 위치와 크기
+            double selectionLeft = Canvas.GetLeft(selectionRectangle);
+            double selectionTop = Canvas.GetTop(selectionRectangle);
+            double selectionWidth = selectionRectangle.Width;
+            double selectionHeight = selectionRectangle.Height;
+            
+            // DPI 스케일 계산
+            var dpi = VisualTreeHelper.GetDpi(this);
+            int pixelWidth = (int)Math.Round(selectionWidth * dpi.DpiScaleX);
+            int pixelHeight = (int)Math.Round(selectionHeight * dpi.DpiScaleY);
+            
+            // 선택 영역만 렌더링
+            var renderBitmap = new RenderTargetBitmap(
+                pixelWidth,
+                pixelHeight,
+                96, 96,
+                PixelFormats.Pbgra32);
+            
+            // 선택 영역으로 이동한 DrawingVisual 생성
+            var drawingVisual = new DrawingVisual();
+            using (var drawingContext = drawingVisual.RenderOpen())
+            {
+                // 배경 이미지 그리기 (선택 영역만)
+                if (screenCapture != null)
+                {
+                    var sourceRect = new Rect(selectionLeft, selectionTop, selectionWidth, selectionHeight);
+                    var destRect = new Rect(0, 0, selectionWidth, selectionHeight);
+                    drawingContext.DrawImage(new CroppedBitmap(screenCapture, 
+                        new Int32Rect((int)selectionLeft, (int)selectionTop, 
+                        (int)selectionWidth, (int)selectionHeight)), destRect);
+                }
+                
+                // 그린 요소들 그리기 (선택 영역 기준으로 오프셋 조정)
+                foreach (var element in drawnElements)
+                {
+                    if (element is Polyline polyline)
+                    {
+                        var adjustedPoints = new PointCollection();
+                        foreach (var point in polyline.Points)
+                        {
+                            adjustedPoints.Add(new Point(point.X - selectionLeft, point.Y - selectionTop));
+                        }
+                        
+                        var pen = new Pen(polyline.Stroke, polyline.StrokeThickness)
+                        {
+                            StartLineCap = PenLineCap.Round,
+                            EndLineCap = PenLineCap.Round,
+                            LineJoin = PenLineJoin.Round
+                        };
+                        
+                        for (int i = 0; i < adjustedPoints.Count - 1; i++)
+                        {
+                            drawingContext.DrawLine(pen, adjustedPoints[i], adjustedPoints[i + 1]);
+                        }
+                    }
+                }
+            }
+            
+            renderBitmap.Render(drawingVisual);
+            renderBitmap.Freeze();
+            
+            // SelectedFrozenImage 업데이트
+            SelectedFrozenImage = renderBitmap;
+        }
+        private bool IsPointInSelection(Point point)
+        {
+            if (selectionRectangle == null) return false;
+            
+            double left = Canvas.GetLeft(selectionRectangle);
+            double top = Canvas.GetTop(selectionRectangle);
+            double right = left + selectionRectangle.Width;
+            double bottom = top + selectionRectangle.Height;
+            
+            return point.X >= left && point.X <= right && 
+                   point.Y >= top && point.Y <= bottom;
         }
     }
 }
