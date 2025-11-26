@@ -759,14 +759,14 @@ public partial class MainWindow : Window
         
         // 1단계: 투명하게
         this.Opacity = 0;
-        await Task.Delay(50);
+        await Task.Delay(30);
         
         // 2단계: 숨기기
         this.Hide();
         
         // 3단계: UI 업데이트 강제 대기
         await Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.Render);
-        await Task.Delay(50);
+        await Task.Delay(30);
         
         var screenshot = await Task.Run(() => ScreenCaptureUtility.CaptureScreen());
 
