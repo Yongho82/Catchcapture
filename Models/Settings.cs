@@ -46,6 +46,8 @@ namespace CatchCapture.Models
             "AreaCapture", "DelayCapture", "FullScreen", "DesignatedCapture"
         };
 
+        // Simple mode instant edit
+        public bool SimpleModeInstantEdit { get; set; } = false;
         // System settings
         public bool StartWithWindows { get; set; } = false;
         public string StartupMode { get; set; } = "Tray"; // "Normal", "Simple", "Tray"

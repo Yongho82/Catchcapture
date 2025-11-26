@@ -756,6 +756,9 @@ public partial class MainWindow : Window
     {
         // 간편모드 체크 추가
         bool isSimpleMode = simpleModeWindow != null && simpleModeWindow.IsVisible;
+        // 즉시편집 설정 확인
+        var currentSettings = Settings.Load();
+        bool instantEdit = currentSettings.SimpleModeInstantEdit;
         
         // 1단계: 투명하게
         this.Opacity = 0;
@@ -771,7 +774,13 @@ public partial class MainWindow : Window
         var screenshot = await Task.Run(() => ScreenCaptureUtility.CaptureScreen());
 
         // 캡처된 스크린샷을 전달하여 SnippingWindow가 즉시 표시되도록
-        using var snippingWindow = new SnippingWindow(showGuideText: false, cachedScreenshot: screenshot);
+        using var snippingWindow = new SnippingWindow(false, screenshot);
+        
+        // 즉시편집 모드 활성화
+        if (instantEdit)
+        {
+            snippingWindow.EnableInstantEditMode();
+        }
 
         if (snippingWindow.ShowDialog() == true)
         {
@@ -2133,11 +2142,21 @@ public partial class MainWindow : Window
         // 이벤트 핸들러 등록
         simpleModeWindow.AreaCaptureRequested += async (s, e) => 
         {
+            // 즉시편집 설정 확인
+            var currentSettings = Settings.Load();
+            bool instantEdit = currentSettings.SimpleModeInstantEdit;
+            
             // 캐시된 스크린샷을 사용하여 빠른 영역 캡처
             var cachedScreen = await Task.Run(() => ScreenCaptureUtility.CaptureScreen());
             
             // SnippingWindow 표시 (여기서 사용자가 영역 선택)
             using var snippingWindow = new SnippingWindow(false, cachedScreen);
+            
+            // 즉시편집 모드 활성화 (ShowDialog 전에 설정)
+            if (instantEdit)
+            {
+                snippingWindow.EnableInstantEditMode();
+            }
             
             if (snippingWindow.ShowDialog() == true)
             {

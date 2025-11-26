@@ -55,7 +55,16 @@ namespace CatchCapture
             _collapseTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
             _collapseTimer.Tick += CollapseTimer_Tick;
 
-            this.Loaded += (_, __) => ForceTopmost();
+            this.Loaded += (_, __) => 
+            {
+                ForceTopmost();
+                
+                // UI가 완전히 로드된 후 토글 상태 설정
+                if (InstantEditToggleH != null)
+                    InstantEditToggleH.IsChecked = settings?.SimpleModeInstantEdit ?? false;
+                if (InstantEditToggleV != null)
+                    InstantEditToggleV.IsChecked = settings?.SimpleModeInstantEdit ?? false;
+            };
             this.Deactivated += (_, __) => 
             {
                 if (_dockSide != DockSide.None && !_isCollapsed)
@@ -331,10 +340,34 @@ namespace CatchCapture
                 e.Handled = true;
             }
         }
+        private void InstantEditToggle_Changed(object sender, RoutedEventArgs e)
+        {
+            if (settings == null) return;
+            
+            var toggle = sender as ToggleButton;
+            if (toggle == null) return;
+            
+            settings.SimpleModeInstantEdit = toggle.IsChecked == true;
+            
+            // 두 토글 버튼 동기화
+            if (InstantEditToggleH != null && sender != InstantEditToggleH)
+                InstantEditToggleH.IsChecked = settings.SimpleModeInstantEdit;
+            if (InstantEditToggleV != null && sender != InstantEditToggleV)
+                InstantEditToggleV.IsChecked = settings.SimpleModeInstantEdit;
+            
+            Settings.Save(settings);
+        }
+
         private void LoadSettings()
         {
             settings = Settings.Load();
             BuildIconButtons();
+            
+            // 즉시편집 토글 상태 설정
+            if (InstantEditToggleH != null)
+                InstantEditToggleH.IsChecked = settings.SimpleModeInstantEdit;
+            if (InstantEditToggleV != null)
+                InstantEditToggleV.IsChecked = settings.SimpleModeInstantEdit;
         }
 
         private void BuildIconButtons()

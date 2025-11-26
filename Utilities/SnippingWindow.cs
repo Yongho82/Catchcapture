@@ -35,6 +35,7 @@ namespace CatchCapture.Utilities
         private readonly double vHeight;
         private bool disposed = false;
         private System.Windows.Threading.DispatcherTimer? memoryCleanupTimer;
+        private bool instantEditMode = false; 
 
         // 돋보기 관련 필드 추가
         private Border? magnifierBorder;
@@ -344,8 +345,15 @@ namespace CatchCapture.Utilities
             }
             catch { /* ignore crop errors */ }
 
-            DialogResult = true;
-            Close();
+            if (instantEditMode)
+            {
+                ShowEditToolbar();
+            }
+            else
+            {
+                DialogResult = true;
+                Close();
+            }
         }
         private void SnippingWindow_MouseMove(object sender, MouseEventArgs e)
         {
@@ -648,6 +656,81 @@ namespace CatchCapture.Utilities
         ~SnippingWindow()
         {
             Dispose(false);
+        }
+        public void EnableInstantEditMode()
+        {
+            instantEditMode = true;
+        }
+
+        private void ShowEditToolbar()
+        {
+            // 선택 모드 종료
+            isSelecting = false;
+            // 마우스 이벤트 핸들러 해제
+            MouseMove -= SnippingWindow_MouseMove;
+            MouseLeftButtonDown -= SnippingWindow_MouseLeftButtonDown;
+            MouseLeftButtonUp -= SnippingWindow_MouseLeftButtonUp;
+            
+            // 돋보기 숨기기
+            if (magnifierBorder != null)
+                magnifierBorder.Visibility = Visibility.Collapsed;
+            if (crosshairHorizontal != null)
+                crosshairHorizontal.Visibility = Visibility.Collapsed;
+            if (crosshairVertical != null)
+                crosshairVertical.Visibility = Visibility.Collapsed;
+            
+            // 크기 표시 숨기기
+            sizeTextBlock.Visibility = Visibility.Collapsed;
+            
+            // 마우스 커서 변경
+            Cursor = Cursors.Arrow;
+            
+            // 하단에 편집 툴바 추가
+            var toolbar = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                Background = new SolidColorBrush(Color.FromArgb(240, 255, 255, 255)),
+                Height = 50,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+            
+            // 펜 버튼
+            var penButton = CreateToolButton("✏️", "펜");
+            // 형광펜 버튼
+            var highlighterButton = CreateToolButton("🖍️", "형광펜");
+            // 지우개 버튼
+            var eraserButton = CreateToolButton("🧹", "지우개");
+            // 완료 버튼
+            var doneButton = CreateToolButton("✓", "완료");
+            
+            // 완료 버튼 클릭 이벤트
+            doneButton.Click += (s, e) =>
+            {
+                DialogResult = true;
+                Close();
+            };
+            
+            toolbar.Children.Add(penButton);
+            toolbar.Children.Add(highlighterButton);
+            toolbar.Children.Add(eraserButton);
+            toolbar.Children.Add(doneButton);
+            
+            // 캔버스 하단에 툴바 배치
+            canvas.Children.Add(toolbar);
+            Canvas.SetLeft(toolbar, (vWidth - 300) / 2);
+            Canvas.SetBottom(toolbar, 20);
+        }
+
+        private Button CreateToolButton(string icon, string tooltip)
+        {
+            return new Button
+            {
+                Content = icon,
+                Width = 50,
+                Height = 40,
+                Margin = new Thickness(5),
+                ToolTip = tooltip
+            };
         }
     }
 }
