@@ -7,37 +7,28 @@ using CatchCapture.Utilities;
 using System.Windows.Threading;
 using System.Windows.Controls.Primitives;
 using CatchCapture.Models;
-using System.Windows.Controls; // Orientation
+using System.Windows.Controls;
+using System.Windows.Media.Animation;
 
 namespace CatchCapture
 {
     public partial class SimpleModeWindow : Window
     {
-        // Win32 API 상수 및 메서드
+        // Win32 API
         private const int HWND_TOPMOST = -1;
-        private const int HWND_NOTOPMOST = -2;
         private const int SWP_NOMOVE = 0x0002;
         private const int SWP_NOSIZE = 0x0001;
         private const int SWP_NOACTIVATE = 0x0010;
-        private const int SWP_SHOWWINDOW = 0x0040;
 
         [DllImport("user32.dll")]
         private static extern bool SetWindowPos(IntPtr hWnd, int hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
 
-        [DllImport("user32.dll")]
-        private static extern IntPtr GetForegroundWindow();
-
-        [DllImport("user32.dll")]
-        private static extern bool BringWindowToTop(IntPtr hWnd);
-
-        [DllImport("user32.dll")]
-        private static extern bool SetForegroundWindow(IntPtr hWnd);
-
-        private Point lastPosition;
-        private int _delaySeconds = 3; // default delay
-        private bool _verticalMode;
-        private readonly DispatcherTimer _hideTitleTimer = new DispatcherTimer();
-        private bool _isMouseInside;
+        private enum DockSide { None, Left, Right, Top }
+        private DockSide _dockSide = DockSide.None;
+        private bool _isCollapsed = false;
+        private DispatcherTimer _collapseTimer;
+        
+        private int _delaySeconds = 3;
         
         public event EventHandler? AreaCaptureRequested;
         public event EventHandler? FullScreenCaptureRequested;
@@ -48,298 +39,262 @@ namespace CatchCapture
         {
             InitializeComponent();
             
-            // 최상위 창 설정을 더 강력하게 적용
             Topmost = true;
-            ShowInTaskbar = true; // 작업표시줄에 표시하여 독립적인 창으로 인식
+            ShowInTaskbar = true;
             
-            // 위치는 호출자가 지정 (MainWindow에서 설정)
-            // PositionWindow();
+            // 초기 상태: 가로 모드
+            ApplyLayout(false);
 
-            // Load last orientation
-            var s = Settings.Load();
-            _verticalMode = s.SimpleModeVertical;
-            ApplyOrientation(_verticalMode, suppressPersist:true);
+            _collapseTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
+            _collapseTimer.Tick += CollapseTimer_Tick;
 
-            // Ensure we can receive keyboard input
-            this.Focusable = true;
-            this.Loaded += (_, __) =>
+            this.Loaded += (_, __) => ForceTopmost();
+            this.Deactivated += (_, __) => 
             {
-                try { 
-                    this.Focus(); 
-                    Keyboard.Focus(this);
-                    // 로드 후 Win32 API로 최상위 강제 설정
-                    ForceTopmost();
-                } catch { }
+                if (_dockSide != DockSide.None && !_isCollapsed)
+                    _collapseTimer.Start();
+                ForceTopmost();
             };
-
-            // Keep always-on-top even after losing focus (e.g., clicking taskbar)
-            this.Deactivated += SimpleModeWindow_Deactivated;
-            this.Activated += SimpleModeWindow_Activated;
-
-            // Hover hide timer setup (slightly longer for stickier hover)
-            _hideTitleTimer.Interval = TimeSpan.FromMilliseconds(800);
-            _hideTitleTimer.Tick += (s2, e2) =>
-            {
-                _hideTitleTimer.Stop();
-                // Keep showing if context menu is open
-                if (DelayContextMenu != null && DelayContextMenu.IsOpen)
-                {
-                    ShowTitleBar();
-                    return;
-                }
-                if (!_isMouseInside)
-                {
-                    HideTitleBar();
-                }
-            };
-
-            // Ensure title bar stays while menu open; hide after it closes (if mouse is out)
-            if (DelayContextMenu != null)
-            {
-                DelayContextMenu.Opened += (o, e) =>
-                {
-                    ShowTitleBar();
-                };
-                DelayContextMenu.Closed += (o, e) =>
-                {
-                    if (!_isMouseInside)
-                    {
-                        _hideTitleTimer.Stop();
-                        _hideTitleTimer.Start();
-                    }
-                };
-            }
-        }
-        
-        private void PositionWindow()
-        {
-            // 좌측 상단 기본값 (호출자가 지정하지 않은 경우에만 사용할 수 있도록 남겨둠)
-            Left = 10;
-            Top = 10;
+            this.Activated += (_, __) => ForceTopmost();
+            
+            this.MouseLeftButtonUp += Window_MouseLeftButtonUp;
         }
         
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            lastPosition = e.GetPosition(this);
-            DragMove();
+            if (e.ButtonState == MouseButtonState.Pressed)
+            {
+                BeginAnimation(LeftProperty, null);
+                BeginAnimation(TopProperty, null);
+
+                _dockSide = DockSide.None;
+                _isCollapsed = false;
+                _collapseTimer.Stop();
+                
+                try 
+                { 
+                    DragMove(); 
+                    CheckDocking();
+                    Dispatcher.BeginInvoke(new Action(CheckDocking), DispatcherPriority.ApplicationIdle);
+                } 
+                catch { }
+            }
+        }
+
+        private void Window_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            CheckDocking();
+            Dispatcher.BeginInvoke(new Action(CheckDocking), DispatcherPriority.ApplicationIdle);
+        }
+
+        private void CheckDocking()
+        {
+            var workArea = SystemParameters.WorkArea;
+            double snapDist = 80;
+
+            double currentLeft = Left;
+            double currentTop = Top;
+            double currentRight = currentLeft + ActualWidth;
+
+            // 좌측 도킹
+            if (Math.Abs(currentLeft - workArea.Left) < snapDist)
+            {
+                ApplyLayout(true); // 세로 모드
+                UpdateLayout();
+                Left = workArea.Left;
+                _dockSide = DockSide.Left;
+            }
+            // 우측 도킹
+            else if (Math.Abs(currentRight - workArea.Right) < snapDist)
+            {
+                ApplyLayout(true); // 세로 모드
+                UpdateLayout();
+                // 너비가 변경되었으므로 Width 속성을 사용해 위치 재계산
+                Left = workArea.Right - this.Width;
+                _dockSide = DockSide.Right;
+            }
+            // 상단 도킹
+            else if (Math.Abs(currentTop - workArea.Top) < snapDist)
+            {
+                ApplyLayout(false); // 가로 모드
+                UpdateLayout();
+                Top = workArea.Top;
+                _dockSide = DockSide.Top;
+            }
+            else
+            {
+                _dockSide = DockSide.None;
+                ApplyLayout(false); // 도킹 해제 시 가로 모드
+            }
+
+            if (_dockSide != DockSide.None)
+            {
+                // 도킹 시 화면 밖으로 나가지 않도록 보정
+                if (_dockSide == DockSide.Left || _dockSide == DockSide.Right)
+                {
+                    if (Top < workArea.Top) Top = workArea.Top;
+                    if (Top + Height > workArea.Bottom) Top = workArea.Bottom - Height;
+                }
+                else if (_dockSide == DockSide.Top)
+                {
+                    if (Left < workArea.Left) Left = workArea.Left;
+                    if (Left + Width > workArea.Right) Left = workArea.Right - Width;
+                }
+
+                if (!IsMouseOver) _collapseTimer.Start();
+            }
+        }
+
+        private void ApplyLayout(bool vertical)
+        {
+            if (vertical)
+            {
+                HorizontalRoot.Visibility = Visibility.Collapsed;
+                VerticalRoot.Visibility = Visibility.Visible;
+                Width = 50;
+                Height = 230;
+            }
+            else
+            {
+                HorizontalRoot.Visibility = Visibility.Visible;
+                VerticalRoot.Visibility = Visibility.Collapsed;
+                Width = 200;
+                Height = 85;
+            }
         }
 
         private void Window_MouseEnter(object sender, MouseEventArgs e)
         {
-            _isMouseInside = true;
-            _hideTitleTimer.Stop();
-            ShowTitleBar();
+            _collapseTimer.Stop();
+            if (_dockSide != DockSide.None && _isCollapsed)
+            {
+                Expand();
+            }
         }
 
         private void Window_MouseLeave(object sender, MouseEventArgs e)
         {
-            _isMouseInside = false;
-            _hideTitleTimer.Stop();
-            _hideTitleTimer.Start();
-        }
+            if ((DelayMenuH != null && DelayMenuH.IsOpen) || (DelayMenuV != null && DelayMenuV.IsOpen)) return;
 
-        private void TitleBarBorder_MouseEnter(object sender, MouseEventArgs e)
-        {
-            _isMouseInside = true;
-            _hideTitleTimer.Stop();
-            ShowTitleBar();
-        }
-
-        private void TitleBarBorder_MouseLeave(object sender, MouseEventArgs e)
-        {
-            _isMouseInside = false;
-            _hideTitleTimer.Stop();
-            _hideTitleTimer.Start();
-        }
-
-        private void ButtonsPanel_MouseEnter(object sender, MouseEventArgs e)
-        {
-            _isMouseInside = true;
-            _hideTitleTimer.Stop();
-            ShowTitleBar();
-        }
-
-        private void ButtonsPanel_MouseLeave(object sender, MouseEventArgs e)
-        {
-            _isMouseInside = false;
-            _hideTitleTimer.Stop();
-            _hideTitleTimer.Start();
-        }
-
-        private void ShowTitleBar()
-        {
-            if (TitleRow != null && TitleBarBorder != null)
+            if (_dockSide != DockSide.None && !_isCollapsed)
             {
-                // Overlay title bar: only toggle visibility to avoid layout shifts
-                TitleBarBorder.Visibility = Visibility.Visible;
+                _collapseTimer.Start();
             }
         }
 
-        private void HideTitleBar()
+        private void CollapseTimer_Tick(object? sender, EventArgs e)
         {
-            if (TitleRow != null && TitleBarBorder != null)
-            {
-                // Overlay title bar: only toggle visibility to avoid layout shifts
-                TitleBarBorder.Visibility = Visibility.Collapsed;
-            }
-        }
-        
-        private void ToggleOrientationButton_Click(object sender, RoutedEventArgs e)
-        {
-            _verticalMode = !_verticalMode;
-            ApplyOrientation(_verticalMode);
+            _collapseTimer.Stop();
+            if (IsMouseOver) return;
+            if ((DelayMenuH != null && DelayMenuH.IsOpen) || (DelayMenuV != null && DelayMenuV.IsOpen)) return;
+            
+            Collapse();
         }
 
-        private void ShowTitleBar_Dup()
+        private void Collapse()
         {
-            if (TitleRow != null && TitleBarBorder != null)
-            {
-                TitleBarBorder.Visibility = Visibility.Visible;
-            }
+            if (_dockSide == DockSide.None) return;
+            _isCollapsed = true;
+            
+            double targetLeft = Left;
+            double targetTop = Top;
+            double peekAmount = 8;
+
+            if (_dockSide == DockSide.Left) targetLeft = -ActualWidth + peekAmount;
+            else if (_dockSide == DockSide.Right) targetLeft = SystemParameters.WorkArea.Right - peekAmount;
+            else if (_dockSide == DockSide.Top) targetTop = -ActualHeight + peekAmount;
+
+            AnimateWindow(targetLeft, targetTop);
         }
 
-        private void HideTitleBar_Dup()
+        private void Expand()
         {
-            if (TitleRow != null && TitleBarBorder != null)
-            {
-                TitleBarBorder.Visibility = Visibility.Collapsed;
-            }
+            if (_dockSide == DockSide.None) return;
+            _isCollapsed = false;
+
+            var workArea = SystemParameters.WorkArea;
+            double targetLeft = Left;
+            double targetTop = Top;
+
+            if (_dockSide == DockSide.Left) targetLeft = workArea.Left;
+            else if (_dockSide == DockSide.Right) targetLeft = workArea.Right - ActualWidth;
+            else if (_dockSide == DockSide.Top) targetTop = workArea.Top;
+
+            AnimateWindow(targetLeft, targetTop);
         }
-        
-        private void ToggleOrientationButton_Click_Dup(object sender, RoutedEventArgs e)
+
+        private void AnimateWindow(double toLeft, double toTop)
         {
-            _verticalMode = !_verticalMode;
-            ApplyOrientation(_verticalMode);
+            var animLeft = new DoubleAnimation(toLeft, TimeSpan.FromMilliseconds(200)) 
+            { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }, FillBehavior = FillBehavior.Stop };
+            var animTop = new DoubleAnimation(toTop, TimeSpan.FromMilliseconds(200)) 
+            { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }, FillBehavior = FillBehavior.Stop };
+
+            animLeft.Completed += (s, e) => { Left = toLeft; };
+            animTop.Completed += (s, e) => { Top = toTop; };
+            
+            BeginAnimation(LeftProperty, animLeft);
+            BeginAnimation(TopProperty, animTop);
         }
-        
-        private void ApplyOrientation(bool vertical, bool suppressPersist = false)
+
+        private void MinimizeToTrayButton_Click(object sender, RoutedEventArgs e)
         {
-            if (ButtonsPanel == null) return;
-
-            ButtonsPanel.Orientation = vertical ? System.Windows.Controls.Orientation.Vertical : System.Windows.Controls.Orientation.Horizontal;
-
-            // 타이틀바 표시 규칙
-            TitleLeftIcon.Visibility = vertical ? Visibility.Collapsed : Visibility.Visible;
-            TitleText.Visibility = vertical ? Visibility.Collapsed : Visibility.Visible; // 가로모드에서만 "간편모드" 표시
-            ToggleOrientationIcon.Text = vertical ? "↔" : "↕";
-
-            // 창 크기: 세로 60x200, 가로 200x85
-            if (vertical)
+            if (Application.Current.MainWindow is MainWindow mw)
             {
-                this.Width = 61;
-                this.Height = 218; // +5px
+                mw.SwitchToTrayMode();
             }
-            else
-            {
-                this.Width = 200;
-                this.Height = 85;
-            }
-
-            if (!suppressPersist)
-            {
-                try
-                {
-                    var s = Settings.Load();
-                    s.SimpleModeVertical = vertical;
-                    Settings.Save(s);
-                }
-                catch { }
-            }
+            Close();
         }
-        
+
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            // X로 종료 시 마지막 간편모드 위치/모드 저장
-            try
+            if (Application.Current.MainWindow is MainWindow mw && mw.notifyIcon != null)
             {
-                var s = Settings.Load();
-                s.LastSimpleLeft = this.Left;
-                s.LastSimpleTop = this.Top;
-                s.LastModeIsSimple = true; // 간편모드로 종료
-                Settings.Save(s);
+                mw.notifyIcon.Visible = true;
             }
-            catch { /* ignore persistence errors */ }
-
-            // 이제 X는 앱 종료가 아니라 트레이로 숨기기
-            this.Hide();
-        
-        }
-
-        private void CleanupTimers()
-        {
-            try
-            {
-                _hideTitleTimer?.Stop();
-            }
-            catch { /* 정리 중 오류 무시 */ }
-        }
-
-        protected override void OnClosed(EventArgs e)
-        {
-            // 창이 닫힐 때 타이머 정리
-            CleanupTimers();
-            base.OnClosed(e);
-        }
-        
-        private void AreaCaptureButton_Click(object sender, RoutedEventArgs e)
-        {
             Hide();
-            AreaCaptureRequested?.Invoke(this, EventArgs.Empty);
-            // 캡처 후 자동으로 클립보드에 복사
-            System.Threading.Thread.Sleep(100); // 캡처가 완료될 때까지 잠시 대기
-            ShowCopiedNotification();
-        }
-        
-        private void FullScreenCaptureButton_Click(object sender, RoutedEventArgs e)
-        {
-            Hide();
-            FullScreenCaptureRequested?.Invoke(this, EventArgs.Empty);
-            // 캡처 후 자동으로 클립보드에 복사
-            System.Threading.Thread.Sleep(100); // 캡처가 완료될 때까지 잠시 대기
-            ShowCopiedNotification();
         }
 
-        private void DesignatedButton_Click(object sender, RoutedEventArgs e)
-        {
-            Hide();
-            DesignatedCaptureRequested?.Invoke(this, EventArgs.Empty);
-            System.Threading.Thread.Sleep(100);
-            ShowCopiedNotification();
-        }
-        
         private void ExitSimpleModeButton_Click(object sender, RoutedEventArgs e)
         {
             ExitSimpleModeRequested?.Invoke(this, EventArgs.Empty);
-            this.Close();
+            Close();
         }
+
+        private void AreaCaptureButton_Click(object sender, RoutedEventArgs e) => PerformCapture(AreaCaptureRequested);
+        private void FullScreenCaptureButton_Click(object sender, RoutedEventArgs e) => PerformCapture(FullScreenCaptureRequested);
+        private void DesignatedButton_Click(object sender, RoutedEventArgs e) => PerformCapture(DesignatedCaptureRequested);
         
+        private void PerformCapture(EventHandler? handler)
+        {
+            Hide();
+            handler?.Invoke(this, EventArgs.Empty);
+            System.Threading.Thread.Sleep(100);
+            ShowCopiedNotification();
+        }
+
         private void ShowCopiedNotification()
         {
-            // 클립보드 복사 알림 표시 (더 짧게 표시: 0.4s)
             var notification = new GuideWindow("클립보드에 복사되었습니다", TimeSpan.FromSeconds(0.4));
             notification.Owner = this;
-            Show(); // 다시 표시
+            Show();
             notification.Show();
         }
 
-        private void SettingsButton_Click(object sender, RoutedEventArgs e)
-        {
-            var win = new SettingsWindow();
-            win.Owner = this;
-            win.ShowDialog();
-        }
-
-        // Delay capture icon: open menu and run delayed area capture
         private void DelayIconButton_Click(object sender, RoutedEventArgs e)
         {
-            // 버튼 바로 아래에 컨텍스트 메뉴가 열리도록 강제 설정
-            if (DelayContextMenu != null && DelayIconButton != null)
+            if (sender is FrameworkElement btn)
             {
-                DelayContextMenu.PlacementTarget = DelayIconButton;
-                DelayContextMenu.Placement = PlacementMode.Bottom;
-                DelayContextMenu.HorizontalOffset = 0;
-                DelayContextMenu.VerticalOffset = 4;
-                DelayContextMenu.IsOpen = true;
+                if (btn.Name == "DelayBtnH" && DelayMenuH != null)
+                {
+                    DelayMenuH.PlacementTarget = btn;
+                    DelayMenuH.IsOpen = true;
+                }
+                else if (btn.Name == "DelayBtnV" && DelayMenuV != null)
+                {
+                    DelayMenuV.PlacementTarget = btn;
+                    DelayMenuV.IsOpen = true;
+                }
             }
         }
 
@@ -354,67 +309,25 @@ namespace CatchCapture
 
         private void StartDelayedAreaCapture(int seconds)
         {
-            // 일반모드와 동일하게 카운트 스티커(GuideWindow) 표시 후 캡처 시작
-            var countdown = new GuideWindow("", null)
-            {
-                Owner = this
-            };
+            var countdown = new GuideWindow("", null) { Owner = this };
             countdown.Show();
-            countdown.StartCountdown(seconds, () =>
-            {
-                Dispatcher.Invoke(() =>
-                {
-                    Hide();
-                    AreaCaptureRequested?.Invoke(this, EventArgs.Empty);
-                    System.Threading.Thread.Sleep(100);
-                    ShowCopiedNotification();
-                });
-            });
-        }
-
-        private void SimpleModeWindow_Deactivated(object? sender, EventArgs e)
-        {
-            // 작업표시줄 클릭 등으로 비활성화될 때 뒤로 숨는 것을 방지
-            // 깜빡임을 유발하는 토글 방식 대신, Topmost 속성만 조용히 재적용
-            Dispatcher.BeginInvoke(new Action(() =>
-            {
-                ForceTopmost();
-                
-                // 만약 Topmost가 풀려있다면 다시 True로 설정 (WPF 속성 동기화)
-                if (!Topmost)
-                {
-                    Topmost = true;
-                }
-            }), DispatcherPriority.ContextIdle);
-        }
-
-        private void SimpleModeWindow_Activated(object? sender, EventArgs e)
-        {
-            // 활성화될 때도 최상위 상태 확인
-            ForceTopmost();
+            countdown.StartCountdown(seconds, () => Dispatcher.Invoke(() => PerformCapture(AreaCaptureRequested)));
         }
 
         private void ForceTopmost()
         {
-            try
-            {
+            try {
                 var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
                 if (hwnd != IntPtr.Zero)
-                {
-                    SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, 
-                        SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-                }
-            }
-            catch { /* 오류 무시 */ }
+                    SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+            } catch { }
         }
 
         private void SimpleModeWindow_KeyDown(object sender, KeyEventArgs e)
         {
-            // Ctrl+M: exit Simple Mode (toggle back to normal mode)
             if (e.Key == Key.M && Keyboard.Modifiers == ModifierKeys.Control)
             {
-                ExitSimpleModeRequested?.Invoke(this, EventArgs.Empty);
-                this.Close();
+                ExitSimpleModeButton_Click(sender, e);
                 e.Handled = true;
             }
         }

@@ -289,7 +289,7 @@ public partial class MainWindow : Window
         settings.LastTrayTop = this.Top;
     }
 
-    private void SwitchToTrayMode()
+    public void SwitchToTrayMode()
     {
         settings.LastActiveMode = "Tray";  // 이 줄 추가
         ShowTrayModeWindow();

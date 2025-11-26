@@ -12,180 +12,141 @@
         KeyDown="SimpleModeWindow_KeyDown">
     
     <Window.Resources>
-        <!-- 버튼 스타일 -->
+        <!-- 공통 버튼 스타일 -->
         <Style x:Key="SimpleModeButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="40"/>
-            <Setter Property="Height" Value="32"/>
-            <Setter Property="Margin" Value="1"/>
             <Setter Property="Background" Value="#FFFFFF"/>
-            <Setter Property="Foreground" Value="#333333"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" 
-                                BorderBrush="{TemplateBinding BorderBrush}" 
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="5">
-                            <Border.Effect>
-                                <DropShadowEffect ShadowDepth="1" BlurRadius="3" Opacity="0.1" Direction="270"/>
-                            </Border.Effect>
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="5">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background" Value="#EEF2FF" TargetName="border"/>
                             </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="#D8E0FF" TargetName="border"/>
-                            </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
-        
-        <!-- 아이콘 전용 소형 버튼 스타일 -->
-        <Style x:Key="IconOnlyButtonStyle" TargetType="Button" BasedOn="{StaticResource SimpleModeButtonStyle}">
-            <Setter Property="Width" Value="44"/>
-            <Setter Property="Height" Value="44"/>
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="6">
-                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,2,0,0">
-                                <ContentPresenter HorizontalAlignment="Center"/>
-                                <TextBlock Text="{TemplateBinding Tag}" FontSize="9" Foreground="#333" Margin="0,2,0,0" HorizontalAlignment="Center"/>
-                            </StackPanel>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" TargetName="border" Value="#EEF2FF"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" TargetName="border" Value="#D8E0FF"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+
+        <!-- 아이콘 버튼 스타일 -->
+        <Style x:Key="IconButtonStyle" TargetType="Button" BasedOn="{StaticResource SimpleModeButtonStyle}">
+            <Setter Property="Width" Value="36"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Margin" Value="2"/>
         </Style>
-        
-        <!-- 닫기/모드 전환 버튼 스타일 -->
-        <Style x:Key="SmallButtonStyle" TargetType="Button">
+
+        <!-- 작은 제어 버튼 스타일 -->
+        <Style x:Key="ControlButtonStyle" TargetType="Button" BasedOn="{StaticResource SimpleModeButtonStyle}">
             <Setter Property="Width" Value="20"/>
             <Setter Property="Height" Value="20"/>
+            <Setter Property="Margin" Value="1"/>
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" 
-                                BorderBrush="{TemplateBinding BorderBrush}" 
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="10">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#50FFFFFF" TargetName="border"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="#30FFFFFF" TargetName="border"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        
-        <!-- 텍스트 렌더링 개선 스타일 -->
-        <Style x:Key="ClearTextStyle" TargetType="TextBlock">
-            <Setter Property="TextOptions.TextFormattingMode" Value="Ideal"/>
-            <Setter Property="TextOptions.TextRenderingMode" Value="Auto"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="UseLayoutRounding" Value="True"/>
         </Style>
     </Window.Resources>
-    
-    <Border CornerRadius="8" BorderThickness="0" BorderBrush="Transparent" Background="Transparent">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition x:Name="TitleRow" Height="0"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            
-            <!-- 제목 영역 (호버 시에만 표시) -->
-            <Border x:Name="TitleBarBorder" Grid.Row="0" Grid.RowSpan="2" Height="22" VerticalAlignment="Top"
-                    HorizontalAlignment="Center"
-                    Width="{Binding ElementName=ButtonsPanel, Path=ActualWidth}"
-                    Padding="8,2,8,2" Background="#3B82F6" ClipToBounds="True" Visibility="Collapsed"
-                    MouseEnter="TitleBarBorder_MouseEnter" MouseLeave="TitleBarBorder_MouseLeave"
-                    Panel.ZIndex="10">
-                <Grid>
-                    <StackPanel Orientation="Horizontal">
-                        <Image x:Name="TitleLeftIcon" Source="/icons/simple_mode.png" Width="14" Height="14" Margin="0,0,5,0" 
-                               RenderOptions.BitmapScalingMode="HighQuality"/>
-                        <TextBlock x:Name="TitleText" Text="간편모드" Foreground="White" FontWeight="SemiBold" FontSize="12"
-                                   Style="{StaticResource ClearTextStyle}"/>
+
+    <Grid>
+        <!-- 가로 모드 레이아웃 -->
+        <Border x:Name="HorizontalRoot" CornerRadius="8" Background="White" BorderBrush="#E0E0E0" BorderThickness="1" Visibility="Visible">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="24"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <!-- 타이틀바 -->
+                <Border Grid.Row="0" Background="#F8F9FA" CornerRadius="8,8,0,0" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
+                    <Grid>
+                        <TextBlock Text="≡" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#999" FontWeight="Bold"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,5,0">
+                            <Button Style="{StaticResource ControlButtonStyle}" Click="MinimizeToTrayButton_Click" ToolTip="트레이 모드">
+                                <Image Source="/icons/tray_mode.png" Width="12" Height="12"/>
+                            </Button>
+                            <Button Style="{StaticResource ControlButtonStyle}" Click="ExitSimpleModeButton_Click" ToolTip="일반 모드">
+                                <Image Source="/icons/window_cap.png" Width="12" Height="12"/>
+                            </Button>
+                            <Button Style="{StaticResource ControlButtonStyle}" Click="CloseButton_Click" ToolTip="닫기">
+                                <TextBlock Text="✕" FontSize="9" Foreground="#666"/>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+                
+                <!-- 버튼 영역 -->
+                <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Button Style="{StaticResource IconButtonStyle}" Click="AreaCaptureButton_Click" ToolTip="영역 캡처">
+                        <Image Source="/icons/area_capture.png" Width="20" Height="20"/>
+                    </Button>
+                    <Button x:Name="DelayBtnH" Style="{StaticResource IconButtonStyle}" Click="DelayIconButton_Click" ToolTip="지연 캡처">
+                        <Image Source="/icons/clock.png" Width="20" Height="20"/>
+                        <Button.ContextMenu>
+                            <ContextMenu x:Name="DelayMenuH">
+                                <MenuItem Header="3초" Tag="3" Click="DelayOption_Click"/>
+                                <MenuItem Header="5초" Tag="5" Click="DelayOption_Click"/>
+                                <MenuItem Header="10초" Tag="10" Click="DelayOption_Click"/>
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                    </Button>
+                    <Button Style="{StaticResource IconButtonStyle}" Click="FullScreenCaptureButton_Click" ToolTip="전체화면">
+                        <Image Source="/icons/full_screen.png" Width="20" Height="20"/>
+                    </Button>
+                    <Button Style="{StaticResource IconButtonStyle}" Click="DesignatedButton_Click" ToolTip="지정캡처">
+                        <Image Source="/icons/designated.png" Width="20" Height="20"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- 세로 모드 레이아웃 -->
+        <Border x:Name="VerticalRoot" CornerRadius="8" Background="White" BorderBrush="#E0E0E0" BorderThickness="1" Visibility="Collapsed">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="24"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- 드래그 핸들 -->
+                <Border Grid.Row="0" Background="#F8F9FA" CornerRadius="8,8,0,0" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
+                    <TextBlock Text="≡" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#999" FontWeight="Bold"/>
+                </Border>
+
+                <!-- 캡처 버튼들 -->
+                <StackPanel Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,5">
+                    <Button Style="{StaticResource IconButtonStyle}" Click="AreaCaptureButton_Click" ToolTip="영역 캡처">
+                        <Image Source="/icons/area_capture.png" Width="20" Height="20"/>
+                    </Button>
+                    <Button x:Name="DelayBtnV" Style="{StaticResource IconButtonStyle}" Click="DelayIconButton_Click" ToolTip="지연 캡처">
+                        <Image Source="/icons/clock.png" Width="20" Height="20"/>
+                        <Button.ContextMenu>
+                            <ContextMenu x:Name="DelayMenuV">
+                                <MenuItem Header="3초" Tag="3" Click="DelayOption_Click"/>
+                                <MenuItem Header="5초" Tag="5" Click="DelayOption_Click"/>
+                                <MenuItem Header="10초" Tag="10" Click="DelayOption_Click"/>
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                    </Button>
+                    <Button Style="{StaticResource IconButtonStyle}" Click="FullScreenCaptureButton_Click" ToolTip="전체화면">
+                        <Image Source="/icons/full_screen.png" Width="20" Height="20"/>
+                    </Button>
+                    <Button Style="{StaticResource IconButtonStyle}" Click="DesignatedButton_Click" ToolTip="지정캡처">
+                        <Image Source="/icons/designated.png" Width="20" Height="20"/>
+                    </Button>
+                </StackPanel>
+
+                <!-- 하단 제어 버튼들 (닫기만 남김) -->
+                <Border Grid.Row="2" BorderBrush="#E0E0E0" BorderThickness="0,1,0,0" Padding="0,5">
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                        <Button Style="{StaticResource ControlButtonStyle}" Click="CloseButton_Click" ToolTip="닫기">
+                            <TextBlock Text="✕" FontSize="9" Foreground="#666"/>
+                        </Button>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <!-- 우측 아이콘 버튼: 제목 숨김 시에도 항상 보이도록 오버레이 배치 -->
-                        <Button x:Name="ToggleOrientationButton" Style="{StaticResource SmallButtonStyle}"
-                                Click="ToggleOrientationButton_Click" ToolTip="세로/가로 전환">
-                            <TextBlock x:Name="ToggleOrientationIcon" Text="↕" FontSize="12" Foreground="White"
-                                       Style="{StaticResource ClearTextStyle}" VerticalAlignment="Center" Margin="0,-1,0,0"/>
-                        </Button>
-                        <Button x:Name="ExitToNormalButton" Style="{StaticResource SmallButtonStyle}" Click="ExitSimpleModeButton_Click" ToolTip="일반 모드로">
-                            <Image Source="/icons/simple_mode.png" Width="12" Height="12"/>
-                        </Button>
-                        <Button x:Name="CloseButton" Style="{StaticResource SmallButtonStyle}"
-                                Click="CloseButton_Click" ToolTip="닫기">
-                            <TextBlock Text="✕" FontSize="10" Foreground="White" Style="{StaticResource ClearTextStyle}"/>
-                        </Button>
-                    </StackPanel>
-                </Grid>
-            </Border>
-            
-            <!-- 버튼 영역 -->
-            <Border Grid.Row="1" Padding="0">
-                <Grid>
-                    <StackPanel x:Name="ButtonsPanel" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0"
-                                MouseEnter="ButtonsPanel_MouseEnter" MouseLeave="ButtonsPanel_MouseLeave">
-                        <!-- 영역 캡처 -->
-                        <Button x:Name="AreaCaptureButton" Style="{StaticResource IconOnlyButtonStyle}" Click="AreaCaptureButton_Click" ToolTip="영역 캡처" Tag="영역">
-                            <Image Source="/icons/area_capture.png" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
-                        </Button>
-                        
-                        <!-- 지연 캡처 아이콘 버튼 -->
-                        <Button x:Name="DelayIconButton" Style="{StaticResource IconOnlyButtonStyle}" Click="DelayIconButton_Click" ToolTip="지연 캡처" Tag="지연">
-                            <Image Source="/icons/clock.png" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
-                            <Button.ContextMenu>
-                                <ContextMenu x:Name="DelayContextMenu" Placement="Bottom" PlacementTarget="{Binding ElementName=DelayIconButton}">
-                                    <MenuItem Header="3초" Tag="3" Click="DelayOption_Click"/>
-                                    <MenuItem Header="5초" Tag="5" Click="DelayOption_Click"/>
-                                    <MenuItem Header="10초" Tag="10" Click="DelayOption_Click"/>
-                                </ContextMenu>
-                            </Button.ContextMenu>
-                        </Button>
-                        
-                        <!-- 전체화면 -->
-                        <Button x:Name="FullScreenCaptureButton" Style="{StaticResource IconOnlyButtonStyle}" Click="FullScreenCaptureButton_Click" ToolTip="전체화면" Tag="전체">
-                            <Image Source="/icons/full_screen.png" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
-                        </Button>
-                        
-                        <!-- 지정캡처 -->
-                        <Button x:Name="DesignatedButton" Style="{StaticResource IconOnlyButtonStyle}" Click="DesignatedButton_Click" ToolTip="지정캡처" Tag="지정">
-                            <Image Source="/icons/area_capture.png" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
-                        </Button>
-                    </StackPanel>
-                </Grid>
-            </Border>
-        </Grid>
-    </Border>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
 </Window>
