@@ -97,20 +97,19 @@ namespace CatchCapture
             double currentTop = Top;
             double currentRight = currentLeft + ActualWidth;
 
-            // 좌측 도킹
-            if (Math.Abs(currentLeft - workArea.Left) < snapDist)
+            // 좌측 도킹 - 창이 화면 밖으로 나가도 도킹 감지
+            if (currentLeft < workArea.Left + snapDist)
             {
                 ApplyLayout(true); // 세로 모드
                 UpdateLayout();
                 Left = workArea.Left;
                 _dockSide = DockSide.Left;
             }
-            // 우측 도킹
-            else if (Math.Abs(currentRight - workArea.Right) < snapDist)
+            // 우측 도킹 - 창이 화면 밖으로 나가도 도킹 감지
+            else if (currentRight > workArea.Right - snapDist)
             {
                 ApplyLayout(true); // 세로 모드
                 UpdateLayout();
-                // 너비가 변경되었으므로 Width 속성을 사용해 위치 재계산
                 Left = workArea.Right - this.Width;
                 _dockSide = DockSide.Right;
             }
