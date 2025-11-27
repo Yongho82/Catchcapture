@@ -766,23 +766,30 @@ namespace CatchCapture.Utilities
             double selectionWidth = selectionRectangle.Width;
             double selectionHeight = selectionRectangle.Height;
             
-            // 편집 툴바 생성
-            var toolbar = new StackPanel
+            // [수정] 편집 툴바 컨테이너 (둥근 모서리 Border)
+            var toolbar = new Border
             {
-                Orientation = Orientation.Horizontal,
                 Background = Brushes.White,
-                Height = 55 // 70 -> 55로 축소
-            };
-            
-            // 툴바에 그림자 효과 추가
-            toolbar.Effect = new System.Windows.Media.Effects.DropShadowEffect
-            {
-                Color = Colors.Black,
-                BlurRadius = 10,
-                ShadowDepth = 2,
-                Opacity = 0.15
+                CornerRadius = new CornerRadius(8),
+                Padding = new Thickness(5),
+                Height = 55,
+                Effect = new System.Windows.Media.Effects.DropShadowEffect
+                {
+                    Color = Colors.Black,
+                    BlurRadius = 10,
+                    ShadowDepth = 2,
+                    Opacity = 0.15
+                }
             };
 
+            // [수정] 내부 스택패널
+            var toolbarStackPanel = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            
+            toolbar.Child = toolbarStackPanel;
 
             // 펜 버튼
             var penButton = CreateToolButton("highlight.png", "펜", "펜 도구");
@@ -790,7 +797,7 @@ namespace CatchCapture.Utilities
             {
                 currentTool = "펜";
                 SetActiveToolButton(penButton);
-                ShowColorPalette("펜", selectionLeft, selectionTop + selectionHeight + 60);
+                ShowColorPalette("펜", selectionLeft, selectionTop + selectionHeight + 80);
                 EnableDrawingMode();
             };
             
@@ -801,7 +808,7 @@ namespace CatchCapture.Utilities
                 currentTool = "형광펜";
                 selectedColor = Colors.Yellow;
                 SetActiveToolButton(highlighterButton);
-                ShowColorPalette("형광펜", selectionLeft, selectionTop + selectionHeight + 60);
+                ShowColorPalette("형광펜", selectionLeft, selectionTop + selectionHeight + 80);
                 EnableDrawingMode();
             };
             
@@ -811,7 +818,7 @@ namespace CatchCapture.Utilities
             {
                 currentTool = "텍스트";
                 SetActiveToolButton(textButton);
-                ShowColorPalette("텍스트", selectionLeft, selectionTop + selectionHeight + 60);
+                ShowColorPalette("텍스트", selectionLeft, selectionTop + selectionHeight + 80);
                 EnableTextMode();
             };
             
@@ -821,7 +828,7 @@ namespace CatchCapture.Utilities
             {
                 currentTool = "도형";
                 SetActiveToolButton(shapeButton);
-                ShowColorPalette("도형", selectionLeft, selectionTop + selectionHeight + 60);
+                ShowColorPalette("도형", selectionLeft, selectionTop + selectionHeight + 80);
                 EnableShapeMode();
             };
             
@@ -831,7 +838,7 @@ namespace CatchCapture.Utilities
             { 
                 currentTool = "모자이크"; 
                 SetActiveToolButton(mosaicButton);
-                ShowColorPalette("모자이크", selectionLeft, selectionTop + selectionHeight + 60);
+                ShowColorPalette("모자이크", selectionLeft, selectionTop + selectionHeight + 80);
                 EnableMosaicMode();
             };
             
@@ -864,13 +871,13 @@ namespace CatchCapture.Utilities
             // 완료 버튼
             var doneButton = new Button
             {
-                Width = 45,  // 45로 축소
-                Height = 45, // 45로 축소
+                Width = 45,
+                Height = 45,
                 Margin = new Thickness(2),
-                Padding = new Thickness(2),
-                Background = new SolidColorBrush(Color.FromRgb(0, 120, 212)),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(0, 90, 158)),
-                BorderThickness = new Thickness(1),
+                Padding = new Thickness(0),
+                Background = Brushes.Transparent,
+                BorderBrush = Brushes.Transparent,
+                BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
                 ToolTip = "완료 (Enter)",
                 Style = null
@@ -885,7 +892,7 @@ namespace CatchCapture.Utilities
             var doneText = new TextBlock
             {
                 Text = "✓",
-                FontSize = 18, // 24 -> 18로 축소
+                FontSize = 18,
                 FontWeight = FontWeights.Bold,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Foreground = Brushes.White,
@@ -895,7 +902,7 @@ namespace CatchCapture.Utilities
             var doneLabel = new TextBlock
             {
                 Text = "완료",
-                FontSize = 9, // 10 -> 9로 축소
+                FontSize = 9,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Foreground = Brushes.White
             };
@@ -903,11 +910,14 @@ namespace CatchCapture.Utilities
             doneStackPanel.Children.Add(doneText);
             doneStackPanel.Children.Add(doneLabel);
             
-            // Border로 둥근 모서리 효과 (완료 버튼용)
+            // 완료 버튼용 Border
             var doneBorder = new Border
             {
                 CornerRadius = new CornerRadius(6),
-                Background = Brushes.Transparent,
+                Background = new SolidColorBrush(Color.FromRgb(0, 120, 212)),
+                BorderBrush = new SolidColorBrush(Color.FromRgb(0, 90, 158)),
+                BorderThickness = new Thickness(1),
+                Padding = new Thickness(2),
                 Child = doneStackPanel
             };
             
@@ -915,12 +925,12 @@ namespace CatchCapture.Utilities
             
             doneButton.MouseEnter += (s, e) =>
             {
-                doneButton.Background = new SolidColorBrush(Color.FromRgb(0, 140, 255));
+                doneBorder.Background = new SolidColorBrush(Color.FromRgb(0, 140, 255));
             };
             
             doneButton.MouseLeave += (s, e) =>
             {
-                doneButton.Background = new SolidColorBrush(Color.FromRgb(0, 120, 212));
+                doneBorder.Background = new SolidColorBrush(Color.FromRgb(0, 120, 212));
             };
             
             // 완료 버튼 클릭 이벤트
@@ -963,21 +973,22 @@ namespace CatchCapture.Utilities
             var saveButton = CreateActionButton("save_selected.png", "저장", "파일로 저장 (Ctrl+S)");
             saveButton.Click += (s, e) => SaveToFile();
 
-            toolbar.Children.Add(penButton);
-            toolbar.Children.Add(highlighterButton);
-            toolbar.Children.Add(textButton);
-            toolbar.Children.Add(shapeButton);
-            toolbar.Children.Add(mosaicButton);
-            toolbar.Children.Add(eraserButton);
-            toolbar.Children.Add(ocrButton);
-            toolbar.Children.Add(separator);
-            toolbar.Children.Add(doneButton);
-            toolbar.Children.Add(separator2);
-            toolbar.Children.Add(undoButton);
-            toolbar.Children.Add(resetButton);
-            toolbar.Children.Add(separator3);
-            toolbar.Children.Add(copyButton);
-            toolbar.Children.Add(saveButton);
+            // [수정] 버튼들을 toolbarStackPanel에 추가
+            toolbarStackPanel.Children.Add(penButton);
+            toolbarStackPanel.Children.Add(highlighterButton);
+            toolbarStackPanel.Children.Add(textButton);
+            toolbarStackPanel.Children.Add(shapeButton);
+            toolbarStackPanel.Children.Add(mosaicButton);
+            toolbarStackPanel.Children.Add(eraserButton);
+            toolbarStackPanel.Children.Add(ocrButton);
+            toolbarStackPanel.Children.Add(separator);
+            toolbarStackPanel.Children.Add(doneButton);
+            toolbarStackPanel.Children.Add(separator2);
+            toolbarStackPanel.Children.Add(undoButton);
+            toolbarStackPanel.Children.Add(resetButton);
+            toolbarStackPanel.Children.Add(separator3);
+            toolbarStackPanel.Children.Add(copyButton);
+            toolbarStackPanel.Children.Add(saveButton);
             
             // 툴바를 선택 영역 바로 아래에 배치
             canvas.Children.Add(toolbar);
@@ -1005,7 +1016,7 @@ namespace CatchCapture.Utilities
             currentTool = "펜";
             selectedColor = Colors.Red;
             SetActiveToolButton(penButton);
-            ShowColorPalette("펜", selectionLeft, selectionTop + selectionHeight + 60);
+            ShowColorPalette("펜", selectionLeft, selectionTop + selectionHeight + 80);
             EnableDrawingMode();
         }
 
@@ -1013,23 +1024,26 @@ namespace CatchCapture.Utilities
         {
             var button = new Button
             {
-                Width = 45,  // 60 -> 45로 축소
-                Height = 45, // 60 -> 45로 축소
+                Width = 45,  // 요청하신 45 크기
+                Height = 45,
                 Margin = new Thickness(2),
-                Padding = new Thickness(2),
-                Background = Brushes.White,
-                BorderBrush = new SolidColorBrush(Color.FromRgb(224, 230, 240)),
-                BorderThickness = new Thickness(1),
+                Padding = new Thickness(0),
+                Background = Brushes.Transparent, // 버튼 자체는 투명
+                BorderBrush = Brushes.Transparent,
+                BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
                 ToolTip = tooltip,
                 Style = null
             };
             
-            // Border로 둥근 모서리 효과
+            // Border로 둥근 모서리 효과 구현
             var border = new Border
             {
                 CornerRadius = new CornerRadius(6),
-                Background = Brushes.Transparent
+                Background = Brushes.White,
+                BorderBrush = new SolidColorBrush(Color.FromRgb(224, 230, 240)),
+                BorderThickness = new Thickness(1),
+                Padding = new Thickness(2)
             };
             
             // 아이콘 + 텍스트 세로 배치
@@ -1044,8 +1058,8 @@ namespace CatchCapture.Utilities
             {
                 var icon = new Image
                 {
-                    Width = 18,  // 24 -> 18로 축소
-                    Height = 18, // 24 -> 18로 축소
+                    Width = 18,  // 요청하신 18 크기
+                    Height = 18,
                     Margin = new Thickness(0, 1, 0, 1),
                     Source = new BitmapImage(new Uri($"pack://application:,,,/icons/{iconPath}", UriKind.Absolute))
                 };
@@ -1067,29 +1081,29 @@ namespace CatchCapture.Utilities
             var textBlock = new TextBlock
             {
                 Text = label,
-                FontSize = 9, // 10 -> 9로 축소
+                FontSize = 9, // 요청하신 9 크기
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Foreground = new SolidColorBrush(Color.FromRgb(60, 60, 60)),
-                Margin = new Thickness(0, 1, 0, 0)
+                Margin = new Thickness(0, 0, 0, 0)
             };
             
             stackPanel.Children.Add(textBlock);
             border.Child = stackPanel;
             button.Content = border;
             
-            // 호버 효과
+            // 호버 효과 (Border의 색상을 변경)
             button.MouseEnter += (s, e) =>
             {
-                button.Background = new SolidColorBrush(Color.FromRgb(232, 243, 255));
-                button.BorderBrush = new SolidColorBrush(Color.FromRgb(0, 120, 212));
+                border.Background = new SolidColorBrush(Color.FromRgb(232, 243, 255));
+                border.BorderBrush = new SolidColorBrush(Color.FromRgb(0, 120, 212));
             };
             
             button.MouseLeave += (s, e) =>
             {
                 if (button != activeToolButton)
                 {
-                    button.Background = Brushes.White;
-                    button.BorderBrush = new SolidColorBrush(Color.FromRgb(224, 230, 240));
+                    border.Background = Brushes.White;
+                    border.BorderBrush = new SolidColorBrush(Color.FromRgb(224, 230, 240));
                 }
             };
             
@@ -1119,39 +1133,39 @@ namespace CatchCapture.Utilities
         {
             var button = new Button
             {
-                Width = 45,  // 45로 축소
-                Height = 45, // 45로 축소
+                Width = 45,
+                Height = 45,
                 Margin = new Thickness(2),
-                Padding = new Thickness(2),
-                Background = Brushes.White,
-                BorderBrush = new SolidColorBrush(Color.FromRgb(224, 230, 240)),
-                BorderThickness = new Thickness(1),
+                Padding = new Thickness(0),
+                Background = Brushes.Transparent,
+                BorderBrush = Brushes.Transparent,
+                BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
                 ToolTip = tooltip,
                 Style = null
             };
             
-            // Border로 둥근 모서리 효과
             var border = new Border
             {
                 CornerRadius = new CornerRadius(6),
-                Background = Brushes.Transparent
+                Background = Brushes.White,
+                BorderBrush = new SolidColorBrush(Color.FromRgb(224, 230, 240)),
+                BorderThickness = new Thickness(1),
+                Padding = new Thickness(2)
             };
             
-            // 아이콘 + 텍스트 세로 배치
             var stackPanel = new StackPanel
             {
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Center
             };
             
-            // 아이콘 이미지
             try
             {
                 var icon = new Image
                 {
-                    Width = 18,  // 18로 축소
-                    Height = 18, // 18로 축소
+                    Width = 18,
+                    Height = 18,
                     Margin = new Thickness(0, 1, 0, 1),
                     Source = new BitmapImage(new Uri($"pack://application:,,,/icons/{iconPath}", UriKind.Absolute))
                 };
@@ -1169,31 +1183,29 @@ namespace CatchCapture.Utilities
                 stackPanel.Children.Add(iconText);
             }
             
-            // 텍스트
             var textBlock = new TextBlock
             {
                 Text = label,
                 FontSize = 9,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Foreground = new SolidColorBrush(Color.FromRgb(60, 60, 60)),
-                Margin = new Thickness(0, 1, 0, 0)
+                Margin = new Thickness(0, 0, 0, 0)
             };
             
             stackPanel.Children.Add(textBlock);
             border.Child = stackPanel;
             button.Content = border;
             
-            // 호버 효과
             button.MouseEnter += (s, e) =>
             {
-                button.Background = new SolidColorBrush(Color.FromRgb(232, 243, 255));
-                button.BorderBrush = new SolidColorBrush(Color.FromRgb(0, 120, 212));
+                border.Background = new SolidColorBrush(Color.FromRgb(232, 243, 255));
+                border.BorderBrush = new SolidColorBrush(Color.FromRgb(0, 120, 212));
             };
             
             button.MouseLeave += (s, e) =>
             {
-                button.Background = Brushes.White;
-                button.BorderBrush = new SolidColorBrush(Color.FromRgb(224, 230, 240));
+                border.Background = Brushes.White;
+                border.BorderBrush = new SolidColorBrush(Color.FromRgb(224, 230, 240));
             };
             
             return button;
@@ -1201,19 +1213,19 @@ namespace CatchCapture.Utilities
 
         private void SetActiveToolButton(Button button)
         {
-            // 이전 활성 버튼 초기화
-            if (activeToolButton != null)
+            // 이전 활성 버튼 초기화 (Border 스타일 복구)
+            if (activeToolButton != null && activeToolButton.Content is Border oldBorder)
             {
-                activeToolButton.Background = Brushes.White;
-                activeToolButton.BorderBrush = new SolidColorBrush(Color.FromRgb(224, 230, 240));
+                oldBorder.Background = Brushes.White;
+                oldBorder.BorderBrush = new SolidColorBrush(Color.FromRgb(224, 230, 240));
             }
             
-            // 새 활성 버튼 설정
+            // 새 활성 버튼 설정 (Border 스타일 강조)
             activeToolButton = button;
-            if (activeToolButton != null)
+            if (activeToolButton != null && activeToolButton.Content is Border newBorder)
             {
-                activeToolButton.Background = new SolidColorBrush(Color.FromRgb(232, 243, 255));
-                activeToolButton.BorderBrush = new SolidColorBrush(Color.FromRgb(0, 120, 212));
+                newBorder.Background = new SolidColorBrush(Color.FromRgb(232, 243, 255));
+                newBorder.BorderBrush = new SolidColorBrush(Color.FromRgb(0, 120, 212));
             }
         }
         
