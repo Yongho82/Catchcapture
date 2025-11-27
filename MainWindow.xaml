@@ -365,7 +365,7 @@
                                 </StackPanel>
                             </Button>
                             
-                            <Separator Width="1" Height="25" Margin="5,0" Background="#E0E6F0"/>
+                            <Separator Width="1" Height="25" Margin="2,0" Background="#E0E6F0"/>
                             
                             <!-- 전체 저장 버튼 -->
                             <Button x:Name="SaveAllButton" Click="SaveAllButton_Click" IsEnabled="False"
