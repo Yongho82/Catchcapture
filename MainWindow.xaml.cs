@@ -396,6 +396,7 @@ public partial class MainWindow : Window
 
     private void UpdateInstantEditToggleUI()
     {
+        settings = Settings.Load(); // 최신 설정 로드
         if (settings.SimpleModeInstantEdit)
         {
             // 형광 초록색
