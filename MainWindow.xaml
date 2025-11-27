@@ -303,7 +303,36 @@
                                     <TextBlock Text="트레이모드" HorizontalAlignment="Left" FontSize="12"/>
                                 </StackPanel>
                             </Button>
+                            <Separator Style="{StaticResource SeparatorStyle}"/>
 
+                           <!-- 즉시편집 스위치 -->
+                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,10,10,5"> <!-- 왼쪽 마진 10px 추가 -->
+                                <TextBlock Text="즉시편집" 
+                                          VerticalAlignment="Center" 
+                                          FontSize="11" 
+                                          Foreground="#666666"
+                                          Margin="0,0,5,0"/> <!-- 오른쪽 마진 5px -->
+                                
+                                <!-- 토글 스위치 -->
+                                <Border x:Name="InstantEditToggleBorder" 
+                                       Width="30" 
+                                       Height="16" 
+                                       CornerRadius="8" 
+                                       Background="#CCCCCC"
+                                       Cursor="Hand"
+                                       MouseLeftButtonDown="InstantEditToggle_Click">
+                                    <Ellipse x:Name="InstantEditToggleCircle" 
+                                            Width="12" 
+                                            Height="12" 
+                                            Fill="White" 
+                                            HorizontalAlignment="Left"
+                                            Margin="2,0,0,0">
+                                        <Ellipse.Effect>
+                                            <DropShadowEffect ShadowDepth="1" BlurRadius="2" Opacity="0.2"/>
+                                        </Ellipse.Effect>
+                                    </Ellipse>
+                                </Border>
+                            </StackPanel>
                         </StackPanel>
                     </Border>
 

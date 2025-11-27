@@ -109,7 +109,7 @@ public partial class MainWindow : Window
             hwndSource = HwndSource.FromHwnd(helper.Handle);
             hwndSource?.AddHook(HwndHook);
             RegisterGlobalHotkeys();
-
+            UpdateInstantEditToggleUI();
             // 시작 모드에 따라 초기 모드 설정
             if (settings.StartupMode == "Tray")
             {
@@ -386,11 +386,34 @@ public partial class MainWindow : Window
 
         // 설정을 다시 로드하여 메모리와 파일 동기화
         settings = Settings.Load();
+        UpdateInstantEditToggleUI();
     }
 
     private void TrayModeButton_Click(object sender, RoutedEventArgs e)
     {
         SwitchToTrayMode();
+    }
+
+    private void UpdateInstantEditToggleUI()
+    {
+        if (settings.SimpleModeInstantEdit)
+        {
+            // 형광 초록색
+            InstantEditToggleBorder.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00E676"));
+            InstantEditToggleCircle.Margin = new Thickness(16, 0, 0, 0); // 스위치 크기가 줄어서 마진도 조정
+        }
+        else
+        {
+            InstantEditToggleBorder.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#CCCCCC"));
+            InstantEditToggleCircle.Margin = new Thickness(2, 0, 0, 0);
+        }
+    }
+
+    private void InstantEditToggle_Click(object sender, MouseButtonEventArgs e)
+    {
+        settings.SimpleModeInstantEdit = !settings.SimpleModeInstantEdit;
+        Settings.Save(settings);
+        UpdateInstantEditToggleUI();
     }
 
     private void SwitchToSimpleMode()
