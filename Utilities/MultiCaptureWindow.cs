@@ -23,9 +23,8 @@ namespace CatchCapture.Utilities
         private Point startPoint;
         private Rectangle? currentRectangle;
         private bool isSelecting = false;
-        
-        private TextBlock guideText;
-        private Border guideBorder;
+        private Border tooltipBorder;
+        private bool showTooltip = true;
         
         // 멀티모니터 좌표 오프셋
         private double offsetX;
@@ -148,33 +147,27 @@ namespace CatchCapture.Utilities
             Canvas.SetLeft(backgroundImage, 0);
             Canvas.SetTop(backgroundImage, 0);
             canvas.Children.Add(backgroundImage);
-            
-            // 가이드 텍스트
-            guideText = new TextBlock
+            // 마우스 커서 따라다니는 툴팁 생성
+            var tooltipText = new TextBlock
             {
-                Text = "영역을 드래그하여 캡처하세요. Enter: 완료 | ESC: 취소",
+                Text = "ENTER : 합성\nF1 : 개별저장\nESC : 종료",
                 Foreground = Brushes.White,
-                FontSize = 14,
-                FontWeight = FontWeights.Bold,
-                Padding = new Thickness(10, 5, 10, 5)
+                FontSize = 12,
+                TextAlignment = TextAlignment.Center,
+                LineHeight = 18
             };
             
-            guideBorder = new Border
+            tooltipBorder = new Border
             {
                 Background = new SolidColorBrush(Color.FromArgb(200, 0, 0, 0)),
-                CornerRadius = new CornerRadius(5),
-                Child = guideText,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Top,
-                Margin = new Thickness(0, 20, 0, 0)
+                CornerRadius = new CornerRadius(8),
+                Child = tooltipText,
+                Padding = new Thickness(12, 8, 12, 8),
+                Visibility = Visibility.Visible
             };
             
-            var grid = new Grid();
-            grid.Children.Add(canvas);
-            grid.Children.Add(guideBorder);
-            
-            Content = grid;
-            
+            canvas.Children.Add(tooltipBorder);            
+            Content = canvas;         
             // 이벤트 핸들러
             MouseLeftButtonDown += MultiCaptureWindow_MouseLeftButtonDown;
             MouseLeftButtonUp += MultiCaptureWindow_MouseLeftButtonUp;
@@ -186,9 +179,23 @@ namespace CatchCapture.Utilities
                 this.Show();
                 this.Activate();
                 this.Focus();
+                
+                // 3초 후 툴팁 숨기기
+                var timer = new System.Windows.Threading.DispatcherTimer();
+                timer.Interval = TimeSpan.FromSeconds(30);
+                timer.Tick += (sender, args) =>
+                {
+                    showTooltip = false;
+                    if (tooltipBorder != null)
+                    {
+                        tooltipBorder.Visibility = Visibility.Collapsed;
+                    }
+                    timer.Stop();
+                };
+                timer.Start();
             };
-        }
-        
+        }  
+
         private void MultiCaptureWindow_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             startPoint = e.GetPosition(canvas);
@@ -211,6 +218,14 @@ namespace CatchCapture.Utilities
         
         private void MultiCaptureWindow_MouseMove(object sender, MouseEventArgs e)
         {
+            // 툴팁 위치 업데이트 (마우스 커서 오른쪽 아래)
+            if (showTooltip && tooltipBorder != null)
+            {
+                var mousePos = e.GetPosition(canvas);
+                Canvas.SetLeft(tooltipBorder, mousePos.X + 15);
+                Canvas.SetTop(tooltipBorder, mousePos.Y + 15);
+            }
+            
             if (!isSelecting || currentRectangle == null) return;
             
             var currentPoint = e.GetPosition(canvas);
@@ -296,11 +311,7 @@ namespace CatchCapture.Utilities
                 canvas.Children.Add(numberText);
                 
                 // 캡처된 영역 저장 (스크린샷 좌표로 저장)
-                capturedRegions.Add(new CapturedRegion(area, capturedImage, currentRectangle));
-                
-                // 가이드 텍스트 업데이트
-                UpdateGuideText();
-                
+                capturedRegions.Add(new CapturedRegion(area, capturedImage, currentRectangle));                               
                 currentRectangle = null;
             }
             catch (Exception ex)
@@ -314,18 +325,7 @@ namespace CatchCapture.Utilities
             }
             
             e.Handled = true;
-        }
-        
-        private void UpdateGuideText()
-        {
-            if (guideText != null)
-            {
-                if (capturedRegions.Count == 0)
-                    guideText.Text = "영역을 드래그하여 선택하세요\n[Enter]: 모두 합쳐서 저장  |  [F1]: 각각 따로 저장  |  [ESC]: 취소\n[우클릭]: 마지막 영역 취소";
-                else
-                    guideText.Text = $"{capturedRegions.Count}개 선택됨\n[Enter]: 모두 합쳐서 저장  |  [F1]: 각각 따로 저장  |  [ESC]: 취소\n[우클릭]: 마지막 영역 취소";
-            }
-        }
+        }        
         
         private void MultiCaptureWindow_KeyDown(object sender, KeyEventArgs e)
         {
@@ -372,7 +372,6 @@ namespace CatchCapture.Utilities
                     var lastRegion = capturedRegions[capturedRegions.Count - 1];
                     canvas.Children.Remove(lastRegion.VisualRectangle);
                     capturedRegions.RemoveAt(capturedRegions.Count - 1);
-                    UpdateGuideText();
                 }
                 e.Handled = true;
             }
