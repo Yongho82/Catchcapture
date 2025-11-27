@@ -5,6 +5,11 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Input;
+using System.IO;
 
 namespace CatchCapture.Utilities
 {
@@ -49,6 +54,7 @@ namespace CatchCapture.Utilities
         private string currentTool = ""; 
         private bool isDrawingEnabled = false; 
         private List<UIElement> drawnElements = new List<UIElement>();
+        private Stack<UIElement> undoStack = new Stack<UIElement>();
         private Point lastDrawPoint; 
         private Polyline? currentPolyline; 
         private int penThickness = 3; 
@@ -238,6 +244,51 @@ namespace CatchCapture.Utilities
                 System.Diagnostics.Debug.WriteLine($"SnippingWindow 메모리 사용량: {memoryUsed}MB");
             };
             memoryCleanupTimer.Start();
+            this.KeyDown += SnippingWindow_KeyDown;
+        }
+
+        private void SnippingWindow_KeyDown(object sender, KeyEventArgs e)
+        {
+            // 즉시편집 모드일 때만 단축키 활성화
+            if (!instantEditMode) return;
+            
+            // Ctrl + Z: 실행 취소
+            if (e.Key == Key.Z && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                UndoLastAction();
+                e.Handled = true;
+            }
+            // Ctrl + R: 초기화
+            else if (e.Key == Key.R && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                ResetAllDrawings();
+                e.Handled = true;
+            }
+            // Ctrl + C: 클립보드 복사
+            else if (e.Key == Key.C && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                CopyToClipboard();
+                e.Handled = true;
+            }
+            // Ctrl + S: 파일로 저장
+            else if (e.Key == Key.S && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                SaveToFile();
+                e.Handled = true;
+            }
+            // Enter: 완료 (확정)
+            else if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.None)
+            {
+                ConfirmAndClose();
+                e.Handled = true;
+            }
+            // Esc: 취소
+            else if (e.Key == Key.Escape)
+            {
+                DialogResult = false;
+                Close();
+                e.Handled = true;
+            }
         }
 
         private void CreateMagnifier()
@@ -574,15 +625,6 @@ namespace CatchCapture.Utilities
                 if (crosshairVertical != null) crosshairVertical.Visibility = Visibility.Collapsed;
             }
         }
-        private void SnippingWindow_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Escape)
-            {
-                IsCancelled = true;
-                DialogResult = false;
-                Close();
-            }
-        }
 
         private void SnippingWindow_Deactivated(object? sender, EventArgs e)
         {
@@ -793,8 +835,21 @@ namespace CatchCapture.Utilities
             
             // 지우개 버튼
             var eraserButton = CreateToolButton("🧹", "지우개");
-            eraserButton.Click += (s, e) => { currentTool = "지우개"; HideColorPalette(); };
-            
+            eraserButton.Click += (s, e) => 
+            { 
+                currentTool = "지우개"; 
+                SetActiveToolButton(eraserButton);
+                HideColorPalette(); 
+                EnableEraserMode();
+            };
+
+            // OCR 버튼
+            var ocrButton = CreateToolButton("🔍", "OCR");
+            ocrButton.Click += async (s, e) => 
+            { 
+                await PerformOcr();
+            };
+
             // 구분선
             var separator = new Border
             {
@@ -847,14 +902,65 @@ namespace CatchCapture.Utilities
                 DialogResult = true;
                 Close();
             };
+            doneButton.Click += (s, e) =>
+            {
+                ConfirmAndClose();
+            };
+            
+            // 구분선 2
+            var separator2 = new Border
+            {
+                Width = 1,
+                Height = 30,
+                Background = new SolidColorBrush(Color.FromArgb(100, 0, 0, 0)),
+                Margin = new Thickness(5, 0, 5, 0)
+            };
+            
+            // 실행 취소 버튼 (Ctrl+Z)
+            var undoButton = CreateActionButton("↶", "실행 취소 (Ctrl+Z)");
+            undoButton.Click += (s, e) => UndoLastAction();
+            
+            // 초기화 버튼 (Ctrl+R)
+            var resetButton = CreateActionButton("⟲", "전체 초기화 (Ctrl+R)");
+            resetButton.Click += (s, e) => ResetAllDrawings();
+            resetButton.MouseEnter += (s, e) =>
+            {
+                resetButton.Background = new SolidColorBrush(Color.FromArgb(40, 0, 0, 0));
+                resetButton.Foreground = new SolidColorBrush(Color.FromArgb(255, 220, 50, 50)); // 빨간색
+            };
+            
+            // 구분선 3
+            var separator3 = new Border
+            {
+                Width = 1,
+                Height = 30,
+                Background = new SolidColorBrush(Color.FromArgb(100, 0, 0, 0)),
+                Margin = new Thickness(5, 0, 5, 0)
+            };
+            
+            // 복사 버튼 (Ctrl+C)
+            var copyButton = CreateActionButton("📋", "클립보드 복사 (Ctrl+C)");
+            copyButton.Click += (s, e) => CopyToClipboard();
+            
+            // 저장 버튼 (Ctrl+S)
+            var saveButton = CreateActionButton("💾", "파일로 저장 (Ctrl+S)");
+            saveButton.Click += (s, e) => SaveToFile();
+
             toolbar.Children.Add(penButton);
             toolbar.Children.Add(highlighterButton);
             toolbar.Children.Add(textButton);
             toolbar.Children.Add(shapeButton);
             toolbar.Children.Add(mosaicButton);
             toolbar.Children.Add(eraserButton);
+            toolbar.Children.Add(ocrButton);
             toolbar.Children.Add(separator);
             toolbar.Children.Add(doneButton);
+            toolbar.Children.Add(separator2);
+            toolbar.Children.Add(undoButton);
+            toolbar.Children.Add(resetButton);
+            toolbar.Children.Add(separator3);
+            toolbar.Children.Add(copyButton);
+            toolbar.Children.Add(saveButton);
             
             // 툴바를 선택 영역 바로 아래에 배치
             canvas.Children.Add(toolbar);
@@ -918,7 +1024,41 @@ namespace CatchCapture.Utilities
             
             return button;
         }
-        
+
+        private Button CreateActionButton(string icon, string tooltip)
+        {
+            var button = new Button
+            {
+                Content = icon,
+                Width = 36,
+                Height = 36,
+                Margin = new Thickness(4),
+                ToolTip = tooltip,
+                FontSize = 18,
+                FontWeight = FontWeights.Bold,
+                Background = new SolidColorBrush(Color.FromArgb(0, 255, 255, 255)),
+                Foreground = new SolidColorBrush(Color.FromArgb(255, 100, 100, 100)),
+                BorderBrush = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0)),
+                BorderThickness = new Thickness(0),
+                Cursor = Cursors.Hand,
+                Style = null
+            };
+            
+            button.MouseEnter += (s, e) =>
+            {
+                button.Background = new SolidColorBrush(Color.FromArgb(40, 0, 0, 0));
+                button.Foreground = new SolidColorBrush(Color.FromArgb(255, 0, 120, 212));
+            };
+            
+            button.MouseLeave += (s, e) =>
+            {
+                button.Background = new SolidColorBrush(Color.FromArgb(0, 255, 255, 255));
+                button.Foreground = new SolidColorBrush(Color.FromArgb(255, 100, 100, 100));
+            };
+            
+            return button;
+        }
+
         private void SetActiveToolButton(Button button)
         {
             // 이전 활성 버튼 초기화
@@ -1268,7 +1408,400 @@ namespace CatchCapture.Utilities
             
             canvas.MouseLeftButtonDown += Canvas_TextMouseDown;
         }
+
+        private void EnableEraserMode()
+        {
+            isDrawingEnabled = false;
+            canvas.Cursor = Cursors.Hand; // 지우개 커서
+            
+            // 기존 이벤트 제거
+            canvas.MouseLeftButtonDown -= Canvas_DrawMouseDown;
+            canvas.MouseLeftButtonDown -= Canvas_TextMouseDown;
+            canvas.MouseMove -= Canvas_DrawMouseMove;
+            canvas.MouseLeftButtonUp -= Canvas_DrawMouseUp;
+            
+            // 지우개 이벤트 등록
+            canvas.MouseLeftButtonDown += Canvas_EraserMouseDown;
+            
+            // 텍스트 선택 해제
+            if (selectedTextBox != null)
+            {
+                ClearTextSelection();
+            }
+        }
+        private async Task PerformOcr()
+        {
+            try
+            {
+                // 선택 영역만 크롭하여 OCR 수행
+                BitmapSource imageToOcr = null;
+                
+                if (screenCapture != null && selectionRectangle != null)
+                {
+                    double selectionLeft = Canvas.GetLeft(selectionRectangle);
+                    double selectionTop = Canvas.GetTop(selectionRectangle);
+                    double selectionWidth = selectionRectangle.Width;
+                    double selectionHeight = selectionRectangle.Height;
+                    
+                    // 선택 영역만 크롭
+                    var croppedBitmap = new CroppedBitmap(
+                        screenCapture,
+                        new Int32Rect(
+                            (int)selectionLeft,
+                            (int)selectionTop,
+                            (int)selectionWidth,
+                            (int)selectionHeight
+                        )
+                    );
+                    
+                    imageToOcr = croppedBitmap;
+                }
+                
+                if (imageToOcr == null)
+                {
+                    MessageBox.Show("OCR을 수행할 이미지가 없습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+                
+                // 로딩 표시
+                this.Cursor = Cursors.Wait;
+                
+                // OCR 실행
+                string extractedText = await CatchCapture.Utilities.OcrUtility.ExtractTextFromImageAsync(imageToOcr);
+                
+                // 커서 복원
+                this.Cursor = Cursors.Arrow;
+                
+                if (string.IsNullOrWhiteSpace(extractedText))
+                {
+                    MessageBox.Show("추출된 텍스트가 없습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+                
+                // OCR 결과창 표시
+                var resultWindow = new OcrResultWindow(extractedText);
+                resultWindow.Owner = this;
+                resultWindow.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                this.Cursor = Cursors.Arrow;
+                MessageBox.Show($"텍스트 추출 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void ConfirmAndClose()
+        {
+            // 그린 내용을 이미지에 합성
+            if (drawnElements.Count > 0)
+            {
+                SaveDrawingsToImage();
+            }
+            
+            DialogResult = true;
+            Close();
+        }
         
+        private void UndoLastAction()
+        {
+            if (drawnElements.Count == 0)
+            {
+                return; // 조용히 무시
+            }
+            
+            // 마지막 요소 제거
+            var lastElement = drawnElements[drawnElements.Count - 1];
+            drawnElements.RemoveAt(drawnElements.Count - 1);
+            canvas.Children.Remove(lastElement);
+            
+            // 텍스트박스인 경우 관련 버튼도 제거
+            if (lastElement is TextBox textBox)
+            {
+                if (textBox.Tag != null)
+                {
+                    dynamic tags = textBox.Tag;
+                    if (tags.confirmButton != null && canvas.Children.Contains(tags.confirmButton))
+                        canvas.Children.Remove(tags.confirmButton);
+                    if (tags.cancelButton != null && canvas.Children.Contains(tags.cancelButton))
+                        canvas.Children.Remove(tags.cancelButton);
+                }
+            }
+            
+            // 선택 상태 초기화
+            if (selectedTextBox == lastElement)
+            {
+                ClearTextSelection();
+            }
+        }
+        
+        private void ResetAllDrawings()
+        {
+            if (drawnElements.Count == 0)
+            {
+                return; // 조용히 무시
+            }
+            
+            var result = MessageBox.Show(
+                "모든 그리기 내용을 삭제하시겠습니까?", 
+                "확인", 
+                MessageBoxButton.YesNo, 
+                MessageBoxImage.Question
+            );
+            
+            if (result == MessageBoxResult.Yes)
+            {
+                // 모든 그린 요소 제거
+                foreach (var element in drawnElements.ToList())
+                {
+                    canvas.Children.Remove(element);
+                    
+                    // 텍스트박스인 경우 관련 버튼도 제거
+                    if (element is TextBox textBox && textBox.Tag != null)
+                    {
+                        dynamic tags = textBox.Tag;
+                        if (tags.confirmButton != null && canvas.Children.Contains(tags.confirmButton))
+                            canvas.Children.Remove(tags.confirmButton);
+                        if (tags.cancelButton != null && canvas.Children.Contains(tags.cancelButton))
+                            canvas.Children.Remove(tags.cancelButton);
+                    }
+                }
+                
+                drawnElements.Clear();
+                ClearTextSelection();
+            }
+        }
+        
+        private void CopyToClipboard()
+        {
+            try
+            {
+                // 그린 내용을 이미지에 합성
+                if (drawnElements.Count > 0)
+                {
+                    SaveDrawingsToImage();
+                }
+                
+                if (SelectedFrozenImage != null)
+                {
+                    Clipboard.SetImage(SelectedFrozenImage);
+                    MessageBox.Show("이미지가 클립보드에 복사되었습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"클립보드 복사 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        
+        private void SaveToFile()
+        {
+            try
+            {
+                // 그린 내용을 이미지에 합성
+                if (drawnElements.Count > 0)
+                {
+                    SaveDrawingsToImage();
+                }
+                
+                if (SelectedFrozenImage == null)
+                {
+                    MessageBox.Show("저장할 이미지가 없습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+                
+                var saveDialog = new Microsoft.Win32.SaveFileDialog
+                {
+                    Filter = "PNG 이미지|*.png|JPEG 이미지|*.jpg|BMP 이미지|*.bmp",
+                    DefaultExt = ".png",
+                    FileName = $"캡처_{DateTime.Now:yyyyMMdd_HHmmss}"
+                };
+                
+                if (saveDialog.ShowDialog() == true)
+                {
+                    BitmapEncoder encoder;
+                    string extension = System.IO.Path.GetExtension(saveDialog.FileName).ToLower();
+                    
+                    switch (extension)
+                    {
+                        case ".jpg":
+                        case ".jpeg":
+                            encoder = new JpegBitmapEncoder();
+                            break;
+                        case ".bmp":
+                            encoder = new BmpBitmapEncoder();
+                            break;
+                        default:
+                            encoder = new PngBitmapEncoder();
+                            break;
+                    }
+                    
+                    encoder.Frames.Add(BitmapFrame.Create(SelectedFrozenImage));
+                    
+                    using (var stream = new System.IO.FileStream(saveDialog.FileName, System.IO.FileMode.Create))
+                    {
+                        encoder.Save(stream);
+                    }
+                    
+                    MessageBox.Show($"이미지가 저장되었습니다.\n{saveDialog.FileName}", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"파일 저장 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void Canvas_EraserMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            // 버튼 클릭 시 무시
+            if (e.OriginalSource is FrameworkElement source && 
+               (source is Button || source.Parent is Button || source.TemplatedParent is Button))
+                return;
+
+            Point clickPoint = e.GetPosition(canvas);
+            
+            // 선택 영역 내부인지 확인
+            if (!IsPointInSelection(clickPoint))
+                return;
+
+            // 클릭한 위치에 있는 요소 찾기 (역순으로 검색 - 최상위 요소부터)
+            UIElement elementToRemove = null;
+            
+            for (int i = drawnElements.Count - 1; i >= 0; i--)
+            {
+                var element = drawnElements[i];
+                
+                if (element is Polyline polyline)
+                {
+                    // Polyline의 점들 중 하나라도 클릭 범위 내에 있으면 선택
+                    foreach (var point in polyline.Points)
+                    {
+                        if (Math.Abs(point.X - clickPoint.X) < 10 && Math.Abs(point.Y - clickPoint.Y) < 10)
+                        {
+                            elementToRemove = polyline;
+                            break;
+                        }
+                    }
+                }
+                else if (element is TextBox textBox)
+                {
+                    double left = Canvas.GetLeft(textBox);
+                    double top = Canvas.GetTop(textBox);
+                    double right = left + textBox.ActualWidth;
+                    double bottom = top + textBox.ActualHeight;
+                    
+                    if (clickPoint.X >= left && clickPoint.X <= right &&
+                        clickPoint.Y >= top && clickPoint.Y <= bottom)
+                    {
+                        elementToRemove = textBox;
+                    }
+                }
+                else if (element is Shape shape)
+                {
+                    if (shape is Line line)
+                    {
+                        // 선의 경우 클릭 위치가 선 근처인지 확인
+                        double distance = DistanceFromPointToLine(clickPoint, new Point(line.X1, line.Y1), new Point(line.X2, line.Y2));
+                        if (distance < 10)
+                        {
+                            elementToRemove = shape;
+                        }
+                    }
+                    else
+                    {
+                        double left = Canvas.GetLeft(shape);
+                        double top = Canvas.GetTop(shape);
+                        double right = left + shape.Width;
+                        double bottom = top + shape.Height;
+                        
+                        if (clickPoint.X >= left && clickPoint.X <= right &&
+                            clickPoint.Y >= top && clickPoint.Y <= bottom)
+                        {
+                            elementToRemove = shape;
+                        }
+                    }
+                }
+                else if (element is Canvas arrowCanvas)
+                {
+                    // 화살표의 경우 자식 요소 확인
+                    foreach (var child in arrowCanvas.Children)
+                    {
+                        if (child is Line l)
+                        {
+                            double distance = DistanceFromPointToLine(clickPoint, new Point(l.X1, l.Y1), new Point(l.X2, l.Y2));
+                            if (distance < 10)
+                            {
+                                elementToRemove = arrowCanvas;
+                                break;
+                            }
+                        }
+                    }
+                }
+                else if (element is Image image)
+                {
+                    // 모자이크 이미지
+                    double left = Canvas.GetLeft(image);
+                    double top = Canvas.GetTop(image);
+                    double right = left + image.Width;
+                    double bottom = top + image.Height;
+                    
+                    if (clickPoint.X >= left && clickPoint.X <= right &&
+                        clickPoint.Y >= top && clickPoint.Y <= bottom)
+                    {
+                        elementToRemove = image;
+                    }
+                }
+                
+                if (elementToRemove != null)
+                    break;
+            }
+            
+            // 요소 삭제
+            if (elementToRemove != null)
+            {
+                canvas.Children.Remove(elementToRemove);
+                drawnElements.Remove(elementToRemove);
+            }
+        }
+        
+        // 점에서 선까지의 거리 계산 (지우개용 헬퍼 메서드)
+        private double DistanceFromPointToLine(Point point, Point lineStart, Point lineEnd)
+        {
+            double A = point.X - lineStart.X;
+            double B = point.Y - lineStart.Y;
+            double C = lineEnd.X - lineStart.X;
+            double D = lineEnd.Y - lineStart.Y;
+
+            double dot = A * C + B * D;
+            double lenSq = C * C + D * D;
+            double param = -1;
+            
+            if (lenSq != 0)
+                param = dot / lenSq;
+
+            double xx, yy;
+
+            if (param < 0)
+            {
+                xx = lineStart.X;
+                yy = lineStart.Y;
+            }
+            else if (param > 1)
+            {
+                xx = lineEnd.X;
+                yy = lineEnd.Y;
+            }
+            else
+            {
+                xx = lineStart.X + param * C;
+                yy = lineStart.Y + param * D;
+            }
+
+            double dx = point.X - xx;
+            double dy = point.Y - yy;
+            
+            return Math.Sqrt(dx * dx + dy * dy);
+        }
         private void EnableShapeMode()
         {
             isDrawingEnabled = true;
