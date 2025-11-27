@@ -58,6 +58,8 @@ namespace CatchCapture.Utilities
         private TextBox? selectedTextBox;
         private int textFontSize = 16;
         private string textFontFamily = "Malgun Gothic";
+        private Rectangle? textSelectionBorder; // 선택된 텍스트 테두리
+        private Button? textDeleteButton; // 삭제 버튼
         private Border? magnifierBorder;
         private Image? magnifierImage;
         private const double MagnifierSize = 150; // 돋보기 크기
@@ -752,8 +754,13 @@ namespace CatchCapture.Utilities
             };
             // 텍스트 버튼
             var textButton = CreateToolButton("📝", "텍스트");
-            textButton.Click += (s, e) => ShowColorPalette("텍스트", selectionLeft, selectionTop + selectionHeight + 60);
-            
+            textButton.Click += (s, e) => 
+            {
+                currentTool = "텍스트";
+                SetActiveToolButton(textButton);
+                ShowColorPalette("텍스트", selectionLeft, selectionTop + selectionHeight + 60);
+                EnableTextMode();
+            };            
             // 도형 버튼
             var shapeButton = CreateToolButton("🔲", "도형");
             shapeButton.Click += (s, e) => ShowColorPalette("도형", selectionLeft, selectionTop + selectionHeight + 60);
@@ -1155,7 +1162,8 @@ namespace CatchCapture.Utilities
                 colorPalette = null;
             }
         }
-                private void EnableDrawingMode()
+
+        private void EnableDrawingMode()
         {
             isDrawingEnabled = true;
             Cursor = Cursors.Pen;
@@ -1165,7 +1173,332 @@ namespace CatchCapture.Utilities
             canvas.MouseMove += Canvas_DrawMouseMove;
             canvas.MouseLeftButtonUp += Canvas_DrawMouseUp;
         }
-        
+
+        private void EnableTextMode()
+        {
+            isDrawingEnabled = false;
+            Cursor = Cursors.IBeam;
+            
+            // 텍스트 입력용 마우스 이벤트 등록
+            canvas.MouseLeftButtonDown -= Canvas_DrawMouseDown; // 그리기 이벤트 제거
+            canvas.MouseMove -= Canvas_DrawMouseMove;
+            canvas.MouseLeftButtonUp -= Canvas_DrawMouseUp;
+            
+            canvas.MouseLeftButtonDown += Canvas_TextMouseDown;
+        }
+
+        private void Canvas_TextMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            Point clickPoint = e.GetPosition(canvas);
+            
+            // 선택 영역 내부인지 확인
+            if (!IsPointInSelection(clickPoint))
+                return;
+            // 기존 선택 해제
+            ClearTextSelection();    
+
+            // 기존 텍스트박스가 있으면 포커스 해제
+            if (selectedTextBox != null)
+            {
+                selectedTextBox.IsReadOnly = true;
+                selectedTextBox.BorderThickness = new Thickness(0);
+                selectedTextBox.Background = Brushes.Transparent;
+            }
+            
+            // 새 텍스트박스 생성
+            var textBox = new TextBox
+            {
+                MinWidth = 100,
+                MinHeight = 30,
+                FontSize = textFontSize,
+                FontFamily = new FontFamily(textFontFamily),
+                Foreground = new SolidColorBrush(selectedColor),
+                Background = Brushes.Transparent, // 투명하게 변경
+                BorderBrush = new SolidColorBrush(Colors.DeepSkyBlue),
+                BorderThickness = new Thickness(2),
+                Padding = new Thickness(5),
+                TextWrapping = TextWrapping.Wrap,
+                AcceptsReturn = true,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto
+            };
+
+            // 확정 버튼 생성
+            var confirmButton = new Button
+            {
+                Content = "✓",
+                Width = 24,
+                Height = 24,
+                FontSize = 14,
+                FontWeight = FontWeights.Bold,
+                Background = new SolidColorBrush(Color.FromArgb(255, 76, 175, 80)), // 녹색
+                Foreground = Brushes.White,
+                BorderThickness = new Thickness(0),
+                Cursor = Cursors.Hand,
+                ToolTip = "텍스트 확정 (Ctrl+Enter)"
+            };
+
+            // 취소 버튼 생성
+            var cancelButton = new Button
+            {
+                Content = "✕",
+                Width = 24,
+                Height = 24,
+                FontSize = 14,
+                FontWeight = FontWeights.Bold,
+                Background = new SolidColorBrush(Color.FromArgb(255, 244, 67, 54)), // 빨간색
+                Foreground = Brushes.White,
+                BorderThickness = new Thickness(0),
+                Cursor = Cursors.Hand,
+                ToolTip = "취소"
+            };
+
+            // 확정 버튼 클릭 이벤트
+            confirmButton.Click += (s, e) =>
+            {
+                ConfirmTextBox(textBox, confirmButton, cancelButton);
+            };
+
+            // 취소 버튼 클릭 이벤트
+            cancelButton.Click += (s, e) =>
+            {
+                // 텍스트박스 삭제
+                canvas.Children.Remove(textBox);
+                canvas.Children.Remove(confirmButton);
+                canvas.Children.Remove(cancelButton);
+                drawnElements.Remove(textBox);
+                selectedTextBox = null;
+            };
+
+            // 텍스트박스 위치 설정
+            Canvas.SetLeft(textBox, clickPoint.X);
+            Canvas.SetTop(textBox, clickPoint.Y);
+
+            // 확정 버튼 위치 (텍스트박스 우측 상단)
+            Canvas.SetLeft(confirmButton, clickPoint.X + 105);
+            Canvas.SetTop(confirmButton, clickPoint.Y - 28);
+
+            // 취소 버튼 위치 (확정 버튼 왼쪽)
+            Canvas.SetLeft(cancelButton, clickPoint.X + 77);
+            Canvas.SetTop(cancelButton, clickPoint.Y - 28);
+
+            canvas.Children.Add(textBox);
+            canvas.Children.Add(confirmButton);
+            canvas.Children.Add(cancelButton);
+            drawnElements.Add(textBox);
+            selectedTextBox = textBox;
+
+            // 포커스 및 드래그 이벤트
+            textBox.Focus();
+            textBox.PreviewMouseLeftButtonDown += TextBox_PreviewMouseLeftButtonDown;
+            textBox.PreviewMouseMove += TextBox_PreviewMouseMove;
+            textBox.PreviewMouseLeftButtonUp += TextBox_PreviewMouseLeftButtonUp;
+
+            // Enter 키로 확정
+            textBox.KeyDown += (s, e) =>
+            {
+                if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.Control)
+                {
+                    ConfirmTextBox(textBox, confirmButton, cancelButton);
+                    e.Handled = true;
+                }
+                else if (e.Key == Key.Escape)
+                {
+                    // ESC 키는 텍스트박스만 취소
+                    canvas.Children.Remove(textBox);
+                    canvas.Children.Remove(confirmButton);
+                    canvas.Children.Remove(cancelButton);
+                    drawnElements.Remove(textBox);
+                    selectedTextBox = null;
+                    e.Handled = true; // 캡처 창이 닫히지 않도록
+                }
+            };
+
+            // 확정 버튼도 textBox와 함께 저장 (나중에 제거하기 위해)
+            textBox.Tag = new { confirmButton, cancelButton };
+        }
+
+        // 텍스트박스 드래그 관련 변수
+        private bool isTextDragging = false;
+        private Point textDragStartPoint;
+
+        private void TextBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is TextBox textBox)
+            {
+                // 선택 표시
+                ShowTextSelection(textBox);
+                selectedTextBox = textBox;
+                
+                // 더블클릭으로 확정된 텍스트 수정 가능
+                if (e.ClickCount == 2 && textBox.IsReadOnly)
+                {
+                    textBox.IsReadOnly = false;
+                    textBox.BorderBrush = new SolidColorBrush(Colors.DeepSkyBlue);
+                    textBox.BorderThickness = new Thickness(2);
+                    textBox.Focus();
+                    textBox.SelectAll();
+                    e.Handled = true;
+                    return;
+                }
+                
+                // 확정된 텍스트박스는 바로 드래그 가능
+                // 편집 중인 텍스트박스는 Ctrl + 클릭으로 드래그
+                if (textBox.IsReadOnly || Keyboard.Modifiers == ModifierKeys.Control)
+                {
+                    isTextDragging = true;
+                    textDragStartPoint = e.GetPosition(canvas);
+                    textBox.CaptureMouse();
+                    e.Handled = true;
+                }
+            }
+        }
+
+        private void TextBox_PreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            if (isTextDragging && sender is TextBox textBox)
+            {
+                Point currentPoint = e.GetPosition(canvas);
+                double offsetX = currentPoint.X - textDragStartPoint.X;
+                double offsetY = currentPoint.Y - textDragStartPoint.Y;
+                
+                double newLeft = Canvas.GetLeft(textBox) + offsetX;
+                double newTop = Canvas.GetTop(textBox) + offsetY;
+                
+                Canvas.SetLeft(textBox, newLeft);
+                Canvas.SetTop(textBox, newTop);
+                
+                // 점선 테두리도 함께 이동
+                if (textSelectionBorder != null)
+                {
+                    Canvas.SetLeft(textSelectionBorder, newLeft - 2);
+                    Canvas.SetTop(textSelectionBorder, newTop - 2);
+                }
+                
+                // 삭제 버튼도 함께 이동
+                if (textDeleteButton != null)
+                {
+                    double width = textBox.ActualWidth > 0 ? textBox.ActualWidth : textBox.MinWidth;
+                    Canvas.SetLeft(textDeleteButton, newLeft + width - 20);
+                    Canvas.SetTop(textDeleteButton, newTop - 28);
+                }
+                
+                textDragStartPoint = currentPoint;
+            }
+        }
+
+        private void TextBox_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (isTextDragging && sender is TextBox textBox)
+            {
+                isTextDragging = false;
+                textBox.ReleaseMouseCapture();
+            }
+        }
+
+        private void ConfirmTextBox(TextBox textBox, Button confirmButton, Button cancelButton)
+        {
+            if (textBox == null) return;
+            
+            // 텍스트박스 확정 처리
+            textBox.IsReadOnly = true;
+            textBox.BorderThickness = new Thickness(0);
+            textBox.Background = Brushes.Transparent;
+            textBox.Cursor = Cursors.Arrow;
+            
+            // 확정/취소 버튼 제거
+            canvas.Children.Remove(confirmButton);
+            canvas.Children.Remove(cancelButton);
+            
+            selectedTextBox = null;
+        }
+
+        private void ClearTextSelection()
+        {
+            // 기존 텍스트박스가 있으면 포커스 해제
+            if (selectedTextBox != null)
+            {
+                selectedTextBox.IsReadOnly = true;
+                selectedTextBox.BorderThickness = new Thickness(0);
+                selectedTextBox.Background = Brushes.Transparent;
+            }
+            
+            // 선택 테두리 제거
+            if (textSelectionBorder != null && canvas.Children.Contains(textSelectionBorder))
+            {
+                canvas.Children.Remove(textSelectionBorder);
+                textSelectionBorder = null;
+            }
+            
+            // 삭제 버튼 제거
+            if (textDeleteButton != null && canvas.Children.Contains(textDeleteButton))
+            {
+                canvas.Children.Remove(textDeleteButton);
+                textDeleteButton = null;
+            }
+        }
+
+        private void ShowTextSelection(TextBox textBox)
+        {
+            // 기존 선택 해제
+            ClearTextSelection();
+            
+            double left = Canvas.GetLeft(textBox);
+            double top = Canvas.GetTop(textBox);
+            double width = textBox.ActualWidth > 0 ? textBox.ActualWidth : textBox.MinWidth;
+            double height = textBox.ActualHeight > 0 ? textBox.ActualHeight : textBox.MinHeight;
+            
+            // 점선 테두리 생성
+            textSelectionBorder = new Rectangle
+            {
+                Width = width + 4,
+                Height = height + 4,
+                Stroke = new SolidColorBrush(Colors.DeepSkyBlue),
+                StrokeThickness = 2,
+                StrokeDashArray = new DoubleCollection { 4, 2 },
+                Fill = Brushes.Transparent,
+                IsHitTestVisible = false
+            };
+            
+            Canvas.SetLeft(textSelectionBorder, left - 2);
+            Canvas.SetTop(textSelectionBorder, top - 2);
+            canvas.Children.Add(textSelectionBorder);
+            
+            // 삭제 버튼 생성
+            textDeleteButton = new Button
+            {
+                Content = "🗑️",
+                Width = 24,
+                Height = 24,
+                FontSize = 12,
+                Background = new SolidColorBrush(Color.FromArgb(255, 244, 67, 54)), // 빨간색
+                Foreground = Brushes.White,
+                BorderThickness = new Thickness(0),
+                Cursor = Cursors.Hand,
+                ToolTip = "삭제"
+            };
+            
+            textDeleteButton.Click += (s, e) =>
+            {
+                // 텍스트박스 삭제
+                canvas.Children.Remove(textBox);
+                drawnElements.Remove(textBox);
+                
+                // 확정 버튼도 삭제 (있다면)
+                if (textBox.Tag is Button confirmBtn && canvas.Children.Contains(confirmBtn))
+                {
+                    canvas.Children.Remove(confirmBtn);
+                }
+                
+                ClearTextSelection();
+                selectedTextBox = null;
+            };
+            
+            Canvas.SetLeft(textDeleteButton, left + width - 20);
+            Canvas.SetTop(textDeleteButton, top - 28);
+            canvas.Children.Add(textDeleteButton);
+        }
+
+
         private void Canvas_DrawMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (!isDrawingEnabled) return;
@@ -1318,6 +1651,28 @@ namespace CatchCapture.Utilities
                             drawingContext.Pop();
                         }
                     }
+                    else if (element is TextBox textBox)
+                    {
+                        // 텍스트가 비어있으면 건너뛰기
+                        if (string.IsNullOrWhiteSpace(textBox.Text))
+                            continue;
+                        
+                        // 텍스트 렌더링
+                        var formattedText = new FormattedText(
+                            textBox.Text,
+                            System.Globalization.CultureInfo.CurrentCulture,
+                            FlowDirection.LeftToRight,
+                            new Typeface(textBox.FontFamily, textBox.FontStyle, textBox.FontWeight, textBox.FontStretch),
+                            textBox.FontSize,
+                            textBox.Foreground,
+                            VisualTreeHelper.GetDpi(this).PixelsPerDip);
+                        
+                        // 텍스트 위치 계산 (선택 영역 기준으로 오프셋 조정)
+                        double textLeft = Canvas.GetLeft(textBox) - selectionLeft;
+                        double textTop = Canvas.GetTop(textBox) - selectionTop;
+                        
+                        drawingContext.DrawText(formattedText, new Point(textLeft, textTop));
+                    }                    
                 }
             }
             
