@@ -37,7 +37,7 @@ namespace CatchCapture.Utilities
         private System.Windows.Threading.DispatcherTimer? memoryCleanupTimer;
         private bool instantEditMode = false; 
         private Border? colorPalette;
-        private Color selectedColor = Colors.Black;
+        private Color selectedColor = Colors.Yellow; // 형광펜 기본 색상
         private List<Color> customColors = new List<Color>();
         // PreviewWindow와 동일한 공용 색상 팔레트
         private static readonly Color[] SharedColorPalette = new[]
@@ -54,6 +54,10 @@ namespace CatchCapture.Utilities
         private int penThickness = 3; 
         private int highlightThickness = 8; 
         private Button? activeToolButton; 
+        // 텍스트 편집 관련 필드
+        private TextBox? selectedTextBox;
+        private int textFontSize = 16;
+        private string textFontFamily = "Malgun Gothic";
         private Border? magnifierBorder;
         private Image? magnifierImage;
         private const double MagnifierSize = 150; // 돋보기 크기
@@ -741,7 +745,8 @@ namespace CatchCapture.Utilities
             highlighterButton.Click += (s, e) => 
             {
                 currentTool = "형광펜";
-                SetActiveToolButton(highlighterButton); // 활성화 표시
+                selectedColor = Colors.Yellow; // 
+                SetActiveToolButton(highlighterButton);
                 ShowColorPalette("형광펜", selectionLeft, selectionTop + selectionHeight + 60);
                 EnableDrawingMode();
             };
@@ -843,6 +848,13 @@ namespace CatchCapture.Utilities
             
             Canvas.SetLeft(toolbar, toolbarLeft);
             Canvas.SetTop(toolbar, toolbarTop);
+
+            // 펜을 기본 도구로 선택하고 빨간색으로 설정
+            currentTool = "펜";
+            selectedColor = Colors.Red;
+            SetActiveToolButton(penButton);
+            ShowColorPalette("펜", selectionLeft, selectionTop + selectionHeight + 60);
+            EnableDrawingMode();
         }
 
         private Button CreateToolButton(string icon, string tooltip)
@@ -1039,7 +1051,31 @@ namespace CatchCapture.Utilities
                 };
                 Grid.SetColumn(text, 1);
                 item.Children.Add(text);
-                
+
+                // 두께 선택 이벤트 추가
+                int thickness = p; // 클로저 문제 방지
+                item.MouseLeftButtonDown += (s, e) =>
+                {
+                    if (currentTool == "형광펜")
+                    {
+                        highlightThickness = thickness;
+                    }
+                    else
+                    {
+                        penThickness = thickness;
+                    }
+                    
+                    // 시각적 피드백 (선택된 항목 강조)
+                    foreach (var child in thicknessList.Children)
+                    {
+                        if (child is Grid g)
+                        {
+                            g.Background = Brushes.Transparent;
+                        }
+                    }
+                    item.Background = new SolidColorBrush(Color.FromArgb(40, 0, 120, 212));
+                };
+
                 thicknessList.Children.Add(item);
             }
             thicknessSection.Children.Add(thicknessList);
@@ -1143,16 +1179,23 @@ namespace CatchCapture.Utilities
             lastDrawPoint = clickPoint;
             
             // 새 선 시작
+            Color strokeColor = selectedColor;
+            if (currentTool == "형광펜")
+            {
+                // 형광펜은 색상 자체에 투명도 적용 (알파값 128 = 50%)
+                strokeColor = Color.FromArgb(128, selectedColor.R, selectedColor.G, selectedColor.B);
+            }
+
             currentPolyline = new Polyline
             {
-                Stroke = new SolidColorBrush(selectedColor),
+                Stroke = new SolidColorBrush(strokeColor),
                 StrokeThickness = currentTool == "형광펜" ? highlightThickness : penThickness,
                 StrokeStartLineCap = PenLineCap.Round,
                 StrokeEndLineCap = PenLineCap.Round,
                 StrokeLineJoin = PenLineJoin.Round
             };
-            
-            // 형광펜일 경우 투명도 적용
+
+            // 형광펜일 경우 화면 표시용 투명도도 적용
             if (currentTool == "형광펜")
             {
                 currentPolyline.Opacity = 0.5;
@@ -1175,6 +1218,25 @@ namespace CatchCapture.Utilities
             // 선택 영역 내부인지 확인
             if (!IsPointInSelection(currentPoint))
                 return;
+            
+            // 부드러운 선을 위해 중간 점들을 보간
+            double distance = Math.Sqrt(
+                Math.Pow(currentPoint.X - lastDrawPoint.X, 2) + 
+                Math.Pow(currentPoint.Y - lastDrawPoint.Y, 2));
+            
+            // 거리가 2픽셀 이상일 때만 중간 점 추가
+            if (distance > 2)
+            {
+                int steps = (int)(distance / 2); // 2픽셀마다 점 추가
+                for (int i = 1; i <= steps; i++)
+                {
+                    double t = (double)i / steps;
+                    Point interpolated = new Point(
+                        lastDrawPoint.X + (currentPoint.X - lastDrawPoint.X) * t,
+                        lastDrawPoint.Y + (currentPoint.Y - lastDrawPoint.Y) * t);
+                    currentPolyline.Points.Add(interpolated);
+                }
+            }
             
             currentPolyline.Points.Add(currentPoint);
             lastDrawPoint = currentPoint;
@@ -1231,17 +1293,29 @@ namespace CatchCapture.Utilities
                         {
                             adjustedPoints.Add(new Point(point.X - selectionLeft, point.Y - selectionTop));
                         }
-                        
+
                         var pen = new Pen(polyline.Stroke, polyline.StrokeThickness)
                         {
                             StartLineCap = PenLineCap.Round,
                             EndLineCap = PenLineCap.Round,
                             LineJoin = PenLineJoin.Round
                         };
-                        
+
+                        // 투명도가 있는 경우 PushOpacity 사용
+                        if (polyline.Opacity < 1.0)
+                        {
+                            drawingContext.PushOpacity(polyline.Opacity);
+                        }
+
                         for (int i = 0; i < adjustedPoints.Count - 1; i++)
                         {
                             drawingContext.DrawLine(pen, adjustedPoints[i], adjustedPoints[i + 1]);
+                        }
+
+                        // PushOpacity를 사용했으면 Pop 필요
+                        if (polyline.Opacity < 1.0)
+                        {
+                            drawingContext.Pop();
                         }
                     }
                 }
