@@ -1187,41 +1187,29 @@ namespace CatchCapture.Utilities
             canvas.MouseLeftButtonDown += Canvas_TextMouseDown;
         }
 
-        private void Canvas_TextMouseDown(object sender, MouseButtonEventArgs e)
+        // [추가] 부모 컨트롤 찾기 헬퍼
+        private T? FindParent<T>(DependencyObject child) where T : DependencyObject
         {
-            Point clickPoint = e.GetPosition(canvas);
-            
-            // 선택 영역 내부인지 확인
-            if (!IsPointInSelection(clickPoint))
-                return;
-            // 기존 선택 해제
-            ClearTextSelection();    
+            if (child == null) return null;
+            if (child is T parent) return parent; // 자기 자신이 찾는 타입이면 반환
 
-            // 기존 텍스트박스가 있으면 포커스 해제
-            if (selectedTextBox != null)
-            {
-                selectedTextBox.IsReadOnly = true;
-                selectedTextBox.BorderThickness = new Thickness(0);
-                selectedTextBox.Background = Brushes.Transparent;
-            }
+            DependencyObject parentObject = VisualTreeHelper.GetParent(child);
+            if (parentObject == null) return null;
             
-            // 새 텍스트박스 생성
-            var textBox = new TextBox
-            {
-                MinWidth = 100,
-                MinHeight = 30,
-                FontSize = textFontSize,
-                FontFamily = new FontFamily(textFontFamily),
-                Foreground = new SolidColorBrush(selectedColor),
-                Background = Brushes.Transparent, // 투명하게 변경
-                BorderBrush = new SolidColorBrush(Colors.DeepSkyBlue),
-                BorderThickness = new Thickness(2),
-                Padding = new Thickness(5),
-                TextWrapping = TextWrapping.Wrap,
-                AcceptsReturn = true,
-                VerticalScrollBarVisibility = ScrollBarVisibility.Auto
-            };
+            return FindParent<T>(parentObject);
+        }
 
+        // [추가] 텍스트 박스 편집 모드 활성화 (버튼 생성 및 이벤트 연결)
+        private void EnableTextBoxEditing(TextBox textBox)
+        {
+            textBox.IsReadOnly = false;
+            textBox.Background = Brushes.Transparent;
+            textBox.BorderThickness = new Thickness(2);
+            textBox.BorderBrush = new SolidColorBrush(Colors.DeepSkyBlue);
+            
+            double left = Canvas.GetLeft(textBox);
+            double top = Canvas.GetTop(textBox);
+            
             // 확정 버튼 생성
             var confirmButton = new Button
             {
@@ -1230,7 +1218,7 @@ namespace CatchCapture.Utilities
                 Height = 24,
                 FontSize = 14,
                 FontWeight = FontWeights.Bold,
-                Background = new SolidColorBrush(Color.FromArgb(255, 76, 175, 80)), // 녹색
+                Background = new SolidColorBrush(Color.FromArgb(255, 76, 175, 80)),
                 Foreground = Brushes.White,
                 BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
@@ -1245,23 +1233,17 @@ namespace CatchCapture.Utilities
                 Height = 24,
                 FontSize = 14,
                 FontWeight = FontWeights.Bold,
-                Background = new SolidColorBrush(Color.FromArgb(255, 244, 67, 54)), // 빨간색
+                Background = new SolidColorBrush(Color.FromArgb(255, 244, 67, 54)),
                 Foreground = Brushes.White,
                 BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
                 ToolTip = "취소"
             };
 
-            // 확정 버튼 클릭 이벤트
-            confirmButton.Click += (s, e) =>
+            // 이벤트 연결
+            confirmButton.Click += (s, e) => ConfirmTextBox(textBox, confirmButton, cancelButton);
+            cancelButton.Click += (s, e) => 
             {
-                ConfirmTextBox(textBox, confirmButton, cancelButton);
-            };
-
-            // 취소 버튼 클릭 이벤트
-            cancelButton.Click += (s, e) =>
-            {
-                // 텍스트박스 삭제
                 canvas.Children.Remove(textBox);
                 canvas.Children.Remove(confirmButton);
                 canvas.Children.Remove(cancelButton);
@@ -1269,52 +1251,104 @@ namespace CatchCapture.Utilities
                 selectedTextBox = null;
             };
 
-            // 텍스트박스 위치 설정
-            Canvas.SetLeft(textBox, clickPoint.X);
-            Canvas.SetTop(textBox, clickPoint.Y);
+            // 위치 설정
+            Canvas.SetLeft(confirmButton, left + 105);
+            Canvas.SetTop(confirmButton, top - 28);
+            Canvas.SetLeft(cancelButton, left + 77);
+            Canvas.SetTop(cancelButton, top - 28);
 
-            // 확정 버튼 위치 (텍스트박스 우측 상단)
-            Canvas.SetLeft(confirmButton, clickPoint.X + 105);
-            Canvas.SetTop(confirmButton, clickPoint.Y - 28);
-
-            // 취소 버튼 위치 (확정 버튼 왼쪽)
-            Canvas.SetLeft(cancelButton, clickPoint.X + 77);
-            Canvas.SetTop(cancelButton, clickPoint.Y - 28);
-
-            canvas.Children.Add(textBox);
             canvas.Children.Add(confirmButton);
             canvas.Children.Add(cancelButton);
+
+            // 태그 업데이트 (버튼 참조 저장)
+            textBox.Tag = new { confirmButton, cancelButton };
+            
+            // 키 이벤트 핸들러 재등록 (중복 방지)
+            textBox.KeyDown -= TextBox_KeyDown;
+            textBox.KeyDown += TextBox_KeyDown;
+            
+            textBox.Focus();
+        }
+
+        // [추가] 텍스트 박스 키 이벤트 핸들러
+        private void TextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (sender is not TextBox textBox) return;
+            
+            dynamic tags = textBox.Tag;
+            if (tags == null) return;
+            
+            // Tag에서 버튼 가져오기
+            Button confirmButton = tags.confirmButton;
+            Button cancelButton = tags.cancelButton;
+
+            if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                ConfirmTextBox(textBox, confirmButton, cancelButton);
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Escape)
+            {
+                // 취소 버튼 클릭과 동일
+                canvas.Children.Remove(textBox);
+                canvas.Children.Remove(confirmButton);
+                canvas.Children.Remove(cancelButton);
+                drawnElements.Remove(textBox);
+                selectedTextBox = null;
+                e.Handled = true;
+            }
+        }
+
+        // [수정] 캔버스 클릭 핸들러
+        private void Canvas_TextMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            // 버튼이나 텍스트박스 클릭 시 무시 (이벤트 버블링 방지 -> X버튼 클릭 문제 해결)
+            if (e.OriginalSource is DependencyObject obj && 
+                (FindParent<Button>(obj) != null || FindParent<TextBox>(obj) != null))
+            {
+                return;
+            }
+
+            Point clickPoint = e.GetPosition(canvas);
+            
+            // 선택 영역 내부인지 확인
+            if (!IsPointInSelection(clickPoint))
+                return;
+            
+            // 기존 선택 해제
+            ClearTextSelection();    
+
+            // 새 텍스트박스 생성
+            var textBox = new TextBox
+            {
+                MinWidth = 100,
+                MinHeight = 30,
+                FontSize = textFontSize,
+                FontFamily = new FontFamily(textFontFamily),
+                Foreground = new SolidColorBrush(selectedColor),
+                Background = Brushes.Transparent,
+                BorderBrush = new SolidColorBrush(Colors.DeepSkyBlue),
+                BorderThickness = new Thickness(2),
+                Padding = new Thickness(5),
+                TextWrapping = TextWrapping.Wrap,
+                AcceptsReturn = true,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto
+            };
+            
+            Canvas.SetLeft(textBox, clickPoint.X);
+            Canvas.SetTop(textBox, clickPoint.Y);
+            
+            canvas.Children.Add(textBox);
             drawnElements.Add(textBox);
             selectedTextBox = textBox;
-
-            // 포커스 및 드래그 이벤트
-            textBox.Focus();
+            
+            // 드래그 이벤트 등록
             textBox.PreviewMouseLeftButtonDown += TextBox_PreviewMouseLeftButtonDown;
             textBox.PreviewMouseMove += TextBox_PreviewMouseMove;
             textBox.PreviewMouseLeftButtonUp += TextBox_PreviewMouseLeftButtonUp;
 
-            // Enter 키로 확정
-            textBox.KeyDown += (s, e) =>
-            {
-                if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.Control)
-                {
-                    ConfirmTextBox(textBox, confirmButton, cancelButton);
-                    e.Handled = true;
-                }
-                else if (e.Key == Key.Escape)
-                {
-                    // ESC 키는 텍스트박스만 취소
-                    canvas.Children.Remove(textBox);
-                    canvas.Children.Remove(confirmButton);
-                    canvas.Children.Remove(cancelButton);
-                    drawnElements.Remove(textBox);
-                    selectedTextBox = null;
-                    e.Handled = true; // 캡처 창이 닫히지 않도록
-                }
-            };
-
-            // 확정 버튼도 textBox와 함께 저장 (나중에 제거하기 위해)
-            textBox.Tag = new { confirmButton, cancelButton };
+            // 편집 모드 활성화 (버튼 생성 등)
+            EnableTextBoxEditing(textBox);
         }
 
         // 텍스트박스 드래그 관련 변수
@@ -1325,31 +1359,32 @@ namespace CatchCapture.Utilities
         {
             if (sender is TextBox textBox)
             {
-                // 선택 표시
-                ShowTextSelection(textBox);
-                selectedTextBox = textBox;
-                
+                // 이미 편집 중이면(IsReadOnly == false) 간섭하지 않음 (텍스트 선택, 커서 이동 등 허용)
+                if (!textBox.IsReadOnly) return;
+
                 // 더블클릭으로 확정된 텍스트 수정 가능
-                if (e.ClickCount == 2 && textBox.IsReadOnly)
+                if (e.ClickCount == 2)
                 {
-                    textBox.IsReadOnly = false;
-                    textBox.BorderBrush = new SolidColorBrush(Colors.DeepSkyBlue);
-                    textBox.BorderThickness = new Thickness(2);
-                    textBox.Focus();
+                    // 선택 UI(점선, 휴지통) 제거
+                    ClearTextSelection();
+                    
+                    // 편집 모드 활성화 (확정/취소 버튼 다시 생성)
+                    EnableTextBoxEditing(textBox);
+                    
                     textBox.SelectAll();
                     e.Handled = true;
                     return;
                 }
+
+                // 선택 표시 (점선, 휴지통)
+                ShowTextSelection(textBox);
+                selectedTextBox = textBox;
                 
                 // 확정된 텍스트박스는 바로 드래그 가능
-                // 편집 중인 텍스트박스는 Ctrl + 클릭으로 드래그
-                if (textBox.IsReadOnly || Keyboard.Modifiers == ModifierKeys.Control)
-                {
-                    isTextDragging = true;
-                    textDragStartPoint = e.GetPosition(canvas);
-                    textBox.CaptureMouse();
-                    e.Handled = true;
-                }
+                isTextDragging = true;
+                textDragStartPoint = e.GetPosition(canvas);
+                textBox.CaptureMouse();
+                e.Handled = true;
             }
         }
 
