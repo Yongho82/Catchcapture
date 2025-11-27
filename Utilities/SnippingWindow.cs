@@ -713,7 +713,7 @@ namespace CatchCapture.Utilities
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-
+        
         protected virtual void Dispose(bool disposing)
         {
             if (!disposed)
@@ -726,12 +726,11 @@ namespace CatchCapture.Utilities
             }
         }
 
-
-
         ~SnippingWindow()
         {
             Dispose(false);
         }
+
         public void EnableInstantEditMode()
         {
             instantEditMode = true;
@@ -771,51 +770,53 @@ namespace CatchCapture.Utilities
             var toolbar = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
-                Background = new SolidColorBrush(Color.FromArgb(250, 255, 255, 255)),
-                Height = 48
+                Background = Brushes.White,
+                Height = 55 // 70 -> 55로 축소
             };
             
             // 툴바에 그림자 효과 추가
             toolbar.Effect = new System.Windows.Media.Effects.DropShadowEffect
             {
                 Color = Colors.Black,
-                BlurRadius = 8,
+                BlurRadius = 10,
                 ShadowDepth = 2,
-                Opacity = 0.3
+                Opacity = 0.15
             };
 
 
             // 펜 버튼
-            var penButton = CreateToolButton("🖊️", "펜");
+            var penButton = CreateToolButton("highlight.png", "펜", "펜 도구");
             penButton.Click += (s, e) => 
             {
                 currentTool = "펜";
-                SetActiveToolButton(penButton); // 활성화 표시
+                SetActiveToolButton(penButton);
                 ShowColorPalette("펜", selectionLeft, selectionTop + selectionHeight + 60);
                 EnableDrawingMode();
             };
             
             // 형광펜 버튼
-            var highlighterButton = CreateToolButton("🖍️", "형광펜");
+            var highlighterButton = CreateToolButton("highlight.png", "형광펜", "형광펜 도구");
             highlighterButton.Click += (s, e) => 
             {
                 currentTool = "형광펜";
-                selectedColor = Colors.Yellow; // 
+                selectedColor = Colors.Yellow;
                 SetActiveToolButton(highlighterButton);
                 ShowColorPalette("형광펜", selectionLeft, selectionTop + selectionHeight + 60);
                 EnableDrawingMode();
             };
+            
             // 텍스트 버튼
-            var textButton = CreateToolButton("📝", "텍스트");
+            var textButton = CreateToolButton("text.png", "텍스트", "텍스트 입력");
             textButton.Click += (s, e) => 
             {
                 currentTool = "텍스트";
                 SetActiveToolButton(textButton);
                 ShowColorPalette("텍스트", selectionLeft, selectionTop + selectionHeight + 60);
                 EnableTextMode();
-            };            
+            };
+            
             // 도형 버튼
-            var shapeButton = CreateToolButton("🔲", "도형");
+            var shapeButton = CreateToolButton("shape.png", "도형", "도형 그리기");
             shapeButton.Click += (s, e) => 
             {
                 currentTool = "도형";
@@ -823,18 +824,19 @@ namespace CatchCapture.Utilities
                 ShowColorPalette("도형", selectionLeft, selectionTop + selectionHeight + 60);
                 EnableShapeMode();
             };
+            
             // 모자이크 버튼
-            var mosaicButton = CreateToolButton("🎨", "모자이크");
+            var mosaicButton = CreateToolButton("mosaic.png", "모자이크", "모자이크 효과");
             mosaicButton.Click += (s, e) => 
             { 
                 currentTool = "모자이크"; 
                 SetActiveToolButton(mosaicButton);
                 ShowColorPalette("모자이크", selectionLeft, selectionTop + selectionHeight + 60);
-                EnableMosaicMode(); // [추가] 모자이크 모드 활성화 (커서 변경)
+                EnableMosaicMode();
             };
             
             // 지우개 버튼
-            var eraserButton = CreateToolButton("🧹", "지우개");
+            var eraserButton = CreateToolButton("eraser.png", "지우개", "요소 삭제");
             eraserButton.Click += (s, e) => 
             { 
                 currentTool = "지우개"; 
@@ -844,7 +846,7 @@ namespace CatchCapture.Utilities
             };
 
             // OCR 버튼
-            var ocrButton = CreateToolButton("🔍", "OCR");
+            var ocrButton = CreateToolButton("extract_text.png", "OCR", "텍스트 추출");
             ocrButton.Click += async (s, e) => 
             { 
                 await PerformOcr();
@@ -862,46 +864,66 @@ namespace CatchCapture.Utilities
             // 완료 버튼
             var doneButton = new Button
             {
-                Content = "✓",
-                Width = 36,
-                Height = 36,
-                Margin = new Thickness(4),
-                ToolTip = "완료",
-                FontSize = 18,
-                FontWeight = FontWeights.Bold,
-                Background = new SolidColorBrush(Color.FromArgb(0, 255, 255, 255)), // 투명 배경
-                Foreground = new SolidColorBrush(Color.FromArgb(255, 100, 100, 100)), // 회색 텍스트
-                BorderBrush = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0)),
-                BorderThickness = new Thickness(0),
+                Width = 45,  // 45로 축소
+                Height = 45, // 45로 축소
+                Margin = new Thickness(2),
+                Padding = new Thickness(2),
+                Background = new SolidColorBrush(Color.FromRgb(0, 120, 212)),
+                BorderBrush = new SolidColorBrush(Color.FromRgb(0, 90, 158)),
+                BorderThickness = new Thickness(1),
                 Cursor = Cursors.Hand,
+                ToolTip = "완료 (Enter)",
                 Style = null
             };
             
-            // 호버 효과
+            var doneStackPanel = new StackPanel
+            {
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+            
+            var doneText = new TextBlock
+            {
+                Text = "✓",
+                FontSize = 18, // 24 -> 18로 축소
+                FontWeight = FontWeights.Bold,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Foreground = Brushes.White,
+                Margin = new Thickness(0, 0, 0, 1)
+            };
+            
+            var doneLabel = new TextBlock
+            {
+                Text = "완료",
+                FontSize = 9, // 10 -> 9로 축소
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Foreground = Brushes.White
+            };
+            
+            doneStackPanel.Children.Add(doneText);
+            doneStackPanel.Children.Add(doneLabel);
+            
+            // Border로 둥근 모서리 효과 (완료 버튼용)
+            var doneBorder = new Border
+            {
+                CornerRadius = new CornerRadius(6),
+                Background = Brushes.Transparent,
+                Child = doneStackPanel
+            };
+            
+            doneButton.Content = doneBorder;
+            
             doneButton.MouseEnter += (s, e) =>
             {
-                doneButton.Background = new SolidColorBrush(Color.FromArgb(40, 0, 0, 0));
-                doneButton.Foreground = new SolidColorBrush(Color.FromArgb(255, 0, 120, 212)); // 호버 시 파란색
+                doneButton.Background = new SolidColorBrush(Color.FromRgb(0, 140, 255));
             };
             
             doneButton.MouseLeave += (s, e) =>
             {
-                doneButton.Background = new SolidColorBrush(Color.FromArgb(0, 255, 255, 255));
-                doneButton.Foreground = new SolidColorBrush(Color.FromArgb(255, 100, 100, 100)); // 기본 회색
+                doneButton.Background = new SolidColorBrush(Color.FromRgb(0, 120, 212));
             };
             
             // 완료 버튼 클릭 이벤트
-            doneButton.Click += (s, e) =>
-            {
-                // 그린 내용을 이미지에 합성
-                if (drawnElements.Count > 0)
-                {
-                    SaveDrawingsToImage();
-                }
-                
-                DialogResult = true;
-                Close();
-            };
             doneButton.Click += (s, e) =>
             {
                 ConfirmAndClose();
@@ -916,19 +938,14 @@ namespace CatchCapture.Utilities
                 Margin = new Thickness(5, 0, 5, 0)
             };
             
-            // 실행 취소 버튼 (Ctrl+Z)
-            var undoButton = CreateActionButton("↶", "실행 취소 (Ctrl+Z)");
+            // 실행 취소 버튼
+            var undoButton = CreateActionButton("undo.png", "실행취소", "실행 취소 (Ctrl+Z)");
             undoButton.Click += (s, e) => UndoLastAction();
             
-            // 초기화 버튼 (Ctrl+R)
-            var resetButton = CreateActionButton("⟲", "전체 초기화 (Ctrl+R)");
+            // 초기화 버튼
+            var resetButton = CreateActionButton("reset.png", "초기화", "전체 초기화 (Ctrl+R)");
             resetButton.Click += (s, e) => ResetAllDrawings();
-            resetButton.MouseEnter += (s, e) =>
-            {
-                resetButton.Background = new SolidColorBrush(Color.FromArgb(40, 0, 0, 0));
-                resetButton.Foreground = new SolidColorBrush(Color.FromArgb(255, 220, 50, 50)); // 빨간색
-            };
-            
+
             // 구분선 3
             var separator3 = new Border
             {
@@ -938,12 +955,12 @@ namespace CatchCapture.Utilities
                 Margin = new Thickness(5, 0, 5, 0)
             };
             
-            // 복사 버튼 (Ctrl+C)
-            var copyButton = CreateActionButton("📋", "클립보드 복사 (Ctrl+C)");
+            // 복사 버튼
+            var copyButton = CreateActionButton("copy_selected.png", "복사", "클립보드 복사 (Ctrl+C)");
             copyButton.Click += (s, e) => CopyToClipboard();
             
-            // 저장 버튼 (Ctrl+S)
-            var saveButton = CreateActionButton("💾", "파일로 저장 (Ctrl+S)");
+            // 저장 버튼
+            var saveButton = CreateActionButton("save_selected.png", "저장", "파일로 저장 (Ctrl+S)");
             saveButton.Click += (s, e) => SaveToFile();
 
             toolbar.Children.Add(penButton);
@@ -992,68 +1009,191 @@ namespace CatchCapture.Utilities
             EnableDrawingMode();
         }
 
-        private Button CreateToolButton(string icon, string tooltip)
+        private Button CreateToolButton(string iconPath, string label, string tooltip)
         {
             var button = new Button
             {
-                Content = icon,
-                Width = 36,
-                Height = 36,
-                Margin = new Thickness(4),
-                ToolTip = tooltip,
-                FontSize = 16,
-                Background = new SolidColorBrush(Color.FromArgb(0, 255, 255, 255)),
-                BorderBrush = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0)),
-                BorderThickness = new Thickness(0),
+                Width = 45,  // 60 -> 45로 축소
+                Height = 45, // 60 -> 45로 축소
+                Margin = new Thickness(2),
+                Padding = new Thickness(2),
+                Background = Brushes.White,
+                BorderBrush = new SolidColorBrush(Color.FromRgb(224, 230, 240)),
+                BorderThickness = new Thickness(1),
                 Cursor = Cursors.Hand,
+                ToolTip = tooltip,
                 Style = null
             };
+            
+            // Border로 둥근 모서리 효과
+            var border = new Border
+            {
+                CornerRadius = new CornerRadius(6),
+                Background = Brushes.Transparent
+            };
+            
+            // 아이콘 + 텍스트 세로 배치
+            var stackPanel = new StackPanel
+            {
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+            
+            // 아이콘 이미지
+            try
+            {
+                var icon = new Image
+                {
+                    Width = 18,  // 24 -> 18로 축소
+                    Height = 18, // 24 -> 18로 축소
+                    Margin = new Thickness(0, 1, 0, 1),
+                    Source = new BitmapImage(new Uri($"pack://application:,,,/icons/{iconPath}", UriKind.Absolute))
+                };
+                stackPanel.Children.Add(icon);
+            }
+            catch
+            {
+                var iconText = new TextBlock
+                {
+                    Text = GetEmojiForTool(label),
+                    FontSize = 16,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Margin = new Thickness(0, 1, 0, 1)
+                };
+                stackPanel.Children.Add(iconText);
+            }
+            
+            // 텍스트
+            var textBlock = new TextBlock
+            {
+                Text = label,
+                FontSize = 9, // 10 -> 9로 축소
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Foreground = new SolidColorBrush(Color.FromRgb(60, 60, 60)),
+                Margin = new Thickness(0, 1, 0, 0)
+            };
+            
+            stackPanel.Children.Add(textBlock);
+            border.Child = stackPanel;
+            button.Content = border;
             
             // 호버 효과
             button.MouseEnter += (s, e) =>
             {
-                if (button != activeToolButton)
-                    button.Background = new SolidColorBrush(Color.FromArgb(40, 0, 0, 0));
+                button.Background = new SolidColorBrush(Color.FromRgb(232, 243, 255));
+                button.BorderBrush = new SolidColorBrush(Color.FromRgb(0, 120, 212));
             };
             
             button.MouseLeave += (s, e) =>
             {
                 if (button != activeToolButton)
-                    button.Background = new SolidColorBrush(Color.FromArgb(0, 255, 255, 255));
+                {
+                    button.Background = Brushes.White;
+                    button.BorderBrush = new SolidColorBrush(Color.FromRgb(224, 230, 240));
+                }
             };
             
             return button;
         }
 
-        private Button CreateActionButton(string icon, string tooltip)
+        private string GetEmojiForTool(string label)
+        {
+            return label switch
+            {
+                "펜" => "🖊️",
+                "형광펜" => "🖍️",
+                "텍스트" => "📝",
+                "도형" => "🔲",
+                "모자이크" => "🎨",
+                "지우개" => "🧹",
+                "OCR" => "🔍",
+                "실행취소" => "↶",
+                "초기화" => "⟲",
+                "복사" => "📋",
+                "저장" => "💾",
+                _ => "●"
+            };
+        }
+
+        private Button CreateActionButton(string iconPath, string label, string tooltip)
         {
             var button = new Button
             {
-                Content = icon,
-                Width = 36,
-                Height = 36,
-                Margin = new Thickness(4),
-                ToolTip = tooltip,
-                FontSize = 18,
-                FontWeight = FontWeights.Bold,
-                Background = new SolidColorBrush(Color.FromArgb(0, 255, 255, 255)),
-                Foreground = new SolidColorBrush(Color.FromArgb(255, 100, 100, 100)),
-                BorderBrush = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0)),
-                BorderThickness = new Thickness(0),
+                Width = 45,  // 45로 축소
+                Height = 45, // 45로 축소
+                Margin = new Thickness(2),
+                Padding = new Thickness(2),
+                Background = Brushes.White,
+                BorderBrush = new SolidColorBrush(Color.FromRgb(224, 230, 240)),
+                BorderThickness = new Thickness(1),
                 Cursor = Cursors.Hand,
+                ToolTip = tooltip,
                 Style = null
             };
             
+            // Border로 둥근 모서리 효과
+            var border = new Border
+            {
+                CornerRadius = new CornerRadius(6),
+                Background = Brushes.Transparent
+            };
+            
+            // 아이콘 + 텍스트 세로 배치
+            var stackPanel = new StackPanel
+            {
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+            
+            // 아이콘 이미지
+            try
+            {
+                var icon = new Image
+                {
+                    Width = 18,  // 18로 축소
+                    Height = 18, // 18로 축소
+                    Margin = new Thickness(0, 1, 0, 1),
+                    Source = new BitmapImage(new Uri($"pack://application:,,,/icons/{iconPath}", UriKind.Absolute))
+                };
+                stackPanel.Children.Add(icon);
+            }
+            catch
+            {
+                var iconText = new TextBlock
+                {
+                    Text = GetEmojiForTool(label),
+                    FontSize = 16,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Margin = new Thickness(0, 1, 0, 1)
+                };
+                stackPanel.Children.Add(iconText);
+            }
+            
+            // 텍스트
+            var textBlock = new TextBlock
+            {
+                Text = label,
+                FontSize = 9,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Foreground = new SolidColorBrush(Color.FromRgb(60, 60, 60)),
+                Margin = new Thickness(0, 1, 0, 0)
+            };
+            
+            stackPanel.Children.Add(textBlock);
+            border.Child = stackPanel;
+            button.Content = border;
+            
+            // 호버 효과
             button.MouseEnter += (s, e) =>
             {
-                button.Background = new SolidColorBrush(Color.FromArgb(40, 0, 0, 0));
-                button.Foreground = new SolidColorBrush(Color.FromArgb(255, 0, 120, 212));
+                button.Background = new SolidColorBrush(Color.FromRgb(232, 243, 255));
+                button.BorderBrush = new SolidColorBrush(Color.FromRgb(0, 120, 212));
             };
             
             button.MouseLeave += (s, e) =>
             {
-                button.Background = new SolidColorBrush(Color.FromArgb(0, 255, 255, 255));
-                button.Foreground = new SolidColorBrush(Color.FromArgb(255, 100, 100, 100));
+                button.Background = Brushes.White;
+                button.BorderBrush = new SolidColorBrush(Color.FromRgb(224, 230, 240));
             };
             
             return button;
@@ -1064,16 +1204,19 @@ namespace CatchCapture.Utilities
             // 이전 활성 버튼 초기화
             if (activeToolButton != null)
             {
-                activeToolButton.Background = new SolidColorBrush(Color.FromArgb(0, 255, 255, 255));
+                activeToolButton.Background = Brushes.White;
+                activeToolButton.BorderBrush = new SolidColorBrush(Color.FromRgb(224, 230, 240));
             }
             
             // 새 활성 버튼 설정
             activeToolButton = button;
             if (activeToolButton != null)
             {
-                activeToolButton.Background = new SolidColorBrush(Color.FromArgb(80, 0, 120, 212)); // 파란색 호버
+                activeToolButton.Background = new SolidColorBrush(Color.FromRgb(232, 243, 255));
+                activeToolButton.BorderBrush = new SolidColorBrush(Color.FromRgb(0, 120, 212));
             }
         }
+        
         private void ShowColorPalette(string tool, double left, double top)
         {
             // 기존 팔레트 제거
