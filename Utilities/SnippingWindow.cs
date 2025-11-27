@@ -62,6 +62,9 @@ namespace CatchCapture.Utilities
         private UIElement? tempShape;
         private Point shapeStartPoint;
         private bool isDrawingShape = false;
+        // [추가] 모자이크 관련 필드
+        private double mosaicIntensity = 15; // 모자이크 강도 (기본값)
+        private Rectangle? tempMosaicSelection; // 모자이크 영역 선택용 사각형
         // 텍스트 편집 관련 필드
         private TextBox? selectedTextBox;
         private int textFontSize = 16;
@@ -780,7 +783,13 @@ namespace CatchCapture.Utilities
             };
             // 모자이크 버튼
             var mosaicButton = CreateToolButton("🎨", "모자이크");
-            mosaicButton.Click += (s, e) => { currentTool = "모자이크"; HideColorPalette(); };
+            mosaicButton.Click += (s, e) => 
+            { 
+                currentTool = "모자이크"; 
+                SetActiveToolButton(mosaicButton);
+                ShowColorPalette("모자이크", selectionLeft, selectionTop + selectionHeight + 60);
+                EnableMosaicMode(); // [추가] 모자이크 모드 활성화 (커서 변경)
+            };
             
             // 지우개 버튼
             var eraserButton = CreateToolButton("🧹", "지우개");
@@ -938,7 +947,7 @@ namespace CatchCapture.Utilities
                 BorderThickness = new Thickness(1),
                 CornerRadius = new CornerRadius(8),
                 Padding = new Thickness(10),
-                Width = 320 // 너비 증가
+                Width = 320
             };
             
             var mainGrid = new Grid();
@@ -955,67 +964,70 @@ namespace CatchCapture.Utilities
                 Opacity = 0.2
             };
             
-            // 1. 색상 섹션 (공통)
-            var colorSection = new StackPanel { Margin = new Thickness(0, 0, 15, 0) };
-            var colorLabel = new TextBlock
+            // 1. 색상 섹션 (모자이크가 아닐 때만 표시)
+            if (tool != "모자이크")
             {
-                Text = "색상",
-                FontWeight = FontWeights.SemiBold,
-                Margin = new Thickness(0, 0, 0, 8)
-            };
-            colorSection.Children.Add(colorLabel);
-            
-            var colorGrid = new WrapPanel { Width = 130 };
-            
-            foreach (var c in SharedColorPalette)
-            {
-                colorGrid.Children.Add(CreateColorSwatch(c, colorGrid));
-            }
-            
-            foreach (var c in customColors)
-            {
-                colorGrid.Children.Add(CreateColorSwatch(c, colorGrid));
-            }
-            
-            // [+] 버튼
-            var addButton = new Button
-            {
-                Content = "+",
-                Width = 20,
-                Height = 20,
-                Margin = new Thickness(2),
-                Background = Brushes.White,
-                BorderBrush = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
-                BorderThickness = new Thickness(1),
-                Cursor = Cursors.Hand
-            };
-            addButton.Click += (s, e) =>
-            {
-                var colorDialog = new System.Windows.Forms.ColorDialog();
-                if (colorDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                var colorSection = new StackPanel { Margin = new Thickness(0, 0, 15, 0) };
+                var colorLabel = new TextBlock
                 {
-                    var newColor = Color.FromArgb(colorDialog.Color.A, colorDialog.Color.R, colorDialog.Color.G, colorDialog.Color.B);
-                    customColors.Add(newColor);
-                    colorGrid.Children.Insert(colorGrid.Children.Count - 1, CreateColorSwatch(newColor, colorGrid));
-                    selectedColor = newColor;
-                    UpdateColorSelection(colorGrid);
+                    Text = "색상",
+                    FontWeight = FontWeights.SemiBold,
+                    Margin = new Thickness(0, 0, 0, 8)
+                };
+                colorSection.Children.Add(colorLabel);
+                
+                var colorGrid = new WrapPanel { Width = 130 };
+                
+                foreach (var c in SharedColorPalette)
+                {
+                    colorGrid.Children.Add(CreateColorSwatch(c, colorGrid));
                 }
-            };
-            colorGrid.Children.Add(addButton);
-            
-            colorSection.Children.Add(colorGrid);
-            Grid.SetColumn(colorSection, 0);
-            mainGrid.Children.Add(colorSection);
-            
-            // 2. 구분선
-            var separator = new Border
-            {
-                Width = 1,
-                Background = new SolidColorBrush(Color.FromRgb(230, 230, 230)),
-                Margin = new Thickness(0, 5, 15, 5)
-            };
-            Grid.SetColumn(separator, 1);
-            mainGrid.Children.Add(separator);
+                
+                foreach (var c in customColors)
+                {
+                    colorGrid.Children.Add(CreateColorSwatch(c, colorGrid));
+                }
+                
+                // [+] 버튼
+                var addButton = new Button
+                {
+                    Content = "+",
+                    Width = 20,
+                    Height = 20,
+                    Margin = new Thickness(2),
+                    Background = Brushes.White,
+                    BorderBrush = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                    BorderThickness = new Thickness(1),
+                    Cursor = Cursors.Hand
+                };
+                addButton.Click += (s, e) =>
+                {
+                    var colorDialog = new System.Windows.Forms.ColorDialog();
+                    if (colorDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                    {
+                        var newColor = Color.FromArgb(colorDialog.Color.A, colorDialog.Color.R, colorDialog.Color.G, colorDialog.Color.B);
+                        customColors.Add(newColor);
+                        colorGrid.Children.Insert(colorGrid.Children.Count - 1, CreateColorSwatch(newColor, colorGrid));
+                        selectedColor = newColor;
+                        UpdateColorSelection(colorGrid);
+                    }
+                };
+                colorGrid.Children.Add(addButton);
+                
+                colorSection.Children.Add(colorGrid);
+                Grid.SetColumn(colorSection, 0);
+                mainGrid.Children.Add(colorSection);
+                
+                // 2. 구분선
+                var separator = new Border
+                {
+                    Width = 1,
+                    Background = new SolidColorBrush(Color.FromRgb(230, 230, 230)),
+                    Margin = new Thickness(0, 5, 15, 5)
+                };
+                Grid.SetColumn(separator, 1);
+                mainGrid.Children.Add(separator);
+            }
             
             // 3. 옵션 섹션 (도구별 분기)
             var optionSection = new StackPanel();
@@ -1024,129 +1036,123 @@ namespace CatchCapture.Utilities
 
             if (tool == "텍스트")
             {
-                // [텍스트 옵션: 폰트 크기 및 종류]
-                var optionLabel = new TextBlock
-                {
-                    Text = "텍스트 옵션",
-                    FontWeight = FontWeights.SemiBold,
-                    Margin = new Thickness(0, 0, 0, 8)
-                };
+                // [텍스트 옵션]
+                var optionLabel = new TextBlock { Text = "텍스트 옵션", FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
                 optionSection.Children.Add(optionLabel);
 
-                // 폰트 크기 콤보박스
+                // 폰트 크기
                 var sizePanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 5) };
                 sizePanel.Children.Add(new TextBlock { Text = "크기:", VerticalAlignment = VerticalAlignment.Center, Width = 40 });
-                
                 var sizeCombo = new ComboBox { Width = 60, Height = 25 };
                 int[] sizes = { 10, 12, 14, 16, 18, 24, 36, 48, 72 };
                 foreach (var s in sizes) sizeCombo.Items.Add(s);
                 sizeCombo.SelectedItem = textFontSize;
-                sizeCombo.SelectionChanged += (s, e) => 
-                {
-                    if (sizeCombo.SelectedItem is int newSize)
-                    {
-                        textFontSize = newSize;
-                        if (selectedTextBox != null) selectedTextBox.FontSize = newSize;
-                    }
-                };
+                sizeCombo.SelectionChanged += (s, e) => { if (sizeCombo.SelectedItem is int newSize) { textFontSize = newSize; if (selectedTextBox != null) selectedTextBox.FontSize = newSize; } };
                 sizePanel.Children.Add(sizeCombo);
                 optionSection.Children.Add(sizePanel);
 
-                // 폰트 종류 콤보박스
+                // 폰트 종류
                 var fontPanel = new StackPanel { Orientation = Orientation.Horizontal };
                 fontPanel.Children.Add(new TextBlock { Text = "폰트:", VerticalAlignment = VerticalAlignment.Center, Width = 40 });
-                
                 var fontCombo = new ComboBox { Width = 100, Height = 25 };
                 string[] fonts = { "Malgun Gothic", "Arial", "Consolas", "Gulim", "Dotum" };
                 foreach (var f in fonts) fontCombo.Items.Add(f);
                 fontCombo.SelectedItem = textFontFamily;
-                fontCombo.SelectionChanged += (s, e) => 
-                {
-                    if (fontCombo.SelectedItem is string newFont)
-                    {
-                        textFontFamily = newFont;
-                        if (selectedTextBox != null) selectedTextBox.FontFamily = new FontFamily(newFont);
-                    }
-                };
+                fontCombo.SelectionChanged += (s, e) => { if (fontCombo.SelectedItem is string newFont) { textFontFamily = newFont; if (selectedTextBox != null) selectedTextBox.FontFamily = new FontFamily(newFont); } };
                 fontPanel.Children.Add(fontCombo);
                 optionSection.Children.Add(fontPanel);
             }
             else if (tool == "도형")
             {
                 // [도형 옵션]
-                var optionLabel = new TextBlock
-                {
-                    Text = "도형 옵션",
-                    FontWeight = FontWeights.SemiBold,
-                    Margin = new Thickness(0, 0, 0, 8)
-                };
+                var optionLabel = new TextBlock { Text = "도형 옵션", FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
                 optionSection.Children.Add(optionLabel);
 
-                // 1. 도형 종류 선택
+                // 도형 종류
                 var shapeTypePanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 8) };
-                
-                var rectBtn = CreateShapeOptionButton("□", ShapeType.Rectangle);
-                var ellipseBtn = CreateShapeOptionButton("○", ShapeType.Ellipse);
-                var lineBtn = CreateShapeOptionButton("╱", ShapeType.Line);
-                var arrowBtn = CreateShapeOptionButton("↗", ShapeType.Arrow);
-                
-                shapeTypePanel.Children.Add(rectBtn);
-                shapeTypePanel.Children.Add(ellipseBtn);
-                shapeTypePanel.Children.Add(lineBtn);
-                shapeTypePanel.Children.Add(arrowBtn);
-                
+                shapeTypePanel.Children.Add(CreateShapeOptionButton("□", ShapeType.Rectangle));
+                shapeTypePanel.Children.Add(CreateShapeOptionButton("○", ShapeType.Ellipse));
+                shapeTypePanel.Children.Add(CreateShapeOptionButton("╱", ShapeType.Line));
+                shapeTypePanel.Children.Add(CreateShapeOptionButton("↗", ShapeType.Arrow));
                 optionSection.Children.Add(shapeTypePanel);
 
-                // 2. 두께 슬라이더
+                // 두께
                 var thicknessPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 5) };
                 thicknessPanel.Children.Add(new TextBlock { Text = "두께:", VerticalAlignment = VerticalAlignment.Center, Width = 35, FontSize = 11 });
-                
-                var thicknessSlider = new Slider
-                {
-                    Minimum = 1,
-                    Maximum = 10,
-                    Value = shapeBorderThickness,
-                    Width = 80,
-                    IsSnapToTickEnabled = true,
-                    TickFrequency = 1,
-                    VerticalAlignment = VerticalAlignment.Center
-                };
+                var thicknessSlider = new Slider { Minimum = 1, Maximum = 10, Value = shapeBorderThickness, Width = 80, IsSnapToTickEnabled = true, TickFrequency = 1, VerticalAlignment = VerticalAlignment.Center };
                 thicknessSlider.ValueChanged += (s, e) => { shapeBorderThickness = thicknessSlider.Value; };
                 thicknessPanel.Children.Add(thicknessSlider);
                 optionSection.Children.Add(thicknessPanel);
 
-                // 3. 채우기 체크박스 및 투명도 슬라이더
+                // 채우기 및 투명도
                 var fillPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 2, 0, 0) };
-                
-                var fillCheckBox = new CheckBox
-                {
-                    Content = "채우기",
-                    IsChecked = shapeIsFilled,
-                    FontSize = 11,
-                    VerticalAlignment = VerticalAlignment.Center
-                };
+                var fillCheckBox = new CheckBox { Content = "채우기", IsChecked = shapeIsFilled, FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
                 fillCheckBox.Checked += (s, e) => { shapeIsFilled = true; };
                 fillCheckBox.Unchecked += (s, e) => { shapeIsFilled = false; };
                 fillPanel.Children.Add(fillCheckBox);
-
-                // 투명도 슬라이더
-                var opacitySlider = new Slider
-                {
-                    Minimum = 0,
-                    Maximum = 1,
-                    Value = shapeFillOpacity,
-                    Width = 60,
-                    Margin = new Thickness(10, 0, 0, 0),
-                    VerticalAlignment = VerticalAlignment.Center,
-                    ToolTip = "채우기 투명도"
-                };
+                var opacitySlider = new Slider { Minimum = 0, Maximum = 1, Value = shapeFillOpacity, Width = 60, Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center, ToolTip = "채우기 투명도" };
                 opacitySlider.ValueChanged += (s, e) => { shapeFillOpacity = opacitySlider.Value; };
                 fillPanel.Children.Add(opacitySlider);
-
                 optionSection.Children.Add(fillPanel);
             }
+            else if (tool == "모자이크")
+            {
+                // [모자이크 옵션]
+                var optionLabel = new TextBlock { Text = "모자이크 옵션", FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
+                optionSection.Children.Add(optionLabel);
+
+                var intensityPanel = new StackPanel { Orientation = Orientation.Horizontal };
+                intensityPanel.Children.Add(new TextBlock { Text = "강도:", VerticalAlignment = VerticalAlignment.Center, Width = 35 });
+
+                var slider = new Slider
+                {
+                    Minimum = 5,
+                    Maximum = 50,
+                    Value = mosaicIntensity,
+                    Width = 120,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    IsSnapToTickEnabled = true,
+                    TickFrequency = 5,
+                    ToolTip = "모자이크 강도 조절"
+                };
+                slider.ValueChanged += (s, e) => { mosaicIntensity = slider.Value; };
+                intensityPanel.Children.Add(slider);
+                
+                optionSection.Children.Add(intensityPanel);
+            }
+            else
+            {
+                // [기본 두께 옵션 (펜, 형광펜)]
+                var thicknessLabel = new TextBlock { Text = "두께", FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
+                optionSection.Children.Add(thicknessLabel);
+                
+                var thicknessList = new StackPanel();
+                int[] presets = new int[] { 1, 3, 5, 8, 12 };
+                foreach (var p in presets)
+                {
+                    var item = new Grid { Margin = new Thickness(0, 0, 0, 8), Cursor = Cursors.Hand, Background = Brushes.Transparent };
+                    item.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(30) });
+                    item.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                    
+                    var line = new Border { Height = p, Width = 30, Background = Brushes.Black, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center };
+                    Grid.SetColumn(line, 0); item.Children.Add(line);
+                    
+                    var text = new TextBlock { Text = $"{p}px", FontSize = 11, Foreground = Brushes.Gray, Margin = new Thickness(8, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
+                    Grid.SetColumn(text, 1); item.Children.Add(text);
+
+                    int thickness = p;
+                    item.MouseLeftButtonDown += (s, e) =>
+                    {
+                        if (currentTool == "형광펜") highlightThickness = thickness;
+                        else penThickness = thickness;
+                        foreach (var child in thicknessList.Children) { if (child is Grid g) g.Background = Brushes.Transparent; }
+                        item.Background = new SolidColorBrush(Color.FromArgb(40, 0, 120, 212));
+                    };
+                    thicknessList.Children.Add(item);
+                }
+                optionSection.Children.Add(thicknessList);
+            }
             
-            // 캔버스에 추가
             canvas.Children.Add(background);
             Canvas.SetLeft(background, left);
             Canvas.SetTop(background, top);
@@ -1232,12 +1238,24 @@ namespace CatchCapture.Utilities
             isDrawingEnabled = true;
             Cursor = Cursors.Pen;
             
-            // 마우스 이벤트 다시 등록
+            // [수정] 텍스트 모드 이벤트 제거 (중복 실행 방지)
+            canvas.MouseLeftButtonDown -= Canvas_TextMouseDown;
+            
+            // 기존 그리기 이벤트 제거 후 다시 등록
+            canvas.MouseLeftButtonDown -= Canvas_DrawMouseDown;
+            canvas.MouseMove -= Canvas_DrawMouseMove;
+            canvas.MouseLeftButtonUp -= Canvas_DrawMouseUp;
+            
             canvas.MouseLeftButtonDown += Canvas_DrawMouseDown;
             canvas.MouseMove += Canvas_DrawMouseMove;
             canvas.MouseLeftButtonUp += Canvas_DrawMouseUp;
+            
+            // 텍스트 선택 해제
+            if (selectedTextBox != null)
+            {
+                ClearTextSelection();
+            }
         }
-
         private void EnableTextMode()
         {
             isDrawingEnabled = false;
@@ -1250,13 +1268,35 @@ namespace CatchCapture.Utilities
             
             canvas.MouseLeftButtonDown += Canvas_TextMouseDown;
         }
-
+        
         private void EnableShapeMode()
         {
             isDrawingEnabled = true;
             canvas.Cursor = Cursors.Cross;
             
             // 마우스 이벤트 재설정
+            canvas.MouseLeftButtonDown -= Canvas_TextMouseDown;
+            canvas.MouseLeftButtonDown -= Canvas_DrawMouseDown;
+            canvas.MouseMove -= Canvas_DrawMouseMove;
+            canvas.MouseLeftButtonUp -= Canvas_DrawMouseUp;
+
+            canvas.MouseLeftButtonDown += Canvas_DrawMouseDown;
+            canvas.MouseMove += Canvas_DrawMouseMove;
+            canvas.MouseLeftButtonUp += Canvas_DrawMouseUp;
+            
+            // 텍스트 선택 해제
+            if (selectedTextBox != null)
+            {
+                ClearTextSelection();
+            }
+        }
+        
+        private void EnableMosaicMode()
+        {
+            isDrawingEnabled = true;
+            canvas.Cursor = Cursors.Cross; // [수정] 십자 커서로 변경
+            
+            // 이벤트 재설정 (텍스트 모드 등에서 전환될 때를 대비)
             canvas.MouseLeftButtonDown -= Canvas_TextMouseDown;
             canvas.MouseLeftButtonDown -= Canvas_DrawMouseDown;
             canvas.MouseMove -= Canvas_DrawMouseMove;
@@ -1792,9 +1832,14 @@ namespace CatchCapture.Utilities
 
         private void Canvas_DrawMouseDown(object sender, MouseButtonEventArgs e)
         {
+            // [수정] 버튼이나 UI 컨트롤을 클릭했을 때는 그리기 로직을 실행하지 않음
+            if (e.OriginalSource is FrameworkElement source && 
+               (source is Button || source.Parent is Button || source.TemplatedParent is Button))
+                return;
+
             Point clickPoint = e.GetPosition(canvas);
             
-            // [추가] 선택 영역 내부인지 확인
+            // 선택 영역 내부인지 확인
             if (!IsPointInSelection(clickPoint))
                 return;
 
@@ -1810,14 +1855,30 @@ namespace CatchCapture.Utilities
                 canvas.CaptureMouse();
                 return;
             }
+            else if (currentTool == "모자이크")
+            {
+                isDrawingShape = true; // 드래그 로직 재사용
+                shapeStartPoint = clickPoint;
+                
+                // 영역 표시용 점선 사각형
+                tempMosaicSelection = new Rectangle
+                {
+                    Stroke = Brushes.Black,
+                    StrokeThickness = 1,
+                    StrokeDashArray = new DoubleCollection { 4, 2 },
+                    Fill = new SolidColorBrush(Color.FromArgb(50, 0, 0, 0))
+                };
+                Canvas.SetLeft(tempMosaicSelection, clickPoint.X);
+                Canvas.SetTop(tempMosaicSelection, clickPoint.Y);
+                tempMosaicSelection.Width = 0;
+                tempMosaicSelection.Height = 0;
+
+                canvas.Children.Add(tempMosaicSelection);
+                canvas.CaptureMouse();
+                return;
+            }
 
             if (!isDrawingEnabled) return;
-            
-            lastDrawPoint = clickPoint;
-            
-            // 선택 영역 내부인지 확인
-            if (!IsPointInSelection(clickPoint))
-                return;
             
             lastDrawPoint = clickPoint;
             
@@ -1825,7 +1886,6 @@ namespace CatchCapture.Utilities
             Color strokeColor = selectedColor;
             if (currentTool == "형광펜")
             {
-                // 형광펜은 색상 자체에 투명도 적용 (알파값 128 = 50%)
                 strokeColor = Color.FromArgb(128, selectedColor.R, selectedColor.G, selectedColor.B);
             }
 
@@ -1838,7 +1898,6 @@ namespace CatchCapture.Utilities
                 StrokeLineJoin = PenLineJoin.Round
             };
 
-            // 형광펜일 경우 화면 표시용 투명도도 적용
             if (currentTool == "형광펜")
             {
                 currentPolyline.Opacity = 0.5;
@@ -1855,6 +1914,10 @@ namespace CatchCapture.Utilities
         {
             Point currentPoint = e.GetPosition(canvas);
 
+            // 선택 영역 내부인지 확인
+            if (!IsPointInSelection(currentPoint))
+                return;
+
             if (currentTool == "도형")
             {
                 if (isDrawingShape && tempShape != null)
@@ -1863,24 +1926,34 @@ namespace CatchCapture.Utilities
                 }
                 return;
             }
+            else if (currentTool == "모자이크")
+            {
+                if (isDrawingShape && tempMosaicSelection != null)
+                {
+                    double left = Math.Min(shapeStartPoint.X, currentPoint.X);
+                    double top = Math.Min(shapeStartPoint.Y, currentPoint.Y);
+                    double width = Math.Abs(currentPoint.X - shapeStartPoint.X);
+                    double height = Math.Abs(currentPoint.Y - shapeStartPoint.Y);
+
+                    tempMosaicSelection.Width = width;
+                    tempMosaicSelection.Height = height;
+                    Canvas.SetLeft(tempMosaicSelection, left);
+                    Canvas.SetTop(tempMosaicSelection, top);
+                }
+                return;
+            }
 
             if (!isDrawingEnabled || currentPolyline == null) return;
             if (e.LeftButton != MouseButtonState.Pressed) return;
-            
-            
-            // 선택 영역 내부인지 확인
-            if (!IsPointInSelection(currentPoint))
-                return;
             
             // 부드러운 선을 위해 중간 점들을 보간
             double distance = Math.Sqrt(
                 Math.Pow(currentPoint.X - lastDrawPoint.X, 2) + 
                 Math.Pow(currentPoint.Y - lastDrawPoint.Y, 2));
             
-            // 거리가 2픽셀 이상일 때만 중간 점 추가
             if (distance > 2)
             {
-                int steps = (int)(distance / 2); // 2픽셀마다 점 추가
+                int steps = (int)(distance / 2);
                 for (int i = 1; i <= steps; i++)
                 {
                     double t = (double)i / steps;
@@ -1908,13 +1981,28 @@ namespace CatchCapture.Utilities
                 canvas.ReleaseMouseCapture();
                 return;
             }
+            else if (currentTool == "모자이크")
+            {
+                if (isDrawingShape && tempMosaicSelection != null)
+                {
+                    // 모자이크 적용
+                    Rect rect = new Rect(Canvas.GetLeft(tempMosaicSelection), Canvas.GetTop(tempMosaicSelection), tempMosaicSelection.Width, tempMosaicSelection.Height);
+                    ApplyMosaic(rect);
+
+                    // 임시 사각형 제거
+                    canvas.Children.Remove(tempMosaicSelection);
+                    tempMosaicSelection = null;
+                    isDrawingShape = false;
+                }
+                canvas.ReleaseMouseCapture();
+                return;
+            }
 
             if (!isDrawingEnabled) return;
             
             currentPolyline = null;
             canvas.ReleaseMouseCapture();
         }
-
 
         private void SaveDrawingsToImage()
         {
@@ -1987,11 +2075,9 @@ namespace CatchCapture.Utilities
                     }
                     else if (element is TextBox textBox)
                     {
-                        // 텍스트가 비어있으면 건너뛰기
                         if (string.IsNullOrWhiteSpace(textBox.Text))
                             continue;
                         
-                        // 텍스트 렌더링
                         var formattedText = new FormattedText(
                             textBox.Text,
                             System.Globalization.CultureInfo.CurrentCulture,
@@ -2001,56 +2087,75 @@ namespace CatchCapture.Utilities
                             textBox.Foreground,
                             VisualTreeHelper.GetDpi(this).PixelsPerDip);
                         
-                        // 텍스트 위치 계산 (선택 영역 기준으로 오프셋 조정)
                         double textLeft = Canvas.GetLeft(textBox) - selectionLeft;
                         double textTop = Canvas.GetTop(textBox) - selectionTop;
                         
                         drawingContext.DrawText(formattedText, new Point(textLeft, textTop));
                     }     
-                else if (element is Shape shape)
-                {
-                    if (shape is Line line)
+                    else if (element is Shape shape)
                     {
-                        drawingContext.DrawLine(new Pen(line.Stroke, line.StrokeThickness), new Point(line.X1, line.Y1), new Point(line.X2, line.Y2));
-                    }
-                    else
-                    {
-                        double left = Canvas.GetLeft(shape);
-                        double top = Canvas.GetTop(shape);
-                        drawingContext.PushTransform(new TranslateTransform(left, top));
+                        if (shape is Line line)
+                        {
+                            // [수정] 선 좌표 보정 (선택 영역 기준)
+                            drawingContext.DrawLine(new Pen(line.Stroke, line.StrokeThickness), 
+                                new Point(line.X1 - selectionLeft, line.Y1 - selectionTop), 
+                                new Point(line.X2 - selectionLeft, line.Y2 - selectionTop));
+                        }
+                        else
+                        {
+                            // [수정] 도형 좌표 보정 (선택 영역 기준)
+                            double left = Canvas.GetLeft(shape) - selectionLeft;
+                            double top = Canvas.GetTop(shape) - selectionTop;
+                            drawingContext.PushTransform(new TranslateTransform(left, top));
 
-                        if (shape is Rectangle rect)
-                        {
-                            drawingContext.DrawRectangle(rect.Fill, new Pen(rect.Stroke, rect.StrokeThickness), new Rect(0, 0, rect.Width, rect.Height));
-                        }
-                        else if (shape is Ellipse ellipse)
-                        {
-                            drawingContext.DrawEllipse(ellipse.Fill, new Pen(ellipse.Stroke, ellipse.StrokeThickness), new Point(ellipse.Width / 2, ellipse.Height / 2), ellipse.Width / 2, ellipse.Height / 2);
-                        }
-                        drawingContext.Pop();
-                    }
-                }
-                else if (element is Canvas arrowCanvas)
-                {
-                    foreach (var child in arrowCanvas.Children)
-                    {
-                        if (child is Line l)
-                        {
-                            drawingContext.DrawLine(new Pen(l.Stroke, l.StrokeThickness), new Point(l.X1, l.Y1), new Point(l.X2, l.Y2));
-                        }
-                        else if (child is Polygon p)
-                        {
-                            StreamGeometry streamGeometry = new StreamGeometry();
-                            using (StreamGeometryContext geometryContext = streamGeometry.Open())
+                            if (shape is Rectangle rect)
                             {
-                                geometryContext.BeginFigure(p.Points[0], true, true);
-                                for (int i = 1; i < p.Points.Count; i++)
-                                {
-                                    geometryContext.LineTo(p.Points[i], true, false);
-                                }
+                                drawingContext.DrawRectangle(rect.Fill, new Pen(rect.Stroke, rect.StrokeThickness), new Rect(0, 0, rect.Width, rect.Height));
                             }
-                            drawingContext.DrawGeometry(p.Fill, new Pen(p.Stroke, p.StrokeThickness), streamGeometry);
+                            else if (shape is Ellipse ellipse)
+                            {
+                                drawingContext.DrawEllipse(ellipse.Fill, new Pen(ellipse.Stroke, ellipse.StrokeThickness), new Point(ellipse.Width / 2, ellipse.Height / 2), ellipse.Width / 2, ellipse.Height / 2);
+                            }
+                            drawingContext.Pop();
                         }
+                    }
+                    else if (element is Canvas arrowCanvas)
+                    {
+                        foreach (var child in arrowCanvas.Children)
+                        {
+                            if (child is Line l)
+                            {
+                                // [수정] 화살표 선 좌표 보정
+                                drawingContext.DrawLine(new Pen(l.Stroke, l.StrokeThickness), 
+                                    new Point(l.X1 - selectionLeft, l.Y1 - selectionTop), 
+                                    new Point(l.X2 - selectionLeft, l.Y2 - selectionTop));
+                            }
+                            else if (child is Polygon p)
+                            {
+                                StreamGeometry streamGeometry = new StreamGeometry();
+                                using (StreamGeometryContext geometryContext = streamGeometry.Open())
+                                {
+                                    // [수정] 화살표 머리 좌표 보정
+                                    var startPoint = new Point(p.Points[0].X - selectionLeft, p.Points[0].Y - selectionTop);
+                                    geometryContext.BeginFigure(startPoint, true, true);
+                                    for (int i = 1; i < p.Points.Count; i++)
+                                    {
+                                        var nextPoint = new Point(p.Points[i].X - selectionLeft, p.Points[i].Y - selectionTop);
+                                        geometryContext.LineTo(nextPoint, true, false);
+                                    }
+                                }
+                                drawingContext.DrawGeometry(p.Fill, new Pen(p.Stroke, p.StrokeThickness), streamGeometry);
+                            }
+                        }
+                    }
+                    else if (element is Image image)
+                    {
+                        double left = Canvas.GetLeft(image) - selectionLeft;
+                        double top = Canvas.GetTop(image) - selectionTop;
+                        var rect = new Rect(left, top, image.Width, image.Height);
+                        
+                        RenderOptions.SetBitmapScalingMode(drawingVisual, BitmapScalingMode.NearestNeighbor);
+                        drawingContext.DrawImage(image.Source, rect);
                     }
                 }
             }
@@ -2058,10 +2163,9 @@ namespace CatchCapture.Utilities
             renderBitmap.Render(drawingVisual);
             renderBitmap.Freeze();
             
-            // SelectedFrozenImage 업데이트
             SelectedFrozenImage = renderBitmap;
-            }
         }
+
         private bool IsPointInSelection(Point point)
         {
             if (selectionRectangle == null) return false;
@@ -2081,6 +2185,58 @@ namespace CatchCapture.Utilities
             Ellipse,
             Line,
             Arrow
+        }
+        private void ApplyMosaic(Rect rect)
+        {
+            if (screenCapture == null) return;
+
+            // 좌표 보정
+            int x = (int)rect.X;
+            int y = (int)rect.Y;
+            int w = (int)rect.Width;
+            int h = (int)rect.Height;
+
+            if (w <= 0 || h <= 0) return;
+
+            // 원본 이미지 범위 체크
+            if (x < 0) x = 0;
+            if (y < 0) y = 0;
+            if (x + w > screenCapture.PixelWidth) w = screenCapture.PixelWidth - x;
+            if (y + h > screenCapture.PixelHeight) h = screenCapture.PixelHeight - y;
+
+            try
+            {
+                // 1. 해당 영역 크롭
+                var cropped = new CroppedBitmap(screenCapture, new Int32Rect(x, y, w, h));
+
+                // 2. 축소 (모자이크 강도만큼)
+                // 강도가 클수록 이미지가 작아졌다가 늘어나면서 픽셀이 커짐
+                double scale = 1.0 / Math.Max(1, mosaicIntensity);
+                
+                var scaleTransform = new ScaleTransform(scale, scale);
+                var transformed = new TransformedBitmap(cropped, scaleTransform);
+
+                // 3. Image 컨트롤 생성
+                // [중요] 소스는 '축소된 이미지'를 사용하고, 크기는 '원본 영역 크기'로 설정
+                var mosaicImage = new Image
+                {
+                    Source = transformed, 
+                    Width = w,
+                    Height = h,
+                    Stretch = Stretch.Fill
+                };
+                
+                // 4. 픽셀화 효과 적용 (NearestNeighbor: 인접 픽셀 반복)
+                // 이 옵션이 있어야 흐려지지 않고 깍두기처럼 나옵니다.
+                RenderOptions.SetBitmapScalingMode(mosaicImage, BitmapScalingMode.NearestNeighbor);
+
+                Canvas.SetLeft(mosaicImage, x);
+                Canvas.SetTop(mosaicImage, y);
+
+                canvas.Children.Add(mosaicImage);
+                drawnElements.Add(mosaicImage);
+            }
+            catch { /* 오류 무시 */ }
         }
     }
 }
