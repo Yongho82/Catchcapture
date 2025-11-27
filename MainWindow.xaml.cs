@@ -128,6 +128,7 @@ public partial class MainWindow : Window
                 this.Topmost = true;
                 this.Topmost = false;
             }
+            UpdateEmptyStateLogo();            
         };
     }
 
@@ -1193,6 +1194,7 @@ public partial class MainWindow : Window
             }
             catch { }
         }
+       UpdateEmptyStateLogo();
     }
     private Border CreateCaptureItem(CaptureImage captureImage, int index)
     {
@@ -1674,6 +1676,9 @@ public partial class MainWindow : Window
             // 버튼 상태 업데이트
             UpdateButtonStates();
             UpdateCaptureCount();
+            
+            // 로고 표시 상태 업데이트
+            UpdateEmptyStateLogo();
         }
     }
 
@@ -1709,6 +1714,7 @@ public partial class MainWindow : Window
     private void DeleteAllButton_Click(object sender, RoutedEventArgs e)
     {
         DeleteAllImages();
+        UpdateEmptyStateLogo();
     }
 
     private void DeleteAllImages()
@@ -2526,7 +2532,14 @@ public partial class MainWindow : Window
             Dispatcher.Invoke(StartAreaCapture);
         });
     }
-
+    private void UpdateEmptyStateLogo()
+    {
+        if (EmptyStateLogo != null)
+        {
+            // 캡처 목록이 비어있으면 로고 표시, 아니면 숨김
+            EmptyStateLogo.Visibility = captures.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
+    }
     public void TriggerAreaCapture()
     {
         AreaCaptureButton_Click(null!, new RoutedEventArgs());

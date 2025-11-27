@@ -222,28 +222,37 @@ namespace CatchCapture
 
                 if (tempShape is Shape shape)
                 {
-                    double left = Canvas.GetLeft(shape);
-                    double top = Canvas.GetTop(shape);
-
-                    dc.PushTransform(new TranslateTransform(left, top));
-
-                    if (shape is Rectangle rect)
-                    {
-                        dc.DrawRectangle(rect.Fill, new Pen(rect.Stroke, rect.StrokeThickness),
-                            new Rect(0, 0, rect.Width, rect.Height));
-                    }
-                    else if (shape is Ellipse ellipse)
-                    {
-                        dc.DrawEllipse(ellipse.Fill, new Pen(ellipse.Stroke, ellipse.StrokeThickness),
-                            new Point(ellipse.Width / 2, ellipse.Height / 2), ellipse.Width / 2, ellipse.Height / 2);
-                    }
-                    else if (shape is Line shapeLine)
+                    // [수정] Line은 절대 좌표를 사용하므로 별도 처리 (TranslateTransform 제외)
+                    if (shape is Line shapeLine)
                     {
                         dc.DrawLine(new Pen(shapeLine.Stroke, shapeLine.StrokeThickness),
                             new Point(shapeLine.X1, shapeLine.Y1), new Point(shapeLine.X2, shapeLine.Y2));
                     }
+                    else
+                    {
+                        // Rectangle, Ellipse는 Canvas 좌표계 사용
+                        double left = Canvas.GetLeft(shape);
+                        double top = Canvas.GetTop(shape);
 
-                    dc.Pop();
+                        // NaN 방지 (혹시 모를 에러 방지)
+                        if (double.IsNaN(left)) left = 0;
+                        if (double.IsNaN(top)) top = 0;
+
+                        dc.PushTransform(new TranslateTransform(left, top));
+
+                        if (shape is Rectangle rect)
+                        {
+                            dc.DrawRectangle(rect.Fill, new Pen(rect.Stroke, rect.StrokeThickness),
+                                new Rect(0, 0, rect.Width, rect.Height));
+                        }
+                        else if (shape is Ellipse ellipse)
+                        {
+                            dc.DrawEllipse(ellipse.Fill, new Pen(ellipse.Stroke, ellipse.StrokeThickness),
+                                new Point(ellipse.Width / 2, ellipse.Height / 2), ellipse.Width / 2, ellipse.Height / 2);
+                        }
+
+                        dc.Pop();
+                    }
                 }
                 else if (tempShape is Canvas arrowCanvas)
                 {

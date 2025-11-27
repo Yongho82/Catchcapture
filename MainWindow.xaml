@@ -338,10 +338,23 @@
 
                     <!-- 오른쪽 캡처 표시 영역 -->
                     <Border Grid.Column="1" Grid.Row="0" Background="#FFFFFF" Margin="0,0,0,0">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                            <!-- 단일 세로 열로 표시 -->
-                            <StackPanel x:Name="CaptureListPanel" Margin="10"/>
-                        </ScrollViewer>
+                        <Grid>
+                            <!-- 로고 (캡처 목록이 비어있을 때만 표시) -->
+                            <Image x:Name="EmptyStateLogo" 
+                                   Source="/icons/icon_main.png" 
+                                   Width="180" 
+                                   Stretch="Uniform"
+                                   HorizontalAlignment="Center" 
+                                   VerticalAlignment="Center"
+                                   Opacity="0.8"
+                                   Visibility="Visible"/>
+                            
+                            <!-- 캡처 리스트 -->
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                <!-- 단일 세로 열로 표시 -->
+                                <StackPanel x:Name="CaptureListPanel" Margin="10"/>
+                            </ScrollViewer>
+                        </Grid>
                     </Border>
 
                     <!-- 하단 고정 아이콘 바 -->
