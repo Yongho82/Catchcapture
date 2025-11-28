@@ -24,6 +24,8 @@ namespace CatchCapture
             HighlightNav(NavCapture, "Capture");
         }
 
+
+        
         private void InitKeyComboBoxes()
         {
             var keys = new System.Collections.Generic.List<string>();
@@ -34,8 +36,9 @@ namespace CatchCapture
             // F1-F12
             for (int i = 1; i <= 12; i++) keys.Add($"F{i}");
 
+            // 여기에 HkRealTimeKey와 HkMultiKey를 추가했습니다
             var boxes = new[] { 
-                HkRegionKey, HkDelayKey, HkFullKey, HkDesignatedKey,
+                HkRegionKey, HkDelayKey, HkRealTimeKey, HkMultiKey, HkFullKey, HkDesignatedKey,
                 HkWindowCaptureKey, HkElementCaptureKey, HkScrollCaptureKey,
                 HkSaveAllKey, HkDeleteAllKey, HkSimpleModeKey, HkOpenSettingsKey 
             };
