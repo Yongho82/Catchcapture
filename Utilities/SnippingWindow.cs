@@ -789,14 +789,26 @@ namespace CatchCapture.Utilities
             };
             
             toolbar.Child = toolbarStackPanel;
-
+            // [이동] 툴바 위치를 먼저 계산
+            double toolbarWidth = 450; // 대략적인 툴바 너비
+            double toolbarLeft = selectionLeft;
+            double toolbarTop = selectionTop + selectionHeight + 10;
+            
+            // 화면 경계 체크
+            if (toolbarLeft + toolbarWidth > vWidth)
+                toolbarLeft = vWidth - toolbarWidth - 10;
+            if (toolbarLeft < 10)
+                toolbarLeft = 10;
+            if (toolbarTop + 44 > vHeight)
+                toolbarTop = selectionTop - 44 - 10;
+            
             // 펜 버튼
             var penButton = CreateToolButton("pen.png", "펜", "펜 도구");
             penButton.Click += (s, e) => 
             {
                 currentTool = "펜";
                 SetActiveToolButton(penButton);
-                ShowColorPalette("펜", selectionLeft, selectionTop + selectionHeight + 65);
+                ShowColorPalette("펜", toolbarLeft, toolbarTop + 60); // [수정]
                 EnableDrawingMode();
             };
             
@@ -807,7 +819,7 @@ namespace CatchCapture.Utilities
                 currentTool = "형광펜";
                 selectedColor = Colors.Yellow;
                 SetActiveToolButton(highlighterButton);
-                ShowColorPalette("형광펜", selectionLeft, selectionTop + selectionHeight + 80);
+                ShowColorPalette("형광펜", toolbarLeft, toolbarTop + 60); // [수정]
                 EnableDrawingMode();
             };
             
@@ -817,7 +829,7 @@ namespace CatchCapture.Utilities
             {
                 currentTool = "텍스트";
                 SetActiveToolButton(textButton);
-                ShowColorPalette("텍스트", selectionLeft, selectionTop + selectionHeight + 80);
+                ShowColorPalette("텍스트", toolbarLeft, toolbarTop + 60); // [수정]
                 EnableTextMode();
             };
             
@@ -827,7 +839,7 @@ namespace CatchCapture.Utilities
             {
                 currentTool = "도형";
                 SetActiveToolButton(shapeButton);
-                ShowColorPalette("도형", selectionLeft, selectionTop + selectionHeight + 80);
+                ShowColorPalette("도형", toolbarLeft, toolbarTop + 60); // [수정]
                 EnableShapeMode();
             };
             
@@ -837,7 +849,7 @@ namespace CatchCapture.Utilities
             { 
                 currentTool = "모자이크"; 
                 SetActiveToolButton(mosaicButton);
-                ShowColorPalette("모자이크", selectionLeft, selectionTop + selectionHeight + 80);
+                ShowColorPalette("모자이크", toolbarLeft, toolbarTop + 60); // [수정]
                 EnableMosaicMode();
             };
             
@@ -1119,24 +1131,7 @@ namespace CatchCapture.Utilities
             toolbarStackPanel.Children.Add(saveButton);
             
             // 툴바를 선택 영역 바로 아래에 배치
-            canvas.Children.Add(toolbar);
-            
-            // 툴바 크기 측정
-            toolbar.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-            double toolbarWidth = toolbar.DesiredSize.Width;
-            
-            // 선택 영역 중앙 하단에 배치
-            double toolbarLeft = selectionLeft + (selectionWidth - toolbarWidth) / 2;
-            double toolbarTop = selectionTop + selectionHeight + 10;
-            
-            // 화면 경계 체크
-            if (toolbarLeft + toolbarWidth > vWidth)
-                toolbarLeft = vWidth - toolbarWidth - 10;
-            if (toolbarLeft < 10)
-                toolbarLeft = 10;
-            if (toolbarTop + 44 > vHeight)
-                toolbarTop = selectionTop - 44 - 10; // 위쪽에 배치
-            
+            canvas.Children.Add(toolbar);    
             Canvas.SetLeft(toolbar, toolbarLeft);
             Canvas.SetTop(toolbar, toolbarTop);
 
@@ -1144,7 +1139,7 @@ namespace CatchCapture.Utilities
             currentTool = "펜";
             selectedColor = Colors.Red;
             SetActiveToolButton(penButton);
-            ShowColorPalette("펜", selectionLeft, selectionTop + selectionHeight + 65);
+            ShowColorPalette("펜", selectionLeft, selectionTop + selectionHeight + 68);
             EnableDrawingMode();
         }
 
