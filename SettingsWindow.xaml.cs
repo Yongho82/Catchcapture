@@ -133,20 +133,24 @@ namespace CatchCapture
 
             // Fill defaults if empty
             EnsureDefaultKey(hk.RegionCapture, "A");
-            EnsureDefaultKey(hk.DelayCapture, "D");
+            EnsureDefaultKey(hk.DelayCapture, "K");
+            EnsureDefaultKey(hk.RealTimeCapture, "R");      // 추가
+            EnsureDefaultKey(hk.MultiCapture, "M");         // 추가
             EnsureDefaultKey(hk.FullScreen, "F");
-            EnsureDefaultKey(hk.DesignatedCapture, "G");
-            EnsureDefaultKey(hk.WindowCapture, "W");
+            EnsureDefaultKey(hk.DesignatedCapture, "W");    // G → W 변경
+            EnsureDefaultKey(hk.WindowCapture, "C");        // W → C 변경
             EnsureDefaultKey(hk.ElementCapture, "E");
-            EnsureDefaultKey(hk.ScrollCapture, "R");
-            EnsureDefaultKey(hk.SaveAll, "S");
+            EnsureDefaultKey(hk.ScrollCapture, "S");        // R → S 변경
+            EnsureDefaultKey(hk.SaveAll, "Z");              // S → Z 변경
             EnsureDefaultKey(hk.DeleteAll, "X");
-            EnsureDefaultKey(hk.SimpleMode, "M");
+            EnsureDefaultKey(hk.SimpleMode, "Q");           // M → Q 변경
             EnsureDefaultKey(hk.OpenSettings, "O");
 
             // Bind to UI
             BindHotkey(hk.RegionCapture, HkRegionEnabled, HkRegionCtrl, HkRegionShift, HkRegionAlt, HkRegionWin, HkRegionKey);
             BindHotkey(hk.DelayCapture, HkDelayEnabled, HkDelayCtrl, HkDelayShift, HkDelayAlt, HkDelayWin, HkDelayKey);
+            BindHotkey(hk.RealTimeCapture, HkRealTimeEnabled, HkRealTimeCtrl, HkRealTimeShift, HkRealTimeAlt, HkRealTimeWin, HkRealTimeKey);
+            BindHotkey(hk.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiShift, HkMultiAlt, HkMultiWin, HkMultiKey);
             BindHotkey(hk.FullScreen, HkFullEnabled, HkFullCtrl, HkFullShift, HkFullAlt, HkFullWin, HkFullKey);
             BindHotkey(hk.DesignatedCapture, HkDesignatedEnabled, HkDesignatedCtrl, HkDesignatedShift, HkDesignatedAlt, HkDesignatedWin, HkDesignatedKey);
             BindHotkey(hk.WindowCapture, HkWindowCaptureEnabled, HkWindowCaptureCtrl, HkWindowCaptureShift, HkWindowCaptureAlt, HkWindowCaptureWin, HkWindowCaptureKey);
