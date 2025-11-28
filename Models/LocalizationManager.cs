@@ -155,6 +155,14 @@ namespace CatchCapture.Models
                 ["Copied"] = "복사되었습니다",
                 ["NoImageToSave"] = "저장할 이미지가 없습니다.",
                 ["SaveError"] = "파일 저장 중 오류",
+                
+                // 편집 도구
+                ["Pen"] = "펜",
+                ["Highlighter"] = "형광펜",
+                ["Text"] = "텍스트",
+                ["TextAdd"] = "텍스트 추가",
+                ["Mosaic"] = "모자이크",
+                ["Eraser"] = "지우개",
             };
 
             // 중국어 (简体中文)
@@ -276,6 +284,14 @@ namespace CatchCapture.Models
                 ["Copied"] = "已复制",
                 ["NoImageToSave"] = "没有可保存的图像。",
                 ["SaveError"] = "保存文件时出错",
+                
+                // 편집 도구
+                ["Pen"] = "画笔",
+                ["Highlighter"] = "荧光笔",
+                ["Text"] = "文字",
+                ["TextAdd"] = "添加文字",
+                ["Mosaic"] = "马赛克",
+                ["Eraser"] = "橡皮",
             };
 
             // 일본어
@@ -397,6 +413,14 @@ namespace CatchCapture.Models
                 ["Copied"] = "コピーしました",
                 ["NoImageToSave"] = "保存する画像がありません。",
                 ["SaveError"] = "ファイル保存中にエラー",
+                
+                // 편집 도구
+                ["Pen"] = "ペン",
+                ["Highlighter"] = "蛍光ペン",
+                ["Text"] = "テキスト",
+                ["TextAdd"] = "テキスト追加",
+                ["Mosaic"] = "モザイク",
+                ["Eraser"] = "消しゴム",
             };
 
             // 영어
@@ -518,6 +542,14 @@ namespace CatchCapture.Models
                 ["Copied"] = "Copied",
                 ["NoImageToSave"] = "No image to save.",
                 ["SaveError"] = "Error saving file",
+                
+                // 편집 도구
+                ["Pen"] = "Pen",
+                ["Highlighter"] = "Highlighter",
+                ["Text"] = "Text",
+                ["TextAdd"] = "Add Text",
+                ["Mosaic"] = "Mosaic",
+                ["Eraser"] = "Eraser",
             };
         }
     }

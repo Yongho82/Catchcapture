@@ -157,7 +157,7 @@
                 </StackPanel>
 
                 <!-- Navigation -->
-                <TextBlock Text="일반" FontSize="12" Foreground="{StaticResource TextSecondary}" Margin="25,0,0,5" FontWeight="SemiBold"/>
+                <TextBlock x:Name="SidebarGeneralText" Text="일반" FontSize="12" Foreground="{StaticResource TextSecondary}" Margin="25,0,0,5" FontWeight="SemiBold"/>
                 <Button x:Name="NavCapture" Content="캡처 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Capture"/>
                 <Button x:Name="NavSystem" Content="시스템 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="System"/>
                 <Button x:Name="NavHotkey" Content="단축키 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Hotkey"/>
@@ -187,11 +187,11 @@
                     <DropShadowEffect Color="Black" Direction="270" ShadowDepth="1" Opacity="0.05" BlurRadius="10"/>
                 </Border.Effect>
                 <StackPanel>
-                    <TextBlock Text="캡처 설정" Style="{StaticResource SectionTitle}"/>
+                    <TextBlock x:Name="CaptureSectionTitle" Text="캡처 설정" Style="{StaticResource SectionTitle}"/>
                     
-                    <GroupBox Header="저장 설정" Margin="0,0,0,20" BorderBrush="{StaticResource BorderColor}" Padding="15">
+                    <GroupBox x:Name="SaveSettingsGroup" Header="저장 설정" Margin="0,0,0,20" BorderBrush="{StaticResource BorderColor}" Padding="15">
                         <StackPanel>
-                            <TextBlock Text="저장 경로" Foreground="{StaticResource TextSecondary}" Margin="0,0,0,5"/>
+                            <TextBlock x:Name="SavePathText" Text="저장 경로" Foreground="{StaticResource TextSecondary}" Margin="0,0,0,5"/>
                             <Grid Margin="0,0,0,15">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -210,7 +210,7 @@
                                     <ColumnDefinition Width="80"/>
                                 </Grid.ColumnDefinitions>
                                 
-                                <TextBlock Grid.Column="0" Text="파일 포맷" VerticalAlignment="Center" Foreground="{StaticResource TextSecondary}" Margin="0,0,10,0"/>
+                                <TextBlock x:Name="FileFormatText" Grid.Column="0" Text="파일 포맷" VerticalAlignment="Center" Foreground="{StaticResource TextSecondary}" Margin="0,0,10,0"/>
                                 <ComboBox x:Name="CboFormat" Grid.Column="1" SelectionChanged="CboFormat_SelectionChanged">
                                     <ComboBoxItem Content="PNG"/>
                                     <ComboBoxItem Content="JPG"/>
@@ -219,13 +219,13 @@
                                     <ComboBoxItem Content="WEBP"/>
                                 </ComboBox>
 
-                                <TextBlock Grid.Column="3" Text="품질" VerticalAlignment="Center" Foreground="{StaticResource TextSecondary}" Margin="0,0,10,0"/>
+                                <TextBlock x:Name="QualityText" Grid.Column="3" Text="품질" VerticalAlignment="Center" Foreground="{StaticResource TextSecondary}" Margin="0,0,10,0"/>
                                 <TextBox x:Name="TxtQuality" Grid.Column="4" Height="26" VerticalContentAlignment="Center" Padding="5,0" PreviewTextInput="TxtQuality_PreviewTextInput" MaxLength="3"/>
                             </Grid>
                         </StackPanel>
                     </GroupBox>
 
-                    <GroupBox Header="옵션" BorderBrush="{StaticResource BorderColor}" Padding="15">
+                    <GroupBox x:Name="OptionsGroup" Header="옵션" BorderBrush="{StaticResource BorderColor}" Padding="15">
                         <StackPanel>
                             <CheckBox x:Name="ChkAutoSave" Content="캡처 시 자동으로 파일 저장"/>
                             <CheckBox x:Name="ChkShowPreview" Content="캡처 후 미리보기/편집 창 표시"/>
@@ -245,11 +245,11 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     
-                    <TextBlock Text="단축키 설정" Style="{StaticResource SectionTitle}" Grid.Row="0"/>
+                    <TextBlock x:Name="HotkeySectionTitle" Text="단축키 설정" Style="{StaticResource SectionTitle}" Grid.Row="0"/>
                     
                     <!-- Print Screen 키 설정 -->
                     <StackPanel Grid.Row="0" Margin="0,40,0,20">
-                        <GroupBox Header="Print Screen 키 사용" BorderBrush="{StaticResource BorderColor}" Padding="15">
+                        <GroupBox x:Name="PrintScreenGroup" Header="Print Screen 키 사용" BorderBrush="{StaticResource BorderColor}" Padding="15">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -418,9 +418,9 @@
                     <DropShadowEffect Color="Black" Direction="270" ShadowDepth="1" Opacity="0.05" BlurRadius="10"/>
                 </Border.Effect>
                 <StackPanel>
-                    <TextBlock Text="시스템 설정" Style="{StaticResource SectionTitle}"/>
+                    <TextBlock x:Name="SystemSectionTitle" Text="시스템 설정" Style="{StaticResource SectionTitle}"/>
                     
-                    <GroupBox Header="시작 설정" Margin="0,0,0,20" BorderBrush="{StaticResource BorderColor}" Padding="15">
+                    <GroupBox x:Name="StartupGroup" Header="시작 설정" Margin="0,0,0,20" BorderBrush="{StaticResource BorderColor}" Padding="15">
                         <StackPanel>
                             <!-- 윈도우 시작 시 자동 실행 -->
                             <CheckBox x:Name="StartWithWindowsCheckBox" 
@@ -428,7 +428,7 @@
                                       Margin="0,5"/>
                             
                             <!-- 시작 모드 선택 -->
-                            <TextBlock Text="시작 모드" FontWeight="SemiBold" Margin="0,20,0,10" Foreground="{StaticResource TextSecondary}"/>
+                            <TextBlock x:Name="StartupModeText" Text="시작 모드" FontWeight="SemiBold" Margin="0,20,0,10" Foreground="{StaticResource TextSecondary}"/>
                             <RadioButton x:Name="StartupModeTrayRadio" 
                                          Content="트레이 모드로 시작" 
                                          GroupName="StartupMode" 
@@ -445,6 +445,20 @@
                         </StackPanel>
                     </GroupBox>
                     
+                    <!-- Language Settings -->
+                    <GroupBox x:Name="LanguageGroup" Header="언어 설정" Margin="0,0,0,20" BorderBrush="{StaticResource BorderColor}" Padding="15">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Name="LanguageLabelText" Grid.Column="0" Text="언어" VerticalAlignment="Center" Foreground="{StaticResource TextSecondary}" Margin="0,0,10,0"/>
+                            <ComboBox x:Name="LanguageComboBox" Grid.Column="1" />
+                            <TextBlock x:Name="LanguageRestartNotice" Grid.Column="2" Text="언어 변경 후 프로그램을 다시 시작해야 합니다." Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                        </Grid>
+                    </GroupBox>
+                    
                     <TextBlock Text="※ 시작 모드는 프로그램이 실행될 때 처음 표시되는 화면을 설정합니다." 
                                FontSize="11" 
                                Foreground="{StaticResource TextSecondary}" 
@@ -454,8 +468,8 @@
 
             <!-- Action Buttons -->
             <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
-                <Button Content="취소" Style="{StaticResource MacButtonSecondary}" Click="Cancel_Click" Width="80" Margin="0,0,10,0"/>
-                <Button Content="저장" Style="{StaticResource MacButtonPrimary}" Click="Save_Click" Width="80"/>
+                <Button x:Name="CancelButton" Content="취소" Style="{StaticResource MacButtonSecondary}" Click="Cancel_Click" Width="80" Margin="0,0,10,0"/>
+                <Button x:Name="SaveButton" Content="저장" Style="{StaticResource MacButtonPrimary}" Click="Save_Click" Width="80"/>
             </StackPanel>
         </Grid>
     </Grid>

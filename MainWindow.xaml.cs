@@ -1183,7 +1183,7 @@ public partial class MainWindow : Window
             // 캡처 후 미리보기 표시 설정 확인
             if (settings.ShowPreviewAfterCapture)
             {
-                var preview = new PreviewWindow(image, captures.Count - 1);
+                var preview = new PreviewWindow(image, captures.Count - 1, captures);
                 preview.Owner = this;
                 preview.ShowDialog();
             }
@@ -1755,7 +1755,7 @@ public partial class MainWindow : Window
     private void ShowPreviewWindow(BitmapSource image, int index)
     {
         // 미리보기 창 생성
-        PreviewWindow previewWindow = new PreviewWindow(captures[index].Image, index, captures);
+        PreviewWindow previewWindow = new PreviewWindow(image, index);
         previewWindow.ImageUpdated += (sender, e) => 
         {
             if (e.Index >= 0 && e.Index < captures.Count)
