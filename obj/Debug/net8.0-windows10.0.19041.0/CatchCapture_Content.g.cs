@@ -25,6 +25,7 @@
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/flip_vertical.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/full_screen.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/highlight.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/icon_main.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/mosaic.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/multi_capture.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/pin_gray.png")]

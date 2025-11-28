@@ -28,6 +28,8 @@ namespace CatchCapture
             
             // 고정 아이콘 초기 상태 설정
             UpdateTopmostIcon();
+            // 즉시편집 스위치 초기 상태 설정
+            UpdateInstantEditToggleUI();
         }
 
         private void LoadSettings()
@@ -302,6 +304,13 @@ namespace CatchCapture
             // 빈 슬롯 추가 (+ 버튼)
             AddEmptySlot(buttonsPanel);
             
+            // HideToTrayButton을 + 버튼 위로 이동 (순서 보장)
+            if (HideToTrayButton != null)
+            {
+                buttonsPanel.Children.Remove(HideToTrayButton);
+                buttonsPanel.Children.Add(HideToTrayButton);
+            }
+            
             // FoldButton을 맨 아래로 이동 (순서 보장)
             if (FoldButton != null)
             {
@@ -318,16 +327,18 @@ namespace CatchCapture
 
             // 아이콘 개수에 따라 창 높이 계산
             // 상단 컨트롤: ~20px
+            // InstantEditToggle: 26px (16 + margin 10)
             // TopmostButton: 30px (28 + margin 2)
             // CaptureCounter: 30px (28 + margin 2)
             // 첫 번째 Separator: 21px
             // 각 아이콘: 52px (48 + margin 4)
+            // 나가기 버튼: 30px (28 + margin 2)
             // + 버튼: 30px (28 + margin 2)
             // FoldButton: 30px (28 + margin 2)
             // 여백: 10px (상하, Grid margin 2,5)
             
             int iconCount = settings.TrayModeIcons.Count;
-            int baseHeight = 20 + 30 + 30 + 21 + 30 + 30 + 10; // 상단 + TopmostButton + Counter + Separator + + 버튼 + FoldButton + 여백
+            int baseHeight = 20 + 26 + 30 + 30 + 21 + 30 + 30 + 30 + 10; // 상단 + InstantEdit + TopmostButton + Counter + Separator + 나가기 + + 버튼 + FoldButton + 여백
             int iconsHeight = iconCount * 52;
             
             int newHeight = baseHeight + iconsHeight;
@@ -747,6 +758,32 @@ namespace CatchCapture
                 "Settings" => "설정",
                 _ => iconName
             };
+        }
+        private void UpdateInstantEditToggleUI()
+        {
+            var settings = Settings.Load();
+            if (settings.SimpleModeInstantEdit)
+            {
+                InstantEditToggleBorder.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00E676"));
+                InstantEditToggleCircle.Margin = new Thickness(16, 0, 0, 0);
+            }
+            else
+            {
+                InstantEditToggleBorder.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#CCCCCC"));
+                InstantEditToggleCircle.Margin = new Thickness(2, 0, 0, 0);
+            }
+        }
+
+        private void InstantEditToggle_Click(object sender, MouseButtonEventArgs e)
+        {
+            var settings = Settings.Load();
+            settings.SimpleModeInstantEdit = !settings.SimpleModeInstantEdit;
+            Settings.Save(settings);
+            UpdateInstantEditToggleUI();
+        }
+        private void HideToTrayButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Hide();
         }
     }
 }

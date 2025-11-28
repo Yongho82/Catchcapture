@@ -109,7 +109,7 @@ public partial class MainWindow : Window
             hwndSource = HwndSource.FromHwnd(helper.Handle);
             hwndSource?.AddHook(HwndHook);
             RegisterGlobalHotkeys();
-
+            UpdateInstantEditToggleUI();
             // 시작 모드에 따라 초기 모드 설정
             if (settings.StartupMode == "Tray")
             {
@@ -128,6 +128,7 @@ public partial class MainWindow : Window
                 this.Topmost = true;
                 this.Topmost = false;
             }
+            UpdateEmptyStateLogo();            
         };
     }
 
@@ -386,11 +387,35 @@ public partial class MainWindow : Window
 
         // 설정을 다시 로드하여 메모리와 파일 동기화
         settings = Settings.Load();
+        UpdateInstantEditToggleUI();
     }
 
     private void TrayModeButton_Click(object sender, RoutedEventArgs e)
     {
         SwitchToTrayMode();
+    }
+
+    private void UpdateInstantEditToggleUI()
+    {
+        settings = Settings.Load(); // 최신 설정 로드
+        if (settings.SimpleModeInstantEdit)
+        {
+            // 형광 초록색
+            InstantEditToggleBorder.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00E676"));
+            InstantEditToggleCircle.Margin = new Thickness(16, 0, 0, 0); // 스위치 크기가 줄어서 마진도 조정
+        }
+        else
+        {
+            InstantEditToggleBorder.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#CCCCCC"));
+            InstantEditToggleCircle.Margin = new Thickness(2, 0, 0, 0);
+        }
+    }
+
+    private void InstantEditToggle_Click(object sender, MouseButtonEventArgs e)
+    {
+        settings.SimpleModeInstantEdit = !settings.SimpleModeInstantEdit;
+        Settings.Save(settings);
+        UpdateInstantEditToggleUI();
     }
 
     private void SwitchToSimpleMode()
@@ -1169,6 +1194,7 @@ public partial class MainWindow : Window
             }
             catch { }
         }
+       UpdateEmptyStateLogo();
     }
     private Border CreateCaptureItem(CaptureImage captureImage, int index)
     {
@@ -1650,6 +1676,9 @@ public partial class MainWindow : Window
             // 버튼 상태 업데이트
             UpdateButtonStates();
             UpdateCaptureCount();
+            
+            // 로고 표시 상태 업데이트
+            UpdateEmptyStateLogo();
         }
     }
 
@@ -1685,6 +1714,7 @@ public partial class MainWindow : Window
     private void DeleteAllButton_Click(object sender, RoutedEventArgs e)
     {
         DeleteAllImages();
+        UpdateEmptyStateLogo();
     }
 
     private void DeleteAllImages()
@@ -2502,7 +2532,14 @@ public partial class MainWindow : Window
             Dispatcher.Invoke(StartAreaCapture);
         });
     }
-
+    private void UpdateEmptyStateLogo()
+    {
+        if (EmptyStateLogo != null)
+        {
+            // 캡처 목록이 비어있으면 로고 표시, 아니면 숨김
+            EmptyStateLogo.Visibility = captures.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
+    }
     public void TriggerAreaCapture()
     {
         AreaCaptureButton_Click(null!, new RoutedEventArgs());
