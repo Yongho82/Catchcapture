@@ -1793,7 +1793,7 @@ public partial class MainWindow : Window
     }
     
     // 구글 렌즈 검색 기능 (HTML 리다이렉트 방식 - 2025년 대응)
-    private void SearchImageOnGoogle(BitmapSource image)
+    public void SearchImageOnGoogle(BitmapSource image)
     {
         try
         {
@@ -2063,7 +2063,7 @@ public partial class MainWindow : Window
                     }
 
                     // 4. 영역 캡처 시작
-                    Dispatcher.Invoke(() => StartAreaCapture());
+                    Dispatcher.Invoke(() => StartAreaCapture);
                     handled = true;
                     break;
 

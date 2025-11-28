@@ -156,6 +156,10 @@ namespace CatchCapture.Models
                 ["NoImageToSave"] = "저장할 이미지가 없습니다.",
                 ["SaveError"] = "파일 저장 중 오류",
                 
+                // 이미지 검색 (PreviewWindow)
+                ["ImageSearch"] = "이미지 검색",
+                ["ImageSearchTooltip"] = "이미지로 검색",
+                
                 // 편집 도구
                 ["Pen"] = "펜",
                 ["Highlighter"] = "형광펜",
@@ -284,6 +288,10 @@ namespace CatchCapture.Models
                 ["Copied"] = "已复制",
                 ["NoImageToSave"] = "没有可保存的图像。",
                 ["SaveError"] = "保存文件时出错",
+                
+                // 이미지 검색 (PreviewWindow)
+                ["ImageSearch"] = "以图搜图",
+                ["ImageSearchTooltip"] = "以图搜索",
                 
                 // 편집 도구
                 ["Pen"] = "画笔",
@@ -414,6 +422,10 @@ namespace CatchCapture.Models
                 ["NoImageToSave"] = "保存する画像がありません。",
                 ["SaveError"] = "ファイル保存中にエラー",
                 
+                // 이미지 검색 (PreviewWindow)
+                ["ImageSearch"] = "画像検索",
+                ["ImageSearchTooltip"] = "画像で検索",
+                
                 // 편집 도구
                 ["Pen"] = "ペン",
                 ["Highlighter"] = "蛍光ペン",
@@ -542,6 +554,10 @@ namespace CatchCapture.Models
                 ["Copied"] = "Copied",
                 ["NoImageToSave"] = "No image to save.",
                 ["SaveError"] = "Error saving file",
+                
+                // 이미지 검색 (PreviewWindow)
+                ["ImageSearch"] = "Image Search",
+                ["ImageSearchTooltip"] = "Search by image",
                 
                 // 편집 도구
                 ["Pen"] = "Pen",
