@@ -17,6 +17,7 @@ namespace CatchCapture
         {
             InitializeComponent();
             _settings = Settings.Load();
+            UpdateUIText(); // 다국어 텍스트 적용
             InitKeyComboBoxes(); // 콤보박스 초기화
             LoadCapturePage();
             LoadSystemPage();
@@ -24,8 +25,84 @@ namespace CatchCapture
             HighlightNav(NavCapture, "Capture");
         }
 
+        private void UpdateUIText()
+        {
+            // 창 제목
+            this.Title = LocalizationManager.Get("Settings");
 
-        
+            // 사이드바
+            SidebarGeneralText.Text = LocalizationManager.Get("General");
+            NavCapture.Content = LocalizationManager.Get("CaptureSettings");
+            NavSystem.Content = LocalizationManager.Get("SystemSettings");
+            NavHotkey.Content = LocalizationManager.Get("HotkeySettings");
+
+            // 캡처 페이지
+            CaptureSectionTitle.Text = LocalizationManager.Get("CaptureSettings");
+            SaveSettingsGroup.Header = LocalizationManager.Get("SaveSettings");
+            SavePathText.Text = LocalizationManager.Get("SavePath");
+            BtnBrowse.Content = LocalizationManager.Get("Change");
+            FileFormatText.Text = LocalizationManager.Get("FileFormat");
+            QualityText.Text = LocalizationManager.Get("Quality");
+            OptionsGroup.Header = LocalizationManager.Get("Options");
+            ChkAutoSave.Content = LocalizationManager.Get("AutoSaveCapture");
+            ChkShowPreview.Content = LocalizationManager.Get("ShowPreviewAfterCapture");
+
+            // 단축키 페이지
+            HotkeySectionTitle.Text = LocalizationManager.Get("HotkeySettings");
+            PrintScreenGroup.Header = LocalizationManager.Get("UsePrintScreen");
+            ChkUsePrintScreen.Content = LocalizationManager.Get("UsePrintScreen");
+            // Print Screen 액션 항목 (표시는 로컬라이즈, 저장 값은 한국어로 유지)
+            var items = new[]
+            {
+                (key: "AreaCapture", tag: "영역 캡처"),
+                (key: "FullScreen", tag: "전체화면"),
+                (key: "DesignatedCapture", tag: "지정 캡처"),
+                (key: "WindowCapture", tag: "창 캡처"),
+                (key: "ElementCapture", tag: "단위 캡처"),
+            };
+            CboPrintScreenAction.Items.Clear();
+            foreach (var (key, tag) in items)
+            {
+                CboPrintScreenAction.Items.Add(new ComboBoxItem
+                {
+                    Content = LocalizationManager.Get(key),
+                    Tag = tag
+                });
+            }
+
+            // 단축키 체크박스 라벨
+            HkRegionEnabled.Content = LocalizationManager.Get("AreaCapture");
+            HkDelayEnabled.Content = LocalizationManager.Get("DelayCapture");
+            HkRealTimeEnabled.Content = LocalizationManager.Get("RealTimeCapture");
+            HkMultiEnabled.Content = LocalizationManager.Get("MultiCapture");
+            HkFullEnabled.Content = LocalizationManager.Get("FullScreen");
+            HkDesignatedEnabled.Content = LocalizationManager.Get("DesignatedCapture");
+            HkWindowCaptureEnabled.Content = LocalizationManager.Get("WindowCapture");
+            HkElementCaptureEnabled.Content = LocalizationManager.Get("ElementCapture");
+            HkScrollCaptureEnabled.Content = LocalizationManager.Get("ScrollCapture");
+            HkSaveAllEnabled.Content = LocalizationManager.Get("SaveAll");
+            HkDeleteAllEnabled.Content = LocalizationManager.Get("DeleteAll");
+            HkSimpleModeEnabled.Content = LocalizationManager.Get("Simple");
+            HkOpenSettingsEnabled.Content = LocalizationManager.Get("OpenSettings");
+
+            // 시스템 페이지
+            SystemSectionTitle.Text = LocalizationManager.Get("SystemSettings");
+            StartupGroup.Header = LocalizationManager.Get("StartupMode");
+            StartWithWindowsCheckBox.Content = LocalizationManager.Get("StartWithWindows");
+            StartupModeText.Text = LocalizationManager.Get("StartupMode");
+            StartupModeTrayRadio.Content = LocalizationManager.Get("StartInTray");
+            StartupModeNormalRadio.Content = LocalizationManager.Get("StartInNormal");
+            StartupModeSimpleRadio.Content = LocalizationManager.Get("StartInSimple");
+
+            // 언어 페이지
+            LanguageGroup.Header = LocalizationManager.Get("LanguageSettings");
+            LanguageLabelText.Text = LocalizationManager.Get("LanguageLabel");
+
+            // 하단 버튼
+            CancelButton.Content = LocalizationManager.Get("Cancel");
+            SaveButton.Content = LocalizationManager.Get("Save");
+        }
+
         private void InitKeyComboBoxes()
         {
             var keys = new System.Collections.Generic.List<string>();
@@ -96,7 +173,7 @@ namespace CatchCapture
             ChkUsePrintScreen.IsChecked = _settings.UsePrintScreenKey;
             foreach (ComboBoxItem item in CboPrintScreenAction.Items)
             {
-                if (item.Content?.ToString() == _settings.PrintScreenAction)
+                if (item.Tag?.ToString() == _settings.PrintScreenAction)
                 {
                     CboPrintScreenAction.SelectedItem = item;
                     break;
@@ -120,6 +197,19 @@ namespace CatchCapture
                 StartupModeSimpleRadio.IsChecked = true;
             else
                 StartupModeTrayRadio.IsChecked = true; // 기본값
+            
+            // 언어 설정
+            string currentLang = _settings.Language ?? "ko";
+            foreach (ComboBoxItem item in LanguageComboBox.Items)
+            {
+                if (item.Tag?.ToString() == currentLang)
+                {
+                    LanguageComboBox.SelectedItem = item;
+                    break;
+                }
+            }
+            if (LanguageComboBox.SelectedItem == null)
+                LanguageComboBox.SelectedIndex = 0; // 기본값: 한국어
         }
 
         private static void EnsureDefaultKey(ToggleHotkey hk, string defaultKey)
@@ -127,8 +217,6 @@ namespace CatchCapture
             if (string.IsNullOrWhiteSpace(hk.Key))
                 hk.Key = defaultKey;
         }
-
-
 
         private void LoadHotkeysPage()
         {
@@ -225,7 +313,8 @@ namespace CatchCapture
             _settings.UsePrintScreenKey = ChkUsePrintScreen.IsChecked == true;
             if (CboPrintScreenAction.SelectedItem is ComboBoxItem actionItem)
             {
-                _settings.PrintScreenAction = actionItem.Content?.ToString() ?? "영역 캡처";
+                // 저장은 한국어 기본 문자열(Tag)로 유지 (기존 스위치 로직 호환)
+                _settings.PrintScreenAction = actionItem.Tag?.ToString() ?? "영역 캡처";
             }
 
             // Ensure folder exists if autosave is enabled
@@ -269,6 +358,12 @@ namespace CatchCapture
                 _settings.StartupMode = "Normal";
             else if (StartupModeSimpleRadio.IsChecked == true)
                 _settings.StartupMode = "Simple";
+            
+            // 언어 설정
+            if (LanguageComboBox.SelectedItem is ComboBoxItem langItem)
+            {
+                _settings.Language = langItem.Tag?.ToString() ?? "ko";
+            }
             
             // 윈도우 시작 프로그램 등록/해제
             SetStartup(_settings.StartWithWindows);
@@ -356,7 +451,6 @@ namespace CatchCapture
             }
         }
 
-
         private void CboFormat_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (CboFormat.SelectedItem is ComboBoxItem item && TxtQuality != null)
@@ -382,6 +476,25 @@ namespace CatchCapture
         private static bool IsTextAllowed(string text)
         {
             return System.Text.RegularExpressions.Regex.IsMatch(text, "^[0-9]+$");
+        }
+
+        private void LanguageComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (LanguageComboBox.SelectedItem is ComboBoxItem selectedItem)
+            {
+                string selectedLang = selectedItem.Tag?.ToString() ?? "ko";
+                string currentLang = _settings.Language ?? "ko";
+                
+                // 언어가 변경되었으면 재시작 안내 표시
+                if (selectedLang != currentLang)
+                {
+                    LanguageRestartNotice.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    LanguageRestartNotice.Visibility = Visibility.Collapsed;
+                }
+            }
         }
     }
 }

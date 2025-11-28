@@ -27,6 +27,10 @@ public partial class App : Application
         }
 
         base.OnStartup(e);
+
+        // 언어 설정 로드 및 적용
+        var settings = CatchCapture.Models.Settings.Load();
+        CatchCapture.Models.LocalizationManager.CurrentLanguage = settings.Language ?? "ko";
     }
 
     protected override void OnExit(ExitEventArgs e)

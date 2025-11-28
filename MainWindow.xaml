@@ -166,8 +166,8 @@
                         <StackPanel Orientation="Horizontal" Margin="10,0,0,0">
                             <Image Source="/icons/camera.png" Width="14" Height="14" Margin="0,0,5,0" 
                                    RenderOptions.BitmapScalingMode="HighQuality"/>
-                            <TextBlock Text="캐치캡처" Foreground="White" FontWeight="SemiBold" FontSize="12"
-                                      Style="{StaticResource ClearTextStyle}"/>
+                            <TextBlock x:Name="TitleBarAppNameText" Text="캐치캡처" Foreground="White" FontWeight="SemiBold" FontSize="12"
+                                       Style="{StaticResource ClearTextStyle}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,10,0">
                             <Button x:Name="MinimizeButton" Style="{StaticResource WindowControlButtonStyle}"
@@ -307,7 +307,7 @@
 
                            <!-- 즉시편집 스위치 -->
                              <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,10,10,5"> <!-- 왼쪽 마진 10px 추가 -->
-                                <TextBlock Text="즉시편집" 
+                                <TextBlock x:Name="InstantEditLabel" Text="즉시편집" 
                                           VerticalAlignment="Center" 
                                           FontSize="11" 
                                           Foreground="#666666"

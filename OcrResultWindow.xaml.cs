@@ -1,4 +1,5 @@
 using System.Windows;
+using CatchCapture.Models;
 
 namespace CatchCapture
 {
@@ -8,6 +9,11 @@ namespace CatchCapture
         {
             InitializeComponent();
             ResultTextBox.Text = text;
+            // Localize UI
+            this.Title = LocalizationManager.Get("OcrResultTitle");
+            HeaderText.Text = LocalizationManager.Get("ExtractedText");
+            CopyButton.Content = LocalizationManager.Get("CopySelected");
+            CloseButton.Content = LocalizationManager.Get("Close");
         }
 
         private void CopyButton_Click(object sender, RoutedEventArgs e)
@@ -15,7 +21,7 @@ namespace CatchCapture
             if (!string.IsNullOrEmpty(ResultTextBox.Text))
             {
                 Clipboard.SetText(ResultTextBox.Text);
-                MessageBox.Show("텍스트가 클립보드에 복사되었습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(LocalizationManager.Get("CopyToClipboard"), LocalizationManager.Get("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 

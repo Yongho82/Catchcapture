@@ -440,79 +440,79 @@ namespace CatchCapture
                 case "AreaCapture":
                     button.Click += AreaCaptureButton_Click;
                     iconImage = CreateImage("/icons/area_capture.png");
-                    labelText = "영역";
+                    labelText = LocalizationManager.Get("AreaCapture");
                     break;
                 case "DelayCapture":
                     button.Click += DelayCaptureButton_Click;
                     iconImage = CreateImage("/icons/clock.png");
-                    labelText = "지연";
+                    labelText = LocalizationManager.Get("DelayCapture");
                     // ContextMenu 추가
                     button.ContextMenu = CreateDelayContextMenu();
                     break;
                 case "RealTimeCapture":
                     button.Click += RealTimeCaptureButton_Click;
                     iconImage = CreateImage("/icons/real-time.png");
-                    labelText = "순간";
+                    labelText = LocalizationManager.Get("RealTimeCapture");
                     break;
                 case "FullScreen":
                     button.Click += FullScreenButton_Click;
                     iconImage = CreateImage("/icons/full_screen.png");
-                    labelText = "전체";
+                    labelText = LocalizationManager.Get("FullScreen");
                     break;
                 case "DesignatedCapture":
                     button.Click += DesignatedCaptureButton_Click;
                     iconImage = CreateImage("/icons/designated.png");
-                    labelText = "지정";
+                    labelText = LocalizationManager.Get("DesignatedCapture");
                     break;
                 case "WindowCapture":
                     button.Click += WindowCaptureButton_Click;
                     iconImage = CreateImage("/icons/window_cap.png");
-                    labelText = "창";
+                    labelText = LocalizationManager.Get("WindowCapture");
                     break;
                 case "UnitCapture":
                     button.Click += UnitCaptureButton_Click;
                     iconImage = CreateImage("/icons/unit_capture.png");
-                    labelText = "단위";
+                    labelText = LocalizationManager.Get("ElementCapture");
                     break;
                 case "ScrollCapture":
                     button.Click += ScrollCaptureButton_Click;
                     iconImage = CreateImage("/icons/scroll_capture.png");
-                    labelText = "스크롤";
+                    labelText = LocalizationManager.Get("ScrollCapture");
                     break;
                 case "Copy":
                     button.Click += CopyButton_Click;
                     iconImage = CreateImage("/icons/copy_selected.png");
-                    labelText = "복사";
+                    labelText = LocalizationManager.Get("CopySelected");
                     break;
                 case "CopyAll":
                     button.Click += CopyAllButton_Click;
                     iconImage = CreateImage("/icons/copy_all.png");
-                    labelText = "전체복사";
+                    labelText = LocalizationManager.Get("CopyAll");
                     break;
                 case "Save":
                     button.Click += SaveButton_Click;
                     iconImage = CreateImage("/icons/save_selected.png");
-                    labelText = "저장";
+                    labelText = LocalizationManager.Get("Save");
                     break;
                 case "SaveAll":
                     button.Click += SaveAllButton_Click;
                     iconImage = CreateImage("/icons/save_all.png");
-                    labelText = "전체저장";
+                    labelText = LocalizationManager.Get("SaveAll");
                     break;
                 case "Delete":
                     button.Click += DeleteButton_Click;
                     iconImage = CreateImage("/icons/delete_selected.png");
-                    labelText = "삭제";
+                    labelText = LocalizationManager.Get("Delete");
                     break;
                 case "DeleteAll":
                     button.Click += DeleteAllButton_Click;
                     iconImage = CreateImage("/icons/delete_all.png");
-                    labelText = "전체삭제";
+                    labelText = LocalizationManager.Get("DeleteAll");
                     break;
                 case "Settings":
                     button.Click += SettingsButton_Click;
                     iconImage = CreateImage("/icons/setting.png");
-                    labelText = "설정";
+                    labelText = LocalizationManager.Get("Settings");
                     break;
             }
             
@@ -556,9 +556,9 @@ namespace CatchCapture
         private ContextMenu CreateDelayContextMenu()
         {
             var menu = new ContextMenu();
-            menu.Items.Add(new MenuItem { Header = "3초 후 캡처", Tag = "3" });
-            menu.Items.Add(new MenuItem { Header = "5초 후 캡처", Tag = "5" });
-            menu.Items.Add(new MenuItem { Header = "10초 후 캡처", Tag = "10" });
+            menu.Items.Add(new MenuItem { Header = LocalizationManager.Get("Delay3Sec"), Tag = "3" });
+            menu.Items.Add(new MenuItem { Header = LocalizationManager.Get("Delay5Sec"), Tag = "5" });
+            menu.Items.Add(new MenuItem { Header = LocalizationManager.Get("Delay10Sec"), Tag = "10" });
             
             foreach (MenuItem item in menu.Items)
             {
@@ -571,7 +571,7 @@ namespace CatchCapture
 
         private Button CreateRemoveButton(string iconName)
         {
-            // 작은 - 버튼 생성 (우측 상단 배치)
+            // 작은 - 버튼 생성 (우측 상단, 기본 숨김)
             var btn = new Button
             {
                 Content = "−",
@@ -645,8 +645,8 @@ namespace CatchCapture
         {
             // 삭제 확인 메시지
             var result = MessageBox.Show(
-                $"'{GetIconDisplayName(iconName)}' 아이콘을 삭제하시겠습니까?",
-                "아이콘 삭제",
+                $"'{LocalizationManager.Get(iconName)}' 아이콘을 삭제하시겠습니까?",
+                LocalizationManager.Get("DeleteIcon"),
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question
             );
@@ -678,7 +678,7 @@ namespace CatchCapture
                 FontSize = 18,
                 FontWeight = FontWeights.Bold,
                 Style = this.FindResource("TinyButtonStyle") as Style,
-                ToolTip = "아이콘 추가",
+                ToolTip = LocalizationManager.Get("AddIcon"),
                 Opacity = 0.3  // 기본적으로 반투명하게 표시
             };
             
@@ -710,7 +710,7 @@ namespace CatchCapture
                 {
                     if (!settings.TrayModeIcons.Contains(icon))
                     {
-                        var item = new MenuItem { Header = GetIconDisplayName(icon) };
+                        var item = new MenuItem { Header = LocalizationManager.Get(icon) };
                         item.Click += (s2, e2) => AddIcon(icon);
                         menu.Items.Add(item);
                     }
@@ -738,24 +738,24 @@ namespace CatchCapture
         }
         private string GetIconDisplayName(string iconName)
         {
-            // 아이콘 이름을 한글로 변환
+            // 아이콘 이름을 로컬라이즈된 텍스트로 변환
             return iconName switch
             {
-                "AreaCapture" => "영역 캡처",
-                "DelayCapture" => "지연 캡처",
-                "RealTimeCapture" => "순간 캡처", 
-                "FullScreen" => "전체화면",
-                "DesignatedCapture" => "지정 캡처",
-                "WindowCapture" => "창 캡처",
-                "UnitCapture" => "단위 캡처",
-                "ScrollCapture" => "스크롤 캡처",
-                "Copy" => "복사",
-                "CopyAll" => "전체 복사",
-                "Save" => "저장",
-                "SaveAll" => "전체 저장",
-                "Delete" => "삭제",
-                "DeleteAll" => "전체 삭제",
-                "Settings" => "설정",
+                "AreaCapture" => LocalizationManager.Get("AreaCapture"),
+                "DelayCapture" => LocalizationManager.Get("DelayCapture"),
+                "RealTimeCapture" => LocalizationManager.Get("RealTimeCapture"), 
+                "FullScreen" => LocalizationManager.Get("FullScreen"),
+                "DesignatedCapture" => LocalizationManager.Get("DesignatedCapture"),
+                "WindowCapture" => LocalizationManager.Get("WindowCapture"),
+                "UnitCapture" => LocalizationManager.Get("ElementCapture"),
+                "ScrollCapture" => LocalizationManager.Get("ScrollCapture"),
+                "Copy" => LocalizationManager.Get("CopySelected"),
+                "CopyAll" => LocalizationManager.Get("CopyAll"),
+                "Save" => LocalizationManager.Get("Save"),
+                "SaveAll" => LocalizationManager.Get("SaveAll"),
+                "Delete" => LocalizationManager.Get("Delete"),
+                "DeleteAll" => LocalizationManager.Get("DeleteAll"),
+                "Settings" => LocalizationManager.Get("Settings"),
                 _ => iconName
             };
         }

@@ -110,6 +110,10 @@ public partial class MainWindow : Window
             hwndSource?.AddHook(HwndHook);
             RegisterGlobalHotkeys();
             UpdateInstantEditToggleUI();
+            
+            // 다국어 UI 텍스트 적용
+            UpdateUIText();
+            
             // 시작 모드에 따라 초기 모드 설정
             if (settings.StartupMode == "Tray")
             {
@@ -179,7 +183,7 @@ public partial class MainWindow : Window
         }
         
         notifyIcon.Visible = true;
-        notifyIcon.Text = "캐치캡처";
+        notifyIcon.Text = CatchCapture.Models.LocalizationManager.Get("AppName");
         
         // 클릭 시 트레이 모드 창 토글
         notifyIcon.Click += (s, e) =>
@@ -192,15 +196,19 @@ public partial class MainWindow : Window
 
         // 컨텍스트 메뉴
         var contextMenu = new System.Windows.Forms.ContextMenuStrip();
-        contextMenu.Items.Add("일반 모드", null, (s, e) => SwitchToNormalMode());
-        contextMenu.Items.Add("간편 모드", null, (s, e) => SwitchToSimpleMode());
-        contextMenu.Items.Add("트레이 모드", null, (s, e) => SwitchToTrayMode());
-        contextMenu.Items.Add("-");
-        contextMenu.Items.Add("종료", null, (s, e) => 
+        var normalItem = new System.Windows.Forms.ToolStripMenuItem(CatchCapture.Models.LocalizationManager.Get("TrayNormalMode"), null, (s, e) => SwitchToNormalMode());
+        var simpleItem = new System.Windows.Forms.ToolStripMenuItem(CatchCapture.Models.LocalizationManager.Get("TraySimpleMode"), null, (s, e) => SwitchToSimpleMode());
+        var trayItem = new System.Windows.Forms.ToolStripMenuItem(CatchCapture.Models.LocalizationManager.Get("TrayTrayMode"), null, (s, e) => SwitchToTrayMode());
+        var exitItem = new System.Windows.Forms.ToolStripMenuItem(CatchCapture.Models.LocalizationManager.Get("Exit"), null, (s, e) =>
         {
             isExit = true;
             Close();
         });
+        contextMenu.Items.Add(normalItem);
+        contextMenu.Items.Add(simpleItem);
+        contextMenu.Items.Add(trayItem);
+        contextMenu.Items.Add("-");
+        contextMenu.Items.Add(exitItem);
         
         notifyIcon.ContextMenuStrip = contextMenu;
     }
@@ -2609,4 +2617,64 @@ public partial class MainWindow : Window
     }
 
     #endregion
+
+    // UI 텍스트 업데이트 (다국어 적용)
+    private void UpdateUIText()
+    {
+        try
+        {
+            // 윈도우 타이틀
+            this.Title = CatchCapture.Models.LocalizationManager.Get("AppName");
+            if (TitleBarAppNameText != null)
+            {
+                TitleBarAppNameText.Text = CatchCapture.Models.LocalizationManager.Get("AppName");
+            }
+
+            // 사이드바 버튼들
+            SetButtonText(AreaCaptureButton, CatchCapture.Models.LocalizationManager.Get("AreaCapture"));
+            SetButtonText(DelayCaptureButton, CatchCapture.Models.LocalizationManager.Get("DelayCapture"));
+            SetButtonText(RealTimeCaptureButton, CatchCapture.Models.LocalizationManager.Get("RealTimeCapture"));
+            SetButtonText(MultiCaptureButton, CatchCapture.Models.LocalizationManager.Get("MultiCapture"));
+            SetButtonText(FullScreenCaptureButton, CatchCapture.Models.LocalizationManager.Get("FullScreen"));
+            SetButtonText(DesignatedCaptureButton, CatchCapture.Models.LocalizationManager.Get("DesignatedCapture"));
+            SetButtonText(WindowCaptureButton, CatchCapture.Models.LocalizationManager.Get("WindowCapture"));
+            SetButtonText(ElementCaptureButton, CatchCapture.Models.LocalizationManager.Get("ElementCapture"));
+            SetButtonText(ScrollCaptureButton, CatchCapture.Models.LocalizationManager.Get("ScrollCapture"));
+            // 추가 버튼들 (간편/트레이 모드)
+            SetButtonText(SimpleModeButton, CatchCapture.Models.LocalizationManager.Get("Simple"));
+            SetButtonText(TrayModeButton, CatchCapture.Models.LocalizationManager.Get("Tray"));
+
+            // 하단 버튼들
+            SetButtonText(CopySelectedButton, CatchCapture.Models.LocalizationManager.Get("CopySelected"));
+            SetButtonText(CopyAllButton, CatchCapture.Models.LocalizationManager.Get("CopyAll"));
+            SetButtonText(SaveAllButton, CatchCapture.Models.LocalizationManager.Get("SaveAll"));
+            SetButtonText(DeleteAllButton, CatchCapture.Models.LocalizationManager.Get("DeleteAll"));
+            SetButtonText(SettingsBottomButton, CatchCapture.Models.LocalizationManager.Get("Settings"));
+            // 즉시편집 라벨
+            if (InstantEditLabel != null)
+            {
+                InstantEditLabel.Text = CatchCapture.Models.LocalizationManager.Get("InstantEdit");
+            }
+        }
+        catch
+        {
+            // 안전하게 무시
+        }
+    }
+
+    private void SetButtonText(System.Windows.Controls.Button? button, string text)
+    {
+        if (button == null) return;
+        if (button.Content is System.Windows.Controls.StackPanel sp)
+        {
+            foreach (var child in sp.Children)
+            {
+                if (child is System.Windows.Controls.TextBlock tb)
+                {
+                    tb.Text = text;
+                    break;
+                }
+            }
+        }
+    }
 }

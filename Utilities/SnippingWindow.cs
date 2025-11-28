@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using CatchCapture.Models;
 
 namespace CatchCapture.Utilities
 {
@@ -168,7 +169,7 @@ namespace CatchCapture.Utilities
             {
                 infoTextBlock = new TextBlock
                 {
-                    Text = "영역을 선택하세요 (ESC 키를 눌러 취소)",
+                    Text = LocalizationManager.Get("SelectAreaGuide"),
                     Foreground = Brushes.White,
                     Background = new SolidColorBrush(Color.FromArgb(150, 0, 0, 0)),
                     Padding = new Thickness(10),
@@ -389,7 +390,7 @@ namespace CatchCapture.Utilities
             // 최소 크기 확인
             if (width < 5 || height < 5)
             {
-                MessageBox.Show("선택된 영역이 너무 작습니다. 다시 선택해주세요.", "알림");
+                MessageBox.Show(LocalizationManager.Get("SelectionTooSmall"), LocalizationManager.Get("Info"));
                 return;
             }
 
@@ -803,7 +804,7 @@ namespace CatchCapture.Utilities
                 toolbarTop = selectionTop - 44 - 10;
             
             // 펜 버튼
-            var penButton = CreateToolButton("pen.png", "펜", "펜 도구");
+            var penButton = CreateToolButton("pen.png", LocalizationManager.Get("Pen"), LocalizationManager.Get("Pen"));
             penButton.Click += (s, e) => 
             {
                 currentTool = "펜";
@@ -813,7 +814,7 @@ namespace CatchCapture.Utilities
             };
             
             // 형광펜 버튼
-            var highlighterButton = CreateToolButton("highlight.png", "형광펜", "형광펜 도구");
+            var highlighterButton = CreateToolButton("highlight.png", LocalizationManager.Get("Highlighter"), LocalizationManager.Get("Highlighter"));
             highlighterButton.Click += (s, e) => 
             {
                 currentTool = "형광펜";
@@ -824,7 +825,7 @@ namespace CatchCapture.Utilities
             };
             
             // 텍스트 버튼
-            var textButton = CreateToolButton("text.png", "텍스트", "텍스트 입력");
+            var textButton = CreateToolButton("text.png", LocalizationManager.Get("Text"), LocalizationManager.Get("TextAdd"));
             textButton.Click += (s, e) => 
             {
                 currentTool = "텍스트";
@@ -834,7 +835,7 @@ namespace CatchCapture.Utilities
             };
             
             // 도형 버튼
-            var shapeButton = CreateToolButton("shape.png", "도형", "도형 그리기");
+            var shapeButton = CreateToolButton("shape.png", LocalizationManager.Get("ShapeLbl"), LocalizationManager.Get("ShapeOptions"));
             shapeButton.Click += (s, e) => 
             {
                 currentTool = "도형";
@@ -844,7 +845,7 @@ namespace CatchCapture.Utilities
             };
             
             // 모자이크 버튼
-            var mosaicButton = CreateToolButton("mosaic.png", "모자이크", "모자이크 효과");
+            var mosaicButton = CreateToolButton("mosaic.png", LocalizationManager.Get("Mosaic"), LocalizationManager.Get("Mosaic"));
             mosaicButton.Click += (s, e) => 
             { 
                 currentTool = "모자이크"; 
@@ -854,7 +855,7 @@ namespace CatchCapture.Utilities
             };
             
             // 지우개 버튼
-            var eraserButton = CreateToolButton("eraser.png", "지우개", "요소 삭제");
+            var eraserButton = CreateToolButton("eraser.png", LocalizationManager.Get("Eraser"), LocalizationManager.Get("Eraser"));
             eraserButton.Click += (s, e) => 
             { 
                 currentTool = "지우개"; 
@@ -864,7 +865,7 @@ namespace CatchCapture.Utilities
             };
 
             // OCR 버튼
-            var ocrButton = CreateToolButton("extract_text.png", "OCR", "텍스트 추출");
+            var ocrButton = CreateToolButton("extract_text.png", LocalizationManager.Get("OCR"), LocalizationManager.Get("Extract"));
             ocrButton.Click += async (s, e) => 
             { 
                 await PerformOcr();
@@ -891,7 +892,7 @@ namespace CatchCapture.Utilities
                 BorderBrush = Brushes.Transparent,
                 BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
-                ToolTip = "취소 (ESC)",
+                ToolTip = $"{LocalizationManager.Get("Cancel")} (ESC)",
                 Style = null,
                 Template = new ControlTemplate(typeof(Button))
                 {
@@ -917,7 +918,7 @@ namespace CatchCapture.Utilities
             
             var cancelLabel = new TextBlock
             {
-                Text = "취소",
+                Text = LocalizationManager.Get("Cancel"),
                 FontSize = 9,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Foreground = new SolidColorBrush(Color.FromRgb(60, 60, 60))
@@ -1005,7 +1006,7 @@ namespace CatchCapture.Utilities
                 BorderBrush = Brushes.Transparent,
                 BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
-                ToolTip = "완료 (Enter)",
+                ToolTip = $"{LocalizationManager.Get("OK")} (Enter)",
                 Style = null,
                 Template = new ControlTemplate(typeof(Button))
                 {
@@ -1031,7 +1032,7 @@ namespace CatchCapture.Utilities
             
             var doneLabel = new TextBlock
             {
-                Text = "완료",
+                Text = LocalizationManager.Get("OK"),
                 FontSize = 9,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Foreground = new SolidColorBrush(Color.FromRgb(60, 60, 60))
@@ -1088,11 +1089,11 @@ namespace CatchCapture.Utilities
             };
             
             // 실행 취소 버튼
-            var undoButton = CreateActionButton("undo.png", "실행취소", "실행 취소 (Ctrl+Z)");
+            var undoButton = CreateActionButton("undo.png", LocalizationManager.Get("UndoLbl"), $"{LocalizationManager.Get("UndoLbl")} (Ctrl+Z)");
             undoButton.Click += (s, e) => UndoLastAction();
             
             // 초기화 버튼
-            var resetButton = CreateActionButton("reset.png", "초기화", "전체 초기화 (Ctrl+R)");
+            var resetButton = CreateActionButton("reset.png", LocalizationManager.Get("ResetLbl"), $"{LocalizationManager.Get("ResetLbl")} (Ctrl+R)");
             resetButton.Click += (s, e) => ResetAllDrawings();
 
             // 구분선 3
@@ -1105,11 +1106,11 @@ namespace CatchCapture.Utilities
             };
             
             // 복사 버튼
-            var copyButton = CreateActionButton("copy_selected.png", "복사", "클립보드 복사 (Ctrl+C)");
+            var copyButton = CreateActionButton("copy_selected.png", LocalizationManager.Get("CopySelected"), $"{LocalizationManager.Get("CopyToClipboard")} (Ctrl+C)");
             copyButton.Click += (s, e) => CopyToClipboard();
             
             // 저장 버튼
-            var saveButton = CreateActionButton("save_selected.png", "저장", "파일로 저장 (Ctrl+S)");
+            var saveButton = CreateActionButton("save_selected.png", LocalizationManager.Get("Save"), $"{LocalizationManager.Get("Save")} (Ctrl+S)");
             saveButton.Click += (s, e) => SaveToFile();
 
             // [수정] 버튼들을 toolbarStackPanel에 추가
@@ -1395,7 +1396,7 @@ namespace CatchCapture.Utilities
                 var colorSection = new StackPanel { Margin = new Thickness(0, 0, 15, 0) };
                 var colorLabel = new TextBlock
                 {
-                    Text = "색상",
+                    Text = LocalizationManager.Get("Color"),
                     FontWeight = FontWeights.SemiBold,
                     Margin = new Thickness(0, 0, 0, 8)
                 };
@@ -1463,12 +1464,12 @@ namespace CatchCapture.Utilities
             if (tool == "텍스트")
             {
                 // [텍스트 옵션]
-                var optionLabel = new TextBlock { Text = "텍스트 옵션", FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
+                var optionLabel = new TextBlock { Text = LocalizationManager.Get("TextOptions"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
                 optionSection.Children.Add(optionLabel);
 
                 // 폰트 크기
                 var sizePanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 5) };
-                sizePanel.Children.Add(new TextBlock { Text = "크기:", VerticalAlignment = VerticalAlignment.Center, Width = 40 });
+                sizePanel.Children.Add(new TextBlock { Text = LocalizationManager.Get("SizeLabel") + ":", VerticalAlignment = VerticalAlignment.Center, Width = 40 });
                 var sizeCombo = new ComboBox { Width = 60, Height = 25 };
                 int[] sizes = { 10, 12, 14, 16, 18, 24, 36, 48, 72 };
                 foreach (var s in sizes) sizeCombo.Items.Add(s);
@@ -1479,7 +1480,7 @@ namespace CatchCapture.Utilities
 
                 // 폰트 종류
                 var fontPanel = new StackPanel { Orientation = Orientation.Horizontal };
-                fontPanel.Children.Add(new TextBlock { Text = "폰트:", VerticalAlignment = VerticalAlignment.Center, Width = 40 });
+                fontPanel.Children.Add(new TextBlock { Text = LocalizationManager.Get("Font") + ":", VerticalAlignment = VerticalAlignment.Center, Width = 40 });
                 var fontCombo = new ComboBox { Width = 100, Height = 25 };
                 string[] fonts = { "Malgun Gothic", "Arial", "Consolas", "Gulim", "Dotum" };
                 foreach (var f in fonts) fontCombo.Items.Add(f);
@@ -1491,7 +1492,7 @@ namespace CatchCapture.Utilities
             else if (tool == "도형")
             {
                 // [도형 옵션]
-                var optionLabel = new TextBlock { Text = "도형 옵션", FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
+                var optionLabel = new TextBlock { Text = LocalizationManager.Get("ShapeOptions"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
                 optionSection.Children.Add(optionLabel);
 
                 // 도형 종류
@@ -1504,7 +1505,7 @@ namespace CatchCapture.Utilities
 
                 // 두께
                 var thicknessPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 5) };
-                thicknessPanel.Children.Add(new TextBlock { Text = "두께:", VerticalAlignment = VerticalAlignment.Center, Width = 35, FontSize = 11 });
+                thicknessPanel.Children.Add(new TextBlock { Text = LocalizationManager.Get("Thickness") + ":", VerticalAlignment = VerticalAlignment.Center, Width = 35, FontSize = 11 });
                 var thicknessSlider = new Slider { Minimum = 1, Maximum = 10, Value = shapeBorderThickness, Width = 80, IsSnapToTickEnabled = true, TickFrequency = 1, VerticalAlignment = VerticalAlignment.Center };
                 thicknessSlider.ValueChanged += (s, e) => { shapeBorderThickness = thicknessSlider.Value; };
                 thicknessPanel.Children.Add(thicknessSlider);
@@ -1512,11 +1513,11 @@ namespace CatchCapture.Utilities
 
                 // 채우기 및 투명도
                 var fillPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 2, 0, 0) };
-                var fillCheckBox = new CheckBox { Content = "채우기", IsChecked = shapeIsFilled, FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
+                var fillCheckBox = new CheckBox { Content = LocalizationManager.Get("Fill"), IsChecked = shapeIsFilled, FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
                 fillCheckBox.Checked += (s, e) => { shapeIsFilled = true; };
                 fillCheckBox.Unchecked += (s, e) => { shapeIsFilled = false; };
                 fillPanel.Children.Add(fillCheckBox);
-                var opacitySlider = new Slider { Minimum = 0, Maximum = 1, Value = shapeFillOpacity, Width = 60, Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center, ToolTip = "채우기 투명도" };
+                var opacitySlider = new Slider { Minimum = 0, Maximum = 1, Value = shapeFillOpacity, Width = 60, Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center, ToolTip = LocalizationManager.Get("FillOpacity") };
                 opacitySlider.ValueChanged += (s, e) => { shapeFillOpacity = opacitySlider.Value; };
                 fillPanel.Children.Add(opacitySlider);
                 optionSection.Children.Add(fillPanel);
@@ -1524,11 +1525,11 @@ namespace CatchCapture.Utilities
             else if (tool == "모자이크")
             {
                 // [모자이크 옵션]
-                var optionLabel = new TextBlock { Text = "모자이크 옵션", FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
+                var optionLabel = new TextBlock { Text = LocalizationManager.Get("Mosaic"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
                 optionSection.Children.Add(optionLabel);
 
                 var intensityPanel = new StackPanel { Orientation = Orientation.Horizontal };
-                intensityPanel.Children.Add(new TextBlock { Text = "강도:", VerticalAlignment = VerticalAlignment.Center, Width = 35 });
+                intensityPanel.Children.Add(new TextBlock { Text = LocalizationManager.Get("Intensity") + ":", VerticalAlignment = VerticalAlignment.Center, Width = 35 });
 
                 var slider = new Slider
                 {
@@ -1539,7 +1540,7 @@ namespace CatchCapture.Utilities
                     VerticalAlignment = VerticalAlignment.Center,
                     IsSnapToTickEnabled = true,
                     TickFrequency = 5,
-                    ToolTip = "모자이크 강도 조절"
+                    ToolTip = LocalizationManager.Get("Intensity")
                 };
                 slider.ValueChanged += (s, e) => { mosaicIntensity = slider.Value; };
                 intensityPanel.Children.Add(slider);
@@ -1549,7 +1550,7 @@ namespace CatchCapture.Utilities
             else
             {
                 // [기본 두께 옵션 (펜, 형광펜)]
-                var thicknessLabel = new TextBlock { Text = "두께", FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
+                var thicknessLabel = new TextBlock { Text = LocalizationManager.Get("Thickness"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
                 optionSection.Children.Add(thicknessLabel);
                 
                 var thicknessList = new StackPanel();
@@ -1563,7 +1564,14 @@ namespace CatchCapture.Utilities
                     var line = new Border { Height = p, Width = 30, Background = Brushes.Black, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center };
                     Grid.SetColumn(line, 0); item.Children.Add(line);
                     
-                    var text = new TextBlock { Text = $"{p}px", FontSize = 11, Foreground = Brushes.Gray, Margin = new Thickness(8, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
+                    var text = new TextBlock
+                    {
+                        Text = $"{p}px",
+                        FontSize = 11,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        Foreground = Brushes.Gray,
+                        Margin = new Thickness(8, 0, 0, 0)
+                    };
                     Grid.SetColumn(text, 1); item.Children.Add(text);
 
                     int thickness = p;
@@ -1745,7 +1753,7 @@ namespace CatchCapture.Utilities
                 
                 if (imageToOcr == null)
                 {
-                    MessageBox.Show("OCR을 수행할 이미지가 없습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show(LocalizationManager.Get("NoImageForOcr"), LocalizationManager.Get("Info"));
                     return;
                 }
                 
@@ -1760,7 +1768,7 @@ namespace CatchCapture.Utilities
                 
                 if (string.IsNullOrWhiteSpace(extractedText))
                 {
-                    MessageBox.Show("추출된 텍스트가 없습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show(LocalizationManager.Get("NoExtractedText"), LocalizationManager.Get("Info"));
                     return;
                 }
                 
@@ -1772,7 +1780,7 @@ namespace CatchCapture.Utilities
             catch (Exception ex)
             {
                 this.Cursor = Cursors.Arrow;
-                MessageBox.Show($"텍스트 추출 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"{LocalizationManager.Get("OcrError")}: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -1828,8 +1836,8 @@ namespace CatchCapture.Utilities
             }
             
             var result = MessageBox.Show(
-                "모든 그리기 내용을 삭제하시겠습니까?", 
-                "확인", 
+                LocalizationManager.Get("ConfirmReset"), 
+                LocalizationManager.Get("Confirm"), 
                 MessageBoxButton.YesNo, 
                 MessageBoxImage.Question
             );
@@ -1877,7 +1885,7 @@ namespace CatchCapture.Utilities
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"클립보드 복사 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"{LocalizationManager.Get("CopyError")}: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -1902,7 +1910,7 @@ namespace CatchCapture.Utilities
                 CornerRadius = new CornerRadius(18), // 둥근 알약 모양
                 Child = new TextBlock
                 {
-                    Text = "복사되었습니다", // 느낌표 제거하고 심플하게
+                    Text = LocalizationManager.Get("Copied"), // 느낌표 제거하고 심플하게
                     Foreground = Brushes.White,
                     FontSize = 12, // 폰트 크기 줄임 (16 -> 12)
                     FontWeight = FontWeights.Normal, // 볼드 제거
@@ -1934,7 +1942,7 @@ namespace CatchCapture.Utilities
                 
                 if (SelectedFrozenImage == null)
                 {
-                    MessageBox.Show("저장할 이미지가 없습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show(LocalizationManager.Get("NoImageToSave"), LocalizationManager.Get("Info"));
                     return;
                 }
                 
@@ -1971,12 +1979,12 @@ namespace CatchCapture.Utilities
                         encoder.Save(stream);
                     }
                     
-                    MessageBox.Show($"이미지가 저장되었습니다.\n{saveDialog.FileName}", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show($"{LocalizationManager.Get("ImageSaved")}:\n{saveDialog.FileName}", LocalizationManager.Get("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"파일 저장 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"{LocalizationManager.Get("SaveError")}: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -2380,7 +2388,7 @@ namespace CatchCapture.Utilities
                 Foreground = Brushes.White,
                 BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
-                ToolTip = "텍스트 확정 (Ctrl+Enter)"
+                ToolTip = LocalizationManager.Get("Confirm")
             };
 
             // 취소 버튼 생성
@@ -2395,12 +2403,12 @@ namespace CatchCapture.Utilities
                 Foreground = Brushes.White,
                 BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
-                ToolTip = "취소"
+                ToolTip = LocalizationManager.Get("Cancel")
             };
 
             // 이벤트 연결
             confirmButton.Click += (s, e) => ConfirmTextBox(textBox, confirmButton, cancelButton);
-            cancelButton.Click += (s, e) => 
+            cancelButton.Click += (s, e) =>
             {
                 canvas.Children.Remove(textBox);
                 canvas.Children.Remove(confirmButton);
@@ -2688,7 +2696,7 @@ namespace CatchCapture.Utilities
                 Foreground = Brushes.White,
                 BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
-                ToolTip = "삭제"
+                ToolTip = LocalizationManager.Get("Delete")
             };
             
             textDeleteButton.Click += (s, e) =>

@@ -77,14 +77,14 @@
                     <Button x:Name="CopyButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="CopyButton_Click" ToolTip="클립보드에 복사">
                         <StackPanel VerticalAlignment="Top">
                             <Image Source="icons/copy_selected.png" Width="20" Height="20" Margin="0,2,0,2"/>
-                            <TextBlock Text="복사" FontSize="12" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="CopyLabelText" Text="복사" FontSize="12" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     
                     <Button x:Name="SaveButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="SaveButton_Click" ToolTip="저장">
                         <StackPanel VerticalAlignment="Top">
                             <Image Source="icons/save_selected.png" Width="20" Height="20" Margin="0,2,0,2"/>
-                            <TextBlock Text="저장" FontSize="12" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="SaveLabelText" Text="저장" FontSize="12" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     
@@ -93,21 +93,21 @@
                     <Button x:Name="UndoButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="UndoButton_Click" ToolTip="실행 취소" IsEnabled="False">
                         <StackPanel VerticalAlignment="Top">
                             <Image Source="icons/undo.png" Width="20" Height="20" Margin="0,2,0,2"/>
-                            <TextBlock Text="실행취소" FontSize="12" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="UndoLabelText" Text="실행취소" FontSize="12" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     
                     <Button x:Name="RedoButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="RedoButton_Click" ToolTip="다시 실행" IsEnabled="False">
                         <StackPanel VerticalAlignment="Top">
                             <Image Source="icons/redo.png" Width="20" Height="20" Margin="0,2,0,2"/>
-                            <TextBlock Text="다시실행" FontSize="12" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="RedoLabelText" Text="다시실행" FontSize="12" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     
                     <Button x:Name="ResetButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="ResetButton_Click" ToolTip="원본으로 되돌리기">
                         <StackPanel VerticalAlignment="Top">
                             <Image Source="icons/reset.png" Width="20" Height="20" Margin="0,2,0,2"/>
-                            <TextBlock Text="초기화" FontSize="12" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="ResetLabelText" Text="초기화" FontSize="12" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     
@@ -116,28 +116,28 @@
                     <Button x:Name="CropButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="CropButton_Click" ToolTip="자르기">
                         <StackPanel VerticalAlignment="Top">
                             <Image Source="icons/crop.png" Width="20" Height="20" Margin="0,2,0,2"/>
-                            <TextBlock Text="자르기" FontSize="12" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="CropLabelText" Text="자르기" FontSize="12" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     
                     <Button x:Name="RotateButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="RotateButton_Click" ToolTip="회전">
                         <StackPanel VerticalAlignment="Top">
                             <Image Source="icons/rotate.png" Width="20" Height="20" Margin="0,2,0,2"/>
-                            <TextBlock Text="회전" FontSize="12" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="RotateLabelText" Text="회전" FontSize="12" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     
                     <Button x:Name="FlipHorizontalButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="FlipHorizontalButton_Click" ToolTip="좌우 반전">
                         <StackPanel VerticalAlignment="Top">
                             <Image Source="icons/flip_horizontal.png" Width="20" Height="20" Margin="0,2,0,2"/>
-                            <TextBlock Text="좌우반전" FontSize="12" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="FlipHorizontalLabelText" Text="좌우반전" FontSize="12" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     
                     <Button x:Name="FlipVerticalButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="FlipVerticalButton_Click" ToolTip="상하 반전">
                         <StackPanel VerticalAlignment="Top">
                             <Image Source="icons/flip_vertical.png" Width="20" Height="20" Margin="0,2,0,2"/>
-                            <TextBlock Text="상하반전" FontSize="12" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="FlipVerticalLabelText" Text="상하반전" FontSize="12" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     
@@ -161,7 +161,7 @@
                                             Padding="2">
                                         <StackPanel>
                                             <Image Source="icons/shape.png" Width="20" Height="20" Margin="0,2,0,2"/>
-                                            <TextBlock Text="도형" FontSize="12" HorizontalAlignment="Center"/>
+                                            <TextBlock x:Name="ShapeLabelText" Text="도형" FontSize="12" HorizontalAlignment="Center"/>
                                         </StackPanel>
                                     </Border>
                                     <ControlTemplate.Triggers>
@@ -266,8 +266,8 @@
 
                     <Button x:Name="OcrButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="OcrButton_Click" ToolTip="텍스트 추출">
                         <StackPanel VerticalAlignment="Top">
-                            <TextBlock Text="OCR" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,4,0,0"/>
-                            <TextBlock Text="추출" FontSize="12" HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                            <TextBlock x:Name="OcrLabelText" Text="OCR" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                            <TextBlock x:Name="OcrExtractLabelText" Text="추출" FontSize="12" HorizontalAlignment="Center" Margin="0,2,0,0"/>
                         </StackPanel>
                     </Button> 
                 </StackPanel>
@@ -437,7 +437,7 @@
                         
                         <!-- 제목과 캡처 개수 -->
                         <Grid Grid.Row="0">
-                            <TextBlock Text="최근 캡처 목록" FontWeight="SemiBold" FontSize="13" Foreground="#333" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="RecentCapturesTitle" Text="최근 캡처 목록" FontWeight="SemiBold" FontSize="13" Foreground="#333" VerticalAlignment="Center"/>
                             <TextBlock x:Name="CaptureCountText" Text="(0)" FontSize="12" Foreground="#888" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                         </Grid>
                         
@@ -449,7 +449,7 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             
-                            <TextBlock Grid.Column="0" Text="크기" FontSize="10" Foreground="#666" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <TextBlock x:Name="SizeLabelText" Grid.Column="0" Text="크기" FontSize="10" Foreground="#666" VerticalAlignment="Center" Margin="0,0,8,0"/>
                             <Slider x:Name="ThumbnailSizeSlider" Grid.Column="1" 
                                     Minimum="80" Maximum="200" Value="80" 
                                     TickFrequency="10" IsSnapToTickEnabled="True"

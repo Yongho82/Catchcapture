@@ -13,7 +13,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Text="추출된 텍스트" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+        <TextBlock x:Name="HeaderText" Text="추출된 텍스트" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
 
         <TextBox x:Name="ResultTextBox" Grid.Row="1" 
                  AcceptsReturn="True" TextWrapping="Wrap" 
@@ -22,7 +22,7 @@
                  BorderBrush="#D0D7E5"/>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
-            <Button x:Name="CopyButton" Content="복사" Width="80" Height="35" 
+            <Button x:Name="CopyButton" Width="80" Height="35" 
                     Background="#4B6EF5" Foreground="White" BorderThickness="0"
                     Cursor="Hand" Click="CopyButton_Click" Margin="0,0,10,0">
                 <Button.Resources>
@@ -32,7 +32,7 @@
                 </Button.Resources>
             </Button>
             
-            <Button x:Name="CloseButton" Content="닫기" Width="80" Height="35" 
+            <Button x:Name="CloseButton" Width="80" Height="35" 
                     Background="White" BorderBrush="#D0D7E5" BorderThickness="1"
                     Cursor="Hand" Click="CloseButton_Click">
                 <Button.Resources>

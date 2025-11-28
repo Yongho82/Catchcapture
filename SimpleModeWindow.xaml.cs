@@ -485,17 +485,18 @@ namespace CatchCapture
 
         private string GetIconLabel(string iconName)
         {
+            // Use full names for clarity, matching main keys
             return iconName switch
             {
-                "AreaCapture" => "영역",
-                "DelayCapture" => "지연",
-                "RealTimeCapture" => "순간",
-                "FullScreen" => "전체",
-                "DesignatedCapture" => "지정",
-                "WindowCapture" => "창",
-                "UnitCapture" => "단위",
-                "ScrollCapture" => "스크롤",
-                _ => ""
+                "AreaCapture" => CatchCapture.Models.LocalizationManager.Get("AreaCapture"),
+                "DelayCapture" => CatchCapture.Models.LocalizationManager.Get("DelayCapture"),
+                "RealTimeCapture" => CatchCapture.Models.LocalizationManager.Get("RealTimeCapture"),
+                "FullScreen" => CatchCapture.Models.LocalizationManager.Get("FullScreen"),
+                "DesignatedCapture" => CatchCapture.Models.LocalizationManager.Get("DesignatedCapture"),
+                "WindowCapture" => CatchCapture.Models.LocalizationManager.Get("WindowCapture"),
+                "UnitCapture" => CatchCapture.Models.LocalizationManager.Get("ElementCapture"),
+                "ScrollCapture" => CatchCapture.Models.LocalizationManager.Get("ScrollCapture"),
+                _ => string.Empty
             };
         }
 
@@ -503,14 +504,14 @@ namespace CatchCapture
         {
             return iconName switch
             {
-                "AreaCapture" => "영역 캡처",
-                "DelayCapture" => "지연 캡처",
-                "RealTimeCapture" => "순간 캡처",
-                "FullScreen" => "전체화면",
-                "DesignatedCapture" => "지정 캡처",
-                "WindowCapture" => "창 캡처",
-                "UnitCapture" => "단위 캡처",
-                "ScrollCapture" => "스크롤 캡처",
+                "AreaCapture" => CatchCapture.Models.LocalizationManager.Get("AreaCapture"),
+                "DelayCapture" => CatchCapture.Models.LocalizationManager.Get("DelayCapture"),
+                "RealTimeCapture" => CatchCapture.Models.LocalizationManager.Get("RealTimeCapture"),
+                "FullScreen" => CatchCapture.Models.LocalizationManager.Get("FullScreen"),
+                "DesignatedCapture" => CatchCapture.Models.LocalizationManager.Get("DesignatedCapture"),
+                "WindowCapture" => CatchCapture.Models.LocalizationManager.Get("WindowCapture"),
+                "UnitCapture" => CatchCapture.Models.LocalizationManager.Get("ElementCapture"),
+                "ScrollCapture" => CatchCapture.Models.LocalizationManager.Get("ScrollCapture"),
                 _ => iconName
             };
         }
@@ -574,7 +575,7 @@ namespace CatchCapture
                 FontSize = 18,
                 FontWeight = FontWeights.Bold,
                 Style = this.FindResource("AddButtonStyle") as Style,
-                ToolTip = "아이콘 추가"
+                ToolTip = CatchCapture.Models.LocalizationManager.Get("AddIcon")
             };
             
             button.Click += ShowAddIconMenu;
