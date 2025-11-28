@@ -239,9 +239,7 @@ namespace CatchCapture.Utilities
             };
             memoryCleanupTimer.Tick += (s, e) => 
             {
-                // 강제 GC 대신 메모리 사용량만 로깅
-                var memoryUsed = GC.GetTotalMemory(false) / 1024 / 1024;
-                System.Diagnostics.Debug.WriteLine($"SnippingWindow 메모리 사용량: {memoryUsed}MB");
+                // Debug logging disabled
             };
             memoryCleanupTimer.Start();
             this.KeyDown += SnippingWindow_KeyDown;

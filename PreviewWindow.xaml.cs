@@ -102,15 +102,8 @@ namespace CatchCapture
         {
             InitializeComponent();
 
-            // 로그 파일 초기화
-            try
-            {
-                File.WriteAllText(logFilePath, $"===== 로그 시작: {DateTime.Now} =====\r\n");
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"로그 파일 생성 실패: {ex.Message}");
-            }
+            // Debug logging disabled
+            // (no file writes)
 
             WriteLog("PreviewWindow 생성됨");
 
@@ -795,17 +788,7 @@ namespace CatchCapture
         // 로그 기록 헬퍼 메서드
         private void WriteLog(string message)
         {
-            string logMessage = $"[{DateTime.Now:HH:mm:ss.fff}] {message}";
-            Debug.WriteLine(logMessage);
-
-            try
-            {
-                File.AppendAllText(logFilePath, logMessage + "\r\n");
-            }
-            catch
-            {
-                // 로그 저장 실패해도 계속 진행
-            }
+            // Debug logging disabled
         }
 
         // 활성화된 툴 버튼 강조 표시 색상 (호버 색상과 동일하게 유지)

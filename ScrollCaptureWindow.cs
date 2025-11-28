@@ -108,17 +108,10 @@ namespace CatchCapture
         private System.Windows.Shapes.Rectangle highlightRect;
         private IntPtr currentTargetElement = IntPtr.Zero;
         public BitmapSource? CapturedImage { get; private set; }
-        private static readonly string LogFilePath = System.IO.Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.Desktop), 
-            "scroll_capture_log.txt");
 
         private static void Log(string message)
         {
-            try
-            {
-                File.AppendAllText(LogFilePath, $"[{DateTime.Now:HH:mm:ss}] {message}\n");
-            }
-            catch { }
+            // Debug logging disabled
         }
 
         public ScrollCaptureWindow()

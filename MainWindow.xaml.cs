@@ -1190,17 +1190,8 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            // 에러를 바탕화면 파일로 저장
-            try
-            {
-                var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                var errorFilePath = System.IO.Path.Combine(desktopPath, "CatchCapture_Error.txt");
-                var errorMessage = $"=== 에러 발생 ===\n시간: {DateTime.Now:yyyy-MM-dd HH:mm:ss}\n\n에러 메시지:\n{ex.Message}\n\n스택 트레이스:\n{ex.StackTrace}\n\n설정 정보:\nIsTrayMode: {settings.IsTrayMode}\ntrayModeWindow: {(trayModeWindow == null ? "null" : "exists")}\nsimpleModeWindow: {(simpleModeWindow == null ? "null" : "exists")}\n==================\n\n";
-                System.IO.File.AppendAllText(errorFilePath, errorMessage);
-                
-                MessageBox.Show($"캡처 중 오류가 발생했습니다.\n에러 로그가 바탕화면에 저장되었습니다.\n\n{ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            catch { }
+            // 바탕화면 오류 파일 저장 제거: 사용자 알림만 표시
+            MessageBox.Show($"캡처 중 오류가 발생했습니다.\n\n{ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
         }
        UpdateEmptyStateLogo();
     }
