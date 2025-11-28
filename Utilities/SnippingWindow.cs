@@ -862,6 +862,13 @@ namespace CatchCapture.Utilities
                 EnableEraserMode();
             };
 
+            // 이미지 검색 버튼
+            var imageSearchButton = CreateToolButton("img_find.png", LocalizationManager.Get("ImageSearch"), LocalizationManager.Get("ImageSearchTooltip"));
+            imageSearchButton.Click += async (s, e) => 
+            { 
+                await PerformImageSearch();
+            };
+
             // OCR 버튼
             var ocrButton = CreateToolButton("extract_text.png", LocalizationManager.Get("OCR"), LocalizationManager.Get("Extract"));
             ocrButton.Click += async (s, e) => 
@@ -1118,6 +1125,7 @@ namespace CatchCapture.Utilities
             toolbarStackPanel.Children.Add(shapeButton);
             toolbarStackPanel.Children.Add(mosaicButton);
             toolbarStackPanel.Children.Add(eraserButton);
+            toolbarStackPanel.Children.Add(imageSearchButton);
             toolbarStackPanel.Children.Add(ocrButton);
             toolbarStackPanel.Children.Add(separator);
             toolbarStackPanel.Children.Add(cancelButton);
@@ -1726,7 +1734,7 @@ namespace CatchCapture.Utilities
             try
             {
                 // 선택 영역만 크롭하여 OCR 수행
-                BitmapSource imageToOcr = null;
+                BitmapSource? imageToOcr = null;
                 
                 if (screenCapture != null && selectionRectangle != null)
                 {
@@ -1782,6 +1790,62 @@ namespace CatchCapture.Utilities
             }
         }
 
+        private async Task PerformImageSearch()
+        {
+            try
+            {
+                // 경고(CS1998) 방지용 최소 대기
+                await Task.Yield();
+
+                // 즉시편집 모드에서는 편집 요소가 남아 있으면 먼저 확정(✓)하도록 안내
+                if (instantEditMode && drawnElements != null && drawnElements.Count > 0)
+                {
+                    MessageBox.Show("편집 내용을 먼저 확정(✓)한 뒤 이용하세요.", LocalizationManager.Get("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                // 대상 이미지: 선택된 영역의 동결 이미지 우선 사용
+                BitmapSource? imageToSearch = SelectedFrozenImage;
+                if (imageToSearch == null && screenCapture != null && SelectedArea.Width > 0 && SelectedArea.Height > 0)
+                {
+                    // 폴백: 전체 스크린샷에서 선택 영역 크롭 (가상 스크린 좌표 보정)
+                    var relX = SelectedArea.X - (int)Math.Round(vLeft);
+                    var relY = SelectedArea.Y - (int)Math.Round(vTop);
+
+                    // 경계 체크
+                    relX = Math.Max(0, Math.Min(relX, screenCapture.PixelWidth - 1));
+                    relY = Math.Max(0, Math.Min(relY, screenCapture.PixelHeight - 1));
+                    int cw = Math.Max(0, Math.Min(SelectedArea.Width, screenCapture.PixelWidth - relX));
+                    int ch = Math.Max(0, Math.Min(SelectedArea.Height, screenCapture.PixelHeight - relY));
+
+                    if (cw > 0 && ch > 0)
+                    {
+                        imageToSearch = new CroppedBitmap(screenCapture, new Int32Rect(relX, relY, cw, ch));
+                    }
+                }
+
+                if (imageToSearch == null)
+                {
+                    MessageBox.Show(LocalizationManager.Get("NoImageToSave"), LocalizationManager.Get("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                // 메인창의 기존 이미지 검색 플로우 재사용 (Image Edit와 동일 경로)
+                var ownerWin = this.Owner as MainWindow ?? Application.Current?.MainWindow as MainWindow;
+                if (ownerWin != null)
+                {
+                    ownerWin.SearchImageOnGoogle(imageToSearch);
+                }
+
+                // 검색 트리거 후 오버레이 닫기
+                try { DialogResult = true; Close(); } catch { }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"{LocalizationManager.Get("Error")}: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private void ConfirmAndClose()
         {
             // 그린 내용을 이미지에 합성
@@ -1811,11 +1875,15 @@ namespace CatchCapture.Utilities
             {
                 if (textBox.Tag != null)
                 {
-                    dynamic tags = textBox.Tag;
-                    if (tags.confirmButton != null && canvas.Children.Contains(tags.confirmButton))
-                        canvas.Children.Remove(tags.confirmButton);
-                    if (tags.cancelButton != null && canvas.Children.Contains(tags.cancelButton))
-                        canvas.Children.Remove(tags.cancelButton);
+                    if (textBox.Tag is ValueTuple<Button, Button> tagButtons1)
+                    {
+                        var confirmButton = tagButtons1.Item1;
+                        var cancelButton = tagButtons1.Item2;
+                        if (confirmButton != null && canvas.Children.Contains(confirmButton))
+                            canvas.Children.Remove(confirmButton);
+                        if (cancelButton != null && canvas.Children.Contains(cancelButton))
+                            canvas.Children.Remove(cancelButton);
+                    }
                 }
             }
             
@@ -1850,11 +1918,15 @@ namespace CatchCapture.Utilities
                     // 텍스트박스인 경우 관련 버튼도 제거
                     if (element is TextBox textBox && textBox.Tag != null)
                     {
-                        dynamic tags = textBox.Tag;
-                        if (tags.confirmButton != null && canvas.Children.Contains(tags.confirmButton))
-                            canvas.Children.Remove(tags.confirmButton);
-                        if (tags.cancelButton != null && canvas.Children.Contains(tags.cancelButton))
-                            canvas.Children.Remove(tags.cancelButton);
+                        if (textBox.Tag is ValueTuple<Button, Button> tagButtons2)
+                        {
+                            var confirmButton = tagButtons2.Item1;
+                            var cancelButton = tagButtons2.Item2;
+                            if (confirmButton != null && canvas.Children.Contains(confirmButton))
+                                canvas.Children.Remove(confirmButton);
+                            if (cancelButton != null && canvas.Children.Contains(cancelButton))
+                                canvas.Children.Remove(cancelButton);
+                        }
                     }
                 }
                 
@@ -1999,8 +2071,7 @@ namespace CatchCapture.Utilities
             if (!IsPointInSelection(clickPoint))
                 return;
 
-            // 클릭한 위치에 있는 요소 찾기 (역순으로 검색 - 최상위 요소부터)
-            UIElement elementToRemove = null;
+            UIElement? elementToRemove = null;
             
             for (int i = drawnElements.Count - 1; i >= 0; i--)
             {
@@ -2179,38 +2250,6 @@ namespace CatchCapture.Utilities
             {
                 ClearTextSelection();
             }
-        }
-
-        private Button CreateShapeOptionButton(string content, ShapeType type)
-        {
-            var button = new Button
-            {
-                Content = content,
-                Width = 30,
-                Height = 24,
-                Margin = new Thickness(2, 0, 2, 0),
-                FontSize = 14,
-                Padding = new Thickness(0, -4, 0, 0), // [수정] 아이콘 위치 상향 조정
-                Background = shapeType == type ? new SolidColorBrush(Color.FromRgb(200, 230, 255)) : Brushes.White,
-                BorderBrush = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
-                BorderThickness = new Thickness(1),
-                Cursor = Cursors.Hand
-            };
-
-            button.Click += (s, e) =>
-            {
-                shapeType = type;
-                // UI 업데이트 (형제 버튼들 배경색 초기화)
-                if (button.Parent is Panel parent)
-                {
-                    foreach (var child in parent.Children)
-                    {
-                        if (child is Button btn) btn.Background = Brushes.White;
-                    }
-                    button.Background = new SolidColorBrush(Color.FromRgb(200, 230, 255));
-                }
-            };
-            return button;
         }
 
         private UIElement? CreateShape(Point start, Point current)
@@ -2436,7 +2475,7 @@ namespace CatchCapture.Utilities
             canvas.Children.Add(cancelButton);
 
             // 태그 업데이트 (버튼 참조 저장)
-            textBox.Tag = new { confirmButton, cancelButton };
+            textBox.Tag = (confirmButton, cancelButton);
             
             // 키 이벤트 핸들러 재등록 (중복 방지)
             textBox.KeyDown -= TextBox_KeyDown;
@@ -2448,38 +2487,59 @@ namespace CatchCapture.Utilities
         // [추가] 텍스트 박스 키 이벤트 핸들러
         private void TextBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if (sender is not TextBox textBox) return;
-            
-            dynamic tags = textBox.Tag;
-            if (tags == null) return;
-            
-            // Tag에서 버튼 가져오기
-            Button confirmButton = tags.confirmButton;
-            Button cancelButton = tags.cancelButton;
+            if (sender is TextBox textBox)
+            {
+                // 편집 중 (IsReadOnly == false)일 때: Ctrl+Enter 확정, Esc 취소
+                if (!textBox.IsReadOnly)
+                {
+                    if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.Control)
+                    {
+                        if (textBox.Tag is ValueTuple<Button, Button> tags1)
+                        {
+                            var confirmButton = tags1.Item1;
+                            var cancelButton = tags1.Item2;
+                            ConfirmTextBox(textBox, confirmButton, cancelButton);
+                            e.Handled = true;
+                        }
+                    }
+                    else if (e.Key == Key.Escape)
+                    {
+                        if (textBox.Tag is ValueTuple<Button, Button> tags2)
+                        {
+                            var confirmButton = tags2.Item1;
+                            var cancelButton = tags2.Item2;
+                            canvas.Children.Remove(textBox);
+                            canvas.Children.Remove(confirmButton);
+                            canvas.Children.Remove(cancelButton);
+                            drawnElements.Remove(textBox);
+                            selectedTextBox = null;
+                            e.Handled = true;
+                        }
+                    }
+                    return;
+                }
 
-            if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.Control)
-            {
-                ConfirmTextBox(textBox, confirmButton, cancelButton);
-                e.Handled = true;
-            }
-            else if (e.Key == Key.Escape)
-            {
-                // 취소 버튼 클릭과 동일
-                canvas.Children.Remove(textBox);
-                canvas.Children.Remove(confirmButton);
-                canvas.Children.Remove(cancelButton);
-                drawnElements.Remove(textBox);
-                selectedTextBox = null;
-                e.Handled = true;
+                // 확정 상태에서는 Ctrl+Enter로 편집 전환, Esc로 선택 해제만 처리
+                if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.Control)
+                {
+                    ClearTextSelection();
+                    EnableTextBoxEditing(textBox);
+                    textBox.SelectAll();
+                    e.Handled = true;
+                }
+                else if (e.Key == Key.Escape)
+                {
+                    ClearTextSelection();
+                    e.Handled = true;
+                }
             }
         }
 
-        // [수정] 캔버스 클릭 핸들러
         private void Canvas_TextMouseDown(object sender, MouseButtonEventArgs e)
         {
             // 버튼이나 텍스트박스 클릭 시 무시 (이벤트 버블링 방지 -> X버튼 클릭 문제 해결)
             if (e.OriginalSource is DependencyObject obj && 
-                (FindParent<Button>(obj) != null || FindParent<TextBox>(obj) != null))
+               (FindParent<Button>(obj) != null || FindParent<TextBox>(obj) != null))
             {
                 return;
             }
@@ -2489,7 +2549,7 @@ namespace CatchCapture.Utilities
             // 선택 영역 내부인지 확인
             if (!IsPointInSelection(clickPoint))
                 return;
-            
+
             // 기존 선택 해제
             ClearTextSelection();    
 
@@ -2547,20 +2607,6 @@ namespace CatchCapture.Utilities
                 // 이미 편집 중이면(IsReadOnly == false) 간섭하지 않음 (텍스트 선택, 커서 이동 등 허용)
                 if (!textBox.IsReadOnly) return;
 
-                // 더블클릭으로 확정된 텍스트 수정 가능
-                if (e.ClickCount == 2)
-                {
-                    // 선택 UI(점선, 휴지통) 제거
-                    ClearTextSelection();
-                    
-                    // 편집 모드 활성화 (확정/취소 버튼 다시 생성)
-                    EnableTextBoxEditing(textBox);
-                    
-                    textBox.SelectAll();
-                    e.Handled = true;
-                    return;
-                }
-
                 // 선택 표시 (점선, 휴지통)
                 ShowTextSelection(textBox);
                 selectedTextBox = textBox;
@@ -2578,6 +2624,7 @@ namespace CatchCapture.Utilities
             if (isTextDragging && sender is TextBox textBox)
             {
                 Point currentPoint = e.GetPosition(canvas);
+                
                 double offsetX = currentPoint.X - textDragStartPoint.X;
                 double offsetY = currentPoint.Y - textDragStartPoint.Y;
                 
@@ -2701,15 +2748,8 @@ namespace CatchCapture.Utilities
             {
                 // 텍스트박스 삭제
                 canvas.Children.Remove(textBox);
+                canvas.Children.Remove(textDeleteButton);
                 drawnElements.Remove(textBox);
-                
-                // 확정 버튼도 삭제 (있다면)
-                if (textBox.Tag is Button confirmBtn && canvas.Children.Contains(confirmBtn))
-                {
-                    canvas.Children.Remove(confirmBtn);
-                }
-                
-                ClearTextSelection();
                 selectedTextBox = null;
             };
             
@@ -2717,7 +2757,6 @@ namespace CatchCapture.Utilities
             Canvas.SetTop(textDeleteButton, top - 28);
             canvas.Children.Add(textDeleteButton);
         }
-
 
         private void Canvas_DrawMouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -3126,6 +3165,37 @@ namespace CatchCapture.Utilities
                 drawnElements.Add(mosaicImage);
             }
             catch { /* 오류 무시 */ }
+        }
+        // 도형 옵션 버튼 생성 도우미 (사각형/원/선/화살표)
+        private Button CreateShapeOptionButton(string content, ShapeType type)
+        {
+            var button = new Button
+            {
+                Content = content,
+                Width = 30,
+                Height = 24,
+                Margin = new Thickness(2, 0, 2, 0),
+                FontSize = 14,
+                Padding = new Thickness(0, -4, 0, 0),
+                Background = shapeType == type ? new SolidColorBrush(Color.FromRgb(200, 230, 255)) : Brushes.White,
+                BorderBrush = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                BorderThickness = new Thickness(1),
+                Cursor = Cursors.Hand
+            };
+
+            button.Click += (s, e) =>
+            {
+                shapeType = type;
+                if (button.Parent is Panel parent)
+                {
+                    foreach (var child in parent.Children)
+                    {
+                        if (child is Button btn) btn.Background = Brushes.White;
+                    }
+                    button.Background = new SolidColorBrush(Color.FromRgb(200, 230, 255));
+                }
+            };
+            return button;
         }
     }
 }

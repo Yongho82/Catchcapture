@@ -67,10 +67,10 @@ namespace CatchCapture.Models
                 ["Language"] = "언어",
                 ["StartWithWindows"] = "Windows 시작 시 자동 실행",
                 ["StartupMode"] = "시작 모드",
-                ["Normal"] = "일반",
-                ["Simple"] = "간편",
-                ["Tray"] = "트레이",
-                ["General"] = "일반",
+                ["Normal"] = "일반모드",
+                ["Simple"] = "간편모드",
+                ["Tray"] = "트레이모드",
+                ["General"] = "일반모드",
                 ["SaveSettings"] = "저장 설정",
                 ["SavePath"] = "저장 경로",
                 ["Change"] = "변경",
@@ -166,7 +166,7 @@ namespace CatchCapture.Models
                 ["SaveError"] = "파일 저장 중 오류",
                 
                 // 이미지 검색 (PreviewWindow)
-                ["ImageSearch"] = "이미지 검색",
+                ["ImageSearch"] = "IMG검색",
                 ["ImageSearchTooltip"] = "이미지로 검색",
                 
                 // 편집 도구
@@ -252,7 +252,7 @@ namespace CatchCapture.Models
                 ["AddIcon"] = "添加图标",
                 ["DeleteIcon"] = "删除图标",
                 
-                // 预览/编辑窗口
+                // 미리보기/편집
                 ["ImageEditTitle"] = "图片编辑",
                 ["CopyToClipboard"] = "复制到剪贴板",
                 ["UndoLbl"] = "撤销",
