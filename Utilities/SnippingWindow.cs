@@ -2410,10 +2410,21 @@ namespace CatchCapture.Utilities
             };
 
             // 위치 설정
-            Canvas.SetLeft(confirmButton, left + 105);
-            Canvas.SetTop(confirmButton, top - 28);
-            Canvas.SetLeft(cancelButton, left + 77);
-            Canvas.SetTop(cancelButton, top - 28);
+            double selectionLeft = Canvas.GetLeft(selectionRectangle);
+            double selectionTop = Canvas.GetTop(selectionRectangle);
+            double selectionRight = selectionLeft + selectionRectangle.Width;
+            double selectionBottom = selectionTop + selectionRectangle.Height;
+
+            // 버튼이 선택 영역을 벗어나지 않도록 위치 조정
+            double confirmLeft = Math.Min(left + 105, selectionRight - 24);
+            double confirmTop = Math.Max(top - 28, selectionTop);
+            double cancelLeft = Math.Min(left + 77, selectionRight - 24);
+            double cancelTop = Math.Max(top - 28, selectionTop);
+
+            Canvas.SetLeft(confirmButton, confirmLeft);
+            Canvas.SetTop(confirmButton, confirmTop);
+            Canvas.SetLeft(cancelButton, cancelLeft);
+            Canvas.SetTop(cancelButton, cancelTop);
 
             canvas.Children.Add(confirmButton);
             canvas.Children.Add(cancelButton);
@@ -2493,8 +2504,18 @@ namespace CatchCapture.Utilities
                 VerticalScrollBarVisibility = ScrollBarVisibility.Auto
             };
             
-            Canvas.SetLeft(textBox, clickPoint.X);
-            Canvas.SetTop(textBox, clickPoint.Y);
+            // 선택 영역 경계 계산
+            double selectionLeft = Canvas.GetLeft(selectionRectangle);
+            double selectionTop = Canvas.GetTop(selectionRectangle);
+            double selectionRight = selectionLeft + selectionRectangle.Width;
+            double selectionBottom = selectionTop + selectionRectangle.Height;
+
+            // 텍스트박스가 선택 영역을 벗어나지 않도록 위치 제한
+            double textBoxLeft = Math.Max(selectionLeft, Math.Min(clickPoint.X, selectionRight - textBox.MinWidth));
+            double textBoxTop = Math.Max(selectionTop, Math.Min(clickPoint.Y, selectionBottom - textBox.MinHeight));
+
+            Canvas.SetLeft(textBox, textBoxLeft);
+            Canvas.SetTop(textBox, textBoxTop);
             
             canvas.Children.Add(textBox);
             drawnElements.Add(textBox);
