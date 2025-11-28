@@ -50,7 +50,7 @@ namespace CatchCapture.Models
         public bool SimpleModeInstantEdit { get; set; } = false;
         // System settings
         public bool StartWithWindows { get; set; } = false;
-        public string StartupMode { get; set; } = "Tray"; // "Normal", "Simple", "Tray"
+        public string StartupMode { get; set; } = "Normal"; // "Normal", "Simple", "Tray"
         
         // Hotkeys
         public HotkeySettings Hotkeys { get; set; } = HotkeySettings.CreateDefaults();
