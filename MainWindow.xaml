@@ -203,7 +203,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/area_capture.png" Width="16" Height="16" Margin="0,0,5,0" 
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="영역 캡처" HorizontalAlignment="Left" FontSize="12"/>
+                                    <TextBlock x:Name="AreaCaptureButtonText" Text="영역 캡처" HorizontalAlignment="Left" FontSize="12"/>
                                 </StackPanel>
                             </Button>
 
@@ -211,16 +211,16 @@
                             <Button x:Name="DelayCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="DelayCaptureButton_Click">
                                 <Button.ContextMenu>
                                     <ContextMenu Placement="Right" PlacementTarget="{Binding ElementName=DelayCaptureButton}">
-                                        <MenuItem Header="지연없음" Tag="0" Click="DelayMenuItem_Click"/>
-                                        <MenuItem Header="3초" Tag="3" Click="DelayMenuItem_Click"/>
-                                        <MenuItem Header="5초" Tag="5" Click="DelayMenuItem_Click"/>
-                                        <MenuItem Header="10초" Tag="10" Click="DelayMenuItem_Click"/>
+                                        <MenuItem x:Name="DelayNoneMenu" Header="지연없음" Tag="0" Click="DelayMenuItem_Click"/>
+                                        <MenuItem x:Name="Delay3Menu" Header="3초" Tag="3" Click="DelayMenuItem_Click"/>
+                                        <MenuItem x:Name="Delay5Menu" Header="5초" Tag="5" Click="DelayMenuItem_Click"/>
+                                        <MenuItem x:Name="Delay10Menu" Header="10초" Tag="10" Click="DelayMenuItem_Click"/>
                                     </ContextMenu>
                                 </Button.ContextMenu>
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/clock.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="지연 캡처" HorizontalAlignment="Left" FontSize="12"/>
+                                    <TextBlock x:Name="DelayCaptureButtonText" Text="지연 캡처" HorizontalAlignment="Left" FontSize="12"/>
                                 </StackPanel>
                             </Button>
                             
@@ -229,7 +229,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/real-time.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="순간 캡처" HorizontalAlignment="Left" FontSize="12"/>
+                                    <TextBlock x:Name="RealTimeCaptureButtonText" Text="순간 캡처" HorizontalAlignment="Left" FontSize="12"/>
                                 </StackPanel>
                             </Button>
                             
@@ -238,7 +238,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/multi_capture.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="멀티 캡처" HorizontalAlignment="Left" FontSize="12"/>
+                                    <TextBlock x:Name="MultiCaptureButtonText" Text="멀티 캡처" HorizontalAlignment="Left" FontSize="12"/>
                                 </StackPanel>
                             </Button>
                             
@@ -246,7 +246,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/full_screen.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="전체화면" HorizontalAlignment="Left" FontSize="12"/>
+                                    <TextBlock x:Name="FullScreenButtonText" Text="전체화면" HorizontalAlignment="Left" FontSize="12"/>
                                 </StackPanel>
                             </Button>
                             
@@ -255,7 +255,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/designated.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="지정캡처" HorizontalAlignment="Left" FontSize="12"/>
+                                    <TextBlock x:Name="DesignatedCaptureButtonText" Text="지정캡처" HorizontalAlignment="Left" FontSize="12"/>
                                 </StackPanel>
                             </Button>
                             <!-- 창 캡처 버튼 -->
@@ -263,7 +263,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/window_cap.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="창 캡처" HorizontalAlignment="Left" FontSize="12"/>
+                                    <TextBlock x:Name="WindowCaptureButtonText" Text="창 캡처" HorizontalAlignment="Left" FontSize="12"/>
                                 </StackPanel>
                             </Button>
                             
@@ -272,7 +272,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/unit_capture.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="단위 캡처" HorizontalAlignment="Left" FontSize="12"/>
+                                    <TextBlock x:Name="ElementCaptureButtonText" Text="단위 캡처" HorizontalAlignment="Left" FontSize="12"/>
                                 </StackPanel>
                             </Button>
                             
@@ -281,7 +281,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/scroll_capture.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="스크롤 캡처" HorizontalAlignment="Left" FontSize="12"/>
+                                    <TextBlock x:Name="ScrollCaptureButtonText" Text="스크롤 캡처" HorizontalAlignment="Left" FontSize="12"/>
                                 </StackPanel>
                             </Button>
                             
@@ -291,7 +291,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/simple_mode.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="간편 모드" HorizontalAlignment="Left" FontSize="12"/>
+                                    <TextBlock x:Name="SimpleModeButtonText" Text="간편 모드" HorizontalAlignment="Left" FontSize="12"/>
                                 </StackPanel>
                             </Button>
                     
@@ -300,7 +300,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/tray_mode.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock Text="트레이모드" HorizontalAlignment="Left" FontSize="12"/>
+                                    <TextBlock x:Name="TrayModeButtonText" Text="트레이모드" HorizontalAlignment="Left" FontSize="12"/>
                                 </StackPanel>
                             </Button>
                             <Separator Style="{StaticResource SeparatorStyle}"/>
@@ -365,7 +365,7 @@
                                     Style="{StaticResource BottomButtonStyle}">
                                 <StackPanel>
                                     <Image Source="/icons/copy_selected.png" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,0,2"/>
-                                    <TextBlock Text="복사" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="#666"/>
+                                    <TextBlock x:Name="CopySelectedBottomText" Text="복사" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="#666"/>
                                 </StackPanel>
                             </Button>
                             
@@ -374,7 +374,7 @@
                                     Style="{StaticResource BottomButtonStyle}">
                                 <StackPanel>
                                     <Image Source="/icons/copy_all.png" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,0,2"/>
-                                    <TextBlock Text="전체복사" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="#666"/>
+                                    <TextBlock x:Name="CopyAllBottomText" Text="전체복사" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="#666"/>
                                 </StackPanel>
                             </Button>
                             
@@ -385,7 +385,7 @@
                                     Style="{StaticResource BottomButtonStyle}">
                                 <StackPanel>
                                     <Image Source="/icons/save_all.png" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,0,2"/>
-                                    <TextBlock Text="전체저장" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="#666"/>
+                                    <TextBlock x:Name="SaveAllBottomText" Text="전체저장" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="#666"/>
                                 </StackPanel>
                             </Button>
                             
@@ -396,7 +396,7 @@
                                     Style="{StaticResource BottomButtonStyle}">
                                 <StackPanel>
                                     <Image Source="/icons/delete_all.png" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,0,2"/>
-                                    <TextBlock Text="전체삭제" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="#666"/>
+                                    <TextBlock x:Name="DeleteAllBottomText" Text="전체삭제" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="#666"/>
                                 </StackPanel>
                             </Button>
                             
@@ -407,7 +407,7 @@
                                     Style="{StaticResource BottomButtonStyle}">
                                 <StackPanel>
                                     <Image Source="/icons/setting.png" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,0,2"/>
-                                    <TextBlock Text="설정" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="#666"/>
+                                    <TextBlock x:Name="SettingsBottomText" Text="설정" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="#666"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>

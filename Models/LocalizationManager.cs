@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace CatchCapture.Models
@@ -6,6 +7,7 @@ namespace CatchCapture.Models
     {
         private static string _currentLanguage = "ko";
         private static Dictionary<string, Dictionary<string, string>> _translations = new();
+        public static event EventHandler? LanguageChanged;
 
         static LocalizationManager()
         {
@@ -17,11 +19,18 @@ namespace CatchCapture.Models
             get => _currentLanguage;
             set
             {
-                if (_translations.ContainsKey(value))
-                {
-                    _currentLanguage = value;
-                }
+                SetLanguage(value);
             }
+        }
+
+        public static void SetLanguage(string language)
+        {
+            if (string.IsNullOrWhiteSpace(language)) return;
+            if (!_translations.ContainsKey(language)) return;
+            if (_currentLanguage == language) return;
+
+            _currentLanguage = language;
+            try { LanguageChanged?.Invoke(null, EventArgs.Empty); } catch { }
         }
 
         public static string Get(string key)
@@ -287,7 +296,7 @@ namespace CatchCapture.Models
                 ["OcrError"] = "文字提取时发生错误",
                 ["Copied"] = "已复制",
                 ["NoImageToSave"] = "没有可保存的图像。",
-                ["SaveError"] = "保存文件时出错",
+                ["SaveError"] = "文件保存时出错",
                 
                 // 이미지 검색 (PreviewWindow)
                 ["ImageSearch"] = "以图搜图",

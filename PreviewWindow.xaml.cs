@@ -153,6 +153,8 @@ namespace CatchCapture
             };
             // Ensure toolbar texts finalize after template creation
             this.Loaded += (s, e) => { try { UpdateUIText(); } catch { } };
+            // Live language switch
+            CatchCapture.Models.LocalizationManager.LanguageChanged += PreviewWindow_LanguageChanged;
         }
 
         // 이미지 크기에 맞게 창 크기를 조정하는 메서드
@@ -963,6 +965,17 @@ namespace CatchCapture
             catch { }
         }
         #endregion
+
+        private void PreviewWindow_LanguageChanged(object? sender, EventArgs e)
+        {
+            try { UpdateUIText(); } catch { }
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            try { CatchCapture.Models.LocalizationManager.LanguageChanged -= PreviewWindow_LanguageChanged; } catch { }
+            base.OnClosed(e);
+        }
     }
 
     public enum EditMode

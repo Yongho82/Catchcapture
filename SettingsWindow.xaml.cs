@@ -18,11 +18,20 @@ namespace CatchCapture
             InitializeComponent();
             _settings = Settings.Load();
             UpdateUIText(); // 다국어 텍스트 적용
+            // 언어 변경 이벤트 구독 (닫힐 때 해제)
+            CatchCapture.Models.LocalizationManager.LanguageChanged += OnLanguageChanged;
             InitKeyComboBoxes(); // 콤보박스 초기화
+            InitLanguageComboBox(); // 언어 콤보 아이템 채우기
             LoadCapturePage();
             LoadSystemPage();
             LoadHotkeysPage();
             HighlightNav(NavCapture, "Capture");
+        }
+
+        private void OnLanguageChanged(object? sender, EventArgs e)
+        {
+            // 모든 텍스트 갱신
+            UpdateUIText();
         }
 
         private void UpdateUIText()
@@ -124,6 +133,26 @@ namespace CatchCapture
             {
                 box.ItemsSource = keys;
             }
+        }
+
+        private void InitLanguageComboBox()
+        {
+            if (LanguageComboBox == null) return;
+            LanguageComboBox.Items.Clear();
+            var langs = new[]
+            {
+                (Code: "ko", Name: "한국어"),
+                (Code: "en", Name: "English"),
+                (Code: "zh", Name: "简体中文"),
+                (Code: "ja", Name: "日本語")
+            };
+            foreach (var (code, name) in langs)
+            {
+                LanguageComboBox.Items.Add(new ComboBoxItem { Content = name, Tag = code });
+            }
+            // SelectionChanged 핸들러 연결 (중복 연결 방지)
+            LanguageComboBox.SelectionChanged -= LanguageComboBox_SelectionChanged;
+            LanguageComboBox.SelectionChanged += LanguageComboBox_SelectionChanged;
         }
 
         private void HighlightNav(Button btn, string tag)
@@ -362,7 +391,10 @@ namespace CatchCapture
             // 언어 설정
             if (LanguageComboBox.SelectedItem is ComboBoxItem langItem)
             {
-                _settings.Language = langItem.Tag?.ToString() ?? "ko";
+                var lang = langItem.Tag?.ToString() ?? "ko";
+                _settings.Language = lang;
+                // 런타임 언어 적용 (재시작 없이)
+                CatchCapture.Models.LocalizationManager.SetLanguage(lang);
             }
             
             // 윈도우 시작 프로그램 등록/해제
@@ -396,6 +428,7 @@ namespace CatchCapture
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = false;
+            CatchCapture.Models.LocalizationManager.LanguageChanged -= OnLanguageChanged;
             Close();
         }
 
@@ -483,17 +516,9 @@ namespace CatchCapture
             if (LanguageComboBox.SelectedItem is ComboBoxItem selectedItem)
             {
                 string selectedLang = selectedItem.Tag?.ToString() ?? "ko";
-                string currentLang = _settings.Language ?? "ko";
-                
-                // 언어가 변경되었으면 재시작 안내 표시
-                if (selectedLang != currentLang)
-                {
-                    LanguageRestartNotice.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    LanguageRestartNotice.Visibility = Visibility.Collapsed;
-                }
+                // 즉시 적용: 미리보기 텍스트 갱신을 위해 런타임 변경
+                CatchCapture.Models.LocalizationManager.SetLanguage(selectedLang);
+                LanguageRestartNotice.Visibility = Visibility.Collapsed;
             }
         }
     }

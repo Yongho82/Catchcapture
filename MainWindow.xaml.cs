@@ -114,6 +114,9 @@ public partial class MainWindow : Window
             // 다국어 UI 텍스트 적용
             UpdateUIText();
             
+            // 언어 변경 즉시 반영
+            LocalizationManager.LanguageChanged += MainWindow_LanguageChanged;
+            
             // 시작 모드에 따라 초기 모드 설정
             if (settings.StartupMode == "Tray")
             {
@@ -1755,7 +1758,7 @@ public partial class MainWindow : Window
     private void ShowPreviewWindow(BitmapSource image, int index)
     {
         // 미리보기 창 생성
-        PreviewWindow previewWindow = new PreviewWindow(image, index);
+        PreviewWindow previewWindow = new PreviewWindow(image, index, captures);
         previewWindow.ImageUpdated += (sender, e) => 
         {
             if (e.Index >= 0 && e.Index < captures.Count)
@@ -2495,6 +2498,9 @@ public partial class MainWindow : Window
             this.Activated -= MainWindow_Activated;
             this.KeyDown -= MainWindow_KeyDown;
 
+            // 언어 변경 이벤트 해제
+            LocalizationManager.LanguageChanged -= MainWindow_LanguageChanged;
+
             // 강제 가비지 컬렉션으로 메모리 누수 방지
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -2667,5 +2673,16 @@ public partial class MainWindow : Window
                 }
             }
         }
+    }
+
+    private void MainWindow_LanguageChanged(object? sender, EventArgs e)
+    {
+        try { UpdateUIText(); } catch { }
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        try { LocalizationManager.LanguageChanged -= MainWindow_LanguageChanged; } catch { }
+        base.OnClosed(e);
     }
 }
