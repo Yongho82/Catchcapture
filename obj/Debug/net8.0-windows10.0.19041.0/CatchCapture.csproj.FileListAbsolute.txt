@@ -84,3 +84,5 @@ C:\yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\CatchCapture.
 C:\yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\ref\CatchCapture.dll
 C:\yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\icons\img_find.png
 C:\yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\icons\sc_cursor.png
+C:\yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\icons\simple_title.png
+C:\yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\icons\numbering.png

@@ -96,7 +96,7 @@
                 <!-- 타이틀바 -->
                 <Border Grid.Row="0" Background="#F8F9FA" CornerRadius="8,8,0,0" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
                     <Grid>
-                        <TextBlock Text="≡" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#999" FontWeight="Bold"/>
+                        <Image Source="/icons/simple_title.png" Width="14" Height="14" HorizontalAlignment="Center" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality"/>
                         <!-- 즉시편집 스위치 (왼쪽) -->
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5,0,0,0">
                             <TextBlock Text="즉시편집" 
@@ -142,7 +142,7 @@
 
                 <!-- 드래그 핸들 -->
                 <Border Grid.Row="0" Background="#F8F9FA" CornerRadius="8,8,0,0" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
-                    <TextBlock Text="≡" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#999" FontWeight="Bold"/>
+                    <Image Source="/icons/simple_title.png" Width="14" Height="14" HorizontalAlignment="Center" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality"/>
                 </Border>
 
                 <!-- 캡처 버튼들 (동적 생성) -->
