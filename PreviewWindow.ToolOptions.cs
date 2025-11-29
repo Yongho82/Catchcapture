@@ -5,6 +5,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using CatchCapture.Models;
 
 namespace CatchCapture
 {
@@ -30,7 +31,7 @@ namespace CatchCapture
             
             TextBlock colorLabel = new TextBlock 
             { 
-                Text = "색상", 
+                Text = LocalizationManager.Get("Color"), 
                 FontWeight = FontWeights.SemiBold, 
                 Margin = new Thickness(0, 0, 0, 8) 
             };
@@ -65,7 +66,7 @@ namespace CatchCapture
             // 두께 라벨
             TextBlock thicknessLabel = new TextBlock 
             { 
-                Text = "두께", 
+                Text = LocalizationManager.Get("Thickness"), 
                 FontWeight = FontWeights.SemiBold, 
                 Margin = new Thickness(0, 0, 0, 8) 
             };
@@ -131,7 +132,7 @@ namespace CatchCapture
 
             TextBlock opacityLabel = new TextBlock 
             { 
-                Text = "투명도", 
+                Text = LocalizationManager.Get("Opacity"), 
                 FontWeight = FontWeights.SemiBold, 
                 Margin = new Thickness(0, 0, 0, 4) 
             };
@@ -248,7 +249,7 @@ namespace CatchCapture
             
             TextBlock colorLabel = new TextBlock 
             { 
-                Text = "색상", 
+                Text = LocalizationManager.Get("Color"), 
                 FontWeight = FontWeights.SemiBold, 
                 Margin = new Thickness(0, 0, 0, 8) 
             };
@@ -282,7 +283,7 @@ namespace CatchCapture
             // 폰트 선택
             TextBlock fontLabel = new TextBlock 
             { 
-                Text = "폰트", 
+                Text = LocalizationManager.Get("Font"), 
                 FontWeight = FontWeights.SemiBold, 
                 Margin = new Thickness(0, 0, 0, 4) 
             };
@@ -314,7 +315,7 @@ namespace CatchCapture
             // 크기 라벨
             TextBlock sizeLabel = new TextBlock 
             { 
-                Text = "크기", 
+                Text = LocalizationManager.Get("SizeLabel"), 
                 FontWeight = FontWeights.SemiBold, 
                 Margin = new Thickness(0, 0, 0, 4) 
             };
@@ -352,7 +353,7 @@ namespace CatchCapture
 
             TextBlock styleLabel = new TextBlock 
             { 
-                Text = "스타일", 
+                Text = LocalizationManager.Get("Style"), 
                 FontWeight = FontWeights.SemiBold, 
                 Margin = new Thickness(0, 0, 0, 4) 
             };
@@ -362,7 +363,7 @@ namespace CatchCapture
 
             CheckBox boldCheckBox = new CheckBox
             {
-                Content = "굵게",
+                Content = LocalizationManager.Get("Bold"),
                 IsChecked = textFontWeight == FontWeights.Bold,
                 Margin = new Thickness(0, 2, 0, 2)
             };
@@ -372,7 +373,7 @@ namespace CatchCapture
 
             CheckBox italicCheckBox = new CheckBox
             {
-                Content = "기울임",
+                Content = LocalizationManager.Get("Italic"),
                 IsChecked = textFontStyle == FontStyles.Italic,
                 Margin = new Thickness(0, 2, 0, 2)
             };
@@ -382,7 +383,7 @@ namespace CatchCapture
 
             CheckBox underlineCheckBox = new CheckBox
             {
-                Content = "밑줄",
+                Content = LocalizationManager.Get("Underline"),
                 IsChecked = textUnderlineEnabled,
                 Margin = new Thickness(0, 2, 0, 2)
             };
@@ -392,7 +393,7 @@ namespace CatchCapture
 
             CheckBox shadowCheckBox = new CheckBox
             {
-                Content = "그림자",
+                Content = LocalizationManager.Get("Shadow"),
                 IsChecked = textShadowEnabled,
                 Margin = new Thickness(0, 2, 0, 2)
             };
@@ -469,13 +470,153 @@ namespace CatchCapture
 
         #endregion
 
+        #region 펜 옵션
+
+        // NOTE: Renamed to avoid duplicating existing ShowPenOptionsPopup in PreviewWindow.Tools.cs
+        private void BuildPenOptionsPopup()
+        {
+            ToolOptionsPopupContent.Children.Clear();
+
+            // 메인 그리드 (좌: 색상, 중: 구분선, 우: 두께)
+            Grid mainGrid = new Grid();
+            mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 색상
+            mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 구분선
+            mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 두께
+
+            // --- 1. 왼쪽: 색상 섹션 ---
+            StackPanel colorSection = new StackPanel { Margin = new Thickness(0, 0, 15, 0) };
+
+            TextBlock colorLabel = new TextBlock
+            {
+                Text = LocalizationManager.Get("Color"),
+                FontWeight = FontWeights.SemiBold,
+                Margin = new Thickness(0, 0, 0, 8)
+            };
+            colorSection.Children.Add(colorLabel);
+
+            WrapPanel colorGrid = new WrapPanel { Width = 150 };
+            foreach (var c in SharedColorPalette)
+            {
+                if (c == Colors.Transparent) continue;
+                var swatch = new Border
+                {
+                    Width = 20,
+                    Height = 20,
+                    Background = new SolidColorBrush(c),
+                    BorderBrush = (c == penColor) ? Brushes.Black : new SolidColorBrush(Color.FromRgb(220, 220, 220)),
+                    BorderThickness = new Thickness((c == penColor) ? 2 : 1),
+                    Margin = new Thickness(2),
+                    CornerRadius = new CornerRadius(4),
+                    Cursor = Cursors.Hand
+                };
+                swatch.MouseLeftButtonDown += (s, e) =>
+                {
+                    penColor = c;
+                    foreach (var child in colorGrid.Children)
+                    {
+                        if (child is Border b && b.Background is SolidColorBrush sc)
+                        {
+                            bool isSelected = (sc.Color == penColor);
+                            b.BorderBrush = isSelected ? Brushes.Black : new SolidColorBrush(Color.FromRgb(220, 220, 220));
+                            b.BorderThickness = new Thickness(isSelected ? 2 : 1);
+                        }
+                    }
+                };
+                colorGrid.Children.Add(swatch);
+            }
+            colorSection.Children.Add(colorGrid);
+            Grid.SetColumn(colorSection, 0);
+            mainGrid.Children.Add(colorSection);
+
+            // --- 2. 가운데: 구분선 ---
+            Border separator = new Border
+            {
+                Width = 1,
+                Background = new SolidColorBrush(Color.FromRgb(230, 230, 230)),
+                Margin = new Thickness(0, 5, 15, 5)
+            };
+            Grid.SetColumn(separator, 1);
+            mainGrid.Children.Add(separator);
+
+            // --- 3. 오른쪽: 두께 섹션 ---
+            StackPanel thicknessSection = new StackPanel();
+            TextBlock thicknessLabel = new TextBlock
+            {
+                Text = LocalizationManager.Get("Thickness"),
+                FontWeight = FontWeights.SemiBold,
+                Margin = new Thickness(0, 0, 0, 8)
+            };
+            thicknessSection.Children.Add(thicknessLabel);
+
+            StackPanel thicknessList = new StackPanel();
+            int[] presets = new int[] { 1, 3, 5, 8, 12 };
+            foreach (var p in presets)
+            {
+                Grid item = new Grid
+                {
+                    Margin = new Thickness(0, 0, 0, 8),
+                    Cursor = Cursors.Hand,
+                    Background = Brushes.Transparent
+                };
+                item.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(30) });
+                item.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+                Border line = new Border
+                {
+                    Height = p,
+                    Width = 30,
+                    Background = Brushes.Black,
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                Grid.SetColumn(line, 0);
+                item.Children.Add(line);
+
+                TextBlock text = new TextBlock
+                {
+                    Text = $"{p}px",
+                    FontSize = 11,
+                    Foreground = Brushes.Gray,
+                    Margin = new Thickness(8, 0, 0, 0),
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                Grid.SetColumn(text, 1);
+                item.Children.Add(text);
+
+                int thickness = p;
+                item.MouseLeftButtonDown += (s, e) =>
+                {
+                    penThickness = thickness;
+                    foreach (var child in thicknessList.Children)
+                    {
+                        if (child is Grid g) g.Background = Brushes.Transparent;
+                    }
+                    item.Background = new SolidColorBrush(Color.FromArgb(40, 0, 120, 212));
+                };
+
+                thicknessList.Children.Add(item);
+            }
+            thicknessSection.Children.Add(thicknessList);
+            Grid.SetColumn(thicknessSection, 2);
+            mainGrid.Children.Add(thicknessSection);
+
+            ToolOptionsPopupContent.Children.Add(mainGrid);
+
+            var penButton = this.FindName("PenToolButton") as FrameworkElement;
+            ToolOptionsPopup.PlacementTarget = penButton ?? this;
+            ToolOptionsPopup.Placement = PlacementMode.Bottom;
+            ToolOptionsPopup.IsOpen = true;
+        }
+
+        #endregion
+
         #region 모자이크 옵션
 
         private void ShowMosaicOptions()
         {
             ToolOptionsPopupContent.Children.Clear();
 
-            var sizeLabel = new TextBlock { Text = "픽셀 크기:", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 6, 0) };
+            var sizeLabel = new TextBlock { Text = LocalizationManager.Get("PixelSizeLabel"), VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 6, 0) };
             ToolOptionsPopupContent.Children.Add(sizeLabel);
 
             Slider sizeSlider = new Slider
@@ -511,7 +652,7 @@ namespace CatchCapture
         {
             ToolOptionsPopupContent.Children.Clear();
 
-            var sizeLabel = new TextBlock { Text = "크기:", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 6, 0) };
+            var sizeLabel = new TextBlock { Text = LocalizationManager.Get("SizeLabel") + ":", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 6, 0) };
             ToolOptionsPopupContent.Children.Add(sizeLabel);
 
             Slider sizeSlider = new Slider

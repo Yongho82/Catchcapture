@@ -176,6 +176,26 @@ namespace CatchCapture.Models
                 ["TextAdd"] = "텍스트 추가",
                 ["Mosaic"] = "모자이크",
                 ["Eraser"] = "지우개",
+                
+                // 공통 UI
+                ["OK"] = "확인",
+                ["Cancel"] = "취소",
+                ["Error"] = "오류",
+                ["Info"] = "알림",
+                ["Crop"] = "자르기",
+                ["Rotate"] = "회전",
+                ["FlipH"] = "좌우반전",
+                ["FlipV"] = "상하반전",
+                ["PixelSizeLabel"] = "픽셀 크기:",
+                ["AddColor"] = "색상 추가",
+                ["ShapeType"] = "도형 유형",
+                ["LineStyle"] = "선 스타일",
+                ["Outline"] = "윤곽선",
+                ["Style"] = "스타일",
+                ["Bold"] = "굵게",
+                ["Italic"] = "기울임",
+                ["Underline"] = "밑줄",
+                ["Shadow"] = "그림자",
             };
 
             // 중국어 (简体中文)
@@ -309,6 +329,26 @@ namespace CatchCapture.Models
                 ["TextAdd"] = "添加文字",
                 ["Mosaic"] = "马赛克",
                 ["Eraser"] = "橡皮",
+                
+                // 常用界面
+                ["OK"] = "确定",
+                ["Cancel"] = "取消",
+                ["Error"] = "错误",
+                ["Info"] = "提示",
+                ["Crop"] = "裁剪",
+                ["Rotate"] = "旋转",
+                ["FlipH"] = "水平翻转",
+                ["FlipV"] = "垂直翻转",
+                ["PixelSizeLabel"] = "像素大小：",
+                ["AddColor"] = "添加颜色",
+                ["ShapeType"] = "图形类型",
+                ["LineStyle"] = "线型",
+                ["Outline"] = "描边",
+                ["Style"] = "样式",
+                ["Bold"] = "加粗",
+                ["Italic"] = "斜体",
+                ["Underline"] = "下划线",
+                ["Shadow"] = "阴影",
             };
 
             // 일본어
@@ -442,6 +482,26 @@ namespace CatchCapture.Models
                 ["TextAdd"] = "テキスト追加",
                 ["Mosaic"] = "モザイク",
                 ["Eraser"] = "消しゴム",
+                
+                // 共通 UI
+                ["OK"] = "OK",
+                ["Cancel"] = "キャンセル",
+                ["Error"] = "エラー",
+                ["Info"] = "情報",
+                ["Crop"] = "切り取り",
+                ["Rotate"] = "回転",
+                ["FlipH"] = "水平反転",
+                ["FlipV"] = "垂直反転",
+                ["PixelSizeLabel"] = "ピクセルサイズ：",
+                ["AddColor"] = "色を追加",
+                ["ShapeType"] = "図形タイプ",
+                ["LineStyle"] = "線スタイル",
+                ["Outline"] = "アウトライン",
+                ["Style"] = "スタイル",
+                ["Bold"] = "太字",
+                ["Italic"] = "斜体",
+                ["Underline"] = "下線",
+                ["Shadow"] = "影",
             };
 
             // 영어
@@ -565,7 +625,7 @@ namespace CatchCapture.Models
                 ["SaveError"] = "Error saving file",
                 
                 // 이미지 검색 (PreviewWindow)
-                ["ImageSearch"] = "Image Search",
+                ["ImageSearch"] = "Imag Search",
                 ["ImageSearchTooltip"] = "Search by image",
                 
                 // 편집 도구
@@ -575,6 +635,26 @@ namespace CatchCapture.Models
                 ["TextAdd"] = "Add Text",
                 ["Mosaic"] = "Mosaic",
                 ["Eraser"] = "Eraser",
+                
+                // Common UI
+                ["OK"] = "OK",
+                ["Cancel"] = "Cancel",
+                ["Error"] = "Error",
+                ["Info"] = "Info",
+                ["Crop"] = "Crop",
+                ["Rotate"] = "Rotate",
+                ["FlipH"] = "FlipH",
+                ["FlipV"] = "FlipV",
+                ["PixelSizeLabel"] = "Pixel size:",
+                ["AddColor"] = "Add color",
+                ["ShapeType"] = "Shape type",
+                ["LineStyle"] = "Line style",
+                ["Outline"] = "Outline",
+                ["Style"] = "Style",
+                ["Bold"] = "Bold",
+                ["Italic"] = "Italic",
+                ["Underline"] = "Underline",
+                ["Shadow"] = "Shadow",
             };
         }
     }

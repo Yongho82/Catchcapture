@@ -8,6 +8,7 @@ using System.Windows.Shapes;
 using System.Windows.Input; 
 using System.Windows.Controls.Primitives; 
 using CatchCapture.Utilities;
+using CatchCapture.Models;
 
 namespace CatchCapture
 {
@@ -74,13 +75,13 @@ namespace CatchCapture
         private void ShowShapeOptions()
         {
             // 패널 제목 설정
-            ToolTitleText.Text = "도형 도구 옵션";
+            ToolTitleText.Text = LocalizationManager.Get("ShapeOptions");
 
             EditToolContent.Children.Clear();
 
             // 도형 유형 선택
             Border typeLabelWrapper = new Border { Margin = new Thickness(0, 0, 5, 0), VerticalAlignment = VerticalAlignment.Center };
-            TextBlock typeLabel = new TextBlock { Text = "도형 유형:", VerticalAlignment = VerticalAlignment.Center };
+            TextBlock typeLabel = new TextBlock { Text = LocalizationManager.Get("ShapeType") + ":", VerticalAlignment = VerticalAlignment.Center };
             typeLabelWrapper.Child = typeLabel;
             EditToolContent.Children.Add(typeLabelWrapper);
 
@@ -161,7 +162,7 @@ namespace CatchCapture
 
             // 색상 선택
             Border colorLabelWrapper = new Border { Margin = new Thickness(5, 0, 5, 0), VerticalAlignment = VerticalAlignment.Center };
-            TextBlock colorLabel = new TextBlock { Text = "색상:", VerticalAlignment = VerticalAlignment.Center };
+            TextBlock colorLabel = new TextBlock { Text = LocalizationManager.Get("Color") + ":", VerticalAlignment = VerticalAlignment.Center };
             colorLabelWrapper.Child = colorLabel;
             EditToolContent.Children.Add(colorLabelWrapper);
 
@@ -204,7 +205,7 @@ namespace CatchCapture
 
             // 두께 선택
             Border thicknessLabelWrapper = new Border { Margin = new Thickness(5, 0, 5, 0), VerticalAlignment = VerticalAlignment.Center };
-            TextBlock thicknessLabel = new TextBlock { Text = "두께:", VerticalAlignment = VerticalAlignment.Center };
+            TextBlock thicknessLabel = new TextBlock { Text = LocalizationManager.Get("Thickness") + ":", VerticalAlignment = VerticalAlignment.Center };
             thicknessLabelWrapper.Child = thicknessLabel;
             EditToolContent.Children.Add(thicknessLabelWrapper);
 
@@ -225,7 +226,7 @@ namespace CatchCapture
             // 채우기 옵션
             CheckBox fillCheckBox = new CheckBox
             {
-                Content = "채우기",
+                Content = LocalizationManager.Get("Fill"),
                 IsChecked = shapeIsFilled,
                 Margin = new Thickness(5, 0, 0, 0),
                 VerticalAlignment = VerticalAlignment.Center
@@ -244,7 +245,7 @@ namespace CatchCapture
             // 제목
             var title = new TextBlock
             {
-                Text = "도형",
+                Text = LocalizationManager.Get("ShapeLbl"),
                 FontWeight = FontWeights.SemiBold,
                 FontSize = 12,
                 Margin = new Thickness(0, 0, 0, 4),
@@ -322,7 +323,7 @@ namespace CatchCapture
             // 제목
             var title = new TextBlock
             {
-                Text = "선 스타일",
+                Text = LocalizationManager.Get("LineStyle"),
                 FontWeight = FontWeights.SemiBold,
                 FontSize = 12,
                 Margin = new Thickness(0, 0, 0, 4),
@@ -332,8 +333,8 @@ namespace CatchCapture
 
             // 채우기 옵션 (더 컴팩트하게)
             var fillPanel = new StackPanel { Orientation = Orientation.Horizontal };
-            var outlineBtn = CreateFillButton("윤곽선", false);
-            var fillBtn = CreateFillButton("채우기", true);
+            var outlineBtn = CreateFillButton(LocalizationManager.Get("Outline"), false);
+            var fillBtn = CreateFillButton(LocalizationManager.Get("Fill"), true);
             fillPanel.Children.Add(outlineBtn);
             fillPanel.Children.Add(fillBtn);
             panel.Children.Add(fillPanel);

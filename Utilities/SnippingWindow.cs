@@ -86,6 +86,10 @@ namespace CatchCapture.Utilities
         private Line? crosshairHorizontal;
         private Line? crosshairVertical;
 
+        // 언어 변경 시 런타임 갱신을 위해 툴바 참조 저장
+        private Border? toolbarContainer;
+        private StackPanel? toolbarPanel;
+
         public Int32Rect SelectedArea { get; private set; }
         public bool IsCancelled { get; private set; } = false;
         public BitmapSource? SelectedFrozenImage { get; private set; }
@@ -243,6 +247,9 @@ namespace CatchCapture.Utilities
             };
             memoryCleanupTimer.Start();
             this.KeyDown += SnippingWindow_KeyDown;
+
+            // 언어 변경 이벤트 구독: 즉시편집 UI 텍스트 런타임 갱신
+            try { LocalizationManager.LanguageChanged += OnLanguageChanged; } catch { }
         }
 
         private void SnippingWindow_KeyDown(object sender, KeyEventArgs e)
@@ -659,6 +666,7 @@ namespace CatchCapture.Utilities
         {
             // 창이 닫힐 때 리소스 정리
             CleanupResources();
+            try { LocalizationManager.LanguageChanged -= OnLanguageChanged; } catch { }
             base.OnClosed(e);
         }
 
@@ -765,7 +773,7 @@ namespace CatchCapture.Utilities
             double selectionHeight = selectionRectangle.Height;
             
             // [수정] 편집 툴바 컨테이너 (둥근 모서리 Border)
-            var toolbar = new Border
+            toolbarContainer = new Border
             {
                 Background = Brushes.White,
                 CornerRadius = new CornerRadius(8),
@@ -781,13 +789,13 @@ namespace CatchCapture.Utilities
             };
 
             // [수정] 내부 스택패널
-            var toolbarStackPanel = new StackPanel
+            toolbarPanel = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
                 VerticalAlignment = VerticalAlignment.Center
             };
             
-            toolbar.Child = toolbarStackPanel;
+            toolbarContainer.Child = toolbarPanel;
             // [이동] 툴바 위치를 먼저 계산
             double toolbarWidth = 450; // 대략적인 툴바 너비
             double toolbarLeft = selectionLeft;
@@ -964,40 +972,24 @@ namespace CatchCapture.Utilities
                 foreach (var element in drawnElements.ToList())
                 {
                     canvas.Children.Remove(element);
+                    
+                    // 텍스트박스인 경우 관련 버튼도 제거
+                    if (element is TextBox textBox && textBox.Tag != null)
+                    {
+                        if (textBox.Tag is ValueTuple<Button, Button> tagButtons1)
+                        {
+                            var confirmButton = tagButtons1.Item1;
+                            var cancelButton = tagButtons1.Item2;
+                            if (confirmButton != null && canvas.Children.Contains(confirmButton))
+                                canvas.Children.Remove(confirmButton);
+                            if (cancelButton != null && canvas.Children.Contains(cancelButton))
+                                canvas.Children.Remove(cancelButton);
+                        }
+                    }
                 }
+                
                 drawnElements.Clear();
-                
-                // 툴바 제거
-                canvas.Children.Remove(toolbar);
-                
-                // 팔레트 제거
-                HideColorPalette();
-                
-                // 다시 영역 선택 모드로 전환
-                isSelecting = false;
-                
-                // 마우스 이벤트 다시 등록
-                MouseMove += SnippingWindow_MouseMove;
-                MouseLeftButtonDown += SnippingWindow_MouseLeftButtonDown;
-                MouseLeftButtonUp += SnippingWindow_MouseLeftButtonUp;
-                
-                // 커서 변경
-                Cursor = Cursors.Cross;
-                
-                // 선택 영역 초기화
-                selectionRectangle.Width = 0;
-                selectionRectangle.Height = 0;
-                Canvas.SetLeft(selectionRectangle, 0);
-                Canvas.SetTop(selectionRectangle, 0);
-                
-                // 오버레이 초기화 (선택 영역 표시 제거)
-                selectionGeometry.Rect = new Rect(0, 0, 0, 0);
-                
-                // 크기 텍스트 숨기기
-                sizeTextBlock.Visibility = Visibility.Collapsed;
-                
-                // 돋보기 다시 활성화
-                CreateMagnifier();
+                ClearTextSelection();
             };
                        
             // 완료 버튼
@@ -1119,28 +1111,28 @@ namespace CatchCapture.Utilities
             saveButton.Click += (s, e) => SaveToFile();
 
             // [수정] 버튼들을 toolbarStackPanel에 추가
-            toolbarStackPanel.Children.Add(penButton);
-            toolbarStackPanel.Children.Add(highlighterButton);
-            toolbarStackPanel.Children.Add(textButton);
-            toolbarStackPanel.Children.Add(shapeButton);
-            toolbarStackPanel.Children.Add(mosaicButton);
-            toolbarStackPanel.Children.Add(eraserButton);
-            toolbarStackPanel.Children.Add(imageSearchButton);
-            toolbarStackPanel.Children.Add(ocrButton);
-            toolbarStackPanel.Children.Add(separator);
-            toolbarStackPanel.Children.Add(cancelButton);
-            toolbarStackPanel.Children.Add(doneButton);
-            toolbarStackPanel.Children.Add(separator2);
-            toolbarStackPanel.Children.Add(undoButton);
-            toolbarStackPanel.Children.Add(resetButton);
-            toolbarStackPanel.Children.Add(separator3);
-            toolbarStackPanel.Children.Add(copyButton);
-            toolbarStackPanel.Children.Add(saveButton);
+            toolbarPanel.Children.Add(penButton);
+            toolbarPanel.Children.Add(highlighterButton);
+            toolbarPanel.Children.Add(textButton);
+            toolbarPanel.Children.Add(shapeButton);
+            toolbarPanel.Children.Add(mosaicButton);
+            toolbarPanel.Children.Add(eraserButton);
+            toolbarPanel.Children.Add(imageSearchButton);
+            toolbarPanel.Children.Add(ocrButton);
+            toolbarPanel.Children.Add(separator);
+            toolbarPanel.Children.Add(cancelButton);
+            toolbarPanel.Children.Add(doneButton);
+            toolbarPanel.Children.Add(separator2);
+            toolbarPanel.Children.Add(undoButton);
+            toolbarPanel.Children.Add(resetButton);
+            toolbarPanel.Children.Add(separator3);
+            toolbarPanel.Children.Add(copyButton);
+            toolbarPanel.Children.Add(saveButton);
             
             // 툴바를 선택 영역 바로 아래에 배치
-            canvas.Children.Add(toolbar);    
-            Canvas.SetLeft(toolbar, toolbarLeft);
-            Canvas.SetTop(toolbar, toolbarTop);
+            canvas.Children.Add(toolbarContainer);    
+            Canvas.SetLeft(toolbarContainer, toolbarLeft);
+            Canvas.SetTop(toolbarContainer, toolbarTop);
 
             // 펜을 기본 도구로 선택하고 빨간색으로 설정
             currentTool = "펜";
@@ -3196,6 +3188,104 @@ namespace CatchCapture.Utilities
                 }
             };
             return button;
+        }
+
+        // 언어 변경 시 즉시편집 툴바/팔레트 런타임 갱신
+        private void OnLanguageChanged(object? sender, EventArgs e)
+        {
+            if (!instantEditMode) return;
+            try
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    RebuildInstantEditUIPreservingState();
+                });
+            }
+            catch { }
+        }
+
+        // 툴바/팔레트를 재생성하면서 현재 상태(도구/색/두께/도형옵션)를 보존
+        private void RebuildInstantEditUIPreservingState()
+        {
+            // 현재 상태 보존
+            string prevTool = currentTool;
+            var prevColor = selectedColor;
+            int prevPen = penThickness;
+            int prevHigh = highlightThickness;
+            var prevShapeType = shapeType;
+            double prevShapeBorder = shapeBorderThickness;
+            bool prevShapeFill = shapeIsFilled;
+            double prevShapeOpacity = shapeFillOpacity;
+
+            // 기존 팔레트/툴바 제거
+            HideColorPalette();
+            if (toolbarContainer != null)
+            {
+                try { canvas.Children.Remove(toolbarContainer); } catch { }
+                toolbarContainer = null;
+                toolbarPanel = null;
+            }
+
+            // 툴바 재생성 (LocalizationManager.Get으로 라벨/툴팁 재적용)
+            ShowEditToolbar();
+
+            // 상태 복원
+            selectedColor = prevColor;
+            penThickness = prevPen;
+            highlightThickness = prevHigh;
+            shapeType = prevShapeType;
+            shapeBorderThickness = prevShapeBorder;
+            shapeIsFilled = prevShapeFill;
+            shapeFillOpacity = prevShapeOpacity;
+
+            // 현재 도구 다시 반영 (팔레트 표시 포함)
+            double selectionLeft = Canvas.GetLeft(selectionRectangle);
+            double selectionTop = Canvas.GetTop(selectionRectangle);
+            double selectionHeight = selectionRectangle.Height;
+            double toolbarLeft = selectionLeft;
+            double toolbarTop = selectionTop + selectionHeight + 10;
+            if (toolbarTop + 44 > vHeight) toolbarTop = selectionTop - 44 - 10;
+
+            switch (prevTool)
+            {
+                case "펜":
+                    currentTool = "펜";
+                    ShowColorPalette("펜", toolbarLeft, toolbarTop + 60); // [수정]
+                    EnableDrawingMode();
+                    break;
+                case "형광펜":
+                    currentTool = "형광펜";
+                    selectedColor = Colors.Yellow;
+                    ShowColorPalette("형광펜", toolbarLeft, toolbarTop + 60); // [수정]
+                    EnableDrawingMode();
+                    break;
+                case "텍스트":
+                    currentTool = "텍스트";
+                    ShowColorPalette("텍스트", toolbarLeft, toolbarTop + 60); // [수정]
+                    EnableTextMode();
+                    break;
+                case "도형":
+                    currentTool = "도형";
+                    ShowColorPalette("도형", toolbarLeft, toolbarTop + 60); // [수정]
+                    EnableShapeMode();
+                    break;
+                case "모자이크":
+                    currentTool = "모자이크";
+                    ShowColorPalette("모자이크", toolbarLeft, toolbarTop + 60); // [수정]
+                    EnableMosaicMode();
+                    break;
+                case "지우개":
+                    currentTool = "지우개";
+                    HideColorPalette();
+                    EnableEraserMode();
+                    break;
+                default:
+                    // 기본 펜 선택
+                    currentTool = "펜";
+                    ShowColorPalette("펜", toolbarLeft, toolbarTop + 60); // [수정]
+                    EnableDrawingMode();
+                    break;
+            }
         }
     }
 }

@@ -457,7 +457,7 @@ namespace CatchCapture
 
         private Image? CreateIconImage(string iconName)
         {
-            string iconPath = iconName switch
+            string? iconPath = iconName switch
             {
                 "AreaCapture" => "/icons/area_capture.png",
                 "DelayCapture" => "/icons/clock.png",
@@ -474,7 +474,7 @@ namespace CatchCapture
             
             var image = new Image
             {
-                Source = new BitmapImage(new Uri(iconPath, UriKind.Relative)),
+                Source = new BitmapImage(new Uri(iconPath!, UriKind.Relative)),
                 Width = 20,
                 Height = 20
             };

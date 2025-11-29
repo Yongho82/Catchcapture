@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Shapes;
+using CatchCapture.Models;
 
 namespace CatchCapture
 {
@@ -36,7 +37,7 @@ namespace CatchCapture
             // 라벨
             TextBlock colorLabel = new TextBlock 
             { 
-                Text = "색상", 
+                Text = LocalizationManager.Get("Color"), 
                 FontWeight = FontWeights.SemiBold, 
                 Margin = new Thickness(0, 0, 0, 8) 
             };
@@ -73,7 +74,7 @@ namespace CatchCapture
                     VerticalAlignment = VerticalAlignment.Center 
                 },
                 Cursor = Cursors.Hand,
-                ToolTip = "색상 추가"
+                ToolTip = LocalizationManager.Get("AddColor")
             };
             
             // 둥근 모서리 스타일 적용
@@ -140,7 +141,7 @@ namespace CatchCapture
             // 라벨
             TextBlock thicknessLabel = new TextBlock 
             { 
-                Text = "두께", 
+                Text = LocalizationManager.Get("Thickness"), 
                 FontWeight = FontWeights.SemiBold, 
                 Margin = new Thickness(0, 0, 0, 8) 
             };
