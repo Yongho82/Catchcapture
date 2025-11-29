@@ -900,15 +900,23 @@ public partial class MainWindow : Window
             System.Threading.Thread.Sleep(10);
 
             var scrollCaptureWindow = new ScrollCaptureWindow();
+            bool imageAdded = false;
             
             if (scrollCaptureWindow.ShowDialog() == true && scrollCaptureWindow.CapturedImage != null)
             {
                 AddCaptureToList(scrollCaptureWindow.CapturedImage);
+                imageAdded = true;
             }
         }
         finally
         {
-            // 창 표시는 AddCaptureToList에서 처리
+            // 캡처가 취소되었거나 이미지가 추가되지 않았다면 메인 창 복원
+            if (this.Visibility != Visibility.Visible)
+            {
+                this.Show();
+                this.WindowState = WindowState.Normal;
+                this.Activate();
+            }
         }
     }
     

@@ -12,6 +12,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using CatchCapture.Models;
 
 namespace CatchCapture
 {
@@ -40,8 +41,15 @@ namespace CatchCapture
         private LowLevelMouseProc _proc;
         private IntPtr _hookID = IntPtr.Zero;
 
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelMouseProc lpfn, IntPtr hMod, uint dwThreadId);
+        private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
+        private LowLevelKeyboardProc _kbdProc;
+        private IntPtr _kbdHookID = IntPtr.Zero;
+
+        // Use distinct externs to avoid delegate overload ambiguity
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true, EntryPoint = "SetWindowsHookExW")]
+        private static extern IntPtr SetWindowsHookExMouse(int idHook, LowLevelMouseProc lpfn, IntPtr hMod, uint dwThreadId);
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true, EntryPoint = "SetWindowsHookExW")]
+        private static extern IntPtr SetWindowsHookExKeyboard(int idHook, LowLevelKeyboardProc lpfn, IntPtr hMod, uint dwThreadId);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -73,9 +81,13 @@ namespace CatchCapture
         private const uint KEYEVENTF_KEYUP = 0x0002;
 
         private const int WH_MOUSE_LL = 14;
+        private const int WH_KEYBOARD_LL = 13;
         private const int WM_MOUSEMOVE = 0x0200;
         private const int WM_LBUTTONDOWN = 0x0201;
         private const int WM_RBUTTONDOWN = 0x0204;
+        private const int WM_KEYDOWN = 0x0100;
+        private const int WM_SYSKEYDOWN = 0x0104;
+        private const int VK_ESCAPE = 0x1B;
 
         [StructLayout(LayoutKind.Sequential)]
         private struct POINT
@@ -103,11 +115,14 @@ namespace CatchCapture
             public int Bottom;
         }
 
-
         // Fields
         private System.Windows.Shapes.Rectangle highlightRect;
         private IntPtr currentTargetElement = IntPtr.Zero;
         public BitmapSource? CapturedImage { get; private set; }
+        private Border? mouseTooltip;
+        private TextBlock? mouseTooltipText;
+        private TextBlock? mouseEmoji;
+        public bool EscCancelled { get; private set; } = false;
 
         private static void Log(string message)
         {
@@ -122,7 +137,7 @@ namespace CatchCapture
             AllowsTransparency = true;
             Background = System.Windows.Media.Brushes.Transparent;
             ShowInTaskbar = false;
-            
+
             Left = SystemParameters.VirtualScreenLeft;
             Top = SystemParameters.VirtualScreenTop;
             Width = SystemParameters.VirtualScreenWidth;
@@ -133,13 +148,14 @@ namespace CatchCapture
             {
                 Stroke = System.Windows.Media.Brushes.DeepSkyBlue,
                 StrokeThickness = 4,
-                Fill = new SolidColorBrush(System.Windows.Media.Color.FromArgb(20, 0, 191, 255)),
+                Fill = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(20, 0, 191, 255)),
                 Visibility = Visibility.Collapsed
             };
             canvas.Children.Add(highlightRect);
             Content = canvas;
 
             _proc = HookCallback;
+            _kbdProc = KeyboardHookCallback;
             Loaded += ScrollCaptureWindow_Loaded;
             Closed += ScrollCaptureWindow_Closed;
         }
@@ -151,17 +167,52 @@ namespace CatchCapture
             int exStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
             SetWindowLong(hwnd, GWL_EXSTYLE, exStyle | WS_EX_TRANSPARENT | WS_EX_LAYERED | WS_EX_TOOLWINDOW);
 
-            // 2. 마우스 후크 설치
+            // 2. 마우스/키보드 후크 설치
             try
             {
                 _hookID = SetHook(_proc);
+                _kbdHookID = SetKeyboardHook(_kbdProc);
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"후킹 설정 실패: {ex.Message}");
             }
-            
+
             this.Activate();
+
+            // 마우스 따라다니는 HUD 생성 (이모지 + 텍스트)
+            if (Content is Canvas canvas)
+            {
+                mouseEmoji = new TextBlock
+                {
+                    Text = "↕️",
+                    FontSize = 18,
+                    Margin = new Thickness(0, 0, 6, 0),
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+
+                var stack = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+                stack.Children.Add(mouseEmoji);
+                mouseTooltipText = new TextBlock
+                {
+                    Text = $"{LocalizationManager.Get("ScrollClickToStart")}\nESC : {LocalizationManager.Get("EscToCancel")}",
+                    Foreground = System.Windows.Media.Brushes.White,
+                    FontSize = 12,
+                    TextAlignment = TextAlignment.Left,
+                    LineHeight = 16
+                };
+                stack.Children.Add(mouseTooltipText);
+
+                mouseTooltip = new Border
+                {
+                    Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(200, 0, 0, 0)),
+                    CornerRadius = new CornerRadius(8),
+                    Child = stack,
+                    Padding = new Thickness(10, 6, 10, 6),
+                    Visibility = Visibility.Visible
+                };
+                canvas.Children.Add(mouseTooltip);
+            }
         }
 
         private void ScrollCaptureWindow_Closed(object? sender, EventArgs e)
@@ -171,6 +222,11 @@ namespace CatchCapture
                 UnhookWindowsHookEx(_hookID);
                 _hookID = IntPtr.Zero;
             }
+            if (_kbdHookID != IntPtr.Zero)
+            {
+                UnhookWindowsHookEx(_kbdHookID);
+                _kbdHookID = IntPtr.Zero;
+            }
         }
 
         private IntPtr SetHook(LowLevelMouseProc proc)
@@ -178,7 +234,16 @@ namespace CatchCapture
             using (Process curProcess = Process.GetCurrentProcess())
             using (ProcessModule curModule = curProcess.MainModule!)
             {
-                return SetWindowsHookEx(WH_MOUSE_LL, proc, GetModuleHandle(curModule.ModuleName), 0);
+                return SetWindowsHookExMouse(WH_MOUSE_LL, proc, GetModuleHandle(curModule.ModuleName), 0);
+            }
+        }
+
+        private IntPtr SetKeyboardHook(LowLevelKeyboardProc proc)
+        {
+            using (Process curProcess = Process.GetCurrentProcess())
+            using (ProcessModule curModule = curProcess.MainModule!)
+            {
+                return SetWindowsHookExKeyboard(WH_KEYBOARD_LL, proc, GetModuleHandle(curModule.ModuleName), 0);
             }
         }
 
@@ -191,13 +256,20 @@ namespace CatchCapture
                 if (wParam == (IntPtr)WM_MOUSEMOVE)
                 {
                     UpdateHighlight(hookStruct.pt);
+                    // HUD 위치를 마우스 오른쪽 아래로 이동
+                    if (mouseTooltip != null && Content is Canvas c)
+                    {
+                        var p = PointFromScreen(new System.Windows.Point(hookStruct.pt.X, hookStruct.pt.Y));
+                        Canvas.SetLeft(mouseTooltip, p.X + 16);
+                        Canvas.SetTop(mouseTooltip, p.Y + 16);
+                    }
                 }
                 else if (wParam == (IntPtr)WM_LBUTTONDOWN)
                 {
                     if (currentTargetElement != IntPtr.Zero)
                     {
                         var clickPoint = hookStruct.pt; // 클릭한 좌표 저장
-                        Dispatcher.BeginInvoke(new Action(async () => 
+                        Dispatcher.BeginInvoke(new Action(async () =>
                         {
                             // 후킹 해제
                             UnhookWindowsHookEx(_hookID);
@@ -205,11 +277,11 @@ namespace CatchCapture
 
                             highlightRect.Visibility = Visibility.Collapsed;
                             this.Opacity = 0;
-                            
+
                             await Task.Delay(200);
-                            
+
                             await PerformScrollCapture(currentTargetElement, clickPoint);
-                            
+
                             DialogResult = CapturedImage != null;
                             Close();
                         }));
@@ -219,7 +291,8 @@ namespace CatchCapture
                 }
                 else if (wParam == (IntPtr)WM_RBUTTONDOWN)
                 {
-                    Dispatcher.Invoke(() => {
+                    Dispatcher.Invoke(() =>
+                    {
                         DialogResult = false;
                         Close();
                     });
@@ -227,6 +300,25 @@ namespace CatchCapture
                 }
             }
             return CallNextHookEx(_hookID, nCode, wParam, lParam);
+        }
+
+        private IntPtr KeyboardHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+        {
+            if (nCode >= 0 && (wParam == (IntPtr)WM_KEYDOWN || wParam == (IntPtr)WM_SYSKEYDOWN))
+            {
+                int vkCode = Marshal.ReadInt32(lParam);
+                if (vkCode == VK_ESCAPE)
+                {
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        EscCancelled = true;
+                        DialogResult = false;
+                        Close();
+                    }));
+                    return (IntPtr)1;
+                }
+            }
+            return CallNextHookEx(_kbdHookID, nCode, wParam, lParam);
         }
 
         private void UpdateHighlight(POINT pt)
@@ -240,7 +332,7 @@ namespace CatchCapture
             if (!GetWindowRect(hWnd, out rect)) return;
 
             currentTargetElement = hWnd;
-            
+
             Dispatcher.Invoke(() =>
             {
                 var topLeft = PointFromScreen(new System.Windows.Point(rect.Left, rect.Top));
@@ -263,21 +355,21 @@ namespace CatchCapture
         private async Task PerformScrollCapture(IntPtr hWnd, POINT clickPt)
         {
             var screenshots = new List<Bitmap>();
-            
+
             try
             {
                 // 1. 포커스 잡기 (사용자가 클릭한 위치를 다시 클릭)
                 SetCursorPos(clickPt.X, clickPt.Y);
                 mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, UIntPtr.Zero);
                 mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, UIntPtr.Zero);
-                
+
                 // 창 활성화 보장
                 SetForegroundWindow(hWnd);
                 await Task.Delay(500); // 충분한 대기 시간
 
                 // Win32 핸들로 AutomationElement 생성
                 var element = AutomationElement.FromHandle(hWnd);
-                
+
                 // 스크롤 패턴 찾기 (옵션 - 없어도 진행)
                 ScrollPattern? scrollPattern = null;
                 if (element != null)
@@ -298,24 +390,24 @@ namespace CatchCapture
                 int headerHeight = 0;
                 if (scrollPattern != null && element != null)
                 {
-                    try 
+                    try
                     {
                         var scrollableElement = element;
                         if (!element.TryGetCurrentPattern(ScrollPattern.Pattern, out _))
                         {
-                             var condition = new PropertyCondition(AutomationElement.IsScrollPatternAvailableProperty, true);
-                             var child = element.FindFirst(TreeScope.Descendants, condition);
-                             if (child != null) scrollableElement = child;
+                            var condition = new PropertyCondition(AutomationElement.IsScrollPatternAvailableProperty, true);
+                            var child = element.FindFirst(TreeScope.Descendants, condition);
+                            if (child != null) scrollableElement = child;
                         }
 
                         if (scrollableElement != null)
                         {
                             var elemRect = scrollableElement.Current.BoundingRectangle;
-                            
+
                             // 헤더 높이 = 스크롤 영역 시작점 - 창 시작점
                             headerHeight = (int)(elemRect.Top - winRect.Top);
                             if (headerHeight < 0) headerHeight = 0;
-                            
+
                             // 너무 크면(창의 50% 이상) 오류일 수 있으므로 제한
                             if (headerHeight > (winRect.Bottom - winRect.Top) / 2) headerHeight = 0;
                         }
@@ -325,20 +417,20 @@ namespace CatchCapture
 
                 int width = captureRect.Right - captureRect.Left;
                 int height = captureRect.Bottom - captureRect.Top;
-                
+
                 // 스크롤바 영역 제외 (우측 25px)
-                if (width > 50) width -= 25; 
-                
+                if (width > 50) width -= 25;
+
                 // 윈도우 경계 보정 (좌측, 하단 테두리 살짝 제외)
-                if (width > 20) 
+                if (width > 20)
                 {
-                    captureRect.Left += 8; 
+                    captureRect.Left += 8;
                     width -= 16;
                 }
                 if (height > 20) height -= 8;
 
                 // 1. 첫 화면 캡처 전 안정화
-                await Task.Delay(300); 
+                await Task.Delay(300);
                 screenshots.Add(CaptureRegion(captureRect.Left, captureRect.Top, width, height));
 
                 // 강제 스크롤 시도
@@ -347,13 +439,20 @@ namespace CatchCapture
 
                 for (int i = 0; i < maxScrolls; i++)
                 {
+                    // ESC로 중간 중단 지원
+                    if (EscCancelled)
+                    {
+                        foreach (var s in screenshots) s.Dispose();
+                        return;
+                    }
+
                     // 스크롤 다운
                     try
                     {
                         mouse_event(MOUSEEVENTF_WHEEL, 0, 0, unchecked((uint)scrollAmount), UIntPtr.Zero);
                     }
                     catch { }
-                    
+
                     await Task.Delay(400); // 스크롤 후 대기
 
                     // 캡처
@@ -366,7 +465,7 @@ namespace CatchCapture
                         if (AreBitmapsIdentical(lastShot, newShot))
                         {
                             newShot.Dispose();
-                            break; 
+                            break;
                         }
                     }
 
@@ -422,7 +521,7 @@ namespace CatchCapture
             {
                 int differentPixels = 0;
                 int totalChecked = 0;
-                
+
                 // 50픽셀 간격으로 더 정밀하게 스캔
                 for (int y = 0; y < bmp1.Height; y += 50)
                 {
@@ -430,19 +529,19 @@ namespace CatchCapture
                     {
                         var c1 = bmp1.GetPixel(x, y);
                         var c2 = bmp2.GetPixel(x, y);
-                        
+
                         totalChecked++;
-                        
+
                         // 10 이상 차이나면 다른 픽셀로 간주
-                        if (Math.Abs(c1.R - c2.R) > 10 || 
-                            Math.Abs(c1.G - c2.G) > 10 || 
+                        if (Math.Abs(c1.R - c2.R) > 10 ||
+                            Math.Abs(c1.G - c2.G) > 10 ||
                             Math.Abs(c1.B - c2.B) > 10)
                         {
                             differentPixels++;
                         }
                     }
                 }
-                
+
                 // 98% 이상 같으면 동일한 이미지로 판단 (더 엄격하게)
                 double similarity = 1.0 - ((double)differentPixels / totalChecked);
                 return similarity > 0.98;
@@ -476,12 +575,12 @@ namespace CatchCapture
         {
             // "Smart Stitching" - 적절한 매칭 지점 전략 (쇼핑 페이지 성공 버전)
             // Bottom 이미지의 상단 30% 지점 사용 (오버랩 내에서 고유한 영역)
-            
+
             // Probe 라인: Bottom 이미지의 30% 지점
-            int probeY_in_Bottom = Math.Max(headerHeight, (int)(bottom.Height * 0.3)); 
-            
+            int probeY_in_Bottom = Math.Max(headerHeight, (int)(bottom.Height * 0.3));
+
             // 안전 장치: 너무 크면 headerHeight 사용
-            if (probeY_in_Bottom >= bottom.Height - 50) 
+            if (probeY_in_Bottom >= bottom.Height - 50)
                 probeY_in_Bottom = headerHeight;
 
             int matchY_in_Top = -1;
@@ -496,12 +595,12 @@ namespace CatchCapture
                 if (IsRowMatch(top, y, bottom, probeY_in_Bottom))
                 {
                     bool fullMatch = true;
-                    
+
                     // 검증 범위를 안전하게 계산 (이미지 범위 초과 방지)
                     int maxCheckRange = Math.Min(15, top.Height - y - 1);
                     maxCheckRange = Math.Min(maxCheckRange, bottom.Height - probeY_in_Bottom - 1);
                     int checkRange = Math.Max(10, maxCheckRange); // 최소 10, 최대 15 (동적 콘텐츠 대응)
-                    
+
                     for (int k = 1; k < checkRange; k++)
                     {
                         if (!IsRowMatch(top, y + k, bottom, probeY_in_Bottom + k))
@@ -514,7 +613,7 @@ namespace CatchCapture
                     if (fullMatch)
                     {
                         matchY_in_Top = y;
-                        break; 
+                        break;
                     }
                 }
             }
@@ -560,21 +659,21 @@ namespace CatchCapture
                     $"headerHeight={headerHeight}, probeY={probeY_in_Bottom}, 탐색범위={startSearchY}~{endSearchY}");
                 int bottomStartY = Math.Max(headerHeight, 0);
                 int bottomContentHeight = bottom.Height - bottomStartY;
-                
+
                 int newHeight = top.Height + bottomContentHeight;
                 var result = new Bitmap(Math.Max(top.Width, bottom.Width), newHeight);
-                
+
                 using (var g = Graphics.FromImage(result))
                 {
                     // Top 전체 그리기
                     g.DrawImage(top, 0, 0);
-                    
+
                     // Bottom 그리기 (헤더 제외)
                     var bottomSrcRect = new System.Drawing.Rectangle(0, bottomStartY, bottom.Width, bottomContentHeight);
                     var bottomDestRect = new System.Drawing.Rectangle(0, top.Height, bottom.Width, bottomContentHeight);
                     g.DrawImage(bottom, bottomDestRect, bottomSrcRect, GraphicsUnit.Pixel);
                 }
-                
+
                 top.Dispose();
                 return result;
             }
@@ -593,7 +692,7 @@ namespace CatchCapture
             {
                 var c1 = bmp1.GetPixel(x, y1);
                 var c2 = bmp2.GetPixel(x, y2);
-                
+
                 // 균형잡힌 픽셀 비교 (오차 허용: 12 - 정확도와 관대함의 균형)
                 if (Math.Abs(c1.R - c2.R) > 12 || Math.Abs(c1.G - c2.G) > 12 || Math.Abs(c1.B - c2.B) > 12)
                 {
