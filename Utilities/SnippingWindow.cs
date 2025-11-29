@@ -81,7 +81,9 @@ namespace CatchCapture.Utilities
         private Image? magnifierImage;
         private const double MagnifierSize = 150; // 돋보기 크기
         private const double MagnificationFactor = 3.0; // 확대 배율
-
+        // 넘버링 도구 관련
+        private int numberingNext = 1; // 배지 번호 자동 증가
+        private Dictionary<int, Canvas> numberingGroups = new Dictionary<int, Canvas>();  // ← 추가
         // 십자선 관련 필드 추가
         private Line? crosshairHorizontal;
         private Line? crosshairVertical;
@@ -850,6 +852,24 @@ namespace CatchCapture.Utilities
                 EnableShapeMode();
             };
             
+            // 넘버링 버튼 (도형 다음)
+            var numberingButton = CreateToolButton("numbering.png", LocalizationManager.Get("Numbering"), LocalizationManager.Get("Numbering"));
+            numberingButton.Click += (s, e) =>
+            {
+                currentTool = "넘버링";
+                SetActiveToolButton(numberingButton);
+                
+                double selectionLeft = Canvas.GetLeft(selectionRectangle);
+                double selectionTop = Canvas.GetTop(selectionRectangle);
+                double selectionHeight = selectionRectangle.Height;
+                double toolbarLeft = selectionLeft;
+                double toolbarTop = selectionTop + selectionHeight + 10;
+                if (toolbarTop + 44 > vHeight) toolbarTop = selectionTop - 44 - 10;
+                
+                ShowColorPalette("넘버링", toolbarLeft, toolbarTop + 60);  // ← 팔레트 표시
+                EnableNumberingMode();
+            };
+            
             // 모자이크 버튼
             var mosaicButton = CreateToolButton("mosaic.png", LocalizationManager.Get("Mosaic"), LocalizationManager.Get("Mosaic"));
             mosaicButton.Click += (s, e) => 
@@ -1115,6 +1135,7 @@ namespace CatchCapture.Utilities
             toolbarPanel.Children.Add(highlighterButton);
             toolbarPanel.Children.Add(textButton);
             toolbarPanel.Children.Add(shapeButton);
+            toolbarPanel.Children.Add(numberingButton);
             toolbarPanel.Children.Add(mosaicButton);
             toolbarPanel.Children.Add(eraserButton);
             toolbarPanel.Children.Add(imageSearchButton);
@@ -2413,7 +2434,7 @@ namespace CatchCapture.Utilities
                 Height = 24,
                 FontSize = 14,
                 FontWeight = FontWeights.Bold,
-                Background = new SolidColorBrush(Color.FromArgb(255, 76, 175, 80)),
+                Background = new SolidColorBrush(Color.FromArgb(255, 76, 175, 80)), // 초록색
                 Foreground = Brushes.White,
                 BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
@@ -2428,7 +2449,7 @@ namespace CatchCapture.Utilities
                 Height = 24,
                 FontSize = 14,
                 FontWeight = FontWeights.Bold,
-                Background = new SolidColorBrush(Color.FromArgb(255, 244, 67, 54)),
+                Background = new SolidColorBrush(Color.FromArgb(255, 244, 67, 54)), // 빨간색
                 Foreground = Brushes.White,
                 BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
@@ -2752,15 +2773,44 @@ namespace CatchCapture.Utilities
 
         private void Canvas_DrawMouseDown(object sender, MouseButtonEventArgs e)
         {
-            // [수정] 버튼이나 UI 컨트롤을 클릭했을 때는 그리기 로직을 실행하지 않음
-            if (e.OriginalSource is FrameworkElement source && 
-               (source is Button || source.Parent is Button || source.TemplatedParent is Button))
-                return;
-
             Point clickPoint = e.GetPosition(canvas);
             
             // 선택 영역 내부인지 확인
             if (!IsPointInSelection(clickPoint))
+                return;
+            
+            // 넘버링 모드 처리
+            if (currentTool == "넘버링")
+            {    
+                // 기존 넘버링 그룹 클릭은 무시 (드래그용)
+                if (e.OriginalSource is FrameworkElement clickedElement)
+                {
+                    // 클릭한 요소의 부모를 따라가서 Canvas(그룹)인지 확인
+                    DependencyObject parent = clickedElement;
+                    while (parent != null && parent != canvas)
+                    {
+                        if (parent is Canvas groupCanvas && 
+                            numberingGroups.ContainsValue(groupCanvas))
+                        {
+                            return;  // 기존 넘버링 그룹이므로 새로 생성 안 함
+                        }
+                        parent = VisualTreeHelper.GetParent(parent);
+                    }
+                }
+                
+                // 툴바의 버튼만 무시
+                if (e.OriginalSource is Button || 
+                    (e.OriginalSource is FrameworkElement fe && fe.Parent is Button))
+                {
+                    return;
+                }               
+                CreateNumberingAt(clickPoint);
+                return;
+            }
+            
+            // 다른 도구들은 버튼 클릭 무시
+            if (e.OriginalSource is FrameworkElement source && 
+            (source is Button || source.Parent is Button || source.TemplatedParent is Button))
                 return;
 
             if (currentTool == "도형")
@@ -2777,10 +2827,9 @@ namespace CatchCapture.Utilities
             }
             else if (currentTool == "모자이크")
             {
-                isDrawingShape = true; // 드래그 로직 재사용
+                isDrawingShape = true;
                 shapeStartPoint = clickPoint;
                 
-                // 영역 표시용 점선 사각형
                 tempMosaicSelection = new Rectangle
                 {
                     Stroke = Brushes.Black,
@@ -2797,6 +2846,7 @@ namespace CatchCapture.Utilities
                 canvas.CaptureMouse();
                 return;
             }
+            // ← 라인 2836-2848 삭제 (중복된 넘버링 처리 제거)
 
             if (!isDrawingEnabled) return;
             
@@ -3077,6 +3127,64 @@ namespace CatchCapture.Utilities
                         RenderOptions.SetBitmapScalingMode(drawingVisual, BitmapScalingMode.NearestNeighbor);
                         drawingContext.DrawImage(image.Source, rect);
                     }
+                    else if (element is Canvas groupCanvas)
+                    {
+                        // 넘버링 그룹 렌더링
+                        double groupLeft = Canvas.GetLeft(groupCanvas) - selectionLeft;
+                        double groupTop = Canvas.GetTop(groupCanvas) - selectionTop;
+                        
+                        foreach (var child in groupCanvas.Children)
+                        {
+                            if (child is Border border)
+                            {
+                                // 배지 렌더링
+                                double badgeLeft = groupLeft + Canvas.GetLeft(border);
+                                double badgeTop = groupTop + Canvas.GetTop(border);
+                                
+                                var ellipse = new EllipseGeometry(
+                                    new Point(badgeLeft + border.Width / 2, badgeTop + border.Height / 2),
+                                    border.Width / 2,
+                                    border.Height / 2);
+                                
+                                drawingContext.DrawGeometry(border.Background, 
+                                    new Pen(border.BorderBrush, border.BorderThickness.Left), ellipse);
+                                
+                                // 배지 내 텍스트
+                                if (border.Child is TextBlock tb)
+                                {
+                                    var formattedText = new FormattedText(
+                                        tb.Text,
+                                        System.Globalization.CultureInfo.CurrentCulture,
+                                        FlowDirection.LeftToRight,
+                                        new Typeface(tb.FontFamily, tb.FontStyle, tb.FontWeight, tb.FontStretch),
+                                        tb.FontSize,
+                                        tb.Foreground,
+                                        VisualTreeHelper.GetDpi(this).PixelsPerDip);
+                                    
+                                    drawingContext.DrawText(formattedText, 
+                                        new Point(badgeLeft + (border.Width - formattedText.Width) / 2, 
+                                                badgeTop + (border.Height - formattedText.Height) / 2));
+                                }
+                            }
+                            else if (child is TextBox noteTextBox && !string.IsNullOrWhiteSpace(noteTextBox.Text))
+                            {
+                                // 텍스트박스 렌더링
+                                double textBoxLeft = groupLeft + Canvas.GetLeft(noteTextBox);
+                                double textBoxTop = groupTop + Canvas.GetTop(noteTextBox);
+                                
+                                var formattedText = new FormattedText(
+                                    noteTextBox.Text,
+                                    System.Globalization.CultureInfo.CurrentCulture,
+                                    FlowDirection.LeftToRight,
+                                    new Typeface(noteTextBox.FontFamily, noteTextBox.FontStyle, noteTextBox.FontWeight, noteTextBox.FontStretch),
+                                    noteTextBox.FontSize,
+                                    noteTextBox.Foreground,
+                                    VisualTreeHelper.GetDpi(this).PixelsPerDip);
+                                
+                                drawingContext.DrawText(formattedText, new Point(textBoxLeft, textBoxTop));
+                            }
+                        }     
+                    }                       
                 }
             }
             
@@ -3279,6 +3387,11 @@ namespace CatchCapture.Utilities
                     HideColorPalette();
                     EnableEraserMode();
                     break;
+                case "넘버링":
+                    currentTool = "넘버링";
+                    ShowColorPalette("넘버링", toolbarLeft, toolbarTop + 60);  // ← 팔레트 표시
+                    EnableNumberingMode();
+                    break;
                 default:
                     // 기본 펜 선택
                     currentTool = "펜";
@@ -3286,6 +3399,418 @@ namespace CatchCapture.Utilities
                     EnableDrawingMode();
                     break;
             }
+        }
+
+        private void EnableNumberingMode()
+        {
+            // 기존 이벤트 제거
+            canvas.MouseLeftButtonDown -= Canvas_TextMouseDown;
+            canvas.MouseLeftButtonDown -= Canvas_DrawMouseDown;
+            canvas.MouseMove -= Canvas_DrawMouseMove;
+            canvas.MouseLeftButtonUp -= Canvas_DrawMouseUp;
+
+            // 넘버링용 이벤트 다시 등록
+            canvas.MouseLeftButtonDown += Canvas_DrawMouseDown;
+            canvas.MouseMove += Canvas_DrawMouseMove;
+            canvas.MouseLeftButtonUp += Canvas_DrawMouseUp;
+            
+            // 그리기 모드 비활성화 (넘버링은 클릭만 필요)
+            isDrawingEnabled = false;
+            
+            Cursor = Cursors.Arrow;
+        }
+
+        private void CreateNumberingAt(Point canvasPoint)
+        {
+            int myNumber = numberingNext;
+            
+            var group = new Canvas();
+            group.Background = Brushes.Transparent;
+            numberingGroups[myNumber] = group;
+
+            double badgeSize = 24;
+            var badgeBorder = new Border
+            {
+                Width = badgeSize,
+                Height = badgeSize,
+                CornerRadius = new CornerRadius(badgeSize / 2),
+                Background = new SolidColorBrush(selectedColor),
+                BorderBrush = Brushes.White,
+                BorderThickness = new Thickness(2)
+            };
+            var numText = new TextBlock
+            {
+                Text = myNumber.ToString(),
+                Foreground = Brushes.White,
+                FontWeight = FontWeights.Bold,
+                FontSize = 12,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            badgeBorder.Child = numText;
+            group.Children.Add(badgeBorder);
+            Canvas.SetLeft(badgeBorder, 0);
+            Canvas.SetTop(badgeBorder, 0);
+
+            var noteBox = new TextBox
+            {
+                Width = 160,
+                Height = 28,
+                Background = new SolidColorBrush(Color.FromArgb(80, 0, 0, 0)),
+                BorderBrush = Brushes.White,
+                BorderThickness = new Thickness(2),
+                Padding = new Thickness(6, 3, 6, 3),
+                FontSize = 12,
+                Foreground = Brushes.White,
+                Text = string.Empty
+            };
+            group.Children.Add(noteBox);
+            Canvas.SetLeft(noteBox, badgeSize + 8);
+            Canvas.SetTop(noteBox, -(noteBox.Height - badgeSize) / 2);
+
+            Border selectionBorder = null;
+            RoutedEventHandler gotFocusHandler = null;
+            RoutedEventHandler lostFocusHandler = null;
+
+            gotFocusHandler = (s, e) =>
+            {
+                // ReadOnly 상태면 테두리 표시 안 함 (확정 후)
+                if (noteBox.IsReadOnly) return;
+                
+                if (selectionBorder == null)
+                {
+                    selectionBorder = new Border
+                    {
+                        BorderBrush = new SolidColorBrush(Color.FromRgb(100, 200, 255)),
+                        BorderThickness = new Thickness(2),
+                        Background = Brushes.Transparent,
+                        Width = noteBox.Width + 4,
+                        Height = noteBox.Height + 4,
+                        IsHitTestVisible = false
+                    };
+                    group.Children.Add(selectionBorder);
+                    Canvas.SetLeft(selectionBorder, Canvas.GetLeft(noteBox) - 2);
+                    Canvas.SetTop(selectionBorder, Canvas.GetTop(noteBox) - 2);
+                    Panel.SetZIndex(selectionBorder, -1);
+                }
+                else
+                {
+                    selectionBorder.Visibility = Visibility.Visible;
+                }
+            };
+
+            lostFocusHandler = (s, e) =>
+            {
+                if (selectionBorder != null)
+                {
+                    selectionBorder.Visibility = Visibility.Collapsed;
+                }
+            };
+
+            noteBox.GotFocus += gotFocusHandler;
+            noteBox.LostFocus += lostFocusHandler;
+            noteBox.LostFocus += (s, e) =>
+            {
+                if (selectionBorder != null)
+                {
+                    selectionBorder.Visibility = Visibility.Collapsed;
+                }
+            };
+
+            var confirmBtn = new Button
+            {
+                Width = 22,
+                Height = 22,
+                Background = new SolidColorBrush(Color.FromRgb(76, 175, 80)),
+                BorderThickness = new Thickness(0),
+                Cursor = Cursors.Hand,
+                ToolTip = LocalizationManager.Get("OK")
+            };
+            confirmBtn.Content = new TextBlock
+            {
+                Text = "✓",
+                Foreground = Brushes.White,
+                FontWeight = FontWeights.Bold,
+                FontSize = 12,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+
+            var deleteBtn = new Button
+            {
+                Width = 22,
+                Height = 22,
+                Background = Brushes.White,
+                BorderThickness = new Thickness(0),
+                Cursor = Cursors.Hand,
+                ToolTip = LocalizationManager.Get("Delete")
+            };
+            try
+            {
+                deleteBtn.Content = new Image
+                {
+                    Source = new BitmapImage(new Uri("pack://application:,,,/icons/delete_selected.png")),
+                    Width = 18,
+                    Height = 18
+                };
+            }
+            catch { deleteBtn.Content = new TextBlock { Text = "🗑", FontSize = 14 }; }
+
+            void UpdateButtonsPosition()
+            {
+                double nbLeft = Canvas.GetLeft(noteBox);
+                double nbTop = Canvas.GetTop(noteBox);
+                double midY = nbTop + (noteBox.Height - confirmBtn.Height) / 2.0;
+                Canvas.SetLeft(confirmBtn, nbLeft + noteBox.Width + 6);
+                Canvas.SetTop(confirmBtn, midY);
+                Canvas.SetLeft(deleteBtn, nbLeft + noteBox.Width + 6 + confirmBtn.Width + 6);
+                Canvas.SetTop(deleteBtn, midY);
+            }
+
+            group.Children.Add(confirmBtn);
+            group.Children.Add(deleteBtn);
+            Panel.SetZIndex(confirmBtn, 1000);
+            Panel.SetZIndex(deleteBtn, 1000);
+
+            UpdateButtonsPosition();
+
+            canvas.Children.Add(group);
+            Canvas.SetLeft(group, canvasPoint.X - badgeSize / 2);
+            Canvas.SetTop(group, canvasPoint.Y - badgeSize / 2);
+            Panel.SetZIndex(group, 500);
+
+            drawnElements.Add(group);
+            undoStack.Push(group);
+
+            // 드래그 이벤트 (간단 버전)
+            bool isDrag = false;
+            Point dragStart = new Point();
+            Point origin = new Point();
+
+            MouseButtonEventHandler noteBoxMouseDown = (s, e) =>
+            {
+                var pos = e.GetPosition(noteBox);
+                bool isNearBorder = pos.X < 5 || pos.X > noteBox.Width - 5 || 
+                                    pos.Y < 5 || pos.Y > noteBox.Height - 5;
+                
+                if (isNearBorder)
+                {
+                    // 다른 마우스 캡처가 있으면 해제
+                    if (noteBox.IsMouseCaptured) noteBox.ReleaseMouseCapture();
+                    if (badgeBorder.IsMouseCaptured) badgeBorder.ReleaseMouseCapture();
+                    
+                    isDrag = true;
+                    dragStart = e.GetPosition(group);
+                    origin = new Point(Canvas.GetLeft(noteBox), Canvas.GetTop(noteBox));
+                    noteBox.CaptureMouse();
+                    e.Handled = true;
+                }
+            };
+
+            MouseEventHandler noteBoxMouseMove = (s, e) =>
+            {
+                if (!isDrag) return;
+                var p = e.GetPosition(group);
+                double dx = p.X - dragStart.X;
+                double dy = p.Y - dragStart.Y;
+                Canvas.SetLeft(noteBox, origin.X + dx);
+                Canvas.SetTop(noteBox, origin.Y + dy);
+                UpdateButtonsPosition();
+                e.Handled = true;
+            };
+
+            MouseButtonEventHandler noteBoxMouseUp = (s, e) =>
+            {
+                isDrag = false;
+                if (noteBox.IsMouseCaptured)
+                {
+                    noteBox.ReleaseMouseCapture();
+                }
+                e.Handled = true;
+            };
+
+            noteBox.PreviewMouseLeftButtonDown += noteBoxMouseDown;
+            noteBox.PreviewMouseMove += noteBoxMouseMove;
+            noteBox.PreviewMouseLeftButtonUp += noteBoxMouseUp;
+
+            bool isDragBadge = false;
+            Point dragStartBadge = new Point();
+            Point originBadge = new Point();
+
+            MouseButtonEventHandler badgeMouseDown = (s, e) =>
+            {
+                isDragBadge = true;
+                dragStartBadge = e.GetPosition(group);
+                originBadge = new Point(Canvas.GetLeft(badgeBorder), Canvas.GetTop(badgeBorder));
+                badgeBorder.CaptureMouse();
+                e.Handled = true;
+            };
+
+            MouseEventHandler badgeMouseMove = (s, e) =>
+            {
+                if (!isDragBadge) return;
+                var p = e.GetPosition(group);
+                double dx = p.X - dragStartBadge.X;
+                double dy = p.Y - dragStartBadge.Y;
+                Canvas.SetLeft(badgeBorder, originBadge.X + dx);
+                Canvas.SetTop(badgeBorder, originBadge.Y + dy);
+                e.Handled = true;
+            };
+
+            MouseButtonEventHandler badgeMouseUp = (s, e) =>
+            {
+                isDragBadge = false;
+                try { badgeBorder.ReleaseMouseCapture(); } catch { }
+            };
+
+            badgeBorder.PreviewMouseLeftButtonDown += badgeMouseDown;
+            badgeBorder.PreviewMouseMove += badgeMouseMove;
+            badgeBorder.PreviewMouseLeftButtonUp += badgeMouseUp;
+
+            deleteBtn.Click += (s, e) =>
+            {
+                if (canvas.Children.Contains(group)) canvas.Children.Remove(group);
+                drawnElements.Remove(group);
+                
+                numberingGroups.Remove(myNumber);
+                
+                if (numberingGroups.Count > 0)
+                {
+                    numberingNext = numberingGroups.Keys.Max() + 1;
+                }
+                else
+                {
+                    numberingNext = 1;
+                }
+            };
+
+            confirmBtn.Click += (s, e) =>
+            {
+                noteBox.IsReadOnly = true;
+                noteBox.BorderBrush = Brushes.Transparent;
+                noteBox.Background = Brushes.Transparent;
+                noteBox.BorderThickness = new Thickness(0);
+                confirmBtn.Visibility = Visibility.Collapsed;
+                deleteBtn.Visibility = Visibility.Collapsed;
+                // 포커스 해제 및 테두리 숨김
+                noteBox.Focusable = false;  // ← 추가: 포커스 불가로 설정
+                if (selectionBorder != null)
+                {
+                    selectionBorder.Visibility = Visibility.Collapsed;  // ← 추가
+                }                
+                noteBox.PreviewMouseLeftButtonDown -= noteBoxMouseDown;
+                noteBox.PreviewMouseMove -= noteBoxMouseMove;
+                noteBox.PreviewMouseLeftButtonUp -= noteBoxMouseUp;
+                
+                badgeBorder.PreviewMouseLeftButtonDown -= badgeMouseDown;
+                badgeBorder.PreviewMouseMove -= badgeMouseMove;
+                badgeBorder.PreviewMouseLeftButtonUp -= badgeMouseUp;
+                
+                noteBox.Cursor = Cursors.Arrow;
+                badgeBorder.Cursor = Cursors.Arrow;
+
+                bool isConfirmed = true;
+                bool isDragGroup = false;
+                Point dragStartGroup = new Point();
+                Point originGroupPos = new Point();
+                
+                MouseButtonEventHandler groupMouseDown = null;
+                MouseEventHandler groupMouseMove = null;
+                MouseButtonEventHandler groupMouseUp = null;
+                
+                groupMouseDown = (gs, ge) =>
+                {
+                    isDragGroup = true;
+                    dragStartGroup = ge.GetPosition(canvas);
+                    originGroupPos = new Point(Canvas.GetLeft(group), Canvas.GetTop(group));
+                    
+                    // 클릭한 요소가 캡처해야 함
+                    if (gs is UIElement element)
+                    {
+                        element.CaptureMouse();
+                    }
+                    ge.Handled = true;
+                };
+
+                groupMouseMove = (gs, ge) =>
+                {
+                    // 드래그 중이 아니거나 마우스 캡처가 없으면 중단
+                    if (!isDragGroup) return;
+                    if (gs is UIElement element && !element.IsMouseCaptured) 
+                    {
+                        isDragGroup = false;
+                        return;
+                    }
+                    
+                    var p = ge.GetPosition(canvas);
+                    double dx = p.X - dragStartGroup.X;
+                    double dy = p.Y - dragStartGroup.Y;
+                    Canvas.SetLeft(group, originGroupPos.X + dx);
+                    Canvas.SetTop(group, originGroupPos.Y + dy);
+                    ge.Handled = true;
+                };
+
+                groupMouseUp = (gs, ge) =>
+                {
+                    isDragGroup = false;
+                    if (gs is UIElement element && element.IsMouseCaptured)
+                    {
+                        element.ReleaseMouseCapture();
+                    }
+                };
+                                
+                badgeBorder.MouseLeftButtonDown += groupMouseDown;
+                badgeBorder.MouseMove += groupMouseMove;
+                badgeBorder.MouseLeftButtonUp += groupMouseUp;
+
+                noteBox.MouseLeftButtonDown += groupMouseDown;
+                noteBox.MouseMove += groupMouseMove;
+                noteBox.MouseLeftButtonUp += groupMouseUp;
+                // LostMouseCapture 이벤트 추가 (안전장치)
+                badgeBorder.LostMouseCapture += (s, e) =>
+                {
+                    isDragGroup = false;
+                };
+
+                noteBox.LostMouseCapture += (s, e) =>
+                {
+                    isDragGroup = false;
+                };
+
+                badgeBorder.Cursor = Cursors.SizeAll;
+                noteBox.Cursor = Cursors.SizeAll;
+                badgeBorder.Cursor = Cursors.SizeAll;
+                noteBox.Cursor = Cursors.SizeAll;
+
+                MouseButtonEventHandler noteBoxDoubleClick = null;
+                noteBoxDoubleClick = (ns, ne) =>
+                {
+                    if (isConfirmed)
+                    {
+                        noteBox.IsReadOnly = false;
+                        noteBox.BorderBrush = Brushes.White;
+                        noteBox.Background = new SolidColorBrush(Color.FromArgb(80, 0, 0, 0));
+                        noteBox.BorderThickness = new Thickness(2);
+                        confirmBtn.Visibility = Visibility.Visible;
+                        deleteBtn.Visibility = Visibility.Visible;
+                        
+                        badgeBorder.MouseLeftButtonDown -= groupMouseDown;
+                        badgeBorder.MouseMove -= groupMouseMove;
+                        badgeBorder.MouseLeftButtonUp -= groupMouseUp;
+
+                        noteBox.MouseLeftButtonDown -= groupMouseDown;
+                        noteBox.MouseMove -= groupMouseMove;
+                        noteBox.MouseLeftButtonUp -= groupMouseUp;
+                        
+                        isConfirmed = false;
+                        noteBox.Focus();
+                        ne.Handled = true;
+                    }
+                };
+                noteBox.MouseDoubleClick += noteBoxDoubleClick;
+            };
+            
+            numberingNext++;
         }
     }
 }

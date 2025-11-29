@@ -176,6 +176,7 @@ namespace CatchCapture.Models
                 ["TextAdd"] = "텍스트 추가",
                 ["Mosaic"] = "모자이크",
                 ["Eraser"] = "지우개",
+                ["Numbering"] = "넘버링",
                 
                 // 공통 UI
                 ["OK"] = "확인",
@@ -354,6 +355,7 @@ namespace CatchCapture.Models
                 ["TextAdd"] = "添加文字",
                 ["Mosaic"] = "马赛克",
                 ["Eraser"] = "橡皮",
+                ["Numbering"] = "编号",
                 
                 // 共通 UI
                 ["OK"] = "确定",
@@ -532,6 +534,7 @@ namespace CatchCapture.Models
                 ["TextAdd"] = "テキスト追加",
                 ["Mosaic"] = "モザイク",
                 ["Eraser"] = "消しゴム",
+                ["Numbering"] = "番号付け",
                 
                 // 共通 UI
                 ["OK"] = "OK",
@@ -710,6 +713,7 @@ namespace CatchCapture.Models
                 ["TextAdd"] = "Add Text",
                 ["Mosaic"] = "Mosaic",
                 ["Eraser"] = "Eraser",
+                ["Numbering"] = "Numbering",
                 
                 // Common UI
                 ["OK"] = "OK",
