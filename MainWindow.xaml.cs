@@ -2090,15 +2090,27 @@ public partial class MainWindow : Window
                         if (win is GuideWindow) win.Close();
                     }
 
-                    // 3. 원래 트레이 모드였다면 복원
-                    if (wasInTrayModeBeforeRealTimeCapture)
-                    {
-                        settings.IsTrayMode = true;
-                        Settings.Save(settings);
-                    }
+                    // 3. 트레이 모드 복원을 영역 캡처 후로 이동
+                    // (주석처리: 여기서 복원하면 StartAreaCapture와 충돌)
 
                     // 4. 영역 캡처 시작
-                    Dispatcher.Invoke(() => StartAreaCapture);
+                    Dispatcher.BeginInvoke(new Action(async () =>
+                    {
+                        try
+                        {
+                            await StartAreaCaptureAsync();
+                        }
+                        finally
+                        {
+                            // 캡처 완료 후 트레이 모드 복원
+                            if (wasInTrayModeBeforeRealTimeCapture)
+                            {
+                                settings.IsTrayMode = true;
+                                Settings.Save(settings);
+                                wasInTrayModeBeforeRealTimeCapture = false;
+                            }
+                        }
+                    }));
                     handled = true;
                     break;
 
