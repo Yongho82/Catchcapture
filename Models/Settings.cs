@@ -40,11 +40,14 @@ namespace CatchCapture.Models
             "DesignatedCapture", "WindowCapture", "UnitCapture"
         };
         
-        // Simple mode icon customization
+        // Simple mode icon customization (built-in tools)
         public List<string> SimpleModeIcons { get; set; } = new List<string>
         {
             "AreaCapture", "DelayCapture", "FullScreen", "DesignatedCapture"
         };
+
+        // Simple mode external application shortcuts
+        public List<ExternalAppShortcut> SimpleModeApps { get; set; } = new List<ExternalAppShortcut>();
 
         // Simple mode instant edit
         public bool SimpleModeInstantEdit { get; set; } = false;
@@ -216,5 +219,15 @@ namespace CatchCapture.Models
         public bool Alt { get; set; }
         public bool Win { get; set; }
         public string Key { get; set; } = ""; // Single letter or function key name
+    }
+
+    // External application shortcut info for Simple Mode
+    public class ExternalAppShortcut
+    {
+        public string DisplayName { get; set; } = string.Empty;
+        public string TargetPath { get; set; } = string.Empty;   // exe or .lnk path
+        public string? Arguments { get; set; }                    // optional
+        public string? WorkingDirectory { get; set; }
+        public string? IconPath { get; set; }                     // optional custom icon
     }
 }

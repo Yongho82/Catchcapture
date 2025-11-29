@@ -35,7 +35,7 @@
 
         <!-- 아이콘 버튼 스타일 -->
         <Style x:Key="IconButtonStyle" TargetType="Button" BasedOn="{StaticResource SimpleModeButtonStyle}">
-            <Setter Property="Width" Value="36"/>
+            <Setter Property="Width" Value="44"/>
             <Setter Property="Height" Value="50"/>
             <Setter Property="Margin" Value="2"/>
         </Style>
@@ -50,7 +50,7 @@
         
         <!-- + 버튼 스타일 -->
         <Style x:Key="AddButtonStyle" TargetType="Button" BasedOn="{StaticResource SimpleModeButtonStyle}">
-            <Setter Property="Width" Value="36"/>
+            <Setter Property="Width" Value="44"/>
             <Setter Property="Height" Value="50"/>
             <Setter Property="Margin" Value="2"/>
             <Setter Property="Opacity" Value="0.3"/>
@@ -146,7 +146,7 @@
                 </Border>
 
                 <!-- 캡처 버튼들 (동적 생성) -->
-                <StackPanel x:Name="ButtonsPanelV" Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,5"/>
+                <StackPanel x:Name="ButtonsPanelV" Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4,5,4,5"/>
 
                 <!-- 하단 제어 버튼들 -->
                 <Border Grid.Row="2" BorderBrush="#E0E0E0" BorderThickness="0,1,0,0" Padding="0,5">

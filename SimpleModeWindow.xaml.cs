@@ -11,6 +11,13 @@ using CatchCapture.Models;
 using System.Windows.Controls;
 using System.Windows.Media.Animation;
 using System.Threading.Tasks;
+using System.IO;
+using System.Diagnostics;
+using Microsoft.Win32;
+using WpfImage = System.Windows.Controls.Image;
+using DrawingIcon = System.Drawing.Icon;
+using System.Windows.Interop;
+using System.Linq;
 
 namespace CatchCapture
 {
@@ -166,13 +173,16 @@ namespace CatchCapture
             {
                 HorizontalRoot.Visibility = Visibility.Collapsed;
                 VerticalRoot.Visibility = Visibility.Visible;
-                Width = 50;
+                // 버튼 폭 44 + 좌우 여백/테두리 고려하여 여유 폭 확보
+                Width = 56;
                 
                 // 동적 높이 계산
                 if (settings != null)
                 {
-                    int iconCount = settings.SimpleModeIcons.Count + 1;
-                    Height = 24 + iconCount * 54 + 35;
+                    int builtIn = settings.SimpleModeIcons?.Count ?? 0;
+                    int external = settings.SimpleModeApps?.Count ?? 0;
+                    int iconCount = builtIn + external + 1; // + 버튼 포함
+                    Height = 29 + iconCount * 54 + 35;
                 }
                 else
                 {
@@ -187,8 +197,11 @@ namespace CatchCapture
                 // 동적 너비 계산
                 if (settings != null)
                 {
-                    int iconCount = settings.SimpleModeIcons.Count + 1;
-                    Width = iconCount * 40 + 10;
+                    int builtIn = settings.SimpleModeIcons?.Count ?? 0;
+                    int external = settings.SimpleModeApps?.Count ?? 0;
+                    int iconCount = builtIn + external + 1; // + 버튼 포함
+                    // 버튼 폭 44 + 좌우 마진 2 → 아이템당 약 48px 가정
+                    Width = iconCount * 48 + 16; // 여유 여백 소폭 증가
                 }
                 else
                 {
@@ -381,6 +394,12 @@ namespace CatchCapture
                 var button = CreateIconButton(iconName, false);
                 ButtonsPanelH.Children.Add(button);
             }
+            // 외부 앱 바로가기 (가로)
+            foreach (var app in settings.SimpleModeApps)
+            {
+                var button = CreateAppButton(app, false);
+                ButtonsPanelH.Children.Add(button);
+            }
             // + 버튼 추가 (가로)
             ButtonsPanelH.Children.Add(CreateAddButton(false));
             
@@ -391,11 +410,18 @@ namespace CatchCapture
                 var button = CreateIconButton(iconName, true);
                 ButtonsPanelV.Children.Add(button);
             }
+            // 외부 앱 바로가기 (세로)
+            foreach (var app in settings.SimpleModeApps)
+            {
+                var button = CreateAppButton(app, true);
+                ButtonsPanelV.Children.Add(button);
+            }
             // + 버튼 추가 (세로)
             ButtonsPanelV.Children.Add(CreateAddButton(true));
             
-            // 창 크기 조정
-            AdjustWindowSize();
+            // 창 크기 조정 (현재 표시 모드 유지)
+            bool isVertical = VerticalRoot.Visibility == Visibility.Visible;
+            ApplyLayout(isVertical);
         }
 
          private UIElement CreateIconButton(string iconName, bool isVertical)  // Button → UIElement로 변경
@@ -430,7 +456,7 @@ namespace CatchCapture
                 FontSize = 8,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
-                Margin = new Thickness(0, 2, 0, 0),
+                Margin = new Thickness(0, 4, 0, 0),
                 Foreground = new SolidColorBrush(Color.FromRgb(102, 102, 102))
             };
             stackPanel.Children.Add(textBlock);
@@ -455,7 +481,55 @@ namespace CatchCapture
             return grid;  // Grid 반환
         }
 
-        private Image? CreateIconImage(string iconName)
+        // 내장 아이콘용 제거 버튼 생성 (CreateIconButton에서 사용)
+        private Button CreateRemoveButton(string iconName)
+        {
+            var btn = new Button
+            {
+                Content = "−",
+                Width = 12,
+                Height = 12,
+                FontSize = 10,
+                FontWeight = FontWeights.Bold,
+                Background = new SolidColorBrush(Color.FromArgb(200, 255, 80, 80)),
+                Foreground = Brushes.White,
+                BorderThickness = new Thickness(0),
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Top,
+                Margin = new Thickness(2, 2, 0, 0),
+                Cursor = Cursors.Hand,
+                Padding = new Thickness(0, -5, 0, 0)
+            };
+
+            // 둥근 모서리 템플릿
+            var template = new ControlTemplate(typeof(Button));
+            var factory = new FrameworkElementFactory(typeof(Border));
+            factory.SetValue(Border.CornerRadiusProperty, new CornerRadius(6));
+            factory.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Button.BackgroundProperty));
+
+            var textFactory = new FrameworkElementFactory(typeof(TextBlock));
+            textFactory.SetValue(TextBlock.TextProperty, "−");
+            textFactory.SetValue(TextBlock.FontSizeProperty, 10.0);
+            textFactory.SetValue(TextBlock.FontWeightProperty, FontWeights.Bold);
+            textFactory.SetValue(TextBlock.ForegroundProperty, Brushes.White);
+            textFactory.SetValue(TextBlock.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+            textFactory.SetValue(TextBlock.VerticalAlignmentProperty, VerticalAlignment.Center);
+            textFactory.SetValue(TextBlock.MarginProperty, new Thickness(0, -3, 0, 0));
+
+            factory.AppendChild(textFactory);
+            template.VisualTree = factory;
+
+            btn.Template = template;
+            btn.Click += (s, e) =>
+            {
+                RemoveIcon(iconName);
+                e.Handled = true; // 상위 클릭 전파 방지
+            };
+
+            return btn;
+        }
+
+        private WpfImage? CreateIconImage(string iconName)
         {
             string? iconPath = iconName switch
             {
@@ -472,7 +546,7 @@ namespace CatchCapture
             
             if (iconPath == null) return null;
             
-            var image = new Image
+            var image = new WpfImage
             {
                 Source = new BitmapImage(new Uri(iconPath!, UriKind.Relative)),
                 Width = 20,
@@ -607,6 +681,21 @@ namespace CatchCapture
                         menu.Items.Add(item);
                     }
                 }
+                
+                // 구분선 및 컴퓨터 앱 추가
+                menu.Items.Add(new Separator());
+                var appsItem = new MenuItem { Header = "컴퓨터 앱…" };
+                appsItem.Click += async (s2, e2) =>
+                {
+                    var picked = await OpenAppPickerAsync();
+                    if (picked != null)
+                    {
+                        settings.SimpleModeApps.Add(picked);
+                        Settings.Save(settings);
+                        BuildIconButtons();
+                    }
+                };
+                menu.Items.Add(appsItem);
             }
             
             menu.PlacementTarget = sender as Button;
@@ -621,6 +710,7 @@ namespace CatchCapture
             BuildIconButtons();
         }
 
+        // 내장 아이콘 제거
         private void RemoveIcon(string iconName)
         {
             var result = MessageBox.Show(
@@ -639,61 +729,394 @@ namespace CatchCapture
             }
         }
 
-        private void AdjustWindowSize()
+        // 외부 앱 버튼 생성
+        private UIElement CreateAppButton(ExternalAppShortcut app, bool isVertical)
         {
-            if (settings == null) return;
+            var grid = new Grid();
+            var button = new Button
+            {
+                Style = this.FindResource("IconButtonStyle") as Style,
+                ToolTip = app.DisplayName
+            };
             
-            // 현재 모드 확인 (가로 모드인지 세로 모드인지)
-            bool isVertical = VerticalRoot.Visibility == Visibility.Visible;
+            var stack = new StackPanel
+            {
+                Orientation = Orientation.Vertical,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
             
-            // ApplyLayout을 다시 호출하여 창 크기 조정
-            ApplyLayout(isVertical);
+            var img = CreateAppImage(app);
+            if (img != null) stack.Children.Add(img);
+            
+            var text = new TextBlock
+            {
+                Text = TruncateForLabel(app.DisplayName),
+                FontSize = 8,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                TextAlignment = TextAlignment.Center,
+                Margin = new Thickness(0, 4, 0, 0),
+                Foreground = new SolidColorBrush(Color.FromRgb(102, 102, 102))
+            };
+            stack.Children.Add(text);
+            
+            button.Content = stack;
+            button.Click += (s, e) => HandleAppClick(app);
+            
+            grid.Children.Add(button);
+            var remove = CreateRemoveButtonForApp(app);
+            remove.Visibility = Visibility.Collapsed;
+            grid.Children.Add(remove);
+            grid.MouseEnter += (s, e) => remove.Visibility = Visibility.Visible;
+            grid.MouseLeave += (s, e) => remove.Visibility = Visibility.Collapsed;
+            
+            return grid;
         }
-        private Button CreateRemoveButton(string iconName)
+
+        private WpfImage? CreateAppImage(ExternalAppShortcut app)
         {
+            try
+            {
+                string path = !string.IsNullOrEmpty(app.IconPath) ? app.IconPath! : app.TargetPath;
+                if (string.IsNullOrEmpty(path)) return null;
+                using DrawingIcon? icon = DrawingIcon.ExtractAssociatedIcon(path);
+                if (icon == null) return null;
+                var bmp = icon.ToBitmap();
+                var hbitmap = bmp.GetHbitmap();
+                var source = Imaging.CreateBitmapSourceFromHBitmap(hbitmap, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromWidthAndHeight(20, 20));
+                return new WpfImage { Source = source, Width = 20, Height = 20 };
+            }
+            catch { return null; }
+        }
+
+        private Button CreateRemoveButtonForApp(ExternalAppShortcut app)
+        {
+            // 독립적인 작은 제거 버튼 생성 (CreateRemoveButton에 의존하지 않도록)
             var btn = new Button
             {
-                Content = "−",
                 Width = 12,
                 Height = 12,
-                FontSize = 10,
-                FontWeight = FontWeights.Bold,
                 Background = new SolidColorBrush(Color.FromArgb(200, 255, 80, 80)),
-                Foreground = Brushes.White,
                 BorderThickness = new Thickness(0),
                 HorizontalAlignment = HorizontalAlignment.Left,
                 VerticalAlignment = VerticalAlignment.Top,
                 Margin = new Thickness(2, 2, 0, 0),
                 Cursor = Cursors.Hand,
-                Padding = new Thickness(0, -5, 0, 0)
+                ToolTip = "삭제"
             };
-            
-            // 둥근 모서리 템플릿
             var template = new ControlTemplate(typeof(Button));
-            var factory = new FrameworkElementFactory(typeof(Border));
-            factory.SetValue(Border.CornerRadiusProperty, new CornerRadius(6));
-            factory.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Button.BackgroundProperty));
-            
-            var textFactory = new FrameworkElementFactory(typeof(TextBlock));
-            textFactory.SetValue(TextBlock.TextProperty, "−");
-            textFactory.SetValue(TextBlock.FontSizeProperty, 10.0);
-            textFactory.SetValue(TextBlock.FontWeightProperty, FontWeights.Bold);
-            textFactory.SetValue(TextBlock.ForegroundProperty, Brushes.White);
-            textFactory.SetValue(TextBlock.HorizontalAlignmentProperty, HorizontalAlignment.Center);
-            textFactory.SetValue(TextBlock.VerticalAlignmentProperty, VerticalAlignment.Center);
-            textFactory.SetValue(TextBlock.MarginProperty, new Thickness(0, -3, 0, 0));
-            
-            factory.AppendChild(textFactory);
-            template.VisualTree = factory;
-            
+            var border = new FrameworkElementFactory(typeof(Border));
+            border.SetValue(Border.CornerRadiusProperty, new CornerRadius(6));
+            border.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Button.BackgroundProperty));
+            var text = new FrameworkElementFactory(typeof(TextBlock));
+            text.SetValue(TextBlock.TextProperty, "−");
+            text.SetValue(TextBlock.FontSizeProperty, 10.0);
+            text.SetValue(TextBlock.FontWeightProperty, FontWeights.Bold);
+            text.SetValue(TextBlock.ForegroundProperty, Brushes.White);
+            text.SetValue(TextBlock.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+            text.SetValue(TextBlock.VerticalAlignmentProperty, VerticalAlignment.Center);
+            text.SetValue(TextBlock.MarginProperty, new Thickness(0, -3, 0, 0));
+            border.AppendChild(text);
+            template.VisualTree = border;
             btn.Template = template;
-            btn.Click += (s, e) => 
-            {
-                RemoveIcon(iconName);
-                e.Handled = true;  // 버튼 클릭 이벤트가 부모로 전파되지 않도록
-            };
-            
+            btn.Click += (s, e) => { RemoveApp(app); e.Handled = true; };
             return btn;
+        }
+
+        private void HandleAppClick(ExternalAppShortcut app)
+        {
+            try
+            {
+                var psi = new ProcessStartInfo
+                {
+                    FileName = string.IsNullOrWhiteSpace(app.TargetPath) ? app.DisplayName : app.TargetPath,
+                    WorkingDirectory = string.IsNullOrWhiteSpace(app.WorkingDirectory) ? null : app.WorkingDirectory,
+                    Arguments = string.IsNullOrWhiteSpace(app.Arguments) ? null : app.Arguments,
+                    UseShellExecute = true
+                };
+                Process.Start(psi);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"앱 실행 실패: {ex.Message}");
+            }
+        }
+
+        // 간단 앱 선택기: 시작 메뉴의 .lnk를 나열 + 찾아보기로 exe 선택
+        private async Task<ExternalAppShortcut?> OpenAppPickerAsync()
+        {
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    var entries = EnumerateInstalledApplications();
+                    // 간단한 선택 창 구성
+                    ExternalAppShortcut? result = null;
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        var win = new Window
+                        {
+                            Title = "애플리케이션 선택",
+                            Width = 420,
+                            Height = 560,
+                            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                            Owner = this,
+                            ResizeMode = ResizeMode.CanResizeWithGrip
+                        };
+                        var grid = new Grid();
+                        // 0: 헤더(필터), 1: 리스트, 2: 버튼바
+                        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+                        grid.RowDefinitions.Add(new RowDefinition());
+                        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+                        // 헤더: 정렬 토글
+                        var header = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(8,8,8,0), HorizontalAlignment = HorizontalAlignment.Right };
+                        var sortBtn = new Button { Content = "가나다순 ▲", Padding = new Thickness(10,2,10,2), Height = 26, MinWidth = 96 };
+                        header.Children.Add(sortBtn);
+                        Grid.SetRow(header, 0);
+                        grid.Children.Add(header);
+
+                        // 리스트
+                        var list = new ListBox { Margin = new Thickness(8) };
+                        Grid.SetRow(list, 1);
+                        grid.Children.Add(list);
+
+                        // 정렬/새로고침 로직
+                        bool asc = true;
+                        void RefreshList()
+                        {
+                            list.Items.Clear();
+                            var seq = asc 
+                                ? entries.OrderBy(t => t.Item1, StringComparer.CurrentCultureIgnoreCase)
+                                : entries.OrderByDescending(t => t.Item1, StringComparer.CurrentCultureIgnoreCase);
+                            foreach (var e in seq)
+                            {
+                                var sp = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(4) };
+                                var img = CreateImageFromPath(e.Item3);
+                                if (img != null) sp.Children.Add(img);
+                                sp.Children.Add(new TextBlock { Text = e.Item1, Margin = new Thickness(8, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center });
+                                var li = new ListBoxItem { Content = sp, Tag = e };
+                                list.Items.Add(li);
+                            }
+                            sortBtn.Content = asc ? "가나다순 ▲" : "가나다순 ▼";
+                        }
+                        sortBtn.Click += (ss, ee) => { asc = !asc; RefreshList(); };
+                        RefreshList();
+
+                        // 버튼 바
+                        var bottom = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(8) };
+                        var browse = new Button { Content = "찾아보기…", Margin = new Thickness(0, 0, 8, 0) };
+                        var ok = new Button { Content = "확인", IsDefault = true };
+                        var cancel = new Button { Content = "취소", IsCancel = true, Margin = new Thickness(8,0,0,0) };
+                        bottom.Children.Add(browse);
+                        bottom.Children.Add(ok);
+                        bottom.Children.Add(cancel);
+                        Grid.SetRow(bottom, 2);
+                        grid.Children.Add(bottom);
+                        win.Content = grid;
+
+                        browse.Click += (s, e) =>
+                        {
+                            var ofd = new OpenFileDialog
+                            {
+                                Title = "실행 파일/바로가기 선택",
+                                Filter = "Programs|*.exe;*.lnk|All|*.*"
+                            };
+                            if (ofd.ShowDialog(win) == true)
+                            {
+                                var name = System.IO.Path.GetFileNameWithoutExtension(ofd.FileName);
+                                result = new ExternalAppShortcut { DisplayName = name, TargetPath = ofd.FileName };
+                                win.DialogResult = true;
+                                win.Close();
+                            }
+                        };
+                        ok.Click += (s, e) =>
+                        {
+                            if (list.SelectedItem is ListBoxItem lbi && lbi.Tag is object)
+                            {
+                                try
+                                {
+                                    var t = ((System.ValueTuple<string, string, string>)lbi.Tag);
+                                    result = new ExternalAppShortcut { DisplayName = t.Item1, TargetPath = t.Item2, IconPath = t.Item3 };
+                                    win.DialogResult = true;
+                                    win.Close();
+                                }
+                                catch { /* ignore invalid selection */ }
+                            }
+                        };
+                        win.ShowDialog();
+                    });
+                    return result;
+                }
+                catch { return null; }
+            });
+        }
+
+        private List<(string, string, string)> EnumerateInstalledApplications()
+        {
+            var result = new List<(string, string, string)>();
+            try
+            {
+                // 64/32비트, 사용자/컴퓨터 범위 레지스트리 모두 조회
+                var roots = new (RegistryKey root, string path)[]
+                {
+                    (Registry.LocalMachine, @"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall"),
+                    (Registry.CurrentUser, @"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall"),
+                    (Registry.LocalMachine, @"SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall"),
+                    (Registry.CurrentUser, @"SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall"),
+                };
+
+                foreach (var (root, path) in roots)
+                {
+                    using var key = root.OpenSubKey(path);
+                    if (key == null) continue;
+                    foreach (var sub in key.GetSubKeyNames())
+                    {
+                        using var appKey = key.OpenSubKey(sub);
+                        if (appKey == null) continue;
+
+                        string? name = appKey.GetValue("DisplayName") as string;
+                        if (string.IsNullOrWhiteSpace(name)) continue;
+
+                        // 필터: 업데이트/핫픽스 등 제외 (선택)
+                        var systemComponent = appKey.GetValue("SystemComponent");
+                        if (systemComponent is int sc && sc == 1) continue;
+
+                        string? displayIcon = appKey.GetValue("DisplayIcon") as string;
+                        string? installLocation = appKey.GetValue("InstallLocation") as string;
+                        string? uninstallString = appKey.GetValue("UninstallString") as string;
+
+                        string exePath = string.Empty;
+                        string iconPath = string.Empty;
+
+                        // 1) DisplayIcon 우선
+                        if (!string.IsNullOrWhiteSpace(displayIcon))
+                        {
+                            iconPath = CleanIconPath(displayIcon);
+                            if (File.Exists(iconPath))
+                            {
+                                if (Path.GetExtension(iconPath).Equals(".exe", StringComparison.OrdinalIgnoreCase))
+                                    exePath = iconPath;
+                            }
+                        }
+
+                        // 2) InstallLocation에서 exe 추정
+                        if (string.IsNullOrEmpty(exePath) && !string.IsNullOrWhiteSpace(installLocation) && Directory.Exists(installLocation))
+                        {
+                            // 가장 큰 exe 하나를 대표 실행파일로 추정
+                            var exes = Directory.EnumerateFiles(installLocation, "*.exe", SearchOption.TopDirectoryOnly)
+                                                .Select(p => new FileInfo(p))
+                                                .OrderByDescending(fi => fi.Length)
+                                                .ToList();
+                            if (exes.Count > 0)
+                            {
+                                exePath = exes[0].FullName;
+                                if (string.IsNullOrEmpty(iconPath)) iconPath = exePath;
+                            }
+                        }
+
+                        // 3) UninstallString에서 경로 추출
+                        if (string.IsNullOrEmpty(exePath) && !string.IsNullOrWhiteSpace(uninstallString))
+                        {
+                            string candidate = ExtractQuotedPath(uninstallString);
+                            if (string.IsNullOrEmpty(candidate)) candidate = uninstallString.Split(' ').FirstOrDefault() ?? string.Empty;
+                            if (File.Exists(candidate))
+                            {
+                                exePath = candidate;
+                                if (string.IsNullOrEmpty(iconPath)) iconPath = exePath;
+                            }
+                        }
+
+                        // 최종 유효성: 이름은 있고, 경로는 exe/lnk 아무거나
+                        if (!string.IsNullOrWhiteSpace(name) && (!string.IsNullOrWhiteSpace(exePath) || !string.IsNullOrWhiteSpace(iconPath)))
+                        {
+                            var pathForLaunch = !string.IsNullOrWhiteSpace(exePath) ? exePath : iconPath;
+                            var pathForIcon = !string.IsNullOrWhiteSpace(iconPath) ? iconPath : exePath;
+                            result.Add((name!, pathForLaunch!, pathForIcon!));
+                        }
+                    }
+                }
+            }
+            catch { }
+
+            // 중복 제거 (표시명+경로 기준)
+            result = result
+                .GroupBy(t => (t.Item1, t.Item2))
+                .Select(g => g.First())
+                .OrderBy(t => t.Item1, StringComparer.CurrentCultureIgnoreCase)
+                .ToList();
+
+            return result;
+        }
+
+        private static string CleanIconPath(string raw)
+        {
+            // 예: "C:\\Program Files\\App\\app.exe,0" → exe 경로만
+            string s = raw.Trim().Trim('"');
+            int comma = s.IndexOf(',');
+            if (comma > 0) s = s.Substring(0, comma);
+            return s;
+        }
+
+        private static string ExtractQuotedPath(string raw)
+        {
+            // 가장 처음 따옴표 구간 추출
+            int first = raw.IndexOf('"');
+            if (first >= 0)
+            {
+                int second = raw.IndexOf('"', first + 1);
+                if (second > first) return raw.Substring(first + 1, second - first - 1);
+            }
+            return string.Empty;
+        }
+
+        private WpfImage? CreateImageFromPath(string path)
+        {
+            try
+            {
+                using DrawingIcon? icon = DrawingIcon.ExtractAssociatedIcon(path);
+                if (icon == null) return null;
+                var bmp = icon.ToBitmap();
+                var hbitmap = bmp.GetHbitmap();
+                var source = Imaging.CreateBitmapSourceFromHBitmap(hbitmap, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromWidthAndHeight(20, 20));
+                return new WpfImage { Source = source, Width = 20, Height = 20 };
+            }
+            catch { return null; }
+        }
+
+        // 외부 앱 바로가기 제거
+        private void RemoveApp(ExternalAppShortcut app)
+        {
+            var result = MessageBox.Show($"'{app.DisplayName}' 바로가기를 삭제하시겠습니까?", "바로가기 삭제", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result == MessageBoxResult.Yes && settings != null)
+            {
+                settings.SimpleModeApps.RemoveAll(a => string.Equals(a.TargetPath, app.TargetPath, StringComparison.OrdinalIgnoreCase) && a.DisplayName == app.DisplayName);
+                Settings.Save(settings);
+                BuildIconButtons();
+            }
+        }
+
+        // 외부 앱 라벨은 7자까지 표시 (ASCII), 5자까지 표시 (한글)
+        private static string TruncateForLabel(string? s)
+        {
+            if (string.IsNullOrWhiteSpace(s)) return string.Empty;
+            var trimmed = s.Trim();
+            bool asciiOnly = true;
+            foreach (var ch in trimmed)
+            {
+                if (ch > 127)
+                {
+                    asciiOnly = false; break;
+                }
+                // 허용: 영문/숫자/공백/하이픈/언더스코어
+                if (!(char.IsLetterOrDigit(ch) || ch == ' ' || ch == '-' || ch == '_'))
+                {
+                    // 다른 ASCII 기호가 있으면 영어 전용으로 간주하지 않음
+                    asciiOnly = false; break;
+                }
+            }
+            int max = asciiOnly ? 7 : 5;
+            return trimmed.Length <= max ? trimmed : trimmed.Substring(0, max);
         }
     }
 }
