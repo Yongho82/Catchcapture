@@ -157,7 +157,7 @@
                 </StackPanel>
 
                 <!-- Navigation -->
-                <TextBlock x:Name="SidebarGeneralText" Text="일반" FontSize="12" Foreground="{StaticResource TextSecondary}" Margin="25,0,0,5" FontWeight="SemiBold"/>
+                <TextBlock x:Name="SidebarGeneralText" Text="" Visibility="Collapsed" FontSize="12" Foreground="{StaticResource TextSecondary}" Margin="25,0,0,5" FontWeight="SemiBold"/>
                 <Button x:Name="NavCapture" Content="캡처 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Capture"/>
                 <Button x:Name="NavSystem" Content="시스템 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="System"/>
                 <Button x:Name="NavHotkey" Content="단축키 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Hotkey"/>

@@ -213,6 +213,14 @@ namespace CatchCapture.Models
                 ["MultiCaptureHud"] = "ENTER : 합성\nF1 : 개별저장\nESC : 종료",
                 ["ScrollClickToStart"] = "마우스 클릭: 스크롤 캡처 시작",
                 ["EscToCancel"] = "중단",
+                
+                // Bottom actions & confirmations
+                ["AllCopiedToClipboard"] = "전체가 클립보드에 복사되었습니다",
+                ["AllImagesSaved"] = "모든 이미지가 저장되었습니다",
+                ["UnsavedImageDeleteConfirm"] = "저장하지 않은 이미지를 삭제하시겠습니까?",
+                ["UnsavedImagesDeleteConfirm"] = "저장하지 않은 이미지가 있습니다. 모두 삭제하시겠습니까?",
+                ["ClipboardCopyFailed"] = "클립보드 복사에 실패했습니다",
+                ["CopyError"] = "복사 오류",
             };
 
             // 중국어 (简体中文)
@@ -383,6 +391,14 @@ namespace CatchCapture.Models
                 ["MultiCaptureHud"] = "ENTER：合成\nF1：分别保存\nESC：退出",
                 ["ScrollClickToStart"] = "单击开始滚动截图",
                 ["EscToCancel"] = "取消",
+                
+                // Bottom actions & confirmations
+                ["AllCopiedToClipboard"] = "已全部复制到剪贴板",
+                ["AllImagesSaved"] = "所有图片已保存",
+                ["UnsavedImageDeleteConfirm"] = "要删除未保存的图片吗？",
+                ["UnsavedImagesDeleteConfirm"] = "包含未保存的图片。要全部删除吗？",
+                ["ClipboardCopyFailed"] = "复制到剪贴板失败",
+                ["CopyError"] = "复制错误",
             };
 
             // 일본어
@@ -553,6 +569,14 @@ namespace CatchCapture.Models
                 ["MultiCaptureHud"] = "ENTER：合成\nF1：個別保存\nESC：終了",
                 ["ScrollClickToStart"] = "クリックしてスクロールキャプチャ開始",
                 ["EscToCancel"] = "中止",
+                
+                // Bottom actions & confirmations
+                ["AllCopiedToClipboard"] = "すべてクリップボードにコピーしました",
+                ["AllImagesSaved"] = "すべての画像を保存しました",
+                ["UnsavedImageDeleteConfirm"] = "未保存の画像を削除しますか？",
+                ["UnsavedImagesDeleteConfirm"] = "未保存の画像が含まれています。すべて削除しますか？",
+                ["ClipboardCopyFailed"] = "クリップボードへのコピーに失敗しました",
+                ["CopyError"] = "コピーエラー",
             };
 
             // 영어
@@ -723,6 +747,14 @@ namespace CatchCapture.Models
                 ["MultiCaptureHud"] = "ENTER: Merge\nF1: Save individually\nESC: Exit",
                 ["ScrollClickToStart"] = "Click to start scroll capture",
                 ["EscToCancel"] = "Cancel",
+                
+                // Bottom actions & confirmations
+                ["AllCopiedToClipboard"] = "All images copied to clipboard",
+                ["AllImagesSaved"] = "All images have been saved",
+                ["UnsavedImageDeleteConfirm"] = "Delete the unsaved image?",
+                ["UnsavedImagesDeleteConfirm"] = "There are unsaved images. Delete all?",
+                ["ClipboardCopyFailed"] = "Failed to copy to clipboard",
+                ["CopyError"] = "Copy Error",
             };
         }
     }
