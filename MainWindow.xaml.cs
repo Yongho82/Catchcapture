@@ -900,18 +900,37 @@ public partial class MainWindow : Window
             System.Threading.Thread.Sleep(10);
 
             var scrollCaptureWindow = new ScrollCaptureWindow();
-            bool imageAdded = false;
             
             if (scrollCaptureWindow.ShowDialog() == true && scrollCaptureWindow.CapturedImage != null)
             {
+                // 캡처 성공 (정상 종료 또는 ESC 중단 후 이미지 있음)
                 AddCaptureToList(scrollCaptureWindow.CapturedImage);
-                imageAdded = true;
+            }
+            else if (scrollCaptureWindow.EscCancelled)
+            {
+                // ESC로 취소 (캡처 시작 전) - 메인창 복원
+                if (!settings.IsTrayMode && this.Visibility != Visibility.Visible)
+                {
+                    this.Show();
+                    this.WindowState = WindowState.Normal;
+                    this.Activate();
+                }
+            }
+            else
+            {
+                // 기타 취소 - 메인창 복원
+                if (!settings.IsTrayMode && this.Visibility != Visibility.Visible)
+                {
+                    this.Show();
+                    this.WindowState = WindowState.Normal;
+                    this.Activate();
+                }
             }
         }
-        finally
+        catch (Exception ex)
         {
-            // 캡처가 취소되었거나 이미지가 추가되지 않았다면 메인 창 복원
-            if (this.Visibility != Visibility.Visible)
+            MessageBox.Show($"스크롤 캡처 오류: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+            if (!settings.IsTrayMode && this.Visibility != Visibility.Visible)
             {
                 this.Show();
                 this.WindowState = WindowState.Normal;

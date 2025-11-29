@@ -73,6 +73,12 @@ namespace CatchCapture
         [DllImport("user32.dll")]
         private static extern void mouse_event(uint dwFlags, int dx, int dy, uint dwData, UIntPtr dwExtraInfo);
 
+        [DllImport("user32.dll")]
+        private static extern IntPtr SetCursor(IntPtr hCursor);
+
+        [DllImport("user32.dll")]
+        private static extern int ShowCursor(bool bShow);
+
         private const uint MOUSEEVENTF_LEFTDOWN = 0x0002;
         private const uint MOUSEEVENTF_LEFTUP = 0x0004;
         private const uint MOUSEEVENTF_WHEEL = 0x0800;
@@ -123,6 +129,8 @@ namespace CatchCapture
         private TextBlock? mouseTooltipText;
         private TextBlock? mouseEmoji;
         public bool EscCancelled { get; private set; } = false;
+        private bool isCapturing = false; // 캡처 진행 중 여부 추적
+        private System.Windows.Controls.Image? customCursor; // 커스텀 커서 이미지
 
         private static void Log(string message)
         {
@@ -137,6 +145,7 @@ namespace CatchCapture
             AllowsTransparency = true;
             Background = System.Windows.Media.Brushes.Transparent;
             ShowInTaskbar = false;
+            Cursor = System.Windows.Input.Cursors.None; // 커서 숨김 (커스텀 커서 사용)
 
             Left = SystemParameters.VirtualScreenLeft;
             Top = SystemParameters.VirtualScreenTop;
@@ -152,6 +161,25 @@ namespace CatchCapture
                 Visibility = Visibility.Collapsed
             };
             canvas.Children.Add(highlightRect);
+            
+            // 커스텀 커서 이미지 로드
+            try
+            {
+                var cursorImagePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icons", "sc_cursor.png");
+                if (System.IO.File.Exists(cursorImagePath))
+                {
+                    customCursor = new System.Windows.Controls.Image
+                    {
+                        Source = new BitmapImage(new Uri(cursorImagePath)),
+                        Width = 32,
+                        Height = 32,
+                        Visibility = Visibility.Visible
+                    };
+                    canvas.Children.Add(customCursor);
+                }
+            }
+            catch { /* 커서 이미지 로드 실패 시 무시 */ }
+            
             Content = canvas;
 
             _proc = HookCallback;
@@ -179,15 +207,20 @@ namespace CatchCapture
             }
 
             this.Activate();
+            
+            // 마우스 커서 숨김 (Win32 API 사용)
+            ShowCursor(false);
 
             // 마우스 따라다니는 HUD 생성 (이모지 + 텍스트)
             if (Content is Canvas canvas)
             {
                 mouseEmoji = new TextBlock
                 {
-                    Text = "↕️",
-                    FontSize = 18,
-                    Margin = new Thickness(0, 0, 6, 0),
+                    Text = "🔄",  // 스크롤 회전 화살표 이모지
+                    FontSize = 20,
+                    FontFamily = new System.Windows.Media.FontFamily("Segoe UI Emoji"),
+                    Foreground = System.Windows.Media.Brushes.White,
+                    Margin = new Thickness(0, 0, 8, 0),
                     VerticalAlignment = VerticalAlignment.Center
                 };
 
@@ -217,6 +250,9 @@ namespace CatchCapture
 
         private void ScrollCaptureWindow_Closed(object? sender, EventArgs e)
         {
+            // 마우스 커서 복원
+            ShowCursor(true);
+            
             if (_hookID != IntPtr.Zero)
             {
                 UnhookWindowsHookEx(_hookID);
@@ -256,12 +292,24 @@ namespace CatchCapture
                 if (wParam == (IntPtr)WM_MOUSEMOVE)
                 {
                     UpdateHighlight(hookStruct.pt);
-                    // HUD 위치를 마우스 오른쪽 아래로 이동
-                    if (mouseTooltip != null && Content is Canvas c)
+                    
+                    if (Content is Canvas c)
                     {
                         var p = PointFromScreen(new System.Windows.Point(hookStruct.pt.X, hookStruct.pt.Y));
-                        Canvas.SetLeft(mouseTooltip, p.X + 16);
-                        Canvas.SetTop(mouseTooltip, p.Y + 16);
+                        
+                        // 커스텀 커서 위치 업데이트
+                        if (customCursor != null)
+                        {
+                            Canvas.SetLeft(customCursor, p.X);
+                            Canvas.SetTop(customCursor, p.Y);
+                        }
+                        
+                        // HUD 위치를 마우스 오른쪽 아래로 이동
+                        if (mouseTooltip != null)
+                        {
+                            Canvas.SetLeft(mouseTooltip, p.X + 40);
+                            Canvas.SetTop(mouseTooltip, p.Y + 20);
+                        }
                     }
                 }
                 else if (wParam == (IntPtr)WM_LBUTTONDOWN)
@@ -312,8 +360,14 @@ namespace CatchCapture
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
                         EscCancelled = true;
-                        DialogResult = false;
-                        Close();
+                        
+                        // 캡처 시작 전: 완전히 취소하고 창 닫기
+                        if (!isCapturing)
+                        {
+                            DialogResult = false;
+                            Close();
+                        }
+                        // 캡처 시작 후: EscCancelled 플래그만 설정 (루프가 중단되고 지금까지 캡처한 이미지 병합)
                     }));
                     return (IntPtr)1;
                 }
@@ -354,6 +408,7 @@ namespace CatchCapture
 
         private async Task PerformScrollCapture(IntPtr hWnd, POINT clickPt)
         {
+            isCapturing = true; // 캡처 시작 표시
             var screenshots = new List<Bitmap>();
 
             try
@@ -439,11 +494,11 @@ namespace CatchCapture
 
                 for (int i = 0; i < maxScrolls; i++)
                 {
-                    // ESC로 중간 중단 지원
+                    // ESC로 중간 중단 지원 (지금까지 캡처한 이미지는 유지하고 병합)
                     if (EscCancelled)
                     {
-                        foreach (var s in screenshots) s.Dispose();
-                        return;
+                        Log($"ESC 키로 스크롤 캡처 중단. 지금까지 {screenshots.Count}개 스크린샷 병합");
+                        break; // 루프만 중단, screenshots는 병합 처리
                     }
 
                     // 스크롤 다운
