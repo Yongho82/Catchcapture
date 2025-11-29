@@ -197,7 +197,7 @@ namespace CatchCapture.Models
                 ["Underline"] = "밑줄",
                 ["Shadow"] = "그림자",
                 
-                // Stickers / Guide messages
+                // 스티커/가이드
                 ["CopiedToClipboard"] = "클립보드에 복사되었습니다",
                 ["Captured"] = "캡처되었습니다.",
                 ["ClickWindowThenEnter"] = "캡처할 창을 클릭한 후 Enter 키를 누르세요",
@@ -211,6 +211,8 @@ namespace CatchCapture.Models
                 ["ReachedMaxScrolls"] = "최대 스크롤 횟수에 도달했습니다",
                 ["RealTimeF1Guide"] = "원하는 화면을 띄우고 [F1] 키를 누르세요\n(취소: ESC)",
                 ["MultiCaptureHud"] = "ENTER : 합성\nF1 : 개별저장\nESC : 종료",
+                ["ScrollClickToStart"] = "마우스 클릭: 스크롤 캡처 시작",
+                ["EscToCancel"] = "중단",
             };
 
             // 중국어 (简体中文)
@@ -379,6 +381,8 @@ namespace CatchCapture.Models
                 ["ReachedMaxScrolls"] = "已达到最大滚动次数",
                 ["RealTimeF1Guide"] = "切换到想要的画面后按 [F1]\n（取消：ESC）",
                 ["MultiCaptureHud"] = "ENTER：合成\nF1：分别保存\nESC：退出",
+                ["ScrollClickToStart"] = "单击开始滚动截图",
+                ["EscToCancel"] = "取消",
             };
 
             // 일본어
@@ -547,6 +551,8 @@ namespace CatchCapture.Models
                 ["ReachedMaxScrolls"] = "最大スクロール回数に達しました",
                 ["RealTimeF1Guide"] = "目的の画面を表示して [F1] を押してください\n（キャンセル: ESC）",
                 ["MultiCaptureHud"] = "ENTER：合成\nF1：個別保存\nESC：終了",
+                ["ScrollClickToStart"] = "クリックしてスクロールキャプチャ開始",
+                ["EscToCancel"] = "中止",
             };
 
             // 영어
@@ -715,6 +721,8 @@ namespace CatchCapture.Models
                 ["ReachedMaxScrolls"] = "Reached maximum number of scrolls",
                 ["RealTimeF1Guide"] = "Show the target screen and press [F1]\n(Cancel: ESC)",
                 ["MultiCaptureHud"] = "ENTER: Merge\nF1: Save individually\nESC: Exit",
+                ["ScrollClickToStart"] = "Click to start scroll capture",
+                ["EscToCancel"] = "Cancel",
             };
         }
     }

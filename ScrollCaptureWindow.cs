@@ -186,6 +186,7 @@ namespace CatchCapture
             _kbdProc = KeyboardHookCallback;
             Loaded += ScrollCaptureWindow_Loaded;
             Closed += ScrollCaptureWindow_Closed;
+            CatchCapture.Models.LocalizationManager.LanguageChanged += OnLanguageChanged;
         }
 
         private void ScrollCaptureWindow_Loaded(object sender, RoutedEventArgs e)
@@ -250,6 +251,7 @@ namespace CatchCapture
 
         private void ScrollCaptureWindow_Closed(object? sender, EventArgs e)
         {
+            try { CatchCapture.Models.LocalizationManager.LanguageChanged -= OnLanguageChanged; } catch { }
             // 마우스 커서 복원
             ShowCursor(true);
             
@@ -634,7 +636,7 @@ namespace CatchCapture
             // Probe 라인: Bottom 이미지의 30% 지점
             int probeY_in_Bottom = Math.Max(headerHeight, (int)(bottom.Height * 0.3));
 
-            // 안전 장치: 너무 크면 headerHeight 사용
+            // 안전 장치: 너무 크면(창의 50% 이상) 오류일 수 있으므로 제한
             if (probeY_in_Bottom >= bottom.Height - 50)
                 probeY_in_Bottom = headerHeight;
 
@@ -775,5 +777,17 @@ namespace CatchCapture
 
         [DllImport("gdi32.dll")]
         private static extern bool DeleteObject(IntPtr hObject);
+
+        private void OnLanguageChanged(object? sender, EventArgs e)
+        {
+            try
+            {
+                if (mouseTooltipText != null)
+                {
+                    mouseTooltipText.Text = $"{LocalizationManager.Get("ScrollClickToStart")}\nESC : {LocalizationManager.Get("EscToCancel")}";
+                }
+            }
+            catch { }
+        }
     }
 }
