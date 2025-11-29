@@ -205,26 +205,83 @@ public partial class MainWindow : Window
             }
         };
 
-        // 컨텍스트 메뉴
+        // 컨텍스트 메뉴 (다크 테마 + 아이콘)
         trayContextMenu = new System.Windows.Forms.ContextMenuStrip();
-        trayNormalItem = new System.Windows.Forms.ToolStripMenuItem(CatchCapture.Models.LocalizationManager.Get("TrayNormalMode"), null, (s, e) => SwitchToNormalMode());
-        traySimpleItem = new System.Windows.Forms.ToolStripMenuItem(CatchCapture.Models.LocalizationManager.Get("TraySimpleMode"), null, (s, e) => SwitchToSimpleMode());
-        trayTrayItem = new System.Windows.Forms.ToolStripMenuItem(CatchCapture.Models.LocalizationManager.Get("TrayTrayMode"), null, (s, e) => SwitchToTrayMode());
-        trayExitItem = new System.Windows.Forms.ToolStripMenuItem(CatchCapture.Models.LocalizationManager.Get("Exit"), null, (s, e) =>
+        trayContextMenu.ShowImageMargin = true;
+        trayContextMenu.Renderer = new DarkToolStripRenderer();
+        trayContextMenu.BackColor = System.Drawing.Color.FromArgb(45, 45, 48);
+        trayContextMenu.ForeColor = System.Drawing.Color.White;
+        trayContextMenu.Font = new System.Drawing.Font("Segoe UI", 9f, System.Drawing.FontStyle.Regular);
+
+        // 빠른 작업 항목
+        var miArea = new System.Windows.Forms.ToolStripMenuItem(
+            "캡처 영역",
+            LoadMenuImage("area_capture.png"),
+            (s, e) => StartAreaCapture());
+
+        // 기존 모드 전환 항목
+        trayNormalItem = new System.Windows.Forms.ToolStripMenuItem(CatchCapture.Models.LocalizationManager.Get("TrayNormalMode"), LoadMenuImage("window_cap.png"), (s, e) => SwitchToNormalMode());
+        traySimpleItem = new System.Windows.Forms.ToolStripMenuItem(CatchCapture.Models.LocalizationManager.Get("TraySimpleMode"), LoadMenuImage("simple_mode.png"), (s, e) => SwitchToSimpleMode());
+        trayTrayItem = new System.Windows.Forms.ToolStripMenuItem(CatchCapture.Models.LocalizationManager.Get("TrayTrayMode"), LoadMenuImage("tray_mode.png"), (s, e) => SwitchToTrayMode());
+        trayExitItem = new System.Windows.Forms.ToolStripMenuItem(CatchCapture.Models.LocalizationManager.Get("Exit"), LoadMenuImage("power.png"), (s, e) =>
         {
             isExit = true;
             Close();
         });
+
+        trayContextMenu.Items.Clear();
+        trayContextMenu.Items.Add(miArea);
+        trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
         trayContextMenu.Items.Add(trayNormalItem);
         trayContextMenu.Items.Add(traySimpleItem);
         trayContextMenu.Items.Add(trayTrayItem);
-        trayContextMenu.Items.Add("-");
+        trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
         trayContextMenu.Items.Add(trayExitItem);
-        
+
         notifyIcon.ContextMenuStrip = trayContextMenu;
         
         // 초기 텍스트 동기화
         UpdateTrayMenuTexts();
+    }
+
+    // 다크 테마 렌더러/컬러 테이블로 컨텍스트 메뉴 스타일링
+    private sealed class DarkToolStripRenderer : System.Windows.Forms.ToolStripProfessionalRenderer
+    {
+        public DarkToolStripRenderer() : base(new DarkColorTable()) { }
+        protected override void OnRenderItemText(System.Windows.Forms.ToolStripItemTextRenderEventArgs e)
+        {
+            e.TextColor = System.Drawing.Color.White;
+            base.OnRenderItemText(e);
+        }
+    }
+
+    private sealed class DarkColorTable : System.Windows.Forms.ProfessionalColorTable
+    {
+        public override System.Drawing.Color ToolStripDropDownBackground => System.Drawing.Color.FromArgb(45, 45, 48);
+        public override System.Drawing.Color ImageMarginGradientBegin => System.Drawing.Color.FromArgb(45, 45, 48);
+        public override System.Drawing.Color ImageMarginGradientMiddle => System.Drawing.Color.FromArgb(45, 45, 48);
+        public override System.Drawing.Color ImageMarginGradientEnd => System.Drawing.Color.FromArgb(45, 45, 48);
+        public override System.Drawing.Color MenuItemBorder => System.Drawing.Color.FromArgb(104, 104, 104);
+        public override System.Drawing.Color MenuItemSelected => System.Drawing.Color.FromArgb(63, 63, 70);
+        public override System.Drawing.Color MenuItemSelectedGradientBegin => System.Drawing.Color.FromArgb(63, 63, 70);
+        public override System.Drawing.Color MenuItemSelectedGradientEnd => System.Drawing.Color.FromArgb(63, 63, 70);
+        public override System.Drawing.Color MenuItemPressedGradientBegin => System.Drawing.Color.FromArgb(63, 63, 70);
+        public override System.Drawing.Color MenuItemPressedGradientEnd => System.Drawing.Color.FromArgb(63, 63, 70);
+        public override System.Drawing.Color SeparatorDark => System.Drawing.Color.FromArgb(80, 80, 80);
+        public override System.Drawing.Color SeparatorLight => System.Drawing.Color.FromArgb(80, 80, 80);
+    }
+
+    // 아이콘 로더 (icons 폴더에서 PNG 로드, 없으면 null)
+    private System.Drawing.Image? LoadMenuImage(string fileName)
+    {
+        try
+        {
+            var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            var path = System.IO.Path.Combine(baseDir, "icons", fileName);
+            if (!System.IO.File.Exists(path)) return null;
+            return System.Drawing.Image.FromFile(path);
+        }
+        catch { return null; }
     }
 
     private void ShowMainWindow()

@@ -180,7 +180,9 @@ namespace CatchCapture
                 HorizontalRoot.Visibility = Visibility.Collapsed;
                 VerticalRoot.Visibility = Visibility.Visible;
                 // 버튼 폭 44 + 좌우 여백/테두리 고려하여 여유 폭 확보
-                Width = 58;
+                int baseWidth = 58;
+                if (_uiScale > 1.0) baseWidth += 2; // A+ 활성 시 2px 추가 여유
+                Width = baseWidth;
                 
                 // 동적 높이 계산
                 if (settings != null)
