@@ -556,9 +556,22 @@ namespace CatchCapture
         private ContextMenu CreateDelayContextMenu()
         {
             var menu = new ContextMenu();
-            menu.Items.Add(new MenuItem { Header = LocalizationManager.Get("Delay3Sec"), Tag = "3" });
-            menu.Items.Add(new MenuItem { Header = LocalizationManager.Get("Delay5Sec"), Tag = "5" });
-            menu.Items.Add(new MenuItem { Header = LocalizationManager.Get("Delay10Sec"), Tag = "10" });
+            // dark style 적용 (리소스에 정의됨)
+            if (this.TryFindResource("DarkContextMenu") is Style darkMenu)
+                menu.Style = darkMenu;
+            
+            var mi3 = new MenuItem { Header = LocalizationManager.Get("Delay3Sec"), Tag = "3" };
+            var mi5 = new MenuItem { Header = LocalizationManager.Get("Delay5Sec"), Tag = "5" };
+            var mi10 = new MenuItem { Header = LocalizationManager.Get("Delay10Sec"), Tag = "10" };
+
+            if (this.TryFindResource("DarkMenuItem") is Style darkItem)
+            {
+                mi3.Style = darkItem; mi5.Style = darkItem; mi10.Style = darkItem;
+            }
+
+            menu.Items.Add(mi3);
+            menu.Items.Add(mi5);
+            menu.Items.Add(mi10);
             
             foreach (MenuItem item in menu.Items)
             {
@@ -696,6 +709,8 @@ namespace CatchCapture
         {
             // 추가 가능한 아이콘 목록 표시 (ContextMenu)
             var menu = new ContextMenu();
+            if (this.TryFindResource("DarkContextMenu") is Style darkMenu)
+                menu.Style = darkMenu;
             
             var allIcons = new[] { 
                 "AreaCapture", "DelayCapture", "FullScreen", "RealTimeCapture",
@@ -711,6 +726,28 @@ namespace CatchCapture
                     if (!settings.TrayModeIcons.Contains(icon))
                     {
                         var item = new MenuItem { Header = LocalizationManager.Get(icon) };
+                        // 아이콘 매핑: 프로젝트의 투명 PNG 아이콘 사용
+                        item.Icon = icon switch
+                        {
+                            "AreaCapture" => CreateMenuIcon("/icons/area_capture.png"),
+                            "DelayCapture" => CreateMenuIcon("/icons/clock.png"),
+                            "FullScreen" => CreateMenuIcon("/icons/full_screen.png"),
+                            "RealTimeCapture" => CreateMenuIcon("/icons/real-time.png"),
+                            "DesignatedCapture" => CreateMenuIcon("/icons/designated.png"),
+                            "WindowCapture" => CreateMenuIcon("/icons/window_cap.png"),
+                            "UnitCapture" => CreateMenuIcon("/icons/unit_capture.png"),
+                            "ScrollCapture" => CreateMenuIcon("/icons/scroll_capture.png"),
+                            "Copy" => CreateMenuIcon("/icons/copy_selected.png"),
+                            "CopyAll" => CreateMenuIcon("/icons/copy_all.png"),
+                            "Save" => CreateMenuIcon("/icons/save_selected.png"),
+                            "SaveAll" => CreateMenuIcon("/icons/save_all.png"),
+                            "Delete" => CreateMenuIcon("/icons/delete_selected.png"),
+                            "DeleteAll" => CreateMenuIcon("/icons/delete_all.png"),
+                            "Settings" => CreateMenuIcon("/icons/setting.png"),
+                            _ => null
+                        };
+                        if (this.TryFindResource("DarkMenuItem") is Style darkItem)
+                            item.Style = darkItem;
                         item.Click += (s2, e2) => AddIcon(icon);
                         menu.Items.Add(item);
                     }
@@ -721,15 +758,61 @@ namespace CatchCapture
             menu.IsOpen = true;
         }
 
-        private void AddIcon(string iconName)
+        // 프로젝트 PNG 아이콘을 16x16으로 표시 (투명 배경 유지)
+        // Pack URI 우선, 실패 시 파일 시스템 경로로 폴백
+        private Image? CreateMenuIcon(string relativePath)
         {
-            // 설정 다시 로드 (최신 상태 확보)
-            settings = Settings.Load();
-            
-            settings.TrayModeIcons.Add(iconName);
-            Settings.Save(settings);
-            
-            BuildIconButtons();
+            try
+            {
+                BitmapImage bmp;
+                // 1) Pack URI 시도 (리소스로 포함된 경우)
+                try
+                {
+                    var packUri = new Uri($"pack://application:,,,{relativePath}", UriKind.Absolute);
+                    bmp = new BitmapImage();
+                    bmp.BeginInit();
+                    bmp.UriSource = packUri;
+                    bmp.CacheOption = BitmapCacheOption.OnLoad;
+                    bmp.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+                    bmp.DecodePixelWidth = 16;
+                    bmp.DecodePixelHeight = 16;
+                    bmp.EndInit();
+                    bmp.Freeze();
+                }
+                catch
+                {
+                    // 2) 파일 시스템 경로 폴백 (앱 실행 폴더/icons)
+                    var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                    var trimmed = relativePath.TrimStart('/', '\\');
+                    var fullPath = System.IO.Path.Combine(baseDir, trimmed);
+                    if (!System.IO.File.Exists(fullPath))
+                    {
+                        // icons가 루트에 있다면
+                        fullPath = System.IO.Path.Combine(baseDir, "icons", System.IO.Path.GetFileName(trimmed));
+                    }
+                    bmp = new BitmapImage();
+                    bmp.BeginInit();
+                    bmp.UriSource = new Uri(fullPath, UriKind.Absolute);
+                    bmp.CacheOption = BitmapCacheOption.OnLoad;
+                    bmp.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+                    bmp.DecodePixelWidth = 16;
+                    bmp.DecodePixelHeight = 16;
+                    bmp.EndInit();
+                    bmp.Freeze();
+                }
+ 
+                var img = new Image
+                {
+                    Source = bmp,
+                    Width = 16,
+                    Height = 16,
+                    Stretch = Stretch.Uniform,
+                    SnapsToDevicePixels = true
+                };
+                RenderOptions.SetBitmapScalingMode(img, BitmapScalingMode.HighQuality);
+                return img;
+            }
+            catch { return null; }
         }
 
         private void RealTimeCaptureButton_Click(object sender, RoutedEventArgs e)
@@ -784,6 +867,18 @@ namespace CatchCapture
         private void HideToTrayButton_Click(object sender, RoutedEventArgs e)
         {
             this.Hide();
+        }
+
+        // ShowAddIconMenu에서 사용하는 아이콘 추가 함수 (누락 복원)
+        private void AddIcon(string iconName)
+        {
+            settings = Settings.Load();
+            if (!settings.TrayModeIcons.Contains(iconName))
+            {
+                settings.TrayModeIcons.Add(iconName);
+                Settings.Save(settings);
+            }
+            BuildIconButtons();
         }
     }
 }

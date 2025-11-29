@@ -99,6 +99,60 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- Dark ContextMenu style -->
+        <Style x:Key="DarkContextMenu" TargetType="ContextMenu">
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#686868"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+
+        <!-- Dark MenuItem style (icon column collapses when no Icon) -->
+        <Style x:Key="DarkMenuItem" TargetType="MenuItem">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="Icon" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="MenuItem">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="#3F3F46" BorderThickness="0,0,0,1">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border x:Name="IconHost" Grid.Column="0" Width="24" HorizontalAlignment="Center" VerticalAlignment="Center" Background="Transparent">
+                                    <ContentPresenter ContentSource="Icon" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ContentPresenter Grid.Column="1" ContentSource="Header" Margin="6,0,0,0"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter Property="Background" Value="#3F3F46"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                            <Trigger Property="Icon" Value="{x:Null}">
+                                <Setter TargetName="IconHost" Property="Width" Value="0"/>
+                                <Setter TargetName="IconHost" Property="Visibility" Value="Collapsed"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Dark Separator -->
+        <Style x:Key="DarkSeparator" TargetType="Separator">
+            <Setter Property="Margin" Value="6,3"/>
+            <Setter Property="Background" Value="#505050"/>
+            <Setter Property="Height" Value="1"/>
+        </Style>
     </Window.Resources>
     
     <Border Background="White" CornerRadius="8" BorderThickness="1" BorderBrush="#E0E6F0">
@@ -169,10 +223,10 @@
                 <Button x:Name="DelayCaptureButton" Style="{StaticResource IconButtonStyle}" 
                         Click="DelayCaptureButton_Click" ToolTip="지연 캡처">
                     <Button.ContextMenu>
-                        <ContextMenu>
-                            <MenuItem Header="3초 후 캡처" Tag="3" Click="DelayMenuItem_Click"/>
-                            <MenuItem Header="5초 후 캡처" Tag="5" Click="DelayMenuItem_Click"/>
-                            <MenuItem Header="10초 후 캡처" Tag="10" Click="DelayMenuItem_Click"/>
+                        <ContextMenu Style="{StaticResource DarkContextMenu}">
+                            <MenuItem Header="3초 후 캡처" Tag="3" Click="DelayMenuItem_Click" Style="{StaticResource DarkMenuItem}"/>
+                            <MenuItem Header="5초 후 캡처" Tag="5" Click="DelayMenuItem_Click" Style="{StaticResource DarkMenuItem}"/>
+                            <MenuItem Header="10초 후 캡처" Tag="10" Click="DelayMenuItem_Click" Style="{StaticResource DarkMenuItem}"/>
                         </ContextMenu>
                     </Button.ContextMenu>
                     <Image Source="/icons/clock.png" Width="24" Height="24"

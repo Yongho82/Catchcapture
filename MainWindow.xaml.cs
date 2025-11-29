@@ -212,6 +212,7 @@ public partial class MainWindow : Window
         trayContextMenu.BackColor = System.Drawing.Color.FromArgb(45, 45, 48);
         trayContextMenu.ForeColor = System.Drawing.Color.White;
         trayContextMenu.Font = new System.Drawing.Font("Segoe UI", 9f, System.Drawing.FontStyle.Regular);
+        trayContextMenu.ImageScalingSize = new System.Drawing.Size(16, 16); // unify icon size for crisp rendering
 
         // 빠른 작업 항목
         var miArea = new System.Windows.Forms.ToolStripMenuItem(
@@ -279,9 +280,28 @@ public partial class MainWindow : Window
             var baseDir = AppDomain.CurrentDomain.BaseDirectory;
             var path = System.IO.Path.Combine(baseDir, "icons", fileName);
             if (!System.IO.File.Exists(path)) return null;
-            return System.Drawing.Image.FromFile(path);
+            // load without locking the file
+            using (var fs = new System.IO.FileStream(path, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read))
+            using (var original = System.Drawing.Image.FromStream(fs))
+            {
+                return ResizeImage(original, 16, 16);
+            }
         }
         catch { return null; }
+    }
+
+    private static System.Drawing.Image ResizeImage(System.Drawing.Image img, int width, int height)
+    {
+        var bmp = new System.Drawing.Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
+        using (var g = System.Drawing.Graphics.FromImage(bmp))
+        {
+            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+            g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+            g.DrawImage(img, new System.Drawing.Rectangle(0, 0, width, height));
+        }
+        return bmp;
     }
 
     private void ShowMainWindow()
@@ -960,7 +980,6 @@ public partial class MainWindow : Window
             
             if (scrollCaptureWindow.ShowDialog() == true && scrollCaptureWindow.CapturedImage != null)
             {
-                // 캡처 성공 (정상 종료 또는 ESC 중단 후 이미지 있음)
                 AddCaptureToList(scrollCaptureWindow.CapturedImage);
             }
             else if (scrollCaptureWindow.EscCancelled)
