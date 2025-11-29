@@ -41,6 +41,9 @@ namespace CatchCapture
         private MainWindow? _mainWindow; 
         private Settings? settings;     
 
+        // A+ 사이즈 스케일 (1.0 기본, 1.15 크게)
+        private double _uiScale = 1.0;
+
         public event EventHandler? AreaCaptureRequested;
         public event EventHandler? FullScreenCaptureRequested;
         public event EventHandler? ExitSimpleModeRequested;
@@ -81,6 +84,9 @@ namespace CatchCapture
             this.Activated += (_, __) => ForceTopmost();
             
             this.MouseLeftButtonUp += Window_MouseLeftButtonUp;
+
+            // 초기 스케일 적용 (필요시 Settings에서 불러오기 가능)
+            ApplyUIScale();
         }
         
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -174,7 +180,7 @@ namespace CatchCapture
                 HorizontalRoot.Visibility = Visibility.Collapsed;
                 VerticalRoot.Visibility = Visibility.Visible;
                 // 버튼 폭 44 + 좌우 여백/테두리 고려하여 여유 폭 확보
-                Width = 56;
+                Width = 58;
                 
                 // 동적 높이 계산
                 if (settings != null)
@@ -182,11 +188,12 @@ namespace CatchCapture
                     int builtIn = settings.SimpleModeIcons?.Count ?? 0;
                     int external = settings.SimpleModeApps?.Count ?? 0;
                     int iconCount = builtIn + external + 1; // + 버튼 포함
-                    Height = 29 + iconCount * 54 + 35;
+                    double baseH = 35 + iconCount * 54 + 35;
+                    Height = baseH * _uiScale;
                 }
                 else
                 {
-                    Height = 230;
+                    Height = 230 * _uiScale;
                 }
             }
             else
@@ -201,14 +208,14 @@ namespace CatchCapture
                     int external = settings.SimpleModeApps?.Count ?? 0;
                     int iconCount = builtIn + external + 1; // + 버튼 포함
                     // 버튼 폭 44 + 좌우 마진 2 → 아이템당 약 48px 가정
-                    Width = iconCount * 48 + 16; // 여유 여백 소폭 증가
+                    Width = (iconCount * 48 + 16) * _uiScale; // 스케일 반영
                 }
                 else
                 {
-                    Width = 200;
+                    Width = 200 * _uiScale;
                 }
                 
-                Height = 85;
+                Height = 85 * _uiScale;
             }
         }
 
@@ -453,7 +460,7 @@ namespace CatchCapture
             var textBlock = new TextBlock
             {
                 Text = GetIconLabel(iconName),
-                FontSize = 8,
+                FontSize = 8 * _uiScale,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
                 Margin = new Thickness(0, 4, 0, 0),
@@ -549,8 +556,8 @@ namespace CatchCapture
             var image = new WpfImage
             {
                 Source = new BitmapImage(new Uri(iconPath!, UriKind.Relative)),
-                Width = 20,
-                Height = 20
+                Width = 20 * _uiScale,
+                Height = 20 * _uiScale
             };
             RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
             
@@ -752,7 +759,7 @@ namespace CatchCapture
             var text = new TextBlock
             {
                 Text = TruncateForLabel(app.DisplayName),
-                FontSize = 8,
+                FontSize = 8 * _uiScale,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
                 Margin = new Thickness(0, 4, 0, 0),
@@ -784,7 +791,7 @@ namespace CatchCapture
                 var bmp = icon.ToBitmap();
                 var hbitmap = bmp.GetHbitmap();
                 var source = Imaging.CreateBitmapSourceFromHBitmap(hbitmap, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromWidthAndHeight(20, 20));
-                return new WpfImage { Source = source, Width = 20, Height = 20 };
+                return new WpfImage { Source = source, Width = 20 * _uiScale, Height = 20 * _uiScale };
             }
             catch { return null; }
         }
@@ -1079,7 +1086,7 @@ namespace CatchCapture
                 var bmp = icon.ToBitmap();
                 var hbitmap = bmp.GetHbitmap();
                 var source = Imaging.CreateBitmapSourceFromHBitmap(hbitmap, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromWidthAndHeight(20, 20));
-                return new WpfImage { Source = source, Width = 20, Height = 20 };
+                return new WpfImage { Source = source, Width = 20 * _uiScale, Height = 20 * _uiScale };
             }
             catch { return null; }
         }
@@ -1117,6 +1124,28 @@ namespace CatchCapture
             }
             int max = asciiOnly ? 7 : 5;
             return trimmed.Length <= max ? trimmed : trimmed.Substring(0, max);
+        }
+
+        // A+ 버튼 클릭: UI 스케일 토글 및 아이콘/텍스트 크기 반영
+        private void APlusButton_Click(object sender, RoutedEventArgs e)
+        {
+            _uiScale = (_uiScale < 1.1) ? 1.15 : 1.0;
+            ApplyUIScale();
+            // 현재 레이아웃 기준으로 창 크기 재적용
+            bool isVertical = VerticalRoot.Visibility == Visibility.Visible;
+            ApplyLayout(isVertical);
+        }
+
+        private void ApplyUIScale()
+        {
+            try
+            {
+                // 전체 루트에 LayoutTransform으로 스케일 적용 (텍스트/아이콘 가독성↑)
+                var scale = new ScaleTransform(_uiScale, _uiScale);
+                if (HorizontalRoot != null) HorizontalRoot.LayoutTransform = scale;
+                if (VerticalRoot != null) VerticalRoot.LayoutTransform = scale;
+            }
+            catch { }
         }
     }
 }
