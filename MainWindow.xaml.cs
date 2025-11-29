@@ -45,6 +45,8 @@ public partial class MainWindow : Window
     public System.Windows.Forms.NotifyIcon? notifyIcon;  // private를 public으로 변경
     private bool isExit = false;
     private TrayModeWindow? trayModeWindow;
+    // 캡처 직후 자동으로 열린 미리보기 창 수 (메인창 숨김/복원 관리)
+    private int _autoPreviewOpenCount = 0;
     // 글로벌 단축키 관련
     private const int WM_HOTKEY = 0x0312;
     private const int HOTKEY_ID_AREA = 9000;
@@ -1177,19 +1179,41 @@ public partial class MainWindow : Window
                 // 캡처 개수 업데이트 (일반 모드용)
                 UpdateCaptureCount();
                 
-                // 창 표시 (트레이 모드가 아니고 간편모드가 아닐 때만)
-                this.Show();
-                this.WindowState = WindowState.Normal;
-                this.Activate();
+                // 창 표시 (트레이 모드가 아니고 간편모드가 아닐 때만) — 단, 캡처 직후 프리뷰 자동 열기 설정이 켜져 있으면 메인창을 표시하지 않음
+                if (!settings.ShowPreviewAfterCapture)
+                {
+                    this.Show();
+                    this.WindowState = WindowState.Normal;
+                    this.Activate();
+                }
+                
+                // 캡처 후 미리보기 표시 설정 확인
+                if (settings.ShowPreviewAfterCapture)
+                {
+                    var preview = new PreviewWindow(image, captures.Count - 1, captures);
+                    preview.Owner = this;
+                    preview.Closed += (s, e2) =>
+                    {
+                        if (_autoPreviewOpenCount > 0) _autoPreviewOpenCount--;
+                        if (_autoPreviewOpenCount == 0)
+                        {
+                            try
+                            {
+                                this.Show();
+                                this.WindowState = WindowState.Normal;
+                                this.Activate();
+                            }
+                            catch { }
+                        }
+                    };
+                    _autoPreviewOpenCount++;
+                    try { this.Hide(); } catch { }
+                    preview.Show();
+                }
             }
             
-            // 캡처 후 미리보기 표시 설정 확인
-            if (settings.ShowPreviewAfterCapture)
-            {
-                var preview = new PreviewWindow(image, captures.Count - 1, captures);
-                preview.Owner = this;
-                preview.ShowDialog();
-            }
+            // 로고 표시 상태 업데이트
+            UpdateEmptyStateLogo();
         }
         catch (Exception ex)
         {
@@ -1677,7 +1701,6 @@ public partial class MainWindow : Window
 
             // 버튼 상태 업데이트
             UpdateButtonStates();
-            UpdateCaptureCount();
             
             // 로고 표시 상태 업데이트
             UpdateEmptyStateLogo();
