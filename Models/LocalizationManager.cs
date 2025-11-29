@@ -196,6 +196,21 @@ namespace CatchCapture.Models
                 ["Italic"] = "기울임",
                 ["Underline"] = "밑줄",
                 ["Shadow"] = "그림자",
+                
+                // Stickers / Guide messages
+                ["CopiedToClipboard"] = "클립보드에 복사되었습니다",
+                ["Captured"] = "캡처되었습니다.",
+                ["ClickWindowThenEnter"] = "캡처할 창을 클릭한 후 Enter 키를 누르세요",
+                ["PressEnterToStartScroll"] = "Enter 키를 눌러 스크롤 캡처를 시작하세요",
+                ["WindowNotFound"] = "캡처할 창을 찾을 수 없습니다",
+                ["StartingScrollCapture"] = "스크롤 캡처를 시작합니다...",
+                ["NoScrollInWindow"] = "스크롤이 없는 창입니다",
+                ["NoScrollableContent"] = "스크롤 가능한 내용이 없습니다",
+                ["ScrollCompletedDuplicate"] = "스크롤 완료됨 (중복 감지)",
+                ["ReachedMaxCaptures"] = "최대 캡처 수에 도달했습니다",
+                ["ReachedMaxScrolls"] = "최대 스크롤 횟수에 도달했습니다",
+                ["RealTimeF1Guide"] = "원하는 화면을 띄우고 [F1] 키를 누르세요\n(취소: ESC)",
+                ["MultiCaptureHud"] = "ENTER : 합성\nF1 : 개별저장\nESC : 종료",
             };
 
             // 중국어 (简体中文)
@@ -212,7 +227,7 @@ namespace CatchCapture.Models
                 ["ElementCapture"] = "元素截图",
                 ["ScrollCapture"] = "滚动截图",
                 
-                // 설정 통합
+                // 設定統合
                 ["Settings"] = "设置",
                 ["SystemSettings"] = "系统设置",
                 ["CaptureSettings"] = "截图设置",
@@ -330,7 +345,7 @@ namespace CatchCapture.Models
                 ["Mosaic"] = "马赛克",
                 ["Eraser"] = "橡皮",
                 
-                // 常用界面
+                // 共通 UI
                 ["OK"] = "确定",
                 ["Cancel"] = "取消",
                 ["Error"] = "错误",
@@ -349,6 +364,21 @@ namespace CatchCapture.Models
                 ["Italic"] = "斜体",
                 ["Underline"] = "下划线",
                 ["Shadow"] = "阴影",
+                
+                // 贴士/指引
+                ["CopiedToClipboard"] = "已复制到剪贴板",
+                ["Captured"] = "已截图。",
+                ["ClickWindowThenEnter"] = "点击要捕获的窗口后按 Enter",
+                ["PressEnterToStartScroll"] = "按 Enter 开始滚动截图",
+                ["WindowNotFound"] = "找不到可捕获的窗口",
+                ["StartingScrollCapture"] = "开始滚动截图...",
+                ["NoScrollInWindow"] = "该窗口没有可滚动内容",
+                ["NoScrollableContent"] = "没有可滚动内容",
+                ["ScrollCompletedDuplicate"] = "滚动完成（检测到重复）",
+                ["ReachedMaxCaptures"] = "已达到最大截图数",
+                ["ReachedMaxScrolls"] = "已达到最大滚动次数",
+                ["RealTimeF1Guide"] = "切换到想要的画面后按 [F1]\n（取消：ESC）",
+                ["MultiCaptureHud"] = "ENTER：合成\nF1：分别保存\nESC：退出",
             };
 
             // 일본어
@@ -502,6 +532,21 @@ namespace CatchCapture.Models
                 ["Italic"] = "斜体",
                 ["Underline"] = "下線",
                 ["Shadow"] = "影",
+                
+                // ステッカー/ガイド
+                ["CopiedToClipboard"] = "クリップボードにコピーしました",
+                ["Captured"] = "キャプチャしました。",
+                ["ClickWindowThenEnter"] = "キャプチャするウィンドウをクリックして Enter を押してください",
+                ["PressEnterToStartScroll"] = "Enter を押してスクロールキャプチャを開始",
+                ["WindowNotFound"] = "キャプチャするウィンドウが見つかりません",
+                ["StartingScrollCapture"] = "スクロールキャプチャを開始します...",
+                ["NoScrollInWindow"] = "スクロール可能な領域がありません",
+                ["NoScrollableContent"] = "スクロール可能なコンテンツがありません",
+                ["ScrollCompletedDuplicate"] = "スクロール完了（重複検出）",
+                ["ReachedMaxCaptures"] = "最大キャプチャ数に達しました",
+                ["ReachedMaxScrolls"] = "最大スクロール回数に達しました",
+                ["RealTimeF1Guide"] = "目的の画面を表示して [F1] を押してください\n（キャンセル: ESC）",
+                ["MultiCaptureHud"] = "ENTER：合成\nF1：個別保存\nESC：終了",
             };
 
             // 영어
@@ -655,6 +700,21 @@ namespace CatchCapture.Models
                 ["Italic"] = "Italic",
                 ["Underline"] = "Underline",
                 ["Shadow"] = "Shadow",
+                
+                // Stickers / Guide
+                ["CopiedToClipboard"] = "Copied to clipboard",
+                ["Captured"] = "Captured.",
+                ["ClickWindowThenEnter"] = "Click the window to capture, then press Enter",
+                ["PressEnterToStartScroll"] = "Press Enter to start scroll capture",
+                ["WindowNotFound"] = "Could not find a window to capture",
+                ["StartingScrollCapture"] = "Starting scroll capture...",
+                ["NoScrollInWindow"] = "This window has no scroll",
+                ["NoScrollableContent"] = "No scrollable content",
+                ["ScrollCompletedDuplicate"] = "Scroll completed (duplicate detected)",
+                ["ReachedMaxCaptures"] = "Reached maximum number of captures",
+                ["ReachedMaxScrolls"] = "Reached maximum number of scrolls",
+                ["RealTimeF1Guide"] = "Show the target screen and press [F1]\n(Cancel: ESC)",
+                ["MultiCaptureHud"] = "ENTER: Merge\nF1: Save individually\nESC: Exit",
             };
         }
     }

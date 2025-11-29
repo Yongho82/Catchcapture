@@ -917,7 +917,7 @@ public partial class MainWindow : Window
         try
         {
             // 안내 메시지 표시
-            var guideWindow = new GuideWindow("캡처할 창을 클릭하고 Enter 키를 누르세요", TimeSpan.FromSeconds(2.5));
+            var guideWindow = new GuideWindow(LocalizationManager.Get("ClickWindowThenEnter"), TimeSpan.FromSeconds(2.5));
             guideWindow.Owner = this;
             guideWindow.Show();
             
@@ -930,11 +930,11 @@ public partial class MainWindow : Window
             if (capturedImage != null)
             {
                 AddCaptureToList(capturedImage);
-                ShowGuideMessage("스크롤 캡처가 완료되었습니다.", TimeSpan.FromSeconds(1.5));
+                ShowGuideMessage(LocalizationManager.Get("ScrollCaptureComplete"), TimeSpan.FromSeconds(1.5));
                 
                 // 캡처된 이미지 클립보드에 복사
                 ScreenCaptureUtility.CopyImageToClipboard(capturedImage);
-                ShowGuideMessage("이미지가 클립보드에 복사되었습니다.", TimeSpan.FromSeconds(1.5));
+                ShowGuideMessage(LocalizationManager.Get("CopiedToClipboard"), TimeSpan.FromSeconds(1.5));
             }
         }
         catch (Exception ex)
@@ -1174,12 +1174,12 @@ public partial class MainWindow : Window
                 try
                 {
                     ScreenCaptureUtility.CopyImageToClipboard(image);
-                    ShowGuideMessage("캡처가 클립보드에 복사되었습니다.", TimeSpan.FromSeconds(1));
+                    ShowGuideMessage(LocalizationManager.Get("CopiedToClipboard"), TimeSpan.FromSeconds(1));
                 }
                 catch
                 {
                     // 실패 시 재시도 없이 안내 메시지 표시하고 종료 (프로그램 멈춤 방지)
-                    ShowGuideMessage("클립보드 복사 실패: 다른 프로그램이 사용 중입니다.\n일반 모드에서 수동으로 복사해주세요.", TimeSpan.FromSeconds(3));
+                    ShowGuideMessage(LocalizationManager.Get("ClipboardCopyFailed"), TimeSpan.FromSeconds(3));
                 }
             }
             else
@@ -1306,7 +1306,7 @@ public partial class MainWindow : Window
             Background = new SolidColorBrush(Color.FromArgb(230, 255, 255, 255)),
             BorderThickness = new Thickness(1),
             BorderBrush = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0)),
-            Cursor = Cursors.Hand, ToolTip = "구글 이미지 검색"
+            Cursor = Cursors.Hand, ToolTip = LocalizationManager.Get("GoogleSearch")
         };
         
         // 둥근 버튼 스타일 적용 (템플릿)
@@ -1377,17 +1377,17 @@ public partial class MainWindow : Window
         }
 
         // 저장 버튼 추가
-        Button saveBtn = CreateHoverButton("save_selected.png", "저장");
+        Button saveBtn = CreateHoverButton("save_selected.png", LocalizationManager.Get("Save"));
         saveBtn.Click += (s, e) => { e.Handled = true; SaveImageToFile(captureImage); };
 
         // 삭제 버튼 추가
-        Button deleteBtn = CreateHoverButton("delete_selected.png", "삭제");
+        Button deleteBtn = CreateHoverButton("delete_selected.png", LocalizationManager.Get("Delete"));
         deleteBtn.Click += (s, e) => 
         {
             e.Handled = true;
             if (settings.ShowSavePrompt && !captureImage.IsSaved)
             {
-                if (MessageBox.Show("저장되지 않은 이미지입니다. 삭제하시겠습니까?", "확인", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                if (MessageBox.Show(LocalizationManager.Get("UnsavedImageDeleteConfirm"), LocalizationManager.Get("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
                     return;
             }
 
@@ -1506,7 +1506,7 @@ public partial class MainWindow : Window
         {
             var image = captures[selectedIndex].Image;
             ScreenCaptureUtility.CopyImageToClipboard(image);
-            ShowGuideMessage("이미지가 클립보드에 복사되었습니다.", TimeSpan.FromSeconds(1));
+            ShowGuideMessage(LocalizationManager.Get("CopiedToClipboard"), TimeSpan.FromSeconds(1));
         }
     }
 
@@ -1548,7 +1548,7 @@ public partial class MainWindow : Window
 
         // 클립보드에 복사
         ScreenCaptureUtility.CopyImageToClipboard(combinedImage);
-        ShowGuideMessage("모든 이미지가 클립보드에 복사되었습니다.", TimeSpan.FromSeconds(1));
+        ShowGuideMessage(LocalizationManager.Get("AllCopiedToClipboard"), TimeSpan.FromSeconds(1));
     }
 
     #endregion
@@ -1599,7 +1599,7 @@ public partial class MainWindow : Window
         
         var dialog = new SaveFileDialog
         {
-            Title = "이미지 저장",
+            Title = LocalizationManager.Get("SaveImage"),
             Filter = filter,
             DefaultExt = ext,
             FileName = defaultFileName,
@@ -1614,11 +1614,11 @@ public partial class MainWindow : Window
                 ScreenCaptureUtility.SaveImageToFile(captureImage.Image, dialog.FileName, settings.ImageQuality);
                 captureImage.IsSaved = true;
                 captureImage.SavedPath = dialog.FileName;
-                ShowGuideMessage("이미지가 저장되었습니다.", TimeSpan.FromSeconds(1));
+                ShowGuideMessage(LocalizationManager.Get("ImageSaved"), TimeSpan.FromSeconds(1));
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"저장 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"저장 중 오류가 발생했습니다: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
@@ -1630,8 +1630,7 @@ public partial class MainWindow : Window
         // 실제로는 사용자가 폴더를 지정하기 위한 용도
         var dialog = new System.Windows.Forms.FolderBrowserDialog
         {
-            Description = "저장할 폴더를 선택하세요",
-            ShowNewFolderButton = true
+            Description = LocalizationManager.Get("SelectSaveFolder")
         };
 
         if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -1652,7 +1651,7 @@ public partial class MainWindow : Window
                 captures[i].SavedPath = fileName;
             }
 
-            ShowGuideMessage("모든 이미지가 저장되었습니다.", TimeSpan.FromSeconds(1));
+            ShowGuideMessage(LocalizationManager.Get("AllImagesSaved"), TimeSpan.FromSeconds(1));
         }
     }
 
@@ -1669,8 +1668,8 @@ public partial class MainWindow : Window
             if (!captures[selectedIndex].IsSaved && settings.ShowSavePrompt)
             {
                 var result = MessageBox.Show(
-                    "저장되지 않은 이미지입니다. 삭제하시겠습니까?",
-                    "확인",
+                    LocalizationManager.Get("UnsavedImageDeleteConfirm"),
+                    LocalizationManager.Get("Confirm"),
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Question);
 
@@ -1761,8 +1760,8 @@ public partial class MainWindow : Window
         if (hasUnsavedImages && settings.ShowSavePrompt)
         {
             var result = MessageBox.Show(
-                "저장되지 않은 이미지가 있습니다. 모두 삭제하시겠습니까?",
-                "확인",
+                LocalizationManager.Get("UnsavedImagesDeleteConfirm"),
+                LocalizationManager.Get("Confirm"),
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
 
@@ -1886,7 +1885,7 @@ public partial class MainWindow : Window
             });
             
             // 안내 메시지
-            ShowGuideMessage("구글 렌즈로 검색합니다...", TimeSpan.FromSeconds(2));
+            ShowGuideMessage(LocalizationManager.Get("SearchingOnGoogle"), TimeSpan.FromSeconds(2));
                         // 추가: 2초 후 자동으로 Ctrl+V 입력
             Task.Delay(2000).ContinueWith(_ => 
             {
@@ -1900,7 +1899,7 @@ public partial class MainWindow : Window
         {
             // 실패 시 클립보드 폴백
             ScreenCaptureUtility.CopyImageToClipboard(image);
-            MessageBox.Show($"검색 실행 실패: {ex.Message}\n이미지가 클립보드에 복사되었습니다.", "오류");
+            MessageBox.Show($"검색 실행 실패: {ex.Message}\n이미지가 클립보드에 복사되었습니다.", LocalizationManager.Get("Error"));
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
             {
                 FileName = "https://www.google.com/imghp?hl=ko",
@@ -1972,7 +1971,7 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"단축키 등록 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show($"단축키 등록 실패: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
@@ -2051,7 +2050,7 @@ public partial class MainWindow : Window
         RegisterHotKey(helper.Handle, HOTKEY_ID_REALTIME_CANCEL, 0, 0x1B);
 
         // 안내 메시지 표시
-        var guide = new GuideWindow("원하는 화면을 띄우고 [F1] 키를 누르세요\n(취소: ESC)", null);
+        var guide = new GuideWindow(LocalizationManager.Get("RealTimeF1Guide"), null);
         guide.Show();
     }
 
@@ -2253,7 +2252,7 @@ public partial class MainWindow : Window
                 {
                     simpleModeWindow.Topmost = true;
                     // 여기서 알림 표시
-                    var notification = new GuideWindow("클립보드에 복사되었습니다", TimeSpan.FromSeconds(0.4));
+                    var notification = new GuideWindow(LocalizationManager.Get("CopiedToClipboard"), TimeSpan.FromSeconds(0.4));
                     notification.Owner = simpleModeWindow;
                     notification.Show();
                 }
@@ -2387,7 +2386,7 @@ public partial class MainWindow : Window
             settings = Settings.Load();
             // 단축키 재등록
             RegisterGlobalHotkeys();  // ← 주석 해제하고 메서드명 수정
-            ShowGuideMessage("설정이 적용되었습니다.", TimeSpan.FromSeconds(1));
+            ShowGuideMessage(LocalizationManager.Get("SettingsApplied"), TimeSpan.FromSeconds(1));
         }
     }
 

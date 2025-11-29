@@ -12,6 +12,7 @@ using WinForms = System.Windows.Forms;
 using System.Windows.Input;
 using MessageBox = System.Windows.MessageBox;
 using System.Text;
+using CatchCapture.Models;
 
 namespace CatchCapture.Utilities
 {
@@ -173,7 +174,7 @@ namespace CatchCapture.Utilities
                 // MessageBox 대신 Dispatcher를 통해 GuideWindow만 사용
                 System.Windows.Application.Current.Dispatcher.Invoke(() =>
                 {
-                    var guideWindow = new CatchCapture.Utilities.GuideWindow("캡처할 창을 클릭한 후 Enter 키를 누르세요", TimeSpan.FromSeconds(2));
+                    var guideWindow = new CatchCapture.Utilities.GuideWindow(LocalizationManager.Get("ClickWindowThenEnter"), TimeSpan.FromSeconds(2));
                     guideWindow.Show();
                 });
                 
@@ -195,7 +196,7 @@ namespace CatchCapture.Utilities
                         // 캡처 시작 안내
                         System.Windows.Application.Current.Dispatcher.Invoke(() =>
                         {
-                            var guideWindow = new CatchCapture.Utilities.GuideWindow("Enter 키를 눌러 스크롤 캡처를 시작하세요", TimeSpan.FromSeconds(2));
+                            var guideWindow = new CatchCapture.Utilities.GuideWindow(LocalizationManager.Get("PressEnterToStartScroll"), TimeSpan.FromSeconds(2));
                             guideWindow.Show();
                         });
                         
@@ -231,7 +232,7 @@ namespace CatchCapture.Utilities
                 {
                     System.Windows.Application.Current.Dispatcher.Invoke(() =>
                     {
-                        var guideWindow = new CatchCapture.Utilities.GuideWindow("캡처할 창을 찾을 수 없습니다", TimeSpan.FromSeconds(1.5));
+                        var guideWindow = new CatchCapture.Utilities.GuideWindow(LocalizationManager.Get("WindowNotFound"), TimeSpan.FromSeconds(1.5));
                         guideWindow.Show();
                     });
                     return null;
@@ -240,7 +241,7 @@ namespace CatchCapture.Utilities
                 // 캡처 시작 안내
                 System.Windows.Application.Current.Dispatcher.Invoke(() =>
                 {
-                    var guideWindow = new CatchCapture.Utilities.GuideWindow("스크롤 캡처를 시작합니다...", TimeSpan.FromSeconds(1.5));
+                    var guideWindow = new CatchCapture.Utilities.GuideWindow(LocalizationManager.Get("StartingScrollCapture"), TimeSpan.FromSeconds(1.5));
                     guideWindow.Show();
                 });
                 
@@ -312,7 +313,7 @@ namespace CatchCapture.Utilities
                 {
                     System.Windows.Application.Current.Dispatcher.Invoke(() =>
                     {
-                        var guideWindow = new CatchCapture.Utilities.GuideWindow("스크롤이 없는 창입니다", TimeSpan.FromSeconds(1.5));
+                        var guideWindow = new CatchCapture.Utilities.GuideWindow(LocalizationManager.Get("NoScrollInWindow"), TimeSpan.FromSeconds(1.5));
                         guideWindow.Show();
                     });
                     
@@ -344,7 +345,7 @@ namespace CatchCapture.Utilities
                 {
                     System.Windows.Application.Current.Dispatcher.Invoke(() =>
                     {
-                        var guideWindow = new CatchCapture.Utilities.GuideWindow("스크롤 가능한 내용이 없습니다", TimeSpan.FromSeconds(1.5));
+                        var guideWindow = new CatchCapture.Utilities.GuideWindow(LocalizationManager.Get("NoScrollableContent"), TimeSpan.FromSeconds(1.5));
                         guideWindow.Show();
                     });
                     
@@ -461,7 +462,7 @@ namespace CatchCapture.Utilities
                         // 메시지 표시
                         System.Windows.Application.Current.Dispatcher.Invoke(() =>
                         {
-                            var guideWindow = new CatchCapture.Utilities.GuideWindow("스크롤 완료됨 (중복 감지)", TimeSpan.FromSeconds(1));
+                            var guideWindow = new CatchCapture.Utilities.GuideWindow(LocalizationManager.Get("ScrollCompletedDuplicate"), TimeSpan.FromSeconds(1));
                             guideWindow.Show();
                         });
                         
@@ -495,7 +496,7 @@ namespace CatchCapture.Utilities
                         isScrollEnded = true;
                         System.Windows.Application.Current.Dispatcher.Invoke(() =>
                         {
-                            var guideWindow = new CatchCapture.Utilities.GuideWindow("최대 캡처 수에 도달했습니다", TimeSpan.FromSeconds(1.5));
+                            var guideWindow = new CatchCapture.Utilities.GuideWindow(LocalizationManager.Get("ReachedMaxCaptures"), TimeSpan.FromSeconds(1.5));
                             guideWindow.Show();
                         });
                         break;
@@ -507,7 +508,7 @@ namespace CatchCapture.Utilities
                 {
                     System.Windows.Application.Current.Dispatcher.Invoke(() =>
                     {
-                        var guideWindow = new CatchCapture.Utilities.GuideWindow("최대 스크롤 횟수에 도달했습니다", TimeSpan.FromSeconds(1.5));
+                        var guideWindow = new CatchCapture.Utilities.GuideWindow(LocalizationManager.Get("ReachedMaxScrolls"), TimeSpan.FromSeconds(1.5));
                         guideWindow.Show();
                     });
                 }

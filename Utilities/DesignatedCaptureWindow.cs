@@ -6,6 +6,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using CatchCapture.Models;
 
 namespace CatchCapture.Utilities
 {
@@ -639,7 +640,7 @@ namespace CatchCapture.Utilities
                 // Show 1-second toast
                 try
                 {
-                    var toast = new GuideWindow("캡처되었습니다.", TimeSpan.FromSeconds(1));
+                    var toast = new GuideWindow(LocalizationManager.Get("Captured"), TimeSpan.FromSeconds(1));
                     toast.Owner = this.Owner ?? this;
                     toast.Show();
                 }
