@@ -1007,9 +1007,33 @@ namespace CatchCapture.Utilities
                         }
                     }
                 }
-                
                 drawnElements.Clear();
-                ClearTextSelection();
+                undoStack.Clear();
+                
+                // 툴바와 팔레트 제거
+                if (toolbarContainer != null)
+                {
+                    canvas.Children.Remove(toolbarContainer);
+                    toolbarContainer = null;
+                }
+                HideColorPalette();
+                
+                // 즉시편집 모드 해제하고 다시 영역 선택 시작
+                isSelecting = false;
+                
+                // 선택 영역 초기화
+                Canvas.SetLeft(selectionRectangle, 0);
+                Canvas.SetTop(selectionRectangle, 0);
+                selectionRectangle.Width = 0;
+                selectionRectangle.Height = 0;
+                // 오버레이 geometry 초기화
+                selectionGeometry.Rect = new Rect(0, 0, 0, 0);
+                // 크기 텍스트 숨기기
+                sizeTextBlock.Visibility = Visibility.Collapsed;                        
+                // 마우스 이벤트 복원
+                this.MouseLeftButtonDown += SnippingWindow_MouseLeftButtonDown;
+                this.MouseMove += SnippingWindow_MouseMove;
+                this.MouseLeftButtonUp += SnippingWindow_MouseLeftButtonUp;
             };
                        
             // 완료 버튼
