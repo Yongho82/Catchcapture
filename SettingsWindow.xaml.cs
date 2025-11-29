@@ -356,6 +356,8 @@ namespace CatchCapture
             // Hotkeys - read and normalize
             ReadHotkey(_settings.Hotkeys.RegionCapture, HkRegionEnabled, HkRegionCtrl, HkRegionShift, HkRegionAlt, HkRegionWin, HkRegionKey);
             ReadHotkey(_settings.Hotkeys.DelayCapture, HkDelayEnabled, HkDelayCtrl, HkDelayShift, HkDelayAlt, HkDelayWin, HkDelayKey);
+            ReadHotkey(_settings.Hotkeys.RealTimeCapture, HkRealTimeEnabled, HkRealTimeCtrl, HkRealTimeShift, HkRealTimeAlt, HkRealTimeWin, HkRealTimeKey); 
+ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiShift, HkMultiAlt, HkMultiWin, HkMultiKey); 
             ReadHotkey(_settings.Hotkeys.FullScreen, HkFullEnabled, HkFullCtrl, HkFullShift, HkFullAlt, HkFullWin, HkFullKey);
             ReadHotkey(_settings.Hotkeys.DesignatedCapture, HkDesignatedEnabled, HkDesignatedCtrl, HkDesignatedShift, HkDesignatedAlt, HkDesignatedWin, HkDesignatedKey);
             ReadHotkey(_settings.Hotkeys.WindowCapture, HkWindowCaptureEnabled, HkWindowCaptureCtrl, HkWindowCaptureShift, HkWindowCaptureAlt, HkWindowCaptureWin, HkWindowCaptureKey);
@@ -369,6 +371,8 @@ namespace CatchCapture
             // Ensure defaults if user left any key empty
             EnsureDefaultKey(_settings.Hotkeys.RegionCapture, "A");
             EnsureDefaultKey(_settings.Hotkeys.DelayCapture, "D");
+            EnsureDefaultKey(_settings.Hotkeys.RealTimeCapture, "R");
+            EnsureDefaultKey(_settings.Hotkeys.MultiCapture, "M");   
             EnsureDefaultKey(_settings.Hotkeys.FullScreen, "F");
             EnsureDefaultKey(_settings.Hotkeys.DesignatedCapture, "G");
             EnsureDefaultKey(_settings.Hotkeys.WindowCapture, "W");
