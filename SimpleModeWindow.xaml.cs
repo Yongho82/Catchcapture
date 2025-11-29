@@ -673,12 +673,15 @@ namespace CatchCapture
         private void ShowAddIconMenu(object sender, RoutedEventArgs e)
         {
             var menu = new ContextMenu();
-            
-            var allIcons = new[] { 
+            // 다크 스타일 적용
+            if (this.TryFindResource("DarkContextMenu") is Style darkMenu)
+                menu.Style = darkMenu;
+
+            var allIcons = new[] {
                 "AreaCapture", "DelayCapture", "FullScreen", "RealTimeCapture",
                 "DesignatedCapture", "WindowCapture", "UnitCapture", "ScrollCapture"
             };
-            
+
             if (settings != null)
             {
                 foreach (var icon in allIcons)
@@ -686,14 +689,33 @@ namespace CatchCapture
                     if (!settings.SimpleModeIcons.Contains(icon))
                     {
                         var item = new MenuItem { Header = GetIconDisplayName(icon) };
+                        // 아이콘 매핑 (PNG)
+                        item.Icon = icon switch
+                        {
+                            "AreaCapture" => CreateMenuIcon("/icons/area_capture.png"),
+                            "DelayCapture" => CreateMenuIcon("/icons/clock.png"),
+                            "FullScreen" => CreateMenuIcon("/icons/full_screen.png"),
+                            "RealTimeCapture" => CreateMenuIcon("/icons/real-time.png"),
+                            "DesignatedCapture" => CreateMenuIcon("/icons/designated.png"),
+                            "WindowCapture" => CreateMenuIcon("/icons/window_cap.png"),
+                            "UnitCapture" => CreateMenuIcon("/icons/unit_capture.png"),
+                            "ScrollCapture" => CreateMenuIcon("/icons/scroll_capture.png"),
+                            _ => null
+                        };
+                        if (this.TryFindResource("DarkMenuItem") is Style darkItem)
+                            item.Style = darkItem;
                         item.Click += (s2, e2) => AddIcon(icon);
                         menu.Items.Add(item);
                     }
                 }
-                
+
                 // 구분선 및 컴퓨터 앱 추가
                 menu.Items.Add(new Separator());
                 var appsItem = new MenuItem { Header = "컴퓨터 앱…" };
+                if (this.TryFindResource("DarkMenuItem") is Style darkApps)
+                    appsItem.Style = darkApps;
+                // 앱 아이콘(옵션)
+                appsItem.Icon = CreateMenuIcon("/icons/app.png") ?? CreateMenuIcon("/icons/setting.png");
                 appsItem.Click += async (s2, e2) =>
                 {
                     var picked = await OpenAppPickerAsync();
@@ -706,36 +728,61 @@ namespace CatchCapture
                 };
                 menu.Items.Add(appsItem);
             }
-            
+
             menu.PlacementTarget = sender as Button;
             menu.IsOpen = true;
         }
 
-        private void AddIcon(string iconName)
+        // PNG 아이콘 로더 (Pack URI 우선, 파일 경로 폴백) 16x16 디코드
+        private Image? CreateMenuIcon(string relativePath)
         {
-            settings = Settings.Load();
-            settings.SimpleModeIcons.Add(iconName);
-            Settings.Save(settings);
-            BuildIconButtons();
-        }
-
-        // 내장 아이콘 제거
-        private void RemoveIcon(string iconName)
-        {
-            var result = MessageBox.Show(
-                $"'{GetIconDisplayName(iconName)}' 아이콘을 삭제하시겠습니까?",
-                "아이콘 삭제",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question
-            );
-            
-            if (result == MessageBoxResult.Yes)
+            try
             {
-                settings = Settings.Load();
-                settings.SimpleModeIcons.Remove(iconName);
-                Settings.Save(settings);
-                BuildIconButtons();
+                BitmapImage bmp;
+                try
+                {
+                    var packUri = new Uri($"pack://application:,,,{relativePath}", UriKind.Absolute);
+                    bmp = new BitmapImage();
+                    bmp.BeginInit();
+                    bmp.UriSource = packUri;
+                    bmp.CacheOption = BitmapCacheOption.OnLoad;
+                    bmp.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+                    bmp.DecodePixelWidth = 16;
+                    bmp.DecodePixelHeight = 16;
+                    bmp.EndInit();
+                    bmp.Freeze();
+                }
+                catch
+                {
+                    var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                    var trimmed = relativePath.TrimStart('/', '\\');
+                    var fullPath = System.IO.Path.Combine(baseDir, trimmed);
+                    if (!System.IO.File.Exists(fullPath))
+                        fullPath = System.IO.Path.Combine(baseDir, "icons", System.IO.Path.GetFileName(trimmed));
+
+                    bmp = new BitmapImage();
+                    bmp.BeginInit();
+                    bmp.UriSource = new Uri(fullPath, UriKind.Absolute);
+                    bmp.CacheOption = BitmapCacheOption.OnLoad;
+                    bmp.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+                    bmp.DecodePixelWidth = 16;
+                    bmp.DecodePixelHeight = 16;
+                    bmp.EndInit();
+                    bmp.Freeze();
+                }
+
+                var img = new Image
+                {
+                    Source = bmp,
+                    Width = 16,
+                    Height = 16,
+                    Stretch = Stretch.Uniform,
+                    SnapsToDevicePixels = true
+                };
+                RenderOptions.SetBitmapScalingMode(img, BitmapScalingMode.HighQuality);
+                return img;
             }
+            catch { return null; }
         }
 
         // 외부 앱 버튼 생성
@@ -1148,6 +1195,37 @@ namespace CatchCapture
                 if (VerticalRoot != null) VerticalRoot.LayoutTransform = scale;
             }
             catch { }
+        }
+
+        // 누락된 헬퍼 복원: + 메뉴에서 내장 아이콘 추가
+        private void AddIcon(string iconName)
+        {
+            settings = Settings.Load();
+            if (!settings.SimpleModeIcons.Contains(iconName))
+            {
+                settings.SimpleModeIcons.Add(iconName);
+                Settings.Save(settings);
+            }
+            BuildIconButtons();
+        }
+
+        // 누락된 헬퍼 복원: 내장 아이콘 제거 (우측 상단 - 버튼에서 호출)
+        private void RemoveIcon(string iconName)
+        {
+            var result = MessageBox.Show(
+                $"'{GetIconDisplayName(iconName)}' 아이콘을 삭제하시겠습니까?",
+                "아이콘 삭제",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question
+            );
+
+            if (result == MessageBoxResult.Yes)
+            {
+                settings = Settings.Load();
+                settings.SimpleModeIcons.Remove(iconName);
+                Settings.Save(settings);
+                BuildIconButtons();
+            }
         }
     }
 }
