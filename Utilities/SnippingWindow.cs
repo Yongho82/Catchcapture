@@ -1566,44 +1566,49 @@ namespace CatchCapture.Utilities
                 
                 optionSection.Children.Add(intensityPanel);
             }
+            
             else
             {
-                // [기본 두께 옵션 (펜, 형광펜)]
-                var thicknessLabel = new TextBlock { Text = LocalizationManager.Get("Thickness"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
-                optionSection.Children.Add(thicknessLabel);
-                
-                var thicknessList = new StackPanel();
-                int[] presets = new int[] { 1, 3, 5, 8, 12 };
-                foreach (var p in presets)
+                // 넘버링 모드일 때는 두께 옵션 표시 안 함
+                if (tool != "넘버링")
                 {
-                    var item = new Grid { Margin = new Thickness(0, 0, 0, 8), Cursor = Cursors.Hand, Background = Brushes.Transparent };
-                    item.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(30) });
-                    item.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                    // [기본 두께 옵션 (펜, 형광펜)]
+                    var thicknessLabel = new TextBlock { Text = LocalizationManager.Get("Thickness"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
+                    optionSection.Children.Add(thicknessLabel);
                     
-                    var line = new Border { Height = p, Width = 30, Background = Brushes.Black, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center };
-                    Grid.SetColumn(line, 0); item.Children.Add(line);
-                    
-                    var text = new TextBlock
+                    var thicknessList = new StackPanel();
+                    int[] presets = new int[] { 1, 3, 5, 8, 12 };
+                    foreach (var p in presets)
                     {
-                        Text = $"{p}px",
-                        FontSize = 11,
-                        HorizontalAlignment = HorizontalAlignment.Center,
-                        Foreground = Brushes.Gray,
-                        Margin = new Thickness(8, 0, 0, 0)
-                    };
-                    Grid.SetColumn(text, 1); item.Children.Add(text);
+                        var item = new Grid { Margin = new Thickness(0, 0, 0, 8), Cursor = Cursors.Hand, Background = Brushes.Transparent };
+                        item.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(30) });
+                        item.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                        
+                        var line = new Border { Height = p, Width = 30, Background = Brushes.Black, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center };
+                        Grid.SetColumn(line, 0); item.Children.Add(line);
+                        
+                        var text = new TextBlock
+                        {
+                            Text = $"{p}px",
+                            FontSize = 11,
+                            HorizontalAlignment = HorizontalAlignment.Center,
+                            Foreground = Brushes.Gray,
+                            Margin = new Thickness(8, 0, 0, 0)
+                        };
+                        Grid.SetColumn(text, 1); item.Children.Add(text);
 
-                    int thickness = p;
-                    item.MouseLeftButtonDown += (s, e) =>
-                    {
-                        if (currentTool == "형광펜") highlightThickness = thickness;
-                        else penThickness = thickness;
-                        foreach (var child in thicknessList.Children) { if (child is Grid g) g.Background = Brushes.Transparent; }
-                        item.Background = new SolidColorBrush(Color.FromArgb(40, 0, 120, 212));
-                    };
-                    thicknessList.Children.Add(item);
+                        int thickness = p;
+                        item.MouseLeftButtonDown += (s, e) =>
+                        {
+                            if (currentTool == "형광펜") highlightThickness = thickness;
+                            else penThickness = thickness;
+                            foreach (var child in thicknessList.Children) { if (child is Grid g) g.Background = Brushes.Transparent; }
+                            item.Background = new SolidColorBrush(Color.FromArgb(40, 0, 120, 212));
+                        };
+                        thicknessList.Children.Add(item);
+                    }
+                    optionSection.Children.Add(thicknessList);
                 }
-                optionSection.Children.Add(thicknessList);
             }
             
             canvas.Children.Add(background);
@@ -3089,110 +3094,118 @@ namespace CatchCapture.Utilities
                             drawingContext.Pop();
                         }
                     }
-                    else if (element is Canvas arrowCanvas)
+                    else if (element is Canvas canvas)
                     {
-                        foreach (var child in arrowCanvas.Children)
+                        // 넘버링 그룹인지 확인 (Border 자식이 있으면 넘버링)
+                        bool isNumbering = false;
+                        foreach (var child in canvas.Children)
                         {
-                            if (child is Line l)
+                            if (child is Border)
                             {
-                                // [수정] 화살표 선 좌표 보정
-                                drawingContext.DrawLine(new Pen(l.Stroke, l.StrokeThickness), 
-                                    new Point(l.X1 - selectionLeft, l.Y1 - selectionTop), 
-                                    new Point(l.X2 - selectionLeft, l.Y2 - selectionTop));
+                                isNumbering = true;
+                                break;
                             }
-                            else if (child is Polygon p)
+                        }
+
+                        if (isNumbering)
+                        {
+                            // [넘버링 그룹 렌더링]
+                            double groupLeft = Canvas.GetLeft(canvas) - selectionLeft;
+                            double groupTop = Canvas.GetTop(canvas) - selectionTop;
+                            
+                            foreach (var child in canvas.Children)
                             {
-                                StreamGeometry streamGeometry = new StreamGeometry();
-                                using (StreamGeometryContext geometryContext = streamGeometry.Open())
+                                if (child is Border border)
                                 {
-                                    // [수정] 화살표 머리 좌표 보정
-                                    var startPoint = new Point(p.Points[0].X - selectionLeft, p.Points[0].Y - selectionTop);
-                                    geometryContext.BeginFigure(startPoint, true, true);
-                                    for (int i = 1; i < p.Points.Count; i++)
+                                    // 배지 렌더링
+                                    double badgeLeft = groupLeft + Canvas.GetLeft(border);
+                                    double badgeTop = groupTop + Canvas.GetTop(border);
+                                    
+                                    var ellipse = new EllipseGeometry(
+                                        new Point(badgeLeft + border.Width / 2, badgeTop + border.Height / 2),
+                                        border.Width / 2,
+                                        border.Height / 2);
+                                    
+                                    drawingContext.DrawGeometry(border.Background, 
+                                        new Pen(border.BorderBrush, border.BorderThickness.Left), ellipse);
+                                    
+                                    // 배지 내 텍스트
+                                    if (border.Child is TextBlock tb)
                                     {
-                                        var nextPoint = new Point(p.Points[i].X - selectionLeft, p.Points[i].Y - selectionTop);
-                                        geometryContext.LineTo(nextPoint, true, false);
+                                        var formattedText = new FormattedText(
+                                            tb.Text,
+                                            System.Globalization.CultureInfo.CurrentCulture,
+                                            FlowDirection.LeftToRight,
+                                            new Typeface(tb.FontFamily, tb.FontStyle, tb.FontWeight, tb.FontStretch),
+                                            tb.FontSize,
+                                            tb.Foreground,
+                                            VisualTreeHelper.GetDpi(this).PixelsPerDip);
+                                        
+                                        drawingContext.DrawText(formattedText, 
+                                            new Point(badgeLeft + (border.Width - formattedText.Width) / 2, 
+                                                    badgeTop + (border.Height - formattedText.Height) / 2));
                                     }
                                 }
-                                drawingContext.DrawGeometry(p.Fill, new Pen(p.Stroke, p.StrokeThickness), streamGeometry);
+                                else if (child is TextBox noteTextBox && !string.IsNullOrWhiteSpace(noteTextBox.Text))
+                                {
+                                    // 텍스트박스 렌더링
+                                    double textBoxLeft = groupLeft + Canvas.GetLeft(noteTextBox);
+                                    double textBoxTop = groupTop + Canvas.GetTop(noteTextBox);
+                                    
+                                    // Padding 반영
+                                    double paddingLeft = noteTextBox.Padding.Left;
+                                    double paddingTop = noteTextBox.Padding.Top;
+                                    
+                                    var formattedText = new FormattedText(
+                                        noteTextBox.Text,
+                                        System.Globalization.CultureInfo.CurrentCulture,
+                                        FlowDirection.LeftToRight,
+                                        new Typeface(noteTextBox.FontFamily, noteTextBox.FontStyle, noteTextBox.FontWeight, noteTextBox.FontStretch),
+                                        noteTextBox.FontSize,
+                                        noteTextBox.Foreground,
+                                        VisualTreeHelper.GetDpi(this).PixelsPerDip);
+                                    
+                                    drawingContext.DrawText(formattedText, new Point(textBoxLeft + paddingLeft, textBoxTop + paddingTop));
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // [화살표 렌더링]
+                            foreach (var child in canvas.Children)
+                            {
+                                if (child is Line l)
+                                {
+                                    drawingContext.DrawLine(new Pen(l.Stroke, l.StrokeThickness), 
+                                        new Point(l.X1 - selectionLeft, l.Y1 - selectionTop), 
+                                        new Point(l.X2 - selectionLeft, l.Y2 - selectionTop));
+                                }
+                                else if (child is Polygon p)
+                                {
+                                    StreamGeometry streamGeometry = new StreamGeometry();
+                                    using (StreamGeometryContext geometryContext = streamGeometry.Open())
+                                    {
+                                        var startPoint = new Point(p.Points[0].X - selectionLeft, p.Points[0].Y - selectionTop);
+                                        geometryContext.BeginFigure(startPoint, true, true);
+                                        for (int i = 1; i < p.Points.Count; i++)
+                                        {
+                                            var nextPoint = new Point(p.Points[i].X - selectionLeft, p.Points[i].Y - selectionTop);
+                                            geometryContext.LineTo(nextPoint, true, false);
+                                        }
+                                    }
+                                    drawingContext.DrawGeometry(p.Fill, new Pen(p.Stroke, p.StrokeThickness), streamGeometry);
+                                }
                             }
                         }
                     }
-                    else if (element is Image image)
-                    {
-                        double left = Canvas.GetLeft(image) - selectionLeft;
-                        double top = Canvas.GetTop(image) - selectionTop;
-                        var rect = new Rect(left, top, image.Width, image.Height);
-                        
-                        RenderOptions.SetBitmapScalingMode(drawingVisual, BitmapScalingMode.NearestNeighbor);
-                        drawingContext.DrawImage(image.Source, rect);
-                    }
-                    else if (element is Canvas groupCanvas)
-                    {
-                        // 넘버링 그룹 렌더링
-                        double groupLeft = Canvas.GetLeft(groupCanvas) - selectionLeft;
-                        double groupTop = Canvas.GetTop(groupCanvas) - selectionTop;
-                        
-                        foreach (var child in groupCanvas.Children)
-                        {
-                            if (child is Border border)
-                            {
-                                // 배지 렌더링
-                                double badgeLeft = groupLeft + Canvas.GetLeft(border);
-                                double badgeTop = groupTop + Canvas.GetTop(border);
-                                
-                                var ellipse = new EllipseGeometry(
-                                    new Point(badgeLeft + border.Width / 2, badgeTop + border.Height / 2),
-                                    border.Width / 2,
-                                    border.Height / 2);
-                                
-                                drawingContext.DrawGeometry(border.Background, 
-                                    new Pen(border.BorderBrush, border.BorderThickness.Left), ellipse);
-                                
-                                // 배지 내 텍스트
-                                if (border.Child is TextBlock tb)
-                                {
-                                    var formattedText = new FormattedText(
-                                        tb.Text,
-                                        System.Globalization.CultureInfo.CurrentCulture,
-                                        FlowDirection.LeftToRight,
-                                        new Typeface(tb.FontFamily, tb.FontStyle, tb.FontWeight, tb.FontStretch),
-                                        tb.FontSize,
-                                        tb.Foreground,
-                                        VisualTreeHelper.GetDpi(this).PixelsPerDip);
-                                    
-                                    drawingContext.DrawText(formattedText, 
-                                        new Point(badgeLeft + (border.Width - formattedText.Width) / 2, 
-                                                badgeTop + (border.Height - formattedText.Height) / 2));
-                                }
-                            }
-                            else if (child is TextBox noteTextBox && !string.IsNullOrWhiteSpace(noteTextBox.Text))
-                            {
-                                // 텍스트박스 렌더링
-                                double textBoxLeft = groupLeft + Canvas.GetLeft(noteTextBox);
-                                double textBoxTop = groupTop + Canvas.GetTop(noteTextBox);
-                                
-                                var formattedText = new FormattedText(
-                                    noteTextBox.Text,
-                                    System.Globalization.CultureInfo.CurrentCulture,
-                                    FlowDirection.LeftToRight,
-                                    new Typeface(noteTextBox.FontFamily, noteTextBox.FontStyle, noteTextBox.FontWeight, noteTextBox.FontStretch),
-                                    noteTextBox.FontSize,
-                                    noteTextBox.Foreground,
-                                    VisualTreeHelper.GetDpi(this).PixelsPerDip);
-                                
-                                drawingContext.DrawText(formattedText, new Point(textBoxLeft, textBoxTop));
-                            }
-                        }     
-                    }                       
-                }
-            }
+                } // foreach 종료
+            } // using 종료
             
             renderBitmap.Render(drawingVisual);
             renderBitmap.Freeze();
             
             SelectedFrozenImage = renderBitmap;
-        }
+        } // 메서드 종료
 
         private bool IsPointInSelection(Point point)
         {
@@ -3420,6 +3433,16 @@ namespace CatchCapture.Utilities
             Cursor = Cursors.Arrow;
         }
 
+        // 배경 색상에 대비되는 텍스트 색상 반환 (흰색 또는 검은색)
+        private Color GetContrastColor(Color backgroundColor)
+        {
+            // 밝기 계산 (0-255)
+            double brightness = (backgroundColor.R * 0.299 + backgroundColor.G * 0.587 + backgroundColor.B * 0.114);
+            
+            // 밝기가 128 이상이면 검은색, 아니면 흰색
+            return brightness > 128 ? Colors.Black : Colors.White;
+        }
+
         private void CreateNumberingAt(Point canvasPoint)
         {
             int myNumber = numberingNext;
@@ -3438,10 +3461,14 @@ namespace CatchCapture.Utilities
                 BorderBrush = Brushes.White,
                 BorderThickness = new Thickness(2)
             };
+
+            // 배지 색상의 밝기에 따라 텍스트 색상 결정
+            Color textColor = GetContrastColor(selectedColor);
+
             var numText = new TextBlock
             {
                 Text = myNumber.ToString(),
-                Foreground = Brushes.White,
+                Foreground = new SolidColorBrush(textColor),  // ← 자동 대비 색상
                 FontWeight = FontWeights.Bold,
                 FontSize = 12,
                 HorizontalAlignment = HorizontalAlignment.Center,
@@ -3459,13 +3486,13 @@ namespace CatchCapture.Utilities
                 Background = new SolidColorBrush(Color.FromArgb(80, 0, 0, 0)),
                 BorderBrush = Brushes.White,
                 BorderThickness = new Thickness(2),
-                Padding = new Thickness(6, 3, 6, 3),
+                Padding = new Thickness(3, 2, 3, 2),  // ← 좌우 3px, 상하 2px로 축소
                 FontSize = 12,
-                Foreground = Brushes.White,
+                Foreground = new SolidColorBrush(selectedColor),
                 Text = string.Empty
             };
             group.Children.Add(noteBox);
-            Canvas.SetLeft(noteBox, badgeSize + 8);
+            Canvas.SetLeft(noteBox, badgeSize + 2);
             Canvas.SetTop(noteBox, -(noteBox.Height - badgeSize) / 2);
 
             Border selectionBorder = null;
@@ -3568,6 +3595,7 @@ namespace CatchCapture.Utilities
             Canvas.SetTop(group, canvasPoint.Y - badgeSize / 2);
             Panel.SetZIndex(group, 500);
 
+            // Undo/관리 목록에 추가
             drawnElements.Add(group);
             undoStack.Push(group);
 
@@ -3676,9 +3704,10 @@ namespace CatchCapture.Utilities
             confirmBtn.Click += (s, e) =>
             {
                 noteBox.IsReadOnly = true;
-                noteBox.BorderBrush = Brushes.Transparent;
+                noteBox.BorderBrush = Brushes.Transparent;  // 테두리는 투명하게
                 noteBox.Background = Brushes.Transparent;
-                noteBox.BorderThickness = new Thickness(0);
+                // BorderThickness는 그대로 유지 (위치 변화 방지)
+                // noteBox.BorderThickness = new Thickness(0);  ← 주석 처리
                 confirmBtn.Visibility = Visibility.Collapsed;
                 deleteBtn.Visibility = Visibility.Collapsed;
                 // 포커스 해제 및 테두리 숨김
