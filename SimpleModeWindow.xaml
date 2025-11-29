@@ -68,8 +68,8 @@
         <!-- Light menu Separator -->
         <Style x:Key="LightSeparator" TargetType="Separator">
             <Setter Property="Height" Value="1"/>
-            <Setter Property="Margin" Value="6,4"/>
-            <Setter Property="Background" Value="#EAEAEA"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Background" Value="#E0E0E0"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -94,7 +94,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="MenuItem">
-                        <Border Background="{TemplateBinding Background}" BorderBrush="#EAEAEA" BorderThickness="0,0,0,1" SnapsToDevicePixels="True">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="Transparent" BorderThickness="0" SnapsToDevicePixels="True">
                             <Grid SnapsToDevicePixels="True">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -119,9 +119,8 @@
                                 <Setter Property="Opacity" Value="0.5"/>
                             </Trigger>
                             <Trigger Property="Icon" Value="{x:Null}">
-                                <!-- 아이콘이 없으면 아이콘/간격을 접음 -->
-                                <Setter TargetName="IconHost" Property="Visibility" Value="Collapsed"/>
-                                <Setter TargetName="Gap" Property="Visibility" Value="Collapsed"/>
+                                <Setter TargetName="IconHost" Property="Width" Value="0"/>
+                                <Setter TargetName="Gap" Property="Width" Value="0"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>

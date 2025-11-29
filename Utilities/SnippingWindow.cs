@@ -1805,7 +1805,7 @@ namespace CatchCapture.Utilities
                     return;
                 }
                 
-                // 로딩 표시
+                // 로딩 표시 (기존 방식)
                 this.Cursor = Cursors.Wait;
                 
                 // OCR 실행

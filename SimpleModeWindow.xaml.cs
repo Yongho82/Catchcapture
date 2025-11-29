@@ -709,8 +709,14 @@ namespace CatchCapture
                     }
                 }
 
-                // 구분선 및 컴퓨터 앱 추가
-                menu.Items.Add(new Separator());
+                // 구분선 및 컴퓨터 앱 추가 (아이콘이 있는 항목이 있을 때만)
+                if (menu.Items.Count > 0)
+                {
+                    var sep = new Separator();
+                    if (this.TryFindResource("LightSeparator") is Style sepStyle)
+                        sep.Style = sepStyle;
+                    menu.Items.Add(sep);
+                }
                 var appsItem = new MenuItem { Header = "컴퓨터 앱…" };
                 if (this.TryFindResource("DarkMenuItem") is Style darkApps)
                     appsItem.Style = darkApps;

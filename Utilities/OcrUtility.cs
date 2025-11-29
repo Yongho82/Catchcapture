@@ -36,24 +36,18 @@ namespace CatchCapture.Utilities
                     return "OCR 엔진을 초기화할 수 없습니다.";
                 }
 
-                // 2. 이미지 전처리: 흑백 변환 + 확대
-                // 흑백으로 변환하면 색상 노이즈가 줄어들어 글자 인식이 더 잘 됨
-                var grayBitmap = new FormatConvertedBitmap();
-                grayBitmap.BeginInit();
-                grayBitmap.Source = bitmapSource;
-                grayBitmap.DestinationFormat = System.Windows.Media.PixelFormats.Gray8;
-                grayBitmap.EndInit();
-
-                // 확대 (2.5배로 상향) - 특수문자 인식률 향상
-                var scale = 2.5;
-                var transformedBitmap = new TransformedBitmap(grayBitmap, new System.Windows.Media.ScaleTransform(scale, scale));
+                // 2. 이미지 전처리: 대비 향상 + 선명화 + 확대 (EnhanceImageForOcr에서 처리)
+                // UI 스레드 차단을 방지하기 위해 백그라운드에서 실행
+                if (bitmapSource.CanFreeze) bitmapSource.Freeze();
+                
+                var processedBitmap = await Task.Run(() => EnhanceImageForOcr(bitmapSource));
 
                 // BitmapSource를 SoftwareBitmap으로 변환
                 using (var stream = new MemoryStream())
                 {
                     // WPF Encoder 사용
                     System.Windows.Media.Imaging.BitmapEncoder encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
-                    encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(transformedBitmap)); // 처리된 이미지 사용
+                    encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(processedBitmap)); // 처리된 이미지 사용
                     encoder.Save(stream);
                     stream.Position = 0;
 
@@ -64,11 +58,61 @@ namespace CatchCapture.Utilities
                     // OCR 결과 추출
                     OcrResult result = await ocrEngine.RecognizeAsync(softwareBitmap);
                     
-                    // 결과 텍스트 조합 (줄바꿈 유지)
+                    // 결과 텍스트 조합 (같은 줄의 단어들을 병합)
                     StringBuilder sb = new StringBuilder();
+                    
+                    // 각 라인의 단어들을 Y 좌표 기준으로 그룹화
+                    var allWords = new List<(double Y, double X, string Text)>();
+                    
                     foreach (var line in result.Lines)
                     {
-                        sb.AppendLine(line.Text);
+                        foreach (var word in line.Words)
+                        {
+                            // 단어의 Y 좌표 (상단 기준)
+                            double y = word.BoundingRect.Y;
+                            double x = word.BoundingRect.X;
+                            allWords.Add((y, x, word.Text));
+                        }
+                    }
+                    
+                    // Y 좌표로 정렬 후 같은 줄로 그룹화 (±15 픽셀 오차 허용 - 코드 에디터 줄 높이 고려)
+                    var sortedByY = allWords.OrderBy(w => w.Y).ToList();
+                    var lines = new List<List<(double Y, double X, string Text)>>();
+
+                    if (sortedByY.Count > 0)
+                    {
+                        var currentLine = new List<(double Y, double X, string Text)>();
+                        currentLine.Add(sortedByY[0]);
+                        double currentLineY = sortedByY[0].Y;
+                        
+                        for (int i = 1; i < sortedByY.Count; i++)
+                        {
+                            // 같은 줄인지 확인 (Y 좌표 차이가 15 이하)
+                            if (Math.Abs(sortedByY[i].Y - currentLineY) <= 15)
+                            {
+                                currentLine.Add(sortedByY[i]);
+                            }
+                            else
+                            {
+                                // 줄 바뀜 -> 현재 줄 저장
+                                lines.Add(currentLine);
+                                
+                                // 새로운 줄 시작
+                                currentLine = new List<(double Y, double X, string Text)>();
+                                currentLine.Add(sortedByY[i]);
+                                currentLineY = sortedByY[i].Y;
+                            }
+                        }
+                        // 마지막 줄 추가
+                        lines.Add(currentLine);
+                    }
+
+                    // 각 줄 내부에서 X 좌표(좌->우) 순으로 정렬하여 텍스트 병합
+                    foreach (var line in lines)
+                    {
+                        // X 좌표로 정렬
+                        var sortedLine = line.OrderBy(w => w.X).Select(w => w.Text);
+                        sb.AppendLine(string.Join(" ", sortedLine));
                     }
                     
                     return sb.ToString().Trim();
@@ -77,6 +121,74 @@ namespace CatchCapture.Utilities
             catch (Exception ex)
             {
                 return $"OCR 오류: {ex.Message}";
+            }
+        }
+        private static BitmapSource EnhanceImageForOcr(BitmapSource source)
+        {
+            try
+            {
+                // 1. System.Drawing.Bitmap으로 변환
+                Bitmap bitmap;
+                using (var stream = new MemoryStream())
+                {
+                    var encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(source));
+                    encoder.Save(stream);
+                    stream.Position = 0;
+                    bitmap = new Bitmap(stream);
+                }
+
+                // 2. 3배 확대 (작은 글자 인식률 향상)
+                int newWidth = (int)(bitmap.Width * 3);
+                int newHeight = (int)(bitmap.Height * 3);
+                var enlarged = new Bitmap(newWidth, newHeight);
+                
+                using (var g = Graphics.FromImage(enlarged))
+                {
+                    g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                    g.DrawImage(bitmap, 0, 0, newWidth, newHeight);
+                }
+                bitmap.Dispose();
+
+                // 3. 그레이스케일 변환 + 대비 향상
+                var enhanced = new Bitmap(newWidth, newHeight);
+                for (int y = 0; y < newHeight; y++)
+                {
+                    for (int x = 0; x < newWidth; x++)
+                    {
+                        Color pixel = enlarged.GetPixel(x, y);
+                        int gray = (int)(pixel.R * 0.299 + pixel.G * 0.587 + pixel.B * 0.114);
+                        
+                        // 대비 향상 (임계값 기반)
+                        gray = gray > 128 ? Math.Min(255, gray + 30) : Math.Max(0, gray - 30);
+                        
+                        enhanced.SetPixel(x, y, Color.FromArgb(gray, gray, gray));
+                    }
+                }
+                enlarged.Dispose();
+
+                // 4. BitmapSource로 변환
+                using (var stream = new MemoryStream())
+                {
+                    enhanced.Save(stream, ImageFormat.Png);
+                    stream.Position = 0;
+                    
+                    var bitmapImage = new BitmapImage();
+                    bitmapImage.BeginInit();
+                    bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmapImage.StreamSource = stream;
+                    bitmapImage.EndInit();
+                    bitmapImage.Freeze();
+                    
+                    enhanced.Dispose();
+                    return bitmapImage;
+                }
+            }
+            catch
+            {
+                // 전처리 실패 시 원본 반환
+                return source;
             }
         }
     }
