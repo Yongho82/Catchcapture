@@ -3506,17 +3506,6 @@ namespace CatchCapture.Utilities
                     selectionBorder.Visibility = Visibility.Collapsed;
                 }
             };
-
-            noteBox.GotFocus += gotFocusHandler;
-            noteBox.LostFocus += lostFocusHandler;
-            noteBox.LostFocus += (s, e) =>
-            {
-                if (selectionBorder != null)
-                {
-                    selectionBorder.Visibility = Visibility.Collapsed;
-                }
-            };
-
             var confirmBtn = new Button
             {
                 Width = 22,
@@ -3787,13 +3776,16 @@ namespace CatchCapture.Utilities
                 {
                     if (isConfirmed)
                     {
+                        // 편집 모드로 전환
                         noteBox.IsReadOnly = false;
+                        noteBox.Focusable = true;  // ← 추가: 포커스 가능하게
                         noteBox.BorderBrush = Brushes.White;
                         noteBox.Background = new SolidColorBrush(Color.FromArgb(80, 0, 0, 0));
                         noteBox.BorderThickness = new Thickness(2);
                         confirmBtn.Visibility = Visibility.Visible;
                         deleteBtn.Visibility = Visibility.Visible;
                         
+                        // 그룹 드래그 이벤트 제거
                         badgeBorder.MouseLeftButtonDown -= groupMouseDown;
                         badgeBorder.MouseMove -= groupMouseMove;
                         badgeBorder.MouseLeftButtonUp -= groupMouseUp;
@@ -3802,8 +3794,21 @@ namespace CatchCapture.Utilities
                         noteBox.MouseMove -= groupMouseMove;
                         noteBox.MouseLeftButtonUp -= groupMouseUp;
                         
+                        // 개별 드래그 이벤트 재등록
+                        noteBox.PreviewMouseLeftButtonDown += noteBoxMouseDown;
+                        noteBox.PreviewMouseMove += noteBoxMouseMove;
+                        noteBox.PreviewMouseLeftButtonUp += noteBoxMouseUp;
+                        
+                        badgeBorder.PreviewMouseLeftButtonDown += badgeMouseDown;
+                        badgeBorder.PreviewMouseMove += badgeMouseMove;
+                        badgeBorder.PreviewMouseLeftButtonUp += badgeMouseUp;
+                        
+                        // 커서 복원
+                        noteBox.Cursor = Cursors.Arrow;
+                        badgeBorder.Cursor = Cursors.Arrow;
+                        
                         isConfirmed = false;
-                        noteBox.Focus();
+                        noteBox.Focus();  // 포커스 설정
                         ne.Handled = true;
                     }
                 };
