@@ -47,6 +47,12 @@ public partial class MainWindow : Window
     private TrayModeWindow? trayModeWindow;
     // 캡처 직후 자동으로 열린 미리보기 창 수 (메인창 숨김/복원 관리)
     private int _autoPreviewOpenCount = 0;
+    // 트레이 컨텍스트 메뉴 및 항목 참조 (언어 변경 시 즉시 갱신용)
+    private System.Windows.Forms.ContextMenuStrip? trayContextMenu;
+    private System.Windows.Forms.ToolStripMenuItem? trayNormalItem;
+    private System.Windows.Forms.ToolStripMenuItem? traySimpleItem;
+    private System.Windows.Forms.ToolStripMenuItem? trayTrayItem;
+    private System.Windows.Forms.ToolStripMenuItem? trayExitItem;
     // 글로벌 단축키 관련
     private const int WM_HOTKEY = 0x0312;
     private const int HOTKEY_ID_AREA = 9000;
@@ -200,22 +206,25 @@ public partial class MainWindow : Window
         };
 
         // 컨텍스트 메뉴
-        var contextMenu = new System.Windows.Forms.ContextMenuStrip();
-        var normalItem = new System.Windows.Forms.ToolStripMenuItem(CatchCapture.Models.LocalizationManager.Get("TrayNormalMode"), null, (s, e) => SwitchToNormalMode());
-        var simpleItem = new System.Windows.Forms.ToolStripMenuItem(CatchCapture.Models.LocalizationManager.Get("TraySimpleMode"), null, (s, e) => SwitchToSimpleMode());
-        var trayItem = new System.Windows.Forms.ToolStripMenuItem(CatchCapture.Models.LocalizationManager.Get("TrayTrayMode"), null, (s, e) => SwitchToTrayMode());
-        var exitItem = new System.Windows.Forms.ToolStripMenuItem(CatchCapture.Models.LocalizationManager.Get("Exit"), null, (s, e) =>
+        trayContextMenu = new System.Windows.Forms.ContextMenuStrip();
+        trayNormalItem = new System.Windows.Forms.ToolStripMenuItem(CatchCapture.Models.LocalizationManager.Get("TrayNormalMode"), null, (s, e) => SwitchToNormalMode());
+        traySimpleItem = new System.Windows.Forms.ToolStripMenuItem(CatchCapture.Models.LocalizationManager.Get("TraySimpleMode"), null, (s, e) => SwitchToSimpleMode());
+        trayTrayItem = new System.Windows.Forms.ToolStripMenuItem(CatchCapture.Models.LocalizationManager.Get("TrayTrayMode"), null, (s, e) => SwitchToTrayMode());
+        trayExitItem = new System.Windows.Forms.ToolStripMenuItem(CatchCapture.Models.LocalizationManager.Get("Exit"), null, (s, e) =>
         {
             isExit = true;
             Close();
         });
-        contextMenu.Items.Add(normalItem);
-        contextMenu.Items.Add(simpleItem);
-        contextMenu.Items.Add(trayItem);
-        contextMenu.Items.Add("-");
-        contextMenu.Items.Add(exitItem);
+        trayContextMenu.Items.Add(trayNormalItem);
+        trayContextMenu.Items.Add(traySimpleItem);
+        trayContextMenu.Items.Add(trayTrayItem);
+        trayContextMenu.Items.Add("-");
+        trayContextMenu.Items.Add(trayExitItem);
         
-        notifyIcon.ContextMenuStrip = contextMenu;
+        notifyIcon.ContextMenuStrip = trayContextMenu;
+        
+        // 초기 텍스트 동기화
+        UpdateTrayMenuTexts();
     }
 
     private void ShowMainWindow()
@@ -2701,11 +2710,31 @@ public partial class MainWindow : Window
     private void MainWindow_LanguageChanged(object? sender, EventArgs e)
     {
         try { UpdateUIText(); } catch { }
+        try { UpdateTrayMenuTexts(); } catch { }
     }
 
     protected override void OnClosed(EventArgs e)
     {
         try { LocalizationManager.LanguageChanged -= MainWindow_LanguageChanged; } catch { }
         base.OnClosed(e);
+    }
+    
+    private void UpdateTrayMenuTexts()
+    {
+        try
+        {
+            if (notifyIcon != null)
+                notifyIcon.Text = CatchCapture.Models.LocalizationManager.Get("AppName");
+            
+            if (trayNormalItem != null)
+                trayNormalItem.Text = CatchCapture.Models.LocalizationManager.Get("TrayNormalMode");
+            if (traySimpleItem != null)
+                traySimpleItem.Text = CatchCapture.Models.LocalizationManager.Get("TraySimpleMode");
+            if (trayTrayItem != null)
+                trayTrayItem.Text = CatchCapture.Models.LocalizationManager.Get("TrayTrayMode");
+            if (trayExitItem != null)
+                trayExitItem.Text = CatchCapture.Models.LocalizationManager.Get("Exit");
+        }
+        catch { }
     }
 }
