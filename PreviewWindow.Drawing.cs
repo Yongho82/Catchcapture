@@ -23,6 +23,10 @@ namespace CatchCapture
             if (ImageCanvas == null) return;
 
             Point clickPoint = e.GetPosition(ImageCanvas);
+            if (clickPoint.Y < 40)
+            {
+                return; // 그리기 안 함
+            }
             WriteLog($"MouseDown: 위치({clickPoint.X:F1}, {clickPoint.Y:F1}), 편집모드={currentEditMode}, isDrawingShape={isDrawingShape}");
 
             // 도형 모드에서의 처리
