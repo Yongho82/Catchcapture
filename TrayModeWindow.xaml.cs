@@ -42,6 +42,17 @@ namespace CatchCapture
             UpdateInstantEditToggleUI();
         }
 
+        // ★ 이벤트 핸들러 추가 (생성자 다음에)
+        private void OnSettingsChanged(object? sender, EventArgs e)
+        {
+            // 설정이 변경되면 자동으로 다시 로드
+            Dispatcher.Invoke(() =>
+            {
+                settings = Settings.Load();
+                BuildIconButtons();
+            });
+        }
+
         private void LoadSettings()
         {
             settings = Settings.Load();
@@ -73,6 +84,9 @@ namespace CatchCapture
         }
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
+            // 이벤트 구독 해제
+            Settings.SettingsChanged -= OnSettingsChanged;
+            
             // 창 닫힐 때 현재 설정 저장
             if (settings != null)
             {
@@ -881,7 +895,6 @@ namespace CatchCapture
             
             if (hiddenIcons.Count == 0 && hiddenApps.Count == 0)
             {
-                MessageBox.Show("숨겨진 아이콘이 없습니다.", "알림");
                 return;
             }
             
@@ -913,24 +926,43 @@ namespace CatchCapture
                 Direction = 270
             };
             
-            // 가로로 나열 (StackPanel 사용)
+            // 세로로 나열 (StackPanel 사용)
             var stackPanel = new StackPanel
             {
-                Orientation = Orientation.Horizontal
+                Orientation = Orientation.Vertical
             };
             
             // 숨겨진 아이콘 추가
             foreach (var iconName in hiddenIcons)
             {
+                // Grid 생성 (아이콘 + 삭제 버튼 오버레이)
+                var grid = new Grid();
+                
                 var button = CreateIconButton(iconName);
                 button.Margin = new Thickness(2);
                 button.Click += (s, e) => { iconPopup.IsOpen = false; };
-                stackPanel.Children.Add(button);
+                grid.Children.Add(button);
+                
+                // 삭제 버튼 추가 (Settings 제외)
+                if (iconName != "Settings")
+                {
+                    var remove = CreateRemoveButton(iconName);
+                    remove.Visibility = Visibility.Collapsed;
+                    grid.Children.Add(remove);
+                    
+                    // 마우스 오버 시 삭제 버튼 표시
+                    grid.MouseEnter += (s, e) => remove.Visibility = Visibility.Visible;
+                    grid.MouseLeave += (s, e) => remove.Visibility = Visibility.Collapsed;
+                }
+                
+                stackPanel.Children.Add(grid);
             }
             
             // 숨겨진 앱 추가
             foreach (var app in hiddenApps)
             {
+                var grid = new Grid();
+                
                 var button = new Button
                 {
                     Style = this.FindResource("IconButtonStyle") as Style,
@@ -966,7 +998,17 @@ namespace CatchCapture
                     iconPopup.IsOpen = false; 
                 };
                 
-                stackPanel.Children.Add(button);
+                grid.Children.Add(button);
+                
+                // 앱 삭제 버튼 추가
+                var remove = CreateRemoveButtonForApp(app);
+                remove.Visibility = Visibility.Collapsed;
+                grid.Children.Add(remove);
+                
+                grid.MouseEnter += (s, e) => remove.Visibility = Visibility.Visible;
+                grid.MouseLeave += (s, e) => remove.Visibility = Visibility.Collapsed;
+                
+                stackPanel.Children.Add(grid);
             }
             
             border.Child = stackPanel;
@@ -1185,7 +1227,6 @@ namespace CatchCapture
             {
                 settings.SimpleModeIcons.Add(iconName);
                 Settings.Save(settings);
-                MessageBox.Show($"아이콘 '{iconName}' 추가 및 저장 완료!"); // 디버그용
             }
             BuildIconButtons();
         }

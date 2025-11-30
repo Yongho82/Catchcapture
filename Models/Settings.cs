@@ -32,6 +32,7 @@ namespace CatchCapture.Models
         public bool SimpleModeVertical { get; set; } = false;
         public bool IsTrayMode { get; set; } = false;
         public string LastActiveMode { get; set; } = "Normal"; // "Normal", "Simple", "Tray"
+        public static event EventHandler? SettingsChanged;
 
         // Tray mode icon customization  
         public List<string> TrayModeIcons { get; set; } = new List<string>
@@ -122,6 +123,11 @@ namespace CatchCapture.Models
             if (!TrySave(settings, out string? error))
             {
                 System.Windows.MessageBox.Show($"설정 저장 실패: {error}", "오류");
+            }
+            else
+            {
+                // ★ 저장 성공 시 모든 창에 알림
+                SettingsChanged?.Invoke(null, EventArgs.Empty);
             }
         }
 

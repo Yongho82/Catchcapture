@@ -88,6 +88,25 @@ namespace CatchCapture
             // 초기 스케일 적용 (필요시 Settings에서 불러오기 가능)
             ApplyUIScale();
         }
+
+        // ★ 이벤트 핸들러 추가 (생성자 다음에)
+        private void OnSettingsChanged(object? sender, EventArgs e)
+        {
+            // 설정이 변경되면 자동으로 다시 로드
+            Dispatcher.Invoke(() =>
+            {
+                settings = Settings.Load();
+                BuildIconButtons();
+            });
+        }
+
+        // ★ 창 닫힐 때 이벤트 구독 해제 (OnClosing 오버라이드 또는 새로 추가)
+        protected override void OnClosed(EventArgs e)
+        {
+            Settings.SettingsChanged -= OnSettingsChanged;
+            base.OnClosed(e);
+        }
+
         
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -297,13 +316,30 @@ namespace CatchCapture
 
         private void MinimizeToTrayButton_Click(object sender, RoutedEventArgs e)
         {
+            // ★ 간편모드 상태 저장
+            var settings = Settings.Load();
+            settings.LastActiveMode = "Simple";
+            Settings.Save(settings);
+            
             if (_mainWindow != null)
             {
                 _mainWindow.SwitchToTrayMode();
             }
         }
+
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
+            // ★ 간편모드 상태 저장
+            var settings = Settings.Load();
+            settings.LastActiveMode = "Simple";
+            Settings.Save(settings);
+            
+            // ★ MainWindow에 간편모드가 숨겨졌음을 알림
+            if (_mainWindow != null)
+            {
+                _mainWindow.OnSimpleModeHidden();
+            }
+            
             if (Application.Current.MainWindow is MainWindow mw && mw.notifyIcon != null)
             {
                 mw.notifyIcon.Visible = true;
@@ -550,6 +586,14 @@ namespace CatchCapture
                 "WindowCapture" => "/icons/window_cap.png",
                 "UnitCapture" => "/icons/unit_capture.png",
                 "ScrollCapture" => "/icons/scroll_capture.png",
+                // ★ 새로 추가
+                "Copy" => "/icons/copy_selected.png",
+                "CopyAll" => "/icons/copy_all.png",
+                "Save" => "/icons/save_selected.png",
+                "SaveAll" => "/icons/save_all.png",
+                "Delete" => "/icons/delete_selected.png",
+                "DeleteAll" => "/icons/delete_all.png",
+                "Settings" => "/icons/setting.png",
                 _ => null
             };
             
@@ -568,7 +612,6 @@ namespace CatchCapture
 
         private string GetIconLabel(string iconName)
         {
-            // Use full names for clarity, matching main keys
             return iconName switch
             {
                 "AreaCapture" => CatchCapture.Models.LocalizationManager.Get("AreaCapture"),
@@ -579,6 +622,14 @@ namespace CatchCapture
                 "WindowCapture" => CatchCapture.Models.LocalizationManager.Get("WindowCapture"),
                 "UnitCapture" => CatchCapture.Models.LocalizationManager.Get("ElementCapture"),
                 "ScrollCapture" => CatchCapture.Models.LocalizationManager.Get("ScrollCapture"),
+                // ★ 새로 추가
+                "Copy" => CatchCapture.Models.LocalizationManager.Get("Copy"),
+                "CopyAll" => CatchCapture.Models.LocalizationManager.Get("CopyAll"),
+                "Save" => CatchCapture.Models.LocalizationManager.Get("Save"),
+                "SaveAll" => CatchCapture.Models.LocalizationManager.Get("SaveAll"),
+                "Delete" => CatchCapture.Models.LocalizationManager.Get("Delete"),
+                "DeleteAll" => CatchCapture.Models.LocalizationManager.Get("DeleteAll"),
+                "Settings" => CatchCapture.Models.LocalizationManager.Get("Settings"),
                 _ => string.Empty
             };
         }
@@ -595,6 +646,14 @@ namespace CatchCapture
                 "WindowCapture" => CatchCapture.Models.LocalizationManager.Get("WindowCapture"),
                 "UnitCapture" => CatchCapture.Models.LocalizationManager.Get("ElementCapture"),
                 "ScrollCapture" => CatchCapture.Models.LocalizationManager.Get("ScrollCapture"),
+                // ★ 새로 추가
+                "Copy" => CatchCapture.Models.LocalizationManager.Get("Copy"),
+                "CopyAll" => CatchCapture.Models.LocalizationManager.Get("CopyAll"),
+                "Save" => CatchCapture.Models.LocalizationManager.Get("Save"),
+                "SaveAll" => CatchCapture.Models.LocalizationManager.Get("SaveAll"),
+                "Delete" => CatchCapture.Models.LocalizationManager.Get("Delete"),
+                "DeleteAll" => CatchCapture.Models.LocalizationManager.Get("DeleteAll"),
+                "Settings" => CatchCapture.Models.LocalizationManager.Get("Settings"),
                 _ => iconName
             };
         }
@@ -626,6 +685,28 @@ namespace CatchCapture
                     break;
                 case "ScrollCapture":
                     PerformCustomCapture(() => _mainWindow?.TriggerScrollCapture());
+                    break;
+                // ★ 새로 추가
+                case "Copy":
+                    _mainWindow?.CopySelectedImage();
+                    break;
+                case "CopyAll":
+                    _mainWindow?.CopyAllImages();
+                    break;
+                case "Save":
+                    _mainWindow?.SaveSelectedImage();
+                    break;
+                case "SaveAll":
+                    _mainWindow?.SaveAllImages();
+                    break;
+                case "Delete":
+                    _mainWindow?.DeleteSelectedImage();
+                    break;
+                case "DeleteAll":
+                    _mainWindow?.DeleteAllImages();
+                    break;
+                case "Settings":
+                    _mainWindow?.OpenSettingsWindow();
                     break;
             }
         }
@@ -677,9 +758,12 @@ namespace CatchCapture
             if (this.TryFindResource("DarkContextMenu") is Style darkMenu)
                 menu.Style = darkMenu;
 
+            // ★ 수정됨: 트레이 모드와 동일하게 모든 아이콘 포함
             var allIcons = new[] {
                 "AreaCapture", "DelayCapture", "FullScreen", "RealTimeCapture",
-                "DesignatedCapture", "WindowCapture", "UnitCapture", "ScrollCapture"
+                "DesignatedCapture", "WindowCapture", "UnitCapture", "ScrollCapture",
+                "Copy", "CopyAll", "Save", "SaveAll", 
+                "Delete", "DeleteAll", "Settings"
             };
 
             if (settings != null)
@@ -700,6 +784,13 @@ namespace CatchCapture
                             "WindowCapture" => CreateMenuIcon("/icons/window_cap.png"),
                             "UnitCapture" => CreateMenuIcon("/icons/unit_capture.png"),
                             "ScrollCapture" => CreateMenuIcon("/icons/scroll_capture.png"),
+                            "Copy" => CreateMenuIcon("/icons/copy_selected.png"),
+                            "CopyAll" => CreateMenuIcon("/icons/copy_all.png"),
+                            "Save" => CreateMenuIcon("/icons/save_selected.png"),
+                            "SaveAll" => CreateMenuIcon("/icons/save_all.png"),
+                            "Delete" => CreateMenuIcon("/icons/delete_selected.png"),
+                            "DeleteAll" => CreateMenuIcon("/icons/delete_all.png"),
+                            "Settings" => CreateMenuIcon("/icons/setting.png"),
                             _ => null
                         };
                         if (this.TryFindResource("DarkMenuItem") is Style darkItem)

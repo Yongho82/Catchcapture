@@ -88,6 +88,8 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         settings = Settings.Load();
+
+        Settings.SettingsChanged += OnSettingsChanged;
         
         // Print Screen 키 감지
         this.PreviewKeyDown += MainWindow_PreviewKeyDown;
@@ -145,6 +147,16 @@ public partial class MainWindow : Window
             }
             UpdateEmptyStateLogo();            
         };
+    }
+
+    private void OnSettingsChanged(object? sender, EventArgs e)
+    {
+        Dispatcher.Invoke(() =>
+        {
+            settings = Settings.Load();
+            // 필요한 UI 업데이트
+            UpdateInstantEditToggleUI();
+        });
     }
 
     private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -337,17 +349,31 @@ public partial class MainWindow : Window
         switch (lastMode)
         {
             case "Simple":
-                if (simpleModeWindow == null || !simpleModeWindow.IsVisible)
+                // ★ 간편모드가 숨겨져 있으면 다시 표시
+                if (simpleModeWindow != null && !simpleModeWindow.IsVisible)
                 {
-                    SwitchToSimpleMode();
+                    simpleModeWindow.Show();
+                    simpleModeWindow.Activate();
+                    simpleModeWindow.Topmost = true;
+                }
+                else if (simpleModeWindow != null && simpleModeWindow.IsVisible)
+                {
+                    // 이미 보이면 숨기기
+                    simpleModeWindow.Hide();
                 }
                 else
                 {
-                    simpleModeWindow.Hide();
+                    // 간편모드 창이 없으면 새로 생성
+                    SwitchToSimpleMode();
                 }
                 break;
                 
             case "Tray":
+                // ★ 간편모드가 열려있으면 트레이모드 열지 않음
+                if (simpleModeWindow != null && simpleModeWindow.IsVisible)
+                {
+                    return;
+                }
                 ToggleTrayModeWindow();
                 break;
                 
@@ -367,7 +393,9 @@ public partial class MainWindow : Window
 
     public void SwitchToTrayMode()
     {
+        // ★ 트레이모드 상태 저장
         settings.LastActiveMode = "Tray";
+        Settings.Save(settings);
         
         // SimpleModeWindow가 열려 있다면 닫기
         if (simpleModeWindow != null)
@@ -442,7 +470,9 @@ public partial class MainWindow : Window
 
     public void SwitchToNormalMode()
     {
-        settings.LastActiveMode = "Normal";  // 이 줄 추가
+        // ★ 일반모드 상태 저장
+        settings.LastActiveMode = "Normal";
+        
         // 간편 모드가 켜져 있다면 종료
         Application.Current.MainWindow = this; 
         if (simpleModeWindow != null)
@@ -528,9 +558,11 @@ public partial class MainWindow : Window
         UpdateInstantEditToggleUI();
     }
 
-    private void SwitchToSimpleMode()
+    public void SwitchToSimpleMode()
     {
+        // ★ 간편모드 상태 저장
         settings.LastActiveMode = "Simple";
+        Settings.Save(settings);
         
         // 트레이 모드 창 닫기
         if (trayModeWindow != null)
@@ -602,8 +634,7 @@ public partial class MainWindow : Window
     {
         // 닫기 버튼 클릭 시 트레이로 숨기기 (종료 아님)
         this.Hide();
-        
-    } 
+    }  
 
     private void AddKeyboardShortcuts()
     {
@@ -1614,7 +1645,7 @@ public partial class MainWindow : Window
         CopySelectedImage();
     }
 
-    private void CopySelectedImage()
+    public void CopySelectedImage()
     {
         if (selectedIndex >= 0 && selectedIndex < captures.Count)
         {
@@ -1629,7 +1660,7 @@ public partial class MainWindow : Window
         CopyAllImages();
     }
 
-    private void CopyAllImages()
+    public void CopyAllImages()
     {
         if (captures.Count == 0) return;
 
@@ -1637,14 +1668,12 @@ public partial class MainWindow : Window
         int totalWidth = 0;
         int totalHeight = 0;
 
-        // 최대 너비와 총 높이 계산
         foreach (var capture in captures)
         {
             totalWidth = Math.Max(totalWidth, capture.Image.PixelWidth);
             totalHeight += capture.Image.PixelHeight;
         }
 
-        // 결합된 이미지 생성
         DrawingVisual drawingVisual = new DrawingVisual();
         using (DrawingContext drawingContext = drawingVisual.RenderOpen())
         {
@@ -1660,7 +1689,6 @@ public partial class MainWindow : Window
             totalWidth, totalHeight, 96, 96, PixelFormats.Pbgra32);
         combinedImage.Render(drawingVisual);
 
-        // 클립보드에 복사
         ScreenCaptureUtility.CopyImageToClipboard(combinedImage);
         ShowGuideMessage(LocalizationManager.Get("AllCopiedToClipboard"), TimeSpan.FromSeconds(1));
     }
@@ -1674,7 +1702,7 @@ public partial class MainWindow : Window
         SaveSelectedImage();
     }
 
-    private void SaveSelectedImage()
+    public void SaveSelectedImage()
     {
         if (selectedIndex >= 0 && selectedIndex < captures.Count)
         {
@@ -1736,7 +1764,7 @@ public partial class MainWindow : Window
             }
         }
     }
-    private void SaveAllImages()
+    public void SaveAllImages()
     {
         if (captures.Count == 0) return;
 
@@ -1774,11 +1802,10 @@ public partial class MainWindow : Window
         DeleteSelectedImage();
     }
 
-    private void DeleteSelectedImage()
+    public void DeleteSelectedImage()
     {
         if (selectedIndex >= 0 && selectedIndex < captures.Count)
         {
-            // 저장되지 않은 이미지인 경우 확인
             if (!captures[selectedIndex].IsSaved && settings.ShowSavePrompt)
             {
                 var result = MessageBox.Show(
@@ -1793,7 +1820,6 @@ public partial class MainWindow : Window
                 }
             }
 
-            // UI에서 제거 - 실제 UI 인덱스 찾기
             int uiIndex = -1;
             for (int i = 0; i < CaptureListPanel.Children.Count; i++)
             {
@@ -1811,20 +1837,11 @@ public partial class MainWindow : Window
                 CaptureListPanel.Children.RemoveAt(uiIndex);
             }
 
-            // 데이터에서 제거
             captures.RemoveAt(selectedIndex);
-
-            // 인덱스 업데이트
             UpdateCaptureItemIndexes();
-
-            // 선택 초기화
             selectedBorder = null;
             selectedIndex = -1;
-
-            // 버튼 상태 업데이트
             UpdateButtonStates();
-            
-            // 로고 표시 상태 업데이트
             UpdateEmptyStateLogo();
         }
     }
@@ -1864,11 +1881,10 @@ public partial class MainWindow : Window
         UpdateEmptyStateLogo();
     }
 
-    private void DeleteAllImages()
+    public void DeleteAllImages()
     {
         if (captures.Count == 0) return;
 
-        // 저장되지 않은 이미지가 있는지 확인
         bool hasUnsavedImages = captures.Exists(c => !c.IsSaved);
 
         if (hasUnsavedImages && settings.ShowSavePrompt)
@@ -1885,17 +1901,27 @@ public partial class MainWindow : Window
             }
         }
 
-        // 모든 이미지 삭제
         CaptureListPanel.Children.Clear();
         captures.Clear();
         selectedBorder = null;
         selectedIndex = -1;
-
-        // 버튼 상태 업데이트
         UpdateButtonStates();
         UpdateCaptureCount();
+        UpdateEmptyStateLogo();
     }
 
+    public void OpenSettingsWindow()
+    {
+        var win = new SettingsWindow();
+        win.Owner = this;
+        var result = win.ShowDialog();
+        if (result == true)
+        {
+            settings = Settings.Load();
+            RegisterGlobalHotkeys();
+            UpdateInstantEditToggleUI();
+        }
+    }
     #endregion
 
     #region 미리보기 기능
@@ -2325,6 +2351,9 @@ public partial class MainWindow : Window
 
     private void ShowSimpleMode()
     {
+        // ★ 간편모드 상태 저장 (맨 처음에 추가)
+        settings.LastActiveMode = "Simple";
+        Settings.Save(settings);        
         simpleModeWindow = new SimpleModeWindow(this);
         // 간편모드를 작업표시줄 대표로 사용하기 위해 Owner 해제 및 Taskbar 표시
          
@@ -2446,6 +2475,13 @@ public partial class MainWindow : Window
 
         // 앱의 MainWindow를 본체로 복구
         Application.Current.MainWindow = this;
+    }
+
+    // SimpleModeWindow가 숨겨졌을 때 호출되는 메서드
+    public void OnSimpleModeHidden()
+    {
+        // simpleModeWindow 참조는 유지하되, 상태만 업데이트
+        // (다음에 트레이 아이콘 클릭 시 간편모드를 다시 표시하기 위함)
     }
 
     // 간편모드가 떠 있는 동안 작업표시줄 클릭으로 본체가 튀어나오지 않도록 제어
@@ -2840,6 +2876,7 @@ public partial class MainWindow : Window
 
     protected override void OnClosed(EventArgs e)
     {
+        Settings.SettingsChanged -= OnSettingsChanged;
         try { LocalizationManager.LanguageChanged -= MainWindow_LanguageChanged; } catch { }
         base.OnClosed(e);
     }
