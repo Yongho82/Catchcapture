@@ -3116,8 +3116,14 @@ namespace CatchCapture.Utilities
                                 drawingContext.DrawEllipse(ellipse.Fill, new Pen(ellipse.Stroke, ellipse.StrokeThickness), new Point(ellipse.Width / 2, ellipse.Height / 2), ellipse.Width / 2, ellipse.Height / 2);
                             }
                             drawingContext.Pop();
-                        }
+                        } 
                     }
+                    else if (element is Image image)
+                    {
+                        double left = Canvas.GetLeft(image) - selectionLeft;
+                        double top = Canvas.GetTop(image) - selectionTop;
+                        drawingContext.DrawImage(image.Source, new Rect(left, top, image.Width, image.Height));
+                    }                    
                     else if (element is Canvas canvas)
                     {
                         // 넘버링 그룹인지 확인 (Border 자식이 있으면 넘버링)
