@@ -42,10 +42,9 @@ namespace CatchCapture
         private Settings? settings;     
 
         private Popup? iconPopup;
+        private bool _isPopupOpen = false;
         // A+ 사이즈 스케일 (1.0 기본, 1.15 크게)
         private double _uiScale = 1.0;
-
-        private bool _isPopupOpen = false; // Popup 열림 상태 추적
         public event EventHandler? AreaCaptureRequested;
         public event EventHandler? FullScreenCaptureRequested;
         public event EventHandler? ExitSimpleModeRequested;
@@ -205,24 +204,34 @@ namespace CatchCapture
                 if (_uiScale > 1.0) baseWidth += 2; // A+ 활성 시 2px 추가 여유
                 Width = baseWidth;
                 
-                // 동적 높이 계산
-                if (settings != null)
-                {
-                    int builtIn = settings.SimpleModeIcons?.Count ?? 0;
-                    int external = settings.SimpleModeApps?.Count ?? 0;
-                    int iconCount = builtIn + external + 1; // + 버튼 포함
-                    double baseH = 35 + iconCount * 54 + 35;
-                    Height = baseH * _uiScale;
-                }
-                else
-                {
-                    Height = 230 * _uiScale;
-                }
+        // ★ 동적 높이 계산 (90% 제한)
+        if (settings != null && ButtonsPanelV.Children.Count > 0)
+        {
+            // 실제 ButtonsPanelV에 추가된 버튼 개수 사용
+            int actualButtonCount = ButtonsPanelV.Children.Count;
+            
+            // 높이 계산: 기본 85px + (실제 버튼 개수 * 52px) + 여유 30px
+            int calculatedHeight = (int)((85 + actualButtonCount * 52 + 30) * _uiScale);
+            
+            // 90% 제한 적용
+            var workArea = SystemParameters.WorkArea;
+            int maxHeight = (int)(workArea.Height * 0.9);
+            
+            Height = Math.Min(calculatedHeight, maxHeight);
+        }
+        else if (settings != null)
+        {
+            Height = 300 * _uiScale;
+        }
+        else
+        {
+            Height = 300 * _uiScale;
+        }
             }
             else
             {
-                HorizontalRoot.Visibility = Visibility.Visible;
                 VerticalRoot.Visibility = Visibility.Collapsed;
+                HorizontalRoot.Visibility = Visibility.Visible;
                 
                 // 동적 너비 계산
                 if (settings != null)
@@ -252,18 +261,25 @@ namespace CatchCapture
             var workArea = SystemParameters.WorkArea;
             int maxHeight = (int)(workArea.Height * 0.9);
             
-            // 세로 모드 기본 높이: 상하 여백 + A+ 버튼영역 등
-            int baseHeight = 85; // 기본 UI 높이
-            int iconHeight = 48; // 아이콘 하나당 높이 (간편모드는 44 + 마진)
+            // ★ 수정: 실제 사용하는 높이 값으로 계산
+            int baseHeight = 85;  // 기본 UI 높이
+            int iconHeight = 52;  // 아이콘 하나당 실제 높이 (48 → 52)
+            int extraSpace = 30;  // 여유 공간
             
-            int maxSlots = (maxHeight - baseHeight) / iconHeight;
-            int totalItems = settings.SimpleModeIcons.Count + settings.SimpleModeApps.Count + 1; // + 버튼 포함
+            // ★ + 버튼과 ⇄ 버튼을 위한 공간 확보
+            int reservedSlots = 2;  // + 버튼(1) + ⇄ 버튼(1)
             
-            // 넘치면 토글 버튼 자리(-2) 확보: ⇄ 버튼 + + 버튼
-            if (totalItems > maxSlots)
+            // 사용 가능한 높이에서 최대 슬롯 계산
+            int availableHeight = maxHeight - baseHeight - extraSpace;
+            int maxSlots = availableHeight / iconHeight;
+            
+            // 예약된 슬롯 제외
+            int effectiveSlots = Math.Max(1, maxSlots - reservedSlots);
+            
+            int totalItems = settings.SimpleModeIcons.Count + settings.SimpleModeApps.Count;
+            
+            if (totalItems > effectiveSlots)
             {
-                int effectiveSlots = maxSlots - 2; // ★ -1에서 -2로 변경 (⇄ 버튼 + + 버튼)
-                
                 // 아이콘 우선 배정
                 if (settings.SimpleModeIcons.Count > effectiveSlots)
                 {
@@ -278,8 +294,6 @@ namespace CatchCapture
                 }
             }
         }
-
-        // ==================== GetHiddenIconsVertical 메서드 추가 ====================
         private List<string> GetHiddenIconsVertical()
         {
             if (settings == null) return new List<string>();
@@ -291,13 +305,10 @@ namespace CatchCapture
             
             if (iconsToHide > 0)
             {
-                // 리스트의 맨 뒤에서부터 숨김
                 int hiddenCount = 0;
                 for (int i = settings.SimpleModeIcons.Count - 1; i >= 0 && hiddenCount < iconsToHide; i--)
                 {
                     string iconName = settings.SimpleModeIcons[i];
-                    
-                    // Settings는 절대 숨기지 않음
                     if (iconName == "Settings") continue;
                     
                     hiddenIcons.Add(iconName);
@@ -328,7 +339,6 @@ namespace CatchCapture
             }
             return hiddenApps;
         }
-
         private void Window_MouseEnter(object sender, MouseEventArgs e)
         {
             _collapseTimer.Stop();
@@ -352,7 +362,6 @@ namespace CatchCapture
         {
             _collapseTimer.Stop();
             
-            // ★ Popup이 열려있으면 collapse 하지 않음
             if (_isPopupOpen) return;
             
             if (IsMouseOver) return;
@@ -537,56 +546,58 @@ namespace CatchCapture
             }
             ButtonsPanelH.Children.Add(CreateAddButton(false));
             
-            // ★ 세로 모드 버튼 생성 (90% 로직 적용)
-            ButtonsPanelV.Children.Clear();
-            
-            var hiddenIcons = GetHiddenIconsVertical();
-            var hiddenApps = GetHiddenAppsVertical();
-            
-            // 보이는 아이콘만 추가
-            foreach (var iconName in settings.SimpleModeIcons)
+        // ★ 세로 모드 버튼 생성 (90% 로직 적용)
+        ButtonsPanelV.Children.Clear();
+
+        var hiddenIcons = GetHiddenIconsVertical();
+        var hiddenApps = GetHiddenAppsVertical();
+
+        // 보이는 아이콘만 추가
+        foreach (var iconName in settings.SimpleModeIcons)
+        {
+            if (iconName == "Settings" || !hiddenIcons.Contains(iconName))
             {
-                if (iconName == "Settings" || !hiddenIcons.Contains(iconName))
-                {
-                    var button = CreateIconButton(iconName, true);
-                    ButtonsPanelV.Children.Add(button);
-                }
+                var button = CreateIconButton(iconName, true);
+                ButtonsPanelV.Children.Add(button);
             }
-            
-            // 보이는 앱만 추가
-            foreach (var app in settings.SimpleModeApps)
-            {
-                if (!hiddenApps.Contains(app))
-                {
-                    var button = CreateAppButton(app, true);
-                    ButtonsPanelV.Children.Add(button);
-                }
-            }
-            
-            // ★ 숨겨진 항목이 있으면 ⇄ 버튼 추가
-            if (hiddenIcons.Count > 0 || hiddenApps.Count > 0)
-            {
-                var expandButton = new Button
-                {
-                    Content = "⇄",
-                    FontSize = 16,
-                    FontWeight = FontWeights.Bold,
-                    Style = this.FindResource("IconButtonStyle") as Style,
-                    ToolTip = "숨겨진 아이콘 보기",
-                    Opacity = 0.6
-                };
-                expandButton.Click += ExpandButton_Click;
-                ButtonsPanelV.Children.Add(expandButton);
-            }
-            
-            // + 버튼 추가
-            ButtonsPanelV.Children.Add(CreateAddButton(true));
-            
-            // 창 크기 조정
-            bool isVertical = VerticalRoot.Visibility == Visibility.Visible;
-            ApplyLayout(isVertical);
         }
 
+        // 보이는 앱만 추가
+        foreach (var app in settings.SimpleModeApps)
+        {
+            if (!hiddenApps.Contains(app))
+            {
+                var button = CreateAppButton(app, true);
+                ButtonsPanelV.Children.Add(button);
+            }
+        }
+
+        // ★ 숨겨진 항목이 있으면 ⇄ 버튼 추가
+        if (hiddenIcons.Count > 0 || hiddenApps.Count > 0)
+        {
+            var expandButton = new Button
+            {
+                Content = "⇄",
+                FontSize = 12,  // 16 → 12로 축소
+                FontWeight = FontWeights.Bold,
+                Style = this.FindResource("IconButtonStyle") as Style,
+                ToolTip = "숨겨진 아이콘 보기",
+                Opacity = 0.6,
+                Height = 32  // 높이 32px로 제한
+            };
+            expandButton.Click += ExpandButton_Click;
+            ButtonsPanelV.Children.Add(expandButton);
+        }
+
+        // + 버튼 추가
+        ButtonsPanelV.Children.Add(CreateAddButton(true));
+        // ★ 레이아웃 강제 업데이트
+        ButtonsPanelV.UpdateLayout();
+
+        // 창 크기 조정
+        bool isVertical = VerticalRoot.Visibility == Visibility.Visible;
+        ApplyLayout(isVertical);
+        }
 
         private void ExpandButton_Click(object sender, RoutedEventArgs e)
         {
@@ -1019,11 +1030,17 @@ namespace CatchCapture
             var button = new Button
             {
                 Content = "+",
-                FontSize = 18,
+                FontSize = isVertical ? 14 : 18,  // 세로 모드일 때 작게 (18 → 14)
                 FontWeight = FontWeights.Bold,
                 Style = this.FindResource("AddButtonStyle") as Style,
                 ToolTip = CatchCapture.Models.LocalizationManager.Get("AddIcon")
             };
+            
+            // ★ 세로 모드일 때 높이 제한
+            if (isVertical)
+            {
+                button.Height = 32;
+            }
             
             button.Click += ShowAddIconMenu;
             
