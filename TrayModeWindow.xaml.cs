@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -22,6 +23,7 @@ namespace CatchCapture
         private MainWindow mainWindow;
         private Settings? settings;
         private bool isFolded = false;
+        private bool isExpanded = false; // 확장 상태
 
         public TrayModeWindow(MainWindow owner)
         {
@@ -296,31 +298,39 @@ namespace CatchCapture
         }
         private void BuildIconButtons()
         {
-            // ButtonsPanel을 찾아서 기존 버튼들 제거 (캡처 카운터와 상단 컨트롤 제외)
-            // settings.TrayModeIcons 리스트를 기반으로 동적으로 버튼 생성
-            
             var buttonsPanel = FindButtonsPanel();
             if (buttonsPanel == null) return;
             
             // 기존 캡처 버튼들 제거 (구분선 이후)
             ClearCaptureButtons(buttonsPanel);
             
-            // 설정에 있는 아이콘들만 추가
+            // 숨겨진 아이콘/앱 계산
+            var hiddenIcons = GetHiddenIcons();
+            var hiddenApps = GetHiddenApps();
+            
+            // 설정에 있는 아이콘들만 추가 (숨겨진 것 제외)
             if (settings != null)
             {
                 foreach (var iconName in settings.SimpleModeIcons)
                 {
-                    AddIconButton(buttonsPanel, iconName);
+                    // Settings는 항상 표시, 나머지는 숨겨진 것 제외
+                    if (iconName == "Settings" || !hiddenIcons.Contains(iconName))
+                    {
+                        AddIconButton(buttonsPanel, iconName);
+                    }
                 }
                 
-                // 외부 앱 바로가기 추가
+                // 외부 앱 바로가기 추가 (숨겨진 것 제외)
                 foreach (var app in settings.SimpleModeApps)
                 {
-                    AddAppButton(buttonsPanel, app);
+                    if (!hiddenApps.Contains(app))
+                    {
+                        AddAppButton(buttonsPanel, app);
+                    }
                 }
             }
             
-            // 빈 슬롯 추가 (+ 버튼)
+            // 빈 슬롯 추가 (⇄ + 버튼)
             AddEmptySlot(buttonsPanel);
             
             // HideToTrayButton을 + 버튼 위로 이동 (순서 보장)
@@ -336,29 +346,45 @@ namespace CatchCapture
                 buttonsPanel.Children.Remove(FoldButton);
                 buttonsPanel.Children.Add(FoldButton);
             }
-    
+            
             // 창 높이 자동 조절
             AdjustWindowHeight();
         }
+
         private void AdjustWindowHeight()
         {
             if (isFolded || settings == null) return;
 
-            // 아이콘 개수에 따라 창 높이 계산
-            // 상단 컨트롤: ~20px
-            // InstantEditToggle: 26px (16 + margin 10)
-            // TopmostButton: 30px (28 + margin 2)
-            // CaptureCounter: 30px (28 + margin 2)
-            // 첫 번째 Separator: 21px
-            // 각 아이콘: 52px (48 + margin 4)
-            // 나가기 버튼: 30px (28 + margin 2)
-            // + 버튼: 30px (28 + margin 2)
-            // FoldButton: 30px (28 + margin 2)
-            // 여백: 10px (상하, Grid margin 2,5)
+            // 숨겨진 아이콘 계산
+            var hiddenIcons = GetHiddenIcons();
+            var hiddenApps = GetHiddenApps();
             
-            int iconCount = settings.SimpleModeIcons.Count + settings.SimpleModeApps.Count;
-            int baseHeight = 20 + 26 + 30 + 30 + 21 + 30 + 30 + 30 + 10; // 상단 + InstantEdit + TopmostButton + Counter + Separator + 나가기 + + 버튼 + FoldButton + 여백
-            int iconsHeight = iconCount * 52;
+            // 실제로 표시되는 아이콘 개수 계산
+            int visibleIconCount = settings.SimpleModeIcons.Count - hiddenIcons.Count;
+            int visibleAppCount = settings.SimpleModeApps.Count - hiddenApps.Count;
+            int totalVisibleIcons = visibleIconCount + visibleAppCount;
+            
+            // 기본 높이 계산 (아이콘 제외)
+            // 상단 컨트롤: ~20px
+            // InstantEditToggle: 26px
+            // TopmostButton: 30px
+            // CaptureCounter: 30px
+            // 첫 번째 Separator: 21px
+            // + 버튼: 30px
+            // 나가기 버튼: 30px
+            // FoldButton: 30px
+            // 여백: 10px
+            
+            int baseHeight = 20 + 26 + 30 + 30 + 21 + 30 + 30 + 30 + 10; // = 227px
+            
+            // 숨겨진 아이콘이 있으면 ⇄ 버튼 높이 추가
+            if (hiddenIcons.Count > 0 || hiddenApps.Count > 0)
+            {
+                baseHeight += 30;
+            }
+            
+            // 실제 표시되는 아이콘 높이 (Settings 포함)
+            int iconsHeight = totalVisibleIcons * 52;
             
             int newHeight = baseHeight + iconsHeight;
             
@@ -374,6 +400,7 @@ namespace CatchCapture
             this.Top -= heightDiff;
             this.Height = newHeight;
         }
+
         private void AddIconButton(StackPanel panel, string iconName)
         {
             // Grid로 감싸서 버튼 + 호버 시 - 버튼 추가
@@ -393,6 +420,130 @@ namespace CatchCapture
             grid.MouseLeave += (s, e) => removeButton.Visibility = Visibility.Collapsed;
             
             panel.Children.Add(grid);
+        }
+
+        private void AddEmptySlot(StackPanel panel)
+        {
+            // 숨겨진 아이콘이 있을 때만 확장/축소 토글 버튼 표시
+            var hiddenIcons = GetHiddenIcons();
+            var hiddenApps = GetHiddenApps();
+            
+            if (hiddenIcons.Count > 0 || hiddenApps.Count > 0)
+            {
+                var expandButton = new Button
+                {
+                    Content = "⇄",
+                    FontSize = 16,
+                    FontWeight = FontWeights.Bold,
+                    Style = this.FindResource("TinyButtonStyle") as Style,
+                    ToolTip = "숨겨진 아이콘 보기",
+                    Foreground = new SolidColorBrush(Color.FromRgb(102, 102, 102))
+                };
+                expandButton.Click += ExpandToggleButton_Click;
+                panel.Children.Add(expandButton);
+            }
+            
+            // + 버튼 (호버 시만 표시)
+            var grid = new Grid 
+            { 
+                Height = 30,
+                Background = Brushes.Transparent
+            };
+            
+            var addButton = new Button
+            {
+                Content = "+",
+                FontSize = 18,
+                FontWeight = FontWeights.Bold,
+                Style = this.FindResource("TinyButtonStyle") as Style,
+                ToolTip = LocalizationManager.Get("AddIcon"),
+                Opacity = 0.3
+            };
+            
+            addButton.Click += ShowAddIconMenu;
+            grid.Children.Add(addButton);
+            
+            grid.MouseEnter += (s, e) => addButton.Opacity = 1.0;
+            grid.MouseLeave += (s, e) => addButton.Opacity = 0.3;
+            
+            panel.Children.Add(grid);
+        }
+
+        private void ShowAddIconMenu(object sender, RoutedEventArgs e)
+        {
+            var menu = new ContextMenu();
+            if (this.TryFindResource("DarkContextMenu") is Style darkMenu)
+                menu.Style = darkMenu;
+            
+            var allIcons = new[] { 
+                "AreaCapture", "DelayCapture", "FullScreen", "RealTimeCapture",
+                "DesignatedCapture", "WindowCapture", "UnitCapture", "ScrollCapture",
+                "Copy", "CopyAll", "Save", "SaveAll", 
+                "Delete", "DeleteAll", "Settings"
+            };
+            
+            if (settings != null)
+            {
+                foreach (var icon in allIcons)
+                {
+                    if (!settings.SimpleModeIcons.Contains(icon))
+                    {
+                        var item = new MenuItem { Header = LocalizationManager.Get(icon) };
+                        item.Icon = icon switch
+                        {
+                            "AreaCapture" => CreateMenuIcon("/icons/area_capture.png"),
+                            "DelayCapture" => CreateMenuIcon("/icons/clock.png"),
+                            "FullScreen" => CreateMenuIcon("/icons/full_screen.png"),
+                            "RealTimeCapture" => CreateMenuIcon("/icons/real-time.png"),
+                            "DesignatedCapture" => CreateMenuIcon("/icons/designated.png"),
+                            "WindowCapture" => CreateMenuIcon("/icons/window_cap.png"),
+                            "UnitCapture" => CreateMenuIcon("/icons/unit_capture.png"),
+                            "ScrollCapture" => CreateMenuIcon("/icons/scroll_capture.png"),
+                            "Copy" => CreateMenuIcon("/icons/copy_selected.png"),
+                            "CopyAll" => CreateMenuIcon("/icons/copy_all.png"),
+                            "Save" => CreateMenuIcon("/icons/save_selected.png"),
+                            "SaveAll" => CreateMenuIcon("/icons/save_all.png"),
+                            "Delete" => CreateMenuIcon("/icons/delete_selected.png"),
+                            "DeleteAll" => CreateMenuIcon("/icons/delete_all.png"),
+                            "Settings" => CreateMenuIcon("/icons/setting.png"),
+                            _ => null
+                        };
+                        if (this.TryFindResource("DarkMenuItem") is Style darkItem)
+                            item.Style = darkItem;
+                        item.Click += (s2, e2) => AddIcon(icon);
+                        menu.Items.Add(item);
+                    }
+                }
+            }
+            
+            // 구분선 및 컴퓨터 앱 추가
+            if (menu.Items.Count > 0)
+            {
+                var sep = new Separator();
+                if (this.TryFindResource("LightSeparator") is Style sepStyle)
+                    sep.Style = sepStyle;
+                menu.Items.Add(sep);
+            }
+            
+            var appsItem = new MenuItem { Header = "컴퓨터 앱…" };
+            if (this.TryFindResource("DarkMenuItem") is Style darkApps)
+                appsItem.Style = darkApps;
+            appsItem.Icon = CreateMenuIcon("/icons/app.png") ?? CreateMenuIcon("/icons/setting.png");
+            appsItem.Click += async (s2, e2) =>
+            {
+                var picked = await OpenAppPickerAsync();
+                if (picked != null)
+                {
+                    if (settings == null) settings = Settings.Load();
+                    settings.SimpleModeApps.Add(picked);
+                    Settings.Save(settings);
+                    BuildIconButtons();
+                }
+            };
+            menu.Items.Add(appsItem);
+            
+            menu.PlacementTarget = sender as Button;
+            menu.IsOpen = true;
         }
 
         private StackPanel? FindButtonsPanel()
@@ -696,117 +847,223 @@ namespace CatchCapture
                 BuildIconButtons();
             }
         }
+        // 클래스 필드에 추가
+        private Popup? iconPopup = null;
 
-        private void AddEmptySlot(StackPanel panel)
+        // 확장/축소 토글 버튼 클릭 이벤트
+        private void ExpandToggleButton_Click(object sender, RoutedEventArgs e)
         {
-            // + 버튼 (호버 시만 표시)
-            var grid = new Grid 
-            { 
-                Height = 30,
-                Background = Brushes.Transparent  // 투명 배경 추가 (호버 감지용)
-            };
-            
-            var addButton = new Button
+            try
             {
-                Content = "+",
-                FontSize = 18,
-                FontWeight = FontWeights.Bold,
-                Style = this.FindResource("TinyButtonStyle") as Style,
-                ToolTip = LocalizationManager.Get("AddIcon"),
-                Opacity = 0.3  // 기본적으로 반투명하게 표시
-            };
-            
-            addButton.Click += ShowAddIconMenu;
-            grid.Children.Add(addButton);
-            
-            // 호버 시 완전히 보이게
-            grid.MouseEnter += (s, e) => addButton.Opacity = 1.0;
-            grid.MouseLeave += (s, e) => addButton.Opacity = 0.3;
-            
-            panel.Children.Add(grid);
-        }
-
-        private void ShowAddIconMenu(object sender, RoutedEventArgs e)
-        {
-            // 추가 가능한 아이콘 목록 표시 (ContextMenu)
-            var menu = new ContextMenu();
-            if (this.TryFindResource("DarkContextMenu") is Style darkMenu)
-                menu.Style = darkMenu;
-            
-            var allIcons = new[] { 
-                "AreaCapture", "DelayCapture", "FullScreen", "RealTimeCapture",
-                "DesignatedCapture", "WindowCapture", "UnitCapture", "ScrollCapture",
-                "Copy", "CopyAll", "Save", "SaveAll", 
-                "Delete", "DeleteAll", "Settings"
-            };
-            
-            if (settings != null)
-            {
-                foreach (var icon in allIcons)
+                if (iconPopup == null || !iconPopup.IsOpen)
                 {
-                    if (!settings.SimpleModeIcons.Contains(icon))
-                    {
-                        var item = new MenuItem { Header = LocalizationManager.Get(icon) };
-                        // 아이콘 매핑: 프로젝트의 투명 PNG 아이콘 사용
-                        item.Icon = icon switch
-                        {
-                            "AreaCapture" => CreateMenuIcon("/icons/area_capture.png"),
-                            "DelayCapture" => CreateMenuIcon("/icons/clock.png"),
-                            "FullScreen" => CreateMenuIcon("/icons/full_screen.png"),
-                            "RealTimeCapture" => CreateMenuIcon("/icons/real-time.png"),
-                            "DesignatedCapture" => CreateMenuIcon("/icons/designated.png"),
-                            "WindowCapture" => CreateMenuIcon("/icons/window_cap.png"),
-                            "UnitCapture" => CreateMenuIcon("/icons/unit_capture.png"),
-                            "ScrollCapture" => CreateMenuIcon("/icons/scroll_capture.png"),
-                            "Copy" => CreateMenuIcon("/icons/copy_selected.png"),
-                            "CopyAll" => CreateMenuIcon("/icons/copy_all.png"),
-                            "Save" => CreateMenuIcon("/icons/save_selected.png"),
-                            "SaveAll" => CreateMenuIcon("/icons/save_all.png"),
-                            "Delete" => CreateMenuIcon("/icons/delete_selected.png"),
-                            "DeleteAll" => CreateMenuIcon("/icons/delete_all.png"),
-                            "Settings" => CreateMenuIcon("/icons/setting.png"),
-                            _ => null
-                        };
-                        if (this.TryFindResource("DarkMenuItem") is Style darkItem)
-                            item.Style = darkItem;
-                        item.Click += (s2, e2) => AddIcon(icon);
-                        menu.Items.Add(item);
-                    }
+                    // Popup 생성 및 표시
+                    ShowIconPopup();
+                }
+                else
+                {
+                    // Popup 닫기
+                    iconPopup.IsOpen = false;
                 }
             }
-            
-            // 구분선 및 컴퓨터 앱 추가
-            if (menu.Items.Count > 0)
+            catch (Exception)
             {
-                var sep = new Separator();
-                if (this.TryFindResource("LightSeparator") is Style sepStyle)
-                    sep.Style = sepStyle;
-                menu.Items.Add(sep);
             }
-            
-            var appsItem = new MenuItem { Header = "컴퓨터 앱…" };
-            if (this.TryFindResource("DarkMenuItem") is Style darkApps)
-                appsItem.Style = darkApps;
-            appsItem.Icon = CreateMenuIcon("/icons/app.png") ?? CreateMenuIcon("/icons/setting.png");
-            appsItem.Click += async (s2, e2) =>
-            {
-                var picked = await OpenAppPickerAsync();
-                if (picked != null)
-                {
-                    if (settings == null) settings = Settings.Load();
-                    settings.SimpleModeApps.Add(picked);
-                    Settings.Save(settings);
-                    BuildIconButtons();
-                }
-            };
-            menu.Items.Add(appsItem);
-            
-            menu.PlacementTarget = sender as Button;
-            menu.IsOpen = true;
         }
 
-        // 프로젝트 PNG 아이콘을 16x16으로 표시 (투명 배경 유지)
-        // Pack URI 우선, 실패 시 파일 시스템 경로로 폴백
+        private void ShowIconPopup()
+        {
+            if (settings == null) return;
+            
+            // 숨겨진 아이콘 계산
+            var hiddenIcons = GetHiddenIcons();
+            var hiddenApps = GetHiddenApps();
+            
+            if (hiddenIcons.Count == 0 && hiddenApps.Count == 0)
+            {
+                MessageBox.Show("숨겨진 아이콘이 없습니다.", "알림");
+                return;
+            }
+            
+            // Popup 생성
+            iconPopup = new Popup
+            {
+                AllowsTransparency = true,
+                StaysOpen = false,
+                Placement = PlacementMode.Left,
+                PlacementTarget = this,
+                HorizontalOffset = -10
+            };
+            
+            // Popup 내용
+            var border = new Border
+            {
+                Background = Brushes.White,
+                CornerRadius = new CornerRadius(8),
+                BorderThickness = new Thickness(1),
+                BorderBrush = new SolidColorBrush(Color.FromRgb(224, 230, 240)),
+                Padding = new Thickness(10)
+            };
+            
+            border.Effect = new System.Windows.Media.Effects.DropShadowEffect
+            {
+                ShadowDepth = 2,
+                BlurRadius = 10,
+                Opacity = 0.3,
+                Direction = 270
+            };
+            
+            // 가로로 나열 (StackPanel 사용)
+            var stackPanel = new StackPanel
+            {
+                Orientation = Orientation.Horizontal
+            };
+            
+            // 숨겨진 아이콘 추가
+            foreach (var iconName in hiddenIcons)
+            {
+                var button = CreateIconButton(iconName);
+                button.Margin = new Thickness(2);
+                button.Click += (s, e) => { iconPopup.IsOpen = false; };
+                stackPanel.Children.Add(button);
+            }
+            
+            // 숨겨진 앱 추가
+            foreach (var app in hiddenApps)
+            {
+                var button = new Button
+                {
+                    Style = this.FindResource("IconButtonStyle") as Style,
+                    ToolTip = app.DisplayName,
+                    Margin = new Thickness(2)
+                };
+                
+                var stack = new StackPanel
+                {
+                    Orientation = Orientation.Vertical,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                
+                var img = CreateAppImage(app);
+                if (img != null) stack.Children.Add(img);
+                
+                var text = new TextBlock
+                {
+                    Text = TruncateForLabel(app.DisplayName),
+                    FontSize = 9,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    TextAlignment = TextAlignment.Center,
+                    Margin = new Thickness(0, 1, 0, 0),
+                    Foreground = new SolidColorBrush(Color.FromRgb(102, 102, 102))
+                };
+                stack.Children.Add(text);
+                
+                button.Content = stack;
+                button.Click += (s, e) => 
+                { 
+                    HandleAppClick(app);
+                    iconPopup.IsOpen = false; 
+                };
+                
+                stackPanel.Children.Add(button);
+            }
+            
+            border.Child = stackPanel;
+            iconPopup.Child = border;
+            iconPopup.IsOpen = true;
+        }
+
+        // [새로 추가] 표시할 아이콘과 앱의 개수를 정확히 계산하는 헬퍼 메서드
+        private void GetVisibilityCounts(out int visibleIcons, out int visibleApps)
+        {
+            // 일단 다 보여준다고 가정
+            visibleIcons = settings.SimpleModeIcons.Count;
+            visibleApps = settings.SimpleModeApps.Count;
+            
+            if (settings == null) return;
+
+            var workArea = SystemParameters.WorkArea;
+            int maxHeight = (int)(workArea.Height * 0.9);
+            
+            // 고정 버튼 높이 합계
+            int baseHeight = 20 + 26 + 30 + 30 + 21 + 30 + 30 + 30 + 10; 
+            int iconHeight = 52;
+            
+            // 최대 슬롯 계산
+            int maxSlots = (maxHeight - baseHeight) / iconHeight;
+            int totalItems = settings.SimpleModeIcons.Count + settings.SimpleModeApps.Count;
+            
+            // 넘치면 토글 버튼 자리(-1) 확보 후 계산
+            if (totalItems > maxSlots)
+            {
+                int effectiveSlots = maxSlots - 1;
+                
+                // 아이콘 우선 배정
+                if (settings.SimpleModeIcons.Count > effectiveSlots)
+                {
+                    visibleIcons = effectiveSlots;
+                    visibleApps = 0;
+                }
+                else
+                {
+                    visibleIcons = settings.SimpleModeIcons.Count;
+                    int remaining = effectiveSlots - visibleIcons;
+                    visibleApps = Math.Min(remaining, settings.SimpleModeApps.Count);
+                }
+            }
+        }
+
+        private List<string> GetHiddenIcons()
+        {
+            if (settings == null) return new List<string>();
+            
+            GetVisibilityCounts(out int visibleIconsCount, out int visibleAppsCount);
+            
+            var hiddenIcons = new List<string>();
+            int iconsToHide = settings.SimpleModeIcons.Count - visibleIconsCount;
+            
+            if (iconsToHide > 0)
+            {
+                // ★ 핵심: 리스트의 '맨 뒤'에서부터 숨깁니다.
+                int hiddenCount = 0;
+                for (int i = settings.SimpleModeIcons.Count - 1; i >= 0 && hiddenCount < iconsToHide; i--)
+                {
+                    string iconName = settings.SimpleModeIcons[i];
+                    
+                    // ★ Settings는 절대 숨기지 않고 건너뜁니다.
+                    if (iconName == "Settings") continue;
+                    
+                    hiddenIcons.Add(iconName);
+                    hiddenCount++;
+                }
+            }
+            return hiddenIcons;
+        }
+
+        private List<ExternalAppShortcut> GetHiddenApps()
+        {
+            if (settings == null) return new List<ExternalAppShortcut>();
+            
+            GetVisibilityCounts(out int visibleIconsCount, out int visibleAppsCount);
+            
+            var hiddenApps = new List<ExternalAppShortcut>();
+            int appsToHide = settings.SimpleModeApps.Count - visibleAppsCount;
+            
+            if (appsToHide > 0)
+            {
+                // 앱도 '맨 뒤'에서부터 숨깁니다.
+                int startIndex = settings.SimpleModeApps.Count - appsToHide;
+                if (startIndex < 0) startIndex = 0;
+
+                for (int i = startIndex; i < settings.SimpleModeApps.Count; i++)
+                {
+                    hiddenApps.Add(settings.SimpleModeApps[i]);
+                }
+            }
+            return hiddenApps;
+        }
+
         private Image? CreateMenuIcon(string relativePath)
         {
             try
