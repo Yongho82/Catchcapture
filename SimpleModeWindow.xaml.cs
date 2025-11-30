@@ -1206,7 +1206,11 @@ namespace CatchCapture
         // 누락된 헬퍼 복원: + 메뉴에서 내장 아이콘 추가
         private void AddIcon(string iconName)
         {
-            settings = Settings.Load();
+            if (settings == null)
+            {
+                settings = Settings.Load();
+            }
+            
             if (!settings.SimpleModeIcons.Contains(iconName))
             {
                 settings.SimpleModeIcons.Add(iconName);
@@ -1227,7 +1231,11 @@ namespace CatchCapture
 
             if (result == MessageBoxResult.Yes)
             {
-                settings = Settings.Load();
+                if (settings == null)
+                {
+                    settings = Settings.Load();
+                }
+                
                 settings.SimpleModeIcons.Remove(iconName);
                 Settings.Save(settings);
                 BuildIconButtons();

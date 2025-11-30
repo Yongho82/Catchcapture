@@ -317,11 +317,18 @@ public partial class MainWindow : Window
         {
             ShowTrayModeWindow();
         }
+        else if (!trayModeWindow.IsVisible)
+        {
+            // 창이 존재하지만 숨겨진 경우: 설정을 다시 로드하고 Show 호출
+            trayModeWindow.ReloadSettings();
+            trayModeWindow.Show();
+        }
         else
         {
             trayModeWindow.Hide();
         }
     }
+
 
     private void RestoreLastMode()
     {
@@ -390,13 +397,17 @@ public partial class MainWindow : Window
                 trayModeWindow = new TrayModeWindow(this);
                 trayModeWindow.Show();
             }
-            else if (!trayModeWindow.IsVisible)
+            else
             {
-                // 창이 존재하지만 숨겨진 경우에만 Show 호출
-                trayModeWindow.Show();
+                // 기존 창이 있으면 설정을 다시 로드하고 표시
+                trayModeWindow.ReloadSettings();
+                if (!trayModeWindow.IsVisible)
+                {
+                    trayModeWindow.Show();
+                }
             }
             
-            // [추가] 현재 캡처 개수 업데이트
+            // 현재 캡처 개수 업데이트
             trayModeWindow.UpdateCaptureCount(captures.Count);
             
             trayModeWindow.Activate();
