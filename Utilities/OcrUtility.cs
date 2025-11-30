@@ -87,8 +87,8 @@ namespace CatchCapture.Utilities
                         
                         for (int i = 1; i < sortedByY.Count; i++)
                         {
-                            // 같은 줄인지 확인 (Y 좌표 차이가 15 이하)
-                            if (Math.Abs(sortedByY[i].Y - currentLineY) <= 15)
+                            // 같은 줄인지 확인 (Y 좌표 차이가 40 이하 - 확대된 이미지 기준)
+                            if (Math.Abs(sortedByY[i].Y - currentLineY) <= 40)
                             {
                                 currentLine.Add(sortedByY[i]);
                             }
@@ -138,40 +138,64 @@ namespace CatchCapture.Utilities
                     bitmap = new Bitmap(stream);
                 }
 
-                // 2. 3배 확대 (작은 글자 인식률 향상)
-                int newWidth = (int)(bitmap.Width * 3);
-                int newHeight = (int)(bitmap.Height * 3);
+                // 2. 확대 (3배)
+                float scaleFactor = 3.0f;
+                int newWidth = (int)(bitmap.Width * scaleFactor);
+                int newHeight = (int)(bitmap.Height * scaleFactor);
                 var enlarged = new Bitmap(newWidth, newHeight);
                 
                 using (var g = Graphics.FromImage(enlarged))
                 {
                     g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                    g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                    g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                    
+                    // 배경을 흰색으로 채움 (투명 배경 대응)
+                    g.Clear(Color.White);
                     g.DrawImage(bitmap, 0, 0, newWidth, newHeight);
                 }
                 bitmap.Dispose();
 
-                // 3. 그레이스케일 변환 + 대비 향상
-                var enhanced = new Bitmap(newWidth, newHeight);
-                for (int y = 0; y < newHeight; y++)
+                // 3. 이미지 처리 (그레이스케일 -> 대비 -> 이진화)
+                // LockBits를 사용하여 고속 처리
+                BitmapData data = enlarged.LockBits(new Rectangle(0, 0, newWidth, newHeight), 
+                    ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
+
+                int bytes = Math.Abs(data.Stride) * newHeight;
+                byte[] rgbValues = new byte[bytes];
+                System.Runtime.InteropServices.Marshal.Copy(data.Scan0, rgbValues, 0, bytes);
+
+                for (int i = 0; i < rgbValues.Length; i += 4)
                 {
-                    for (int x = 0; x < newWidth; x++)
-                    {
-                        Color pixel = enlarged.GetPixel(x, y);
-                        int gray = (int)(pixel.R * 0.299 + pixel.G * 0.587 + pixel.B * 0.114);
-                        
-                        // 대비 향상 (임계값 기반)
-                        gray = gray > 128 ? Math.Min(255, gray + 30) : Math.Max(0, gray - 30);
-                        
-                        enhanced.SetPixel(x, y, Color.FromArgb(gray, gray, gray));
-                    }
+                    // BGRA 순서
+                    byte b = rgbValues[i];
+                    byte g = rgbValues[i + 1];
+                    byte r = rgbValues[i + 2];
+
+                    // 그레이스케일
+                    int gray = (int)(r * 0.299 + g * 0.587 + b * 0.114);
+
+                    // 대비 증가 (Contrast Stretching)
+                    // 1.5 -> 1.3으로 완화하여 자연스럽게 처리
+                    double contrast = 1.3; 
+                    double cGray = ((((gray / 255.0) - 0.5) * contrast) + 0.5) * 255.0;
+                    gray = (int)Math.Max(0, Math.Min(255, cGray));
+
+                    // 이진화 제거: 그레이스케일 값을 그대로 사용 (정보 손실 방지)
+                    rgbValues[i] = (byte)gray;     // B
+                    rgbValues[i + 1] = (byte)gray; // G
+                    rgbValues[i + 2] = (byte)gray; // R
+                    rgbValues[i + 3] = 255;        // A (완전 불투명)
                 }
-                enlarged.Dispose();
+
+                System.Runtime.InteropServices.Marshal.Copy(rgbValues, 0, data.Scan0, bytes);
+                enlarged.UnlockBits(data);
 
                 // 4. BitmapSource로 변환
                 using (var stream = new MemoryStream())
                 {
-                    enhanced.Save(stream, ImageFormat.Png);
+                    enlarged.Save(stream, ImageFormat.Png);
                     stream.Position = 0;
                     
                     var bitmapImage = new BitmapImage();
@@ -181,7 +205,7 @@ namespace CatchCapture.Utilities
                     bitmapImage.EndInit();
                     bitmapImage.Freeze();
                     
-                    enhanced.Dispose();
+                    enlarged.Dispose();
                     return bitmapImage;
                 }
             }
