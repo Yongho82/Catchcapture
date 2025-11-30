@@ -41,9 +41,11 @@ namespace CatchCapture
         private MainWindow? _mainWindow; 
         private Settings? settings;     
 
+        private Popup? iconPopup;
         // A+ 사이즈 스케일 (1.0 기본, 1.15 크게)
         private double _uiScale = 1.0;
 
+        private bool _isPopupOpen = false; // Popup 열림 상태 추적
         public event EventHandler? AreaCaptureRequested;
         public event EventHandler? FullScreenCaptureRequested;
         public event EventHandler? ExitSimpleModeRequested;
@@ -240,6 +242,93 @@ namespace CatchCapture
             }
         }
 
+        private void GetVisibilityCountsVertical(out int visibleIcons, out int visibleApps)
+        {
+            visibleIcons = settings.SimpleModeIcons.Count;
+            visibleApps = settings.SimpleModeApps.Count;
+            
+            if (settings == null) return;
+
+            var workArea = SystemParameters.WorkArea;
+            int maxHeight = (int)(workArea.Height * 0.9);
+            
+            // 세로 모드 기본 높이: 상하 여백 + A+ 버튼영역 등
+            int baseHeight = 85; // 기본 UI 높이
+            int iconHeight = 48; // 아이콘 하나당 높이 (간편모드는 44 + 마진)
+            
+            int maxSlots = (maxHeight - baseHeight) / iconHeight;
+            int totalItems = settings.SimpleModeIcons.Count + settings.SimpleModeApps.Count + 1; // + 버튼 포함
+            
+            // 넘치면 토글 버튼 자리(-2) 확보: ⇄ 버튼 + + 버튼
+            if (totalItems > maxSlots)
+            {
+                int effectiveSlots = maxSlots - 2; // ★ -1에서 -2로 변경 (⇄ 버튼 + + 버튼)
+                
+                // 아이콘 우선 배정
+                if (settings.SimpleModeIcons.Count > effectiveSlots)
+                {
+                    visibleIcons = effectiveSlots;
+                    visibleApps = 0;
+                }
+                else
+                {
+                    visibleIcons = settings.SimpleModeIcons.Count;
+                    int remaining = effectiveSlots - visibleIcons;
+                    visibleApps = Math.Min(remaining, settings.SimpleModeApps.Count);
+                }
+            }
+        }
+
+        // ==================== GetHiddenIconsVertical 메서드 추가 ====================
+        private List<string> GetHiddenIconsVertical()
+        {
+            if (settings == null) return new List<string>();
+            
+            GetVisibilityCountsVertical(out int visibleIconsCount, out int visibleAppsCount);
+            
+            var hiddenIcons = new List<string>();
+            int iconsToHide = settings.SimpleModeIcons.Count - visibleIconsCount;
+            
+            if (iconsToHide > 0)
+            {
+                // 리스트의 맨 뒤에서부터 숨김
+                int hiddenCount = 0;
+                for (int i = settings.SimpleModeIcons.Count - 1; i >= 0 && hiddenCount < iconsToHide; i--)
+                {
+                    string iconName = settings.SimpleModeIcons[i];
+                    
+                    // Settings는 절대 숨기지 않음
+                    if (iconName == "Settings") continue;
+                    
+                    hiddenIcons.Add(iconName);
+                    hiddenCount++;
+                }
+            }
+            return hiddenIcons;
+        }
+
+        private List<ExternalAppShortcut> GetHiddenAppsVertical()
+        {
+            if (settings == null) return new List<ExternalAppShortcut>();
+            
+            GetVisibilityCountsVertical(out int visibleIconsCount, out int visibleAppsCount);
+            
+            var hiddenApps = new List<ExternalAppShortcut>();
+            int appsToHide = settings.SimpleModeApps.Count - visibleAppsCount;
+            
+            if (appsToHide > 0)
+            {
+                int startIndex = settings.SimpleModeApps.Count - appsToHide;
+                if (startIndex < 0) startIndex = 0;
+
+                for (int i = startIndex; i < settings.SimpleModeApps.Count; i++)
+                {
+                    hiddenApps.Add(settings.SimpleModeApps[i]);
+                }
+            }
+            return hiddenApps;
+        }
+
         private void Window_MouseEnter(object sender, MouseEventArgs e)
         {
             _collapseTimer.Stop();
@@ -262,8 +351,11 @@ namespace CatchCapture
         private void CollapseTimer_Tick(object? sender, EventArgs e)
         {
             _collapseTimer.Stop();
+            
+            // ★ Popup이 열려있으면 collapse 하지 않음
+            if (_isPopupOpen) return;
+            
             if (IsMouseOver) return;
-            // DelayMenu 체크 제거 (동적 생성으로 변경됨)
             
             Collapse();
         }
@@ -373,7 +465,6 @@ namespace CatchCapture
             notification.Show();
         }
 
-
         private void StartDelayedAreaCapture(int seconds)
         {
             var countdown = new GuideWindow("", null) { Owner = this };
@@ -432,44 +523,236 @@ namespace CatchCapture
         {
             if (settings == null) return;
             
-            // 가로 모드 버튼 생성
+            // 가로 모드 버튼 생성 (기존 코드 그대로)
             ButtonsPanelH.Children.Clear();
             foreach (var iconName in settings.SimpleModeIcons)
             {
                 var button = CreateIconButton(iconName, false);
                 ButtonsPanelH.Children.Add(button);
             }
-            // 외부 앱 바로가기 (가로)
             foreach (var app in settings.SimpleModeApps)
             {
                 var button = CreateAppButton(app, false);
                 ButtonsPanelH.Children.Add(button);
             }
-            // + 버튼 추가 (가로)
             ButtonsPanelH.Children.Add(CreateAddButton(false));
             
-            // 세로 모드 버튼 생성
+            // ★ 세로 모드 버튼 생성 (90% 로직 적용)
             ButtonsPanelV.Children.Clear();
+            
+            var hiddenIcons = GetHiddenIconsVertical();
+            var hiddenApps = GetHiddenAppsVertical();
+            
+            // 보이는 아이콘만 추가
             foreach (var iconName in settings.SimpleModeIcons)
             {
-                var button = CreateIconButton(iconName, true);
-                ButtonsPanelV.Children.Add(button);
+                if (iconName == "Settings" || !hiddenIcons.Contains(iconName))
+                {
+                    var button = CreateIconButton(iconName, true);
+                    ButtonsPanelV.Children.Add(button);
+                }
             }
-            // 외부 앱 바로가기 (세로)
+            
+            // 보이는 앱만 추가
             foreach (var app in settings.SimpleModeApps)
             {
-                var button = CreateAppButton(app, true);
-                ButtonsPanelV.Children.Add(button);
+                if (!hiddenApps.Contains(app))
+                {
+                    var button = CreateAppButton(app, true);
+                    ButtonsPanelV.Children.Add(button);
+                }
             }
-            // + 버튼 추가 (세로)
+            
+            // ★ 숨겨진 항목이 있으면 ⇄ 버튼 추가
+            if (hiddenIcons.Count > 0 || hiddenApps.Count > 0)
+            {
+                var expandButton = new Button
+                {
+                    Content = "⇄",
+                    FontSize = 16,
+                    FontWeight = FontWeights.Bold,
+                    Style = this.FindResource("IconButtonStyle") as Style,
+                    ToolTip = "숨겨진 아이콘 보기",
+                    Opacity = 0.6
+                };
+                expandButton.Click += ExpandButton_Click;
+                ButtonsPanelV.Children.Add(expandButton);
+            }
+            
+            // + 버튼 추가
             ButtonsPanelV.Children.Add(CreateAddButton(true));
             
-            // 창 크기 조정 (현재 표시 모드 유지)
+            // 창 크기 조정
             bool isVertical = VerticalRoot.Visibility == Visibility.Visible;
             ApplyLayout(isVertical);
         }
 
-         private UIElement CreateIconButton(string iconName, bool isVertical)  // Button → UIElement로 변경
+
+        private void ExpandButton_Click(object sender, RoutedEventArgs e)
+        {
+            ShowIconPopupVertical();
+        }
+
+        private void ShowIconPopupVertical()
+        {
+            if (settings == null) return;
+            
+            var hiddenIcons = GetHiddenIconsVertical();
+            var hiddenApps = GetHiddenAppsVertical();
+            
+            if (hiddenIcons.Count == 0 && hiddenApps.Count == 0) return;
+            
+            // ★ Popup 열릴 때 collapse 타이머 중지
+            _collapseTimer?.Stop();
+            _isPopupOpen = true; // ★ 플래그 설정
+            
+            // Popup 생성
+            iconPopup = new Popup
+            {
+                AllowsTransparency = true,
+                StaysOpen = false,
+                Placement = PlacementMode.Left,
+                PlacementTarget = this,
+                HorizontalOffset = -10
+            };
+            
+            // ★ Popup 닫힐 때 이벤트 핸들러 추가
+            iconPopup.Closed += (s, e) =>
+            {
+                _isPopupOpen = false; // ★ 플래그 해제
+                
+                // Popup 닫힌 후 마우스가 창 밖에 있으면 타이머 시작
+                if (_dockSide != DockSide.None && !IsMouseOver && !_isCollapsed)
+                {
+                    _collapseTimer?.Start();
+                }
+            };
+            
+            // Popup 내용
+            var border = new Border
+            {
+                Background = Brushes.White,
+                BorderBrush = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(4),
+                Padding = new Thickness(5)
+            };
+            
+            var stackPanel = new StackPanel { Orientation = Orientation.Vertical };
+            
+            // ... 나머지 코드는 그대로
+            
+            // 숨겨진 아이콘 버튼 추가
+            foreach (var iconName in hiddenIcons)
+            {
+                var grid = new Grid { Height = 48 };
+                
+                var button = new Button
+                {
+                    Style = this.FindResource("IconButtonStyle") as Style,
+                    ToolTip = GetIconDisplayName(iconName)
+                };
+                
+                var stack = new StackPanel
+                {
+                    Orientation = Orientation.Vertical,
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
+                
+                var img = CreateIconImage(iconName);
+                if (img != null) stack.Children.Add(img);
+                
+                var text = new TextBlock
+                {
+                    Text = GetIconLabel(iconName),
+                    FontSize = 9,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Margin = new Thickness(0, 2, 0, 0)
+                };
+                stack.Children.Add(text);
+                
+                button.Content = stack;
+                button.Click += (s, ev) =>
+                {
+                    HandleIconClick(iconName);
+                    iconPopup.IsOpen = false;
+                };
+                
+                grid.Children.Add(button);
+                
+                // 삭제 버튼
+                var remove = CreateRemoveButton(iconName);
+                remove.Visibility = Visibility.Collapsed;
+                grid.Children.Add(remove);
+                
+                grid.MouseEnter += (s, ev) => remove.Visibility = Visibility.Visible;
+                grid.MouseLeave += (s, ev) => remove.Visibility = Visibility.Collapsed;
+                
+                stackPanel.Children.Add(grid);
+            }
+            
+            // 숨겨진 앱 버튼 추가
+            foreach (var app in hiddenApps)
+            {
+                var grid = new Grid { Height = 48 };
+                
+                var button = new Button
+                {
+                    Style = this.FindResource("IconButtonStyle") as Style,
+                    ToolTip = app.DisplayName
+                };
+                
+                var stack = new StackPanel
+                {
+                    Orientation = Orientation.Vertical,
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
+                
+                var img = CreateAppImage(app);
+                if (img != null) stack.Children.Add(img);
+                
+                var text = new TextBlock
+                {
+                    Text = TruncateForLabel(app.DisplayName, 6),
+                    FontSize = 9,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Margin = new Thickness(0, 2, 0, 0)
+                };
+                stack.Children.Add(text);
+                
+                button.Content = stack;
+                button.Click += (s, ev) =>
+                {
+                    HandleAppClick(app);
+                    iconPopup.IsOpen = false;
+                };
+                
+                grid.Children.Add(button);
+                
+                // 삭제 버튼
+                var remove = CreateRemoveButtonForApp(app);
+                remove.Visibility = Visibility.Collapsed;
+                grid.Children.Add(remove);
+                
+                grid.MouseEnter += (s, ev) => remove.Visibility = Visibility.Visible;
+                grid.MouseLeave += (s, ev) => remove.Visibility = Visibility.Collapsed;
+                
+                stackPanel.Children.Add(grid);
+            }
+            
+            border.Child = stackPanel;
+            iconPopup.Child = border;
+            iconPopup.IsOpen = true;
+        }
+
+
+        private string TruncateForLabel(string text, int maxLength)
+        {
+            if (string.IsNullOrEmpty(text)) return string.Empty;
+            if (text.Length <= maxLength) return text;
+            return text.Substring(0, maxLength);
+        }
+        private UIElement CreateIconButton(string iconName, bool isVertical)  // Button → UIElement로 변경
         {
             // Grid로 감싸기 (버튼 + 삭제 버튼)
             var grid = new Grid();
@@ -622,8 +905,8 @@ namespace CatchCapture
                 "WindowCapture" => CatchCapture.Models.LocalizationManager.Get("WindowCapture"),
                 "UnitCapture" => CatchCapture.Models.LocalizationManager.Get("ElementCapture"),
                 "ScrollCapture" => CatchCapture.Models.LocalizationManager.Get("ScrollCapture"),
-                // ★ 새로 추가
-                "Copy" => CatchCapture.Models.LocalizationManager.Get("Copy"),
+                // ★ "Copy" → "CopySelected"로 변경
+                "Copy" => CatchCapture.Models.LocalizationManager.Get("CopySelected"),
                 "CopyAll" => CatchCapture.Models.LocalizationManager.Get("CopyAll"),
                 "Save" => CatchCapture.Models.LocalizationManager.Get("Save"),
                 "SaveAll" => CatchCapture.Models.LocalizationManager.Get("SaveAll"),
