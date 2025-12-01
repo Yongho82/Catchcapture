@@ -386,11 +386,20 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
             // 시스템 설정
             _settings.StartWithWindows = StartWithWindowsCheckBox.IsChecked == true;
             if (StartupModeTrayRadio.IsChecked == true)
+            {
                 _settings.StartupMode = "Tray";
+                _settings.LastActiveMode = "Tray";  // 시작 모드와 마지막 모드 동기화
+            }
             else if (StartupModeNormalRadio.IsChecked == true)
+            {
                 _settings.StartupMode = "Normal";
+                _settings.LastActiveMode = "Normal";  // 시작 모드와 마지막 모드 동기화
+            }
             else if (StartupModeSimpleRadio.IsChecked == true)
+            {
                 _settings.StartupMode = "Simple";
+                _settings.LastActiveMode = "Simple";  // 시작 모드와 마지막 모드 동기화
+            }
             
             // 언어 설정
             if (LanguageComboBox.SelectedItem is ComboBoxItem langItem)
@@ -405,26 +414,7 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
             SetStartup(_settings.StartWithWindows);
 
             Settings.Save(_settings);
-            try
-            {
-                // Verify persistence
-                var reloaded = Settings.Load();
-                // Very light check: ensure one of the hotkeys round-trips (e.g., RegionCapture)
-                bool ok = reloaded?.Hotkeys?.RegionCapture?.Key == _settings.Hotkeys.RegionCapture.Key;
-                var pathInfo = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture", "settings.json");
-                if (ok)
-                {
-                    MessageBox.Show($"설정이 저장되었습니다.\n{pathInfo}", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-                else
-                {
-                    MessageBox.Show($"설정 저장 확인에 실패했습니다.\n경로: {pathInfo}", "경고", MessageBoxButton.OK, MessageBoxImage.Warning);
-                }
-            }
-            catch
-            {
-                MessageBox.Show("설정을 저장했지만 확인 중 오류가 발생했습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
+            // 디버그용 메시지박스 제거 - 설정이 자동으로 저장됨
             DialogResult = true;
             Close();
         }

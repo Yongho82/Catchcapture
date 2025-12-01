@@ -109,6 +109,7 @@ namespace CatchCapture.Models
                 
                 // 메시지
                 ["SettingsSaved"] = "설정이 저장되었습니다.",
+                ["SettingsApplied"] = "설정이 적용되었습니다.",
                 ["SettingsSaveFailed"] = "설정 저장 실패",
                 ["RestartRequired"] = "언어 변경을 적용하려면 프로그램을 다시 시작해야 합니다.",
                 
@@ -288,6 +289,7 @@ namespace CatchCapture.Models
                 
                 // 메시지
                 ["SettingsSaved"] = "设置已保存",
+                ["SettingsApplied"] = "设置已应用",
                 ["SettingsSaveFailed"] = "保存设置失败",
                 ["RestartRequired"] = "需要重新启动程序才能应用语言更改",
                 
@@ -467,6 +469,7 @@ namespace CatchCapture.Models
                 
                 // メッセージ
                 ["SettingsSaved"] = "設定が保存されました",
+                ["SettingsApplied"] = "設定が適用されました",
                 ["SettingsSaveFailed"] = "設定の保存に失敗しました",
                 ["RestartRequired"] = "言語変更を適用するにはプログラムを再起動する必要があります",
                 
@@ -646,6 +649,7 @@ namespace CatchCapture.Models
                 
                 // Messages
                 ["SettingsSaved"] = "Settings saved successfully",
+                ["SettingsApplied"] = "Settings applied successfully",
                 ["SettingsSaveFailed"] = "Failed to save settings",
                 ["RestartRequired"] = "Please restart the program to apply language changes",
                 

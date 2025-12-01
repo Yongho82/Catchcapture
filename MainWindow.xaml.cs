@@ -2536,6 +2536,9 @@ public partial class MainWindow : Window
     // 사이드바 설정 버튼 클릭
     private void SettingsSideButton_Click(object sender, RoutedEventArgs e)
     {
+        // 현재 모드 저장
+        var previousMode = settings.LastActiveMode;
+        
         var win = new SettingsWindow();
         win.Owner = this;
         var result = win.ShowDialog();
@@ -2544,8 +2547,25 @@ public partial class MainWindow : Window
             // Reload updated settings so hotkeys and options apply immediately
             settings = Settings.Load();
             // 단축키 재등록
-            RegisterGlobalHotkeys();  // ← 주석 해제하고 메서드명 수정
+            RegisterGlobalHotkeys();
             ShowGuideMessage(LocalizationManager.Get("SettingsApplied"), TimeSpan.FromSeconds(1));
+            
+            // ★ 모드가 변경된 경우 자동으로 전환
+            if (previousMode != settings.LastActiveMode)
+            {
+                switch (settings.LastActiveMode)
+                {
+                    case "Normal":
+                        SwitchToNormalMode();
+                        break;
+                    case "Tray":
+                        SwitchToTrayMode();
+                        break;
+                    case "Simple":
+                        SwitchToSimpleMode();
+                        break;
+                }
+            }
         }
     }
 

@@ -4,7 +4,7 @@
              xmlns:local="clr-namespace:CatchCapture"
              ShutdownMode="OnMainWindowClose">
     <Application.Resources>
-        <!-- 전역 스크롤바 스타일 -->
+        <!-- 전역 스크롤바 스타일 (기본 - 얇고 연한 스타일) -->
         <Style x:Key="{x:Type ScrollBar}" TargetType="{x:Type ScrollBar}">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>

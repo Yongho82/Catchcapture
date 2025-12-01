@@ -87,11 +87,7 @@ namespace CatchCapture
             // 이벤트 구독 해제
             Settings.SettingsChanged -= OnSettingsChanged;
             
-            // 창 닫힐 때 현재 설정 저장
-            if (settings != null)
-            {
-                Settings.Save(settings);
-            }
+            // 설정 저장 제거 - 불필요하며 설정 창 닫힐 때 문제 발생
             base.OnClosing(e);
         }
         private void SwitchToNormalModeButton_Click(object sender, RoutedEventArgs e)

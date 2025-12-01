@@ -417,11 +417,7 @@ namespace CatchCapture
 
         private void MinimizeToTrayButton_Click(object sender, RoutedEventArgs e)
         {
-            // ★ 간편모드 상태 저장
-            var settings = Settings.Load();
-            settings.LastActiveMode = "Simple";
-            Settings.Save(settings);
-            
+            // LastActiveMode 변경 제거 - 설정 창에서만 변경하도록 수정
             if (_mainWindow != null)
             {
                 _mainWindow.SwitchToTrayMode();
@@ -430,10 +426,7 @@ namespace CatchCapture
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            // ★ 간편모드 상태 저장
-            var settings = Settings.Load();
-            settings.LastActiveMode = "Simple";
-            Settings.Save(settings);
+            // LastActiveMode 변경 제거 - 설정 창에서만 변경하도록 수정
             
             // ★ MainWindow에 간편모드가 숨겨졌음을 알림
             if (_mainWindow != null)
