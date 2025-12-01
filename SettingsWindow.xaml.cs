@@ -448,7 +448,7 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
                 {
                     if (enable)
                     {
-                        key?.SetValue(appName, $"\"{exePath}\"");
+                        key?.SetValue(appName, $"\"{exePath}\" /autostart");
                     }
                     else
                     {
