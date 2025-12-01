@@ -87,6 +87,10 @@ namespace CatchCapture.Utilities
         // 십자선 관련 필드 추가
         private Line? crosshairHorizontal;
         private Line? crosshairVertical;
+        private double highlightOpacity = 0.5; // 형광펜 투명도 (0.0 ~ 1.0)
+        private double numberingBadgeSize = 24; // 넘버링 배지 크기
+        private double numberingTextSize = 12;  // 넘버링 텍스트 크기
+
 
         // 언어 변경 시 런타임 갱신을 위해 툴바 참조 저장
         private Border? toolbarContainer;
@@ -1591,12 +1595,105 @@ namespace CatchCapture.Utilities
                 optionSection.Children.Add(intensityPanel);
             }
             
+            else if (tool == "형광펜")
+            {
+                // [형광펜 옵션: 두께 + 투명도]
+                var thicknessLabel = new TextBlock { Text = LocalizationManager.Get("Thickness"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
+                optionSection.Children.Add(thicknessLabel);
+                
+                var thicknessList = new StackPanel();
+                int[] presets = new int[] { 5, 8, 12, 16, 20 }; // 형광펜은 좀 더 두껍게
+                foreach (var p in presets)
+                {
+                    var item = new Grid { Margin = new Thickness(0, 0, 0, 8), Cursor = Cursors.Hand, Background = Brushes.Transparent };
+                    item.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(30) });
+                    item.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                    
+                    var line = new Border { Height = p, Width = 30, Background = new SolidColorBrush(Color.FromArgb((byte)(highlightOpacity * 255), 255, 255, 0)), HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center };
+                    Grid.SetColumn(line, 0); item.Children.Add(line);
+                    
+                    var text = new TextBlock
+                    {
+                        Text = $"{p}px",
+                        FontSize = 11,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        Foreground = Brushes.Gray,
+                        Margin = new Thickness(8, 0, 0, 0)
+                    };
+                    Grid.SetColumn(text, 1); item.Children.Add(text);
+
+                    int thickness = p;
+                    item.MouseLeftButtonDown += (s, e) =>
+                    {
+                        highlightThickness = thickness;
+                        foreach (var child in thicknessList.Children) { if (child is Grid g) g.Background = Brushes.Transparent; }
+                        item.Background = new SolidColorBrush(Color.FromArgb(40, 0, 120, 212));
+                    };
+                    // 현재 선택된 두께 표시
+                    if (highlightThickness == thickness) item.Background = new SolidColorBrush(Color.FromArgb(40, 0, 120, 212));
+
+                    thicknessList.Children.Add(item);
+                }
+                optionSection.Children.Add(thicknessList);
+
+                // 투명도 슬라이더
+                var opacityLabel = new TextBlock { Text = LocalizationManager.Get("FillOpacity"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 10, 0, 8) };
+                optionSection.Children.Add(opacityLabel);
+
+                var opacityPanel = new StackPanel { Orientation = Orientation.Horizontal };
+                var opacitySlider = new Slider 
+                { 
+                    Minimum = 0.1, 
+                    Maximum = 1.0, 
+                    Value = highlightOpacity, 
+                    Width = 100, 
+                    VerticalAlignment = VerticalAlignment.Center,
+                    IsSnapToTickEnabled = true,
+                    TickFrequency = 0.1
+                };
+                var opacityValueText = new TextBlock { Text = $"{(int)(highlightOpacity * 100)}%", FontSize = 11, Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center, Width = 35 };
+                
+                opacitySlider.ValueChanged += (s, e) => 
+                { 
+                    highlightOpacity = opacitySlider.Value; 
+                    opacityValueText.Text = $"{(int)(highlightOpacity * 100)}%";
+                };
+                
+                opacityPanel.Children.Add(opacitySlider);
+                opacityPanel.Children.Add(opacityValueText);
+                optionSection.Children.Add(opacityPanel);
+            }
+            else if (tool == "넘버링")
+            {
+                // [넘버링 옵션: 배지 크기 + 텍스트 크기]
+                var optionLabel = new TextBlock { Text = LocalizationManager.Get("NumberingOptions") ?? "크기 설정", FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
+                optionSection.Children.Add(optionLabel);
+
+                // 배지 크기
+                var badgePanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 5) };
+                badgePanel.Children.Add(new TextBlock { Text = "번호표:", VerticalAlignment = VerticalAlignment.Center, Width = 45, FontSize = 11 });
+                var badgeCombo = new ComboBox { Width = 60, Height = 22, FontSize = 11 };
+                int[] badgeSizes = { 16, 20, 24, 28, 32, 36 };
+                foreach (var s in badgeSizes) badgeCombo.Items.Add(s);
+                badgeCombo.SelectedItem = (int)numberingBadgeSize;
+                badgeCombo.SelectionChanged += (s, e) => { if (badgeCombo.SelectedItem is int newSize) numberingBadgeSize = newSize; };
+                badgePanel.Children.Add(badgeCombo);
+                optionSection.Children.Add(badgePanel);
+
+                // 텍스트 크기
+                var textPanel = new StackPanel { Orientation = Orientation.Horizontal };
+                textPanel.Children.Add(new TextBlock { Text = "텍스트:", VerticalAlignment = VerticalAlignment.Center, Width = 45, FontSize = 11 });
+                var textCombo = new ComboBox { Width = 60, Height = 22, FontSize = 11 };
+                int[] textSizes = { 10, 11, 12, 14, 16, 18, 20 };
+                foreach (var s in textSizes) textCombo.Items.Add(s);
+                textCombo.SelectedItem = (int)numberingTextSize;
+                textCombo.SelectionChanged += (s, e) => { if (textCombo.SelectedItem is int newSize) numberingTextSize = newSize; };
+                textPanel.Children.Add(textCombo);
+                optionSection.Children.Add(textPanel);
+            }
             else
             {
-                // 넘버링 모드일 때는 두께 옵션 표시 안 함
-                if (tool != "넘버링")
-                {
-                    // [기본 두께 옵션 (펜, 형광펜)]
+                 // [기본 두께 옵션 (펜)]
                     var thicknessLabel = new TextBlock { Text = LocalizationManager.Get("Thickness"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
                     optionSection.Children.Add(thicknessLabel);
                     
@@ -1624,15 +1721,16 @@ namespace CatchCapture.Utilities
                         int thickness = p;
                         item.MouseLeftButtonDown += (s, e) =>
                         {
-                            if (currentTool == "형광펜") highlightThickness = thickness;
-                            else penThickness = thickness;
+                            penThickness = thickness;
                             foreach (var child in thicknessList.Children) { if (child is Grid g) g.Background = Brushes.Transparent; }
                             item.Background = new SolidColorBrush(Color.FromArgb(40, 0, 120, 212));
                         };
+                        // 현재 선택된 두께 표시
+                        if (penThickness == thickness) item.Background = new SolidColorBrush(Color.FromArgb(40, 0, 120, 212));
+
                         thicknessList.Children.Add(item);
                     }
                     optionSection.Children.Add(thicknessList);
-                }
             }
             
             canvas.Children.Add(background);
@@ -2883,11 +2981,8 @@ namespace CatchCapture.Utilities
             
             // 새 선 시작
             Color strokeColor = selectedColor;
-            if (currentTool == "형광펜")
-            {
-                strokeColor = Color.FromArgb(128, selectedColor.R, selectedColor.G, selectedColor.B);
-            }
-
+            // 형광펜은 Opacity 속성으로 투명도 조절하므로 여기서는 원색 사용
+            
             currentPolyline = new Polyline
             {
                 Stroke = new SolidColorBrush(strokeColor),
@@ -2899,7 +2994,7 @@ namespace CatchCapture.Utilities
 
             if (currentTool == "형광펜")
             {
-                currentPolyline.Opacity = 0.5;
+                currentPolyline.Opacity = highlightOpacity; // [수정] 설정된 투명도 사용
             }
             
             currentPolyline.Points.Add(lastDrawPoint);
@@ -3363,10 +3458,13 @@ namespace CatchCapture.Utilities
             var prevColor = selectedColor;
             int prevPen = penThickness;
             int prevHigh = highlightThickness;
+            double prevHighOpacity = highlightOpacity; // [추가]
             var prevShapeType = shapeType;
             double prevShapeBorder = shapeBorderThickness;
             bool prevShapeFill = shapeIsFilled;
             double prevShapeOpacity = shapeFillOpacity;
+            double prevBadgeSize = numberingBadgeSize; // [추가]
+            double prevTextSize = numberingTextSize;   // [추가]
 
             // 기존 팔레트/툴바 제거
             HideColorPalette();
@@ -3384,10 +3482,13 @@ namespace CatchCapture.Utilities
             selectedColor = prevColor;
             penThickness = prevPen;
             highlightThickness = prevHigh;
+            highlightOpacity = prevHighOpacity; 
             shapeType = prevShapeType;
             shapeBorderThickness = prevShapeBorder;
             shapeIsFilled = prevShapeFill;
             shapeFillOpacity = prevShapeOpacity;
+            numberingBadgeSize = prevBadgeSize; 
+            numberingTextSize = prevTextSize;
 
             // 현재 도구 다시 반영 (팔레트 표시 포함)
             double selectionLeft = Canvas.GetLeft(selectionRectangle);
@@ -3481,7 +3582,7 @@ namespace CatchCapture.Utilities
             group.Background = Brushes.Transparent;
             numberingGroups[myNumber] = group;
 
-            double badgeSize = 24;
+            double badgeSize = numberingBadgeSize; // [수정] 설정된 배지 크기 사용
             var badgeBorder = new Border
             {
                 Width = badgeSize,
@@ -3498,9 +3599,9 @@ namespace CatchCapture.Utilities
             var numText = new TextBlock
             {
                 Text = myNumber.ToString(),
-                Foreground = new SolidColorBrush(textColor),  // ← 자동 대비 색상
+                Foreground = new SolidColorBrush(textColor),
                 FontWeight = FontWeights.Bold,
-                FontSize = 12,
+                FontSize = badgeSize * 0.5, // [수정] 배지 크기에 비례하여 폰트 크기 자동 조정
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
             };
@@ -3511,13 +3612,13 @@ namespace CatchCapture.Utilities
 
             var noteBox = new TextBox
             {
-                Width = 160,
-                Height = 28,
+                Width = 160, // 기본 너비
+                Height = Math.Max(28, numberingTextSize + 16), // [수정] 폰트 크기에 맞춰 높이 자동 조절
                 Background = new SolidColorBrush(Color.FromArgb(80, 0, 0, 0)),
                 BorderBrush = Brushes.White,
                 BorderThickness = new Thickness(2),
-                Padding = new Thickness(3, 2, 3, 2),  // ← 좌우 3px, 상하 2px로 축소
-                FontSize = 12,
+                Padding = new Thickness(3, 2, 3, 2),
+                FontSize = numberingTextSize, // [수정] 설정된 텍스트 크기 사용
                 Foreground = new SolidColorBrush(selectedColor),
                 Text = string.Empty
             };

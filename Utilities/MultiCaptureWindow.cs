@@ -119,7 +119,8 @@ namespace CatchCapture.Utilities
             Height = vHeight;
             WindowState = WindowState.Normal; // Important: Normal to respect manual Left/Top/Size across monitors
 
-            
+            Cursor = Cursors.Cross;
+
             // 전체 화면 스크린샷 캡처
             this.Hide();
             System.Threading.Thread.Sleep(10);
@@ -133,7 +134,8 @@ namespace CatchCapture.Utilities
             canvas = new Canvas
             {
                 Width = vWidth,
-                Height = vHeight
+                Height = vHeight,
+                Cursor = Cursors.Cross
             };
 
             // 배경 이미지 설정
