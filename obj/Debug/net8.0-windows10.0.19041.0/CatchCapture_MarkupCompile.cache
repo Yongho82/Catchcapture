@@ -4,16 +4,16 @@
 winexe
 C#
 .cs
-C:\yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\
+C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\
 CatchCapture
 none
 false
 TRACE;DEBUG;NET;NET8_0;NETCOREAPP
-C:\yonghoprogram\Catchcapture\App.xaml
+C:\Yonghoprogram\Catchcapture\App.xaml
 81767052780
 44-1463355856
 341973348348
-210-327959202
+2101142512254
 Controls\TwoTierToolButton.xaml;MainWindow.xaml;OcrResultWindow.xaml;PreviewWindow.xaml;SettingsWindow.xaml;SimpleModeSettingsButton.xaml;SimpleModeWindow.xaml;TrayModeWindow.xaml;
 
 False

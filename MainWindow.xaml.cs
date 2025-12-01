@@ -84,7 +84,7 @@ public partial class MainWindow : Window
             // Ignore flush errors; proceed to capture
         }
     }
-    public MainWindow()
+    public MainWindow(bool isAutoStart = false)
     {
         InitializeComponent();
         settings = Settings.Load();
@@ -127,23 +127,32 @@ public partial class MainWindow : Window
             // 언어 변경 즉시 반영
             LocalizationManager.LanguageChanged += MainWindow_LanguageChanged;
             
-            // 시작 모드에 따라 초기 모드 설정
-            if (settings.StartupMode == "Tray")
+            // ★★★ 자동시작인 경우 트레이 아이콘으로만 시작 ★★★
+            if (isAutoStart)
             {
-                SwitchToTrayMode();
-            }
-            else if (settings.StartupMode == "Simple")
-            {
-                SwitchToSimpleMode();
+                // 자동시작: 창을 표시하지 않고 트레이 아이콘만 활성화
+                this.Hide();
+                this.ShowInTaskbar = false;
             }
             else
             {
-                // Normal 모드: 창을 명시적으로 표시하고 활성화
-                this.Show();
-                this.WindowState = WindowState.Normal;
-                this.Activate();
-                this.Topmost = true;
-                this.Topmost = false;
+                // 일반 실행: 시작 모드에 따라 초기 모드 설정
+                if (settings.StartupMode == "Tray")
+                {
+                    SwitchToTrayMode();
+                }
+                else if (settings.StartupMode == "Simple")
+                {
+                    SwitchToSimpleMode();
+                }
+                else
+                {
+                    // Normal 모드: 창을 활성화 (이미 App.xaml.cs에서 Show() 호출됨)
+                    this.WindowState = WindowState.Normal;
+                    this.Activate();
+                    this.Topmost = true;
+                    this.Topmost = false;
+                }
             }
             UpdateEmptyStateLogo();            
         };

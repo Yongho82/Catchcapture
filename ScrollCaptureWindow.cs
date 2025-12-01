@@ -476,23 +476,24 @@ namespace CatchCapture
                 int height = captureRect.Bottom - captureRect.Top;
 
                 // 스크롤바 영역 제외 (우측 25px)
-                if (width > 50) width -= 25;
+                if (width > 50) width -= 15;
 
                 // 윈도우 경계 보정 (좌측, 하단 테두리 살짝 제외)
                 if (width > 20)
                 {
                     captureRect.Left += 8;
-                    width -= 16;
+                    width -= 8;
                 }
-                if (height > 20) height -= 8;
+                //if (height > 20) height -= 8;
 
                 // 1. 첫 화면 캡처 전 안정화
                 await Task.Delay(300);
                 screenshots.Add(CaptureRegion(captureRect.Left, captureRect.Top, width, height));
 
                 // 강제 스크롤 시도
-                int maxScrolls = 30;
-                int scrollAmount = -350; // 헤더가 큰 페이지를 위한 스크롤 양
+                int maxScrolls = 50; // 스크롤 양이 줄어드니 횟수를 늘림
+                // 스크롤 양을 아주 작게 고정 (천천히 내려가도록)
+                int scrollAmount = -120; // 휠 1칸 (표준)
 
                 for (int i = 0; i < maxScrolls; i++)
                 {
@@ -530,7 +531,9 @@ namespace CatchCapture
                 }
 
                 Log($"스크롤 캡처 총 {screenshots.Count}개 스크린샷 캡처됨");
-                CapturedImage = MergeScreenshots(screenshots, headerHeight);
+                // 하단 여백 계산 (스티칭 정확도 향상)
+                int bottomMargin = 50; // 하단 5px 여백 고려
+                CapturedImage = MergeScreenshots(screenshots, headerHeight, bottomMargin);
                 foreach (var s in screenshots) s.Dispose();
             }
             catch (Exception ex)
@@ -609,7 +612,7 @@ namespace CatchCapture
             }
         }
 
-        private BitmapSource MergeScreenshots(List<Bitmap> screenshots, int headerHeight)
+        private BitmapSource MergeScreenshots(List<Bitmap> screenshots, int headerHeight, int bottomMargin = 0)
         {
             if (screenshots.Count == 0) return null!;
             if (screenshots.Count == 1) return ConvertBitmapToBitmapSource(screenshots[0]);
@@ -619,8 +622,8 @@ namespace CatchCapture
 
             for (int i = 1; i < screenshots.Count; i++)
             {
-                // 다음 이미지와 합치기 (헤더 높이 전달)
-                finalImage = StitchImages(finalImage, screenshots[i], headerHeight);
+                // 다음 이미지와 합치기 (헤더 높이와 하단 여백 전달)
+                finalImage = StitchImages(finalImage, screenshots[i], headerHeight, bottomMargin);
             }
 
             var result = ConvertBitmapToBitmapSource(finalImage);
@@ -628,135 +631,112 @@ namespace CatchCapture
             return result;
         }
 
-        private Bitmap StitchImages(Bitmap top, Bitmap bottom, int headerHeight)
+        private Bitmap StitchImages(Bitmap top, Bitmap bottom, int headerHeight, int bottomMargin = 0)
         {
-            // "Smart Stitching" - 적절한 매칭 지점 전략 (쇼핑 페이지 성공 버전)
-            // Bottom 이미지의 상단 30% 지점 사용 (오버랩 내에서 고유한 영역)
-
-            // Probe 라인: Bottom 이미지의 30% 지점
-            int probeY_in_Bottom = Math.Max(headerHeight, (int)(bottom.Height * 0.3));
-
-            // 안전 장치: 너무 크면(창의 50% 이상) 오류일 수 있으므로 제한
-            if (probeY_in_Bottom >= bottom.Height - 50)
-                probeY_in_Bottom = headerHeight;
-
-            int matchY_in_Top = -1;
-
-            // Top 이미지 탐색 (Bottom-Up: 아래에서 위로, 더 고유한 영역 우선)
-            int startSearchY = headerHeight; // Top에서도 헤더 부분은 매칭 대상에서 제외
-            int endSearchY = top.Height - 50;
-
-            // Bottom-Up 방식: 아래쪽 고유 콘텐츠부터 탐색 (조기 매칭 방지)
-            for (int y = endSearchY; y >= startSearchY; y--)
+            // 다중 프로브 전략: 상단 위주로 검색 (스크롤이 작으므로 Bottom의 상단이 Top의 하단과 매칭됨)
+            double[] probeRatios = { 0.1, 0.2, 0.3, 0.5 }; 
+            
+            foreach (var ratio in probeRatios)
             {
-                if (IsRowMatch(top, y, bottom, probeY_in_Bottom))
+                int probeY_in_Bottom = Math.Max(headerHeight, (int)(bottom.Height * ratio));
+                
+                // 안전 장치
+                if (probeY_in_Bottom >= bottom.Height - 20) continue;
+
+                // ★ 핵심 수정 1: 검색 범위를 창 높이만큼 충분히 확보 ★
+                // 스크롤이 작아서 겹치는 부분이 매우 큼. 500px로는 부족함.
+                int searchRange = bottom.Height; 
+                int startSearchY = Math.Max(headerHeight, top.Height - searchRange);
+                int endSearchY = top.Height - Math.Max(10, bottomMargin); 
+
+                // ★ 핵심 수정 2: Top-Down 검색으로 변경 ★
+                // 범위가 충분하므로 위에서부터 찾아야 중복을 확실히 제거함
+                for (int y = startSearchY; y <= endSearchY; y++)
                 {
-                    bool fullMatch = true;
-
-                    // 검증 범위를 안전하게 계산 (이미지 범위 초과 방지)
-                    int maxCheckRange = Math.Min(15, top.Height - y - 1);
-                    maxCheckRange = Math.Min(maxCheckRange, bottom.Height - probeY_in_Bottom - 1);
-                    int checkRange = Math.Max(10, maxCheckRange); // 최소 10, 최대 15 (동적 콘텐츠 대응)
-
-                    for (int k = 1; k < checkRange; k++)
+                    if (IsRowMatch(top, y, bottom, probeY_in_Bottom))
                     {
-                        if (!IsRowMatch(top, y + k, bottom, probeY_in_Bottom + k))
+                        // 매칭 성공! 검증 강화
+                        if (VerifyMatch(top, y, bottom, probeY_in_Bottom))
                         {
-                            fullMatch = false;
-                            break;
+                            Log($"매칭 성공 (Ratio {ratio:P0}): matchY={y}, probeY={probeY_in_Bottom}");
+                            return CreateStitchedImage(top, bottom, y, probeY_in_Bottom);
                         }
                     }
-
-                    if (fullMatch)
-                    {
-                        matchY_in_Top = y;
-                        break;
-                    }
                 }
             }
 
-            // matchY가 너무 작으면 실제로는 같은 이미지 (스크롤 안 됨)
-            if (matchY_in_Top != -1 && matchY_in_Top < 50)
+            // 모든 시도 실패 시: Fallback
+            // 스크롤 양이 작으므로(120px), 안전하게 100px 정도만 겹쳤다고 가정하고 붙임
+            // 이렇게 하면 최소한 내용은 이어짐 (약간의 중복이나 공백이 있을 순 있어도 날려먹진 않음)
+            Log("매칭 완전 실패. Fallback: 안전하게 100px 겹침 처리");
+            int assumedOverlap = 100; 
+            int fallbackMatchY = Math.Max(0, top.Height - assumedOverlap);
+            int fallbackProbeY = headerHeight; 
+            
+            return CreateStitchedImage(top, bottom, fallbackMatchY, fallbackProbeY);
+        }
+
+        private bool VerifyMatch(Bitmap top, int y, Bitmap bottom, int probeY)
+        {
+            // 추가 검증: 5줄 더 확인
+            int checkRange = Math.Min(20, top.Height - y - 1);
+            checkRange = Math.Min(checkRange, bottom.Height - probeY - 1);
+            
+            if (checkRange < 5) return true; // 검증 공간 부족하면 그냥 통과
+
+            for (int k = 5; k < checkRange; k += 5)
             {
-                Log($"매칭 위치가 너무 작음 (matchY={matchY_in_Top}), 매칭 실패로 처리");
-                matchY_in_Top = -1;
+                if (!IsRowMatch(top, y + k, bottom, probeY + k)) return false;
             }
+            return true;
+        }
 
-            if (matchY_in_Top != -1)
-            {
-                // 매칭 성공!
-                Log($"매칭 성공: matchY={matchY_in_Top}, probeY={probeY_in_Bottom}");
-                int topCutHeight = matchY_in_Top;
-                int bottomStartY = probeY_in_Bottom; // 여기서부터 붙임 (즉, 위쪽 headerHeight 만큼은 버려짐)
-                int bottomContentHeight = bottom.Height - bottomStartY;
-
-                int newTotalHeight = topCutHeight + bottomContentHeight;
-                var result = new Bitmap(top.Width, newTotalHeight);
-
-                using (var g = Graphics.FromImage(result))
-                {
-                    // Top 그리기
-                    var topSrcRect = new System.Drawing.Rectangle(0, 0, top.Width, topCutHeight);
-                    var topDestRect = new System.Drawing.Rectangle(0, 0, top.Width, topCutHeight);
-                    g.DrawImage(top, topDestRect, topSrcRect, GraphicsUnit.Pixel);
-
-                    // Bottom 그리기 (Sticky Header 제외하고 붙임)
-                    var bottomSrcRect = new System.Drawing.Rectangle(0, bottomStartY, bottom.Width, bottomContentHeight);
-                    var bottomDestRect = new System.Drawing.Rectangle(0, topCutHeight, bottom.Width, bottomContentHeight);
-                    g.DrawImage(bottom, bottomDestRect, bottomSrcRect, GraphicsUnit.Pixel);
-                }
-
-                top.Dispose();
-                return result;
-            }
-            else
-            {
-                // 매칭 실패 - 헤더를 제외하고 붙이기 (중복 최소화)
-                Log($"매칭 실패! Top({top.Width}x{top.Height}), Bottom({bottom.Width}x{bottom.Height}), " +
-                    $"headerHeight={headerHeight}, probeY={probeY_in_Bottom}, 탐색범위={startSearchY}~{endSearchY}");
-                int bottomStartY = Math.Max(headerHeight, 0);
-                int bottomContentHeight = bottom.Height - bottomStartY;
-
-                int newHeight = top.Height + bottomContentHeight;
-                var result = new Bitmap(Math.Max(top.Width, bottom.Width), newHeight);
-
-                using (var g = Graphics.FromImage(result))
-                {
-                    // Top 전체 그리기
-                    g.DrawImage(top, 0, 0);
-
-                    // Bottom 그리기 (헤더 제외)
-                    var bottomSrcRect = new System.Drawing.Rectangle(0, bottomStartY, bottom.Width, bottomContentHeight);
-                    var bottomDestRect = new System.Drawing.Rectangle(0, top.Height, bottom.Width, bottomContentHeight);
-                    g.DrawImage(bottom, bottomDestRect, bottomSrcRect, GraphicsUnit.Pixel);
-                }
-
-                top.Dispose();
-                return result;
-            }
+        private Bitmap CreateStitchedImage(Bitmap top, Bitmap bottom, int topCutY, int bottomStartY)
+        {
+             int topHeight = topCutY;
+             int bottomHeight = bottom.Height - bottomStartY;
+             
+             var result = new Bitmap(top.Width, topHeight + bottomHeight);
+             using (var g = Graphics.FromImage(result))
+             {
+                 g.DrawImage(top, new System.Drawing.Rectangle(0, 0, top.Width, topHeight), 
+                     new System.Drawing.Rectangle(0, 0, top.Width, topHeight), GraphicsUnit.Pixel);
+                     
+                 g.DrawImage(bottom, new System.Drawing.Rectangle(0, topHeight, bottom.Width, bottomHeight), 
+                     new System.Drawing.Rectangle(0, bottomStartY, bottom.Width, bottomHeight), GraphicsUnit.Pixel);
+             }
+             top.Dispose();
+             return result;
         }
 
         private bool IsRowMatch(Bitmap bmp1, int y1, Bitmap bmp2, int y2)
         {
             if (y1 < 0 || y1 >= bmp1.Height || y2 < 0 || y2 >= bmp2.Height) return false;
 
-            // 스크롤바 및 테두리 무시: 중앙 80%만 비교
             int width = Math.Min(bmp1.Width, bmp2.Width);
-            int startX = (int)(width * 0.1); // 왼쪽 10% 무시
-            int endX = (int)(width * 0.9);   // 오른쪽 10% (스크롤바) 무시
+            int startX = (int)(width * 0.1); 
+            int endX = (int)(width * 0.9);   
 
-            for (int x = startX; x < endX; x += 10) // 10픽셀 간격 샘플링 (속도와 안정성)
+            int totalPoints = 0;
+            int mismatchPoints = 0;
+
+            // 5픽셀 간격으로 더 촘촘하게 검사하되, 오차를 허용
+            for (int x = startX; x < endX; x += 5) 
             {
+                totalPoints++;
                 var c1 = bmp1.GetPixel(x, y1);
                 var c2 = bmp2.GetPixel(x, y2);
 
-                // 균형잡힌 픽셀 비교 (오차 허용: 12 - 정확도와 관대함의 균형)
-                if (Math.Abs(c1.R - c2.R) > 12 || Math.Abs(c1.G - c2.G) > 12 || Math.Abs(c1.B - c2.B) > 12)
+                // 픽셀 오차 허용 범위 (15)
+                if (Math.Abs(c1.R - c2.R) > 15 || Math.Abs(c1.G - c2.G) > 15 || Math.Abs(c1.B - c2.B) > 15)
                 {
-                    return false;
+                    mismatchPoints++;
                 }
             }
-            return true;
+
+            // 전체의 20% 이하만 틀리면 매칭 성공으로 간주 (유연한 매칭)
+            // 예: 움직이는 배너나 미세한 변화 무시
+            return mismatchPoints <= (totalPoints * 0.1);
         }
 
         private BitmapSource ConvertBitmapToBitmapSource(Bitmap bitmap)
