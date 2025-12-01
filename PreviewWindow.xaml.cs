@@ -916,7 +916,7 @@ namespace CatchCapture
         {
             try
             {
-                BitmapSource src = PreviewImage?.Source as BitmapSource;
+                BitmapSource? src = PreviewImage?.Source as BitmapSource;
                 if (src == null) return;
 
                 // Call MainWindow's existing Google image search logic

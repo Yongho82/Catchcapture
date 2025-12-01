@@ -37,7 +37,6 @@ namespace CatchCapture
         private bool _isCollapsed = false;
         private DispatcherTimer _collapseTimer;
         
-        private int _delaySeconds = 3;
         private MainWindow? _mainWindow; 
         private Settings? settings;     
 
@@ -253,11 +252,16 @@ namespace CatchCapture
 
         private void GetVisibilityCountsVertical(out int visibleIcons, out int visibleApps)
         {
+            if (settings == null)
+            {
+                visibleIcons = 0;
+                visibleApps = 0;
+                return;
+            }
+
             visibleIcons = settings.SimpleModeIcons.Count;
             visibleApps = settings.SimpleModeApps.Count;
             
-            if (settings == null) return;
-
             var workArea = SystemParameters.WorkArea;
             int maxHeight = (int)(workArea.Height * 0.9);
             
@@ -671,6 +675,7 @@ namespace CatchCapture
                     Text = GetIconLabel(iconName),
                     FontSize = 9,
                     HorizontalAlignment = HorizontalAlignment.Center,
+                    TextAlignment = TextAlignment.Center,
                     Margin = new Thickness(0, 2, 0, 0)
                 };
                 stack.Children.Add(text);

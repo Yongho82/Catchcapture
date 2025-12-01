@@ -3627,8 +3627,8 @@ namespace CatchCapture.Utilities
             Canvas.SetTop(noteBox, -(noteBox.Height - badgeSize) / 2);
 
             Border selectionBorder = null;
-            RoutedEventHandler gotFocusHandler = null;
-            RoutedEventHandler lostFocusHandler = null;
+            RoutedEventHandler? gotFocusHandler = null;
+            RoutedEventHandler? lostFocusHandler = null;
 
             gotFocusHandler = (s, e) =>
             {
@@ -3661,8 +3661,8 @@ namespace CatchCapture.Utilities
             {
                 if (selectionBorder != null)
                 {
-                    selectionBorder.Visibility = Visibility.Collapsed;
-                }
+                    selectionBorder.Visibility = Visibility.Collapsed;  // ← 추가
+                }                
             };
             var confirmBtn = new Button
             {
@@ -3673,6 +3673,7 @@ namespace CatchCapture.Utilities
                 Cursor = Cursors.Hand,
                 ToolTip = LocalizationManager.Get("OK")
             };
+            
             confirmBtn.Content = new TextBlock
             {
                 Text = "✓",
@@ -3735,7 +3736,11 @@ namespace CatchCapture.Utilities
             Point dragStart = new Point();
             Point origin = new Point();
 
-            MouseButtonEventHandler noteBoxMouseDown = (s, e) =>
+            MouseButtonEventHandler? noteBoxMouseDown = null;
+            MouseEventHandler? noteBoxMouseMove = null;
+            MouseButtonEventHandler? noteBoxMouseUp = null;
+
+            noteBoxMouseDown = (s, e) =>
             {
                 var pos = e.GetPosition(noteBox);
                 bool isNearBorder = pos.X < 5 || pos.X > noteBox.Width - 5 || 
@@ -3749,32 +3754,49 @@ namespace CatchCapture.Utilities
                     
                     isDrag = true;
                     dragStart = e.GetPosition(group);
-                    origin = new Point(Canvas.GetLeft(noteBox), Canvas.GetTop(noteBox));
                     noteBox.CaptureMouse();
                     e.Handled = true;
                 }
             };
 
-            MouseEventHandler noteBoxMouseMove = (s, e) =>
+            noteBoxMouseMove = (s, e) =>
             {
                 if (!isDrag) return;
                 var p = e.GetPosition(group);
                 double dx = p.X - dragStart.X;
                 double dy = p.Y - dragStart.Y;
-                Canvas.SetLeft(noteBox, origin.X + dx);
-                Canvas.SetTop(noteBox, origin.Y + dy);
-                UpdateButtonsPosition();
-                e.Handled = true;
+                
+                double newLeft = Canvas.GetLeft(noteBox) + dx;
+                double newTop = Canvas.GetTop(noteBox) + dy;
+                
+                Canvas.SetLeft(noteBox, newLeft);
+                Canvas.SetTop(noteBox, newTop);
+                
+                // 점선 테두리도 함께 이동
+                if (selectionBorder != null)
+                {
+                    Canvas.SetLeft(selectionBorder, newLeft - 2);
+                    Canvas.SetTop(selectionBorder, newTop - 2);
+                }
+                
+                // 삭제 버튼도 함께 이동
+                if (deleteBtn != null)
+                {
+                    double width = noteBox.ActualWidth > 0 ? noteBox.ActualWidth : noteBox.MinWidth;
+                    Canvas.SetLeft(deleteBtn, newLeft + width - 20);
+                    Canvas.SetTop(deleteBtn, newTop - 28);
+                }
+                
+                dragStart = p;
             };
 
-            MouseButtonEventHandler noteBoxMouseUp = (s, e) =>
+            noteBoxMouseUp = (s, e) =>
             {
                 isDrag = false;
                 if (noteBox.IsMouseCaptured)
                 {
                     noteBox.ReleaseMouseCapture();
                 }
-                e.Handled = true;
             };
 
             noteBox.PreviewMouseLeftButtonDown += noteBoxMouseDown;
@@ -3785,7 +3807,11 @@ namespace CatchCapture.Utilities
             Point dragStartBadge = new Point();
             Point originBadge = new Point();
 
-            MouseButtonEventHandler badgeMouseDown = (s, e) =>
+            MouseButtonEventHandler? badgeMouseDown = null;
+            MouseEventHandler? badgeMouseMove = null;
+            MouseButtonEventHandler? badgeMouseUp = null;
+
+            badgeMouseDown = (s, e) =>
             {
                 isDragBadge = true;
                 dragStartBadge = e.GetPosition(group);
@@ -3794,7 +3820,7 @@ namespace CatchCapture.Utilities
                 e.Handled = true;
             };
 
-            MouseEventHandler badgeMouseMove = (s, e) =>
+            badgeMouseMove = (s, e) =>
             {
                 if (!isDragBadge) return;
                 var p = e.GetPosition(group);
@@ -3805,7 +3831,7 @@ namespace CatchCapture.Utilities
                 e.Handled = true;
             };
 
-            MouseButtonEventHandler badgeMouseUp = (s, e) =>
+            badgeMouseUp = (s, e) =>
             {
                 isDragBadge = false;
                 try { badgeBorder.ReleaseMouseCapture(); } catch { }
@@ -3863,9 +3889,9 @@ namespace CatchCapture.Utilities
                 Point dragStartGroup = new Point();
                 Point originGroupPos = new Point();
                 
-                MouseButtonEventHandler groupMouseDown = null;
-                MouseEventHandler groupMouseMove = null;
-                MouseButtonEventHandler groupMouseUp = null;
+                MouseButtonEventHandler? groupMouseDown = null;
+                MouseEventHandler? groupMouseMove = null;
+                MouseButtonEventHandler? groupMouseUp = null;
                 
                 groupMouseDown = (gs, ge) =>
                 {
@@ -3931,7 +3957,7 @@ namespace CatchCapture.Utilities
                 badgeBorder.Cursor = Cursors.SizeAll;
                 noteBox.Cursor = Cursors.SizeAll;
 
-                MouseButtonEventHandler noteBoxDoubleClick = null;
+                MouseButtonEventHandler? noteBoxDoubleClick = null;
                 noteBoxDoubleClick = (ns, ne) =>
                 {
                     if (isConfirmed)
