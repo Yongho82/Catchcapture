@@ -2799,6 +2799,10 @@ namespace CatchCapture.Utilities
             {
                 isTextDragging = false;
                 textBox.ReleaseMouseCapture();
+                
+                // [추가] 드래그 완료 후 선택 해제하여 다음 클릭 시 새 텍스트박스가 생성되지 않도록 함
+                ClearTextSelection();
+                e.Handled = true;
             }
         }
 
