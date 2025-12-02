@@ -23,7 +23,6 @@ namespace CatchCapture
         private MainWindow mainWindow;
         private Settings? settings;
         private bool isFolded = false;
-        private bool isExpanded = false; // 확장 상태
 
         public TrayModeWindow(MainWindow owner)
         {
@@ -1012,9 +1011,14 @@ namespace CatchCapture
             iconPopup.IsOpen = true;
         }
 
-        // [새로 추가] 표시할 아이콘과 앱의 개수를 정확히 계산하는 헬퍼 메서드
         private void GetVisibilityCounts(out int visibleIcons, out int visibleApps)
         {
+            if (settings == null) 
+            {
+                visibleIcons = 0;
+                visibleApps = 0;
+                return;
+            }
             // 일단 다 보여준다고 가정
             visibleIcons = settings.SimpleModeIcons.Count;
             visibleApps = settings.SimpleModeApps.Count;

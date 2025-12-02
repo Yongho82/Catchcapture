@@ -18,7 +18,6 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using System.Windows.Interop; 
-using System.Runtime.InteropServices;
 using Windows.ApplicationModel.DataTransfer;
 
 namespace CatchCapture;

@@ -3626,7 +3626,7 @@ namespace CatchCapture.Utilities
             Canvas.SetLeft(noteBox, badgeSize + 2);
             Canvas.SetTop(noteBox, -(noteBox.Height - badgeSize) / 2);
 
-            Border selectionBorder = null;
+            Border? selectionBorder = null;
             RoutedEventHandler? gotFocusHandler = null;
             RoutedEventHandler? lostFocusHandler = null;
 
@@ -3734,7 +3734,6 @@ namespace CatchCapture.Utilities
             // 드래그 이벤트 (간단 버전)
             bool isDrag = false;
             Point dragStart = new Point();
-            Point origin = new Point();
 
             MouseButtonEventHandler? noteBoxMouseDown = null;
             MouseEventHandler? noteBoxMouseMove = null;
