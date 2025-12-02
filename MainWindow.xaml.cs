@@ -18,7 +18,8 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using System.Windows.Interop; 
-
+using System.Runtime.InteropServices;
+using Windows.ApplicationModel.DataTransfer;
 
 namespace CatchCapture;
 
@@ -1481,14 +1482,16 @@ public partial class MainWindow : Window
         gTemplate.VisualTree = gBorderFactory;
         googleBtn.Template = gTemplate;
 
-        // 'G' 텍스트 설정 (파란색)
-        googleBtn.Content = new TextBlock 
-        { 
-            Text = "G", 
-            FontWeight = FontWeights.Bold, 
-            Foreground = new SolidColorBrush(Color.FromRgb(66, 133, 244)), // Google Blue
-            FontSize = 14
+        // 구글 아이콘 이미지 설정
+        var googleIcon = new Image
+        {
+            Source = new BitmapImage(new Uri("pack://application:,,,/Icons/google_img.png")),
+            Width = 16, 
+            Height = 16, 
+            Stretch = Stretch.Uniform
         };
+        RenderOptions.SetBitmapScalingMode(googleIcon, BitmapScalingMode.HighQuality);
+        googleBtn.Content = googleIcon;
         
         // 클릭 이벤트 연결
         googleBtn.Click += (s, e) => 
@@ -1563,8 +1566,21 @@ public partial class MainWindow : Window
                 selectedBorder = null; selectedIndex = -1;
             }
         };
+        
+        // 둥근 버튼 스타일 적용
+        var shareTemplate = new ControlTemplate(typeof(Button));
+        var shareBorderFactory = new FrameworkElementFactory(typeof(Border));
+        shareBorderFactory.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Button.BackgroundProperty));
+        shareBorderFactory.SetValue(Border.BorderBrushProperty, new TemplateBindingExtension(Button.BorderBrushProperty));
+        shareBorderFactory.SetValue(Border.BorderThicknessProperty, new TemplateBindingExtension(Button.BorderThicknessProperty));
+        shareBorderFactory.SetValue(Border.CornerRadiusProperty, new CornerRadius(14));
+        var shareContentPresenter = new FrameworkElementFactory(typeof(ContentPresenter));
+        shareContentPresenter.SetValue(ContentPresenter.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+        shareContentPresenter.SetValue(ContentPresenter.VerticalAlignmentProperty, VerticalAlignment.Center);
+        shareBorderFactory.AppendChild(shareContentPresenter);
+        shareTemplate.VisualTree = shareBorderFactory;
 
-        // 패널에 버튼 추가 (구글 -> 저장 -> 삭제)
+        // 패널에 버튼 추가 (구글 -> 공유 -> 저장 -> 삭제)
         buttonPanel.Children.Add(googleBtn);
         buttonPanel.Children.Add(saveBtn);
         buttonPanel.Children.Add(deleteBtn);
@@ -2089,6 +2105,36 @@ public partial class MainWindow : Window
             // 실패해도 무시
         }
     }
+
+    // Windows 공유 기능
+    [System.Runtime.InteropServices.DllImport("shell32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
+    private static extern bool ShellExecuteEx(ref SHELLEXECUTEINFO lpExecInfo);
+
+    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential, CharSet = System.Runtime.InteropServices.CharSet.Auto)]
+    private struct SHELLEXECUTEINFO
+    {
+        public int cbSize;
+        public uint fMask;
+        public IntPtr hwnd;
+        [System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.LPTStr)]
+        public string lpVerb;
+        [System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.LPTStr)]
+        public string lpFile;
+        [System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.LPTStr)]
+        public string lpParameters;
+        [System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.LPTStr)]
+        public string lpDirectory;
+        public int nShow;
+        public IntPtr hInstApp;
+        public IntPtr lpIDList;
+        [System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.LPTStr)]
+        public string lpClass;
+        public IntPtr hkeyClass;
+        public uint dwHotKey;
+        public IntPtr hIcon;
+        public IntPtr hProcess;
+    }
+
     private void RegisterGlobalHotkeys()
     {
         try
