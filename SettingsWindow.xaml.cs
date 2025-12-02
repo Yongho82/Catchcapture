@@ -486,7 +486,7 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
             {
                 Process.Start(new ProcessStartInfo
                 {
-                    FileName = "mailto:support@catchcapture.app",
+                    FileName = "https://ezupsoft.com",
                     UseShellExecute = true
                 });
             }

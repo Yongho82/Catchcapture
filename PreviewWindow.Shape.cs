@@ -38,7 +38,8 @@ namespace CatchCapture
                         Height = height,
                         Stroke = new SolidColorBrush(shapeColor),
                         StrokeThickness = shapeBorderThickness,
-                        Fill = shapeIsFilled ? new SolidColorBrush(Color.FromArgb(80, shapeColor.R, shapeColor.G, shapeColor.B)) : Brushes.Transparent
+                        // [수정 필요] 여기도 똑같이 수정해야 합니다!
+                        Fill = shapeIsFilled ? new SolidColorBrush(Color.FromArgb((byte)(shapeFillOpacity * 255), shapeColor.R, shapeColor.G, shapeColor.B)) : Brushes.Transparent
                     };
                     Canvas.SetLeft(shape, left);
                     Canvas.SetTop(shape, top);
@@ -51,7 +52,7 @@ namespace CatchCapture
                         Height = height,
                         Stroke = new SolidColorBrush(shapeColor),
                         StrokeThickness = shapeBorderThickness,
-                        Fill = shapeIsFilled ? new SolidColorBrush(Color.FromArgb(80, shapeColor.R, shapeColor.G, shapeColor.B)) : Brushes.Transparent
+                        Fill = shapeIsFilled ? new SolidColorBrush(Color.FromArgb((byte)(shapeFillOpacity * 255), shapeColor.R, shapeColor.G, shapeColor.B)) : Brushes.Transparent
                     };
                     Canvas.SetLeft(shape, left);
                     Canvas.SetTop(shape, top);

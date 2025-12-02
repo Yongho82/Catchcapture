@@ -63,6 +63,7 @@ namespace CatchCapture
         };
         private double shapeBorderThickness = 2;
         private bool shapeIsFilled = false;
+        private double shapeFillOpacity = 0.5;
         // 기본 형광펜은 중간 투명도(약 45~50%)와 중간 두께로 시작
         private Color highlightColor = Color.FromArgb(120, Colors.Yellow.R, Colors.Yellow.G, Colors.Yellow.B);
         private double highlightThickness = 8;

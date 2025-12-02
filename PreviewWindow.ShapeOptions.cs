@@ -339,9 +339,69 @@ namespace CatchCapture
             fillPanel.Children.Add(fillBtn);
             panel.Children.Add(fillPanel);
 
+            // [추가] 채우기 투명도 슬라이더 (채우기 모드일 때만 활성화)
+            var opacityPanel = new StackPanel 
+            { 
+                Orientation = Orientation.Horizontal, 
+                Margin = new Thickness(0, 8, 0, 0),
+                IsEnabled = shapeIsFilled // 초기 상태 설정
+            };
+            
+            var opacityLabel = new TextBlock 
+            { 
+                Text = "투명도", 
+                FontSize = 10, 
+                Foreground = new SolidColorBrush(Color.FromRgb(100, 100, 100)),
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(0, 0, 8, 0)
+            };
+            
+            var opacitySlider = new Slider
+            {
+                Minimum = 0,
+                Maximum = 100,
+                Value = shapeFillOpacity * 100,
+                Width = 80,
+                VerticalAlignment = VerticalAlignment.Center,
+                IsSnapToTickEnabled = true,
+                TickFrequency = 10
+            };
+            
+            var opacityValueText = new TextBlock 
+            { 
+                Text = $"{(int)(shapeFillOpacity * 100)}%", 
+                FontSize = 10, 
+                Foreground = new SolidColorBrush(Color.FromRgb(100, 100, 100)),
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(8, 0, 0, 0),
+                Width = 30
+            };
+
+            opacitySlider.ValueChanged += (s, e) => 
+            {
+                shapeFillOpacity = opacitySlider.Value / 100.0;
+                opacityValueText.Text = $"{(int)opacitySlider.Value}%";
+            };
+
+            // 채우기 버튼 클릭 시 슬라이더 활성화/비활성화 연동을 위해 태그에 저장
+            fillBtn.Tag = true; // 이미 true로 설정되어 있지만 명시적으로 확인
+            // 기존 클릭 이벤트에 로직 추가가 어려우므로, 여기서 이벤트 핸들러를 추가하거나
+            // UpdateFillButtonsInPopup 메서드에서 opacityPanel의 IsEnabled를 제어해야 함.
+            // 간단하게 구현하기 위해 opacityPanel을 멤버 변수로 빼거나, 
+            // fillBtn 클릭 이벤트에서 panel을 찾아서 제어하는 방식이 필요함.
+            
+            // 가장 쉬운 방법: fillBtn 클릭 시 갱신되는 UpdateFillButtonsInPopup에서 제어하도록
+            // opacityPanel에 이름을 주거나 태그를 줘서 찾을 수 있게 함.
+            opacityPanel.Tag = "OpacityPanel"; 
+
+            opacityPanel.Children.Add(opacityLabel);
+            opacityPanel.Children.Add(opacitySlider);
+            opacityPanel.Children.Add(opacityValueText);
+            
+            panel.Children.Add(opacityPanel);
+
             return panel;
         }
-
         private Button CreateLineStyleButton(string content, bool isDashed, double thickness, int row, int col)
         {
             var button = new Button
@@ -520,6 +580,26 @@ namespace CatchCapture
                 {
                     button.Background = Brushes.White;
                     button.Foreground = new SolidColorBrush(Color.FromRgb(60, 60, 60));
+                }
+            }
+
+            // [추가] 투명도 슬라이더 패널 활성화/비활성화
+            // ToolOptionsPopupContent에서 OpacityPanel을 찾아서 제어
+            if (ToolOptionsPopupContent.Children.Count > 0 && ToolOptionsPopupContent.Children[0] is StackPanel mainPanel)
+            {
+                foreach (var child in mainPanel.Children)
+                {
+                    if (child is StackPanel sectionPanel)
+                    {
+                        foreach (var subChild in sectionPanel.Children)
+                        {
+                            if (subChild is StackPanel opacityPanel && opacityPanel.Tag as string == "OpacityPanel")
+                            {
+                                opacityPanel.IsEnabled = shapeIsFilled;
+                                opacityPanel.Opacity = shapeIsFilled ? 1.0 : 0.5;
+                            }
+                        }
+                    }
                 }
             }
         }
