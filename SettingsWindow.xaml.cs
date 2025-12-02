@@ -197,7 +197,7 @@ namespace CatchCapture
                 }
             }
             if (CboQuality.SelectedItem == null)
-                CboQuality.SelectedIndex = 2; // 기본값: 80%
+                CboQuality.SelectedIndex = 0; // 기본값: 100%
             // Folder
             var defaultInstallFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture");
             TxtFolder.Text = string.IsNullOrWhiteSpace(_settings.DefaultSaveFolder)
@@ -340,12 +340,12 @@ namespace CatchCapture
                 }
                 else
                 {
-                    _settings.ImageQuality = 80;
+                    _settings.ImageQuality = 100;
                 }
             }
             else
             {
-                _settings.ImageQuality = 80;
+                _settings.ImageQuality = 100;
             }
             var desiredFolder = (TxtFolder.Text ?? string.Empty).Trim();
             if (string.IsNullOrWhiteSpace(desiredFolder))
@@ -498,27 +498,8 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
 
         private void CboFormat_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (CboFormat.SelectedItem is ComboBoxItem item && CboQuality != null)
-            {
-                string? format = item.Content?.ToString();
-                if (format == "PNG")
-                {
-                    // PNG는 항상 100% 품질로 고정
-                    foreach (ComboBoxItem qualityItem in CboQuality.Items)
-                    {
-                        if (qualityItem.Tag?.ToString() == "100")
-                        {
-                            CboQuality.SelectedItem = qualityItem;
-                            break;
-                        }
-                    }
-                    CboQuality.IsEnabled = false;
-                }
-                else
-                {
-                    CboQuality.IsEnabled = true;
-                }
-            }
+            // 모든 포맷에서 품질 조정 가능
+            // 별도 처리 없음
         }
 
 

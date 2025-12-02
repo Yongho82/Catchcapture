@@ -17,7 +17,7 @@ namespace CatchCapture.Models
 
         // Capture save options
         public string FileSaveFormat { get; set; } = "PNG"; // PNG, JPG, BMP, GIF
-        public int ImageQuality { get; set; } = 80;
+        public int ImageQuality { get; set; } = 100;
         public string DefaultSaveFolder { get; set; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "CatchCapture");
         public bool AutoSaveCapture { get; set; } = false;
 

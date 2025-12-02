@@ -220,9 +220,9 @@
 
                                 <TextBlock x:Name="QualityText" Grid.Column="3" Text="품질" VerticalAlignment="Center" Foreground="{StaticResource TextSecondary}" Margin="0,0,10,0"/>
                                 <ComboBox x:Name="CboQuality" Grid.Column="4" Height="26">
-                                    <ComboBoxItem Content="100%" Tag="100"/>
+                                    <ComboBoxItem Content="100%" Tag="100" IsSelected="True"/>
                                     <ComboBoxItem Content="90%" Tag="90"/>
-                                    <ComboBoxItem Content="80%" Tag="80" IsSelected="True"/>
+                                    <ComboBoxItem Content="80%" Tag="80"/>
                                     <ComboBoxItem Content="70%" Tag="70"/>
                                     <ComboBoxItem Content="60%" Tag="60"/>
                                     <ComboBoxItem Content="50%" Tag="50"/>
