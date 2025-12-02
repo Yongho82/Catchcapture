@@ -216,11 +216,21 @@
                                     <ComboBoxItem Content="JPG"/>
                                     <ComboBoxItem Content="BMP"/>
                                     <ComboBoxItem Content="GIF"/>
-                                    <ComboBoxItem Content="WEBP"/>
                                 </ComboBox>
 
                                 <TextBlock x:Name="QualityText" Grid.Column="3" Text="품질" VerticalAlignment="Center" Foreground="{StaticResource TextSecondary}" Margin="0,0,10,0"/>
-                                <TextBox x:Name="TxtQuality" Grid.Column="4" Height="26" VerticalContentAlignment="Center" Padding="5,0" PreviewTextInput="TxtQuality_PreviewTextInput" MaxLength="3"/>
+                                <ComboBox x:Name="CboQuality" Grid.Column="4" Height="26">
+                                    <ComboBoxItem Content="100%" Tag="100"/>
+                                    <ComboBoxItem Content="90%" Tag="90"/>
+                                    <ComboBoxItem Content="80%" Tag="80" IsSelected="True"/>
+                                    <ComboBoxItem Content="70%" Tag="70"/>
+                                    <ComboBoxItem Content="60%" Tag="60"/>
+                                    <ComboBoxItem Content="50%" Tag="50"/>
+                                    <ComboBoxItem Content="40%" Tag="40"/>
+                                    <ComboBoxItem Content="30%" Tag="30"/>
+                                    <ComboBoxItem Content="20%" Tag="20"/>
+                                    <ComboBoxItem Content="10%" Tag="10"/>
+                                </ComboBox>
                             </Grid>
                         </StackPanel>
                     </GroupBox>

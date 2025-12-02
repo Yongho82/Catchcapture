@@ -16,8 +16,8 @@ namespace CatchCapture.Models
         public string PrintScreenAction { get; set; } = "영역 캡처";
 
         // Capture save options
-        public string FileSaveFormat { get; set; } = "PNG"; // PNG, JPG, BMP, GIF, WEBP
-        public int ImageQuality { get; set; } = 100;
+        public string FileSaveFormat { get; set; } = "PNG"; // PNG, JPG, BMP, GIF
+        public int ImageQuality { get; set; } = 80;
         public string DefaultSaveFolder { get; set; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture");
         public bool AutoSaveCapture { get; set; } = false;
 

@@ -187,7 +187,17 @@ namespace CatchCapture
                     break;
                 }
             }
-            TxtQuality.Text = _settings.ImageQuality.ToString();
+            // 품질 콤보박스 설정
+            foreach (ComboBoxItem item in CboQuality.Items)
+            {
+                if (item.Tag?.ToString() == _settings.ImageQuality.ToString())
+                {
+                    CboQuality.SelectedItem = item;
+                    break;
+                }
+            }
+            if (CboQuality.SelectedItem == null)
+                CboQuality.SelectedIndex = 2; // 기본값: 80%
             // Folder
             var defaultInstallFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture");
             TxtFolder.Text = string.IsNullOrWhiteSpace(_settings.DefaultSaveFolder)
@@ -321,13 +331,21 @@ namespace CatchCapture
                 _settings.FileSaveFormat = item.Content?.ToString() ?? "PNG";
             }
             
-            if (int.TryParse(TxtQuality.Text, out int q))
+            // 품질 설정 (콤보박스에서)
+            if (CboQuality.SelectedItem is ComboBoxItem qualityItem)
             {
-                _settings.ImageQuality = Math.Max(1, Math.Min(100, q));
+                if (int.TryParse(qualityItem.Tag?.ToString(), out int quality))
+                {
+                    _settings.ImageQuality = quality;
+                }
+                else
+                {
+                    _settings.ImageQuality = 80;
+                }
             }
             else
             {
-                _settings.ImageQuality = 100;
+                _settings.ImageQuality = 80;
             }
             var desiredFolder = (TxtFolder.Text ?? string.Empty).Trim();
             if (string.IsNullOrWhiteSpace(desiredFolder))
@@ -480,30 +498,30 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
 
         private void CboFormat_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (CboFormat.SelectedItem is ComboBoxItem item && TxtQuality != null)
+            if (CboFormat.SelectedItem is ComboBoxItem item && CboQuality != null)
             {
                 string? format = item.Content?.ToString();
                 if (format == "PNG")
                 {
-                    TxtQuality.Text = "100";
-                    TxtQuality.IsEnabled = false;
+                    // PNG는 항상 100% 품질로 고정
+                    foreach (ComboBoxItem qualityItem in CboQuality.Items)
+                    {
+                        if (qualityItem.Tag?.ToString() == "100")
+                        {
+                            CboQuality.SelectedItem = qualityItem;
+                            break;
+                        }
+                    }
+                    CboQuality.IsEnabled = false;
                 }
                 else
                 {
-                    TxtQuality.IsEnabled = true;
+                    CboQuality.IsEnabled = true;
                 }
             }
         }
 
-        private void TxtQuality_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
-        {
-            e.Handled = !IsTextAllowed(e.Text);
-        }
 
-        private static bool IsTextAllowed(string text)
-        {
-            return System.Text.RegularExpressions.Regex.IsMatch(text, "^[0-9]+$");
-        }
 
         private void LanguageComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {

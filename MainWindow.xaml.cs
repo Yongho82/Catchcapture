@@ -1282,11 +1282,15 @@ public partial class MainWindow : Window
                     }
 
                     string timestamp = DateTime.Now.ToString("yyyy-MM-dd HHmmss");
-                    string ext = currentSettings.FileSaveFormat.Equals("PNG", StringComparison.OrdinalIgnoreCase) ? ".png" : ".jpg";
+                    
+                    // 설정된 포맷에 맞는 확장자 결정
+                    string format = currentSettings.FileSaveFormat.ToLower();
+                    string ext = $".{format}";
+                    
                     string filename = $"AutoSave_{timestamp}_{captures.Count}{ext}";
                     string fullPath = System.IO.Path.Combine(saveFolder, filename);
 
-                    CatchCapture.Utilities.ScreenCaptureUtility.SaveImageToFile(image, fullPath);
+                    CatchCapture.Utilities.ScreenCaptureUtility.SaveImageToFile(image, fullPath, currentSettings.ImageQuality);
                 }
             }
             catch (Exception ex)
