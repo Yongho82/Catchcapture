@@ -44,11 +44,13 @@ namespace CatchCapture
         private bool _isPopupOpen = false;
         // A+ 사이즈 스케일 (1.0 기본, 1.15 크게)
         private double _uiScale = 1.0;
+        private int _uiScaleLevel = 0; // 0: 기본, 1: 아이콘만 크게, 2: 아이콘+텍스트 크게
         public event EventHandler? AreaCaptureRequested;
         public event EventHandler? FullScreenCaptureRequested;
         public event EventHandler? ExitSimpleModeRequested;
         public event EventHandler? DesignatedCaptureRequested;
         
+
         public SimpleModeWindow(MainWindow mainWindow)
         {
             InitializeComponent();
@@ -515,14 +517,12 @@ namespace CatchCapture
 
         private void LoadSettings()
         {
-            settings = Settings.Load();
+            settings = Settings.Load();  // var를 빼서 인스턴스 변수에 저장
+            InstantEditToggleH.IsChecked = settings.SimpleModeInstantEdit;
+            InstantEditToggleV.IsChecked = settings.SimpleModeInstantEdit;
+            _uiScaleLevel = settings.SimpleModeUIScaleLevel;
+            ApplyUIScale();
             BuildIconButtons();
-            
-            // 즉시편집 토글 상태 설정
-            if (InstantEditToggleH != null)
-                InstantEditToggleH.IsChecked = settings.SimpleModeInstantEdit;
-            if (InstantEditToggleV != null)
-                InstantEditToggleV.IsChecked = settings.SimpleModeInstantEdit;
         }
 
         private void BuildIconButtons()
@@ -594,6 +594,7 @@ namespace CatchCapture
         // 창 크기 조정
         bool isVertical = VerticalRoot.Visibility == Visibility.Visible;
         ApplyLayout(isVertical);
+        ApplyUIScale(); // UI 스케일 레벨 적용
         }
 
         private void ExpandButton_Click(object sender, RoutedEventArgs e)
@@ -1570,11 +1571,23 @@ namespace CatchCapture
             return trimmed.Length <= max ? trimmed : trimmed.Substring(0, max);
         }
 
-        // A+ 버튼 클릭: UI 스케일 토글 및 아이콘/텍스트 크기 반영
+        // A+ 버튼 클릭: 3단계 사이클 (기본 → 아이콘만 크게 → 아이콘+텍스트 크게 → 기본)
         private void APlusButton_Click(object sender, RoutedEventArgs e)
         {
-            _uiScale = (_uiScale < 1.1) ? 1.15 : 1.0;
+            // 0: 기본 → 1: 아이콘만 크게 → 2: 아이콘+텍스트 크게 → 0: 기본
+            _uiScaleLevel = (_uiScaleLevel + 1) % 3;
+            
+            // _uiScale도 업데이트 (ApplyLayout에서 사용)
+            _uiScale = _uiScaleLevel == 2 ? 1.3 : 1.0;
+            
+            // Settings에 저장
+            var settings = Settings.Load();
+            settings.SimpleModeUIScaleLevel = _uiScaleLevel;
+            Settings.Save(settings);
+            
+            // UI 적용
             ApplyUIScale();
+            
             // 현재 레이아웃 기준으로 창 크기 재적용
             bool isVertical = VerticalRoot.Visibility == Visibility.Visible;
             ApplyLayout(isVertical);
@@ -1584,10 +1597,96 @@ namespace CatchCapture
         {
             try
             {
-                // 전체 루트에 LayoutTransform으로 스케일 적용 (텍스트/아이콘 가독성↑)
-                var scale = new ScaleTransform(_uiScale, _uiScale);
-                if (HorizontalRoot != null) HorizontalRoot.LayoutTransform = scale;
-                if (VerticalRoot != null) VerticalRoot.LayoutTransform = scale;
+                double iconScale = 1.0;
+                bool showText = true;
+                
+                // iconScale과 showText 설정
+                switch (_uiScaleLevel)
+                {
+                    case 0: // 기본 상태
+                        iconScale = 1.0;
+                        showText = true;
+                        break;
+                    case 1: // 아이콘만 크게, 텍스트 숨김
+                        iconScale = 1.3;
+                        showText = false;
+                        break;
+                    case 2: // 아이콘+텍스트 크게
+                        iconScale = 1.3;
+                        showText = true;
+                        break;
+                }
+                
+                // 버튼들에 적용
+                foreach (var panel in new[] { ButtonsPanelH, ButtonsPanelV })
+                {
+                    if (panel == null) continue;
+                    
+                    foreach (var child in panel.Children)
+                    {
+                        Button? btn = null;
+
+                        // Grid 또는 Button 찾기
+                        if (child is Button b)
+                        {
+                            btn = b;
+                        }
+                        else if (child is Grid grid)
+                        {
+                            // Grid 내부에서 메인 아이콘 Button 찾기
+                            foreach (var gridChild in grid.Children)
+                            {
+                                if (gridChild is Button b2 && b2.Content is StackPanel)
+                                {
+                                    btn = b2;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (btn != null)
+                        {
+                            // 아이콘 크기 조정
+                            if (btn.Content is StackPanel sp)
+                            {
+                                foreach (var item in sp.Children)
+                                {
+                                    if (item is Image img)
+                                    {
+                                        img.Width = 20 * iconScale;
+                                        img.Height = 20 * iconScale;
+                                    }
+                                    else if (item is TextBlock tb)
+                                    {
+                                        // 텍스트 표시/숨김
+                                        tb.Visibility = showText ? Visibility.Visible : Visibility.Collapsed;
+                                        if (showText)
+                                        {
+                                            tb.FontSize = 8 * iconScale;
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // 버튼 크기 레벨별 조정
+                            switch (_uiScaleLevel)
+                            {
+                                case 0: // 기본
+                                    btn.Width = 44;
+                                    btn.Height = 50;
+                                    break;
+                                case 1: // 아이콘만 크게 - 텍스트 숨김이므로 높이 줄임
+                                    btn.Width = 44;
+                                    btn.Height = 40;
+                                    break;
+                                case 2: // 아이콘+텍스트 크게 - 버튼도 크게
+                                    btn.Width = 57;  // 44 * 1.3
+                                    btn.Height = 65; // 50 * 1.3
+                                    break;
+                            }
+                        }
+                    }
+                }
             }
             catch { }
         }

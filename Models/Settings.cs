@@ -53,6 +53,10 @@ namespace CatchCapture.Models
         // Simple mode instant edit
         public bool SimpleModeInstantEdit { get; set; } = false;
         
+        // Simple mode UI scale level (0: default, 1: large icons only, 2: large icons + text)
+        public int SimpleModeUIScaleLevel { get; set; } = 0;
+        
+        // System settings        
         // System settings
         public bool StartWithWindows { get; set; } = false;
         public string StartupMode { get; set; } = "Normal"; // "Normal", "Simple", "Tray"
