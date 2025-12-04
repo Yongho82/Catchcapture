@@ -20,6 +20,7 @@
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/delete_selected.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/designated.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/eraser.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/exit_tray.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/extract_text.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/flip_horizontal.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/flip_vertical.png")]

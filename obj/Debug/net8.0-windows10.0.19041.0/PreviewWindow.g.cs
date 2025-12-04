@@ -493,7 +493,7 @@ namespace CatchCapture {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/CatchCapture;component/previewwindow.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/CatchCapture;V1.0.0.0;component/previewwindow.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\PreviewWindow.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

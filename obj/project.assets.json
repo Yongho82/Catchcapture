@@ -218,7 +218,7 @@
     "version": "1.0.0",
     "restore": {
       "projectUniqueName": "C:\\yonghoprogram\\Catchcapture\\CatchCapture.csproj",
-      "projectName": "CatchCapture",
+      "projectName": "com.ezupsoft.catchcapture",
       "projectPath": "C:\\yonghoprogram\\Catchcapture\\CatchCapture.csproj",
       "packagesPath": "C:\\Users\\엄용호\\.nuget\\packages\\",
       "outputPath": "C:\\yonghoprogram\\Catchcapture\\obj\\",

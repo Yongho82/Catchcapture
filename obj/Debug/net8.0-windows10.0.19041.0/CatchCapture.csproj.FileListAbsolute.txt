@@ -88,3 +88,4 @@ C:\yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\icons\simple_
 C:\yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\icons\numbering.png
 C:\Yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\icons\google_img.png
 C:\Yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\icons\share_img.png
+C:\yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\icons\exit_tray.png

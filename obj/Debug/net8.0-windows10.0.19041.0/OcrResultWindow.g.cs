@@ -83,7 +83,7 @@ namespace CatchCapture {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/CatchCapture;component/ocrresultwindow.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/CatchCapture;V1.0.0.0;component/ocrresultwindow.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\OcrResultWindow.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

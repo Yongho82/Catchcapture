@@ -67,7 +67,7 @@ namespace CatchCapture.Controls {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/CatchCapture;component/controls/twotiertoolbutton.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/CatchCapture;V1.0.0.0;component/controls/twotiertoolbutton.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\..\Controls\TwoTierToolButton.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

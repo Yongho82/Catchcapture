@@ -318,15 +318,15 @@
                 <!-- 나가기 버튼 (트레이로) -->
                 <Button x:Name="HideToTrayButton" Style="{StaticResource TinyButtonStyle}" 
                         Click="HideToTrayButton_Click" ToolTip="트레이로 숨기기">
-                    <TextBlock Text="⏻" FontSize="18" 
-                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Image Source="/icons/exit_tray.png" Width="20" Height="20"
+                           RenderOptions.BitmapScalingMode="HighQuality"/>
                 </Button> 
 
                 <!-- 설정 -->
                 <Button x:Name="SettingsButton" Style="{StaticResource IconButtonStyle}" 
                         Click="SettingsButton_Click" ToolTip="설정">
-                    <Image Source="/icons/setting.png" Width="24" Height="24"
-                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                <TextBlock Text="&#xE7E8;" FontFamily="Segoe MDL2 Assets" FontSize="16"
+                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Button>
                 
                 <!-- 접기/펼치기 버튼 -->

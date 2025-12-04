@@ -59,7 +59,7 @@ namespace CatchCapture {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/CatchCapture;component/simplemodesettingsbutton.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/CatchCapture;V1.0.0.0;component/simplemodesettingsbutton.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\SimpleModeSettingsButton.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);
