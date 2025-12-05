@@ -23,10 +23,6 @@ namespace CatchCapture
             if (ImageCanvas == null) return;
 
             Point clickPoint = e.GetPosition(ImageCanvas);
-            if (clickPoint.Y < 40)
-            {
-                return; // 그리기 안 함
-            }
             WriteLog($"MouseDown: 위치({clickPoint.X:F1}, {clickPoint.Y:F1}), 편집모드={currentEditMode}, isDrawingShape={isDrawingShape}");
 
             // 도형 모드에서의 처리
@@ -239,6 +235,18 @@ namespace CatchCapture
                     FinishMagicWandSelection(endPoint);
                     break;
             }
+        }
+
+        private void ImageCanvas_MouseLeave(object sender, MouseEventArgs e)
+        {
+            // 마법봉 모드에서 영역 밖으로 나가면 선택 취소
+            if (currentEditMode == EditMode.MagicWand)
+            {
+                CancelMagicWandSelection();
+            }
+            
+            // 마법봉 커서 숨기기
+            HideMagicWandCursor();
         }
 
         #endregion

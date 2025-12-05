@@ -648,26 +648,48 @@ namespace CatchCapture
 
             if (magicWandCursor == null)
             {
+                // 툴팁 텍스트가 포함된 커서 생성
+                var tooltipPanel = new StackPanel
+                {
+                    Orientation = Orientation.Horizontal,
+                    Background = new SolidColorBrush(Color.FromArgb(220, 50, 50, 50)),
+                    IsHitTestVisible = false
+                };
+                
+                var icon = new TextBlock
+                {
+                    Text = "✨",
+                    FontSize = 16,
+                    Foreground = Brushes.White,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Margin = new Thickness(6, 4, 4, 4)
+                };
+                
+                var tooltip = new TextBlock
+                {
+                    Text = "클릭: 배경제거\n드래그: 영역선택",
+                    FontSize = 11,
+                    Foreground = Brushes.White,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Margin = new Thickness(0, 4, 6, 4)
+                };
+                
+                tooltipPanel.Children.Add(icon);
+                tooltipPanel.Children.Add(tooltip);
+                
                 magicWandCursor = new Border
                 {
-                    Width = 32,
-                    Height = 32,
                     Background = Brushes.Transparent,
+                    CornerRadius = new CornerRadius(4),
                     IsHitTestVisible = false,
-                    Child = new TextBlock
-                    {
-                        Text = "✨",
-                        FontSize = 20,
-                        HorizontalAlignment = HorizontalAlignment.Center,
-                        VerticalAlignment = VerticalAlignment.Center
-                    }
+                    Child = tooltipPanel
                 };
                 Panel.SetZIndex(magicWandCursor, 9999);
                 ImageCanvas.Children.Add(magicWandCursor);
             }
 
-            Canvas.SetLeft(magicWandCursor, point.X - 16);
-            Canvas.SetTop(magicWandCursor, point.Y - 16);
+            Canvas.SetLeft(magicWandCursor, point.X + 15);
+            Canvas.SetTop(magicWandCursor, point.Y + 15);
         }
 
         /// <summary>
@@ -765,6 +787,24 @@ namespace CatchCapture
                 
                 ApplyMagicWandInRegion(x1, y1, x2, y2);
             }
+        }
+
+        /// <summary>
+        /// 마법봉 선택 취소 (영역 밖으로 나갈 때)
+        /// </summary>
+        public void CancelMagicWandSelection()
+        {
+            isMagicWandDragging = false;
+            
+            // 선택 영역 제거
+            if (magicWandSelectionRect != null)
+            {
+                ImageCanvas.Children.Remove(magicWandSelectionRect);
+                magicWandSelectionRect = null;
+            }
+            
+            // 커서 숨기기
+            HideMagicWandCursor();
         }
 
         /// <summary>
@@ -989,7 +1029,7 @@ namespace CatchCapture
         {
             CancelCurrentEditMode();
             currentEditMode = EditMode.MagicWand;
-            ImageCanvas.Cursor = Cursors.None; // 커스텀 커서 사용 (마법봉 아이콘이 따라다님)
+            ImageCanvas.Cursor = Cursors.Pen; // 펜 커서 사용
             SetActiveToolButton(MagicWandToolButton);
         }
 

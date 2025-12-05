@@ -6,7 +6,7 @@
         xmlns:controls="clr-namespace:CatchCapture.Controls"
         xmlns:local="clr-namespace:CatchCapture"
         mc:Ignorable="d"
-        Title="Catch Capture 이미지 편집" Height="800" Width="1370"
+        Title="Catch Capture 이미지 편집" Height="800" Width="1390"
         WindowStartupLocation="CenterOwner"
         Background="#F8F9FC">
     
