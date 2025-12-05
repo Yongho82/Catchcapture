@@ -170,7 +170,7 @@ namespace CatchCapture
             double maxWindowHeight = SystemParameters.WorkArea.Height * 0.9;
 
             // 최소(기본) 창 크기 설정: 툴바 아이콘 추가에 맞춰 1300x800
-            double minWindowWidth = 1310;
+            double minWindowWidth = 1330;
             double minWindowHeight = 800;
 
             // 도구 모음과 하단 패널의 높이 계산 (대략적인 값)

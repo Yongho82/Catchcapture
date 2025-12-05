@@ -1,4 +1,5 @@
 using System;
+using System.Printing;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -162,10 +163,28 @@ namespace CatchCapture
             try
             {
                 PrintDialog printDialog = new PrintDialog();
+                
+                // 페이지 방향 설정
+                int orientationIndex = OrientationComboBox?.SelectedIndex ?? 0;
+                bool isLandscape = orientationIndex == 1;
+                
                 if (printDialog.ShowDialog() == true)
                 {
                     if (DocumentViewer.Document != null)
                     {
+                        // PrintTicket에 페이지 방향 설정
+                        if (printDialog.PrintTicket != null)
+                        {
+                            if (isLandscape)
+                            {
+                                printDialog.PrintTicket.PageOrientation = System.Printing.PageOrientation.Landscape;
+                            }
+                            else
+                            {
+                                printDialog.PrintTicket.PageOrientation = System.Printing.PageOrientation.Portrait;
+                            }
+                        }
+                        
                         printDialog.PrintDocument(DocumentViewer.Document.DocumentPaginator, "CatchCapture 이미지 인쇄");
                         MessageBox.Show("인쇄를 시작했습니다.", "정보", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
