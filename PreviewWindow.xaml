@@ -346,6 +346,14 @@
                         </StackPanel>
                     </Button>
                     
+                    <!-- 공유 버튼 -->
+                    <Button x:Name="ShareButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="ShareButton_Click" ToolTip="공유">
+                        <StackPanel VerticalAlignment="Top">
+                            <Image Source="icons/share_img.png" Width="20" Height="20" Margin="0,2,0,7"/>
+                            <TextBlock x:Name="ShareLabelText" Text="공유" FontSize="12" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
                     <Button x:Name="OcrButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="OcrButton_Click" ToolTip="텍스트 추출">
                         <StackPanel VerticalAlignment="Top">
                             <TextBlock x:Name="OcrLabelText" Text="OCR" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,2,0,7"/>

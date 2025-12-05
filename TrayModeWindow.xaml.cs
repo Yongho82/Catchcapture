@@ -39,6 +39,10 @@ namespace CatchCapture
             UpdateTopmostIcon();
             // 즉시편집 스위치 초기 상태 설정
             UpdateInstantEditToggleUI();
+            
+            // 다국어 UI 텍스트 적용 및 언어 변경 시 갱신
+            try { UpdateUIText(); } catch { }
+            try { LocalizationManager.LanguageChanged += OnLanguageChanged; } catch { }
         }
 
         // ★ 이벤트 핸들러 추가 (생성자 다음에)
@@ -85,6 +89,7 @@ namespace CatchCapture
         {
             // 이벤트 구독 해제
             Settings.SettingsChanged -= OnSettingsChanged;
+            try { LocalizationManager.LanguageChanged -= OnLanguageChanged; } catch { }
             
             // 설정 저장 제거 - 불필요하며 설정 창 닫힐 때 문제 발생
             base.OnClosing(e);
@@ -258,7 +263,7 @@ namespace CatchCapture
             {
                 // 접기: 아이콘 변경 및 UI 숨김
                 FoldIcon.Text = "▲";
-                FoldButton.ToolTip = "펼치기";
+                FoldButton.ToolTip = LocalizationManager.Get("Unfold");
                 
                 // 버튼 패널의 자식들 중 숨길 것들 숨기기
                 ToggleButtonsVisibility(Visibility.Collapsed);
@@ -276,7 +281,7 @@ namespace CatchCapture
             {
                 // 펼치기: 아이콘 변경 및 UI 보이기
                 FoldIcon.Text = "▼";
-                FoldButton.ToolTip = "접기";
+                FoldButton.ToolTip = LocalizationManager.Get("Fold");
                 
                 // 버튼 패널의 자식들 보이기
                 ToggleButtonsVisibility(Visibility.Visible);
@@ -445,7 +450,7 @@ namespace CatchCapture
                     FontSize = 16,
                     FontWeight = FontWeights.Bold,
                     Style = this.FindResource("TinyButtonStyle") as Style,
-                    ToolTip = "숨겨진 아이콘 보기",
+                    ToolTip = LocalizationManager.Get("ShowHiddenIcons"),
                     Foreground = new SolidColorBrush(Color.FromRgb(102, 102, 102))
                 };
                 expandButton.Click += ExpandToggleButton_Click;
@@ -476,83 +481,6 @@ namespace CatchCapture
             grid.MouseLeave += (s, e) => addButton.Opacity = 0.3;
             
             panel.Children.Add(grid);
-        }
-
-        private void ShowAddIconMenu(object sender, RoutedEventArgs e)
-        {
-            var menu = new ContextMenu();
-            if (this.TryFindResource("DarkContextMenu") is Style darkMenu)
-                menu.Style = darkMenu;
-            
-            var allIcons = new[] { 
-                "AreaCapture", "DelayCapture", "FullScreen", "RealTimeCapture",
-                "DesignatedCapture", "WindowCapture", "UnitCapture", "ScrollCapture",
-                "Copy", "CopyAll", "Save", "SaveAll", 
-                "Delete", "DeleteAll", "Settings"
-            };
-            
-            if (settings != null)
-            {
-                foreach (var icon in allIcons)
-                {
-                    if (!settings.SimpleModeIcons.Contains(icon))
-                    {
-                        var item = new MenuItem { Header = LocalizationManager.Get(icon) };
-                        item.Icon = icon switch
-                        {
-                            "AreaCapture" => CreateMenuIcon("/icons/area_capture.png"),
-                            "DelayCapture" => CreateMenuIcon("/icons/clock.png"),
-                            "FullScreen" => CreateMenuIcon("/icons/full_screen.png"),
-                            "RealTimeCapture" => CreateMenuIcon("/icons/real-time.png"),
-                            "DesignatedCapture" => CreateMenuIcon("/icons/designated.png"),
-                            "WindowCapture" => CreateMenuIcon("/icons/window_cap.png"),
-                            "UnitCapture" => CreateMenuIcon("/icons/unit_capture.png"),
-                            "ScrollCapture" => CreateMenuIcon("/icons/scroll_capture.png"),
-                            "Copy" => CreateMenuIcon("/icons/copy_selected.png"),
-                            "CopyAll" => CreateMenuIcon("/icons/copy_all.png"),
-                            "Save" => CreateMenuIcon("/icons/save_selected.png"),
-                            "SaveAll" => CreateMenuIcon("/icons/save_all.png"),
-                            "Delete" => CreateMenuIcon("/icons/delete_selected.png"),
-                            "DeleteAll" => CreateMenuIcon("/icons/delete_all.png"),
-                            "Settings" => CreateMenuIcon("/icons/setting.png"),
-                            _ => null
-                        };
-                        if (this.TryFindResource("DarkMenuItem") is Style darkItem)
-                            item.Style = darkItem;
-                        item.Click += (s2, e2) => AddIcon(icon);
-                        menu.Items.Add(item);
-                    }
-                }
-            }
-            
-            // 구분선 및 컴퓨터 앱 추가
-            if (menu.Items.Count > 0)
-            {
-                var sep = new Separator();
-                if (this.TryFindResource("LightSeparator") is Style sepStyle)
-                    sep.Style = sepStyle;
-                menu.Items.Add(sep);
-            }
-            
-            var appsItem = new MenuItem { Header = "컴퓨터 앱…" };
-            if (this.TryFindResource("DarkMenuItem") is Style darkApps)
-                appsItem.Style = darkApps;
-            appsItem.Icon = CreateMenuIcon("/icons/app.png") ?? CreateMenuIcon("/icons/setting.png");
-            appsItem.Click += async (s2, e2) =>
-            {
-                var picked = await OpenAppPickerAsync();
-                if (picked != null)
-                {
-                    if (settings == null) settings = Settings.Load();
-                    settings.SimpleModeApps.Add(picked);
-                    Settings.Save(settings);
-                    BuildIconButtons();
-                }
-            };
-            menu.Items.Add(appsItem);
-            
-            menu.PlacementTarget = sender as Button;
-            menu.IsOpen = true;
         }
 
         private StackPanel? FindButtonsPanel()
@@ -1309,6 +1237,7 @@ namespace CatchCapture
             var border = new FrameworkElementFactory(typeof(Border));
             border.SetValue(Border.CornerRadiusProperty, new CornerRadius(6));
             border.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Button.BackgroundProperty));
+            
             var text = new FrameworkElementFactory(typeof(TextBlock));
             text.SetValue(TextBlock.TextProperty, "−");
             text.SetValue(TextBlock.FontSizeProperty, 10.0);
@@ -1319,6 +1248,7 @@ namespace CatchCapture
             text.SetValue(TextBlock.MarginProperty, new Thickness(0, -3, 0, 0));
             border.AppendChild(text);
             template.VisualTree = border;
+            
             btn.Template = template;
             btn.Click += (s, e) => { RemoveApp(app); e.Handled = true; };
             return btn;
@@ -1610,6 +1540,142 @@ namespace CatchCapture
                 return new WpfImage { Source = source, Width = 20, Height = 20 };
             }
             catch { return null; }
+        }
+
+        private void OnLanguageChanged(object? sender, EventArgs e)
+        {
+            try { UpdateUIText(); } catch { }
+        }
+
+        // TrayModeWindow UI 텍스트/툴팁 다국어 적용
+        private void UpdateUIText()
+        {
+            try
+            {
+                // 창 제목
+                this.Title = LocalizationManager.Get("AppName");
+
+                // 상단 컨트롤 툴팁
+                if (SwitchToNormalModeButton != null)
+                    SwitchToNormalModeButton.ToolTip = LocalizationManager.Get("NormalModeTooltip");
+                if (SimpleModeButton != null)
+                    SimpleModeButton.ToolTip = LocalizationManager.Get("Simple");
+
+                // 즉시편집 토글 툴팁
+                if (InstantEditToggleBorder != null)
+                    InstantEditToggleBorder.ToolTip = LocalizationManager.Get("InstantEdit");
+
+                // 항상 위 / 캡처 카운터
+                if (TopmostButton != null)
+                    TopmostButton.ToolTip = LocalizationManager.Get("AlwaysOnTop");
+                if (CaptureCounterButton != null)
+                    CaptureCounterButton.ToolTip = LocalizationManager.Get("ViewCaptureList");
+
+                // 캡처 관련 버튼 툴팁
+                if (AreaCaptureButton != null)
+                    AreaCaptureButton.ToolTip = LocalizationManager.Get("AreaCapture");
+                if (DelayCaptureButton != null)
+                    DelayCaptureButton.ToolTip = LocalizationManager.Get("DelayCapture");
+                if (FullScreenButton != null)
+                    FullScreenButton.ToolTip = LocalizationManager.Get("FullScreen");
+                if (DesignatedCaptureButton != null)
+                    DesignatedCaptureButton.ToolTip = LocalizationManager.Get("DesignatedCapture");
+                if (WindowCaptureButton != null)
+                    WindowCaptureButton.ToolTip = LocalizationManager.Get("WindowCapture");
+                if (UnitCaptureButton != null)
+                    UnitCaptureButton.ToolTip = LocalizationManager.Get("ElementCapture");
+
+                // 복사/저장/삭제
+                if (CopyButton != null)
+                    CopyButton.ToolTip = LocalizationManager.Get("Copy");
+                if (CopyAllButton != null)
+                    CopyAllButton.ToolTip = LocalizationManager.Get("CopyAll");
+                if (SaveButton != null)
+                    SaveButton.ToolTip = LocalizationManager.Get("Save");
+                if (SaveAllButton != null)
+                    SaveAllButton.ToolTip = LocalizationManager.Get("SaveAll");
+                if (DeleteButton != null)
+                    DeleteButton.ToolTip = LocalizationManager.Get("Delete");
+                if (DeleteAllButton != null)
+                    DeleteAllButton.ToolTip = LocalizationManager.Get("DeleteAll");
+
+                // 기타
+                if (HideToTrayButton != null)
+                    HideToTrayButton.ToolTip = LocalizationManager.Get("HideToTray");
+                if (SettingsButton != null)
+                    SettingsButton.ToolTip = LocalizationManager.Get("Settings");
+                if (FoldButton != null)
+                    FoldButton.ToolTip = isFolded ? LocalizationManager.Get("Unfold") : LocalizationManager.Get("Fold");
+            }
+            catch { }
+        }
+
+        private void ShowAddIconMenu(object sender, RoutedEventArgs e)
+        {
+            var menu = new ContextMenu();
+            if (this.TryFindResource("DarkContextMenu") is Style darkMenu)
+                menu.Style = darkMenu;
+            
+            var allIcons = new[] { 
+                "AreaCapture", "DelayCapture", "FullScreen", "RealTimeCapture",
+                "DesignatedCapture", "WindowCapture", "UnitCapture", "ScrollCapture",
+                "Copy", "CopyAll", "Save", "SaveAll", 
+                "Delete", "DeleteAll", "Settings"
+            };
+            
+            if (settings != null)
+            {
+                foreach (var icon in allIcons)
+                {
+                    if (!settings.SimpleModeIcons.Contains(icon))
+                    {
+                        var item = new MenuItem { Header = LocalizationManager.Get(icon) };
+                        item.Icon = icon switch
+                        {
+                            "AreaCapture" => CreateMenuIcon("/icons/area_capture.png"),
+                            "DelayCapture" => CreateMenuIcon("/icons/clock.png"),
+                            "FullScreen" => CreateMenuIcon("/icons/full_screen.png"),
+                            "RealTimeCapture" => CreateMenuIcon("/icons/real-time.png"),
+                            "DesignatedCapture" => CreateMenuIcon("/icons/designated.png"),
+                            "WindowCapture" => CreateMenuIcon("/icons/window_cap.png"),
+                            "UnitCapture" => CreateMenuIcon("/icons/unit_capture.png"),
+                            "ScrollCapture" => CreateMenuIcon("/icons/scroll_capture.png"),
+                            "Copy" => CreateMenuIcon("/icons/copy_selected.png"),
+                            "CopyAll" => CreateMenuIcon("/icons/copy_all.png"),
+                            "Save" => CreateMenuIcon("/icons/save_selected.png"),
+                            "SaveAll" => CreateMenuIcon("/icons/save_all.png"),
+                            "Delete" => CreateMenuIcon("/icons/delete_selected.png"),
+                            "DeleteAll" => CreateMenuIcon("/icons/delete_all.png"),
+                            "Settings" => CreateMenuIcon("/icons/setting.png"),
+                            _ => null
+                        };
+                        if (this.TryFindResource("DarkMenuItem") is Style darkItem)
+                            item.Style = darkItem;
+                        item.Click += (s2, e2) => AddIcon(icon);
+                        menu.Items.Add(item);
+                    }
+                }
+            }
+            
+            var appsItem = new MenuItem { Header = LocalizationManager.Get("ComputerApps") };
+            if (this.TryFindResource("DarkMenuItem") is Style darkApps)
+                appsItem.Style = darkApps;
+            appsItem.Icon = CreateMenuIcon("/icons/app.png") ?? CreateMenuIcon("/icons/setting.png");
+            appsItem.Click += async (s2, e2) =>
+            {
+                var picked = await OpenAppPickerAsync();
+                if (picked != null)
+                {
+                    if (settings == null) settings = Settings.Load();
+                    settings.SimpleModeApps.Add(picked);
+                    Settings.Save(settings);
+                    BuildIconButtons();
+                }
+            };
+            menu.Items.Add(appsItem);
+            
+            menu.PlacementTarget = sender as Button;
+            menu.IsOpen = true;
         }
     }
 }

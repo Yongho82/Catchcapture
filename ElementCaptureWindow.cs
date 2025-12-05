@@ -104,9 +104,9 @@ namespace CatchCapture
             var canvas = new Canvas();
             highlightRect = new Rectangle
             {
-                Stroke = new SolidColorBrush(Color.FromRgb(0, 102, 255)), // 파란색
+                Stroke = new SolidColorBrush(Color.FromRgb(0, 102, 255)),
                 StrokeThickness = 3,
-                Fill = new SolidColorBrush(Color.FromArgb(10, 0, 102, 255)), // 연한 파란 틴트
+                Fill = new SolidColorBrush(Color.FromArgb(10, 0, 102, 255)),
                 Visibility = Visibility.Collapsed
             };
             canvas.Children.Add(highlightRect);
@@ -114,6 +114,9 @@ namespace CatchCapture
 
             // Hook Delegate 유지 (GC 방지)
             _proc = HookCallback;
+
+            // ✅ ESC 키 이벤트 추가
+            this.KeyDown += ElementCaptureWindow_KeyDown;
 
             Loaded += ElementCaptureWindow_Loaded;
             Closed += ElementCaptureWindow_Closed;
@@ -139,6 +142,16 @@ namespace CatchCapture
             {
                 UnhookWindowsHookEx(_hookID);
                 _hookID = IntPtr.Zero;
+            }
+        }
+
+        // ✅ ESC 키 핸들러 추가
+        private void ElementCaptureWindow_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape)
+            {
+                DialogResult = false;
+                Close();
             }
         }
 

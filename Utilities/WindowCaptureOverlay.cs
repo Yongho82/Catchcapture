@@ -95,7 +95,7 @@ namespace CatchCapture.Utilities
             ResizeMode = ResizeMode.NoResize;
             Topmost = true;
             AllowsTransparency = true;
-            Background = Brushes.Transparent; // 완전히 투명
+            Background = Brushes.Transparent;
             ShowInTaskbar = false;
             
             // 전체 화면 크기
@@ -110,7 +110,7 @@ namespace CatchCapture.Utilities
             {
                 Stroke = Brushes.Red,
                 StrokeThickness = 2,
-                Fill = new SolidColorBrush(Color.FromArgb(5, 255, 0, 0)), // 아주 연한 붉은 틴트
+                Fill = new SolidColorBrush(Color.FromArgb(5, 255, 0, 0)),
                 Visibility = Visibility.Collapsed
             };
             canvas.Children.Add(highlightRect);
@@ -118,6 +118,9 @@ namespace CatchCapture.Utilities
 
             // Hook Delegate 유지 (GC 방지)
             _proc = HookCallback;
+
+            // ✅ ESC 키 이벤트 추가
+            this.KeyDown += WindowCaptureOverlay_KeyDown;
 
             Loaded += WindowCaptureOverlay_Loaded;
             Closed += WindowCaptureOverlay_Closed;
@@ -143,6 +146,16 @@ namespace CatchCapture.Utilities
             {
                 UnhookWindowsHookEx(_hookID);
                 _hookID = IntPtr.Zero;
+            }
+        }
+
+        // ✅ ESC 키 핸들러 추가
+        private void WindowCaptureOverlay_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape)
+            {
+                DialogResult = false;
+                Close();
             }
         }
 

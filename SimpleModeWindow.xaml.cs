@@ -76,6 +76,9 @@ namespace CatchCapture
                     InstantEditToggleH.IsChecked = settings?.SimpleModeInstantEdit ?? false;
                 if (InstantEditToggleV != null)
                     InstantEditToggleV.IsChecked = settings?.SimpleModeInstantEdit ?? false;
+                // 다국어 UI 텍스트 적용
+                try { UpdateUIText(); } catch { }
+                try { LocalizationManager.LanguageChanged += OnLanguageChanged; } catch { }
             };
             this.Deactivated += (_, __) => 
             {
@@ -106,6 +109,7 @@ namespace CatchCapture
         protected override void OnClosed(EventArgs e)
         {
             Settings.SettingsChanged -= OnSettingsChanged;
+            try { LocalizationManager.LanguageChanged -= OnLanguageChanged; } catch { }
             base.OnClosed(e);
         }
 
@@ -467,7 +471,7 @@ namespace CatchCapture
         }      
         private void ShowCopiedNotification()
         {
-            var notification = new GuideWindow("클립보드에 복사되었습니다", TimeSpan.FromSeconds(0.4));
+            var notification = new GuideWindow(LocalizationManager.Get("CopiedToClipboard"), TimeSpan.FromSeconds(0.4));
             notification.Owner = this;
             Show();
             notification.Show();
@@ -1094,7 +1098,7 @@ namespace CatchCapture
                         };
                         if (this.TryFindResource("DarkMenuItem") is Style darkItem)
                             item.Style = darkItem;
-                        item.Click += (s2, e2) => AddIcon(icon);
+                        item.Click += (s2, e2) => { AddIcon(icon); };
                         menu.Items.Add(item);
                     }
                 }
@@ -1728,6 +1732,45 @@ namespace CatchCapture
                 Settings.Save(settings);
                 BuildIconButtons();
             }
+        }
+
+        private void OnLanguageChanged(object? sender, EventArgs e)
+        {
+            try { UpdateUIText(); } catch { }
+        }
+
+        private void UpdateUIText()
+        {
+            try
+            {
+                // 창 제목
+                this.Title = LocalizationManager.Get("SimpleModeTitle");
+
+                // 즉시편집 라벨 (타이틀바 좌측)
+                if (InstantEditLabelH != null)
+                    InstantEditLabelH.Text = LocalizationManager.Get("InstantEdit");
+
+                // 토글(세로) 툴팁
+                if (InstantEditToggleV != null)
+                    InstantEditToggleV.ToolTip = LocalizationManager.Get("InstantEdit");
+
+                // A+ 버튼 툴팁
+                if (APlusButtonH != null)
+                    APlusButtonH.ToolTip = LocalizationManager.Get("Enlarge");
+                if (APlusButtonV != null)
+                    APlusButtonV.ToolTip = LocalizationManager.Get("Enlarge");
+
+                // 타이틀바 우측 컨트롤 툴팁
+                if (MinimizeToTrayBtn != null)
+                    MinimizeToTrayBtn.ToolTip = LocalizationManager.Get("TrayModeTooltip");
+                if (ExitSimpleModeBtn != null)
+                    ExitSimpleModeBtn.ToolTip = LocalizationManager.Get("NormalModeTooltip");
+                if (CloseBtnH != null)
+                    CloseBtnH.ToolTip = LocalizationManager.Get("Close");
+                if (CloseBtnV != null)
+                    CloseBtnV.ToolTip = LocalizationManager.Get("Close");
+            }
+            catch { }
         }
     }
 }

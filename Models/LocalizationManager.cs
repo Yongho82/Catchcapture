@@ -106,6 +106,8 @@ namespace CatchCapture.Models
                 ["TrayTrayMode"] = "트레이 모드",
                 ["Exit"] = "종료",
                 ["AppName"] = "CatchCapture",
+                ["ShowHiddenIcons"] = "숨겨진 아이콘 보기",
+                ["ComputerApps"] = "컴퓨터 앱…",
                 
                 // 메시지
                 ["SettingsSaved"] = "설정이 저장되었습니다.",
@@ -266,6 +268,22 @@ namespace CatchCapture.Models
                 ["FileOpenErrorPrefix"] = "파일을 열 수 없습니다",
                 ["TopmostOnMsg"] = "상단 고정: 켜짐",
                 ["TopmostOffMsg"] = "상단 고정: 꺼짐",
+                
+                ["Share"] = "공유",
+                
+                // Simple Mode UI
+                ["SimpleModeTitle"] = "간편 모드",
+                ["InstantEdit"] = "즉시편집",
+                ["Enlarge"] = "크게",
+                ["TrayModeTooltip"] = "트레이 모드",
+                ["NormalModeTooltip"] = "일반 모드",
+                
+                // Tray Mode
+                ["AlwaysOnTop"] = "항상 위",
+                ["ViewCaptureList"] = "캡처 목록 보기",
+                ["HideToTray"] = "트레이로 숨기기",
+                ["Fold"] = "접기",
+                ["Unfold"] = "펼치기",
             };
 
             // 중국어 (简体中文)
@@ -329,6 +347,8 @@ namespace CatchCapture.Models
                 ["TrayTrayMode"] = "托盘模式",
                 ["Exit"] = "退出",
                 ["AppName"] = "CatchCapture",
+                ["ShowHiddenIcons"] = "显示隐藏图标",
+                ["ComputerApps"] = "电脑应用…",
                 
                 // 메시지
                 ["SettingsSaved"] = "设置已保存",
@@ -489,6 +509,22 @@ namespace CatchCapture.Models
                 ["FileOpenErrorPrefix"] = "无法打开文件",
                 ["TopmostOnMsg"] = "置顶：开启",
                 ["TopmostOffMsg"] = "置顶：关闭",
+                
+                ["Share"] = "分享",
+                
+                // Simple Mode UI
+                ["SimpleModeTitle"] = "简易模式",
+                ["InstantEdit"] = "即时编辑",
+                ["Enlarge"] = "放大",
+                ["TrayModeTooltip"] = "托盘模式",
+                ["NormalModeTooltip"] = "普通模式",
+                
+                // Tray Mode
+                ["AlwaysOnTop"] = "置顶",
+                ["ViewCaptureList"] = "查看捕获列表",
+                ["HideToTray"] = "隐藏到托盘",
+                ["Fold"] = "折叠",
+                ["Unfold"] = "展开",
             };
 
             // 일본어
@@ -552,6 +588,8 @@ namespace CatchCapture.Models
                 ["TrayTrayMode"] = "トレイモード",
                 ["Exit"] = "終了",
                 ["AppName"] = "CatchCapture",
+                ["ShowHiddenIcons"] = "非表示アイコンを表示",
+                ["ComputerApps"] = "コンピューターアプリ…",
                 
                 // メッセージ
                 ["SettingsSaved"] = "設定が保存されました",
@@ -712,6 +750,22 @@ namespace CatchCapture.Models
                 ["FileOpenErrorPrefix"] = "ファイルを開けませんでした",
                 ["TopmostOnMsg"] = "最前面固定：オン",
                 ["TopmostOffMsg"] = "最前面固定：オフ",
+                
+                ["Share"] = "共有",
+                
+                // Simple Mode UI
+                ["SimpleModeTitle"] = "簡単モード",
+                ["InstantEdit"] = "即時編集",
+                ["Enlarge"] = "拡大",
+                ["TrayModeTooltip"] = "トレイモード",
+                ["NormalModeTooltip"] = "通常モード",
+                
+                // Tray Mode
+                ["AlwaysOnTop"] = "常に最前面",
+                ["ViewCaptureList"] = "キャプチャ一覧を表示",
+                ["HideToTray"] = "トレイに隠す",
+                ["Fold"] = "折りたたむ",
+                ["Unfold"] = "展開",
             };
 
             // 영어
@@ -775,6 +829,8 @@ namespace CatchCapture.Models
                 ["TrayTrayMode"] = "Tray Mode",
                 ["Exit"] = "Exit",
                 ["AppName"] = "CatchCapture",
+                ["ShowHiddenIcons"] = "Show hidden icons",
+                ["ComputerApps"] = "Computer apps…",
                 
                 // Messages
                 ["SettingsSaved"] = "Settings saved successfully",
@@ -935,6 +991,22 @@ namespace CatchCapture.Models
                 ["FileOpenErrorPrefix"] = "Could not open file",
                 ["TopmostOnMsg"] = "Pinned to top: On",
                 ["TopmostOffMsg"] = "Pinned to top: Off",
+                
+                ["Share"] = "Share",
+                
+                // Simple Mode UI
+                ["SimpleModeTitle"] = "Simple Mode",
+                ["InstantEdit"] = "Instant edit",
+                ["Enlarge"] = "Enlarge",
+                ["TrayModeTooltip"] = "Tray mode",
+                ["NormalModeTooltip"] = "Normal mode",
+                
+                // Tray Mode
+                ["AlwaysOnTop"] = "Always on top",
+                ["ViewCaptureList"] = "View capture list",
+                ["HideToTray"] = "Hide to tray",
+                ["Fold"] = "Fold",
+                ["Unfold"] = "Unfold",
             };
 
             // 스페인어
@@ -1011,6 +1083,22 @@ namespace CatchCapture.Models
                 ["FileOpenErrorPrefix"] = "No se puede abrir el archivo",
                 ["TopmostOnMsg"] = "Fijado arriba: Activado",
                 ["TopmostOffMsg"] = "Fijado arriba: Desactivado",
+                
+                ["Share"] = "Compartir",
+                
+                // Simple Mode UI
+                ["SimpleModeTitle"] = "Modo simple",
+                ["InstantEdit"] = "Edición instantánea",
+                ["Enlarge"] = "Ampliar",
+                ["TrayModeTooltip"] = "Modo bandeja",
+                ["NormalModeTooltip"] = "Modo normal",
+                
+                // Tray Mode
+                ["AlwaysOnTop"] = "Siempre arriba",
+                ["ViewCaptureList"] = "Ver lista de capturas",
+                ["HideToTray"] = "Ocultar en la bandeja",
+                ["Fold"] = "Plegar",
+                ["Unfold"] = "Desplegar",
             };
 
             // 독일어
@@ -1087,6 +1175,22 @@ namespace CatchCapture.Models
                 ["FileOpenErrorPrefix"] = "Datei konnte nicht geöffnet werden",
                 ["TopmostOnMsg"] = "Immer im Vordergrund: Ein",
                 ["TopmostOffMsg"] = "Immer im Vordergrund: Aus",
+                
+                ["Share"] = "Teilen",
+                
+                // Simple Mode UI
+                ["SimpleModeTitle"] = "Einfacher Modus",
+                ["InstantEdit"] = "Sofortbearbeitung",
+                ["Enlarge"] = "Vergrößern",
+                ["TrayModeTooltip"] = "Tray-Modus",
+                ["NormalModeTooltip"] = "Normalmodus",
+                
+                // Tray Mode
+                ["AlwaysOnTop"] = "Immer im Vordergrund",
+                ["ViewCaptureList"] = "Aufnahmeliste anzeigen",
+                ["HideToTray"] = "In den Tray minimieren",
+                ["Fold"] = "Einklappen",
+                ["Unfold"] = "Ausklappen",
             };
 
             // 프랑스어
@@ -1163,6 +1267,22 @@ namespace CatchCapture.Models
                 ["FileOpenErrorPrefix"] = "Impossible d'ouvrir le fichier",
                 ["TopmostOnMsg"] = "Épinglé en haut : Activé",
                 ["TopmostOffMsg"] = "Épinglé en haut : Désactivé",
+                
+                ["Share"] = "Partager",
+                
+                // Simple Mode UI
+                ["SimpleModeTitle"] = "Mode simplifié",
+                ["InstantEdit"] = "Édition instantanée",
+                ["Enlarge"] = "Agrandir",
+                ["TrayModeTooltip"] = "Mode zone de notification",
+                ["NormalModeTooltip"] = "Mode normal",
+                
+                // Tray Mode
+                ["AlwaysOnTop"] = "Toujours au-dessus",
+                ["ViewCaptureList"] = "Voir la liste des captures",
+                ["HideToTray"] = "Masquer dans la zone de notification",
+                ["Fold"] = "Replier",
+                ["Unfold"] = "Déplier",
             };
         }
     }

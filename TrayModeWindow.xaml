@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="캐치캡처" Height="600" Width="56" 
+        Title="" Height="600" Width="56" 
         WindowStyle="None" AllowsTransparency="True" 
         Background="Transparent"
         ResizeMode="NoResize"
@@ -166,14 +166,14 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,1">
                     <!-- 일반 모드 전환 버튼 -->
                     <Button x:Name="SwitchToNormalModeButton" Style="{StaticResource SmallIconButtonStyle}" 
-                            Click="SwitchToNormalModeButton_Click" ToolTip="일반 모드로 전환">
+                            Click="SwitchToNormalModeButton_Click">
                         <Image Source="/icons/area_capture.png" Width="14" Height="14"
                                RenderOptions.BitmapScalingMode="HighQuality"/>
                     </Button>
 
                     <!-- 간편 모드 버튼 -->
                     <Button x:Name="SimpleModeButton" Style="{StaticResource SmallIconButtonStyle}" 
-                            Click="SimpleModeButton_Click" ToolTip="간편 모드">
+                            Click="SimpleModeButton_Click">
                         <Image Source="/icons/simple_mode.png" Width="14" Height="14"
                                RenderOptions.BitmapScalingMode="HighQuality"/>
                     </Button>
@@ -181,7 +181,7 @@
 
                 <!-- 즉시편집 스위치 -->
                 <Border Width="30" Height="16" CornerRadius="8" Background="#CCCCCC" 
-                        Cursor="Hand" Margin="0,5" ToolTip="즉시편집모드"
+                        Cursor="Hand" Margin="0,5"
                         x:Name="InstantEditToggleBorder" MouseLeftButtonDown="InstantEditToggle_Click">
                     <Ellipse x:Name="InstantEditToggleCircle" Width="12" Height="12" 
                              Fill="White" HorizontalAlignment="Left" Margin="2,0,0,0">
@@ -193,14 +193,14 @@
 
                 <!-- 항상 위 토글 버튼 -->
                 <Button x:Name="TopmostButton" Style="{StaticResource TinyButtonStyle}" 
-                        Click="TopmostButton_Click" ToolTip="항상 위">
+                        Click="TopmostButton_Click">
                     <TextBlock x:Name="TopmostIcon" Text="📌" FontSize="18" 
                                HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.3"/>
                 </Button>
                 
                 <!-- 캡처 카운터 버튼 -->
                 <Button x:Name="CaptureCounterButton" Style="{StaticResource TinyButtonStyle}" 
-                        Click="CaptureCounterButton_Click" ToolTip="캡처 목록 보기">
+                        Click="CaptureCounterButton_Click">
                     <TextBlock x:Name="CaptureCountText" 
                                Text="0" 
                                FontSize="18" 
@@ -214,19 +214,19 @@
                 
                 <!-- 영역 캡처 -->
                 <Button x:Name="AreaCaptureButton" Style="{StaticResource IconButtonStyle}" 
-                        Click="AreaCaptureButton_Click" ToolTip="영역 캡처">
+                        Click="AreaCaptureButton_Click">
                     <Image Source="/icons/area_capture.png" Width="24" Height="24" 
                            RenderOptions.BitmapScalingMode="HighQuality"/>
                 </Button>
                 
                 <!-- 지연 캡처 -->
                 <Button x:Name="DelayCaptureButton" Style="{StaticResource IconButtonStyle}" 
-                        Click="DelayCaptureButton_Click" ToolTip="지연 캡처">
+                        Click="DelayCaptureButton_Click">
                     <Button.ContextMenu>
                         <ContextMenu Style="{StaticResource DarkContextMenu}">
-                            <MenuItem Header="3초 후 캡처" Tag="3" Click="DelayMenuItem_Click" Style="{StaticResource DarkMenuItem}"/>
-                            <MenuItem Header="5초 후 캡처" Tag="5" Click="DelayMenuItem_Click" Style="{StaticResource DarkMenuItem}"/>
-                            <MenuItem Header="10초 후 캡처" Tag="10" Click="DelayMenuItem_Click" Style="{StaticResource DarkMenuItem}"/>
+                            <MenuItem x:Name="Delay3MenuItem" Header="" Tag="3" Click="DelayMenuItem_Click" Style="{StaticResource DarkMenuItem}"/>
+                            <MenuItem x:Name="Delay5MenuItem" Header="" Tag="5" Click="DelayMenuItem_Click" Style="{StaticResource DarkMenuItem}"/>
+                            <MenuItem x:Name="Delay10MenuItem" Header="" Tag="10" Click="DelayMenuItem_Click" Style="{StaticResource DarkMenuItem}"/>
                         </ContextMenu>
                     </Button.ContextMenu>
                     <Image Source="/icons/clock.png" Width="24" Height="24"
@@ -235,28 +235,28 @@
                 
                 <!-- 전체화면 -->
                 <Button x:Name="FullScreenButton" Style="{StaticResource IconButtonStyle}" 
-                        Click="FullScreenButton_Click" ToolTip="전체화면">
+                        Click="FullScreenButton_Click">
                     <Image Source="/icons/full_screen.png" Width="24" Height="24"
                            RenderOptions.BitmapScalingMode="HighQuality"/>
                 </Button>
                 
                 <!-- 지정캡처 -->
                 <Button x:Name="DesignatedCaptureButton" Style="{StaticResource IconButtonStyle}" 
-                        Click="DesignatedCaptureButton_Click" ToolTip="지정캡처">
+                        Click="DesignatedCaptureButton_Click">
                     <Image Source="/icons/area_capture.png" Width="24" Height="24"
                            RenderOptions.BitmapScalingMode="HighQuality"/>
                 </Button>
 
                 <!-- 창 캡처 -->
                 <Button x:Name="WindowCaptureButton" Style="{StaticResource IconButtonStyle}" 
-                        Click="WindowCaptureButton_Click" ToolTip="창 캡처">
+                        Click="WindowCaptureButton_Click">
                     <Image Source="/icons/window_capture.png" Width="24" Height="24"
                            RenderOptions.BitmapScalingMode="HighQuality"/>
                 </Button>
 
                 <!-- 단위 캡처 -->
                 <Button x:Name="UnitCaptureButton" Style="{StaticResource IconButtonStyle}" 
-                        Click="UnitCaptureButton_Click" ToolTip="단위 캡처">
+                        Click="UnitCaptureButton_Click">
                     <Image Source="/icons/unit_capture.png" Width="24" Height="24"
                            RenderOptions.BitmapScalingMode="HighQuality"/>
                 </Button>
@@ -266,14 +266,14 @@
                 
                 <!-- 복사 -->
                 <Button x:Name="CopyButton" Style="{StaticResource IconButtonStyle}" 
-                        Click="CopyButton_Click" ToolTip="복사">
+                        Click="CopyButton_Click">
                     <Image Source="/icons/copy_selected.png" Width="24" Height="24"
                            RenderOptions.BitmapScalingMode="HighQuality"/>
                 </Button>
                 
                 <!-- 전체복사 -->
                 <Button x:Name="CopyAllButton" Style="{StaticResource IconButtonStyle}" 
-                        Click="CopyAllButton_Click" ToolTip="전체복사">
+                        Click="CopyAllButton_Click">
                     <Image Source="/icons/copy_all.png" Width="24" Height="24"
                            RenderOptions.BitmapScalingMode="HighQuality"/>
                 </Button>
@@ -283,14 +283,14 @@
                 
                 <!-- 저장 -->
                 <Button x:Name="SaveButton" Style="{StaticResource IconButtonStyle}" 
-                        Click="SaveButton_Click" ToolTip="저장">
+                        Click="SaveButton_Click">
                     <Image Source="/icons/save_selected.png" Width="24" Height="24"
                            RenderOptions.BitmapScalingMode="HighQuality"/>
                 </Button>
                 
                 <!-- 전체저장 -->
                 <Button x:Name="SaveAllButton" Style="{StaticResource IconButtonStyle}" 
-                        Click="SaveAllButton_Click" ToolTip="전체저장">
+                        Click="SaveAllButton_Click">
                     <Image Source="/icons/save_all.png" Width="24" Height="24"
                            RenderOptions.BitmapScalingMode="HighQuality"/>
                 </Button>
@@ -300,38 +300,35 @@
                 
                 <!-- 삭제 -->
                 <Button x:Name="DeleteButton" Style="{StaticResource IconButtonStyle}" 
-                        Click="DeleteButton_Click" ToolTip="삭제">
+                        Click="DeleteButton_Click">
                     <Image Source="/icons/delete_selected.png" Width="24" Height="24"
                            RenderOptions.BitmapScalingMode="HighQuality"/>
                 </Button>
                 
                 <!-- 전체삭제 -->
                 <Button x:Name="DeleteAllButton" Style="{StaticResource IconButtonStyle}" 
-                        Click="DeleteAllButton_Click" ToolTip="전체삭제">
+                        Click="DeleteAllButton_Click">
                     <Image Source="/icons/delete_all.png" Width="24" Height="24"
                            RenderOptions.BitmapScalingMode="HighQuality"/>
                 </Button>
                 
-                <!-- 구분선 -->
-                <Separator Margin="5,10" Background="#E0E6F0" Height="1"/>
-                
                 <!-- 나가기 버튼 (트레이로) -->
                 <Button x:Name="HideToTrayButton" Style="{StaticResource TinyButtonStyle}" 
-                        Click="HideToTrayButton_Click" ToolTip="트레이로 숨기기">
+                        Click="HideToTrayButton_Click">
                     <Image Source="/icons/exit_tray.png" Width="20" Height="20"
                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                </Button> 
+                </Button>
 
                 <!-- 설정 -->
                 <Button x:Name="SettingsButton" Style="{StaticResource IconButtonStyle}" 
-                        Click="SettingsButton_Click" ToolTip="설정">
+                        Click="SettingsButton_Click">
                 <TextBlock Text="&#xE7E8;" FontFamily="Segoe MDL2 Assets" FontSize="16"
                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Button>
                 
                 <!-- 접기/펼치기 버튼 -->
                 <Button x:Name="FoldButton" Style="{StaticResource TinyButtonStyle}" 
-                        Click="FoldButton_Click" ToolTip="접기">
+                        Click="FoldButton_Click">
                     <TextBlock x:Name="FoldIcon" Text="▼" FontSize="14" FontWeight="Bold" Foreground="#666"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Button>

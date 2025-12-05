@@ -1113,9 +1113,12 @@ public partial class MainWindow : Window
             var designatedWindow = new CatchCapture.Utilities.DesignatedCaptureWindow();
             designatedWindow.Owner = this;
 
+            bool captureOccurred = false;
+
             // Subscribe to continuous capture event
             designatedWindow.CaptureCompleted += (img) =>
             {
+                captureOccurred = true;
                 // Ensure UI thread
                 Dispatcher.Invoke(() =>
                 {
@@ -1127,18 +1130,27 @@ public partial class MainWindow : Window
 
             // Block until user closes overlay via ✕ (DialogResult false)
             designatedWindow.ShowDialog();
+
+            // ✕ 버튼으로 닫았는데 캡처가 없었으면 메인 창 다시 표시
+            if (!captureOccurred && !settings.IsTrayMode)
+            {
+                this.Show();
+                this.WindowState = WindowState.Normal;
+                this.Activate();
+            }
         }
         finally
         {
 
         }
     }
+
     private void WindowCaptureButton_Click(object sender, RoutedEventArgs e)
     {
         try
         {
             this.Hide();
-            System.Threading.Thread.Sleep(10); // 창이 숨겨질 시간
+            System.Threading.Thread.Sleep(10);
 
             var windowCaptureOverlay = new CatchCapture.Utilities.WindowCaptureOverlay();
             
@@ -1146,10 +1158,20 @@ public partial class MainWindow : Window
             {
                 AddCaptureToList(windowCaptureOverlay.CapturedImage);
             }
+            else
+            {
+                // 취소된 경우 (ESC 또는 우클릭) 메인 창 다시 표시
+                if (!settings.IsTrayMode)
+                {
+                    this.Show();
+                    this.WindowState = WindowState.Normal;
+                    this.Activate();
+                }
+            }
         }
         finally
         {
-            // 창 표시는 AddCaptureToList에서 처리
+            // 창 표시는 AddCaptureToList 또는 else 블록에서 처리
         }
     }
     
@@ -1166,10 +1188,20 @@ public partial class MainWindow : Window
             {
                 AddCaptureToList(elementCaptureWindow.CapturedImage);
             }
+            else
+            {
+                // 취소된 경우 (ESC 또는 우클릭) 메인 창 다시 표시
+                if (!settings.IsTrayMode)
+                {
+                    this.Show();
+                    this.WindowState = WindowState.Normal;
+                    this.Activate();
+                }
+            }
         }
         finally
         {
-            // 창 표시는 AddCaptureToList에서 처리
+            // 창 표시는 AddCaptureToList 또는 else 블록에서 처리
         }
     }
 

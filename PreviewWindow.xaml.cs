@@ -992,6 +992,10 @@ namespace CatchCapture
                 if (OcrExtractLabelText != null) OcrExtractLabelText.Text = LocalizationManager.Get("Extract");
                 if (OcrButton != null) OcrButton.ToolTip = LocalizationManager.Get("OCR");
 
+                // 공유 버튼
+                if (ShareLabelText != null) ShareLabelText.Text = LocalizationManager.Get("Share");
+                if (ShareButton != null) ShareButton.ToolTip = LocalizationManager.Get("Share");
+
                 // 하단 정보 바 및 줌 컨트롤
                 if (ZoomResetButton != null)
                 {
@@ -1041,6 +1045,78 @@ namespace CatchCapture
             catch { }
         }
         #endregion
+
+        private void ShareButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                BitmapSource? src = PreviewImage?.Source as BitmapSource;
+                if (src == null) return;
+
+                ShareImage(src);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"공유 오류: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // ShareImage 메서드 추가 (MainWindow와 동일)
+        public void ShareImage(BitmapSource image)
+        {
+            try
+            {
+                // 1. 임시 파일로 저장
+                string tempFolder = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "CatchCapture");
+                if (!System.IO.Directory.Exists(tempFolder))
+                {
+                    System.IO.Directory.CreateDirectory(tempFolder);
+                }
+                
+                string tempPath = System.IO.Path.Combine(tempFolder, $"share_{DateTime.Now:yyyyMMdd_HHmmss}.png");
+                
+                // PNG로 저장
+                var encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(image));
+                using (var fs = new System.IO.FileStream(tempPath, System.IO.FileMode.Create))
+                {
+                    encoder.Save(fs);
+                }
+                
+                // 2. Windows Share 대화상자 호출 (Windows 10 이상)
+                var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+                
+                // DataTransferManager 가져오기
+                var dataTransferManager = Windows.ApplicationModel.DataTransfer.DataTransferManagerInterop.GetForWindow(hwnd);
+                
+                dataTransferManager.DataRequested += async (s, args) =>
+                {
+                    var request = args.Request;
+                    request.Data.Properties.Title = "이미지 공유";
+                    request.Data.Properties.Description = "캐치캡처 스크린샷";
+                    
+                    var storageFile = await Windows.Storage.StorageFile.GetFileFromPathAsync(tempPath);
+                    request.Data.SetStorageItems(new[] { storageFile });
+                    request.Data.SetBitmap(Windows.Storage.Streams.RandomAccessStreamReference.CreateFromFile(storageFile));
+                };
+                
+                Windows.ApplicationModel.DataTransfer.DataTransferManagerInterop.ShowShareUIForWindow(hwnd);
+            }
+            catch (Exception ex)
+            {
+                // Windows Share가 지원되지 않는 경우 클립보드 복사로 대체
+                try
+                {
+                    ScreenCaptureUtility.CopyImageToClipboard(image);
+                    ShowToastMessage("클립보드에 복사됨");
+                }
+                catch
+                {
+                    MessageBox.Show($"공유 오류: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
 
         private void PreviewWindow_LanguageChanged(object? sender, EventArgs e)
         {
