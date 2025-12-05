@@ -21,20 +21,20 @@
                 <!-- 왼쪽: 옵션들 -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal">
                     <!-- 방향 -->
-                    <TextBlock Text="방향:" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="11"/>
+                    <TextBlock x:Name="OrientationLabelText" Text="방향:" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="11"/>
                     <ComboBox x:Name="OrientationComboBox" Width="70" Height="26" Margin="0,0,15,0" FontSize="11"
                               SelectionChanged="OrientationComboBox_SelectionChanged">
-                        <ComboBoxItem Content="세로" IsSelected="True"/>
-                        <ComboBoxItem Content="가로"/>
+                        <ComboBoxItem x:Name="PortraitItem" Content="세로" IsSelected="True"/>
+                        <ComboBoxItem x:Name="LandscapeItem" Content="가로"/>
                     </ComboBox>
                     
                     <!-- 인쇄 옵션 -->
-                    <TextBlock Text="인쇄 옵션:" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="11"/>
+                    <TextBlock x:Name="PrintOptionsLabelText" Text="인쇄 옵션:" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="11"/>
                     <ComboBox x:Name="PrintOptionsComboBox" Width="120" Height="26" Margin="0,0,0,0" FontSize="11"
                               SelectionChanged="PrintOptionsComboBox_SelectionChanged">
-                        <ComboBoxItem Content="페이지에 맞춤" IsSelected="True"/>
-                        <ComboBoxItem Content="실제 크기"/>
-                        <ComboBoxItem Content="페이지 채우기"/>
+                        <ComboBoxItem x:Name="FitToPageItem" Content="페이지에 맞춤" IsSelected="True"/>
+                        <ComboBoxItem x:Name="ActualSizeItem" Content="실제 크기"/>
+                        <ComboBoxItem x:Name="FillPageItem" Content="페이지 채우기"/>
                     </ComboBox>
                 </StackPanel>
                 

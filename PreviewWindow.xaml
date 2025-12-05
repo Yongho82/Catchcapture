@@ -133,7 +133,7 @@
 
                     <Button x:Name="RecaptureButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="RecaptureButton_Click" ToolTip="영역캡처">
                         <StackPanel VerticalAlignment="Top">
-                            <Image Source="icons/area_capture.png" Width="20" Height="20" Margin="0,2,0,7"/>
+                            <Image Source="icons/area_capture.png" Width="28" Height="20" Margin="0,2,0,7"/>
                             <TextBlock x:Name="RecaptureLabelText" Text="재캡처" FontSize="12" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Button>

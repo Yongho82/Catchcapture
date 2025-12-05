@@ -10,6 +10,17 @@ namespace CatchCapture
             InitializeComponent();
             ResultTextBox.Text = text;
             // Localize UI
+            UpdateUIText();
+            LocalizationManager.LanguageChanged += LocalizationManager_LanguageChanged;
+        }
+
+        private void LocalizationManager_LanguageChanged(object? sender, System.EventArgs e)
+        {
+            try { UpdateUIText(); } catch { }
+        }
+
+        private void UpdateUIText()
+        {
             this.Title = LocalizationManager.Get("OcrResultTitle");
             HeaderText.Text = LocalizationManager.Get("ExtractedText");
             CopyButton.Content = LocalizationManager.Get("CopySelected");
@@ -28,6 +39,12 @@ namespace CatchCapture
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             Close();
+        }
+
+        protected override void OnClosed(System.EventArgs e)
+        {
+            try { LocalizationManager.LanguageChanged -= LocalizationManager_LanguageChanged; } catch { }
+            base.OnClosed(e);
         }
     }
 }

@@ -501,7 +501,7 @@ namespace CatchCapture
             {
                 if (currentImage == null)
                 {
-                    ShowToastMessage("인쇄할 이미지가 없습니다.");
+                    ShowToastMessage(LocalizationManager.Get("NoImageToPrint"));
                     return;
                 }
 
@@ -512,7 +512,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"인쇄 미리보기 중 오류가 발생했습니다: {ex.Message}", "인쇄 오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"{LocalizationManager.Get("PrintPreviewError")}: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -537,7 +537,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"재캡처 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"{LocalizationManager.Get("RecaptureError")}: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -900,6 +900,7 @@ namespace CatchCapture
                 this.Title = LocalizationManager.Get("ImageEditTitle");
 
                 // 상단 툴바 텍스트
+                if (RecaptureLabelText != null) RecaptureLabelText.Text = LocalizationManager.Get("Recapture");
                 if (CopyLabelText != null) CopyLabelText.Text = LocalizationManager.Get("CopySelected");
                 if (SaveLabelText != null) SaveLabelText.Text = LocalizationManager.Get("Save");
                 if (PrintLabelText != null) PrintLabelText.Text = LocalizationManager.Get("Print");
@@ -940,8 +941,10 @@ namespace CatchCapture
 
                 // 이미지 검색 / OCR
                 if (ImageSearchLabelText != null) ImageSearchLabelText.Text = LocalizationManager.Get("ImageSearch");
+                if (ImageSearchButton != null) ImageSearchButton.ToolTip = LocalizationManager.Get("ImageSearchTooltip");
                 if (OcrLabelText != null) OcrLabelText.Text = LocalizationManager.Get("OCR");
                 if (OcrExtractLabelText != null) OcrExtractLabelText.Text = LocalizationManager.Get("Extract");
+                if (OcrButton != null) OcrButton.ToolTip = LocalizationManager.Get("OCR");
 
                 // 하단 정보 바 및 줌 컨트롤
                 if (ZoomResetButton != null)
@@ -956,6 +959,21 @@ namespace CatchCapture
                 // 우측 패널 헤더/크기 라벨
                 if (RecentCapturesTitle != null) RecentCapturesTitle.Text = LocalizationManager.Get("RecentCaptures");
                 if (SizeLabelText != null) SizeLabelText.Text = LocalizationManager.Get("SizeLabel");
+
+                // 상단 툴바 버튼 툴팁
+                if (RecaptureButton != null) RecaptureButton.ToolTip = LocalizationManager.Get("AreaCapture");
+                if (PrintButton != null) PrintButton.ToolTip = LocalizationManager.Get("Print");
+                if (SaveButton != null) SaveButton.ToolTip = LocalizationManager.Get("Save");
+                if (CopyButton != null) CopyButton.ToolTip = LocalizationManager.Get("CopyToClipboard");
+                if (UndoButton != null) UndoButton.ToolTip = LocalizationManager.Get("UndoLbl");
+                if (RedoButton != null) RedoButton.ToolTip = LocalizationManager.Get("RedoLbl");
+                if (ResetButton != null) ResetButton.ToolTip = LocalizationManager.Get("ResetLbl");
+                if (CropButton != null) CropButton.ToolTip = LocalizationManager.Get("Crop");
+                if (RotateButton != null) RotateButton.ToolTip = LocalizationManager.Get("Rotate");
+                if (FlipHorizontalButton != null) FlipHorizontalButton.ToolTip = LocalizationManager.Get("FlipH");
+                if (FlipVerticalButton != null) FlipVerticalButton.ToolTip = LocalizationManager.Get("FlipV");
+                if (ShapeButton != null) ShapeButton.ToolTip = LocalizationManager.Get("ShapeLbl");
+                if (ShapeOptionsButton != null) ShapeOptionsButton.ToolTip = LocalizationManager.Get("ShapeOptions");
             }
             catch { }
         }

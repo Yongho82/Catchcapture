@@ -2912,6 +2912,22 @@ public partial class MainWindow : Window
             SetButtonText(SimpleModeButton, CatchCapture.Models.LocalizationManager.Get("Simple"));
             SetButtonText(TrayModeButton, CatchCapture.Models.LocalizationManager.Get("Tray"));
 
+            // 타이틀바 버튼 툴팁
+            if (MinimizeButton != null)
+            {
+                MinimizeButton.ToolTip = CatchCapture.Models.LocalizationManager.Get("Minimize");
+            }
+            if (CloseButton != null)
+            {
+                CloseButton.ToolTip = CatchCapture.Models.LocalizationManager.Get("Close");
+            }
+
+            // 지연 캡처 서브메뉴 텍스트
+            if (DelayNoneMenu != null) DelayNoneMenu.Header = CatchCapture.Models.LocalizationManager.Get("NoDelay");
+            if (Delay3Menu != null) Delay3Menu.Header = CatchCapture.Models.LocalizationManager.Get("Delay3Sec");
+            if (Delay5Menu != null) Delay5Menu.Header = CatchCapture.Models.LocalizationManager.Get("Delay5Sec");
+            if (Delay10Menu != null) Delay10Menu.Header = CatchCapture.Models.LocalizationManager.Get("Delay10Sec");
+
             // 하단 버튼들
             SetButtonText(CopySelectedButton, CatchCapture.Models.LocalizationManager.Get("CopySelected"));
             SetButtonText(CopyAllButton, CatchCapture.Models.LocalizationManager.Get("CopyAll"));

@@ -45,6 +45,18 @@ namespace CatchCapture
             NavSystem.Content = LocalizationManager.Get("SystemSettings");
             NavHotkey.Content = LocalizationManager.Get("HotkeySettings");
 
+            // 앱 이름(사이드바 상단)과 하단 정보
+            if (SidebarAppNameText != null)
+                SidebarAppNameText.Text = LocalizationManager.Get("AppName");
+            if (VersionText != null)
+                VersionText.Text = $"{LocalizationManager.Get("Version")} 1.0.0";
+            if (WebsiteIcon != null)
+                WebsiteIcon.ToolTip = LocalizationManager.Get("VisitHomepage");
+            if (RestoreDefaultsText != null)
+                RestoreDefaultsText.Text = LocalizationManager.Get("RestoreDefaults");
+            if (PrivacyPolicyText != null)
+                PrivacyPolicyText.Text = LocalizationManager.Get("PrivacyPolicy");
+
             // 캡처 페이지
             CaptureSectionTitle.Text = LocalizationManager.Get("CaptureSettings");
             SaveSettingsGroup.Header = LocalizationManager.Get("SaveSettings");
@@ -102,10 +114,14 @@ namespace CatchCapture
             StartupModeTrayRadio.Content = LocalizationManager.Get("StartInTray");
             StartupModeNormalRadio.Content = LocalizationManager.Get("StartInNormal");
             StartupModeSimpleRadio.Content = LocalizationManager.Get("StartInSimple");
+            if (StartupModeNotice != null)
+                StartupModeNotice.Text = LocalizationManager.Get("StartupModeNotice");
 
             // 언어 페이지
             LanguageGroup.Header = LocalizationManager.Get("LanguageSettings");
             LanguageLabelText.Text = LocalizationManager.Get("LanguageLabel");
+            if (LanguageRestartNotice != null)
+                LanguageRestartNotice.Text = LocalizationManager.Get("RestartRequired");
 
             // 하단 버튼
             CancelButton.Content = LocalizationManager.Get("Cancel");
@@ -514,181 +530,11 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
 
         private void PrivacyPolicy_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            // Create modal window
-            var privacyWindow = new Window
+            var win = new PrivacyPolicyWindow
             {
-                Title = "개인정보 처리방침",
-                Width = 700,
-                Height = 600,
-                WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                Owner = this,
-                ResizeMode = ResizeMode.CanResize,
-                Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(245, 245, 247)),
-                FontFamily = new System.Windows.Media.FontFamily("Malgun Gothic")
+                Owner = this
             };
-
-            var scrollViewer = new ScrollViewer
-            {
-                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-                Padding = new Thickness(0)
-            };
-
-            var border = new Border
-            {
-                Background = System.Windows.Media.Brushes.White,
-                CornerRadius = new CornerRadius(8),
-                Margin = new Thickness(20),
-                Padding = new Thickness(40)
-            };
-
-            var stackPanel = new StackPanel();
-
-            // Title
-            var title = new TextBlock
-            {
-                Text = "CatchCapture 개인정보 처리방침",
-                FontSize = 24,
-                FontWeight = FontWeights.Bold,
-                Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 122, 255)),
-                Margin = new Thickness(0, 0, 0, 10)
-            };
-            stackPanel.Children.Add(title);
-
-            // Subtitle
-            var subtitle = new TextBlock
-            {
-                Text = "최종 수정일: 2025년 12월 4일",
-                FontSize = 12,
-                Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(102, 102, 102)),
-                Margin = new Thickness(0, 0, 0, 20)
-            };
-            stackPanel.Children.Add(subtitle);
-
-            // Intro
-            var intro = new TextBlock
-            {
-                Text = "이지업소프트(이하 \"회사\")는 개인정보 보호법 등 관련 법령을 준수하며, 이용자의 개인정보를 보호하기 위해 최선을 다하고 있습니다.",
-                TextWrapping = TextWrapping.Wrap,
-                Margin = new Thickness(0, 0, 0, 20),
-                LineHeight = 24
-            };
-            stackPanel.Children.Add(intro);
-
-            // Highlight box
-            var highlightBorder = new Border
-            {
-                Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 243, 205)),
-                BorderBrush = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 193, 7)),
-                BorderThickness = new Thickness(4, 0, 0, 0),
-                Padding = new Thickness(20),
-                Margin = new Thickness(0, 0, 0, 20),
-                CornerRadius = new CornerRadius(4)
-            };
-
-            var highlightStack = new StackPanel();
-            var highlightTitle = new TextBlock
-            {
-                Text = "【 중요 】",
-                FontWeight = FontWeights.Bold,
-                FontSize = 16,
-                Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(214, 128, 0)),
-                Margin = new Thickness(0, 0, 0, 10)
-            };
-            highlightStack.Children.Add(highlightTitle);
-
-            var highlightText = new TextBlock
-            {
-                Text = "CatchCapture는 개인정보를 수집하지 않습니다.\n본 앱은 사용자의 컴퓨터에서 로컬로 실행되며, 어떠한 개인정보도 외부 서버로 전송하지 않습니다.",
-                TextWrapping = TextWrapping.Wrap,
-                FontWeight = FontWeights.Bold,
-                LineHeight = 24
-            };
-            highlightStack.Children.Add(highlightText);
-            highlightBorder.Child = highlightStack;
-            stackPanel.Children.Add(highlightBorder);
-
-            // Section 1
-            AddSection(stackPanel, "1. 개인정보 수집 및 이용",
-                "CatchCapture는 다음과 같은 정보를 수집하지 않습니다:\n" +
-                "• 이름, 이메일, 전화번호 등 개인 식별 정보\n" +
-                "• 위치 정보\n" +
-                "• 사용자 계정 정보\n" +
-                "• 네트워크 또는 인터넷 사용 기록");
-
-            // Section 2
-            AddSection(stackPanel, "2. 로컬 데이터 저장",
-                "앱 설정 및 캡처된 이미지는 사용자의 컴퓨터에만 저장되며, 회사 서버나 제3자에게 전송되지 않습니다.\n\n" +
-                "저장 위치: %LocalAppData%\\CatchCapture");
-
-            // Section 3
-            AddSection(stackPanel, "3. 제3자 제공 및 처리위탁",
-                "개인정보를 수집하지 않으므로 제3자 제공 또는 처리위탁이 없습니다.");
-
-            // Section 4
-            AddSection(stackPanel, "4. 이용자 권리",
-                "이용자는 언제든지 앱을 삭제하여 로컬에 저장된 모든 데이터를 제거할 수 있습니다.");
-
-            // Section 5
-            AddSection(stackPanel, "5. 안전성 확보 조치",
-                "모든 데이터는 사용자의 컴퓨터에서만 처리되며, Windows 운영체제의 보안 정책에 따라 보호됩니다.");
-
-            // Contact info
-            var contactBorder = new Border
-            {
-                Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(248, 249, 250)),
-                Padding = new Thickness(20),
-                Margin = new Thickness(0, 20, 0, 0),
-                CornerRadius = new CornerRadius(4)
-            };
-
-            var contactStack = new StackPanel();
-            var contactTitle = new TextBlock
-            {
-                Text = "문의 및 연락처",
-                FontSize = 16,
-                FontWeight = FontWeights.Bold,
-                Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 122, 255)),
-                Margin = new Thickness(0, 0, 0, 10)
-            };
-            contactStack.Children.Add(contactTitle);
-
-            var contactInfo = new TextBlock
-            {
-                Text = "회사명: 이지업소프트\n" +
-                       "제품명: CatchCapture\n" +
-                       "이메일: eyh1982@gmail.com\n" +
-                       "웹사이트: https://ezupsoft.com\n" +
-                       "시행일: 2025년 12월 4일",
-                TextWrapping = TextWrapping.Wrap,
-                LineHeight = 22
-            };
-            contactStack.Children.Add(contactInfo);
-            contactBorder.Child = contactStack;
-            stackPanel.Children.Add(contactBorder);
-
-            // Close button
-            var closeButton = new Button
-            {
-                Content = "닫기",
-                Width = 100,
-                Height = 35,
-                Margin = new Thickness(0, 30, 0, 0),
-                HorizontalAlignment = HorizontalAlignment.Center,
-                Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 122, 255)),
-                Foreground = System.Windows.Media.Brushes.White,
-                BorderThickness = new Thickness(0),
-                Cursor = System.Windows.Input.Cursors.Hand,
-                FontSize = 14,
-                FontWeight = FontWeights.SemiBold
-            };
-            closeButton.Click += (s, args) => privacyWindow.Close();
-            stackPanel.Children.Add(closeButton);
-
-            border.Child = stackPanel;
-            scrollViewer.Content = border;
-            privacyWindow.Content = scrollViewer;
-
-            privacyWindow.ShowDialog();
+            win.ShowDialog();
         }
 
         private void AddSection(StackPanel parent, string title, string content)
@@ -730,6 +576,12 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
                 CatchCapture.Models.LocalizationManager.SetLanguage(selectedLang);
                 LanguageRestartNotice.Visibility = Visibility.Collapsed;
             }
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            try { CatchCapture.Models.LocalizationManager.LanguageChanged -= OnLanguageChanged; } catch { }
+            base.OnClosed(e);
         }
     }
 }

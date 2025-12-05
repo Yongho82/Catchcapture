@@ -153,7 +153,7 @@
                 <!-- App Logo/Title -->
                 <StackPanel Orientation="Horizontal" Margin="25,0,0,30">
                     <Image Source="/Icons/camera.png" Width="24" Height="24" Margin="0,0,10,0" RenderOptions.BitmapScalingMode="HighQuality"/>
-                    <TextBlock Text="CatchCapture" FontSize="18" FontWeight="Bold" Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="SidebarAppNameText" Text="CatchCapture" FontSize="18" FontWeight="Bold" Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center"/>
                 </StackPanel>
 
                 <!-- Navigation -->
@@ -165,14 +165,14 @@
                 <!-- Bottom Info -->
                 <StackPanel VerticalAlignment="Bottom" Margin="25,280,0,0">
                      <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                        <TextBlock Text="버전 1.0.0" FontSize="12" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center"/>
-                        <TextBlock Text="🏠" FontSize="14" Margin="10,0,0,0" Cursor="Hand" VerticalAlignment="Center" 
+                        <TextBlock x:Name="VersionText" Text="버전 1.0.0" FontSize="12" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="WebsiteIcon" Text="🏠" FontSize="14" Margin="10,0,0,0" Cursor="Hand" VerticalAlignment="Center" 
                                    MouseLeftButtonUp="Website_Click" ToolTip="홈페이지 방문"/>
                      </StackPanel>
                      <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="기본설정 복원" FontSize="11" Foreground="{StaticResource TextSecondary}" Cursor="Hand" MouseLeftButtonUp="RestoreDefaults_Click"/>
+                        <TextBlock x:Name="RestoreDefaultsText" Text="기본설정 복원" FontSize="11" Foreground="{StaticResource TextSecondary}" Cursor="Hand" MouseLeftButtonUp="RestoreDefaults_Click"/>
                         <TextBlock Text="  |  " FontSize="11" Foreground="{StaticResource TextSecondary}"/>
-                        <TextBlock Text="개인정보 처리방침" FontSize="11" Foreground="{StaticResource TextSecondary}" Cursor="Hand" MouseLeftButtonUp="PrivacyPolicy_Click"/>
+                        <TextBlock x:Name="PrivacyPolicyText" Text="개인정보 처리방침" FontSize="11" Foreground="{StaticResource TextSecondary}" Cursor="Hand" MouseLeftButtonUp="PrivacyPolicy_Click"/>
                      </StackPanel>
                 </StackPanel>
             </StackPanel>
@@ -473,9 +473,10 @@
                         </Grid>
                     </GroupBox>
                     
-                    <TextBlock Text="※ 시작 모드는 프로그램이 실행될 때 처음 표시되는 화면을 설정합니다." 
-                               FontSize="11" 
-                               Foreground="{StaticResource TextSecondary}" 
+                    <TextBlock x:Name="StartupModeNotice"
+                               Text="※ 시작 모드는 프로그램이 실행될 때 처음 표시되는 화면을 설정합니다."
+                               FontSize="11"
+                               Foreground="{StaticResource TextSecondary}"
                                Margin="5,10,0,0"/>
                 </StackPanel>
             </Border>

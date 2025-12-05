@@ -6,6 +6,7 @@ using System.Windows.Documents;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using CatchCapture.Models;
 
 namespace CatchCapture
 {
@@ -17,9 +18,42 @@ namespace CatchCapture
         {
             InitializeComponent();
             imageSource = image;
+            UpdateUIText();
+            LocalizationManager.LanguageChanged += LocalizationManager_LanguageChanged;
             GeneratePreview();
         }
 
+        private void LocalizationManager_LanguageChanged(object? sender, EventArgs e)
+        {
+            try { UpdateUIText(); } catch { }
+            try { GeneratePreview(); } catch { }
+        }
+        private void UpdateUIText()
+        {
+            try
+            {
+                this.Title = LocalizationManager.Get("PrintPreviewTitle");
+                if (OrientationLabelText != null)
+                    OrientationLabelText.Text = LocalizationManager.Get("OrientationLabel");
+                if (PortraitItem != null)
+                    PortraitItem.Content = LocalizationManager.Get("Portrait");
+                if (LandscapeItem != null)
+                    LandscapeItem.Content = LocalizationManager.Get("Landscape");
+                if (PrintOptionsLabelText != null)
+                    PrintOptionsLabelText.Text = LocalizationManager.Get("PrintOptionsLabel");
+                if (FitToPageItem != null)
+                    FitToPageItem.Content = LocalizationManager.Get("FitToPage");
+                if (ActualSizeItem != null)
+                    ActualSizeItem.Content = LocalizationManager.Get("ActualSize");
+                if (FillPageItem != null)
+                    FillPageItem.Content = LocalizationManager.Get("FillPage");
+                if (PrintButton != null)
+                    PrintButton.Content = LocalizationManager.Get("Print");
+                if (CloseButton != null)
+                    CloseButton.Content = LocalizationManager.Get("Close");
+            }
+            catch { }
+        }
         private void GeneratePreview()
         {
             try
@@ -136,7 +170,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"미리보기 생성 중 오류: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"{LocalizationManager.Get("PreviewGenerationError")}: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -186,13 +220,13 @@ namespace CatchCapture
                         }
                         
                         printDialog.PrintDocument(DocumentViewer.Document.DocumentPaginator, "CatchCapture 이미지 인쇄");
-                        MessageBox.Show("인쇄를 시작했습니다.", "정보", MessageBoxButton.OK, MessageBoxImage.Information);
+                        MessageBox.Show(LocalizationManager.Get("PrintingStarted"), LocalizationManager.Get("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"인쇄 중 오류: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"{LocalizationManager.Get("PrintingError")}: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

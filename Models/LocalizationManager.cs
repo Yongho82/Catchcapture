@@ -145,6 +145,8 @@ namespace CatchCapture.Models
                 ["ImageSaved"] = "이미지가 저장되었습니다.",
                 ["ImageSaveTitle"] = "이미지 저장",
                 ["NoExtractedText"] = "추출된 텍스트가 없습니다.",
+                ["OcrResultTitle"] = "텍스트 추출 결과",
+                ["ExtractedText"] = "추출된 텍스트",
                 ["Info"] = "알림",
                 ["Error"] = "오류",
                 ["Confirm"] = "확인",
@@ -223,6 +225,38 @@ namespace CatchCapture.Models
                 ["UnsavedImagesDeleteConfirm"] = "저장하지 않은 이미지가 있습니다. 모두 삭제하시겠습니까?",
                 ["ClipboardCopyFailed"] = "클립보드 복사에 실패했습니다",
                 ["CopyError"] = "복사 오류",
+                
+                // Tooltips & common
+                ["Minimize"] = "최소화",
+                ["Close"] = "닫기",
+                ["NoDelay"] = "지연없음",
+                
+                // Print preview
+                ["PrintPreviewTitle"] = "인쇄 미리보기",
+                ["OrientationLabel"] = "방향:",
+                ["Portrait"] = "세로",
+                ["Landscape"] = "가로",
+                ["PrintOptionsLabel"] = "인쇄 옵션:",
+                ["FitToPage"] = "페이지에 맞춤",
+                ["ActualSize"] = "실제 크기",
+                ["FillPage"] = "페이지 채우기",
+                ["Print"] = "인쇄",
+                ["PreviewGenerationError"] = "미리보기 생성 중 오류",
+                ["PrintingStarted"] = "인쇄를 시작했습니다.",
+                ["PrintingError"] = "인쇄 중 오류",
+                ["NoImageToPrint"] = "인쇄할 이미지가 없습니다.",
+                ["PrintPreviewError"] = "인쇄 미리보기 중 오류가 발생했습니다",
+                ["RecaptureError"] = "재캡처 중 오류가 발생했습니다",
+                
+                // Settings window extras
+                ["Version"] = "버전",
+                ["VisitHomepage"] = "홈페이지 방문",
+                ["RestoreDefaults"] = "기본설정 복원",
+                ["PrivacyPolicy"] = "개인정보 처리방침",
+                ["StartupModeNotice"] = "※ 시작 모드는 프로그램이 실행될 때 처음 표시되는 화면을 설정합니다.",
+                
+                // PreviewWindow extras
+                ["Recapture"] = "재캡처",
             };
 
             // 중국어 (简体中文)
@@ -325,6 +359,8 @@ namespace CatchCapture.Models
                 ["ImageSaved"] = "图片已保存。",
                 ["ImageSaveTitle"] = "保存图片",
                 ["NoExtractedText"] = "没有提取到文本。",
+                ["OcrResultTitle"] = "文字提取结果",
+                ["ExtractedText"] = "提取的文本",
                 ["Info"] = "信息",
                 ["Error"] = "错误",
                 ["Confirm"] = "确认",
@@ -403,6 +439,38 @@ namespace CatchCapture.Models
                 ["UnsavedImagesDeleteConfirm"] = "包含未保存的图片。要全部删除吗？",
                 ["ClipboardCopyFailed"] = "复制到剪贴板失败",
                 ["CopyError"] = "复制错误",
+                
+                // Tooltips & common
+                ["Minimize"] = "最小化",
+                ["Close"] = "关闭",
+                ["NoDelay"] = "无延迟",
+                
+                // Print preview
+                ["PrintPreviewTitle"] = "打印预览",
+                ["OrientationLabel"] = "方向:",
+                ["Portrait"] = "纵向",
+                ["Landscape"] = "横向",
+                ["PrintOptionsLabel"] = "打印选项:",
+                ["FitToPage"] = "适合页面",
+                ["ActualSize"] = "实际大小",
+                ["FillPage"] = "填充页面",
+                ["Print"] = "打印",
+                ["PreviewGenerationError"] = "预览生成错误",
+                ["PrintingStarted"] = "已开始打印。",
+                ["PrintingError"] = "打印时出错",
+                ["NoImageToPrint"] = "没有可打印的图片。",
+                ["PrintPreviewError"] = "打印预览时发生错误",
+                ["RecaptureError"] = "重新截图时发生错误",
+                
+                // Settings window extras
+                ["Version"] = "版本",
+                ["VisitHomepage"] = "访问主页",
+                ["RestoreDefaults"] = "恢复默认设置",
+                ["PrivacyPolicy"] = "隐私政策",
+                ["StartupModeNotice"] = "※ 启动模式用于设置程序启动时首先显示的界面。",
+                
+                // PreviewWindow extras
+                ["Recapture"] = "重新截图",
             };
 
             // 일본어
@@ -505,6 +573,8 @@ namespace CatchCapture.Models
                 ["ImageSaved"] = "画像が保存されました。",
                 ["ImageSaveTitle"] = "画像の保存",
                 ["NoExtractedText"] = "抽出されたテキストがありません。",
+                ["OcrResultTitle"] = "テキスト抽出結果",
+                ["ExtractedText"] = "抽出されたテキスト",
                 ["Info"] = "情報",
                 ["Error"] = "エラー",
                 ["Confirm"] = "確認",
@@ -571,7 +641,7 @@ namespace CatchCapture.Models
                 ["ScrollCompletedDuplicate"] = "スクロール完了（重複検出）",
                 ["ReachedMaxCaptures"] = "最大キャプチャ数に達しました",
                 ["ReachedMaxScrolls"] = "最大スクロール回数に達しました",
-                ["RealTimeF1Guide"] = "目的の画面を表示して [F1] を押してください\n（キャンセル: ESC）",
+                ["RealTimeF1Guide"] = "目的の画面を表示して [F1] を押してください\n（キャンセル：ESC）",
                 ["MultiCaptureHud"] = "ENTER：合成\nF1：個別保存\nESC：終了",
                 ["ScrollClickToStart"] = "クリックしてスクロールキャプチャ開始",
                 ["EscToCancel"] = "中止",
@@ -583,6 +653,38 @@ namespace CatchCapture.Models
                 ["UnsavedImagesDeleteConfirm"] = "未保存の画像が含まれています。すべて削除しますか？",
                 ["ClipboardCopyFailed"] = "クリップボードへのコピーに失敗しました",
                 ["CopyError"] = "コピーエラー",
+                
+                // Tooltips & common
+                ["Minimize"] = "最小化",
+                ["Close"] = "閉じる",
+                ["NoDelay"] = "遅延なし",
+                
+                // Print preview
+                ["PrintPreviewTitle"] = "印刷プレビュー",
+                ["OrientationLabel"] = "方向:",
+                ["Portrait"] = "縦",
+                ["Landscape"] = "横",
+                ["PrintOptionsLabel"] = "印刷オプション:",
+                ["FitToPage"] = "ページに合わせる",
+                ["ActualSize"] = "実際のサイズ",
+                ["FillPage"] = "ページに合わせて拡大",
+                ["Print"] = "印刷",
+                ["PreviewGenerationError"] = "プレビュー生成中のエラー",
+                ["PrintingStarted"] = "印刷を開始しました。",
+                ["PrintingError"] = "印刷中のエラー",
+                ["NoImageToPrint"] = "印刷できる画像がありません。",
+                ["PrintPreviewError"] = "印刷プレビュー中にエラーが発生しました",
+                ["RecaptureError"] = "再キャプチャ中にエラーが発生しました",
+                
+                // Settings window extras
+                ["Version"] = "バージョン",
+                ["VisitHomepage"] = "ホームページに移動",
+                ["RestoreDefaults"] = "デフォルトに復元",
+                ["PrivacyPolicy"] = "プライバシーポリシー",
+                ["StartupModeNotice"] = "※ 起動モードは、プログラム起動時に最初に表示される画面を設定します。",
+                
+                // PreviewWindow extras
+                ["Recapture"] = "再キャプチャ",
             };
 
             // 영어
@@ -685,10 +787,12 @@ namespace CatchCapture.Models
                 ["ImageSaved"] = "Image has been saved.",
                 ["ImageSaveTitle"] = "Save Image",
                 ["NoExtractedText"] = "No text extracted.",
+                ["OcrResultTitle"] = "OCR Result",
+                ["ExtractedText"] = "Extracted Text",
                 ["Info"] = "Info",
                 ["Error"] = "Error",
                 ["Confirm"] = "Confirm",
-                ["ConfirmReset"] = "Discard all edits and revert to original image?",
+                ["ConfirmReset"] = "Do you want to discard all edits and revert to the original image?",
                 
                 // SnippingWindow
                 ["SelectAreaGuide"] = "Select an area (Press ESC to cancel)",
@@ -707,7 +811,7 @@ namespace CatchCapture.Models
                 ["SaveError"] = "Error saving file",
                 
                 // 이미지 검색 (PreviewWindow)
-                ["ImageSearch"] = "Imag Search",
+                ["ImageSearch"] = "Search",
                 ["ImageSearchTooltip"] = "Search by image",
                 
                 // 편집 도구
@@ -757,12 +861,44 @@ namespace CatchCapture.Models
                 ["EscToCancel"] = "Cancel",
                 
                 // Bottom actions & confirmations
-                ["AllCopiedToClipboard"] = "All images copied to clipboard",
+                ["AllCopiedToClipboard"] = "All items copied to clipboard",
                 ["AllImagesSaved"] = "All images have been saved",
                 ["UnsavedImageDeleteConfirm"] = "Delete the unsaved image?",
                 ["UnsavedImagesDeleteConfirm"] = "There are unsaved images. Delete all?",
                 ["ClipboardCopyFailed"] = "Failed to copy to clipboard",
-                ["CopyError"] = "Copy Error",
+                ["CopyError"] = "Copy error",
+                
+                // Tooltips & common
+                ["Minimize"] = "Minimize",
+                ["Close"] = "Close",
+                ["NoDelay"] = "No delay",
+                
+                // Print preview
+                ["PrintPreviewTitle"] = "Print Preview",
+                ["OrientationLabel"] = "Orientation:",
+                ["Portrait"] = "Portrait",
+                ["Landscape"] = "Landscape",
+                ["PrintOptionsLabel"] = "Print Options:",
+                ["FitToPage"] = "Fit to Page",
+                ["ActualSize"] = "Actual Size",
+                ["FillPage"] = "Fill Page",
+                ["Print"] = "Print",
+                ["PreviewGenerationError"] = "Error generating preview",
+                ["PrintingStarted"] = "Printing has started.",
+                ["PrintingError"] = "Error while printing",
+                ["NoImageToPrint"] = "There is no image to print.",
+                ["PrintPreviewError"] = "An error occurred during print preview",
+                ["RecaptureError"] = "An error occurred during recapture",
+                
+                // Settings window extras
+                ["Version"] = "Version",
+                ["VisitHomepage"] = "Visit Homepage",
+                ["RestoreDefaults"] = "Restore Defaults",
+                ["PrivacyPolicy"] = "Privacy Policy",
+                ["StartupModeNotice"] = "※ Startup mode determines which screen appears first when the app launches.",
+                
+                // PreviewWindow extras
+                ["Recapture"] = "Capture",
             };
         }
     }
