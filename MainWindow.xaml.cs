@@ -1000,7 +1000,7 @@ public partial class MainWindow : Window
         }
     }
     // 동기 래퍼 메서드 (기존 호출 호환성 유지)
-    private void StartAreaCapture()
+    public void StartAreaCapture()
     {
         _ = StartAreaCaptureAsync();  // Fire and forget
     }

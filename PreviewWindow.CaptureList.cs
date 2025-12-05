@@ -29,8 +29,8 @@ namespace CatchCapture
                 CaptureCountText.Text = $"({allCaptures.Count})";
             }
 
-            // 각 캡처 아이템 생성
-            for (int i = 0; i < allCaptures.Count; i++)
+            // 각 캡처 아이템 생성 (역순으로 - 최신이 위로)
+            for (int i = allCaptures.Count - 1; i >= 0; i--)
             {
                 var captureImage = allCaptures[i];
                 var itemBorder = CreateCaptureListItem(captureImage, i);

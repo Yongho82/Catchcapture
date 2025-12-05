@@ -516,6 +516,31 @@ namespace CatchCapture
             }
         }
 
+        private async void RecaptureButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // MainWindow 찾기
+                var mainWindow = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
+                
+                if (mainWindow != null)
+                {
+                    // 편집창 닫기
+                    this.Close();
+                    
+                    // UI가 정리될 시간을 주기 위해 짧은 대기
+                    await System.Threading.Tasks.Task.Delay(100);
+                    
+                    // 영역 캡처 시작
+                    mainWindow.StartAreaCapture();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"재캡처 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private void UndoButton_Click(object sender, RoutedEventArgs e)
         {
             if (undoStack.Count > 0)
