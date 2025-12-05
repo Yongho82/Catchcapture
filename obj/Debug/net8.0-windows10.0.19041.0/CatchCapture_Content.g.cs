@@ -34,6 +34,7 @@
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/numbering.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/pin_gray.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/pin_red.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/printer.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/program_icon.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/real-time.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/redo.png")]

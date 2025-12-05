@@ -89,3 +89,6 @@ C:\yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\icons\numberi
 C:\Yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\icons\google_img.png
 C:\Yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\icons\share_img.png
 C:\yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\icons\exit_tray.png
+C:\Yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\icons\printer.png
+C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\PrintPreviewWindow.baml
+C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\PrintPreviewWindow.g.cs

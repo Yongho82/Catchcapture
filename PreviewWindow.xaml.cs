@@ -170,7 +170,7 @@ namespace CatchCapture
             double maxWindowHeight = SystemParameters.WorkArea.Height * 0.9;
 
             // 최소(기본) 창 크기 설정: 툴바 아이콘 추가에 맞춰 1300x800
-            double minWindowWidth = 1240;
+            double minWindowWidth = 1310;
             double minWindowHeight = 800;
 
             // 도구 모음과 하단 패널의 높이 계산 (대략적인 값)
@@ -492,6 +492,27 @@ namespace CatchCapture
                 {
                     MessageBox.Show($"{LocalizationManager.Get("Error")}: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+            }
+        }
+
+        private void PrintButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (currentImage == null)
+                {
+                    ShowToastMessage("인쇄할 이미지가 없습니다.");
+                    return;
+                }
+
+                // 인쇄 미리보기 창 열기
+                var printPreviewWindow = new PrintPreviewWindow(currentImage);
+                printPreviewWindow.Owner = this;
+                printPreviewWindow.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"인쇄 미리보기 중 오류가 발생했습니다: {ex.Message}", "인쇄 오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -856,6 +877,7 @@ namespace CatchCapture
                 // 상단 툴바 텍스트
                 if (CopyLabelText != null) CopyLabelText.Text = LocalizationManager.Get("CopySelected");
                 if (SaveLabelText != null) SaveLabelText.Text = LocalizationManager.Get("Save");
+                if (PrintLabelText != null) PrintLabelText.Text = LocalizationManager.Get("Print");
                 if (UndoLabelText != null) UndoLabelText.Text = LocalizationManager.Get("UndoLbl");
                 if (RedoLabelText != null) RedoLabelText.Text = LocalizationManager.Get("RedoLbl");
                 if (ResetLabelText != null) ResetLabelText.Text = LocalizationManager.Get("ResetLbl");

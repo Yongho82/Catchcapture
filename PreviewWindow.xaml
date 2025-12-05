@@ -6,7 +6,7 @@
         xmlns:controls="clr-namespace:CatchCapture.Controls"
         xmlns:local="clr-namespace:CatchCapture"
         mc:Ignorable="d"
-        Title="이미지 편집" Height="800" Width="1240"
+        Title="이미지 편집" Height="800" Width="1310"
         WindowStartupLocation="CenterOwner"
         Background="#F8F9FC">
     
@@ -133,7 +133,14 @@
                             <TextBlock x:Name="SaveLabelText" Text="저장" FontSize="12" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    
+
+                    <Button x:Name="PrintButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="PrintButton_Click" ToolTip="인쇄">
+                        <StackPanel VerticalAlignment="Top">
+                            <Image Source="icons/printer.png" Width="20" Height="20" Margin="0,2,0,2"/>
+                            <TextBlock x:Name="PrintLabelText" Text="인쇄" FontSize="12" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>                    
+
                     <Separator Style="{StaticResource ToolbarSeparatorStyle}"/>
                     
                     <Button x:Name="UndoButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="UndoButton_Click" ToolTip="실행 취소" IsEnabled="False">
