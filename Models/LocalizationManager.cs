@@ -257,6 +257,15 @@ namespace CatchCapture.Models
                 
                 // PreviewWindow extras
                 ["Recapture"] = "재캡처",
+                
+                // MainWindow: Open dialog / errors / topmost
+                ["OpenImageTitle"] = "이미지 열기",
+                ["ImageFilesFilter"] = "이미지 파일",
+                ["AllFiles"] = "모든 파일",
+                ["FileOpenErrorTitle"] = "오류",
+                ["FileOpenErrorPrefix"] = "파일을 열 수 없습니다",
+                ["TopmostOnMsg"] = "상단 고정: 켜짐",
+                ["TopmostOffMsg"] = "상단 고정: 꺼짐",
             };
 
             // 중국어 (简体中文)
@@ -457,10 +466,10 @@ namespace CatchCapture.Models
                 ["Print"] = "打印",
                 ["PreviewGenerationError"] = "预览生成错误",
                 ["PrintingStarted"] = "已开始打印。",
-                ["PrintingError"] = "打印时出错",
+                ["PrintingError"] = "打印中出错",
                 ["NoImageToPrint"] = "没有可打印的图片。",
-                ["PrintPreviewError"] = "打印预览时发生错误",
-                ["RecaptureError"] = "重新截图时发生错误",
+                ["PrintPreviewError"] = "打印预览中出错",
+                ["RecaptureError"] = "重新截图中出错",
                 
                 // Settings window extras
                 ["Version"] = "版本",
@@ -471,6 +480,15 @@ namespace CatchCapture.Models
                 
                 // PreviewWindow extras
                 ["Recapture"] = "重新截图",
+                
+                // MainWindow: Open dialog / errors / topmost
+                ["OpenImageTitle"] = "打开图片",
+                ["ImageFilesFilter"] = "图像文件",
+                ["AllFiles"] = "所有文件",
+                ["FileOpenErrorTitle"] = "错误",
+                ["FileOpenErrorPrefix"] = "无法打开文件",
+                ["TopmostOnMsg"] = "置顶：开启",
+                ["TopmostOffMsg"] = "置顶：关闭",
             };
 
             // 일본어
@@ -685,6 +703,15 @@ namespace CatchCapture.Models
                 
                 // PreviewWindow extras
                 ["Recapture"] = "再キャプチャ",
+                
+                // MainWindow: Open dialog / errors / topmost
+                ["OpenImageTitle"] = "画像を開く",
+                ["ImageFilesFilter"] = "画像ファイル",
+                ["AllFiles"] = "すべてのファイル",
+                ["FileOpenErrorTitle"] = "エラー",
+                ["FileOpenErrorPrefix"] = "ファイルを開けませんでした",
+                ["TopmostOnMsg"] = "最前面固定：オン",
+                ["TopmostOffMsg"] = "最前面固定：オフ",
             };
 
             // 영어
@@ -899,6 +926,243 @@ namespace CatchCapture.Models
                 
                 // PreviewWindow extras
                 ["Recapture"] = "Capture",
+                
+                // MainWindow: Open dialog / errors / topmost
+                ["OpenImageTitle"] = "Open Image",
+                ["ImageFilesFilter"] = "Image Files",
+                ["AllFiles"] = "All Files",
+                ["FileOpenErrorTitle"] = "Error",
+                ["FileOpenErrorPrefix"] = "Could not open file",
+                ["TopmostOnMsg"] = "Pinned to top: On",
+                ["TopmostOffMsg"] = "Pinned to top: Off",
+            };
+
+            // 스페인어
+            _translations["es"] = new Dictionary<string, string>(_translations["en"])
+            {
+                ["Settings"] = "Configuración",
+                ["General"] = "General",
+                ["CaptureSettings"] = "Ajustes de captura",
+                ["SystemSettings"] = "Ajustes del sistema",
+                ["HotkeySettings"] = "Atajos de teclado",
+                
+                ["Save"] = "Guardar",
+                ["Print"] = "Imprimir",
+                ["CopySelected"] = "Copiar",
+                ["CopyToClipboard"] = "Copiado al portapapeles",
+                ["ImageSaveTitle"] = "Guardar imagen",
+                ["ImageSaved"] = "Imagen guardada",
+                ["Error"] = "Error",
+                ["Info"] = "Información",
+                
+                ["UndoLbl"] = "Deshacer",
+                ["RedoLbl"] = "Rehacer",
+                ["ResetLbl"] = "Restablecer",
+                ["Crop"] = "Recortar",
+                ["Rotate"] = "Girar",
+                ["FlipH"] = "Volteo H",
+                ["FlipV"] = "Volteo V",
+                
+                ["Pen"] = "Pluma",
+                ["Highlighter"] = "Resaltador",
+                ["Text"] = "Texto",
+                ["TextAdd"] = "Añadir texto",
+                ["Mosaic"] = "Mosaico",
+                ["Eraser"] = "Borrador",
+                
+                ["ImageSearch"] = "Buscar imagen",
+                ["ImageSearchTooltip"] = "Buscar por imagen",
+                ["OCR"] = "OCR",
+                ["Extract"] = "Extraer",
+                
+                ["ZoomReset"] = "Original",
+                ["ZoomResetTooltip"] = "100%",
+                ["ZoomOut"] = "Alejar",
+                ["ZoomIn"] = "Acercar",
+                ["ImageSizePrefix"] = "Tamaño: ",
+                ["RecentCaptures"] = "Capturas recientes",
+                ["SizeLabel"] = "Tamaño",
+                
+                ["StartupMode"] = "Modo de inicio",
+                ["StartWithWindows"] = "Iniciar con Windows",
+                ["StartInTray"] = "Iniciar en bandeja",
+                ["StartInNormal"] = "Iniciar en modo normal",
+                ["StartInSimple"] = "Iniciar en modo simple",
+                ["StartupModeNotice"] = "※ El modo de inicio determina la pantalla que aparece primero al iniciar la app.",
+                
+                ["LanguageSettings"] = "Idioma",
+                ["LanguageLabel"] = "Idioma",
+                ["RestartRequired"] = "Se requiere reiniciar la aplicación tras cambiar el idioma.",
+                
+                ["Version"] = "Versión",
+                ["VisitHomepage"] = "Visitar sitio web",
+                ["RestoreDefaults"] = "Restaurar por defecto",
+                ["PrivacyPolicy"] = "Política de privacidad",
+                
+                ["Recapture"] = "Capturar",
+                ["NoImageToPrint"] = "No hay imagen para imprimir.",
+                ["PrintPreviewError"] = "Se produjo un error durante la vista previa de impresión",
+                ["RecaptureError"] = "Se produjo un error durante la recaptura",
+                
+                ["OpenImageTitle"] = "Abrir imagen",
+                ["ImageFilesFilter"] = "Archivos de imagen",
+                ["AllFiles"] = "Todos los archivos",
+                ["FileOpenErrorTitle"] = "Error",
+                ["FileOpenErrorPrefix"] = "No se puede abrir el archivo",
+                ["TopmostOnMsg"] = "Fijado arriba: Activado",
+                ["TopmostOffMsg"] = "Fijado arriba: Desactivado",
+            };
+
+            // 독일어
+            _translations["de"] = new Dictionary<string, string>(_translations["en"])
+            {
+                ["Settings"] = "Einstellungen",
+                ["General"] = "Allgemein",
+                ["CaptureSettings"] = "Aufnahme-Einstellungen",
+                ["SystemSettings"] = "Systemeinstellungen",
+                ["HotkeySettings"] = "Tastenkürzel",
+                
+                ["Save"] = "Speichern",
+                ["Print"] = "Drucken",
+                ["CopySelected"] = "Kopieren",
+                ["CopyToClipboard"] = "In die Zwischenablage kopiert",
+                ["ImageSaveTitle"] = "Bild speichern",
+                ["ImageSaved"] = "Bild gespeichert",
+                ["Error"] = "Fehler",
+                ["Info"] = "Info",
+                
+                ["UndoLbl"] = "Rückgängig",
+                ["RedoLbl"] = "Wiederholen",
+                ["ResetLbl"] = "Zurücksetzen",
+                ["Crop"] = "Zuschneiden",
+                ["Rotate"] = "Drehen",
+                ["FlipH"] = "Horizontal spiegeln",
+                ["FlipV"] = "Vertikal spiegeln",
+                
+                ["Pen"] = "Stift",
+                ["Highlighter"] = "Textmarker",
+                ["Text"] = "Text",
+                ["TextAdd"] = "Text hinzufügen",
+                ["Mosaic"] = "Mosaik",
+                ["Eraser"] = "Radierer",
+                
+                ["ImageSearch"] = "Bildsuche",
+                ["ImageSearchTooltip"] = "Nach Bild suchen",
+                ["OCR"] = "OCR",
+                ["Extract"] = "Extrahieren",
+                
+                ["ZoomReset"] = "Original",
+                ["ZoomResetTooltip"] = "100%",
+                ["ZoomOut"] = "Verkleinern",
+                ["ZoomIn"] = "Vergrößern",
+                ["ImageSizePrefix"] = "Bildgröße: ",
+                ["RecentCaptures"] = "Letzte Aufnahmen",
+                ["SizeLabel"] = "Größe",
+                
+                ["StartupMode"] = "Startmodus",
+                ["StartWithWindows"] = "Mit Windows starten",
+                ["StartInTray"] = "Im Tray starten",
+                ["StartInNormal"] = "Im normalen Modus starten",
+                ["StartInSimple"] = "Im einfachen Modus starten",
+                ["StartupModeNotice"] = "※ Der Startmodus bestimmt den ersten Bildschirm beim Start der App.",
+                
+                ["LanguageSettings"] = "Sprache",
+                ["LanguageLabel"] = "Sprache",
+                ["RestartRequired"] = "Neustart nach Sprachänderung erforderlich.",
+                
+                ["Version"] = "Version",
+                ["VisitHomepage"] = "Webseite besuchen",
+                ["RestoreDefaults"] = "Auf Standard zurücksetzen",
+                ["PrivacyPolicy"] = "Datenschutzerklärung",
+                
+                ["Recapture"] = "Aufnehmen",
+                ["NoImageToPrint"] = "Kein Bild zum Drucken vorhanden.",
+                ["PrintPreviewError"] = "Beim Druckvorschau ist ein Fehler aufgetreten",
+                ["RecaptureError"] = "Beim erneuten Aufnehmen ist ein Fehler aufgetreten",
+                
+                ["OpenImageTitle"] = "Bild öffnen",
+                ["ImageFilesFilter"] = "Bilddateien",
+                ["AllFiles"] = "Alle Dateien",
+                ["FileOpenErrorTitle"] = "Fehler",
+                ["FileOpenErrorPrefix"] = "Datei konnte nicht geöffnet werden",
+                ["TopmostOnMsg"] = "Immer im Vordergrund: Ein",
+                ["TopmostOffMsg"] = "Immer im Vordergrund: Aus",
+            };
+
+            // 프랑스어
+            _translations["fr"] = new Dictionary<string, string>(_translations["en"])
+            {
+                ["Settings"] = "Paramètres",
+                ["General"] = "Général",
+                ["CaptureSettings"] = "Paramètres de capture",
+                ["SystemSettings"] = "Paramètres système",
+                ["HotkeySettings"] = "Raccourcis clavier",
+                
+                ["Save"] = "Enregistrer",
+                ["Print"] = "Imprimer",
+                ["CopySelected"] = "Copier",
+                ["CopyToClipboard"] = "Copié dans le presse-papiers",
+                ["ImageSaveTitle"] = "Enregistrer l'image",
+                ["ImageSaved"] = "Image enregistrée",
+                ["Error"] = "Erreur",
+                ["Info"] = "Info",
+                
+                ["UndoLbl"] = "Annuler",
+                ["RedoLbl"] = "Rétablir",
+                ["ResetLbl"] = "Réinitialiser",
+                ["Crop"] = "Rogner",
+                ["Rotate"] = "Pivoter",
+                ["FlipH"] = "Miroir H",
+                ["FlipV"] = "Miroir V",
+                
+                ["Pen"] = "Stylo",
+                ["Highlighter"] = "Surligneur",
+                ["Text"] = "Texte",
+                ["TextAdd"] = "Ajouter du texte",
+                ["Mosaic"] = "Mosaïque",
+                ["Eraser"] = "Gomme",
+                
+                ["ImageSearch"] = "Recherche d'image",
+                ["ImageSearchTooltip"] = "Rechercher par image",
+                ["OCR"] = "OCR",
+                ["Extract"] = "Extraire",
+                
+                ["ZoomReset"] = "Original",
+                ["ZoomResetTooltip"] = "100%",
+                ["ZoomOut"] = "Dézoomer",
+                ["ZoomIn"] = "Zoomer",
+                ["ImageSizePrefix"] = "Taille: ",
+                ["RecentCaptures"] = "Captures récentes",
+                ["SizeLabel"] = "Taille",
+                
+                ["StartupMode"] = "Mode de démarrage",
+                ["StartWithWindows"] = "Démarrer avec Windows",
+                ["StartInTray"] = "Démarrer dans la zone de notification",
+                ["StartInNormal"] = "Démarrer en mode normal",
+                ["StartInSimple"] = "Démarrer en mode simple",
+                ["StartupModeNotice"] = "※ Le mode de démarrage détermine l'écran affiché au lancement de l'application.",
+                
+                ["LanguageSettings"] = "Langue",
+                ["LanguageLabel"] = "Langue",
+                ["RestartRequired"] = "Un redémarrage est requis après modification de la langue.",
+                
+                ["Version"] = "Version",
+                ["VisitHomepage"] = "Visiter le site",
+                ["RestoreDefaults"] = "Restaurer par défaut",
+                ["PrivacyPolicy"] = "Politique de confidentialité",
+                
+                ["Recapture"] = "Capturer",
+                ["NoImageToPrint"] = "Aucune image à imprimer.",
+                ["PrintPreviewError"] = "Une erreur s'est produite lors de l'aperçu avant impression",
+                ["RecaptureError"] = "Une erreur s'est produite lors de la recapture",
+                
+                ["OpenImageTitle"] = "Ouvrir l'image",
+                ["ImageFilesFilter"] = "Fichiers image",
+                ["AllFiles"] = "Tous les fichiers",
+                ["FileOpenErrorTitle"] = "Erreur",
+                ["FileOpenErrorPrefix"] = "Impossible d'ouvrir le fichier",
+                ["TopmostOnMsg"] = "Épinglé en haut : Activé",
+                ["TopmostOffMsg"] = "Épinglé en haut : Désactivé",
             };
         }
     }

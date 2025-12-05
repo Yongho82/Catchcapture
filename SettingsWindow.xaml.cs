@@ -160,7 +160,10 @@ namespace CatchCapture
                 (Code: "ko", Name: "한국어"),
                 (Code: "en", Name: "English"),
                 (Code: "zh", Name: "简体中文"),
-                (Code: "ja", Name: "日本語")
+                (Code: "ja", Name: "日本語"),
+                (Code: "es", Name: "Español"),
+                (Code: "de", Name: "Deutsch"),
+                (Code: "fr", Name: "Français"),
             };
             foreach (var (code, name) in langs)
             {

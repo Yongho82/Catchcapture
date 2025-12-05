@@ -49,6 +49,7 @@ public partial class MainWindow : Window
     private int _autoPreviewOpenCount = 0;
     // 트레이 컨텍스트 메뉴 및 항목 참조 (언어 변경 시 즉시 갱신용)
     private System.Windows.Forms.ContextMenuStrip? trayContextMenu;
+    private System.Windows.Forms.ToolStripMenuItem? trayAreaItem;
     private System.Windows.Forms.ToolStripMenuItem? trayNormalItem;
     private System.Windows.Forms.ToolStripMenuItem? traySimpleItem;
     private System.Windows.Forms.ToolStripMenuItem? trayTrayItem;
@@ -236,8 +237,8 @@ public partial class MainWindow : Window
         trayContextMenu.ImageScalingSize = new System.Drawing.Size(16, 16); // unify icon size for crisp rendering
 
         // 빠른 작업 항목
-        var miArea = new System.Windows.Forms.ToolStripMenuItem(
-            "캡처 영역",
+        trayAreaItem = new System.Windows.Forms.ToolStripMenuItem(
+            CatchCapture.Models.LocalizationManager.Get("AreaCapture"),
             LoadMenuImage("area_capture.png"),
             (s, e) => StartAreaCapture());
 
@@ -252,7 +253,7 @@ public partial class MainWindow : Window
         });
 
         trayContextMenu.Items.Clear();
-        trayContextMenu.Items.Add(miArea);
+        trayContextMenu.Items.Add(trayAreaItem);
         trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
         trayContextMenu.Items.Add(trayNormalItem);
         trayContextMenu.Items.Add(traySimpleItem);
@@ -826,7 +827,7 @@ public partial class MainWindow : Window
     private void ToggleTopmost()
     {
         this.Topmost = !this.Topmost;
-        ShowGuideMessage($"상단 고정: {(this.Topmost ? "켜짐" : "꺼짐")}", TimeSpan.FromSeconds(1));
+        ShowGuideMessage(CatchCapture.Models.LocalizationManager.Get(this.Topmost ? "TopmostOnMsg" : "TopmostOffMsg"), TimeSpan.FromSeconds(1));
     }
     
     // 파일 열기 다이얼로그
@@ -834,8 +835,8 @@ public partial class MainWindow : Window
     {
         var dialog = new OpenFileDialog
         {
-            Title = "이미지 열기",
-            Filter = "이미지 파일|*.png;*.jpg;*.jpeg;*.bmp;*.gif|모든 파일|*.*",
+            Title = CatchCapture.Models.LocalizationManager.Get("OpenImageTitle"),
+            Filter = $"{CatchCapture.Models.LocalizationManager.Get("ImageFilesFilter")}|*.png;*.jpg;*.jpeg;*.bmp;*.gif|{CatchCapture.Models.LocalizationManager.Get("AllFiles")}|*.*",
             Multiselect = true
         };
         
@@ -850,7 +851,7 @@ public partial class MainWindow : Window
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"파일을 열 수 없습니다: {fileName}\n오류: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"{CatchCapture.Models.LocalizationManager.Get("FileOpenErrorPrefix")}: {fileName}\n{CatchCapture.Models.LocalizationManager.Get("Error")}: {ex.Message}", CatchCapture.Models.LocalizationManager.Get("FileOpenErrorTitle"), MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -2981,6 +2982,9 @@ public partial class MainWindow : Window
         {
             if (notifyIcon != null)
                 notifyIcon.Text = CatchCapture.Models.LocalizationManager.Get("AppName");
+            
+            if (trayAreaItem != null)
+                trayAreaItem.Text = CatchCapture.Models.LocalizationManager.Get("AreaCapture");
             
             if (trayNormalItem != null)
                 trayNormalItem.Text = CatchCapture.Models.LocalizationManager.Get("TrayNormalMode");
