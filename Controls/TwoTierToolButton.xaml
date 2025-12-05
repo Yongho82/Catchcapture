@@ -8,8 +8,8 @@
     
     <Grid Width="65" Height="65" Margin="2,0">
         <Grid.RowDefinitions>
-            <RowDefinition Height="57"/>
-            <RowDefinition Height="8"/>
+            <RowDefinition Height="52"/>
+            <RowDefinition Height="13"/>
         </Grid.RowDefinitions>
         
         <!-- 메인 버튼 -->

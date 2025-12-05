@@ -386,6 +386,9 @@
             <Grid>
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                     <Canvas x:Name="ImageCanvas">
+                        <Canvas.LayoutTransform>
+                            <ScaleTransform x:Name="CanvasScaleTransform"/>
+                        </Canvas.LayoutTransform>
                         <!-- 투명 배경 표시를 위한 바둑판 패턴 -->
                         <Canvas.Background>
                             <DrawingBrush TileMode="Tile" Viewport="0,0,16,16" ViewportUnits="Absolute">

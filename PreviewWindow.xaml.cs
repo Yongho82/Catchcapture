@@ -133,7 +133,7 @@ namespace CatchCapture
             ImageCanvas.MouseLeftButtonUp += ImageCanvas_MouseLeftButtonUp;
             ImageCanvas.MouseLeave += ImageCanvas_MouseLeave;
             KeyDown += PreviewWindow_KeyDown;
-
+            this.PreviewMouseWheel += PreviewWindow_PreviewMouseWheel;
             // 캡처 리스트 표시
             if (allCaptures != null && allCaptures.Count > 0)
             {
@@ -264,93 +264,75 @@ namespace CatchCapture
             }
         }
 
+        private void PreviewWindow_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            // Ctrl 키가 눌린 상태에서만 작동
+            if (Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                if (e.Delta > 0)
+                {
+                    ZoomIn(); // 휠 올리면 확대
+                }
+                else
+                {
+                    ZoomOut(); // 휠 내리면 축소
+                }
+                
+                // 스크롤 이벤트가 ScrollViewer로 전파되어 스크롤되는 것을 방지
+                e.Handled = true;
+            }
+        }
+
         // 확대 기능
         private void ZoomIn()
         {
-            if (PreviewImage != null)
+            var scaleTransform = GetImageScaleTransform();
+            if (scaleTransform != null)
             {
-                var scaleTransform = GetImageScaleTransform();
-                if (scaleTransform != null)
-                {
-                    // 10%씩 확대 (최대 500%)
-                    double newScale = Math.Min(scaleTransform.ScaleX * 1.1, 5.0);
-                    scaleTransform.ScaleX = newScale;
-                    scaleTransform.ScaleY = newScale;
-                    
-                    // RenderTransformOrigin을 중앙으로 설정
-                    PreviewImage.RenderTransformOrigin = new Point(0.5, 0.5);
-                }
+                // 10%씩 확대 (최대 500%)
+                double newScale = Math.Min(scaleTransform.ScaleX * 1.1, 5.0);
+                scaleTransform.ScaleX = newScale;
+                scaleTransform.ScaleY = newScale;
+                
+                UpdateImageInfo(); // 줌 레벨 텍스트 업데이트
             }
         }
 
         // 축소 기능
         private void ZoomOut()
         {
-            if (PreviewImage != null)
+            var scaleTransform = GetImageScaleTransform();
+            if (scaleTransform != null)
             {
-                var scaleTransform = GetImageScaleTransform();
-                if (scaleTransform != null)
-                {
-                    // 10%씩 축소 (최소 10%)
-                    double newScale = Math.Max(scaleTransform.ScaleX / 1.1, 0.1);
-                    scaleTransform.ScaleX = newScale;
-                    scaleTransform.ScaleY = newScale;
-                    
-                    // RenderTransformOrigin을 중앙으로 설정
-                    PreviewImage.RenderTransformOrigin = new Point(0.5, 0.5);
-                }
+                // 10%씩 축소 (최소 10%)
+                double newScale = Math.Max(scaleTransform.ScaleX / 1.1, 0.1);
+                scaleTransform.ScaleX = newScale;
+                scaleTransform.ScaleY = newScale;
+                
+                UpdateImageInfo(); // 줌 레벨 텍스트 업데이트
             }
         }
 
         // 실제 크기로 리셋
         private void ResetZoom()
         {
-            if (PreviewImage != null)
+            var scaleTransform = GetImageScaleTransform();
+            if (scaleTransform != null)
             {
-                var scaleTransform = GetImageScaleTransform();
-                if (scaleTransform != null)
-                {
-                    scaleTransform.ScaleX = 1.0;
-                    scaleTransform.ScaleY = 1.0;
-                }
+                scaleTransform.ScaleX = 1.0;
+                scaleTransform.ScaleY = 1.0;
+                
+                UpdateImageInfo(); // 줌 레벨 텍스트 업데이트
             }
         }
 
         // 이미지의 스케일 트랜스폼 가져오기
         private ScaleTransform? GetImageScaleTransform()
         {
-            if (PreviewImage?.RenderTransform is ScaleTransform scale)
-            {
-                return scale;
-            }
-            else if (PreviewImage?.RenderTransform is TransformGroup group)
-            {
-                foreach (var transform in group.Children)
-                {
-                    if (transform is ScaleTransform scaleTransform)
-                    {
-                        return scaleTransform;
-                    }
-                }
-            }
-            else if (PreviewImage != null)
-            {
-                // 스케일 트랜스폼이 없으면 새로 생성
-                var scaleTransform = new ScaleTransform(1.0, 1.0);
-                if (PreviewImage.RenderTransform is TransformGroup existingGroup)
-                {
-                    existingGroup.Children.Add(scaleTransform);
-                }
-                else
-                {
-                    PreviewImage.RenderTransform = scaleTransform;
-                }
-                return scaleTransform;
-            }
-
-            return null;
+            // XAML에 정의된 CanvasScaleTransform 반환 (LayoutTransform 사용)
+            return CanvasScaleTransform;
         }
-
+        
         private void CancelCurrentEditMode()
         {
             WriteLog($"CancelCurrentEditMode 호출: 이전 모드={currentEditMode}, tempShape={tempShape != null}");
