@@ -285,6 +285,16 @@ namespace CatchCapture.Models
                 ["HideToTray"] = "트레이로 숨기기",
                 ["Fold"] = "접기",
                 ["Unfold"] = "펼치기",
+                
+                // Image editor: Background removal (Magic Wand)
+                ["BackgroundRemoval"] = "배경제거",
+                ["MagicWand"] = "마법봉",
+                ["BackgroundRemovalTooltip"] = "배경제거 (마법봉)",
+                ["MagicWandTip"] = "클릭: 배경제거\n드래그: 영역선택",
+                ["SelectionTooSmall"] = "선택된 영역이 너무 작습니다. 다시 선택해주세요.",
+                ["MagicWandToleranceLabel"] = "허용 오차:",
+                ["MagicWandContiguousOnly"] = "연속 영역만 선택",
+                ["MagicWandDesc"] = "• 연속 영역: 클릭한 부분과 연결된 영역만\n• 전체: 이미지 전체에서 비슷한 색상 제거",
             };
 
             // 중국어 (简体中文)
@@ -527,6 +537,16 @@ namespace CatchCapture.Models
                 ["HideToTray"] = "隐藏到托盘",
                 ["Fold"] = "折叠",
                 ["Unfold"] = "展开",
+                
+                // Image editor: Background removal (Magic Wand)
+                ["BackgroundRemoval"] = "背景去除",
+                ["MagicWand"] = "魔棒",
+                ["BackgroundRemovalTooltip"] = "背景去除（魔棒）",
+                ["MagicWandTip"] = "单击：去除背景\n拖拽：选择区域",
+                ["SelectionTooSmall"] = "选择的区域太小，请重新选择。",
+                ["MagicWandToleranceLabel"] = "容差：",
+                ["MagicWandContiguousOnly"] = "仅选择连续区域",
+                ["MagicWandDesc"] = "• 连续区域：仅移除与点击处相连的区域\n• 全部：在整张图片中移除相似颜色",
             };
 
             // 일본어
@@ -769,6 +789,16 @@ namespace CatchCapture.Models
                 ["HideToTray"] = "トレイに隠す",
                 ["Fold"] = "折りたたむ",
                 ["Unfold"] = "展開",
+                
+                // Image editor: Background removal (Magic Wand)
+                ["BackgroundRemoval"] = "背景除去",
+                ["MagicWand"] = "マジックワンド",
+                ["BackgroundRemovalTooltip"] = "背景除去（マジックワンド）",
+                ["MagicWandTip"] = "クリック：背景除去\nドラッグ：範囲選択",
+                ["SelectionTooSmall"] = "選択範囲が小さすぎます。もう一度選択してください。",
+                ["MagicWandToleranceLabel"] = "許容差：",
+                ["MagicWandContiguousOnly"] = "連続領域のみ選択",
+                ["MagicWandDesc"] = "• 連続領域：クリック部分と連続する領域のみ\n• 全体：画像全体から類似色を除去",
             };
 
             // 영어
@@ -883,7 +913,7 @@ namespace CatchCapture.Models
                 
                 // SnippingWindow
                 ["SelectAreaGuide"] = "Select an area (Press ESC to cancel)",
-                ["SelectionTooSmall"] = "Selected area is too small. Please select again.",
+                ["SelectionTooSmall"] = "The selected area is too small. Please select again.",
                 ["Color"] = "Color",
                 ["TextOptions"] = "Text Options",
                 ["Font"] = "Font",
@@ -1011,6 +1041,16 @@ namespace CatchCapture.Models
                 ["HideToTray"] = "Hide to tray",
                 ["Fold"] = "Fold",
                 ["Unfold"] = "Unfold",
+                
+                // Image editor: Background removal (Magic Wand)
+                ["BackgroundRemoval"] = "Background removal",
+                ["MagicWand"] = "Magic wand",
+                ["BackgroundRemovalTooltip"] = "Background removal (Magic wand)",
+                ["MagicWandTip"] = "Click: Background removal\nDrag: Select area",
+                ["SelectionTooSmall"] = "The selected area is too small. Please select again.",
+                ["MagicWandToleranceLabel"] = "Tolerance:",
+                ["MagicWandContiguousOnly"] = "Select contiguous area only",
+                ["MagicWandDesc"] = "• Contiguous: Only the area connected to the click\n• Global: Remove similar colors across the image",
             };
 
             // 스페인어
@@ -1103,6 +1143,16 @@ namespace CatchCapture.Models
                 ["HideToTray"] = "Ocultar en la bandeja",
                 ["Fold"] = "Plegar",
                 ["Unfold"] = "Desplegar",
+                
+                // Image editor: Background removal (Magic Wand)
+                ["BackgroundRemoval"] = "Eliminar fondo",
+                ["MagicWand"] = "Varita mágica",
+                ["BackgroundRemovalTooltip"] = "Eliminar fondo (Varita mágica)",
+                ["MagicWandTip"] = "Clic: Eliminar fondo\nArrastrar: Seleccionar área",
+                ["SelectionTooSmall"] = "El área seleccionada es demasiado pequeña. Seleccione de nuevo.",
+                ["MagicWandToleranceLabel"] = "Tolerancia:",
+                ["MagicWandContiguousOnly"] = "Seleccionar solo área contigua",
+                ["MagicWandDesc"] = "• Contigua: Solo el área conectada al clic\n• Global: Quitar colores similares en toda la imagen",
             };
 
             // 독일어
@@ -1195,6 +1245,16 @@ namespace CatchCapture.Models
                 ["HideToTray"] = "In den Tray minimieren",
                 ["Fold"] = "Einklappen",
                 ["Unfold"] = "Ausklappen",
+                
+                // Image editor: Background removal (Magic Wand)
+                ["BackgroundRemoval"] = "Hintergrund entfernen",
+                ["MagicWand"] = "Zauberstab",
+                ["BackgroundRemovalTooltip"] = "Hintergrund entfernen (Zauberstab)",
+                ["MagicWandTip"] = "Klicken: Hintergrund entfernen\nZiehen: Bereich auswählen",
+                ["SelectionTooSmall"] = "Der ausgewählte Bereich ist zu klein. Bitte erneut auswählen.",
+                ["MagicWandToleranceLabel"] = "Toleranz:",
+                ["MagicWandContiguousOnly"] = "Nur zusammenhängenden Bereich wählen",
+                ["MagicWandDesc"] = "• Zusammenhängend: Nur den mit dem Klick verbundenen Bereich\n• Global: Ähnliche Farben im gesamten Bild entfernen",
             };
 
             // 프랑스어
@@ -1287,6 +1347,16 @@ namespace CatchCapture.Models
                 ["HideToTray"] = "Masquer dans la zone de notification",
                 ["Fold"] = "Replier",
                 ["Unfold"] = "Déplier",
+                
+                // Image editor: Background removal (Magic Wand)
+                ["BackgroundRemoval"] = "Suppression d'arrière-plan",
+                ["MagicWand"] = "Baguette magique",
+                ["BackgroundRemovalTooltip"] = "Suppression d'arrière-plan (Baguette magique)",
+                ["MagicWandTip"] = "Clic : Suppression de l'arrière‑plan\nGlisser : Sélectionner une zone",
+                ["SelectionTooSmall"] = "La zone sélectionnée est trop petite. Veuillez sélectionner à nouveau.",
+                ["MagicWandToleranceLabel"] = "Tolérance :",
+                ["MagicWandContiguousOnly"] = "Sélectionner uniquement la zone contiguë",
+                ["MagicWandDesc"] = "• Contigu : uniquement la zone reliée au clic\n• Global : supprimer les couleurs similaires dans toute l’image",
             };
         }
     }

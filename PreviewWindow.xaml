@@ -339,8 +339,8 @@
                     </controls:TwoTierToolButton>   
                     <controls:TwoTierToolButton 
                         x:Name="MagicWandToolButton"
-                        Label="배경제거" 
-                        ToolTipText="배경제거 (마법봉)"
+                        Label="" 
+                        ToolTipText=""
                         MainButtonClick="MagicWandButton_Click"
                         OptionsButtonClick="MagicWandOptionsButton_Click">
                         <controls:TwoTierToolButton.IconContent>

@@ -181,7 +181,7 @@ namespace CatchCapture
                 Foreground = Brushes.White,
                 BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
-                ToolTip = "확정 (Ctrl+Enter)"
+                ToolTip = CatchCapture.Models.LocalizationManager.Get("Confirm") + " (Ctrl+Enter)"
             };
 
             // 취소 버튼 (✕)
@@ -196,7 +196,7 @@ namespace CatchCapture
                 Foreground = Brushes.White,
                 BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
-                ToolTip = "취소 (Esc)"
+                ToolTip = CatchCapture.Models.LocalizationManager.Get("Cancel") + " (Esc)"
             };
 
             // 이벤트 연결
@@ -577,7 +577,7 @@ namespace CatchCapture
                 Foreground = Brushes.White,
                 BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
-                ToolTip = "삭제"
+                ToolTip = CatchCapture.Models.LocalizationManager.Get("Delete")
             };
 
             textDeleteButton.Click += (s, e) =>
@@ -667,7 +667,7 @@ namespace CatchCapture
                 
                 var tooltip = new TextBlock
                 {
-                    Text = "클릭: 배경제거\n드래그: 영역선택",
+                    Text = CatchCapture.Models.LocalizationManager.Get("MagicWandTip"),
                     FontSize = 11,
                     Foreground = Brushes.White,
                     VerticalAlignment = VerticalAlignment.Center,

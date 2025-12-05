@@ -388,7 +388,7 @@ namespace CatchCapture
             // 최소 크기 확인
             if (width < 5 || height < 5)
             {
-                MessageBox.Show("선택된 영역이 너무 작습니다. 다시 선택해주세요.", "알림");
+                MessageBox.Show(LocalizationManager.Get("SelectionTooSmall"), LocalizationManager.Get("Info"));
                 ImageCanvas.Children.Remove(selectionRectangle);
                 selectionRectangle = null;
                 return;

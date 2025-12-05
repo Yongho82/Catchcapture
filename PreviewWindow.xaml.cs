@@ -968,6 +968,11 @@ namespace CatchCapture
                     EraserToolButton.Label = LocalizationManager.Get("Eraser");
                     EraserToolButton.ToolTipText = LocalizationManager.Get("Eraser");
                 }
+                if (MagicWandToolButton != null)
+                {
+                    MagicWandToolButton.Label = LocalizationManager.Get("BackgroundRemoval");
+                    MagicWandToolButton.ToolTipText = LocalizationManager.Get("BackgroundRemovalTooltip");
+                }
 
                 // 이미지 검색 / OCR
                 if (ImageSearchLabelText != null) ImageSearchLabelText.Text = LocalizationManager.Get("ImageSearch");

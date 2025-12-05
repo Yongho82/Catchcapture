@@ -737,7 +737,7 @@ namespace CatchCapture
             // 허용 오차 라벨
             var toleranceLabel = new TextBlock 
             { 
-                Text = "허용 오차:", 
+                Text = LocalizationManager.Get("MagicWandToleranceLabel"), 
                 VerticalAlignment = VerticalAlignment.Center, 
                 Margin = new Thickness(0, 0, 0, 4),
                 FontWeight = FontWeights.SemiBold
@@ -777,7 +777,7 @@ namespace CatchCapture
             // 연속 영역 체크박스
             CheckBox contiguousCheckBox = new CheckBox
             {
-                Content = "연속 영역만 선택",
+                Content = LocalizationManager.Get("MagicWandContiguousOnly"),
                 IsChecked = magicWandContiguous,
                 Margin = new Thickness(0, 10, 0, 0)
             };
@@ -788,7 +788,7 @@ namespace CatchCapture
             // 설명 텍스트
             TextBlock descText = new TextBlock
             {
-                Text = "• 연속 영역: 클릭한 부분과 연결된 영역만\n• 전체: 이미지 전체에서 비슷한 색상 제거",
+                Text = LocalizationManager.Get("MagicWandDesc"),
                 FontSize = 11,
                 Foreground = Brushes.Gray,
                 Margin = new Thickness(0, 8, 0, 0),
