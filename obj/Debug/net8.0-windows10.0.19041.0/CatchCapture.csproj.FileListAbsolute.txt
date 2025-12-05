@@ -94,3 +94,4 @@ C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\PrintPreviewW
 C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\PrintPreviewWindow.g.cs
 C:\yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\PrivacyPolicyWindow.baml
 C:\yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\PrivacyPolicyWindow.g.cs
+C:\yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\icons\img_eraser.png

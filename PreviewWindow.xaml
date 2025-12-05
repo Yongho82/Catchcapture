@@ -6,7 +6,7 @@
         xmlns:controls="clr-namespace:CatchCapture.Controls"
         xmlns:local="clr-namespace:CatchCapture"
         mc:Ignorable="d"
-        Title="Catch Capture 이미지 편집" Height="800" Width="1330"
+        Title="Catch Capture 이미지 편집" Height="800" Width="1370"
         WindowStartupLocation="CenterOwner"
         Background="#F8F9FC">
     
@@ -337,6 +337,16 @@
                             <Image Source="icons/eraser.png" Width="20" Height="20"/>
                         </controls:TwoTierToolButton.IconContent>
                     </controls:TwoTierToolButton>   
+                    <controls:TwoTierToolButton 
+                        x:Name="MagicWandToolButton"
+                        Label="배경제거" 
+                        ToolTipText="배경제거 (마법봉)"
+                        MainButtonClick="MagicWandButton_Click"
+                        OptionsButtonClick="MagicWandOptionsButton_Click">
+                        <controls:TwoTierToolButton.IconContent>
+                            <Image Source="icons/img_eraser.png" Width="20" Height="20"/>
+                        </controls:TwoTierToolButton.IconContent>
+                    </controls:TwoTierToolButton>
                     <Separator Style="{StaticResource ToolbarSeparatorStyle}"/>
                     <!-- 이미지 검색 버튼 (구글 렌즈) -->
                     <Button x:Name="ImageSearchButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="ImageSearchButton_Click" ToolTip="이미지 검색">
@@ -375,7 +385,29 @@
         <Border Grid.Row="1" Grid.Column="0" Background="#ECEDF2" BorderThickness="0">
             <Grid>
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                    <Canvas x:Name="ImageCanvas" Background="#ECEDF2">
+                    <Canvas x:Name="ImageCanvas">
+                        <!-- 투명 배경 표시를 위한 바둑판 패턴 -->
+                        <Canvas.Background>
+                            <DrawingBrush TileMode="Tile" Viewport="0,0,16,16" ViewportUnits="Absolute">
+                                <DrawingBrush.Drawing>
+                                    <DrawingGroup>
+                                        <GeometryDrawing Brush="#FFFFFF">
+                                            <GeometryDrawing.Geometry>
+                                                <RectangleGeometry Rect="0,0,16,16"/>
+                                            </GeometryDrawing.Geometry>
+                                        </GeometryDrawing>
+                                        <GeometryDrawing Brush="#E0E0E0">
+                                            <GeometryDrawing.Geometry>
+                                                <GeometryGroup>
+                                                    <RectangleGeometry Rect="0,0,8,8"/>
+                                                    <RectangleGeometry Rect="8,8,8,8"/>
+                                                </GeometryGroup>
+                                            </GeometryDrawing.Geometry>
+                                        </GeometryDrawing>
+                                    </DrawingGroup>
+                                </DrawingBrush.Drawing>
+                            </DrawingBrush>
+                        </Canvas.Background>
                         <Image x:Name="PreviewImage" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
                     </Canvas>
                 </ScrollViewer>

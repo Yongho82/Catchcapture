@@ -725,5 +725,84 @@ namespace CatchCapture
         }
 
         #endregion
+
+        #region 마법봉 옵션
+
+        private void ShowMagicWandOptions()
+        {
+            ToolOptionsPopupContent.Children.Clear();
+
+            StackPanel mainPanel = new StackPanel { Orientation = Orientation.Vertical };
+
+            // 허용 오차 라벨
+            var toleranceLabel = new TextBlock 
+            { 
+                Text = "허용 오차:", 
+                VerticalAlignment = VerticalAlignment.Center, 
+                Margin = new Thickness(0, 0, 0, 4),
+                FontWeight = FontWeights.SemiBold
+            };
+            mainPanel.Children.Add(toleranceLabel);
+
+            // 허용 오차 슬라이더
+            StackPanel tolerancePanel = new StackPanel { Orientation = Orientation.Horizontal };
+            
+            Slider toleranceSlider = new Slider
+            {
+                Minimum = 0,
+                Maximum = 128,
+                Value = magicWandTolerance,
+                Width = 150,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
+            TextBlock toleranceValue = new TextBlock
+            {
+                Text = $"{magicWandTolerance}",
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(6, 0, 0, 0),
+                Width = 30
+            };
+
+            toleranceSlider.ValueChanged += (s, e) => 
+            {
+                SetMagicWandTolerance((int)e.NewValue);
+                toleranceValue.Text = $"{(int)e.NewValue}";
+            };
+
+            tolerancePanel.Children.Add(toleranceSlider);
+            tolerancePanel.Children.Add(toleranceValue);
+            mainPanel.Children.Add(tolerancePanel);
+
+            // 연속 영역 체크박스
+            CheckBox contiguousCheckBox = new CheckBox
+            {
+                Content = "연속 영역만 선택",
+                IsChecked = magicWandContiguous,
+                Margin = new Thickness(0, 10, 0, 0)
+            };
+            contiguousCheckBox.Checked += (s, e) => SetMagicWandContiguous(true);
+            contiguousCheckBox.Unchecked += (s, e) => SetMagicWandContiguous(false);
+            mainPanel.Children.Add(contiguousCheckBox);
+
+            // 설명 텍스트
+            TextBlock descText = new TextBlock
+            {
+                Text = "• 연속 영역: 클릭한 부분과 연결된 영역만\n• 전체: 이미지 전체에서 비슷한 색상 제거",
+                FontSize = 11,
+                Foreground = Brushes.Gray,
+                Margin = new Thickness(0, 8, 0, 0),
+                TextWrapping = TextWrapping.Wrap
+            };
+            mainPanel.Children.Add(descText);
+
+            ToolOptionsPopupContent.Children.Add(mainPanel);
+
+            ToolOptionsPopup.PlacementTarget = this.FindName("MagicWandToolButton") as FrameworkElement ?? this;
+            ToolOptionsPopup.Placement = PlacementMode.Bottom;
+            ToolOptionsPopup.IsOpen = true;
+        }
+
+        #endregion
     }
 }

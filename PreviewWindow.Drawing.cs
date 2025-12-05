@@ -63,6 +63,9 @@ namespace CatchCapture
                 case EditMode.Eraser:
                     StartEraser();
                     break;
+                case EditMode.MagicWand:
+                    StartMagicWandSelection();
+                    break;
             }
         }
 
@@ -83,6 +86,16 @@ namespace CatchCapture
             else
             {
                 HideEraserCursor();
+            }
+
+            // 마법봉 모드일 때 커서 표시 (클릭 여부 상관없이)
+            if (currentEditMode == EditMode.MagicWand)
+            {
+                UpdateMagicWandCursor(currentPoint);
+            }
+            else
+            {
+                HideMagicWandCursor();
             }
 
             // 왼쪽 버튼이 눌려 있지 않으면 드래그 로직은 실행하지 않음
@@ -133,6 +146,9 @@ namespace CatchCapture
                     break;
                 case EditMode.Eraser:
                     UpdateEraser(currentPoint);
+                    break;
+                case EditMode.MagicWand:
+                    UpdateMagicWandSelection(currentPoint);
                     break;
             }
         }
@@ -218,6 +234,9 @@ namespace CatchCapture
                     break;
                 case EditMode.Eraser:
                     FinishEraser();
+                    break;
+                case EditMode.MagicWand:
+                    FinishMagicWandSelection(endPoint);
                     break;
             }
         }

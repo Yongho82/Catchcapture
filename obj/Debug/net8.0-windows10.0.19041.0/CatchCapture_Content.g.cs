@@ -28,6 +28,7 @@
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/google_img.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/highlight.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/icon_main.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/img_eraser.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/img_find.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/mosaic.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/multi_capture.png")]
