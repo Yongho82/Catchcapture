@@ -25,6 +25,8 @@ namespace CatchCapture
         private int imageIndex;
         private Stack<BitmapSource> undoStack = new Stack<BitmapSource>();
         private Stack<BitmapSource> redoStack = new Stack<BitmapSource>();
+        private Stack<List<CatchCapture.Models.DrawingLayer>> undoLayersStack = new Stack<List<CatchCapture.Models.DrawingLayer>>();
+        private Stack<List<CatchCapture.Models.DrawingLayer>> redoLayersStack = new Stack<List<CatchCapture.Models.DrawingLayer>>();
         private Point startPoint;
         private Rectangle? selectionRectangle;
         private List<Point> drawingPoints = new List<Point>();
@@ -545,8 +547,23 @@ namespace CatchCapture
         {
             if (undoStack.Count > 0)
             {
+                // 현재 상태를 Redo 스택에 저장
                 redoStack.Push(currentImage);
+                var currentLayersCopy = drawingLayers.Select(layer => new CatchCapture.Models.DrawingLayer
+                {
+                    LayerId = layer.LayerId,
+                    Type = layer.Type,
+                    Points = layer.Points?.ToArray(),
+                    Color = layer.Color,
+                    Thickness = layer.Thickness,
+                    IsErased = layer.IsErased
+                }).ToList();
+                redoLayersStack.Push(currentLayersCopy);
+                
+                // Undo 스택에서 복원
                 currentImage = undoStack.Pop();
+                drawingLayers = undoLayersStack.Pop();
+                
                 UpdatePreviewImage();
                 UpdateUndoRedoButtons();
             }
@@ -556,8 +573,23 @@ namespace CatchCapture
         {
             if (redoStack.Count > 0)
             {
+                // 현재 상태를 Undo 스택에 저장
                 undoStack.Push(currentImage);
+                var currentLayersCopy = drawingLayers.Select(layer => new CatchCapture.Models.DrawingLayer
+                {
+                    LayerId = layer.LayerId,
+                    Type = layer.Type,
+                    Points = layer.Points?.ToArray(),
+                    Color = layer.Color,
+                    Thickness = layer.Thickness,
+                    IsErased = layer.IsErased
+                }).ToList();
+                undoLayersStack.Push(currentLayersCopy);
+                
+                // Redo 스택에서 복원
                 currentImage = redoStack.Pop();
+                drawingLayers = redoLayersStack.Pop();
+                
                 UpdatePreviewImage();
                 UpdateUndoRedoButtons();
             }
@@ -790,6 +822,20 @@ namespace CatchCapture
         {
             undoStack.Push(currentImage);
             redoStack.Clear();
+            
+            // 레이어 상태도 저장 (깊은 복사)
+            var layersCopy = drawingLayers.Select(layer => new CatchCapture.Models.DrawingLayer
+            {
+                LayerId = layer.LayerId,
+                Type = layer.Type,
+                Points = layer.Points?.ToArray(),
+                Color = layer.Color,
+                Thickness = layer.Thickness,
+                IsErased = layer.IsErased
+            }).ToList();
+            undoLayersStack.Push(layersCopy);
+            redoLayersStack.Clear();
+            
             UpdateUndoRedoButtons();
         }
 

@@ -231,6 +231,9 @@ namespace CatchCapture
             drawingPoints.Clear();
             drawingPoints.Add(startPoint);
 
+            // 마우스 캡처 - 캔버스 밖으로 나가도 이벤트 받음
+            ImageCanvas.CaptureMouse();
+
             // 라이브 스트로크 경로 생성
             liveStrokePath = new Path();
             PathGeometry pathGeometry = new PathGeometry();
@@ -269,6 +272,9 @@ namespace CatchCapture
 
         private void FinishDrawing()
         {
+            // 마우스 캡처 해제
+            ImageCanvas.ReleaseMouseCapture();
+
             if (drawingPoints.Count < 2)
             {
                 if (liveStrokePath != null)
@@ -277,7 +283,6 @@ namespace CatchCapture
                 }
                 return;
             }
-
             SaveForUndo();
 
             // 레이어에 추가
