@@ -631,15 +631,14 @@ namespace CatchCapture
                 stackPanel.Children.Add(iconImage);
             }
             
-            // 텍스트 레이블 추가
             var textBlock = new TextBlock
             {
                 Text = labelText,
-                FontSize = 9,
+                FontSize = GetOptimalFontSize(labelText),  // ✅ 동적 폰트 크기
                 HorizontalAlignment = HorizontalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
                 Margin = new Thickness(0, 1, 0, 0),
-                Foreground = new SolidColorBrush(Color.FromRgb(102, 102, 102)) // #666666
+                Foreground = new SolidColorBrush(Color.FromRgb(102, 102, 102))
             };
             stackPanel.Children.Add(textBlock);
             
@@ -906,7 +905,7 @@ namespace CatchCapture
                 var text = new TextBlock
                 {
                     Text = TruncateForLabel(app.DisplayName),
-                    FontSize = 9,
+                    FontSize = GetOptimalFontSize(TruncateForLabel(app.DisplayName)),  // ✅ 동적 폰트 크기
                     HorizontalAlignment = HorizontalAlignment.Center,
                     TextAlignment = TextAlignment.Center,
                     Margin = new Thickness(0, 1, 0, 0),
@@ -1181,7 +1180,7 @@ namespace CatchCapture
             var text = new TextBlock
             {
                 Text = TruncateForLabel(app.DisplayName),
-                FontSize = 9,
+                FontSize = GetOptimalFontSize(TruncateForLabel(app.DisplayName)),  // ✅ 동적 폰트 크기
                 HorizontalAlignment = HorizontalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
                 Margin = new Thickness(0, 1, 0, 0),
@@ -1676,6 +1675,34 @@ namespace CatchCapture
             
             menu.PlacementTarget = sender as Button;
             menu.IsOpen = true;
+        }
+        
+        // 텍스트 길이에 따라 최적 폰트 크기 계산
+        private double GetOptimalFontSize(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return 9.0;
+            
+            int length = text.Length;
+            
+            // 한글/한자는 2배로 계산 (더 넓은 공간 차지)
+            int adjustedLength = 0;
+            foreach (char c in text)
+            {
+                if (c > 127) // 비ASCII 문자 (한글, 한자 등)
+                    adjustedLength += 2;
+                else
+                    adjustedLength += 1;
+            }
+            
+            // 조정된 길이에 따라 폰트 크기 결정
+            if (adjustedLength <= 8)
+                return 9.0;   // 짧은 텍스트
+            else if (adjustedLength <= 12)
+                return 8.0;   // 중간 텍스트
+            else if (adjustedLength <= 16)
+                return 7.5;   // 긴 텍스트
+            else
+                return 7.0;   // 매우 긴 텍스트
         }
     }
 }
