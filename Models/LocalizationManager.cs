@@ -99,6 +99,7 @@ namespace CatchCapture.Models
                 ["SaveAll"] = "전체저장",
                 ["Delete"] = "삭제",
                 ["DeleteAll"] = "전체삭제",
+                ["Capture"] = "캡처",
                 
                 // 트레이 메뉴
                 ["TrayNormalMode"] = "일반 모드",
@@ -340,6 +341,7 @@ namespace CatchCapture.Models
                 ["SaveAll"] = "全部保存",
                 ["Delete"] = "删除",
                 ["DeleteAll"] = "全部删除",
+                ["Capture"] = "截图",
                 
                 // 트레이 메뉴
                 ["TrayNormalMode"] = "普通模式",
@@ -476,10 +478,10 @@ namespace CatchCapture.Models
                 
                 // Print preview
                 ["PrintPreviewTitle"] = "打印预览",
-                ["OrientationLabel"] = "方向:",
+                ["OrientationLabel"] = "方向：",
                 ["Portrait"] = "纵向",
                 ["Landscape"] = "横向",
-                ["PrintOptionsLabel"] = "打印选项:",
+                ["PrintOptionsLabel"] = "打印选项：",
                 ["FitToPage"] = "适合页面",
                 ["ActualSize"] = "实际大小",
                 ["FillPage"] = "填充页面",
@@ -581,6 +583,7 @@ namespace CatchCapture.Models
                 ["SaveAll"] = "すべて保存",
                 ["Delete"] = "削除",
                 ["DeleteAll"] = "すべて削除",
+                ["Capture"] = "キャプチャ",
                 
                 // トレイメニュー
                 ["TrayNormalMode"] = "通常モード",
@@ -822,6 +825,7 @@ namespace CatchCapture.Models
                 ["SaveAll"] = "Save All",
                 ["Delete"] = "Delete",
                 ["DeleteAll"] = "Delete All",
+                ["Capture"] = "Capture",
                 
                 // Tray menu
                 ["TrayNormalMode"] = "Normal Mode",

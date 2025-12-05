@@ -185,7 +185,7 @@ namespace CatchCapture.Utilities
             // 캡처 버튼
             _btnCapture = new Button
             {
-                Content = new TextBlock { Text = "캡처", Foreground = Brushes.White, FontSize = 12, FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center },
+                Content = new TextBlock { Text = LocalizationManager.Get("Capture"), Foreground = Brushes.White, FontSize = 12, FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center },
                 Padding = new Thickness(8, 0, 8, 0),
                 Height = 24,
                 VerticalAlignment = VerticalAlignment.Center,
@@ -204,7 +204,7 @@ namespace CatchCapture.Utilities
                 Background = Brushes.Transparent,
                 BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
-                ToolTip = "닫기"
+                ToolTip = LocalizationManager.Get("Close")
             };
             _btnClose.Click += (s, e) => Close();
 
