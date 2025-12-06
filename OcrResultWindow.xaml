@@ -23,6 +23,16 @@
                  BorderBrush="#D0D7E5"/>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
+            <Button x:Name="GoogleTranslateButton" Width="100" Height="35" 
+                    Background="#34A853" Foreground="White" BorderThickness="0"
+                    Cursor="Hand" Click="GoogleTranslateButton_Click" Margin="0,0,10,0">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="4"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+            
             <Button x:Name="CopyButton" Width="80" Height="35" 
                     Background="#4B6EF5" Foreground="White" BorderThickness="0"
                     Cursor="Hand" Click="CopyButton_Click" Margin="0,0,10,0">
