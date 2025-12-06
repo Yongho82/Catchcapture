@@ -513,8 +513,8 @@ namespace CatchCapture
                     // 편집창 닫기
                     this.Close();
                     
-                    // UI가 정리될 시간을 주기 위해 짧은 대기
-                    await System.Threading.Tasks.Task.Delay(100);
+                    // UI가 완전히 사라질 시간을 충분히 줌 (100ms → 300ms)
+                    await System.Threading.Tasks.Task.Delay(150);
                     
                     // 영역 캡처 시작
                     mainWindow.StartAreaCapture();
