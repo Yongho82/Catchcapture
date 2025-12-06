@@ -77,6 +77,31 @@ public partial class MainWindow : Window
     [DllImport("dwmapi.dll")]
     private static extern int DwmFlush();
 
+    // ★ Low-Level Keyboard Hook (Print Screen 키 전역 후킹용)
+    private const int WH_KEYBOARD_LL = 13;
+    private const int WM_KEYDOWN = 0x0100;
+    private const int WM_KEYUP = 0x0101;
+    private const int WM_SYSKEYDOWN = 0x0104;
+    private const int WM_SYSKEYUP = 0x0105;
+    private const int VK_SNAPSHOT = 0x2C; // Print Screen 키
+    
+    private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
+    private LowLevelKeyboardProc? _keyboardProc;
+    private IntPtr _keyboardHookId = IntPtr.Zero;
+    
+    [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProc lpfn, IntPtr hMod, uint dwThreadId);
+    
+    [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool UnhookWindowsHookEx(IntPtr hhk);
+    
+    [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
+    
+    [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    private static extern IntPtr GetModuleHandle(string lpModuleName);
+
     private void FlushUIAfterHide()
     {
         try
@@ -106,7 +131,10 @@ public partial class MainWindow : Window
         
         // 글로벌 단축키 등록
         RegisterGlobalHotkeys();
-        
+
+        // ★ Print Screen 키 전역 후킹 설치
+        InstallKeyboardHook();
+
         // 로컬 단축키 등록
         AddKeyboardShortcuts();
         
@@ -3111,6 +3139,7 @@ public partial class MainWindow : Window
 
     protected override void OnClosed(EventArgs e)
     {
+        UninstallKeyboardHook(); // ★ Hook 해제
         Settings.SettingsChanged -= OnSettingsChanged;
         try { LocalizationManager.LanguageChanged -= MainWindow_LanguageChanged; } catch { }
         base.OnClosed(e);
@@ -3136,5 +3165,66 @@ public partial class MainWindow : Window
                 trayExitItem.Text = CatchCapture.Models.LocalizationManager.Get("Exit");
         }
         catch { }
+    }
+    // ★ Low-Level Keyboard Hook 설치
+    private void InstallKeyboardHook()
+    {
+        _keyboardProc = KeyboardHookCallback;
+        using (var curProcess = System.Diagnostics.Process.GetCurrentProcess())
+        using (var curModule = curProcess.MainModule!)
+        {
+            _keyboardHookId = SetWindowsHookEx(WH_KEYBOARD_LL, _keyboardProc, GetModuleHandle(curModule.ModuleName!), 0);
+        }
+    }
+    
+    // ★ Low-Level Keyboard Hook 해제
+    private void UninstallKeyboardHook()
+    {
+        if (_keyboardHookId != IntPtr.Zero)
+        {
+            UnhookWindowsHookEx(_keyboardHookId);
+            _keyboardHookId = IntPtr.Zero;
+        }
+    }
+    
+    // ★ 키보드 Hook 콜백
+    private IntPtr KeyboardHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+    {
+        if (nCode >= 0 && (wParam == (IntPtr)WM_KEYDOWN || wParam == (IntPtr)WM_SYSKEYDOWN))
+        {
+            int vkCode = Marshal.ReadInt32(lParam);
+            
+            // Print Screen 키 감지
+            if (vkCode == VK_SNAPSHOT && settings.UsePrintScreenKey)
+            {
+                // UI 스레드에서 캡처 실행
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    switch (settings.PrintScreenAction)
+                    {
+                        case "영역 캡처":
+                            StartAreaCapture();
+                            break;
+                        case "전체화면":
+                            CaptureFullScreen();
+                            break;
+                        case "지정 캡처":
+                            DesignatedCaptureButton_Click(this, new RoutedEventArgs());
+                            break;
+                        case "창 캡처":
+                            WindowCaptureButton_Click(this, new RoutedEventArgs());
+                            break;
+                        case "단위 캡처":
+                            ElementCaptureButton_Click(this, new RoutedEventArgs());
+                            break;
+                    }
+                }));
+                
+                // ★ 이벤트를 삼켜서 윈도우 기본 캡처 방지
+                return (IntPtr)1;
+            }
+        }
+        
+        return CallNextHookEx(_keyboardHookId, nCode, wParam, lParam);
     }
 }
