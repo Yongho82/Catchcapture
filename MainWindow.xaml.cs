@@ -54,6 +54,12 @@ public partial class MainWindow : Window
     private System.Windows.Forms.ToolStripMenuItem? traySimpleItem;
     private System.Windows.Forms.ToolStripMenuItem? trayTrayItem;
     private System.Windows.Forms.ToolStripMenuItem? trayExitItem;
+
+        // 프리로딩을 위한 변수
+    private BitmapSource? preloadedScreenshot;
+    private DateTime preloadedTime;
+    private bool isPreloading = false;
+
     // 글로벌 단축키 관련
     private const int WM_HOTKEY = 0x0312;
     private const int HOTKEY_ID_AREA = 9000;
@@ -859,6 +865,32 @@ public partial class MainWindow : Window
 
     #region 캡처 기능
 
+    private async void AreaCaptureButton_MouseEnter(object sender, MouseEventArgs e)
+    {
+        // 이미 로딩 중이거나, 최근 1초 이내에 프리로딩한 게 있으면 스킵
+        if (isPreloading || (DateTime.Now - preloadedTime).TotalSeconds < 1.0) return;
+
+        isPreloading = true;
+        try
+        {
+            // 백그라운드에서 조용히 캡처
+            var shot = await Task.Run(() => ScreenCaptureUtility.CaptureScreen());
+            
+            // UI 스레드에서 결과 저장 (Freeze 필수)
+            shot.Freeze();
+            preloadedScreenshot = shot;
+            preloadedTime = DateTime.Now;
+        }
+        catch
+        {
+            // 프리로딩 실패는 무시
+        }
+        finally
+        {
+            isPreloading = false;
+        }
+    }
+
     private void AreaCaptureButton_Click(object sender, RoutedEventArgs e)
     {
         StartAreaCapture();
@@ -936,18 +968,30 @@ public partial class MainWindow : Window
         var currentSettings = Settings.Load();
         bool instantEdit = currentSettings.SimpleModeInstantEdit;
         
-        // 1단계: 투명하게
-        this.Opacity = 0;
-        await Task.Delay(30);
-        
-        // 2단계: 숨기기
+        // 1단계: 즉시 숨기기 (Opacity 조정보다 Hide가 더 빠르고 확실함)
         this.Hide();
         
-        // 3단계: UI 업데이트 강제 대기
+        // 2단계: UI 업데이트 강제 대기 (Render 우선순위 사용)
+        // Task.Delay 대신 Dispatcher.Yield나 Render 우선순위 InvokeAsync만 사용
         await Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.Render);
-        await Task.Delay(30);
         
-        var screenshot = await Task.Run(() => ScreenCaptureUtility.CaptureScreen());
+        // UI가 완전히 사라졌는지 확인 (FlushUIAfterHide 사용)
+        FlushUIAfterHide();
+        
+        // 3단계: 스크린샷 캡처 (프리로딩 확인)
+        BitmapSource screenshot;
+        
+        // 프리로딩된 이미지가 있고, 2초 이내의 것이라면 사용
+        if (preloadedScreenshot != null && (DateTime.Now - preloadedTime).TotalSeconds < 2.0)
+        {
+            screenshot = preloadedScreenshot;
+            preloadedScreenshot = null; // 사용 후 초기화
+        }
+        else
+        {
+            // 없으면 새로 캡처
+            screenshot = await Task.Run(() => ScreenCaptureUtility.CaptureScreen());
+        }
 
         // 캡처된 스크린샷을 전달하여 SnippingWindow가 즉시 표시되도록
         using var snippingWindow = new SnippingWindow(false, screenshot);
@@ -1000,11 +1044,12 @@ public partial class MainWindow : Window
             }
         }
     }
-    // 동기 래퍼 메서드 (기존 호출 호환성 유지)
+
     public void StartAreaCapture()
     {
         _ = StartAreaCaptureAsync();  // Fire and forget
     }
+
     private void FullScreenCaptureButton_Click(object sender, RoutedEventArgs e)
     {
         CaptureFullScreen();
@@ -1018,8 +1063,8 @@ public partial class MainWindow : Window
 
         var capturedImage = ScreenCaptureUtility.CaptureScreen();
         AddCaptureToList(capturedImage);
-
     }
+
 
     private void ScrollCaptureButton_Click(object sender, RoutedEventArgs e)
     {
