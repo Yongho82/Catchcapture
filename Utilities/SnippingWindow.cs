@@ -304,14 +304,30 @@ namespace CatchCapture.Utilities
 
         private void CreateMagnifier()
         {
-            // 돋보기 이미지
+            // [수정] 테두리 두께와 둥근 모서리 설정
+            double borderThick = 2.0;
+            double cornerRad = 20.0;
+            // 이미지가 들어갈 실제 내부 크기 (전체 크기 - 양쪽 테두리 두께)
+            double innerSize = MagnifierSize - (borderThick * 2);
+
+            // 돋보기 이미지 (테두리 안쪽 크기에 맞춤)
             magnifierImage = new Image
             {
-                Width = MagnifierSize,
-                Height = MagnifierSize,
-                Stretch = Stretch.None
+                Width = innerSize,
+                Height = innerSize,
+                Stretch = Stretch.None,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
             };
             RenderOptions.SetBitmapScalingMode(magnifierImage, BitmapScalingMode.NearestNeighbor);
+
+            // 이미지가 테두리 안쪽에 딱 맞게 클리핑 (반지름 보정: 20 - 2 = 18)
+            magnifierImage.Clip = new RectangleGeometry
+            {
+                Rect = new Rect(0, 0, innerSize, innerSize),
+                RadiusX = Math.Max(0, cornerRad - borderThick),
+                RadiusY = Math.Max(0, cornerRad - borderThick)
+            };
 
             // 돋보기 테두리
             magnifierBorder = new Border
@@ -319,10 +335,10 @@ namespace CatchCapture.Utilities
                 Width = MagnifierSize,
                 Height = MagnifierSize,
                 BorderBrush = Brushes.White,
-                BorderThickness = new Thickness(2),
+                BorderThickness = new Thickness(borderThick),
                 Background = Brushes.Black,
                 Child = magnifierImage,
-                CornerRadius = new CornerRadius(MagnifierSize / 2), // 원형
+                CornerRadius = new CornerRadius(cornerRad),
                 Visibility = Visibility.Collapsed
             };
             
@@ -337,7 +353,7 @@ namespace CatchCapture.Utilities
 
             canvas.Children.Add(magnifierBorder);
             Panel.SetZIndex(magnifierBorder, 1000); // 최상위 표시
-            // --- 여기부터 추가된 코드 ---
+            
             // 십자선 초기화
             crosshairHorizontal = new Line
             {
@@ -359,7 +375,6 @@ namespace CatchCapture.Utilities
             canvas.Children.Add(crosshairVertical);
             Panel.SetZIndex(crosshairHorizontal, 1001);
             Panel.SetZIndex(crosshairVertical, 1001);
-            // --- 여기까지 ---
         }
         
         private void SnippingWindow_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -560,22 +575,21 @@ namespace CatchCapture.Utilities
                         // 확대된 이미지 그리기
                         drawingContext.DrawImage(transformedBitmap, new Rect(0, 0, transformedBitmap.PixelWidth, transformedBitmap.PixelHeight));
                         
-                        // 십자선 그리기 (중앙에 작은 십자가)
+                        // 십자선 그리기 (중앙에 굵은 십자가)
                         double centerXPos = transformedBitmap.PixelWidth / 2.0;
                         double centerYPos = transformedBitmap.PixelHeight / 2.0;
 
-                        var redPen = new Pen(Brushes.Red, 2);
-                        redPen.DashStyle = new DashStyle(new double[] { 2, 2 }, 0); // 2픽셀 선, 2픽셀 공백
+                        var redPen = new Pen(Brushes.Red, 4); // 두께 4로 증가
                         redPen.Freeze();
 
-                        // 십자선 길이 (작게)
+                        // 십자선 길이 (30)
                         double crosshairLength = 30;
 
-                        // 가로선 (중앙에서 좌우로 작게)
+                        // 가로선
                         drawingContext.DrawLine(redPen, 
                             new Point(centerXPos - crosshairLength, centerYPos), 
                             new Point(centerXPos + crosshairLength, centerYPos));
-                        // 세로선 (중앙에서 위아래로 작게)
+                        // 세로선
                         drawingContext.DrawLine(redPen, 
                             new Point(centerXPos, centerYPos - crosshairLength), 
                             new Point(centerXPos, centerYPos + crosshairLength));
@@ -593,18 +607,18 @@ namespace CatchCapture.Utilities
                     magnifierImage.Source = renderBitmap;
                 }
 
-                // 돋보기 위치 설정 (마우스 오른쪽 위)
-                double offsetX = 20;
-                double offsetY = -MagnifierSize - 20;
+                // 돋보기 위치 설정 (마우스 우측 하단)
+                double offsetX = 30; // 마우스에서 30px 떨어짐
+                double offsetY = 30;
                 
                 double magnifierX = mousePos.X + offsetX;
                 double magnifierY = mousePos.Y + offsetY;
                 
-                // 화면 경계 체크
+                // 화면 경계 체크 (화면 밖으로 나가면 반대쪽으로 이동)
                 if (magnifierX + MagnifierSize > vWidth)
                     magnifierX = mousePos.X - MagnifierSize - offsetX;
-                if (magnifierY < 0)
-                    magnifierY = mousePos.Y + offsetX;
+                if (magnifierY + MagnifierSize > vHeight)
+                    magnifierY = mousePos.Y - MagnifierSize - offsetY;
 
                 Canvas.SetLeft(magnifierBorder, magnifierX);
                 Canvas.SetTop(magnifierBorder, magnifierY);
