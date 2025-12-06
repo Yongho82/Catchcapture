@@ -133,14 +133,18 @@ namespace CatchCapture.Utilities
             canvas.Background = Brushes.Transparent;
             Content = canvas;
 
-            // 캐시된 스크린샷이 있으면 즉시 사용, 없으면 새로 캡처
+            // [수정] 오버레이 먼저 표시: 스크린샷 이미지 컨테이너만 미리 생성
+            screenImage = new Image();
+            Panel.SetZIndex(screenImage, -1);
+            canvas.Children.Add(screenImage);
+
+            // 캐시된 스크린샷이 있으면 즉시 사용
             if (cachedScreenshot != null)
             {
                 screenCapture = cachedScreenshot;
-                screenImage = new Image { Source = screenCapture };
-                Panel.SetZIndex(screenImage, -1);
-                canvas.Children.Add(screenImage);
+                screenImage.Source = screenCapture;
             }
+            // 없으면 Loaded 이벤트에서 비동기 캡처 (아래 Loaded 핸들러에서 처리)
             else
             {
                 // 기존 방식: 동기 캡처
@@ -236,7 +240,27 @@ namespace CatchCapture.Utilities
             // Keep drag active even if window momentarily deactivates or capture is lost
             Deactivated += SnippingWindow_Deactivated;
             LostMouseCapture += SnippingWindow_LostMouseCapture;
-            Loaded += (s, e) => { try { Activate(); Focus(); } catch { } };
+            Loaded += async (s, e) => 
+            { 
+                try 
+                { 
+                    Activate(); 
+                    Focus(); 
+                    
+                    // [수정] 캐시된 스크린샷이 없으면 비동기로 캡처
+                    if (screenCapture == null)
+                    {
+                        // 백그라운드에서 캡처 (UI 스레드 블로킹 방지)
+                        var captured = await Task.Run(() => ScreenCaptureUtility.CaptureScreen());
+                        if (captured != null)
+                        {
+                            screenCapture = captured;
+                            screenImage.Source = screenCapture;
+                        }
+                    }
+                } 
+                catch { } 
+            };
 
             // 비동기 캡처 제거: 어둡게 되는 시점과 즉시 상호작용 가능 상태를 일치시킴
 
@@ -260,7 +284,16 @@ namespace CatchCapture.Utilities
 
         private void SnippingWindow_KeyDown(object sender, KeyEventArgs e)
         {
-            // 즉시편집 모드일 때만 단축키 활성화
+            // [수정] ESC 키는 항상 동작 (영역 선택 전에도 취소 가능)
+            if (e.Key == Key.Escape)
+            {
+                DialogResult = false;
+                Close();
+                e.Handled = true;
+                return;
+            }
+            
+            // 즉시편집 모드일 때만 나머지 단축키 활성화
             if (!instantEditMode) return;
             
             // Ctrl + Z: 실행 취소
@@ -291,13 +324,6 @@ namespace CatchCapture.Utilities
             else if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.None)
             {
                 ConfirmAndClose();
-                e.Handled = true;
-            }
-            // Esc: 취소
-            else if (e.Key == Key.Escape)
-            {
-                DialogResult = false;
-                Close();
                 e.Handled = true;
             }
         }
