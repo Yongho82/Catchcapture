@@ -115,7 +115,9 @@ namespace CatchCapture.Utilities
                         sb.AppendLine(string.Join(" ", sortedLine));
                     }
                     
-                    return sb.ToString().Trim();
+                    string extractedText = sb.ToString().Trim();
+                    
+                    return extractedText;
                 }
             }
             catch (Exception ex)

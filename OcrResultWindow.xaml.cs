@@ -15,50 +15,11 @@ namespace CatchCapture
         {
             InitializeComponent();
             
-            // 마침표 뒤에 줄바꿈 추가 (가독성 향상)
-            ResultTextBox.Text = FormatTextWithLineBreaks(text);
+            ResultTextBox.Text = text;
             
             // Localize UI
             UpdateUIText();
             LocalizationManager.LanguageChanged += LocalizationManager_LanguageChanged;
-        }
-        
-        // 마침표 뒤에 줄바꿈 추가 (단, 숫자 사이의 마침표는 제외)
-        private string FormatTextWithLineBreaks(string text)
-        {
-            if (string.IsNullOrEmpty(text)) return text;
-            
-            var result = new System.Text.StringBuilder();
-            for (int i = 0; i < text.Length; i++)
-            {
-                result.Append(text[i]);
-                
-                // 마침표를 발견했을 때
-                if (text[i] == '.')
-                {
-                    // 다음 문자가 있고, 공백이 아니며, 이미 줄바꿈이 아닌 경우
-                    if (i + 1 < text.Length)
-                    {
-                        char nextChar = text[i + 1];
-                        
-                        // 소수점인지 확인 (앞뒤가 숫자인 경우)
-                        bool isDecimalPoint = false;
-                        if (i > 0 && i + 1 < text.Length)
-                        {
-                            char prevChar = text[i - 1];
-                            isDecimalPoint = char.IsDigit(prevChar) && char.IsDigit(nextChar);
-                        }
-                        
-                        // 소수점이 아니고, 다음이 줄바꿈이 아니면 줄바꿈 추가
-                        if (!isDecimalPoint && nextChar != '\r' && nextChar != '\n')
-                        {
-                            result.Append("\r\n");
-                        }
-                    }
-                }
-            }
-            
-            return result.ToString();
         }
 
         private void LocalizationManager_LanguageChanged(object? sender, System.EventArgs e)
