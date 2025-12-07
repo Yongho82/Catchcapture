@@ -384,7 +384,8 @@ namespace CatchCapture
             ScreenCaptureUtility.CopyImageToClipboard(currentImage);
             ShowToastMessage(LocalizationManager.Get("CopyToClipboard"));
         }
-                private async void OcrButton_Click(object sender, RoutedEventArgs e)
+
+        private async void OcrButton_Click(object sender, RoutedEventArgs e)
         {
             if (currentImage == null) return;
 
@@ -393,27 +394,27 @@ namespace CatchCapture
                 // 로딩 표시 (커서 변경)
                 this.Cursor = Cursors.Wait;
 
-                // OCR 실행
-                string extractedText = await CatchCapture.Utilities.OcrUtility.ExtractTextFromImageAsync(currentImage);
+                // OCR 실행 (튜플 반환)
+                var result = await CatchCapture.Utilities.OcrUtility.ExtractTextFromImageAsync(currentImage);
 
                 // 커서 복원
                 this.Cursor = Cursors.Arrow;
 
-                if (string.IsNullOrWhiteSpace(extractedText))
+                if (string.IsNullOrWhiteSpace(result.Text))
                 {
                     MessageBox.Show(LocalizationManager.Get("NoExtractedText"), LocalizationManager.Get("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
 
-                // 결과창 표시
-                var resultWindow = new OcrResultWindow(extractedText);
+                // 결과창 표시 (경고 여부 전달)
+                var resultWindow = new OcrResultWindow(result.Text, result.ShowWarning);
                 resultWindow.Owner = this;
                 resultWindow.ShowDialog();
             }
             catch (Exception ex)
             {
                 this.Cursor = Cursors.Arrow;
-                MessageBox.Show($"{LocalizationManager.Get("Error")}: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"OCR 처리 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         // 토스트 메시지 표시 메서드

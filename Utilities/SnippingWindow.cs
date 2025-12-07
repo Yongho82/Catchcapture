@@ -1943,23 +1943,23 @@ namespace CatchCapture.Utilities
                     return;
                 }
                 
-                // 로딩 표시 (기존 방식)
+                // 로딩 표시
                 this.Cursor = Cursors.Wait;
                 
                 // OCR 실행
-                string extractedText = await CatchCapture.Utilities.OcrUtility.ExtractTextFromImageAsync(imageToOcr);
+                var ocrResult = await CatchCapture.Utilities.OcrUtility.ExtractTextFromImageAsync(imageToOcr);
                 
                 // 커서 복원
                 this.Cursor = Cursors.Arrow;
                 
-                if (string.IsNullOrWhiteSpace(extractedText))
+                if (string.IsNullOrWhiteSpace(ocrResult.Text))
                 {
                     MessageBox.Show(LocalizationManager.Get("NoExtractedText"), LocalizationManager.Get("Info"));
                     return;
                 }
                 
                 // OCR 결과창 표시
-                var resultWindow = new OcrResultWindow(extractedText);
+                var resultWindow = new OcrResultWindow(ocrResult.Text, ocrResult.ShowWarning);
                 resultWindow.Owner = this;
                 resultWindow.ShowDialog();
             }

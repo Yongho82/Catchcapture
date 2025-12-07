@@ -12,6 +12,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <TextBlock x:Name="HeaderText" Text="추출된 텍스트" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
@@ -22,7 +23,12 @@
                  Padding="10" FontSize="13"
                  BorderBrush="#D0D7E5"/>
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
+        <TextBlock x:Name="WarningText" Grid.Row="2"
+                   Text="※ 일본어/중국어 인식이 정확하지 않다면 Windows 설정 > 시간 및 언어 > 언어에서 해당 언어 팩을 설치해 보세요." 
+                   Foreground="#D32F2F" FontSize="12" Margin="0,10,0,0" 
+                   TextWrapping="Wrap" Visibility="Collapsed"/>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
             <Button x:Name="GoogleTranslateButton" Width="100" Height="35" 
                     Background="#34A853" Foreground="White" BorderThickness="0"
                     Cursor="Hand" Click="GoogleTranslateButton_Click" Margin="0,0,10,0">

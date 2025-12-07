@@ -11,11 +11,16 @@ namespace CatchCapture
 {
     public partial class OcrResultWindow : Window
     {
-        public OcrResultWindow(string text)
+        public OcrResultWindow(string text, bool showWarning = false)
         {
             InitializeComponent();
             
             ResultTextBox.Text = text;
+            
+            if (showWarning)
+            {
+                WarningText.Visibility = Visibility.Visible;
+            }
             
             // Localize UI
             UpdateUIText();

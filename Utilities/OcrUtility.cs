@@ -9,40 +9,25 @@ using System.Windows.Media.Imaging;
 using Windows.Globalization;
 using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace CatchCapture.Utilities
 {
     public static class OcrUtility
     {
-        public static async Task<string> ExtractTextFromImageAsync(BitmapSource bitmapSource)
+        public static async Task<(string Text, bool ShowWarning)> ExtractTextFromImageAsync(BitmapSource bitmapSource)
         {
             try
             {
-                // 1. 언어 설정: 한국어 우선 시도, 실패 시 사용자 언어, 그 다음 영어
-                OcrEngine ocrEngine = OcrEngine.TryCreateFromLanguage(new Language("ko-KR"));
-                
-                if (ocrEngine == null)
-                {
-                    ocrEngine = OcrEngine.TryCreateFromUserProfileLanguages();
-                }
-                
-                if (ocrEngine == null)
-                {
-                    ocrEngine = OcrEngine.TryCreateFromLanguage(new Language("en-US"));
-                }
-
-                if (ocrEngine == null)
-                {
-                    return "OCR 엔진을 초기화할 수 없습니다.";
-                }
-
-                // 2. 이미지 전처리: 대비 향상 + 선명화 + 확대 (EnhanceImageForOcr에서 처리)
+                // 1. 이미지 전처리: 대비 향상 + 선명화 + 확대 (EnhanceImageForOcr에서 처리)
                 // UI 스레드 차단을 방지하기 위해 백그라운드에서 실행
                 if (bitmapSource.CanFreeze) bitmapSource.Freeze();
                 
                 var processedBitmap = await Task.Run(() => EnhanceImageForOcr(bitmapSource));
 
                 // BitmapSource를 SoftwareBitmap으로 변환
+                SoftwareBitmap softwareBitmap;
                 using (var stream = new MemoryStream())
                 {
                     // WPF Encoder 사용
@@ -53,77 +38,168 @@ namespace CatchCapture.Utilities
 
                     // UWP Decoder 사용
                     Windows.Graphics.Imaging.BitmapDecoder decoder = await Windows.Graphics.Imaging.BitmapDecoder.CreateAsync(stream.AsRandomAccessStream());
-                    SoftwareBitmap softwareBitmap = await decoder.GetSoftwareBitmapAsync();
+                    softwareBitmap = await decoder.GetSoftwareBitmapAsync();
+                }
 
-                    // OCR 결과 추출
-                    OcrResult result = await ocrEngine.RecognizeAsync(softwareBitmap);
-                    
-                    // 결과 텍스트 조합 (같은 줄의 단어들을 병합)
-                    StringBuilder sb = new StringBuilder();
-                    
-                    // 각 라인의 단어들을 Y 좌표 기준으로 그룹화
-                    var allWords = new List<(double Y, double X, string Text)>();
-                    
-                    foreach (var line in result.Lines)
-                    {
-                        foreach (var word in line.Words)
-                        {
-                            // 단어의 Y 좌표 (상단 기준)
-                            double y = word.BoundingRect.Y;
-                            double x = word.BoundingRect.X;
-                            allWords.Add((y, x, word.Text));
-                        }
-                    }
-                    
-                    // Y 좌표로 정렬 후 같은 줄로 그룹화 (±15 픽셀 오차 허용 - 코드 에디터 줄 높이 고려)
-                    var sortedByY = allWords.OrderBy(w => w.Y).ToList();
-                    var lines = new List<List<(double Y, double X, string Text)>>();
+                // 2. 다국어 인식 시도 (한국어, 일본어, 영어 순)
+                // Windows OCR은 한 번에 하나의 언어만 지원하므로, 여러 언어로 시도하여 가장 좋은 결과를 선택합니다.
+                var availableLanguages = OcrEngine.AvailableRecognizerLanguages;
+                string bestText = "";
+                int maxScore = -1;
+                
+                // 우선순위 언어 목록 (한국어, 일본어, 중국어, 영어)
+                var targetLangs = new[] { "ko", "ja", "zh", "en" };
+                bool anyEngineCreated = false;
 
-                    if (sortedByY.Count > 0)
+                foreach (var langCode in targetLangs)
+                {
+                    // 해당 언어 코드로 시작하는 언어 찾기 (예: ko-KR, ja-JP, zh-CN)
+                    var lang = availableLanguages.FirstOrDefault(l => l.LanguageTag.StartsWith(langCode, StringComparison.OrdinalIgnoreCase));
+                    
+                    if (lang != null)
                     {
-                        var currentLine = new List<(double Y, double X, string Text)>();
-                        currentLine.Add(sortedByY[0]);
-                        double currentLineY = sortedByY[0].Y;
-                        
-                        for (int i = 1; i < sortedByY.Count; i++)
+                        var ocrEngine = OcrEngine.TryCreateFromLanguage(lang);
+                        if (ocrEngine != null)
                         {
-                            // 같은 줄인지 확인 (Y 좌표 차이가 40 이하 - 확대된 이미지 기준)
-                            if (Math.Abs(sortedByY[i].Y - currentLineY) <= 40)
+                            anyEngineCreated = true;
+                            var result = await ocrEngine.RecognizeAsync(softwareBitmap);
+                            string text = ProcessOcrResult(result);
+                            
+                            // 점수 계산 (언어별 특성 반영)
+                            int score = 0;
+                            if (langCode == "ja")
                             {
-                                currentLine.Add(sortedByY[i]);
+                                // 일본어: 히라가나/가타카나(가중치 높음) + 한자
+                                int kanaCount = text.Count(c => (c >= 0x3040 && c <= 0x309F) || (c >= 0x30A0 && c <= 0x30FF));
+                                int kanjiCount = text.Count(c => c >= 0x4E00 && c <= 0x9FBF);
+                                score = (kanaCount * 10) + kanjiCount; 
+                            }
+                            else if (langCode == "zh")
+                            {
+                                // 중국어: 한자 개수
+                                score = text.Count(c => c >= 0x4E00 && c <= 0x9FBF);
+                            }
+                            else if (langCode == "ko")
+                            {
+                                // 한국어: 한글 글자 수
+                                score = text.Count(c => c >= 0xAC00 && c <= 0xD7A3);
                             }
                             else
                             {
-                                // 줄 바뀜 -> 현재 줄 저장
-                                lines.Add(currentLine);
-                                
-                                // 새로운 줄 시작
-                                currentLine = new List<(double Y, double X, string Text)>();
-                                currentLine.Add(sortedByY[i]);
-                                currentLineY = sortedByY[i].Y;
+                                // 영어/기타: 공백 제외 글자 수
+                                score = text.Count(c => !char.IsWhiteSpace(c));
+                            }
+                            
+                            if (score > maxScore)
+                            {
+                                maxScore = score;
+                                bestText = text;
                             }
                         }
-                        // 마지막 줄 추가
-                        lines.Add(currentLine);
                     }
-
-                    // 각 줄 내부에서 X 좌표(좌->우) 순으로 정렬하여 텍스트 병합
-                    foreach (var line in lines)
-                    {
-                        // X 좌표로 정렬
-                        var sortedLine = line.OrderBy(w => w.X).Select(w => w.Text);
-                        sb.AppendLine(string.Join(" ", sortedLine));
-                    }
-                    
-                    string extractedText = sb.ToString().Trim();
-                    
-                    return extractedText;
                 }
+
+                // 만약 위 언어들로 엔진을 하나도 못 만들었다면 (언어팩 미설치 등), 사용자 기본 언어로 시도
+                if (!anyEngineCreated || string.IsNullOrWhiteSpace(bestText))
+                {
+                    var ocrEngine = OcrEngine.TryCreateFromUserProfileLanguages();
+                    if (ocrEngine != null)
+                    {
+                        var result = await ocrEngine.RecognizeAsync(softwareBitmap);
+                        bestText = ProcessOcrResult(result);
+                    }
+                    else
+                    {
+                        return ("OCR 엔진을 초기화할 수 없습니다. Windows 설정에서 언어 팩(한국어, 일본어, 영어)이 설치되어 있는지 확인해주세요.", false);
+                    }
+                }
+
+                // [안내 메시지 체크] 일본어/중국어 팩이 설치되지 않았는데 한자가 포함된 경우
+                bool isJapaneseInstalled = availableLanguages.Any(l => l.LanguageTag.StartsWith("ja", StringComparison.OrdinalIgnoreCase));
+                bool isChineseInstalled = availableLanguages.Any(l => l.LanguageTag.StartsWith("zh", StringComparison.OrdinalIgnoreCase));
+                bool showWarning = false;
+
+                if ((!isJapaneseInstalled || !isChineseInstalled) && !string.IsNullOrWhiteSpace(bestText))
+                {
+                    // 한자(CJK Unified Ideographs)가 포함되어 있는지 확인
+                    bool containsKanji = bestText.Any(c => c >= 0x4E00 && c <= 0x9FBF);
+
+                    if (containsKanji)
+                    {
+                        showWarning = true;
+                    }
+                }
+
+                return (bestText, showWarning);
             }
             catch (Exception ex)
             {
-                return $"OCR 오류: {ex.Message}";
+                return ($"OCR 오류: {ex.Message}", false);
             }
+        }
+
+        // OCR 결과를 텍스트로 변환하는 헬퍼 메서드
+        private static string ProcessOcrResult(OcrResult result)
+        {
+            if (result == null || result.Lines.Count == 0) return string.Empty;
+
+            StringBuilder sb = new StringBuilder();
+            
+            // 각 라인의 단어들을 Y 좌표 기준으로 그룹화
+            var allWords = new List<(double Y, double X, string Text)>();
+            
+            foreach (var line in result.Lines)
+            {
+                foreach (var word in line.Words)
+                {
+                    // 단어의 Y 좌표 (상단 기준)
+                    double y = word.BoundingRect.Y;
+                    double x = word.BoundingRect.X;
+                    allWords.Add((y, x, word.Text));
+                }
+            }
+            
+            // Y 좌표로 정렬 후 같은 줄로 그룹화 (±15 픽셀 오차 허용 - 코드 에디터 줄 높이 고려)
+            var sortedByY = allWords.OrderBy(w => w.Y).ToList();
+            var lines = new List<List<(double Y, double X, string Text)>>();
+
+            if (sortedByY.Count > 0)
+            {
+                var currentLine = new List<(double Y, double X, string Text)>();
+                currentLine.Add(sortedByY[0]);
+                double currentLineY = sortedByY[0].Y;
+                
+                for (int i = 1; i < sortedByY.Count; i++)
+                {
+                    // 같은 줄인지 확인 (Y 좌표 차이가 40 이하 - 확대된 이미지 기준)
+                    if (Math.Abs(sortedByY[i].Y - currentLineY) <= 40)
+                    {
+                        currentLine.Add(sortedByY[i]);
+                    }
+                    else
+                    {
+                        // 줄 바뀜 -> 현재 줄 저장
+                        lines.Add(currentLine);
+                        
+                        // 새로운 줄 시작
+                        currentLine = new List<(double Y, double X, string Text)>();
+                        currentLine.Add(sortedByY[i]);
+                        currentLineY = sortedByY[i].Y;
+                    }
+                }
+                // 마지막 줄 추가
+                lines.Add(currentLine);
+            }
+
+            // 각 줄 내부에서 X 좌표(좌->우) 순으로 정렬하여 텍스트 병합
+            foreach (var line in lines)
+            {
+                // X 좌표로 정렬
+                var sortedLine = line.OrderBy(w => w.X).Select(w => w.Text);
+                sb.AppendLine(string.Join(" ", sortedLine));
+            }
+            
+            return sb.ToString().Trim();
         }
         private static BitmapSource EnhanceImageForOcr(BitmapSource source)
         {
