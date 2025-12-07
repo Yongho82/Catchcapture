@@ -1828,7 +1828,7 @@ public partial class MainWindow : Window
 
     private void UpdateCaptureCount()
     {
-        Title = $"캣치 - 캡처 {captures.Count}개";
+        Title = $"캐치 - 캡처 {captures.Count}개";
     }
 
     #endregion

@@ -86,7 +86,16 @@ namespace CatchCapture
                     _collapseTimer.Start();
                 ForceTopmost();
             };
-            this.Activated += (_, __) => ForceTopmost();
+            this.Activated += (_, __) => 
+            {
+                ForceTopmost();
+                // 작업표시줄 클릭 등으로 활성화될 때, 상단에 숨겨져 있으면 내려오게 함
+                if (_dockSide == DockSide.Top && _isCollapsed)
+                {
+                    Expand();
+                    _collapseTimer.Start();
+                }
+            };
             
             this.MouseLeftButtonUp += Window_MouseLeftButtonUp;
 
