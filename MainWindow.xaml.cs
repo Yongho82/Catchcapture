@@ -1464,8 +1464,7 @@ public partial class MainWindow : Window
                 // 캡처 후 미리보기 표시 설정 확인
                 if (settings.ShowPreviewAfterCapture || settings.OpenEditorAfterCapture)
                 {
-                    var preview = new PreviewWindow(image, captures.Count - 1, captures);
-                    preview.Owner = this;
+                    var preview = ShowPreviewWindow(image, captures.Count - 1);
                     preview.Closed += (s, e2) =>
                     {
                         if (_autoPreviewOpenCount > 0) _autoPreviewOpenCount--;
@@ -1482,12 +1481,11 @@ public partial class MainWindow : Window
                     };
                     _autoPreviewOpenCount++;
                     try { this.Hide(); } catch { }
-                    preview.Show();
                 }
-            }
             
             // 로고 표시 상태 업데이트
             UpdateEmptyStateLogo();
+            }
         }
         catch (Exception ex)
         {
@@ -2124,7 +2122,7 @@ public partial class MainWindow : Window
 
     #region 미리보기 기능
 
-    private void ShowPreviewWindow(BitmapSource image, int index)
+    private PreviewWindow ShowPreviewWindow(BitmapSource image, int index)
     {
         // 미리보기 창 생성
         PreviewWindow previewWindow = new PreviewWindow(image, index, captures);
@@ -2156,6 +2154,7 @@ public partial class MainWindow : Window
         
         previewWindow.Owner = this;
         previewWindow.Show();
+        return previewWindow;
     }
     private void ShowGuideMessage(string message, TimeSpan? duration = null)
     {
