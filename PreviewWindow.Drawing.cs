@@ -325,6 +325,12 @@ namespace CatchCapture
 
             // 레이어 렌더링
             currentImage = LayerRenderer.RenderLayers(originalImage, drawingLayers);
+            
+            // allCaptures에도 업데이트 (메인창 리스트에 실시간 반영)
+            if (allCaptures != null && imageIndex >= 0 && imageIndex < allCaptures.Count)
+            {
+                allCaptures[imageIndex].Image = currentImage;
+            }
             UpdatePreviewImage();
 
             if (liveStrokePath != null)

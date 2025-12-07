@@ -119,6 +119,23 @@ namespace CatchCapture
             // 이전 인덱스 저장
             int oldIndex = imageIndex;
 
+            // 현재 이미지의 드로잉 레이어 저장 (다른 이미지로 전환하기 전에)
+            if (drawingLayers.Count > 0)
+            {
+                captureDrawingLayers[oldIndex] = drawingLayers.Select(layer => new CatchCapture.Models.DrawingLayer
+                {
+                    Type = layer.Type,
+                    Points = layer.Points.ToArray(),  // ✅ 배열로 변환
+                    Color = layer.Color,
+                    Thickness = layer.Thickness,
+                    IsErased = layer.IsErased
+                }).ToList();
+            }
+            else
+            {
+                captureDrawingLayers[oldIndex] = new List<CatchCapture.Models.DrawingLayer>();
+            }
+
             // 새 이미지로 전환
             imageIndex = newIndex;
             originalImage = allCaptures[newIndex].Image;
@@ -129,7 +146,32 @@ namespace CatchCapture
             redoStack.Clear();
             UpdateUndoRedoButtons();
 
-            // 이미지 업데이트
+            // 새 이미지의 드로잉 레이어 로드 (저장된 게 있으면 복원, 없으면 빈 리스트)
+            if (captureDrawingLayers.ContainsKey(newIndex))
+            {
+                drawingLayers = captureDrawingLayers[newIndex].Select(layer => new CatchCapture.Models.DrawingLayer
+                {
+                    Type = layer.Type,
+                    Points = layer.Points.ToArray(),  // ✅ 배열로 변환
+                    Color = layer.Color,
+                    Thickness = layer.Thickness,
+                    IsErased = layer.IsErased
+                }).ToList();
+            }
+            else
+            {
+                drawingLayers = new List<CatchCapture.Models.DrawingLayer>();
+            }
+
+            // 이미지 업데이트 (저장된 드로잉 레이어 포함)
+            currentImage = CatchCapture.Utilities.LayerRenderer.RenderLayers(originalImage, drawingLayers);
+            
+            // allCaptures에도 업데이트 (메인창 리스트에 반영)
+            if (allCaptures != null && newIndex >= 0 && newIndex < allCaptures.Count)
+            {
+                allCaptures[newIndex].Image = currentImage;
+            }
+            
             UpdatePreviewImage();
 
             // 리스트에서 선택 상태 업데이트

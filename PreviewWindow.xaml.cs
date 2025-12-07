@@ -99,6 +99,7 @@ namespace CatchCapture
         private List<CaptureImage>? allCaptures; // 클래스 멤버 변수로 추가 (20줄 부근)
 
         private List<CatchCapture.Models.DrawingLayer> drawingLayers = new List<CatchCapture.Models.DrawingLayer>();
+                private Dictionary<int, List<CatchCapture.Models.DrawingLayer>> captureDrawingLayers = new Dictionary<int, List<CatchCapture.Models.DrawingLayer>>();
         private int nextLayerId = 1;
 
         public PreviewWindow(BitmapSource image, int index, List<CaptureImage>? captures = null)
