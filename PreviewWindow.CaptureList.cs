@@ -51,13 +51,20 @@ namespace CatchCapture
             // 이미지
             Image img = new Image
             {
-                Source = captureImage.Image,
                 Width = thumbWidth,
                 Height = thumbHeight,
                 Stretch = Stretch.Uniform,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
             };
+            
+            // 데이터 바인딩으로 Image 속성 연결
+            System.Windows.Data.Binding binding = new System.Windows.Data.Binding("Image")
+            {
+                Source = captureImage,
+                Mode = System.Windows.Data.BindingMode.OneWay
+            };
+            img.SetBinding(Image.SourceProperty, binding);
             RenderOptions.SetBitmapScalingMode(img, BitmapScalingMode.HighQuality);
             grid.Children.Add(img);
 
