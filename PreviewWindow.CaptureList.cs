@@ -132,7 +132,7 @@ namespace CatchCapture
                 captureDrawingLayers[oldIndex] = drawingLayers.Select(layer => new CatchCapture.Models.DrawingLayer
                 {
                     Type = layer.Type,
-                    Points = layer.Points.ToArray(),  // ✅ 배열로 변환
+                    Points = layer.Points?.ToArray() ?? Array.Empty<System.Windows.Point>(),
                     Color = layer.Color,
                     Thickness = layer.Thickness,
                     IsErased = layer.IsErased
@@ -159,7 +159,7 @@ namespace CatchCapture
                 drawingLayers = captureDrawingLayers[newIndex].Select(layer => new CatchCapture.Models.DrawingLayer
                 {
                     Type = layer.Type,
-                    Points = layer.Points.ToArray(),  // ✅ 배열로 변환
+                    Points = layer.Points?.ToArray() ?? Array.Empty<System.Windows.Point>(),
                     Color = layer.Color,
                     Thickness = layer.Thickness,
                     IsErased = layer.IsErased

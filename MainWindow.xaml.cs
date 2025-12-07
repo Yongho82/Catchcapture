@@ -203,7 +203,6 @@ public partial class MainWindow : Window
             UpdateInstantEditToggleUI();
         });
     }
-
     private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
     {
         // Print Screen 키 감지

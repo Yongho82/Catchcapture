@@ -14,7 +14,7 @@
         FontFamily="Segoe UI">
     
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="24" 
+        <WindowChrome CaptionHeight="34" 
                      ResizeBorderThickness="0" 
                      GlassFrameThickness="0" 
                      CornerRadius="0" 
