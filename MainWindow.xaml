@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CatchCapture"
         mc:Ignorable="d"
-        Title="캐치 캡처" Height="625" Width="350" 
-        MinWidth="350" MinHeight="625"
+        Title="캐치 캡처" Height="652" Width="350" 
+        MinWidth="350" MinHeight="652"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None" AllowsTransparency="True" 
         Background="Transparent"
@@ -140,7 +140,7 @@
     </Window.Resources>
     
     <Grid>
-        <Border CornerRadius="8,8,0,0" Background="#F8F9FC" BorderThickness="1" Margin="10">
+        <Border CornerRadius="8" Background="#F8F9FC" BorderThickness="1" Margin="10">
             <Border.BorderBrush>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                     <GradientStop Color="#4361EE" Offset="0.0"/>
@@ -156,6 +156,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="24"/>
                     <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 
                 <!-- 제목 영역 -->
@@ -455,7 +456,30 @@
                             </Button>
                         </StackPanel>
                     </Border>
-                </Grid>
+                </Grid>     
+                <!-- 하단 팁 영역 -->
+                <Border Grid.Row="2" 
+                        Background="#F5F5F5" 
+                        BorderBrush="#DDDDDD" 
+                        BorderThickness="0,1,0,0"
+                        Height="28">
+                    <StackPanel Orientation="Horizontal" 
+                                VerticalAlignment="Center" 
+                                Margin="12,0">
+                        <TextBlock Text="TIP" 
+                                   FontSize="10" 
+                                   FontWeight="Bold" 
+                                   Foreground="#007AFF" 
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,8,0"/>
+                        <Viewbox MaxWidth="280" MaxHeight="16" Stretch="Uniform" StretchDirection="DownOnly">
+                            <TextBlock x:Name="TipTextBlock" 
+                                       Text="캡처 목록 이미지를 더블클릭해 빠르게 편집할 수 있어요." 
+                                       FontSize="11" 
+                                       Foreground="#666666"/>
+                        </Viewbox>
+                    </StackPanel>
+                </Border>
             </Grid>
         </Border>
     </Grid>

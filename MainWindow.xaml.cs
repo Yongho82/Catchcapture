@@ -40,6 +40,9 @@ public partial class MainWindow : Window
     private DateTime lastScreenshotTime = DateTime.MinValue;
     private readonly TimeSpan screenshotCacheTimeout = TimeSpan.FromSeconds(5);
     private System.Windows.Threading.DispatcherTimer? screenshotCacheTimer;
+    private System.Windows.Threading.DispatcherTimer? tipTimer;
+    private List<string> tips = new List<string>();
+    private int currentTipIndex = 0;
 
     // 트레이 아이콘
     public System.Windows.Forms.NotifyIcon? notifyIcon;  // private를 public으로 변경
@@ -157,6 +160,7 @@ public partial class MainWindow : Window
             RegisterGlobalHotkeys();
             UpdateInstantEditToggleUI();
             UpdateMenuButtonOrder(); 
+            InitializeTips();
             
             // 다국어 UI 텍스트 적용
             UpdateUIText();
@@ -3357,5 +3361,107 @@ public partial class MainWindow : Window
         }
         
         return CallNextHookEx(_keyboardHookId, nCode, wParam, lParam);
+    }
+    private async void InitializeTips()
+    {
+        // 기본 팁 (오프라인 또는 로드 실패 시 사용)
+        var defaultTips = new List<string>
+        {
+            "캡처 목록 이미지를 더블클릭해 빠르게 편집할 수 있어요.",
+            "구글 아이콘을 누르면 구글 이미지 검색이 됩니다.",
+            "설정에서 메뉴 위치 및 삭제가 가능하오니 편리하게 사용하세요.",
+            "OCR 문자 추출 후 구글 즉시 번역을 활용할 수 있어요.",
+            "Ctrl+Shift+A 단축키로 빠르게 영역 캡처할 수 있어요."
+        };
+
+        tips = defaultTips;
+
+        // 웹에서 팁 로드 시도
+        try
+        {
+            using var client = new System.Net.Http.HttpClient();
+            client.Timeout = TimeSpan.FromSeconds(5);
+            string url = "https://ezupsoft.com/catchcapture/tooltip.html";
+            string json = await client.GetStringAsync(url);
+            
+            var tipData = System.Text.Json.JsonSerializer.Deserialize<TipData>(json);
+            if (tipData?.tips != null)
+            {
+                string lang = settings.Language ?? "ko";
+                if (tipData.tips.TryGetValue(lang, out var langTips) && langTips.Count > 0)
+                {
+                    tips = langTips;
+                }
+                else if (tipData.tips.TryGetValue("ko", out var koTips) && koTips.Count > 0)
+                {
+                    tips = koTips;
+                }
+            }
+        }
+        catch
+        {
+            // 로드 실패 시 기본 팁 사용
+        }
+
+        // 즉시 첫 번째 팁 표시
+        if (tips.Count > 0)
+        {
+            Dispatcher.Invoke(() => TipTextBlock.Text = tips[0]);
+        }
+
+        // 타이머 시작 (4초마다 팁 변경)
+        tipTimer = new System.Windows.Threading.DispatcherTimer();
+        tipTimer.Interval = TimeSpan.FromSeconds(4);
+        tipTimer.Tick += (s, e) =>
+        {
+            if (tips.Count > 0)
+            {
+                currentTipIndex = (currentTipIndex + 1) % tips.Count;
+                TipTextBlock.Text = tips[currentTipIndex];
+            }
+        };
+        tipTimer.Start();
+        
+        // 설정 변경 시 팁 다시 로드 (언어 변경 포함)
+        CatchCapture.Models.Settings.SettingsChanged += async (s, e) =>
+        {
+            await ReloadTips();
+        };
+    }
+    
+    private async Task ReloadTips()
+    {
+        try
+        {
+            using var client = new System.Net.Http.HttpClient();
+            client.Timeout = TimeSpan.FromSeconds(5);
+            string url = "https://ezupsoft.com/catchcapture/tooltip.html";
+            string json = await client.GetStringAsync(url);
+            
+            var tipData = System.Text.Json.JsonSerializer.Deserialize<TipData>(json);
+            if (tipData?.tips != null)
+            {
+                var currentSettings = Settings.Load();
+                string lang = currentSettings.Language ?? "ko";
+                if (tipData.tips.TryGetValue(lang, out var langTips) && langTips.Count > 0)
+                {
+                    tips = langTips;
+                }
+            }
+            
+            // 즉시 첫 번째 팁 표시
+            currentTipIndex = 0;
+            if (tips.Count > 0)
+            {
+                Dispatcher.Invoke(() => TipTextBlock.Text = tips[0]);
+            }
+        }
+        catch { }
+    }
+
+    // 팁 데이터 클래스
+    private class TipData
+    {
+        public Dictionary<string, List<string>>? tips { get; set; }
     }
 }
