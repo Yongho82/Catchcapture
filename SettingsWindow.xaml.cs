@@ -473,13 +473,20 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
         // Added: Sidebar bottom links
         private void RestoreDefaults_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
+            // 현재 언어 설정 보존
+            string currentLanguage = _settings.Language;
+
             _settings = new Settings();
+            
+            // 언어 설정 복원
+            _settings.Language = currentLanguage;
+
             Settings.Save(_settings);
             LoadCapturePage();
             LoadMenuEditPage();  // 메뉴 편집도 기본값으로 복원
             LoadSystemPage();
             LoadHotkeysPage();
-            MessageBox.Show("기본 설정으로 복원되었습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(LocalizationManager.Get("SettingsSaved"), LocalizationManager.Get("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void Website_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)

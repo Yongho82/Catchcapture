@@ -49,9 +49,14 @@ namespace CatchCapture.Utilities
                 
                 // 우선순위 언어 목록 (한국어, 일본어, 중국어, 영어)
                 var targetLangs = new[] { "ko", "ja", "zh", "en" };
+                
+                // [수정] 사용자 언어를 우선순위 목록의 맨 앞으로 이동 (단, 강제 조기 종료는 하지 않음)
+                string userLang = CatchCapture.Models.LocalizationManager.CurrentLanguage;
+                var orderedLangs = targetLangs.OrderByDescending(t => userLang.StartsWith(t, StringComparison.OrdinalIgnoreCase)).ToArray();
+
                 bool anyEngineCreated = false;
 
-                foreach (var langCode in targetLangs)
+                foreach (var langCode in orderedLangs)
                 {
                     // 해당 언어 코드로 시작하는 언어 찾기 (예: ko-KR, ja-JP, zh-CN)
                     var lang = availableLanguages.FirstOrDefault(l => l.LanguageTag.StartsWith(langCode, StringComparison.OrdinalIgnoreCase));
@@ -65,14 +70,14 @@ namespace CatchCapture.Utilities
                             var result = await ocrEngine.RecognizeAsync(softwareBitmap);
                             string text = ProcessOcrResult(result);
                             
-                            // 점수 계산 (언어별 특성 반영)
+                            // 점수 계산 (언어별 특성 반영 - 과도한 가중치 제거)
                             int score = 0;
                             if (langCode == "ja")
                             {
-                                // 일본어: 히라가나/가타카나(가중치 높음) + 한자
+                                // 일본어: 히라가나/가타카나 + 한자
                                 int kanaCount = text.Count(c => (c >= 0x3040 && c <= 0x309F) || (c >= 0x30A0 && c <= 0x30FF));
                                 int kanjiCount = text.Count(c => c >= 0x4E00 && c <= 0x9FBF);
-                                score = (kanaCount * 10) + kanjiCount; 
+                                score = kanaCount + kanjiCount; // 가중치 제거
                             }
                             else if (langCode == "zh")
                             {
@@ -90,6 +95,12 @@ namespace CatchCapture.Utilities
                                 score = text.Count(c => !char.IsWhiteSpace(c));
                             }
                             
+                            // 현재 설정된 언어와 일치하면 약간의 가중치만 부여 (1.2배)
+                            if (userLang.StartsWith(langCode, StringComparison.OrdinalIgnoreCase))
+                            {
+                                score = (int)(score * 1.2);
+                            }
+
                             if (score > maxScore)
                             {
                                 maxScore = score;
