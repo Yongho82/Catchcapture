@@ -872,6 +872,7 @@ namespace CatchCapture
 
                 currentImage = writeable;
                 PreviewImage.Source = currentImage;
+                UpdatePreviewImage();  
                 UpdateUndoRedoButtons();
             }
             catch (Exception ex)
@@ -968,6 +969,7 @@ namespace CatchCapture
                 // 결과 이미지 업데이트 및 화면 갱신
                 currentImage = writeable;
                 PreviewImage.Source = currentImage;
+                UpdatePreviewImage();
                 UpdateUndoRedoButtons();
             }
             catch (Exception ex)
