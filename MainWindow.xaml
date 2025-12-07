@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CatchCapture"
         mc:Ignorable="d"
-        Title="캐치 캡처" Height="550" Width="350" 
-        MinWidth="350" MinHeight="550"
+        Title="캐치 캡처" Height="590" Width="350" 
+        MinWidth="350" MinHeight="590"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None" AllowsTransparency="True" 
         Background="Transparent"
@@ -17,7 +17,7 @@
         <WindowChrome CaptionHeight="24" 
                      ResizeBorderThickness="0" 
                      GlassFrameThickness="0" 
-                     CornerRadius="8" 
+                     CornerRadius="0" 
                      UseAeroCaptionButtons="False" />
     </WindowChrome.WindowChrome>
     
@@ -59,9 +59,9 @@
 
         <!-- 하단 버튼 스타일 (호버 효과 추가) -->
         <Style x:Key="BottomButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="40"/>
+            <Setter Property="Width" Value="35"/>
             <Setter Property="Height" Value="40"/>
-            <Setter Property="Margin" Value="2,0,2,0"/>
+            <Setter Property="Margin" Value="1,0,1,0"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -140,14 +140,18 @@
     </Window.Resources>
     
     <Grid>
-        <Border CornerRadius="8" Background="#F8F9FC" BorderThickness="1" Margin="0">
+        <Border CornerRadius="8,8,0,0" Background="#F8F9FC" BorderThickness="1" Margin="10">
             <Border.BorderBrush>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                     <GradientStop Color="#4361EE" Offset="0.0"/>
                     <GradientStop Color="#3A56D4" Offset="1.0"/>
                 </LinearGradientBrush>
             </Border.BorderBrush>
-            
+
+            <Border.Effect>
+                <DropShadowEffect ShadowDepth="2" BlurRadius="10" Opacity="0.3" Direction="270"/>
+            </Border.Effect>
+
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="24"/>
@@ -305,7 +309,7 @@
                             </Button>
                             <Separator Style="{StaticResource SeparatorStyle}"/>
 
-                           <!-- 즉시편집 스위치 -->
+                            <!-- 즉시편집 스위치 -->
                              <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,10,10,5"> <!-- 왼쪽 마진 10px 추가 -->
                                 <TextBlock x:Name="InstantEditLabel" Text="즉시편집" 
                                           VerticalAlignment="Center" 
@@ -333,7 +337,35 @@
                                     </Ellipse>
                                 </Border>
                             </StackPanel>
-                        </StackPanel>
+
+                            <!-- 편집열기 스위치 (여기 들어가야 함) -->
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,0,10,5">
+                                <TextBlock x:Name="OpenEditorLabel" Text="편집열기" 
+                                        VerticalAlignment="Center" 
+                                        FontSize="11" 
+                                        Foreground="#666666"
+                                        Margin="0,0,5,0"/>
+                                
+                                <Border x:Name="OpenEditorToggleBorder" 
+                                    Width="30" 
+                                    Height="16" 
+                                    CornerRadius="8" 
+                                    Background="#CCCCCC"
+                                    Cursor="Hand"
+                                    MouseLeftButtonDown="OpenEditorToggle_Click">
+                                    <Ellipse x:Name="OpenEditorToggleCircle" 
+                                            Width="12" 
+                                            Height="12" 
+                                            Fill="White" 
+                                            HorizontalAlignment="Left"
+                                            Margin="2,0,0,0">
+                                        <Ellipse.Effect>
+                                            <DropShadowEffect ShadowDepth="1" BlurRadius="2" Opacity="0.2"/>
+                                        </Ellipse.Effect>
+                                    </Ellipse>
+                                </Border>
+                            </StackPanel>
+                        </StackPanel> <!-- 큰 StackPanel이 여기서 닫혀야 함 -->
                     </Border>
 
                     <!-- 오른쪽 캡처 표시 영역 -->

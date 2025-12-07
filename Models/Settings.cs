@@ -11,6 +11,13 @@ namespace CatchCapture.Models
         // General
         public bool ShowSavePrompt { get; set; } = true;
         public bool ShowPreviewAfterCapture { get; set; } = false;
+        public bool OpenEditorAfterCapture { get; set; } = true; // 캡처 후 편집창 자동 열기
+
+        public void Save()
+        {
+            Save(this);
+        }
+
         // Print Screen key
         public bool UsePrintScreenKey { get; set; } = false;
         public string PrintScreenAction { get; set; } = "영역 캡처";

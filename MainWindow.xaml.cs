@@ -147,7 +147,8 @@ public partial class MainWindow : Window
         
         // 백그라운드 스크린샷 캐시 시스템 초기화
         InitializeScreenshotCache();
-        
+        UpdateOpenEditorToggleUI();
+
         this.Loaded += (s, e) =>
         {
             var helper = new WindowInteropHelper(this);
@@ -1453,7 +1454,7 @@ public partial class MainWindow : Window
                 UpdateCaptureCount();
                 
                 // 창 표시 (트레이 모드가 아니고 간편모드가 아닐 때만) — 단, 캡처 직후 프리뷰 자동 열기 설정이 켜져 있으면 메인창을 표시하지 않음
-                if (!settings.ShowPreviewAfterCapture)
+                if (!settings.ShowPreviewAfterCapture && !settings.OpenEditorAfterCapture)
                 {
                     this.Show();
                     this.WindowState = WindowState.Normal;
@@ -1461,7 +1462,7 @@ public partial class MainWindow : Window
                 }
                 
                 // 캡처 후 미리보기 표시 설정 확인
-                if (settings.ShowPreviewAfterCapture)
+                if (settings.ShowPreviewAfterCapture || settings.OpenEditorAfterCapture)
                 {
                     var preview = new PreviewWindow(image, captures.Count - 1, captures);
                     preview.Owner = this;
@@ -2786,6 +2787,37 @@ public partial class MainWindow : Window
             }
         }
     }
+
+        // 편집열기 토글 클릭 이벤트
+        private void OpenEditorToggle_Click(object sender, MouseButtonEventArgs e)
+        {
+            // 설정값 토글
+            settings.OpenEditorAfterCapture = !settings.OpenEditorAfterCapture;
+            settings.Save();
+
+            // UI 업데이트
+            UpdateOpenEditorToggleUI();
+        }
+
+        // 편집열기 토글 UI 업데이트
+        private void UpdateOpenEditorToggleUI()
+        {
+            if (settings.OpenEditorAfterCapture)
+            {
+                // 켜짐 상태 (파란색)
+                OpenEditorToggleBorder.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4361EE"));
+                OpenEditorToggleCircle.HorizontalAlignment = HorizontalAlignment.Right;
+                OpenEditorToggleCircle.Margin = new Thickness(0, 0, 2, 0);
+            }
+            else
+            {
+                // 꺼짐 상태 (회색)
+                OpenEditorToggleBorder.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#CCCCCC"));
+                OpenEditorToggleCircle.HorizontalAlignment = HorizontalAlignment.Left;
+                OpenEditorToggleCircle.Margin = new Thickness(2, 0, 0, 0);
+            }
+        }
+
 
     private static bool MatchHotkey(CatchCapture.Models.ToggleHotkey hk, KeyEventArgs e)
     {
