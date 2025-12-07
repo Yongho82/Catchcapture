@@ -3485,17 +3485,8 @@ public partial class MainWindow : Window
             // Determine baseline and current visible count in UI
             if (_baselineMenuCount < 0)
             {
-                // Fallback: compute once if not set
-                _baselineMenuCount = 0;
-                if (CaptureButtonsPanel != null)
-                {
-                    foreach (var child in CaptureButtonsPanel.Children)
-                    {
-                        if (child is Separator) break;
-                        if (child is Button) _baselineMenuCount++;
-                    }
-                }
-                if (_baselineMenuCount <= 0) _baselineMenuCount = 2; // safe fallback
+                // 기본 메뉴 개수는 항상 10개 (전체 메뉴 기준)
+                _baselineMenuCount = 10;
             }
 
             int currentCount = 0;
