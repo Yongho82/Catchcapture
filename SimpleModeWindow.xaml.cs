@@ -887,12 +887,13 @@ namespace CatchCapture
                 "AreaCapture" => "/icons/area_capture.png",
                 "DelayCapture" => "/icons/clock.png",
                 "RealTimeCapture" => "/icons/real-time.png",
+                "MultiCapture" => "/icons/multi_capture.png",
                 "FullScreen" => "/icons/full_screen.png",
                 "DesignatedCapture" => "/icons/designated.png",
                 "WindowCapture" => "/icons/window_cap.png",
                 "UnitCapture" => "/icons/unit_capture.png",
                 "ScrollCapture" => "/icons/scroll_capture.png",
-                // ★ 새로 추가
+                "OcrCapture" => "/icons/ocr_capture.png",
                 "Copy" => "/icons/copy_selected.png",
                 "CopyAll" => "/icons/copy_all.png",
                 "Save" => "/icons/save_selected.png",
@@ -923,12 +924,13 @@ namespace CatchCapture
                 "AreaCapture" => CatchCapture.Models.LocalizationManager.Get("AreaCapture"),
                 "DelayCapture" => CatchCapture.Models.LocalizationManager.Get("DelayCapture"),
                 "RealTimeCapture" => CatchCapture.Models.LocalizationManager.Get("RealTimeCapture"),
+                "MultiCapture" => CatchCapture.Models.LocalizationManager.Get("MultiCapture"),  // ← 추가
                 "FullScreen" => CatchCapture.Models.LocalizationManager.Get("FullScreen"),
                 "DesignatedCapture" => CatchCapture.Models.LocalizationManager.Get("DesignatedCapture"),
                 "WindowCapture" => CatchCapture.Models.LocalizationManager.Get("WindowCapture"),
-                "UnitCapture" => CatchCapture.Models.LocalizationManager.Get("ElementCapture"),
+                "UnitCapture" => CatchCapture.Models.LocalizationManager.Get("UnitCapture"),
                 "ScrollCapture" => CatchCapture.Models.LocalizationManager.Get("ScrollCapture"),
-                // ★ "Copy" → "CopySelected"로 변경
+                "OcrCapture" => CatchCapture.Models.LocalizationManager.Get("OcrCapture"),  // ← 추가
                 "Copy" => CatchCapture.Models.LocalizationManager.Get("CopySelected"),
                 "CopyAll" => CatchCapture.Models.LocalizationManager.Get("CopyAll"),
                 "Save" => CatchCapture.Models.LocalizationManager.Get("Save"),
@@ -991,6 +993,12 @@ namespace CatchCapture
                     break;
                 case "ScrollCapture":
                     PerformCustomCapture(() => _mainWindow?.TriggerScrollCapture());
+                    break;
+                case "MultiCapture":
+                    PerformCustomCapture(() => _mainWindow?.TriggerMultiCapture());
+                    break;
+                case "OcrCapture":
+                    PerformCustomCapture(() => _mainWindow?.TriggerOcrCapture());
                     break;
                 // ★ 새로 추가
                 case "Copy":
@@ -1072,8 +1080,8 @@ namespace CatchCapture
 
             // ★ 수정됨: 트레이 모드와 동일하게 모든 아이콘 포함
             var allIcons = new[] {
-                "AreaCapture", "DelayCapture", "FullScreen", "RealTimeCapture",
-                "DesignatedCapture", "WindowCapture", "UnitCapture", "ScrollCapture",
+                "AreaCapture", "DelayCapture", "FullScreen", "RealTimeCapture", "MultiCapture",
+                "DesignatedCapture", "WindowCapture", "UnitCapture", "ScrollCapture", "OcrCapture",
                 "Copy", "CopyAll", "Save", "SaveAll", 
                 "Delete", "DeleteAll", "Settings"
             };
@@ -1092,10 +1100,12 @@ namespace CatchCapture
                             "DelayCapture" => CreateMenuIcon("/icons/clock.png"),
                             "FullScreen" => CreateMenuIcon("/icons/full_screen.png"),
                             "RealTimeCapture" => CreateMenuIcon("/icons/real-time.png"),
+                            "MultiCapture" => CreateMenuIcon("/icons/multi_capture.png"),
                             "DesignatedCapture" => CreateMenuIcon("/icons/designated.png"),
                             "WindowCapture" => CreateMenuIcon("/icons/window_cap.png"),
                             "UnitCapture" => CreateMenuIcon("/icons/unit_capture.png"),
                             "ScrollCapture" => CreateMenuIcon("/icons/scroll_capture.png"),
+                            "OcrCapture" => CreateMenuIcon("/icons/ocr_capture.png"), 
                             "Copy" => CreateMenuIcon("/icons/copy_selected.png"),
                             "CopyAll" => CreateMenuIcon("/icons/copy_all.png"),
                             "Save" => CreateMenuIcon("/icons/save_selected.png"),

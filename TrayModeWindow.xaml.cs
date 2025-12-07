@@ -588,6 +588,16 @@ namespace CatchCapture
                     iconImage = CreateImage("/icons/scroll_capture.png");
                     labelText = LocalizationManager.Get("ScrollCapture");
                     break;
+                case "MultiCapture":
+                    button.Click += MultiCaptureButton_Click;
+                    iconImage = CreateImage("/icons/multi_capture.png");
+                    labelText = LocalizationManager.Get("MultiCapture");
+                    break;
+                case "OcrCapture":
+                    button.Click += OcrCaptureButton_Click;
+                    iconImage = CreateImage("/icons/ocr_capture.png");
+                    labelText = LocalizationManager.Get("OcrCapture");
+                    break;                    
                 case "Copy":
                     button.Click += CopyButton_Click;
                     iconImage = CreateImage("/icons/copy_selected.png");
@@ -647,6 +657,17 @@ namespace CatchCapture
             return button;
         }
 
+        private void MultiCaptureButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Hide();
+            mainWindow.TriggerMultiCapture();
+        }
+
+        private void OcrCaptureButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Hide();
+            mainWindow.TriggerOcrCapture();
+        }
         private Image CreateImage(string source)
         {
             var image = new Image
@@ -1101,10 +1122,12 @@ namespace CatchCapture
                 "DelayCapture" => LocalizationManager.Get("DelayCapture"),
                 "RealTimeCapture" => LocalizationManager.Get("RealTimeCapture"), 
                 "FullScreen" => LocalizationManager.Get("FullScreen"),
+                "MultiCapture" => LocalizationManager.Get("MultiCapture"),
                 "DesignatedCapture" => LocalizationManager.Get("DesignatedCapture"),
                 "WindowCapture" => LocalizationManager.Get("WindowCapture"),
                 "UnitCapture" => LocalizationManager.Get("ElementCapture"),
                 "ScrollCapture" => LocalizationManager.Get("ScrollCapture"),
+                "OcrCapture" => LocalizationManager.Get("OcrCapture"),
                 "Copy" => LocalizationManager.Get("CopySelected"),
                 "CopyAll" => LocalizationManager.Get("CopyAll"),
                 "Save" => LocalizationManager.Get("Save"),
@@ -1616,8 +1639,8 @@ namespace CatchCapture
                 menu.Style = darkMenu;
             
             var allIcons = new[] { 
-                "AreaCapture", "DelayCapture", "FullScreen", "RealTimeCapture",
-                "DesignatedCapture", "WindowCapture", "UnitCapture", "ScrollCapture",
+                "AreaCapture", "DelayCapture", "FullScreen", "RealTimeCapture", "MultiCapture",
+                "DesignatedCapture", "WindowCapture", "UnitCapture", "ScrollCapture", "OcrCapture",
                 "Copy", "CopyAll", "Save", "SaveAll", 
                 "Delete", "DeleteAll", "Settings"
             };
@@ -1635,10 +1658,12 @@ namespace CatchCapture
                             "DelayCapture" => CreateMenuIcon("/icons/clock.png"),
                             "FullScreen" => CreateMenuIcon("/icons/full_screen.png"),
                             "RealTimeCapture" => CreateMenuIcon("/icons/real-time.png"),
+                            "MultiCapture" => CreateMenuIcon("/icons/multi_capture.png"),
                             "DesignatedCapture" => CreateMenuIcon("/icons/designated.png"),
                             "WindowCapture" => CreateMenuIcon("/icons/window_cap.png"),
                             "UnitCapture" => CreateMenuIcon("/icons/unit_capture.png"),
                             "ScrollCapture" => CreateMenuIcon("/icons/scroll_capture.png"),
+                            "OcrCapture" => CreateMenuIcon("/icons/ocr_capture.png"), 
                             "Copy" => CreateMenuIcon("/icons/copy_selected.png"),
                             "CopyAll" => CreateMenuIcon("/icons/copy_all.png"),
                             "Save" => CreateMenuIcon("/icons/save_selected.png"),

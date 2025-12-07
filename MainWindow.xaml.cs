@@ -3146,6 +3146,15 @@ public partial class MainWindow : Window
     {
         ScrollCaptureButton_Click(this, new RoutedEventArgs());
     }
+    public void TriggerMultiCapture()
+    {
+        MultiCaptureButton_Click(this, new RoutedEventArgs());
+    }
+
+    public void TriggerOcrCapture()
+    {
+        OcrCaptureButton_Click(this, new RoutedEventArgs());
+    }
     public void TriggerCopySelected()
     {
         CopySelectedButton_Click(null!, new RoutedEventArgs());
