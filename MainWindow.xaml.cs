@@ -3518,11 +3518,11 @@ public partial class MainWindow : Window
             }
 
             // Removed relative to initial baseline
-            int desiredCount = Math.Max(currentCount, _baselineMenuCount - 2);
+            int desiredCount = Math.Max(currentCount, _baselineMenuCount - 3);
             int shrinkButtons = Math.Max(0, _baselineMenuCount - desiredCount);
 
             // compute min height (equivalent to showing only 2 items)
-            double minHeightForTwo = _baseMainWindowHeight - (Math.Max(0, _baselineMenuCount - 2) * ButtonVerticalStep);
+            double minHeightForTwo = _baseMainWindowHeight - (Math.Max(0, _baselineMenuCount - 3) * ButtonVerticalStep);
             if (minHeightForTwo < 200) minHeightForTwo = 200; // absolute safety floor
 
             // compute target height and clamp
