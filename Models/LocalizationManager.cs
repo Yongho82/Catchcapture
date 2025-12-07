@@ -87,6 +87,8 @@ namespace CatchCapture.Models
                 ["LanguageLabel"] = "언어 (Language)",
                 ["OpenSettings"] = "설정 열기",
                 ["InstantEdit"] = "즉시편집",
+                ["OpenEditor"] = "편집열기",
+                ["OcrCapture"] = "문자 추출",
                 
                 // 버튼
                 ["Save"] = "저장",
@@ -258,6 +260,10 @@ namespace CatchCapture.Models
                 ["RestoreDefaults"] = "기본설정 복원",
                 ["PrivacyPolicy"] = "개인정보 처리방침",
                 ["StartupModeNotice"] = "※ 시작 모드는 프로그램이 실행될 때 처음 표시되는 화면을 설정합니다.",
+                ["MenuEdit"] = "메뉴 편집",
+                ["MenuEditGuide"] = "드래그하여 메뉴 순서를 변경하세요.",
+                ["RestoreDefaultMenus"] = "기본 메뉴로 복원",
+                ["Add"] = "추가",
                 
                 // PreviewWindow extras
                 ["Recapture"] = "재캡처",
@@ -340,6 +346,8 @@ namespace CatchCapture.Models
                 ["LanguageLabel"] = "语言",
                 ["OpenSettings"] = "打开设置",
                 ["InstantEdit"] = "即时编辑",
+                ["OpenEditor"] = "打开编辑器",
+                ["OcrCapture"] = "文字提取",
                 
                 // 버튼
                 ["Save"] = "保存",
@@ -471,7 +479,7 @@ namespace CatchCapture.Models
                 ["ReachedMaxCaptures"] = "已达到最大截图数",
                 ["ReachedMaxScrolls"] = "已达到最大滚动次数",
                 ["RealTimeF1Guide"] = "切换到想要的画面后按 [F1]\n（取消：ESC）",
-                ["MultiCaptureHud"] = "ENTER：合成\nF1：分别保存\nESC：退出",
+                ["MultiCaptureHud"] = "ENTER：合成\nF1：个别保存\nESC：退出",
                 ["ScrollClickToStart"] = "单击开始滚动截图",
                 ["EscToCancel"] = "取消",
                 
@@ -494,9 +502,9 @@ namespace CatchCapture.Models
                 ["Portrait"] = "纵向",
                 ["Landscape"] = "横向",
                 ["PrintOptionsLabel"] = "打印选项：",
-                ["FitToPage"] = "适合页面",
+                ["FitToPage"] = "页面适合",
                 ["ActualSize"] = "实际大小",
-                ["FillPage"] = "填充页面",
+                ["FillPage"] = "页面填充",
                 ["Print"] = "打印",
                 ["PreviewGenerationError"] = "预览生成错误",
                 ["PrintingStarted"] = "已开始打印。",
@@ -511,6 +519,10 @@ namespace CatchCapture.Models
                 ["RestoreDefaults"] = "恢复默认设置",
                 ["PrivacyPolicy"] = "隐私政策",
                 ["StartupModeNotice"] = "※ 启动模式用于设置程序启动时首先显示的界面。",
+                ["MenuEdit"] = "菜单编辑",
+                ["MenuEditGuide"] = "拖动以更改菜单顺序。",
+                ["RestoreDefaultMenus"] = "恢复默认菜单",
+                ["Add"] = "添加",
                 
                 // PreviewWindow extras
                 ["Recapture"] = "重新截图",
@@ -544,7 +556,7 @@ namespace CatchCapture.Models
                 ["BackgroundRemoval"] = "背景去除",
                 ["MagicWand"] = "魔棒",
                 ["BackgroundRemovalTooltip"] = "背景去除（魔棒）",
-                ["MagicWandTip"] = "单击：去除背景\n拖拽：选择区域",
+                ["MagicWandTip"] = "单击：背景去除\n拖拽：选择区域",
                 ["SelectionTooSmall"] = "选择的区域太小，请重新选择。",
                 ["MagicWandToleranceLabel"] = "容差：",
                 ["MagicWandContiguousOnly"] = "仅选择连续区域",
@@ -593,6 +605,8 @@ namespace CatchCapture.Models
                 ["LanguageLabel"] = "言語 (Language)",
                 ["OpenSettings"] = "設定を開く",
                 ["InstantEdit"] = "即時編集",
+                ["OpenEditor"] = "エディタを開く",
+                ["OcrCapture"] = "文字抽出",
                 
                 // ボタン
                 ["Save"] = "保存",
@@ -764,6 +778,10 @@ namespace CatchCapture.Models
                 ["RestoreDefaults"] = "デフォルトに復元",
                 ["PrivacyPolicy"] = "プライバシーポリシー",
                 ["StartupModeNotice"] = "※ 起動モードは、プログラム起動時に最初に表示される画面を設定します。",
+                ["MenuEdit"] = "メニュー編集",
+                ["MenuEditGuide"] = "ドラッグしてメニューの順序を変更します。",
+                ["RestoreDefaultMenus"] = "デフォルトのメニューに戻す",
+                ["Add"] = "追加",
                 
                 // PreviewWindow extras
                 ["Recapture"] = "再キャプチャ",
@@ -797,7 +815,7 @@ namespace CatchCapture.Models
                 ["BackgroundRemoval"] = "背景除去",
                 ["MagicWand"] = "マジックワンド",
                 ["BackgroundRemovalTooltip"] = "背景除去（マジックワンド）",
-                ["MagicWandTip"] = "クリック：背景除去\nドラッグ：範囲選択",
+                ["MagicWandTip"] = "クリック：背景除去\nドラッグ：選択範囲",
                 ["SelectionTooSmall"] = "選択範囲が小さすぎます。もう一度選択してください。",
                 ["MagicWandToleranceLabel"] = "許容差：",
                 ["MagicWandContiguousOnly"] = "連続領域のみ選択",
@@ -846,6 +864,8 @@ namespace CatchCapture.Models
                 ["LanguageLabel"] = "Language",
                 ["OpenSettings"] = "Open Settings",
                 ["InstantEdit"] = "Instant Edit",
+                ["OpenEditor"] = "   On Editor",
+                ["OcrCapture"] = "Text Extract",
                 
                 // Buttons
                 ["Save"] = "Save",
@@ -1016,6 +1036,10 @@ namespace CatchCapture.Models
                 ["RestoreDefaults"] = "Restore Defaults",
                 ["PrivacyPolicy"] = "Privacy Policy",
                 ["StartupModeNotice"] = "※ Startup mode determines which screen appears first when the app launches.",
+                ["MenuEdit"] = "Menu Edit",
+                ["MenuEditGuide"] = "Drag to change the menu order.",
+                ["RestoreDefaultMenus"] = "Restore default menus",
+                ["Add"] = "Add",
                 
                 // PreviewWindow extras
                 ["Recapture"] = "Capture",
@@ -1115,7 +1139,7 @@ namespace CatchCapture.Models
                 
                 ["Version"] = "Versión",
                 ["VisitHomepage"] = "Visitar sitio web",
-                ["RestoreDefaults"] = "Restaurar por defecto",
+                ["RestoreDefaults"] = "Restablecer valores predeterminados",
                 ["PrivacyPolicy"] = "Política de privacidad",
                 
                 ["Recapture"] = "Capturar",

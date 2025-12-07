@@ -34,6 +34,21 @@ namespace CatchCapture
         {
             // 모든 텍스트 갱신
             UpdateUIText();
+
+            // 메뉴 편집 항목 표시 이름도 갱신
+            try
+            {
+                if (_menuItems != null)
+                {
+                    foreach (var item in _menuItems)
+                    {
+                        item.DisplayName = GetMenuItemDisplayName(item.Key);
+                    }
+                    MenuItemsListBox.Items.Refresh();
+                }
+                UpdateAvailableMenus();
+            }
+            catch { }
         }
 
         private void UpdateUIText()
@@ -44,8 +59,15 @@ namespace CatchCapture
             // 사이드바
             SidebarGeneralText.Text = LocalizationManager.Get("General");
             NavCapture.Content = LocalizationManager.Get("CaptureSettings");
+            if (NavMenuEdit != null) NavMenuEdit.Content = LocalizationManager.Get("MenuEdit");
             NavSystem.Content = LocalizationManager.Get("SystemSettings");
             NavHotkey.Content = LocalizationManager.Get("HotkeySettings");
+
+            // 메뉴 편집 페이지 (추가)
+            if (MenuEditSectionTitle != null) MenuEditSectionTitle.Text = LocalizationManager.Get("MenuEdit");
+            if (MenuEditGuideText != null) MenuEditGuideText.Text = LocalizationManager.Get("MenuEditGuide");
+            if (AddMenuButton != null) AddMenuButton.Content = "+ " + LocalizationManager.Get("Add");
+            if (RestoreMenuButton != null) RestoreMenuButton.Content = LocalizationManager.Get("RestoreDefaultMenus");
 
             // 앱 이름(사이드바 상단)과 하단 정보
             if (SidebarAppNameText != null)
@@ -659,16 +681,16 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
         {
             return key switch
             {
-                "AreaCapture" => "영역 캡처",
-                "DelayCapture" => "지연 캡처",
-                "RealTimeCapture" => "순간 캡처",
-                "MultiCapture" => "멀티 캡처",
-                "FullScreen" => "전체화면",
-                "DesignatedCapture" => "지정 캡처",
-                "WindowCapture" => "창 캡처",
-                "ElementCapture" => "단위 캡처",
-                "ScrollCapture" => "스크롤 캡처",
-                "OcrCapture" => "문자 추출", 
+                "AreaCapture"       => LocalizationManager.Get("AreaCapture"),
+                "DelayCapture"      => LocalizationManager.Get("DelayCapture"),
+                "RealTimeCapture"   => LocalizationManager.Get("RealTimeCapture"),
+                "MultiCapture"      => LocalizationManager.Get("MultiCapture"),
+                "FullScreen"        => LocalizationManager.Get("FullScreen"),
+                "DesignatedCapture" => LocalizationManager.Get("DesignatedCapture"),
+                "WindowCapture"     => LocalizationManager.Get("WindowCapture"),
+                "ElementCapture"    => LocalizationManager.Get("ElementCapture"),
+                "ScrollCapture"     => LocalizationManager.Get("ScrollCapture"),
+                "OcrCapture"        => LocalizationManager.Get("OcrCapture"),
                 _ => key
             };
         }

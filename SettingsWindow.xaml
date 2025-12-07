@@ -267,7 +267,7 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         
-                        <TextBlock Grid.Column="0"
+                        <TextBlock x:Name="MenuEditGuideText" Grid.Column="0"
                                    Text="드래그하여 메뉴 순서를 변경하세요." 
                                    FontSize="12" 
                                    Foreground="{StaticResource TextSecondary}" 
@@ -281,7 +281,7 @@
                                       Height="28"
                                       VerticalContentAlignment="Center"
                                       Margin="0,0,8,0"/>
-                            <Button Content="+ 추가" 
+                            <Button x:Name="AddMenuButton" Content="+ 추가" 
                                     Height="28"
                                     Padding="15,0"
                                     FontSize="12"

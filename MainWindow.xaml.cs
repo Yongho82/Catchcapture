@@ -3215,7 +3215,8 @@ public partial class MainWindow : Window
             // 추가 버튼들 (간편/트레이 모드)
             SetButtonText(SimpleModeButton, CatchCapture.Models.LocalizationManager.Get("Simple"));
             SetButtonText(TrayModeButton, CatchCapture.Models.LocalizationManager.Get("Tray"));
-
+            // OCR 버튼
+            SetButtonText(OcrCaptureButton, CatchCapture.Models.LocalizationManager.Get("OcrCapture"));
             // 타이틀바 버튼 툴팁
             if (MinimizeButton != null)
             {
@@ -3242,6 +3243,11 @@ public partial class MainWindow : Window
             if (InstantEditLabel != null)
             {
                 InstantEditLabel.Text = CatchCapture.Models.LocalizationManager.Get("InstantEdit");
+            }
+            // 편집열기 라벨
+            if (OpenEditorLabel != null)
+            {
+                OpenEditorLabel.Text = CatchCapture.Models.LocalizationManager.Get("OpenEditor");
             }
         }
         catch
