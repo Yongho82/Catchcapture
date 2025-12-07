@@ -195,7 +195,11 @@ public partial class MainWindow : Window
                     this.Topmost = false;
                 }
             }
-            UpdateEmptyStateLogo();            
+            UpdateEmptyStateLogo();
+            
+            // refine baseline using ActualHeight now that layout is ready
+            try { _baseMainWindowHeight = this.ActualHeight > 0 ? this.ActualHeight : this.Height; } catch { }
+            AdjustMainWindowHeightForMenuCount();
         };
     }
 
@@ -207,6 +211,7 @@ public partial class MainWindow : Window
             // 필요한 UI 업데이트
             UpdateInstantEditToggleUI();
             UpdateMenuButtonOrder();
+            AdjustMainWindowHeightForMenuCount();
         });
     }
 
@@ -632,6 +637,7 @@ public partial class MainWindow : Window
         // 설정을 다시 로드하여 메모리와 파일 동기화
         settings = Settings.Load();
         UpdateInstantEditToggleUI();
+        AdjustMainWindowHeightForMenuCount();
     }
 
     private void TrayModeButton_Click(object sender, RoutedEventArgs e)
@@ -1313,7 +1319,6 @@ public partial class MainWindow : Window
             if (!captureOccurred && !settings.IsTrayMode)
             {
                 this.Show();
-                this.WindowState = WindowState.Normal;
                 this.Activate();
             }
         }
@@ -1342,7 +1347,6 @@ public partial class MainWindow : Window
                 if (!settings.IsTrayMode)
                 {
                     this.Show();
-                    this.WindowState = WindowState.Normal;
                     this.Activate();
                 }
             }
@@ -1372,7 +1376,6 @@ public partial class MainWindow : Window
                 if (!settings.IsTrayMode)
                 {
                     this.Show();
-                    this.WindowState = WindowState.Normal;
                     this.Activate();
                 }
             }
@@ -1763,7 +1766,8 @@ public partial class MainWindow : Window
             // 리스트에서 제거 로직
            Border? currentBorder = null;
             foreach (var child in CaptureListPanel.Children) {
-                if (child is Border b && b.Child == grid) { currentBorder = b; break; }
+                if (child is Border b && 
+                    b.Child == grid) { currentBorder = b; break; }
             }
             if (currentBorder != null) {
                 CaptureListPanel.Children.Remove(currentBorder);
@@ -2022,7 +2026,7 @@ public partial class MainWindow : Window
         
         // 설정에서 포맷 가져오기
         string format = settings.FileSaveFormat; // PNG, JPG, BMP, GIF, WEBP
-        string ext = $".{format.ToLower()}";
+        string ext = $".{format}";
         
         string defaultFileName = $"캡처 {timestamp}{ext}";
         
@@ -2108,13 +2112,7 @@ public partial class MainWindow : Window
         {
             if (!captures[selectedIndex].IsSaved && settings.ShowSavePrompt)
             {
-                var result = MessageBox.Show(
-                    LocalizationManager.Get("UnsavedImageDeleteConfirm"),
-                    LocalizationManager.Get("Confirm"),
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Question);
-
-                if (result == MessageBoxResult.No)
+                if (MessageBox.Show(LocalizationManager.Get("UnsavedImageDeleteConfirm"), LocalizationManager.Get("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
                 {
                     return;
                 }
@@ -2139,10 +2137,10 @@ public partial class MainWindow : Window
 
             captures.RemoveAt(selectedIndex);
             UpdateCaptureItemIndexes();
+            UpdateCaptureCount();
+            UpdateButtonStates();
             selectedBorder = null;
             selectedIndex = -1;
-            UpdateButtonStates();
-            UpdateEmptyStateLogo();
         }
     }
 
@@ -2870,7 +2868,7 @@ public partial class MainWindow : Window
             settings = Settings.Load();
             // 단축키 재등록
             RegisterGlobalHotkeys();
-            ShowGuideMessage(LocalizationManager.Get("SettingsApplied"), TimeSpan.FromSeconds(1));
+            UpdateInstantEditToggleUI();
             
             // ★ 모드가 변경된 경우 자동으로 전환
             if (previousMode != settings.LastActiveMode)
@@ -3469,5 +3467,76 @@ public partial class MainWindow : Window
     private class TipData
     {
         public Dictionary<string, List<string>>? tips { get; set; }
+    }
+
+    // Height auto-adjustment for menu count
+    private double _baseMainWindowHeight; // baseline to shrink from
+    private const double ButtonVerticalStep = 41.0; // approx button height + vertical margins
+    // Capture initial visible menu count as baseline (after Loaded)
+    private int _baselineMenuCount = -1;
+
+    private void AdjustMainWindowHeightForMenuCount()
+    {
+        try
+        {
+            // Only adjust in Normal mode (not Tray/Simple windows)
+            if (settings.IsTrayMode) return;
+
+            // Determine baseline and current visible count in UI
+            if (_baselineMenuCount < 0)
+            {
+                // Fallback: compute once if not set
+                _baselineMenuCount = 0;
+                if (CaptureButtonsPanel != null)
+                {
+                    foreach (var child in CaptureButtonsPanel.Children)
+                    {
+                        if (child is Separator) break;
+                        if (child is Button) _baselineMenuCount++;
+                    }
+                }
+                if (_baselineMenuCount <= 0) _baselineMenuCount = 2; // safe fallback
+            }
+
+            int currentCount = 0;
+            try
+            {
+                if (CaptureButtonsPanel != null)
+                {
+                    foreach (var child in CaptureButtonsPanel.Children)
+                    {
+                        if (child is Separator) break; // stop at first separator
+                        if (child is Button) currentCount++;
+                    }
+                }
+            }
+            catch { }
+            if (currentCount <= 0)
+            {
+                // fallback to baseline if UI count is unavailable
+                currentCount = _baselineMenuCount;
+            }
+
+            // Removed relative to initial baseline
+            int desiredCount = Math.Max(currentCount, _baselineMenuCount - 2);
+            int shrinkButtons = Math.Max(0, _baselineMenuCount - desiredCount);
+
+            // compute min height (equivalent to showing only 2 items)
+            double minHeightForTwo = _baseMainWindowHeight - (Math.Max(0, _baselineMenuCount - 2) * ButtonVerticalStep);
+            if (minHeightForTwo < 200) minHeightForTwo = 200; // absolute safety floor
+
+            // compute target height and clamp
+            double targetHeight = _baseMainWindowHeight - (shrinkButtons * ButtonVerticalStep);
+            if (targetHeight < minHeightForTwo) targetHeight = minHeightForTwo;
+
+            // Apply height (keep width unchanged)
+            if (!double.IsNaN(targetHeight) && targetHeight > 0)
+            {
+                // override XAML MinHeight that may block shrinking
+                this.MinHeight = minHeightForTwo;
+                this.Height = targetHeight;
+            }
+        }
+        catch { /* ignore sizing errors */ }
     }
 }
