@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CatchCapture"
         mc:Ignorable="d"
-        Title="캐치 캡처" Height="585" Width="350" 
-        MinWidth="350" MinHeight="585"
+        Title="캐치 캡처" Height="625" Width="350" 
+        MinWidth="350" MinHeight="625"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None" AllowsTransparency="True" 
         Background="Transparent"
@@ -202,7 +202,7 @@
 
                     <!-- 왼쪽 버튼 영역 (전체 높이) -->
                     <Border Grid.Column="0" Grid.RowSpan="2" Background="#FFFFFF" BorderThickness="0,0,1,0" BorderBrush="#E0E6F0">
-                        <StackPanel Margin="0,12,0,12">
+                        <StackPanel x:Name="CaptureButtonsPanel" Margin="0,12,0,12">
                             <Button x:Name="AreaCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="AreaCaptureButton_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/area_capture.png" Width="16" Height="16" Margin="0,0,5,0" 
@@ -288,7 +288,16 @@
                                     <TextBlock x:Name="ScrollCaptureButtonText" Text="스크롤 캡처" HorizontalAlignment="Left" FontSize="12"/>
                                 </StackPanel>
                             </Button>
-                            
+
+                             <!-- 문자 추출 버튼 (OCR) -->
+                            <Button x:Name="OcrCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="OcrCaptureButton_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/icons/ocr_capture.png" Width="16" Height="16" Margin="0,0,5,0"
+                                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                                    <TextBlock x:Name="OcrCaptureButtonText" Text="문자 추출" HorizontalAlignment="Left" FontSize="12"/>
+                                </StackPanel>
+                            </Button>
+
                             <Separator Style="{StaticResource SeparatorStyle}"/>    
 
                             <Button x:Name="SimpleModeButton" Style="{StaticResource SidebarButtonStyle}" Click="SimpleModeButton_Click">
@@ -307,7 +316,9 @@
                                     <TextBlock x:Name="TrayModeButtonText" Text="트레이모드" HorizontalAlignment="Left" FontSize="12"/>
                                 </StackPanel>
                             </Button>
-                            <Separator Style="{StaticResource SeparatorStyle}"/>
+                            
+                            
+                            <Separator Style="{StaticResource SeparatorStyle}"/>    
 
                             <!-- 즉시편집 스위치 -->
                              <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,10,10,5"> <!-- 왼쪽 마진 10px 추가 -->

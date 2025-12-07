@@ -62,8 +62,14 @@ namespace CatchCapture.Models
         
         // Simple mode UI scale level (0: default, 1: large icons only, 2: large icons + text)
         public int SimpleModeUIScaleLevel { get; set; } = 0;
-        
-        // System settings        
+
+        // Main window menu items order (for customizable main menu)
+        public List<string> MainMenuItems { get; set; } = new List<string>
+        {
+            "AreaCapture", "DelayCapture", "RealTimeCapture", "MultiCapture",
+            "FullScreen", "DesignatedCapture", "WindowCapture", "ElementCapture", "ScrollCapture", "OcrCapture"
+        };              
+
         // System settings
         public bool StartWithWindows { get; set; } = false;
         public string StartupMode { get; set; } = "Normal"; // "Normal", "Simple", "Tray"

@@ -149,21 +149,9 @@
 
         <!-- Sidebar -->
         <Border Grid.Column="0" Background="{StaticResource SidebarBackground}" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,0">
-            <StackPanel Margin="0,30,0,0">
-                <!-- App Logo/Title -->
-                <StackPanel Orientation="Horizontal" Margin="25,0,0,30">
-                    <Image Source="/Icons/camera.png" Width="24" Height="24" Margin="0,0,10,0" RenderOptions.BitmapScalingMode="HighQuality"/>
-                    <TextBlock x:Name="SidebarAppNameText" Text="CatchCapture" FontSize="18" FontWeight="Bold" Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center"/>
-                </StackPanel>
-
-                <!-- Navigation -->
-                <TextBlock x:Name="SidebarGeneralText" Text="" Visibility="Collapsed" FontSize="12" Foreground="{StaticResource TextSecondary}" Margin="25,0,0,5" FontWeight="SemiBold"/>
-                <Button x:Name="NavCapture" Content="캡처 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Capture"/>
-                <Button x:Name="NavSystem" Content="시스템 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="System"/>
-                <Button x:Name="NavHotkey" Content="단축키 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Hotkey"/>
-                
-                <!-- Bottom Info -->
-                <StackPanel VerticalAlignment="Bottom" Margin="25,280,0,0">
+            <DockPanel Margin="0,30,0,20">
+                <!-- Bottom Info - DockPanel.Dock="Bottom" -->
+                <StackPanel DockPanel.Dock="Bottom" Margin="25,0,0,0">
                      <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                         <TextBlock x:Name="VersionText" Text="버전 1.0.0" FontSize="12" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center"/>
                         <TextBlock x:Name="WebsiteIcon" Text="🏠" FontSize="14" Margin="10,0,0,0" Cursor="Hand" VerticalAlignment="Center" 
@@ -175,7 +163,23 @@
                         <TextBlock x:Name="PrivacyPolicyText" Text="개인정보 처리방침" FontSize="11" Foreground="{StaticResource TextSecondary}" Cursor="Hand" MouseLeftButtonUp="PrivacyPolicy_Click"/>
                      </StackPanel>
                 </StackPanel>
-            </StackPanel>
+                
+                <!-- Top Content -->
+                <StackPanel>
+                    <!-- App Logo/Title -->
+                    <StackPanel Orientation="Horizontal" Margin="25,0,0,30">
+                        <Image Source="/Icons/camera.png" Width="24" Height="24" Margin="0,0,10,0" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        <TextBlock x:Name="SidebarAppNameText" Text="CatchCapture" FontSize="18" FontWeight="Bold" Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- Navigation -->
+                    <TextBlock x:Name="SidebarGeneralText" Text="" Visibility="Collapsed" FontSize="12" Foreground="{StaticResource TextSecondary}" Margin="25,0,0,5" FontWeight="SemiBold"/>
+                    <Button x:Name="NavCapture" Content="캡처 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Capture"/>
+                    <Button x:Name="NavMenuEdit" Content="메뉴 편집" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="MenuEdit"/>
+                    <Button x:Name="NavSystem" Content="시스템 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="System"/>
+                    <Button x:Name="NavHotkey" Content="단축키 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Hotkey"/>
+                </StackPanel>
+            </DockPanel>
         </Border>
 
         <!-- Content Area -->
@@ -245,6 +249,130 @@
                             <CheckBox x:Name="ChkShowPreview" Content="캡처 후 미리보기/편집 창 표시"/>
                         </StackPanel>
                     </GroupBox>
+                </StackPanel>
+            </Border>
+
+            <!-- Menu Edit Page -->
+            <Border x:Name="PageMenuEdit" Grid.Row="0" Background="{StaticResource ContentBackground}" CornerRadius="8" Padding="30" Visibility="Collapsed">
+                <Border.Effect>
+                    <DropShadowEffect Color="Black" Direction="270" ShadowDepth="1" Opacity="0.05" BlurRadius="10"/>
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock x:Name="MenuEditSectionTitle" Text="메뉴 편집" Style="{StaticResource SectionTitle}"/>
+                    
+                    <!-- Header with Add Button -->
+                    <Grid Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0"
+                                   Text="드래그하여 메뉴 순서를 변경하세요." 
+                                   FontSize="12" 
+                                   Foreground="{StaticResource TextSecondary}" 
+                                   VerticalAlignment="Center"
+                                   TextWrapping="Wrap"/>
+                        
+                        <!-- Add Menu Controls -->
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <ComboBox x:Name="AvailableMenuComboBox" 
+                                      Width="130" 
+                                      Height="28"
+                                      VerticalContentAlignment="Center"
+                                      Margin="0,0,8,0"/>
+                            <Button Content="+ 추가" 
+                                    Height="28"
+                                    Padding="15,0"
+                                    FontSize="12"
+                                    Click="AddMenuItem_Click"
+                                    Style="{StaticResource MacButtonPrimary}"/>
+                        </StackPanel>
+                    </Grid>
+                    
+                    <!-- Menu Items ListBox with Drag-Drop -->
+                    <ListBox x:Name="MenuItemsListBox" 
+                             Height="320" 
+                             BorderBrush="{StaticResource BorderColor}"
+                             BorderThickness="1"
+                             Background="#FAFAFA"
+                             AllowDrop="True"
+                             PreviewMouseLeftButtonDown="MenuItemsListBox_PreviewMouseLeftButtonDown"
+                             PreviewMouseMove="MenuItemsListBox_PreviewMouseMove"
+                             Drop="MenuItemsListBox_Drop"
+                             DragOver="MenuItemsListBox_DragOver">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="Margin" Value="4"/>
+                                <Setter Property="Background" Value="White"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <Border x:Name="Bd" 
+                                                    Background="{TemplateBinding Background}" 
+                                                    BorderBrush="#E5E5E5" 
+                                                    BorderThickness="1" 
+                                                    CornerRadius="6" 
+                                                    Padding="12,10"
+                                                    Cursor="Hand">
+                                                <Border.Effect>
+                                                    <DropShadowEffect Color="#000000" Direction="270" ShadowDepth="1" Opacity="0.06" BlurRadius="3"/>
+                                                </Border.Effect>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="☰" FontSize="14" Foreground="#999" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                                    <ContentPresenter Grid.Column="1" VerticalAlignment="Center"/>
+                                                    <Button Grid.Column="2" Content="✕" 
+                                                            Width="24" Height="24" 
+                                                            FontSize="12"
+                                                            Background="Transparent"
+                                                            BorderThickness="0"
+                                                            Foreground="#999"
+                                                            Cursor="Hand"
+                                                            Click="DeleteMenuItem_Click"
+                                                            Tag="{Binding}"/>
+                                                </Grid>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="Bd" Property="Background" Value="#F5F5F5"/>
+                                                    <Setter TargetName="Bd" Property="BorderBrush" Value="#007AFF"/>
+                                                </Trigger>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter TargetName="Bd" Property="Background" Value="#EBF5FF"/>
+                                                    <Setter TargetName="Bd" Property="BorderBrush" Value="#007AFF"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding DisplayName}" 
+                                           FontSize="13"
+                                           FontWeight="Medium"
+                                           Foreground="#333333"
+                                           VerticalAlignment="Center"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    
+                        <!-- Restore Button Only -->
+                        <Button x:Name="RestoreMenuButton" 
+                                Content="기본 메뉴로 복원" 
+                                Height="32"
+                                Padding="20,0"
+                                HorizontalAlignment="Right"
+                                Click="RestoreMenu_Click"
+                                Style="{StaticResource MacButtonSecondary}"/>
                 </StackPanel>
             </Border>
 
@@ -483,8 +611,8 @@
 
             <!-- Action Buttons -->
             <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
-                <Button x:Name="CancelButton" Content="취소" Style="{StaticResource MacButtonSecondary}" Click="Cancel_Click" Width="80" Margin="0,0,10,0"/>
-                <Button x:Name="SaveButton" Content="저장" Style="{StaticResource MacButtonPrimary}" Click="Save_Click" Width="80"/>
+                <Button x:Name="SaveButton" Content="저장" Style="{StaticResource MacButtonPrimary}" Click="Save_Click" Width="80" Margin="0,0,10,0"/>
+                <Button x:Name="CancelButton" Content="취소" Style="{StaticResource MacButtonSecondary}" Click="Cancel_Click" Width="80"/>
             </StackPanel>
         </Grid>
     </Grid>

@@ -156,6 +156,7 @@ public partial class MainWindow : Window
             hwndSource?.AddHook(HwndHook);
             RegisterGlobalHotkeys();
             UpdateInstantEditToggleUI();
+            UpdateMenuButtonOrder(); 
             
             // 다국어 UI 텍스트 적용
             UpdateUIText();
@@ -201,8 +202,63 @@ public partial class MainWindow : Window
             settings = Settings.Load();
             // 필요한 UI 업데이트
             UpdateInstantEditToggleUI();
+            UpdateMenuButtonOrder();
         });
     }
+
+    private void UpdateMenuButtonOrder()
+    {
+        if (CaptureButtonsPanel == null || settings.MainMenuItems == null) return;
+
+        // 캡처 버튼들의 맵핑
+        var buttonMap = new Dictionary<string, Button>
+        {
+            { "AreaCapture", AreaCaptureButton },
+            { "DelayCapture", DelayCaptureButton },
+            { "RealTimeCapture", RealTimeCaptureButton },
+            { "MultiCapture", MultiCaptureButton },
+            { "FullScreen", FullScreenCaptureButton },
+            { "DesignatedCapture", DesignatedCaptureButton },
+            { "WindowCapture", WindowCaptureButton },
+            { "ElementCapture", ElementCaptureButton },
+            { "ScrollCapture", ScrollCaptureButton }, 
+            { "OcrCapture", OcrCaptureButton } 
+        };
+
+        // Separator와 하단 버튼들 저장
+        var bottomElements = new List<UIElement>();
+        bool foundSeparator = false;
+        foreach (UIElement child in CaptureButtonsPanel.Children)
+        {
+            if (child is Separator)
+            {
+                foundSeparator = true;
+            }
+            if (foundSeparator)
+            {
+                bottomElements.Add(child);
+            }
+        }
+
+        // 패널 초기화
+        CaptureButtonsPanel.Children.Clear();
+
+        // 설정에 따라 버튼 순서대로 추가
+        foreach (var key in settings.MainMenuItems)
+        {
+            if (buttonMap.TryGetValue(key, out var button))
+            {
+                CaptureButtonsPanel.Children.Add(button);
+            }
+        }
+
+        // Separator와 하단 버튼들 다시 추가
+        foreach (var element in bottomElements)
+        {
+            CaptureButtonsPanel.Children.Add(element);
+        }
+    }
+
     private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
     {
         // Print Screen 키 감지
@@ -1139,7 +1195,52 @@ public partial class MainWindow : Window
             }
         }
     }
-    
+
+    private async void OcrCaptureButton_Click(object sender, RoutedEventArgs e)
+    {
+        // 메인 창 숨기기
+        this.Hide();
+        
+        // UI 업데이트 강제 대기
+        await Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.Render);
+        FlushUIAfterHide();
+        
+        // 스크린샷 캡처
+        BitmapSource screenshot = await Task.Run(() => ScreenCaptureUtility.CaptureScreen());
+        
+        // SnippingWindow 열기 (즉시편집 없이)
+        using var snippingWindow = new SnippingWindow(false, screenshot);
+        
+        if (snippingWindow.ShowDialog() == true)
+        {
+            var capturedImage = snippingWindow.SelectedFrozenImage ?? ScreenCaptureUtility.CaptureArea(snippingWindow.SelectedArea);
+            
+            // 캡처 리스트에 추가
+            AddCaptureToList(capturedImage, skipPreview: true);
+            
+            // OCR 실행
+            try
+            {
+                var ocrResult = await OcrUtility.ExtractTextFromImageAsync(capturedImage);
+                var resultWindow = new OcrResultWindow(ocrResult.Text, ocrResult.ShowWarning);
+                resultWindow.Owner = this;
+                resultWindow.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"OCR 처리 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        
+        // 메인 창 복원
+        this.Opacity = 1;
+        if (!settings.IsTrayMode)
+        {
+            this.Show();
+            this.Activate();
+        }
+    }
+
     private void CaptureScrollableWindow()
     {
         try
@@ -1362,7 +1463,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private void AddCaptureToList(BitmapSource image)
+    private void AddCaptureToList(BitmapSource image, bool skipPreview = false)
     {
         try
         {
@@ -1461,7 +1562,7 @@ public partial class MainWindow : Window
                 }
                 
                 // 캡처 후 미리보기 표시 설정 확인
-                if (settings.ShowPreviewAfterCapture || settings.OpenEditorAfterCapture)
+                if (!skipPreview && (settings.ShowPreviewAfterCapture || settings.OpenEditorAfterCapture))
                 {
                     var preview = ShowPreviewWindow(image, captures.Count - 1);
                     preview.Closed += (s, e2) =>

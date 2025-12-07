@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using Microsoft.Win32;
 using CatchCapture.Models;
 using System.Diagnostics;
@@ -23,6 +24,7 @@ namespace CatchCapture
             InitKeyComboBoxes(); // 콤보박스 초기화
             InitLanguageComboBox(); // 언어 콤보 아이템 채우기
             LoadCapturePage();
+            LoadMenuEditPage();
             LoadSystemPage();
             LoadHotkeysPage();
             HighlightNav(NavCapture, "Capture");
@@ -177,10 +179,12 @@ namespace CatchCapture
         private void HighlightNav(Button btn, string tag)
         {
             NavCapture.FontWeight = tag == "Capture" ? FontWeights.Bold : FontWeights.Normal;
+            NavMenuEdit.FontWeight = tag == "MenuEdit" ? FontWeights.Bold : FontWeights.Normal;
             NavSystem.FontWeight = tag == "System" ? FontWeights.Bold : FontWeights.Normal;
             NavHotkey.FontWeight = tag == "Hotkey" ? FontWeights.Bold : FontWeights.Normal;
             
             PageCapture.Visibility = tag == "Capture" ? Visibility.Visible : Visibility.Collapsed;
+            PageMenuEdit.Visibility = tag == "MenuEdit" ? Visibility.Visible : Visibility.Collapsed;
             PageSystem.Visibility = tag == "System" ? Visibility.Visible : Visibility.Collapsed;
             PageHotkey.Visibility = tag == "Hotkey" ? Visibility.Visible : Visibility.Collapsed;
         }
@@ -450,6 +454,9 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
             // 윈도우 시작 프로그램 등록/해제
             SetStartup(_settings.StartWithWindows);
 
+            // Menu items order
+            _settings.MainMenuItems = _menuItems.Select(m => m.Key).ToList();
+
             Settings.Save(_settings);
             // 디버그용 메시지박스 제거 - 설정이 자동으로 저장됨
             DialogResult = true;
@@ -469,6 +476,7 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
             _settings = new Settings();
             Settings.Save(_settings);
             LoadCapturePage();
+            LoadMenuEditPage();  // 메뉴 편집도 기본값으로 복원
             LoadSystemPage();
             LoadHotkeysPage();
             MessageBox.Show("기본 설정으로 복원되었습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -581,10 +589,303 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
             }
         }
 
+        // Menu Edit Page
+        private System.Collections.ObjectModel.ObservableCollection<MenuItemViewModel> _menuItems = 
+            new System.Collections.ObjectModel.ObservableCollection<MenuItemViewModel>();
+
+        private void LoadMenuEditPage()
+        {
+            _menuItems.Clear();
+            
+            // Load menu items from settings
+            var menuKeys = _settings.MainMenuItems ?? new System.Collections.Generic.List<string>
+            {
+                "AreaCapture", "DelayCapture", "RealTimeCapture", "MultiCapture",
+                "FullScreen", "DesignatedCapture", "WindowCapture", "ElementCapture", "ScrollCapture"
+            };
+
+            foreach (var key in menuKeys)
+            {
+                _menuItems.Add(new MenuItemViewModel
+                {
+                    Key = key,
+                    DisplayName = GetMenuItemDisplayName(key)
+                });
+            }
+
+            MenuItemsListBox.ItemsSource = _menuItems;
+            UpdateAvailableMenus();
+        }
+
+        private void UpdateAvailableMenus()
+        {
+            // All possible menu items
+            var allMenuKeys = new[]
+            {
+                "AreaCapture", "DelayCapture", "RealTimeCapture", "MultiCapture",
+                "FullScreen", "DesignatedCapture", "WindowCapture", "ElementCapture", "ScrollCapture", "OcrCapture"
+            };
+
+            // Get currently used keys
+            var usedKeys = _menuItems.Select(m => m.Key).ToHashSet();
+
+            // Find available (not currently used) items
+            var availableItems = allMenuKeys
+                .Where(key => !usedKeys.Contains(key))
+                .Select(key => new MenuItemViewModel
+                {
+                    Key = key,
+                    DisplayName = GetMenuItemDisplayName(key)
+                })
+                .ToList();
+
+            AvailableMenuComboBox.ItemsSource = availableItems;
+            AvailableMenuComboBox.DisplayMemberPath = "DisplayName";
+            
+            if (availableItems.Any())
+            {
+                AvailableMenuComboBox.SelectedIndex = 0;
+            }
+        }
+
+        private string GetMenuItemDisplayName(string key)
+        {
+            return key switch
+            {
+                "AreaCapture" => "영역 캡처",
+                "DelayCapture" => "지연 캡처",
+                "RealTimeCapture" => "순간 캡처",
+                "MultiCapture" => "멀티 캡처",
+                "FullScreen" => "전체화면",
+                "DesignatedCapture" => "지정 캡처",
+                "WindowCapture" => "창 캡처",
+                "ElementCapture" => "단위 캡처",
+                "ScrollCapture" => "스크롤 캡처",
+                "OcrCapture" => "문자 추출", 
+                _ => key
+            };
+        }
+
+        // Drag and Drop support
+        private Point _dragStartPoint;
+        private MenuItemViewModel? _draggedItem;
+
+        private void MenuItemsListBox_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            _dragStartPoint = e.GetPosition(null);
+        }
+
+        private void MenuItemsListBox_PreviewMouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
+            {
+                Point currentPosition = e.GetPosition(null);
+                Vector diff = _dragStartPoint - currentPosition;
+
+                if (Math.Abs(diff.X) > SystemParameters.MinimumHorizontalDragDistance ||
+                    Math.Abs(diff.Y) > SystemParameters.MinimumVerticalDragDistance)
+                {
+                    // Get the dragged ListBoxItem
+                    var listBox = sender as System.Windows.Controls.ListBox;
+                    var listBoxItem = FindAncestor<ListBoxItem>((DependencyObject)e.OriginalSource);
+
+                    if (listBoxItem != null && listBox != null)
+                    {
+                        _draggedItem = listBoxItem.Content as MenuItemViewModel;
+                        if (_draggedItem != null)
+                        {
+                            DragDrop.DoDragDrop(listBoxItem, _draggedItem, DragDropEffects.Move);
+                        }
+                    }
+                }
+            }
+        }
+
+        private ListBoxItem? _lastHighlightedItem = null;
+
+        private void MenuItemsListBox_DragOver(object sender, System.Windows.DragEventArgs e)
+        {
+            e.Effects = DragDropEffects.Move;
+            e.Handled = true;
+
+            // Find the item under the mouse
+            var targetItem = FindAncestor<ListBoxItem>((DependencyObject)e.OriginalSource);
+            
+            // Clear previous highlight
+            if (_lastHighlightedItem != null && _lastHighlightedItem != targetItem)
+            {
+                ClearDropHighlight(_lastHighlightedItem);
+            }
+
+            // Highlight current target
+            if (targetItem != null && targetItem.Content != _draggedItem)
+            {
+                SetDropHighlight(targetItem);
+                _lastHighlightedItem = targetItem;
+            }
+        }
+
+        private void SetDropHighlight(ListBoxItem item)
+        {
+            // Find the Border inside the ListBoxItem and add a top border
+            var border = FindVisualChild<Border>(item);
+            if (border != null)
+            {
+                border.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#007AFF"));
+                border.BorderThickness = new Thickness(2, 3, 2, 1);
+            }
+        }
+
+        private void ClearDropHighlight(ListBoxItem item)
+        {
+            var border = FindVisualChild<Border>(item);
+            if (border != null)
+            {
+                border.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E5E5E5"));
+                border.BorderThickness = new Thickness(1);
+            }
+        }
+
+        private static T? FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+        {
+            for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
+                if (child is T t)
+                    return t;
+                var result = FindVisualChild<T>(child);
+                if (result != null)
+                    return result;
+            }
+            return null;
+        }
+
+        private void MenuItemsListBox_Drop(object sender, System.Windows.DragEventArgs e)
+        {
+            // Clear highlight
+            if (_lastHighlightedItem != null)
+            {
+                ClearDropHighlight(_lastHighlightedItem);
+                _lastHighlightedItem = null;
+            }
+
+            if (_draggedItem == null) return;
+
+            var listBox = sender as System.Windows.Controls.ListBox;
+            if (listBox == null) return;
+
+            // Find drop target
+            var targetItem = FindAncestor<ListBoxItem>((DependencyObject)e.OriginalSource);
+            if (targetItem == null) return;
+
+            var target = targetItem.Content as MenuItemViewModel;
+            if (target == null || target == _draggedItem) return;
+
+            int oldIndex = _menuItems.IndexOf(_draggedItem);
+            int newIndex = _menuItems.IndexOf(target);
+
+            if (oldIndex != newIndex && oldIndex >= 0 && newIndex >= 0)
+            {
+                _menuItems.Move(oldIndex, newIndex);
+            }
+
+            _draggedItem = null;
+        }
+
+        private static T? FindAncestor<T>(DependencyObject current) where T : DependencyObject
+        {
+            while (current != null)
+            {
+                if (current is T t)
+                    return t;
+                current = System.Windows.Media.VisualTreeHelper.GetParent(current);
+            }
+            return null;
+        }
+
+        private void DeleteMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is MenuItemViewModel item)
+            {
+                if (_menuItems.Count <= 1)
+                {
+                    MessageBox.Show("최소 1개 이상의 메뉴 항목이 필요합니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                var result = MessageBox.Show(
+                    $"'{item.DisplayName}' 메뉴를 삭제하시겠습니까?",
+                    "확인",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    _menuItems.Remove(item);
+                    UpdateAvailableMenus();
+                }
+            }
+        }
+
+        private void AddMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (AvailableMenuComboBox.SelectedItem is MenuItemViewModel selectedItem)
+            {
+                _menuItems.Add(new MenuItemViewModel
+                {
+                    Key = selectedItem.Key,
+                    DisplayName = selectedItem.DisplayName
+                });
+                UpdateAvailableMenus();
+            }
+            else
+            {
+                MessageBox.Show("추가할 메뉴를 선택해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void RestoreMenu_Click(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show(
+                "기본 메뉴로 복원하시겠습니까?",
+                "확인",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                // Restore to default menu items
+                _menuItems.Clear();
+                var defaultKeys = new[]
+                {
+                    "AreaCapture", "DelayCapture", "RealTimeCapture", "MultiCapture",
+                    "FullScreen", "DesignatedCapture", "WindowCapture", "ElementCapture", "ScrollCapture", "OcrCapture"
+                };
+
+                foreach (var key in defaultKeys)
+                {
+                    _menuItems.Add(new MenuItemViewModel
+                    {
+                        Key = key,
+                        DisplayName = GetMenuItemDisplayName(key)
+                    });
+                }
+
+                UpdateAvailableMenus();
+            }
+        }
+
         protected override void OnClosed(EventArgs e)
         {
             try { CatchCapture.Models.LocalizationManager.LanguageChanged -= OnLanguageChanged; } catch { }
             base.OnClosed(e);
         }
+    }
+
+    // Helper class for menu item editing
+    public class MenuItemViewModel
+    {
+        public string Key { get; set; } = string.Empty;
+        public string DisplayName { get; set; } = string.Empty;
     }
 }
