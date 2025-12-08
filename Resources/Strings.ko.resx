@@ -305,4 +305,24 @@
   <data name="Fill" xml:space="preserve"><value>채우기</value></data>
   <data name="FillOpacity" xml:space="preserve"><value>투명도</value></data>
   <data name="Intensity" xml:space="preserve"><value>강도</value></data>
+  <data name="ComputerApp" xml:space="preserve"><value>컴퓨터 앱…</value></data>
+  <data name="SelectApplication" xml:space="preserve"><value>애플리케이션 선택</value></data>
+  <data name="SortNameAsc" xml:space="preserve"><value>이름순 ▲</value></data>
+  <data name="SortNameDesc" xml:space="preserve"><value>이름순 ▼</value></data>
+  <data name="Browse" xml:space="preserve"><value>찾아보기…</value></data>
+  <data name="SelectExecutable" xml:space="preserve"><value>실행 파일 선택</value></data>
+  <data name="ConfirmDeleteShortcut" xml:space="preserve"><value>'{0}' 바로가기를 삭제하시겠습니까?</value></data>
+  <data name="DeleteShortcut" xml:space="preserve"><value>바로가기 삭제</value></data>
+  <data name="AppLaunchFailed" xml:space="preserve"><value>앱 실행 실패: {0}</value></data>
+  <data name="GoogleSearch" xml:space="preserve"><value>구글 이미지 검색</value></data>
+  <data name="CopiedToClipboard" xml:space="preserve"><value>클립보드에 복사되었습니다.</value></data>
+  <data name="AllCopiedToClipboard" xml:space="preserve"><value>모든 이미지가 클립보드에 복사되었습니다.</value></data>
+  <data name="SelectSaveFolder" xml:space="preserve"><value>저장 폴더 선택</value></data>
+  <data name="UnsavedImagesDeleteConfirm" xml:space="preserve"><value>저장되지 않은 이미지가 있습니다. 정말 모두 삭제하시겠습니까?</value></data>
+  <data name="UnsavedImageDeleteConfirm" xml:space="preserve"><value>이 이미지는 저장되지 않았습니다. 정말 삭제하시겠습니까?</value></data>
+  <data name="ShareImageTitle" xml:space="preserve"><value>이미지 공유</value></data>
+  <data name="ShareImageDesc" xml:space="preserve"><value>캡처된 이미지 공유</value></data>
+  <data name="ShareError" xml:space="preserve"><value>공유 오류</value></data>
+  <data name="AllImagesSaved" xml:space="preserve"><value>모든 이미지가 저장되었습니다.</value></data>
+  <data name="CopyAll" xml:space="preserve"><value>전체 복사</value></data>
 </root>

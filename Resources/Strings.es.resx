@@ -305,4 +305,24 @@
   <data name="Fill" xml:space="preserve"><value>Rellenar</value></data>
   <data name="FillOpacity" xml:space="preserve"><value>Opacidad</value></data>
   <data name="Intensity" xml:space="preserve"><value>Intensidad</value></data>
+  <data name="ComputerApp" xml:space="preserve"><value>Aplicación de PC...</value></data>
+  <data name="SelectApplication" xml:space="preserve"><value>Seleccionar aplicación</value></data>
+  <data name="SortNameAsc" xml:space="preserve"><value>Nombre ▲</value></data>
+  <data name="SortNameDesc" xml:space="preserve"><value>Nombre ▼</value></data>
+  <data name="Browse" xml:space="preserve"><value>Examinar...</value></data>
+  <data name="SelectExecutable" xml:space="preserve"><value>Seleccionar ejecutable</value></data>
+  <data name="ConfirmDeleteShortcut" xml:space="preserve"><value>¿Eliminar acceso directo '{0}'?</value></data>
+  <data name="DeleteShortcut" xml:space="preserve"><value>Eliminar acceso directo</value></data>
+  <data name="AppLaunchFailed" xml:space="preserve"><value>Error al iniciar la aplicación: {0}</value></data>
+  <data name="GoogleSearch" xml:space="preserve"><value>Búsqueda de Google Imágenes</value></data>
+  <data name="CopiedToClipboard" xml:space="preserve"><value>Copiado al portapapeles.</value></data>
+  <data name="AllCopiedToClipboard" xml:space="preserve"><value>Todas las imágenes copiadas al portapapeles.</value></data>
+  <data name="SelectSaveFolder" xml:space="preserve"><value>Seleccionar carpeta de guardado</value></data>
+  <data name="UnsavedImagesDeleteConfirm" xml:space="preserve"><value>Hay imágenes sin guardar. ¿Estás seguro de que quieres eliminar todo?</value></data>
+  <data name="UnsavedImageDeleteConfirm" xml:space="preserve"><value>Esta imagen no está guardada. ¿Estás seguro de que quieres eliminarla?</value></data>
+  <data name="ShareImageTitle" xml:space="preserve"><value>Compartir imagen</value></data>
+  <data name="ShareImageDesc" xml:space="preserve"><value>Compartir imagen capturada</value></data>
+  <data name="ShareError" xml:space="preserve"><value>Error al compartir</value></data>
+  <data name="AllImagesSaved" xml:space="preserve"><value>Todas las imágenes se han guardado.</value></data>
+  <data name="CopyAll" xml:space="preserve"><value>Copiar todo</value></data>
 </root>

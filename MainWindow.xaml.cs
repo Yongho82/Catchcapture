@@ -3255,10 +3255,51 @@ public partial class MainWindow : Window
         // 3. 하단 아이콘 버튼들
         if (SettingsBottomText != null) SettingsBottomText.Text = LocalizationManager.GetString("Settings");
         if (CopySelectedBottomText != null) CopySelectedBottomText.Text = LocalizationManager.GetString("Copy");
-        // 전체복사는 Copy + All 조합 (리소스 키가 따로 없어서 임시 처리)
-        if (CopyAllBottomText != null) CopyAllBottomText.Text = LocalizationManager.GetString("Copy") + " All";
+        if (CopyAllBottomText != null) CopyAllBottomText.Text = LocalizationManager.GetString("CopyAll");
         if (SaveAllBottomText != null) SaveAllBottomText.Text = LocalizationManager.GetString("SaveAll");
         if (DeleteAllBottomText != null) DeleteAllBottomText.Text = LocalizationManager.GetString("DeleteAll");
+
+        // 4. 리스트 아이템 툴팁 갱신
+        if (CaptureListPanel != null)
+        {
+            foreach (UIElement child in CaptureListPanel.Children)
+            {
+                if (child is Border border && border.Child is Grid grid)
+                {
+                    // 버튼 패널 찾기 (Grid의 자식 중 StackPanel)
+                    foreach (UIElement gridChild in grid.Children)
+                    {
+                        if (gridChild is StackPanel panel && panel.Orientation == Orientation.Horizontal)
+                        {
+                            // 버튼 순서: 구글, 공유, 저장, 삭제
+                            int btnIndex = 0;
+                            foreach (UIElement panelChild in panel.Children)
+                            {
+                                if (panelChild is Button btn)
+                                {
+                                    switch (btnIndex)
+                                    {
+                                        case 0: // Google
+                                            btn.ToolTip = LocalizationManager.GetString("GoogleSearch");
+                                            break;
+                                        case 1: // Share (Step 2에서 추가됨)
+                                            btn.ToolTip = LocalizationManager.GetString("Share");
+                                            break;
+                                        case 2: // Save
+                                            btn.ToolTip = LocalizationManager.GetString("Save");
+                                            break;
+                                        case 3: // Delete
+                                            btn.ToolTip = LocalizationManager.GetString("Delete");
+                                            break;
+                                    }
+                                    btnIndex++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     private void UpdateTrayMenuTexts()
     {

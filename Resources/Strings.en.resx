@@ -305,4 +305,24 @@
   <data name="Fill" xml:space="preserve"><value>Fill</value></data>
   <data name="FillOpacity" xml:space="preserve"><value>Opacity</value></data>
   <data name="Intensity" xml:space="preserve"><value>Intensity</value></data>
+  <data name="ComputerApp" xml:space="preserve"><value>Computer App...</value></data>
+  <data name="SelectApplication" xml:space="preserve"><value>Select Application</value></data>
+  <data name="SortNameAsc" xml:space="preserve"><value>Name ▲</value></data>
+  <data name="SortNameDesc" xml:space="preserve"><value>Name ▼</value></data>
+  <data name="Browse" xml:space="preserve"><value>Browse...</value></data>
+  <data name="SelectExecutable" xml:space="preserve"><value>Select Executable</value></data>
+  <data name="ConfirmDeleteShortcut" xml:space="preserve"><value>Delete shortcut '{0}'?</value></data>
+  <data name="DeleteShortcut" xml:space="preserve"><value>Delete Shortcut</value></data>
+  <data name="AppLaunchFailed" xml:space="preserve"><value>Failed to launch app: {0}</value></data>
+  <data name="GoogleSearch" xml:space="preserve"><value>Search Google Image</value></data>
+  <data name="CopiedToClipboard" xml:space="preserve"><value>Copied to clipboard.</value></data>
+  <data name="AllCopiedToClipboard" xml:space="preserve"><value>All images copied to clipboard.</value></data>
+  <data name="SelectSaveFolder" xml:space="preserve"><value>Select Save Folder</value></data>
+  <data name="UnsavedImagesDeleteConfirm" xml:space="preserve"><value>There are unsaved images. Are you sure you want to delete all?</value></data>
+  <data name="UnsavedImageDeleteConfirm" xml:space="preserve"><value>This image is not saved. Are you sure you want to delete it?</value></data>
+  <data name="ShareImageTitle" xml:space="preserve"><value>Share Image</value></data>
+  <data name="ShareImageDesc" xml:space="preserve"><value>Share captured image</value></data>
+  <data name="ShareError" xml:space="preserve"><value>Share Error</value></data>
+  <data name="AllImagesSaved" xml:space="preserve"><value>All images have been saved.</value></data>
+  <data name="CopyAll" xml:space="preserve"><value>Copy All</value></data>
 </root>

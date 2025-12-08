@@ -305,4 +305,24 @@
   <data name="Fill" xml:space="preserve"><value>Füllen</value></data>
   <data name="FillOpacity" xml:space="preserve"><value>Deckkraft</value></data>
   <data name="Intensity" xml:space="preserve"><value>Intensität</value></data>
+  <data name="ComputerApp" xml:space="preserve"><value>Computer-App...</value></data>
+  <data name="SelectApplication" xml:space="preserve"><value>Anwendung auswählen</value></data>
+  <data name="SortNameAsc" xml:space="preserve"><value>Name ▲</value></data>
+  <data name="SortNameDesc" xml:space="preserve"><value>Name ▼</value></data>
+  <data name="Browse" xml:space="preserve"><value>Durchsuchen...</value></data>
+  <data name="SelectExecutable" xml:space="preserve"><value>Ausführbare Datei wählen</value></data>
+  <data name="ConfirmDeleteShortcut" xml:space="preserve"><value>Verknüpfung '{0}' löschen?</value></data>
+  <data name="DeleteShortcut" xml:space="preserve"><value>Verknüpfung löschen</value></data>
+  <data name="AppLaunchFailed" xml:space="preserve"><value>App-Start fehlgeschlagen: {0}</value></data>
+  <data name="GoogleSearch" xml:space="preserve"><value>Google-Bildersuche</value></data>
+  <data name="CopiedToClipboard" xml:space="preserve"><value>In die Zwischenablage kopiert.</value></data>
+  <data name="AllCopiedToClipboard" xml:space="preserve"><value>Alle Bilder in die Zwischenablage kopiert.</value></data>
+  <data name="SelectSaveFolder" xml:space="preserve"><value>Speicherordner auswählen</value></data>
+  <data name="UnsavedImagesDeleteConfirm" xml:space="preserve"><value>Es gibt nicht gespeicherte Bilder. Möchten Sie wirklich alle löschen?</value></data>
+  <data name="UnsavedImageDeleteConfirm" xml:space="preserve"><value>Dieses Bild wurde nicht gespeichert. Möchten Sie es wirklich löschen?</value></data>
+  <data name="ShareImageTitle" xml:space="preserve"><value>Bild teilen</value></data>
+  <data name="ShareImageDesc" xml:space="preserve"><value>Erfasstes Bild teilen</value></data>
+  <data name="ShareError" xml:space="preserve"><value>Fehler beim Teilen</value></data>
+  <data name="AllImagesSaved" xml:space="preserve"><value>Alle Bilder wurden gespeichert.</value></data>
+  <data name="CopyAll" xml:space="preserve"><value>Alles kopieren</value></data>
 </root>

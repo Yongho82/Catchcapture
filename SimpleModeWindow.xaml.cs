@@ -1130,7 +1130,7 @@ namespace CatchCapture
                         sep.Style = sepStyle;
                     menu.Items.Add(sep);
                 }
-                var appsItem = new MenuItem { Header = "컴퓨터 앱…" };
+                var appsItem = new MenuItem { Header = CatchCapture.Models.LocalizationManager.Get("ComputerApp") };
                 if (this.TryFindResource("DarkMenuItem") is Style darkApps)
                     appsItem.Style = darkApps;
                 // 앱 아이콘(옵션)
@@ -1313,7 +1313,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"앱 실행 실패: {ex.Message}");
+                MessageBox.Show(string.Format(CatchCapture.Models.LocalizationManager.Get("AppLaunchFailed"), ex.Message));
             }
         }
 
@@ -1331,7 +1331,7 @@ namespace CatchCapture
                     {
                         var win = new Window
                         {
-                            Title = "애플리케이션 선택",
+                            Title = CatchCapture.Models.LocalizationManager.Get("SelectApplication"),
                             Width = 420,
                             Height = 560,
                             WindowStartupLocation = WindowStartupLocation.CenterOwner,
@@ -1346,7 +1346,7 @@ namespace CatchCapture
 
                         // 헤더: 정렬 토글
                         var header = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(8,8,8,0), HorizontalAlignment = HorizontalAlignment.Right };
-                        var sortBtn = new Button { Content = "가나다순 ▲", Padding = new Thickness(10,2,10,2), Height = 26, MinWidth = 96 };
+                        var sortBtn = new Button { Content = CatchCapture.Models.LocalizationManager.Get("SortNameAsc"), Padding = new Thickness(10,2,10,2), Height = 26, MinWidth = 96 };
                         header.Children.Add(sortBtn);
                         Grid.SetRow(header, 0);
                         grid.Children.Add(header);
@@ -1373,16 +1373,16 @@ namespace CatchCapture
                                 var li = new ListBoxItem { Content = sp, Tag = e };
                                 list.Items.Add(li);
                             }
-                            sortBtn.Content = asc ? "가나다순 ▲" : "가나다순 ▼";
+                            sortBtn.Content = asc ? CatchCapture.Models.LocalizationManager.Get("SortNameAsc") : CatchCapture.Models.LocalizationManager.Get("SortNameDesc");
                         }
                         sortBtn.Click += (ss, ee) => { asc = !asc; RefreshList(); };
                         RefreshList();
 
                         // 버튼 바
                         var bottom = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(8) };
-                        var browse = new Button { Content = "찾아보기…", Margin = new Thickness(0, 0, 8, 0) };
-                        var ok = new Button { Content = "확인", IsDefault = true };
-                        var cancel = new Button { Content = "취소", IsCancel = true, Margin = new Thickness(8,0,0,0) };
+                        var browse = new Button { Content = CatchCapture.Models.LocalizationManager.Get("Browse"), Margin = new Thickness(0, 0, 8, 0) };
+                        var ok = new Button { Content = CatchCapture.Models.LocalizationManager.Get("Confirm"), IsDefault = true };
+                        var cancel = new Button { Content = CatchCapture.Models.LocalizationManager.Get("Cancel"), IsCancel = true, Margin = new Thickness(8,0,0,0) };
                         bottom.Children.Add(browse);
                         bottom.Children.Add(ok);
                         bottom.Children.Add(cancel);
@@ -1394,7 +1394,7 @@ namespace CatchCapture
                         {
                             var ofd = new OpenFileDialog
                             {
-                                Title = "실행 파일/바로가기 선택",
+                                Title = CatchCapture.Models.LocalizationManager.Get("SelectExecutable"),
                                 Filter = "Programs|*.exe;*.lnk|All|*.*"
                             };
                             if (ofd.ShowDialog(win) == true)
@@ -1562,7 +1562,7 @@ namespace CatchCapture
         // 외부 앱 바로가기 제거
         private void RemoveApp(ExternalAppShortcut app)
         {
-            var result = MessageBox.Show($"'{app.DisplayName}' 바로가기를 삭제하시겠습니까?", "바로가기 삭제", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            var result = MessageBox.Show(string.Format(CatchCapture.Models.LocalizationManager.Get("ConfirmDeleteShortcut"), app.DisplayName), CatchCapture.Models.LocalizationManager.Get("DeleteShortcut"), MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result == MessageBoxResult.Yes && settings != null)
             {
                 settings.SimpleModeApps.RemoveAll(a => string.Equals(a.TargetPath, app.TargetPath, StringComparison.OrdinalIgnoreCase) && a.DisplayName == app.DisplayName);

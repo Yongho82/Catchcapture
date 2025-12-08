@@ -305,4 +305,24 @@
   <data name="Fill" xml:space="preserve"><value>Remplir</value></data>
   <data name="FillOpacity" xml:space="preserve"><value>Opacité</value></data>
   <data name="Intensity" xml:space="preserve"><value>Intensité</value></data>
+  <data name="ComputerApp" xml:space="preserve"><value>Appli ordinateur...</value></data>
+  <data name="SelectApplication" xml:space="preserve"><value>Sélectionner l'application</value></data>
+  <data name="SortNameAsc" xml:space="preserve"><value>Nom ▲</value></data>
+  <data name="SortNameDesc" xml:space="preserve"><value>Nom ▼</value></data>
+  <data name="Browse" xml:space="preserve"><value>Parcourir...</value></data>
+  <data name="SelectExecutable" xml:space="preserve"><value>Sélectionner l'exécutable</value></data>
+  <data name="ConfirmDeleteShortcut" xml:space="preserve"><value>Supprimer le raccourci '{0}' ?</value></data>
+  <data name="DeleteShortcut" xml:space="preserve"><value>Supprimer le raccourci</value></data>
+  <data name="AppLaunchFailed" xml:space="preserve"><value>Échec du lancement de l'application : {0}</value></data>
+  <data name="GoogleSearch" xml:space="preserve"><value>Recherche d'images Google</value></data>
+  <data name="CopiedToClipboard" xml:space="preserve"><value>Copié dans le presse-papiers.</value></data>
+  <data name="AllCopiedToClipboard" xml:space="preserve"><value>Toutes les images copiées dans le presse-papiers.</value></data>
+  <data name="SelectSaveFolder" xml:space="preserve"><value>Sélectionner le dossier d'enregistrement</value></data>
+  <data name="UnsavedImagesDeleteConfirm" xml:space="preserve"><value>Il y a des images non enregistrées. Voulez-vous vraiment tout supprimer ?</value></data>
+  <data name="UnsavedImageDeleteConfirm" xml:space="preserve"><value>Cette image n'est pas enregistrée. Voulez-vous vraiment la supprimer ?</value></data>
+  <data name="ShareImageTitle" xml:space="preserve"><value>Partager l'image</value></data>
+  <data name="ShareImageDesc" xml:space="preserve"><value>Partager l'image capturée</value></data>
+  <data name="ShareError" xml:space="preserve"><value>Erreur de partage</value></data>
+  <data name="AllImagesSaved" xml:space="preserve"><value>Toutes les images ont été enregistrées.</value></data>
+  <data name="CopyAll" xml:space="preserve"><value>Tout copier</value></data>
 </root>
