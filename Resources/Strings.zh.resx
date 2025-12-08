@@ -347,4 +347,5 @@
   <data name="LineStyle" xml:space="preserve"><value>线条样式</value></data>
   <data name="Outline" xml:space="preserve"><value>轮廓</value></data>
   <data name="OcrLanguagePackWarning" xml:space="preserve"><value>※ 如果日语/中文识别不准确，请尝试在 Windows 设置 &gt; 时间和语言 &gt; 语言中安装语言包。</value></data>
+  <data name="SimpleModeDockinGuide" xml:space="preserve"><value>💡 提示：拖动到屏幕顶部、左侧或右侧边缘即可停靠！</value></data>
 </root>

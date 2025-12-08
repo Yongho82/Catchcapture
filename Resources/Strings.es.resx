@@ -345,4 +345,5 @@
   <data name="GoogleTranslateFailed" xml:space="preserve"><value>Error al abrir Google Traductor: {0}</value></data>
   <data name="RedirectingToTranslate" xml:space="preserve"><value>Redirigiendo a Google Traductor...</value></data>
   <data name="OcrLanguagePackWarning" xml:space="preserve"><value>※ Si el reconocimiento de japonés/chino no es preciso, intente instalar el paquete de idioma en Configuración de Windows &gt; Hora e idioma &gt; Idioma.</value></data>
+  <data name="SimpleModeDockinGuide" xml:space="preserve"><value>💡 Consejo: ¡Arrastre al borde superior, izquierdo o derecho de la pantalla para acoplar!</value></data>
 </root>

@@ -101,6 +101,7 @@ namespace CatchCapture
 
             // 초기 스케일 적용 (필요시 Settings에서 불러오기 가능)
             ApplyUIScale();
+            ShowDockingGuide();
         }
 
         // ★ 이벤트 핸들러 추가 (생성자 다음에)
@@ -153,22 +154,25 @@ namespace CatchCapture
         private void CheckDocking()
         {
             var workArea = SystemParameters.WorkArea;
-            double snapDist = 80;
+            
+            // 도킹 감지 거리를 화면 너비의 5%로 설정 (기존 80px 고정값 대신)
+            double horizontalSnapDist = workArea.Width * 0.05;  // 좌우 도킹용 (약 96px on 1920px)
+            double verticalSnapDist = 80;  // 상단 도킹용
 
             double currentLeft = Left;
             double currentTop = Top;
             double currentRight = currentLeft + ActualWidth;
 
-            // 좌측 도킹 - 창이 화면 밖으로 나가도 도킹 감지
-            if (currentLeft < workArea.Left + snapDist)
+            // 좌측 도킹 - 화면 왼쪽 끝 5% 이내
+            if (currentLeft < workArea.Left + horizontalSnapDist)
             {
                 ApplyLayout(true); // 세로 모드
                 UpdateLayout();
                 Left = workArea.Left;
                 _dockSide = DockSide.Left;
             }
-            // 우측 도킹 - 창이 화면 밖으로 나가도 도킹 감지
-            else if (currentRight > workArea.Right - snapDist)
+            // 우측 도킹 - 화면 오른쪽 끝 5% 이내
+            else if (currentRight > workArea.Right - horizontalSnapDist)
             {
                 ApplyLayout(true); // 세로 모드
                 UpdateLayout();
@@ -176,7 +180,7 @@ namespace CatchCapture
                 _dockSide = DockSide.Right;
             }
             // 상단 도킹
-            else if (Math.Abs(currentTop - workArea.Top) < snapDist)
+            else if (Math.Abs(currentTop - workArea.Top) < verticalSnapDist)
             {
                 ApplyLayout(false); // 가로 모드
                 UpdateLayout();
@@ -1790,6 +1794,91 @@ namespace CatchCapture
                     CloseBtnV.ToolTip = LocalizationManager.Get("Close");
             }
             catch { }
+        }
+        private void ShowDockingGuide()
+        {
+            try
+            {
+                // 설정 파일 경로
+                var appDataPath = System.IO.Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    "CatchCapture");
+                var guideFilePath = System.IO.Path.Combine(appDataPath, ".simplemode_guide_shown");
+                
+                // 이미 표시했는지 확인
+                if (System.IO.File.Exists(guideFilePath))
+                    return;
+                    
+                // 스티커 알림 표시
+                var message = LocalizationManager.Get("SimpleModeDockinGuide");
+                ShowToastNotification(message, 5000); // 5초간 표시
+                
+                // 다시 표시하지 않도록 파일 생성
+                if (!System.IO.Directory.Exists(appDataPath))
+                    System.IO.Directory.CreateDirectory(appDataPath);
+                System.IO.File.WriteAllText(guideFilePath, DateTime.Now.ToString());
+            }
+            catch { }
+        }
+        private void ShowToastNotification(string message, int durationMs)
+        {
+            // 토스트 알림 창 생성
+            var toast = new Window
+            {
+                WindowStyle = WindowStyle.None,
+                AllowsTransparency = true,
+                Background = System.Windows.Media.Brushes.Transparent,
+                ShowInTaskbar = false,
+                Topmost = true,
+                SizeToContent = SizeToContent.WidthAndHeight,
+                ResizeMode = ResizeMode.NoResize
+            };
+            var border = new System.Windows.Controls.Border
+            {
+                Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(230, 33, 150, 243)),
+                CornerRadius = new CornerRadius(8),
+                Padding = new Thickness(20, 15, 20, 15),
+                Effect = new System.Windows.Media.Effects.DropShadowEffect
+                {
+                    Color = System.Windows.Media.Colors.Black,
+                    BlurRadius = 15,
+                    ShadowDepth = 3,
+                    Opacity = 0.3
+                }
+            };
+            var textBlock = new System.Windows.Controls.TextBlock
+            {
+                Text = message,
+                Foreground = System.Windows.Media.Brushes.White,
+                FontSize = 14,
+                FontWeight = FontWeights.SemiBold,
+                TextWrapping = TextWrapping.Wrap,
+                MaxWidth = 350
+            };
+            border.Child = textBlock;
+            toast.Content = border;
+            // 화면 하단 중앙에 위치
+            toast.Loaded += (s, e) =>
+            {
+                var workArea = SystemParameters.WorkArea;
+                toast.Left = (workArea.Width - toast.ActualWidth) / 2;
+                toast.Top = workArea.Height - toast.ActualHeight - 50;
+                // 페이드 인 애니메이션
+                toast.Opacity = 0;
+                var fadeIn = new System.Windows.Media.Animation.DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(300));
+                toast.BeginAnimation(OpacityProperty, fadeIn);
+            };
+            toast.Show();
+            // 일정 시간 후 페이드 아웃 후 닫기
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(durationMs) };
+            timer.Tick += (s, e) =>
+            {
+                timer.Stop();
+                var fadeOut = new System.Windows.Media.Animation.DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(300));
+                fadeOut.Completed += (s2, e2) => toast.Close();
+                toast.BeginAnimation(OpacityProperty, fadeOut);
+            };
+            timer.Start();
         }
     }
 }

@@ -347,4 +347,5 @@
   <data name="LineStyle" xml:space="preserve"><value>線のスタイル</value></data>
   <data name="Outline" xml:space="preserve"><value>アウトライン</value></data>
   <data name="OcrLanguagePackWarning" xml:space="preserve"><value>※ 日本語/中国語の認識が正確でない場合は、Windows 設定 &gt; 時刻と言語 &gt; 言語で言語パックをインストールしてください。</value></data>
+  <data name="SimpleModeDockinGuide" xml:space="preserve"><value>💡 ヒント：画面の上部、左端、右端にドラッグするとドッキングします！</value></data>
 </root>

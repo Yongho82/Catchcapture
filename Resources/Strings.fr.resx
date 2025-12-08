@@ -345,4 +345,5 @@
   <data name="GoogleTranslateFailed" xml:space="preserve"><value>Échec de l'ouverture de Google Traduction : {0}</value></data>
   <data name="RedirectingToTranslate" xml:space="preserve"><value>Redirection vers Google Traduction...</value></data>
   <data name="OcrLanguagePackWarning" xml:space="preserve"><value>※ Si la reconnaissance du japonais/chinois n'est pas précise, essayez d'installer le pack linguistique dans Paramètres Windows &gt; Heure et langue &gt; Langue.</value></data>
+  <data name="SimpleModeDockinGuide" xml:space="preserve"><value>💡 Astuce : Faites glisser vers le bord supérieur, gauche ou droit de l'écran pour ancrer !</value></data>
 </root>

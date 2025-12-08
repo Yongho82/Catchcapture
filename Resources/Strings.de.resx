@@ -345,4 +345,5 @@
   <data name="GoogleTranslateFailed" xml:space="preserve"><value>Google Übersetzer konnte nicht geöffnet werden: {0}</value></data>
   <data name="RedirectingToTranslate" xml:space="preserve"><value>Weiterleitung zu Google Übersetzer...</value></data>
   <data name="OcrLanguagePackWarning" xml:space="preserve"><value>※ Wenn die Erkennung von Japanisch/Chinesisch nicht genau ist, versuchen Sie, das Sprachpaket in Windows-Einstellungen &gt; Zeit &amp; Sprache &gt; Sprache zu installieren.</value></data>
+  <data name="SimpleModeDockinGuide" xml:space="preserve"><value>💡 Tipp: Ziehen Sie zum oberen, linken oder rechten Bildschirmrand, um anzudocken!</value></data>
 </root>

@@ -345,4 +345,5 @@
   <data name="GoogleTranslateFailed" xml:space="preserve"><value>Failed to open Google Translate: {0}</value></data>
   <data name="RedirectingToTranslate" xml:space="preserve"><value>Redirecting to Google Translate...</value></data>
   <data name="OcrLanguagePackWarning" xml:space="preserve"><value>※ If Japanese/Chinese recognition is not accurate, try installing the language pack in Windows Settings > Time &amp; Language > Language.</value></data>
+  <data name="SimpleModeDockinGuide" xml:space="preserve"><value>💡 Tip: Drag to the top, left, or right edge of the screen to dock!</value></data>
 </root>
