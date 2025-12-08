@@ -1002,8 +1002,16 @@ namespace CatchCapture.Utilities
                 Foreground = new SolidColorBrush(Color.FromRgb(60, 60, 60))
             };
             
+            var cancelViewbox = new Viewbox
+            {
+                Width = 38,
+                Stretch = Stretch.Uniform,
+                StretchDirection = StretchDirection.DownOnly,
+                Child = cancelLabel
+            };
+
             cancelStackPanel.Children.Add(cancelIcon);
-            cancelStackPanel.Children.Add(cancelLabel);
+            cancelStackPanel.Children.Add(cancelViewbox);
             
             var cancelBorder = new Border
             {
@@ -1298,13 +1306,21 @@ namespace CatchCapture.Utilities
             var textBlock = new TextBlock
             {
                 Text = label,
-                FontSize = 9, // 요청하신 9 크기
+                FontSize = 9,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Foreground = new SolidColorBrush(Color.FromRgb(60, 60, 60)),
                 Margin = new Thickness(0, 0, 0, 0)
             };
             
-            stackPanel.Children.Add(textBlock);
+            var viewbox = new Viewbox
+            {
+                Width = 38,
+                Stretch = Stretch.Uniform, // 비율 유지하며 축소
+                StretchDirection = StretchDirection.DownOnly, // 커지지는 않고 작아지기만 함
+                Child = textBlock
+            };
+            
+            stackPanel.Children.Add(viewbox);
             border.Child = stackPanel;
             button.Content = border;
             
@@ -1412,7 +1428,15 @@ namespace CatchCapture.Utilities
                 Margin = new Thickness(0, 0, 0, 0)
             };
             
-            stackPanel.Children.Add(textBlock);
+            var viewbox = new Viewbox
+            {
+                Width = 38,
+                Stretch = Stretch.Uniform,
+                StretchDirection = StretchDirection.DownOnly,
+                Child = textBlock
+            };
+            
+            stackPanel.Children.Add(viewbox);
             border.Child = stackPanel;
             button.Content = border;
             
