@@ -455,9 +455,38 @@ public partial class MainWindow : Window
 
     private void ShowMainWindow()
     {
-        this.Show();
-        this.WindowState = WindowState.Normal;
-        this.Activate();
+        // 마지막 활성 모드 복원
+        var lastMode = settings.LastActiveMode ?? "Normal";
+        
+        switch (lastMode)
+        {
+            case "Simple":
+                // 간편모드 복원
+                if (simpleModeWindow != null && !simpleModeWindow.IsVisible)
+                {
+                    simpleModeWindow.Show();
+                    simpleModeWindow.Activate();
+                    simpleModeWindow.Topmost = true;
+                }
+                else if (simpleModeWindow == null)
+                {
+                    SwitchToSimpleMode();
+                }
+                break;
+                
+            case "Tray":
+                // 트레이모드에서 열기를 눌렀으면 일반모드로 전환
+                SwitchToNormalMode();
+                break;
+                
+            case "Normal":
+            default:
+                // 일반모드 복원
+                this.Show();
+                this.WindowState = WindowState.Normal;
+                this.Activate();
+                break;
+        }
     }
 
     private void ToggleTrayModeWindow()
