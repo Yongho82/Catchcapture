@@ -54,10 +54,12 @@ public partial class MainWindow : Window
     private int _autoPreviewOpenCount = 0;
     // 트레이 컨텍스트 메뉴 및 항목 참조 (언어 변경 시 즉시 갱신용)
     private System.Windows.Forms.ContextMenuStrip? trayContextMenu;
+    private System.Windows.Forms.ToolStripMenuItem? trayOpenItem;
     private System.Windows.Forms.ToolStripMenuItem? trayAreaItem;
     private System.Windows.Forms.ToolStripMenuItem? trayNormalItem;
     private System.Windows.Forms.ToolStripMenuItem? traySimpleItem;
     private System.Windows.Forms.ToolStripMenuItem? trayTrayItem;
+    private System.Windows.Forms.ToolStripMenuItem? traySettingsItem; 
     private System.Windows.Forms.ToolStripMenuItem? trayExitItem;
 
         // 프리로딩을 위한 변수
@@ -338,28 +340,51 @@ public partial class MainWindow : Window
         trayContextMenu.Font = new System.Drawing.Font("Segoe UI", 9f, System.Drawing.FontStyle.Regular);
         trayContextMenu.ImageScalingSize = new System.Drawing.Size(16, 16); // unify icon size for crisp rendering
 
-        // 빠른 작업 항목
+        // 1. 열기 항목 (최상단)
+        trayOpenItem = new System.Windows.Forms.ToolStripMenuItem(
+            LocalizationManager.GetString("Open"), // 리소스에 "Open" 키가 있어야 함
+            LoadMenuImage("catcha.png"), // catcha.png 아이콘 사용
+            (s, e) => ShowMainWindow());
+
+        // 2. 빠른 작업 항목 (영역 캡처)
         trayAreaItem = new System.Windows.Forms.ToolStripMenuItem(
             LocalizationManager.GetString("AreaCapture"),
             LoadMenuImage("area_capture.png"),
             (s, e) => StartAreaCapture());
 
-        // 기존 모드 전환 항목
-        trayNormalItem = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("TrayNormalMode"), LoadMenuImage("window_cap.png"), (s, e) => SwitchToNormalMode());
-        traySimpleItem = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("TraySimpleMode"), LoadMenuImage("simple_mode.png"), (s, e) => SwitchToSimpleMode());
-        trayTrayItem = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("TrayTrayMode"), LoadMenuImage("tray_mode.png"), (s, e) => SwitchToTrayMode());
+        // 3. 기존 모드 전환 항목
+        trayNormalItem = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("NormalMode"), LoadMenuImage("window_cap.png"), (s, e) => SwitchToNormalMode());
+        traySimpleItem = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("SimpleMode"), LoadMenuImage("simple_mode.png"), (s, e) => SwitchToSimpleMode());
+        trayTrayItem = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("TrayMode"), LoadMenuImage("tray_mode.png"), (s, e) => SwitchToTrayMode());
+        
+        // 4. 종료 항목
         trayExitItem = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("Exit"), LoadMenuImage("power.png"), (s, e) =>
         {
             isExit = true;
             Close();
         });
 
+        // 메뉴 항목 구성 (순서대로 추가)
         trayContextMenu.Items.Clear();
+        
+        // [열기] 추가
+        trayContextMenu.Items.Add(trayOpenItem);
+        trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
+
+        // [영역 캡처]
         trayContextMenu.Items.Add(trayAreaItem);
         trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
+        
+        // [모드 전환]
         trayContextMenu.Items.Add(trayNormalItem);
         trayContextMenu.Items.Add(traySimpleItem);
         trayContextMenu.Items.Add(trayTrayItem);
+        
+        // [설정]
+        traySettingsItem = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("Settings"), LoadMenuImage("setting.png"), (s, e) => SettingsSideButton_Click(this, new RoutedEventArgs()));
+        trayContextMenu.Items.Add(traySettingsItem);
+
+        // [종료]
         trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
         trayContextMenu.Items.Add(trayExitItem);
 
@@ -3309,10 +3334,12 @@ public partial class MainWindow : Window
             notifyIcon.Text = LocalizationManager.GetString("AppTitle");
         }
         // 트레이 우클릭 메뉴
+        if (trayOpenItem != null) trayOpenItem.Text = LocalizationManager.GetString("Open");
         if (trayAreaItem != null) trayAreaItem.Text = LocalizationManager.GetString("AreaCapture");
         if (trayNormalItem != null) trayNormalItem.Text = LocalizationManager.GetString("NormalMode");
         if (traySimpleItem != null) traySimpleItem.Text = LocalizationManager.GetString("SimpleMode");
         if (trayTrayItem != null) trayTrayItem.Text = LocalizationManager.GetString("TrayMode");
+        if (traySettingsItem != null) traySettingsItem.Text = LocalizationManager.GetString("Settings");  // <-- 이 줄 추가
         if (trayExitItem != null) trayExitItem.Text = LocalizationManager.GetString("Exit");
     }
     // ★ Low-Level Keyboard Hook 설치

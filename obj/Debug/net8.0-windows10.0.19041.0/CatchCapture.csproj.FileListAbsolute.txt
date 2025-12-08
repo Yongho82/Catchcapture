@@ -125,3 +125,4 @@ C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\ko\CatchCaptu
 C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\ko\CatchCapture.resources.dll
 C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\zh\CatchCapture.resources.cs
 C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\zh\CatchCapture.resources.dll
+C:\yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\icons\catcha.png

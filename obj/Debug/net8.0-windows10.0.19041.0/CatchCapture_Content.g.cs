@@ -10,6 +10,7 @@
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/area_capture.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/camera.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/catcha.ico")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/catcha.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/catcha1.ico")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/catcha2.ico")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/clock.png")]
