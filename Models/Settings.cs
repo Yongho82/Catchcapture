@@ -73,7 +73,7 @@ namespace CatchCapture.Models
         // System settings
         public bool StartWithWindows { get; set; } = false;
         public string StartupMode { get; set; } = "Normal"; // "Normal", "Simple", "Tray"
-        public string Language { get; set; } = "ko"; // "ko", "zh", "ja", "en"
+        public string Language { get; set; } = "ko"; // "ko", "en", "ja", "zh", "es", "de", "fr"
         
         // Hotkeys
         public HotkeySettings Hotkeys { get; set; } = HotkeySettings.CreateDefaults();

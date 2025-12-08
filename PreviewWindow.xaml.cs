@@ -14,6 +14,7 @@ using System.Linq;
 using System.Windows.Controls.Primitives;
 using CatchCapture.Models;
 using System.Windows.Media.Effects;
+using LocalizationManager = CatchCapture.Resources.LocalizationManager; // 상단 추가
 
 namespace CatchCapture
 {
@@ -218,7 +219,7 @@ namespace CatchCapture
             {
                 // Ctrl+C: 현재 이미지 복사
                 ScreenCaptureUtility.CopyImageToClipboard(currentImage);
-                ShowToastMessage(LocalizationManager.Get("CopyToClipboard"));
+                ShowToastMessage(LocalizationManager.GetString("CopyToClipboard"));
                 e.Handled = true;
             }
             else if (e.Key == Key.Z && Keyboard.Modifiers == ModifierKeys.Control)
@@ -382,7 +383,7 @@ namespace CatchCapture
         private void CopyButton_Click(object sender, RoutedEventArgs e)
         {
             ScreenCaptureUtility.CopyImageToClipboard(currentImage);
-            ShowToastMessage(LocalizationManager.Get("CopyToClipboard"));
+            ShowToastMessage(LocalizationManager.GetString("CopyToClipboard"));
         }
 
         private async void OcrButton_Click(object sender, RoutedEventArgs e)
@@ -402,7 +403,7 @@ namespace CatchCapture
 
                 if (string.IsNullOrWhiteSpace(result.Text))
                 {
-                    MessageBox.Show(LocalizationManager.Get("NoExtractedText"), LocalizationManager.Get("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show(LocalizationManager.GetString("NoExtractedText"), LocalizationManager.GetString("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
 
@@ -451,7 +452,7 @@ namespace CatchCapture
             
             // 확장자 설정
             string ext = isPng ? ".png" : ".jpg";
-            string defaultFileName = $"{LocalizationManager.Get("AreaCapture")} {timestamp}{ext}";
+            string defaultFileName = $"{LocalizationManager.GetString("AreaCapture")} {timestamp}{ext}";
 
             // 필터 순서 변경 (설정된 포맷을 무조건 첫 번째로 배치)
             string filter = isPng 
@@ -461,7 +462,7 @@ namespace CatchCapture
             // 저장 대화 상자 표시
             var dialog = new SaveFileDialog
             {
-                Title = LocalizationManager.Get("ImageSaveTitle"),
+                Title = LocalizationManager.GetString("ImageSaveTitle"),
                 Filter = filter,
                 DefaultExt = ext,
                 FileName = defaultFileName,
@@ -473,11 +474,11 @@ namespace CatchCapture
                 try
                 {
                     ScreenCaptureUtility.SaveImageToFile(currentImage, dialog.FileName);
-                    MessageBox.Show(LocalizationManager.Get("ImageSaved"), LocalizationManager.Get("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show(LocalizationManager.GetString("ImageSaved"), LocalizationManager.GetString("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"{LocalizationManager.Get("Error")}: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"{LocalizationManager.GetString("Error")}: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -488,7 +489,7 @@ namespace CatchCapture
             {
                 if (currentImage == null)
                 {
-                    ShowToastMessage(LocalizationManager.Get("NoImageToPrint"));
+                    ShowToastMessage(LocalizationManager.GetString("NoImageToPrint"));
                     return;
                 }
 
@@ -499,7 +500,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"{LocalizationManager.Get("PrintPreviewError")}: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"{LocalizationManager.GetString("PrintPreviewError")}: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -524,7 +525,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"{LocalizationManager.Get("RecaptureError")}: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"{LocalizationManager.GetString("RecaptureError")}: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -584,7 +585,7 @@ namespace CatchCapture
         {
             if (undoStack.Count > 0 || true)
             {
-                if (MessageBox.Show(LocalizationManager.Get("ConfirmReset"), LocalizationManager.Get("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                if (MessageBox.Show(LocalizationManager.GetString("ConfirmReset"), LocalizationManager.GetString("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                 {
                     SaveForUndo();
                     currentImage = originalImage;
@@ -787,7 +788,7 @@ namespace CatchCapture
         {
             if (ImageInfoText != null && currentImage != null)
             {
-                ImageInfoText.Text = $"{LocalizationManager.Get("ImageSizePrefix")}{currentImage.PixelWidth} x {currentImage.PixelHeight}";
+                ImageInfoText.Text = $"{LocalizationManager.GetString("ImageSizePrefix")}{currentImage.PixelWidth} x {currentImage.PixelHeight}";
             }
 
             if (ZoomLevelText != null)
@@ -919,105 +920,11 @@ namespace CatchCapture
                 var shapeLabel = ShapeButton.Template?.FindName("ShapeLabelText", ShapeButton) as TextBlock;
                 if (shapeLabel != null)
                 {
-                    shapeLabel.Text = LocalizationManager.Get("ShapeLbl");
+                    shapeLabel.Text = LocalizationManager.GetString("ShapeLbl");
                 }
             }
         }
 
-        private void UpdateUIText()
-        {
-            try
-            {
-                // 창 제목
-                this.Title = LocalizationManager.Get("ImageEditTitle");
-
-                // 상단 툴바 텍스트
-                if (RecaptureLabelText != null) RecaptureLabelText.Text = LocalizationManager.Get("Recapture");
-                if (CopyLabelText != null) CopyLabelText.Text = LocalizationManager.Get("CopySelected");
-                if (SaveLabelText != null) SaveLabelText.Text = LocalizationManager.Get("Save");
-                if (PrintLabelText != null) PrintLabelText.Text = LocalizationManager.Get("Print");
-                if (UndoLabelText != null) UndoLabelText.Text = LocalizationManager.Get("UndoLbl");
-                if (RedoLabelText != null) RedoLabelText.Text = LocalizationManager.Get("RedoLbl");
-                if (ResetLabelText != null) ResetLabelText.Text = LocalizationManager.Get("ResetLbl");
-                if (CropLabelText != null) CropLabelText.Text = LocalizationManager.Get("Crop");
-                if (RotateLabelText != null) RotateLabelText.Text = LocalizationManager.Get("Rotate");
-                if (FlipHorizontalLabelText != null) FlipHorizontalLabelText.Text = LocalizationManager.Get("FlipH");
-                if (FlipVerticalLabelText != null) FlipVerticalLabelText.Text = LocalizationManager.Get("FlipV");
-
-                // TwoTierToolButton 라벨/툴팁
-                if (PenToolButton != null)
-                {
-                    PenToolButton.Label = LocalizationManager.Get("Pen");
-                    PenToolButton.ToolTipText = LocalizationManager.Get("Pen");
-                }
-                if (HighlightToolButton != null)
-                {
-                    HighlightToolButton.Label = LocalizationManager.Get("Highlighter");
-                    HighlightToolButton.ToolTipText = LocalizationManager.Get("Highlighter");
-                }
-                if (TextToolButton != null)
-                {
-                    TextToolButton.Label = LocalizationManager.Get("Text");
-                    TextToolButton.ToolTipText = LocalizationManager.Get("TextAdd");
-                }
-                if (MosaicToolButton != null)
-                {
-                    MosaicToolButton.Label = LocalizationManager.Get("Mosaic");
-                    MosaicToolButton.ToolTipText = LocalizationManager.Get("Mosaic");
-                }
-                if (EraserToolButton != null)
-                {
-                    EraserToolButton.Label = LocalizationManager.Get("Eraser");
-                    EraserToolButton.ToolTipText = LocalizationManager.Get("Eraser");
-                }
-                if (MagicWandToolButton != null)
-                {
-                    MagicWandToolButton.Label = LocalizationManager.Get("BackgroundRemoval");
-                    MagicWandToolButton.ToolTipText = LocalizationManager.Get("BackgroundRemovalTooltip");
-                }
-
-                // 이미지 검색 / OCR
-                if (ImageSearchLabelText != null) ImageSearchLabelText.Text = LocalizationManager.Get("ImageSearch");
-                if (ImageSearchButton != null) ImageSearchButton.ToolTip = LocalizationManager.Get("ImageSearchTooltip");
-                if (OcrLabelText != null) OcrLabelText.Text = LocalizationManager.Get("OCR");
-                if (OcrExtractLabelText != null) OcrExtractLabelText.Text = LocalizationManager.Get("Extract");
-                if (OcrButton != null) OcrButton.ToolTip = LocalizationManager.Get("OCR");
-
-                // 공유 버튼
-                if (ShareLabelText != null) ShareLabelText.Text = LocalizationManager.Get("Share");
-                if (ShareButton != null) ShareButton.ToolTip = LocalizationManager.Get("Share");
-
-                // 하단 정보 바 및 줌 컨트롤
-                if (ZoomResetButton != null)
-                {
-                    ZoomResetButton.Content = LocalizationManager.Get("ZoomReset");
-                    ZoomResetButton.ToolTip = LocalizationManager.Get("ZoomResetTooltip");
-                }
-                if (ZoomOutButton != null) ZoomOutButton.ToolTip = LocalizationManager.Get("ZoomOut");
-                if (ZoomInButton != null) ZoomInButton.ToolTip = LocalizationManager.Get("ZoomIn");
-                if (ImageInfoText != null) ImageInfoText.Text = LocalizationManager.Get("ImageSizePrefix"); // 실제 크기는 UpdateImageInfo에서 갱신
-
-                // 우측 패널 헤더/크기 라벨
-                if (RecentCapturesTitle != null) RecentCapturesTitle.Text = LocalizationManager.Get("RecentCaptures");
-                if (SizeLabelText != null) SizeLabelText.Text = LocalizationManager.Get("SizeLabel");
-
-                // 상단 툴바 버튼 툴팁
-                if (RecaptureButton != null) RecaptureButton.ToolTip = LocalizationManager.Get("AreaCapture");
-                if (PrintButton != null) PrintButton.ToolTip = LocalizationManager.Get("Print");
-                if (SaveButton != null) SaveButton.ToolTip = LocalizationManager.Get("Save");
-                if (CopyButton != null) CopyButton.ToolTip = LocalizationManager.Get("CopyToClipboard");
-                if (UndoButton != null) UndoButton.ToolTip = LocalizationManager.Get("UndoLbl");
-                if (RedoButton != null) RedoButton.ToolTip = LocalizationManager.Get("RedoLbl");
-                if (ResetButton != null) ResetButton.ToolTip = LocalizationManager.Get("ResetLbl");
-                if (CropButton != null) CropButton.ToolTip = LocalizationManager.Get("Crop");
-                if (RotateButton != null) RotateButton.ToolTip = LocalizationManager.Get("Rotate");
-                if (FlipHorizontalButton != null) FlipHorizontalButton.ToolTip = LocalizationManager.Get("FlipH");
-                if (FlipVerticalButton != null) FlipVerticalButton.ToolTip = LocalizationManager.Get("FlipV");
-                if (ShapeButton != null) ShapeButton.ToolTip = LocalizationManager.Get("ShapeLbl");
-                if (ShapeOptionsButton != null) ShapeOptionsButton.ToolTip = LocalizationManager.Get("ShapeOptions");
-            }
-            catch { }
-        }
 
         private void ImageSearchButton_Click(object sender, RoutedEventArgs e)
         {
@@ -1111,40 +1018,103 @@ namespace CatchCapture
 
         private void PreviewWindow_LanguageChanged(object? sender, EventArgs e)
         {
-            try 
-            { 
-                UpdateUIText(); 
-                // 팔레트(도구 옵션) 팝업이 열려 있으면 현재 모드에 맞게 재구성
-                if (ToolOptionsPopup != null && ToolOptionsPopup.IsOpen)
-                {
-                    switch (currentEditMode)
-                    {
-                        case EditMode.Highlight:
-                            ShowHighlightOptionsPopup();
-                            break;
-                        case EditMode.Text:
-                            ShowTextOptions();
-                            break;
-                        case EditMode.Mosaic:
-                            ShowMosaicOptions();
-                            break;
-                        case EditMode.Eraser:
-                            ShowEraserOptions();
-                            break;
-                        case EditMode.Pen:
-                            ShowPenOptionsPopup();
-                            break;
-                        case EditMode.Shape:
-                            ShowShapeOptionsPopup();
-                            break;                        
-                        default:
-                            // 도구 옵션이 없는 모드면 닫기
-                            ToolOptionsPopup.IsOpen = false;
-                            break;
-                    }
-                }
-            } 
-            catch { }
+            Dispatcher.Invoke(() =>
+            {
+                UpdateUIText();
+            });
+        }
+        private void UpdateUIText()
+        {
+            // Title
+            this.Title = LocalizationManager.GetString("AppTitle");
+            // Toolbar Buttons Texts & Tooltips
+            // Recapture
+            if(RecaptureLabelText != null) RecaptureLabelText.Text = LocalizationManager.GetString("Recapture");
+            if(RecaptureButton != null) RecaptureButton.ToolTip = LocalizationManager.GetString("AreaCapture");
+            // Print
+            if(PrintLabelText != null) PrintLabelText.Text = LocalizationManager.GetString("Print");
+            if(PrintButton != null) PrintButton.ToolTip = LocalizationManager.GetString("Print");
+            // Save
+            if(SaveLabelText != null) SaveLabelText.Text = LocalizationManager.GetString("Save");
+            if(SaveButton != null) SaveButton.ToolTip = LocalizationManager.GetString("Save");
+            // Copy
+            if(CopyLabelText != null) CopyLabelText.Text = LocalizationManager.GetString("Copy");
+            if(CopyButton != null) CopyButton.ToolTip = LocalizationManager.GetString("CopyToClipboard");
+            // Undo/Redo/Reset
+            if(UndoLabelText != null) UndoLabelText.Text = LocalizationManager.GetString("Undo");
+            if(UndoButton != null) UndoButton.ToolTip = LocalizationManager.GetString("Undo");
+            if(RedoLabelText != null) RedoLabelText.Text = LocalizationManager.GetString("Redo");
+            if(RedoButton != null) RedoButton.ToolTip = LocalizationManager.GetString("Redo");
+            if(ResetLabelText != null) ResetLabelText.Text = LocalizationManager.GetString("Reset");
+            if(ResetButton != null) ResetButton.ToolTip = LocalizationManager.GetString("ResetToOriginal");
+            // Crop/Rotate/Flip
+            if(CropLabelText != null) CropLabelText.Text = LocalizationManager.GetString("Crop");
+            if(CropButton != null) CropButton.ToolTip = LocalizationManager.GetString("Crop");
+            if(RotateLabelText != null) RotateLabelText.Text = LocalizationManager.GetString("Rotate");
+            if(RotateButton != null) RotateButton.ToolTip = LocalizationManager.GetString("Rotate");
+            if(FlipHorizontalLabelText != null) FlipHorizontalLabelText.Text = LocalizationManager.GetString("FlipHorizontal");
+            if(FlipHorizontalButton != null) FlipHorizontalButton.ToolTip = LocalizationManager.GetString("FlipHorizontal");
+            if(FlipVerticalLabelText != null) FlipVerticalLabelText.Text = LocalizationManager.GetString("FlipVertical");
+            if(FlipVerticalButton != null) FlipVerticalButton.ToolTip = LocalizationManager.GetString("FlipVertical");
+            // Shape
+            // ShapeLabelText removed
+            // if(ShapeLabelText != null) ShapeLabelText.Text = LocalizationManager.GetString("Shape");
+            if(ShapeButton != null) ShapeButton.ToolTip = LocalizationManager.GetString("DrawShapeTooltip");
+            if(ShapeOptionsButton != null) ShapeOptionsButton.ToolTip = LocalizationManager.GetString("ShapeOptions");
+            // Tools
+            if (PenToolButton != null)
+            {
+                PenToolButton.Label = LocalizationManager.GetString("Pen");
+                PenToolButton.ToolTipText = LocalizationManager.GetString("Pen");
+            }
+            if (HighlightToolButton != null)
+            {
+                HighlightToolButton.Label = LocalizationManager.GetString("Highlighter");
+                HighlightToolButton.ToolTipText = LocalizationManager.GetString("Highlighter");
+            }
+            if (TextToolButton != null)
+            {
+                TextToolButton.Label = LocalizationManager.GetString("Text");
+                TextToolButton.ToolTipText = LocalizationManager.GetString("AddText");
+            }
+            if (MosaicToolButton != null)
+            {
+                MosaicToolButton.Label = LocalizationManager.GetString("Mosaic");
+                MosaicToolButton.ToolTipText = LocalizationManager.GetString("Mosaic");
+            }
+            if (EraserToolButton != null)
+            {
+                EraserToolButton.Label = LocalizationManager.GetString("Eraser");
+                EraserToolButton.ToolTipText = LocalizationManager.GetString("Eraser");
+            }
+
+            if (MagicWandToolButton != null)
+            {
+                MagicWandToolButton.Label = LocalizationManager.GetString("BackgroundRemoval");
+                MagicWandToolButton.ToolTipText = LocalizationManager.GetString("BackgroundRemovalTooltip");
+            }
+
+            if (MagicWandToolButton != null)
+            {
+                MagicWandToolButton.Label = LocalizationManager.GetString("BackgroundRemoval");
+                MagicWandToolButton.ToolTipText = LocalizationManager.GetString("BackgroundRemovalTooltip");
+            }
+            // Image Search & Share & OCR
+            if(ImageSearchLabelText != null) ImageSearchLabelText.Text = LocalizationManager.GetString("ImageSearch");
+            if(ImageSearchButton != null) ImageSearchButton.ToolTip = LocalizationManager.GetString("ImageSearch");
+            if(ShareLabelText != null) ShareLabelText.Text = LocalizationManager.GetString("Share");
+            if(ShareButton != null) ShareButton.ToolTip = LocalizationManager.GetString("Share");
+            if(OcrExtractLabelText != null) OcrExtractLabelText.Text = LocalizationManager.GetString("Extract");
+            if(OcrButton != null) OcrButton.ToolTip = LocalizationManager.GetString("OcrCapture"); // Use OcrCapture key
+            // Panels
+            if(ToolTitleText != null) ToolTitleText.Text = LocalizationManager.GetString("ToolOptions");
+            if(RecentCapturesTitle != null) RecentCapturesTitle.Text = LocalizationManager.GetString("RecentCaptures");
+            if(SizeLabelText != null) SizeLabelText.Text = LocalizationManager.GetString("Size");
+            
+            // Zoom Reset
+            if (ZoomResetButton != null)
+                ZoomResetButton.Content = LocalizationManager.GetString("OriginalSize");
+            UpdateImageInfo();
         }
 
         protected override void OnClosed(EventArgs e)

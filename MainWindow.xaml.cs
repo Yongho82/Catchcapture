@@ -19,6 +19,8 @@ using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using System.Windows.Interop; 
 using Windows.ApplicationModel.DataTransfer;
+using CatchCapture.Resources;
+using LocalizationManager = CatchCapture.Resources.LocalizationManager;
 
 namespace CatchCapture;
 
@@ -122,6 +124,7 @@ public partial class MainWindow : Window
     public MainWindow(bool isAutoStart = false)
     {
         InitializeComponent();
+        LocalizationManager.LanguageChanged += MainWindow_LanguageChanged;
         settings = Settings.Load();
 
         Settings.SettingsChanged += OnSettingsChanged;
@@ -315,7 +318,7 @@ public partial class MainWindow : Window
         }
         
         notifyIcon.Visible = true;
-        notifyIcon.Text = CatchCapture.Models.LocalizationManager.Get("AppName");
+        notifyIcon.Text = LocalizationManager.GetString("AppName");
         
         // 클릭 시 트레이 모드 창 토글
         notifyIcon.Click += (s, e) =>
@@ -337,15 +340,15 @@ public partial class MainWindow : Window
 
         // 빠른 작업 항목
         trayAreaItem = new System.Windows.Forms.ToolStripMenuItem(
-            CatchCapture.Models.LocalizationManager.Get("AreaCapture"),
+            LocalizationManager.GetString("AreaCapture"),
             LoadMenuImage("area_capture.png"),
             (s, e) => StartAreaCapture());
 
         // 기존 모드 전환 항목
-        trayNormalItem = new System.Windows.Forms.ToolStripMenuItem(CatchCapture.Models.LocalizationManager.Get("TrayNormalMode"), LoadMenuImage("window_cap.png"), (s, e) => SwitchToNormalMode());
-        traySimpleItem = new System.Windows.Forms.ToolStripMenuItem(CatchCapture.Models.LocalizationManager.Get("TraySimpleMode"), LoadMenuImage("simple_mode.png"), (s, e) => SwitchToSimpleMode());
-        trayTrayItem = new System.Windows.Forms.ToolStripMenuItem(CatchCapture.Models.LocalizationManager.Get("TrayTrayMode"), LoadMenuImage("tray_mode.png"), (s, e) => SwitchToTrayMode());
-        trayExitItem = new System.Windows.Forms.ToolStripMenuItem(CatchCapture.Models.LocalizationManager.Get("Exit"), LoadMenuImage("power.png"), (s, e) =>
+        trayNormalItem = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("TrayNormalMode"), LoadMenuImage("window_cap.png"), (s, e) => SwitchToNormalMode());
+        traySimpleItem = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("TraySimpleMode"), LoadMenuImage("simple_mode.png"), (s, e) => SwitchToSimpleMode());
+        trayTrayItem = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("TrayTrayMode"), LoadMenuImage("tray_mode.png"), (s, e) => SwitchToTrayMode());
+        trayExitItem = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("Exit"), LoadMenuImage("power.png"), (s, e) =>
         {
             isExit = true;
             Close();
@@ -927,7 +930,7 @@ public partial class MainWindow : Window
     private void ToggleTopmost()
     {
         this.Topmost = !this.Topmost;
-        ShowGuideMessage(CatchCapture.Models.LocalizationManager.Get(this.Topmost ? "TopmostOnMsg" : "TopmostOffMsg"), TimeSpan.FromSeconds(1));
+        ShowGuideMessage(LocalizationManager.GetString(this.Topmost ? "TopmostOnMsg" : "TopmostOffMsg"), TimeSpan.FromSeconds(1));
     }
     
     // 파일 열기 다이얼로그
@@ -935,8 +938,8 @@ public partial class MainWindow : Window
     {
         var dialog = new OpenFileDialog
         {
-            Title = CatchCapture.Models.LocalizationManager.Get("OpenImageTitle"),
-            Filter = $"{CatchCapture.Models.LocalizationManager.Get("ImageFilesFilter")}|*.png;*.jpg;*.jpeg;*.bmp;*.gif|{CatchCapture.Models.LocalizationManager.Get("AllFiles")}|*.*",
+            Title = LocalizationManager.GetString("OpenImageTitle"),
+            Filter = $"{LocalizationManager.GetString("ImageFilesFilter")}|*.png;*.jpg;*.jpeg;*.bmp;*.gif|{LocalizationManager.GetString("AllFiles")}|*.*",
             Multiselect = true
         };
         
@@ -951,7 +954,7 @@ public partial class MainWindow : Window
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"{CatchCapture.Models.LocalizationManager.Get("FileOpenErrorPrefix")}: {fileName}\n{CatchCapture.Models.LocalizationManager.Get("Error")}: {ex.Message}", CatchCapture.Models.LocalizationManager.Get("FileOpenErrorTitle"), MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"{LocalizationManager.GetString("FileOpenErrorPrefix")}: {fileName}\n{LocalizationManager.GetString("Error")}: {ex.Message}", LocalizationManager.GetString("FileOpenErrorTitle"), MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -1196,7 +1199,7 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"스크롤 캡처 오류: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show($"스크롤 캡처 오류: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             if (!settings.IsTrayMode && this.Visibility != Visibility.Visible)
             {
                 this.Show();
@@ -1256,7 +1259,7 @@ public partial class MainWindow : Window
         try
         {
             // 안내 메시지 표시
-            var guideWindow = new GuideWindow(LocalizationManager.Get("ClickWindowThenEnter"), TimeSpan.FromSeconds(2.5));
+            var guideWindow = new GuideWindow(LocalizationManager.GetString("ClickWindowThenEnter"), TimeSpan.FromSeconds(2.5));
             guideWindow.Owner = this;
             guideWindow.Show();
             
@@ -1269,11 +1272,11 @@ public partial class MainWindow : Window
             if (capturedImage != null)
             {
                 AddCaptureToList(capturedImage);
-                ShowGuideMessage(LocalizationManager.Get("ScrollCaptureComplete"), TimeSpan.FromSeconds(1.5));
+                ShowGuideMessage(LocalizationManager.GetString("ScrollCaptureComplete"), TimeSpan.FromSeconds(1.5));
                 
                 // 캡처된 이미지 클립보드에 복사
                 ScreenCaptureUtility.CopyImageToClipboard(capturedImage);
-                ShowGuideMessage(LocalizationManager.Get("CopiedToClipboard"), TimeSpan.FromSeconds(1.5));
+                ShowGuideMessage(LocalizationManager.GetString("CopiedToClipboard"), TimeSpan.FromSeconds(1.5));
             }
         }
         catch (Exception ex)
@@ -1546,12 +1549,12 @@ public partial class MainWindow : Window
                 try
                 {
                     ScreenCaptureUtility.CopyImageToClipboard(image);
-                    ShowGuideMessage(LocalizationManager.Get("CopiedToClipboard"), TimeSpan.FromSeconds(1));
+                    ShowGuideMessage(LocalizationManager.GetString("CopiedToClipboard"), TimeSpan.FromSeconds(1));
                 }
                 catch
                 {
                     // 실패 시 재시도 없이 안내 메시지 표시하고 종료 (프로그램 멈춤 방지)
-                    ShowGuideMessage(LocalizationManager.Get("ClipboardCopyFailed"), TimeSpan.FromSeconds(3));
+                    ShowGuideMessage(LocalizationManager.GetString("ClipboardCopyFailed"), TimeSpan.FromSeconds(3));
                 }
             }
             else
@@ -1676,7 +1679,7 @@ public partial class MainWindow : Window
             Background = new SolidColorBrush(Color.FromArgb(230, 255, 255, 255)),
             BorderThickness = new Thickness(1),
             BorderBrush = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0)),
-            Cursor = Cursors.Hand, ToolTip = LocalizationManager.Get("GoogleSearch")
+            Cursor = Cursors.Hand, ToolTip = LocalizationManager.GetString("GoogleSearch")
         };
 
         // 둥근 버튼 스타일 적용 (템플릿)
@@ -1749,17 +1752,17 @@ public partial class MainWindow : Window
         }
 
         // 저장 버튼 추가
-        Button saveBtn = CreateHoverButton("save_selected.png", LocalizationManager.Get("Save"));
+        Button saveBtn = CreateHoverButton("save_selected.png", LocalizationManager.GetString("Save"));
         saveBtn.Click += (s, e) => { e.Handled = true; SaveImageToFile(captureImage); };
 
         // 삭제 버튼 추가
-        Button deleteBtn = CreateHoverButton("delete_selected.png", LocalizationManager.Get("Delete"));
+        Button deleteBtn = CreateHoverButton("delete_selected.png", LocalizationManager.GetString("Delete"));
         deleteBtn.Click += (s, e) => 
         {
             e.Handled = true;
             if (settings.ShowSavePrompt && !captureImage.IsSaved)
             {
-                if (MessageBox.Show(LocalizationManager.Get("UnsavedImageDeleteConfirm"), LocalizationManager.Get("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                if (MessageBox.Show(LocalizationManager.GetString("UnsavedImageDeleteConfirm"), LocalizationManager.GetString("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
                     return;
             }
 
@@ -1793,7 +1796,7 @@ public partial class MainWindow : Window
         shareTemplate.VisualTree = shareBorderFactory;
 
         // 공유 버튼 추가
-        Button shareBtn = CreateHoverButton("share_img.png", LocalizationManager.Get("Share"));
+        Button shareBtn = CreateHoverButton("share_img.png", LocalizationManager.GetString("Share"));
         shareBtn.Click += (s, e) => { e.Handled = true; ShareImage(captureImage.Image); };
 
         // 패널에 버튼 추가 (구글 -> 공유 -> 저장 -> 삭제)
@@ -1873,8 +1876,8 @@ public partial class MainWindow : Window
                 dataTransferManager.DataRequested += async (s, args) =>
                 {
                     var request = args.Request;
-                    request.Data.Properties.Title = LocalizationManager.Get("ShareImageTitle");
-                    request.Data.Properties.Description = LocalizationManager.Get("ShareImageDesc");
+                    request.Data.Properties.Title = LocalizationManager.GetString("ShareImageTitle");
+                    request.Data.Properties.Description = LocalizationManager.GetString("ShareImageDesc");
                     
                     var storageFile = await Windows.Storage.StorageFile.GetFileFromPathAsync(tempPath);
                     request.Data.SetStorageItems(new[] { storageFile });
@@ -1889,11 +1892,11 @@ public partial class MainWindow : Window
                 try
                 {
                     ScreenCaptureUtility.CopyImageToClipboard(image);
-                    ShowGuideMessage(LocalizationManager.Get("CopiedToClipboard"), TimeSpan.FromSeconds(2));
+                    ShowGuideMessage(LocalizationManager.GetString("CopiedToClipboard"), TimeSpan.FromSeconds(2));
                 }
                 catch
                 {
-                    MessageBox.Show($"{LocalizationManager.Get("ShareError")}: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"{LocalizationManager.GetString("ShareError")}: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -1955,7 +1958,7 @@ public partial class MainWindow : Window
         {
             var image = captures[selectedIndex].Image;
             ScreenCaptureUtility.CopyImageToClipboard(image);
-            ShowGuideMessage(LocalizationManager.Get("CopiedToClipboard"), TimeSpan.FromSeconds(1));
+            ShowGuideMessage(LocalizationManager.GetString("CopiedToClipboard"), TimeSpan.FromSeconds(1));
         }
     }
 
@@ -1994,7 +1997,7 @@ public partial class MainWindow : Window
         combinedImage.Render(drawingVisual);
 
         ScreenCaptureUtility.CopyImageToClipboard(combinedImage);
-        ShowGuideMessage(LocalizationManager.Get("AllCopiedToClipboard"), TimeSpan.FromSeconds(1));
+        ShowGuideMessage(LocalizationManager.GetString("AllCopiedToClipboard"), TimeSpan.FromSeconds(1));
     }
 
     #endregion
@@ -2045,7 +2048,7 @@ public partial class MainWindow : Window
         
         var dialog = new SaveFileDialog
         {
-            Title = LocalizationManager.Get("SaveImage"),
+            Title = LocalizationManager.GetString("SaveImage"),
             Filter = filter,
             DefaultExt = ext,
             FileName = defaultFileName,
@@ -2060,11 +2063,11 @@ public partial class MainWindow : Window
                 ScreenCaptureUtility.SaveImageToFile(captureImage.Image, dialog.FileName, settings.ImageQuality);
                 captureImage.IsSaved = true;
                 captureImage.SavedPath = dialog.FileName;
-                ShowGuideMessage(LocalizationManager.Get("ImageSaved"), TimeSpan.FromSeconds(1));
+                ShowGuideMessage(LocalizationManager.GetString("ImageSaved"), TimeSpan.FromSeconds(1));
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"저장 중 오류가 발생했습니다: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"저장 중 오류가 발생했습니다: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
@@ -2076,7 +2079,7 @@ public partial class MainWindow : Window
         // 실제로는 사용자가 폴더를 지정하기 위한 용도
         var dialog = new System.Windows.Forms.FolderBrowserDialog
         {
-            Description = LocalizationManager.Get("SelectSaveFolder")
+            Description = LocalizationManager.GetString("SelectSaveFolder")
         };
 
         if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -2097,7 +2100,7 @@ public partial class MainWindow : Window
                 captures[i].SavedPath = fileName;
             }
 
-            ShowGuideMessage(LocalizationManager.Get("AllImagesSaved"), TimeSpan.FromSeconds(1));
+            ShowGuideMessage(LocalizationManager.GetString("AllImagesSaved"), TimeSpan.FromSeconds(1));
         }
     }
 
@@ -2112,7 +2115,7 @@ public partial class MainWindow : Window
         {
             if (!captures[selectedIndex].IsSaved && settings.ShowSavePrompt)
             {
-                if (MessageBox.Show(LocalizationManager.Get("UnsavedImageDeleteConfirm"), LocalizationManager.Get("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                if (MessageBox.Show(LocalizationManager.GetString("UnsavedImageDeleteConfirm"), LocalizationManager.GetString("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
                 {
                     return;
                 }
@@ -2188,8 +2191,8 @@ public partial class MainWindow : Window
         if (hasUnsavedImages && settings.ShowSavePrompt)
         {
             var result = MessageBox.Show(
-                LocalizationManager.Get("UnsavedImagesDeleteConfirm"),
-                LocalizationManager.Get("Confirm"),
+                LocalizationManager.GetString("UnsavedImagesDeleteConfirm"),
+                LocalizationManager.GetString("Confirm"),
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
 
@@ -2324,7 +2327,7 @@ public partial class MainWindow : Window
             });
             
             // 안내 메시지
-            ShowGuideMessage(LocalizationManager.Get("SearchingOnGoogle"), TimeSpan.FromSeconds(2));
+            ShowGuideMessage(LocalizationManager.GetString("SearchingOnGoogle"), TimeSpan.FromSeconds(2));
                         // 추가: 2초 후 자동으로 Ctrl+V 입력
             Task.Delay(2000).ContinueWith(_ => 
             {
@@ -2338,7 +2341,7 @@ public partial class MainWindow : Window
         {
             // 실패 시 클립보드 폴백
             ScreenCaptureUtility.CopyImageToClipboard(image);
-            MessageBox.Show($"검색 실행 실패: {ex.Message}\n이미지가 클립보드에 복사되었습니다.", LocalizationManager.Get("Error"));
+            MessageBox.Show($"검색 실행 실패: {ex.Message}\n이미지가 클립보드에 복사되었습니다.", LocalizationManager.GetString("Error"));
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
             {
                 FileName = "https://www.google.com/imghp?hl=ko",
@@ -2440,7 +2443,7 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"단축키 등록 실패: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show($"단축키 등록 실패: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
@@ -2519,7 +2522,7 @@ public partial class MainWindow : Window
         RegisterHotKey(helper.Handle, HOTKEY_ID_REALTIME_CANCEL, 0, 0x1B);
 
         // 안내 메시지 표시
-        var guide = new GuideWindow(LocalizationManager.Get("RealTimeF1Guide"), null);
+        var guide = new GuideWindow(LocalizationManager.GetString("RealTimeF1Guide"), null);
         guide.Show();
     }
 
@@ -2724,7 +2727,7 @@ public partial class MainWindow : Window
                 {
                     simpleModeWindow.Topmost = true;
                     // 여기서 알림 표시
-                    var notification = new GuideWindow(LocalizationManager.Get("CopiedToClipboard"), TimeSpan.FromSeconds(0.4));
+                    var notification = new GuideWindow(LocalizationManager.GetString("CopiedToClipboard"), TimeSpan.FromSeconds(0.4));
                     notification.Owner = simpleModeWindow;
                     notification.Show();
                 }
@@ -3197,72 +3200,6 @@ public partial class MainWindow : Window
 
     #endregion
 
-    // UI 텍스트 업데이트 (다국어 적용)
-    private void UpdateUIText()
-    {
-        try
-        {
-            // 윈도우 타이틀
-            this.Title = CatchCapture.Models.LocalizationManager.Get("AppName");
-            if (TitleBarAppNameText != null)
-            {
-                TitleBarAppNameText.Text = CatchCapture.Models.LocalizationManager.Get("AppName");
-            }
-
-            // 사이드바 버튼들
-            SetButtonText(AreaCaptureButton, CatchCapture.Models.LocalizationManager.Get("AreaCapture"));
-            SetButtonText(DelayCaptureButton, CatchCapture.Models.LocalizationManager.Get("DelayCapture"));
-            SetButtonText(RealTimeCaptureButton, CatchCapture.Models.LocalizationManager.Get("RealTimeCapture"));
-            SetButtonText(MultiCaptureButton, CatchCapture.Models.LocalizationManager.Get("MultiCapture"));
-            SetButtonText(FullScreenCaptureButton, CatchCapture.Models.LocalizationManager.Get("FullScreen"));
-            SetButtonText(DesignatedCaptureButton, CatchCapture.Models.LocalizationManager.Get("DesignatedCapture"));
-            SetButtonText(WindowCaptureButton, CatchCapture.Models.LocalizationManager.Get("WindowCapture"));
-            SetButtonText(ElementCaptureButton, CatchCapture.Models.LocalizationManager.Get("ElementCapture"));
-            SetButtonText(ScrollCaptureButton, CatchCapture.Models.LocalizationManager.Get("ScrollCapture"));
-            // 추가 버튼들 (간편/트레이 모드)
-            SetButtonText(SimpleModeButton, CatchCapture.Models.LocalizationManager.Get("Simple"));
-            SetButtonText(TrayModeButton, CatchCapture.Models.LocalizationManager.Get("Tray"));
-            // OCR 버튼
-            SetButtonText(OcrCaptureButton, CatchCapture.Models.LocalizationManager.Get("OcrCapture"));
-            // 타이틀바 버튼 툴팁
-            if (MinimizeButton != null)
-            {
-                MinimizeButton.ToolTip = CatchCapture.Models.LocalizationManager.Get("Minimize");
-            }
-            if (CloseButton != null)
-            {
-                CloseButton.ToolTip = CatchCapture.Models.LocalizationManager.Get("Close");
-            }
-
-            // 지연 캡처 서브메뉴 텍스트
-            if (DelayNoneMenu != null) DelayNoneMenu.Header = CatchCapture.Models.LocalizationManager.Get("NoDelay");
-            if (Delay3Menu != null) Delay3Menu.Header = CatchCapture.Models.LocalizationManager.Get("Delay3Sec");
-            if (Delay5Menu != null) Delay5Menu.Header = CatchCapture.Models.LocalizationManager.Get("Delay5Sec");
-            if (Delay10Menu != null) Delay10Menu.Header = CatchCapture.Models.LocalizationManager.Get("Delay10Sec");
-
-            // 하단 버튼들
-            SetButtonText(CopySelectedButton, CatchCapture.Models.LocalizationManager.Get("CopySelected"));
-            SetButtonText(CopyAllButton, CatchCapture.Models.LocalizationManager.Get("CopyAll"));
-            SetButtonText(SaveAllButton, CatchCapture.Models.LocalizationManager.Get("SaveAll"));
-            SetButtonText(DeleteAllButton, CatchCapture.Models.LocalizationManager.Get("DeleteAll"));
-            SetButtonText(SettingsBottomButton, CatchCapture.Models.LocalizationManager.Get("Settings"));
-            // 즉시편집 라벨
-            if (InstantEditLabel != null)
-            {
-                InstantEditLabel.Text = CatchCapture.Models.LocalizationManager.Get("InstantEdit");
-            }
-            // 편집열기 라벨
-            if (OpenEditorLabel != null)
-            {
-                OpenEditorLabel.Text = CatchCapture.Models.LocalizationManager.Get("OpenEditor");
-            }
-        }
-        catch
-        {
-            // 안전하게 무시
-        }
-    }
-
     private void SetButtonText(System.Windows.Controls.Button? button, string text)
     {
         if (button == null) return;
@@ -3281,38 +3218,53 @@ public partial class MainWindow : Window
 
     private void MainWindow_LanguageChanged(object? sender, EventArgs e)
     {
-        try { UpdateUIText(); } catch { }
-        try { UpdateTrayMenuTexts(); } catch { }
+        // UI 스레드에서 안전하게 텍스트 업데이트
+        Dispatcher.Invoke(() =>
+        {
+            UpdateUIText();
+            UpdateTrayMenuTexts();
+        });
     }
-
-    protected override void OnClosed(EventArgs e)
+    private void UpdateUIText()
     {
-        UninstallKeyboardHook(); // ★ Hook 해제
-        Settings.SettingsChanged -= OnSettingsChanged;
-        try { LocalizationManager.LanguageChanged -= MainWindow_LanguageChanged; } catch { }
-        base.OnClosed(e);
+        // 1. 윈도우 제목
+        this.Title = LocalizationManager.GetString("AppTitle");
+        if (TitleBarAppNameText != null) TitleBarAppNameText.Text = LocalizationManager.GetString("AppTitle");
+        // 2. 메인 버튼들
+        if (AreaCaptureButtonText != null) AreaCaptureButtonText.Text = LocalizationManager.GetString("AreaCapture");
+        if (DelayCaptureButtonText != null) DelayCaptureButtonText.Text = LocalizationManager.GetString("DelayCapture");
+        if (RealTimeCaptureButtonText != null) RealTimeCaptureButtonText.Text = LocalizationManager.GetString("RealTimeCapture");
+        if (MultiCaptureButtonText != null) MultiCaptureButtonText.Text = LocalizationManager.GetString("MultiCapture");
+        if (FullScreenButtonText != null) FullScreenButtonText.Text = LocalizationManager.GetString("FullScreen");
+        if (DesignatedCaptureButtonText != null) DesignatedCaptureButtonText.Text = LocalizationManager.GetString("DesignatedCapture");
+        if (WindowCaptureButtonText != null) WindowCaptureButtonText.Text = LocalizationManager.GetString("WindowCapture");
+        if (ElementCaptureButtonText != null) ElementCaptureButtonText.Text = LocalizationManager.GetString("ElementCapture");
+        if (ScrollCaptureButtonText != null) ScrollCaptureButtonText.Text = LocalizationManager.GetString("ScrollCapture");
+        if (OcrCaptureButtonText != null) OcrCaptureButtonText.Text = LocalizationManager.GetString("OcrCapture");
+        
+        if (SimpleModeButtonText != null) SimpleModeButtonText.Text = LocalizationManager.GetString("SimpleMode");
+        if (TrayModeButtonText != null) TrayModeButtonText.Text = LocalizationManager.GetString("TrayMode");
+        // 3. 하단 아이콘 버튼들
+        if (SettingsBottomText != null) SettingsBottomText.Text = LocalizationManager.GetString("Settings");
+        if (CopySelectedBottomText != null) CopySelectedBottomText.Text = LocalizationManager.GetString("Copy");
+        // 전체복사는 Copy + All 조합 (리소스 키가 따로 없어서 임시 처리)
+        if (CopyAllBottomText != null) CopyAllBottomText.Text = LocalizationManager.GetString("Copy") + " All";
+        if (SaveAllBottomText != null) SaveAllBottomText.Text = LocalizationManager.GetString("SaveAll");
+        if (DeleteAllBottomText != null) DeleteAllBottomText.Text = LocalizationManager.GetString("DeleteAll");
     }
-    
     private void UpdateTrayMenuTexts()
     {
-        try
+        // 트레이 아이콘 툴팁
+        if (notifyIcon != null)
         {
-            if (notifyIcon != null)
-                notifyIcon.Text = CatchCapture.Models.LocalizationManager.Get("AppName");
-            
-            if (trayAreaItem != null)
-                trayAreaItem.Text = CatchCapture.Models.LocalizationManager.Get("AreaCapture");
-            
-            if (trayNormalItem != null)
-                trayNormalItem.Text = CatchCapture.Models.LocalizationManager.Get("TrayNormalMode");
-            if (traySimpleItem != null)
-                traySimpleItem.Text = CatchCapture.Models.LocalizationManager.Get("TraySimpleMode");
-            if (trayTrayItem != null)
-                trayTrayItem.Text = CatchCapture.Models.LocalizationManager.Get("TrayTrayMode");
-            if (trayExitItem != null)
-                trayExitItem.Text = CatchCapture.Models.LocalizationManager.Get("Exit");
+            notifyIcon.Text = LocalizationManager.GetString("AppTitle");
         }
-        catch { }
+        // 트레이 우클릭 메뉴
+        if (trayAreaItem != null) trayAreaItem.Text = LocalizationManager.GetString("AreaCapture");
+        if (trayNormalItem != null) trayNormalItem.Text = LocalizationManager.GetString("NormalMode");
+        if (traySimpleItem != null) traySimpleItem.Text = LocalizationManager.GetString("SimpleMode");
+        if (trayTrayItem != null) trayTrayItem.Text = LocalizationManager.GetString("TrayMode");
+        if (trayExitItem != null) trayExitItem.Text = LocalizationManager.GetString("Exit");
     }
     // ★ Low-Level Keyboard Hook 설치
     private void InstallKeyboardHook()

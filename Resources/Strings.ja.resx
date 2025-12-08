@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" use="preserve" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <!-- Application Title -->
+  <data name="AppTitle" xml:space="preserve">
+    <value>CatchCapture</value>
+  </data>
+  
+  <!-- Capture Types -->
+  <data name="AreaCapture" xml:space="preserve">
+    <value>範囲キャプチャ</value>
+  </data>
+  <data name="DelayCapture" xml:space="preserve">
+    <value>遅延キャプチャ</value>
+  </data>
+  <data name="RealTimeCapture" xml:space="preserve">
+    <value>瞬間キャプチャ</value>
+  </data>
+  <data name="MultiCapture" xml:space="preserve">
+    <value>マルチキャプチャ</value>
+  </data>
+  <data name="FullScreen" xml:space="preserve">
+    <value>フルスクリーン</value>
+  </data>
+  <data name="DesignatedCapture" xml:space="preserve">
+    <value>指定キャプチャ</value>
+  </data>
+  <data name="WindowCapture" xml:space="preserve">
+    <value>ウィンドウキャプチャ</value>
+  </data>
+  <data name="ElementCapture" xml:space="preserve">
+    <value>要素キャプチャ</value>
+  </data>
+  <data name="ScrollCapture" xml:space="preserve">
+    <value>スクロールキャプチャ</value>
+  </data>
+  <data name="OcrCapture" xml:space="preserve">
+    <value>OCRキャプチャ</value>
+  </data>
+  
+  <!-- Window Modes -->
+  <data name="NormalMode" xml:space="preserve">
+    <value>通常モード</value>
+  </data>
+  <data name="SimpleMode" xml:space="preserve">
+    <value>簡易モード</value>
+  </data>
+  <data name="TrayMode" xml:space="preserve">
+    <value>トレイモード</value>
+  </data>
+  
+  <!-- Menu Items -->
+  <data name="Settings" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="Exit" xml:space="preserve">
+    <value>終了</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="SaveAll" xml:space="preserve">
+    <value>すべて保存</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>削除</value>
+  </data>
+  <data name="DeleteAll" xml:space="preserve">
+    <value>すべて削除</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>コピー</value>
+  </data>
+  <data name="Print" xml:space="preserve">
+    <value>印刷</value>
+  </data>
+  
+  <!-- Editor Tools -->
+  <data name="Pen" xml:space="preserve">
+    <value>ペン</value>
+  </data>
+  <data name="Highlighter" xml:space="preserve">
+    <value>蛍光ペン</value>
+  </data>
+  <data name="Text" xml:space="preserve">
+    <value>テキスト</value>
+  </data>
+  <data name="Shape" xml:space="preserve">
+    <value>図形</value>
+  </data>
+  <data name="Eraser" xml:space="preserve">
+    <value>消しゴム</value>
+  </data>
+  <data name="Mosaic" xml:space="preserve">
+    <value>モザイク</value>
+  </data>
+  <data name="Crop" xml:space="preserve">
+    <value>切り抜き</value>
+  </data>
+  <data name="Rotate" xml:space="preserve">
+    <value>回転</value>
+  </data>
+  <data name="Undo" xml:space="preserve">
+    <value>元に戻す</value>
+  </data>
+  <data name="Redo" xml:space="preserve">
+    <value>やり直す</value>
+  </data>
+  
+  <!-- Settings -->
+  <data name="General" xml:space="preserve">
+    <value>一般</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>言語</value>
+  </data>
+  <data name="Hotkeys" xml:space="preserve">
+    <value>ホットキー</value>
+  </data>
+  <data name="StartWithWindows" xml:space="preserve">
+    <value>Windowsと同時に起動</value>
+  </data>
+  <data name="StartInTrayMode" xml:space="preserve">
+    <value>トレイモードで起動</value>
+  </data>
+  <data name="SettingsSaved" xml:space="preserve">
+    <value>設定が保存されました</value>
+  </data>
+  
+  <!-- Messages -->
+  <data name="Confirm" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>はい</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>いいえ</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>エラー</value>
+  </data>
+  <data name="Success" xml:space="preserve">
+    <value>成功</value>
+  </data>
+  <!-- Added Keys -->
+  <data name="Recapture" xml:space="preserve"><value>再キャプチャ</value></data>
+  <data name="CopyToClipboard" xml:space="preserve"><value>クリップボードにコピー</value></data>
+  <data name="Reset" xml:space="preserve"><value>リセット</value></data>
+  <data name="FlipHorizontal" xml:space="preserve"><value>左右反転</value></data>
+  <data name="FlipVertical" xml:space="preserve"><value>上下反転</value></data>
+  <data name="ImageSearch" xml:space="preserve"><value>画像検索</value></data>
+  <data name="Share" xml:space="preserve"><value>共有</value></data>
+  <data name="Extract" xml:space="preserve"><value>抽出</value></data>
+  <data name="ToolOptions" xml:space="preserve"><value>ツールオプション</value></data>
+  <data name="RecentCaptures" xml:space="preserve"><value>最近のキャプチャ</value></data>
+  <data name="Size" xml:space="preserve"><value>サイズ</value></data>
+  <data name="OriginalSize" xml:space="preserve"><value>オリジナル</value></data>
+  <data name="ResetToOriginal" xml:space="preserve"><value>元に戻す</value></data>
+  <data name="AddText" xml:space="preserve"><value>テキスト追加</value></data>
+  <data name="DrawShapeTooltip" xml:space="preserve"><value>図形描画 (デフォルト: 四角形)</value></data>
+  <data name="ShapeOptions" xml:space="preserve"><value>図形オプション</value></data>
+  <data name="ImageSizePrefix" xml:space="preserve"><value>画像サイズ: </value></data>
+  <data name="RestartRequired" xml:space="preserve"><value>再起動が必要です。</value></data>
+  <data name="MenuEdit" xml:space="preserve"><value>メニュー編集</value></data>
+  <data name="MenuEditGuide" xml:space="preserve"><value>ドラッグ＆ドロップでメニューを並べ替え・削除できます。</value></data>
+  <data name="Add" xml:space="preserve"><value>追加</value></data>
+  <data name="RestoreDefaultMenus" xml:space="preserve"><value>デフォルトに戻す</value></data>
+  <data name="VisitHomepage" xml:space="preserve"><value>ホームページへ</value></data>
+  <data name="RestoreDefaults" xml:space="preserve"><value>デフォルトに戻す</value></data>
+  <data name="PrivacyPolicy" xml:space="preserve"><value>プライバシーポリシー</value></data>
+  <data name="CaptureSettings" xml:space="preserve"><value>キャプチャ設定</value></data>
+  <data name="SaveSettings" xml:space="preserve"><value>保存設定</value></data>
+  <data name="SavePath" xml:space="preserve"><value>保存パス</value></data>
+  <data name="Change" xml:space="preserve"><value>変更</value></data>
+  <data name="FileFormat" xml:space="preserve"><value>ファイル形式</value></data>
+  <data name="Quality" xml:space="preserve"><value>品質</value></data>
+  <data name="Options" xml:space="preserve"><value>オプション</value></data>
+  <data name="AutoSaveCapture" xml:space="preserve"><value>キャプチャ後に自動保存</value></data>
+  <data name="ShowPreviewAfterCapture" xml:space="preserve"><value>キャプチャ後にプレビューを表示</value></data>
+  <data name="HotkeySettings" xml:space="preserve"><value>ホットキー設定</value></data>
+  <data name="UsePrintScreen" xml:space="preserve"><value>PrintScreenキーを使用</value></data>
+  <data name="SystemSettings" xml:space="preserve"><value>システム設定</value></data>
+  <data name="StartupMode" xml:space="preserve"><value>起動モード</value></data>
+  <data name="StartInNormal" xml:space="preserve"><value>通常モードで起動</value></data>
+  <data name="StartInSimple" xml:space="preserve"><value>簡易モードで起動</value></data>
+  <data name="StartInTray" xml:space="preserve"><value>トレイモードで起動</value></data>
+  <data name="StartupModeNotice" xml:space="preserve"><value>※ トレイモードはトレイアイコンのみ表示します。</value></data>
+  <data name="LanguageSettings" xml:space="preserve"><value>言語設定</value></data>
+  <data name="LanguageLabel" xml:space="preserve"><value>言語選択</value></data>
+  <data name="NoExtractedText" xml:space="preserve"><value>抽出されたテキストがありません。</value></data>
+  <data name="Info" xml:space="preserve"><value>情報</value></data>
+  <data name="ImageSaveTitle" xml:space="preserve"><value>画像保存</value></data>
+  <data name="ImageSaved" xml:space="preserve"><value>画像を保存しました。</value></data>
+  <data name="NoImageToPrint" xml:space="preserve"><value>印刷する画像がありません。</value></data>
+  <data name="PrintPreviewError" xml:space="preserve"><value>印刷プレビューエラー</value></data>
+  <data name="RecaptureError" xml:space="preserve"><value>再キャプチャエラー</value></data>
+  <data name="ConfirmReset" xml:space="preserve"><value>元に戻しますか？すべての変更が失われます。</value></data>
+  <data name="EditImage" xml:space="preserve"><value>画像の編集</value></data>
+  <data name="PenTooltip" xml:space="preserve"><value>ペン (黒, 3px)</value></data>
+  <data name="BackgroundRemoval" xml:space="preserve"><value>背景削除</value></data>
+  <data name="BackgroundRemovalTooltip" xml:space="preserve"><value>背景を自動削除</value></data>
+  <data name="ImageSearchTooltip" xml:space="preserve"><value>Google画像検索</value></data>
+  <data name="ExtractText" xml:space="preserve"><value>テキスト抽出 (OCR)</value></data>
+  <data name="ZoomReset" xml:space="preserve"><value>100%</value></data>
+  <data name="ZoomResetTooltip" xml:space="preserve"><value>実際のサイズで表示</value></data>
+  <data name="ZoomOut" xml:space="preserve"><value>縮小</value></data>
+  <data name="ZoomIn" xml:space="preserve"><value>拡大</value></data>
+  <data name="SizeLabel" xml:space="preserve"><value>サイズ</value></data>
+  <data name="ShapeLbl" xml:space="preserve"><value>図形</value></data>
+  <data name="PenLbl" xml:space="preserve"><value>ペン</value></data>
+  <data name="HighlighterLbl" xml:space="preserve"><value>蛍光ペン</value></data>
+  <data name="TextAdd" xml:space="preserve"><value>テキスト追加</value></data>
+  <data name="UndoLbl" xml:space="preserve"><value>元に戻す</value></data>
+  <data name="RedoLbl" xml:space="preserve"><value>やり直す</value></data>
+  <data name="ResetLbl" xml:space="preserve"><value>リセット</value></data>
+  <data name="FlipH" xml:space="preserve"><value>左右反転</value></data>
+  <data name="FlipV" xml:space="preserve"><value>上下反転</value></data>
+  <data name="CopySelected" xml:space="preserve"><value>コピー</value></data>
+  <data name="InstantEdit" xml:space="preserve"><value>即時編集</value></data>
+  <data name="OpenEditor" xml:space="preserve"><value>エディターを開く</value></data>
+</root>

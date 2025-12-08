@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" use="preserve" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <!-- Application Title -->
+  <data name="AppTitle" xml:space="preserve">
+    <value>캐치캡처</value>
+  </data>
+  
+  <!-- Capture Types -->
+  <data name="AreaCapture" xml:space="preserve">
+    <value>영역 캡처</value>
+  </data>
+  <data name="DelayCapture" xml:space="preserve">
+    <value>지연 캡처</value>
+  </data>
+  <data name="RealTimeCapture" xml:space="preserve">
+    <value>순간 캡처</value>
+  </data>
+  <data name="MultiCapture" xml:space="preserve">
+    <value>멀티 캡처</value>
+  </data>
+  <data name="FullScreen" xml:space="preserve">
+    <value>전체화면</value>
+  </data>
+  <data name="DesignatedCapture" xml:space="preserve">
+    <value>지정 캡처</value>
+  </data>
+  <data name="WindowCapture" xml:space="preserve">
+    <value>창 캡처</value>
+  </data>
+  <data name="ElementCapture" xml:space="preserve">
+    <value>단위 캡처</value>
+  </data>
+  <data name="ScrollCapture" xml:space="preserve">
+    <value>스크롤 캡처</value>
+  </data>
+  <data name="OcrCapture" xml:space="preserve">
+    <value>OCR 캡처</value>
+  </data>
+  
+  <!-- Window Modes -->
+  <data name="NormalMode" xml:space="preserve">
+    <value>일반 모드</value>
+  </data>
+  <data name="SimpleMode" xml:space="preserve">
+    <value>간편 모드</value>
+  </data>
+  <data name="TrayMode" xml:space="preserve">
+    <value>트레이 모드</value>
+  </data>
+  
+  <!-- Menu Items -->
+  <data name="Settings" xml:space="preserve">
+    <value>설정</value>
+  </data>
+  <data name="Exit" xml:space="preserve">
+    <value>종료</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>저장</value>
+  </data>
+  <data name="SaveAll" xml:space="preserve">
+    <value>전체 저장</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>삭제</value>
+  </data>
+  <data name="DeleteAll" xml:space="preserve">
+    <value>전체 삭제</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>복사</value>
+  </data>
+  <data name="Print" xml:space="preserve">
+    <value>인쇄</value>
+  </data>
+  
+  <!-- Editor Tools -->
+  <data name="Pen" xml:space="preserve">
+    <value>펜</value>
+  </data>
+  <data name="Highlighter" xml:space="preserve">
+    <value>형광펜</value>
+  </data>
+  <data name="Text" xml:space="preserve">
+    <value>텍스트</value>
+  </data>
+  <data name="Shape" xml:space="preserve">
+    <value>도형</value>
+  </data>
+  <data name="Eraser" xml:space="preserve">
+    <value>지우개</value>
+  </data>
+  <data name="Mosaic" xml:space="preserve">
+    <value>모자이크</value>
+  </data>
+  <data name="Crop" xml:space="preserve">
+    <value>자르기</value>
+  </data>
+  <data name="Rotate" xml:space="preserve">
+    <value>회전</value>
+  </data>
+  <data name="Undo" xml:space="preserve">
+    <value>실행 취소</value>
+  </data>
+  <data name="Redo" xml:space="preserve">
+    <value>다시 실행</value>
+  </data>
+  
+  <!-- Settings -->
+  <data name="General" xml:space="preserve">
+    <value>일반</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>언어</value>
+  </data>
+  <data name="Hotkeys" xml:space="preserve">
+    <value>단축키</value>
+  </data>
+  <data name="StartWithWindows" xml:space="preserve">
+    <value>Windows 시작 시 실행</value>
+  </data>
+  <data name="StartInTrayMode" xml:space="preserve">
+    <value>트레이 모드로 시작</value>
+  </data>
+  <data name="SettingsSaved" xml:space="preserve">
+    <value>설정이 저장되었습니다</value>
+  </data>
+  
+  <!-- Messages -->
+  <data name="Confirm" xml:space="preserve">
+    <value>확인</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>취소</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>예</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>아니오</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>오류</value>
+  </data>
+  <data name="Success" xml:space="preserve">
+    <value>성공</value>
+  </data>
+  <!-- 새로 추가하는 키들 -->
+  <data name="Recapture" xml:space="preserve"><value>재캡처</value></data>
+  <data name="CopyToClipboard" xml:space="preserve"><value>클립보드에 복사</value></data>
+  <data name="Reset" xml:space="preserve"><value>초기화</value></data>
+  <data name="FlipHorizontal" xml:space="preserve"><value>좌우반전</value></data>
+  <data name="FlipVertical" xml:space="preserve"><value>상하반전</value></data>
+  <data name="ImageSearch" xml:space="preserve"><value>이미지 검색</value></data>
+  <data name="Share" xml:space="preserve"><value>공유</value></data>
+  <data name="Extract" xml:space="preserve"><value>추출</value></data>
+  <data name="ToolOptions" xml:space="preserve"><value>도구 옵션</value></data>
+  <data name="RecentCaptures" xml:space="preserve"><value>최근 캡처 목록</value></data>
+  <data name="Size" xml:space="preserve"><value>크기</value></data>
+  <data name="OriginalSize" xml:space="preserve"><value>원본</value></data>
+  <data name="ResetToOriginal" xml:space="preserve"><value>원본으로 되돌리기</value></data>
+  <data name="AddText" xml:space="preserve"><value>텍스트 추가</value></data>
+  <data name="DrawShapeTooltip" xml:space="preserve"><value>도형 그리기 (기본: 사각형)</value></data>
+  <data name="ShapeOptions" xml:space="preserve"><value>도형 옵션</value></data>
+  <data name="ImageSizePrefix" xml:space="preserve"><value>이미지 사이즈 : </value></data>
+  <data name="RestartRequired" xml:space="preserve"><value>언어 변경 후 프로그램을 다시 시작해야 합니다.</value></data>
+  <data name="MenuEdit" xml:space="preserve"><value>메뉴 편집</value></data>
+  <data name="MenuEditGuide" xml:space="preserve"><value>드래그 앤 드롭으로 메뉴 순서를 변경하거나 삭제할 수 있습니다.</value></data>
+  <data name="Add" xml:space="preserve"><value>추가</value></data>
+  <data name="RestoreDefaultMenus" xml:space="preserve"><value>기본 메뉴로 복원</value></data>
+  <data name="VisitHomepage" xml:space="preserve"><value>홈페이지 방문</value></data>
+  <data name="RestoreDefaults" xml:space="preserve"><value>기본값으로 복원</value></data>
+  <data name="PrivacyPolicy" xml:space="preserve"><value>개인정보 처리방침</value></data>
+  <data name="CaptureSettings" xml:space="preserve"><value>캡처 설정</value></data>
+  <data name="SaveSettings" xml:space="preserve"><value>저장 설정</value></data>
+  <data name="SavePath" xml:space="preserve"><value>저장 경로</value></data>
+  <data name="Change" xml:space="preserve"><value>변경</value></data>
+  <data name="FileFormat" xml:space="preserve"><value>파일 형식</value></data>
+  <data name="Quality" xml:space="preserve"><value>품질</value></data>
+  <data name="Options" xml:space="preserve"><value>옵션</value></data>
+  <data name="AutoSaveCapture" xml:space="preserve"><value>캡처 후 자동 저장</value></data>
+  <data name="ShowPreviewAfterCapture" xml:space="preserve"><value>캡처 후 미리보기 창 표시</value></data>
+  <data name="HotkeySettings" xml:space="preserve"><value>단축키 설정</value></data>
+  <data name="UsePrintScreen" xml:space="preserve"><value>Print Screen 키 사용</value></data>
+  <data name="SystemSettings" xml:space="preserve"><value>시스템 설정</value></data>
+  <data name="StartupMode" xml:space="preserve"><value>시작 모드</value></data>
+  <data name="StartInNormal" xml:space="preserve"><value>일반 모드로 시작</value></data>
+  <data name="StartInSimple" xml:space="preserve"><value>간편 모드로 시작</value></data>
+  <data name="StartInTray" xml:space="preserve"><value>트레이 모드로 시작</value></data>
+  <data name="StartupModeNotice" xml:space="preserve"><value>※ 트레이 모드는 시스템 트레이에 아이콘만 표시됩니다.</value></data>
+  <data name="LanguageSettings" xml:space="preserve"><value>언어 설정</value></data>
+  <data name="LanguageLabel" xml:space="preserve"><value>언어 선택</value></data>
+  <data name="NoExtractedText" xml:space="preserve"><value>추출된 텍스트가 없습니다.</value></data>
+  <data name="Info" xml:space="preserve"><value>알림</value></data>
+  <data name="ImageSaveTitle" xml:space="preserve"><value>이미지 저장</value></data>
+  <data name="ImageSaved" xml:space="preserve"><value>이미지가 저장되었습니다.</value></data>
+  <data name="NoImageToPrint" xml:space="preserve"><value>인쇄할 이미지가 없습니다.</value></data>
+  <data name="PrintPreviewError" xml:space="preserve"><value>인쇄 미리보기 오류</value></data>
+  <data name="RecaptureError" xml:space="preserve"><value>재캡처 오류</value></data>
+  <data name="ConfirmReset" xml:space="preserve"><value>이미지를 원본 상태로 되돌리시겠습니까? 작업 내역이 모두 사라집니다.</value></data>
+  <data name="EditImage" xml:space="preserve"><value>이미지 편집</value></data>
+  <data name="PenTooltip" xml:space="preserve"><value>펜 (기본: 검정, 3px)</value></data>
+  <data name="BackgroundRemoval" xml:space="preserve"><value>배경 제거</value></data>
+  <data name="BackgroundRemovalTooltip" xml:space="preserve"><value>배경 자동 제거</value></data>
+  <data name="ImageSearchTooltip" xml:space="preserve"><value>Google 이미지 검색</value></data>
+  <data name="ExtractText" xml:space="preserve"><value>텍스트 추출 (OCR)</value></data>
+  <data name="ZoomReset" xml:space="preserve"><value>원본 (100%)</value></data>
+  <data name="ZoomResetTooltip" xml:space="preserve"><value>실제 크기로 보기</value></data>
+  <data name="ZoomOut" xml:space="preserve"><value>축소</value></data>
+  <data name="ZoomIn" xml:space="preserve"><value>확대</value></data>
+  <data name="SizeLabel" xml:space="preserve"><value>크기</value></data>
+  <data name="ShapeLbl" xml:space="preserve"><value>도형</value></data>
+  <data name="PenLbl" xml:space="preserve"><value>펜</value></data>
+  <data name="HighlighterLbl" xml:space="preserve"><value>형광펜</value></data>
+  <data name="TextAdd" xml:space="preserve"><value>텍스트 추가</value></data>
+  <data name="UndoLbl" xml:space="preserve"><value>실행 취소</value></data>
+  <data name="RedoLbl" xml:space="preserve"><value>다시 실행</value></data>
+  <data name="ResetLbl" xml:space="preserve"><value>초기화</value></data>
+  <data name="FlipH" xml:space="preserve"><value>좌우반전</value></data>
+  <data name="FlipV" xml:space="preserve"><value>상하반전</value></data>
+  <data name="CopySelected" xml:space="preserve"><value>복사</value></data>
+  <data name="InstantEdit" xml:space="preserve"><value>즉시 편집</value></data>
+  <data name="OpenEditor" xml:space="preserve"><value>에디터 열기</value></data>
+</root>

@@ -7,6 +7,7 @@ using System.Windows.Media;
 using Microsoft.Win32;
 using CatchCapture.Models;
 using System.Diagnostics;
+using LocalizationManager = CatchCapture.Resources.LocalizationManager;
 
 namespace CatchCapture
 {
@@ -34,7 +35,6 @@ namespace CatchCapture
         {
             // 모든 텍스트 갱신
             UpdateUIText();
-
             // 메뉴 편집 항목 표시 이름도 갱신
             try
             {
@@ -51,52 +51,56 @@ namespace CatchCapture
             catch { }
         }
 
-        private void UpdateUIText()
+private void UpdateUIText()
         {
             // 창 제목
-            this.Title = LocalizationManager.Get("Settings");
-
+            this.Title = LocalizationManager.GetString("Settings");
             // 사이드바
-            SidebarGeneralText.Text = LocalizationManager.Get("General");
-            NavCapture.Content = LocalizationManager.Get("CaptureSettings");
-            if (NavMenuEdit != null) NavMenuEdit.Content = LocalizationManager.Get("MenuEdit");
-            NavSystem.Content = LocalizationManager.Get("SystemSettings");
-            NavHotkey.Content = LocalizationManager.Get("HotkeySettings");
-
+            SidebarGeneralText.Text = LocalizationManager.GetString("General");
+            NavCapture.Content = LocalizationManager.GetString("CaptureSettings"); // 키 확인 필요 (CaptureSettings가 더 적절해 보임)
+            if (NavMenuEdit != null) NavMenuEdit.Content = LocalizationManager.GetString("MenuEdit");
+            NavSystem.Content = LocalizationManager.GetString("SystemSettings");
+            NavHotkey.Content = LocalizationManager.GetString("HotkeySettings");
             // 메뉴 편집 페이지 (추가)
-            if (MenuEditSectionTitle != null) MenuEditSectionTitle.Text = LocalizationManager.Get("MenuEdit");
-            if (MenuEditGuideText != null) MenuEditGuideText.Text = LocalizationManager.Get("MenuEditGuide");
-            if (AddMenuButton != null) AddMenuButton.Content = "+ " + LocalizationManager.Get("Add");
-            if (RestoreMenuButton != null) RestoreMenuButton.Content = LocalizationManager.Get("RestoreDefaultMenus");
-
+            if (MenuEditSectionTitle != null) MenuEditSectionTitle.Text = LocalizationManager.GetString("MenuEdit");
+            if (MenuEditGuideText != null) MenuEditGuideText.Text = LocalizationManager.GetString("MenuEditGuide");
+            // Add 버튼의 리소스 키가 없다면 임시로 "Add" 사용하거나 "+ 추가" 유지
+            // LocalizationManager.GetString("Add")가 있다면 사용
+            if (AddMenuButton != null) AddMenuButton.Content = "+ " + (LocalizationManager.GetString("Add") ?? "추가"); 
+            if (RestoreMenuButton != null) RestoreMenuButton.Content = LocalizationManager.GetString("RestoreDefaultMenus");
             // 앱 이름(사이드바 상단)과 하단 정보
             if (SidebarAppNameText != null)
-                SidebarAppNameText.Text = LocalizationManager.Get("AppName");
+                SidebarAppNameText.Text = LocalizationManager.GetString("AppTitle"); // AppName 대신 AppTitle 사용
             if (VersionText != null)
-                VersionText.Text = $"{LocalizationManager.Get("Version")} 1.0.0";
+                VersionText.Text = $"{LocalizationManager.GetString("Version")} 1.0.0";
             if (WebsiteIcon != null)
-                WebsiteIcon.ToolTip = LocalizationManager.Get("VisitHomepage");
+                WebsiteIcon.ToolTip = LocalizationManager.GetString("VisitHomepage");
             if (RestoreDefaultsText != null)
-                RestoreDefaultsText.Text = LocalizationManager.Get("RestoreDefaults");
+                RestoreDefaultsText.Text = LocalizationManager.GetString("RestoreDefaults");
             if (PrivacyPolicyText != null)
-                PrivacyPolicyText.Text = LocalizationManager.Get("PrivacyPolicy");
-
+                PrivacyPolicyText.Text = LocalizationManager.GetString("PrivacyPolicy");
             // 캡처 페이지
-            CaptureSectionTitle.Text = LocalizationManager.Get("CaptureSettings");
-            SaveSettingsGroup.Header = LocalizationManager.Get("SaveSettings");
-            SavePathText.Text = LocalizationManager.Get("SavePath");
-            BtnBrowse.Content = LocalizationManager.Get("Change");
-            FileFormatText.Text = LocalizationManager.Get("FileFormat");
-            QualityText.Text = LocalizationManager.Get("Quality");
-            OptionsGroup.Header = LocalizationManager.Get("Options");
-            ChkAutoSave.Content = LocalizationManager.Get("AutoSaveCapture");
-            ChkShowPreview.Content = LocalizationManager.Get("ShowPreviewAfterCapture");
-
+            CaptureSectionTitle.Text = LocalizationManager.GetString("CaptureSettings");
+            SaveSettingsGroup.Header = LocalizationManager.GetString("SaveSettings");
+            SavePathText.Text = LocalizationManager.GetString("SavePath");
+            BtnBrowse.Content = LocalizationManager.GetString("Change");
+            FileFormatText.Text = LocalizationManager.GetString("FileFormat");
+            QualityText.Text = LocalizationManager.GetString("Quality");
+            OptionsGroup.Header = LocalizationManager.GetString("Options");
+            ChkAutoSave.Content = LocalizationManager.GetString("AutoSaveCapture");
+            ChkShowPreview.Content = LocalizationManager.GetString("ShowPreviewAfterCapture");
             // 단축키 페이지
-            HotkeySectionTitle.Text = LocalizationManager.Get("HotkeySettings");
-            PrintScreenGroup.Header = LocalizationManager.Get("UsePrintScreen");
-            ChkUsePrintScreen.Content = LocalizationManager.Get("UsePrintScreen");
+            HotkeySectionTitle.Text = LocalizationManager.GetString("HotkeySettings");
+            PrintScreenGroup.Header = LocalizationManager.GetString("UsePrintScreen");
+            ChkUsePrintScreen.Content = LocalizationManager.GetString("UsePrintScreen");
+            
             // Print Screen 액션 항목 (표시는 로컬라이즈, 저장 값은 한국어로 유지)
+            // 기존 아이템을 지우고 다시 채워야 함
+            string currentActionTag = null;
+            if (CboPrintScreenAction.SelectedItem is ComboBoxItem selectedAction)
+            {
+                currentActionTag = selectedAction.Tag as string;
+            }
             var items = new[]
             {
                 (key: "AreaCapture", tag: "영역 캡처"),
@@ -105,51 +109,59 @@ namespace CatchCapture
                 (key: "WindowCapture", tag: "창 캡처"),
                 (key: "ElementCapture", tag: "단위 캡처"),
             };
+            
             CboPrintScreenAction.Items.Clear();
             foreach (var (key, tag) in items)
             {
-                CboPrintScreenAction.Items.Add(new ComboBoxItem
+                var item = new ComboBoxItem
                 {
-                    Content = LocalizationManager.Get(key),
+                    Content = LocalizationManager.GetString(key),
                     Tag = tag
-                });
+                };
+                CboPrintScreenAction.Items.Add(item);
+                
+                // 선택 상태 복원
+                if (tag == currentActionTag)
+                {
+                    CboPrintScreenAction.SelectedItem = item;
+                }
             }
-
+            if (CboPrintScreenAction.SelectedItem == null && CboPrintScreenAction.Items.Count > 0)
+            {
+                 CboPrintScreenAction.SelectedIndex = 0;
+            }
             // 단축키 체크박스 라벨
-            HkRegionEnabled.Content = LocalizationManager.Get("AreaCapture");
-            HkDelayEnabled.Content = LocalizationManager.Get("DelayCapture");
-            HkRealTimeEnabled.Content = LocalizationManager.Get("RealTimeCapture");
-            HkMultiEnabled.Content = LocalizationManager.Get("MultiCapture");
-            HkFullEnabled.Content = LocalizationManager.Get("FullScreen");
-            HkDesignatedEnabled.Content = LocalizationManager.Get("DesignatedCapture");
-            HkWindowCaptureEnabled.Content = LocalizationManager.Get("WindowCapture");
-            HkElementCaptureEnabled.Content = LocalizationManager.Get("ElementCapture");
-            HkScrollCaptureEnabled.Content = LocalizationManager.Get("ScrollCapture");
-            HkSaveAllEnabled.Content = LocalizationManager.Get("SaveAll");
-            HkDeleteAllEnabled.Content = LocalizationManager.Get("DeleteAll");
-            HkSimpleModeEnabled.Content = LocalizationManager.Get("Simple");
-            HkOpenSettingsEnabled.Content = LocalizationManager.Get("OpenSettings");
-
+            HkRegionEnabled.Content = LocalizationManager.GetString("AreaCapture");
+            HkDelayEnabled.Content = LocalizationManager.GetString("DelayCapture");
+            HkRealTimeEnabled.Content = LocalizationManager.GetString("RealTimeCapture");
+            HkMultiEnabled.Content = LocalizationManager.GetString("MultiCapture");
+            HkFullEnabled.Content = LocalizationManager.GetString("FullScreen");
+            HkDesignatedEnabled.Content = LocalizationManager.GetString("DesignatedCapture");
+            HkWindowCaptureEnabled.Content = LocalizationManager.GetString("WindowCapture");
+            HkElementCaptureEnabled.Content = LocalizationManager.GetString("ElementCapture");
+            HkScrollCaptureEnabled.Content = LocalizationManager.GetString("ScrollCapture");
+            HkSaveAllEnabled.Content = LocalizationManager.GetString("SaveAll");
+            HkDeleteAllEnabled.Content = LocalizationManager.GetString("DeleteAll");
+            HkSimpleModeEnabled.Content = LocalizationManager.GetString("SimpleMode"); // Simple -> SimpleMode
+            HkOpenSettingsEnabled.Content = LocalizationManager.GetString("OpenSettings");
             // 시스템 페이지
-            SystemSectionTitle.Text = LocalizationManager.Get("SystemSettings");
-            StartupGroup.Header = LocalizationManager.Get("StartupMode");
-            StartWithWindowsCheckBox.Content = LocalizationManager.Get("StartWithWindows");
-            StartupModeText.Text = LocalizationManager.Get("StartupMode");
-            StartupModeTrayRadio.Content = LocalizationManager.Get("StartInTray");
-            StartupModeNormalRadio.Content = LocalizationManager.Get("StartInNormal");
-            StartupModeSimpleRadio.Content = LocalizationManager.Get("StartInSimple");
+            SystemSectionTitle.Text = LocalizationManager.GetString("SystemSettings");
+            StartupGroup.Header = LocalizationManager.GetString("StartupMode");
+            StartWithWindowsCheckBox.Content = LocalizationManager.GetString("StartWithWindows");
+            StartupModeText.Text = LocalizationManager.GetString("StartupMode");
+            StartupModeTrayRadio.Content = LocalizationManager.GetString("StartInTray");
+            StartupModeNormalRadio.Content = LocalizationManager.GetString("StartInNormal");
+            StartupModeSimpleRadio.Content = LocalizationManager.GetString("StartInSimple");
             if (StartupModeNotice != null)
-                StartupModeNotice.Text = LocalizationManager.Get("StartupModeNotice");
-
+                StartupModeNotice.Text = LocalizationManager.GetString("StartupModeNotice");
             // 언어 페이지
-            LanguageGroup.Header = LocalizationManager.Get("LanguageSettings");
-            LanguageLabelText.Text = LocalizationManager.Get("LanguageLabel");
+            LanguageGroup.Header = LocalizationManager.GetString("LanguageSettings");
+            LanguageLabelText.Text = LocalizationManager.GetString("LanguageLabel");
             if (LanguageRestartNotice != null)
-                LanguageRestartNotice.Text = LocalizationManager.Get("RestartRequired");
-
+                LanguageRestartNotice.Text = LocalizationManager.GetString("RestartRequired");
             // 하단 버튼
-            CancelButton.Content = LocalizationManager.Get("Cancel");
-            SaveButton.Content = LocalizationManager.Get("Save");
+            CancelButton.Content = LocalizationManager.GetString("Cancel");
+            SaveButton.Content = LocalizationManager.GetString("Save");
         }
 
         private void InitKeyComboBoxes()
@@ -175,7 +187,7 @@ namespace CatchCapture
             }
         }
 
-        private void InitLanguageComboBox()
+private void InitLanguageComboBox()
         {
             if (LanguageComboBox == null) return;
             LanguageComboBox.Items.Clear();
@@ -187,7 +199,7 @@ namespace CatchCapture
                 (Code: "ja", Name: "日本語"),
                 (Code: "es", Name: "Español"),
                 (Code: "de", Name: "Deutsch"),
-                (Code: "fr", Name: "Français"),
+                (Code: "fr", Name: "Français")
             };
             foreach (var (code, name) in langs)
             {
@@ -508,7 +520,7 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
             LoadMenuEditPage();  // 메뉴 편집도 기본값으로 복원
             LoadSystemPage();
             LoadHotkeysPage();
-            MessageBox.Show(LocalizationManager.Get("SettingsSaved"), LocalizationManager.Get("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(LocalizationManager.GetString("SettingsSaved"), LocalizationManager.GetString("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void Website_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -613,8 +625,9 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
             {
                 string selectedLang = selectedItem.Tag?.ToString() ?? "ko";
                 // 즉시 적용: 미리보기 텍스트 갱신을 위해 런타임 변경
-                CatchCapture.Models.LocalizationManager.SetLanguage(selectedLang);
-                LanguageRestartNotice.Visibility = Visibility.Collapsed;
+                LocalizationManager.SetLanguage(selectedLang);
+                if (LanguageRestartNotice != null) 
+                    LanguageRestartNotice.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -681,16 +694,16 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
         {
             return key switch
             {
-                "AreaCapture"       => LocalizationManager.Get("AreaCapture"),
-                "DelayCapture"      => LocalizationManager.Get("DelayCapture"),
-                "RealTimeCapture"   => LocalizationManager.Get("RealTimeCapture"),
-                "MultiCapture"      => LocalizationManager.Get("MultiCapture"),
-                "FullScreen"        => LocalizationManager.Get("FullScreen"),
-                "DesignatedCapture" => LocalizationManager.Get("DesignatedCapture"),
-                "WindowCapture"     => LocalizationManager.Get("WindowCapture"),
-                "ElementCapture"    => LocalizationManager.Get("ElementCapture"),
-                "ScrollCapture"     => LocalizationManager.Get("ScrollCapture"),
-                "OcrCapture"        => LocalizationManager.Get("OcrCapture"),
+                "AreaCapture"       => LocalizationManager.GetString("AreaCapture"),
+                "DelayCapture"      => LocalizationManager.GetString("DelayCapture"),
+                "RealTimeCapture"   => LocalizationManager.GetString("RealTimeCapture"),
+                "MultiCapture"      => LocalizationManager.GetString("MultiCapture"),
+                "FullScreen"        => LocalizationManager.GetString("FullScreen"),
+                "DesignatedCapture" => LocalizationManager.GetString("DesignatedCapture"),
+                "WindowCapture"     => LocalizationManager.GetString("WindowCapture"),
+                "ElementCapture"    => LocalizationManager.GetString("ElementCapture"),
+                "ScrollCapture"     => LocalizationManager.GetString("ScrollCapture"),
+                "OcrCapture"        => LocalizationManager.GetString("OcrCapture"),
                 _ => key
             };
         }

@@ -30,7 +30,7 @@ public partial class App : Application
 
         // 언어 설정 로드 및 적용
         var settings = CatchCapture.Models.Settings.Load();
-        CatchCapture.Models.LocalizationManager.CurrentLanguage = settings.Language ?? "ko";
+        CatchCapture.Resources.LocalizationManager.SetLanguage(settings.Language ?? "ko");
         
         // 자동시작 여부 확인 (명령줄 인자에 /autostart 또는 --autostart가 있는지 확인)
         bool isAutoStart = e.Args.Length > 0 && 

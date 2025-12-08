@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" use="preserve" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <!-- Application Title -->
+  <data name="AppTitle" xml:space="preserve">
+    <value>CatchCapture</value>
+  </data>
+  
+  <!-- Capture Types -->
+  <data name="AreaCapture" xml:space="preserve">
+    <value>Bereichsaufnahme</value>
+  </data>
+  <data name="DelayCapture" xml:space="preserve">
+    <value>Verzögerte Aufnahme</value>
+  </data>
+  <data name="RealTimeCapture" xml:space="preserve">
+    <value>Sofortaufnahme</value>
+  </data>
+  <data name="MultiCapture" xml:space="preserve">
+    <value>Mehrfachaufnahme</value>
+  </data>
+  <data name="FullScreen" xml:space="preserve">
+    <value>Vollbild</value>
+  </data>
+  <data name="DesignatedCapture" xml:space="preserve">
+    <value>Fester Bereich</value>
+  </data>
+  <data name="WindowCapture" xml:space="preserve">
+    <value>Fensteraufnahme</value>
+  </data>
+  <data name="ElementCapture" xml:space="preserve">
+    <value>Elementaufnahme</value>
+  </data>
+  <data name="ScrollCapture" xml:space="preserve">
+    <value>Scroll-Aufnahme</value>
+  </data>
+  <data name="OcrCapture" xml:space="preserve">
+    <value>OCR-Aufnahme</value>
+  </data>
+  
+  <!-- Window Modes -->
+  <data name="NormalMode" xml:space="preserve">
+    <value>Normaler Modus</value>
+  </data>
+  <data name="SimpleMode" xml:space="preserve">
+    <value>Einfacher Modus</value>
+  </data>
+  <data name="TrayMode" xml:space="preserve">
+    <value>Tray-Modus</value>
+  </data>
+  
+  <!-- Menu Items -->
+  <data name="Settings" xml:space="preserve">
+    <value>Einstellungen</value>
+  </data>
+  <data name="Exit" xml:space="preserve">
+    <value>Beenden</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Speichern</value>
+  </data>
+  <data name="SaveAll" xml:space="preserve">
+    <value>Alle Speichern</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Löschen</value>
+  </data>
+  <data name="DeleteAll" xml:space="preserve">
+    <value>Alle Löschen</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Kopieren</value>
+  </data>
+  <data name="Print" xml:space="preserve">
+    <value>Drucken</value>
+  </data>
+  
+  <!-- Editor Tools -->
+  <data name="Pen" xml:space="preserve">
+    <value>Stift</value>
+  </data>
+  <data name="Highlighter" xml:space="preserve">
+    <value>Textmarker</value>
+  </data>
+  <data name="Text" xml:space="preserve">
+    <value>Text</value>
+  </data>
+  <data name="Shape" xml:space="preserve">
+    <value>Form</value>
+  </data>
+  <data name="Eraser" xml:space="preserve">
+    <value>Radiergummi</value>
+  </data>
+  <data name="Mosaic" xml:space="preserve">
+    <value>Mosaik</value>
+  </data>
+  <data name="Crop" xml:space="preserve">
+    <value>Zuschneiden</value>
+  </data>
+  <data name="Rotate" xml:space="preserve">
+    <value>Drehen</value>
+  </data>
+  <data name="Undo" xml:space="preserve">
+    <value>Rückgängig</value>
+  </data>
+  <data name="Redo" xml:space="preserve">
+    <value>Wiederholen</value>
+  </data>
+  
+  <!-- Settings -->
+  <data name="General" xml:space="preserve">
+    <value>Allgemein</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Sprache</value>
+  </data>
+  <data name="Hotkeys" xml:space="preserve">
+    <value>Tastenkombinationen</value>
+  </data>
+  <data name="StartWithWindows" xml:space="preserve">
+    <value>Mit Windows starten</value>
+  </data>
+  <data name="StartInTrayMode" xml:space="preserve">
+    <value>Im Tray-Modus starten</value>
+  </data>
+  <data name="SettingsSaved" xml:space="preserve">
+    <value>Einstellungen gespeichert</value>
+  </data>
+  
+  <!-- Messages -->
+  <data name="Confirm" xml:space="preserve">
+    <value>Bestätigen</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Abbrechen</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Ja</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>Nein</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Fehler</value>
+  </data>
+  <data name="Success" xml:space="preserve">
+    <value>Erfolg</value>
+  </data>
+  <!-- Added Keys -->
+  <data name="Recapture" xml:space="preserve"><value>Erneut aufnehmen</value></data>
+  <data name="CopyToClipboard" xml:space="preserve"><value>In die Zwischenablage kopieren</value></data>
+  <data name="Reset" xml:space="preserve"><value>Zurücksetzen</value></data>
+  <data name="FlipHorizontal" xml:space="preserve"><value>Horizontal spiegeln</value></data>
+  <data name="FlipVertical" xml:space="preserve"><value>Vertikal spiegeln</value></data>
+  <data name="ImageSearch" xml:space="preserve"><value>Bildsuche</value></data>
+  <data name="Share" xml:space="preserve"><value>Teilen</value></data>
+  <data name="Extract" xml:space="preserve"><value>Extrahieren</value></data>
+  <data name="ToolOptions" xml:space="preserve"><value>Werkzeugoptionen</value></data>
+  <data name="RecentCaptures" xml:space="preserve"><value>Letzte Aufnahmen</value></data>
+  <data name="Size" xml:space="preserve"><value>Größe</value></data>
+  <data name="OriginalSize" xml:space="preserve"><value>Original</value></data>
+  <data name="ResetToOriginal" xml:space="preserve"><value>Auf Original zurücksetzen</value></data>
+  <data name="AddText" xml:space="preserve"><value>Text hinzufügen</value></data>
+  <data name="DrawShapeTooltip" xml:space="preserve"><value>Form zeichnen (Standard: Rechteck)</value></data>
+  <data name="ShapeOptions" xml:space="preserve"><value>Formoptionen</value></data>
+  <data name="ImageSizePrefix" xml:space="preserve"><value>Bildgröße: </value></data>
+  <data name="RestartRequired" xml:space="preserve"><value>Neustart erforderlich für Sprachänderungen.</value></data>
+  <data name="MenuEdit" xml:space="preserve"><value>Menü bearbeiten</value></data>
+  <data name="MenuEditGuide" xml:space="preserve"><value>Drag &amp; Drop zum Neuordnen oder Löschen.</value></data>
+  <data name="Add" xml:space="preserve"><value>Hinzufügen</value></data>
+  <data name="RestoreDefaultMenus" xml:space="preserve"><value>Standardmenüs wiederherstellen</value></data>
+  <data name="VisitHomepage" xml:space="preserve"><value>Homepage besuchen</value></data>
+  <data name="RestoreDefaults" xml:space="preserve"><value>Standard wiederherstellen</value></data>
+  <data name="PrivacyPolicy" xml:space="preserve"><value>Datenschutzerklärung</value></data>
+  <data name="CaptureSettings" xml:space="preserve"><value>Aufnahmeeinstellungen</value></data>
+  <data name="SaveSettings" xml:space="preserve"><value>Speichereinstellungen</value></data>
+  <data name="SavePath" xml:space="preserve"><value>Speicherpfad</value></data>
+  <data name="Change" xml:space="preserve"><value>Ändern</value></data>
+  <data name="FileFormat" xml:space="preserve"><value>Dateiformat</value></data>
+  <data name="Quality" xml:space="preserve"><value>Qualität</value></data>
+  <data name="Options" xml:space="preserve"><value>Optionen</value></data>
+  <data name="AutoSaveCapture" xml:space="preserve"><value>Nach Aufnahme automatisch speichern</value></data>
+  <data name="ShowPreviewAfterCapture" xml:space="preserve"><value>Vorschau nach Aufnahme anzeigen</value></data>
+  <data name="HotkeySettings" xml:space="preserve"><value>Hotkey-Einstellungen</value></data>
+  <data name="UsePrintScreen" xml:space="preserve"><value>Drucktaste verwenden</value></data>
+  <data name="SystemSettings" xml:space="preserve"><value>Systemeinstellungen</value></data>
+  <data name="StartupMode" xml:space="preserve"><value>Startmodus</value></data>
+  <data name="StartInNormal" xml:space="preserve"><value>Im Normalmodus starten</value></data>
+  <data name="StartInSimple" xml:space="preserve"><value>Im einfachen Modus starten</value></data>
+  <data name="StartInTray" xml:space="preserve"><value>Im Tray-Modus starten</value></data>
+  <data name="StartupModeNotice" xml:space="preserve"><value>※ Tray-Modus zeigt nur das Symbol an.</value></data>
+  <data name="LanguageSettings" xml:space="preserve"><value>Spracheinstellungen</value></data>
+  <data name="LanguageLabel" xml:space="preserve"><value>Sprache wählen</value></data>
+  <data name="NoExtractedText" xml:space="preserve"><value>Kein Text extrahiert.</value></data>
+  <data name="Info" xml:space="preserve"><value>Info</value></data>
+  <data name="ImageSaveTitle" xml:space="preserve"><value>Bild speichern</value></data>
+  <data name="ImageSaved" xml:space="preserve"><value>Bild erfolgreich gespeichert.</value></data>
+  <data name="NoImageToPrint" xml:space="preserve"><value>Kein Bild zum Drucken.</value></data>
+  <data name="PrintPreviewError" xml:space="preserve"><value>Fehler bei der Druckvorschau</value></data>
+  <data name="RecaptureError" xml:space="preserve"><value>Fehler bei Wiederaufnahme</value></data>
+  <data name="ConfirmReset" xml:space="preserve"><value>Zurücksetzen? Alle Änderungen gehen verloren.</value></data>
+  <data name="EditImage" xml:space="preserve"><value>Bild bearbeiten</value></data>
+  <data name="PenTooltip" xml:space="preserve"><value>Stift (Standard: Schwarz, 3px)</value></data>
+  <data name="BackgroundRemoval" xml:space="preserve"><value>Hintergrund entfernen</value></data>
+  <data name="BackgroundRemovalTooltip" xml:space="preserve"><value>Automatische Hintergrundentfernung</value></data>
+  <data name="ImageSearchTooltip" xml:space="preserve"><value>Google Bildsuche</value></data>
+  <data name="ExtractText" xml:space="preserve"><value>Text extrahieren (OCR)</value></data>
+  <data name="ZoomReset" xml:space="preserve"><value>Original (100%)</value></data>
+  <data name="ZoomResetTooltip" xml:space="preserve"><value>Tatsächliche Größe anzeigen</value></data>
+  <data name="ZoomOut" xml:space="preserve"><value>Verkleinern</value></data>
+  <data name="ZoomIn" xml:space="preserve"><value>Vergrößern</value></data>
+  <data name="SizeLabel" xml:space="preserve"><value>Größe</value></data>
+  <data name="ShapeLbl" xml:space="preserve"><value>Form</value></data>
+  <data name="PenLbl" xml:space="preserve"><value>Stift</value></data>
+  <data name="HighlighterLbl" xml:space="preserve"><value>Textmarker</value></data>
+  <data name="TextAdd" xml:space="preserve"><value>Text</value></data>
+  <data name="UndoLbl" xml:space="preserve"><value>Rückgängig</value></data>
+  <data name="RedoLbl" xml:space="preserve"><value>Wiederholen</value></data>
+  <data name="ResetLbl" xml:space="preserve"><value>Reset</value></data>
+  <data name="FlipH" xml:space="preserve"><value>Spiegeln H</value></data>
+  <data name="FlipV" xml:space="preserve"><value>Spiegeln V</value></data>
+  <data name="CopySelected" xml:space="preserve"><value>Kopieren</value></data>
+  <data name="InstantEdit" xml:space="preserve"><value>Sofortbearbeitung</value></data>
+  <data name="OpenEditor" xml:space="preserve"><value>Editor öffnen</value></data>
+</root>
