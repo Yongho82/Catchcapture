@@ -211,9 +211,9 @@
   <data name="Recapture" xml:space="preserve"><value>Recapture</value></data>
   <data name="CopyToClipboard" xml:space="preserve"><value>Copy to Clipboard</value></data>
   <data name="Reset" xml:space="preserve"><value>Reset</value></data>
-  <data name="FlipHorizontal" xml:space="preserve"><value>Flip Horizontal</value></data>
-  <data name="FlipVertical" xml:space="preserve"><value>Flip Vertical</value></data>
-  <data name="ImageSearch" xml:space="preserve"><value>Image Search</value></data>
+  <data name="FlipHorizontal" xml:space="preserve"><value>Flip H</value></data>
+  <data name="FlipVertical" xml:space="preserve"><value>Flip V</value></data>
+  <data name="ImageSearch" xml:space="preserve"><value>Img Search</value></data>
   <data name="Share" xml:space="preserve"><value>Share</value></data>
   <data name="Extract" xml:space="preserve"><value>Extract</value></data>
   <data name="ToolOptions" xml:space="preserve"><value>Tool Options</value></data>
@@ -262,7 +262,7 @@
   <data name="ConfirmReset" xml:space="preserve"><value>Reset to original? All changes will be lost.</value></data>
   <data name="EditImage" xml:space="preserve"><value>Edit Image</value></data>
   <data name="PenTooltip" xml:space="preserve"><value>Pen (Default: Black, 3px)</value></data>
-  <data name="BackgroundRemoval" xml:space="preserve"><value>Remove Background</value></data>
+  <data name="BackgroundRemoval" xml:space="preserve"><value>Rm BG</value></data>
   <data name="BackgroundRemovalTooltip" xml:space="preserve"><value>Auto Remove Background</value></data>
   <data name="ImageSearchTooltip" xml:space="preserve"><value>Google Image Search</value></data>
   <data name="ExtractText" xml:space="preserve"><value>Extract Text (OCR)</value></data>

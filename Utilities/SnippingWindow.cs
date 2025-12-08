@@ -963,7 +963,7 @@ namespace CatchCapture.Utilities
             // 재캡처 버튼 (기존 취소 버튼 위치)
             var cancelButton = new Button
             {
-                Width = 40,
+                Width = 45,
                 Height = 40,
                 Margin = new Thickness(0.5),
                 Padding = new Thickness(0),
@@ -1004,7 +1004,7 @@ namespace CatchCapture.Utilities
             
             var cancelViewbox = new Viewbox
             {
-                Width = 38,
+                Width = 43,
                 Stretch = Stretch.Uniform,
                 StretchDirection = StretchDirection.DownOnly,
                 Child = cancelLabel
@@ -1093,7 +1093,7 @@ namespace CatchCapture.Utilities
             // 완료 버튼
             var doneButton = new Button
             {
-                Width = 40,
+                Width = 45,
                 Height = 40,
                 Margin = new Thickness(2),
                 Padding = new Thickness(0),
@@ -1245,7 +1245,7 @@ namespace CatchCapture.Utilities
         {
             var button = new Button
             {
-                Width = 40,  // 요청하신 45 크기
+                Width = 45,
                 Height = 40,
                 Margin = new Thickness(0.5),
                 Padding = new Thickness(0),
@@ -1314,7 +1314,7 @@ namespace CatchCapture.Utilities
             
             var viewbox = new Viewbox
             {
-                Width = 38,
+                Width = 43,
                 Stretch = Stretch.Uniform, // 비율 유지하며 축소
                 StretchDirection = StretchDirection.DownOnly, // 커지지는 않고 작아지기만 함
                 Child = textBlock
@@ -1366,7 +1366,7 @@ namespace CatchCapture.Utilities
         {
             var button = new Button
             {
-                Width = 40,
+                Width = 45,
                 Height = 40,
                 Margin = new Thickness(2),
                 Padding = new Thickness(0),
@@ -1430,7 +1430,7 @@ namespace CatchCapture.Utilities
             
             var viewbox = new Viewbox
             {
-                Width = 38,
+                Width = 43,
                 Stretch = Stretch.Uniform,
                 StretchDirection = StretchDirection.DownOnly,
                 Child = textBlock
