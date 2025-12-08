@@ -160,7 +160,7 @@ namespace CatchCapture
             // Ensure toolbar texts finalize after template creation
             this.Loaded += (s, e) => { try { UpdateUIText(); } catch { } };
             // Live language switch
-            CatchCapture.Models.LocalizationManager.LanguageChanged += PreviewWindow_LanguageChanged;
+            LocalizationManager.LanguageChanged += PreviewWindow_LanguageChanged;
         }
 
         // 이미지 크기에 맞게 창 크기를 조정하는 메서드
@@ -1057,8 +1057,11 @@ namespace CatchCapture
             if(FlipVerticalLabelText != null) FlipVerticalLabelText.Text = LocalizationManager.GetString("FlipVertical");
             if(FlipVerticalButton != null) FlipVerticalButton.ToolTip = LocalizationManager.GetString("FlipVertical");
             // Shape
-            // ShapeLabelText removed
-            // if(ShapeLabelText != null) ShapeLabelText.Text = LocalizationManager.GetString("Shape");
+            if (ShapeButton != null)
+            {
+                var shapeLabel = ShapeButton.Template?.FindName("ShapeLabelText", ShapeButton) as TextBlock;
+                if (shapeLabel != null) shapeLabel.Text = LocalizationManager.GetString("Shape");
+            }
             if(ShapeButton != null) ShapeButton.ToolTip = LocalizationManager.GetString("DrawShapeTooltip");
             if(ShapeOptionsButton != null) ShapeOptionsButton.ToolTip = LocalizationManager.GetString("ShapeOptions");
             // Tools
@@ -1119,7 +1122,7 @@ namespace CatchCapture
 
         protected override void OnClosed(EventArgs e)
         {
-            try { CatchCapture.Models.LocalizationManager.LanguageChanged -= PreviewWindow_LanguageChanged; } catch { }
+            try { LocalizationManager.LanguageChanged -= PreviewWindow_LanguageChanged; } catch { }
             base.OnClosed(e);
         }
     }

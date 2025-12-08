@@ -210,7 +210,7 @@
   <data name="Reset" xml:space="preserve"><value>초기화</value></data>
   <data name="FlipHorizontal" xml:space="preserve"><value>좌우반전</value></data>
   <data name="FlipVertical" xml:space="preserve"><value>상하반전</value></data>
-  <data name="ImageSearch" xml:space="preserve"><value>이미지 검색</value></data>
+  <data name="ImageSearch" xml:space="preserve"><value>IMG 검색</value></data>
   <data name="Share" xml:space="preserve"><value>공유</value></data>
   <data name="Extract" xml:space="preserve"><value>추출</value></data>
   <data name="ToolOptions" xml:space="preserve"><value>도구 옵션</value></data>
@@ -278,6 +278,6 @@
   <data name="FlipH" xml:space="preserve"><value>좌우반전</value></data>
   <data name="FlipV" xml:space="preserve"><value>상하반전</value></data>
   <data name="CopySelected" xml:space="preserve"><value>복사</value></data>
-  <data name="InstantEdit" xml:space="preserve"><value>즉시 편집</value></data>
+  <data name="InstantEdit" xml:space="preserve"><value>   즉시 편집</value></data>
   <data name="OpenEditor" xml:space="preserve"><value>에디터 열기</value></data>
 </root>

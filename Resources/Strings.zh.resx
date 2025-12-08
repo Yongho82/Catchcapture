@@ -205,79 +205,79 @@
     <value>成功</value>
   </data>
   <!-- Added Keys -->
-  <data name="Recapture" xml:space="preserve"><value>Recapture</value></data>
-  <data name="CopyToClipboard" xml:space="preserve"><value>Copy to Clipboard</value></data>
-  <data name="Reset" xml:space="preserve"><value>Reset</value></data>
-  <data name="FlipHorizontal" xml:space="preserve"><value>Flip Horizontal</value></data>
-  <data name="FlipVertical" xml:space="preserve"><value>Flip Vertical</value></data>
-  <data name="ImageSearch" xml:space="preserve"><value>Image Search</value></data>
-  <data name="Share" xml:space="preserve"><value>Share</value></data>
-  <data name="Extract" xml:space="preserve"><value>Extract</value></data>
-  <data name="ToolOptions" xml:space="preserve"><value>Tool Options</value></data>
-  <data name="RecentCaptures" xml:space="preserve"><value>Recent Captures</value></data>
-  <data name="Size" xml:space="preserve"><value>Size</value></data>
-  <data name="OriginalSize" xml:space="preserve"><value>Original</value></data>
-  <data name="ResetToOriginal" xml:space="preserve"><value>Reset to Original</value></data>
-  <data name="AddText" xml:space="preserve"><value>Add Text</value></data>
-  <data name="DrawShapeTooltip" xml:space="preserve"><value>Draw Shape (Default: Rectangle)</value></data>
-  <data name="ShapeOptions" xml:space="preserve"><value>Shape Options</value></data>
-  <data name="ImageSizePrefix" xml:space="preserve"><value>Image Size: </value></data>
-  <data name="RestartRequired" xml:space="preserve"><value>Restart required to apply language changes.</value></data>
-  <data name="MenuEdit" xml:space="preserve"><value>Edit Menu</value></data>
-  <data name="MenuEditGuide" xml:space="preserve"><value>Drag and drop to reorder or delete menu items.</value></data>
-  <data name="Add" xml:space="preserve"><value>Add</value></data>
-  <data name="RestoreDefaultMenus" xml:space="preserve"><value>Restore Default Menus</value></data>
-  <data name="VisitHomepage" xml:space="preserve"><value>Visit Homepage</value></data>
-  <data name="RestoreDefaults" xml:space="preserve"><value>Restore Defaults</value></data>
-  <data name="PrivacyPolicy" xml:space="preserve"><value>Privacy Policy</value></data>
-  <data name="CaptureSettings" xml:space="preserve"><value>Capture Settings</value></data>
-  <data name="SaveSettings" xml:space="preserve"><value>Save Settings</value></data>
-  <data name="SavePath" xml:space="preserve"><value>Save Path</value></data>
-  <data name="Change" xml:space="preserve"><value>Change</value></data>
-  <data name="FileFormat" xml:space="preserve"><value>File Format</value></data>
-  <data name="Quality" xml:space="preserve"><value>Quality</value></data>
-  <data name="Options" xml:space="preserve"><value>Options</value></data>
-  <data name="AutoSaveCapture" xml:space="preserve"><value>Auto Save After Capture</value></data>
-  <data name="ShowPreviewAfterCapture" xml:space="preserve"><value>Show Preview After Capture</value></data>
-  <data name="HotkeySettings" xml:space="preserve"><value>Hotkey Settings</value></data>
-  <data name="UsePrintScreen" xml:space="preserve"><value>Use Print Screen Key</value></data>
-  <data name="SystemSettings" xml:space="preserve"><value>System Settings</value></data>
-  <data name="StartupMode" xml:space="preserve"><value>Startup Mode</value></data>
-  <data name="StartInNormal" xml:space="preserve"><value>Start in Normal Mode</value></data>
-  <data name="StartInSimple" xml:space="preserve"><value>Start in Simple Mode</value></data>
-  <data name="StartInTray" xml:space="preserve"><value>Start in Tray Mode</value></data>
-  <data name="StartupModeNotice" xml:space="preserve"><value>※ Tray Mode shows only try icon.</value></data>
-  <data name="LanguageSettings" xml:space="preserve"><value>Language Settings</value></data>
-  <data name="LanguageLabel" xml:space="preserve"><value>Select Language</value></data>
-  <data name="NoExtractedText" xml:space="preserve"><value>No text extracted.</value></data>
-  <data name="Info" xml:space="preserve"><value>Info</value></data>
-  <data name="ImageSaveTitle" xml:space="preserve"><value>Save Image</value></data>
-  <data name="ImageSaved" xml:space="preserve"><value>Image saved successfully.</value></data>
-  <data name="NoImageToPrint" xml:space="preserve"><value>No image to print.</value></data>
-  <data name="PrintPreviewError" xml:space="preserve"><value>Print preview error</value></data>
-  <data name="RecaptureError" xml:space="preserve"><value>Recapture error</value></data>
-  <data name="ConfirmReset" xml:space="preserve"><value>Reset to original? All changes will be lost.</value></data>
-  <data name="EditImage" xml:space="preserve"><value>Edit Image</value></data>
-  <data name="PenTooltip" xml:space="preserve"><value>Pen (Default: Black, 3px)</value></data>
-  <data name="BackgroundRemoval" xml:space="preserve"><value>Remove Background</value></data>
-  <data name="BackgroundRemovalTooltip" xml:space="preserve"><value>Auto Remove Background</value></data>
-  <data name="ImageSearchTooltip" xml:space="preserve"><value>Google Image Search</value></data>
-  <data name="ExtractText" xml:space="preserve"><value>Extract Text (OCR)</value></data>
-  <data name="ZoomReset" xml:space="preserve"><value>Original (100%)</value></data>
-  <data name="ZoomResetTooltip" xml:space="preserve"><value>View Actual Size</value></data>
-  <data name="ZoomOut" xml:space="preserve"><value>Zoom Out</value></data>
-  <data name="ZoomIn" xml:space="preserve"><value>Zoom In</value></data>
-  <data name="SizeLabel" xml:space="preserve"><value>Size</value></data>
-  <data name="ShapeLbl" xml:space="preserve"><value>Shape</value></data>
-  <data name="PenLbl" xml:space="preserve"><value>Pen</value></data>
-  <data name="HighlighterLbl" xml:space="preserve"><value>Highlighter</value></data>
-  <data name="TextAdd" xml:space="preserve"><value>Add Text</value></data>
-  <data name="UndoLbl" xml:space="preserve"><value>Undo</value></data>
-  <data name="RedoLbl" xml:space="preserve"><value>Redo</value></data>
-  <data name="ResetLbl" xml:space="preserve"><value>Reset</value></data>
-  <data name="FlipH" xml:space="preserve"><value>Flip H</value></data>
-  <data name="FlipV" xml:space="preserve"><value>Flip V</value></data>
-  <data name="CopySelected" xml:space="preserve"><value>Copy</value></data>
+  <data name="Recapture" xml:space="preserve"><value>重新截图</value></data>
+  <data name="CopyToClipboard" xml:space="preserve"><value>复制到剪贴板</value></data>
+  <data name="Reset" xml:space="preserve"><value>重置</value></data>
+  <data name="FlipHorizontal" xml:space="preserve"><value>水平翻转</value></data>
+  <data name="FlipVertical" xml:space="preserve"><value>垂直翻转</value></data>
+  <data name="ImageSearch" xml:space="preserve"><value>图像搜索</value></data>
+  <data name="Share" xml:space="preserve"><value>分享</value></data>
+  <data name="Extract" xml:space="preserve"><value>提取</value></data>
+  <data name="ToolOptions" xml:space="preserve"><value>工具选项</value></data>
+  <data name="RecentCaptures" xml:space="preserve"><value>最近截图</value></data>
+  <data name="Size" xml:space="preserve"><value>大小</value></data>
+  <data name="OriginalSize" xml:space="preserve"><value>原始大小</value></data>
+  <data name="ResetToOriginal" xml:space="preserve"><value>恢复原始大小</value></data>
+  <data name="AddText" xml:space="preserve"><value>添加文本</value></data>
+  <data name="DrawShapeTooltip" xml:space="preserve"><value>绘制形状 (默认: 矩形)</value></data>
+  <data name="ShapeOptions" xml:space="preserve"><value>形状选项</value></data>
+  <data name="ImageSizePrefix" xml:space="preserve"><value>图像大小: </value></data>
+  <data name="RestartRequired" xml:space="preserve"><value>需要重启以应用语言更改。</value></data>
+  <data name="MenuEdit" xml:space="preserve"><value>编辑菜单</value></data>
+  <data name="MenuEditGuide" xml:space="preserve"><value>拖放以重新排序或删除菜单项。</value></data>
+  <data name="Add" xml:space="preserve"><value>添加</value></data>
+  <data name="RestoreDefaultMenus" xml:space="preserve"><value>恢复默认菜单</value></data>
+  <data name="VisitHomepage" xml:space="preserve"><value>访问主页</value></data>
+  <data name="RestoreDefaults" xml:space="preserve"><value>恢复默认值</value></data>
+  <data name="PrivacyPolicy" xml:space="preserve"><value>隐私政策</value></data>
+  <data name="CaptureSettings" xml:space="preserve"><value>截图设置</value></data>
+  <data name="SaveSettings" xml:space="preserve"><value>保存设置</value></data>
+  <data name="SavePath" xml:space="preserve"><value>保存路径</value></data>
+  <data name="Change" xml:space="preserve"><value>更改</value></data>
+  <data name="FileFormat" xml:space="preserve"><value>文件格式</value></data>
+  <data name="Quality" xml:space="preserve"><value>质量</value></data>
+  <data name="Options" xml:space="preserve"><value>选项</value></data>
+  <data name="AutoSaveCapture" xml:space="preserve"><value>截图后自动保存</value></data>
+  <data name="ShowPreviewAfterCapture" xml:space="preserve"><value>截图后显示预览窗口</value></data>
+  <data name="HotkeySettings" xml:space="preserve"><value>快捷键设置</value></data>
+  <data name="UsePrintScreen" xml:space="preserve"><value>使用 Print Screen 键</value></data>
+  <data name="SystemSettings" xml:space="preserve"><value>系统设置</value></data>
+  <data name="StartupMode" xml:space="preserve"><value>启动模式</value></data>
+  <data name="StartInNormal" xml:space="preserve"><value>以正常模式启动</value></data>
+  <data name="StartInSimple" xml:space="preserve"><value>以简单模式启动</value></data>
+  <data name="StartInTray" xml:space="preserve"><value>以托盘模式启动</value></data>
+  <data name="StartupModeNotice" xml:space="preserve"><value>※ 托盘模式仅显示托盘图标。</value></data>
+  <data name="LanguageSettings" xml:space="preserve"><value>语言设置</value></data>
+  <data name="LanguageLabel" xml:space="preserve"><value>选择语言</value></data>
+  <data name="NoExtractedText" xml:space="preserve"><value>未提取到文本。</value></data>
+  <data name="Info" xml:space="preserve"><value>信息</value></data>
+  <data name="ImageSaveTitle" xml:space="preserve"><value>保存图像</value></data>
+  <data name="ImageSaved" xml:space="preserve"><value>图像已保存。</value></data>
+  <data name="NoImageToPrint" xml:space="preserve"><value>没有要打印的图像。</value></data>
+  <data name="PrintPreviewError" xml:space="preserve"><value>打印预览错误</value></data>
+  <data name="RecaptureError" xml:space="preserve"><value>重新截图错误</value></data>
+  <data name="ConfirmReset" xml:space="preserve"><value>恢复到原始状态？所有更改都将丢失。</value></data>
+  <data name="EditImage" xml:space="preserve"><value>编辑图像</value></data>
+  <data name="PenTooltip" xml:space="preserve"><value>笔 (默认: 黑色, 3px)</value></data>
+  <data name="BackgroundRemoval" xml:space="preserve"><value>移除背景</value></data>
+  <data name="BackgroundRemovalTooltip" xml:space="preserve"><value>自动移除背景</value></data>
+  <data name="ImageSearchTooltip" xml:space="preserve"><value>Google 图像搜索</value></data>
+  <data name="ExtractText" xml:space="preserve"><value>提取文本 (OCR)</value></data>
+  <data name="ZoomReset" xml:space="preserve"><value>原始大小 (100%)</value></data>
+  <data name="ZoomResetTooltip" xml:space="preserve"><value>查看实际大小</value></data>
+  <data name="ZoomOut" xml:space="preserve"><value>缩小</value></data>
+  <data name="ZoomIn" xml:space="preserve"><value>放大</value></data>
+  <data name="SizeLabel" xml:space="preserve"><value>大小</value></data>
+  <data name="ShapeLbl" xml:space="preserve"><value>形状</value></data>
+  <data name="PenLbl" xml:space="preserve"><value>笔</value></data>
+  <data name="HighlighterLbl" xml:space="preserve"><value>荧光笔</value></data>
+  <data name="TextAdd" xml:space="preserve"><value>添加文本</value></data>
+  <data name="UndoLbl" xml:space="preserve"><value>撤销</value></data>
+  <data name="RedoLbl" xml:space="preserve"><value>重做</value></data>
+  <data name="ResetLbl" xml:space="preserve"><value>重置</value></data>
+  <data name="FlipH" xml:space="preserve"><value>水平翻转</value></data>
+  <data name="FlipV" xml:space="preserve"><value>垂直翻转</value></data>
+  <data name="CopySelected" xml:space="preserve"><value>复制</value></data>
   <data name="InstantEdit" xml:space="preserve"><value>即时编辑</value></data>
   <data name="OpenEditor" xml:space="preserve"><value>打开编辑器</value></data>
 </root>

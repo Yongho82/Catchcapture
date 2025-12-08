@@ -3230,6 +3230,9 @@ public partial class MainWindow : Window
         // 1. 윈도우 제목
         this.Title = LocalizationManager.GetString("AppTitle");
         if (TitleBarAppNameText != null) TitleBarAppNameText.Text = LocalizationManager.GetString("AppTitle");
+        
+        if (InstantEditLabel != null) InstantEditLabel.Text = LocalizationManager.GetString("InstantEdit");
+        if (OpenEditorLabel != null) OpenEditorLabel.Text = LocalizationManager.GetString("OpenEditor");
         // 2. 메인 버튼들
         if (AreaCaptureButtonText != null) AreaCaptureButtonText.Text = LocalizationManager.GetString("AreaCapture");
         if (DelayCaptureButtonText != null) DelayCaptureButtonText.Text = LocalizationManager.GetString("DelayCapture");
