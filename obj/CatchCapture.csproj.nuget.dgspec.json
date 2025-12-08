@@ -1,20 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Yonghoprogram\\Catchcapture\\CatchCapture.csproj": {}
+    "C:\\yonghoprogram\\Catchcapture\\CatchCapture.csproj": {}
   },
   "projects": {
-    "C:\\Yonghoprogram\\Catchcapture\\CatchCapture.csproj": {
+    "C:\\yonghoprogram\\Catchcapture\\CatchCapture.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Yonghoprogram\\Catchcapture\\CatchCapture.csproj",
+        "projectUniqueName": "C:\\yonghoprogram\\Catchcapture\\CatchCapture.csproj",
         "projectName": "com.ezupsoft.catchcapture",
-        "projectPath": "C:\\Yonghoprogram\\Catchcapture\\CatchCapture.csproj",
-        "packagesPath": "C:\\Users\\엄용호 회사\\.nuget\\packages\\",
-        "outputPath": "C:\\Yonghoprogram\\Catchcapture\\obj\\",
+        "projectPath": "C:\\yonghoprogram\\Catchcapture\\CatchCapture.csproj",
+        "packagesPath": "C:\\Users\\엄용호\\.nuget\\packages\\",
+        "outputPath": "C:\\yonghoprogram\\Catchcapture\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\엄용호 회사\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\엄용호\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -72,24 +76,8 @@
           "warn": true,
           "downloadDependencies": [
             {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.13, 8.0.13]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Host.win-x64",
-              "version": "[8.0.13, 8.0.13]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.13, 8.0.13]"
-            },
-            {
               "name": "Microsoft.Windows.SDK.NET.Ref",
               "version": "[10.0.19041.57, 10.0.19041.57]"
-            },
-            {
-              "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[8.0.13, 8.0.13]"
             }
           ],
           "frameworkReferences": {
@@ -106,7 +94,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.201/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

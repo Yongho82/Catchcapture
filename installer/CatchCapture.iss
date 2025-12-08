@@ -27,15 +27,15 @@ UninstallDisplayIcon={app}\icons\catcha.ico
 ; uilanguage: Windows UI 언어를 감지하여 일치하는 언어로 자동 선택 (일치하는게 없으면 첫 번째 언어 사용)
 LanguageDetectionMethod=uilanguage
 ; yes: 언어 선택 대화상자 표시 - Inno Setup EXE 직접 실행 시 언어 선택 가능
-; no: 대화상자 없이 자동 감지된 언어로 진행 - MSIX 패키징 시 시스템 언어로 자동 설치
+; no: 대화상자 없이 자동 감지된 언어로 진행 - MSIX 패키징 시 시스템 언어로 자동 설치 (권장)
 ; auto: 감지된 언어와 일치하는 언어가 [Languages]에 없으면 표시
-ShowLanguageDialog=yes
+ShowLanguageDialog=no
 
 [Languages]
 Name: "korean"; MessagesFile: "compiler:Languages\Korean.isl"
 Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "japanese"; MessagesFile: "compiler:Languages\Japanese.isl"
-Name: "schinese"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
+Name: "schinese"; MessagesFile: "Languages\ChineseSimplified.isl"
 Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
 Name: "german"; MessagesFile: "compiler:Languages\German.isl"
 Name: "french"; MessagesFile: "compiler:Languages\French.isl"
