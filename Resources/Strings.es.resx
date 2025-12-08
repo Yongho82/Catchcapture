@@ -231,8 +231,8 @@
   <data name="Add" xml:space="preserve"><value>Añadir</value></data>
   <data name="RestoreDefaultMenus" xml:space="preserve"><value>Restaurar menús por defecto</value></data>
   <data name="VisitHomepage" xml:space="preserve"><value>Visitar página web</value></data>
-  <data name="RestoreDefaults" xml:space="preserve"><value>Restaurar valores predeterminados</value></data>
-  <data name="PrivacyPolicy" xml:space="preserve"><value>Política de privacidad</value></data>
+  <data name="RestoreDefaults" xml:space="preserve"><value>Restaurar valores</value></data>
+  <data name="PrivacyPolicy" xml:space="preserve"><value>Privacidad</value></data>
   <data name="CaptureSettings" xml:space="preserve"><value>Configuración de captura</value></data>
   <data name="SaveSettings" xml:space="preserve"><value>Configuración de guardado</value></data>
   <data name="SavePath" xml:space="preserve"><value>Ruta de guardado</value></data>

@@ -231,8 +231,8 @@
   <data name="Add" xml:space="preserve"><value>Hinzufügen</value></data>
   <data name="RestoreDefaultMenus" xml:space="preserve"><value>Standardmenüs wiederherstellen</value></data>
   <data name="VisitHomepage" xml:space="preserve"><value>Homepage besuchen</value></data>
-  <data name="RestoreDefaults" xml:space="preserve"><value>Standard wiederherstellen</value></data>
-  <data name="PrivacyPolicy" xml:space="preserve"><value>Datenschutzerklärung</value></data>
+  <data name="RestoreDefaults" xml:space="preserve"><value>Standardwerte</value></data>
+  <data name="PrivacyPolicy" xml:space="preserve"><value>Datenschutz</value></data>
   <data name="CaptureSettings" xml:space="preserve"><value>Aufnahmeeinstellungen</value></data>
   <data name="SaveSettings" xml:space="preserve"><value>Speichereinstellungen</value></data>
   <data name="SavePath" xml:space="preserve"><value>Speicherpfad</value></data>

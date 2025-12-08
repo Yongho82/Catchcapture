@@ -231,8 +231,8 @@
   <data name="Add" xml:space="preserve"><value>追加</value></data>
   <data name="RestoreDefaultMenus" xml:space="preserve"><value>デフォルトに戻す</value></data>
   <data name="VisitHomepage" xml:space="preserve"><value>ホームページへ</value></data>
-  <data name="RestoreDefaults" xml:space="preserve"><value>デフォルトに戻す</value></data>
-  <data name="PrivacyPolicy" xml:space="preserve"><value>プライバシーポリシー</value></data>
+  <data name="RestoreDefaults" xml:space="preserve"><value>初期化</value></data>
+  <data name="PrivacyPolicy" xml:space="preserve"><value>プライバシー</value></data>
   <data name="CaptureSettings" xml:space="preserve"><value>キャプチャ設定</value></data>
   <data name="SaveSettings" xml:space="preserve"><value>保存設定</value></data>
   <data name="SavePath" xml:space="preserve"><value>保存パス</value></data>

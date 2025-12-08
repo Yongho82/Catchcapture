@@ -472,7 +472,7 @@
                                    Foreground="#007AFF" 
                                    VerticalAlignment="Center"
                                    Margin="0,0,8,0"/>
-                        <Viewbox MaxWidth="280" MaxHeight="16" Stretch="Uniform" StretchDirection="DownOnly">
+                        <Viewbox MaxWidth="330" MaxHeight="16" Stretch="Uniform" StretchDirection="DownOnly">
                             <TextBlock x:Name="TipTextBlock" 
                                        Text="캡처 목록 이미지를 더블클릭해 빠르게 편집할 수 있어요." 
                                        FontSize="11" 
