@@ -39,6 +39,7 @@ namespace CatchCapture
             GoogleTranslateButton.Content = LocalizationManager.Get("GoogleTranslate");
             CopyButton.Content = LocalizationManager.Get("CopySelected");
             CloseButton.Content = LocalizationManager.Get("Close");
+            WarningText.Text = LocalizationManager.Get("OcrLanguagePackWarning");
         }
 
         private void CopyButton_Click(object sender, RoutedEventArgs e)
@@ -54,7 +55,7 @@ namespace CatchCapture
         {
             if (string.IsNullOrEmpty(ResultTextBox.Text))
             {
-                ShowGuideMessage("추출된 텍스트가 없습니다.", TimeSpan.FromSeconds(2));
+                ShowGuideMessage(LocalizationManager.Get("NoExtractedTextOcr"), TimeSpan.FromSeconds(2));
                 return;
             }
 
@@ -86,7 +87,7 @@ namespace CatchCapture
     <title>Google Translate</title>
 </head>
 <body>
-    <p>구글 번역으로 이동 중...</p>
+    <p>{LocalizationManager.Get("RedirectingToTranslate")}</p>
     <script>
         window.location.href = ""{translateUrl}"";
     </script>
@@ -112,11 +113,11 @@ namespace CatchCapture
                 });
                 
                 // 9. 안내 메시지 (GuideWindow)
-                ShowGuideMessage("구글 번역 페이지가 열립니다.\n텍스트가 클립보드에 복사되었습니다.", TimeSpan.FromSeconds(3));
+                ShowGuideMessage(LocalizationManager.Get("OpeningGoogleTranslate"), TimeSpan.FromSeconds(3));
             }
             catch (Exception ex)
             {
-                ShowGuideMessage($"구글 번역 실행 실패: {ex.Message}", TimeSpan.FromSeconds(3));
+                ShowGuideMessage(string.Format(LocalizationManager.Get("GoogleTranslateFailed"), ex.Message), TimeSpan.FromSeconds(3));
             }
         }
 

@@ -305,4 +305,46 @@
   <data name="Fill" xml:space="preserve"><value>塗りつぶし</value></data>
   <data name="FillOpacity" xml:space="preserve"><value>不透明度</value></data>
   <data name="Intensity" xml:space="preserve"><value>強度</value></data>
+  <data name="ComputerApp" xml:space="preserve"><value>コンピュータアプリ…</value></data>
+  <data name="SelectApplication" xml:space="preserve"><value>アプリケーションを選択</value></data>
+  <data name="SortNameAsc" xml:space="preserve"><value>名前 ▲</value></data>
+  <data name="SortNameDesc" xml:space="preserve"><value>名前 ▼</value></data>
+  <data name="Browse" xml:space="preserve"><value>参照…</value></data>
+  <data name="SelectExecutable" xml:space="preserve"><value>実行ファイルを選択</value></data>
+  <data name="ConfirmDeleteShortcut" xml:space="preserve"><value>ショートカット '{0}' を削除しますか？</value></data>
+  <data name="DeleteShortcut" xml:space="preserve"><value>ショートカットを削除</value></data>
+  <data name="AppLaunchFailed" xml:space="preserve"><value>アプリの起動に失敗しました：{0}</value></data>
+  <data name="GoogleSearch" xml:space="preserve"><value>Google 画像検索</value></data>
+  <data name="CopiedToClipboard" xml:space="preserve"><value>クリップボードにコピーしました。</value></data>
+  <data name="AllCopiedToClipboard" xml:space="preserve"><value>すべての画像をクリップボードにコピーしました。</value></data>
+  <data name="SelectSaveFolder" xml:space="preserve"><value>保存フォルダを選択</value></data>
+  <data name="UnsavedImagesDeleteConfirm" xml:space="preserve"><value>保存されていない画像があります。本当にすべて削除しますか？</value></data>
+  <data name="UnsavedImageDeleteConfirm" xml:space="preserve"><value>この画像は保存されていません。本当に削除しますか？</value></data>
+  <data name="ShareImageTitle" xml:space="preserve"><value>画像を共有</value></data>
+  <data name="ShareImageDesc" xml:space="preserve"><value>キャプチャした画像を共有</value></data>
+  <data name="ShareError" xml:space="preserve"><value>共有エラー</value></data>
+  <data name="AllImagesSaved" xml:space="preserve"><value>すべての画像が保存されました。</value></data>
+  <data name="CopyAll" xml:space="preserve"><value>すべてコピー</value></data>
+  <data name="PixelSizeLabel" xml:space="preserve"><value>ピクセルサイズ</value></data>
+  <data name="MagicWandToleranceLabel" xml:space="preserve"><value>許容値</value></data>
+  <data name="MagicWandContiguousOnly" xml:space="preserve"><value>連続領域のみ</value></data>
+  <data name="MagicWandDesc" xml:space="preserve"><value>クリックで背景を削除、ドラッグで領域を選択</value></data>
+  <data name="MagicWandTip" xml:space="preserve"><value>クリックまたはドラッグで背景を削除</value></data>
+  <data name="Opacity" xml:space="preserve"><value>不透明度</value></data>
+  <data name="Style" xml:space="preserve"><value>スタイル</value></data>
+  <data name="Bold" xml:space="preserve"><value>太字</value></data>
+  <data name="Italic" xml:space="preserve"><value>斜体</value></data>
+  <data name="Underline" xml:space="preserve"><value>下線</value></data>
+  <data name="Shadow" xml:space="preserve"><value>影</value></data>
+  <data name="OcrResultTitle" xml:space="preserve"><value>テキスト抽出結果</value></data>
+  <data name="ExtractedText" xml:space="preserve"><value>抽出されたテキスト</value></data>
+  <data name="GoogleTranslate" xml:space="preserve"><value>Google 翻訳</value></data>
+  <data name="Close" xml:space="preserve"><value>閉じる</value></data>
+  <data name="NoExtractedTextOcr" xml:space="preserve"><value>抽出されたテキストがありません。</value></data>
+  <data name="OpeningGoogleTranslate" xml:space="preserve"><value>Google 翻訳を開いています...\nテキストをクリップボードにコピーしました。</value></data>
+  <data name="GoogleTranslateFailed" xml:space="preserve"><value>Google 翻訳を開けませんでした：{0}</value></data>
+  <data name="RedirectingToTranslate" xml:space="preserve"><value>Google 翻訳にリダイレクトしています...</value></data>
+  <data name="LineStyle" xml:space="preserve"><value>線のスタイル</value></data>
+  <data name="Outline" xml:space="preserve"><value>アウトライン</value></data>
+  <data name="OcrLanguagePackWarning" xml:space="preserve"><value>※ 日本語/中国語の認識が正確でない場合は、Windows 設定 &gt; 時刻と言語 &gt; 言語で言語パックをインストールしてください。</value></data>
 </root>

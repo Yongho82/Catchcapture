@@ -325,4 +325,24 @@
   <data name="ShareError" xml:space="preserve"><value>Share Error</value></data>
   <data name="AllImagesSaved" xml:space="preserve"><value>All images have been saved.</value></data>
   <data name="CopyAll" xml:space="preserve"><value>Copy All</value></data>
+  <data name="PixelSizeLabel" xml:space="preserve"><value>Pixel Size</value></data>
+  <data name="MagicWandToleranceLabel" xml:space="preserve"><value>Tolerance</value></data>
+  <data name="MagicWandContiguousOnly" xml:space="preserve"><value>Contiguous areas only</value></data>
+  <data name="MagicWandDesc" xml:space="preserve"><value>Click to remove background, or drag to select area</value></data>
+  <data name="MagicWandTip" xml:space="preserve"><value>Click or drag to remove background</value></data>
+  <data name="Opacity" xml:space="preserve"><value>Opacity</value></data>
+  <data name="Style" xml:space="preserve"><value>Style</value></data>
+  <data name="Bold" xml:space="preserve"><value>Bold</value></data>
+  <data name="Italic" xml:space="preserve"><value>Italic</value></data>
+  <data name="Underline" xml:space="preserve"><value>Underline</value></data>
+  <data name="Shadow" xml:space="preserve"><value>Shadow</value></data>
+  <data name="OcrResultTitle" xml:space="preserve"><value>Text Extraction Result</value></data>
+  <data name="ExtractedText" xml:space="preserve"><value>Extracted Text</value></data>
+  <data name="GoogleTranslate" xml:space="preserve"><value>Google Translate</value></data>
+  <data name="Close" xml:space="preserve"><value>Close</value></data>
+  <data name="NoExtractedTextOcr" xml:space="preserve"><value>No extracted text.</value></data>
+  <data name="OpeningGoogleTranslate" xml:space="preserve"><value>Opening Google Translate...\nText copied to clipboard.</value></data>
+  <data name="GoogleTranslateFailed" xml:space="preserve"><value>Failed to open Google Translate: {0}</value></data>
+  <data name="RedirectingToTranslate" xml:space="preserve"><value>Redirecting to Google Translate...</value></data>
+  <data name="OcrLanguagePackWarning" xml:space="preserve"><value>※ If Japanese/Chinese recognition is not accurate, try installing the language pack in Windows Settings > Time &amp; Language > Language.</value></data>
 </root>

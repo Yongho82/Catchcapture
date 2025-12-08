@@ -24,7 +24,6 @@
                  BorderBrush="#D0D7E5"/>
 
         <TextBlock x:Name="WarningText" Grid.Row="2"
-                   Text="※ 일본어/중국어 인식이 정확하지 않다면 Windows 설정 > 시간 및 언어 > 언어에서 해당 언어 팩을 설치해 보세요." 
                    Foreground="#D32F2F" FontSize="12" Margin="0,10,0,0" 
                    TextWrapping="Wrap" Visibility="Collapsed"/>
 

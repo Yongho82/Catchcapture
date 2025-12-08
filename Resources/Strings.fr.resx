@@ -325,4 +325,24 @@
   <data name="ShareError" xml:space="preserve"><value>Erreur de partage</value></data>
   <data name="AllImagesSaved" xml:space="preserve"><value>Toutes les images ont été enregistrées.</value></data>
   <data name="CopyAll" xml:space="preserve"><value>Tout copier</value></data>
+  <data name="PixelSizeLabel" xml:space="preserve"><value>Taille de pixel</value></data>
+  <data name="MagicWandToleranceLabel" xml:space="preserve"><value>Tolérance</value></data>
+  <data name="MagicWandContiguousOnly" xml:space="preserve"><value>Zones contiguës uniquement</value></data>
+  <data name="MagicWandDesc" xml:space="preserve"><value>Cliquer pour supprimer l'arrière-plan, glisser pour sélectionner</value></data>
+  <data name="MagicWandTip" xml:space="preserve"><value>Cliquer ou glisser pour supprimer l'arrière-plan</value></data>
+  <data name="Opacity" xml:space="preserve"><value>Opacité</value></data>
+  <data name="Style" xml:space="preserve"><value>Style</value></data>
+  <data name="Bold" xml:space="preserve"><value>Gras</value></data>
+  <data name="Italic" xml:space="preserve"><value>Italique</value></data>
+  <data name="Underline" xml:space="preserve"><value>Souligné</value></data>
+  <data name="Shadow" xml:space="preserve"><value>Ombre</value></data>
+  <data name="OcrResultTitle" xml:space="preserve"><value>Résultat de l'extraction de texte</value></data>
+  <data name="ExtractedText" xml:space="preserve"><value>Texte extrait</value></data>
+  <data name="GoogleTranslate" xml:space="preserve"><value>Google Traduction</value></data>
+  <data name="Close" xml:space="preserve"><value>Fermer</value></data>
+  <data name="NoExtractedTextOcr" xml:space="preserve"><value>Aucun texte extrait.</value></data>
+  <data name="OpeningGoogleTranslate" xml:space="preserve"><value>Ouverture de Google Traduction...\nTexte copié dans le presse-papiers.</value></data>
+  <data name="GoogleTranslateFailed" xml:space="preserve"><value>Échec de l'ouverture de Google Traduction : {0}</value></data>
+  <data name="RedirectingToTranslate" xml:space="preserve"><value>Redirection vers Google Traduction...</value></data>
+  <data name="OcrLanguagePackWarning" xml:space="preserve"><value>※ Si la reconnaissance du japonais/chinois n'est pas précise, essayez d'installer le pack linguistique dans Paramètres Windows &gt; Heure et langue &gt; Langue.</value></data>
 </root>

@@ -325,4 +325,24 @@
   <data name="ShareError" xml:space="preserve"><value>공유 오류</value></data>
   <data name="AllImagesSaved" xml:space="preserve"><value>모든 이미지가 저장되었습니다.</value></data>
   <data name="CopyAll" xml:space="preserve"><value>전체 복사</value></data>
+  <data name="PixelSizeLabel" xml:space="preserve"><value>픽셀 크기</value></data>
+  <data name="MagicWandToleranceLabel" xml:space="preserve"><value>허용 오차</value></data>
+  <data name="MagicWandContiguousOnly" xml:space="preserve"><value>연속된 영역만</value></data>
+  <data name="MagicWandDesc" xml:space="preserve"><value>클릭하여 배경 제거, 드래그하여 영역 선택</value></data>
+  <data name="MagicWandTip" xml:space="preserve"><value>클릭 또는 드래그하여 배경 제거</value></data>
+  <data name="Opacity" xml:space="preserve"><value>투명도</value></data>
+  <data name="Style" xml:space="preserve"><value>스타일</value></data>
+  <data name="Bold" xml:space="preserve"><value>굵게</value></data>
+  <data name="Italic" xml:space="preserve"><value>기울임</value></data>
+  <data name="Underline" xml:space="preserve"><value>밑줄</value></data>
+  <data name="Shadow" xml:space="preserve"><value>그림자</value></data>
+  <data name="OcrResultTitle" xml:space="preserve"><value>텍스트 추출 결과</value></data>
+  <data name="ExtractedText" xml:space="preserve"><value>추출된 텍스트</value></data>
+  <data name="GoogleTranslate" xml:space="preserve"><value>구글 번역</value></data>
+  <data name="Close" xml:space="preserve"><value>닫기</value></data>
+  <data name="NoExtractedTextOcr" xml:space="preserve"><value>추출된 텍스트가 없습니다.</value></data>
+  <data name="OpeningGoogleTranslate" xml:space="preserve"><value>구글 번역 페이지가 열립니다.\n텍스트가 클립보드에 복사되었습니다.</value></data>
+  <data name="GoogleTranslateFailed" xml:space="preserve"><value>구글 번역 실행 실패: {0}</value></data>
+  <data name="RedirectingToTranslate" xml:space="preserve"><value>구글 번역으로 이동 중...</value></data>
+  <data name="OcrLanguagePackWarning" xml:space="preserve"><value>※ 일본어/중국어 인식이 정확하지 않다면 Windows 설정 &gt; 시간 및 언어 &gt; 언어에서 해당 언어 팩을 설치해 보세요.</value></data>
 </root>

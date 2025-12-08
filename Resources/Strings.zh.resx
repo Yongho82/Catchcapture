@@ -305,4 +305,46 @@
   <data name="Fill" xml:space="preserve"><value>填充</value></data>
   <data name="FillOpacity" xml:space="preserve"><value>不透明度</value></data>
   <data name="Intensity" xml:space="preserve"><value>强度</value></data>
+  <data name="ComputerApp" xml:space="preserve"><value>计算机应用…</value></data>
+  <data name="SelectApplication" xml:space="preserve"><value>选择应用程序</value></data>
+  <data name="SortNameAsc" xml:space="preserve"><value>名称 ▲</value></data>
+  <data name="SortNameDesc" xml:space="preserve"><value>名称 ▼</value></data>
+  <data name="Browse" xml:space="preserve"><value>浏览…</value></data>
+  <data name="SelectExecutable" xml:space="preserve"><value>选择可执行文件</value></data>
+  <data name="ConfirmDeleteShortcut" xml:space="preserve"><value>删除快捷方式 '{0}'？</value></data>
+  <data name="DeleteShortcut" xml:space="preserve"><value>删除快捷方式</value></data>
+  <data name="AppLaunchFailed" xml:space="preserve"><value>应用启动失败：{0}</value></data>
+  <data name="GoogleSearch" xml:space="preserve"><value>Google 图片搜索</value></data>
+  <data name="CopiedToClipboard" xml:space="preserve"><value>已复制到剪贴板。</value></data>
+  <data name="AllCopiedToClipboard" xml:space="preserve"><value>所有图片已复制到剪贴板。</value></data>
+  <data name="SelectSaveFolder" xml:space="preserve"><value>选择保存文件夹</value></data>
+  <data name="UnsavedImagesDeleteConfirm" xml:space="preserve"><value>有未保存的图片。确定要全部删除吗？</value></data>
+  <data name="UnsavedImageDeleteConfirm" xml:space="preserve"><value>此图片未保存。确定要删除吗？</value></data>
+  <data name="ShareImageTitle" xml:space="preserve"><value>分享图片</value></data>
+  <data name="ShareImageDesc" xml:space="preserve"><value>分享捕获的图片</value></data>
+  <data name="ShareError" xml:space="preserve"><value>分享错误</value></data>
+  <data name="AllImagesSaved" xml:space="preserve"><value>所有图片已保存。</value></data>
+  <data name="CopyAll" xml:space="preserve"><value>全部复制</value></data>
+  <data name="PixelSizeLabel" xml:space="preserve"><value>像素大小</value></data>
+  <data name="MagicWandToleranceLabel" xml:space="preserve"><value>容差</value></data>
+  <data name="MagicWandContiguousOnly" xml:space="preserve"><value>仅连续区域</value></data>
+  <data name="MagicWandDesc" xml:space="preserve"><value>点击移除背景，拖动选择区域</value></data>
+  <data name="MagicWandTip" xml:space="preserve"><value>点击或拖动移除背景</value></data>
+  <data name="Opacity" xml:space="preserve"><value>不透明度</value></data>
+  <data name="Style" xml:space="preserve"><value>样式</value></data>
+  <data name="Bold" xml:space="preserve"><value>粗体</value></data>
+  <data name="Italic" xml:space="preserve"><value>斜体</value></data>
+  <data name="Underline" xml:space="preserve"><value>下划线</value></data>
+  <data name="Shadow" xml:space="preserve"><value>阴影</value></data>
+  <data name="OcrResultTitle" xml:space="preserve"><value>文本提取结果</value></data>
+  <data name="ExtractedText" xml:space="preserve"><value>提取的文本</value></data>
+  <data name="GoogleTranslate" xml:space="preserve"><value>Google 翻译</value></data>
+  <data name="Close" xml:space="preserve"><value>关闭</value></data>
+  <data name="NoExtractedTextOcr" xml:space="preserve"><value>没有提取的文本。</value></data>
+  <data name="OpeningGoogleTranslate" xml:space="preserve"><value>正在打开 Google 翻译...\n文本已复制到剪贴板。</value></data>
+  <data name="GoogleTranslateFailed" xml:space="preserve"><value>打开 Google 翻译失败：{0}</value></data>
+  <data name="RedirectingToTranslate" xml:space="preserve"><value>正在跳转到 Google 翻译...</value></data>
+  <data name="LineStyle" xml:space="preserve"><value>线条样式</value></data>
+  <data name="Outline" xml:space="preserve"><value>轮廓</value></data>
+  <data name="OcrLanguagePackWarning" xml:space="preserve"><value>※ 如果日语/中文识别不准确，请尝试在 Windows 设置 &gt; 时间和语言 &gt; 语言中安装语言包。</value></data>
 </root>

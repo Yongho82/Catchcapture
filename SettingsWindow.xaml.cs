@@ -96,10 +96,10 @@ private void UpdateUIText()
             
             // Print Screen 액션 항목 (표시는 로컬라이즈, 저장 값은 한국어로 유지)
             // 기존 아이템을 지우고 다시 채워야 함
-            string currentActionTag = null;
+            string? currentActionTag = null;
             if (CboPrintScreenAction.SelectedItem is ComboBoxItem selectedAction)
             {
-                currentActionTag = selectedAction.Tag as string;
+                currentActionTag = selectedAction.Tag as string ?? null;
             }
             var items = new[]
             {

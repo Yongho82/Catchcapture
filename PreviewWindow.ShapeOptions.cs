@@ -349,7 +349,7 @@ namespace CatchCapture
             
             var opacityLabel = new TextBlock 
             { 
-                Text = "투명도", 
+                Text = LocalizationManager.Get("FillOpacity"), 
                 FontSize = 10, 
                 Foreground = new SolidColorBrush(Color.FromRgb(100, 100, 100)),
                 VerticalAlignment = VerticalAlignment.Center,
