@@ -346,4 +346,17 @@
   <data name="RedirectingToTranslate" xml:space="preserve"><value>Redirecting to Google Translate...</value></data>
   <data name="OcrLanguagePackWarning" xml:space="preserve"><value>※ If Japanese/Chinese recognition is not accurate, try installing the language pack in Windows Settings > Time &amp; Language > Language.</value></data>
   <data name="SimpleModeDockinGuide" xml:space="preserve"><value>💡 Tip: Drag to the top, left, or right edge of the screen to dock!</value></data>
+  <data name="ExitSimpleMode" xml:space="preserve"><value>Exit Simple Mode</value></data>
+  <data name="MinimizeToTray" xml:space="preserve"><value>Minimize to Tray</value></data>
+  <data name="Enlarge" xml:space="preserve"><value>Enlarge UI</value></data>
+  <data name="SwitchToNormalMode" xml:space="preserve"><value>Switch to Normal Mode</value></data>
+  <data name="SwitchToSimpleMode" xml:space="preserve"><value>Switch to Simple Mode</value></data>
+  <data name="Pin" xml:space="preserve"><value>Pin</value></data>
+  <data name="Unpin" xml:space="preserve"><value>Unpin</value></data>
+  <data name="ViewCaptureList" xml:space="preserve"><value>View Capture List</value></data>
+  <data name="AddIcon" xml:space="preserve"><value>Add Icon</value></data>
+  <data name="HideToTray" xml:space="preserve"><value>Hide to Tray</value></data>
+  <data name="Fold" xml:space="preserve"><value>Fold</value></data>
+  <data name="UnitCapture" xml:space="preserve"><value>Unit Capture</value></data>
+  <data name="ComputerApps" xml:space="preserve"><value>Computer Apps</value></data>
 </root>

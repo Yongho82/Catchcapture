@@ -202,12 +202,12 @@
                                 </Button.Style>
                             </Button>
                         </StackPanel>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,5,0">                      
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,5,0">   
+                            <Button x:Name="ExitSimpleModeBtn" Style="{StaticResource ControlButtonStyle}" Click="ExitSimpleModeButton_Click">
+                                <Image Source="/icons/area_capture.png" Width="12" Height="12"/>
+                            </Button>
                             <Button x:Name="MinimizeToTrayBtn" Style="{StaticResource ControlButtonStyle}" Click="MinimizeToTrayButton_Click">
                                 <Image Source="/icons/tray_mode.png" Width="12" Height="12"/>
-                            </Button>
-                            <Button x:Name="ExitSimpleModeBtn" Style="{StaticResource ControlButtonStyle}" Click="ExitSimpleModeButton_Click">
-                                <Image Source="/icons/window_cap.png" Width="12" Height="12"/>
                             </Button>
                             <Button x:Name="CloseBtnH" Style="{StaticResource ControlButtonStyle}" Click="CloseButton_Click">
                                 <TextBlock Text="✕" FontSize="9" Foreground="#666"/>

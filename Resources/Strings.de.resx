@@ -346,4 +346,17 @@
   <data name="RedirectingToTranslate" xml:space="preserve"><value>Weiterleitung zu Google Übersetzer...</value></data>
   <data name="OcrLanguagePackWarning" xml:space="preserve"><value>※ Wenn die Erkennung von Japanisch/Chinesisch nicht genau ist, versuchen Sie, das Sprachpaket in Windows-Einstellungen &gt; Zeit &amp; Sprache &gt; Sprache zu installieren.</value></data>
   <data name="SimpleModeDockinGuide" xml:space="preserve"><value>💡 Tipp: Ziehen Sie zum oberen, linken oder rechten Bildschirmrand, um anzudocken!</value></data>
+  <data name="ExitSimpleMode" xml:space="preserve"><value>Einfachen Modus beenden</value></data>
+  <data name="MinimizeToTray" xml:space="preserve"><value>In Taskleiste minimieren</value></data>
+  <data name="Enlarge" xml:space="preserve"><value>UI vergrößern</value></data>
+  <data name="SwitchToNormalMode" xml:space="preserve"><value>Zum normalen Modus wechseln</value></data>
+  <data name="SwitchToSimpleMode" xml:space="preserve"><value>Zum einfachen Modus wechseln</value></data>
+  <data name="Pin" xml:space="preserve"><value>Anheften</value></data>
+  <data name="Unpin" xml:space="preserve"><value>Loslösen</value></data>
+  <data name="ViewCaptureList" xml:space="preserve"><value>Aufnahmeliste anzeigen</value></data>
+  <data name="AddIcon" xml:space="preserve"><value>Symbol hinzufügen</value></data>
+  <data name="HideToTray" xml:space="preserve"><value>In Taskleiste ausblenden</value></data>
+  <data name="Fold" xml:space="preserve"><value>Einklappen</value></data>
+  <data name="UnitCapture" xml:space="preserve"><value>Einheitenaufnahme</value></data>
+  <data name="ComputerApps" xml:space="preserve"><value>Computer-Apps</value></data>
 </root>

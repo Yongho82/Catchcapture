@@ -954,11 +954,12 @@ namespace CatchCapture
                 "DelayCapture" => CatchCapture.Models.LocalizationManager.Get("DelayCapture"),
                 "RealTimeCapture" => CatchCapture.Models.LocalizationManager.Get("RealTimeCapture"),
                 "FullScreen" => CatchCapture.Models.LocalizationManager.Get("FullScreen"),
+                "MultiCapture" => CatchCapture.Models.LocalizationManager.Get("MultiCapture"),
                 "DesignatedCapture" => CatchCapture.Models.LocalizationManager.Get("DesignatedCapture"),
                 "WindowCapture" => CatchCapture.Models.LocalizationManager.Get("WindowCapture"),
-                "UnitCapture" => CatchCapture.Models.LocalizationManager.Get("ElementCapture"),
+                "UnitCapture" => CatchCapture.Models.LocalizationManager.Get("UnitCapture"),
                 "ScrollCapture" => CatchCapture.Models.LocalizationManager.Get("ScrollCapture"),
-                // ★ 새로 추가
+                "OcrCapture" => CatchCapture.Models.LocalizationManager.Get("OcrCapture"),
                 "Copy" => CatchCapture.Models.LocalizationManager.Get("Copy"),
                 "CopyAll" => CatchCapture.Models.LocalizationManager.Get("CopyAll"),
                 "Save" => CatchCapture.Models.LocalizationManager.Get("Save"),
@@ -1785,9 +1786,9 @@ namespace CatchCapture
 
                 // 타이틀바 우측 컨트롤 툴팁
                 if (MinimizeToTrayBtn != null)
-                    MinimizeToTrayBtn.ToolTip = LocalizationManager.Get("TrayModeTooltip");
+                    MinimizeToTrayBtn.ToolTip = LocalizationManager.Get("MinimizeToTray");
                 if (ExitSimpleModeBtn != null)
-                    ExitSimpleModeBtn.ToolTip = LocalizationManager.Get("NormalModeTooltip");
+                    ExitSimpleModeBtn.ToolTip = LocalizationManager.Get("ExitSimpleMode");
                 if (CloseBtnH != null)
                     CloseBtnH.ToolTip = LocalizationManager.Get("Close");
                 if (CloseBtnV != null)

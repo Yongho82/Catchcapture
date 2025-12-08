@@ -581,7 +581,7 @@ namespace CatchCapture
                 case "UnitCapture":
                     button.Click += UnitCaptureButton_Click;
                     iconImage = CreateImage("/icons/unit_capture.png");
-                    labelText = LocalizationManager.Get("ElementCapture");
+                    labelText = LocalizationManager.Get("UnitCapture");
                     break;
                 case "ScrollCapture":
                     button.Click += ScrollCaptureButton_Click;
@@ -1125,7 +1125,7 @@ namespace CatchCapture
                 "MultiCapture" => LocalizationManager.Get("MultiCapture"),
                 "DesignatedCapture" => LocalizationManager.Get("DesignatedCapture"),
                 "WindowCapture" => LocalizationManager.Get("WindowCapture"),
-                "UnitCapture" => LocalizationManager.Get("ElementCapture"),
+                "UnitCapture" => LocalizationManager.Get("UnitCapture"),
                 "ScrollCapture" => LocalizationManager.Get("ScrollCapture"),
                 "OcrCapture" => LocalizationManager.Get("OcrCapture"),
                 "Copy" => LocalizationManager.Get("CopySelected"),
@@ -1579,9 +1579,9 @@ namespace CatchCapture
 
                 // 상단 컨트롤 툴팁
                 if (SwitchToNormalModeButton != null)
-                    SwitchToNormalModeButton.ToolTip = LocalizationManager.Get("NormalModeTooltip");
+                    SwitchToNormalModeButton.ToolTip = LocalizationManager.Get("SwitchToNormalMode"); 
                 if (SimpleModeButton != null)
-                    SimpleModeButton.ToolTip = LocalizationManager.Get("Simple");
+                    SimpleModeButton.ToolTip = LocalizationManager.Get("SwitchToSimpleMode"); 
 
                 // 즉시편집 토글 툴팁
                 if (InstantEditToggleBorder != null)
@@ -1589,7 +1589,7 @@ namespace CatchCapture
 
                 // 항상 위 / 캡처 카운터
                 if (TopmostButton != null)
-                    TopmostButton.ToolTip = LocalizationManager.Get("AlwaysOnTop");
+                    TopmostButton.ToolTip = LocalizationManager.Get("Pin"); 
                 if (CaptureCounterButton != null)
                     CaptureCounterButton.ToolTip = LocalizationManager.Get("ViewCaptureList");
 
@@ -1605,7 +1605,7 @@ namespace CatchCapture
                 if (WindowCaptureButton != null)
                     WindowCaptureButton.ToolTip = LocalizationManager.Get("WindowCapture");
                 if (UnitCaptureButton != null)
-                    UnitCaptureButton.ToolTip = LocalizationManager.Get("ElementCapture");
+                    UnitCaptureButton.ToolTip = LocalizationManager.Get("UnitCapture");
 
                 // 복사/저장/삭제
                 if (CopyButton != null)
@@ -1651,7 +1651,7 @@ namespace CatchCapture
                 {
                     if (!settings.SimpleModeIcons.Contains(icon))
                     {
-                        var item = new MenuItem { Header = LocalizationManager.Get(icon) };
+                        var item = new MenuItem { Header = GetIconDisplayName(icon) };
                         item.Icon = icon switch
                         {
                             "AreaCapture" => CreateMenuIcon("/icons/area_capture.png"),

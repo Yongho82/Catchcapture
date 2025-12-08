@@ -346,4 +346,17 @@
   <data name="RedirectingToTranslate" xml:space="preserve"><value>Redirection vers Google Traduction...</value></data>
   <data name="OcrLanguagePackWarning" xml:space="preserve"><value>※ Si la reconnaissance du japonais/chinois n'est pas précise, essayez d'installer le pack linguistique dans Paramètres Windows &gt; Heure et langue &gt; Langue.</value></data>
   <data name="SimpleModeDockinGuide" xml:space="preserve"><value>💡 Astuce : Faites glisser vers le bord supérieur, gauche ou droit de l'écran pour ancrer !</value></data>
+  <data name="ExitSimpleMode" xml:space="preserve"><value>Quitter le mode simple</value></data>
+  <data name="MinimizeToTray" xml:space="preserve"><value>Réduire dans la barre d'état</value></data>
+  <data name="Enlarge" xml:space="preserve"><value>Agrandir l'interface</value></data>
+  <data name="SwitchToNormalMode" xml:space="preserve"><value>Passer en mode normal</value></data>
+  <data name="SwitchToSimpleMode" xml:space="preserve"><value>Passer en mode simple</value></data>
+  <data name="Pin" xml:space="preserve"><value>Épingler</value></data>
+  <data name="Unpin" xml:space="preserve"><value>Détacher</value></data>
+  <data name="ViewCaptureList" xml:space="preserve"><value>Afficher la liste des captures</value></data>
+  <data name="AddIcon" xml:space="preserve"><value>Ajouter une icône</value></data>
+  <data name="HideToTray" xml:space="preserve"><value>Masquer dans la barre d'état</value></data>
+  <data name="Fold" xml:space="preserve"><value>Réduire</value></data>
+  <data name="UnitCapture" xml:space="preserve"><value>Capture d'unité</value></data>
+  <data name="ComputerApps" xml:space="preserve"><value>Applications</value></data>
 </root>
