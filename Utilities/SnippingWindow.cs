@@ -97,6 +97,7 @@ namespace CatchCapture.Utilities
         // 언어 변경 시 런타임 갱신을 위해 툴바 참조 저장
         private Border? toolbarContainer;
         private StackPanel? toolbarPanel;
+        private bool isVerticalToolbarLayout = false; // 툴바가 세로 레이아웃인지 추적
 
         public Int32Rect SelectedArea { get; private set; }
         public bool IsCancelled { get; private set; } = false;
@@ -820,13 +821,16 @@ namespace CatchCapture.Utilities
             double selectionWidth = selectionRectangle.Width;
             double selectionHeight = selectionRectangle.Height;
             
+            // [수정] 하단 감지: 선택 영역이 화면 하단에 가까운지 확인
+            bool isNearBottom = (selectionTop + selectionHeight + 160) > vHeight; // 툴바+팔레트 공간(~160px) 확보 불가
+            isVerticalToolbarLayout = isNearBottom; // 멤버 변수에 저장
+            
             // [수정] 편집 툴바 컨테이너 (둥근 모서리 Border)
             toolbarContainer = new Border
             {
                 Background = Brushes.White,
                 CornerRadius = new CornerRadius(8),
                 Padding = new Thickness(5),
-                Height = 55,
                 Effect = new System.Windows.Media.Effects.DropShadowEffect
                 {
                     Color = Colors.Black,
@@ -835,27 +839,95 @@ namespace CatchCapture.Utilities
                     Opacity = 0.15
                 }
             };
+            
+            if (isVerticalToolbarLayout)
+            {
+                toolbarContainer.Width = 60; // 세로 레이아웃 고정 너비
+            }
+            else
+            {
+                toolbarContainer.Height = 55; // 가로 레이아웃 고정 높이
+            }
 
-            // [수정] 내부 스택패널
+            // [수정] 내부 스택패널 - 레이아웃에 따라 방향 조정
             toolbarPanel = new StackPanel
             {
-                Orientation = Orientation.Horizontal,
-                VerticalAlignment = VerticalAlignment.Center
+                Orientation = isVerticalToolbarLayout ? Orientation.Vertical : Orientation.Horizontal,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center
             };
             
             toolbarContainer.Child = toolbarPanel;
-            // [이동] 툴바 위치를 먼저 계산
-            double toolbarWidth = 450; // 대략적인 툴바 너비
-            double toolbarLeft = selectionLeft;
-            double toolbarTop = selectionTop + selectionHeight + 10;
             
-            // 화면 경계 체크
-            if (toolbarLeft + toolbarWidth > vWidth)
-                toolbarLeft = vWidth - toolbarWidth - 10;
-            if (toolbarLeft < 10)
-                toolbarLeft = 10;
-            if (toolbarTop + 44 > vHeight)
-                toolbarTop = selectionTop - 44 - 10;
+            // [이동] 툴바 위치를 먼저 계산
+            double toolbarWidth = isVerticalToolbarLayout ? 60 : 450;
+            double toolbarHeight = isVerticalToolbarLayout ? 600 : 55;
+            double toolbarLeft, toolbarTop;
+            
+            if (isVerticalToolbarLayout)
+            {
+                // 세로 레이아웃: 선택 영역 우측에 배치
+                toolbarLeft = selectionLeft + selectionWidth + 10;
+                toolbarTop = selectionTop;
+                
+                // 우측 경계 체크
+                if (toolbarLeft + toolbarWidth > vWidth)
+                    toolbarLeft = selectionLeft - toolbarWidth - 10; // 왼쪽에 배치
+                if (toolbarLeft < 10)
+                    toolbarLeft = 10;
+                    
+                // 상하 경계 체크
+                if (toolbarTop + toolbarHeight > vHeight)
+                    toolbarTop = vHeight - toolbarHeight - 10;
+                if (toolbarTop < 10)
+                    toolbarTop = 10;
+            }
+            else
+            {
+                // 가로 레이아웃: 선택 영역 하단에 배치 (기존 로직)
+                toolbarLeft = selectionLeft;
+                toolbarTop = selectionTop + selectionHeight + 10;
+                
+                // 화면 경계 체크
+                if (toolbarLeft + toolbarWidth > vWidth)
+                    toolbarLeft = vWidth - toolbarWidth - 10;
+                if (toolbarLeft < 10)
+                    toolbarLeft = 10;
+                if (toolbarTop + 44 > vHeight)
+                    toolbarTop = selectionTop - 44 - 10;
+            }
+            
+            // 팔레트 위치 계산 (툴바 레이아웃에 따라 다르게 배치)
+            double GetPaletteLeft()
+            {
+                if (isVerticalToolbarLayout)
+                {
+                    // 세로 레이아웃: 툴바 옆(왼쪽 또는 오른쪽)
+                    if (toolbarLeft > selectionLeft)
+                        return toolbarLeft + toolbarWidth + 10; // 툴바가 우측 -> 팔레트는 더 오른쪽
+                    else
+                        return toolbarLeft - 330; // 툴바가 좌측 -> 팔레트는 더 왼쪽
+                }
+                else
+                {
+                    // 가로 레이아웃: 선택 영역 좌측 기준
+                    return selectionLeft;
+                }
+            }
+            
+            double GetPaletteTop()
+            {
+                if (isVerticalToolbarLayout)
+                {
+                    // 세로 레이아웃: 툴바와 같은 높이
+                    return toolbarTop;
+                }
+                else
+                {
+                    // 가로 레이아웃: 툴바 아래
+                    return toolbarTop + 60;
+                }
+            }
             
             // 펜 버튼
             var penButton = CreateToolButton("pen.png", LocalizationManager.Get("Pen"), LocalizationManager.Get("Pen"));
@@ -863,7 +935,7 @@ namespace CatchCapture.Utilities
             {
                 currentTool = "펜";
                 SetActiveToolButton(penButton);
-                ShowColorPalette("펜", toolbarLeft, toolbarTop + 60); // [수정]
+                ShowColorPalette("펜", GetPaletteLeft(), GetPaletteTop());
                 EnableDrawingMode();
             };
             
@@ -874,7 +946,7 @@ namespace CatchCapture.Utilities
                 currentTool = "형광펜";
                 selectedColor = Colors.Yellow;
                 SetActiveToolButton(highlighterButton);
-                ShowColorPalette("형광펜", toolbarLeft, toolbarTop + 60); // [수정]
+                ShowColorPalette("형광펜", GetPaletteLeft(), GetPaletteTop());
                 EnableDrawingMode();
             };
             
@@ -884,7 +956,7 @@ namespace CatchCapture.Utilities
             {
                 currentTool = "텍스트";
                 SetActiveToolButton(textButton);
-                ShowColorPalette("텍스트", toolbarLeft, toolbarTop + 60); // [수정]
+                ShowColorPalette("텍스트", GetPaletteLeft(), GetPaletteTop());
                 EnableTextMode();
             };
             
@@ -894,7 +966,7 @@ namespace CatchCapture.Utilities
             {
                 currentTool = "도형";
                 SetActiveToolButton(shapeButton);
-                ShowColorPalette("도형", toolbarLeft, toolbarTop + 60); // [수정]
+                ShowColorPalette("도형", GetPaletteLeft(), GetPaletteTop());
                 EnableShapeMode();
             };
             
@@ -922,7 +994,7 @@ namespace CatchCapture.Utilities
             { 
                 currentTool = "모자이크"; 
                 SetActiveToolButton(mosaicButton);
-                ShowColorPalette("모자이크", toolbarLeft, toolbarTop + 60); // [수정]
+                ShowColorPalette("모자이크", GetPaletteLeft(), GetPaletteTop());
                 EnableMosaicMode();
             };
             
@@ -1237,7 +1309,7 @@ namespace CatchCapture.Utilities
             currentTool = "펜";
             selectedColor = Colors.Red;
             SetActiveToolButton(penButton);
-            ShowColorPalette("펜", selectionLeft, selectionTop + selectionHeight + 68);
+            ShowColorPalette("펜", GetPaletteLeft(), GetPaletteTop());
             EnableDrawingMode();
         }
 
