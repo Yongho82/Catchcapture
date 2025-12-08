@@ -280,4 +280,19 @@
   <data name="CopySelected" xml:space="preserve"><value>Copy</value></data>
   <data name="InstantEdit" xml:space="preserve"><value>Instant Edit</value></data>
   <data name="OpenEditor" xml:space="preserve"><value>Open Editor</value></data>
+  <data name="RealTimeF1Guide" xml:space="preserve"><value>Press F1 when ready to capture.</value></data>
+  <data name="DelayNone" xml:space="preserve"><value>No Delay</value></data>
+  <data name="Delay3Sec" xml:space="preserve"><value>3 sec</value></data>
+  <data name="Delay5Sec" xml:space="preserve"><value>5 sec</value></data>
+  <data name="Delay10Sec" xml:space="preserve"><value>10 sec</value></data>
+  <data name="MultiCaptureGuide" xml:space="preserve"><value>ENTER: Composite&#xA;F1: Individual&#xA;ESC: Exit</value></data>
+  <data name="MultiCaptureMinReq" xml:space="preserve"><value>Please capture at least one region.</value></data>
+  <data name="InvalidCompositeSize" xml:space="preserve"><value>Invalid composite image size.</value></data>
+  <data name="CompositeTooLarge" xml:space="preserve"><value>Composite image is too large ({0}x{1}). Max size is 32000x32000.</value></data>
+  <data name="CompositeError" xml:space="preserve"><value>Error compositing images: {0}</value></data>
+  <data name="CaptureError" xml:space="preserve"><value>Capture error: {0}</value></data>
+  <data name="NumberingOptions" xml:space="preserve"><value>Size Settings</value></data>
+  <data name="NumberingBadge" xml:space="preserve"><value>Badge</value></data>
+  <data name="NumberingText" xml:space="preserve"><value>Text</value></data>
+  <data name="EditConfirmGuide" xml:space="preserve"><value>Please confirm(✓) edits before proceeding.</value></data>
 </root>

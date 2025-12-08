@@ -9,6 +9,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Forms = System.Windows.Forms;
 
+using CatchCapture.Resources;
+
 namespace CatchCapture.Utilities
 {
     /// <summary>
@@ -152,7 +154,7 @@ namespace CatchCapture.Utilities
             // 마우스 커서 따라다니는 툴팁 생성
             var tooltipText = new TextBlock
             {
-                Text = "ENTER : 합성\nF1 : 개별저장\nESC : 종료",
+                Text = LocalizationManager.GetString("MultiCaptureGuide"),
                 Foreground = Brushes.White,
                 FontSize = 12,
                 TextAlignment = TextAlignment.Center,
@@ -318,7 +320,7 @@ namespace CatchCapture.Utilities
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"영역 캡처 중 오류: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(LocalizationManager.GetString("CaptureError"), ex.Message), LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
                 if (currentRectangle != null)
                 {
                     canvas.Children.Remove(currentRectangle);
@@ -341,7 +343,7 @@ namespace CatchCapture.Utilities
                 }
                 else
                 {
-                    MessageBox.Show("최소 1개 이상의 영역을 캡처해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show(LocalizationManager.GetString("MultiCaptureMinReq"), LocalizationManager.GetString("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 e.Handled = true;
             }
@@ -356,7 +358,7 @@ namespace CatchCapture.Utilities
                 }
                 else
                 {
-                    MessageBox.Show("최소 1개 이상의 영역을 캡처해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show(LocalizationManager.GetString("MultiCaptureMinReq"), LocalizationManager.GetString("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 e.Handled = true;
             }
@@ -397,13 +399,13 @@ namespace CatchCapture.Utilities
                 // 크기 검증
                 if (compositeWidth <= 0 || compositeHeight <= 0)
                 {
-                    MessageBox.Show("합성 이미지 크기가 유효하지 않습니다.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(LocalizationManager.GetString("InvalidCompositeSize"), LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 
                 if (compositeWidth > 32000 || compositeHeight > 32000)
                 {
-                    MessageBox.Show($"합성 이미지가 너무 큽니다 ({compositeWidth}x{compositeHeight}). 최대 크기는 32000x32000입니다.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(string.Format(LocalizationManager.GetString("CompositeTooLarge"), compositeWidth, compositeHeight), LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 
@@ -446,7 +448,7 @@ namespace CatchCapture.Utilities
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"이미지 합성 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(LocalizationManager.GetString("CompositeError"), ex.Message), LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
                 FinalCompositeImage = null;
             }
         }

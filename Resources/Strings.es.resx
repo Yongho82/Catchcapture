@@ -280,4 +280,19 @@
   <data name="CopySelected" xml:space="preserve"><value>Copiar</value></data>
   <data name="InstantEdit" xml:space="preserve"><value>Edición instantánea</value></data>
   <data name="OpenEditor" xml:space="preserve"><value>Abrir editor</value></data>
+  <data name="RealTimeF1Guide" xml:space="preserve"><value>Presione F1 cuando esté listo.</value></data>
+  <data name="DelayNone" xml:space="preserve"><value>Sin retardo</value></data>
+  <data name="Delay3Sec" xml:space="preserve"><value>3 seg</value></data>
+  <data name="Delay5Sec" xml:space="preserve"><value>5 seg</value></data>
+  <data name="Delay10Sec" xml:space="preserve"><value>10 seg</value></data>
+  <data name="MultiCaptureGuide" xml:space="preserve"><value>ENTER: Compuesto&#xA;F1: Individual&#xA;ESC: Salir</value></data>
+  <data name="MultiCaptureMinReq" xml:space="preserve"><value>Capture al menos una región.</value></data>
+  <data name="InvalidCompositeSize" xml:space="preserve"><value>Tamaño de imagen compuesta no válido.</value></data>
+  <data name="CompositeTooLarge" xml:space="preserve"><value>La imagen compuesta es demasiado grande ({0}x{1}). Max 32000x32000.</value></data>
+  <data name="CompositeError" xml:space="preserve"><value>Error al componer imágenes: {0}</value></data>
+  <data name="CaptureError" xml:space="preserve"><value>Error de captura: {0}</value></data>
+  <data name="NumberingOptions" xml:space="preserve"><value>Ajustes de tamaño</value></data>
+  <data name="NumberingBadge" xml:space="preserve"><value>Insignia</value></data>
+  <data name="NumberingText" xml:space="preserve"><value>Texto</value></data>
+  <data name="EditConfirmGuide" xml:space="preserve"><value>Confirme(✓) las ediciones antes de continuar.</value></data>
 </root>

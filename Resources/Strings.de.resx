@@ -280,4 +280,19 @@
   <data name="CopySelected" xml:space="preserve"><value>Kopieren</value></data>
   <data name="InstantEdit" xml:space="preserve"><value>Sofortbearbeitung</value></data>
   <data name="OpenEditor" xml:space="preserve"><value>Editor öffnen</value></data>
+  <data name="RealTimeF1Guide" xml:space="preserve"><value>Drücken Sie F1, wenn Sie bereit sind.</value></data>
+  <data name="DelayNone" xml:space="preserve"><value>Keine Verzögerung</value></data>
+  <data name="Delay3Sec" xml:space="preserve"><value>3 Sek</value></data>
+  <data name="Delay5Sec" xml:space="preserve"><value>5 Sek</value></data>
+  <data name="Delay10Sec" xml:space="preserve"><value>10 Sek</value></data>
+  <data name="MultiCaptureGuide" xml:space="preserve"><value>ENTER: Zusammensetzen&#xA;F1: Einzeln&#xA;ESC: Beenden</value></data>
+  <data name="MultiCaptureMinReq" xml:space="preserve"><value>Bitte mindestens einen Bereich aufnehmen.</value></data>
+  <data name="InvalidCompositeSize" xml:space="preserve"><value>Ungültige Bildgröße.</value></data>
+  <data name="CompositeTooLarge" xml:space="preserve"><value>Zusammengesetztes Bild ist zu groß ({0}x{1}). Max 32000x32000.</value></data>
+  <data name="CompositeError" xml:space="preserve"><value>Fehler beim Zusammensetzen: {0}</value></data>
+  <data name="CaptureError" xml:space="preserve"><value>Aufnahmefehler: {0}</value></data>
+  <data name="NumberingOptions" xml:space="preserve"><value>Größeneinstellungen</value></data>
+  <data name="NumberingBadge" xml:space="preserve"><value>Abzeichen</value></data>
+  <data name="NumberingText" xml:space="preserve"><value>Text</value></data>
+  <data name="EditConfirmGuide" xml:space="preserve"><value>Bitte Änderungen bestätigen(✓) vor der Nutzung.</value></data>
 </root>

@@ -11,6 +11,8 @@ using System.Linq;
 using System.IO;
 using CatchCapture.Models;
 
+using ResLoc = CatchCapture.Resources.LocalizationManager;
+
 namespace CatchCapture.Utilities
 {
     public class SnippingWindow : Window, IDisposable
@@ -1706,12 +1708,12 @@ namespace CatchCapture.Utilities
             else if (tool == "넘버링")
             {
                 // [넘버링 옵션: 배지 크기 + 텍스트 크기]
-                var optionLabel = new TextBlock { Text = LocalizationManager.Get("NumberingOptions") ?? "크기 설정", FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
+                var optionLabel = new TextBlock { Text = ResLoc.GetString("NumberingOptions"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
                 optionSection.Children.Add(optionLabel);
 
                 // 배지 크기
                 var badgePanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 5) };
-                badgePanel.Children.Add(new TextBlock { Text = "번호표:", VerticalAlignment = VerticalAlignment.Center, Width = 45, FontSize = 11 });
+                badgePanel.Children.Add(new TextBlock { Text = ResLoc.GetString("NumberingBadge"), VerticalAlignment = VerticalAlignment.Center, Width = 45, FontSize = 11 });
                 var badgeCombo = new ComboBox { Width = 60, Height = 22, FontSize = 11 };
                 int[] badgeSizes = { 16, 20, 24, 28, 32, 36 };
                 foreach (var s in badgeSizes) badgeCombo.Items.Add(s);
@@ -1722,7 +1724,7 @@ namespace CatchCapture.Utilities
 
                 // 텍스트 크기
                 var textPanel = new StackPanel { Orientation = Orientation.Horizontal };
-                textPanel.Children.Add(new TextBlock { Text = "텍스트:", VerticalAlignment = VerticalAlignment.Center, Width = 45, FontSize = 11 });
+                textPanel.Children.Add(new TextBlock { Text = ResLoc.GetString("NumberingText"), VerticalAlignment = VerticalAlignment.Center, Width = 45, FontSize = 11 });
                 var textCombo = new ComboBox { Width = 60, Height = 22, FontSize = 11 };
                 int[] textSizes = { 10, 11, 12, 14, 16, 18, 20 };
                 foreach (var s in textSizes) textCombo.Items.Add(s);
@@ -1980,7 +1982,7 @@ namespace CatchCapture.Utilities
                 // 즉시편집 모드에서는 편집 요소가 남아 있으면 먼저 확정(✓)하도록 안내
                 if (instantEditMode && drawnElements != null && drawnElements.Count > 0)
                 {
-                    MessageBox.Show("편집 내용을 먼저 확정(✓)한 뒤 이용하세요.", LocalizationManager.Get("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show(ResLoc.GetString("EditConfirmGuide"), LocalizationManager.Get("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
 

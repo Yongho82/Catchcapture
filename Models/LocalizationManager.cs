@@ -35,11 +35,24 @@ namespace CatchCapture.Models
 
         public static string Get(string key)
         {
+            // 1. Dictionary Lookup
             if (_translations.ContainsKey(_currentLanguage) && 
                 _translations[_currentLanguage].ContainsKey(key))
             {
                 return _translations[_currentLanguage][key];
             }
+
+            // 2. Fallback to Resources (ResX)
+            try
+            {
+                var resValue = CatchCapture.Resources.LocalizationManager.GetString(key);
+                if (!string.IsNullOrEmpty(resValue) && resValue != key)
+                {
+                    return resValue;
+                }
+            }
+            catch { }
+
             return key; // 번역이 없으면 키 자체를 반환
         }
 

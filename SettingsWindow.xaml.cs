@@ -626,6 +626,7 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
                 string selectedLang = selectedItem.Tag?.ToString() ?? "ko";
                 // 즉시 적용: 미리보기 텍스트 갱신을 위해 런타임 변경
                 LocalizationManager.SetLanguage(selectedLang);
+                CatchCapture.Models.LocalizationManager.SetLanguage(selectedLang);
                 if (LanguageRestartNotice != null) 
                     LanguageRestartNotice.Visibility = Visibility.Collapsed;
             }

@@ -280,4 +280,19 @@
   <data name="CopySelected" xml:space="preserve"><value>コピー</value></data>
   <data name="InstantEdit" xml:space="preserve"><value>即時編集</value></data>
   <data name="OpenEditor" xml:space="preserve"><value>エディターを開く</value></data>
+  <data name="RealTimeF1Guide" xml:space="preserve"><value>準備ができたらF1を押してキャプチャします。</value></data>
+  <data name="DelayNone" xml:space="preserve"><value>遅延なし</value></data>
+  <data name="Delay3Sec" xml:space="preserve"><value>3秒</value></data>
+  <data name="Delay5Sec" xml:space="preserve"><value>5秒</value></data>
+  <data name="Delay10Sec" xml:space="preserve"><value>10秒</value></data>
+  <data name="MultiCaptureGuide" xml:space="preserve"><value>ENTER : 合成&#xA;F1 : 個別保存&#xA;ESC : 終了</value></data>
+  <data name="MultiCaptureMinReq" xml:space="preserve"><value>最低1つ以上の領域をキャプチャしてください。</value></data>
+  <data name="InvalidCompositeSize" xml:space="preserve"><value>無効な合成画像サイズです。</value></data>
+  <data name="CompositeTooLarge" xml:space="preserve"><value>合成画像が大きすぎます ({0}x{1})。最大サイズは32000x32000です。</value></data>
+  <data name="CompositeError" xml:space="preserve"><value>画像合成中にエラーが発生しました: {0}</value></data>
+  <data name="CaptureError" xml:space="preserve"><value>キャプチャエラー: {0}</value></data>
+  <data name="NumberingOptions" xml:space="preserve"><value>サイズ設定</value></data>
+  <data name="NumberingBadge" xml:space="preserve"><value>バッジ</value></data>
+  <data name="NumberingText" xml:space="preserve"><value>テキスト</value></data>
+  <data name="EditConfirmGuide" xml:space="preserve"><value>編集内容を確定(✓)してからご利用ください。</value></data>
 </root>

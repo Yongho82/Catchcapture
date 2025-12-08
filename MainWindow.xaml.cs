@@ -3236,6 +3236,11 @@ public partial class MainWindow : Window
         // 2. 메인 버튼들
         if (AreaCaptureButtonText != null) AreaCaptureButtonText.Text = LocalizationManager.GetString("AreaCapture");
         if (DelayCaptureButtonText != null) DelayCaptureButtonText.Text = LocalizationManager.GetString("DelayCapture");
+        if (DelayNoneMenu != null) DelayNoneMenu.Header = LocalizationManager.GetString("DelayNone");
+        if (Delay3Menu != null) Delay3Menu.Header = LocalizationManager.GetString("Delay3Sec");
+        if (Delay5Menu != null) Delay5Menu.Header = LocalizationManager.GetString("Delay5Sec");
+        if (Delay10Menu != null) Delay10Menu.Header = LocalizationManager.GetString("Delay10Sec");
+
         if (RealTimeCaptureButtonText != null) RealTimeCaptureButtonText.Text = LocalizationManager.GetString("RealTimeCapture");
         if (MultiCaptureButtonText != null) MultiCaptureButtonText.Text = LocalizationManager.GetString("MultiCapture");
         if (FullScreenButtonText != null) FullScreenButtonText.Text = LocalizationManager.GetString("FullScreen");

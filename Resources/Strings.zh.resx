@@ -280,4 +280,19 @@
   <data name="CopySelected" xml:space="preserve"><value>复制</value></data>
   <data name="InstantEdit" xml:space="preserve"><value>即时编辑</value></data>
   <data name="OpenEditor" xml:space="preserve"><value>打开编辑器</value></data>
+  <data name="RealTimeF1Guide" xml:space="preserve"><value>准备好后按 F1 进行截图。</value></data>
+  <data name="DelayNone" xml:space="preserve"><value>无延迟</value></data>
+  <data name="Delay3Sec" xml:space="preserve"><value>3秒</value></data>
+  <data name="Delay5Sec" xml:space="preserve"><value>5秒</value></data>
+  <data name="Delay10Sec" xml:space="preserve"><value>10秒</value></data>
+  <data name="MultiCaptureGuide" xml:space="preserve"><value>ENTER: 合成&#xA;F1: 单独保存&#xA;ESC: 退出</value></data>
+  <data name="MultiCaptureMinReq" xml:space="preserve"><value>请至少截取一个区域。</value></data>
+  <data name="InvalidCompositeSize" xml:space="preserve"><value>合成图像尺寸无效。</value></data>
+  <data name="CompositeTooLarge" xml:space="preserve"><value>合成图像过大 ({0}x{1})。最大尺寸为 32000x32000。</value></data>
+  <data name="CompositeError" xml:space="preserve"><value>合成图像时出错: {0}</value></data>
+  <data name="CaptureError" xml:space="preserve"><value>截图错误: {0}</value></data>
+  <data name="NumberingOptions" xml:space="preserve"><value>大小设置</value></data>
+  <data name="NumberingBadge" xml:space="preserve"><value>徽章</value></data>
+  <data name="NumberingText" xml:space="preserve"><value>文字</value></data>
+  <data name="EditConfirmGuide" xml:space="preserve"><value>请先确认(✓)编辑内容。</value></data>
 </root>

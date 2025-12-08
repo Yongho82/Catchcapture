@@ -280,4 +280,19 @@
   <data name="CopySelected" xml:space="preserve"><value>Copy</value></data>
   <data name="InstantEdit" xml:space="preserve"><value>Édition instantanée</value></data>
   <data name="OpenEditor" xml:space="preserve"><value>Ouvrir l'éditeur</value></data>
+  <data name="RealTimeF1Guide" xml:space="preserve"><value>Appuyez sur F1 lorsque vous êtes prêt.</value></data>
+  <data name="DelayNone" xml:space="preserve"><value>Sans délai</value></data>
+  <data name="Delay3Sec" xml:space="preserve"><value>3 sec</value></data>
+  <data name="Delay5Sec" xml:space="preserve"><value>5 sec</value></data>
+  <data name="Delay10Sec" xml:space="preserve"><value>10 sec</value></data>
+  <data name="MultiCaptureGuide" xml:space="preserve"><value>ENTRÉE : Composite&#xA;F1 : Individuel&#xA;ECHAP : Quitter</value></data>
+  <data name="MultiCaptureMinReq" xml:space="preserve"><value>Veuillez capturer au moins une région.</value></data>
+  <data name="InvalidCompositeSize" xml:space="preserve"><value>Taille de l'image composite non valide.</value></data>
+  <data name="CompositeTooLarge" xml:space="preserve"><value>L'image composite est trop grande ({0}x{1}). Max 32000x32000.</value></data>
+  <data name="CompositeError" xml:space="preserve"><value>Erreur lors de la composition : {0}</value></data>
+  <data name="CaptureError" xml:space="preserve"><value>Erreur de capture : {0}</value></data>
+  <data name="NumberingOptions" xml:space="preserve"><value>Paramètres de taille</value></data>
+  <data name="NumberingBadge" xml:space="preserve"><value>Badge</value></data>
+  <data name="NumberingText" xml:space="preserve"><value>Texte</value></data>
+  <data name="EditConfirmGuide" xml:space="preserve"><value>Veuillez confirmer(✓) les modifications avant de continuer.</value></data>
 </root>
