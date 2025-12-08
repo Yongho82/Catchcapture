@@ -977,14 +977,7 @@ namespace CatchCapture.Utilities
                 currentTool = "넘버링";
                 SetActiveToolButton(numberingButton);
                 
-                double selectionLeft = Canvas.GetLeft(selectionRectangle);
-                double selectionTop = Canvas.GetTop(selectionRectangle);
-                double selectionHeight = selectionRectangle.Height;
-                double toolbarLeft = selectionLeft;
-                double toolbarTop = selectionTop + selectionHeight + 10;
-                if (toolbarTop + 44 > vHeight) toolbarTop = selectionTop - 44 - 10;
-                
-                ShowColorPalette("넘버링", toolbarLeft, toolbarTop + 60);  // ← 팔레트 표시
+                ShowColorPalette("넘버링", GetPaletteLeft(), GetPaletteTop());
                 EnableNumberingMode();
             };
             
@@ -1025,10 +1018,10 @@ namespace CatchCapture.Utilities
             // 구분선
             var separator = new Border
             {
-                Width = 1,
-                Height = 30,
-                Background = new SolidColorBrush(Color.FromRgb(220, 220, 220)),  // 밝은 회색
-                Margin = new Thickness(3, 0, 3, 0)  // 마진도 줄임
+                Width = isVerticalToolbarLayout ? 30 : 1,
+                Height = isVerticalToolbarLayout ? 1 : 30,
+                Background = new SolidColorBrush(Color.FromRgb(220, 220, 220)),
+                Margin = isVerticalToolbarLayout ? new Thickness(0, 3, 0, 3) : new Thickness(3, 0, 3, 0)
             };
 
              
@@ -1249,10 +1242,10 @@ namespace CatchCapture.Utilities
             // 구분선 2
             var separator2 = new Border
             {
-                Width = 1,
-                Height = 30,
+                Width = isVerticalToolbarLayout ? 30 : 1,
+                Height = isVerticalToolbarLayout ? 1 : 30,
                 Background = new SolidColorBrush(Color.FromRgb(220, 220, 220)),
-                Margin = new Thickness(3, 0, 3, 0)
+                Margin = isVerticalToolbarLayout ? new Thickness(0, 3, 0, 3) : new Thickness(3, 0, 3, 0)
             };
             
             // 실행 취소 버튼
@@ -1266,10 +1259,10 @@ namespace CatchCapture.Utilities
             // 구분선 3
             var separator3 = new Border
             {
-                Width = 1,
-                Height = 30,
+                Width = isVerticalToolbarLayout ? 30 : 1,
+                Height = isVerticalToolbarLayout ? 1 : 30,
                 Background = new SolidColorBrush(Color.FromRgb(220, 220, 220)),
-                Margin = new Thickness(3, 0, 3, 0)
+                Margin = isVerticalToolbarLayout ? new Thickness(0, 3, 0, 3) : new Thickness(3, 0, 3, 0)
             };
             
             // 복사 버튼
