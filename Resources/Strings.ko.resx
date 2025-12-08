@@ -152,6 +152,9 @@
   <data name="Mosaic" xml:space="preserve">
     <value>모자이크</value>
   </data>
+  <data name="Numbering" xml:space="preserve">
+    <value>넘버링</value>
+  </data>
   <data name="Crop" xml:space="preserve">
     <value>자르기</value>
   </data>
@@ -295,4 +298,11 @@
   <data name="NumberingBadge" xml:space="preserve"><value>번호표</value></data>
   <data name="NumberingText" xml:space="preserve"><value>텍스트</value></data>
   <data name="EditConfirmGuide" xml:space="preserve"><value>편집 내용을 먼저 확정(✓)한 뒤 이용하세요.</value></data>
+  <data name="Color" xml:space="preserve"><value>색상</value></data>
+  <data name="TextOptions" xml:space="preserve"><value>텍스트 옵션</value></data>
+  <data name="Font" xml:space="preserve"><value>글꼴</value></data>
+  <data name="Thickness" xml:space="preserve"><value>두께</value></data>
+  <data name="Fill" xml:space="preserve"><value>채우기</value></data>
+  <data name="FillOpacity" xml:space="preserve"><value>투명도</value></data>
+  <data name="Intensity" xml:space="preserve"><value>강도</value></data>
 </root>

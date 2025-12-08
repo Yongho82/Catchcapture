@@ -152,6 +152,9 @@
   <data name="Mosaic" xml:space="preserve">
     <value>Mosaïque</value>
   </data>
+  <data name="Numbering" xml:space="preserve">
+    <value>Numérotation</value>
+  </data>
   <data name="Crop" xml:space="preserve">
     <value>Rogner</value>
   </data>
@@ -295,4 +298,11 @@
   <data name="NumberingBadge" xml:space="preserve"><value>Badge</value></data>
   <data name="NumberingText" xml:space="preserve"><value>Texte</value></data>
   <data name="EditConfirmGuide" xml:space="preserve"><value>Veuillez confirmer(✓) les modifications avant de continuer.</value></data>
+  <data name="Color" xml:space="preserve"><value>Couleur</value></data>
+  <data name="TextOptions" xml:space="preserve"><value>Options de texte</value></data>
+  <data name="Font" xml:space="preserve"><value>Police</value></data>
+  <data name="Thickness" xml:space="preserve"><value>Épaisseur</value></data>
+  <data name="Fill" xml:space="preserve"><value>Remplir</value></data>
+  <data name="FillOpacity" xml:space="preserve"><value>Opacité</value></data>
+  <data name="Intensity" xml:space="preserve"><value>Intensité</value></data>
 </root>

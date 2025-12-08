@@ -960,7 +960,7 @@ namespace CatchCapture.Utilities
             };
 
              
-            // 취소 버튼
+            // 재캡처 버튼 (기존 취소 버튼 위치)
             var cancelButton = new Button
             {
                 Width = 40,
@@ -971,7 +971,7 @@ namespace CatchCapture.Utilities
                 BorderBrush = Brushes.Transparent,
                 BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
-                ToolTip = $"{LocalizationManager.Get("Cancel")} (ESC)",
+                ToolTip = $"{LocalizationManager.Get("Recapture")} (ESC)",
                 Style = null,
                 Template = new ControlTemplate(typeof(Button))
                 {
@@ -985,25 +985,24 @@ namespace CatchCapture.Utilities
                 HorizontalAlignment = HorizontalAlignment.Center
             };
             
-            var cancelText = new TextBlock
+            // X 텍스트 대신 영역 캡처 아이콘 사용
+            var cancelIcon = new Image
             {
-                Text = "✕",
-                FontSize = 16,
-                FontWeight = FontWeights.Bold,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                Foreground = new SolidColorBrush(Color.FromRgb(60, 60, 60)),
-                Margin = new Thickness(0, -2, 0, 0)
+                Width = 18,
+                Height = 18,
+                Margin = new Thickness(0, 1, 0, 1),
+                Source = new BitmapImage(new Uri("pack://application:,,,/icons/area_capture.png", UriKind.Absolute))
             };
             
             var cancelLabel = new TextBlock
             {
-                Text = LocalizationManager.Get("Cancel"),
+                Text = LocalizationManager.Get("Recapture"),
                 FontSize = 9,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Foreground = new SolidColorBrush(Color.FromRgb(60, 60, 60))
             };
             
-            cancelStackPanel.Children.Add(cancelText);
+            cancelStackPanel.Children.Add(cancelIcon);
             cancelStackPanel.Children.Add(cancelLabel);
             
             var cancelBorder = new Border
@@ -1020,15 +1019,16 @@ namespace CatchCapture.Utilities
             
             cancelButton.MouseEnter += (s, e) =>
             {
-                cancelBorder.Background = new SolidColorBrush(Color.FromRgb(255, 230, 230));
-                cancelText.Foreground = new SolidColorBrush(Color.FromRgb(200, 50, 50));
-                cancelLabel.Foreground = new SolidColorBrush(Color.FromRgb(200, 50, 50));
+                // 재캡처는 일반 도구처럼 파란색 계열 호버 효과
+                cancelBorder.Background = new SolidColorBrush(Color.FromRgb(232, 243, 255));
+                cancelBorder.BorderBrush = new SolidColorBrush(Color.FromRgb(0, 120, 212));
+                cancelLabel.Foreground = new SolidColorBrush(Color.FromRgb(0, 120, 212));
             };
             
             cancelButton.MouseLeave += (s, e) =>
             {
                 cancelBorder.Background = Brushes.White;
-                cancelText.Foreground = new SolidColorBrush(Color.FromRgb(60, 60, 60));
+                cancelBorder.BorderBrush = Brushes.Transparent;
                 cancelLabel.Foreground = new SolidColorBrush(Color.FromRgb(60, 60, 60));
             };
             
@@ -1708,12 +1708,12 @@ namespace CatchCapture.Utilities
             else if (tool == "넘버링")
             {
                 // [넘버링 옵션: 배지 크기 + 텍스트 크기]
-                var optionLabel = new TextBlock { Text = ResLoc.GetString("NumberingOptions"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
+                var optionLabel = new TextBlock { Text = LocalizationManager.Get("NumberingOptions"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
                 optionSection.Children.Add(optionLabel);
 
                 // 배지 크기
                 var badgePanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 5) };
-                badgePanel.Children.Add(new TextBlock { Text = ResLoc.GetString("NumberingBadge"), VerticalAlignment = VerticalAlignment.Center, Width = 45, FontSize = 11 });
+                badgePanel.Children.Add(new TextBlock { Text = LocalizationManager.Get("NumberingBadge"), VerticalAlignment = VerticalAlignment.Center, Width = 45, FontSize = 11 });
                 var badgeCombo = new ComboBox { Width = 60, Height = 22, FontSize = 11 };
                 int[] badgeSizes = { 16, 20, 24, 28, 32, 36 };
                 foreach (var s in badgeSizes) badgeCombo.Items.Add(s);
@@ -1724,7 +1724,7 @@ namespace CatchCapture.Utilities
 
                 // 텍스트 크기
                 var textPanel = new StackPanel { Orientation = Orientation.Horizontal };
-                textPanel.Children.Add(new TextBlock { Text = ResLoc.GetString("NumberingText"), VerticalAlignment = VerticalAlignment.Center, Width = 45, FontSize = 11 });
+                textPanel.Children.Add(new TextBlock { Text = LocalizationManager.Get("NumberingText"), VerticalAlignment = VerticalAlignment.Center, Width = 45, FontSize = 11 });
                 var textCombo = new ComboBox { Width = 60, Height = 22, FontSize = 11 };
                 int[] textSizes = { 10, 11, 12, 14, 16, 18, 20 };
                 foreach (var s in textSizes) textCombo.Items.Add(s);

@@ -152,6 +152,9 @@
   <data name="Mosaic" xml:space="preserve">
     <value>モザイク</value>
   </data>
+  <data name="Numbering" xml:space="preserve">
+    <value>番号付け</value>
+  </data>
   <data name="Crop" xml:space="preserve">
     <value>切り抜き</value>
   </data>
@@ -295,4 +298,11 @@
   <data name="NumberingBadge" xml:space="preserve"><value>バッジ</value></data>
   <data name="NumberingText" xml:space="preserve"><value>テキスト</value></data>
   <data name="EditConfirmGuide" xml:space="preserve"><value>編集内容を確定(✓)してからご利用ください。</value></data>
+  <data name="Color" xml:space="preserve"><value>色</value></data>
+  <data name="TextOptions" xml:space="preserve"><value>テキストオプション</value></data>
+  <data name="Font" xml:space="preserve"><value>フォント</value></data>
+  <data name="Thickness" xml:space="preserve"><value>太さ</value></data>
+  <data name="Fill" xml:space="preserve"><value>塗りつぶし</value></data>
+  <data name="FillOpacity" xml:space="preserve"><value>不透明度</value></data>
+  <data name="Intensity" xml:space="preserve"><value>強度</value></data>
 </root>

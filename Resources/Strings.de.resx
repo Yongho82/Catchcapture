@@ -152,6 +152,9 @@
   <data name="Mosaic" xml:space="preserve">
     <value>Mosaik</value>
   </data>
+  <data name="Numbering" xml:space="preserve">
+    <value>Nummerierung</value>
+  </data>
   <data name="Crop" xml:space="preserve">
     <value>Zuschneiden</value>
   </data>
@@ -295,4 +298,11 @@
   <data name="NumberingBadge" xml:space="preserve"><value>Abzeichen</value></data>
   <data name="NumberingText" xml:space="preserve"><value>Text</value></data>
   <data name="EditConfirmGuide" xml:space="preserve"><value>Bitte Änderungen bestätigen(✓) vor der Nutzung.</value></data>
+  <data name="Color" xml:space="preserve"><value>Farbe</value></data>
+  <data name="TextOptions" xml:space="preserve"><value>Textoptionen</value></data>
+  <data name="Font" xml:space="preserve"><value>Schriftart</value></data>
+  <data name="Thickness" xml:space="preserve"><value>Dicke</value></data>
+  <data name="Fill" xml:space="preserve"><value>Füllen</value></data>
+  <data name="FillOpacity" xml:space="preserve"><value>Deckkraft</value></data>
+  <data name="Intensity" xml:space="preserve"><value>Intensität</value></data>
 </root>
