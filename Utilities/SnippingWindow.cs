@@ -219,17 +219,18 @@ namespace CatchCapture.Utilities
             canvas.Children.Add(sizeTextBlock);
 
             // 선택 영역 직사각형(테두리만 표시)
-            var strokeBrush = new SolidColorBrush(Colors.White);
+            var strokeBrush = new SolidColorBrush(Colors.Red);
             strokeBrush.Freeze(); // GC로부터 보호
             
-            var dashArray = new DoubleCollection { 2, 1 };
+            var dashArray = new DoubleCollection { 2, 3 };
             dashArray.Freeze(); // GC로부터 보호
             
             selectionRectangle = new Rectangle
             {
                 Stroke = strokeBrush,
-                StrokeThickness = 2,
+                StrokeThickness = 1,
                 StrokeDashArray = dashArray,
+                StrokeDashCap = PenLineCap.Square,
                 Fill = Brushes.Transparent
             };
             selectionRectangle.IsHitTestVisible = false;
