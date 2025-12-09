@@ -92,7 +92,7 @@ namespace CatchCapture.Utilities
         private double highlightOpacity = 0.5; // 형광펜 투명도 (0.0 ~ 1.0)
         private double numberingBadgeSize = 24; // 넘버링 배지 크기
         private double numberingTextSize = 12;  // 넘버링 텍스트 크기
-
+        private bool showMagnifier = true;
 
         // 언어 변경 시 런타임 갱신을 위해 툴바 참조 저장
         private Border? toolbarContainer;
@@ -105,6 +105,9 @@ namespace CatchCapture.Utilities
 
         public SnippingWindow(bool showGuideText = false, BitmapSource? cachedScreenshot = null)
         {
+            var settings = Settings.Load();
+            showMagnifier = settings.ShowMagnifier;
+
             WindowStyle = WindowStyle.None;
             ResizeMode = ResizeMode.NoResize;
             Topmost = true;
@@ -216,10 +219,10 @@ namespace CatchCapture.Utilities
             canvas.Children.Add(sizeTextBlock);
 
             // 선택 영역 직사각형(테두리만 표시)
-            var strokeBrush = new SolidColorBrush(Colors.DeepSkyBlue);
+            var strokeBrush = new SolidColorBrush(Colors.White);
             strokeBrush.Freeze(); // GC로부터 보호
             
-            var dashArray = new DoubleCollection { 4, 2 };
+            var dashArray = new DoubleCollection { 2, 1 };
             dashArray.Freeze(); // GC로부터 보호
             
             selectionRectangle = new Rectangle
@@ -339,6 +342,7 @@ namespace CatchCapture.Utilities
 
         private void CreateMagnifier()
         {
+            if (!showMagnifier) return;
             // [수정] 테두리 두께와 둥근 모서리 설정
             double borderThick = 2.0;
             double cornerRad = 20.0;
@@ -640,6 +644,7 @@ namespace CatchCapture.Utilities
         }
         private void UpdateMagnifier(Point mousePos)
         {
+            if (!showMagnifier) return;
             if (magnifierBorder == null || magnifierImage == null || screenCapture == null)
                 return;
 

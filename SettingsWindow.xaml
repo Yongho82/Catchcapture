@@ -247,6 +247,7 @@
                         <StackPanel>
                             <CheckBox x:Name="ChkAutoSave" Content="캡처 시 자동으로 파일 저장"/>
                             <CheckBox x:Name="ChkShowPreview" Content="캡처 후 미리보기/편집 창 표시"/>
+                            <CheckBox x:Name="ChkShowMagnifier" Content="영역 캡처 시 돋보기 표시"/>
                         </StackPanel>
                     </GroupBox>
                 </StackPanel>

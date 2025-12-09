@@ -89,6 +89,7 @@ private void UpdateUIText()
             OptionsGroup.Header = LocalizationManager.GetString("Options");
             ChkAutoSave.Content = LocalizationManager.GetString("AutoSaveCapture");
             ChkShowPreview.Content = LocalizationManager.GetString("ShowPreviewAfterCapture");
+            ChkShowMagnifier.Content = LocalizationManager.GetString("ShowMagnifier") ?? "영역 캡처 시 돋보기 표시";
             // 단축키 페이지
             HotkeySectionTitle.Text = LocalizationManager.GetString("HotkeySettings");
             PrintScreenGroup.Header = LocalizationManager.GetString("UsePrintScreen");
@@ -264,6 +265,8 @@ private void InitLanguageComboBox()
             ChkAutoSave.IsChecked = _settings.AutoSaveCapture;
             // Show preview
             ChkShowPreview.IsChecked = _settings.ShowPreviewAfterCapture;
+            // Show magnifier
+            ChkShowMagnifier.IsChecked = _settings.ShowMagnifier;
             
             // Print Screen key
             ChkUsePrintScreen.IsChecked = _settings.UsePrintScreenKey;
@@ -412,6 +415,7 @@ private void InitLanguageComboBox()
             _settings.DefaultSaveFolder = desiredFolder;
             _settings.AutoSaveCapture = ChkAutoSave.IsChecked == true;
             _settings.ShowPreviewAfterCapture = ChkShowPreview.IsChecked == true;
+            _settings.ShowMagnifier = ChkShowMagnifier.IsChecked == true;
             
             // Print Screen key
             _settings.UsePrintScreenKey = ChkUsePrintScreen.IsChecked == true;
