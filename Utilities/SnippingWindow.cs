@@ -268,6 +268,7 @@ namespace CatchCapture.Utilities
             // 비동기 캡처 제거: 어둡게 되는 시점과 즉시 상호작용 가능 상태를 일치시킴
 
             moveStopwatch.Start();
+            magnifierStopwatch.Start();
 
             // 메모리 모니터링 타이머 설정 (5분마다 실행)
             memoryCleanupTimer = new System.Windows.Threading.DispatcherTimer
@@ -331,6 +332,11 @@ namespace CatchCapture.Utilities
             }
         }
 
+        // 돋보기 내부 십자선 (UI 요소로 분리하여 성능 개선)
+        private Line? magnifierCrosshairH;
+        private Line? magnifierCrosshairV;
+        private Canvas? magnifierCanvas; // 이미지 + 십자선을 담는 컨테이너
+
         private void CreateMagnifier()
         {
             // [수정] 테두리 두께와 둥근 모서리 설정
@@ -344,14 +350,51 @@ namespace CatchCapture.Utilities
             {
                 Width = innerSize,
                 Height = innerSize,
-                Stretch = Stretch.None,
+                Stretch = Stretch.Fill, // Fill로 변경하여 확대된 이미지가 꽉 차게
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
             };
             RenderOptions.SetBitmapScalingMode(magnifierImage, BitmapScalingMode.NearestNeighbor);
 
-            // 이미지가 테두리 안쪽에 딱 맞게 클리핑 (반지름 보정: 20 - 2 = 18)
-            magnifierImage.Clip = new RectangleGeometry
+            // 돋보기 내부 십자선 (별도 UI 요소)
+            double crosshairLength = 30;
+            double centerPos = innerSize / 2.0;
+            
+            magnifierCrosshairH = new Line
+            {
+                X1 = centerPos - crosshairLength,
+                X2 = centerPos + crosshairLength,
+                Y1 = centerPos,
+                Y2 = centerPos,
+                Stroke = Brushes.Red,
+                StrokeThickness = 2,
+                IsHitTestVisible = false
+            };
+            
+            magnifierCrosshairV = new Line
+            {
+                X1 = centerPos,
+                X2 = centerPos,
+                Y1 = centerPos - crosshairLength,
+                Y2 = centerPos + crosshairLength,
+                Stroke = Brushes.Red,
+                StrokeThickness = 2,
+                IsHitTestVisible = false
+            };
+
+            // 이미지 + 십자선을 담는 캔버스
+            magnifierCanvas = new Canvas
+            {
+                Width = innerSize,
+                Height = innerSize,
+                ClipToBounds = true
+            };
+            magnifierCanvas.Children.Add(magnifierImage);
+            magnifierCanvas.Children.Add(magnifierCrosshairH);
+            magnifierCanvas.Children.Add(magnifierCrosshairV);
+            
+            // 클리핑 (둥근 모서리)
+            magnifierCanvas.Clip = new RectangleGeometry
             {
                 Rect = new Rect(0, 0, innerSize, innerSize),
                 RadiusX = Math.Max(0, cornerRad - borderThick),
@@ -366,7 +409,7 @@ namespace CatchCapture.Utilities
                 BorderBrush = Brushes.White,
                 BorderThickness = new Thickness(borderThick),
                 Background = Brushes.Black,
-                Child = magnifierImage,
+                Child = magnifierCanvas, // 캔버스를 자식으로
                 CornerRadius = new CornerRadius(cornerRad),
                 Visibility = Visibility.Collapsed
             };
@@ -383,7 +426,7 @@ namespace CatchCapture.Utilities
             canvas.Children.Add(magnifierBorder);
             Panel.SetZIndex(magnifierBorder, 1000); // 최상위 표시
             
-            // 십자선 초기화
+            // 화면 전체 십자선 초기화
             crosshairHorizontal = new Line
             {
                 Stroke = Brushes.Red,
@@ -494,12 +537,33 @@ namespace CatchCapture.Utilities
                 Close();
             }
         }
+        // 돋보기 업데이트용 throttling
+        private Point lastMagnifierPoint;
+        private const double MinMagnifierMoveDelta = 3.0; // 돋보기는 3픽셀 이상 이동시에만 업데이트
+        private readonly System.Diagnostics.Stopwatch magnifierStopwatch = new();
+        private const int MinMagnifierIntervalMs = 16; // 약 60Hz로 제한
+
+        // 드래그 중 돋보기 갱신 빈도 제한
+        private const int MinMagnifierIntervalMsDragging = 33; // 드래그 중 약 30Hz
+        private const double MinMagnifierMoveDeltaDragging = 5.0; // 드래그 중 5픽셀 이상
+
         private void SnippingWindow_MouseMove(object sender, MouseEventArgs e)
         {
             Point currentPoint = e.GetPosition(canvas);
             
-            // 돋보기 업데이트 (선택 중이 아닐 때도 표시)
-            UpdateMagnifier(currentPoint);
+            // 드래그 중/아닐 때 모두 돋보기 표시 (단, 갱신 빈도 다름)
+            int magnifierInterval = isSelecting ? MinMagnifierIntervalMsDragging : MinMagnifierIntervalMs;
+            double magnifierDelta = isSelecting ? MinMagnifierMoveDeltaDragging : MinMagnifierMoveDelta;
+            
+            // 돋보기 throttling
+            if (magnifierStopwatch.ElapsedMilliseconds >= magnifierInterval ||
+                Math.Abs(currentPoint.X - lastMagnifierPoint.X) >= magnifierDelta ||
+                Math.Abs(currentPoint.Y - lastMagnifierPoint.Y) >= magnifierDelta)
+            {
+                UpdateMagnifier(currentPoint);
+                lastMagnifierPoint = currentPoint;
+                magnifierStopwatch.Restart();
+            }
             
             if (!isSelecting) return;
             if (moveStopwatch.ElapsedMilliseconds < MinMoveIntervalMs) return;
@@ -520,6 +584,17 @@ namespace CatchCapture.Utilities
             double height = Math.Abs(currentPoint.Y - startPoint.Y);
             pendingRect = new Rect(left, top, width, height);
             hasPendingUpdate = true;
+        }
+
+        // 돋보기 숨기기 헬퍼 메서드 (필요시 사용)
+        private void HideMagnifier()
+        {
+            if (magnifierBorder != null)
+                magnifierBorder.Visibility = Visibility.Collapsed;
+            if (crosshairHorizontal != null)
+                crosshairHorizontal.Visibility = Visibility.Collapsed;
+            if (crosshairVertical != null)
+                crosshairVertical.Visibility = Visibility.Collapsed;
         }
 
          private string? lastSizeText;
@@ -590,50 +665,12 @@ namespace CatchCapture.Utilities
 
                 if (cropW > 0 && cropH > 0)
                 {
-                    // 영역 크롭
+                    // 영역 크롭 (가벼운 연산)
                     var croppedBitmap = new CroppedBitmap(screenCapture, new Int32Rect(cropX, cropY, cropW, cropH));
                     
-                    // 확대
-                    var transform = new ScaleTransform(MagnificationFactor, MagnificationFactor);
-                    var transformedBitmap = new TransformedBitmap(croppedBitmap, transform);
-                    
-                    // DrawingVisual을 사용하여 십자선 추가
-                    var drawingVisual = new DrawingVisual();
-                    using (var drawingContext = drawingVisual.RenderOpen())
-                    {
-                        // 확대된 이미지 그리기
-                        drawingContext.DrawImage(transformedBitmap, new Rect(0, 0, transformedBitmap.PixelWidth, transformedBitmap.PixelHeight));
-                        
-                        // 십자선 그리기 (중앙에 굵은 십자가)
-                        double centerXPos = transformedBitmap.PixelWidth / 2.0;
-                        double centerYPos = transformedBitmap.PixelHeight / 2.0;
-
-                        var redPen = new Pen(Brushes.Red, 4); // 두께 4로 증가
-                        redPen.Freeze();
-
-                        // 십자선 길이 (30)
-                        double crosshairLength = 30;
-
-                        // 가로선
-                        drawingContext.DrawLine(redPen, 
-                            new Point(centerXPos - crosshairLength, centerYPos), 
-                            new Point(centerXPos + crosshairLength, centerYPos));
-                        // 세로선
-                        drawingContext.DrawLine(redPen, 
-                            new Point(centerXPos, centerYPos - crosshairLength), 
-                            new Point(centerXPos, centerYPos + crosshairLength));
-                    }
-                    
-                    // RenderTargetBitmap으로 변환
-                    var renderBitmap = new RenderTargetBitmap(
-                        transformedBitmap.PixelWidth,
-                        transformedBitmap.PixelHeight,
-                        96, 96,
-                        PixelFormats.Pbgra32);
-                    renderBitmap.Render(drawingVisual);
-                    renderBitmap.Freeze();
-                    
-                    magnifierImage.Source = renderBitmap;
+                    // 이미지 소스만 업데이트 (RenderTargetBitmap 제거로 성능 대폭 개선)
+                    // 십자선은 별도 UI 요소(magnifierCrosshairH/V)로 이미 표시됨
+                    magnifierImage.Source = croppedBitmap;
                 }
 
                 // 돋보기 위치 설정 (마우스 우측 하단)
@@ -652,7 +689,7 @@ namespace CatchCapture.Utilities
                 Canvas.SetLeft(magnifierBorder, magnifierX);
                 Canvas.SetTop(magnifierBorder, magnifierY);
                 
-                // 십자선 업데이트 (화면 전체에 걸쳐 표시)
+                // 화면 전체 십자선 업데이트
                 if (crosshairHorizontal != null && crosshairVertical != null)
                 {
                     crosshairHorizontal.Visibility = Visibility.Visible;

@@ -200,10 +200,18 @@ namespace CatchCapture.Utilities
             };
         }  
 
+        // 성능 최적화용 필드
+        private readonly System.Diagnostics.Stopwatch moveStopwatch = new();
+        private const int MinMoveIntervalMs = 8; // ~120Hz 업데이트 제한
+        private Point lastUpdatePoint;
+        private const double MinMoveDelta = 2.0; // 최소 픽셀 이동 임계값
+        
         private void MultiCaptureWindow_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             startPoint = e.GetPosition(canvas);
             isSelecting = true;
+            Mouse.Capture(this); // 마우스 캡처로 드래그 안정성 향상
+            moveStopwatch.Start();
             
             // 새로운 선택 사각형 생성
             currentRectangle = new Rectangle
@@ -222,17 +230,28 @@ namespace CatchCapture.Utilities
         
         private void MultiCaptureWindow_MouseMove(object sender, MouseEventArgs e)
         {
-            // 툴팁 위치 업데이트 (마우스 커서 오른쪽 아래)
+            var currentPoint = e.GetPosition(canvas);
+            
+            // 툴팁 위치 업데이트 (마우스 커서 오른쪽 아래) - throttling 없이
             if (showTooltip && tooltipBorder != null)
             {
-                var mousePos = e.GetPosition(canvas);
-                Canvas.SetLeft(tooltipBorder, mousePos.X + 15);
-                Canvas.SetTop(tooltipBorder, mousePos.Y + 15);
+                Canvas.SetLeft(tooltipBorder, currentPoint.X + 15);
+                Canvas.SetTop(tooltipBorder, currentPoint.Y + 15);
             }
             
             if (!isSelecting || currentRectangle == null) return;
             
-            var currentPoint = e.GetPosition(canvas);
+            // Throttling: 일정 시간 간격으로만 업데이트
+            if (moveStopwatch.ElapsedMilliseconds < MinMoveIntervalMs) return;
+            moveStopwatch.Restart();
+            
+            // 너무 작은 이동은 무시
+            if (Math.Abs(currentPoint.X - lastUpdatePoint.X) < MinMoveDelta &&
+                Math.Abs(currentPoint.Y - lastUpdatePoint.Y) < MinMoveDelta)
+            {
+                return;
+            }
+            lastUpdatePoint = currentPoint;
             
             var x = Math.Min(startPoint.X, currentPoint.X);
             var y = Math.Min(startPoint.Y, currentPoint.Y);
@@ -250,6 +269,8 @@ namespace CatchCapture.Utilities
             if (!isSelecting || currentRectangle == null) return;
             
             isSelecting = false;
+            if (Mouse.Captured == this) Mouse.Capture(null); // 마우스 캡처 해제
+            moveStopwatch.Stop();
             
             var endPoint = e.GetPosition(canvas);
             
