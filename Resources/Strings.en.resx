@@ -360,4 +360,5 @@
   <data name="UnitCapture" xml:space="preserve"><value>Unit Capture</value></data>
   <data name="ComputerApps" xml:space="preserve"><value>Computer Apps</value></data>
   <data name="Open" xml:space="preserve"><value>Open</value></data>
+  <data name="ShowMagnifier" xml:space="preserve"><value>Show Magnifier During Area Capture</value></data>
 </root>
