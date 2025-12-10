@@ -68,7 +68,7 @@ namespace CatchCapture.Models
         public List<string> MainMenuItems { get; set; } = new List<string>
         {
             "AreaCapture", "DelayCapture", "RealTimeCapture", "MultiCapture",
-            "FullScreen", "DesignatedCapture", "WindowCapture", "ElementCapture", "ScrollCapture", "OcrCapture"
+            "FullScreen", "DesignatedCapture", "WindowCapture", "ElementCapture", "ScrollCapture", "OcrCapture", "ScreenRecord"
         };              
 
         // System settings

@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CatchCapture"
         mc:Ignorable="d"
-        Title="캐치 캡처" Height="652" Width="400" 
-        MinWidth="400" MinHeight="652"
+        Title="캐치 캡처" Height="692" Width="400" 
+        MinWidth="400" MinHeight="692"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None" AllowsTransparency="True" 
         Background="Transparent"
@@ -296,6 +296,15 @@
                                     <Image Source="/icons/ocr_capture.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
                                     <TextBlock x:Name="OcrCaptureButtonText" Text="문자 추출" HorizontalAlignment="Left" FontSize="12"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <!-- 화면 녹화 버튼 -->
+                            <Button x:Name="ScreenRecordButton" Style="{StaticResource SidebarButtonStyle}" Click="ScreenRecordButton_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/icons/videocamera.png" Width="16" Height="16" Margin="0,0,5,0"
+                                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                                    <TextBlock x:Name="ScreenRecordButtonText" Text="화면녹화" HorizontalAlignment="Left" FontSize="12"/>
                                 </StackPanel>
                             </Button>
 

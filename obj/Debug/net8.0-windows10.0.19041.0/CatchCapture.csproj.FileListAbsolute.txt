@@ -126,3 +126,10 @@ C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\ko\CatchCaptu
 C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\zh\CatchCapture.resources.cs
 C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\zh\CatchCapture.resources.dll
 C:\yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\icons\catcha.png
+C:\yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\Recording\RecordingOverlay.baml
+C:\yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\Recording\RecordingWindow.baml
+C:\yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\Recording\RecordingOverlay.g.cs
+C:\yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\Recording\RecordingWindow.g.cs
+C:\yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\icons\videocamera.png
+C:\yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\FFMediaToolkit.dll
+C:\yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\FFmpeg.AutoGen.dll

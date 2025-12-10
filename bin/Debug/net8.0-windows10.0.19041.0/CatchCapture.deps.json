@@ -8,6 +8,8 @@
     ".NETCoreApp,Version=v8.0": {
       "CatchCapture/1.0.0": {
         "dependencies": {
+          "FFMediaToolkit": "4.8.1",
+          "FFmpeg.AutoGen": "8.0.0",
           "Microsoft.Xaml.Behaviors.Wpf": "1.1.77",
           "Newtonsoft.Json": "13.0.3",
           "System.Drawing.Common": "8.0.0",
@@ -52,6 +54,25 @@
           }
         }
       },
+      "FFMediaToolkit/4.8.1": {
+        "dependencies": {
+          "FFmpeg.AutoGen": "8.0.0"
+        },
+        "runtime": {
+          "lib/netstandard2.1/FFMediaToolkit.dll": {
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "4.8.1.0"
+          }
+        }
+      },
+      "FFmpeg.AutoGen/8.0.0": {
+        "runtime": {
+          "lib/netstandard2.1/FFmpeg.AutoGen.dll": {
+            "assemblyVersion": "8.0.0.0",
+            "fileVersion": "8.0.0.0"
+          }
+        }
+      },
       "Microsoft.Win32.SystemEvents/8.0.0": {},
       "Microsoft.Xaml.Behaviors.Wpf/1.1.77": {
         "runtime": {
@@ -86,6 +107,20 @@
       "type": "runtimepack",
       "serviceable": false,
       "sha512": ""
+    },
+    "FFMediaToolkit/4.8.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Ji29q4A82Ii/yPjwR2RdoMNm8CP3f21nWPzOsZAUADpcV37YXPKyJHQACZFes7DWE0z4CuUBUjLwQHwku0qqRw==",
+      "path": "ffmediatoolkit/4.8.1",
+      "hashPath": "ffmediatoolkit.4.8.1.nupkg.sha512"
+    },
+    "FFmpeg.AutoGen/8.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-GgMk5O74HAyPkAb+EC1QbxF32OISwjQE8u252SjHUAd9b5m6nRNrkQ/T8pMMccsRHIDdToDQc4Xp6pWgf/PE/A==",
+      "path": "ffmpeg.autogen/8.0.0",
+      "hashPath": "ffmpeg.autogen.8.0.0.nupkg.sha512"
     },
     "Microsoft.Win32.SystemEvents/8.0.0": {
       "type": "package",

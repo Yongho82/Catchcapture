@@ -21,6 +21,7 @@ using System.Windows.Interop;
 using Windows.ApplicationModel.DataTransfer;
 using CatchCapture.Resources;
 using LocalizationManager = CatchCapture.Resources.LocalizationManager;
+using CatchCapture.Recording;
 
 namespace CatchCapture;
 
@@ -236,7 +237,8 @@ public partial class MainWindow : Window
             { "WindowCapture", WindowCaptureButton },
             { "ElementCapture", ElementCaptureButton },
             { "ScrollCapture", ScrollCaptureButton }, 
-            { "OcrCapture", OcrCaptureButton } 
+            { "OcrCapture", OcrCaptureButton },
+            { "ScreenRecord", ScreenRecordButton }
         };
 
         // Separator와 하단 버튼들 저장
@@ -1358,6 +1360,22 @@ public partial class MainWindow : Window
             // 일반 모드였다면 메인 창 다시 표시
             this.Show();
             this.Activate();
+        }
+    }
+
+    /// <summary>
+    /// 화면 녹화 버튼 클릭 - 녹화 도구 창 열기
+    /// </summary>
+    private void ScreenRecordButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var recordingWindow = new Recording.RecordingWindow();
+            recordingWindow.Show();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"녹화 도구 열기 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
@@ -3648,5 +3666,86 @@ public partial class MainWindow : Window
             }
         }
         catch { /* ignore sizing errors */ }
+    }
+    /// <summary>
+    /// 비디오 녹화 데이터를 캡처 리스트에 추가
+    /// </summary>
+    public void AddVideoToList(CatchCapture.Recording.ScreenRecorder recorder, CatchCapture.Models.RecordingSettings settings)
+    {
+        if (recorder == null || recorder.FrameCount == 0) return;
+        
+        Dispatcher.Invoke(() =>
+        {
+            try
+            {
+                // 첫 프레임을 썸네일로 캡처 리스트에 추가
+                var thumbnail = recorder.GetThumbnail();
+                if (thumbnail != null)
+                {
+                    AddCaptureToList(thumbnail, skipPreview: true);
+                    
+                    // 백그라운드에서 자동 저장
+                    _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            var currentSettings = Models.Settings.Load();
+                            string saveFolder = currentSettings.DefaultSaveFolder;
+                            
+                            if (string.IsNullOrWhiteSpace(saveFolder))
+                            {
+                                saveFolder = System.IO.Path.Combine(
+                                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), 
+                                    "CatchCapture");
+                            }
+                            
+                            if (!Directory.Exists(saveFolder))
+                            {
+                                Directory.CreateDirectory(saveFolder);
+                            }
+                            
+                            string timestamp = DateTime.Now.ToString("yyyy-MM-dd HHmmss");
+                            string ext = settings.Format == CatchCapture.Models.RecordingFormat.GIF ? ".gif" : ".mp4";
+                            string filename = $"Recording_{timestamp}{ext}";
+                            string fullPath = System.IO.Path.Combine(saveFolder, filename);
+                            
+                            await recorder.SaveRecordingAsync(fullPath);
+                            
+                            // 저장 완료 후 파일 자동 열기
+                            Dispatcher.Invoke(() =>
+                            {
+                                var result = MessageBox.Show(
+                                    $"녹화가 저장되었습니다.\n\n{fullPath}\n\n파일을 열어보시겠습니까?",
+                                    "녹화 저장 완료",
+                                    MessageBoxButton.YesNo,
+                                    MessageBoxImage.Information);
+                                
+                                if (result == MessageBoxResult.Yes)
+                                {
+                                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                                    {
+                                        FileName = fullPath,
+                                        UseShellExecute = true
+                                    });
+                                }
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+                            Dispatcher.Invoke(() =>
+                            {
+                                MessageBox.Show($"녹화 저장 실패:\n{ex.Message}", "오류",
+                                    MessageBoxButton.OK, MessageBoxImage.Error);
+                            });
+                        }
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"리스트 추가 실패:\n{ex.Message}", "오류",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        });
     }
 }
