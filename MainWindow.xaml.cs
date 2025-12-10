@@ -665,9 +665,9 @@ public partial class MainWindow : Window
         this.ResizeMode = ResizeMode.CanResize;
         this.Topmost = false;
         
-        // 기본 크기로 복원
-        this.Width = 350;
-        this.Height = 570;
+        // 기본 크기로 복원 (XAML의 기본값에 맞춤)
+        this.Width = 400;
+        this.Height = 652;
         
         // 저장된 위치로 복원 (0,0은 초기값일 수 있으므로 제외하고 우측 하단으로)
         if (!double.IsNaN(settings.LastMainLeft) && !double.IsNaN(settings.LastMainTop) &&
@@ -1162,6 +1162,32 @@ public partial class MainWindow : Window
             this.Opacity = 1;
             
             AddCaptureToList(capturedImage);
+            
+            // 캡처 완료 후 모드별 창 복원
+            if (isSimpleMode)
+            {
+                // 간편 모드: 간편모드 창 다시 표시
+                if (simpleModeWindow != null)
+                {
+                    simpleModeWindow.Show();
+                    simpleModeWindow.Activate();
+                }
+            }
+            else if (!settings.IsTrayMode)
+            {
+                // 일반 모드: 메인 창 표시
+                this.Show();
+                this.Activate();
+            }
+            else
+            {
+                // 트레이 모드: 트레이 모드 창 다시 표시
+                if (trayModeWindow != null)
+                {
+                    trayModeWindow.Show();
+                    trayModeWindow.Activate();
+                }
+            }
         }
         else
         {
@@ -1265,8 +1291,19 @@ public partial class MainWindow : Window
 
     private async void OcrCaptureButton_Click(object sender, RoutedEventArgs e)
     {
-        // 메인 창 숨기기
-        this.Hide();
+        // 현재 모드 상태 저장
+        bool wasTrayMode = settings.IsTrayMode;
+        // 간편모드 체크: IsVisible이 아닌 존재 여부로 확인 (SimpleModeWindow.PerformCustomCapture에서 이미 숨김)
+        bool wasSimpleMode = simpleModeWindow != null;
+        
+        // 간편모드가 아닐 때만 간편모드 창 숨기기 처리 (이미 PerformCustomCapture에서 처리됨)
+        // SimpleModeWindow.PerformCustomCapture에서 이미 Hide()를 호출하므로 여기서는 불필요
+        
+        // 메인 창이 표시되어 있다면 숨기기
+        if (this.IsVisible)
+        {
+            this.Hide();
+        }
         
         // UI 업데이트 강제 대기
         await Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.Render);
@@ -1299,10 +1336,26 @@ public partial class MainWindow : Window
             }
         }
         
-        // 메인 창 복원
+        // 메인 창 복원 - 모드별로 적절한 창 복원
         this.Opacity = 1;
-        if (!settings.IsTrayMode)
+        
+        if (wasSimpleMode)
         {
+            // 간편모드였다면 SimpleModeWindow.PerformCustomCapture에서 이미 Show() 호출됨
+            // 여기서는 아무 작업도 하지 않음 (중복 표시 방지)
+        }
+        else if (wasTrayMode)
+        {
+            // 트레이 모드였다면 트레이 창 다시 표시
+            if (trayModeWindow != null)
+            {
+                trayModeWindow.Show();
+                trayModeWindow.Activate();
+            }
+        }
+        else
+        {
+            // 일반 모드였다면 메인 창 다시 표시
             this.Show();
             this.Activate();
         }
