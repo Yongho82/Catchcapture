@@ -24,8 +24,8 @@ namespace CatchCapture.Recording
             "swscale-8.dll"
         };
         
-        // 고정 버전 URL (더 안정적)
-        private const string DownloadUrl = "https://github.com/GyanD/codexffmpeg/releases/download/7.1/ffmpeg-7.1-essentials_build.zip";
+        // 고정 버전 URL (Shared 빌드 - DLL 포함)
+        private const string DownloadUrl = "https://github.com/GyanD/codexffmpeg/releases/download/7.1/ffmpeg-7.1-full_build-shared.zip";
         
         /// <summary>
         /// FFmpeg 설치 경로 가져오기 (설치된 경우)
@@ -47,14 +47,8 @@ namespace CatchCapture.Recording
         {
             if (!Directory.Exists(path)) return false;
             
-            // 하나라도 있으면 설치된 것으로 간주
-            foreach (var dll in RequiredDlls)
-            {
-                if (File.Exists(Path.Combine(path, dll))) return true;
-            }
-            
-            // avcodec*.dll 패턴 확인
-            return Directory.GetFiles(path, "avcodec*.dll").Length > 0;
+            // 필수 DLL 중 하나라도 있는지 확인 (패턴 매칭 사용)
+            return Directory.GetFiles(path, "avcodec-*.dll").Length > 0;
         }
         
         /// <summary>
@@ -78,14 +72,14 @@ namespace CatchCapture.Recording
                 // 설치 대상 경로 결정 (AppData 우선 시도)
                 string targetDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture", "ffmpeg");
                 
-                // 실행 폴더에 쓰기 권한이 있는지 확인 (간단한 테스트)
+                // 실행 폴더에 쓰기 권한이 있는지 확인
                 try 
                 {
                     string testFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".test_write");
                     File.WriteAllText(testFile, "test");
                     File.Delete(testFile);
-                    // 쓰기 성공하면 실행 폴더 사용
-                    targetDir = AppDomain.CurrentDomain.BaseDirectory;
+                    // 쓰기 성공하면 실행 폴더 사용 (선택 사항)
+                    // targetDir = AppDomain.CurrentDomain.BaseDirectory; 
                 }
                 catch 
                 {
@@ -103,7 +97,7 @@ namespace CatchCapture.Recording
                 // 다운로드
                 using (var client = new HttpClient())
                 {
-                    client.Timeout = TimeSpan.FromMinutes(10);
+                    client.Timeout = TimeSpan.FromMinutes(20);
                     client.DefaultRequestHeaders.Add("User-Agent", "CatchCapture");
                     
                     using var response = await client.GetAsync(DownloadUrl, HttpCompletionOption.ResponseHeadersRead);
@@ -139,6 +133,7 @@ namespace CatchCapture.Recording
                 
                 // bin 폴더에서 DLL 찾기
                 var binFolders = Directory.GetDirectories(tempExtract, "bin", SearchOption.AllDirectories);
+                int copiedCount = 0;
                 
                 if (binFolders.Length > 0)
                 {
@@ -151,6 +146,7 @@ namespace CatchCapture.Recording
                         string fileName = Path.GetFileName(dllFile);
                         string destPath = Path.Combine(targetDir, fileName);
                         File.Copy(dllFile, destPath, true);
+                        copiedCount++;
                         
                         count++;
                         int percent = 60 + (count * 40 / Math.Max(1, dllFiles.Length));
@@ -161,6 +157,11 @@ namespace CatchCapture.Recording
                 // 임시 파일 정리
                 if (File.Exists(tempZip)) File.Delete(tempZip);
                 if (Directory.Exists(tempExtract)) Directory.Delete(tempExtract, true);
+                
+                if (copiedCount == 0)
+                {
+                    throw new Exception("압축 파일 내에서 DLL을 찾을 수 없습니다.");
+                }
                 
                 progress?.Report(100);
                 
