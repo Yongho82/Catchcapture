@@ -2283,7 +2283,7 @@ namespace CatchCapture.Utilities
                 Background = Brushes.Transparent,
                 Topmost = true,
                 ShowInTaskbar = false,
-                Width = 140,  // 너비 줄임 (200 -> 140)
+                Width = 170,  // 너비 줄임 (200 -> 140)
                 Height = 36,  // 높이 줄임 (50 -> 36)
                 WindowStartupLocation = WindowStartupLocation.CenterScreen
             };
@@ -2294,7 +2294,7 @@ namespace CatchCapture.Utilities
                 CornerRadius = new CornerRadius(18), // 둥근 알약 모양
                 Child = new TextBlock
                 {
-                    Text = LocalizationManager.Get("Copied"), // 느낌표 제거하고 심플하게
+                    Text = LocalizationManager.Get("CopiedToClipboard"), // 느낌표 제거하고 심플하게
                     Foreground = Brushes.White,
                     FontSize = 12, // 폰트 크기 줄임 (16 -> 12)
                     FontWeight = FontWeights.Normal, // 볼드 제거

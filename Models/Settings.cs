@@ -12,7 +12,7 @@ namespace CatchCapture.Models
         public bool ShowSavePrompt { get; set; } = true;
         public bool ShowPreviewAfterCapture { get; set; } = false;
         public bool OpenEditorAfterCapture { get; set; } = true; // 캡처 후 편집창 자동 열기
-        public bool ShowMagnifier { get; set; } = true; // 영역 캡처 시 돋보기 표시
+        public bool ShowMagnifier { get; set; } = false; // 영역 캡처 시 돋보기 표시
 
         public void Save()
         {
