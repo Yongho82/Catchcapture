@@ -3687,7 +3687,7 @@ public partial class MainWindow : Window
         catch { /* ignore sizing errors */ }
     }
     /// <summary>
-    /// 비디오 녹화 데이터를 캡처 리스트에 추가
+    /// 비디오 녹화 데이터를 캡처 리스트에 추가 (동영상 썸네일 + 재생버튼)
     /// </summary>
     public void AddVideoToList(CatchCapture.Recording.ScreenRecorder recorder, CatchCapture.Models.RecordingSettings settings)
     {
@@ -3697,79 +3697,183 @@ public partial class MainWindow : Window
         {
             try
             {
-                // 첫 프레임을 썸네일로 캡처 리스트에 추가
+                // 첫 프레임을 썸네일로 가져오기
                 var thumbnail = recorder.GetThumbnail();
-                if (thumbnail != null)
+                if (thumbnail == null) return;
+                
+                // 저장 경로 미리 계산
+                var currentSettings = Models.Settings.Load();
+                string saveFolder = currentSettings.DefaultSaveFolder;
+                
+                if (string.IsNullOrWhiteSpace(saveFolder))
                 {
-                    AddCaptureToList(thumbnail, skipPreview: true);
-                    
-                    // 백그라운드에서 자동 저장
-                    _ = Task.Run(async () =>
-                    {
-                        try
-                        {
-                            var currentSettings = Models.Settings.Load();
-                            string saveFolder = currentSettings.DefaultSaveFolder;
-                            
-                            if (string.IsNullOrWhiteSpace(saveFolder))
-                            {
-                                saveFolder = System.IO.Path.Combine(
-                                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), 
-                                    "CatchCapture");
-                            }
-                            
-                            if (!Directory.Exists(saveFolder))
-                            {
-                                Directory.CreateDirectory(saveFolder);
-                            }
-                            
-                            string timestamp = DateTime.Now.ToString("yyyy-MM-dd HHmmss");
-                            string ext = settings.Format == CatchCapture.Models.RecordingFormat.GIF ? ".gif" : ".mp4";
-                            string filename = $"Recording_{timestamp}{ext}";
-                            string fullPath = System.IO.Path.Combine(saveFolder, filename);
-                            
-                            await recorder.SaveRecordingAsync(fullPath);
-                            
-                            // 저장 완료 후 파일 자동 열기
-                            Dispatcher.Invoke(() =>
-                            {
-                                var result = MessageBox.Show(
-                                    $"녹화가 저장되었습니다.\n\n{fullPath}\n\n파일을 열어보시겠습니까?",
-                                    "녹화 저장 완료",
-                                    MessageBoxButton.YesNo,
-                                    MessageBoxImage.Information);
-                                
-                                if (result == MessageBoxResult.Yes)
-                                {
-                                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-                                    {
-                                        FileName = fullPath,
-                                        UseShellExecute = true
-                                    });
-                                }
-                            });
-                        }
-                        catch (Exception ex)
-                        {
-                            Dispatcher.Invoke(() =>
-                            {
-                                MessageBox.Show($"녹화 저장 실패:\n{ex.Message}", "오류",
-                                    MessageBoxButton.OK, MessageBoxImage.Error);
-                            });
-                        }
-                        finally
-                        {
-                            // 리소스 정리 (RecordingWindow에서 소유권을 넘겨받았으므로 여기서 해제)
-                            recorder?.Dispose();
-                        }
-                    });
+                    saveFolder = System.IO.Path.Combine(
+                        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), 
+                        "CatchCapture");
                 }
+                
+                if (!Directory.Exists(saveFolder))
+                {
+                    Directory.CreateDirectory(saveFolder);
+                }
+                
+                string timestamp = DateTime.Now.ToString("yyyy-MM-dd HHmmss");
+                string ext = settings.Format == CatchCapture.Models.RecordingFormat.GIF ? ".gif" : ".mp4";
+                string filename = $"Recording_{timestamp}{ext}";
+                string fullPath = System.IO.Path.Combine(saveFolder, filename);
+                
+                // 동영상 썸네일 아이템 생성 (재생 버튼 포함)
+                var videoItem = CreateVideoThumbnailItem(thumbnail, fullPath);
+                CaptureListPanel.Children.Insert(0, videoItem);
+                
+                // 백그라운드에서 저장 시작
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await recorder.SaveRecordingAsync(fullPath);
+                        
+                        // 저장 완료 알림 (선택적)
+                        Dispatcher.Invoke(() =>
+                        {
+                            // 저장 완료 시 토스트 메시지 또는 작은 알림
+                            ShowGuideMessage($"녹화 저장 완료: {filename}", TimeSpan.FromSeconds(2));
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        Dispatcher.Invoke(() =>
+                        {
+                            MessageBox.Show($"녹화 저장 실패:\n{ex.Message}", "오류",
+                                MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                    }
+                    finally
+                    {
+                        recorder?.Dispose();
+                    }
+                });
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"리스트 추가 실패:\n{ex.Message}", "오류",
+                MessageBox.Show($"비디오 리스트 추가 실패:\n{ex.Message}", "오류",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         });
+    }
+    
+    /// <summary>
+    /// 동영상 썸네일 아이템 생성 (재생 버튼 오버레이 포함)
+    /// </summary>
+    private Border CreateVideoThumbnailItem(BitmapSource thumbnail, string videoFilePath)
+    {
+        var border = new Border
+        {
+            Width = 200,
+            Height = 120,
+            Margin = new Thickness(4),
+            BorderThickness = new Thickness(2),
+            BorderBrush = new SolidColorBrush(Color.FromRgb(67, 97, 238)), // 파란색 테두리 (동영상 구분)
+            CornerRadius = new CornerRadius(4),
+            Cursor = Cursors.Hand,
+            Tag = videoFilePath // 파일 경로 저장
+        };
+        
+        var grid = new Grid();
+        
+        // 썸네일 이미지
+        var image = new Image
+        {
+            Source = thumbnail,
+            Stretch = Stretch.UniformToFill
+        };
+        grid.Children.Add(image);
+        
+        // 재생 버튼 오버레이 (반투명 원 + ▶)
+        var playButtonBg = new Ellipse
+        {
+            Width = 36,
+            Height = 36,
+            Fill = new SolidColorBrush(Color.FromArgb(180, 0, 0, 0)),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        grid.Children.Add(playButtonBg);
+        
+        var playIcon = new TextBlock
+        {
+            Text = "▶",
+            FontSize = 16,
+            Foreground = Brushes.White,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+            Margin = new Thickness(2, 0, 0, 0) // 약간 오른쪽으로 보정
+        };
+        grid.Children.Add(playIcon);
+        
+        // 동영상 표시 레이블
+        var videoLabel = new Border
+        {
+            Background = new SolidColorBrush(Color.FromArgb(200, 67, 97, 238)),
+            CornerRadius = new CornerRadius(2),
+            Padding = new Thickness(4, 1, 4, 1),
+            HorizontalAlignment = HorizontalAlignment.Right,
+            VerticalAlignment = VerticalAlignment.Top,
+            Margin = new Thickness(0, 4, 4, 0)
+        };
+        var labelText = new TextBlock
+        {
+            Text = System.IO.Path.GetExtension(videoFilePath).ToUpper().Replace(".", ""),
+            FontSize = 9,
+            FontWeight = FontWeights.Bold,
+            Foreground = Brushes.White
+        };
+        videoLabel.Child = labelText;
+        grid.Children.Add(videoLabel);
+        
+        border.Child = grid;
+        
+        // 한 번 클릭 시 기본 플레이어로 열기
+        border.MouseLeftButtonUp += (s, e) =>
+        {
+            var filePath = border.Tag as string;
+            if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
+            {
+                try
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = filePath,
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"동영상 열기 실패:\n{ex.Message}", "오류",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            else
+            {
+                MessageBox.Show("파일이 아직 저장 중이거나 찾을 수 없습니다.", "알림",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            e.Handled = true;
+        };
+        
+        // 마우스 호버 효과
+        border.MouseEnter += (s, e) =>
+        {
+            border.BorderBrush = new SolidColorBrush(Color.FromRgb(255, 87, 87)); // 빨간색으로 변경
+            playButtonBg.Fill = new SolidColorBrush(Color.FromArgb(220, 255, 87, 87));
+        };
+        
+        border.MouseLeave += (s, e) =>
+        {
+            border.BorderBrush = new SolidColorBrush(Color.FromRgb(67, 97, 238)); // 원래 색상
+            playButtonBg.Fill = new SolidColorBrush(Color.FromArgb(180, 0, 0, 0));
+        };
+        
+        return border;
     }
 }

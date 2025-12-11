@@ -74,7 +74,14 @@ namespace CatchCapture.Recording
         {
             if (_isRecording) return;
             
-            _captureArea = captureArea;
+            // 테두리 두께(3px)만큼 안쪽으로 조정하여 테두리가 녹화에 포함되지 않도록 함
+            const int borderThickness = 3;
+            _captureArea = new Rect(
+                captureArea.X + borderThickness,
+                captureArea.Y + borderThickness,
+                Math.Max(captureArea.Width - (borderThickness * 2), 1),
+                Math.Max(captureArea.Height - (borderThickness * 2), 1)
+            );
             _isRecording = true;
             _isPaused = false;
             _frameCount = 0;
@@ -549,8 +556,11 @@ namespace CatchCapture.Recording
                     var startInfo = new ProcessStartInfo
                     {
                         FileName = ffmpegPath,
-                        // -shortest 제거 (오디오가 더 짧아도 비디오를 깎아먹지 않도록)
-                        Arguments = $"-y {videoInput} {audioInput} -c:v libx264 -preset ultrafast -crf 23 -pix_fmt yuv420p {audioMap} \"{tempMp4Path}\"",
+                        // 멀티스레드 + 빠른 인코딩 최적화
+                        // -threads 0: 자동으로 최대 스레드 사용
+                        // -tune zerolatency: 빠른 인코딩 최적화
+                        // -movflags +faststart: 웹 재생 최적화
+                        Arguments = $"-y {videoInput} {audioInput} -threads 0 -c:v libx264 -preset ultrafast -tune zerolatency -crf 23 -pix_fmt yuv420p -movflags +faststart {audioMap} \"{tempMp4Path}\"",
                         UseShellExecute = false,
                         RedirectStandardOutput = true,
                         RedirectStandardError = true,

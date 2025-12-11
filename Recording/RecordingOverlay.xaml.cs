@@ -70,17 +70,18 @@ namespace CatchCapture.Recording
         
         private void RecordingOverlay_Loaded(object sender, RoutedEventArgs e)
         {
-            // 주 모니터 화면 크기로 설정
-            var screen = SystemParameters.WorkArea;
-            this.Left = 0;
-            this.Top = 0;
-            this.Width = SystemParameters.PrimaryScreenWidth;
-            this.Height = SystemParameters.PrimaryScreenHeight;
+            // ★ 모든 모니터를 포함하는 가상 화면 크기로 설정 (듀얼 모니터 지원)
+            // VirtualScreen은 모든 모니터를 합친 전체 영역
+            this.Left = SystemParameters.VirtualScreenLeft;
+            this.Top = SystemParameters.VirtualScreenTop;
+            this.Width = SystemParameters.VirtualScreenWidth;
+            this.Height = SystemParameters.VirtualScreenHeight;
             
-            // 선택 영역을 주 모니터 중앙에 배치
+            // 선택 영역을 주 모니터 중앙에 배치 (기본값)
+            var primaryScreen = new Rect(0, 0, SystemParameters.PrimaryScreenWidth, SystemParameters.PrimaryScreenHeight);
             _selectionArea = new Rect(
-                (screen.Width - 800) / 2,
-                (screen.Height - 600) / 2,
+                (primaryScreen.Width - 800) / 2,
+                (primaryScreen.Height - 600) / 2,
                 800,
                 600
             );
