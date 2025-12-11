@@ -131,3 +131,10 @@ C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\refint\CatchC
 C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\CatchCapture.pdb
 C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\CatchCapture.genruntimeconfig.cache
 C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\ref\CatchCapture.dll
+C:\Yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\NAudio.dll
+C:\Yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\NAudio.Asio.dll
+C:\Yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\NAudio.Core.dll
+C:\Yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\NAudio.Midi.dll
+C:\Yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\NAudio.Wasapi.dll
+C:\Yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\NAudio.WinForms.dll
+C:\Yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\NAudio.WinMM.dll

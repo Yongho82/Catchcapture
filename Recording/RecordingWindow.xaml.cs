@@ -86,6 +86,7 @@ namespace CatchCapture.Recording
             {
                 _overlay = new RecordingOverlay();
                 _overlay.AreaChanged += Overlay_AreaChanged;
+                _overlay.EscapePressed += Overlay_EscapePressed; // ESC 키 처리
                 
                 // 마지막 위치 복원
                 if (_settings.LastAreaWidth > 0 && _settings.LastAreaHeight > 0)
@@ -141,6 +142,23 @@ namespace CatchCapture.Recording
                     }
                     e.Handled = true;
                     break;
+            }
+        }
+        
+        /// <summary>
+        /// 오버레이에서 ESC 키 눌렸을 때 처리
+        /// </summary>
+        private void Overlay_EscapePressed(object? sender, EventArgs e)
+        {
+            // 녹화 중이면 녹화 중지 후 저장
+            if (IsRecording)
+            {
+                StopRecordingAsync();
+            }
+            else
+            {
+                // 녹화 중이 아니면 전체 닫기
+                Close();
             }
         }
         
@@ -211,27 +229,76 @@ namespace CatchCapture.Recording
         }
         
         /// <summary>
-        /// 오디오 버튼 클릭 (메뉴 열기)
+        /// 시스템 오디오 토글 버튼 클릭
         /// </summary>
-        private void AudioButton_Click(object sender, RoutedEventArgs e)
+        private void SystemAudioButton_Click(object sender, RoutedEventArgs e)
         {
             if (IsRecording) return;
-            AudioButton.ContextMenu.IsOpen = true;
+            
+            // 토글
+            _settings.RecordAudio = !_settings.RecordAudio;
+            
+            // UI 업데이트
+            if (_settings.RecordAudio)
+            {
+                SystemAudioOffIcon.Visibility = Visibility.Collapsed;
+                SystemAudioOnIcon.Visibility = Visibility.Visible;
+                SystemAudioButton.ToolTip = "시스템 소리 녹음 (ON)";
+            }
+            else
+            {
+                SystemAudioOffIcon.Visibility = Visibility.Visible;
+                SystemAudioOnIcon.Visibility = Visibility.Collapsed;
+                SystemAudioButton.ToolTip = "시스템 소리 녹음 (OFF)";
+            }
         }
         
         /// <summary>
-        /// 오디오 메뉴 아이템 클릭
+        /// 마이크 토글 버튼 클릭
         /// </summary>
-        private void AudioMenuItem_Click(object sender, RoutedEventArgs e)
+        private void MicButton_Click(object sender, RoutedEventArgs e)
         {
-            // 메뉴 아이템 상태에 따라 설정 업데이트
-            // 현재는 단순 UI 토글만 구현 (실제 오디오 녹음은 미구현)
-            bool mic = MicMenuItem.IsChecked;
-            bool sys = SystemSoundMenuItem.IsChecked;
+            if (IsRecording) return;
             
-            _settings.RecordAudio = mic || sys;
+            // 마이크 장치 확인
+            try
+            {
+                int micCount = NAudio.Wave.WaveIn.DeviceCount;
+                if (micCount == 0)
+                {
+                    MessageBox.Show("마이크 장치가 감지되지 않았습니다.\n오디오 입력 장치를 연결해주세요.", 
+                        "마이크 없음", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                
+                // 첫 번째 마이크 장치 정보 표시
+                var capabilities = NAudio.Wave.WaveIn.GetCapabilities(0);
+                System.Diagnostics.Debug.WriteLine($"[Mic] Found device: {capabilities.ProductName}");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"마이크 장치 확인 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
             
-            UpdateUI();
+            // 토글
+            _settings.RecordMic = !_settings.RecordMic;
+            
+            // UI 업데이트
+            if (_settings.RecordMic)
+            {
+                MicOffIcon.Visibility = Visibility.Collapsed;
+                MicSlash.Visibility = Visibility.Collapsed;
+                MicOnIcon.Visibility = Visibility.Visible;
+                MicButton.ToolTip = "마이크 녹음 (ON)";
+            }
+            else
+            {
+                MicOffIcon.Visibility = Visibility.Visible;
+                MicSlash.Visibility = Visibility.Visible;
+                MicOnIcon.Visibility = Visibility.Collapsed;
+                MicButton.ToolTip = "마이크 녹음 (OFF)";
+            }
         }
         
         /// <summary>
@@ -495,7 +562,8 @@ namespace CatchCapture.Recording
         /// </summary>
         private void EnableSettings(bool enable)
         {
-            AudioButton.IsEnabled = enable;
+            SystemAudioButton.IsEnabled = enable;
+            MicButton.IsEnabled = enable;
             FormatButton.IsEnabled = enable;
             QualityButton.IsEnabled = enable;
             FpsButton.IsEnabled = enable;
@@ -541,9 +609,32 @@ namespace CatchCapture.Recording
         /// </summary>
         private void UpdateUI()
         {
-            // 오디오 상태 (초록 점)
-            AudioStatusDot.Visibility = _settings.RecordAudio ? Visibility.Visible : Visibility.Collapsed;
-            MicMenuItem.IsChecked = _settings.RecordAudio; // 임시: 둘 중 하나라도 켜지면 켜진 걸로 간주
+            // 오디오 상태 (아이콘 업데이트)
+            // 시스템 오디오
+            if (_settings.RecordAudio)
+            {
+                SystemAudioOffIcon.Visibility = Visibility.Collapsed;
+                SystemAudioOnIcon.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                SystemAudioOffIcon.Visibility = Visibility.Visible;
+                SystemAudioOnIcon.Visibility = Visibility.Collapsed;
+            }
+            
+            // 마이크
+            if (_settings.RecordMic)
+            {
+                MicOffIcon.Visibility = Visibility.Collapsed;
+                MicSlash.Visibility = Visibility.Collapsed;
+                MicOnIcon.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                MicOffIcon.Visibility = Visibility.Visible;
+                MicSlash.Visibility = Visibility.Visible;
+                MicOnIcon.Visibility = Visibility.Collapsed;
+            }
             
             // 파일 형식
             FormatText.Text = _settings.Format.ToString();

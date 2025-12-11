@@ -25,6 +25,9 @@ namespace CatchCapture.Recording
         // 영역 변경 이벤트
         public event EventHandler<Rect>? AreaChanged;
         
+        // ESC 키 이벤트 (부모 창에서 처리하도록)
+        public event EventHandler? EscapePressed;
+        
         // 최소 영역 크기
         private const double MIN_WIDTH = 100;
         private const double MIN_HEIGHT = 100;
@@ -95,7 +98,8 @@ namespace CatchCapture.Recording
         {
             if (e.Key == Key.Escape)
             {
-                Hide();
+                // 부모 창(RecordingWindow)에서 종료 처리하도록 이벤트 발생
+                EscapePressed?.Invoke(this, EventArgs.Empty);
                 e.Handled = true;
             }
         }

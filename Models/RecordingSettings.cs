@@ -16,8 +16,11 @@ namespace CatchCapture.Models
         // 프레임 레이트
         public int FrameRate { get; set; } = 30;
         
-        // 오디오 녹음 여부
+        // 오디오 녹음 여부 (시스템 소리)
         public bool RecordAudio { get; set; } = false;
+        
+        // 마이크 녹음 여부
+        public bool RecordMic { get; set; } = false;
         
         // 마우스 효과 (클릭 시각화)
         public bool ShowMouseEffects { get; set; } = false;

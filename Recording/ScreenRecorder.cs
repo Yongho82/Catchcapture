@@ -10,9 +10,11 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using CatchCapture.Models;
+using NAudio.Wave;
 
 namespace CatchCapture.Recording
 {
+
     /// <summary>
     /// 화면 녹화기 - GDI+ 기반 (Windows 10+ 호환)
     /// </summary>
@@ -27,6 +29,12 @@ namespace CatchCapture.Recording
         private bool _isDisposed = false;
         private CancellationTokenSource? _cts;
         private Task? _captureTask;
+        
+        // 오디오 녹화 (NAudio)
+        private IWaveIn? _audioCapture;
+        private WaveFileWriter? _audioWriter;
+        private string? _tempAudioPath;
+        private TaskCompletionSource<bool>? _audioStopTcs; // 오디오 종료 대기용
         
         // 프레임 저장
         private List<byte[]> _frames;
@@ -46,6 +54,7 @@ namespace CatchCapture.Recording
         // 통계
         private int _frameCount;
         private DateTime _recordingStartTime;
+        private TimeSpan _actualDuration;
         
         public bool IsRecording => _isRecording;
         public bool IsPaused => _isPaused;
@@ -75,10 +84,68 @@ namespace CatchCapture.Recording
             _lastFrameTime = DateTime.Now;
             _cts = new CancellationTokenSource();
             
+            // 오디오 녹화 시작 (시스템 사운드)
+            if (_settings.RecordAudio)
+            {
+                try
+                {
+                    StartAudioRecording();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Audio setup failed: {ex.Message}");
+                    // 오디오 실패해도 비디오는 계속 진행
+                }
+            }
+
             // 캡처 루프 시작
             _captureTask = Task.Run(() => CaptureLoop(_cts.Token));
             
             RecordingStarted?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void StartAudioRecording()
+        {
+            string tempFolder = Environment.GetFolderPath(Environment.SpecialFolder.CommonDocuments);
+            if (!Directory.Exists(tempFolder)) tempFolder = Path.GetTempPath();
+            
+            _tempAudioPath = Path.Combine(tempFolder, $"rec_audio_{DateTime.Now:HHmmss}_{Guid.NewGuid().ToString().Substring(0, 8)}.wav");
+            
+            // 오디오 종료 신호 초기화
+            _audioStopTcs = new TaskCompletionSource<bool>();
+
+            // 시스템 사운드 (Loopback)
+            // 주의: 소리가 나지 않으면 DataAvailable이 발생하지 않아 파일이 생성되지 않을 수 있음
+            _audioCapture = new WasapiLoopbackCapture();
+            _audioWriter = new WaveFileWriter(_tempAudioPath, _audioCapture.WaveFormat);
+            
+            _audioCapture.DataAvailable += (s, e) =>
+            {
+                if (_audioWriter != null && !_isPaused)
+                {
+                    _audioWriter.Write(e.Buffer, 0, e.BytesRecorded);
+                }
+            };
+            
+            _audioCapture.RecordingStopped += (s, e) =>
+            {
+                try
+                {
+                    _audioWriter?.Flush();
+                    _audioWriter?.Dispose();
+                    _audioWriter = null;
+                    _audioCapture?.Dispose();
+                    _audioCapture = null;
+                }
+                catch { }
+                finally
+                {
+                    // 종료 완료 신호
+                    _audioStopTcs?.TrySetResult(true);
+                }
+            };
+            
+            _audioCapture.StartRecording();
         }
         
         /// <summary>
@@ -97,6 +164,7 @@ namespace CatchCapture.Recording
             if (!_isRecording) return;
             
             _isRecording = false;
+            _actualDuration = DateTime.Now - _recordingStartTime;
             _cts?.Cancel();
             
             // 캡처 루프 종료 대기
@@ -106,9 +174,26 @@ namespace CatchCapture.Recording
                 {
                     await _captureTask;
                 }
-                catch (OperationCanceledException) { /* 무시 */ }
-                catch (Exception) { /* 무시 */ }
+                catch { }
             }
+
+            // 오디오 중지 및 파일 닫기 대기
+            if (_audioCapture != null)
+            {
+                _audioCapture.StopRecording();
+                
+                // 오디오 파일이 완전히 닫힐 때까지 대기 (최대 5초)
+                if (_audioStopTcs != null)
+                {
+                    await Task.WhenAny(_audioStopTcs.Task, Task.Delay(5000));
+                }
+                
+                // 추가 대기 (파일 시스템 플러시)
+                await Task.Delay(500);
+            }
+            
+            // 오디오 파일 존재 여부 확인
+            Debug.WriteLine($"[Audio] Temp file exists: {File.Exists(_tempAudioPath)}, Size: {(File.Exists(_tempAudioPath ?? "") ? new FileInfo(_tempAudioPath!).Length : 0)} bytes");
             
             RecordingStopped?.Invoke(this, string.Empty);
         }
@@ -135,7 +220,7 @@ namespace CatchCapture.Recording
                 }
                 else if (_settings.Format == RecordingFormat.MP4 && _frames.Count > 0)
                 {
-                    // MP4 저장 (Media Foundation 사용)
+                    // MP4 저장 (FFmpeg CLI 사용)
                     savedPath = await SaveAsMP4Async(outputPath);
                 }
                 else
@@ -146,6 +231,12 @@ namespace CatchCapture.Recording
             catch (Exception ex)
             {
                 ErrorOccurred?.Invoke(this, ex);
+            }
+            finally
+            {
+                // 주의: 오디오 파일은 SaveAsMP4Async 내부의 finally에서 정리됨
+                // 여기서 삭제하면 FFmpeg가 읽기 전에 파일이 사라짐!
+                // 오디오 파일 정리는 SaveAsMP4Async의 finally에서만 수행
             }
             
             return savedPath;
@@ -355,6 +446,18 @@ namespace CatchCapture.Recording
                 if (width % 2 != 0) width--;
                 if (height % 2 != 0) height--;
                 Log($"Dimensions: {width}x{height} (Adjusted)");
+                
+                // 실제 FPS 계산 (15초 녹화 -> 9초 재생 문제 수정)
+                double actualFps = _settings.FrameRate;
+                if (_actualDuration.TotalSeconds > 0 && _frames.Count > 0)
+                {
+                    actualFps = (double)_frames.Count / _actualDuration.TotalSeconds;
+                    // 최소/최대 FPS 보정 (너무 느리거나 빠르지 않게)
+                    if (actualFps < 1) actualFps = 1;
+                    if (actualFps > 60) actualFps = 60;
+                    
+                    Log($"Actual Duration: {_actualDuration.TotalSeconds:F2}s, Frames: {_frames.Count}, Actual FPS: {actualFps:F2}");
+                }
 
                 // 1. Raw 데이터 파일 생성
                 await Task.Run(() =>
@@ -408,10 +511,46 @@ namespace CatchCapture.Recording
                 // 2. FFmpeg 실행
                 await Task.Run(() =>
                 {
+                    // 비디오 인자
+                    // -framerate를 실제 계산된 값으로 넣어 재생 속도를 맞춤
+                    string videoInput = $"-f rawvideo -pixel_format bgr24 -video_size {width}x{height} -framerate {actualFps:F2} -i \"{rawDataPath}\"";
+                    
+                    // 오디오 인자
+                    string audioInput = "";
+                    string audioMap = "";
+                    
+                    Log($"Checking audio file: {_tempAudioPath}");
+                    Log($"Audio enabled in settings: {_settings.RecordAudio}");
+                    
+                    if (!string.IsNullOrEmpty(_tempAudioPath) && File.Exists(_tempAudioPath))
+                    {
+                        var audioInfo = new FileInfo(_tempAudioPath);
+                        Log($"Audio File Found. Size: {audioInfo.Length} bytes");
+                        
+                        // WAV 헤더는 약 44 bytes. 최소 1KB 이상이면 유효한 오디오로 간주
+                        if (audioInfo.Length > 1024) 
+                        {
+                            audioInput = $"-i \"{_tempAudioPath}\"";
+                            // 비디오(0)와 오디오(1)를 모두 포함, -shortest로 더 짧은 쪽에 맞춤
+                            audioMap = "-map 0:v -map 1:a -c:a aac -b:a 192k -shortest"; 
+                            Log("Audio will be included in output.");
+                        }
+                        else
+                        {
+                             Log($"Audio file is too small ({audioInfo.Length} bytes). Only WAV header? Skipping audio.");
+                        }
+                    }
+                    else
+                    {
+                        Log($"Audio file not found at: {_tempAudioPath}");
+                        Log("No audio recording found or audio feature disabled.");
+                    }
+                    
                     var startInfo = new ProcessStartInfo
                     {
                         FileName = ffmpegPath,
-                        Arguments = $"-y -f rawvideo -pixel_format bgr24 -video_size {width}x{height} -framerate {_settings.FrameRate} -i \"{rawDataPath}\" -c:v libx264 -preset ultrafast -crf 23 -pix_fmt yuv420p \"{tempMp4Path}\"",
+                        // -shortest 제거 (오디오가 더 짧아도 비디오를 깎아먹지 않도록)
+                        Arguments = $"-y {videoInput} {audioInput} -c:v libx264 -preset ultrafast -crf 23 -pix_fmt yuv420p {audioMap} \"{tempMp4Path}\"",
                         UseShellExecute = false,
                         RedirectStandardOutput = true,
                         RedirectStandardError = true,
@@ -471,6 +610,12 @@ namespace CatchCapture.Recording
                 // 정리
                 try { if (File.Exists(rawDataPath)) File.Delete(rawDataPath); } catch { }
                 try { if (File.Exists(tempMp4Path)) File.Delete(tempMp4Path); } catch { }
+                
+                // 오디오 임시 파일도 여기서 정리 (FFmpeg 사용 완료 후)
+                if (!string.IsNullOrEmpty(_tempAudioPath) && File.Exists(_tempAudioPath))
+                {
+                    try { File.Delete(_tempAudioPath); Log("Audio temp file deleted."); } catch { }
+                }
             }
         }
         
@@ -508,6 +653,14 @@ namespace CatchCapture.Recording
             _cts?.Dispose();
             _frames.Clear();
             _frameDelays.Clear();
+            
+            // 오디오 정리
+            _audioWriter?.Dispose();
+            _audioCapture?.Dispose();
+            if (!string.IsNullOrEmpty(_tempAudioPath) && File.Exists(_tempAudioPath))
+            {
+                try { File.Delete(_tempAudioPath); } catch { }
+            }
             
             GC.SuppressFinalize(this);
         }

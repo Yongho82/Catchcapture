@@ -123,20 +123,38 @@
                     
                     <Separator Width="1" Height="20" Margin="4,0" Background="#E0E0E0"/>
                     
-                    <!-- 오디오 설정 (통합) -->
-                    <Button x:Name="AudioButton" Style="{StaticResource ToolbarButtonStyle}"
-                            Click="AudioButton_Click" ToolTip="오디오 설정">
+                    <!-- 시스템 오디오 토글 (기본 OFF) -->
+                    <Button x:Name="SystemAudioButton" Style="{StaticResource ToolbarButtonStyle}"
+                            Click="SystemAudioButton_Click" ToolTip="시스템 소리 녹음 (OFF)">
                         <Grid>
-                            <TextBlock x:Name="AudioIcon" Text="🎤" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            <Ellipse x:Name="AudioStatusDot" Width="6" Height="6" Fill="#4CAF50" 
-                                     HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,2,0" Visibility="Collapsed"/>
+                            <!-- OFF 상태: 스피커 음소거 아이콘 -->
+                            <TextBlock x:Name="SystemAudioOffIcon" Text="🔇" FontSize="14" 
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <!-- ON 상태: 스피커 아이콘 -->
+                            <TextBlock x:Name="SystemAudioOnIcon" Text="🔊" FontSize="14" 
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/>
                         </Grid>
-                        <Button.ContextMenu>
-                            <ContextMenu>
-                                <MenuItem Header="마이크 녹음" IsCheckable="True" x:Name="MicMenuItem" Click="AudioMenuItem_Click"/>
-                                <MenuItem Header="시스템 소리 녹음" IsCheckable="True" x:Name="SystemSoundMenuItem" Click="AudioMenuItem_Click"/>
-                            </ContextMenu>
-                        </Button.ContextMenu>
+                    </Button>
+                    
+                    <!-- 마이크 토글 (기본 OFF) -->
+                    <Button x:Name="MicButton" Style="{StaticResource ToolbarButtonStyle}"
+                            Click="MicButton_Click" ToolTip="마이크 녹음 (OFF)">
+                        <Grid>
+                            <!-- OFF 상태: 마이크 음소거 아이콘 -->
+                            <TextBlock x:Name="MicOffIcon" Text="🎤" FontSize="14" Foreground="#999"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock.Effect>
+                                    <BlurEffect Radius="0.5"/>
+                                </TextBlock.Effect>
+                            </TextBlock>
+                            <!-- ON 상태: 마이크 활성 아이콘 -->
+                            <TextBlock x:Name="MicOnIcon" Text="🎤" FontSize="14" Foreground="#E53935"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/>
+                            <!-- 사선 표시 (OFF 상태) -->
+                            <Line x:Name="MicSlash" X1="0" Y1="0" X2="16" Y2="16" 
+                                  Stroke="#666" StrokeThickness="2" 
+                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
                     </Button>
                     
                     <!-- 파일 형식 -->
