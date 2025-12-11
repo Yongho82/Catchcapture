@@ -524,7 +524,7 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
             LoadMenuEditPage();  // 메뉴 편집도 기본값으로 복원
             LoadSystemPage();
             LoadHotkeysPage();
-            MessageBox.Show(LocalizationManager.GetString("SettingsSaved"), LocalizationManager.GetString("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
+            CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("SettingsSaved"), LocalizationManager.GetString("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void Website_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -539,7 +539,7 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
             }
             catch
             {
-                MessageBox.Show("웹 브라우저를 열 수 없습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                CatchCapture.CustomMessageBox.Show("웹 브라우저를 열 수 없습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 
@@ -564,7 +564,7 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"시작 프로그램 설정 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                CatchCapture.CustomMessageBox.Show($"시작 프로그램 설정 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -580,7 +580,7 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
             }
             catch
             {
-                MessageBox.Show("기본 메일 클라이언트를 열 수 없습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                CatchCapture.CustomMessageBox.Show("기본 메일 클라이언트를 열 수 없습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 
@@ -856,11 +856,11 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
             {
                 if (_menuItems.Count <= 1)
                 {
-                    MessageBox.Show("최소 1개 이상의 메뉴 항목이 필요합니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    CatchCapture.CustomMessageBox.Show("최소 1개 이상의 메뉴 항목이 필요합니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
-                var result = MessageBox.Show(
+                var result = CatchCapture.CustomMessageBox.Show(
                     $"'{item.DisplayName}' 메뉴를 삭제하시겠습니까?",
                     "확인",
                     MessageBoxButton.YesNo,
@@ -887,13 +887,13 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
             }
             else
             {
-                MessageBox.Show("추가할 메뉴를 선택해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                CatchCapture.CustomMessageBox.Show("추가할 메뉴를 선택해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 
         private void RestoreMenu_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show(
+            var result = CatchCapture.CustomMessageBox.Show(
                 "기본 메뉴로 복원하시겠습니까?",
                 "확인",
                 MessageBoxButton.YesNo,

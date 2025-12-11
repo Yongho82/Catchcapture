@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
@@ -40,6 +40,10 @@ namespace CatchCapture.Recording
         private List<byte[]> _frames;
         private List<int> _frameDelays;
         private DateTime _lastFrameTime;
+        
+        // 오디오 싱크 보정용 변수
+        private long _totalAudioBytes = 0;
+        private DateTime _audioStartTime;
         
         // 이벤트
         public event EventHandler<BitmapSource>? FrameCaptured;
@@ -120,6 +124,12 @@ namespace CatchCapture.Recording
             
             // 오디오 종료 신호 초기화
             _audioStopTcs = new TaskCompletionSource<bool>();
+            
+            _totalAudioBytes = 0;
+            // _audioStartTime은 녹화 시작 시점(_recordingStartTime)과 동일하게 맞춤
+            // 그러나 여기서는 StartAudioRecording이 StartRecording 내부에서 불리므로
+            // _recordingStartTime이 이미 설정되어 있음.
+            _audioStartTime = _recordingStartTime;
 
             // 시스템 사운드 (Loopback)
             // 주의: 소리가 나지 않으면 DataAvailable이 발생하지 않아 파일이 생성되지 않을 수 있음
@@ -130,7 +140,98 @@ namespace CatchCapture.Recording
             {
                 if (_audioWriter != null && !_isPaused)
                 {
+                    // 볼륨 증폭 (소리가 너무 작다는 피드백 반영)
+                    // WASAPI Loopback은 기본적으로 32-bit IEEE Float 형식을 사용함
+                    if (_audioCapture.WaveFormat.Encoding == WaveFormatEncoding.IeeeFloat)
+                    {
+                        // 7.0배 증폭 (추가 증폭)
+                        float gain = 7.0f; 
+                        var buffer = e.Buffer;
+                        int bytesRecorded = e.BytesRecorded;
+                        
+                        // 4바이트(float) 단위로 처리
+                        for (int i = 0; i < bytesRecorded; i += 4)
+                        {
+                            // 바이트 -> float 변환
+                            float sample = BitConverter.ToSingle(buffer, i);
+                            
+                            // 증폭
+                            sample *= gain;
+                            
+                            // 클리핑 방지 (최대 볼륨 초과 시 잡음 방지)
+                            if (sample > 1.0f) sample = 1.0f;
+                            else if (sample < -1.0f) sample = -1.0f;
+                            
+                            // float -> 바이트 다시 채우기
+                            byte[] bytes = BitConverter.GetBytes(sample);
+                            buffer[i] = bytes[0];
+                            buffer[i + 1] = bytes[1];
+                            buffer[i + 2] = bytes[2];
+                            buffer[i + 3] = bytes[3];
+                        }
+                    }
+                    
+
+                    
+                    // === 싱크 보정 (묵음 구간 채우기) ===
+                    // 녹화 시작 후 지금까지 흘러간 시간만큼 오디오 데이터가 쌓여야 싱크가 맞음
+                    // WasapiLoopback은 소리가 날 때만 이벤트를 발생시키므로, 소리가 없는 구간(시작 전이나 중간)은 건너뛰어짐
+                    // -> 부족한 바이트만큼 0(묵음)으로 채워넣음
+                    
+                    if (_totalAudioBytes == 0)
+                    {
+                         // 첫 패킷일 경우, 시작 시간(_recordingStartTime) 기준 보정
+                         _audioStartTime = _recordingStartTime; // 녹화 시작 버튼 누른 시점
+                    }
+
+                    var elapsed = DateTime.Now - _audioStartTime;
+                    long expectedBytes = (long)(elapsed.TotalSeconds * _audioCapture.WaveFormat.AverageBytesPerSecond);
+                    long missingBytes = expectedBytes - _totalAudioBytes - e.BytesRecorded; // 이번에 쓸 것까지 고려해서 차이 계산? 
+                                                                                            // 아니, _totalAudioBytes는 '이미 쓴 것'.
+                                                                                            // expectedBytes에는 '지금 이 시점까지 있어야 할 전체 양'.
+                                                                                            // 이번 패킷(e.BytesRecorded)은 곧 쓸 거니까 빼고 빈틈 계산해야 함?
+                                                                                            // -> (현재시각 - 시작시각)에 해당하는 양이 Total이어야 함.
+                                                                                            //    현재 Total + 이번패킷 < Expected 이면 그 차이가 묵음.
+                    
+                    // 좀 더 간단히:
+                    // 현재 시점까지 기록되어야 할 총 바이트 수 = expectedBytes
+                    // 현재까지 기록된 바이트 수 = _totalAudioBytes
+                    // 이번에 들어온 바이트 수 = e.BytesRecorded
+                    // 채워야 할 묵음 = expectedBytes - (_totalAudioBytes + e.BytesRecorded)
+                    
+                    long gapBytes = expectedBytes - (_totalAudioBytes + e.BytesRecorded);
+                    
+                    // 100ms 이상 차이나면 보정 (너무 작은 갭은 무시)
+                    long thresholdBytes = (_audioCapture.WaveFormat.AverageBytesPerSecond / 10); 
+                    
+                    if (gapBytes > thresholdBytes)
+                    {
+                        // 갭이 너무 크면(예: 절전모드 등) 적당히 자르거나, 최대 10초까지만 채운다거나 하는 안전장가 있으면 좋지만
+                        // 일단은 그대로 채움 (정확한 싱크를 위해)
+                        
+                        // 바이트 정렬 (BlockAlign 단위)
+                        gapBytes -= (gapBytes % _audioCapture.WaveFormat.BlockAlign);
+                        
+                        if (gapBytes > 0)
+                        {
+                            // 묵음 버퍼 생성 및 쓰기
+                            // 메모리 절약을 위해 나누어 쓰기
+                            byte[] silenceBuffer = new byte[Math.Min(gapBytes, 1024 * 1024)]; // 최대 1MB 청크
+                            Array.Clear(silenceBuffer, 0, silenceBuffer.Length);
+                            
+                            while (gapBytes > 0)
+                            {
+                                int toMinWrite = (int)Math.Min(gapBytes, silenceBuffer.Length);
+                                _audioWriter.Write(silenceBuffer, 0, toMinWrite);
+                                _totalAudioBytes += toMinWrite;
+                                gapBytes -= toMinWrite;
+                            }
+                        }
+                    }
+                    // === 싱크 보정 끝 ===
+
                     _audioWriter.Write(e.Buffer, 0, e.BytesRecorded);
+                    _totalAudioBytes += e.BytesRecorded;
                 }
             };
             
@@ -377,8 +478,10 @@ namespace CatchCapture.Recording
                     CopyPixelOperation.SourceCopy);
                 
                 // 마우스 커서 그리기
-                try
+                if (_settings.ShowMouseEffects)
                 {
+                    try
+                    {
                     CURSORINFO pci;
                     pci.cbSize = Marshal.SizeOf(typeof(CURSORINFO));
                     if (GetCursorInfo(out pci))
@@ -404,6 +507,7 @@ namespace CatchCapture.Recording
                     }
                 }
                 catch { /* 커서 캡처 실패 시 무시 */ }
+                }
                 
                 // PNG로 압축하여 저장 (GIF 변환 시 필요)
                 using var ms = new MemoryStream();
@@ -677,8 +781,36 @@ namespace CatchCapture.Recording
                 {
                     // 비디오 인자
                     // -framerate를 실제 계산된 값으로 넣어 재생 속도를 맞춤
+                    // 비디오 인자
+                    // -framerate를 실제 계산된 값으로 넣어 재생 속도를 맞춤
                     string videoInput = $"-f rawvideo -pixel_format bgr24 -video_size {width}x{height} -framerate {actualFps:F2} -i \"{rawDataPath}\"";
                     
+                    // 화질 설정 (CRF 및 해상도 조절)
+                    string crfValue = "23";
+                    string vfOption = ""; // 비디오 필터 (해상도 조절용)
+                    
+                    switch (_settings.Quality)
+                    {
+                        case RecordingQuality.High:
+                            // HD: 원본 해상도, 고화질 (CRF 18)
+                            crfValue = "18";
+                            // 짝수 크기 보장 (이미 위에서 했지만 scale 필터로 안전장치)
+                            vfOption = "-vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\""; 
+                            break;
+                            
+                        case RecordingQuality.Medium:
+                            // SD: 75% 해상도, 중화질 (CRF 26)
+                            crfValue = "26";
+                            vfOption = "-vf \"scale=trunc(iw*0.75/2)*2:trunc(ih*0.75/2)*2\"";
+                            break;
+                            
+                        case RecordingQuality.Low:
+                            // LD: 50% 해상도, 저화질 (CRF 32)
+                            crfValue = "32";
+                            vfOption = "-vf \"scale=trunc(iw*0.5/2)*2:trunc(ih*0.5/2)*2\"";
+                            break;
+                    }
+
                     // 오디오 인자
                     string audioInput = "";
                     string audioMap = "";
@@ -717,7 +849,7 @@ namespace CatchCapture.Recording
                         // -threads 0: 자동으로 최대 스레드 사용
                         // -tune zerolatency: 빠른 인코딩 최적화
                         // -movflags +faststart: 웹 재생 최적화
-                        Arguments = $"-y {videoInput} {audioInput} -threads 0 -c:v libx264 -preset ultrafast -tune zerolatency -crf 23 -pix_fmt yuv420p -movflags +faststart {audioMap} \"{tempMp4Path}\"",
+                        Arguments = $"-y {videoInput} {audioInput} -threads 0 {vfOption} -c:v libx264 -preset ultrafast -tune zerolatency -crf {crfValue} -pix_fmt yuv420p -movflags +faststart {audioMap} \"{tempMp4Path}\"",
                         UseShellExecute = false,
                         RedirectStandardOutput = true,
                         RedirectStandardError = true,
@@ -768,7 +900,7 @@ namespace CatchCapture.Recording
                 Log($"Fatal Error: {ex.Message}\n{ex.StackTrace}");
                 Application.Current?.Dispatcher.Invoke(() =>
                 {
-                    MessageBox.Show($"녹화 실패: {ex.Message}\n로그: {logPath}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                    CatchCapture.CustomMessageBox.Show($"녹화 실패: {ex.Message}\n로그: {logPath}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
                 });
                 return string.Empty;
             }
@@ -854,3 +986,4 @@ namespace CatchCapture.Recording
         }
     }
 }
+

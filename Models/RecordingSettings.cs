@@ -10,8 +10,8 @@ namespace CatchCapture.Models
         // 파일 형식
         public RecordingFormat Format { get; set; } = RecordingFormat.MP4;
         
-        // 화질 (비트레이트) -- 용량 감소를 위해 기본값을 Low(저화질)로 변경
-        public RecordingQuality Quality { get; set; } = RecordingQuality.Low;
+        // 화질 (비트레이트) -- 기본 설정 SD(중화질)로 변경
+        public RecordingQuality Quality { get; set; } = RecordingQuality.Medium;
         
         // 프레임 레이트
         public int FrameRate { get; set; } = 30;
@@ -23,7 +23,7 @@ namespace CatchCapture.Models
         public bool RecordMic { get; set; } = false;
         
         // 마우스 효과 (클릭 시각화)
-        public bool ShowMouseEffects { get; set; } = false;
+        public bool ShowMouseEffects { get; set; } = true;
         
         // 텍스트 오버레이
         public bool ShowTextOverlay { get; set; } = false;

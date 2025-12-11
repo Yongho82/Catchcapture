@@ -1318,7 +1318,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                MessageBox.Show(string.Format(CatchCapture.Models.LocalizationManager.Get("AppLaunchFailed"), ex.Message));
+                CatchCapture.CustomMessageBox.Show(string.Format(CatchCapture.Models.LocalizationManager.Get("AppLaunchFailed"), ex.Message));
             }
         }
 
@@ -1567,7 +1567,7 @@ namespace CatchCapture
         // 외부 앱 바로가기 제거
         private void RemoveApp(ExternalAppShortcut app)
         {
-            var result = MessageBox.Show(string.Format(CatchCapture.Models.LocalizationManager.Get("ConfirmDeleteShortcut"), app.DisplayName), CatchCapture.Models.LocalizationManager.Get("DeleteShortcut"), MessageBoxButton.YesNo, MessageBoxImage.Question);
+            var result = CatchCapture.CustomMessageBox.Show(string.Format(CatchCapture.Models.LocalizationManager.Get("ConfirmDeleteShortcut"), app.DisplayName), CatchCapture.Models.LocalizationManager.Get("DeleteShortcut"), MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result == MessageBoxResult.Yes && settings != null)
             {
                 settings.SimpleModeApps.RemoveAll(a => string.Equals(a.TargetPath, app.TargetPath, StringComparison.OrdinalIgnoreCase) && a.DisplayName == app.DisplayName);
@@ -1738,7 +1738,7 @@ namespace CatchCapture
         // 누락된 헬퍼 복원: 내장 아이콘 제거 (우측 상단 - 버튼에서 호출)
         private void RemoveIcon(string iconName)
         {
-            var result = MessageBox.Show(
+            var result = CatchCapture.CustomMessageBox.Show(
                 $"'{GetIconDisplayName(iconName)}' 아이콘을 삭제하시겠습니까?",
                 "아이콘 삭제",
                 MessageBoxButton.YesNo,

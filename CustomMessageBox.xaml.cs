@@ -33,7 +33,8 @@ namespace CatchCapture
 
             var msgBox = new CustomMessageBox();
             msgBox.TitleText.Text = title;
-            msgBox.MessageText.Text = message;
+            // 마침표+공백이 있으면 줄바꿈으로 변경하여 가독성 향상
+            msgBox.MessageText.Text = message.Replace(". ", ".\n");
             
             // 부모 창 설정 (가능하다면)
             if (Application.Current != null && Application.Current.Windows.Count > 0)

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -341,7 +341,7 @@ namespace CatchCapture.Utilities
             }
             catch (Exception ex)
             {
-                MessageBox.Show(string.Format(LocalizationManager.GetString("CaptureError"), ex.Message), LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+                CatchCapture.CustomMessageBox.Show(string.Format(LocalizationManager.GetString("CaptureError"), ex.Message), LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
                 if (currentRectangle != null)
                 {
                     canvas.Children.Remove(currentRectangle);
@@ -364,7 +364,7 @@ namespace CatchCapture.Utilities
                 }
                 else
                 {
-                    MessageBox.Show(LocalizationManager.GetString("MultiCaptureMinReq"), LocalizationManager.GetString("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
+                    CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("MultiCaptureMinReq"), LocalizationManager.GetString("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 e.Handled = true;
             }
@@ -379,7 +379,7 @@ namespace CatchCapture.Utilities
                 }
                 else
                 {
-                    MessageBox.Show(LocalizationManager.GetString("MultiCaptureMinReq"), LocalizationManager.GetString("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
+                    CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("MultiCaptureMinReq"), LocalizationManager.GetString("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 e.Handled = true;
             }
@@ -420,13 +420,13 @@ namespace CatchCapture.Utilities
                 // 크기 검증
                 if (compositeWidth <= 0 || compositeHeight <= 0)
                 {
-                    MessageBox.Show(LocalizationManager.GetString("InvalidCompositeSize"), LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+                    CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("InvalidCompositeSize"), LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 
                 if (compositeWidth > 32000 || compositeHeight > 32000)
                 {
-                    MessageBox.Show(string.Format(LocalizationManager.GetString("CompositeTooLarge"), compositeWidth, compositeHeight), LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+                    CatchCapture.CustomMessageBox.Show(string.Format(LocalizationManager.GetString("CompositeTooLarge"), compositeWidth, compositeHeight), LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 
@@ -469,7 +469,7 @@ namespace CatchCapture.Utilities
             }
             catch (Exception ex)
             {
-                MessageBox.Show(string.Format(LocalizationManager.GetString("CompositeError"), ex.Message), LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+                CatchCapture.CustomMessageBox.Show(string.Format(LocalizationManager.GetString("CompositeError"), ex.Message), LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
                 FinalCompositeImage = null;
             }
         }
@@ -490,3 +490,4 @@ namespace CatchCapture.Utilities
         }
     }
 }
+

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
@@ -207,7 +207,7 @@ namespace CatchCapture.Recording
         {
             if (IsRecording)
             {
-                var result = MessageBox.Show(
+                var result = CatchCapture.CustomMessageBox.Show(
                     "녹화가 진행 중입니다. 저장하시겠습니까?",
                     "녹화 중",
                     MessageBoxButton.YesNoCancel,
@@ -284,7 +284,7 @@ namespace CatchCapture.Recording
                 int micCount = NAudio.Wave.WaveIn.DeviceCount;
                 if (micCount == 0)
                 {
-                    MessageBox.Show("마이크 장치가 감지되지 않았습니다.\n오디오 입력 장치를 연결해주세요.", 
+                    CatchCapture.CustomMessageBox.Show("마이크 장치가 감지되지 않았습니다.\n오디오 입력 장치를 연결해주세요.", 
                         "마이크 없음", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
@@ -295,7 +295,7 @@ namespace CatchCapture.Recording
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"마이크 장치 확인 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                CatchCapture.CustomMessageBox.Show($"마이크 장치 확인 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             
@@ -376,6 +376,7 @@ namespace CatchCapture.Recording
         {
             if (IsRecording) return;
             _settings.ShowMouseEffects = MouseEffectToggle.IsChecked == true;
+            UpdateUI();
         }
         
         /// <summary>
@@ -757,8 +758,18 @@ namespace CatchCapture.Recording
             // 프레임
             FpsText.Text = $"{_settings.FrameRate}F";
             
-            // 마우스 효과
+            // 마우스 효과 (커서 표시)
             MouseEffectToggle.IsChecked = _settings.ShowMouseEffects;
+            if (_settings.ShowMouseEffects)
+            {
+                MouseOnIcon.Visibility = Visibility.Visible;
+                MouseOffIcon.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                MouseOnIcon.Visibility = Visibility.Collapsed;
+                MouseOffIcon.Visibility = Visibility.Visible;
+            }
             
             // 타이머
             TimerText.Text = _settings.CountdownSeconds > 0 ? _settings.CountdownSeconds.ToString() : "";
@@ -881,3 +892,4 @@ namespace CatchCapture.Recording
         #endregion
     }
 }
+

@@ -786,7 +786,7 @@ namespace CatchCapture
         private void RemoveIcon(string iconName)
         {
             // 삭제 확인 메시지
-            var result = MessageBox.Show(
+            var result = CatchCapture.CustomMessageBox.Show(
                 $"'{LocalizationManager.Get(iconName)}' 아이콘을 삭제하시겠습니까?",
                 LocalizationManager.Get("DeleteIcon"),
                 MessageBoxButton.YesNo,
@@ -1291,13 +1291,13 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"앱 실행 실패: {ex.Message}");
+                CatchCapture.CustomMessageBox.Show($"앱 실행 실패: {ex.Message}");
             }
         }
 
         private void RemoveApp(ExternalAppShortcut app)
         {
-            var result = MessageBox.Show($"'{app.DisplayName}' 바로가기를 삭제하시겠습니까?", "바로가기 삭제", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            var result = CatchCapture.CustomMessageBox.Show($"'{app.DisplayName}' 바로가기를 삭제하시겠습니까?", "바로가기 삭제", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result == MessageBoxResult.Yes && settings != null)
             {
                 settings.SimpleModeApps.RemoveAll(a => string.Equals(a.TargetPath, app.TargetPath, StringComparison.OrdinalIgnoreCase) && a.DisplayName == app.DisplayName);

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -605,7 +605,7 @@ namespace CatchCapture.Utilities
 
             if (pxWidth < 5 || pxHeight < 5)
             {
-                MessageBox.Show("선택 영역이 너무 작습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                CatchCapture.CustomMessageBox.Show("선택 영역이 너무 작습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
@@ -629,7 +629,7 @@ namespace CatchCapture.Utilities
             {
                 // 오류 발생 시에도 창을 다시 보이게 함
                 Show();
-                MessageBox.Show($"캡처 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                CatchCapture.CustomMessageBox.Show($"캡처 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -649,3 +649,4 @@ namespace CatchCapture.Utilities
         }
     }
 }
+

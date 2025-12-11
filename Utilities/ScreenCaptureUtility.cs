@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -606,7 +606,7 @@ namespace CatchCapture.Utilities
             }
             catch (Exception ex)
             {
-                MessageBox.Show("스크롤 캡처 중 오류가 발생했습니다: " + ex.Message, "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                CatchCapture.CustomMessageBox.Show("스크롤 캡처 중 오류가 발생했습니다: " + ex.Message, "오류", MessageBoxButton.OK, MessageBoxImage.Error);
                 return null;
             }
         }

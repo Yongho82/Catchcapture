@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -493,7 +493,7 @@ namespace CatchCapture.Utilities
             // 최소 크기 확인
             if (width < 5 || height < 5)
             {
-                MessageBox.Show(LocalizationManager.Get("SelectionTooSmall"), LocalizationManager.Get("Info"));
+                CatchCapture.CustomMessageBox.Show(LocalizationManager.Get("SelectionTooSmall"), LocalizationManager.Get("Info"));
                 return;
             }
 
@@ -2073,7 +2073,7 @@ namespace CatchCapture.Utilities
                 
                 if (imageToOcr == null)
                 {
-                    MessageBox.Show(LocalizationManager.Get("NoImageForOcr"), LocalizationManager.Get("Info"));
+                    CatchCapture.CustomMessageBox.Show(LocalizationManager.Get("NoImageForOcr"), LocalizationManager.Get("Info"));
                     return;
                 }
                 
@@ -2088,7 +2088,7 @@ namespace CatchCapture.Utilities
                 
                 if (string.IsNullOrWhiteSpace(ocrResult.Text))
                 {
-                    MessageBox.Show(LocalizationManager.Get("NoExtractedText"), LocalizationManager.Get("Info"));
+                    CatchCapture.CustomMessageBox.Show(LocalizationManager.Get("NoExtractedText"), LocalizationManager.Get("Info"));
                     return;
                 }
                 
@@ -2100,7 +2100,7 @@ namespace CatchCapture.Utilities
             catch (Exception ex)
             {
                 this.Cursor = Cursors.Arrow;
-                MessageBox.Show($"{LocalizationManager.Get("OcrError")}: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+                CatchCapture.CustomMessageBox.Show($"{LocalizationManager.Get("OcrError")}: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -2114,7 +2114,7 @@ namespace CatchCapture.Utilities
                 // 즉시편집 모드에서는 편집 요소가 남아 있으면 먼저 확정(✓)하도록 안내
                 if (instantEditMode && drawnElements != null && drawnElements.Count > 0)
                 {
-                    MessageBox.Show(ResLoc.GetString("EditConfirmGuide"), LocalizationManager.Get("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
+                    CatchCapture.CustomMessageBox.Show(ResLoc.GetString("EditConfirmGuide"), LocalizationManager.Get("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
 
@@ -2140,7 +2140,7 @@ namespace CatchCapture.Utilities
 
                 if (imageToSearch == null)
                 {
-                    MessageBox.Show(LocalizationManager.Get("NoImageToSave"), LocalizationManager.Get("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
+                    CatchCapture.CustomMessageBox.Show(LocalizationManager.Get("NoImageToSave"), LocalizationManager.Get("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
 
@@ -2156,7 +2156,7 @@ namespace CatchCapture.Utilities
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"{LocalizationManager.Get("Error")}: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+                CatchCapture.CustomMessageBox.Show($"{LocalizationManager.Get("Error")}: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -2215,7 +2215,7 @@ namespace CatchCapture.Utilities
                 return; // 조용히 무시
             }
             
-            var result = MessageBox.Show(
+            var result = CatchCapture.CustomMessageBox.Show(
                 LocalizationManager.Get("ConfirmReset"), 
                 LocalizationManager.Get("Confirm"), 
                 MessageBoxButton.YesNo, 
@@ -2269,7 +2269,7 @@ namespace CatchCapture.Utilities
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"{LocalizationManager.Get("CopyError")}: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+                CatchCapture.CustomMessageBox.Show($"{LocalizationManager.Get("CopyError")}: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -2326,7 +2326,7 @@ namespace CatchCapture.Utilities
                 
                 if (SelectedFrozenImage == null)
                 {
-                    MessageBox.Show(LocalizationManager.Get("NoImageToSave"), LocalizationManager.Get("Info"));
+                    CatchCapture.CustomMessageBox.Show(LocalizationManager.Get("NoImageToSave"), LocalizationManager.Get("Info"));
                     return;
                 }
                 
@@ -2363,12 +2363,12 @@ namespace CatchCapture.Utilities
                         encoder.Save(stream);
                     }
                     
-                    MessageBox.Show($"{LocalizationManager.Get("ImageSaved")}:\n{saveDialog.FileName}", LocalizationManager.Get("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
+                    CatchCapture.CustomMessageBox.Show($"{LocalizationManager.Get("ImageSaved")}:\n{saveDialog.FileName}", LocalizationManager.Get("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"{LocalizationManager.Get("SaveError")}: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+                CatchCapture.CustomMessageBox.Show($"{LocalizationManager.Get("SaveError")}: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

@@ -125,7 +125,6 @@ C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\ko\CatchCaptu
 C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\ko\CatchCapture.resources.dll
 C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\zh\CatchCapture.resources.cs
 C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\zh\CatchCapture.resources.dll
-C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\CatchCap.56B97A12.Up2Date
 C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\CatchCapture.dll
 C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\refint\CatchCapture.dll
 C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\CatchCapture.pdb
@@ -140,3 +139,4 @@ C:\Yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\NAudio.WinFor
 C:\Yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\NAudio.WinMM.dll
 C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\CustomMessageBox.baml
 C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\CustomMessageBox.g.cs
+C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\CatchCap.56B97A12.Up2Date

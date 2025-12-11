@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -204,7 +204,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"후킹 설정 실패: {ex.Message}");
+                CatchCapture.CustomMessageBox.Show($"후킹 설정 실패: {ex.Message}");
             }
 
             this.Activate();
@@ -538,7 +538,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"캡처 오류: {ex.Message}");
+                CatchCapture.CustomMessageBox.Show($"캡처 오류: {ex.Message}");
             }
         }
 
@@ -771,3 +771,4 @@ namespace CatchCapture
         }
     }
 }
+
