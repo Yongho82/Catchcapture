@@ -123,6 +123,21 @@
                         </Grid>
                     </Button>
                     
+                    <!-- 일시정지/재개 버튼 (녹화 중에만 표시) -->
+                    <Button x:Name="PauseButton" Style="{StaticResource ToolbarButtonStyle}"
+                            Click="PauseButton_Click" ToolTip="일시정지" Visibility="Collapsed" Margin="4,0,0,0">
+                        <Grid>
+                            <!-- 일시정지 아이콘 (||) -->
+                            <StackPanel x:Name="PauseIcon" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Rectangle Width="4" Height="14" Fill="#333333" Margin="0,0,2,0" RadiusX="1" RadiusY="1"/>
+                                <Rectangle Width="4" Height="14" Fill="#333333" Margin="2,0,0,0" RadiusX="1" RadiusY="1"/>
+                            </StackPanel>
+                            <!-- 재개 아이콘 (▶) -->
+                            <TextBlock x:Name="ResumeIcon" Text="▶" FontSize="14" FontWeight="Bold" Foreground="#4361EE" 
+                                     Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="2,0,0,0"/>
+                        </Grid>
+                    </Button>
+                    
                     <!-- 가변 설정 패널 (접기/펴기 대상) -->
                     <StackPanel x:Name="SettingsPanel" Orientation="Horizontal">
                         <Separator Width="1" Height="20" Margin="4,0" Background="#E0E0E0"/>

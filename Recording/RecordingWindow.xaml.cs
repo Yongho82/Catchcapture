@@ -247,6 +247,33 @@ namespace CatchCapture.Recording
         }
         
         /// <summary>
+        /// 일시정지/재개 버튼 클릭
+        /// </summary>
+        private void PauseButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_recorder == null || !IsRecording) return;
+            
+            _recorder.TogglePause();
+            
+            if (_recorder.IsPaused)
+            {
+                // 일시정지 상태: 타이머 멈춤, 아이콘을 '재개(▶)'로 변경
+                _recordingTimer.Stop();
+                PauseIcon.Visibility = Visibility.Collapsed;
+                ResumeIcon.Visibility = Visibility.Visible;
+                PauseButton.ToolTip = "녹화 재개";
+            }
+            else
+            {
+                // 녹화 재개: 타이머 시작, 아이콘을 '일시정지(||)'로 변경
+                _recordingTimer.Start();
+                PauseIcon.Visibility = Visibility.Visible;
+                ResumeIcon.Visibility = Visibility.Collapsed;
+                PauseButton.ToolTip = "일시정지";
+            }
+        }
+        
+        /// <summary>
         /// 시스템 오디오 토글 버튼 클릭
         /// </summary>
         private void SystemAudioButton_Click(object sender, RoutedEventArgs e)
@@ -605,8 +632,16 @@ namespace CatchCapture.Recording
             _recordingDuration = TimeSpan.Zero;
             _recordingTimer.Start();
 
+            _recordingTimer.Start();
+
             RecordButtonIcon.Visibility = Visibility.Collapsed;
             StopButtonIcon.Visibility = Visibility.Visible;
+            
+            // 일시정지 버튼 표시 (녹화 시작 상태)
+            PauseButton.Visibility = Visibility.Visible;
+            PauseIcon.Visibility = Visibility.Visible;
+            ResumeIcon.Visibility = Visibility.Collapsed;
+            PauseButton.ToolTip = "일시정지";
 
             EnableSettings(false);
             UpdateUI();
@@ -624,6 +659,9 @@ namespace CatchCapture.Recording
             // 버튼 아이콘을 녹화(●)로 변경
             RecordButtonIcon.Visibility = Visibility.Visible;
             StopButtonIcon.Visibility = Visibility.Collapsed;
+            
+            // 일시정지 버튼 숨김
+            PauseButton.Visibility = Visibility.Collapsed;
             
             // 녹화만 중지 (저장하지 않음)
             try
@@ -643,8 +681,8 @@ namespace CatchCapture.Recording
                         _recorder = null; 
                     }
                     
-                    // 녹화 도구 창 닫기
-                    Close();
+                    // 녹화 도구 창 닫기 로직 제거 (사용자 요청: 도구 상자 유지)
+                    // Close(); 
                 }
                 else
                 {
@@ -660,6 +698,9 @@ namespace CatchCapture.Recording
             
             // 버튼 다시 활성화
             EnableSettings(true);
+            
+            // 오버레이를 다시 선택 모드(핸들 표시 등)로 전환
+            _overlay?.SetRecordingMode(false);
             
             UpdateUI();
         }

@@ -41,6 +41,9 @@ namespace CatchCapture.Recording
         private List<int> _frameDelays;
         private DateTime _lastFrameTime;
         
+        // 일시정지 관련
+        private DateTime _pauseStartTime;
+        
         // 오디오 싱크 보정용 변수
         private long _totalAudioBytes = 0;
         private DateTime _audioStartTime;
@@ -262,6 +265,19 @@ namespace CatchCapture.Recording
         public void TogglePause()
         {
             _isPaused = !_isPaused;
+            
+            if (_isPaused)
+            {
+                // 일시정지 시작 시간 기록
+                _pauseStartTime = DateTime.Now;
+            }
+            else
+            {
+                // 재개 시: 멈춰있던 시간만큼 StartTime을 뒤로 미룸 (마치 멈춘 적 없는 것처럼 시간 연속성 보장)
+                TimeSpan pauseDuration = DateTime.Now - _pauseStartTime;
+                _recordingStartTime += pauseDuration;
+                _audioStartTime += pauseDuration; // 오디오 기준점도 이동
+            }
         }
         
         /// <summary>
@@ -270,6 +286,15 @@ namespace CatchCapture.Recording
         public async Task StopRecording()
         {
             if (!_isRecording) return;
+            
+            // 일시정지 상태에서 정지하면, 멈춘 시간만큼 보정 후 종료
+            if (_isPaused)
+            {
+                TimeSpan pauseDuration = DateTime.Now - _pauseStartTime;
+                _recordingStartTime += pauseDuration;
+                _audioStartTime += pauseDuration;
+                _isPaused = false;
+            }
             
             _isRecording = false;
             _actualDuration = DateTime.Now - _recordingStartTime;
