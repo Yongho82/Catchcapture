@@ -379,4 +379,16 @@
   <data name="Countdown" xml:space="preserve"><value>開始前のカウントダウン</value></data>
   <data name="HideToolbar" xml:space="preserve"><value>ツールバーを隠す</value></data>
   <data name="ShowToolbar" xml:space="preserve"><value>ツールバーを表示</value></data>
+  <data name="AutoSnap" xml:space="preserve"><value>マグネット</value></data>
+  <data name="FullScreen" xml:space="preserve"><value>全画面</value></data>
+  <data name="DrawingTools" xml:space="preserve"><value>描画ツール</value></data>
+  <data name="ToolPen" xml:space="preserve"><value>ペン</value></data>
+  <data name="ToolHighlighter" xml:space="preserve"><value>蛍光ペン</value></data>
+  <data name="ToolEraser" xml:space="preserve"><value>消しゴム</value></data>
+  <data name="ToolLine" xml:space="preserve"><value>直線</value></data>
+  <data name="ToolArrow" xml:space="preserve"><value>矢印</value></data>
+  <data name="ToolRectangle" xml:space="preserve"><value>長方形</value></data>
+  <data name="ToolEllipse" xml:space="preserve"><value>円</value></data>
+  <data name="ToolNumbering" xml:space="preserve"><value>番号付け</value></data>
+  <data name="ToolClearAll" xml:space="preserve"><value>すべて消去</value></data>
 </root>

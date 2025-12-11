@@ -379,4 +379,16 @@
   <data name="Countdown" xml:space="preserve"><value>开始前倒计时</value></data>
   <data name="HideToolbar" xml:space="preserve"><value>隐藏工具栏</value></data>
   <data name="ShowToolbar" xml:space="preserve"><value>显示工具栏</value></data>
+  <data name="AutoSnap" xml:space="preserve"><value>磁铁</value></data>
+  <data name="FullScreen" xml:space="preserve"><value>全屏</value></data>
+  <data name="DrawingTools" xml:space="preserve"><value>绘图工具</value></data>
+  <data name="ToolPen" xml:space="preserve"><value>笔</value></data>
+  <data name="ToolHighlighter" xml:space="preserve"><value>荧光笔</value></data>
+  <data name="ToolEraser" xml:space="preserve"><value>橡皮擦</value></data>
+  <data name="ToolLine" xml:space="preserve"><value>直线</value></data>
+  <data name="ToolArrow" xml:space="preserve"><value>箭头</value></data>
+  <data name="ToolRectangle" xml:space="preserve"><value>矩形</value></data>
+  <data name="ToolEllipse" xml:space="preserve"><value>圆形</value></data>
+  <data name="ToolNumbering" xml:space="preserve"><value>编号</value></data>
+  <data name="ToolClearAll" xml:space="preserve"><value>清除所有</value></data>
 </root>

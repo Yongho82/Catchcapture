@@ -1232,6 +1232,22 @@ namespace CatchCapture.Recording
             {
                 CollapseButton.ToolTip = SettingsPanel.Visibility == Visibility.Visible ? loc("HideToolbar") : loc("ShowToolbar");
             }
+
+            // 새로운 도구 툴팁 추가
+            if (AutoSnapButton != null) AutoSnapButton.ToolTip = loc("AutoSnap");
+            if (FullScreenButton != null) FullScreenButton.ToolTip = loc("FullScreen");
+            if (DrawingButton != null) DrawingButton.ToolTip = loc("DrawingTools");
+            
+            // 그리기 도구 팝업 내부 버튼 툴팁
+            if (PenRadio != null) PenRadio.ToolTip = loc("ToolPen");
+            if (HighlightRadio != null) HighlightRadio.ToolTip = loc("ToolHighlighter");
+            if (EraserRadio != null) EraserRadio.ToolTip = loc("ToolEraser");
+            if (LineRadio != null) LineRadio.ToolTip = loc("ToolLine");
+            if (ArrowRadio != null) ArrowRadio.ToolTip = loc("ToolArrow");
+            if (RectangleRadio != null) RectangleRadio.ToolTip = loc("ToolRectangle");
+            if (EllipseRadio != null) EllipseRadio.ToolTip = loc("ToolEllipse");
+            if (NumberingRadio != null) NumberingRadio.ToolTip = loc("ToolNumbering");
+            if (ClearAllButton != null) ClearAllButton.ToolTip = loc("ToolClearAll");
         }
 
         #endregion

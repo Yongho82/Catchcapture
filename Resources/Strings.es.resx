@@ -378,4 +378,16 @@
   <data name="Countdown" xml:space="preserve"><value>Cuenta atrás</value></data>
   <data name="HideToolbar" xml:space="preserve"><value>Ocultar barra de herramientas</value></data>
   <data name="ShowToolbar" xml:space="preserve"><value>Mostrar barra de herramientas</value></data>
+  <data name="AutoSnap" xml:space="preserve"><value>Imán</value></data>
+  <data name="FullScreen" xml:space="preserve"><value>Pantalla completa</value></data>
+  <data name="DrawingTools" xml:space="preserve"><value>Herramientas de dibujo</value></data>
+  <data name="ToolPen" xml:space="preserve"><value>Pluma</value></data>
+  <data name="ToolHighlighter" xml:space="preserve"><value>Resaltador</value></data>
+  <data name="ToolEraser" xml:space="preserve"><value>Borrador</value></data>
+  <data name="ToolLine" xml:space="preserve"><value>Línea</value></data>
+  <data name="ToolArrow" xml:space="preserve"><value>Flecha</value></data>
+  <data name="ToolRectangle" xml:space="preserve"><value>Rectángulo</value></data>
+  <data name="ToolEllipse" xml:space="preserve"><value>Elipse</value></data>
+  <data name="ToolNumbering" xml:space="preserve"><value>Numeración</value></data>
+  <data name="ToolClearAll" xml:space="preserve"><value>Borrar todo</value></data>
 </root>
