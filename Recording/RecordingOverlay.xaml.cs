@@ -36,29 +36,20 @@ namespace CatchCapture.Recording
         {
             InitializeComponent();
             
-            // ★ 모든 모니터를 포함하는 가상 화면 크기로 설정 (생성 시 즉시 적용해 깜빡임 방지)
-            this.Left = SystemParameters.VirtualScreenLeft;
-            this.Top = SystemParameters.VirtualScreenTop;
-            this.Width = SystemParameters.VirtualScreenWidth;
-            this.Height = SystemParameters.VirtualScreenHeight;
-            
-            // 기본 선택 영역 (화면 중앙 800x600) - 주 모니터 기준
-            var primaryScreen = new Rect(0, 0, SystemParameters.PrimaryScreenWidth, SystemParameters.PrimaryScreenHeight);
+            // 기본 선택 영역 (주 모니터 중앙 800x600)
+            var screen = SystemParameters.WorkArea;
             _selectionArea = new Rect(
-                (primaryScreen.Width - 800) / 2,
-                (primaryScreen.Height - 600) / 2,
+                (screen.Width - 800) / 2,
+                (screen.Height - 600) / 2,
                 800,
                 600
             );
             
-            // Loaded += RecordingOverlay_Loaded; // 불필요
+            Loaded += RecordingOverlay_Loaded;
             SizeChanged += RecordingOverlay_SizeChanged;
             MouseMove += Overlay_MouseMove;
             MouseLeftButtonUp += Overlay_MouseLeftButtonUp;
             KeyDown += RecordingOverlay_KeyDown;
-            
-            // 초기 비주얼 업데이트 (Show 이전에는 적용 안 될 수 있으므로 Loaded에서 한 번 더 체크하거나 여기서 호출)
-            UpdateVisuals();
         }
         
         /// <summary>
@@ -77,7 +68,57 @@ namespace CatchCapture.Recording
         
         #region 초기화
         
-        // Loaded 핸들러 제거 (생성자로 이동)
+        private void RecordingOverlay_Loaded(object sender, RoutedEventArgs e)
+        {
+            var allScreens = System.Windows.Forms.Screen.AllScreens;
+            
+            double left, top, width, height;
+            
+            if (allScreens.Length <= 2)
+            {
+                // 2개 이하: 모든 모니터 커버 (VirtualScreen)
+                left = SystemParameters.VirtualScreenLeft;
+                top = SystemParameters.VirtualScreenTop;
+                width = SystemParameters.VirtualScreenWidth;
+                height = SystemParameters.VirtualScreenHeight;
+            }
+            else
+            {
+                // 3개 이상: 처음 2개 모니터만 커버
+                var screen1 = allScreens[0].Bounds;
+                var screen2 = allScreens[1].Bounds;
+                
+                left = Math.Min(screen1.Left, screen2.Left);
+                top = Math.Min(screen1.Top, screen2.Top);
+                double right = Math.Max(screen1.Right, screen2.Right);
+                double bottom = Math.Max(screen1.Bottom, screen2.Bottom);
+                width = right - left;
+                height = bottom - top;
+            }
+            
+            this.Left = left;
+            this.Top = top;
+            this.Width = width;
+            this.Height = height;
+            
+            // 선택 영역은 주 모니터 중앙에 배치
+            var primaryScreen = System.Windows.Forms.Screen.PrimaryScreen?.Bounds 
+                ?? new System.Drawing.Rectangle(0, 0, 1920, 1080);
+            _selectionArea = new Rect(
+                (primaryScreen.Width - 800) / 2,
+                (primaryScreen.Height - 600) / 2,
+                800,
+                600
+            );
+            
+            // Windows 11 호환성: 명시적으로 Topmost와 Activate 호출
+            this.Topmost = true;
+            this.Activate();
+            this.Focus();
+            
+            UpdateVisuals();
+            AreaChanged?.Invoke(this, _selectionArea);
+        }
         
         private void RecordingOverlay_SizeChanged(object sender, SizeChangedEventArgs e)
         {

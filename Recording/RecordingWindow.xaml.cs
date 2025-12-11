@@ -120,6 +120,10 @@ namespace CatchCapture.Recording
                 
                 _overlay.Show();
                 
+                // Windows 11 멀티 모니터 호환성: Show() 직후 명시적으로 활성화
+                _overlay.Topmost = true;
+                _overlay.Activate();
+                
                 // 툴바를 오버레이의 'Owned Window'로 설정하면 툴바가 항상 오버레이 위에 뜸
                 this.Owner = _overlay;
             }
@@ -128,6 +132,8 @@ namespace CatchCapture.Recording
                 if (!_overlay.IsVisible)
                 {
                     _overlay.Show();
+                    _overlay.Topmost = true;
+                    _overlay.Activate();
                 }
             }
         }
