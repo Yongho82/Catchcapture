@@ -487,9 +487,25 @@ namespace CatchCapture.Recording
             _recorder.RecordingStopped += Recorder_RecordingStopped;
             _recorder.ErrorOccurred += Recorder_ErrorOccurred;
 
-            var captureArea = new Rect(
+            // 현재 오버레이의 선택 영역 가져오기 (설정값보다 화면에 보이는 실제 위치 우선)
+            Rect captureArea = _overlay?.SelectionArea ?? new Rect(
                 _settings.LastAreaLeft, _settings.LastAreaTop,
                 _settings.LastAreaWidth, _settings.LastAreaHeight);
+
+            // DPI 배율 보정 (논리 좌표 -> 물리 픽셀 변환)
+            // WPF의 Rect는 논리 단위(1/96인치)를 사용하지만, Graphics.CopyFromScreen은 픽셀 단위를 사용함
+            // 따라서 화면 배율(예: 125%, 150%)이 적용된 경우 좌표가 어긋남
+            var source = PresentationSource.FromVisual(this);
+            if (source != null && source.CompositionTarget != null)
+            {
+                double dpiX = source.CompositionTarget.TransformToDevice.M11;
+                double dpiY = source.CompositionTarget.TransformToDevice.M22;
+
+                captureArea.X *= dpiX;
+                captureArea.Y *= dpiY;
+                captureArea.Width *= dpiX;
+                captureArea.Height *= dpiY;
+            }
 
             _recorder.StartRecording(captureArea);
 

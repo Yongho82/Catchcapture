@@ -10,8 +10,8 @@ namespace CatchCapture.Models
         // 파일 형식
         public RecordingFormat Format { get; set; } = RecordingFormat.MP4;
         
-        // 화질 (비트레이트)
-        public RecordingQuality Quality { get; set; } = RecordingQuality.Medium;
+        // 화질 (비트레이트) -- 용량 감소를 위해 기본값을 Low(저화질)로 변경
+        public RecordingQuality Quality { get; set; } = RecordingQuality.Low;
         
         // 프레임 레이트
         public int FrameRate { get; set; } = 30;

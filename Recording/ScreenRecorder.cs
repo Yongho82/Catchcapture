@@ -374,7 +374,86 @@ namespace CatchCapture.Recording
         {
             if (_frames.Count == 0)
                 return string.Empty;
+
+            // 1. FFmpeg가 설치되어 있다면 고성능/고화질 변환 사용
+            if (FFmpegDownloader.IsFFmpegInstalled())
+            {
+                string tempMp4Path = Path.ChangeExtension(outputPath, ".temp.mp4");
+                try
+                {
+                    // 임시 MP4 생성 (기존 로직 활용하여 고속 생성)
+                    // SaveAsMP4Async는 내부적으로 raw_data 등을 사용하여 빠르게 비디오를 만듦
+                    await SaveAsMP4Async(tempMp4Path);
+
+                    if (File.Exists(tempMp4Path))
+                    {
+                        string ffmpegPath = FFmpegDownloader.GetFFmpegPath();
+                        
+                        // 화질별 FFmpeg GIF 변환 필터 설정
+                        // - palettegen/paletteuse: 256색 팔레트를 동적으로 최적화하여 '떨림' 잡음 제거 및 화질 향상
+                        // - fps: 프레임 수 조절로 용량 관리
+                        // - scale: 해상도 조절
+                        
+                        string scaleStr = "iw";
+                        string fpsStr = "15"; // 기본 15fps
+                        string paletteGenOpt = ""; 
+                        string paletteUseOpt = "";
+
+                        switch (_settings.Quality)
+                        {
+                            case RecordingQuality.High:
+                                scaleStr = "iw"; // 100%
+                                fpsStr = Math.Min(_settings.FrameRate, 30).ToString();
+                                paletteGenOpt = "stats_mode=diff"; // 움직임 최적화
+                                paletteUseOpt = "dither=sierra2_4a"; // 고품질 디더링
+                                break;
+                                
+                            case RecordingQuality.Medium:
+                                scaleStr = "iw*0.8"; // 80%
+                                fpsStr = Math.Min(_settings.FrameRate, 15).ToString();
+                                paletteGenOpt = "max_colors=128:stats_mode=diff"; // 128색
+                                paletteUseOpt = "dither=bayer:bayer_scale=3"; // 패턴 디더링 (용량 절약)
+                                break;
+                                
+                            case RecordingQuality.Low:
+                                scaleStr = "iw*0.6"; // 60%
+                                fpsStr = "10"; // 10fps 고정
+                                paletteGenOpt = "max_colors=64:stats_mode=diff"; // 64색
+                                paletteUseOpt = "dither=none"; // 디더링 없음 (가장 깔끔, 등고선 발생 가능하지만 용량/속도 최강)
+                                break;
+                        }
+
+                        // 복합 필터 구성
+                        string vf = $"fps={fpsStr},scale={scaleStr}:-1:flags=lanczos,split[s0][s1];[s0]palettegen={paletteGenOpt}[p];[s1][p]paletteuse={paletteUseOpt}";
+
+                        var startInfo = new ProcessStartInfo
+                        {
+                            FileName = ffmpegPath,
+                            Arguments = $"-y -i \"{tempMp4Path}\" -vf \"{vf}\" \"{outputPath}\"",
+                            UseShellExecute = false,
+                            CreateNoWindow = true
+                        };
+
+                        using (var process = Process.Start(startInfo))
+                        {
+                            if (process != null) await process.WaitForExitAsync();
+                        }
+                        
+                        return outputPath;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"FFmpeg GIF Failed: {ex.Message}");
+                    // 실패 시 아래 C# 코드로 폴백
+                }
+                finally
+                {
+                    if (File.Exists(tempMp4Path)) File.Delete(tempMp4Path);
+                }
+            }
             
+            // 2. Fallback: FFmpeg 없을 때 C# 내장 인코더 사용 (기존 로직)
             await Task.Run(() =>
             {
                 using var stream = new FileStream(outputPath, FileMode.Create);
@@ -384,13 +463,42 @@ namespace CatchCapture.Recording
                 encoder.Start(stream);
                 encoder.SetDelay(1000 / _settings.FrameRate);
                 encoder.SetRepeat(0); // 무한 반복
-                encoder.SetQuality(10); // 품질 (1-20, 낮을수록 좋음)
+                
+                // 품질 설정
+                int qualityParam = _settings.Quality == RecordingQuality.Low ? 20 : 10;
+                encoder.SetQuality(qualityParam);
                 
                 foreach (var frameData in _frames)
                 {
                     using var ms = new MemoryStream(frameData);
                     using var img = System.Drawing.Image.FromStream(ms);
-                    encoder.AddFrame(img);
+                    
+                    // 화질 설정에 따른 리사이징 (용량 감소 핵심)
+                    double scale = _settings.Quality switch
+                    {
+                        RecordingQuality.High => 1.0,      // 원본
+                        RecordingQuality.Medium => 0.8,    // 80%
+                        RecordingQuality.Low => 0.6,       // 60%
+                        _ => 0.8
+                    };
+                    
+                    if (scale < 0.99)
+                    {
+                        int newW = (int)(img.Width * scale);
+                        int newH = (int)(img.Height * scale);
+                        using var resized = new System.Drawing.Bitmap(newW, newH);
+                        using (var g = System.Drawing.Graphics.FromImage(resized))
+                        {
+                            // 품질은 유지하되 크기를 줄임
+                            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                            g.DrawImage(img, 0, 0, newW, newH);
+                        }
+                        encoder.AddFrame(resized);
+                    }
+                    else
+                    {
+                        encoder.AddFrame(img);
+                    }
                 }
                 
                 encoder.Finish();
