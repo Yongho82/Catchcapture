@@ -32,6 +32,8 @@ namespace CatchCapture.Recording
         // 도킹 관련
         private bool _isDocked = false;
         private const double DOCK_THRESHOLD = 20;
+        private DispatcherTimer _autoHideTimer;
+        private bool _isHidden = false;
         
         // 상태
         public bool IsRecording => _recorder?.IsRecording ?? false;
@@ -46,6 +48,15 @@ namespace CatchCapture.Recording
             _recordingTimer = new DispatcherTimer();
             _recordingTimer.Interval = TimeSpan.FromSeconds(1);
             _recordingTimer.Tick += RecordingTimer_Tick;
+            
+            // 도킹 자동숨김 타이머
+            _autoHideTimer = new DispatcherTimer();
+            _autoHideTimer.Interval = TimeSpan.FromSeconds(0.5);
+            _autoHideTimer.Tick += AutoHideTimer_Tick;
+            
+            // 이벤트 구독
+            MouseEnter += RecordingWindow_MouseEnter;
+            MouseLeave += RecordingWindow_MouseLeave;
             
             // UI 초기화
             UpdateUI();
@@ -173,6 +184,15 @@ namespace CatchCapture.Recording
             }
             else
             {
+                // 도킹 상태에서 드래그 시 도킹 해제 및 애니메이션 제거
+                if (_isDocked)
+                {
+                    _isDocked = false;
+                    _isHidden = false;
+                    _autoHideTimer.Stop();
+                    BeginAnimation(TopProperty, null); // 애니메이션 제거해야 DragMove 가능
+                }
+
                 DragMove();
                 
                 // 드래그 완료 후 도킹 체크
@@ -375,6 +395,27 @@ namespace CatchCapture.Recording
             };
             
             UpdateUI();
+        }
+
+        /// <summary>
+        /// 도구 모음 접기/펴기
+        /// </summary>
+        private void CollapseButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (SettingsPanel.Visibility == Visibility.Visible)
+            {
+                // 접기
+                SettingsPanel.Visibility = Visibility.Collapsed;
+                CollapseArrow.Text = "▶"; // 펴기 버튼
+                CollapseButton.ToolTip = "도구 모음 펼치기";
+            }
+            else
+            {
+                // 펴기
+                SettingsPanel.Visibility = Visibility.Visible;
+                CollapseArrow.Text = "◀"; // 접기 버튼
+                CollapseButton.ToolTip = "도구 모음 숨기기";
+            }
         }
         
         /// <summary>
@@ -732,6 +773,9 @@ namespace CatchCapture.Recording
             Left = (screen.Width - Width) / 2;
             Top = 0;
             _isDocked = true;
+            
+            // 자동 숨김 체크 시작
+            if (!IsMouseOver) _autoHideTimer.Start();
         }
         
         /// <summary>
@@ -742,8 +786,11 @@ namespace CatchCapture.Recording
             if (_isDocked)
             {
                 // 도킹 해제
-                Top = 100;
                 _isDocked = false;
+                _isHidden = false;
+                _autoHideTimer.Stop();
+                BeginAnimation(TopProperty, null); // 애니메이션 제거
+                Top = 100;
             }
             else
             {
@@ -751,6 +798,52 @@ namespace CatchCapture.Recording
             }
         }
         
+        private void AutoHideTimer_Tick(object? sender, EventArgs e)
+        {
+            if (_isDocked && !IsMouseOver && !_isHidden)
+            {
+                SlideUp();
+            }
+            _autoHideTimer.Stop();
+        }
+
+        private void RecordingWindow_MouseEnter(object sender, MouseEventArgs e)
+        {
+            _autoHideTimer.Stop();
+            if (_isDocked && _isHidden)
+            {
+                SlideDown();
+            }
+        }
+
+        private void RecordingWindow_MouseLeave(object sender, MouseEventArgs e)
+        {
+            if (_isDocked && !_isHidden)
+            {
+                _autoHideTimer.Start();
+            }
+        }
+
+        private void SlideUp()
+        {
+            // Height만큼 위로 올려서 아래 2px만 남김
+            double targetTop = -(ActualHeight - 2); 
+            var anim = new System.Windows.Media.Animation.DoubleAnimation(
+                targetTop, TimeSpan.FromMilliseconds(200));
+            anim.EasingFunction = new System.Windows.Media.Animation.CubicEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut };
+            BeginAnimation(TopProperty, anim);
+            _isHidden = true;
+        }
+
+        private void SlideDown()
+        {
+            var anim = new System.Windows.Media.Animation.DoubleAnimation(
+                0, TimeSpan.FromMilliseconds(200));
+            anim.EasingFunction = new System.Windows.Media.Animation.CubicEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut };
+            BeginAnimation(TopProperty, anim);
+            _isHidden = false;
+        }
+
         #endregion
     }
 }
