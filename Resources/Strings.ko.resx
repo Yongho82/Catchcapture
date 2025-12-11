@@ -377,4 +377,16 @@
   <data name="Countdown" xml:space="preserve"><value>시작 전 카운트다운</value></data>
   <data name="HideToolbar" xml:space="preserve"><value>도구 모음 숨기기</value></data>
   <data name="ShowToolbar" xml:space="preserve"><value>도구 모음 표시</value></data>
+  <data name="AutoSnap" xml:space="preserve"><value>자석</value></data>
+  <data name="FullScreen" xml:space="preserve"><value>전체창</value></data>
+  <data name="DrawingTools" xml:space="preserve"><value>그리기 도구</value></data>
+  <data name="ToolPen" xml:space="preserve"><value>펜</value></data>
+  <data name="ToolHighlighter" xml:space="preserve"><value>형광펜</value></data>
+  <data name="ToolEraser" xml:space="preserve"><value>지우개</value></data>
+  <data name="ToolLine" xml:space="preserve"><value>직선</value></data>
+  <data name="ToolArrow" xml:space="preserve"><value>화살표</value></data>
+  <data name="ToolRectangle" xml:space="preserve"><value>사각형</value></data>
+  <data name="ToolEllipse" xml:space="preserve"><value>원</value></data>
+  <data name="ToolNumbering" xml:space="preserve"><value>번호 매기기</value></data>
+  <data name="ToolClearAll" xml:space="preserve"><value>모두 지우기</value></data>
 </root>
