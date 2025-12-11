@@ -392,10 +392,11 @@ namespace CatchCapture.Recording
             // 화면 경계 체크
             double screenWidth = ActualWidth > 0 ? ActualWidth : SystemParameters.PrimaryScreenWidth;
             double screenHeight = ActualHeight > 0 ? ActualHeight : SystemParameters.PrimaryScreenHeight;
-            newLeftDefault = Math.Max(0, Math.Min(newLeftDefault, screenWidth - _selectionArea.Width));
-            newTopDefault = Math.Max(0, Math.Min(newTopDefault, screenHeight - _selectionArea.Height));
+            newLeftDefault = Math.Max(0, Math.Min(newLeftDefault, screenWidth - _originalArea.Width));
+            newTopDefault = Math.Max(0, Math.Min(newTopDefault, screenHeight - _originalArea.Height));
             
-            _selectionArea = new Rect(newLeftDefault, newTopDefault, _selectionArea.Width, _selectionArea.Height);
+            // 스냅되지 않은 경우 원래 크기로 복귀
+            _selectionArea = new Rect(newLeftDefault, newTopDefault, _originalArea.Width, _originalArea.Height);
             UpdateVisuals();
         }
         
