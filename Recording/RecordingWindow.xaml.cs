@@ -503,8 +503,42 @@ namespace CatchCapture.Recording
 
                     if (!success)
                     {
-                        MessageBox.Show("다운로드에 실패했습니다. 인터넷 연결을 확인해주세요.", "설치 실패", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return; // 녹화 시작 취소
+                        // 자동 다운로드 실패 -> 수동 설치 제안
+                        var manualResult = MessageBox.Show(
+                            "자동 다운로드에 실패했습니다.\n" +
+                            "직접 ffmpeg.exe 파일을 선택하여 설치하시겠습니까?\n\n" +
+                            "(ffmpeg.exe 파일을 선택하면 올바른 위치로 복사됩니다)", 
+                            "설치 실패", 
+                            MessageBoxButton.YesNo, 
+                            MessageBoxImage.Warning);
+                            
+                        if (manualResult == MessageBoxResult.Yes)
+                        {
+                            var openFileDialog = new Microsoft.Win32.OpenFileDialog
+                            {
+                                Filter = "FFmpeg 실행 파일 (ffmpeg.exe)|ffmpeg.exe|모든 파일 (*.*)|*.*",
+                                Title = "ffmpeg.exe 파일 선택"
+                            };
+                            
+                            if (openFileDialog.ShowDialog() == true)
+                            {
+                                bool manualSuccess = FFmpegDownloader.ManualInstall(openFileDialog.FileName);
+                                if (!manualSuccess)
+                                {
+                                    return; // 수동 설치 실패
+                                }
+                                // 성공 시 계속 진행
+                                MessageBox.Show("FFmpeg 수동 설치가 완료되었습니다.", "완료", MessageBoxButton.OK, MessageBoxImage.Information);
+                            }
+                            else
+                            {
+                                return; // 파일 선택 취소
+                            }
+                        }
+                        else
+                        {
+                            return; // 수동 설치 거부 (녹화 취소)
+                        }
                     }
                 }
                 else
