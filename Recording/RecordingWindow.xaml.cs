@@ -415,32 +415,32 @@ namespace CatchCapture.Recording
             if (IsRecording) return;
 
             // === 여기부터 FFmpeg 자동 다운로드 (당신 기존 코드에 딱 맞춤) ===
-            if (_settings.Format == RecordingFormat.MP4 && !FFmpegDownloader.IsFFmpegInstalled())
+            // === FFmpeg 필수 확인 ===
+            // MP4 및 GIF 고품질 저장을 위해 FFmpeg가 반드시 필요함
+            if (!FFmpegDownloader.IsFFmpegInstalled())
             {
                 var result = MessageBox.Show(
-                    "MP4 고화질 녹화를 위해 FFmpeg가 필요합니다.\n" +
-                    "지금 자동으로 다운로드할까요? (약 80MB, 인터넷 필요, 1회만)\n\n" +
-                    "취소하면 GIF로 녹화됩니다.",
-                    "FFmpeg 다운로드 필요",
-                    MessageBoxButton.YesNoCancel,
+                    "동영상 녹화(MP4/GIF) 기능을 사용하려면 추가 구성 요소(FFmpeg)가 필요합니다.\n\n" +
+                    "지금 다운로드하여 설치하시겠습니까?",
+                    "추가 구성 요소 필요",
+                    MessageBoxButton.YesNo,
                     MessageBoxImage.Question);
 
                 if (result == MessageBoxResult.Yes)
                 {
-                    // 당신이 이미 만든 그 아름다운 프로그레스 창 재사용
+                    // 다운로드 UI 표시
                     var progressWindow = new Window
                     {
-                        Title = "FFmpeg 다운로드 중... (80MB)",
-                        Width = 450, Height = 160,
+                        Title = "다운로드 중...",
+                        Width = 400, Height = 120,
                         WindowStartupLocation = WindowStartupLocation.CenterScreen,
                         ResizeMode = ResizeMode.NoResize,
                         WindowStyle = WindowStyle.ToolWindow,
-                        Topmost = true,
-                        Owner = this
+                        Topmost = true
                     };
 
-                    var pb = new System.Windows.Controls.ProgressBar { Height = 35, Margin = new Thickness(20, 20, 20, 10) };
-                    var tb = new TextBlock { Text = "연결 중...", HorizontalAlignment = HorizontalAlignment.Center, FontSize = 14 };
+                    var pb = new System.Windows.Controls.ProgressBar { Height = 20, Margin = new Thickness(20, 20, 20, 10), Value = 0, Maximum = 100 };
+                    var tb = new TextBlock { Text = "서버 연결 중...", HorizontalAlignment = HorizontalAlignment.Center };
                     var sp = new StackPanel();
                     sp.Children.Add(tb);
                     sp.Children.Add(pb);
@@ -452,7 +452,7 @@ namespace CatchCapture.Recording
                         Dispatcher.Invoke(() =>
                         {
                             pb.Value = p;
-                            tb.Text = p < 100 ? $"다운로드 중... {p}%" : "설치 완료!";
+                            tb.Text = $"다운로드 진행 중... {p}%";
                         });
                     });
 
@@ -462,23 +462,40 @@ namespace CatchCapture.Recording
 
                     if (!success)
                     {
-                        MessageBox.Show("FFmpeg 다운로드 실패.\nGIF로 녹화됩니다.", "실패", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        _settings.Format = RecordingFormat.GIF;
-                        UpdateUI();
+                        MessageBox.Show("다운로드에 실패했습니다. 인터넷 연결을 확인해주세요.", "설치 실패", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return; // 녹화 시작 취소
                     }
                 }
-                else if (result == MessageBoxResult.No)
+                else
                 {
-                    _settings.Format = RecordingFormat.GIF;
-                    UpdateUI();
+                    return; // 사용자가 설치 거부 시 녹화 시작 취소
                 }
-                else return; // Cancel
             }
+            // === FFmpeg 확인 끝 ===
             // === FFmpeg 처리 끝 ===
 
             // 나머지는 당신 원래 코드 그대로
+            // === 중앙 카운트다운 표시 ===
             if (_settings.CountdownSeconds > 0)
-                await Task.Delay(_settings.CountdownSeconds * 1000);
+            {
+                var tcs = new TaskCompletionSource<bool>();
+                
+                // 카운트다운 표시용 가이드 윈도우 생성
+                // GuideWindow는 CatchCapture.Utilities 네임스페이스에 있음
+                var countdown = new CatchCapture.Utilities.GuideWindow("", null)
+                {
+                    Topmost = true
+                };
+                
+                countdown.Show();
+                countdown.StartCountdown(_settings.CountdownSeconds, () => 
+                {
+                    tcs.SetResult(true);
+                });
+                
+                // 카운트다운 완료 대기
+                await tcs.Task;
+            }
 
             _overlay?.SetRecordingMode(true);
 
@@ -670,7 +687,9 @@ namespace CatchCapture.Recording
             
             // 타이머
             TimerText.Text = _settings.CountdownSeconds > 0 ? _settings.CountdownSeconds.ToString() : "";
-            TimerText.Visibility = _settings.CountdownSeconds > 0 ? Visibility.Visible : Visibility.Collapsed;
+            // TimerText.Visibility = _settings.CountdownSeconds > 0 ? Visibility.Visible : Visibility.Collapsed; // Badge 제어로 대체
+            if (TimerCountBadge != null)
+                TimerCountBadge.Visibility = _settings.CountdownSeconds > 0 ? Visibility.Visible : Visibility.Collapsed;
             
             // 영역 크기
             AreaSizeText.Text = $"{(int)_settings.LastAreaWidth}x{(int)_settings.LastAreaHeight}";

@@ -186,10 +186,13 @@
                     <Button x:Name="TimerButton" Style="{StaticResource ToolbarButtonStyle}"
                             Click="TimerButton_Click" ToolTip="시작 전 카운트다운">
                         <Grid>
-                            <TextBlock Text="⏱️" FontSize="14"/>
-                            <TextBlock x:Name="TimerText" Text="3" FontSize="9" FontWeight="Bold" Foreground="Black"
-                                       HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-2,-2"
-                                       Visibility="Visible"/>
+                            <TextBlock Text="⏱️" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Border x:Name="TimerCountBadge" Background="#E53935" CornerRadius="7" MinWidth="14" Height="14" 
+                                    HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-4,-4"
+                                    Visibility="Visible">
+                                <TextBlock x:Name="TimerText" Text="3" FontSize="10" FontWeight="Bold" Foreground="White"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" Margin="2,-1,2,0"/>
+                            </Border>
                         </Grid>
                     </Button>
                     
