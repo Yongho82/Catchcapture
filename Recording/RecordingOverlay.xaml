@@ -30,6 +30,9 @@
             </Border.BorderBrush>
         </Border>
         
+        <!-- 그리기 영역 (펜, 형광펜) -->
+        <InkCanvas x:Name="DrawingCanvas" Background="Transparent" IsHitTestVisible="False" Cursor="Cross"/>
+        
         <!-- 크기 표시 라벨 -->
         <Border x:Name="SizeLabelBorder" Background="#CC4361EE" CornerRadius="3" Padding="8,4">
             <TextBlock x:Name="SizeLabel" 

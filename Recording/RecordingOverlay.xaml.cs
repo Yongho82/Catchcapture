@@ -268,6 +268,15 @@ namespace CatchCapture.Recording
             
             // 리사이즈 핸들 위치
             UpdateHandlePositions();
+            
+            // 그리기 캔버스 (선택 영역과 동일한 위치/크기)
+            if (DrawingCanvas != null)
+            {
+                Canvas.SetLeft(DrawingCanvas, l);
+                Canvas.SetTop(DrawingCanvas, t);
+                DrawingCanvas.Width = w;
+                DrawingCanvas.Height = h;
+            }
         }
         
         /// <summary>
@@ -515,6 +524,82 @@ namespace CatchCapture.Recording
             }
         }
         
+        #endregion
+
+        #region 그리기 도구
+
+        private double GetDpiScale()
+        {
+            var source = PresentationSource.FromVisual(this);
+            if (source?.CompositionTarget != null)
+            {
+                return source.CompositionTarget.TransformToDevice.M11; // X축 DPI 스케일
+            }
+            return 1.0;
+        }
+
+        public void SetDrawingMode(bool enabled)
+        {
+            if (DrawingCanvas != null)
+            {
+                DrawingCanvas.IsHitTestVisible = enabled;
+                if (enabled)
+                {
+                    // 마우스 이벤트를 받기 위해 거의 투명한 배경 설정 (완전 투명은 클릭 통과됨)
+                    DrawingCanvas.Background = new SolidColorBrush(Color.FromArgb(1, 0, 0, 0));
+                    
+                    DrawingCanvas.EditingMode = InkCanvasEditingMode.Ink;
+                    
+                    // DPI 스케일에 맞게 펜 두께 조정 (녹화 결과와 화면 표시 일치)
+                    double dpiScale = GetDpiScale();
+                    double adjustedThickness = 3 / dpiScale;
+                    
+                    // 기본 펜 설정 (빨강)
+                    DrawingCanvas.DefaultDrawingAttributes.Color = Colors.Red; 
+                    DrawingCanvas.DefaultDrawingAttributes.Width = adjustedThickness;
+                    DrawingCanvas.DefaultDrawingAttributes.Height = adjustedThickness;
+                    DrawingCanvas.DefaultDrawingAttributes.IsHighlighter = false;
+                }
+                else
+                {
+                    DrawingCanvas.Background = Brushes.Transparent;
+                }
+            }
+        }
+
+        public void SetPenMode(Color color, double thickness, bool isHighlighter)
+        {
+            if (DrawingCanvas != null)
+            {
+                DrawingCanvas.EditingMode = InkCanvasEditingMode.Ink;
+                DrawingCanvas.DefaultDrawingAttributes.Color = color;
+                
+                // DPI 스케일에 맞게 펜 두께 조정
+                double dpiScale = GetDpiScale();
+                double adjustedThickness = thickness / dpiScale;
+                
+                DrawingCanvas.DefaultDrawingAttributes.Width = adjustedThickness;
+                DrawingCanvas.DefaultDrawingAttributes.Height = adjustedThickness;
+                DrawingCanvas.DefaultDrawingAttributes.IsHighlighter = isHighlighter;
+            }
+        }
+
+        public void SetEraserMode()
+        {
+            if (DrawingCanvas != null)
+            {
+                DrawingCanvas.EditingMode = InkCanvasEditingMode.EraseByStroke;
+            }
+        }
+
+        public void ClearDrawing()
+        {
+            if (DrawingCanvas != null)
+            {
+                DrawingCanvas.Strokes.Clear();
+            }
+        }
+
         #endregion
     }
 }

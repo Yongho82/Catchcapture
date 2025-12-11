@@ -1235,6 +1235,99 @@ namespace CatchCapture.Recording
         }
 
         #endregion
+
+        #region 그리기 도구 이벤트 핸들러
+
+        private Color _currentDrawingColor = Colors.Red; // 기본값
+
+        private void DrawingButton_Click(object sender, RoutedEventArgs e)
+        {
+            bool isDrawing = DrawingButton.IsChecked == true;
+            DrawingPopup.IsOpen = isDrawing;
+            
+            if (_overlay != null)
+            {
+                _overlay.SetDrawingMode(isDrawing);
+                
+                // 그리기 모드가 켜지면 현재 선택된 도구 적용
+                if (isDrawing)
+                {
+                    ApplyCurrentDrawingTool();
+                }
+            }
+        }
+
+        private void PenRadio_Click(object sender, RoutedEventArgs e)
+        {
+            ApplyCurrentDrawingTool();
+        }
+
+        private void HighlightRadio_Click(object sender, RoutedEventArgs e)
+        {
+            ApplyCurrentDrawingTool();
+        }
+
+        private void EraserRadio_Click(object sender, RoutedEventArgs e)
+        {
+            if (_overlay != null)
+            {
+                _overlay.SetEraserMode();
+            }
+        }
+
+        private void ColorButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is string colorCode)
+            {
+                try
+                {
+                    Color color = (Color)ColorConverter.ConvertFromString(colorCode);
+                    _currentDrawingColor = color;
+                    ApplyCurrentDrawingTool();
+                }
+                catch { }
+            }
+        }
+
+        private void ClearAllButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_overlay != null)
+            {
+                _overlay.ClearDrawing();
+            }
+        }
+
+        private void ApplyCurrentDrawingTool()
+        {
+            if (_overlay == null) return;
+
+            if (PenRadio.IsChecked == true)
+            {
+                _overlay.SetPenMode(_currentDrawingColor, 3, false);
+            }
+            else if (HighlightRadio.IsChecked == true)
+            {
+                // 형광펜은 반투명하게 적용
+                Color highlightColor = _currentDrawingColor;
+                highlightColor.A = 100; // 약 40% 불투명도
+                _overlay.SetPenMode(highlightColor, 12, true);
+            }
+            else if (EraserRadio.IsChecked == true)
+            {
+                _overlay.SetEraserMode();
+            }
+        }
+
+        private void DrawingPopup_Closed(object sender, EventArgs e)
+        {
+            DrawingButton.IsChecked = false;
+            if (_overlay != null)
+            {
+                _overlay.SetDrawingMode(false);
+            }
+        }
+
+        #endregion
     }
 }
 

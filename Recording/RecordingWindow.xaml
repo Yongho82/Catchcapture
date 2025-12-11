@@ -70,6 +70,69 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <!-- 도구 라디오 버튼 스타일 -->
+        <Style x:Key="ToolRadioButtonStyle" TargetType="RadioButton">
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#20000000" TargetName="border"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Background" Value="#204361EE" TargetName="border"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 색상 버튼 스타일 -->
+        <Style x:Key="ColorButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="20"/>
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                BorderBrush="#CCCCCC" BorderThickness="1" CornerRadius="10">
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="BorderBrush" Value="#888888" TargetName="border"/>
+                                <Setter Property="BorderThickness" Value="2" TargetName="border"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- 세로 구분선 -->
+        <Style x:Key="VerticalSeparatorStyle" TargetType="Separator">
+            <Setter Property="Width" Value="1"/>
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="Margin" Value="4,0"/>
+            <Setter Property="Background" Value="#E0E0E0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Separator">
+                        <Rectangle Fill="{TemplateBinding Background}" Width="{TemplateBinding Width}" Height="{TemplateBinding Height}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
     
     <Border CornerRadius="8" Background="#FFFFFF" BorderThickness="1" BorderBrush="#E0E0E0">
@@ -237,6 +300,12 @@
                             <TextBlock Text="⛶" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Button>
                         
+                        <!-- 그리기 도구 -->
+                        <ToggleButton x:Name="DrawingButton" Style="{StaticResource ToggleToolbarButtonStyle}"
+                                      Click="DrawingButton_Click" ToolTip="그리기 도구">
+                            <TextBlock Text="✏️" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </ToggleButton>
+                        
                         <!-- 영역 크기 -->
                         <TextBlock x:Name="AreaSizeText" Text="800x600" 
                                    FontSize="11" Foreground="#666666" 
@@ -251,6 +320,52 @@
                     </Button>
                 </StackPanel>
             </Border>
+            
+            <!-- 그리기 도구 팝업 -->
+            <Popup x:Name="DrawingPopup" PlacementTarget="{Binding ElementName=DrawingButton}" 
+                   Placement="Bottom" StaysOpen="True" AllowsTransparency="True"
+                   PopupAnimation="Slide" Closed="DrawingPopup_Closed">
+                <Border Background="White" BorderBrush="#CCCCCC" BorderThickness="1" CornerRadius="4" Padding="5" Margin="0,5,0,0">
+                    <Border.Effect>
+                        <DropShadowEffect ShadowDepth="2" BlurRadius="5" Opacity="0.2"/>
+                    </Border.Effect>
+                    <StackPanel Orientation="Horizontal">
+                        <!-- 펜 -->
+                        <RadioButton x:Name="PenRadio" GroupName="DrawingTool" IsChecked="True" 
+                                     Style="{StaticResource ToolRadioButtonStyle}" Click="PenRadio_Click" ToolTip="펜">
+                            <TextBlock Text="🖊️" FontSize="16"/>
+                        </RadioButton>
+                        <!-- 형광펜 -->
+                        <RadioButton x:Name="HighlightRadio" GroupName="DrawingTool" 
+                                     Style="{StaticResource ToolRadioButtonStyle}" Click="HighlightRadio_Click" ToolTip="형광펜">
+                            <TextBlock Text="🖍️" FontSize="16"/>
+                        </RadioButton>
+                        <!-- 지우개 -->
+                        <RadioButton x:Name="EraserRadio" GroupName="DrawingTool" 
+                                     Style="{StaticResource ToolRadioButtonStyle}" Click="EraserRadio_Click" ToolTip="지우개">
+                            <TextBlock Text="🧹" FontSize="16"/>
+                        </RadioButton>
+                        
+                        <Separator Style="{StaticResource VerticalSeparatorStyle}"/>
+                        
+                        <!-- 색상 선택 -->
+                        <Button x:Name="ColorRed" Style="{StaticResource ColorButtonStyle}" Background="Red" Click="ColorButton_Click" Tag="#FFFF0000"/>
+                        <Button x:Name="ColorYellow" Style="{StaticResource ColorButtonStyle}" Background="Yellow" Click="ColorButton_Click" Tag="#FFFFFF00"/>
+                        <Button x:Name="ColorGreen" Style="{StaticResource ColorButtonStyle}" Background="Lime" Click="ColorButton_Click" Tag="#FF00FF00"/>
+                        <Button x:Name="ColorBlue" Style="{StaticResource ColorButtonStyle}" Background="Blue" Click="ColorButton_Click" Tag="#FF0000FF"/>
+                        <Button x:Name="ColorBlack" Style="{StaticResource ColorButtonStyle}" Background="Black" Click="ColorButton_Click" Tag="#FF000000"/>
+                        <Button x:Name="ColorWhite" Style="{StaticResource ColorButtonStyle}" Background="White" Click="ColorButton_Click" Tag="#FFFFFFFF"/>
+                        
+                        <Separator Style="{StaticResource VerticalSeparatorStyle}"/>
+                        
+                        <!-- 전체 지우기 -->
+                        <Button x:Name="ClearAllButton" Style="{StaticResource ToolbarButtonStyle}" Width="24" Height="24" 
+                                Click="ClearAllButton_Click" ToolTip="모두 지우기">
+                            <TextBlock Text="🗑️" FontSize="12"/>
+                        </Button>
+                    </StackPanel>
+                </Border>
+            </Popup>
         </Grid>
     </Border>
 </Window>
