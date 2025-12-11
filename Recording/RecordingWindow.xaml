@@ -176,6 +176,18 @@
                             </Grid>
                         </Button>
                         
+                        <!-- 자동 맞춤 (자석) -->
+                        <ToggleButton x:Name="AutoSnapButton" Style="{StaticResource ToggleToolbarButtonStyle}"
+                                      Click="AutoSnapButton_Click" ToolTip="자동 영역 맞춤 (OFF)">
+                            <TextBlock Text="🧲" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </ToggleButton>
+                        
+                        <!-- 전체 화면 -->
+                        <Button x:Name="FullScreenButton" Style="{StaticResource ToolbarButtonStyle}"
+                                Click="FullScreenButton_Click" ToolTip="전체 화면">
+                            <TextBlock Text="⛶" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Button>
+                        
                         <!-- 파일 형식 -->
                         <Button x:Name="FormatButton" Style="{StaticResource ToolbarButtonStyle}"
                                 Click="FormatButton_Click" ToolTip="파일 형식">

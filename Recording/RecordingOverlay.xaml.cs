@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Runtime.InteropServices;
 
 namespace CatchCapture.Recording
 {
@@ -12,6 +13,27 @@ namespace CatchCapture.Recording
     /// </summary>
     public partial class RecordingOverlay : Window
     {
+        // Win32 API for snap feature
+        [DllImport("user32.dll")]
+        private static extern IntPtr WindowFromPoint(POINT point);
+        
+        [DllImport("user32.dll")]
+        private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+        
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetAncestor(IntPtr hwnd, uint gaFlags);
+        
+        private const uint GA_ROOT = 2;
+        
+        [StructLayout(LayoutKind.Sequential)]
+        private struct POINT { public int X; public int Y; }
+        
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RECT { public int Left; public int Top; public int Right; public int Bottom; }
+        
+        // 자석 기능 활성화 여부
+        public bool IsSnapEnabled { get; set; } = false;
+        
         // 현재 선택 영역
         private Rect _selectionArea;
         
@@ -303,20 +325,77 @@ namespace CatchCapture.Recording
         {
             if (!_isDragging) return;
             
+            // 자석 기능이 켜져 있으면 창에 맞춤
+            if (IsSnapEnabled)
+            {
+                try
+                {
+                    // 스크린 좌표로 마우스 위치 가져오기
+                    var screenPos = System.Windows.Forms.Control.MousePosition;
+                    var point = new POINT { X = screenPos.X, Y = screenPos.Y };
+                    
+                    // 해당 위치의 윈도우 핸들 가져오기
+                    IntPtr hWnd = WindowFromPoint(point);
+                    if (hWnd != IntPtr.Zero)
+                    {
+                        // 먼저 현재 컨트롤 크기 확인
+                        if (GetWindowRect(hWnd, out RECT rect))
+                        {
+                            int width = rect.Right - rect.Left;
+                            int height = rect.Bottom - rect.Top;
+                            
+                            // 너무 작은 컨트롤이면 부모 창으로
+                            if (width < 200 || height < 150)
+                            {
+                                IntPtr parentWnd = GetAncestor(hWnd, GA_ROOT);
+                                if (parentWnd != IntPtr.Zero)
+                                {
+                                    GetWindowRect(parentWnd, out rect);
+                                    width = rect.Right - rect.Left;
+                                    height = rect.Bottom - rect.Top;
+                                }
+                            }
+                            
+                            // 유효한 크기면 적용
+                            if (width >= 200 && height >= 150)
+                            {
+                                // 전체 화면 크기는 무시
+                                var screen = System.Windows.Forms.Screen.FromPoint(screenPos);
+                                if (!(width >= screen.Bounds.Width - 10 && height >= screen.Bounds.Height - 10))
+                                {
+                                    // 오버레이 기준 좌표로 변환 (스크린 좌표 -> 오버레이 상대 좌표)
+                                    double overlayLeft = this.Left;
+                                    double overlayTop = this.Top;
+                                    
+                                    double newLeft = rect.Left - overlayLeft;
+                                    double newTop = rect.Top - overlayTop;
+                                    
+                                    _selectionArea = new Rect(newLeft, newTop, width, height);
+                                    UpdateVisuals();
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+                catch { /* 실패 시 기본 드래그 동작 */ }
+            }
+            
+            // 기본 드래그 동작
             var current = e.GetPosition(this);
             double dx = current.X - _dragStart.X;
             double dy = current.Y - _dragStart.Y;
             
-            double newLeft = _originalArea.Left + dx;
-            double newTop = _originalArea.Top + dy;
+            double newLeftDefault = _originalArea.Left + dx;
+            double newTopDefault = _originalArea.Top + dy;
             
             // 화면 경계 체크
             double screenWidth = ActualWidth > 0 ? ActualWidth : SystemParameters.PrimaryScreenWidth;
             double screenHeight = ActualHeight > 0 ? ActualHeight : SystemParameters.PrimaryScreenHeight;
-            newLeft = Math.Max(0, Math.Min(newLeft, screenWidth - _selectionArea.Width));
-            newTop = Math.Max(0, Math.Min(newTop, screenHeight - _selectionArea.Height));
+            newLeftDefault = Math.Max(0, Math.Min(newLeftDefault, screenWidth - _selectionArea.Width));
+            newTopDefault = Math.Max(0, Math.Min(newTopDefault, screenHeight - _selectionArea.Height));
             
-            _selectionArea = new Rect(newLeft, newTop, _selectionArea.Width, _selectionArea.Height);
+            _selectionArea = new Rect(newLeftDefault, newTopDefault, _selectionArea.Width, _selectionArea.Height);
             UpdateVisuals();
         }
         
