@@ -9,7 +9,8 @@
         Topmost="True"
         ShowInTaskbar="True"
         ResizeMode="NoResize"
-        WindowStartupLocation="CenterScreen">
+        Opacity="0"
+        WindowStartupLocation="Manual">
     
     <Window.Resources>
         <!-- 툴바 버튼 스타일 -->

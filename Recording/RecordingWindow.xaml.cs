@@ -75,6 +75,9 @@ namespace CatchCapture.Recording
             // 오버레이보다 위에 표시되도록 활성화
             this.Activate();
             this.Topmost = true;
+            
+            // 위치 잡은 후 보이게 하기
+            this.Opacity = 1;
         }
         
         /// <summary>
@@ -88,15 +91,11 @@ namespace CatchCapture.Recording
                 _overlay.AreaChanged += Overlay_AreaChanged;
                 _overlay.EscapePressed += Overlay_EscapePressed; // ESC 키 처리
                 
-                // 마지막 위치 복원
-                if (_settings.LastAreaWidth > 0 && _settings.LastAreaHeight > 0)
-                {
-                    _overlay.SelectionArea = new Rect(
-                        _settings.LastAreaLeft,
-                        _settings.LastAreaTop,
-                        _settings.LastAreaWidth,
-                        _settings.LastAreaHeight);
-                }
+                _overlay.AreaChanged += Overlay_AreaChanged;
+                _overlay.EscapePressed += Overlay_EscapePressed; // ESC 키 처리
+                
+                // 사용자가 항상 중앙 시작을 원하므로 마지막 위치 복원 로직 제거
+                // (기본값인 중앙 800x600 사용)
                 
                 // ★ 핵심: 툴바가 오버레이 위에 항상 뜨도록 Owner 설정
                 // 주의: WPF에서 Owner를 설정하려면 Owner가 먼저 Show() 되어야 할 수도 있음
