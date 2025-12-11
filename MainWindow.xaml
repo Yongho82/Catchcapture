@@ -304,7 +304,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/videocamera.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock x:Name="ScreenRecordButtonText" Text="화면녹화" HorizontalAlignment="Left" FontSize="12"/>
+                                    <TextBlock x:Name="ScreenRecordButtonText" HorizontalAlignment="Left" FontSize="12"/>
                                 </StackPanel>
                             </Button>
 

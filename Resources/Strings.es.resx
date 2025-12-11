@@ -361,4 +361,21 @@
   <data name="ComputerApps" xml:space="preserve"><value>Aplicaciones</value></data>
   <data name="Open" xml:space="preserve"><value>Abrir</value></data>
   <data name="ShowMagnifier" xml:space="preserve"><value>Mostrar lupa durante la captura de área</value></data>
+  <data name="ScreenRecording" xml:space="preserve"><value>Grabar</value></data>
+  <data name="Record" xml:space="preserve"><value>Grabar</value></data>
+  <data name="RecordingTool" xml:space="preserve"><value>Herramienta de grabación</value></data>
+  <data name="StartStopRecording" xml:space="preserve"><value>Iniciar/Detener grabación</value></data>
+  <data name="Pause" xml:space="preserve"><value>Pausa</value></data>
+  <data name="Resume" xml:space="preserve"><value>Reanudar</value></data>
+  <data name="SystemAudioOff" xml:space="preserve"><value>Audio del sistema (OFF)</value></data>
+  <data name="SystemAudioOn" xml:space="preserve"><value>Audio del sistema (ON)</value></data>
+  <data name="MicrophoneOff" xml:space="preserve"><value>Grabación de micrófono (OFF)</value></data>
+  <data name="MicrophoneOn" xml:space="preserve"><value>Grabación de micrófono (ON)</value></data>
+  <data name="FileFormat" xml:space="preserve"><value>Formato de archivo</value></data>
+  <data name="VideoQuality" xml:space="preserve"><value>Calidad (HD/SD/LD)</value></data>
+  <data name="FrameRate" xml:space="preserve"><value>Velocidad de fotogramas</value></data>
+  <data name="ShowMouseCursor" xml:space="preserve"><value>Mostrar cursor del ratón</value></data>
+  <data name="Countdown" xml:space="preserve"><value>Cuenta atrás</value></data>
+  <data name="HideToolbar" xml:space="preserve"><value>Ocultar barra de herramientas</value></data>
+  <data name="ShowToolbar" xml:space="preserve"><value>Mostrar barra de herramientas</value></data>
 </root>

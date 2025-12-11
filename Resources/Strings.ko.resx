@@ -361,4 +361,20 @@
   <data name="ComputerApps" xml:space="preserve"><value>컴퓨터 앱</value></data>
   <data name="Open" xml:space="preserve"><value>열기</value></data>
   <data name="ShowMagnifier" xml:space="preserve"><value>영역 캡처 시 돋보기 표시</value></data>
+  <data name="ScreenRecording" xml:space="preserve"><value>화면 녹화</value></data>
+  <data name="Record" xml:space="preserve"><value>화면 녹화</value></data>
+  <data name="RecordingTool" xml:space="preserve"><value>녹화도구</value></data>
+  <data name="StartStopRecording" xml:space="preserve"><value>녹화 시작/정지</value></data>
+  <data name="Pause" xml:space="preserve"><value>일시정지</value></data>
+  <data name="Resume" xml:space="preserve"><value>재개</value></data>
+  <data name="SystemAudioOff" xml:space="preserve"><value>시스템 소리 녹음 (OFF)</value></data>
+  <data name="SystemAudioOn" xml:space="preserve"><value>시스템 소리 녹음 (ON)</value></data>
+  <data name="MicrophoneOff" xml:space="preserve"><value>마이크 녹음 (OFF)</value></data>
+  <data name="MicrophoneOn" xml:space="preserve"><value>마이크 녹음 (ON)</value></data>
+  <data name="VideoQuality" xml:space="preserve"><value>화질 (HD/SD/LD)</value></data>
+  <data name="FrameRate" xml:space="preserve"><value>프레임 레이트</value></data>
+  <data name="ShowMouseCursor" xml:space="preserve"><value>마우스 커서 표시</value></data>
+  <data name="Countdown" xml:space="preserve"><value>시작 전 카운트다운</value></data>
+  <data name="HideToolbar" xml:space="preserve"><value>도구 모음 숨기기</value></data>
+  <data name="ShowToolbar" xml:space="preserve"><value>도구 모음 표시</value></data>
 </root>

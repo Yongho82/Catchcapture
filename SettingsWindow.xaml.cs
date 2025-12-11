@@ -709,6 +709,7 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
                 "ElementCapture"    => LocalizationManager.GetString("ElementCapture"),
                 "ScrollCapture"     => LocalizationManager.GetString("ScrollCapture"),
                 "OcrCapture"        => LocalizationManager.GetString("OcrCapture"),
+                "ScreenRecord"      => LocalizationManager.GetString("ScreenRecording"),
                 _ => key
             };
         }

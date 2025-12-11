@@ -49,7 +49,7 @@ namespace CatchCapture.Recording
         private DateTime _audioStartTime;
         
         // 이벤트
-        public event EventHandler<BitmapSource>? FrameCaptured;
+
         public event EventHandler? RecordingStarted;
         public event EventHandler<string>? RecordingStopped;
         public event EventHandler<Exception>? ErrorOccurred;
@@ -806,9 +806,8 @@ namespace CatchCapture.Recording
                 {
                     // 비디오 인자
                     // -framerate를 실제 계산된 값으로 넣어 재생 속도를 맞춤
-                    // 비디오 인자
-                    // -framerate를 실제 계산된 값으로 넣어 재생 속도를 맞춤
-                    string videoInput = $"-f rawvideo -pixel_format bgr24 -video_size {width}x{height} -framerate {actualFps:F2} -i \"{rawDataPath}\"";
+                    string actualFpsStr = actualFps.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+                    string videoInput = $"-f rawvideo -pixel_format bgr24 -video_size {width}x{height} -framerate {actualFpsStr} -i \"{rawDataPath}\"";
                     
                     // 화질 설정 (CRF 및 해상도 조절)
                     string crfValue = "23";
@@ -826,13 +825,15 @@ namespace CatchCapture.Recording
                         case RecordingQuality.Medium:
                             // SD: 75% 해상도, 중화질 (CRF 26)
                             crfValue = "26";
-                            vfOption = "-vf \"scale=trunc(iw*0.75/2)*2:trunc(ih*0.75/2)*2\"";
+                            string scale75 = (0.75).ToString(System.Globalization.CultureInfo.InvariantCulture);
+                            vfOption = $"-vf \"scale=trunc(iw*{scale75}/2)*2:trunc(ih*{scale75}/2)*2\"";
                             break;
                             
                         case RecordingQuality.Low:
                             // LD: 50% 해상도, 저화질 (CRF 32)
                             crfValue = "32";
-                            vfOption = "-vf \"scale=trunc(iw*0.5/2)*2:trunc(ih*0.5/2)*2\"";
+                            string scale50 = (0.5).ToString(System.Globalization.CultureInfo.InvariantCulture);
+                            vfOption = $"-vf \"scale=trunc(iw*{scale50}/2)*2:trunc(ih*{scale50}/2)*2\"";
                             break;
                     }
 

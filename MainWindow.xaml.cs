@@ -203,6 +203,9 @@ public partial class MainWindow : Window
             }
             UpdateEmptyStateLogo();
             
+            // 초기 UI 텍스트 설정
+            ScreenRecordButtonText.Text = LocalizationManager.GetString("ScreenRecording");
+            
             // refine baseline using ActualHeight now that layout is ready
             try { _baseMainWindowHeight = this.ActualHeight > 0 ? this.ActualHeight : this.Height; } catch { }
             AdjustMainWindowHeightForMenuCount();
@@ -1376,17 +1379,25 @@ public partial class MainWindow : Window
             var recordingWindow = new Recording.RecordingWindow();
             recordingWindow.Closed += (s, args) =>
             {
-                // 녹화 창이 닫힐 때 메인 창 복원 (트레이 모드가 아닐 경우)
-                if (!settings.IsTrayMode)
+                // 녹화 창이 닫힐 때 이전 모드로 복원
+                if (settings.LastActiveMode == "Simple" && simpleModeWindow != null)
                 {
+                    // 간편 모드로 복원
+                    simpleModeWindow.Show();
+                    simpleModeWindow.Activate();
+                }
+                else if (settings.LastActiveMode == "Tray" && trayModeWindow != null)
+                {
+                    // 트레이 모드로 복원
+                    trayModeWindow.Show();
+                    trayModeWindow.Activate();
+                }
+                else if (!settings.IsTrayMode)
+                {
+                    // 일반 모드로 복원
                     this.Show();
                     this.WindowState = WindowState.Normal;
                     this.Activate();
-                }
-                else if (trayModeWindow != null)
-                {
-                    trayModeWindow.Show();
-                    trayModeWindow.Activate();
                 }
             };
             recordingWindow.Show();
@@ -3349,6 +3360,11 @@ public partial class MainWindow : Window
         SettingsSideButton_Click(null!, new RoutedEventArgs());
     }
 
+    public void TriggerScreenRecord()
+    {
+        ScreenRecordButton_Click(null!, new RoutedEventArgs());
+    }
+
     #endregion
 
     private void SetButtonText(System.Windows.Controls.Button? button, string text)
@@ -3400,6 +3416,7 @@ public partial class MainWindow : Window
         if (ElementCaptureButtonText != null) ElementCaptureButtonText.Text = LocalizationManager.GetString("ElementCapture");
         if (ScrollCaptureButtonText != null) ScrollCaptureButtonText.Text = LocalizationManager.GetString("ScrollCapture");
         if (OcrCaptureButtonText != null) OcrCaptureButtonText.Text = LocalizationManager.GetString("OcrCapture");
+        if (ScreenRecordButtonText != null) ScreenRecordButtonText.Text = LocalizationManager.GetString("ScreenRecording");
         
         if (SimpleModeButtonText != null) SimpleModeButtonText.Text = LocalizationManager.GetString("SimpleMode");
         if (TrayModeButtonText != null) TrayModeButtonText.Text = LocalizationManager.GetString("TrayMode");

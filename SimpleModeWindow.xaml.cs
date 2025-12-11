@@ -898,6 +898,7 @@ namespace CatchCapture
                 "UnitCapture" => "/icons/unit_capture.png",
                 "ScrollCapture" => "/icons/scroll_capture.png",
                 "OcrCapture" => "/icons/ocr_capture.png",
+                "ScreenRecord" => "/icons/videocamera.png",
                 "Copy" => "/icons/copy_selected.png",
                 "CopyAll" => "/icons/copy_all.png",
                 "Save" => "/icons/save_selected.png",
@@ -934,7 +935,8 @@ namespace CatchCapture
                 "WindowCapture" => CatchCapture.Models.LocalizationManager.Get("WindowCapture"),
                 "UnitCapture" => CatchCapture.Models.LocalizationManager.Get("UnitCapture"),
                 "ScrollCapture" => CatchCapture.Models.LocalizationManager.Get("ScrollCapture"),
-                "OcrCapture" => CatchCapture.Models.LocalizationManager.Get("OcrCapture"),  // ← 추가
+                "OcrCapture" => CatchCapture.Models.LocalizationManager.Get("OcrCapture"),
+                "ScreenRecord" => CatchCapture.Models.LocalizationManager.Get("Record"),
                 "Copy" => CatchCapture.Models.LocalizationManager.Get("CopySelected"),
                 "CopyAll" => CatchCapture.Models.LocalizationManager.Get("CopyAll"),
                 "Save" => CatchCapture.Models.LocalizationManager.Get("Save"),
@@ -960,6 +962,7 @@ namespace CatchCapture
                 "UnitCapture" => CatchCapture.Models.LocalizationManager.Get("UnitCapture"),
                 "ScrollCapture" => CatchCapture.Models.LocalizationManager.Get("ScrollCapture"),
                 "OcrCapture" => CatchCapture.Models.LocalizationManager.Get("OcrCapture"),
+                "ScreenRecord" => CatchCapture.Models.LocalizationManager.Get("ScreenRecording"),
                 "Copy" => CatchCapture.Models.LocalizationManager.Get("Copy"),
                 "CopyAll" => CatchCapture.Models.LocalizationManager.Get("CopyAll"),
                 "Save" => CatchCapture.Models.LocalizationManager.Get("Save"),
@@ -1004,6 +1007,11 @@ namespace CatchCapture
                     break;
                 case "OcrCapture":
                     PerformCustomCapture(() => _mainWindow?.TriggerOcrCapture());
+                    break;
+                case "ScreenRecord":
+                    // 화면 녹화는 녹화 창이 열리므로 간편모드를 다시 보여주지 않음
+                    this.Hide();
+                    _mainWindow?.TriggerScreenRecord();
                     break;
                 // ★ 새로 추가
                 case "Copy":
@@ -1087,7 +1095,7 @@ namespace CatchCapture
             var allIcons = new[] {
                 "AreaCapture", "DelayCapture", "FullScreen", "RealTimeCapture", "MultiCapture",
                 "DesignatedCapture", "WindowCapture", "UnitCapture", "ScrollCapture", "OcrCapture",
-                "Copy", "CopyAll", "Save", "SaveAll", 
+                "ScreenRecord", "Copy", "CopyAll", "Save", "SaveAll", 
                 "Delete", "DeleteAll", "Settings"
             };
 
@@ -1110,7 +1118,8 @@ namespace CatchCapture
                             "WindowCapture" => CreateMenuIcon("/icons/window_cap.png"),
                             "UnitCapture" => CreateMenuIcon("/icons/unit_capture.png"),
                             "ScrollCapture" => CreateMenuIcon("/icons/scroll_capture.png"),
-                            "OcrCapture" => CreateMenuIcon("/icons/ocr_capture.png"), 
+                            "OcrCapture" => CreateMenuIcon("/icons/ocr_capture.png"),
+                            "ScreenRecord" => CreateMenuIcon("/icons/videocamera.png"),
                             "Copy" => CreateMenuIcon("/icons/copy_selected.png"),
                             "CopyAll" => CreateMenuIcon("/icons/copy_all.png"),
                             "Save" => CreateMenuIcon("/icons/save_selected.png"),

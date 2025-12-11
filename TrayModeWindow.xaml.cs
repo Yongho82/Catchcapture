@@ -597,7 +597,12 @@ namespace CatchCapture
                     button.Click += OcrCaptureButton_Click;
                     iconImage = CreateImage("/icons/ocr_capture.png");
                     labelText = LocalizationManager.Get("OcrCapture");
-                    break;                    
+                    break;
+                case "ScreenRecord":
+                    button.Click += ScreenRecordButton_Click;
+                    iconImage = CreateImage("/icons/videocamera.png");
+                    labelText = LocalizationManager.Get("Record");
+                    break;
                 case "Copy":
                     button.Click += CopyButton_Click;
                     iconImage = CreateImage("/icons/copy_selected.png");
@@ -668,6 +673,13 @@ namespace CatchCapture
             this.Hide();
             mainWindow.TriggerOcrCapture();
         }
+
+        private void ScreenRecordButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Hide();
+            mainWindow.TriggerScreenRecord();
+        }
+
         private Image CreateImage(string source)
         {
             var image = new Image
@@ -1128,6 +1140,7 @@ namespace CatchCapture
                 "UnitCapture" => LocalizationManager.Get("UnitCapture"),
                 "ScrollCapture" => LocalizationManager.Get("ScrollCapture"),
                 "OcrCapture" => LocalizationManager.Get("OcrCapture"),
+                "ScreenRecord" => LocalizationManager.Get("ScreenRecording"),
                 "Copy" => LocalizationManager.Get("CopySelected"),
                 "CopyAll" => LocalizationManager.Get("CopyAll"),
                 "Save" => LocalizationManager.Get("Save"),
@@ -1641,7 +1654,7 @@ namespace CatchCapture
             var allIcons = new[] { 
                 "AreaCapture", "DelayCapture", "FullScreen", "RealTimeCapture", "MultiCapture",
                 "DesignatedCapture", "WindowCapture", "UnitCapture", "ScrollCapture", "OcrCapture",
-                "Copy", "CopyAll", "Save", "SaveAll", 
+                "ScreenRecord", "Copy", "CopyAll", "Save", "SaveAll", 
                 "Delete", "DeleteAll", "Settings"
             };
             
@@ -1663,7 +1676,8 @@ namespace CatchCapture
                             "WindowCapture" => CreateMenuIcon("/icons/window_cap.png"),
                             "UnitCapture" => CreateMenuIcon("/icons/unit_capture.png"),
                             "ScrollCapture" => CreateMenuIcon("/icons/scroll_capture.png"),
-                            "OcrCapture" => CreateMenuIcon("/icons/ocr_capture.png"), 
+                            "OcrCapture" => CreateMenuIcon("/icons/ocr_capture.png"),
+                            "ScreenRecord" => CreateMenuIcon("/icons/videocamera.png"),
                             "Copy" => CreateMenuIcon("/icons/copy_selected.png"),
                             "CopyAll" => CreateMenuIcon("/icons/copy_all.png"),
                             "Save" => CreateMenuIcon("/icons/save_selected.png"),

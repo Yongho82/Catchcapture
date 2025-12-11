@@ -61,6 +61,12 @@ namespace CatchCapture.Recording
             // UI 초기화
             UpdateUI();
             
+            // 언어 변경 핸들러 등록
+            CatchCapture.Resources.LocalizationManager.LanguageChanged += OnLanguageChanged;
+            
+            // 초기 UI 텍스트 설정
+            UpdateUIText();
+            
             // 창 닫힐 때 정리
             Closed += RecordingWindow_Closed;
             
@@ -928,6 +934,49 @@ namespace CatchCapture.Recording
             anim.EasingFunction = new System.Windows.Media.Animation.CubicEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut };
             BeginAnimation(TopProperty, anim);
             _isHidden = false;
+        }
+
+        #endregion
+
+        #region 언어 변경
+
+        private void OnLanguageChanged(object? sender, EventArgs e)
+        {
+            Dispatcher.Invoke(() => UpdateUIText());
+        }
+
+        private void UpdateUIText()
+        {
+            var loc = CatchCapture.Resources.LocalizationManager.GetString;
+            
+            // 윈도우 제목과 타이틀바 텍스트
+            this.Title = loc("RecordingTool");
+            if (TitleText != null) TitleText.Text = loc("RecordingTool");
+            
+            // 버튼 툴팁
+            if (RecordButton != null) RecordButton.ToolTip = loc("StartStopRecording");
+            if (PauseButton != null)
+            {
+                // 일시정지/재개 상태에 따라 툴팁 변경 (UpdateUI에서도 처리)
+                PauseButton.ToolTip = _recorder?.IsPaused == true ? loc("Resume") : loc("Pause");
+            }
+            if (SystemAudioButton != null)
+            {
+                SystemAudioButton.ToolTip = _settings.RecordAudio ? loc("SystemAudioOn") : loc("SystemAudioOff");
+            }
+            if (MicButton != null)
+            {
+                MicButton.ToolTip = _settings.RecordMic ? loc("MicrophoneOn") : loc("MicrophoneOff");
+            }
+            if (FormatButton != null) FormatButton.ToolTip = loc("FileFormat");
+            if (QualityButton != null) QualityButton.ToolTip = loc("VideoQuality");
+            if (FpsButton != null) FpsButton.ToolTip = loc("FrameRate");
+            if (MouseEffectToggle != null) MouseEffectToggle.ToolTip = loc("ShowMouseCursor");
+            if (TimerButton != null) TimerButton.ToolTip = loc("Countdown");
+            if (CollapseButton != null)
+            {
+                CollapseButton.ToolTip = SettingsPanel.Visibility == Visibility.Visible ? loc("HideToolbar") : loc("ShowToolbar");
+            }
         }
 
         #endregion
