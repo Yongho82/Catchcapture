@@ -2936,6 +2936,10 @@ public partial class MainWindow : Window
 
     private void HideSimpleMode()
     {
+        // ★ 간편 모드를 종료하고 일반 모드로 돌아오므로 설정을 Normal로 업데이트
+        settings.LastActiveMode = "Normal";
+        Settings.Save(settings);
+
         if (simpleModeWindow != null)
         {
             // 작업표시줄 대표를 다시 본체로 복구
