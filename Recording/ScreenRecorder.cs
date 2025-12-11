@@ -318,7 +318,7 @@ namespace CatchCapture.Recording
                     if (_audioCapture.WaveFormat.Encoding == WaveFormatEncoding.IeeeFloat)
                     {
                         // 7.0배 증폭 (추가 증폭)
-                        float gain = 7.0f; 
+                        float gain = 3.0f; 
                         var buffer = e.Buffer;
                         int bytesRecorded = e.BytesRecorded;
                         
