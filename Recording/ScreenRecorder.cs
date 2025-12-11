@@ -941,29 +941,32 @@ namespace CatchCapture.Recording
                     
                     // 화질 설정 (CRF 및 해상도 조절)
                     string crfValue = "23";
-                    string vfOption = ""; // 비디오 필터 (해상도 조절용)
+                    string vfOption = ""; // 비디오 필터 (해상도 조절 + 색상 범위 보존)
+                    
+                    // 색상 범위 보존 필터 (full range 유지)
+                    // in_range=full:out_range=full - BGR24(full) -> YUV420P(full) 변환 시 색상 손실 방지
+                    string colorRangeFilter = "in_range=full:out_range=full";
                     
                     switch (_settings.Quality)
                     {
                         case RecordingQuality.High:
                             // HD: 원본 해상도, 고화질 (CRF 18)
                             crfValue = "18";
-                            // 짝수 크기 보장 (이미 위에서 했지만 scale 필터로 안전장치)
-                            vfOption = "-vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\""; 
+                            vfOption = $"-vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2:{colorRangeFilter}\""; 
                             break;
                             
                         case RecordingQuality.Medium:
                             // SD: 75% 해상도, 중화질 (CRF 26)
                             crfValue = "26";
                             string scale75 = (0.75).ToString(System.Globalization.CultureInfo.InvariantCulture);
-                            vfOption = $"-vf \"scale=trunc(iw*{scale75}/2)*2:trunc(ih*{scale75}/2)*2\"";
+                            vfOption = $"-vf \"scale=trunc(iw*{scale75}/2)*2:trunc(ih*{scale75}/2)*2:{colorRangeFilter}\"";
                             break;
                             
                         case RecordingQuality.Low:
                             // LD: 50% 해상도, 저화질 (CRF 32)
                             crfValue = "32";
                             string scale50 = (0.5).ToString(System.Globalization.CultureInfo.InvariantCulture);
-                            vfOption = $"-vf \"scale=trunc(iw*{scale50}/2)*2:trunc(ih*{scale50}/2)*2\"";
+                            vfOption = $"-vf \"scale=trunc(iw*{scale50}/2)*2:trunc(ih*{scale50}/2)*2:{colorRangeFilter}\"";
                             break;
                     }
 
@@ -1005,7 +1008,9 @@ namespace CatchCapture.Recording
                         // -threads 0: 자동으로 최대 스레드 사용
                         // -tune zerolatency: 빠른 인코딩 최적화
                         // -movflags +faststart: 웹 재생 최적화
-                        Arguments = $"-y {videoInput} {audioInput} -threads 0 {vfOption} -c:v libx264 -preset ultrafast -tune zerolatency -crf {crfValue} -pix_fmt yuv420p -movflags +faststart {audioMap} \"{tempMp4Path}\"",
+                        // yuvj420p: Full Range YUV420P (JPEG 색상 범위)
+                        // -x264-params fullrange=on: x264 인코더에 full range 명시
+                        Arguments = $"-y {videoInput} {audioInput} -threads 0 {vfOption} -c:v libx264 -preset ultrafast -tune zerolatency -crf {crfValue} -pix_fmt yuvj420p -x264-params fullrange=on -movflags +faststart {audioMap} \"{tempMp4Path}\"",
                         UseShellExecute = false,
                         RedirectStandardOutput = true,
                         RedirectStandardError = true,

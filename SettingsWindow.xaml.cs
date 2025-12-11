@@ -670,7 +670,7 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
             var allMenuKeys = new[]
             {
                 "AreaCapture", "DelayCapture", "RealTimeCapture", "MultiCapture",
-                "FullScreen", "DesignatedCapture", "WindowCapture", "ElementCapture", "ScrollCapture", "OcrCapture"
+                "FullScreen", "DesignatedCapture", "WindowCapture", "ElementCapture", "ScrollCapture", "OcrCapture", "ScreenRecord"
             };
 
             // Get currently used keys

@@ -130,12 +130,7 @@ namespace CatchCapture.Models
                 var settings = JsonSerializer.Deserialize<Settings>(json);
                 if (settings != null)
                 {
-                    // Ensure new default items are present (Migration)
-                    if (!settings.MainMenuItems.Contains("ScreenRecord"))
-                    {
-                        settings.MainMenuItems.Add("ScreenRecord");
-                        Save(settings);
-                    }
+                    // 마이그레이션 로직 제거됨 - 사용자가 메뉴 항목을 자유롭게 편집할 수 있도록 함
                     return settings;
                 }
                 return new Settings();

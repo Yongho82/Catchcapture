@@ -503,35 +503,135 @@ namespace CatchCapture.Recording
 
                 if (result == MessageBoxResult.Yes)
                 {
-                    // 다운로드 UI 표시
+                    // 모던한 다운로드 UI 표시
                     var progressWindow = new Window
                     {
-                        Title = "다운로드 중...",
-                        Width = 400, Height = 120,
+                        Title = "FFmpeg 다운로드",
+                        Width = 420,
+                        Height = 180,
                         WindowStartupLocation = WindowStartupLocation.CenterScreen,
                         ResizeMode = ResizeMode.NoResize,
-                        WindowStyle = WindowStyle.ToolWindow,
+                        WindowStyle = WindowStyle.None,
+                        AllowsTransparency = true,
+                        Background = System.Windows.Media.Brushes.Transparent,
                         Topmost = true
                     };
 
-                    var pb = new System.Windows.Controls.ProgressBar { Height = 20, Margin = new Thickness(20, 20, 20, 10), Value = 0, Maximum = 100 };
-                    var tb = new TextBlock { Text = "서버 연결 중...", HorizontalAlignment = HorizontalAlignment.Center };
-                    var sp = new StackPanel();
-                    sp.Children.Add(tb);
-                    sp.Children.Add(pb);
-                    progressWindow.Content = sp;
+                    // 메인 컨테이너
+                    var mainBorder = new Border
+                    {
+                        Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(45, 45, 55)),
+                        CornerRadius = new CornerRadius(12),
+                        Padding = new Thickness(30, 25, 30, 25),
+                        BorderBrush = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(80, 80, 100)),
+                        BorderThickness = new Thickness(1)
+                    };
+
+                    var sp = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+
+                    // 제목
+                    var titleText = new TextBlock
+                    {
+                        Text = "📦 FFmpeg 다운로드 중...",
+                        FontSize = 18,
+                        FontWeight = FontWeights.SemiBold,
+                        Foreground = System.Windows.Media.Brushes.White,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        Margin = new Thickness(0, 0, 0, 8)
+                    };
+
+                    // 상태 텍스트
+                    var statusText = new TextBlock
+                    {
+                        Text = "서버 연결 중...",
+                        FontSize = 12,
+                        Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(180, 180, 190)),
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        Margin = new Thickness(0, 0, 0, 15)
+                    };
+
+                    // 프로그레스 바 배경
+                    var progressBg = new Border
+                    {
+                        Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(60, 60, 75)),
+                        Height = 6,
+                        CornerRadius = new CornerRadius(3)
+                    };
+
+                    // 프로그레스 바 (Grid로 구현)
+                    var progressFill = new Border
+                    {
+                        Background = new System.Windows.Media.LinearGradientBrush
+                        {
+                            StartPoint = new System.Windows.Point(0, 0),
+                            EndPoint = new System.Windows.Point(1, 0),
+                            GradientStops = new System.Windows.Media.GradientStopCollection
+                            {
+                                new System.Windows.Media.GradientStop(System.Windows.Media.Color.FromRgb(99, 102, 241), 0),
+                                new System.Windows.Media.GradientStop(System.Windows.Media.Color.FromRgb(168, 85, 247), 1)
+                            }
+                        },
+                        Height = 6,
+                        CornerRadius = new CornerRadius(3),
+                        HorizontalAlignment = HorizontalAlignment.Left,
+                        Width = 0
+                    };
+
+                    var progressGrid = new Grid { Height = 6 };
+                    progressGrid.Children.Add(progressBg);
+                    progressGrid.Children.Add(progressFill);
+
+                    // 퍼센트 텍스트
+                    var percentText = new TextBlock
+                    {
+                        Text = "0%",
+                        FontSize = 13,
+                        Foreground = System.Windows.Media.Brushes.White,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        Margin = new Thickness(0, 12, 0, 0)
+                    };
+
+                    sp.Children.Add(titleText);
+                    sp.Children.Add(statusText);
+                    sp.Children.Add(progressGrid);
+                    sp.Children.Add(percentText);
+
+                    mainBorder.Child = sp;
+                    progressWindow.Content = mainBorder;
                     progressWindow.Show();
 
+                    double maxWidth = 360; // progressGrid의 실제 너비
+                    
                     var progress = new Progress<int>(p =>
                     {
                         Dispatcher.Invoke(() =>
                         {
-                            pb.Value = p;
-                            tb.Text = $"다운로드 진행 중... {p}%";
+                            progressFill.Width = (p / 100.0) * maxWidth;
+                            percentText.Text = $"{p}%";
+                            
+                            if (p < 50)
+                                statusText.Text = "다운로드 중...";
+                            else if (p < 70)
+                                statusText.Text = "압축 해제 중...";
+                            else if (p < 100)
+                                statusText.Text = "설치 중...";
+                            else
+                                statusText.Text = "✓ 완료!";
                         });
                     });
 
                     bool success = await FFmpegDownloader.DownloadFFmpegAsync(progress);
+
+                    if (success)
+                    {
+                        // 성공 시 완료 메시지 표시 후 1초 대기
+                        Dispatcher.Invoke(() =>
+                        {
+                            titleText.Text = "✅ FFmpeg 설치 완료!";
+                            statusText.Text = "녹화 기능을 사용할 수 있습니다.";
+                        });
+                        await Task.Delay(1200);
+                    }
 
                     progressWindow.Close();
 

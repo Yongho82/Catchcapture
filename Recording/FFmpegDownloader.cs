@@ -126,7 +126,7 @@ namespace CatchCapture.Recording
                     if (File.Exists(tempZip)) File.Delete(tempZip);
                     if (Directory.Exists(tempExtract)) Directory.Delete(tempExtract, true);
                     
-                    CatchCapture.CustomMessageBox.Show($"FFmpeg 설치가 완료되었습니다.", "완료", MessageBoxButton.OK, MessageBoxImage.Information);
+                    // 성공 메시지는 호출하는 쪽에서 표시
                     return true; // 성공 시 즉시 리턴
                 }
                 catch (Exception)
