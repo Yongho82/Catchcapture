@@ -200,15 +200,14 @@ namespace CatchCapture.Recording
                 }
                 else if (result == MessageBoxResult.No)
                 {
-                    _recorder?.Dispose();
-                    _overlay?.Close();
+                    // 리소스 정리는 Closed 이벤트에서 처리됨
                     Close();
                 }
                 // Cancel: 아무것도 안 함
             }
             else
             {
-                _overlay?.Close();
+                // 녹화 중이 아니면 닫기 (리소스 정리는 Closed 이벤트에서)
                 Close();
             }
         }
