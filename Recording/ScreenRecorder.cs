@@ -46,9 +46,21 @@ namespace CatchCapture.Recording
         private string? _tempAudioPath;
         private TaskCompletionSource<bool>? _audioStopTcs; // 오디오 종료 대기용
         
-        // 프레임 저장 (Raw 픽셀 데이터)
+        // === 실시간 인코딩 (FFmpeg Pipe) ===
+        private Process? _ffmpegProcess;
+        private Stream? _ffmpegStdin;
+        private string? _tempVideoPath;    // 임시 비디오 (오디오 없는 버전)
+        private bool _useRealTimeEncoding = true;  // 실시간 인코딩 사용 여부
+        
+        // FFmpeg 쓰기용 큐 (블로킹 방지)
+        private System.Collections.Concurrent.ConcurrentQueue<byte[]>? _frameQueue;
+        private Task? _ffmpegWriteTask;
+        private volatile bool _stopWriting = false;
+        
+        // 프레임 저장 (실시간 인코딩 실패 시 폴백용)
         private List<byte[]> _frames;
         private List<int> _frameDelays;
+        private byte[]? _firstFrame;  // 썸네일용 첫 프레임
         private DateTime _lastFrameTime;
         
         // 캡처 영역 크기 (Raw 데이터 디코딩용)
@@ -116,15 +128,18 @@ namespace CatchCapture.Recording
                 Math.Max(captureArea.Height - (borderThickness * 2), 1)
             );
             
-            // 캡처 크기 저장 (Raw 데이터 디코딩용)
+            // 캡처 크기 저장 (FFmpeg 입력용 - 짝수로 보정)
             _captureWidth = (int)_captureArea.Width;
             _captureHeight = (int)_captureArea.Height;
+            if (_captureWidth % 2 != 0) _captureWidth--;
+            if (_captureHeight % 2 != 0) _captureHeight--;
             
             _isRecording = true;
             _isPaused = false;
             _frameCount = 0;
             _frames.Clear();
             _frameDelays.Clear();
+            _firstFrame = null;  // 첫 프레임 초기화
             _recordingStartTime = DateTime.Now;
             _lastFrameTime = DateTime.Now;
             _cts = new CancellationTokenSource();
@@ -143,10 +158,134 @@ namespace CatchCapture.Recording
                 }
             }
 
+            // === 실시간 인코딩: FFmpeg 프로세스 시작 ===
+            _useRealTimeEncoding = FFmpegDownloader.IsFFmpegInstalled();
+            if (_useRealTimeEncoding)
+            {
+                try
+                {
+                    StartFFmpegProcess();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"FFmpeg process start failed: {ex.Message}");
+                    _useRealTimeEncoding = false;  // 폴백: 메모리 저장 방식
+                }
+            }
+
             // 캡처 루프 시작
             _captureTask = Task.Run(() => CaptureLoop(_cts.Token));
             
             RecordingStarted?.Invoke(this, EventArgs.Empty);
+        }
+        
+        /// <summary>
+        /// FFmpeg 실시간 인코딩 프로세스 시작
+        /// </summary>
+        private void StartFFmpegProcess()
+        {
+            string ffmpegPath = FFmpegDownloader.GetFFmpegPath();
+            if (string.IsNullOrEmpty(ffmpegPath))
+                throw new Exception("FFmpeg not found");
+            
+            // 임시 비디오 파일 경로 (오디오 없는 버전)
+            string tempFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture", "temp");
+            if (!Directory.Exists(tempFolder)) Directory.CreateDirectory(tempFolder);
+            
+            _tempVideoPath = Path.Combine(tempFolder, $"rec_video_{DateTime.Now:HHmmss}_{Guid.NewGuid().ToString().Substring(0, 8)}.mp4");
+            
+            // 화질 설정
+            string crfValue = _settings.Quality switch
+            {
+                RecordingQuality.High => "18",
+                RecordingQuality.Medium => "26",
+                RecordingQuality.Low => "32",
+                _ => "23"
+            };
+            
+            // FFmpeg 명령어 준비 (stdin에서 rawvideo 입력 받음)
+            string fpsStr = _settings.FrameRate.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            string arguments = $"-y -f rawvideo -pixel_format bgr24 -video_size {_captureWidth}x{_captureHeight} " +
+                               $"-framerate {fpsStr} -i pipe:0 " +
+                               $"-c:v libx264 -preset ultrafast -tune zerolatency -crf {crfValue} " +
+                               $"-pix_fmt yuvj420p -x264-params fullrange=on " +
+                               $"-movflags +faststart \"{_tempVideoPath}\"";
+            
+            Debug.WriteLine($"[FFmpeg RealTime] Starting: {arguments}");
+            
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = ffmpegPath,
+                Arguments = arguments,
+                UseShellExecute = false,
+                RedirectStandardInput = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+            
+            _ffmpegProcess = Process.Start(startInfo);
+            if (_ffmpegProcess == null)
+                throw new Exception("Failed to start FFmpeg process");
+            
+            _ffmpegStdin = _ffmpegProcess.StandardInput.BaseStream;
+            
+            // FFmpeg 로그 출력 (비동기)
+            _ffmpegProcess.ErrorDataReceived += (s, e) =>
+            {
+                if (!string.IsNullOrWhiteSpace(e.Data))
+                    Debug.WriteLine($"[FFmpeg] {e.Data}");
+            };
+            _ffmpegProcess.BeginErrorReadLine();
+            
+            // 프레임 큐 초기화 및 쓰기 태스크 시작
+            _frameQueue = new System.Collections.Concurrent.ConcurrentQueue<byte[]>();
+            _stopWriting = false;
+            _ffmpegWriteTask = Task.Run(FFmpegWriteLoop);
+        }
+        
+        /// <summary>
+        /// FFmpeg stdin 쓰기 루프 (별도 스레드에서 실행)
+        /// </summary>
+        private void FFmpegWriteLoop()
+        {
+            try
+            {
+                while (!_stopWriting || (_frameQueue != null && !_frameQueue.IsEmpty))
+                {
+                    if (_frameQueue != null && _frameQueue.TryDequeue(out byte[]? frameData))
+                    {
+                        if (frameData != null && _ffmpegStdin != null)
+                        {
+                            try
+                            {
+                                _ffmpegStdin.Write(frameData, 0, frameData.Length);
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"[FFmpeg Write] Error: {ex.Message}");
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // 큐가 비어있으면 잠시 대기
+                        Thread.Sleep(1);
+                    }
+                }
+                
+                // 스트림 플러시
+                try
+                {
+                    _ffmpegStdin?.Flush();
+                }
+                catch { }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[FFmpeg WriteLoop] Fatal: {ex.Message}");
+            }
         }
 
         private void StartAudioRecording()
@@ -341,6 +480,46 @@ namespace CatchCapture.Recording
                 catch { }
             }
 
+            // === 실시간 인코딩: FFmpeg 프로세스 종료 ===
+            if (_useRealTimeEncoding && _ffmpegProcess != null)
+            {
+                try
+                {
+                    // 쓰기 태스크 종료 신호
+                    _stopWriting = true;
+                    
+                    // 쓰기 태스크 완료 대기 (모든 큐 소진)
+                    if (_ffmpegWriteTask != null)
+                    {
+                        await Task.WhenAny(_ffmpegWriteTask, Task.Delay(10000));
+                    }
+                    
+                    // stdin을 닫아서 FFmpeg에게 입력 종료 알림
+                    _ffmpegStdin?.Close();
+                    _ffmpegStdin = null;
+                    
+                    // FFmpeg가 인코딩 완료할 때까지 대기 (최대 30초)
+                    bool exited = _ffmpegProcess.WaitForExit(30000);
+                    if (!exited)
+                    {
+                        Debug.WriteLine("[FFmpeg] Process did not exit in time, killing...");
+                        _ffmpegProcess.Kill();
+                    }
+                    
+                    Debug.WriteLine($"[FFmpeg] Exit code: {_ffmpegProcess.ExitCode}");
+                    
+                    _ffmpegProcess.Dispose();
+                    _ffmpegProcess = null;
+                    
+                    // 큐 정리
+                    _frameQueue = null;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[FFmpeg] Error stopping process: {ex.Message}");
+                }
+            }
+
             // 오디오 중지 및 파일 닫기 대기
             if (_audioCapture != null)
             {
@@ -378,16 +557,36 @@ namespace CatchCapture.Recording
                     Directory.CreateDirectory(outputFolder);
                 }
                 
-                if (_settings.Format == RecordingFormat.GIF && _frames.Count > 0)
+                // === 실시간 인코딩 사용 여부 확인 ===
+                bool hasRealTimeVideo = !string.IsNullOrEmpty(_tempVideoPath) && File.Exists(_tempVideoPath);
+                
+                if (_settings.Format == RecordingFormat.GIF)
                 {
-                    savedPath = await SaveAsGifAsync(outputPath);
+                    if (_frames.Count > 0)
+                    {
+                        savedPath = await SaveAsGifAsync(outputPath);
+                    }
+                    else if (hasRealTimeVideo)
+                    {
+                        // 실시간 인코딩된 MP4를 GIF로 변환
+                        savedPath = await ConvertMP4ToGifAsync(_tempVideoPath!, outputPath);
+                    }
                 }
-                else if (_settings.Format == RecordingFormat.MP4 && _frames.Count > 0)
+                else if (_settings.Format == RecordingFormat.MP4)
                 {
-                    // MP4 저장 (FFmpeg CLI 사용)
-                    savedPath = await SaveAsMP4Async(outputPath);
+                    if (hasRealTimeVideo)
+                    {
+                        // 실시간 인코딩 완료된 비디오 사용
+                        savedPath = await MergeVideoAudioAsync(_tempVideoPath!, outputPath);
+                    }
+                    else if (_frames.Count > 0)
+                    {
+                        // 폴백: 메모리에 저장된 프레임으로 인코딩
+                        savedPath = await SaveAsMP4Async(outputPath);
+                    }
                 }
-                else
+                
+                if (string.IsNullOrEmpty(savedPath))
                 {
                     return string.Empty;
                 }
@@ -398,12 +597,133 @@ namespace CatchCapture.Recording
             }
             finally
             {
-                // 주의: 오디오 파일은 SaveAsMP4Async 내부의 finally에서 정리됨
-                // 여기서 삭제하면 FFmpeg가 읽기 전에 파일이 사라짐!
-                // 오디오 파일 정리는 SaveAsMP4Async의 finally에서만 수행
+                // 임시 비디오 파일 정리
+                CleanupTempFiles();
             }
             
             return savedPath;
+        }
+        
+        /// <summary>
+        /// 실시간 인코딩된 비디오와 오디오 합성
+        /// </summary>
+        private async Task<string> MergeVideoAudioAsync(string videoPath, string outputPath)
+        {
+            string ffmpegPath = FFmpegDownloader.GetFFmpegPath();
+            
+            // 오디오 파일 확인
+            bool hasAudio = !string.IsNullOrEmpty(_tempAudioPath) && 
+                           File.Exists(_tempAudioPath) && 
+                           new FileInfo(_tempAudioPath).Length > 1024;
+            
+            if (!hasAudio)
+            {
+                // 오디오 없으면 비디오만 복사
+                if (File.Exists(outputPath)) File.Delete(outputPath);
+                File.Move(videoPath, outputPath);
+                Debug.WriteLine($"[RealTime] No audio, moved video directly: {outputPath}");
+                return outputPath;
+            }
+            
+            // 오디오와 비디오 합성
+            Debug.WriteLine($"[RealTime] Merging video and audio...");
+            
+            string arguments = $"-y -i \"{videoPath}\" -i \"{_tempAudioPath}\" " +
+                              "-c:v copy -c:a aac -b:a 192k -shortest " +
+                              $"-movflags +faststart \"{outputPath}\"";
+            
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = ffmpegPath,
+                Arguments = arguments,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+            
+            using var process = Process.Start(startInfo);
+            if (process == null) throw new Exception("Failed to start FFmpeg for merging");
+            
+            process.BeginErrorReadLine();
+            await Task.Run(() => process.WaitForExit(60000));
+            
+            if (process.ExitCode == 0 && File.Exists(outputPath))
+            {
+                Debug.WriteLine($"[RealTime] Merge complete: {outputPath}");
+                return outputPath;
+            }
+            else
+            {
+                // 합성 실패 시 비디오만 사용
+                Debug.WriteLine($"[RealTime] Merge failed, using video only");
+                if (File.Exists(outputPath)) File.Delete(outputPath);
+                File.Move(videoPath, outputPath);
+                return outputPath;
+            }
+        }
+        
+        /// <summary>
+        /// MP4를 GIF로 변환
+        /// </summary>
+        private async Task<string> ConvertMP4ToGifAsync(string videoPath, string outputPath)
+        {
+            string ffmpegPath = FFmpegDownloader.GetFFmpegPath();
+            string gifPath = Path.ChangeExtension(outputPath, ".gif");
+            
+            // 팔레트 생성 후 GIF 변환 (고품질)
+            string paletteTemp = Path.Combine(Path.GetTempPath(), $"palette_{Guid.NewGuid()}.png");
+            
+            try
+            {
+                // 팔레트 생성
+                var paletteProcess = Process.Start(new ProcessStartInfo
+                {
+                    FileName = ffmpegPath,
+                    Arguments = $"-y -i \"{videoPath}\" -vf \"fps=15,palettegen\" \"{paletteTemp}\"",
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                });
+                paletteProcess?.WaitForExit(30000);
+                
+                // GIF 생성
+                var gifProcess = Process.Start(new ProcessStartInfo
+                {
+                    FileName = ffmpegPath,
+                    Arguments = $"-y -i \"{videoPath}\" -i \"{paletteTemp}\" -lavfi \"fps=15 [x]; [x][1:v] paletteuse\" \"{gifPath}\"",
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                });
+                await Task.Run(() => gifProcess?.WaitForExit(60000));
+                
+                return File.Exists(gifPath) ? gifPath : string.Empty;
+            }
+            finally
+            {
+                if (File.Exists(paletteTemp)) File.Delete(paletteTemp);
+            }
+        }
+        
+        /// <summary>
+        /// 임시 파일 정리
+        /// </summary>
+        private void CleanupTempFiles()
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(_tempVideoPath) && File.Exists(_tempVideoPath))
+                {
+                    File.Delete(_tempVideoPath);
+                    _tempVideoPath = null;
+                }
+                
+                if (!string.IsNullOrEmpty(_tempAudioPath) && File.Exists(_tempAudioPath))
+                {
+                    File.Delete(_tempAudioPath);
+                    _tempAudioPath = null;
+                }
+            }
+            catch { }
         }
         
         /// <summary>
@@ -411,7 +731,9 @@ namespace CatchCapture.Recording
         /// </summary>
         public BitmapSource? GetThumbnail()
         {
-            if (_frames.Count == 0 || _captureWidth <= 0 || _captureHeight <= 0) return null;
+            // _firstFrame이 있으면 사용, 없으면 _frames[0] 사용
+            byte[]? frameData = _firstFrame ?? (_frames.Count > 0 ? _frames[0] : null);
+            if (frameData == null || _captureWidth <= 0 || _captureHeight <= 0) return null;
             
             try
             {
@@ -428,7 +750,7 @@ namespace CatchCapture.Recording
                     for (int y = 0; y < _captureHeight; y++)
                     {
                         IntPtr destPtr = IntPtr.Add(bitmapData.Scan0, y * bitmapData.Stride);
-                        Marshal.Copy(_frames[0], y * rowBytes, destPtr, rowBytes);
+                        Marshal.Copy(frameData, y * rowBytes, destPtr, rowBytes);
                     }
                 }
                 finally
@@ -484,7 +806,23 @@ namespace CatchCapture.Recording
                     
                     if (frameData != null)
                     {
-                        _frames.Add(frameData);
+                        // 첫 프레임 저장 (썸네일용)
+                        if (_firstFrame == null)
+                        {
+                            _firstFrame = frameData;
+                        }
+                        
+                        // === 실시간 인코딩: 프레임 큐에 추가 (비동기 쓰기) ===
+                        if (_useRealTimeEncoding && _frameQueue != null)
+                        {
+                            _frameQueue.Enqueue(frameData);
+                        }
+                        else
+                        {
+                            // 폴백: 메모리에 프레임 저장
+                            _frames.Add(frameData);
+                        }
+                        
                         _frameDelays.Add((int)frameIntervalMs);
                         _frameCount++;
                         
@@ -574,8 +912,9 @@ namespace CatchCapture.Recording
         {
             try
             {
-                int width = (int)_captureArea.Width;
-                int height = (int)_captureArea.Height;
+                // FFmpeg에 전달한 것과 동일한 크기 사용 (짝수 보정된 값)
+                int width = _captureWidth;
+                int height = _captureHeight;
                 
                 if (width <= 0 || height <= 0) return null;
                 
