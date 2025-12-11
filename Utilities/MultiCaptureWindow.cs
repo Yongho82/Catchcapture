@@ -65,55 +65,7 @@ namespace CatchCapture.Utilities
             double vWidth = SystemParameters.VirtualScreenWidth;
             double vHeight = SystemParameters.VirtualScreenHeight;
 
-            // 디버깅: 모니터 정보를 바탕화면 파일로 저장
-            try
-            {
-                var allScreens = Forms.Screen.AllScreens;
-                var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                var debugFilePath = System.IO.Path.Combine(desktopPath, "MultiCapture_Debug.txt");
-                
-                var sb = new System.Text.StringBuilder();
-                sb.AppendLine($"=== 멀티캡처 모니터 정보 ===");
-                sb.AppendLine($"시간: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
-                sb.AppendLine();
-                sb.AppendLine($"SystemParameters:");
-                sb.AppendLine($"  Left: {vLeft}");
-                sb.AppendLine($"  Top: {vTop}");
-                sb.AppendLine($"  Width: {vWidth}");
-                sb.AppendLine($"  Height: {vHeight}");
-                sb.AppendLine();
-                sb.AppendLine($"총 모니터 수: {allScreens.Length}");
-                for (int i = 0; i < allScreens.Length; i++)
-                {
-                    var screen = allScreens[i];
-                    sb.AppendLine($"모니터 {i + 1}:");
-                    sb.AppendLine($"  Left: {screen.Bounds.Left}");
-                    sb.AppendLine($"  Top: {screen.Bounds.Top}");
-                    sb.AppendLine($"  Width: {screen.Bounds.Width}");
-                    sb.AppendLine($"  Height: {screen.Bounds.Height}");
-                    sb.AppendLine($"  Primary: {screen.Primary}");
-                }
-                sb.AppendLine();
-                int formsMinX = allScreens.Min(s => s.Bounds.Left);
-                int formsMinY = allScreens.Min(s => s.Bounds.Top);
-                int formsMaxX = allScreens.Max(s => s.Bounds.Right);
-                int formsMaxY = allScreens.Max(s => s.Bounds.Bottom);
-                sb.AppendLine($"Forms.Screen 계산값:");
-                sb.AppendLine($"  MinX: {formsMinX}");
-                sb.AppendLine($"  MinY: {formsMinY}");
-                sb.AppendLine($"  MaxX: {formsMaxX}");
-                sb.AppendLine($"  MaxY: {formsMaxY}");
-                sb.AppendLine($"  Total Width: {formsMaxX - formsMinX}");
-                sb.AppendLine($"  Total Height: {formsMaxY - formsMinY}");
-                sb.AppendLine();
-                sb.AppendLine($"사용 중인 오프셋:");
-                sb.AppendLine($"  offsetX: {vLeft}");
-                sb.AppendLine($"  offsetY: {vTop}");
-                sb.AppendLine($"==================");
-                
-                System.IO.File.WriteAllText(debugFilePath, sb.ToString());
-            }
-            catch { }
+
 
             Left = vLeft;
             Top = vTop;

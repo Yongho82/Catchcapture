@@ -1158,10 +1158,8 @@ namespace CatchCapture.Recording
         private async Task<string> SaveAsMP4Async(string outputPath)
         {
             // 디버그 로그 설정
-            string logPath = Path.Combine(Path.GetDirectoryName(outputPath) ?? "C:\\", "ffmpeg_debug.txt");
             void Log(string msg) 
             {
-                try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] {msg}\n"); } catch { }
                 Debug.WriteLine($"[ScreenRecorder] {msg}");
             }
 
@@ -1400,7 +1398,7 @@ namespace CatchCapture.Recording
                 Log($"Fatal Error: {ex.Message}\n{ex.StackTrace}");
                 Application.Current?.Dispatcher.Invoke(() =>
                 {
-                    CatchCapture.CustomMessageBox.Show($"녹화 실패: {ex.Message}\n로그: {logPath}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                    CatchCapture.CustomMessageBox.Show($"녹화 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
                 });
                 return string.Empty;
             }
