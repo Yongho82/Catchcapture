@@ -1316,6 +1316,51 @@ namespace CatchCapture.Recording
             {
                 _overlay.SetEraserMode();
             }
+            else if (LineRadio.IsChecked == true)
+            {
+                _overlay.SetShapeTool("line", _currentDrawingColor);
+            }
+            else if (ArrowRadio.IsChecked == true)
+            {
+                _overlay.SetShapeTool("arrow", _currentDrawingColor);
+            }
+            else if (RectangleRadio.IsChecked == true)
+            {
+                _overlay.SetShapeTool("rectangle", _currentDrawingColor);
+            }
+            else if (EllipseRadio.IsChecked == true)
+            {
+                _overlay.SetShapeTool("ellipse", _currentDrawingColor);
+            }
+            else if (NumberingRadio.IsChecked == true)
+            {
+                _overlay.SetNumberingMode(_currentDrawingColor);
+            }
+        }
+
+        private void LineRadio_Click(object sender, RoutedEventArgs e)
+        {
+            ApplyCurrentDrawingTool();
+        }
+
+        private void ArrowRadio_Click(object sender, RoutedEventArgs e)
+        {
+            ApplyCurrentDrawingTool();
+        }
+
+        private void RectangleRadio_Click(object sender, RoutedEventArgs e)
+        {
+            ApplyCurrentDrawingTool();
+        }
+
+        private void EllipseRadio_Click(object sender, RoutedEventArgs e)
+        {
+            ApplyCurrentDrawingTool();
+        }
+
+        private void NumberingRadio_Click(object sender, RoutedEventArgs e)
+        {
+            ApplyCurrentDrawingTool();
         }
 
         private void DrawingPopup_Closed(object sender, EventArgs e)
@@ -1324,6 +1369,22 @@ namespace CatchCapture.Recording
             if (_overlay != null)
             {
                 _overlay.SetDrawingMode(false);
+            }
+        }
+
+        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            // Ctrl+Z: Undo
+            if (e.Key == Key.Z && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                _overlay?.PerformUndo();
+                e.Handled = true;
+            }
+            // Ctrl+Y: Redo
+            else if (e.Key == Key.Y && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                _overlay?.PerformRedo();
+                e.Handled = true;
             }
         }
 

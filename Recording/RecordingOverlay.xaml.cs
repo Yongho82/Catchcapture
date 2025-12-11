@@ -277,6 +277,15 @@ namespace CatchCapture.Recording
                 DrawingCanvas.Width = w;
                 DrawingCanvas.Height = h;
             }
+            
+            // 도형 캔버스 (선택 영역과 동일한 위치/크기)
+            if (ShapeCanvas != null)
+            {
+                Canvas.SetLeft(ShapeCanvas, l);
+                Canvas.SetTop(ShapeCanvas, t);
+                ShapeCanvas.Width = w;
+                ShapeCanvas.Height = h;
+            }
         }
         
         /// <summary>
@@ -569,8 +578,22 @@ namespace CatchCapture.Recording
 
         public void SetPenMode(Color color, double thickness, bool isHighlighter)
         {
+            _isEraserMode = false;
+            _isNumberingMode = false;
+            _currentShapeTool = ShapeToolType.None;
+            
+            // ShapeCanvas 비활성화
+            if (ShapeCanvas != null)
+            {
+                ShapeCanvas.IsHitTestVisible = false;
+                ShapeCanvas.Background = Brushes.Transparent;
+            }
+            
+            // DrawingCanvas 활성화
             if (DrawingCanvas != null)
             {
+                DrawingCanvas.IsHitTestVisible = true;
+                DrawingCanvas.Background = new SolidColorBrush(Color.FromArgb(1, 0, 0, 0));
                 DrawingCanvas.EditingMode = InkCanvasEditingMode.Ink;
                 DrawingCanvas.DefaultDrawingAttributes.Color = color;
                 
@@ -590,6 +613,123 @@ namespace CatchCapture.Recording
             {
                 DrawingCanvas.EditingMode = InkCanvasEditingMode.EraseByStroke;
             }
+            
+            // 도형 지우기 모드 활성화
+            _isEraserMode = true;
+            _isNumberingMode = false;
+            _currentShapeTool = ShapeToolType.None;
+            
+            if (ShapeCanvas != null)
+            {
+                ShapeCanvas.IsHitTestVisible = true;
+                ShapeCanvas.Background = new SolidColorBrush(Color.FromArgb(1, 0, 0, 0));
+                ShapeCanvas.Cursor = Cursors.Pen; // 펜 커서 (지우개 느낌)
+                
+                ShapeCanvas.MouseLeftButtonDown -= ShapeCanvas_MouseLeftButtonDown;
+                ShapeCanvas.MouseLeftButtonDown += ShapeCanvas_MouseLeftButtonDown_Eraser;
+            }
+        }
+        
+        private bool _isEraserMode = false;
+        
+        private void ShapeCanvas_MouseLeftButtonDown_Eraser(object sender, MouseButtonEventArgs e)
+        {
+            if (ShapeCanvas == null || !_isEraserMode) return;
+            
+            var pos = e.GetPosition(ShapeCanvas);
+            
+            // 클릭한 위치에 있는 도형 찾기 (역순으로 검색 - 위에 있는 것부터)
+            for (int i = ShapeCanvas.Children.Count - 1; i >= 0; i--)
+            {
+                var element = ShapeCanvas.Children[i];
+                
+                // 요소의 경계 박스 계산
+                Rect bounds = GetElementBounds(element);
+                
+                // 클릭 위치가 요소 범위 안에 있는지 확인 (약간의 여유 추가)
+                Rect hitRect = new Rect(bounds.X - 5, bounds.Y - 5, bounds.Width + 10, bounds.Height + 10);
+                
+                if (hitRect.Contains(pos))
+                {
+                    // 번호 매기기였다면 카운터 감소
+                    if (element is Border)
+                    {
+                        _numberingCounter = Math.Max(1, _numberingCounter - 1);
+                    }
+                    
+                    ShapeCanvas.Children.RemoveAt(i);
+                    _redoStack.Clear();
+                    break;
+                }
+            }
+        }
+
+        private Rect GetElementBounds(UIElement element)
+        {
+            double left = Canvas.GetLeft(element);
+            double top = Canvas.GetTop(element);
+            
+            if (double.IsNaN(left)) left = 0;
+            if (double.IsNaN(top)) top = 0;
+            
+            double width = 0, height = 0;
+            
+            if (element is FrameworkElement fe)
+            {
+                width = fe.ActualWidth > 0 ? fe.ActualWidth : (double.IsNaN(fe.Width) ? 0 : fe.Width);
+                height = fe.ActualHeight > 0 ? fe.ActualHeight : (double.IsNaN(fe.Height) ? 0 : fe.Height);
+            }
+            
+            // Canvas (화살표 등)인 경우 자식 요소들의 경계 계산
+            if (element is Canvas canvas && canvas.Children.Count > 0)
+            {
+                double minX = double.MaxValue, minY = double.MaxValue;
+                double maxX = double.MinValue, maxY = double.MinValue;
+                
+                foreach (UIElement child in canvas.Children)
+                {
+                    if (child is System.Windows.Shapes.Line line)
+                    {
+                        minX = Math.Min(minX, Math.Min(line.X1, line.X2));
+                        minY = Math.Min(minY, Math.Min(line.Y1, line.Y2));
+                        maxX = Math.Max(maxX, Math.Max(line.X1, line.X2));
+                        maxY = Math.Max(maxY, Math.Max(line.Y1, line.Y2));
+                    }
+                    else if (child is Polygon polygon)
+                    {
+                        foreach (var point in polygon.Points)
+                        {
+                            minX = Math.Min(minX, point.X);
+                            minY = Math.Min(minY, point.Y);
+                            maxX = Math.Max(maxX, point.X);
+                            maxY = Math.Max(maxY, point.Y);
+                        }
+                    }
+                }
+                
+                if (minX != double.MaxValue)
+                {
+                    left = minX;
+                    top = minY;
+                    width = maxX - minX;
+                    height = maxY - minY;
+                }
+            }
+            
+            // Line인 경우
+            if (element is System.Windows.Shapes.Line singleLine)
+            {
+                left = Math.Min(singleLine.X1, singleLine.X2);
+                top = Math.Min(singleLine.Y1, singleLine.Y2);
+                width = Math.Abs(singleLine.X2 - singleLine.X1);
+                height = Math.Abs(singleLine.Y2 - singleLine.Y1);
+                
+                // 수평/수직 선은 두께가 0이 되므로 최소 크기 보장
+                width = Math.Max(width, 10);
+                height = Math.Max(height, 10);
+            }
+            
+            return new Rect(left, top, Math.Max(width, 10), Math.Max(height, 10));
         }
 
         public void ClearDrawing()
@@ -597,6 +737,354 @@ namespace CatchCapture.Recording
             if (DrawingCanvas != null)
             {
                 DrawingCanvas.Strokes.Clear();
+            }
+            if (ShapeCanvas != null)
+            {
+                ShapeCanvas.Children.Clear();
+            }
+            _numberingCounter = 1; // 번호 초기화
+        }
+
+        // 도형 그리기 관련
+        private enum ShapeToolType { None, Rectangle, Ellipse, Line, Arrow }
+        private ShapeToolType _currentShapeTool = ShapeToolType.None;
+        private bool _isNumberingMode = false;
+        private int _numberingCounter = 1;
+        private Point _shapeStartPoint;
+        private UIElement? _tempShape;
+        private bool _isDrawingShape = false;
+        private Color _currentShapeColor = Colors.Red;
+
+        public void SetShapeTool(string toolName, Color color)
+        {
+            _currentShapeColor = color;
+            _isNumberingMode = false;
+            _isEraserMode = false;
+            
+            // InkCanvas 비활성화
+            if (DrawingCanvas != null)
+            {
+                DrawingCanvas.IsHitTestVisible = false;
+            }
+            
+            // ShapeCanvas 활성화
+            if (ShapeCanvas != null)
+            {
+                ShapeCanvas.IsHitTestVisible = true;
+                ShapeCanvas.Background = new SolidColorBrush(Color.FromArgb(1, 0, 0, 0));
+                ShapeCanvas.Cursor = Cursors.Cross;
+                
+                // 이벤트 핸들러 등록 (중복 방지)
+                ShapeCanvas.MouseLeftButtonDown -= ShapeCanvas_MouseLeftButtonDown;
+                ShapeCanvas.MouseMove -= ShapeCanvas_MouseMove;
+                ShapeCanvas.MouseLeftButtonUp -= ShapeCanvas_MouseLeftButtonUp;
+                
+                ShapeCanvas.MouseLeftButtonDown += ShapeCanvas_MouseLeftButtonDown;
+                ShapeCanvas.MouseMove += ShapeCanvas_MouseMove;
+                ShapeCanvas.MouseLeftButtonUp += ShapeCanvas_MouseLeftButtonUp;
+            }
+            
+            _currentShapeTool = toolName.ToLower() switch
+            {
+                "rectangle" => ShapeToolType.Rectangle,
+                "ellipse" => ShapeToolType.Ellipse,
+                "line" => ShapeToolType.Line,
+                "arrow" => ShapeToolType.Arrow,
+                _ => ShapeToolType.None
+            };
+        }
+
+        public void SetNumberingMode(Color color)
+        {
+            _isNumberingMode = true;
+            _currentShapeColor = color;
+            _currentShapeTool = ShapeToolType.None;
+            _isEraserMode = false;
+            
+            // InkCanvas 비활성화
+            if (DrawingCanvas != null)
+            {
+                DrawingCanvas.IsHitTestVisible = false;
+            }
+            
+            // ShapeCanvas 활성화
+            if (ShapeCanvas != null)
+            {
+                ShapeCanvas.IsHitTestVisible = true;
+                ShapeCanvas.Background = new SolidColorBrush(Color.FromArgb(1, 0, 0, 0));
+                ShapeCanvas.Cursor = Cursors.Hand;
+                
+                ShapeCanvas.MouseLeftButtonDown -= ShapeCanvas_MouseLeftButtonDown;
+                ShapeCanvas.MouseMove -= ShapeCanvas_MouseMove;
+                ShapeCanvas.MouseLeftButtonUp -= ShapeCanvas_MouseLeftButtonUp;
+                
+                ShapeCanvas.MouseLeftButtonDown += ShapeCanvas_MouseLeftButtonDown;
+            }
+        }
+
+        private void ShapeCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (ShapeCanvas == null) return;
+            
+            var pos = e.GetPosition(ShapeCanvas);
+            
+            if (_isNumberingMode)
+            {
+                // 번호 매기기: 클릭한 위치에 번호 배지 추가
+                var badge = CreateNumberBadge(_numberingCounter, pos);
+                ShapeCanvas.Children.Add(badge);
+                _numberingCounter++;
+                _redoStack.Clear(); // 새 작업 시 Redo 스택 초기화
+            }
+            else if (_currentShapeTool != ShapeToolType.None)
+            {
+                // 도형 그리기 시작
+                _shapeStartPoint = pos;
+                _isDrawingShape = true;
+                ShapeCanvas.CaptureMouse();
+            }
+        }
+
+        private void ShapeCanvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (!_isDrawingShape || ShapeCanvas == null) return;
+            
+            var currentPos = e.GetPosition(ShapeCanvas);
+            
+            // 임시 도형 제거
+            if (_tempShape != null)
+            {
+                ShapeCanvas.Children.Remove(_tempShape);
+            }
+            
+            // 새 임시 도형 생성
+            _tempShape = CreateShape(_shapeStartPoint, currentPos, _currentShapeTool, _currentShapeColor, true);
+            if (_tempShape != null)
+            {
+                ShapeCanvas.Children.Add(_tempShape);
+            }
+        }
+
+        private void ShapeCanvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (!_isDrawingShape || ShapeCanvas == null) return;
+            
+            _isDrawingShape = false;
+            ShapeCanvas.ReleaseMouseCapture();
+            
+            var endPos = e.GetPosition(ShapeCanvas);
+            
+            // 임시 도형 제거
+            if (_tempShape != null)
+            {
+                ShapeCanvas.Children.Remove(_tempShape);
+                _tempShape = null;
+            }
+            
+            // 최종 도형 추가
+            var finalShape = CreateShape(_shapeStartPoint, endPos, _currentShapeTool, _currentShapeColor, false);
+            if (finalShape != null)
+            {
+                ShapeCanvas.Children.Add(finalShape);
+                // Undo 스택에 추가
+                _redoStack.Clear(); // 새 작업 시 Redo 스택 초기화
+            }
+        }
+
+        private UIElement CreateShape(Point start, Point end, ShapeToolType type, Color color, bool isTemp)
+        {
+            double dpiScale = GetDpiScale();
+            double strokeThickness = 2 / dpiScale;
+            
+            var brush = new SolidColorBrush(color);
+            var pen = new Pen(brush, strokeThickness);
+            
+            switch (type)
+            {
+                case ShapeToolType.Rectangle:
+                    var rect = new System.Windows.Shapes.Rectangle
+                    {
+                        Stroke = brush,
+                        StrokeThickness = strokeThickness,
+                        Width = Math.Abs(end.X - start.X),
+                        Height = Math.Abs(end.Y - start.Y)
+                    };
+                    Canvas.SetLeft(rect, Math.Min(start.X, end.X));
+                    Canvas.SetTop(rect, Math.Min(start.Y, end.Y));
+                    return rect;
+                    
+                case ShapeToolType.Ellipse:
+                    var ellipse = new System.Windows.Shapes.Ellipse
+                    {
+                        Stroke = brush,
+                        StrokeThickness = strokeThickness,
+                        Width = Math.Abs(end.X - start.X),
+                        Height = Math.Abs(end.Y - start.Y)
+                    };
+                    Canvas.SetLeft(ellipse, Math.Min(start.X, end.X));
+                    Canvas.SetTop(ellipse, Math.Min(start.Y, end.Y));
+                    return ellipse;
+                    
+                case ShapeToolType.Line:
+                    var line = new System.Windows.Shapes.Line
+                    {
+                        X1 = start.X,
+                        Y1 = start.Y,
+                        X2 = end.X,
+                        Y2 = end.Y,
+                        Stroke = brush,
+                        StrokeThickness = strokeThickness
+                    };
+                    return line;
+                    
+                case ShapeToolType.Arrow:
+                    return CreateArrow(start, end, brush, strokeThickness);
+                    
+                default:
+                    return null;
+            }
+        }
+
+        private UIElement CreateArrow(Point start, Point end, Brush brush, double thickness)
+        {
+            var group = new Canvas();
+            
+            // 화살표 선
+            var line = new System.Windows.Shapes.Line
+            {
+                X1 = start.X,
+                Y1 = start.Y,
+                X2 = end.X,
+                Y2 = end.Y,
+                Stroke = brush,
+                StrokeThickness = thickness
+            };
+            group.Children.Add(line);
+            
+            // 화살표 머리 (삼각형)
+            double angle = Math.Atan2(end.Y - start.Y, end.X - start.X);
+            double arrowLength = 10;
+            double arrowAngle = Math.PI / 6; // 30도
+            
+            Point arrowPoint1 = new Point(
+                end.X - arrowLength * Math.Cos(angle - arrowAngle),
+                end.Y - arrowLength * Math.Sin(angle - arrowAngle)
+            );
+            Point arrowPoint2 = new Point(
+                end.X - arrowLength * Math.Cos(angle + arrowAngle),
+                end.Y - arrowLength * Math.Sin(angle + arrowAngle)
+            );
+            
+            var arrowHead = new Polygon
+            {
+                Points = new PointCollection { end, arrowPoint1, arrowPoint2 },
+                Fill = brush,
+                Stroke = brush,
+                StrokeThickness = thickness
+            };
+            group.Children.Add(arrowHead);
+            
+            return group;
+        }
+
+        private UIElement CreateNumberBadge(int number, Point position)
+        {
+            double dpiScale = GetDpiScale();
+            double badgeSize = 24 / dpiScale;
+            double fontSize = 12 / dpiScale;
+            
+            var badge = new Border
+            {
+                Width = badgeSize,
+                Height = badgeSize,
+                CornerRadius = new CornerRadius(badgeSize / 2),
+                Background = new SolidColorBrush(_currentShapeColor),
+                BorderBrush = Brushes.White,
+                BorderThickness = new Thickness(2 / dpiScale),
+                Child = new TextBlock
+                {
+                    Text = number.ToString(),
+                    Foreground = Brushes.White,
+                    FontSize = fontSize,
+                    FontWeight = FontWeights.Bold,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                }
+            };
+            
+            Canvas.SetLeft(badge, position.X - badgeSize / 2);
+            Canvas.SetTop(badge, position.Y - badgeSize / 2);
+            
+            return badge;
+        }
+
+        // Undo/Redo 관련
+        private Stack<object> _undoStack = new Stack<object>();
+        private Stack<object> _redoStack = new Stack<object>();
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            // Ctrl+Z: Undo
+            if (e.Key == Key.Z && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                PerformUndo();
+                e.Handled = true;
+            }
+            // Ctrl+Y: Redo
+            else if (e.Key == Key.Y && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                PerformRedo();
+                e.Handled = true;
+            }
+        }
+
+        public void PerformUndo()
+        {
+            // Shape Undo (우선순위: 도형이 나중에 그려지므로)
+            if (ShapeCanvas != null && ShapeCanvas.Children.Count > 0)
+            {
+                var lastShape = ShapeCanvas.Children[ShapeCanvas.Children.Count - 1];
+                _undoStack.Push(new { Type = "Shape", Data = lastShape });
+                ShapeCanvas.Children.RemoveAt(ShapeCanvas.Children.Count - 1);
+                
+                // 번호 매기기였다면 카운터 감소
+                if (lastShape is Border)
+                {
+                    _numberingCounter = Math.Max(1, _numberingCounter - 1);
+                }
+                return;
+            }
+
+            // InkCanvas Undo
+            if (DrawingCanvas != null && DrawingCanvas.Strokes.Count > 0)
+            {
+                var lastStroke = DrawingCanvas.Strokes[DrawingCanvas.Strokes.Count - 1];
+                _undoStack.Push(new { Type = "Stroke", Data = lastStroke });
+                DrawingCanvas.Strokes.RemoveAt(DrawingCanvas.Strokes.Count - 1);
+            }
+        }
+
+        public void PerformRedo()
+        {
+            if (_undoStack.Count == 0) return;
+
+            var item = _undoStack.Pop();
+            var itemType = item.GetType().GetProperty("Type")?.GetValue(item)?.ToString();
+            var itemData = item.GetType().GetProperty("Data")?.GetValue(item);
+
+            if (itemType == "Stroke" && itemData is System.Windows.Ink.Stroke stroke)
+            {
+                DrawingCanvas?.Strokes.Add(stroke);
+            }
+            else if (itemType == "Shape" && itemData is UIElement shape)
+            {
+                ShapeCanvas?.Children.Add(shape);
+                
+                // 번호 매기기였다면 카운터 증가
+                if (shape is Border)
+                {
+                    _numberingCounter++;
+                }
             }
         }
 

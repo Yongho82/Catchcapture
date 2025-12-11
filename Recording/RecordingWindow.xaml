@@ -11,7 +11,8 @@
         ShowInTaskbar="True"
         ResizeMode="NoResize"
         Opacity="0"
-        WindowStartupLocation="Manual">
+        WindowStartupLocation="Manual"
+        PreviewKeyDown="Window_PreviewKeyDown">
     
     <Window.Resources>
         <!-- 툴바 버튼 스타일 -->
@@ -344,6 +345,34 @@
                         <RadioButton x:Name="EraserRadio" GroupName="DrawingTool" 
                                      Style="{StaticResource ToolRadioButtonStyle}" Click="EraserRadio_Click" ToolTip="지우개">
                             <TextBlock Text="🧹" FontSize="16"/>
+                        </RadioButton>
+                        
+                        <Separator Style="{StaticResource VerticalSeparatorStyle}"/>
+                        
+                        <!-- 직선 -->
+                        <RadioButton x:Name="LineRadio" GroupName="DrawingTool" 
+                                     Style="{StaticResource ToolRadioButtonStyle}" Click="LineRadio_Click" ToolTip="직선">
+                            <TextBlock Text="📏" FontSize="16"/>
+                        </RadioButton>
+                        <!-- 화살표 -->
+                        <RadioButton x:Name="ArrowRadio" GroupName="DrawingTool" 
+                                     Style="{StaticResource ToolRadioButtonStyle}" Click="ArrowRadio_Click" ToolTip="화살표">
+                            <TextBlock Text="➡️" FontSize="16"/>
+                        </RadioButton>
+                        <!-- 사각형 -->
+                        <RadioButton x:Name="RectangleRadio" GroupName="DrawingTool" 
+                                     Style="{StaticResource ToolRadioButtonStyle}" Click="RectangleRadio_Click" ToolTip="사각형">
+                            <TextBlock Text="⬜" FontSize="16"/>
+                        </RadioButton>
+                        <!-- 원 -->
+                        <RadioButton x:Name="EllipseRadio" GroupName="DrawingTool" 
+                                     Style="{StaticResource ToolRadioButtonStyle}" Click="EllipseRadio_Click" ToolTip="원">
+                            <TextBlock Text="⭕" FontSize="16"/>
+                        </RadioButton>
+                        <!-- 번호 매기기 -->
+                        <RadioButton x:Name="NumberingRadio" GroupName="DrawingTool" 
+                                     Style="{StaticResource ToolRadioButtonStyle}" Click="NumberingRadio_Click" ToolTip="번호 매기기">
+                            <TextBlock Text="❶" FontSize="16"/>
                         </RadioButton>
                         
                         <Separator Style="{StaticResource VerticalSeparatorStyle}"/>

@@ -8,7 +8,9 @@
         ShowInTaskbar="False"
         ResizeMode="NoResize"
         Topmost="True"
-        WindowStartupLocation="Manual">
+        WindowStartupLocation="Manual"
+        Focusable="True"
+        KeyDown="Window_KeyDown">
     
     <Canvas x:Name="OverlayCanvas">
         <!-- 반투명 배경 (4개 영역으로 분할) -->
@@ -30,6 +32,9 @@
             </Border.BorderBrush>
         </Border>
         
+        <!-- 도형/번호 영역 -->
+        <Canvas x:Name="ShapeCanvas" Background="Transparent" IsHitTestVisible="False"/>
+
         <!-- 그리기 영역 (펜, 형광펜) -->
         <InkCanvas x:Name="DrawingCanvas" Background="Transparent" IsHitTestVisible="False" Cursor="Cross"/>
         
