@@ -2040,7 +2040,7 @@ public partial class MainWindow : Window
                 }
                 catch
                 {
-                    MessageBox.Show($"{LocalizationManager.GetString("ShareError")}: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+                    CatchCapture.CustomMessageBox.Show($"{LocalizationManager.GetString("ShareError")}: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -2213,7 +2213,7 @@ public partial class MainWindow : Window
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"저장 중 오류가 발생했습니다: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+                CatchCapture.CustomMessageBox.Show($"저장 중 오류가 발생했습니다: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
@@ -2261,7 +2261,7 @@ public partial class MainWindow : Window
         {
             if (!captures[selectedIndex].IsSaved && settings.ShowSavePrompt)
             {
-                if (MessageBox.Show(LocalizationManager.GetString("UnsavedImageDeleteConfirm"), LocalizationManager.GetString("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                if (CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("UnsavedImageDeleteConfirm"), LocalizationManager.GetString("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
                 {
                     return;
                 }
@@ -2337,7 +2337,7 @@ public partial class MainWindow : Window
 
         if (hasUnsavedImages && settings.ShowSavePrompt)
         {
-            var result = MessageBox.Show(
+            var result = CatchCapture.CustomMessageBox.Show(
                 LocalizationManager.GetString("UnsavedImagesDeleteConfirm"),
                 LocalizationManager.GetString("Confirm"),
                 MessageBoxButton.YesNo,
@@ -2488,7 +2488,7 @@ public partial class MainWindow : Window
         {
             // 실패 시 클립보드 폴백
             ScreenCaptureUtility.CopyImageToClipboard(image);
-            MessageBox.Show($"검색 실행 실패: {ex.Message}\n이미지가 클립보드에 복사되었습니다.", LocalizationManager.GetString("Error"));
+            CatchCapture.CustomMessageBox.Show($"검색 실행 실패: {ex.Message}\n이미지가 클립보드에 복사되었습니다.", LocalizationManager.GetString("Error"));
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
             {
                 FileName = "https://www.google.com/imghp?hl=ko",
@@ -2590,7 +2590,7 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"단축키 등록 실패: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+            CatchCapture.CustomMessageBox.Show($"단축키 등록 실패: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 

@@ -138,3 +138,5 @@ C:\Yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\NAudio.Midi.d
 C:\Yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\NAudio.Wasapi.dll
 C:\Yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\NAudio.WinForms.dll
 C:\Yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\NAudio.WinMM.dll
+C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\CustomMessageBox.baml
+C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\CustomMessageBox.g.cs

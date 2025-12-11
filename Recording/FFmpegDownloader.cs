@@ -58,7 +58,7 @@ namespace CatchCapture.Recording
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"설치 폴더 생성 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                CatchCapture.CustomMessageBox.Show($"설치 폴더 생성 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
@@ -126,7 +126,7 @@ namespace CatchCapture.Recording
                     if (File.Exists(tempZip)) File.Delete(tempZip);
                     if (Directory.Exists(tempExtract)) Directory.Delete(tempExtract, true);
                     
-                    MessageBox.Show($"FFmpeg 설치가 완료되었습니다.", "완료", MessageBoxButton.OK, MessageBoxImage.Information);
+                    CatchCapture.CustomMessageBox.Show($"FFmpeg 설치가 완료되었습니다.", "완료", MessageBoxButton.OK, MessageBoxImage.Information);
                     return true; // 성공 시 즉시 리턴
                 }
                 catch (Exception)
@@ -159,7 +159,7 @@ namespace CatchCapture.Recording
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"수동 설치 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                CatchCapture.CustomMessageBox.Show($"수동 설치 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
         }

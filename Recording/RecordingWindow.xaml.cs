@@ -460,7 +460,7 @@ namespace CatchCapture.Recording
             // MP4 및 GIF 고품질 저장을 위해 FFmpeg가 반드시 필요함
             if (!FFmpegDownloader.IsFFmpegInstalled())
             {
-                var result = MessageBox.Show(
+                var result = CatchCapture.CustomMessageBox.Show(
                     "동영상 녹화(MP4/GIF) 기능을 사용하려면 추가 구성 요소(FFmpeg)가 필요합니다.\n\n" +
                     "지금 다운로드하여 설치하시겠습니까?",
                     "추가 구성 요소 필요",
@@ -504,7 +504,7 @@ namespace CatchCapture.Recording
                     if (!success)
                     {
                         // 자동 다운로드 실패 -> 수동 설치 제안
-                        var manualResult = MessageBox.Show(
+                        var manualResult = CatchCapture.CustomMessageBox.Show(
                             "자동 다운로드에 실패했습니다.\n" +
                             "직접 ffmpeg.exe 파일을 선택하여 설치하시겠습니까?\n\n" +
                             "(ffmpeg.exe 파일을 선택하면 올바른 위치로 복사됩니다)", 
@@ -528,7 +528,7 @@ namespace CatchCapture.Recording
                                     return; // 수동 설치 실패
                                 }
                                 // 성공 시 계속 진행
-                                MessageBox.Show("FFmpeg 수동 설치가 완료되었습니다.", "완료", MessageBoxButton.OK, MessageBoxImage.Information);
+                                CatchCapture.CustomMessageBox.Show("FFmpeg 수동 설치가 완료되었습니다.", "완료", MessageBoxButton.OK, MessageBoxImage.Information);
                             }
                             else
                             {
@@ -647,13 +647,13 @@ namespace CatchCapture.Recording
                 }
                 else
                 {
-                    MessageBox.Show("녹화된 프레임이 없어 저장할 수 없습니다.", "알림", 
+                    CatchCapture.CustomMessageBox.Show("녹화된 프레임이 없어 저장할 수 없습니다.", "알림", 
                         MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"녹화 중지 중 오류가 발생했습니다:\n{ex.Message}", "오류", 
+                CatchCapture.CustomMessageBox.Show($"녹화 중지 중 오류가 발생했습니다:\n{ex.Message}", "오류", 
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
             
@@ -701,7 +701,7 @@ namespace CatchCapture.Recording
         {
             Dispatcher.Invoke(() =>
             {
-                MessageBox.Show($"녹화 중 오류가 발생했습니다:\n{ex.Message}", "오류",
+                CatchCapture.CustomMessageBox.Show($"녹화 중 오류가 발생했습니다:\n{ex.Message}", "오류",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             });
         }
