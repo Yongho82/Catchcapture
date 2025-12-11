@@ -2,35 +2,6 @@
   "version": 3,
   "targets": {
     "net8.0-windows10.0.19041": {
-      "FFMediaToolkit/4.8.1": {
-        "type": "package",
-        "dependencies": {
-          "FFmpeg.AutoGen": "7.1.1"
-        },
-        "compile": {
-          "lib/netstandard2.1/FFMediaToolkit.dll": {
-            "related": ".pdb;.xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard2.1/FFMediaToolkit.dll": {
-            "related": ".pdb;.xml"
-          }
-        }
-      },
-      "FFmpeg.AutoGen/8.0.0": {
-        "type": "package",
-        "compile": {
-          "lib/netstandard2.1/FFmpeg.AutoGen.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard2.1/FFmpeg.AutoGen.dll": {
-            "related": ".xml"
-          }
-        }
-      },
       "Microsoft.Win32.SystemEvents/8.0.0": {
         "type": "package",
         "compile": {
@@ -104,41 +75,6 @@
     }
   },
   "libraries": {
-    "FFMediaToolkit/4.8.1": {
-      "sha512": "Ji29q4A82Ii/yPjwR2RdoMNm8CP3f21nWPzOsZAUADpcV37YXPKyJHQACZFes7DWE0z4CuUBUjLwQHwku0qqRw==",
-      "type": "package",
-      "path": "ffmediatoolkit/4.8.1",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "README.md",
-        "ffmediatoolkit.4.8.1.nupkg.sha512",
-        "ffmediatoolkit.nuspec",
-        "lib/netstandard2.0/FFMediaToolkit.dll",
-        "lib/netstandard2.0/FFMediaToolkit.pdb",
-        "lib/netstandard2.0/FFMediaToolkit.xml",
-        "lib/netstandard2.1/FFMediaToolkit.dll",
-        "lib/netstandard2.1/FFMediaToolkit.pdb",
-        "lib/netstandard2.1/FFMediaToolkit.xml"
-      ]
-    },
-    "FFmpeg.AutoGen/8.0.0": {
-      "sha512": "GgMk5O74HAyPkAb+EC1QbxF32OISwjQE8u252SjHUAd9b5m6nRNrkQ/T8pMMccsRHIDdToDQc4Xp6pWgf/PE/A==",
-      "type": "package",
-      "path": "ffmpeg.autogen/8.0.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "LICENSE.txt",
-        "README.md",
-        "ffmpeg.autogen.8.0.0.nupkg.sha512",
-        "ffmpeg.autogen.nuspec",
-        "lib/netstandard2.0/FFmpeg.AutoGen.dll",
-        "lib/netstandard2.0/FFmpeg.AutoGen.xml",
-        "lib/netstandard2.1/FFmpeg.AutoGen.dll",
-        "lib/netstandard2.1/FFmpeg.AutoGen.xml"
-      ]
-    },
     "Microsoft.Win32.SystemEvents/8.0.0": {
       "sha512": "9opKRyOKMCi2xJ7Bj7kxtZ1r9vbzosMvRrdEhVhDz8j8MoBGgB+WmC94yH839NPH+BclAjtQ/pyagvi/8gDLkw==",
       "type": "package",
@@ -269,32 +205,25 @@
   },
   "projectFileDependencyGroups": {
     "net8.0-windows10.0.19041": [
-      "FFMediaToolkit >= 4.8.1",
-      "FFmpeg.AutoGen >= 8.0.0",
       "Microsoft.Xaml.Behaviors.Wpf >= 1.1.77",
       "Newtonsoft.Json >= 13.0.3",
       "System.Drawing.Common >= 8.0.0"
     ]
   },
   "packageFolders": {
-    "C:\\Users\\엄용호\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\엄용호 회사\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\yonghoprogram\\Catchcapture\\CatchCapture.csproj",
+      "projectUniqueName": "C:\\Yonghoprogram\\Catchcapture\\CatchCapture.csproj",
       "projectName": "com.ezupsoft.catchcapture",
-      "projectPath": "C:\\yonghoprogram\\Catchcapture\\CatchCapture.csproj",
-      "packagesPath": "C:\\Users\\엄용호\\.nuget\\packages\\",
-      "outputPath": "C:\\yonghoprogram\\Catchcapture\\obj\\",
+      "projectPath": "C:\\Yonghoprogram\\Catchcapture\\CatchCapture.csproj",
+      "packagesPath": "C:\\Users\\엄용호 회사\\.nuget\\packages\\",
+      "outputPath": "C:\\Yonghoprogram\\Catchcapture\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\엄용호\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Users\\엄용호 회사\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -326,14 +255,6 @@
       "net8.0-windows10.0.19041": {
         "targetAlias": "net8.0-windows10.0.19041.0",
         "dependencies": {
-          "FFMediaToolkit": {
-            "target": "Package",
-            "version": "[4.8.1, )"
-          },
-          "FFmpeg.AutoGen": {
-            "target": "Package",
-            "version": "[8.0.0, )"
-          },
           "Microsoft.Xaml.Behaviors.Wpf": {
             "target": "Package",
             "version": "[1.1.77, )"
@@ -360,8 +281,24 @@
         "warn": true,
         "downloadDependencies": [
           {
+            "name": "Microsoft.AspNetCore.App.Ref",
+            "version": "[8.0.13, 8.0.13]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Host.win-x64",
+            "version": "[8.0.13, 8.0.13]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Ref",
+            "version": "[8.0.13, 8.0.13]"
+          },
+          {
             "name": "Microsoft.Windows.SDK.NET.Ref",
             "version": "[10.0.19041.57, 10.0.19041.57]"
+          },
+          {
+            "name": "Microsoft.WindowsDesktop.App.Ref",
+            "version": "[8.0.13, 8.0.13]"
           }
         ],
         "frameworkReferences": {
@@ -378,7 +315,7 @@
             "privateAssets": "none"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.201/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

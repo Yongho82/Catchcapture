@@ -1370,12 +1370,31 @@ public partial class MainWindow : Window
     {
         try
         {
+            this.Hide(); 
+            FlushUIAfterHide();
+
             var recordingWindow = new Recording.RecordingWindow();
+            recordingWindow.Closed += (s, args) =>
+            {
+                // 녹화 창이 닫힐 때 메인 창 복원 (트레이 모드가 아닐 경우)
+                if (!settings.IsTrayMode)
+                {
+                    this.Show();
+                    this.WindowState = WindowState.Normal;
+                    this.Activate();
+                }
+                else if (trayModeWindow != null)
+                {
+                    trayModeWindow.Show();
+                    trayModeWindow.Activate();
+                }
+            };
             recordingWindow.Show();
         }
         catch (Exception ex)
         {
             MessageBox.Show($"녹화 도구 열기 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            if (!settings.IsTrayMode) this.Show(); // 오류 시 복원
         }
     }
 
@@ -3737,6 +3756,11 @@ public partial class MainWindow : Window
                                 MessageBox.Show($"녹화 저장 실패:\n{ex.Message}", "오류",
                                     MessageBoxButton.OK, MessageBoxImage.Error);
                             });
+                        }
+                        finally
+                        {
+                            // 리소스 정리 (RecordingWindow에서 소유권을 넘겨받았으므로 여기서 해제)
+                            recorder?.Dispose();
                         }
                     });
                 }

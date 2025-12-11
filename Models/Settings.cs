@@ -128,7 +128,17 @@ namespace CatchCapture.Models
             {
                 string json = File.ReadAllText(settingsPath);
                 var settings = JsonSerializer.Deserialize<Settings>(json);
-                return settings ?? new Settings();
+                if (settings != null)
+                {
+                    // Ensure new default items are present (Migration)
+                    if (!settings.MainMenuItems.Contains("ScreenRecord"))
+                    {
+                        settings.MainMenuItems.Add("ScreenRecord");
+                        Save(settings);
+                    }
+                    return settings;
+                }
+                return new Settings();
             }
             catch (Exception)
             {

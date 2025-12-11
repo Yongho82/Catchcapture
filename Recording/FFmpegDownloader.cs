@@ -9,50 +9,37 @@ using System.Windows;
 namespace CatchCapture.Recording
 {
     /// <summary>
-    /// FFmpeg DLL 런타임 다운로더
+    /// FFmpeg 실행 파일(CLI) 다운로더
     /// </summary>
     public static class FFmpegDownloader
     {
-        private static readonly string[] RequiredDlls = new[]
-        {
-            "avcodec-61.dll",
-            "avdevice-61.dll",
-            "avfilter-10.dll",
-            "avformat-61.dll",
-            "avutil-59.dll",
-            "swresample-5.dll",
-            "swscale-8.dll"
-        };
-        
-        // 고정 버전 URL (Shared 빌드 - DLL 포함)
-        private const string DownloadUrl = "https://github.com/GyanD/codexffmpeg/releases/download/7.1/ffmpeg-7.1-full_build-shared.zip";
+        // 고정 버전 URL (Essentials 빌드 - EXE 포함)
+        private const string DownloadUrl = "https://github.com/GyanD/codexffmpeg/releases/download/7.1/ffmpeg-7.1-essentials_build.zip";
         
         /// <summary>
-        /// FFmpeg 설치 경로 가져오기 (설치된 경우)
+        /// FFmpeg 실행 파일 경로 가져오기 (설치된 경우)
         /// </summary>
         public static string GetFFmpegPath()
         {
             // 1. 프로그램 실행 폴더 확인
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            if (CheckDllsInPath(baseDir)) return baseDir;
+            if (CheckExeInPath(baseDir)) return Path.Combine(baseDir, "ffmpeg.exe");
             
             // 2. AppData 폴더 확인
             string appDataDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture", "ffmpeg");
-            if (CheckDllsInPath(appDataDir)) return appDataDir;
+            if (CheckExeInPath(appDataDir)) return Path.Combine(appDataDir, "ffmpeg.exe");
             
             return string.Empty;
         }
         
-        private static bool CheckDllsInPath(string path)
+        private static bool CheckExeInPath(string path)
         {
             if (!Directory.Exists(path)) return false;
-            
-            // 필수 DLL 중 하나라도 있는지 확인 (패턴 매칭 사용)
-            return Directory.GetFiles(path, "avcodec-*.dll").Length > 0;
+            return File.Exists(Path.Combine(path, "ffmpeg.exe"));
         }
         
         /// <summary>
-        /// FFmpeg DLL이 모두 존재하는지 확인
+        /// FFmpeg가 설치되어 있는지 확인
         /// </summary>
         public static bool IsFFmpegInstalled()
         {
@@ -60,7 +47,7 @@ namespace CatchCapture.Recording
         }
         
         /// <summary>
-        /// FFmpeg DLL 다운로드 및 설치
+        /// FFmpeg 다운로드 및 설치
         /// </summary>
         public static async Task<bool> DownloadFFmpegAsync(IProgress<int>? progress = null)
         {
@@ -78,8 +65,7 @@ namespace CatchCapture.Recording
                     string testFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".test_write");
                     File.WriteAllText(testFile, "test");
                     File.Delete(testFile);
-                    // 쓰기 성공하면 실행 폴더 사용 (선택 사항)
-                    // targetDir = AppDomain.CurrentDomain.BaseDirectory; 
+                    // 쓰기 성공하면 실행 폴더 사용 가능하지만, 보통 AppData 권장
                 }
                 catch 
                 {
@@ -131,42 +117,50 @@ namespace CatchCapture.Recording
                 
                 progress?.Report(60);
                 
-                // bin 폴더에서 DLL 찾기
+                // bin 폴더에서 ffmpeg.exe 찾기
                 var binFolders = Directory.GetDirectories(tempExtract, "bin", SearchOption.AllDirectories);
-                int copiedCount = 0;
+                bool found = false;
                 
                 if (binFolders.Length > 0)
                 {
                     string binFolder = binFolders[0];
-                    var dllFiles = Directory.GetFiles(binFolder, "*.dll");
+                    string exePath = Path.Combine(binFolder, "ffmpeg.exe");
                     
-                    int count = 0;
-                    foreach (var dllFile in dllFiles)
+                    if (File.Exists(exePath))
                     {
-                        string fileName = Path.GetFileName(dllFile);
-                        string destPath = Path.Combine(targetDir, fileName);
-                        File.Copy(dllFile, destPath, true);
-                        copiedCount++;
-                        
-                        count++;
-                        int percent = 60 + (count * 40 / Math.Max(1, dllFiles.Length));
-                        progress?.Report(percent);
+                        string destPath = Path.Combine(targetDir, "ffmpeg.exe");
+                        File.Copy(exePath, destPath, true);
+                        found = true;
                     }
                 }
+                
+                // bin 폴더에 없을 경우 최상위 등 다른 곳 검색
+                if (!found)
+                {
+                   var exeFiles = Directory.GetFiles(tempExtract, "ffmpeg.exe", SearchOption.AllDirectories);
+                   if (exeFiles.Length > 0)
+                   {
+                       string destPath = Path.Combine(targetDir, "ffmpeg.exe");
+                       File.Copy(exeFiles[0], destPath, true);
+                       found = true;
+                   }
+                }
+                
+                progress?.Report(90);
                 
                 // 임시 파일 정리
                 if (File.Exists(tempZip)) File.Delete(tempZip);
                 if (Directory.Exists(tempExtract)) Directory.Delete(tempExtract, true);
                 
-                if (copiedCount == 0)
+                if (!found)
                 {
-                    throw new Exception("압축 파일 내에서 DLL을 찾을 수 없습니다.");
+                    throw new Exception("압축 파일 내에서 ffmpeg.exe를 찾을 수 없습니다.");
                 }
                 
                 progress?.Report(100);
                 
                 // 저장 경로 표시
-                MessageBox.Show($"FFmpeg DLL이 다음 위치에 저장되었습니다:\n{targetDir}", "설치 완료", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"FFmpeg가 다음 위치에 저장되었습니다:\n{targetDir}", "설치 완료", MessageBoxButton.OK, MessageBoxImage.Information);
                 
                 return true;
             }

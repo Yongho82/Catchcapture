@@ -462,8 +462,11 @@ namespace CatchCapture.Recording
                     var mainWindow = Application.Current.MainWindow as MainWindow;
                     if (mainWindow != null)
                     {
-                        // 녹화 데이터를 MainWindow에 전달 (나중에 저장 버튼 누르면 저장)
+                        // 녹화 데이터를 MainWindow에 전달 (자동 저장 시작)
+                        // 중요: 여기서 _recorder의 소유권을 MainWindow로 넘깁니다. 
+                        // 따라서 이 창이 닫힐 때 Dispose() 하지 않도록 null로 설정해야 합니다.
                         mainWindow.AddVideoToList(_recorder, _settings);
+                        _recorder = null; 
                     }
                     
                     // 녹화 도구 창 닫기

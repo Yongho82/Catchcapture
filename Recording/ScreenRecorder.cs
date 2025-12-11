@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -300,69 +302,176 @@ namespace CatchCapture.Recording
         }
         
         /// <summary>
-        /// MP4로 저장 (FFMediaToolkit 사용)
+        /// MP4로 저장 (ffmpeg.exe CLI 사용 - Intermediate File 방식 /w Debug)
         /// </summary>
         private async Task<string> SaveAsMP4Async(string outputPath)
         {
+            // 디버그 로그 설정
+            string logPath = Path.Combine(Path.GetDirectoryName(outputPath) ?? "C:\\", "ffmpeg_debug.txt");
+            void Log(string msg) 
+            {
+                try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] {msg}\n"); } catch { }
+                Debug.WriteLine($"[ScreenRecorder] {msg}");
+            }
+
+            Log("=== Recording Save Start (Intermediate File Mode) ===");
+            Log($"Target Path: {outputPath}");
+
             if (_frames.Count == 0)
+            {
+                Log("Error: No frames recorded.");
                 return string.Empty;
-            
-            // FFmpeg DLL 확인 (없으면 GIF로 폴백)
+            }
+
             if (!FFmpegDownloader.IsFFmpegInstalled())
             {
-                // FFmpeg가 없으면 GIF로 저장
+                Log("FFmpeg fallback to GIF");
                 string gifPath = Path.ChangeExtension(outputPath, ".gif");
                 return await SaveAsGifAsync(gifPath);
             }
-            
-            // FFmpeg 경로 설정
+
             string ffmpegPath = FFmpegDownloader.GetFFmpegPath();
-            if (!string.IsNullOrEmpty(ffmpegPath))
-            {
-                FFMediaToolkit.FFmpegLoader.FFmpegPath = ffmpegPath;
-            }
+            Log($"FFmpeg Path: {ffmpegPath}");
+
+            // 임시 폴더 (공용 문서)
+            string tempFolder = Environment.GetFolderPath(Environment.SpecialFolder.CommonDocuments);
+            if (!Directory.Exists(tempFolder)) tempFolder = Path.GetTempPath();
+
+            string rawDataFileName = $"raw_data_{DateTime.Now:HHmmss}_{Guid.NewGuid().ToString().Substring(0, 8)}.raw";
+            string rawDataPath = Path.Combine(tempFolder, rawDataFileName);
             
-            await Task.Run(() =>
+            string tempMp4FileName = $"rec_temp_{DateTime.Now:HHmmss}_{Guid.NewGuid().ToString().Substring(0, 8)}.mp4";
+            string tempMp4Path = Path.Combine(tempFolder, tempMp4FileName);
+
+            Log($"Raw Data Path: {rawDataPath}");
+
+            try
             {
-                var settings = new FFMediaToolkit.Encoding.VideoEncoderSettings(
-                    width: (int)_captureArea.Width,
-                    height: (int)_captureArea.Height,
-                    framerate: _settings.FrameRate,
-                    codec: FFMediaToolkit.Encoding.VideoCodec.H264)
+                int width = (int)_captureArea.Width;
+                int height = (int)_captureArea.Height;
+                Log($"Dimensions: {width}x{height} (Original)");
+
+                // libx264 짝수 보정
+                if (width % 2 != 0) width--;
+                if (height % 2 != 0) height--;
+                Log($"Dimensions: {width}x{height} (Adjusted)");
+
+                // 1. Raw 데이터 파일 생성
+                await Task.Run(() =>
                 {
-                    EncoderPreset = FFMediaToolkit.Encoding.EncoderPreset.Fast,
-                    CRF = 23
-                };
-                
-                using var file = FFMediaToolkit.Encoding.MediaBuilder.CreateContainer(outputPath).WithVideo(settings).Create();
-                
-                foreach (var frameData in _frames)
+                    using (var fs = new FileStream(rawDataPath, FileMode.Create, FileAccess.Write))
+                    {
+                        for (int i = 0; i < _frames.Count; i++)
+                        {
+                            try
+                            {
+                                using var ms = new MemoryStream(_frames[i]);
+                                using var bitmap = new Bitmap(ms);
+
+                                var bitmapData = bitmap.LockBits(
+                                    new Rectangle(0, 0, width, height),
+                                    ImageLockMode.ReadOnly,
+                                    PixelFormat.Format24bppRgb);
+
+                                try
+                                {
+                                    int stride = bitmapData.Stride;
+                                    int rowBytes = width * 3;
+                                    byte[] frameBuffer = new byte[rowBytes * height];
+
+                                    // Stride 제거 Copy
+                                    for (int y = 0; y < height; y++)
+                                    {
+                                        IntPtr srcPtr = IntPtr.Add(bitmapData.Scan0, y * stride);
+                                        Marshal.Copy(srcPtr, frameBuffer, y * rowBytes, rowBytes);
+                                    }
+                                    
+                                    fs.Write(frameBuffer, 0, frameBuffer.Length);
+                                }
+                                finally
+                                {
+                                    bitmap.UnlockBits(bitmapData);
+                                }
+                            }
+                            catch (Exception frameEx)
+                            {
+                                Log($"Frame {i} processing failed: {frameEx.Message}");
+                            }
+                        }
+                    }
+                });
+
+                var rawFileInfo = new FileInfo(rawDataPath);
+                Log($"Raw File Created. Size: {rawFileInfo.Length} bytes");
+                if (rawFileInfo.Length == 0) throw new Exception("Raw data file is empty.");
+
+                // 2. FFmpeg 실행
+                await Task.Run(() =>
                 {
-                    using var ms = new MemoryStream(frameData);
-                    using var bitmap = new Bitmap(ms);
-                    
-                    var bitmapData = bitmap.LockBits(
-                        new Rectangle(0, 0, bitmap.Width, bitmap.Height),
-                        ImageLockMode.ReadOnly,
-                        PixelFormat.Format24bppRgb);
-                    
-                    try
+                    var startInfo = new ProcessStartInfo
                     {
-                        var imageData = FFMediaToolkit.Graphics.ImageData.FromPointer(
-                            bitmapData.Scan0,
-                            FFMediaToolkit.Graphics.ImagePixelFormat.Bgr24,
-                            new System.Drawing.Size(bitmap.Width, bitmap.Height));
-                        
-                        file.Video.AddFrame(imageData);
-                    }
-                    finally
+                        FileName = ffmpegPath,
+                        Arguments = $"-y -f rawvideo -pixel_format bgr24 -video_size {width}x{height} -framerate {_settings.FrameRate} -i \"{rawDataPath}\" -c:v libx264 -preset ultrafast -crf 23 -pix_fmt yuv420p \"{tempMp4Path}\"",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        CreateNoWindow = true
+                    };
+
+                    Log($"Executing FFmpeg: {startInfo.Arguments}");
+
+                    using var process = Process.Start(startInfo);
+                    if (process == null) throw new Exception("Failed to start FFmpeg.");
+
+                    process.ErrorDataReceived += (s, e) => { if (!string.IsNullOrWhiteSpace(e.Data)) Log($"[STDERR] {e.Data}"); };
+                    process.OutputDataReceived += (s, e) => { if (!string.IsNullOrWhiteSpace(e.Data)) Log($"[STDOUT] {e.Data}"); };
+
+                    process.BeginErrorReadLine();
+                    process.BeginOutputReadLine();
+
+                    process.WaitForExit();
+                    Log($"FFmpeg Exit Code: {process.ExitCode}");
+                    
+                    if (process.ExitCode != 0) throw new Exception($"FFmpeg failed with code {process.ExitCode}");
+                });
+
+                // 3. 파일 이동 확인
+                if (File.Exists(tempMp4Path))
+                {
+                    var resultInfo = new FileInfo(tempMp4Path);
+                    Log($"Temp MP4 Size: {resultInfo.Length}");
+                    
+                    if (resultInfo.Length < 100)
                     {
-                        bitmap.UnlockBits(bitmapData);
+                        throw new Exception("Generated MP4 file is too small (likely invalid).");
                     }
+
+                    if (File.Exists(outputPath)) File.Delete(outputPath);
+                    File.Move(tempMp4Path, outputPath);
+                    Log("Successfully moved to target path.");
+                    
+                    return outputPath;
                 }
-            });
-            
-            return outputPath;
+                else
+                {
+                    throw new Exception("Output MP4 file was not created by FFmpeg.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log($"Fatal Error: {ex.Message}\n{ex.StackTrace}");
+                Application.Current?.Dispatcher.Invoke(() =>
+                {
+                    MessageBox.Show($"녹화 실패: {ex.Message}\n로그: {logPath}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                });
+                return string.Empty;
+            }
+            finally
+            {
+                // 정리
+                try { if (File.Exists(rawDataPath)) File.Delete(rawDataPath); } catch { }
+                try { if (File.Exists(tempMp4Path)) File.Delete(tempMp4Path); } catch { }
+            }
         }
         
         /// <summary>
