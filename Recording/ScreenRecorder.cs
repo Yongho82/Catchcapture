@@ -12,6 +12,9 @@ using System.Windows.Media.Imaging;
 using CatchCapture.Models;
 using NAudio.Wave;
 
+// Windows Timer Resolution API
+using System.ComponentModel;
+
 namespace CatchCapture.Recording
 {
 
@@ -20,6 +23,13 @@ namespace CatchCapture.Recording
     /// </summary>
     public class ScreenRecorder : IDisposable
     {
+        // === Windows Timer Resolution API (고정밀 타이머) ===
+        [DllImport("winmm.dll", EntryPoint = "timeBeginPeriod")]
+        private static extern uint TimeBeginPeriod(uint uMilliseconds);
+        
+        [DllImport("winmm.dll", EntryPoint = "timeEndPeriod")]
+        private static extern uint TimeEndPeriod(uint uMilliseconds);
+        
         // 녹화 설정
         private RecordingSettings _settings;
         
@@ -36,10 +46,14 @@ namespace CatchCapture.Recording
         private string? _tempAudioPath;
         private TaskCompletionSource<bool>? _audioStopTcs; // 오디오 종료 대기용
         
-        // 프레임 저장
+        // 프레임 저장 (Raw 픽셀 데이터)
         private List<byte[]> _frames;
         private List<int> _frameDelays;
         private DateTime _lastFrameTime;
+        
+        // 캡처 영역 크기 (Raw 데이터 디코딩용)
+        private int _captureWidth;
+        private int _captureHeight;
         
         // 일시정지 관련
         private DateTime _pauseStartTime;
@@ -47,6 +61,10 @@ namespace CatchCapture.Recording
         // 오디오 싱크 보정용 변수
         private long _totalAudioBytes = 0;
         private DateTime _audioStartTime;
+        
+        // 고정밀 타이밍
+        private Stopwatch _frameStopwatch = new Stopwatch();
+        private bool _timerResolutionSet = false;
         
         // 이벤트
 
@@ -72,6 +90,14 @@ namespace CatchCapture.Recording
             _settings = settings;
             _frames = new List<byte[]>();
             _frameDelays = new List<int>();
+            
+            // Windows Timer Resolution을 1ms로 설정 (고정밀 타이밍)
+            try
+            {
+                TimeBeginPeriod(1);
+                _timerResolutionSet = true;
+            }
+            catch { }
         }
         
         /// <summary>
@@ -89,6 +115,11 @@ namespace CatchCapture.Recording
                 Math.Max(captureArea.Width - (borderThickness * 2), 1),
                 Math.Max(captureArea.Height - (borderThickness * 2), 1)
             );
+            
+            // 캡처 크기 저장 (Raw 데이터 디코딩용)
+            _captureWidth = (int)_captureArea.Width;
+            _captureHeight = (int)_captureArea.Height;
+            
             _isRecording = true;
             _isPaused = false;
             _frameCount = 0;
@@ -376,23 +407,48 @@ namespace CatchCapture.Recording
         }
         
         /// <summary>
-        /// 첫 프레임을 썸네일로 반환
+        /// 첫 프레임을 썸네일로 반환 (Raw 데이터에서 생성)
         /// </summary>
         public BitmapSource? GetThumbnail()
         {
-            if (_frames.Count == 0) return null;
+            if (_frames.Count == 0 || _captureWidth <= 0 || _captureHeight <= 0) return null;
             
             try
             {
-                using var ms = new MemoryStream(_frames[0]);
-                var bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                bitmap.StreamSource = ms;
-                bitmap.DecodePixelWidth = 200;
-                bitmap.EndInit();
-                bitmap.Freeze();
-                return bitmap;
+                // Raw BGR24 데이터에서 Bitmap 생성
+                using var bitmap = new Bitmap(_captureWidth, _captureHeight, PixelFormat.Format24bppRgb);
+                var bitmapData = bitmap.LockBits(
+                    new Rectangle(0, 0, _captureWidth, _captureHeight),
+                    ImageLockMode.WriteOnly,
+                    PixelFormat.Format24bppRgb);
+                
+                try
+                {
+                    int rowBytes = _captureWidth * 3;
+                    for (int y = 0; y < _captureHeight; y++)
+                    {
+                        IntPtr destPtr = IntPtr.Add(bitmapData.Scan0, y * bitmapData.Stride);
+                        Marshal.Copy(_frames[0], y * rowBytes, destPtr, rowBytes);
+                    }
+                }
+                finally
+                {
+                    bitmap.UnlockBits(bitmapData);
+                }
+                
+                // PNG로 변환 후 WPF BitmapImage로 로드
+                using var ms = new MemoryStream();
+                bitmap.Save(ms, ImageFormat.Png);
+                ms.Position = 0;
+                
+                var bitmapImage = new BitmapImage();
+                bitmapImage.BeginInit();
+                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapImage.StreamSource = ms;
+                bitmapImage.DecodePixelWidth = 200;
+                bitmapImage.EndInit();
+                bitmapImage.Freeze();
+                return bitmapImage;
             }
             catch
             {
@@ -401,53 +457,82 @@ namespace CatchCapture.Recording
         }
         
         /// <summary>
-        /// 캡처 루프
+        /// 캡처 루프 (고정밀 타이밍 최적화)
         /// </summary>
         private async Task CaptureLoop(CancellationToken token)
         {
-            int frameInterval = 1000 / _settings.FrameRate; // ms
+            double frameIntervalMs = 1000.0 / _settings.FrameRate;
+            long frameIntervalTicks = (long)(frameIntervalMs * Stopwatch.Frequency / 1000.0);
+            
+            _frameStopwatch.Restart();
+            long nextFrameTicks = _frameStopwatch.ElapsedTicks;
             
             while (!token.IsCancellationRequested && _isRecording)
             {
                 if (_isPaused)
                 {
                     await Task.Delay(100, token);
+                    // 일시정지 해제 후 타이밍 리셋
+                    nextFrameTicks = _frameStopwatch.ElapsedTicks;
                     continue;
                 }
                 
                 try
                 {
-                    var startTime = DateTime.Now;
-                    
                     // 화면 캡처
                     var frameData = CaptureScreen();
                     
                     if (frameData != null)
                     {
                         _frames.Add(frameData);
-                        _frameDelays.Add(frameInterval);
+                        _frameDelays.Add((int)frameIntervalMs);
                         _frameCount++;
                         
-                        // 통계 업데이트
-                        var stats = new RecordingStats
+                        // 통계 업데이트 (5프레임마다 - UI 오버헤드 감소)
+                        if (_frameCount % 5 == 0)
                         {
-                            FrameCount = _frameCount,
-                            Duration = DateTime.Now - _recordingStartTime,
-                            CurrentFps = CalculateCurrentFps(),
-                            FileSizeEstimate = EstimateFileSize()
-                        };
-                        
-                        // UI 스레드에서 이벤트 발생
-                        Application.Current?.Dispatcher.Invoke(() =>
-                        {
-                            StatsUpdated?.Invoke(this, stats);
-                        });
+                            var stats = new RecordingStats
+                            {
+                                FrameCount = _frameCount,
+                                Duration = DateTime.Now - _recordingStartTime,
+                                CurrentFps = CalculateCurrentFps(),
+                                FileSizeEstimate = EstimateFileSize()
+                            };
+                            
+                            // UI 스레드에서 이벤트 발생 (비동기로 변경하여 블로킹 방지)
+                            Application.Current?.Dispatcher.BeginInvoke(() =>
+                            {
+                                StatsUpdated?.Invoke(this, stats);
+                            });
+                        }
                     }
                     
-                    // 프레임 간격 유지
-                    var elapsed = (DateTime.Now - startTime).TotalMilliseconds;
-                    var delay = Math.Max(1, frameInterval - (int)elapsed);
-                    await Task.Delay(delay, token);
+                    // 다음 프레임 시간 계산
+                    nextFrameTicks += frameIntervalTicks;
+                    
+                    // 고정밀 대기 (SpinWait + Sleep 조합)
+                    long remainingTicks = nextFrameTicks - _frameStopwatch.ElapsedTicks;
+                    if (remainingTicks > 0)
+                    {
+                        double remainingMs = remainingTicks * 1000.0 / Stopwatch.Frequency;
+                        
+                        // 2ms 이상 남으면 Thread.Sleep으로 CPU 절약
+                        if (remainingMs > 2)
+                        {
+                            Thread.Sleep((int)(remainingMs - 1));
+                        }
+                        
+                        // 나머지는 SpinWait으로 정밀 대기
+                        while (_frameStopwatch.ElapsedTicks < nextFrameTicks)
+                        {
+                            Thread.SpinWait(10);
+                        }
+                    }
+                    else
+                    {
+                        // 프레임 드롭 - 다음 타이밍으로 스킵
+                        nextFrameTicks = _frameStopwatch.ElapsedTicks;
+                    }
                 }
                 catch (OperationCanceledException)
                 {
@@ -458,6 +543,8 @@ namespace CatchCapture.Recording
                     ErrorOccurred?.Invoke(this, ex);
                 }
             }
+            
+            _frameStopwatch.Stop();
         }
         
         [StructLayout(LayoutKind.Sequential)]
@@ -534,10 +621,32 @@ namespace CatchCapture.Recording
                 catch { /* 커서 캡처 실패 시 무시 */ }
                 }
                 
-                // PNG로 압축하여 저장 (GIF 변환 시 필요)
-                using var ms = new MemoryStream();
-                bitmap.Save(ms, ImageFormat.Png);
-                return ms.ToArray();
+                // Raw 픽셀 데이터로 저장 (PNG 압축 제거로 CPU 부하 감소)
+                // 저장 시 FFmpeg에서 직접 변환하므로 Raw 형태로 저장
+                var bitmapData = bitmap.LockBits(
+                    new Rectangle(0, 0, width, height),
+                    ImageLockMode.ReadOnly,
+                    PixelFormat.Format24bppRgb);
+                
+                try
+                {
+                    int stride = bitmapData.Stride;
+                    int rowBytes = width * 3;
+                    byte[] rawData = new byte[rowBytes * height];
+                    
+                    // Stride 제거하여 연속 메모리로 복사
+                    for (int y = 0; y < height; y++)
+                    {
+                        IntPtr srcPtr = IntPtr.Add(bitmapData.Scan0, y * stride);
+                        Marshal.Copy(srcPtr, rawData, y * rowBytes, rowBytes);
+                    }
+                    
+                    return rawData;
+                }
+                finally
+                {
+                    bitmap.UnlockBits(bitmapData);
+                }
             }
             catch
             {
@@ -631,7 +740,7 @@ namespace CatchCapture.Recording
                 }
             }
             
-            // 2. Fallback: FFmpeg 없을 때 C# 내장 인코더 사용 (기존 로직)
+            // 2. Fallback: FFmpeg 없을 때 C# 내장 인코더 사용 (Raw 데이터에서 변환)
             await Task.Run(() =>
             {
                 using var stream = new FileStream(outputPath, FileMode.Create);
@@ -646,10 +755,29 @@ namespace CatchCapture.Recording
                 int qualityParam = _settings.Quality == RecordingQuality.Low ? 20 : 10;
                 encoder.SetQuality(qualityParam);
                 
+                int rowBytes = _captureWidth * 3;
+                
                 foreach (var frameData in _frames)
                 {
-                    using var ms = new MemoryStream(frameData);
-                    using var img = System.Drawing.Image.FromStream(ms);
+                    // Raw BGR24 데이터에서 Bitmap 복원
+                    using var bitmap = new Bitmap(_captureWidth, _captureHeight, PixelFormat.Format24bppRgb);
+                    var bitmapData = bitmap.LockBits(
+                        new Rectangle(0, 0, _captureWidth, _captureHeight),
+                        ImageLockMode.WriteOnly,
+                        PixelFormat.Format24bppRgb);
+                    
+                    try
+                    {
+                        for (int y = 0; y < _captureHeight; y++)
+                        {
+                            IntPtr destPtr = IntPtr.Add(bitmapData.Scan0, y * bitmapData.Stride);
+                            Marshal.Copy(frameData, y * rowBytes, destPtr, rowBytes);
+                        }
+                    }
+                    finally
+                    {
+                        bitmap.UnlockBits(bitmapData);
+                    }
                     
                     // 화질 설정에 따른 리사이징 (용량 감소 핵심)
                     double scale = _settings.Quality switch
@@ -662,20 +790,20 @@ namespace CatchCapture.Recording
                     
                     if (scale < 0.99)
                     {
-                        int newW = (int)(img.Width * scale);
-                        int newH = (int)(img.Height * scale);
+                        int newW = (int)(bitmap.Width * scale);
+                        int newH = (int)(bitmap.Height * scale);
                         using var resized = new System.Drawing.Bitmap(newW, newH);
                         using (var g = System.Drawing.Graphics.FromImage(resized))
                         {
                             // 품질은 유지하되 크기를 줄임
                             g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                            g.DrawImage(img, 0, 0, newW, newH);
+                            g.DrawImage(bitmap, 0, 0, newW, newH);
                         }
                         encoder.AddFrame(resized);
                     }
                     else
                     {
-                        encoder.AddFrame(img);
+                        encoder.AddFrame(bitmap);
                     }
                 }
                 
@@ -752,41 +880,43 @@ namespace CatchCapture.Recording
                     Log($"Actual Duration: {_actualDuration.TotalSeconds:F2}s, Frames: {_frames.Count}, Actual FPS: {actualFps:F2}");
                 }
 
-                // 1. Raw 데이터 파일 생성
+                // 1. Raw 데이터 파일 생성 (프레임은 이미 Raw BGR24 형식으로 저장되어 있음)
                 await Task.Run(() =>
                 {
                     using (var fs = new FileStream(rawDataPath, FileMode.Create, FileAccess.Write))
                     {
+                        int rowBytes = width * 3;
+                        int expectedFrameSize = rowBytes * height;
+                        
                         for (int i = 0; i < _frames.Count; i++)
                         {
                             try
                             {
-                                using var ms = new MemoryStream(_frames[i]);
-                                using var bitmap = new Bitmap(ms);
-
-                                var bitmapData = bitmap.LockBits(
-                                    new Rectangle(0, 0, width, height),
-                                    ImageLockMode.ReadOnly,
-                                    PixelFormat.Format24bppRgb);
-
-                                try
+                                byte[] frameData = _frames[i];
+                                
+                                // 프레임 크기가 맞는지 확인
+                                if (frameData.Length == expectedFrameSize)
                                 {
-                                    int stride = bitmapData.Stride;
-                                    int rowBytes = width * 3;
-                                    byte[] frameBuffer = new byte[rowBytes * height];
-
-                                    // Stride 제거 Copy
-                                    for (int y = 0; y < height; y++)
-                                    {
-                                        IntPtr srcPtr = IntPtr.Add(bitmapData.Scan0, y * stride);
-                                        Marshal.Copy(srcPtr, frameBuffer, y * rowBytes, rowBytes);
-                                    }
-                                    
-                                    fs.Write(frameBuffer, 0, frameBuffer.Length);
+                                    // Raw 데이터를 직접 파일에 쓰기
+                                    fs.Write(frameData, 0, frameData.Length);
                                 }
-                                finally
+                                else
                                 {
-                                    bitmap.UnlockBits(bitmapData);
+                                    // 크기가 다르면 원본 캡처 크기로 복원 후 조정
+                                    int origRowBytes = _captureWidth * 3;
+                                    
+                                    if (frameData.Length == origRowBytes * _captureHeight)
+                                    {
+                                        // 크기 조정 필요 (짝수 보정으로 인한 차이)
+                                        for (int y = 0; y < height; y++)
+                                        {
+                                            fs.Write(frameData, y * origRowBytes, rowBytes);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Log($"Frame {i} size mismatch: expected {expectedFrameSize}, got {frameData.Length}");
+                                    }
                                 }
                             }
                             catch (Exception frameEx)
@@ -985,6 +1115,12 @@ namespace CatchCapture.Recording
             if (!string.IsNullOrEmpty(_tempAudioPath) && File.Exists(_tempAudioPath))
             {
                 try { File.Delete(_tempAudioPath); } catch { }
+            }
+            
+            // Windows Timer Resolution 복원
+            if (_timerResolutionSet)
+            {
+                try { TimeEndPeriod(1); } catch { }
             }
             
             GC.SuppressFinalize(this);
