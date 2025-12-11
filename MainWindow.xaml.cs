@@ -2066,20 +2066,22 @@ public partial class MainWindow : Window
 
     private void UpdateButtonStates()
     {
-        bool hasCaptures = captures.Count > 0;
+        // 캡처 목록(이미지) 또는 UI 목록(동영상 포함)이 있는지 확인
+        bool hasItems = CaptureListPanel.Children.Count > 0;
         bool hasSelection = selectedIndex >= 0;
+
+        // 복사/저장 버튼은 "선택된 이미지" 기준이므로 기존 로직 유지 (동영상은 선택 개념이 다름)
+        bool hasCaptures = captures.Count > 0;
 
         // 복사 버튼 상태 업데이트
         CopySelectedButton.IsEnabled = hasSelection;
         CopyAllButton.IsEnabled = hasCaptures;
 
         // 저장 버튼 상태 업데이트
-        // SaveSelectedButton.IsEnabled = hasSelection; // <-- 이 줄 삭제 또는 주석 처리
         SaveAllButton.IsEnabled = hasCaptures;
 
-        // 삭제 버튼 상태 업데이트
-        // DeleteSelectedButton.IsEnabled = hasSelection; // <-- 이 줄 삭제 또는 주석 처리
-        DeleteAllButton.IsEnabled = hasCaptures;
+        // 삭제 버튼 상태 업데이트 - 전체 삭제는 동영상 포함하여 지울 수 있어야 함
+        DeleteAllButton.IsEnabled = hasItems;
     }
 
     private void UpdateCaptureCount()
@@ -2328,7 +2330,8 @@ public partial class MainWindow : Window
 
     public void DeleteAllImages()
     {
-        if (captures.Count == 0) return;
+        // UI에 아이템이 하나도 없으면 리턴
+        if (CaptureListPanel.Children.Count == 0) return;
 
         bool hasUnsavedImages = captures.Exists(c => !c.IsSaved);
 
@@ -3723,8 +3726,11 @@ public partial class MainWindow : Window
                 string fullPath = System.IO.Path.Combine(saveFolder, filename);
                 
                 // 동영상 썸네일 아이템 생성 (재생 버튼 포함)
-                var videoItem = CreateVideoThumbnailItem(thumbnail, fullPath);
+                var (videoItem, encodingOverlay) = CreateVideoThumbnailItem(thumbnail, fullPath);
                 CaptureListPanel.Children.Insert(0, videoItem);
+                
+                // 버튼 상태 업데이트 (전체 삭제 활성화 등)
+                UpdateButtonStates();
                 
                 // 백그라운드에서 저장 시작
                 _ = Task.Run(async () =>
@@ -3733,10 +3739,13 @@ public partial class MainWindow : Window
                     {
                         await recorder.SaveRecordingAsync(fullPath);
                         
-                        // 저장 완료 알림 (선택적)
+                        // 저장 완료 시 인코딩 표시 제거 및 알림
                         Dispatcher.Invoke(() =>
                         {
-                            // 저장 완료 시 토스트 메시지 또는 작은 알림
+                            // 인코딩 오버레이 숨기기 (또는 애니메이션 종료)
+                            encodingOverlay.Visibility = Visibility.Collapsed;
+                            
+                            // 저장 완료 토스트
                             ShowGuideMessage($"녹화 저장 완료: {filename}", TimeSpan.FromSeconds(2));
                         });
                     }
@@ -3744,6 +3753,13 @@ public partial class MainWindow : Window
                     {
                         Dispatcher.Invoke(() =>
                         {
+                            // 인코딩 실패 표시
+                            if (encodingOverlay.Child is StackPanel sp && sp.Children.Count > 0 && sp.Children[0] is TextBlock tb)
+                            {
+                                tb.Text = "❌ 오류";
+                                tb.Foreground = Brushes.Red;
+                            }
+                            
                             MessageBox.Show($"녹화 저장 실패:\n{ex.Message}", "오류",
                                 MessageBoxButton.OK, MessageBoxImage.Error);
                         });
@@ -3763,9 +3779,10 @@ public partial class MainWindow : Window
     }
     
     /// <summary>
-    /// 동영상 썸네일 아이템 생성 (재생 버튼 오버레이 포함)
+    /// 동영상 썸네일 아이템 생성 (재생 버튼 오버레이 + 인코딩 표시 포함)
     /// </summary>
-    private Border CreateVideoThumbnailItem(BitmapSource thumbnail, string videoFilePath)
+    /// <returns>썸네일 Border와 인코딩 오버레이 Border</returns>
+    private (Border item, Border overlay) CreateVideoThumbnailItem(BitmapSource thumbnail, string videoFilePath)
     {
         var border = new Border
         {
@@ -3773,7 +3790,7 @@ public partial class MainWindow : Window
             Height = 120,
             Margin = new Thickness(4),
             BorderThickness = new Thickness(2),
-            BorderBrush = new SolidColorBrush(Color.FromRgb(67, 97, 238)), // 파란색 테두리 (동영상 구분)
+            BorderBrush = new SolidColorBrush(Color.FromRgb(67, 97, 238)), // 파란색 테두리
             CornerRadius = new CornerRadius(4),
             Cursor = Cursors.Hand,
             Tag = videoFilePath // 파일 경로 저장
@@ -3807,11 +3824,11 @@ public partial class MainWindow : Window
             Foreground = Brushes.White,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
-            Margin = new Thickness(2, 0, 0, 0) // 약간 오른쪽으로 보정
+            Margin = new Thickness(2, 0, 0, 0)
         };
         grid.Children.Add(playIcon);
         
-        // 동영상 표시 레이블
+        // 동영상 포맷 레이블 (우측 상단)
         var videoLabel = new Border
         {
             Background = new SolidColorBrush(Color.FromArgb(200, 67, 97, 238)),
@@ -3830,36 +3847,131 @@ public partial class MainWindow : Window
         };
         videoLabel.Child = labelText;
         grid.Children.Add(videoLabel);
+
+        // ★ 인코딩 중 표시 오버레이 (하단 바 형태)
+        var encodingOverlay = new Border
+        {
+            Background = new SolidColorBrush(Color.FromArgb(220, 255, 140, 0)), // 짙은 오렌지색
+            VerticalAlignment = VerticalAlignment.Bottom,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            Height = 24,
+            CornerRadius = new CornerRadius(0, 0, 2, 2),
+            Visibility = Visibility.Visible // 기본적으로 보임
+        };
+        
+        var stack = new StackPanel 
+        { 
+            Orientation = Orientation.Horizontal, 
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        
+        // 회전하는 애니메이션 흉내낼 텍스트 또는 아이콘
+        var encodingText = new TextBlock
+        {
+            Text = "⏳ 저장 중...",
+            FontSize = 11,
+            FontWeight = FontWeights.Bold,
+            Foreground = Brushes.White,
+            Margin = new Thickness(0, 1, 0, 1)
+        };
+        stack.Children.Add(encodingText);
+        encodingOverlay.Child = stack;
+        
+        grid.Children.Add(encodingOverlay);
         
         border.Child = grid;
         
-        // 한 번 클릭 시 기본 플레이어로 열기
-        border.MouseLeftButtonUp += (s, e) =>
+        // 1. 더블 클릭 시 플레이어로 열기 (사용자 요청)
+        border.MouseLeftButtonDown += (s, e) =>
+        {
+            if (e.ClickCount == 2)
+            {
+                var filePath = border.Tag as string;
+                
+                // 인코딩 중이라면 경고
+                if (encodingOverlay.Visibility == Visibility.Visible)
+                {
+                     ShowGuideMessage("아직 저장(인코딩) 중입니다. 잠시만 기다려주세요.", TimeSpan.FromSeconds(1.5));
+                     e.Handled = true;
+                     return;
+                }
+                
+                if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
+                {
+                    try
+                    {
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = filePath,
+                            UseShellExecute = true
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"동영상 열기 실패:\n{ex.Message}", "오류",
+                            MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+                e.Handled = true;
+            }
+        };
+
+        // 2. 우클릭 컨텍스트 메뉴 (저장 폴더 열기, 삭제)
+        var contextMenu = new ContextMenu();
+        
+        var openFolderItem = new MenuItem { Header = "저장 폴더 열기" };
+        openFolderItem.Click += (s, e) =>
         {
             var filePath = border.Tag as string;
-            if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
+            if (!string.IsNullOrEmpty(filePath))
+            {
+                if (File.Exists(filePath))
+                {
+                    // 파일 선택된 상태로 폴더 열기
+                    System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{filePath}\"");
+                }
+                else
+                {
+                    // 파일 없으면 폴더만 열기
+                    string folder = System.IO.Path.GetDirectoryName(filePath) ?? "";
+                    if (Directory.Exists(folder))
+                    {
+                        System.Diagnostics.Process.Start("explorer.exe", folder);
+                    }
+                }
+            }
+        };
+
+        var deleteItem = new MenuItem { Header = "삭제" };
+        deleteItem.Click += (s, e) =>
+        {
+            var filePath = border.Tag as string;
+            var confirm = MessageBox.Show("이 동영상을 삭제하시겠습니까?", "삭제 확인", 
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+                
+            if (confirm == MessageBoxResult.Yes)
             {
                 try
                 {
-                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-                    {
-                        FileName = filePath,
-                        UseShellExecute = true
-                    });
+                    if (File.Exists(filePath)) File.Delete(filePath);
+                    
+                    // UI에서 제거
+                    CaptureListPanel.Children.Remove(border);
+                    
+                    // 버튼 상태 업데이트 (동영상만 남았을 때도 고려)
+                    UpdateButtonStates();
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"동영상 열기 실패:\n{ex.Message}", "오류",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"삭제 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
-            else
-            {
-                MessageBox.Show("파일이 아직 저장 중이거나 찾을 수 없습니다.", "알림",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            e.Handled = true;
         };
+
+        contextMenu.Items.Add(openFolderItem);
+        contextMenu.Items.Add(deleteItem);
+        border.ContextMenu = contextMenu;
         
         // 마우스 호버 효과
         border.MouseEnter += (s, e) =>
@@ -3874,6 +3986,6 @@ public partial class MainWindow : Window
             playButtonBg.Fill = new SolidColorBrush(Color.FromArgb(180, 0, 0, 0));
         };
         
-        return border;
+        return (border, encodingOverlay);
     }
 }

@@ -334,8 +334,28 @@ namespace CatchCapture.Recording
             }
         }
         
+        [StructLayout(LayoutKind.Sequential)]
+        struct POINT { public Int32 x; public Int32 y; }
+
+        [StructLayout(LayoutKind.Sequential)]
+        struct CURSORINFO 
+        { 
+            public Int32 cbSize; 
+            public Int32 flags; 
+            public IntPtr hCursor; 
+            public POINT ptScreenPos; 
+        }
+
+        [DllImport("user32.dll")]
+        static extern bool GetCursorInfo(out CURSORINFO pci);
+
+        [DllImport("user32.dll")]
+        static extern bool DrawIcon(IntPtr hDC, int X, int Y, IntPtr hIcon);
+
+        const Int32 CURSOR_SHOWING = 0x00000001;
+
         /// <summary>
-        /// 화면 캡처 (GDI+)
+        /// 화면 캡처 (GDI+ & 커서 포함)
         /// </summary>
         private byte[]? CaptureScreen()
         {
@@ -355,6 +375,35 @@ namespace CatchCapture.Recording
                     0, 0,
                     new System.Drawing.Size(width, height),
                     CopyPixelOperation.SourceCopy);
+                
+                // 마우스 커서 그리기
+                try
+                {
+                    CURSORINFO pci;
+                    pci.cbSize = Marshal.SizeOf(typeof(CURSORINFO));
+                    if (GetCursorInfo(out pci))
+                    {
+                        if (pci.flags == CURSOR_SHOWING)
+                        {
+                            // 캡처 영역 기준 상대 좌표 계산
+                            int cursorX = pci.ptScreenPos.x - (int)_captureArea.X;
+                            int cursorY = pci.ptScreenPos.y - (int)_captureArea.Y;
+
+                            // 커서가 캡처 영역 내에 있을 때만 그리기 (옵션)
+                            // DrawIcon API 사용 (가장 간단하고 확실한 방법)
+                            var hdc = graphics.GetHdc();
+                            try 
+                            {
+                                DrawIcon(hdc, cursorX, cursorY, pci.hCursor);
+                            }
+                            finally 
+                            { 
+                                graphics.ReleaseHdc(hdc); 
+                            }
+                        }
+                    }
+                }
+                catch { /* 커서 캡처 실패 시 무시 */ }
                 
                 // PNG로 압축하여 저장 (GIF 변환 시 필요)
                 using var ms = new MemoryStream();
