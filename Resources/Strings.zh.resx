@@ -208,6 +208,8 @@
     <value>成功</value>
   </data>
   <!-- Added Keys -->
+  <data name="Capture" xml:space="preserve"><value>截图</value></data>
+  <data name="Captured" xml:space="preserve"><value>截图完成</value></data>
   <data name="Recapture" xml:space="preserve"><value>重新截图</value></data>
   <data name="CopyToClipboard" xml:space="preserve"><value>复制到剪贴板</value></data>
   <data name="Reset" xml:space="preserve"><value>重置</value></data>

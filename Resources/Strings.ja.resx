@@ -208,6 +208,8 @@
     <value>成功</value>
   </data>
   <!-- Added Keys -->
+  <data name="Capture" xml:space="preserve"><value>キャプチャ</value></data>
+  <data name="Captured" xml:space="preserve"><value>キャプチャ完了</value></data>
   <data name="Recapture" xml:space="preserve"><value>再キャプチャ</value></data>
   <data name="CopyToClipboard" xml:space="preserve"><value>クリップボードにコピー</value></data>
   <data name="Reset" xml:space="preserve"><value>リセット</value></data>

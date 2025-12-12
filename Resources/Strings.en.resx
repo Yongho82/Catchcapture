@@ -208,6 +208,8 @@
     <value>Success</value>
   </data>
   <!-- Added Keys -->
+  <data name="Capture" xml:space="preserve"><value>Capture</value></data>
+  <data name="Captured" xml:space="preserve"><value>Captured</value></data>
   <data name="Recapture" xml:space="preserve"><value>Recapture</value></data>
   <data name="CopyToClipboard" xml:space="preserve"><value>Copy to Clipboard</value></data>
   <data name="Reset" xml:space="preserve"><value>Reset</value></data>
