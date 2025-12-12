@@ -1688,6 +1688,18 @@ public partial class MainWindow : Window
             {
                 // 간편모드에서는 캡처 개수만 업데이트하고 창을 표시하지 않음
                 UpdateCaptureCount();
+
+                // 캡처 도중 숨겨졌을 수 있으므로 다시 표시
+                if (simpleModeWindow.Visibility != Visibility.Visible)
+                {
+                    simpleModeWindow.Show();
+                }
+
+                // 캡처 후 편집창 자동 열기 (또는 미리보기)
+                if (!skipPreview && (settings.OpenEditorAfterCapture || settings.ShowPreviewAfterCapture))
+                {
+                    ShowPreviewWindow(image, captures.Count - 1);
+                }
             }
             // 트레이 모드일 때 처리
             else if (settings.IsTrayMode)
@@ -1712,6 +1724,12 @@ public partial class MainWindow : Window
                 {
                     // 실패 시 재시도 없이 안내 메시지 표시하고 종료 (프로그램 멈춤 방지)
                     ShowGuideMessage(LocalizationManager.GetString("ClipboardCopyFailed"), TimeSpan.FromSeconds(3));
+                }
+
+                // 캡처 후 편집창 자동 열기 (또는 미리보기)
+                if (!skipPreview && (settings.OpenEditorAfterCapture || settings.ShowPreviewAfterCapture))
+                {
+                    ShowPreviewWindow(image, captures.Count - 1);
                 }
             }
             else
