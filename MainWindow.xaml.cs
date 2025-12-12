@@ -73,6 +73,8 @@ public partial class MainWindow : Window
     private const int HOTKEY_ID_AREA = 9000;
     private const int HOTKEY_ID_FULLSCREEN = 9001;
     private const int HOTKEY_ID_WINDOW = 9002;
+    private const int HOTKEY_ID_OCR = 9010;
+    private const int HOTKEY_ID_SCREENRECORD = 9011;
 
     [DllImport("user32.dll")]
     private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
@@ -2598,6 +2600,18 @@ public partial class MainWindow : Window
                 var (modifiers, key) = ConvertToggleHotkey(settings.Hotkeys.DesignatedCapture);
                 RegisterHotKey(hwnd, HOTKEY_ID_WINDOW, modifiers, key);
             }
+
+            if (settings.Hotkeys.OcrCapture.Enabled)
+            {
+                var (modifiers, key) = ConvertToggleHotkey(settings.Hotkeys.OcrCapture);
+                RegisterHotKey(hwnd, HOTKEY_ID_OCR, modifiers, key);
+            }
+
+            if (settings.Hotkeys.ScreenRecord.Enabled)
+            {
+                var (modifiers, key) = ConvertToggleHotkey(settings.Hotkeys.ScreenRecord);
+                RegisterHotKey(hwnd, HOTKEY_ID_SCREENRECORD, modifiers, key);
+            }
         }
         catch (Exception ex)
         {
@@ -2615,6 +2629,8 @@ public partial class MainWindow : Window
             UnregisterHotKey(hwnd, HOTKEY_ID_AREA);
             UnregisterHotKey(hwnd, HOTKEY_ID_FULLSCREEN);
             UnregisterHotKey(hwnd, HOTKEY_ID_WINDOW);
+            UnregisterHotKey(hwnd, HOTKEY_ID_OCR);
+            UnregisterHotKey(hwnd, HOTKEY_ID_SCREENRECORD);
             
             hwndSource?.RemoveHook(HwndHook);
         }
@@ -2705,6 +2721,16 @@ public partial class MainWindow : Window
                     
                 case HOTKEY_ID_WINDOW:
                     Dispatcher.Invoke(() => DesignatedCaptureButton_Click(this, new RoutedEventArgs()));
+                    handled = true;
+                    break;
+
+                case HOTKEY_ID_OCR:
+                    Dispatcher.Invoke(() => OcrCaptureButton_Click(this, new RoutedEventArgs()));
+                    handled = true;
+                    break;
+
+                case HOTKEY_ID_SCREENRECORD:
+                    Dispatcher.Invoke(() => ScreenRecordButton_Click(this, new RoutedEventArgs()));
                     handled = true;
                     break;
 

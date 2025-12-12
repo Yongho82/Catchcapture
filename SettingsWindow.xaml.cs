@@ -141,6 +141,8 @@ private void UpdateUIText()
             HkWindowCaptureEnabled.Content = LocalizationManager.GetString("WindowCapture");
             HkElementCaptureEnabled.Content = LocalizationManager.GetString("ElementCapture");
             HkScrollCaptureEnabled.Content = LocalizationManager.GetString("ScrollCapture");
+            HkOcrCaptureEnabled.Content = LocalizationManager.GetString("OcrCapture");
+            HkScreenRecordEnabled.Content = LocalizationManager.GetString("ScreenRecording");
             HkSaveAllEnabled.Content = LocalizationManager.GetString("SaveAll");
             HkDeleteAllEnabled.Content = LocalizationManager.GetString("DeleteAll");
             HkSimpleModeEnabled.Content = LocalizationManager.GetString("SimpleMode"); // Simple -> SimpleMode
@@ -179,6 +181,7 @@ private void UpdateUIText()
             var boxes = new[] { 
                 HkRegionKey, HkDelayKey, HkRealTimeKey, HkMultiKey, HkFullKey, HkDesignatedKey,
                 HkWindowCaptureKey, HkElementCaptureKey, HkScrollCaptureKey,
+                HkOcrCaptureKey, HkScreenRecordKey,
                 HkSaveAllKey, HkDeleteAllKey, HkSimpleModeKey, HkOpenSettingsKey 
             };
 
@@ -331,6 +334,8 @@ private void InitLanguageComboBox()
             EnsureDefaultKey(hk.WindowCapture, "C");        // W → C 변경
             EnsureDefaultKey(hk.ElementCapture, "E");
             EnsureDefaultKey(hk.ScrollCapture, "S");        // R → S 변경
+            EnsureDefaultKey(hk.OcrCapture, "O");
+            EnsureDefaultKey(hk.ScreenRecord, "V");
             EnsureDefaultKey(hk.SaveAll, "Z");              // S → Z 변경
             EnsureDefaultKey(hk.DeleteAll, "X");
             EnsureDefaultKey(hk.SimpleMode, "Q");           // M → Q 변경
@@ -346,6 +351,8 @@ private void InitLanguageComboBox()
             BindHotkey(hk.WindowCapture, HkWindowCaptureEnabled, HkWindowCaptureCtrl, HkWindowCaptureShift, HkWindowCaptureAlt, HkWindowCaptureWin, HkWindowCaptureKey);
             BindHotkey(hk.ElementCapture, HkElementCaptureEnabled, HkElementCaptureCtrl, HkElementCaptureShift, HkElementCaptureAlt, HkElementCaptureWin, HkElementCaptureKey);
             BindHotkey(hk.ScrollCapture, HkScrollCaptureEnabled, HkScrollCaptureCtrl, HkScrollCaptureShift, HkScrollCaptureAlt, HkScrollCaptureWin, HkScrollCaptureKey);
+            BindHotkey(hk.OcrCapture, HkOcrCaptureEnabled, HkOcrCaptureCtrl, HkOcrCaptureShift, HkOcrCaptureAlt, HkOcrCaptureWin, HkOcrCaptureKey);
+            BindHotkey(hk.ScreenRecord, HkScreenRecordEnabled, HkScreenRecordCtrl, HkScreenRecordShift, HkScreenRecordAlt, HkScreenRecordWin, HkScreenRecordKey);
             BindHotkey(hk.SaveAll, HkSaveAllEnabled, HkSaveAllCtrl, HkSaveAllShift, HkSaveAllAlt, HkSaveAllWin, HkSaveAllKey);
             BindHotkey(hk.DeleteAll, HkDeleteAllEnabled, HkDeleteAllCtrl, HkDeleteAllShift, HkDeleteAllAlt, HkDeleteAllWin, HkDeleteAllKey);
             BindHotkey(hk.SimpleMode, HkSimpleModeEnabled, HkSimpleModeCtrl, HkSimpleModeShift, HkSimpleModeAlt, HkSimpleModeWin, HkSimpleModeKey);
@@ -442,6 +449,8 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
             ReadHotkey(_settings.Hotkeys.WindowCapture, HkWindowCaptureEnabled, HkWindowCaptureCtrl, HkWindowCaptureShift, HkWindowCaptureAlt, HkWindowCaptureWin, HkWindowCaptureKey);
             ReadHotkey(_settings.Hotkeys.ElementCapture, HkElementCaptureEnabled, HkElementCaptureCtrl, HkElementCaptureShift, HkElementCaptureAlt, HkElementCaptureWin, HkElementCaptureKey);
             ReadHotkey(_settings.Hotkeys.ScrollCapture, HkScrollCaptureEnabled, HkScrollCaptureCtrl, HkScrollCaptureShift, HkScrollCaptureAlt, HkScrollCaptureWin, HkScrollCaptureKey);
+            ReadHotkey(_settings.Hotkeys.OcrCapture, HkOcrCaptureEnabled, HkOcrCaptureCtrl, HkOcrCaptureShift, HkOcrCaptureAlt, HkOcrCaptureWin, HkOcrCaptureKey);
+            ReadHotkey(_settings.Hotkeys.ScreenRecord, HkScreenRecordEnabled, HkScreenRecordCtrl, HkScreenRecordShift, HkScreenRecordAlt, HkScreenRecordWin, HkScreenRecordKey);
             ReadHotkey(_settings.Hotkeys.SaveAll, HkSaveAllEnabled, HkSaveAllCtrl, HkSaveAllShift, HkSaveAllAlt, HkSaveAllWin, HkSaveAllKey);
             ReadHotkey(_settings.Hotkeys.DeleteAll, HkDeleteAllEnabled, HkDeleteAllCtrl, HkDeleteAllShift, HkDeleteAllAlt, HkDeleteAllWin, HkDeleteAllKey);
             ReadHotkey(_settings.Hotkeys.SimpleMode, HkSimpleModeEnabled, HkSimpleModeCtrl, HkSimpleModeShift, HkSimpleModeAlt, HkSimpleModeWin, HkSimpleModeKey);
@@ -457,6 +466,8 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
             EnsureDefaultKey(_settings.Hotkeys.WindowCapture, "W");
             EnsureDefaultKey(_settings.Hotkeys.ElementCapture, "E");
             EnsureDefaultKey(_settings.Hotkeys.ScrollCapture, "R");
+            EnsureDefaultKey(_settings.Hotkeys.OcrCapture, "O");
+            EnsureDefaultKey(_settings.Hotkeys.ScreenRecord, "V");
             EnsureDefaultKey(_settings.Hotkeys.SaveAll, "S");
             EnsureDefaultKey(_settings.Hotkeys.DeleteAll, "X");
             EnsureDefaultKey(_settings.Hotkeys.SimpleMode, "M");

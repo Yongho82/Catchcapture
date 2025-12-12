@@ -199,6 +199,8 @@ namespace CatchCapture.Models
         public ToggleHotkey WindowCapture { get; set; } = new ToggleHotkey();        // 창캡처
         public ToggleHotkey ElementCapture { get; set; } = new ToggleHotkey();       // 단위캡처
         public ToggleHotkey ScrollCapture { get; set; } = new ToggleHotkey();        // 스크롤캡처
+        public ToggleHotkey OcrCapture { get; set; } = new ToggleHotkey();           // OCR 캡처
+        public ToggleHotkey ScreenRecord { get; set; } = new ToggleHotkey();         // 화면 녹화
         
         // 기타 기능들
         public ToggleHotkey SaveAll { get; set; } = new ToggleHotkey();              // 전체저장
@@ -209,7 +211,6 @@ namespace CatchCapture.Models
         // Legacy (kept for backward compatibility with older settings.json)
         public ToggleHotkey SimpleCapture { get; set; } = new ToggleHotkey();
         public ToggleHotkey SizeCapture { get; set; } = new ToggleHotkey();
-        public ToggleHotkey ScreenRecord { get; set; } = new ToggleHotkey();
 
         public static HotkeySettings CreateDefaults()
         {
@@ -226,6 +227,9 @@ namespace CatchCapture.Models
                 ElementCapture = new ToggleHotkey { Enabled = false, Ctrl = true, Shift = true, Key = "E" },
                 ScrollCapture = new ToggleHotkey { Enabled = false, Ctrl = true, Shift = true, Key = "S" },
 
+                OcrCapture = new ToggleHotkey { Enabled = false, Ctrl = true, Shift = true, Key = "O" },
+                ScreenRecord = new ToggleHotkey { Enabled = false, Ctrl = true, Shift = true, Key = "V" },
+
                 // 편집/기타 기능: 활성화
                 SaveAll = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "S" },
                 DeleteAll = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "D" },
@@ -234,8 +238,7 @@ namespace CatchCapture.Models
 
                 // Legacy defaults left as disabled
                 SimpleCapture = new ToggleHotkey { Enabled = false },
-                SizeCapture = new ToggleHotkey { Enabled = false },
-                ScreenRecord = new ToggleHotkey { Enabled = false }
+                SizeCapture = new ToggleHotkey { Enabled = false }
             };
         }
     }
