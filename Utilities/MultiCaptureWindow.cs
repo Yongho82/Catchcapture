@@ -97,12 +97,22 @@ namespace CatchCapture.Utilities
             {
                 Source = screenshot,
                 Stretch = Stretch.None,
-                Opacity = 0.3
+                Opacity = 1.0 // 완전 불투명 (동영상 등 움직이는 화면 잔상 방지)
             };
             // 캔버스 내 좌표는 (0, 0)부터 시작 (창 자체가 이미 VirtualScreen 위치에 있음)
             Canvas.SetLeft(backgroundImage, 0);
             Canvas.SetTop(backgroundImage, 0);
             canvas.Children.Add(backgroundImage);
+
+            // 어두운 배경 효과를 위한 오버레이 (이미지 위에 덮어씌움)
+            var dimLayer = new Rectangle
+            {
+                Width = vWidth,
+                Height = vHeight,
+                Fill = new SolidColorBrush(Color.FromArgb(100, 0, 0, 0)),
+                IsHitTestVisible = false // 마우스 이벤트는 윈도우로 통과
+            };
+            canvas.Children.Add(dimLayer);
             // 마우스 커서 따라다니는 툴팁 생성
             var tooltipText = new TextBlock
             {
