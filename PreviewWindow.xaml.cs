@@ -28,6 +28,8 @@ namespace CatchCapture
         private Stack<BitmapSource> redoStack = new Stack<BitmapSource>();
         private Stack<List<CatchCapture.Models.DrawingLayer>> undoLayersStack = new Stack<List<CatchCapture.Models.DrawingLayer>>();
         private Stack<List<CatchCapture.Models.DrawingLayer>> redoLayersStack = new Stack<List<CatchCapture.Models.DrawingLayer>>();
+        private Stack<BitmapSource> undoOriginalStack = new Stack<BitmapSource>();
+        private Stack<BitmapSource> redoOriginalStack = new Stack<BitmapSource>();
         private Point startPoint;
         private Rectangle? selectionRectangle;
         private List<Point> drawingPoints = new List<Point>();
@@ -596,6 +598,7 @@ namespace CatchCapture
             {
                 // 현재 상태를 Redo 스택에 저장
                 redoStack.Push(currentImage);
+                redoOriginalStack.Push(originalImage);
                 var currentLayersCopy = drawingLayers.Select(layer => new CatchCapture.Models.DrawingLayer
                 {
                     LayerId = layer.LayerId,
@@ -610,6 +613,10 @@ namespace CatchCapture
                 // Undo 스택에서 복원
                 currentImage = undoStack.Pop();
                 drawingLayers = undoLayersStack.Pop();
+                if (undoOriginalStack.Count > 0)
+                {
+                    originalImage = undoOriginalStack.Pop();
+                }
                 
                 UpdatePreviewImage();
                 UpdateUndoRedoButtons();
@@ -622,6 +629,15 @@ namespace CatchCapture
             {
                 // 현재 상태를 Undo 스택에 저장
                 undoStack.Push(currentImage);
+                if (undoOriginalStack.Count > 0) 
+                     undoOriginalStack.Push(originalImage);
+                else 
+                     // 만약 스택이 비어있으면 현재 originalImage가 계속 유효했음. 
+                     // 하지만 undoOriginalStack과 짝을 맞추기 위해, Redo 시 복원할 Undo 스택에는 
+                     // Redo 전의 state(현재 state)를 넣어야 함. 
+                     // 여기 로직은 약간 복잡하므로 단순화:
+                     undoOriginalStack.Push(originalImage);
+
                 var currentLayersCopy = drawingLayers.Select(layer => new CatchCapture.Models.DrawingLayer
                 {
                     LayerId = layer.LayerId,
@@ -636,6 +652,10 @@ namespace CatchCapture
                 // Redo 스택에서 복원
                 currentImage = redoStack.Pop();
                 drawingLayers = redoLayersStack.Pop();
+                if (redoOriginalStack.Count > 0)
+                {
+                    originalImage = redoOriginalStack.Pop();
+                }
                 
                 UpdatePreviewImage();
                 UpdateUndoRedoButtons();
@@ -650,6 +670,7 @@ namespace CatchCapture
                 {
                     SaveForUndo();
                     currentImage = originalImage;
+                    drawingLayers.Clear(); // 레이어 초기화
                     UpdatePreviewImage();
                 }
             }
@@ -870,6 +891,9 @@ namespace CatchCapture
         {
             undoStack.Push(currentImage);
             redoStack.Clear();
+
+            undoOriginalStack.Push(originalImage);
+            redoOriginalStack.Clear();
             
             // 레이어 상태도 저장 (깊은 복사)
             var layersCopy = drawingLayers.Select(layer => new CatchCapture.Models.DrawingLayer

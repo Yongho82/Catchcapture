@@ -274,6 +274,12 @@ namespace CatchCapture
                     CroppedBitmap croppedBitmap = new CroppedBitmap(currentImage, cropRect);
 
                     currentImage = croppedBitmap;
+
+                    // Crp fix: Update originalImage to the cropped version and clear layers
+                    // This prevents drawings from reverting the image to the original size
+                    originalImage = currentImage;
+                    drawingLayers.Clear();
+
                     UpdatePreviewImage();
                 } catch (Exception ex) {
                     MessageBox.Show(ex.Message);
