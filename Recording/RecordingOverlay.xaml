@@ -64,5 +64,13 @@
                    Cursor="SizeNESW" MouseLeftButtonDown="Handle_MouseLeftButtonDown" Tag="SW"/>
         <Rectangle x:Name="HandleW" Width="10" Height="10" Fill="White" Stroke="#4361EE" StrokeThickness="1"
                    Cursor="SizeWE" MouseLeftButtonDown="Handle_MouseLeftButtonDown" Tag="W"/>
+                   
+        <!-- 새 영역 선택을 위한 히트 박스 (평소에는 숨김) -->
+        <Rectangle x:Name="SelectionHitTarget" Fill="Transparent" 
+                   Visibility="Collapsed"
+                   Cursor="Cross"
+                   MouseLeftButtonDown="SelectionHitTarget_MouseLeftButtonDown"
+                   MouseMove="SelectionHitTarget_MouseMove"
+                   MouseLeftButtonUp="SelectionHitTarget_MouseLeftButtonUp"/>
     </Canvas>
 </Window>

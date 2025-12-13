@@ -379,6 +379,7 @@
   <data name="HideToolbar" xml:space="preserve"><value>Ocultar barra de herramientas</value></data>
   <data name="ShowToolbar" xml:space="preserve"><value>Mostrar barra de herramientas</value></data>
   <data name="AutoSnap" xml:space="preserve"><value>Imán</value></data>
+  <data name="AreaSelection" xml:space="preserve"><value>Selección de área</value></data>
 
   <data name="DrawingTools" xml:space="preserve"><value>Herramientas de dibujo</value></data>
   <data name="ToolPen" xml:space="preserve"><value>Pluma</value></data>

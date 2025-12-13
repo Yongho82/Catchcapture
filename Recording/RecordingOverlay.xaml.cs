@@ -286,6 +286,15 @@ namespace CatchCapture.Recording
                 ShapeCanvas.Width = w;
                 ShapeCanvas.Height = h;
             }
+            
+            // 새 영역 선택 히트 박스 크기 업데이트
+            if (SelectionHitTarget != null)
+            {
+                Canvas.SetLeft(SelectionHitTarget, 0);
+                Canvas.SetTop(SelectionHitTarget, 0);
+                SelectionHitTarget.Width = screenWidth;
+                SelectionHitTarget.Height = screenHeight;
+            }
         }
         
         /// <summary>
@@ -1088,6 +1097,92 @@ namespace CatchCapture.Recording
             }
         }
 
+        #endregion
+        
+        #region 새 영역 선택
+
+        public void StartNewSelectionMode()
+        {
+            if (SelectionHitTarget == null) return;
+
+            // 현재 선택 영역 초기화 (전체 화면이 어두워짐)
+            _selectionArea = new Rect(0, 0, 0, 0);
+            UpdateVisuals();
+
+            // 핸들 및 라벨 숨기기
+            ShowHandles(false);
+            
+            // 히트 타겟 활성화
+            SelectionHitTarget.Visibility = Visibility.Visible;
+            
+            // 선택 모드 진입 시 마우스 캡처는 하지 않음 (클릭 대기)
+        }
+
+        private void ShowHandles(bool show)
+        {
+             var visibility = show ? Visibility.Visible : Visibility.Collapsed;
+             if (HandleNW != null) HandleNW.Visibility = visibility;
+             if (HandleN != null) HandleN.Visibility = visibility;
+             if (HandleNE != null) HandleNE.Visibility = visibility;
+             if (HandleE != null) HandleE.Visibility = visibility;
+             if (HandleSE != null) HandleSE.Visibility = visibility;
+             if (HandleS != null) HandleS.Visibility = visibility;
+             if (HandleSW != null) HandleSW.Visibility = visibility;
+             if (HandleW != null) HandleW.Visibility = visibility;
+             if (SizeLabelBorder != null) SizeLabelBorder.Visibility = visibility;
+        }
+
+        private Point _newSelectionStart;
+        private bool _isSelectingNew = false;
+
+        private void SelectionHitTarget_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            _isSelectingNew = true;
+            _newSelectionStart = e.GetPosition(this);
+            SelectionHitTarget.CaptureMouse();
+            
+            // 초기 0 크기 설정
+            _selectionArea = new Rect(_newSelectionStart, new Size(0,0));
+            UpdateVisuals();
+        }
+
+        private void SelectionHitTarget_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (!_isSelectingNew) return;
+            
+            var current = e.GetPosition(this);
+            
+            double x = Math.Min(_newSelectionStart.X, current.X);
+            double y = Math.Min(_newSelectionStart.Y, current.Y);
+            double w = Math.Abs(_newSelectionStart.X - current.X);
+            double h = Math.Abs(_newSelectionStart.Y - current.Y);
+            
+            _selectionArea = new Rect(x, y, w, h);
+            UpdateVisuals();
+        }
+
+        private void SelectionHitTarget_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (_isSelectingNew)
+            {
+                _isSelectingNew = false;
+                SelectionHitTarget.ReleaseMouseCapture();
+                SelectionHitTarget.Visibility = Visibility.Collapsed;
+                
+                // 크기가 너무 작으면 기본 크기로 복원 (실수 방지)
+                if (_selectionArea.Width < 50 || _selectionArea.Height < 50)
+                {
+                    var screen = SystemParameters.WorkArea;
+                    _selectionArea = new Rect((screen.Width - 800) / 2, (screen.Height - 600) / 2, 800, 600);
+                    UpdateVisuals();
+                }
+
+                // 핸들 다시 표시
+                ShowHandles(true);
+                AreaChanged?.Invoke(this, _selectionArea);
+            }
+        }
+        
         #endregion
     }
 }

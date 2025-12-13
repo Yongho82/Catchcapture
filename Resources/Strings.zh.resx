@@ -382,6 +382,7 @@
   <data name="HideToolbar" xml:space="preserve"><value>隐藏工具栏</value></data>
   <data name="ShowToolbar" xml:space="preserve"><value>显示工具栏</value></data>
   <data name="AutoSnap" xml:space="preserve"><value>磁铁</value></data>
+  <data name="AreaSelection" xml:space="preserve"><value>区域选择</value></data>
 
   <data name="DrawingTools" xml:space="preserve"><value>绘图工具</value></data>
   <data name="ToolPen" xml:space="preserve"><value>笔</value></data>

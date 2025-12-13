@@ -379,6 +379,7 @@
   <data name="HideToolbar" xml:space="preserve"><value>Masquer la barre d'outils</value></data>
   <data name="ShowToolbar" xml:space="preserve"><value>Afficher la barre d'outils</value></data>
   <data name="AutoSnap" xml:space="preserve"><value>Aimant</value></data>
+  <data name="AreaSelection" xml:space="preserve"><value>Sélection de zone</value></data>
 
   <data name="DrawingTools" xml:space="preserve"><value>Outils de dessin</value></data>
   <data name="ToolPen" xml:space="preserve"><value>Stylo</value></data>

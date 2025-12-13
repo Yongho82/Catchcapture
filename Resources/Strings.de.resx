@@ -379,6 +379,7 @@
   <data name="HideToolbar" xml:space="preserve"><value>Symbolleiste ausblenden</value></data>
   <data name="ShowToolbar" xml:space="preserve"><value>Symbolleiste anzeigen</value></data>
   <data name="AutoSnap" xml:space="preserve"><value>Magnet</value></data>
+  <data name="AreaSelection" xml:space="preserve"><value>Bereich wählen</value></data>
 
   <data name="DrawingTools" xml:space="preserve"><value>Zeichenwerkzeuge</value></data>
   <data name="ToolPen" xml:space="preserve"><value>Stift</value></data>

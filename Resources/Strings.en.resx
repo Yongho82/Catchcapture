@@ -381,6 +381,7 @@
   <data name="HideToolbar" xml:space="preserve"><value>Hide Toolbar</value></data>
   <data name="ShowToolbar" xml:space="preserve"><value>Show Toolbar</value></data>
   <data name="AutoSnap" xml:space="preserve"><value>Magnet</value></data>
+  <data name="AreaSelection" xml:space="preserve"><value>Select Area</value></data>
 
   <data name="DrawingTools" xml:space="preserve"><value>Drawing Tools</value></data>
   <data name="ToolPen" xml:space="preserve"><value>Pen</value></data>

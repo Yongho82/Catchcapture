@@ -388,6 +388,15 @@ namespace CatchCapture.Recording
         }
         
         /// <summary>
+        /// 영역 새로 선택 버튼 클릭
+        /// </summary>
+        private void AreaSelectButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_overlay == null) return;
+            _overlay.StartNewSelectionMode();
+        }
+
+        /// <summary>
         /// 자동 맞춤 (자석) 버튼 클릭
         /// </summary>
         private void AutoSnapButton_Click(object sender, RoutedEventArgs e)
@@ -1234,6 +1243,7 @@ namespace CatchCapture.Recording
             }
 
             // 새로운 도구 툴팁 추가
+            if (AreaSelectButton != null) AreaSelectButton.ToolTip = loc("AreaSelection");
             if (AutoSnapButton != null) AutoSnapButton.ToolTip = loc("AutoSnap");
             if (FullScreenButton != null) FullScreenButton.ToolTip = loc("FullScreen");
             if (DrawingButton != null) DrawingButton.ToolTip = loc("DrawingTools");
