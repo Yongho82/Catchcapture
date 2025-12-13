@@ -392,4 +392,5 @@
   <data name="ToolEllipse" xml:space="preserve"><value>Ellipse</value></data>
   <data name="ToolNumbering" xml:space="preserve"><value>Numbering</value></data>
   <data name="ToolClearAll" xml:space="preserve"><value>Clear All</value></data>
+  <data name="OpenSaveFolder" xml:space="preserve"><value>Open Save Folder</value></data>
 </root>

@@ -22,6 +22,7 @@ using Windows.ApplicationModel.DataTransfer;
 using CatchCapture.Resources;
 using LocalizationManager = CatchCapture.Resources.LocalizationManager;
 using CatchCapture.Recording;
+using System.Diagnostics;
 
 namespace CatchCapture;
 
@@ -303,6 +304,15 @@ public partial class MainWindow : Window
                     case "영역 캡처":
                         AreaCaptureButton_Click(this, new RoutedEventArgs());
                         break;
+                    case "지연 캡처":
+                        StartDelayedAreaCaptureSeconds(3);
+                        break;
+                    case "실시간 캡처":
+                        StartRealTimeCaptureMode();
+                        break;
+                    case "다중 캡처":
+                        MultiCaptureButton_Click(this, new RoutedEventArgs());
+                        break;
                     case "전체화면":
                         FullScreenCaptureButton_Click(this, new RoutedEventArgs());
                         break;
@@ -314,6 +324,15 @@ public partial class MainWindow : Window
                         break;
                     case "단위 캡처":
                         ElementCaptureButton_Click(this, new RoutedEventArgs());
+                        break;
+                    case "스크롤 캡처":
+                        ScrollCaptureButton_Click(this, new RoutedEventArgs());
+                        break;
+                    case "OCR 캡처":
+                        OcrCaptureButton_Click(this, new RoutedEventArgs());
+                        break;
+                    case "동영상 녹화":
+                        ScreenRecordButton_Click(this, new RoutedEventArgs());
                         break;
                 }
             }
@@ -2137,6 +2156,28 @@ public partial class MainWindow : Window
         CopySelectedImage();
     }
 
+    private void OpenSaveFolderButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            string folderPath = settings.DefaultSaveFolder;
+            if (!System.IO.Directory.Exists(folderPath))
+            {
+                System.IO.Directory.CreateDirectory(folderPath);
+            }
+            // 폴더 열기
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = folderPath,
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            CatchCapture.CustomMessageBox.Show($"저장 폴더를 열 수 없습니다: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
     public void CopySelectedImage()
     {
         if (selectedIndex >= 0 && selectedIndex < captures.Count)
@@ -3568,6 +3609,11 @@ public partial class MainWindow : Window
                 }
             }
         }
+        
+        // 타이틀바 및 기타 버튼 로컬라이제이션
+        if (TitleSimpleModeButton != null) TitleSimpleModeButton.ToolTip = LocalizationManager.GetString("SimpleMode");
+        if (TitleTrayModeButton != null) TitleTrayModeButton.ToolTip = LocalizationManager.GetString("TrayMode");
+        if (OpenSaveFolderButtonText != null) OpenSaveFolderButtonText.Text = LocalizationManager.GetString("OpenSaveFolder");
     }
     private void UpdateTrayMenuTexts()
     {
@@ -3624,6 +3670,15 @@ public partial class MainWindow : Window
                         case "영역 캡처":
                             StartAreaCapture();
                             break;
+                        case "지연 캡처":
+                            StartDelayedAreaCaptureSeconds(3);
+                            break;
+                        case "실시간 캡처":
+                            StartRealTimeCaptureMode();
+                            break;
+                        case "다중 캡처":
+                            MultiCaptureButton_Click(this, new RoutedEventArgs());
+                            break;
                         case "전체화면":
                             CaptureFullScreen();
                             break;
@@ -3635,6 +3690,15 @@ public partial class MainWindow : Window
                             break;
                         case "단위 캡처":
                             ElementCaptureButton_Click(this, new RoutedEventArgs());
+                            break;
+                        case "스크롤 캡처":
+                            ScrollCaptureButton_Click(this, new RoutedEventArgs());
+                            break;
+                        case "OCR 캡처":
+                            OcrCaptureButton_Click(this, new RoutedEventArgs());
+                            break;
+                        case "동영상 녹화":
+                            ScreenRecordButton_Click(this, new RoutedEventArgs());
                             break;
                     }
                 }));

@@ -235,8 +235,8 @@ namespace CatchCapture.Models
                 // 편집/기타 기능: 활성화
                 SaveAll = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "S" },
                 DeleteAll = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "D" },
-                SimpleMode = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "Q" },
-                TrayMode = new ToggleHotkey { Enabled = false, Ctrl = true, Shift = true, Key = "T" },
+                SimpleMode = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "Q" },
+                TrayMode = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "T" },
                 OpenSettings = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "O" },
                 OpenEditor = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "E" },
 

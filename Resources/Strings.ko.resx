@@ -229,7 +229,7 @@
   <data name="ImageSizePrefix" xml:space="preserve"><value>이미지 사이즈 : </value></data>
   <data name="RestartRequired" xml:space="preserve"><value>언어 변경 후 프로그램을 다시 시작해야 합니다.</value></data>
   <data name="MenuEdit" xml:space="preserve"><value>메뉴 편집</value></data>
-  <data name="MenuEditGuide" xml:space="preserve"><value>드래그 앤 드롭으로 메뉴 순서를 변경하거나 삭제할 수 있습니다.</value></data>
+  <data name="MenuEditGuide" xml:space="preserve"><value>드래그 앤 드롭으로 메뉴 순서, 변경, 삭제할 수 있어요.</value></data>
   <data name="Add" xml:space="preserve"><value>추가</value></data>
   <data name="RestoreDefaultMenus" xml:space="preserve"><value>기본 메뉴로 복원</value></data>
   <data name="VisitHomepage" xml:space="preserve"><value>홈페이지 방문</value></data>
@@ -392,4 +392,5 @@
   <data name="ToolEllipse" xml:space="preserve"><value>원</value></data>
   <data name="ToolNumbering" xml:space="preserve"><value>번호 매기기</value></data>
   <data name="ToolClearAll" xml:space="preserve"><value>모두 지우기</value></data>
+  <data name="OpenSaveFolder" xml:space="preserve"><value>저장 폴더 열기</value></data>
 </root>

@@ -891,7 +891,7 @@ namespace CatchCapture.Recording
             }
         }
 
-        private UIElement CreateShape(Point start, Point end, ShapeToolType type, Color color, bool isTemp)
+        private UIElement? CreateShape(Point start, Point end, ShapeToolType type, Color color, bool isTemp)
         {
             double dpiScale = GetDpiScale();
             double strokeThickness = 2 / dpiScale;

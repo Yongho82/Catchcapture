@@ -105,10 +105,16 @@ private void UpdateUIText()
             var items = new[]
             {
                 (key: "AreaCapture", tag: "영역 캡처"),
+                (key: "DelayCapture", tag: "지연 캡처"),
+                (key: "RealTimeCapture", tag: "실시간 캡처"),
+                (key: "MultiCapture", tag: "다중 캡처"),
                 (key: "FullScreen", tag: "전체화면"),
                 (key: "DesignatedCapture", tag: "지정 캡처"),
                 (key: "WindowCapture", tag: "창 캡처"),
                 (key: "ElementCapture", tag: "단위 캡처"),
+                (key: "ScrollCapture", tag: "스크롤 캡처"),
+                (key: "OcrCapture", tag: "OCR 캡처"),
+                (key: "ScreenRecording", tag: "동영상 녹화"),
             };
             
             CboPrintScreenAction.Items.Clear();
