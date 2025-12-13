@@ -287,6 +287,7 @@
   <data name="CopySelected" xml:space="preserve"><value>Copy</value></data>
   <data name="InstantEdit" xml:space="preserve"><value>Instant Edit</value></data>
   <data name="OpenEditor" xml:space="preserve"><value>Open Editor</value></data>
+  <data name="OpenSettings" xml:space="preserve"><value>Open Settings</value></data>
   <data name="RealTimeF1Guide" xml:space="preserve"><value>Press F1 when ready to capture.</value></data>
   <data name="DelayNone" xml:space="preserve"><value>No Delay</value></data>
   <data name="Delay3Sec" xml:space="preserve"><value>3 sec</value></data>

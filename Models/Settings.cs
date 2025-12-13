@@ -206,7 +206,9 @@ namespace CatchCapture.Models
         public ToggleHotkey SaveAll { get; set; } = new ToggleHotkey();              // 전체저장
         public ToggleHotkey DeleteAll { get; set; } = new ToggleHotkey();            // 전체삭제
         public ToggleHotkey SimpleMode { get; set; } = new ToggleHotkey();           // 간편모드
+        public ToggleHotkey TrayMode { get; set; } = new ToggleHotkey();             // 트레이모드
         public ToggleHotkey OpenSettings { get; set; } = new ToggleHotkey();         // 설정
+        public ToggleHotkey OpenEditor { get; set; } = new ToggleHotkey();           // 에디터
 
         // Legacy (kept for backward compatibility with older settings.json)
         public ToggleHotkey SimpleCapture { get; set; } = new ToggleHotkey();
@@ -234,7 +236,9 @@ namespace CatchCapture.Models
                 SaveAll = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "S" },
                 DeleteAll = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "D" },
                 SimpleMode = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "Q" },
+                TrayMode = new ToggleHotkey { Enabled = false, Ctrl = true, Shift = true, Key = "T" },
                 OpenSettings = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "O" },
+                OpenEditor = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "E" },
 
                 // Legacy defaults left as disabled
                 SimpleCapture = new ToggleHotkey { Enabled = false },

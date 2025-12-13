@@ -143,10 +143,12 @@ private void UpdateUIText()
             HkScrollCaptureEnabled.Content = LocalizationManager.GetString("ScrollCapture");
             HkOcrCaptureEnabled.Content = LocalizationManager.GetString("OcrCapture");
             HkScreenRecordEnabled.Content = LocalizationManager.GetString("ScreenRecording");
+            HkSimpleModeEnabled.Content = LocalizationManager.GetString("SimpleMode"); // ScreenRecord 아래로 이동 (Step 3에서 XAML 변경됨)
+            HkTrayModeEnabled.Content = LocalizationManager.GetString("TrayMode");
             HkSaveAllEnabled.Content = LocalizationManager.GetString("SaveAll");
             HkDeleteAllEnabled.Content = LocalizationManager.GetString("DeleteAll");
-            HkSimpleModeEnabled.Content = LocalizationManager.GetString("SimpleMode"); // Simple -> SimpleMode
             HkOpenSettingsEnabled.Content = LocalizationManager.GetString("OpenSettings");
+            HkOpenEditorEnabled.Content = LocalizationManager.GetString("OpenEditor");
             // 시스템 페이지
             SystemSectionTitle.Text = LocalizationManager.GetString("SystemSettings");
             StartupGroup.Header = LocalizationManager.GetString("StartupMode");
@@ -182,7 +184,8 @@ private void UpdateUIText()
                 HkRegionKey, HkDelayKey, HkRealTimeKey, HkMultiKey, HkFullKey, HkDesignatedKey,
                 HkWindowCaptureKey, HkElementCaptureKey, HkScrollCaptureKey,
                 HkOcrCaptureKey, HkScreenRecordKey,
-                HkSaveAllKey, HkDeleteAllKey, HkSimpleModeKey, HkOpenSettingsKey 
+                HkSimpleModeKey, HkTrayModeKey,
+                HkSaveAllKey, HkDeleteAllKey, HkOpenSettingsKey, HkOpenEditorKey 
             };
 
             foreach (var box in boxes)
@@ -336,10 +339,12 @@ private void InitLanguageComboBox()
             EnsureDefaultKey(hk.ScrollCapture, "S");        // R → S 변경
             EnsureDefaultKey(hk.OcrCapture, "O");
             EnsureDefaultKey(hk.ScreenRecord, "V");
+            EnsureDefaultKey(hk.SimpleMode, "Q");           // M → Q 변경
+            EnsureDefaultKey(hk.TrayMode, "T");
             EnsureDefaultKey(hk.SaveAll, "Z");              // S → Z 변경
             EnsureDefaultKey(hk.DeleteAll, "X");
-            EnsureDefaultKey(hk.SimpleMode, "Q");           // M → Q 변경
             EnsureDefaultKey(hk.OpenSettings, "O");
+            EnsureDefaultKey(hk.OpenEditor, "E");
 
             // Bind to UI
             BindHotkey(hk.RegionCapture, HkRegionEnabled, HkRegionCtrl, HkRegionShift, HkRegionAlt, HkRegionWin, HkRegionKey);
@@ -353,10 +358,12 @@ private void InitLanguageComboBox()
             BindHotkey(hk.ScrollCapture, HkScrollCaptureEnabled, HkScrollCaptureCtrl, HkScrollCaptureShift, HkScrollCaptureAlt, HkScrollCaptureWin, HkScrollCaptureKey);
             BindHotkey(hk.OcrCapture, HkOcrCaptureEnabled, HkOcrCaptureCtrl, HkOcrCaptureShift, HkOcrCaptureAlt, HkOcrCaptureWin, HkOcrCaptureKey);
             BindHotkey(hk.ScreenRecord, HkScreenRecordEnabled, HkScreenRecordCtrl, HkScreenRecordShift, HkScreenRecordAlt, HkScreenRecordWin, HkScreenRecordKey);
+            BindHotkey(hk.SimpleMode, HkSimpleModeEnabled, HkSimpleModeCtrl, HkSimpleModeShift, HkSimpleModeAlt, HkSimpleModeWin, HkSimpleModeKey);
+            BindHotkey(hk.TrayMode, HkTrayModeEnabled, HkTrayModeCtrl, HkTrayModeShift, HkTrayModeAlt, HkTrayModeWin, HkTrayModeKey);
             BindHotkey(hk.SaveAll, HkSaveAllEnabled, HkSaveAllCtrl, HkSaveAllShift, HkSaveAllAlt, HkSaveAllWin, HkSaveAllKey);
             BindHotkey(hk.DeleteAll, HkDeleteAllEnabled, HkDeleteAllCtrl, HkDeleteAllShift, HkDeleteAllAlt, HkDeleteAllWin, HkDeleteAllKey);
-            BindHotkey(hk.SimpleMode, HkSimpleModeEnabled, HkSimpleModeCtrl, HkSimpleModeShift, HkSimpleModeAlt, HkSimpleModeWin, HkSimpleModeKey);
             BindHotkey(hk.OpenSettings, HkOpenSettingsEnabled, HkOpenSettingsCtrl, HkOpenSettingsShift, HkOpenSettingsAlt, HkOpenSettingsWin, HkOpenSettingsKey);
+            BindHotkey(hk.OpenEditor, HkOpenEditorEnabled, HkOpenEditorCtrl, HkOpenEditorShift, HkOpenEditorAlt, HkOpenEditorWin, HkOpenEditorKey);
         }
 
         private static void BindHotkey(ToggleHotkey src, CheckBox en, CheckBox ctrl, CheckBox shift, CheckBox alt, CheckBox win, ComboBox key)
@@ -451,10 +458,12 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
             ReadHotkey(_settings.Hotkeys.ScrollCapture, HkScrollCaptureEnabled, HkScrollCaptureCtrl, HkScrollCaptureShift, HkScrollCaptureAlt, HkScrollCaptureWin, HkScrollCaptureKey);
             ReadHotkey(_settings.Hotkeys.OcrCapture, HkOcrCaptureEnabled, HkOcrCaptureCtrl, HkOcrCaptureShift, HkOcrCaptureAlt, HkOcrCaptureWin, HkOcrCaptureKey);
             ReadHotkey(_settings.Hotkeys.ScreenRecord, HkScreenRecordEnabled, HkScreenRecordCtrl, HkScreenRecordShift, HkScreenRecordAlt, HkScreenRecordWin, HkScreenRecordKey);
+            ReadHotkey(_settings.Hotkeys.SimpleMode, HkSimpleModeEnabled, HkSimpleModeCtrl, HkSimpleModeShift, HkSimpleModeAlt, HkSimpleModeWin, HkSimpleModeKey);
+            ReadHotkey(_settings.Hotkeys.TrayMode, HkTrayModeEnabled, HkTrayModeCtrl, HkTrayModeShift, HkTrayModeAlt, HkTrayModeWin, HkTrayModeKey);
             ReadHotkey(_settings.Hotkeys.SaveAll, HkSaveAllEnabled, HkSaveAllCtrl, HkSaveAllShift, HkSaveAllAlt, HkSaveAllWin, HkSaveAllKey);
             ReadHotkey(_settings.Hotkeys.DeleteAll, HkDeleteAllEnabled, HkDeleteAllCtrl, HkDeleteAllShift, HkDeleteAllAlt, HkDeleteAllWin, HkDeleteAllKey);
-            ReadHotkey(_settings.Hotkeys.SimpleMode, HkSimpleModeEnabled, HkSimpleModeCtrl, HkSimpleModeShift, HkSimpleModeAlt, HkSimpleModeWin, HkSimpleModeKey);
             ReadHotkey(_settings.Hotkeys.OpenSettings, HkOpenSettingsEnabled, HkOpenSettingsCtrl, HkOpenSettingsShift, HkOpenSettingsAlt, HkOpenSettingsWin, HkOpenSettingsKey);
+            ReadHotkey(_settings.Hotkeys.OpenEditor, HkOpenEditorEnabled, HkOpenEditorCtrl, HkOpenEditorShift, HkOpenEditorAlt, HkOpenEditorWin, HkOpenEditorKey);
 
             // Ensure defaults if user left any key empty
             EnsureDefaultKey(_settings.Hotkeys.RegionCapture, "A");
@@ -468,10 +477,12 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
             EnsureDefaultKey(_settings.Hotkeys.ScrollCapture, "R");
             EnsureDefaultKey(_settings.Hotkeys.OcrCapture, "O");
             EnsureDefaultKey(_settings.Hotkeys.ScreenRecord, "V");
+            EnsureDefaultKey(_settings.Hotkeys.SimpleMode, "Q");
+            EnsureDefaultKey(_settings.Hotkeys.TrayMode, "T");
             EnsureDefaultKey(_settings.Hotkeys.SaveAll, "S");
             EnsureDefaultKey(_settings.Hotkeys.DeleteAll, "X");
-            EnsureDefaultKey(_settings.Hotkeys.SimpleMode, "M");
             EnsureDefaultKey(_settings.Hotkeys.OpenSettings, "O");
+            EnsureDefaultKey(_settings.Hotkeys.OpenEditor, "E");
 
             // 시스템 설정
             _settings.StartWithWindows = StartWithWindowsCheckBox.IsChecked == true;
@@ -659,7 +670,7 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
             var menuKeys = _settings.MainMenuItems ?? new System.Collections.Generic.List<string>
             {
                 "AreaCapture", "DelayCapture", "RealTimeCapture", "MultiCapture",
-                "FullScreen", "DesignatedCapture", "WindowCapture", "ElementCapture", "ScrollCapture"
+                "FullScreen", "DesignatedCapture", "WindowCapture", "ElementCapture", "ScrollCapture", "SimpleMode"
             };
 
             foreach (var key in menuKeys)
@@ -681,7 +692,7 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
             var allMenuKeys = new[]
             {
                 "AreaCapture", "DelayCapture", "RealTimeCapture", "MultiCapture",
-                "FullScreen", "DesignatedCapture", "WindowCapture", "ElementCapture", "ScrollCapture", "OcrCapture", "ScreenRecord"
+                "FullScreen", "DesignatedCapture", "WindowCapture", "ElementCapture", "ScrollCapture", "OcrCapture", "ScreenRecord", "SimpleMode", "TrayMode"
             };
 
             // Get currently used keys
@@ -721,6 +732,8 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
                 "ScrollCapture"     => LocalizationManager.GetString("ScrollCapture"),
                 "OcrCapture"        => LocalizationManager.GetString("OcrCapture"),
                 "ScreenRecord"      => LocalizationManager.GetString("ScreenRecording"),
+                "SimpleMode"        => LocalizationManager.GetString("SimpleMode"),
+                "TrayMode"          => LocalizationManager.GetString("TrayMode"),
                 _ => key
             };
         }

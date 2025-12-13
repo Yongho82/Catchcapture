@@ -75,6 +75,9 @@ public partial class MainWindow : Window
     private const int HOTKEY_ID_WINDOW = 9002;
     private const int HOTKEY_ID_OCR = 9010;
     private const int HOTKEY_ID_SCREENRECORD = 9011;
+    private const int HOTKEY_ID_SIMPLE = 9012;
+    private const int HOTKEY_ID_TRAY = 9013;
+    private const int HOTKEY_ID_OPENEDITOR = 9014;
 
     [DllImport("user32.dll")]
     private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
@@ -209,7 +212,8 @@ public partial class MainWindow : Window
             ScreenRecordButtonText.Text = LocalizationManager.GetString("ScreenRecording");
             
             // refine baseline using ActualHeight now that layout is ready
-            try { _baseMainWindowHeight = this.ActualHeight > 0 ? this.ActualHeight : this.Height; } catch { }
+            // refine baseline commented out to persist fixed 692 baseline
+            // try { _baseMainWindowHeight = this.ActualHeight > 0 ? this.ActualHeight : this.Height; } catch { }
             AdjustMainWindowHeightForMenuCount();
         };
     }
@@ -243,7 +247,9 @@ public partial class MainWindow : Window
             { "ElementCapture", ElementCaptureButton },
             { "ScrollCapture", ScrollCaptureButton }, 
             { "OcrCapture", OcrCaptureButton },
-            { "ScreenRecord", ScreenRecordButton }
+            { "ScreenRecord", ScreenRecordButton },
+            { "SimpleMode", SimpleModeButton },
+            { "TrayMode", TrayModeButton }
         };
 
         // Separator와 하단 버튼들 저장
@@ -257,6 +263,8 @@ public partial class MainWindow : Window
             }
             if (foundSeparator)
             {
+                // Skip SimpleModeButton and TrayModeButton as they are now managed by menu items
+                if (child == SimpleModeButton || child == TrayModeButton) continue;
                 bottomElements.Add(child);
             }
         }
@@ -2630,6 +2638,24 @@ public partial class MainWindow : Window
                 var (modifiers, key) = ConvertToggleHotkey(settings.Hotkeys.ScreenRecord);
                 RegisterHotKey(hwnd, HOTKEY_ID_SCREENRECORD, modifiers, key);
             }
+
+            if (settings.Hotkeys.SimpleMode.Enabled)
+            {
+                var (modifiers, key) = ConvertToggleHotkey(settings.Hotkeys.SimpleMode);
+                RegisterHotKey(hwnd, HOTKEY_ID_SIMPLE, modifiers, key);
+            }
+
+            if (settings.Hotkeys.TrayMode.Enabled)
+            {
+                var (modifiers, key) = ConvertToggleHotkey(settings.Hotkeys.TrayMode);
+                RegisterHotKey(hwnd, HOTKEY_ID_TRAY, modifiers, key);
+            }
+
+            if (settings.Hotkeys.OpenEditor.Enabled)
+            {
+                var (modifiers, key) = ConvertToggleHotkey(settings.Hotkeys.OpenEditor);
+                RegisterHotKey(hwnd, HOTKEY_ID_OPENEDITOR, modifiers, key);
+            }
         }
         catch (Exception ex)
         {
@@ -2649,6 +2675,9 @@ public partial class MainWindow : Window
             UnregisterHotKey(hwnd, HOTKEY_ID_WINDOW);
             UnregisterHotKey(hwnd, HOTKEY_ID_OCR);
             UnregisterHotKey(hwnd, HOTKEY_ID_SCREENRECORD);
+            UnregisterHotKey(hwnd, HOTKEY_ID_SIMPLE);
+            UnregisterHotKey(hwnd, HOTKEY_ID_TRAY);
+            UnregisterHotKey(hwnd, HOTKEY_ID_OPENEDITOR);
             
             hwndSource?.RemoveHook(HwndHook);
         }
@@ -2749,6 +2778,21 @@ public partial class MainWindow : Window
 
                 case HOTKEY_ID_SCREENRECORD:
                     Dispatcher.Invoke(() => ScreenRecordButton_Click(this, new RoutedEventArgs()));
+                    handled = true;
+                    break;
+
+                case HOTKEY_ID_SIMPLE:
+                    Dispatcher.Invoke(() => ToggleSimpleMode());
+                    handled = true;
+                    break;
+
+                case HOTKEY_ID_TRAY:
+                    Dispatcher.Invoke(() => SwitchToTrayMode());
+                    handled = true;
+                    break;
+
+                case HOTKEY_ID_OPENEDITOR:
+                    Dispatcher.Invoke(() => SwitchToNormalMode());
                     handled = true;
                     break;
 
@@ -3202,6 +3246,18 @@ public partial class MainWindow : Window
         if (MatchHotkey(hk.SimpleMode, e))
         {
             ToggleSimpleMode();
+            return true;
+        }
+        // 트레이 모드 전환
+        if (MatchHotkey(hk.TrayMode, e))
+        {
+            SwitchToTrayMode();
+            return true;
+        }
+        // 에디터 열기
+        if (MatchHotkey(hk.OpenEditor, e))
+        {
+            SwitchToNormalMode();
             return true;
         }
         // 설정 열기
@@ -3694,24 +3750,15 @@ public partial class MainWindow : Window
     }
 
     // Height auto-adjustment for menu count
-    private double _baseMainWindowHeight; // baseline to shrink from
-    private const double ButtonVerticalStep = 41.0; // approx button height + vertical margins
-    // Capture initial visible menu count as baseline (after Loaded)
-    private int _baselineMenuCount = -1;
+    private double _baseMainWindowHeight = 692.0; // Fixed baseline height for 13 items
+    private const double ButtonVerticalStep = 41.0; 
+    private int _baselineMenuCount = 13; // Fixed baseline count (11 menu + 2 fixed)
 
     private void AdjustMainWindowHeightForMenuCount()
     {
         try
         {
-            // Only adjust in Normal mode (not Tray/Simple windows)
             if (settings.IsTrayMode) return;
-
-            // Determine baseline and current visible count in UI
-            if (_baselineMenuCount < 0)
-            {
-                // 기본 메뉴 개수는 항상 10개 (전체 메뉴 기준)
-                _baselineMenuCount = 10;
-            }
 
             int currentCount = 0;
             try
@@ -3720,39 +3767,32 @@ public partial class MainWindow : Window
                 {
                     foreach (var child in CaptureButtonsPanel.Children)
                     {
-                        if (child is Separator) break; // stop at first separator
+                        if (child is Separator) break;
                         if (child is Button) currentCount++;
                     }
                 }
             }
             catch { }
-            if (currentCount <= 0)
-            {
-                // fallback to baseline if UI count is unavailable
-                currentCount = _baselineMenuCount;
-            }
+            
+            if (currentCount <= 0) currentCount = 11; // Fallback to safe default
 
-            // Removed relative to initial baseline
-            int desiredCount = Math.Max(currentCount, _baselineMenuCount - 3);
-            int shrinkButtons = Math.Max(0, _baselineMenuCount - desiredCount);
+            // Calculate diff from baseline (13)
+            int diff = _baselineMenuCount - currentCount;
+            
+            // Calculate target height
+            double targetHeight = _baseMainWindowHeight - (diff * ButtonVerticalStep);
 
-            // compute min height (equivalent to showing only 2 items)
-            double minHeightForTwo = _baseMainWindowHeight - (Math.Max(0, _baselineMenuCount - 3) * ButtonVerticalStep);
-            if (minHeightForTwo < 200) minHeightForTwo = 200; // absolute safety floor
+            // Safety clamp
+            if (targetHeight < 400) targetHeight = 400;
 
-            // compute target height and clamp
-            double targetHeight = _baseMainWindowHeight - (shrinkButtons * ButtonVerticalStep);
-            if (targetHeight < minHeightForTwo) targetHeight = minHeightForTwo;
-
-            // Apply height (keep width unchanged)
+            // Apply
             if (!double.IsNaN(targetHeight) && targetHeight > 0)
             {
-                // override XAML MinHeight that may block shrinking
-                this.MinHeight = minHeightForTwo;
+                this.MinHeight = targetHeight; 
                 this.Height = targetHeight;
             }
         }
-        catch { /* ignore sizing errors */ }
+        catch { }
     }
     /// <summary>
     /// 비디오 녹화 데이터를 캡처 리스트에 추가 (동영상 썸네일 + 재생버튼)
