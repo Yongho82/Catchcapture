@@ -381,7 +381,7 @@
   <data name="HideToolbar" xml:space="preserve"><value>도구 모음 숨기기</value></data>
   <data name="ShowToolbar" xml:space="preserve"><value>도구 모음 표시</value></data>
   <data name="AutoSnap" xml:space="preserve"><value>자석</value></data>
-  <data name="FullScreen" xml:space="preserve"><value>전체창</value></data>
+
   <data name="DrawingTools" xml:space="preserve"><value>그리기 도구</value></data>
   <data name="ToolPen" xml:space="preserve"><value>펜</value></data>
   <data name="ToolHighlighter" xml:space="preserve"><value>형광펜</value></data>

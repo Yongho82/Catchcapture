@@ -382,7 +382,7 @@
   <data name="HideToolbar" xml:space="preserve"><value>ツールバーを隠す</value></data>
   <data name="ShowToolbar" xml:space="preserve"><value>ツールバーを表示</value></data>
   <data name="AutoSnap" xml:space="preserve"><value>マグネット</value></data>
-  <data name="FullScreen" xml:space="preserve"><value>全画面</value></data>
+
   <data name="DrawingTools" xml:space="preserve"><value>描画ツール</value></data>
   <data name="ToolPen" xml:space="preserve"><value>ペン</value></data>
   <data name="ToolHighlighter" xml:space="preserve"><value>蛍光ペン</value></data>

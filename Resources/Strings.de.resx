@@ -371,7 +371,7 @@
   <data name="SystemAudioOn" xml:space="preserve"><value>Systemaudioaufnahme (EIN)</value></data>
   <data name="MicrophoneOff" xml:space="preserve"><value>Mikrofonaufnahme (AUS)</value></data>
   <data name="MicrophoneOn" xml:space="preserve"><value>Mikrofonaufnahme (EIN)</value></data>
-  <data name="FileFormat" xml:space="preserve"><value>Dateiformat</value></data>
+
   <data name="VideoQuality" xml:space="preserve"><value>Qualität (HD/SD/LD)</value></data>
   <data name="FrameRate" xml:space="preserve"><value>Bildrate</value></data>
   <data name="ShowMouseCursor" xml:space="preserve"><value>Mauszeiger anzeigen</value></data>
@@ -379,7 +379,7 @@
   <data name="HideToolbar" xml:space="preserve"><value>Symbolleiste ausblenden</value></data>
   <data name="ShowToolbar" xml:space="preserve"><value>Symbolleiste anzeigen</value></data>
   <data name="AutoSnap" xml:space="preserve"><value>Magnet</value></data>
-  <data name="FullScreen" xml:space="preserve"><value>Vollbild</value></data>
+
   <data name="DrawingTools" xml:space="preserve"><value>Zeichenwerkzeuge</value></data>
   <data name="ToolPen" xml:space="preserve"><value>Stift</value></data>
   <data name="ToolHighlighter" xml:space="preserve"><value>Textmarker</value></data>
