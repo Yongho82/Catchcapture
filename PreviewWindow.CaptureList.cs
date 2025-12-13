@@ -40,13 +40,15 @@ namespace CatchCapture
 
         private Border CreateCaptureListItem(CaptureImage captureImage, int index)
         {
-            // 썸네일 크기
+            // 썸네일 크기 (정수로 반올림하여 서브픽셀 렌더링 방지)
             double aspectRatio = currentThumbnailSize / 120.0;
-            double thumbWidth = 200 * aspectRatio;
-            double thumbHeight = currentThumbnailSize;
+            double thumbWidth = Math.Round(200 * aspectRatio);
+            double thumbHeight = Math.Round(currentThumbnailSize);
 
             // 그리드 생성
             Grid grid = new Grid();
+            grid.SnapsToDevicePixels = true;
+            grid.UseLayoutRounding = true;
 
             // 이미지
             Image img = new Image
@@ -55,7 +57,9 @@ namespace CatchCapture
                 Height = thumbHeight,
                 Stretch = Stretch.Uniform,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
+                VerticalAlignment = VerticalAlignment.Center,
+                SnapsToDevicePixels = true,
+                UseLayoutRounding = true
             };
             
             // 데이터 바인딩으로 Image 속성 연결
@@ -241,8 +245,8 @@ namespace CatchCapture
                         if (gridChild is Image img)
                         {
                             double aspectRatio = currentThumbnailSize / 120.0; // 기본 120 기준
-                            img.Width = 200 * aspectRatio;
-                            img.Height = currentThumbnailSize;
+                            img.Width = Math.Round(200 * aspectRatio);
+                            img.Height = Math.Round(currentThumbnailSize);
                         }
                     }
                 }
