@@ -163,39 +163,48 @@ namespace CatchCapture
             LocalizationManager.LanguageChanged += PreviewWindow_LanguageChanged;
         }
 
-        // 이미지 크기에 맞게 창 크기를 조정하는 메서드
+        // 이미지 크기에 맞게 창 크기를 조정하고 필요시 줌 조정
         private void AdjustWindowSizeToFitImage()
         {
-            // 이미지 크기 가져오기
-            int imageWidth = currentImage.PixelWidth;
-            int imageHeight = currentImage.PixelHeight;
+            if (currentImage == null) return;
 
-            // 최대 창 크기 제한 (화면 크기를 벗어나지 않도록)
-            double maxWindowWidth = SystemParameters.WorkArea.Width * 0.9;
-            double maxWindowHeight = SystemParameters.WorkArea.Height * 0.9;
+            // 이미지 원래 크기
+            double imageWidth = currentImage.PixelWidth;
+            double imageHeight = currentImage.PixelHeight;
 
-            // 최소(기본) 창 크기 설정: 툴바 아이콘 추가에 맞춰 1300x800
+            // 화면 작업 영역 크기
+            double workAreaWidth = SystemParameters.WorkArea.Width;
+            double workAreaHeight = SystemParameters.WorkArea.Height;
+
+            // 최대 창 크기 제한 (화면의 90%)
+            double maxWindowWidth = workAreaWidth * 0.95;
+            double maxWindowHeight = workAreaHeight * 0.95;
+
+            // 최소 창 크기 설정
             double minWindowWidth = 1390;
             double minWindowHeight = 800;
 
-            // 도구 모음과 하단 패널의 높이 계산 (대략적인 값)
-            double toolbarHeight = 60; // 도구 모음 높이
-            double bottomPanelHeight = 80; // 하단 패널 높이
-            double windowChromeHeight = 40; // 창 테두리 및 제목 표시줄 높이
+            // UI 요소 크기 예상치
+            double toolbarHeight = 80; // 상단 툴바
+            double bottomPanelHeight = 30; // 하단 상태바 등
+            double windowChromeHeight = 40; // 타이틀바
+            double rightPanelWidth = 320; // 우측 캡처 리스트 패널 예상 너비
+            double padding = 40; // 여백
 
-            // 필요한 콘텐츠 높이 계산
+            // 이미지를 100%로 보여줄 때 필요한 창 크기 
+            // (이미지 너비 + 우측 패널 + 여백)
+            double requiredContentWidth = imageWidth + rightPanelWidth + padding;
             double requiredContentHeight = imageHeight + toolbarHeight + bottomPanelHeight + windowChromeHeight;
-            double requiredContentWidth = imageWidth + 60; // 좌우 여유 포함
 
-            // 창 크기 계산 (필요한 크기와 최소/최대 범위를 고려)
-            double windowWidth = Math.Min(maxWindowWidth, Math.Max(minWindowWidth, requiredContentWidth));
-            double windowHeight = Math.Min(maxWindowHeight, Math.Max(minWindowHeight, requiredContentHeight));
+            // 창 크기 결정 (최소/최대 범위 내)
+            double targetWindowWidth = Math.Min(maxWindowWidth, Math.Max(minWindowWidth, requiredContentWidth));
+            double targetWindowHeight = Math.Min(maxWindowHeight, Math.Max(minWindowHeight, requiredContentHeight));
 
             // 창 크기 설정
-            this.Width = windowWidth;
-            this.Height = windowHeight;
+            this.Width = targetWindowWidth;
+            this.Height = targetWindowHeight;
 
-            // 창을 소유자 중앙에 위치 (소유자가 있는 경우)
+            // 창 위치 설정 (중앙)
             if (this.Owner != null)
             {
                 this.Left = this.Owner.Left + (this.Owner.Width - this.Width) / 2;
@@ -203,8 +212,44 @@ namespace CatchCapture
             }
             else
             {
-                // 소유자가 없는 경우 화면 중앙에 위치
                 this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            }
+
+            // --- 줌(Scale) 조정 ---
+            // 창 크기가 결정되었으니, 이미지 표시 영역(Canvas)에 할당될 실제 공간 계산
+            // 창 너비 - 우측패널 - 여백
+            double availableWidth = targetWindowWidth - rightPanelWidth - padding;
+            // 창 높이 - 상단툴바 - 하단패널 - 타이틀바
+            double availableHeight = targetWindowHeight - toolbarHeight - bottomPanelHeight - windowChromeHeight;
+
+            // 공간이 유효한지 체크
+            if (availableWidth > 0 && availableHeight > 0)
+            {
+                double scaleX = availableWidth / imageWidth;
+                double scaleY = availableHeight / imageHeight;
+                
+                // 둘 중 더 작은 비율을 선택 (이미지 전체가 들어오도록)
+                double scale = Math.Min(scaleX, scaleY);
+                
+                // 이미지가 공간보다 크면 축소 (1.0보다 작을 때만 적용)
+                // 너무 작게 축소되는 것 방지 (예: 최소 10%)
+                if (scale < 1.0)
+                {
+                    scale = Math.Max(scale, 0.1); 
+                    
+                    var scaleTransform = GetImageScaleTransform();
+                    if (scaleTransform != null)
+                    {
+                        scaleTransform.ScaleX = scale;
+                        scaleTransform.ScaleY = scale;
+                        UpdateImageInfo();
+                    }
+                }
+                else
+                {
+                     // 공간이 충분하면 100%로 리셋
+                     ResetZoom();
+                }
             }
         }
 
