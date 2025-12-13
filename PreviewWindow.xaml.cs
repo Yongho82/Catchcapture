@@ -134,7 +134,7 @@ namespace CatchCapture
             ImageCanvas.MouseMove += ImageCanvas_MouseMove;
             ImageCanvas.MouseLeftButtonUp += ImageCanvas_MouseLeftButtonUp;
             ImageCanvas.MouseLeave += ImageCanvas_MouseLeave;
-            KeyDown += PreviewWindow_KeyDown;
+            PreviewKeyDown += PreviewWindow_KeyDown;
             this.PreviewMouseWheel += PreviewWindow_PreviewMouseWheel;
             // 캡처 리스트 표시
             if (allCaptures != null && allCaptures.Count > 0)
@@ -212,8 +212,23 @@ namespace CatchCapture
         {
             if (e.Key == Key.Escape)
             {
-                // 현재 편집 모드 취소
-                CancelCurrentEditMode();
+                if (currentEditMode == EditMode.Crop)
+                {
+                    CancelCrop();
+                }
+                else
+                {
+                    // 현재 편집 모드 취소
+                    CancelCurrentEditMode();
+                }
+            }
+            else if (e.Key == Key.Enter)
+            {
+                if (currentEditMode == EditMode.Crop)
+                {
+                    ConfirmCrop();
+                    e.Handled = true;
+                }
             }
             else if (e.Key == Key.C && Keyboard.Modifiers == ModifierKeys.Control)
             {
@@ -353,6 +368,7 @@ namespace CatchCapture
             // 임시 도형 정리 - 헬퍼 메서드 호출
             WriteLog("CancelCurrentEditMode에서 CleanupTemporaryShape 호출");
             CleanupTemporaryShape();
+            CleanupCropUI(); // Crop UI 정리
 
             // 도구 패널 숨김
             if (EditToolPanel != null)
@@ -598,8 +614,9 @@ namespace CatchCapture
         {
             CancelCurrentEditMode();
             currentEditMode = EditMode.Crop;
-            ImageCanvas.Cursor = Cursors.Cross;
+            ImageCanvas.Cursor = Cursors.Arrow;
             SetActiveToolButton(CropButton);
+            InitializeCropMode();
         }
 
         private void RotateButton_Click(object sender, RoutedEventArgs e)

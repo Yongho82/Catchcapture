@@ -15,69 +15,286 @@ namespace CatchCapture
     /// </summary>
     public partial class PreviewWindow : Window
     {
-        #region 자르기 (Crop)
+        #region 자르기 (Crop) - Excel Style
 
-        private void StartCrop()
+        // Fields for Excel-like cropping
+        private Rectangle? _cropBorder;
+        private List<Rectangle> _cropHandles = new List<Rectangle>();
+        private List<Rectangle> _cropDimRects = new List<Rectangle>(); // Top, Bottom, Left, Right
+        
+        private Rect _cropArea;
+        private bool _isCropResizing = false;
+        private bool _isCropMoving = false;
+        private string _activeCropHandle = "";
+        private Point _cropDragStart;
+        private Rect _cropOriginalArea;
+
+        // Initialize Crop Mode
+        public void InitializeCropMode()
         {
-            if (selectionRectangle != null)
+            CleanupCropUI(); // Safety cleanup
+
+            if (currentImage == null) return;
+
+            // Initial crop area: Full image size
+            _cropArea = new Rect(0, 0, currentImage.PixelWidth, currentImage.PixelHeight);
+
+            // Create Dim Rects (Order: Top, Bottom, Left, Right)
+            for (int i = 0; i < 4; i++)
             {
-                ImageCanvas.Children.Remove(selectionRectangle);
+                var rect = new Rectangle { Fill = new SolidColorBrush(Color.FromArgb(128, 0, 0, 0)), IsHitTestVisible = false };
+                _cropDimRects.Add(rect);
+                ImageCanvas.Children.Add(rect);
             }
 
-            selectionRectangle = new Rectangle
+            // Create Border (Visual for the crop area)
+            _cropBorder = new Rectangle
             {
-                Stroke = Brushes.Red,
-                StrokeThickness = 2,
-                StrokeDashArray = new DoubleCollection { 4, 2 },
-                Fill = Brushes.Transparent
+                Stroke = Brushes.White,
+                StrokeThickness = 1,
+                StrokeDashArray = new DoubleCollection { 4, 4 },
+                Fill = Brushes.Transparent,
+                IsHitTestVisible = true, // To allow moving by dragging inside
+                Cursor = Cursors.SizeAll
             };
+            ImageCanvas.Children.Add(_cropBorder);
 
-            Canvas.SetLeft(selectionRectangle, startPoint.X);
-            Canvas.SetTop(selectionRectangle, startPoint.Y);
-            ImageCanvas.Children.Add(selectionRectangle);
+            // Create Handles
+            string[] tags = { "NW", "N", "NE", "E", "SE", "S", "SW", "W" };
+            foreach (var tag in tags)
+            {
+                var handle = new Rectangle
+                {
+                    Width = 10, Height = 10,
+                    Fill = Brushes.White,
+                    Stroke = Brushes.Black,
+                    StrokeThickness = 1,
+                    Tag = tag
+                };
+                
+                // Set Cursor
+                if (tag == "N" || tag == "S") handle.Cursor = Cursors.SizeNS;
+                else if (tag == "E" || tag == "W") handle.Cursor = Cursors.SizeWE;
+                else if (tag == "NW" || tag == "SE") handle.Cursor = Cursors.SizeNWSE;
+                else handle.Cursor = Cursors.SizeNESW;
+
+                _cropHandles.Add(handle);
+                ImageCanvas.Children.Add(handle);
+            }
+
+            UpdateCropVisuals();
         }
 
-        private void UpdateCropSelection(Point currentPoint)
+
+
+        private void UpdateCropVisuals()
         {
-            if (selectionRectangle == null) return;
+            if (_cropBorder == null) return;
+            
+            // Border
+            Canvas.SetLeft(_cropBorder, _cropArea.X);
+            Canvas.SetTop(_cropBorder, _cropArea.Y);
+            _cropBorder.Width = _cropArea.Width;
+            _cropBorder.Height = _cropArea.Height;
 
-            double x = Math.Min(startPoint.X, currentPoint.X);
-            double y = Math.Min(startPoint.Y, currentPoint.Y);
-            double width = Math.Abs(currentPoint.X - startPoint.X);
-            double height = Math.Abs(currentPoint.Y - startPoint.Y);
+            // Dim Rects
+            double w = ImageCanvas.Width;
+            double h = ImageCanvas.Height;
+            
+            // Top
+            var top = _cropDimRects[0];
+            Canvas.SetLeft(top, 0); Canvas.SetTop(top, 0);
+            top.Width = w; top.Height = Math.Max(0, _cropArea.Top);
 
-            Canvas.SetLeft(selectionRectangle, x);
-            Canvas.SetTop(selectionRectangle, y);
-            selectionRectangle.Width = width;
-            selectionRectangle.Height = height;
+            // Bottom
+            var bottom = _cropDimRects[1];
+            Canvas.SetLeft(bottom, 0); Canvas.SetTop(bottom, _cropArea.Bottom);
+            bottom.Width = w; bottom.Height = Math.Max(0, h - _cropArea.Bottom);
+
+            // Left
+            var left = _cropDimRects[2];
+            Canvas.SetLeft(left, 0); Canvas.SetTop(left, _cropArea.Top);
+            left.Width = Math.Max(0, _cropArea.Left); left.Height = _cropArea.Height;
+
+            // Right
+            var right = _cropDimRects[3];
+            Canvas.SetLeft(right, _cropArea.Right); Canvas.SetTop(right, _cropArea.Top);
+            right.Width = Math.Max(0, w - _cropArea.Right); right.Height = _cropArea.Height;
+
+            // Handles
+            foreach (var handle in _cropHandles)
+            {
+                double hx = 0, hy = 0;
+                string tag = handle.Tag as string ?? "";
+                double hw = handle.Width, hh = handle.Height;
+
+                switch(tag)
+                {
+                    case "NW": hx = _cropArea.Left - hw/2; hy = _cropArea.Top - hh/2; break;
+                    case "N":  hx = _cropArea.Left + _cropArea.Width/2 - hw/2; hy = _cropArea.Top - hh/2; break;
+                    case "NE": hx = _cropArea.Right - hw/2; hy = _cropArea.Top - hh/2; break;
+                    case "E":  hx = _cropArea.Right - hw/2; hy = _cropArea.Top + _cropArea.Height/2 - hh/2; break;
+                    case "SE": hx = _cropArea.Right - hw/2; hy = _cropArea.Bottom - hh/2; break;
+                    case "S":  hx = _cropArea.Left + _cropArea.Width/2 - hw/2; hy = _cropArea.Bottom - hh/2; break;
+                    case "SW": hx = _cropArea.Left - hw/2; hy = _cropArea.Bottom - hh/2; break;
+                    case "W":  hx = _cropArea.Left - hw/2; hy = _cropArea.Top + _cropArea.Height/2 - hh/2; break;
+                }
+                Canvas.SetLeft(handle, hx);
+                Canvas.SetTop(handle, hy);
+            }
         }
 
-        private void FinishCrop(Point endPoint)
+        public void CleanupCropUI()
         {
-            if (selectionRectangle == null) return;
+            if (_cropBorder != null) ImageCanvas.Children.Remove(_cropBorder);
+            foreach (var r in _cropDimRects) ImageCanvas.Children.Remove(r);
+            foreach (var h in _cropHandles) ImageCanvas.Children.Remove(h);
 
-            double x = Canvas.GetLeft(selectionRectangle);
-            double y = Canvas.GetTop(selectionRectangle);
-            double width = selectionRectangle.Width;
-            double height = selectionRectangle.Height;
+            _cropDimRects.Clear();
+            _cropHandles.Clear();
+            _cropBorder = null;
+        }
 
-            if (width > 0 && height > 0)
+        
+        public void Crop_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+             var source = e.OriginalSource as FrameworkElement;
+             if (source == null) return;
+             
+             // Check Handles (Need to check if it's one of our handles)
+             if (_cropHandles.Contains(source as Rectangle))
+             {
+                 _isCropResizing = true;
+                 _activeCropHandle = source.Tag as string ?? "";
+                 _cropDragStart = e.GetPosition(ImageCanvas);
+                 _cropOriginalArea = _cropArea;
+                 source.CaptureMouse();
+                 e.Handled = true;
+                 return;
+             }
+
+             // Check Border (Move)
+             if (source == _cropBorder)
+             {
+                 _isCropMoving = true;
+                 _cropDragStart = e.GetPosition(ImageCanvas);
+                 _cropOriginalArea = _cropArea;
+                 _cropBorder.CaptureMouse();
+                 e.Handled = true;
+             }
+        }
+
+        public void Crop_MouseMove(object sender, MouseEventArgs e)
+        {
+             if (!_isCropResizing && !_isCropMoving) return;
+
+             Point current = e.GetPosition(ImageCanvas);
+
+             if (_isCropResizing)
+             {
+                 double dx = current.X - _cropDragStart.X;
+                 double dy = current.Y - _cropDragStart.Y;
+                 
+                 Rect r = _cropOriginalArea;
+                 
+                 // Apply delta based on handle
+                 if (_activeCropHandle.Contains("W")) { r.X += dx; r.Width -= dx; }
+                 if (_activeCropHandle.Contains("E")) { r.Width += dx; }
+                 if (_activeCropHandle.Contains("N")) { r.Y += dy; r.Height -= dy; }
+                 if (_activeCropHandle.Contains("S")) { r.Height += dy; }
+
+                 // Normalize positive width/height
+                 if (r.Width < 10) { 
+                     if (_activeCropHandle.Contains("W")) r.X -= (10 - r.Width);
+                     r.Width = 10; 
+                 }
+                 if (r.Height < 10) {
+                     if (_activeCropHandle.Contains("N")) r.Y -= (10 - r.Height);
+                     r.Height = 10;
+                 }
+                 
+                 _cropArea = r;
+                 UpdateCropVisuals();
+             }
+             else if (_isCropMoving)
+             {
+                 double dx = current.X - _cropDragStart.X;
+                 double dy = current.Y - _cropDragStart.Y;
+                 
+                 double newX = _cropOriginalArea.X + dx;
+                 double newY = _cropOriginalArea.Y + dy;
+                 
+                 // Bounds check
+                 double maxX = ImageCanvas.Width - _cropArea.Width;
+                 double maxY = ImageCanvas.Height - _cropArea.Height;
+                 
+                 newX = Math.Max(0, Math.Min(newX, maxX));
+                 newY = Math.Max(0, Math.Min(newY, maxY));
+
+                 _cropArea = new Rect(newX, newY, _cropArea.Width, _cropArea.Height);
+                 UpdateCropVisuals();
+             }
+        }
+
+        public void Crop_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (_isCropResizing)
+            {
+                _isCropResizing = false;
+                // Find visible handle to release capture? 
+                // We captured the source handle. The sender is ImageCanvas, but e.Source might be the handle?
+                // Actually we captured on the source element.
+                // We should release capture on the element that captured it.
+                // But simpler: Mouse.Capture(null);
+                Mouse.Capture(null);
+            }
+            if (_isCropMoving)
+            {
+                _isCropMoving = false;
+                if (_cropBorder != null) _cropBorder.ReleaseMouseCapture();
+            }
+        }
+
+        public void ConfirmCrop(object? sender = null, RoutedEventArgs? e = null)
+        {
+            if (_cropArea.Width > 0 && _cropArea.Height > 0)
             {
                 SaveForUndo();
 
-                Int32Rect cropRect = new Int32Rect((int)x, (int)y, (int)width, (int)height);
-                CroppedBitmap croppedBitmap = new CroppedBitmap(currentImage, cropRect);
+                try {
+                    Int32Rect cropRect = new Int32Rect((int)_cropArea.X, (int)_cropArea.Y, (int)_cropArea.Width, (int)_cropArea.Height);
+                    // Ensure within bounds
+                    cropRect.X = Math.Max(0, cropRect.X);
+                    cropRect.Y = Math.Max(0, cropRect.Y);
+                    cropRect.Width = Math.Min(cropRect.Width, currentImage.PixelWidth - cropRect.X);
+                    cropRect.Height = Math.Min(cropRect.Height, currentImage.PixelHeight - cropRect.Y);
+                    
+                    if (cropRect.Width <= 0 || cropRect.Height <= 0) return;
 
-                currentImage = croppedBitmap;
-                UpdatePreviewImage();
+                    CroppedBitmap croppedBitmap = new CroppedBitmap(currentImage, cropRect);
+
+                    currentImage = croppedBitmap;
+                    UpdatePreviewImage();
+                } catch (Exception ex) {
+                    MessageBox.Show(ex.Message);
+                }
             }
 
-            ImageCanvas.Children.Remove(selectionRectangle);
-            selectionRectangle = null;
+            CleanupCropUI();
             currentEditMode = EditMode.None;
             ImageCanvas.Cursor = Cursors.Arrow;
+            // Update buttons state
+            SetActiveToolButton(null);
         }
 
+        public void CancelCrop(object? sender = null, RoutedEventArgs? e = null)
+        {
+            CleanupCropUI();
+            currentEditMode = EditMode.None;
+            ImageCanvas.Cursor = Cursors.Arrow;
+            SetActiveToolButton(null);
+        }
+        
         #endregion
 
         #region 텍스트 추가 (SnippingWindow 스타일)

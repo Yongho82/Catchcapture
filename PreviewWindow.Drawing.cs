@@ -44,7 +44,7 @@ namespace CatchCapture
             switch (currentEditMode)
             {
                 case EditMode.Crop:
-                    StartCrop();
+                    Crop_MouseDown(sender, e);
                     break;
                 case EditMode.Highlight:
                 case EditMode.Pen:
@@ -131,7 +131,7 @@ namespace CatchCapture
             switch (currentEditMode)
             {
                 case EditMode.Crop:
-                    UpdateCropSelection(currentPoint);
+                    Crop_MouseMove(sender, e);
                     break;
                 case EditMode.Pen:
                 case EditMode.Highlight:
@@ -219,7 +219,7 @@ namespace CatchCapture
             switch (currentEditMode)
             {
                 case EditMode.Crop:
-                    FinishCrop(endPoint);
+                    Crop_MouseUp(sender, e);
                     break;
                 case EditMode.Pen:
                 case EditMode.Highlight:
