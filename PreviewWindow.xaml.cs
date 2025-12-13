@@ -464,7 +464,7 @@ namespace CatchCapture
 
                 if (string.IsNullOrWhiteSpace(result.Text))
                 {
-                    MessageBox.Show(LocalizationManager.GetString("NoExtractedText"), LocalizationManager.GetString("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
+                    CustomMessageBox.Show(LocalizationManager.GetString("NoExtractedText"), LocalizationManager.GetString("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
 
@@ -476,7 +476,7 @@ namespace CatchCapture
             catch (Exception ex)
             {
                 this.Cursor = Cursors.Arrow;
-                MessageBox.Show($"OCR 처리 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"OCR 처리 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         // 토스트 메시지 표시 메서드
@@ -535,11 +535,11 @@ namespace CatchCapture
                 try
                 {
                     ScreenCaptureUtility.SaveImageToFile(currentImage, dialog.FileName);
-                    MessageBox.Show(LocalizationManager.GetString("ImageSaved"), LocalizationManager.GetString("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
+                    CustomMessageBox.Show(LocalizationManager.GetString("ImageSaved"), LocalizationManager.GetString("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"{LocalizationManager.GetString("Error")}: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomMessageBox.Show($"{LocalizationManager.GetString("Error")}: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -561,7 +561,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"{LocalizationManager.GetString("PrintPreviewError")}: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"{LocalizationManager.GetString("PrintPreviewError")}: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -586,7 +586,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"{LocalizationManager.GetString("RecaptureError")}: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"{LocalizationManager.GetString("RecaptureError")}: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -646,7 +646,7 @@ namespace CatchCapture
         {
             if (undoStack.Count > 0 || true)
             {
-                if (MessageBox.Show(LocalizationManager.GetString("ConfirmReset"), LocalizationManager.GetString("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                if (CustomMessageBox.Show(LocalizationManager.GetString("ConfirmReset"), LocalizationManager.GetString("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                 {
                     SaveForUndo();
                     currentImage = originalImage;
@@ -1017,7 +1017,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"공유 오류: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"공유 오류: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -1072,7 +1072,7 @@ namespace CatchCapture
                 }
                 catch
                 {
-                    MessageBox.Show($"공유 오류: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomMessageBox.Show($"공유 오류: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
