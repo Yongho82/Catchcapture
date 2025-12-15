@@ -3557,9 +3557,9 @@ public partial class MainWindow : Window
         if (OcrCaptureButtonText != null) OcrCaptureButtonText.Text = LocalizationManager.GetString("OcrCapture");
         if (ScreenRecordButtonText != null) ScreenRecordButtonText.Text = LocalizationManager.GetString("ScreenRecording");
         
-    // Manual override for short button text
-    if (SimpleModeButtonText != null) SimpleModeButtonText.Text = "간편";
-    if (TrayModeButtonText != null) TrayModeButtonText.Text = "트레이";
+        if (SimpleModeButtonText != null) SimpleModeButtonText.Text = LocalizationManager.GetString("SimpleMode");
+        if (TrayModeButtonText != null) TrayModeButtonText.Text = LocalizationManager.GetString("TrayMode");
+        if (ModeSelectText != null) ModeSelectText.Text = LocalizationManager.GetString("ModeSelect");
         // 3. 하단 아이콘 버튼들
         if (SettingsBottomText != null) SettingsBottomText.Text = LocalizationManager.GetString("Settings");
         if (CopySelectedBottomText != null) CopySelectedBottomText.Text = LocalizationManager.GetString("Copy");

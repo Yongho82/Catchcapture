@@ -98,13 +98,13 @@
   
   <!-- Window Modes -->
   <data name="NormalMode" xml:space="preserve">
-    <value>Normal Mode</value>
+    <value>Normal</value>
   </data>
   <data name="SimpleMode" xml:space="preserve">
-    <value>Simple Mode</value>
+    <value>Simple</value>
   </data>
   <data name="TrayMode" xml:space="preserve">
-    <value>Tray Mode</value>
+    <value>Tray</value>
   </data>
   
   <!-- Menu Items -->
@@ -394,4 +394,5 @@
   <data name="ToolNumbering" xml:space="preserve"><value>Numbering</value></data>
   <data name="ToolClearAll" xml:space="preserve"><value>Clear All</value></data>
   <data name="OpenSaveFolder" xml:space="preserve"><value>Open Save Folder</value></data>
+  <data name="ModeSelect" xml:space="preserve"><value>Mode Selection</value></data>
 </root>

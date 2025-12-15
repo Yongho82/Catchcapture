@@ -393,7 +393,7 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <Separator Grid.Column="0" VerticalAlignment="Center" Background="#E0E6F0"/>
-                                <TextBlock Grid.Column="1" Text="모드 선택" FontSize="10.5" Foreground="#999999" Margin="0,0"/>
+                                <TextBlock x:Name="ModeSelectText" Grid.Column="1" Text="모드 선택" FontSize="10.5" Foreground="#999999" Margin="0,0"/>
                                 <Separator Grid.Column="2" VerticalAlignment="Center" Background="#E0E6F0"/>
                             </Grid>
 
