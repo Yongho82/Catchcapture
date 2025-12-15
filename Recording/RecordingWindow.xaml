@@ -248,6 +248,12 @@
                             <TextBlock x:Name="FormatText" Text="GIF" FontSize="10" FontWeight="Bold" Foreground="#4361EE"/>
                         </Button>
                         
+                        <!-- MP3 오디오 전용 모드 토글 -->
+                        <ToggleButton x:Name="Mp3ToggleButton" Style="{StaticResource ToggleToolbarButtonStyle}"
+                                      Click="Mp3ToggleButton_Click" ToolTip="MP3 오디오 녹음">
+                            <TextBlock Text="MP3" FontSize="9" FontWeight="Bold" Foreground="#E53935" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </ToggleButton>
+                        
                         <!-- 화질 설정 -->
                         <Button x:Name="QualityButton" Style="{StaticResource ToolbarButtonStyle}"
                                 Click="QualityButton_Click" ToolTip="화질 (HD/SD/LD)">

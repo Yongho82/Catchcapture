@@ -58,7 +58,8 @@ namespace CatchCapture.Models
     public enum RecordingFormat
     {
         MP4,
-        GIF
+        GIF,
+        MP3
     }
     
     /// <summary>

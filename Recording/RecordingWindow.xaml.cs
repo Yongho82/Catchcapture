@@ -107,67 +107,95 @@ namespace CatchCapture.Recording
         }
         
         private void RecordingWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+        // 먼저 주 모니터에 도구상자 배치
+        var primaryScreen = System.Windows.Forms.Screen.PrimaryScreen;
+        if (primaryScreen != null)
         {
-            ShowOverlay();
-            
-            // 오버레이 상단 중앙에 도구 창 배치
+            var bounds = primaryScreen.WorkingArea;
+            this.Left = bounds.X + (bounds.Width - this.Width) / 2;
+            this.Top = bounds.Y + 50;
+        }
+        
+        // 도구상자가 배치된 후 오버레이 표시 (같은 모니터에)
+        ShowOverlay();
+        
+        // MP3 모드가 아닐 때만 오버레이 기준으로 위치 재조정
+        if (_settings.Format != RecordingFormat.MP3 && _overlay != null && _overlay.IsVisible)
+        {
+            var selectionArea = _overlay.SelectionArea;
+            this.Left = selectionArea.Left + (selectionArea.Width - this.Width) / 2;
+            this.Top = Math.Max(0, selectionArea.Top - this.Height - 10);
+        }
+        
+        // 오버레이보다 위에 표시되도록 활성화
+        this.Activate();
+        this.Topmost = true;
+        
+        // 위치 잡은 후 보이게 하기
+        this.Opacity = 1;
+    }
+        
+    /// <summary>
+    /// 오버레이 표시
+    /// </summary>
+    private void ShowOverlay()
+    {
+        // MP3 모드일 경우 오버레이 숨기기
+        if (_settings.Format == RecordingFormat.MP3)
+        {
             if (_overlay != null && _overlay.IsVisible)
             {
-                var selectionArea = _overlay.SelectionArea;
-                this.Left = selectionArea.Left + (selectionArea.Width - this.Width) / 2;
-                this.Top = Math.Max(0, selectionArea.Top - this.Height - 10);
+                _overlay.Hide();
             }
-            
-            // 오버레이보다 위에 표시되도록 활성화
-            this.Activate();
-            this.Topmost = true;
-            
-            // 위치 잡은 후 보이게 하기
-            this.Opacity = 1;
+            return;
         }
         
-        /// <summary>
-        /// 오버레이 표시
-        /// </summary>
-        private void ShowOverlay()
+        if (_overlay == null)
         {
-            if (_overlay == null)
+            _overlay = new RecordingOverlay();
+            _overlay.AreaChanged += Overlay_AreaChanged;
+            _overlay.EscapePressed += Overlay_EscapePressed; // ESC 키 처리
+            
+            _overlay.Show();
+            
+            // 주 모니터 중앙에 오버레이 배치
+            var primaryScreen = System.Windows.Forms.Screen.PrimaryScreen;
+            if (primaryScreen != null)
             {
-                _overlay = new RecordingOverlay();
-                _overlay.AreaChanged += Overlay_AreaChanged;
-                _overlay.EscapePressed += Overlay_EscapePressed; // ESC 키 처리
+                var bounds = primaryScreen.WorkingArea;
                 
-                _overlay.AreaChanged += Overlay_AreaChanged;
-                _overlay.EscapePressed += Overlay_EscapePressed; // ESC 키 처리
-                
-                // 사용자가 항상 중앙 시작을 원하므로 마지막 위치 복원 로직 제거
-                // (기본값인 중앙 800x600 사용)
-                
-                // ★ 핵심: 툴바가 오버레이 위에 항상 뜨도록 Owner 설정
-                // 주의: WPF에서 Owner를 설정하려면 Owner가 먼저 Show() 되어야 할 수도 있음
-                // 하지만 여기서는 순서상 오버레이를 먼저 띄우고 툴바를 그 위에 얹는 개념
-                
+                // 오버레이를 주 모니터 중앙에 배치
+                double overlayWidth = 800;
+                double overlayHeight = 600;
+                var selectionArea = new Rect(
+                    bounds.X + (bounds.Width - overlayWidth) / 2,
+                    bounds.Y + (bounds.Height - overlayHeight) / 2,
+                    overlayWidth,
+                    overlayHeight
+                );
+                _overlay.SelectionArea = selectionArea;
+            }
+            
+            // Windows 11 멀티 모니터 호환성: Show() 직후 명시적으로 활성화
+            _overlay.Topmost = true;
+            _overlay.Activate();
+            
+            // 툴바를 오버레이의 'Owned Window'로 설정하면 툴바가 항상 오버레이 위에 뜸
+            this.Owner = _overlay;
+        }
+        else
+        {
+            if (!_overlay.IsVisible)
+            {
                 _overlay.Show();
-                
-                // Windows 11 멀티 모니터 호환성: Show() 직후 명시적으로 활성화
                 _overlay.Topmost = true;
                 _overlay.Activate();
-                
-                // 툴바를 오버레이의 'Owned Window'로 설정하면 툴바가 항상 오버레이 위에 뜸
-                this.Owner = _overlay;
-            }
-            else
-            {
-                if (!_overlay.IsVisible)
-                {
-                    _overlay.Show();
-                    _overlay.Topmost = true;
-                    _overlay.Activate();
-                }
             }
         }
+    }
         
-        #region 이벤트 핸들러
+    #region 이벤트 핸들러
         
         /// <summary>
         /// 키보드 단축키 처리
@@ -517,21 +545,23 @@ namespace CatchCapture.Recording
         }
         
         /// <summary>
-        /// 파일 형식 변경 (GIF <-> MP4)
-        /// </summary>
-        private void FormatButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (IsRecording) return;
-            
-            _settings.Format = _settings.Format == RecordingFormat.MP4 
-                ? RecordingFormat.GIF 
-                : RecordingFormat.MP4;
-            
-            UpdateUI();
-        }
+    /// 파일 형식 변경 (MP4 <-> GIF 토글, MP3는 별도)
+    /// </summary>
+    private void FormatButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (IsRecording) return;
         
-        /// <summary>
-        /// 화질 변경 (고/중/저 순환)
+        // MP4/GIF만 토글 (MP3는 별도 버튼)
+        _settings.Format = _settings.Format == RecordingFormat.MP4 
+            ? RecordingFormat.GIF 
+            : RecordingFormat.MP4;
+        
+        UpdateUI();
+        ShowOverlay(); // 형식 변경 시 오버레이 다시 표시
+    }
+        
+    /// <summary>
+    /// 화질 변경 (고/중/저 순환)
         /// </summary>
         private void QualityButton_Click(object sender, RoutedEventArgs e)
         {
@@ -938,7 +968,11 @@ namespace CatchCapture.Recording
             {
                 await _recorder!.StopRecording();
                 
-                if (_recorder.FrameCount > 0)
+                // MP3 모드: 프레임이 없어도 저장 (오디오만 있으면 됨)
+                // 비디오 모드: 프레임이 있어야 저장
+                bool canSave = _settings.Format == RecordingFormat.MP3 || _recorder.FrameCount > 0;
+                
+                if (canSave)
                 {
                     // MainWindow의 캡처 리스트에 추가 (recorder 객체와 설정 전달)
                     var mainWindow = Application.Current.MainWindow as MainWindow;
@@ -1026,38 +1060,61 @@ namespace CatchCapture.Recording
         /// UI 상태 업데이트
         /// </summary>
         private void UpdateUI()
+    {
+        // MP3 모드 토글 버튼 상태
+        if (Mp3ToggleButton != null)
         {
-            // 오디오 상태 (아이콘 업데이트)
-            // 시스템 오디오
-            if (_settings.RecordAudio)
-            {
-                SystemAudioOffIcon.Visibility = Visibility.Collapsed;
-                SystemAudioOnIcon.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                SystemAudioOffIcon.Visibility = Visibility.Visible;
-                SystemAudioOnIcon.Visibility = Visibility.Collapsed;
-            }
-            
-            // 마이크
-            if (_settings.RecordMic)
-            {
-                MicOffIcon.Visibility = Visibility.Collapsed;
-                MicSlash.Visibility = Visibility.Collapsed;
-                MicOnIcon.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                MicOffIcon.Visibility = Visibility.Visible;
-                MicSlash.Visibility = Visibility.Visible;
-                MicOnIcon.Visibility = Visibility.Collapsed;
-            }
-            
-            // 파일 형식
-            FormatText.Text = _settings.Format.ToString();
-            
-            // 화질
+            Mp3ToggleButton.IsChecked = _settings.Format == RecordingFormat.MP3;
+        }
+        
+        // MP3 모드일 때 비디오 관련 버튼 비활성화
+        bool isVideoMode = _settings.Format != RecordingFormat.MP3;
+        if (FormatButton != null) FormatButton.IsEnabled = isVideoMode;
+        if (QualityButton != null) QualityButton.IsEnabled = isVideoMode;
+        if (FpsButton != null) FpsButton.IsEnabled = isVideoMode;
+        if (MouseEffectToggle != null) MouseEffectToggle.IsEnabled = isVideoMode;
+        if (AreaSelectButton != null) AreaSelectButton.IsEnabled = isVideoMode;
+        if (AutoSnapButton != null) AutoSnapButton.IsEnabled = isVideoMode;
+        if (FullScreenButton != null) FullScreenButton.IsEnabled = isVideoMode;
+        if (DrawingButton != null) DrawingButton.IsEnabled = isVideoMode;
+        if (AreaSizeText != null) AreaSizeText.Visibility = isVideoMode ? Visibility.Visible : Visibility.Collapsed;
+        
+        // 오디오 상태 (아이콘 업데이트)
+        // 시스템 오디오
+        if (_settings.RecordAudio)
+        {
+            SystemAudioOffIcon.Visibility = Visibility.Collapsed;
+            SystemAudioOnIcon.Visibility = Visibility.Visible;
+        }
+        else
+        {
+            SystemAudioOffIcon.Visibility = Visibility.Visible;
+            SystemAudioOnIcon.Visibility = Visibility.Collapsed;
+        }
+        
+        // 마이크
+        if (_settings.RecordMic)
+        {
+            MicOffIcon.Visibility = Visibility.Collapsed;
+            MicSlash.Visibility = Visibility.Collapsed;
+            MicOnIcon.Visibility = Visibility.Visible;
+        }
+        else
+        {
+            MicOffIcon.Visibility = Visibility.Visible;
+            MicSlash.Visibility = Visibility.Visible;
+            MicOnIcon.Visibility = Visibility.Collapsed;
+        }
+        
+        // 파일 형식
+        if (FormatText != null)
+        {
+            FormatText.Text = _settings.Format == RecordingFormat.MP3 ? "MP3" : _settings.Format.ToString();
+        }
+        
+        // 화질
+        if (QualityText != null)
+        {
             QualityText.Text = _settings.Quality switch
             {
                 RecordingQuality.High => "HD",
@@ -1065,32 +1122,66 @@ namespace CatchCapture.Recording
                 RecordingQuality.Low => "LD",
                 _ => "SD"
             };
-            
-            // 프레임
+        }
+        
+        // 프레임
+        if (FpsText != null)
+        {
             FpsText.Text = $"{_settings.FrameRate}F";
-            
-            // 마우스 효과 (커서 표시)
-            MouseEffectToggle.IsChecked = _settings.ShowMouseEffects;
-            if (_settings.ShowMouseEffects)
-            {
-                MouseOnIcon.Visibility = Visibility.Visible;
-                MouseOffIcon.Visibility = Visibility.Collapsed;
-            }
-            else
-            {
-                MouseOnIcon.Visibility = Visibility.Collapsed;
-                MouseOffIcon.Visibility = Visibility.Visible;
-            }
-            
-            // 타이머
+        }
+        
+        // 마우스 효과 (커서 표시)
+        MouseEffectToggle.IsChecked = _settings.ShowMouseEffects;
+        if (_settings.ShowMouseEffects)
+        {
+            MouseOnIcon.Visibility = Visibility.Visible;
+            MouseOffIcon.Visibility = Visibility.Collapsed;
+        }
+        else
+        {
+            MouseOnIcon.Visibility = Visibility.Collapsed;
+            MouseOffIcon.Visibility = Visibility.Visible;
+        }
+        
+        // 타이머
+        if (TimerText != null)
+        {
             TimerText.Text = _settings.CountdownSeconds > 0 ? _settings.CountdownSeconds.ToString() : "";
-            // TimerText.Visibility = _settings.CountdownSeconds > 0 ? Visibility.Visible : Visibility.Collapsed; // Badge 제어로 대체
-            if (TimerCountBadge != null)
-                TimerCountBadge.Visibility = _settings.CountdownSeconds > 0 ? Visibility.Visible : Visibility.Collapsed;
-            
-            // 영역 크기
+        }
+        if (TimerCountBadge != null)
+        {
+            TimerCountBadge.Visibility = _settings.CountdownSeconds > 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
+        
+        // 영역 크기
+        if (AreaSizeText != null && isVideoMode)
+        {
             AreaSizeText.Text = $"{(int)_settings.LastAreaWidth}x{(int)_settings.LastAreaHeight}";
         }
+    }
+    
+    /// <summary>
+    /// MP3 오디오 전용 모드 토글
+    /// </summary>
+    private void Mp3ToggleButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (IsRecording) return;
+        
+        if (Mp3ToggleButton.IsChecked == true)
+        {
+            // MP3 모드 활성화
+            _settings.Format = RecordingFormat.MP3;
+            _settings.RecordAudio = true; // 오디오 강제 활성화
+        }
+        else
+        {
+            // 비디오 모드로 복귀 (기본 MP4)
+            _settings.Format = RecordingFormat.MP4;
+        }
+        
+        UpdateUI();
+        ShowOverlay(); // 오버레이 표시/숨기기
+    }
         
         /// <summary>
         /// 영역 변경 시 호출

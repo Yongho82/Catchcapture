@@ -3950,8 +3950,10 @@ public partial class MainWindow : Window
     /// 동영상 썸네일 아이템 생성 (재생 버튼 오버레이 + 인코딩 표시 포함)
     /// </summary>
     /// <returns>썸네일 Border와 인코딩 오버레이 Border</returns>
-    private (Border item, Border overlay) CreateVideoThumbnailItem(BitmapSource thumbnail, string videoFilePath)
+    private (Border item, Border overlay) CreateVideoThumbnailItem(BitmapSource thumbnail, string filePath)
     {
+        bool isAudio = System.IO.Path.GetExtension(filePath).ToLower() == ".mp3";
+
         var border = new Border
         {
             Width = 200,
@@ -3961,43 +3963,62 @@ public partial class MainWindow : Window
             BorderBrush = new SolidColorBrush(Color.FromRgb(67, 97, 238)), // 파란색 테두리
             CornerRadius = new CornerRadius(4),
             Cursor = Cursors.Hand,
-            Tag = videoFilePath // 파일 경로 저장
+            Tag = filePath // 파일 경로 저장
         };
         
         var grid = new Grid();
         
-        // 썸네일 이미지
-        var image = new Image
+        if (isAudio)
         {
-            Source = thumbnail,
-            Stretch = Stretch.UniformToFill
-        };
-        grid.Children.Add(image);
-        
-        // 재생 버튼 오버레이 (반투명 원 + ▶)
-        var playButtonBg = new Ellipse
+            // MP3용 배경 및 아이콘
+            grid.Background = new SolidColorBrush(Color.FromRgb(240, 240, 250));
+            
+            // 중앙 스피커 아이콘
+            var speakerIcon = new TextBlock
+            {
+                Text = "🔊", 
+                FontSize = 40,
+                Foreground = new SolidColorBrush(Color.FromRgb(100, 100, 120)),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            grid.Children.Add(speakerIcon);
+        }
+        else
         {
-            Width = 36,
-            Height = 36,
-            Fill = new SolidColorBrush(Color.FromArgb(180, 0, 0, 0)),
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center
-        };
-        grid.Children.Add(playButtonBg);
+            // 동영상 썸네일 이미지
+            var image = new Image
+            {
+                Source = thumbnail,
+                Stretch = Stretch.UniformToFill
+            };
+            grid.Children.Add(image);
+            
+            // 재생 버튼 오버레이 (반투명 원 + ▶)
+            var playButtonBg = new Ellipse
+            {
+                Width = 36,
+                Height = 36,
+                Fill = new SolidColorBrush(Color.FromArgb(180, 0, 0, 0)),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            grid.Children.Add(playButtonBg);
+            
+            var playIcon = new TextBlock
+            {
+                Text = "▶",
+                FontSize = 16,
+                Foreground = Brushes.White,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(2, 0, 0, 0)
+            };
+            grid.Children.Add(playIcon);
+        }
         
-        var playIcon = new TextBlock
-        {
-            Text = "▶",
-            FontSize = 16,
-            Foreground = Brushes.White,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center,
-            Margin = new Thickness(2, 0, 0, 0)
-        };
-        grid.Children.Add(playIcon);
-        
-        // 동영상 포맷 레이블 (우측 상단)
-        var videoLabel = new Border
+        // 포맷 레이블 (우측 상단)
+        var formatLabel = new Border
         {
             Background = new SolidColorBrush(Color.FromArgb(200, 67, 97, 238)),
             CornerRadius = new CornerRadius(2),
@@ -4006,17 +4027,21 @@ public partial class MainWindow : Window
             VerticalAlignment = VerticalAlignment.Top,
             Margin = new Thickness(0, 4, 4, 0)
         };
-        var labelText = new TextBlock
+        var formatText = new TextBlock
         {
-            Text = System.IO.Path.GetExtension(videoFilePath).ToUpper().Replace(".", ""),
-            FontSize = 9,
+            Text = System.IO.Path.GetExtension(filePath).ToUpper().Replace(".", ""),
+            FontSize = 10,
             FontWeight = FontWeights.Bold,
-            Foreground = Brushes.White
+            Foreground = Brushes.White,
+            Margin = new Thickness(4, 2, 4, 2)
         };
-        videoLabel.Child = labelText;
-        grid.Children.Add(videoLabel);
-
-        // ★ 인코딩 중 표시 오버레이 (하단 바 형태)
+        formatLabel.Child = formatText;
+        
+        grid.Children.Add(formatLabel);
+        
+        border.Child = grid;
+        
+        // 인코딩 중 오버레이 (기존 로직 유지)
         var encodingOverlay = new Border
         {
             Background = new SolidColorBrush(Color.FromArgb(220, 255, 140, 0)), // 짙은 오렌지색
@@ -4141,18 +4166,32 @@ public partial class MainWindow : Window
         contextMenu.Items.Add(deleteItem);
         border.ContextMenu = contextMenu;
         
-        // 마우스 호버 효과
-        border.MouseEnter += (s, e) =>
+        // 마우스 호버 효과 (비디오만)
+        if (!isAudio)
         {
-            border.BorderBrush = new SolidColorBrush(Color.FromRgb(255, 87, 87)); // 빨간색으로 변경
-            playButtonBg.Fill = new SolidColorBrush(Color.FromArgb(220, 255, 87, 87));
-        };
-        
-        border.MouseLeave += (s, e) =>
+            border.MouseEnter += (s, e) =>
+            {
+                border.BorderBrush = new SolidColorBrush(Color.FromRgb(255, 87, 87)); // 빨간색으로 변경
+            };
+            
+            border.MouseLeave += (s, e) =>
+            {
+                border.BorderBrush = new SolidColorBrush(Color.FromRgb(67, 97, 238)); // 원래 색상
+            };
+        }
+        else
         {
-            border.BorderBrush = new SolidColorBrush(Color.FromRgb(67, 97, 238)); // 원래 색상
-            playButtonBg.Fill = new SolidColorBrush(Color.FromArgb(180, 0, 0, 0));
-        };
+            // 오디오 아이템 호버 효과
+            border.MouseEnter += (s, e) =>
+            {
+                border.BorderBrush = new SolidColorBrush(Color.FromRgb(100, 150, 255));
+            };
+            
+            border.MouseLeave += (s, e) =>
+            {
+                border.BorderBrush = new SolidColorBrush(Color.FromRgb(67, 97, 238));
+            };
+        }
         
         return (border, encodingOverlay);
     }

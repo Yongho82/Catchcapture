@@ -144,6 +144,12 @@ namespace CatchCapture.Recording
             _lastFrameTime = DateTime.Now;
             _cts = new CancellationTokenSource();
             
+            // MP3 모드일 경우 오디오 강제 활성화
+            if (_settings.Format == RecordingFormat.MP3)
+            {
+                _settings.RecordAudio = true;
+            }
+            
             // 오디오 녹화 시작 (시스템 사운드)
             if (_settings.RecordAudio)
             {
@@ -160,7 +166,13 @@ namespace CatchCapture.Recording
 
             // === 실시간 인코딩: FFmpeg 프로세스 시작 ===
             _useRealTimeEncoding = FFmpegDownloader.IsFFmpegInstalled();
-            if (_useRealTimeEncoding)
+            
+            // MP3 모드일 경우 비디오 인코딩 스킵
+            if (_settings.Format == RecordingFormat.MP3)
+            {
+                _useRealTimeEncoding = false;
+            }
+            else if (_useRealTimeEncoding)
             {
                 try
                 {
@@ -585,6 +597,31 @@ namespace CatchCapture.Recording
                         savedPath = await SaveAsMP4Async(outputPath);
                     }
                 }
+                else if (_settings.Format == RecordingFormat.MP3)
+                {
+                    string debugInfo = $"Temp audio path: {_tempAudioPath}\nFile exists: {(!string.IsNullOrEmpty(_tempAudioPath) && File.Exists(_tempAudioPath))}";
+                    
+                    if (!string.IsNullOrEmpty(_tempAudioPath) && File.Exists(_tempAudioPath))
+                    {
+                        var fileInfo = new FileInfo(_tempAudioPath);
+                        debugInfo += $"\nFile size: {fileInfo.Length} bytes";
+                        debugInfo += $"\nOutput path: {outputPath}";
+                        
+                        savedPath = await ConvertWavToMp3Async(_tempAudioPath!, outputPath);
+                        debugInfo += $"\nConversion result: {savedPath}";
+                        debugInfo += $"\nOutput file exists: {File.Exists(savedPath)}";
+                    }
+                    else
+                    {
+                        debugInfo += "\nNo audio file found!";
+                    }
+                    
+                    // 디버그용 MessageBox (나중에 제거)
+                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        System.Windows.MessageBox.Show(debugInfo, "MP3 저장 디버그", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+                    });
+                }
                 
                 if (string.IsNullOrEmpty(savedPath))
                 {
@@ -705,6 +742,41 @@ namespace CatchCapture.Recording
         }
         
         /// <summary>
+        /// WAV를 MP3로 변환
+        /// </summary>
+        private async Task<string> ConvertWavToMp3Async(string wavPath, string outputPath)
+        {
+            try
+            {
+                string ffmpegPath = FFmpegDownloader.GetFFmpegPath();
+                if (string.IsNullOrEmpty(ffmpegPath)) return string.Empty;
+
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = ffmpegPath,
+                    Arguments = $"-y -i \"{wavPath}\" -codec:a libmp3lame -qscale:a 2 \"{outputPath}\"",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                };
+
+                using var process = Process.Start(startInfo);
+                if (process == null) return string.Empty;
+
+                process.BeginErrorReadLine();
+                await Task.Run(() => process.WaitForExit(60000));
+
+                return File.Exists(outputPath) ? outputPath : string.Empty;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error converting WAV to MP3: {ex.Message}");
+                return string.Empty;
+            }
+        }
+        
+        /// <summary>
         /// 임시 파일 정리
         /// </summary>
         private void CleanupTempFiles()
@@ -797,6 +869,13 @@ namespace CatchCapture.Recording
                     // 일시정지 해제 후 타이밍 리셋
                     nextFrameTicks = _frameStopwatch.ElapsedTicks;
                     continue;
+                }
+                
+                // MP3 모드인 경우 화면 캡처 스킵 (CPU 절약)
+                if (_settings.Format == RecordingFormat.MP3)
+                {
+                   await Task.Delay(100, token);
+                   continue;
                 }
                 
                 try

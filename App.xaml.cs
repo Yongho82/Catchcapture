@@ -1,7 +1,11 @@
 ﻿using System.Configuration;
 using System.Data;
 using System.Windows;
-using System.Threading; 
+using System.Threading;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
+using System.IO.Pipes;
+using System.IO;
 
 namespace CatchCapture;
 
@@ -11,17 +15,18 @@ namespace CatchCapture;
 public partial class App : Application
 {
     private static Mutex? _singleInstanceMutex;
+    private const string PipeName = "CatchCapture_ActivationPipe";
+    private CancellationTokenSource? _pipeServerCts;
 
     protected override void OnStartup(StartupEventArgs e)
     {
         bool createdNew;
-        // Global-named mutex to ensure single instance across user sessions as well
         _singleInstanceMutex = new Mutex(initiallyOwned: true, name: "Global\\CatchCapture_SingleInstance", out createdNew);
 
         if (!createdNew)
         {
-            // Already running: inform the user and exit
-            MessageBox.Show("CatchCapture가 이미 실행 중입니다.", "CatchCapture", MessageBoxButton.OK, MessageBoxImage.Information);
+            // Already running: send activation signal via named pipe
+            SendActivationSignal();
             Shutdown();
             return;
         }
@@ -32,26 +37,89 @@ public partial class App : Application
         var settings = CatchCapture.Models.Settings.Load();
         CatchCapture.Resources.LocalizationManager.SetLanguage(settings.Language ?? "ko");
         
-        // 자동시작 여부 확인 (명령줄 인자에 /autostart 또는 --autostart가 있는지 확인)
+        // 자동시작 여부 확인
         bool isAutoStart = e.Args.Length > 0 && 
                           (e.Args[0].Equals("/autostart", StringComparison.OrdinalIgnoreCase) || 
                            e.Args[0].Equals("--autostart", StringComparison.OrdinalIgnoreCase));
         
-        // MainWindow 생성 시 자동시작 여부 전달
+        // MainWindow 생성
         var mainWindow = new MainWindow(isAutoStart);
         Application.Current.MainWindow = mainWindow;
         
-        // 자동시작이 아닌 경우에만 창 표시 (자동시작은 MainWindow 내부에서 처리)
         if (!isAutoStart)
         {
             mainWindow.Show();
         }
+        
+        // Start pipe server to listen for activation signals
+        StartPipeServer();
+    }
+
+    private void SendActivationSignal()
+    {
+        try
+        {
+            using var client = new NamedPipeClientStream(".", PipeName, PipeDirection.Out);
+            client.Connect(1000); // 1 second timeout
+            using var writer = new StreamWriter(client);
+            writer.WriteLine("ACTIVATE");
+            writer.Flush();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to send activation signal: {ex.Message}");
+        }
+    }
+
+    private void StartPipeServer()
+    {
+        _pipeServerCts = new CancellationTokenSource();
+        Task.Run(async () =>
+        {
+            while (!_pipeServerCts.Token.IsCancellationRequested)
+            {
+                try
+                {
+                    using var server = new NamedPipeServerStream(PipeName, PipeDirection.In);
+                    await server.WaitForConnectionAsync(_pipeServerCts.Token);
+                    
+                    using var reader = new StreamReader(server);
+                    var message = await reader.ReadLineAsync();
+                    
+                    if (message == "ACTIVATE")
+                    {
+                        // Activate main window on UI thread
+                        Dispatcher.Invoke(() =>
+                        {
+                            var mainWindow = Application.Current.MainWindow as MainWindow;
+                            if (mainWindow != null)
+                            {
+                                mainWindow.Show();
+                                mainWindow.WindowState = WindowState.Normal;
+                                mainWindow.Activate();
+                                mainWindow.Topmost = true;
+                                mainWindow.Topmost = false;
+                            }
+                        });
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Pipe server error: {ex.Message}");
+                }
+            }
+        }, _pipeServerCts.Token);
     }
 
     protected override void OnExit(ExitEventArgs e)
     {
         try
         {
+            _pipeServerCts?.Cancel();
             _singleInstanceMutex?.ReleaseMutex();
             _singleInstanceMutex?.Dispose();
         }
