@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CatchCapture"
         mc:Ignorable="d"
-        Title="캐치 캡처" Height="610" Width="400" 
+        Title="캐치 캡처" Height="630" Width="400" 
         MinWidth="400" MinHeight="400"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None" AllowsTransparency="True" 
@@ -326,28 +326,10 @@
                                 </StackPanel>
                             </Button>
 
-                            <Button x:Name="SimpleModeButton" Style="{StaticResource SidebarButtonStyle}" Click="SimpleModeButton_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="/icons/simple_mode.png" Width="16" Height="16" Margin="0,0,5,0"
-                                           RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock x:Name="SimpleModeButtonText" Text="간편 모드" HorizontalAlignment="Left" FontSize="12"/>
-                                </StackPanel>
-                            </Button>
-                    
-                            <!-- 트레이 모드 버튼 -->
-                            <Button x:Name="TrayModeButton" Style="{StaticResource SidebarButtonStyle}" Click="TrayModeButton_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="/icons/tray_mode.png" Width="16" Height="16" Margin="0,0,5,0"
-                                           RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock x:Name="TrayModeButtonText" Text="트레이모드" HorizontalAlignment="Left" FontSize="12"/>
-                                </StackPanel>
-                            </Button>
-                            
-                            
-                            <Separator Style="{StaticResource SeparatorStyle}"/>    
+                            <Separator Style="{StaticResource SeparatorStyle}"/>
 
                             <!-- 즉시편집 스위치 -->
-                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,10,10,5"> <!-- 왼쪽 마진 10px 추가 -->
+                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="3,10,10,5"> <!-- 왼쪽 마진 10px 추가 -->
                                 <TextBlock x:Name="InstantEditLabel" Text="즉시편집" 
                                           VerticalAlignment="Center" 
                                           FontSize="11" 
@@ -381,7 +363,7 @@
                                         VerticalAlignment="Center" 
                                         FontSize="11" 
                                         Foreground="#666666"
-                                        Margin="0,0,5,0"/>
+                                        Margin="0,0,6,0"/>
                                 
                                 <Border x:Name="OpenEditorToggleBorder" 
                                     Width="30" 
@@ -402,6 +384,61 @@
                                     </Ellipse>
                                 </Border>
                             </StackPanel>
+
+                           <!-- 모드 선택 구분선 -->
+                            <Grid Margin="0,5,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Separator Grid.Column="0" VerticalAlignment="Center" Background="#E0E6F0"/>
+                                <TextBlock Grid.Column="1" Text="모드 선택" FontSize="10.5" Foreground="#999999" Margin="0,0"/>
+                                <Separator Grid.Column="2" VerticalAlignment="Center" Background="#E0E6F0"/>
+                            </Grid>
+
+                            <!-- 간편/트레이 모드 버튼 (초소형/심플) -->
+                            <UniformGrid Columns="2" Margin="3,0,7,20">
+                                <Button x:Name="SimpleModeButton" Click="SimpleModeButton_Click" Height="26" Margin="0,0,7,0" 
+                                        Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="간편 모드">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="4">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#F0F4FF" TargetName="border"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Image Source="/icons/simple_mode.png" Width="12" Height="12" Margin="0,0,3,0" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                        <TextBlock x:Name="SimpleModeButtonText" Text="간편모드" FontSize="12" VerticalAlignment="Center" Foreground="#555" FontWeight="Normal"/>
+                                    </StackPanel>
+                                </Button>
+
+                                <Button x:Name="TrayModeButton" Click="TrayModeButton_Click" Height="26" Margin="2,0,0,0" 
+                                        Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="트레이 모드">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="4">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#F0F4FF" TargetName="border"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Image Source="/icons/tray_mode.png" Width="12" Height="12" Margin="0,0,3,0" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                        <TextBlock x:Name="TrayModeButtonText" Text="트레이모드" FontSize="12" VerticalAlignment="Center" Foreground="#555" FontWeight="Normal"/>
+                                    </StackPanel>
+                                </Button>
+                            </UniformGrid>
                         </StackPanel> <!-- 큰 StackPanel이 여기서 닫혀야 함 -->
                     </Border>
 

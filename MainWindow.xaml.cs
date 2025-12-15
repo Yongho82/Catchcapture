@@ -248,9 +248,7 @@ public partial class MainWindow : Window
             { "ElementCapture", ElementCaptureButton },
             { "ScrollCapture", ScrollCaptureButton }, 
             { "OcrCapture", OcrCaptureButton },
-            { "ScreenRecord", ScreenRecordButton },
-            { "SimpleMode", SimpleModeButton },
-            { "TrayMode", TrayModeButton }
+            { "ScreenRecord", ScreenRecordButton }
         };
 
         // Separator와 하단 버튼들 저장
@@ -3559,8 +3557,9 @@ public partial class MainWindow : Window
         if (OcrCaptureButtonText != null) OcrCaptureButtonText.Text = LocalizationManager.GetString("OcrCapture");
         if (ScreenRecordButtonText != null) ScreenRecordButtonText.Text = LocalizationManager.GetString("ScreenRecording");
         
-        if (SimpleModeButtonText != null) SimpleModeButtonText.Text = LocalizationManager.GetString("SimpleMode");
-        if (TrayModeButtonText != null) TrayModeButtonText.Text = LocalizationManager.GetString("TrayMode");
+    // Manual override for short button text
+    if (SimpleModeButtonText != null) SimpleModeButtonText.Text = "간편";
+    if (TrayModeButtonText != null) TrayModeButtonText.Text = "트레이";
         // 3. 하단 아이콘 버튼들
         if (SettingsBottomText != null) SettingsBottomText.Text = LocalizationManager.GetString("Settings");
         if (CopySelectedBottomText != null) CopySelectedBottomText.Text = LocalizationManager.GetString("Copy");
@@ -3814,7 +3813,7 @@ public partial class MainWindow : Window
     }
 
     // Height auto-adjustment for menu count
-    private double _baseMainWindowHeight = 692.0; // Fixed baseline height for 13 items
+    private double _baseMainWindowHeight = 740.0; // Increased baseline to compensate for static footer elements
     private const double ButtonVerticalStep = 41.0; 
     private int _baselineMenuCount = 13; // Fixed baseline count (11 menu + 2 fixed)
 
