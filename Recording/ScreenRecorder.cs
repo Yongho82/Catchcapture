@@ -599,28 +599,10 @@ namespace CatchCapture.Recording
                 }
                 else if (_settings.Format == RecordingFormat.MP3)
                 {
-                    string debugInfo = $"Temp audio path: {_tempAudioPath}\nFile exists: {(!string.IsNullOrEmpty(_tempAudioPath) && File.Exists(_tempAudioPath))}";
-                    
                     if (!string.IsNullOrEmpty(_tempAudioPath) && File.Exists(_tempAudioPath))
                     {
-                        var fileInfo = new FileInfo(_tempAudioPath);
-                        debugInfo += $"\nFile size: {fileInfo.Length} bytes";
-                        debugInfo += $"\nOutput path: {outputPath}";
-                        
                         savedPath = await ConvertWavToMp3Async(_tempAudioPath!, outputPath);
-                        debugInfo += $"\nConversion result: {savedPath}";
-                        debugInfo += $"\nOutput file exists: {File.Exists(savedPath)}";
                     }
-                    else
-                    {
-                        debugInfo += "\nNo audio file found!";
-                    }
-                    
-                    // 디버그용 MessageBox (나중에 제거)
-                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        System.Windows.MessageBox.Show(debugInfo, "MP3 저장 디버그", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
-                    });
                 }
                 
                 if (string.IsNullOrEmpty(savedPath))

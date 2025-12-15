@@ -3862,15 +3862,21 @@ public partial class MainWindow : Window
     /// </summary>
     public void AddVideoToList(CatchCapture.Recording.ScreenRecorder recorder, CatchCapture.Models.RecordingSettings settings)
     {
-        if (recorder == null || recorder.FrameCount == 0) return;
+        // MP3인 경우 프레임이 0이어도 허용
+        bool isMp3 = settings.Format == CatchCapture.Models.RecordingFormat.MP3;
+        if (recorder == null || (recorder.FrameCount == 0 && !isMp3)) return;
         
         Dispatcher.Invoke(() =>
         {
             try
             {
-                // 첫 프레임을 썸네일로 가져오기
-                var thumbnail = recorder.GetThumbnail();
-                if (thumbnail == null) return;
+                // 첫 프레임을 썸네일로 가져오기 (MP3는 null 사용)
+                BitmapSource? thumbnail = null;
+                if (!isMp3)
+                {
+                    thumbnail = recorder.GetThumbnail();
+                    if (thumbnail == null) return;
+                }
                 
                 // 저장 경로 미리 계산
                 var currentSettings = Models.Settings.Load();
@@ -3889,12 +3895,20 @@ public partial class MainWindow : Window
                 }
                 
                 string timestamp = DateTime.Now.ToString("yyyy-MM-dd HHmmss");
-                string ext = settings.Format == CatchCapture.Models.RecordingFormat.GIF ? ".gif" : ".mp4";
+                string ext;
+                switch (settings.Format)
+                {
+                    case CatchCapture.Models.RecordingFormat.GIF: ext = ".gif"; break;
+                    case CatchCapture.Models.RecordingFormat.MP3: ext = ".mp3"; break;
+                    default: ext = ".mp4"; break;
+                }
+                
                 string filename = $"Recording_{timestamp}{ext}";
                 string fullPath = System.IO.Path.Combine(saveFolder, filename);
                 
                 // 동영상 썸네일 아이템 생성 (재생 버튼 포함)
-                var (videoItem, encodingOverlay) = CreateVideoThumbnailItem(thumbnail, fullPath);
+                // thumbnail이 null이어도 MP3면 내부에서 처리됨 (스피커 아이콘)
+                var (videoItem, encodingOverlay) = CreateVideoThumbnailItem(thumbnail!, fullPath);
                 CaptureListPanel.Children.Insert(0, videoItem);
                 
                 // 버튼 상태 업데이트 (전체 삭제 활성화 등)
@@ -3971,14 +3985,14 @@ public partial class MainWindow : Window
         if (isAudio)
         {
             // MP3용 배경 및 아이콘
-            grid.Background = new SolidColorBrush(Color.FromRgb(240, 240, 250));
+            grid.Background = Brushes.Black;
             
             // 중앙 스피커 아이콘
             var speakerIcon = new TextBlock
             {
                 Text = "🔊", 
                 FontSize = 40,
-                Foreground = new SolidColorBrush(Color.FromRgb(100, 100, 120)),
+                Foreground = Brushes.White,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
             };
