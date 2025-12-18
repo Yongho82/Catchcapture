@@ -1,9 +1,11 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -12,29 +14,7 @@ namespace CatchCapture
 {
     public class ElementCaptureWindow : Window
     {
-        // --- Win32 API Definitions ---
-        [DllImport("user32.dll")]
-        private static extern IntPtr WindowFromPoint(POINT point);
-
-        [DllImport("user32.dll")]
-        private static extern bool GetWindowRect(IntPtr hWnd, out RECT rect);
-
-        [DllImport("user32.dll")]
-        private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
-
-        [DllImport("user32.dll")]
-        private static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
-
-        private const int GWL_EXSTYLE = -20;
-        private const int WS_EX_TRANSPARENT = 0x00000020;
-        private const int WS_EX_LAYERED = 0x00080000;
-        private const int WS_EX_TOOLWINDOW = 0x00000080;
-
-        // Hooking
-        private delegate IntPtr LowLevelMouseProc(int nCode, IntPtr wParam, IntPtr lParam);
-        private LowLevelMouseProc _proc;
-        private IntPtr _hookID = IntPtr.Zero;
-
+        // --- P/Invoke Definitions ---
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelMouseProc lpfn, IntPtr hMod, uint dwThreadId);
 
@@ -48,45 +28,56 @@ namespace CatchCapture
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern IntPtr GetModuleHandle(string lpModuleName);
 
+        [DllImport("user32.dll")]
+        private static extern bool GetCursorPos(out POINT lpPoint);
+
+        [DllImport("user32.dll", EntryPoint = "GetWindowLong")]
+        private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+
+        [DllImport("user32.dll", EntryPoint = "SetWindowLong")]
+        private static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+
+        // --- Constants ---
         private const int WH_MOUSE_LL = 14;
-        private const int WM_MOUSEMOVE = 0x0200;
         private const int WM_LBUTTONDOWN = 0x0201;
+        private const int WM_LBUTTONUP = 0x0202;
         private const int WM_RBUTTONDOWN = 0x0204;
+        private const int WM_MOUSEMOVE = 0x0200;
+        
+        private const int GWL_EXSTYLE = -20;
+        private const int WS_EX_TRANSPARENT = 0x00000020;
+        private const int WS_EX_LAYERED = 0x00080000;
+
+        // --- Delegates & Structs ---
+        private delegate IntPtr LowLevelMouseProc(int nCode, IntPtr wParam, IntPtr lParam);
 
         [StructLayout(LayoutKind.Sequential)]
-        private struct POINT
+        public struct POINT
         {
             public int X;
             public int Y;
         }
 
-        [StructLayout(LayoutKind.Sequential)]
-        private struct MSLLHOOKSTRUCT
-        {
-            public POINT pt;
-            public uint mouseData;
-            public uint flags;
-            public uint time;
-            public IntPtr dwExtraInfo;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct RECT
-        {
-            public int Left;
-            public int Top;
-            public int Right;
-            public int Bottom;
-        }
-
         // --- Fields ---
-        private Rectangle highlightRect;
-        private IntPtr currentTargetElement = IntPtr.Zero;
+        private IntPtr _hookID = IntPtr.Zero;
+        private LowLevelMouseProc _proc;
+        private System.Windows.Threading.DispatcherTimer _timer;
+
+        private Rectangle _highlightRect = null!;
+        private Rectangle _selectionRect = null!;
+        private TextBlock _infoText = null!;
+        private TextBlock _guideText = null!;
+
+        private bool _isDragging = false;
+        private Point _dragStartPoint;
+        private Rect _currentElementRect = Rect.Empty;
+        
         public BitmapSource? CapturedImage { get; private set; }
 
+        // --- Constructor ---
         public ElementCaptureWindow()
         {
-            // 창 설정
+            // Window Styles
             WindowStyle = WindowStyle.None;
             ResizeMode = ResizeMode.NoResize;
             Topmost = true;
@@ -94,65 +85,34 @@ namespace CatchCapture
             Background = Brushes.Transparent;
             ShowInTaskbar = false;
             
-            // 전체 화면 크기
+            // Allow UIA to look through this window, but clicks are handled by Hook
+            IsHitTestVisible = false;
+
+            // Fullscreen coverage
             Left = SystemParameters.VirtualScreenLeft;
             Top = SystemParameters.VirtualScreenTop;
             Width = SystemParameters.VirtualScreenWidth;
             Height = SystemParameters.VirtualScreenHeight;
 
-            // UI 구성
-            var canvas = new Canvas();
-            highlightRect = new Rectangle
-            {
-                Stroke = new SolidColorBrush(Color.FromRgb(0, 102, 255)),
-                StrokeThickness = 3,
-                Fill = new SolidColorBrush(Color.FromArgb(10, 0, 102, 255)),
-                Visibility = Visibility.Collapsed
-            };
-            canvas.Children.Add(highlightRect);
-            Content = canvas;
-
-            // Hook Delegate 유지 (GC 방지)
-            _proc = HookCallback;
-
-            // ✅ ESC 키 이벤트 추가
-            this.KeyDown += ElementCaptureWindow_KeyDown;
-
-            Loaded += ElementCaptureWindow_Loaded;
-            Closed += ElementCaptureWindow_Closed;
-        }
-
-        private void ElementCaptureWindow_Loaded(object sender, RoutedEventArgs e)
-        {
-            // 1. 창을 클릭 투과(Transparent) 상태로 만듦
-            var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
-            int exStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
-            SetWindowLong(hwnd, GWL_EXSTYLE, exStyle | WS_EX_TRANSPARENT | WS_EX_LAYERED | WS_EX_TOOLWINDOW);
-
-            // 2. 마우스 후크 설치
-            _hookID = SetHook(_proc);
+            InitializeUI();
             
-            // 포커스 확보
-            this.Activate();
-        }
+            // Install Mouse Hook
+            _proc = HookCallback;
+            _hookID = SetHook(_proc);
 
-        private void ElementCaptureWindow_Closed(object? sender, EventArgs e)
-        {
-            if (_hookID != IntPtr.Zero)
-            {
+            // Timer for polling detection (UIA is expensive, running it on timer is safer than on every mouse move)
+            _timer = new System.Windows.Threading.DispatcherTimer();
+            _timer.Interval = TimeSpan.FromMilliseconds(20);
+            _timer.Tick += OnTimerTick;
+            
+            Loaded += (s, e) => {
+                _timer.Start();
+                Activate();
+            };
+            Closed += (s, e) => {
+                _timer.Stop();
                 UnhookWindowsHookEx(_hookID);
-                _hookID = IntPtr.Zero;
-            }
-        }
-
-        // ✅ ESC 키 핸들러 추가
-        private void ElementCaptureWindow_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Escape)
-            {
-                DialogResult = false;
-                Close();
-            }
+            };
         }
 
         private IntPtr SetHook(LowLevelMouseProc proc)
@@ -160,7 +120,8 @@ namespace CatchCapture
             using (Process curProcess = Process.GetCurrentProcess())
             using (ProcessModule curModule = curProcess.MainModule!)
             {
-                return SetWindowsHookEx(WH_MOUSE_LL, proc, GetModuleHandle(curModule.ModuleName), 0);
+                return SetWindowsHookEx(WH_MOUSE_LL, proc,
+                    GetModuleHandle(curModule.ModuleName), 0);
             }
         }
 
@@ -168,122 +129,263 @@ namespace CatchCapture
         {
             if (nCode >= 0)
             {
-                var hookStruct = Marshal.PtrToStructure<MSLLHOOKSTRUCT>(lParam);
+                int msg = (int)wParam;
+                
+                if (msg == WM_LBUTTONDOWN)
+                {
+                    // SWALLOW Click -> Start our logic
+                    POINT pt;
+                    GetCursorPos(out pt);
+                    _dragStartPoint = new Point(pt.X - Left, pt.Y - Top);
+                    _isDragging = true;
 
-                if (wParam == (IntPtr)WM_MOUSEMOVE)
-                {
-                    // 마우스 이동 시 하이라이트 업데이트
-                    UpdateHighlight(hookStruct.pt);
+                    Dispatcher.BeginInvoke(() => {
+                        _highlightRect.Visibility = Visibility.Collapsed;
+                        _selectionRect.Visibility = Visibility.Visible;
+                        _selectionRect.Width = 0;
+                        _selectionRect.Height = 0;
+                        Canvas.SetLeft(_selectionRect, _dragStartPoint.X);
+                        Canvas.SetTop(_selectionRect, _dragStartPoint.Y);
+                    });
+
+                    return (IntPtr)1; // Eat event (Stop propagation)
                 }
-                else if (wParam == (IntPtr)WM_LBUTTONDOWN)
+                else if (msg == WM_LBUTTONUP)
                 {
-                    // 클릭 시 캡처 수행
-                    if (currentTargetElement != IntPtr.Zero)
+                    // SWALLOW Click -> End logic
+                    if (_isDragging)
                     {
-                        Dispatcher.BeginInvoke(new Action(async () => 
-                        {
-                            // 1. 오버레이 숨기기
-                            highlightRect.Visibility = Visibility.Collapsed;
-                            this.Opacity = 0;
-                            
-                            // 2. 렌더링 갱신 대기
-                            await System.Threading.Tasks.Task.Delay(100);
-                            
-                            // 3. 캡처 수행
-                            CaptureTargetElement();
-                            
-                            // 4. 창 닫기
-                            DialogResult = true;
-                            Close();
-                        }));
+                        _isDragging = false;
+                        
+                        POINT pt;
+                        GetCursorPos(out pt);
+                        Point currentPos = new Point(pt.X - Left, pt.Y - Top);
+                        Vector diff = currentPos - _dragStartPoint;
 
-                        return (IntPtr)1; // 클릭 무시
+                        Dispatcher.BeginInvoke(() => {
+                           if (diff.Length < 5)
+                           {
+                               // Single Click: Capture Highlighted Element
+                               if (_currentElementRect != Rect.Empty && _highlightRect.Visibility == Visibility.Visible)
+                               {
+                                   CaptureArea(_currentElementRect);
+                               }
+                           }
+                           else
+                           {
+                               // Drag: Capture Selected Region
+                               CaptureArea(new Rect(
+                                   Canvas.GetLeft(_selectionRect), 
+                                   Canvas.GetTop(_selectionRect), 
+                                   _selectionRect.Width, 
+                                   _selectionRect.Height));
+                           }
+                        });
                     }
+                    return (IntPtr)1; // Eat event
                 }
-                else if (wParam == (IntPtr)WM_RBUTTONDOWN)
+                else if (msg == WM_RBUTTONDOWN)
                 {
-                    // 우클릭 시 취소
-                    Dispatcher.Invoke(() => {
+                    // SWALLOW Right Click -> Cancel
+                    Dispatcher.BeginInvoke(() => {
                         DialogResult = false;
                         Close();
                     });
-                    return (IntPtr)1;
+                    return (IntPtr)1; // Eat event
+                }
+                else if (msg == WM_MOUSEMOVE)
+                {
+                   // PASS-THROUGH Mouse Move (Let underlying apps see hover)
+                   // But update our drag selection visual
+                   if (_isDragging)
+                   {
+                        POINT pt;
+                        GetCursorPos(out pt);
+                        Point currentPos = new Point(pt.X - Left, pt.Y - Top);
+                        
+                        Dispatcher.BeginInvoke(() => {
+                            double x = Math.Min(_dragStartPoint.X, currentPos.X);
+                            double y = Math.Min(_dragStartPoint.Y, currentPos.Y);
+                            double w = Math.Abs(currentPos.X - _dragStartPoint.X);
+                            double h = Math.Abs(currentPos.Y - _dragStartPoint.Y);
+
+                            Canvas.SetLeft(_selectionRect, x);
+                            Canvas.SetTop(_selectionRect, y);
+                            _selectionRect.Width = w;
+                            _selectionRect.Height = h;
+
+                            Canvas.SetLeft(_infoText, x);
+                            Canvas.SetTop(_infoText, y - 25);
+                            _infoText.Text = $"{(int)w} x {(int)h}";
+                            _infoText.Visibility = Visibility.Visible;
+                        });
+                   }
+                   // Return CallNextHookEx to allow others to see mouse move
                 }
             }
             return CallNextHookEx(_hookID, nCode, wParam, lParam);
         }
 
-        private void UpdateHighlight(POINT pt)
+        protected override void OnSourceInitialized(EventArgs e)
         {
-            IntPtr hWnd = WindowFromPoint(pt);
-            
-            if (hWnd == IntPtr.Zero) return;
-
-            // 루트 윈도우를 찾지 않고 직접 요소 사용 (단위 캡처)
-            if (hWnd == currentTargetElement) return;
-
-            RECT rect;
-            if (!GetWindowRect(hWnd, out rect)) return;
-
-            currentTargetElement = hWnd;
-            
-            // UI 업데이트
-            Dispatcher.Invoke(() =>
-            {
-                var topLeft = PointFromScreen(new Point(rect.Left, rect.Top));
-                var bottomRight = PointFromScreen(new Point(rect.Right, rect.Bottom));
-
-                double w = bottomRight.X - topLeft.X;
-                double h = bottomRight.Y - topLeft.Y;
-
-                if (w > 0 && h > 0)
-                {
-                    Canvas.SetLeft(highlightRect, topLeft.X);
-                    Canvas.SetTop(highlightRect, topLeft.Y);
-                    highlightRect.Width = w;
-                    highlightRect.Height = h;
-                    highlightRect.Visibility = Visibility.Visible;
-                }
-            });
+            base.OnSourceInitialized(e);
+            // Apply WS_EX_TRANSPARENT to allow UIA Hit Testing to pass through the window
+            var hwnd = new WindowInteropHelper(this).Handle;
+            int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
+            SetWindowLong(hwnd, GWL_EXSTYLE, extendedStyle | WS_EX_TRANSPARENT | WS_EX_LAYERED);
         }
 
-        private void CaptureTargetElement()
+        private void InitializeUI()
         {
-            if (currentTargetElement == IntPtr.Zero) return;
+            var canvas = new Canvas
+            {
+                Width = Width,
+                Height = Height,
+                Background = Brushes.Transparent
+            };
 
+            // 1. Highlight Rectangle (Hover) - Blue
+            _highlightRect = new Rectangle
+            {
+                Stroke = new SolidColorBrush(Color.FromRgb(30, 144, 255)), // DodgerBlue
+                StrokeThickness = 2,
+                RadiusX = 0, RadiusY = 0,
+                Fill = new SolidColorBrush(Color.FromArgb(20, 30, 144, 255)),
+                Visibility = Visibility.Collapsed
+            };
+
+            // 2. Selection Rectangle (Drag)
+            _selectionRect = new Rectangle
+            {
+                Stroke = new SolidColorBrush(Color.FromRgb(0, 120, 215)),
+                StrokeThickness = 1,
+                Fill = new SolidColorBrush(Color.FromArgb(20, 0, 120, 215)),
+                Visibility = Visibility.Collapsed
+            };
+
+            // 3. Info Text
+            _infoText = new TextBlock
+            {
+                Background = new SolidColorBrush(Color.FromArgb(200, 30, 30, 30)),
+                Foreground = Brushes.White,
+                Padding = new Thickness(6, 4, 6, 4),
+                FontSize = 11,
+                Visibility = Visibility.Collapsed
+            };
+            
+            // 4. Guide Text
+            _guideText = new TextBlock
+            {
+                Text = "요소 캡처 모드 - 요소 위: 클릭 | 빈 공간: 드래그\nESC: 취소",
+                Foreground = new SolidColorBrush(Color.FromArgb(200, 255, 255, 255)),
+                FontSize = 16,
+                FontWeight = FontWeights.Bold,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 4, ShadowDepth = 2 }
+            };
+            Canvas.SetLeft(_guideText, (Width - 400) / 2);
+            Canvas.SetTop(_guideText, Height / 2 - 50);
+
+            canvas.Children.Add(_guideText);
+            canvas.Children.Add(_highlightRect);
+            canvas.Children.Add(_selectionRect);
+            canvas.Children.Add(_infoText);
+            Content = canvas;
+            
+             // Auto-hide guide
+             Task.Delay(3000).ContinueWith(_ => Dispatcher.Invoke(() => { 
+                if(_guideText != null) _guideText.Visibility = Visibility.Collapsed; 
+             }));
+        }
+
+        private void OnTimerTick(object? sender, EventArgs e)
+        {
+            if (_isDragging) return;
+
+            POINT pt;
+            GetCursorPos(out pt);
+            DetectElementUnderMouse(pt);
+        }
+
+        private void DetectElementUnderMouse(POINT screenPt)
+        {
             try
             {
-                RECT rect;
-                if (!GetWindowRect(currentTargetElement, out rect)) return;
+                System.Windows.Point sysPt = new System.Windows.Point(screenPt.X, screenPt.Y);
+                var element = System.Windows.Automation.AutomationElement.FromPoint(sysPt);
 
-                int width = rect.Right - rect.Left;
-                int height = rect.Bottom - rect.Top;
-
-                if (width <= 0 || height <= 0) return;
-
-                var bitmap = new System.Drawing.Bitmap(width, height);
-                using (var g = System.Drawing.Graphics.FromImage(bitmap))
+                if (element != null)
                 {
-                    g.CopyFromScreen(rect.Left, rect.Top, 0, 0, new System.Drawing.Size(width, height));
-                }
+                    // Prevent catching self or huge parent window
+                    if (element.Current.ProcessId == Process.GetCurrentProcess().Id)
+                        return;
 
-                var hBitmap = bitmap.GetHbitmap();
-                try
-                {
-                    var source = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
-                        hBitmap, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-                    source.Freeze();
-                    CapturedImage = source;
-                }
-                finally
-                {
-                    DeleteObject(hBitmap);
+                    Rect r = element.Current.BoundingRectangle;
+                    if (r.Width == 0 || r.Height == 0) return;
+                    
+                    // Convert Screen to Local
+                    double localX = r.X - Left;
+                    double localY = r.Y - Top;
+
+                    _currentElementRect = new Rect(localX, localY, r.Width, r.Height);
+
+                    Canvas.SetLeft(_highlightRect, localX);
+                    Canvas.SetTop(_highlightRect, localY);
+                    _highlightRect.Width = r.Width;
+                    _highlightRect.Height = r.Height;
+                    _highlightRect.Visibility = Visibility.Visible;
+
+                    Canvas.SetLeft(_infoText, localX);
+                    Canvas.SetTop(_infoText, localY - 25 > 0 ? localY - 25 : localY + r.Height + 5);
+                    
+                    _infoText.Text = $"{(int)r.Width} x {(int)r.Height}";
+                    _infoText.Visibility = Visibility.Visible;
                 }
             }
             catch { }
         }
 
-        [DllImport("gdi32.dll")]
-        private static extern bool DeleteObject(IntPtr hObject);
+        private async void CaptureArea(Rect rect)
+        {
+            if (rect.Width <= 0 || rect.Height <= 0) return;
+
+            // 1. Hide UI
+            Visibility = Visibility.Hidden;
+            await Task.Delay(50); // Wait for render
+
+            try
+            {
+                // 2. Capture Logic
+                var source = PresentationSource.FromVisual(this);
+                double dpiX = 1.0, dpiY = 1.0;
+                if (source != null)
+                {
+                    dpiX = source.CompositionTarget.TransformToDevice.M11;
+                    dpiY = source.CompositionTarget.TransformToDevice.M22;
+                }
+
+                double screenX = Left + rect.X;
+                double screenY = Top + rect.Y;
+
+                int pxX = (int)(screenX * dpiX);
+                int pxY = (int)(screenY * dpiY);
+                int pxW = (int)(rect.Width * dpiX);
+                int pxH = (int)(rect.Height * dpiY);
+
+                var area = new Int32Rect(pxX, pxY, pxW, pxH);
+                
+                var bitmap = Utilities.ScreenCaptureUtility.CaptureArea(area);
+                CapturedImage = bitmap;
+                
+                DialogResult = true;
+                Close();
+            }
+            catch
+            {
+                Show();
+                Visibility = Visibility.Visible;
+            }
+        }
     }
 }

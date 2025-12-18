@@ -1131,7 +1131,7 @@ namespace CatchCapture.Recording
         }
         
         // 마우스 효과 (커서 표시)
-        MouseEffectToggle.IsChecked = _settings.ShowMouseEffects;
+        if (MouseEffectToggle != null) MouseEffectToggle.IsChecked = _settings.ShowMouseEffects;
         if (_settings.ShowMouseEffects)
         {
             MouseOnIcon.Visibility = Visibility.Visible;
