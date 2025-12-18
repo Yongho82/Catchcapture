@@ -81,6 +81,25 @@ namespace CatchCapture
 
         public BitmapSource? CapturedImage { get; private set; }
 
+        // --- Magnifier Fields ---
+        private const double MagnifierSize = 150;
+        private const double MagnificationFactor = 3.0;
+        private bool showMagnifier = true;
+        private Border? magnifierBorder;
+        private Image? magnifierImage;
+        private Canvas? magnifierCanvas;
+        private Line? magnifierCrosshairH;
+        private Line? magnifierCrosshairV;
+        private TextBlock? coordsTextBlock;
+        private Rectangle? colorPreviewRect;
+        private TextBlock? colorValueTextBlock;
+        private bool isColorHexFormat = true;
+        private Color lastHoverColor = Colors.Transparent;
+
+        // Key State Tracking
+        private bool _wasShiftDown = false;
+        private bool _wasCDown = false;
+
         // --- Constructor ---
         public ElementCaptureWindow()
         {
@@ -245,12 +264,12 @@ namespace CatchCapture
                 }
                 else if (msg == WM_MOUSEMOVE)
                 {
+                   POINT pt;
+                   GetCursorPos(out pt);
+                   Point currentPos = new Point(pt.X - Left, pt.Y - Top);
+
                    if (_isDragging)
                    {
-                        POINT pt;
-                        GetCursorPos(out pt);
-                        Point currentPos = new Point(pt.X - Left, pt.Y - Top);
-                        
                         Dispatcher.BeginInvoke(() => {
                             double x = Math.Min(_dragStartPoint.X, currentPos.X);
                             double y = Math.Min(_dragStartPoint.Y, currentPos.Y);
@@ -266,7 +285,6 @@ namespace CatchCapture
                             Canvas.SetTop(_infoText, y - 25);
                             _infoText.Text = $"{(int)w} x {(int)h}";
                             
-                            // Drag started => show selection, hide highlight
                             if (_selectionRect.Visibility != Visibility.Visible)
                             {
                                 _highlightRect.Visibility = Visibility.Collapsed;
@@ -275,6 +293,11 @@ namespace CatchCapture
                             }
                         });
                    }
+
+                   // Update Magnifier
+                   Dispatcher.BeginInvoke(() => {
+                       UpdateMagnifier(currentPos);
+                   });
                 }
             }
             return CallNextHookEx(_hookID, nCode, wParam, lParam);
@@ -309,12 +332,14 @@ namespace CatchCapture
                 Visibility = Visibility.Collapsed
             };
 
-            // 2. Selection Rectangle
+            // 2. Selection Rectangle (Red Dotted)
             _selectionRect = new Rectangle
             {
-                Stroke = new SolidColorBrush(Color.FromRgb(0, 120, 215)),
-                StrokeThickness = 1,
-                Fill = new SolidColorBrush(Color.FromArgb(20, 0, 120, 215)),
+                Stroke = Brushes.Red,
+                StrokeThickness = 2,
+                StrokeDashArray = new DoubleCollection { 2, 2 }, // Dotted
+                Fill = Brushes.Transparent, // No fill for selection, or slight red tint? Standard was transparent bounds.
+                // Keeping it transparent to match "Our basic area capture" (SnippingWindow) which is usually just border.
                 Visibility = Visibility.Collapsed
             };
 
@@ -344,7 +369,16 @@ namespace CatchCapture
             canvas.Children.Add(_highlightRect);
             canvas.Children.Add(_selectionRect);
             canvas.Children.Add(_infoText);
+            
             Content = canvas;
+
+            // Initialize Magnifier UI
+            CreateMagnifier(canvas);
+
+            // Settings load
+            var settings = Models.Settings.Load();
+            showMagnifier = settings.ShowMagnifier;
+            if (!showMagnifier && magnifierBorder != null) magnifierBorder.Visibility = Visibility.Collapsed;
             
              Task.Delay(3000).ContinueWith(_ => Dispatcher.Invoke(() => { 
                 if(_guideText != null) _guideText.Visibility = Visibility.Collapsed; 
@@ -353,12 +387,32 @@ namespace CatchCapture
 
         private void OnTimerTick(object? sender, EventArgs e)
         {
+            // Escape Check
             if ((GetAsyncKeyState(VK_ESCAPE) & 0x8000) != 0)
             {
                 DialogResult = false;
                 Close();
                 return;
             }
+
+            // Shift Check (Hex/RGB Toggle)
+            // VK_SHIFT = 0x10
+            bool isShiftDown = (GetAsyncKeyState(0x10) & 0x8000) != 0;
+            if (isShiftDown && !_wasShiftDown)
+            {
+                isColorHexFormat = !isColorHexFormat;
+                UpdateColorInfoText();
+            }
+            _wasShiftDown = isShiftDown;
+
+            // C Key Check (Copy Color)
+            // 'C' key code is 0x43
+            bool isCDown = (GetAsyncKeyState(0x43) & 0x8000) != 0;
+            if (isCDown && !_wasCDown)
+            {
+               CopyColorToClipboard(true);
+            }
+            _wasCDown = isCDown;
 
             if (_isDragging) return;
 
@@ -443,6 +497,271 @@ namespace CatchCapture
                 DialogResult = false; 
                 Close();
             }
+        }
+        private void CreateMagnifier(Canvas parentCanvas)
+        {
+            double borderThick = 2.0;
+            double cornerRad = 15.0; // Rounded corners
+            double innerSize = MagnifierSize; 
+
+            // Magnifier Image
+            magnifierImage = new Image
+            {
+                Width = innerSize,
+                Height = innerSize,
+                Stretch = Stretch.Fill,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            RenderOptions.SetBitmapScalingMode(magnifierImage, BitmapScalingMode.NearestNeighbor);
+
+            // Crosshairs (Red Dotted)
+            double centerPos = innerSize / 2.0;
+            
+            magnifierCrosshairH = new Line
+            {
+                X1 = 0, X2 = innerSize,
+                Y1 = centerPos, Y2 = centerPos,
+                Stroke = Brushes.Red,
+                StrokeThickness = 1,
+                StrokeDashArray = new DoubleCollection { 3, 2 },
+                IsHitTestVisible = false
+            };
+
+            magnifierCrosshairV = new Line
+            {
+                X1 = centerPos, X2 = centerPos,
+                Y1 = 0, Y2 = innerSize,
+                Stroke = Brushes.Red,
+                StrokeThickness = 1,
+                StrokeDashArray = new DoubleCollection { 3, 2 },
+                IsHitTestVisible = false
+            };
+
+            // Center pixel box
+            var centerFrame = new Rectangle
+            {
+                Width = 7, Height = 7,
+                Stroke = Brushes.Black,
+                StrokeThickness = 1,
+                Fill = Brushes.Transparent,
+                IsHitTestVisible = false
+            };
+            Canvas.SetLeft(centerFrame, centerPos - 3.5);
+            Canvas.SetTop(centerFrame, centerPos - 3.5);
+
+            // Canvas
+            magnifierCanvas = new Canvas
+            {
+                Width = innerSize,
+                Height = innerSize,
+                Background = Brushes.White
+            };
+            magnifierCanvas.Children.Add(magnifierImage);
+            magnifierCanvas.Children.Add(magnifierCrosshairH);
+            magnifierCanvas.Children.Add(magnifierCrosshairV);
+            magnifierCanvas.Children.Add(centerFrame);
+
+            // Clip
+            magnifierCanvas.Clip = new RectangleGeometry
+            {
+                Rect = new Rect(0, 0, innerSize, innerSize),
+                RadiusX = Math.Max(0, cornerRad - borderThick),
+                RadiusY = Math.Max(0, cornerRad - borderThick)
+            };
+
+            // Info Panel
+            var infoStack = new StackPanel { Orientation = Orientation.Vertical };
+            var infoBorder = new Border
+            {
+                Background = new SolidColorBrush(Color.FromRgb(40, 40, 40)),
+                Padding = new Thickness(8),
+                Child = infoStack,
+                CornerRadius = new CornerRadius(0, 0, cornerRad, cornerRad)
+            };
+
+            coordsTextBlock = new TextBlock
+            {
+                Text = "(0, 0)",
+                Foreground = Brushes.White,
+                FontSize = 14,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Margin = new Thickness(0, 5, 0, 5)
+            };
+
+            var colorRow = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Margin = new Thickness(0, 5, 0, 5)
+            };
+            
+            colorPreviewRect = new Rectangle
+            {
+                Width = 14, Height = 14,
+                Stroke = Brushes.White,
+                StrokeThickness = 1,
+                Fill = Brushes.White,
+                Margin = new Thickness(0, 0, 8, 0),
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            
+            colorValueTextBlock = new TextBlock
+            {
+                Text = "#FFFFFF",
+                Foreground = Brushes.White,
+                FontSize = 14,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            colorRow.Children.Add(colorPreviewRect);
+            colorRow.Children.Add(colorValueTextBlock);
+
+            var helpText1 = new TextBlock
+            {
+                Text = "[C] 색상복사",
+                Foreground = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                FontSize = 11,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Margin = new Thickness(0, 5, 0, 0)
+            };
+             var helpText2 = new TextBlock
+            {
+                Text = "[Shift] RGB/HEX 값 바꾸기",
+                Foreground = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                FontSize = 11,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Margin = new Thickness(0, 2, 0, 5)
+            };
+
+            infoStack.Children.Add(coordsTextBlock);
+            infoStack.Children.Add(colorRow);
+            infoStack.Children.Add(helpText1);
+            infoStack.Children.Add(helpText2);
+
+            var containerStack = new StackPanel();
+            containerStack.Children.Add(magnifierCanvas);
+            containerStack.Children.Add(infoBorder);
+
+            magnifierBorder = new Border
+            {
+                Width = MagnifierSize,
+                BorderBrush = Brushes.White,
+                BorderThickness = new Thickness(borderThick),
+                Background = Brushes.Black,
+                Child = containerStack,
+                Visibility = Visibility.Collapsed,
+                CornerRadius = new CornerRadius(cornerRad)
+            };
+            
+             magnifierBorder.Effect = new System.Windows.Media.Effects.DropShadowEffect
+            {
+                Color = Colors.Black,
+                BlurRadius = 10,
+                ShadowDepth = 3,
+                Opacity = 0.7
+            };
+
+            parentCanvas.Children.Add(magnifierBorder);
+            Panel.SetZIndex(magnifierBorder, 2000); // High Z-Index
+        }
+
+        private void UpdateMagnifier(Point mousePos)
+        {
+            if (!showMagnifier) return;
+            if (magnifierBorder == null || magnifierImage == null || _fullScreenImage == null)
+                return;
+
+            try
+            {
+                magnifierBorder.Visibility = Visibility.Visible;
+
+                var dpi = VisualTreeHelper.GetDpi(this);
+                int centerX = (int)(mousePos.X * dpi.DpiScaleX);
+                int centerY = (int)(mousePos.Y * dpi.DpiScaleY);
+
+                // Zoomed Image
+                int cropSize = (int)(MagnifierSize / MagnificationFactor);
+                int halfCrop = cropSize / 2;
+
+                int cropX = Math.Max(0, Math.Min(centerX - halfCrop, _fullScreenImage.PixelWidth - cropSize));
+                int cropY = Math.Max(0, Math.Min(centerY - halfCrop, _fullScreenImage.PixelHeight - cropSize));
+                int cropW = Math.Min(cropSize, _fullScreenImage.PixelWidth - cropX);
+                int cropH = Math.Min(cropSize, _fullScreenImage.PixelHeight - cropY);
+
+                if (cropW > 0 && cropH > 0)
+                {
+                    var cropped = new CroppedBitmap(_fullScreenImage, new Int32Rect(cropX, cropY, cropW, cropH));
+                    magnifierImage.Source = cropped;
+                }
+
+                // Color extraction
+                if (centerX >= 0 && centerY >= 0 && centerX < _fullScreenImage.PixelWidth && centerY < _fullScreenImage.PixelHeight)
+                {
+                    byte[] pixels = new byte[4];
+                    var rect = new Int32Rect(centerX, centerY, 1, 1);
+                    try
+                    {
+                        _fullScreenImage.CopyPixels(rect, pixels, 4, 0);
+                        lastHoverColor = Color.FromRgb(pixels[2], pixels[1], pixels[0]);
+                        
+                        if (colorPreviewRect != null) colorPreviewRect.Fill = new SolidColorBrush(lastHoverColor);
+                        UpdateColorInfoText();
+                    }
+                    catch {}
+                }
+
+                if (coordsTextBlock != null) coordsTextBlock.Text = $"({centerX}, {centerY})";
+
+                // Position
+                double offsetX = 20; 
+                double offsetY = 20; 
+                double totalHeight = magnifierBorder.ActualHeight;
+                if (double.IsNaN(totalHeight) || totalHeight == 0) totalHeight = MagnifierSize + 100;
+
+                double magX = mousePos.X + offsetX;
+                double magY = mousePos.Y + offsetY;
+
+                if (magX + MagnifierSize > Width) magX = mousePos.X - MagnifierSize - offsetX;
+                if (magY + totalHeight > Height) magY = mousePos.Y - totalHeight - offsetY;
+
+                Canvas.SetLeft(magnifierBorder, magX);
+                Canvas.SetTop(magnifierBorder, magY);
+            }
+            catch
+            {
+                magnifierBorder.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void UpdateColorInfoText()
+        {
+            if (colorValueTextBlock == null) return;
+            if (isColorHexFormat)
+                colorValueTextBlock.Text = $"#{lastHoverColor.R:X2}{lastHoverColor.G:X2}{lastHoverColor.B:X2}";
+            else
+                colorValueTextBlock.Text = $"({lastHoverColor.R}, {lastHoverColor.G}, {lastHoverColor.B})";
+        }
+
+        private void CopyColorToClipboard(bool closeWindow = false)
+        {
+            try
+            {
+                string textToCopy = isColorHexFormat 
+                    ? $"#{lastHoverColor.R:X2}{lastHoverColor.G:X2}{lastHoverColor.B:X2}"
+                    : $"{lastHoverColor.R}, {lastHoverColor.G}, {lastHoverColor.B}";
+                
+                Clipboard.SetText(textToCopy);
+                
+                string msg = "클립보드에 복사되었습니다.";
+                Utilities.StickerWindow.Show(msg);
+
+                if (closeWindow)
+                {
+                    DialogResult = false;
+                    Close();
+                }
+            }
+            catch {}
         }
     }
 }

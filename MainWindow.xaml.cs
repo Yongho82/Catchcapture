@@ -1491,7 +1491,8 @@ public partial class MainWindow : Window
                 // Ensure UI thread
                 Dispatcher.Invoke(() =>
                 {
-                    AddCaptureToList(img);
+                    // showMainWindow: false prevents main window pop-up so user can capture continuously
+                    AddCaptureToList(img, skipPreview: true, showMainWindow: false);
                     // Optionally also copy to clipboard
                     CatchCapture.Utilities.ScreenCaptureUtility.CopyImageToClipboard(img);
                 });
@@ -1655,7 +1656,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private void AddCaptureToList(BitmapSource image, bool skipPreview = false)
+    private void AddCaptureToList(BitmapSource image, bool skipPreview = false, bool showMainWindow = true)
     {
         try
         {
@@ -1764,7 +1765,8 @@ public partial class MainWindow : Window
                 UpdateCaptureCount();
                 
                 // 창 표시 (트레이 모드가 아니고 간편모드가 아닐 때만) — 단, 캡처 직후 프리뷰 자동 열기 설정이 켜져 있으면 메인창을 표시하지 않음
-                if (!settings.ShowPreviewAfterCapture && !settings.OpenEditorAfterCapture)
+                // 창 표시 (트레이 모드가 아니고 간편모드가 아닐 때만, 그리고 showMainWindow가 true일 때만)
+                if (showMainWindow && !settings.ShowPreviewAfterCapture && !settings.OpenEditorAfterCapture)
                 {
                     this.Show();
                     this.WindowState = WindowState.Normal;

@@ -9,7 +9,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Forms = System.Windows.Forms;
 
-using CatchCapture.Resources;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
+using CatchCapture.Resources; // Restoring original using
+// using ResLoc = CatchCapture.Resources.LocalizationManager; // Maybe this alias wasn't picked up correctly or conflicted.
 
 namespace CatchCapture.Utilities
 {
@@ -34,6 +37,67 @@ namespace CatchCapture.Utilities
         
         public BitmapSource? FinalCompositeImage { get; private set; }
         public List<BitmapSource>? IndividualImages { get; private set; }
+
+        // --- Keyboard Hook ---
+        private const int WH_KEYBOARD_LL = 13;
+        private const int WM_KEYDOWN = 0x0100;
+        private const int VK_F1 = 0x70;
+        private LowLevelKeyboardProc _proc;
+        private IntPtr _hookID = IntPtr.Zero;
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProc lpfn, IntPtr hMod, uint dwThreadId);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool UnhookWindowsHookEx(IntPtr hhk);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr GetModuleHandle(string lpModuleName);
+
+        private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
+
+        private IntPtr SetHook(LowLevelKeyboardProc proc)
+        {
+            using (Process curProcess = Process.GetCurrentProcess())
+            using (ProcessModule curModule = curProcess.MainModule!)
+            {
+                return SetWindowsHookEx(WH_KEYBOARD_LL, proc, GetModuleHandle(curModule.ModuleName), 0);
+            }
+        }
+
+        private IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+        {
+            if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN)
+            {
+                int vkCode = Marshal.ReadInt32(lParam);
+                if (vkCode == VK_F1)
+                {
+                    // Dispatch to UI Thread
+                    Dispatcher.Invoke(() => HandleF1());
+                    return (IntPtr)1; // Swallow key
+                }
+            }
+            return CallNextHookEx(_hookID, nCode, wParam, lParam);
+        }
+
+        private void HandleF1()
+        {
+             // 개별 이미지 저장 모드 logic
+            if (capturedRegions.Count > 0)
+            {
+                IndividualImages = capturedRegions.Select(r => r.Image).ToList();
+                DialogResult = true;
+                Close();
+            }
+            else
+            {
+                CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("MultiCaptureMinReq"), LocalizationManager.GetString("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
         
         private class CapturedRegion
         {
@@ -159,6 +223,15 @@ namespace CatchCapture.Utilities
                     timer.Stop();
                 };
                 timer.Start();
+                timer.Start();
+            };
+
+            // Hook Install
+            _proc = HookCallback;
+            _hookID = SetHook(_proc);
+
+            Closed += (s, e) => {
+                UnhookWindowsHookEx(_hookID);
             };
         }  
 
@@ -332,18 +405,8 @@ namespace CatchCapture.Utilities
             }
             else if (e.Key == Key.F1)
             {
-                // 개별 이미지 저장 모드
-                if (capturedRegions.Count > 0)
-                {
-                    IndividualImages = capturedRegions.Select(r => r.Image).ToList();
-                    DialogResult = true;
-                    Close();
-                }
-                else
-                {
-                    CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("MultiCaptureMinReq"), LocalizationManager.GetString("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-                e.Handled = true;
+                 HandleF1(); 
+                 e.Handled = true;
             }
             else if (e.Key == Key.Escape)
             {
@@ -446,6 +509,11 @@ namespace CatchCapture.Utilities
         {
             if (disposing)
             {
+                if (_hookID != IntPtr.Zero)
+                {
+                    UnhookWindowsHookEx(_hookID);
+                    _hookID = IntPtr.Zero;
+                }
                 capturedRegions.Clear();
                 canvas?.Children.Clear();
             }

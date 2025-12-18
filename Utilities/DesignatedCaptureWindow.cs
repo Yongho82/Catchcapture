@@ -8,6 +8,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using CatchCapture.Models;
 
+using System.Runtime.InteropServices;
+using System.Diagnostics;
+using ResLoc = CatchCapture.Resources.LocalizationManager;
+
 namespace CatchCapture.Utilities
 {
     public class DesignatedCaptureWindow : Window
@@ -33,8 +37,12 @@ namespace CatchCapture.Utilities
         private Rect _rectStart;
 
         private Thumb _thumbTopLeft = null!;
+        private Thumb _thumbTopMiddle = null!;
         private Thumb _thumbTopRight = null!;
+        private Thumb _thumbMiddleLeft = null!;
+        private Thumb _thumbMiddleRight = null!;
         private Thumb _thumbBottomLeft = null!;
+        private Thumb _thumbBottomMiddle = null!;
         private Thumb _thumbBottomRight = null!;
 
         // Header dragging
@@ -50,6 +58,51 @@ namespace CatchCapture.Utilities
 
         // Fired whenever a capture is performed (overlay stays open)
         public event Action<System.Windows.Media.Imaging.BitmapSource>? CaptureCompleted;
+
+        // --- Keyboard Hook ---
+        private const int WH_KEYBOARD_LL = 13;
+        private const int WM_KEYDOWN = 0x0100;
+        private const int VK_F1 = 0x70;
+        private LowLevelKeyboardProc _proc;
+        private IntPtr _hookID = IntPtr.Zero;
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProc lpfn, IntPtr hMod, uint dwThreadId);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool UnhookWindowsHookEx(IntPtr hhk);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr GetModuleHandle(string lpModuleName);
+
+        private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
+
+        private IntPtr SetHook(LowLevelKeyboardProc proc)
+        {
+            using (Process curProcess = Process.GetCurrentProcess())
+            using (ProcessModule curModule = curProcess.MainModule!)
+            {
+                return SetWindowsHookEx(WH_KEYBOARD_LL, proc, GetModuleHandle(curModule.ModuleName), 0);
+            }
+        }
+
+        private IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+        {
+            if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN)
+            {
+                int vkCode = Marshal.ReadInt32(lParam);
+                if (vkCode == VK_F1)
+                {
+                    Dispatcher.Invoke(() => CaptureAndNotify());
+                    return (IntPtr)1; // Swallow Key
+                }
+            }
+            return CallNextHookEx(_hookID, nCode, wParam, lParam);
+        }
 
         public DesignatedCaptureWindow()
         {
@@ -70,9 +123,9 @@ namespace CatchCapture.Utilities
             vWidth = SystemParameters.VirtualScreenWidth;
             vHeight = SystemParameters.VirtualScreenHeight;
 
-            // 작은 창으로 시작 (전체화면 아님)
-            Width = 400;
-            Height = 300;
+            // 작은 창으로 시작 (전체화면 아님) - 요청: 500x350
+            Width = 600; // 여유 공간 포함
+            Height = 450;
             Left = (SystemParameters.PrimaryScreenWidth - Width) / 2;
             Top = (SystemParameters.PrimaryScreenHeight - Height) / 2;
 
@@ -97,20 +150,33 @@ namespace CatchCapture.Utilities
             _rect.MouseLeftButtonUp += Rect_MouseLeftButtonUp;
             _canvas.Children.Add(_rect);
 
-            // Resize thumbs
-            _thumbTopLeft = CreateThumb();
-            _thumbTopRight = CreateThumb();
-            _thumbBottomLeft = CreateThumb();
-            _thumbBottomRight = CreateThumb();
+            // Resize thumbs (8 directions)
+            _thumbTopLeft = CreateThumb(Cursors.SizeNWSE);
+            _thumbTopMiddle = CreateThumb(Cursors.SizeNS);
+            _thumbTopRight = CreateThumb(Cursors.SizeNESW);
+            _thumbMiddleLeft = CreateThumb(Cursors.SizeWE);
+            _thumbMiddleRight = CreateThumb(Cursors.SizeWE);
+            _thumbBottomLeft = CreateThumb(Cursors.SizeNESW);
+            _thumbBottomMiddle = CreateThumb(Cursors.SizeNS);
+            _thumbBottomRight = CreateThumb(Cursors.SizeNWSE);
+
             _canvas.Children.Add(_thumbTopLeft);
+            _canvas.Children.Add(_thumbTopMiddle);
             _canvas.Children.Add(_thumbTopRight);
+            _canvas.Children.Add(_thumbMiddleLeft);
+            _canvas.Children.Add(_thumbMiddleRight);
             _canvas.Children.Add(_thumbBottomLeft);
+            _canvas.Children.Add(_thumbBottomMiddle);
             _canvas.Children.Add(_thumbBottomRight);
 
-            _thumbTopLeft.DragDelta += (s, e) => ResizeFromCorner(isLeft: true, isTop: true, e);
-            _thumbTopRight.DragDelta += (s, e) => ResizeFromCorner(isLeft: false, isTop: true, e);
-            _thumbBottomLeft.DragDelta += (s, e) => ResizeFromCorner(isLeft: true, isTop: false, e);
-            _thumbBottomRight.DragDelta += (s, e) => ResizeFromCorner(isLeft: false, isTop: false, e);
+            _thumbTopLeft.DragDelta += (s, e) => ResizeFromCorner(true, true, false, false, e);      // Left, Top
+            _thumbTopMiddle.DragDelta += (s, e) => ResizeFromCorner(false, true, false, false, e);    // Top only
+            _thumbTopRight.DragDelta += (s, e) => ResizeFromCorner(false, true, true, false, e);     // Right, Top
+            _thumbMiddleLeft.DragDelta += (s, e) => ResizeFromCorner(true, false, false, false, e);   // Left only
+            _thumbMiddleRight.DragDelta += (s, e) => ResizeFromCorner(false, false, true, false, e);  // Right only
+            _thumbBottomLeft.DragDelta += (s, e) => ResizeFromCorner(true, false, false, true, e);    // Left, Bottom
+            _thumbBottomMiddle.DragDelta += (s, e) => ResizeFromCorner(false, false, false, true, e); // Bottom only
+            _thumbBottomRight.DragDelta += (s, e) => ResizeFromCorner(false, false, true, true, e);   // Right, Bottom
 
             // Header bar with size (top-left of the selection)
             _sizeText = new TextBlock
@@ -153,10 +219,10 @@ namespace CatchCapture.Utilities
                 FontSize = 11
             };
 
-            // 잠금 버튼 (금색 아이콘)
+            // 잠금 버튼 (아이콘 변경)
             var btnLock = new Button
             {
-                Content = new TextBlock { Text = "🔓", Foreground = new SolidColorBrush(Color.FromRgb(255, 215, 0)), FontSize = 13, VerticalAlignment = VerticalAlignment.Center }, // 금색
+                Content = new TextBlock { Text = "🔓", Foreground = new SolidColorBrush(Color.FromRgb(255, 215, 0)), FontSize = 14, VerticalAlignment = VerticalAlignment.Center }, 
                 Width = 24, Height = 24,
                 VerticalAlignment = VerticalAlignment.Center,
                 Background = Brushes.Transparent,
@@ -171,21 +237,26 @@ namespace CatchCapture.Utilities
             {
                 isLockedFlag = !isLockedFlag;
                 var lockText = (TextBlock)btnLock.Content;
+                // 아이콘 변경 요청: 🔓 <-> 🔒
                 lockText.Text = isLockedFlag ? "🔒" : "🔓";
-                lockText.Foreground = new SolidColorBrush(Color.FromRgb(255, 215, 0)); // 금색 유지
                 btnLock.Background = isLockedFlag ? new SolidColorBrush(Color.FromArgb(30, 255, 215, 0)) : Brushes.Transparent;
                 
-                // 잠금 시 Thumb 숨기기
-                _thumbTopLeft.Visibility = isLockedFlag ? Visibility.Collapsed : Visibility.Visible;
-                _thumbTopRight.Visibility = isLockedFlag ? Visibility.Collapsed : Visibility.Visible;
-                _thumbBottomLeft.Visibility = isLockedFlag ? Visibility.Collapsed : Visibility.Visible;
-                _thumbBottomRight.Visibility = isLockedFlag ? Visibility.Collapsed : Visibility.Visible;
+                // 잠금 시 모든 Thumb 숨기기
+                Visibility v = isLockedFlag ? Visibility.Collapsed : Visibility.Visible;
+                _thumbTopLeft.Visibility = v;
+                _thumbTopMiddle.Visibility = v;
+                _thumbTopRight.Visibility = v;
+                _thumbMiddleLeft.Visibility = v;
+                _thumbMiddleRight.Visibility = v;
+                _thumbBottomLeft.Visibility = v;
+                _thumbBottomMiddle.Visibility = v;
+                _thumbBottomRight.Visibility = v;
             };
             
             // 캡처 버튼
             _btnCapture = new Button
             {
-                Content = new TextBlock { Text = LocalizationManager.Get("Capture"), Foreground = Brushes.White, FontSize = 12, FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center },
+                Content = new TextBlock { Text = "캡처(F1)", Foreground = Brushes.White, FontSize = 12, FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center },
                 Padding = new Thickness(8, 0, 8, 0),
                 Height = 24,
                 VerticalAlignment = VerticalAlignment.Center,
@@ -204,9 +275,24 @@ namespace CatchCapture.Utilities
                 Background = Brushes.Transparent,
                 BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
-                ToolTip = LocalizationManager.Get("Close")
+                ToolTip = ResLoc.GetString("Close")
             };
-            _btnClose.Click += (s, e) => Close();
+            _btnClose.Click += (s, e) => 
+            {
+                // X 버튼 클릭 시 메인 윈도우 표시 후 닫기
+                if (System.Windows.Application.Current.MainWindow is MainWindow mainWindow)
+                {
+                    mainWindow.Show();
+                    if (mainWindow.WindowState == WindowState.Minimized)
+                    {
+                        mainWindow.WindowState = WindowState.Normal;
+                    }
+                    mainWindow.Activate();
+                    mainWindow.Topmost = true;
+                    mainWindow.Topmost = false;
+                }
+                Close();
+            };
 
             headerWrap.Children.Add(_tbWidth);
             headerWrap.Children.Add(times);
@@ -271,12 +357,28 @@ namespace CatchCapture.Utilities
 
             _canvas.Children.Add(_headerBar);
 
-            // 작은 창 내에서 초기 사각형 설정 (창 크기 기준)
-            double initW = Width * 0.8; // 창 크기의 80%
-            double initH = Height * 0.7; // 창 크기의 70%
-            double initL = (Width - initW) / 2;
+            // 초기 사각형 설정 500x350
+            double initW = 500;
+            double initH = 350;
+            double initL = (Width - initW) / 2; // 창 중앙에 배치 시도
+            if (initL < 0) initL = 50; 
             double initT = (Height - initH) / 2;
+            if (initT < 0) initT = 50;
+            
             SetRect(new Rect(initL, initT, initW, initH));
+            SetRect(new Rect(initL, initT, initW, initH));
+
+            // Install Hook
+            _proc = HookCallback;
+            _hookID = SetHook(_proc);
+
+            Closed += (s, e) => {
+                if (_hookID != IntPtr.Zero)
+                {
+                    UnhookWindowsHookEx(_hookID);
+                    _hookID = IntPtr.Zero;
+                }
+            };
         }
 
         private void OnKeyDown(object sender, KeyEventArgs e)
@@ -287,7 +389,7 @@ namespace CatchCapture.Utilities
             }
         }
 
-        private Thumb CreateThumb()
+        private Thumb CreateThumb(Cursor cursor)
         {
             return new Thumb
             {
@@ -296,7 +398,7 @@ namespace CatchCapture.Utilities
                 Background = Brushes.DeepSkyBlue,
                 BorderBrush = Brushes.White,
                 BorderThickness = new Thickness(1),
-                Cursor = Cursors.SizeAll
+                Cursor = cursor
             };
         }
 
@@ -355,44 +457,76 @@ namespace CatchCapture.Utilities
             }
         }
 
-        private void ResizeFromCorner(bool isLeft, bool isTop, DragDeltaEventArgs e)
+        private void ResizeFromCorner(bool isLeft, bool isTop, bool isRight, bool isBottom, DragDeltaEventArgs e)
         {
-            Rect r = GetRect();
-            double minW = 20, minH = 20;
+            // 1. Calculate Current Screen Rect
+            Rect currentRel = GetRect();
+            // Window Left/Top + Relative Rect Left/Top = Screen Rect
+            Rect screenRect = new Rect(Left + currentRel.Left, Top + currentRel.Top, currentRel.Width, currentRel.Height);
 
-            double newLeft = r.Left;
-            double newTop = r.Top;
-            double newRight = r.Right;
-            double newBottom = r.Bottom;
-
+            // 2. Apply Delta
             if (isLeft)
-                newLeft += e.HorizontalChange;
-            else
-                newRight += e.HorizontalChange;
+            {
+                screenRect.X += e.HorizontalChange;
+                screenRect.Width -= e.HorizontalChange;
+            }
+            else if (isRight)
+            {
+                screenRect.Width += e.HorizontalChange;
+            }
 
             if (isTop)
-                newTop += e.VerticalChange;
-            else
-                newBottom += e.VerticalChange;
-
-            // Normalize
-            if (newRight - newLeft < minW)
             {
-                if (isLeft) newLeft = newRight - minW; else newRight = newLeft + minW;
+                screenRect.Y += e.VerticalChange;
+                screenRect.Height -= e.VerticalChange;
             }
-            if (newBottom - newTop < minH)
+            else if (isBottom)
             {
-                if (isTop) newTop = newBottom - minH; else newBottom = newTop + minH;
+                screenRect.Height += e.VerticalChange;
             }
 
-            Rect nr = new Rect(newLeft, newTop, newRight - newLeft, newBottom - newTop);
+            // Min Size Check
+            double minSize = 20;
+            if (screenRect.Width < minSize)
+            {
+                 if (isLeft) screenRect.X -= (minSize - screenRect.Width); 
+                 screenRect.Width = minSize;
+            }
+            if (screenRect.Height < minSize)
+            {
+                 if (isTop) screenRect.Y -= (minSize - screenRect.Height);
+                 screenRect.Height = minSize;
+            }
+
+            // 3. Update Window & Rect
+            UpdateWindowForScreenRect(screenRect);
+        }
+
+        private void UpdateWindowForScreenRect(Rect screenRect)
+        {
+            // Define margins to ensure space for Header and Thumbs
+            // Top margin needs to be larger for Header
+            double marginEnv = 60.0;
+
+            // New Window Bounds
+            double newWinLeft = screenRect.Left - marginEnv;
+            double newWinTop = screenRect.Top - marginEnv;
+            double newWinWidth = screenRect.Width + (marginEnv * 2);
+            double newWinHeight = screenRect.Height + (marginEnv * 2);
+
+            // Apply to Window
+            Left = newWinLeft;
+            Top = newWinTop;
+            Width = newWinWidth;
+            Height = newWinHeight;
             
-            // 창 크기를 선택 영역에 맞게 동적으로 조정
-            AdjustWindowSizeForRect(nr);
-            
-            // 조정된 창 크기 기준으로 다시 제한
-            nr = ClampToBounds(nr);
-            SetRect(nr);
+            // Sync Canvas
+            _canvas.Width = Width;
+            _canvas.Height = Height;
+            _fullGeometry.Rect = new Rect(0, 0, Width, Height);
+
+            // Set Relative Rect (always centered/margined fixed inside the new window)
+            SetRect(new Rect(marginEnv, marginEnv, screenRect.Width, screenRect.Height));
         }
 
         private Rect ClampToBounds(Rect rect)
@@ -468,7 +602,9 @@ namespace CatchCapture.Utilities
 
         private void PositionThumbs(Rect rect)
         {
-            double half = _thumbTopLeft.Width / 2.0;
+            double half = 5.0; // _thumb size 10 / 2
+
+            // Corners
             Canvas.SetLeft(_thumbTopLeft, rect.Left - half);
             Canvas.SetTop(_thumbTopLeft, rect.Top - half);
 
@@ -480,6 +616,19 @@ namespace CatchCapture.Utilities
 
             Canvas.SetLeft(_thumbBottomRight, rect.Right - half);
             Canvas.SetTop(_thumbBottomRight, rect.Bottom - half);
+
+            // Middles
+            Canvas.SetLeft(_thumbTopMiddle, rect.Left + (rect.Width / 2) - half);
+            Canvas.SetTop(_thumbTopMiddle, rect.Top - half);
+
+            Canvas.SetLeft(_thumbBottomMiddle, rect.Left + (rect.Width / 2) - half);
+            Canvas.SetTop(_thumbBottomMiddle, rect.Bottom - half);
+
+            Canvas.SetLeft(_thumbMiddleLeft, rect.Left - half);
+            Canvas.SetTop(_thumbMiddleLeft, rect.Top + (rect.Height / 2) - half);
+
+            Canvas.SetLeft(_thumbMiddleRight, rect.Right - half);
+            Canvas.SetTop(_thumbMiddleRight, rect.Top + (rect.Height / 2) - half);
         }
 
         private void ApplyTextboxSize()
@@ -487,22 +636,15 @@ namespace CatchCapture.Utilities
             if (!int.TryParse(_tbWidth.Text, out int w) || w <= 0) return;
             if (!int.TryParse(_tbHeight.Text, out int h) || h <= 0) return;
 
-            Rect r = GetRect();
-            double newW = Math.Min(vWidth - 8, w);
-            double newH = Math.Min(vHeight - 8, h);
-
-            // If the new size would overflow to the right/bottom, shift left/up to keep visible
-            double left = r.Left;
-            double top = r.Top;
-            if (left + newW > vWidth - 8) left = Math.Max(8, vWidth - newW - 8);
-            if (top + newH > vHeight - 8) top = Math.Max(8, vHeight - newH - 8);
-
-            var newRect = new Rect(left, top, Math.Max(1, newW), Math.Max(1, newH));
+            // Maintain current Top-Left screen position
+            Rect currentRel = GetRect();
+            Rect screenRect = new Rect(Left + currentRel.Left, Top + currentRel.Top, w, h);
             
-            // 창 크기를 선택 영역에 맞게 동적으로 조정
-            AdjustWindowSizeForRect(newRect);
-            
-            SetRect(newRect);
+            // Boundary checks (Screen Size)
+            if (screenRect.Width > vWidth) screenRect.Width = vWidth;
+            if (screenRect.Height > vHeight) screenRect.Height = vHeight;
+
+            UpdateWindowForScreenRect(screenRect);
         }
 
         private void CenterSelection()
@@ -640,7 +782,7 @@ namespace CatchCapture.Utilities
                 // Show 1-second toast
                 try
                 {
-                    var toast = new GuideWindow(LocalizationManager.Get("Captured"), TimeSpan.FromSeconds(1));
+                    var toast = new GuideWindow(ResLoc.GetString("Captured"), TimeSpan.FromSeconds(1));
                     toast.Owner = this.Owner ?? this;
                     toast.Show();
                 }
