@@ -31,6 +31,11 @@ namespace CatchCapture
         [DllImport("user32.dll")]
         private static extern bool GetCursorPos(out POINT lpPoint);
 
+        [DllImport("user32.dll")]
+        private static extern short GetAsyncKeyState(int vKey);
+
+        private const int VK_ESCAPE = 0x1B;
+
         [DllImport("user32.dll", EntryPoint = "GetWindowLong")]
         private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
 
@@ -140,8 +145,8 @@ namespace CatchCapture
                     _isDragging = true;
 
                     Dispatcher.BeginInvoke(() => {
-                        _highlightRect.Visibility = Visibility.Collapsed;
-                        _selectionRect.Visibility = Visibility.Visible;
+                        // Don't hide highlight yet, wait until drag actually starts or click finishes
+                        // Just reset selection rect just in case
                         _selectionRect.Width = 0;
                         _selectionRect.Height = 0;
                         Canvas.SetLeft(_selectionRect, _dragStartPoint.X);
@@ -163,10 +168,11 @@ namespace CatchCapture
                         Vector diff = currentPos - _dragStartPoint;
 
                         Dispatcher.BeginInvoke(() => {
+                           // If moved less than 5px, treat as CLICK
                            if (diff.Length < 5)
                            {
-                               // Single Click: Capture Highlighted Element
-                               if (_currentElementRect != Rect.Empty && _highlightRect.Visibility == Visibility.Visible)
+                               // Single Click: Capture Highlighted Element if visible
+                               if (_highlightRect.Visibility == Visibility.Visible && !_currentElementRect.IsEmpty)
                                {
                                    CaptureArea(_currentElementRect);
                                }
@@ -217,7 +223,14 @@ namespace CatchCapture
                             Canvas.SetLeft(_infoText, x);
                             Canvas.SetTop(_infoText, y - 25);
                             _infoText.Text = $"{(int)w} x {(int)h}";
-                            _infoText.Visibility = Visibility.Visible;
+                            
+                            // Now we are dragging, update visibility
+                            if (_selectionRect.Visibility != Visibility.Visible)
+                            {
+                                _highlightRect.Visibility = Visibility.Collapsed;
+                                _selectionRect.Visibility = Visibility.Visible;
+                                _infoText.Visibility = Visibility.Visible;
+                            }
                         });
                    }
                    // Return CallNextHookEx to allow others to see mouse move
@@ -301,6 +314,14 @@ namespace CatchCapture
 
         private void OnTimerTick(object? sender, EventArgs e)
         {
+            // ESC Key or Right Click -> Cancel
+            if ((GetAsyncKeyState(VK_ESCAPE) & 0x8000) != 0)
+            {
+                DialogResult = false;
+                Close();
+                return;
+            }
+
             if (_isDragging) return;
 
             POINT pt;
@@ -350,15 +371,12 @@ namespace CatchCapture
         {
             if (rect.Width <= 0 || rect.Height <= 0) return;
 
-            // 1. Hide UI
-            Visibility = Visibility.Hidden;
-            await Task.Delay(50); // Wait for render
-
-            try
+            try 
             {
-                // 2. Capture Logic
-                var source = PresentationSource.FromVisual(this);
+                // 1. Calculate DPI/Pixels BEFORE hiding
+                // PresentationSource might be invalid if window is hidden/closed, so get it now.
                 double dpiX = 1.0, dpiY = 1.0;
+                var source = PresentationSource.FromVisual(this);
                 if (source != null)
                 {
                     dpiX = source.CompositionTarget.TransformToDevice.M11;
@@ -373,8 +391,13 @@ namespace CatchCapture
                 int pxW = (int)(rect.Width * dpiX);
                 int pxH = (int)(rect.Height * dpiY);
 
+                // 2. Hide UI effectively using Opacity
+                // Using Visibility.Hidden can sometimes detach MessageLoop or VisualSource too early
+                Opacity = 0;
+                await Task.Delay(100); // Give enough time for compositor to clear the window
+
+                // 3. Capture
                 var area = new Int32Rect(pxX, pxY, pxW, pxH);
-                
                 var bitmap = Utilities.ScreenCaptureUtility.CaptureArea(area);
                 CapturedImage = bitmap;
                 
@@ -383,7 +406,8 @@ namespace CatchCapture
             }
             catch
             {
-                Show();
+                // If failed, show again
+                Opacity = 1;
                 Visibility = Visibility.Visible;
             }
         }
