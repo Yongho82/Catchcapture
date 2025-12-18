@@ -500,9 +500,11 @@ namespace CatchCapture
         }
         private void CreateMagnifier(Canvas parentCanvas)
         {
-            double borderThick = 2.0;
+            double borderThick = 1.0;
             double cornerRad = 15.0; // Rounded corners
-            double innerSize = MagnifierSize; 
+            // Calculate inner size so it fits inside the border without being clipped
+            // Border Width is fixed to MagnifierSize (150), so content must be smaller by 2*Thickness
+            double innerSize = MagnifierSize - (borderThick * 2); 
 
             // Magnifier Image
             magnifierImage = new Image

@@ -114,7 +114,7 @@ public partial class MainWindow : Window
     private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
     
     [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern IntPtr GetModuleHandle(string lpModuleName);
+    private static extern IntPtr GetModuleHandle(string? lpModuleName);
 
     private void FlushUIAfterHide()
     {
@@ -2760,8 +2760,15 @@ public partial class MainWindow : Window
     private const int HOTKEY_ID_REALTIME = 9003;
     private const int HOTKEY_ID_REALTIME_CANCEL = 9004;
     private bool wasInTrayModeBeforeRealTimeCapture = false;
-// 실시간 캡처 모드 시작 (F1 대기)
-    public void StartRealTimeCaptureMode()
+// --- Low Level Hook for F1 ---
+
+    private const int VK_F1 = 0x70;
+    private const int VK_ESCAPE = 0x1B;
+    
+    private LowLevelKeyboardProc _f1HookProc;
+    private IntPtr _f1HookID = IntPtr.Zero;
+
+    private void StartRealTimeCaptureMode()
     {
         // 원래 모드 기억
         wasInTrayModeBeforeRealTimeCapture = settings.IsTrayMode;
@@ -2776,18 +2783,80 @@ public partial class MainWindow : Window
         // 메인 창 숨기기
         this.Hide();
         
-        // F1 키 등록 (Modifiers.None, Key.F1 = 0x70)
-        var helper = new WindowInteropHelper(this);
-        RegisterHotKey(helper.Handle, HOTKEY_ID_REALTIME, 0, 0x70); 
-        
-        // ESC 키 등록 (Modifiers.None, Key.Escape = 0x1B)
-        RegisterHotKey(helper.Handle, HOTKEY_ID_REALTIME_CANCEL, 0, 0x1B);
-
         // 안내 메시지 표시
         var guide = new GuideWindow(LocalizationManager.GetString("RealTimeF1Guide"), null);
         guide.Show();
+
+        // 훅 설치
+        _f1HookProc = F1HookCallback;
+        
+        // GetModuleHandle(null) returns the handle to the file used to create the calling process (.exe)
+        IntPtr hModule = GetModuleHandle(null);
+        _f1HookID = SetWindowsHookEx(WH_KEYBOARD_LL, _f1HookProc, hModule, 0);
+        
+        if (_f1HookID == IntPtr.Zero)
+        {
+            // 훅 설치 실패 시 에러 표시 및 복구
+            MessageBox.Show("Failed to install keyboard hook.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            guide.Close();
+            this.Show();
+        }
     }
 
+    private IntPtr F1HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+    {
+        if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN)
+        {
+            int vkCode = System.Runtime.InteropServices.Marshal.ReadInt32(lParam);
+            if (vkCode == VK_F1 || vkCode == VK_ESCAPE)
+            {
+                // 훅 제거 (즉시 수행)
+                if (_f1HookID != IntPtr.Zero)
+                {
+                    UnhookWindowsHookEx(_f1HookID);
+                    _f1HookID = IntPtr.Zero;
+                }
+
+                bool isF1 = (vkCode == VK_F1);
+
+                // UI 작업은 비동기로 처리하여 훅 체인을 차단하지 않음
+                Dispatcher.BeginInvoke(new Action(async () =>
+                {
+                    // 안내창 닫기
+                    foreach (Window win in Application.Current.Windows)
+                    {
+                        if (win is GuideWindow) win.Close();
+                    }
+
+                    if (isF1)
+                    {
+                        // 영역 캡처 시작
+                        try
+                        {
+                            await StartAreaCaptureAsync();
+                        }
+                        finally
+                        {
+                            if (wasInTrayModeBeforeRealTimeCapture)
+                            {
+                                settings.IsTrayMode = true;
+                                Settings.Save(settings);
+                                wasInTrayModeBeforeRealTimeCapture = false;
+                            }
+                        }
+                    }
+                    else // Escape
+                    {
+                        // 취소 시 메인 창 복원
+                        this.Show();
+                    }
+                }));
+
+                return (IntPtr)1; // 키 입력 무시
+            }
+        }
+        return CallNextHookEx(_f1HookID, nCode, wParam, lParam);
+    }
     // Windows 메시지 처리 (단축키 이벤트 수신)
     private IntPtr HwndHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
     {
@@ -2834,71 +2903,6 @@ public partial class MainWindow : Window
 
                 case HOTKEY_ID_OPENEDITOR:
                     Dispatcher.Invoke(() => SwitchToNormalMode());
-                    handled = true;
-                    break;
-
-                case HOTKEY_ID_REALTIME:
-                    // 1. 핫키 해제
-                    UnregisterHotKey(hwnd, HOTKEY_ID_REALTIME);
-                    UnregisterHotKey(hwnd, HOTKEY_ID_REALTIME_CANCEL);
-                    
-                    // 2. 안내창 닫기
-                    foreach (Window win in Application.Current.Windows)
-                    {
-                        if (win is GuideWindow) win.Close();
-                    }
-
-                    // 3. 트레이 모드 복원을 영역 캡처 후로 이동
-                    // (주석처리: 여기서 복원하면 StartAreaCapture와 충돌)
-
-                    // 4. 영역 캡처 시작
-                    Dispatcher.BeginInvoke(new Action(async () =>
-                    {
-                        try
-                        {
-                            await StartAreaCaptureAsync();
-                        }
-                        finally
-                        {
-                            // 캡처 완료 후 트레이 모드 복원
-                            if (wasInTrayModeBeforeRealTimeCapture)
-                            {
-                                settings.IsTrayMode = true;
-                                Settings.Save(settings);
-                                wasInTrayModeBeforeRealTimeCapture = false;
-                            }
-                        }
-                    }));
-                    handled = true;
-                    break;
-
-                case HOTKEY_ID_REALTIME_CANCEL:
-                    // 1. 핫키 해제
-                    UnregisterHotKey(hwnd, HOTKEY_ID_REALTIME);
-                    UnregisterHotKey(hwnd, HOTKEY_ID_REALTIME_CANCEL);
-                    
-                    // 2. 안내창 닫기
-                    foreach (Window win in Application.Current.Windows)
-                    {
-                        if (win is GuideWindow) win.Close();
-                    }
-
-                    // 3. 취소 후 창 복원 - 원래 모드로 복원
-                    if (wasInTrayModeBeforeRealTimeCapture)
-                    {
-                        settings.IsTrayMode = true;
-                        Settings.Save(settings);
-                        if (trayModeWindow != null) 
-                        {
-                            trayModeWindow.Show();
-                            trayModeWindow.Activate();
-                        }
-                    }
-                    else
-                    {
-                        this.Show();
-                        this.Activate();
-                    }
                     handled = true;
                     break;
             }

@@ -368,11 +368,13 @@ namespace CatchCapture.Utilities
         private void CreateMagnifier()
         {
             if (!showMagnifier) return;
-            double borderThick = 2.0;
+            double borderThick = 1.0;
             double cornerRad = 15.0; // [Requested] Rounded corners
             
             // Image part
-            double innerSize = MagnifierSize; 
+            // Calculate inner size so it fits inside the border without being clipped
+            // Border Width is fixed to MagnifierSize (150), so content must be smaller by 2*Thickness
+            double innerSize = MagnifierSize - (borderThick * 2); 
 
             // 1. Magnifier Image
             magnifierImage = new Image
