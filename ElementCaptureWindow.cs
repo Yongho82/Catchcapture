@@ -34,8 +34,6 @@ namespace CatchCapture
         [DllImport("user32.dll")]
         private static extern short GetAsyncKeyState(int vKey);
 
-        private const int VK_ESCAPE = 0x1B;
-
         [DllImport("user32.dll", EntryPoint = "GetWindowLong")]
         private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
 
@@ -48,6 +46,7 @@ namespace CatchCapture
         private const int WM_LBUTTONUP = 0x0202;
         private const int WM_RBUTTONDOWN = 0x0204;
         private const int WM_MOUSEMOVE = 0x0200;
+        private const int VK_ESCAPE = 0x1B;
         
         private const int GWL_EXSTYLE = -20;
         private const int WS_EX_TRANSPARENT = 0x00000020;
@@ -77,6 +76,9 @@ namespace CatchCapture
         private Point _dragStartPoint;
         private Rect _currentElementRect = Rect.Empty;
         
+        // This will hold the frozen screen image
+        private BitmapSource? _fullScreenImage;
+
         public BitmapSource? CapturedImage { get; private set; }
 
         // --- Constructor ---
@@ -93,6 +95,9 @@ namespace CatchCapture
             // Allow UIA to look through this window, but clicks are handled by Hook
             IsHitTestVisible = false;
 
+            // Start invisible to take screenshot first
+            Opacity = 0;
+
             // Fullscreen coverage
             Left = SystemParameters.VirtualScreenLeft;
             Top = SystemParameters.VirtualScreenTop;
@@ -105,19 +110,63 @@ namespace CatchCapture
             _proc = HookCallback;
             _hookID = SetHook(_proc);
 
-            // Timer for polling detection (UIA is expensive, running it on timer is safer than on every mouse move)
+            // Timer for polling detection
             _timer = new System.Windows.Threading.DispatcherTimer();
             _timer.Interval = TimeSpan.FromMilliseconds(20);
             _timer.Tick += OnTimerTick;
             
-            Loaded += (s, e) => {
+            Loaded += async (s, e) => {
+                // 1. Capture Full Screen immediately (Freeze effect)
+                await CaptureFullScreenAsync();
+
+                // 2. Show Window (with frozen background)
+                Opacity = 1;
+                
+                // 3. Start logic
                 _timer.Start();
                 Activate();
             };
+
             Closed += (s, e) => {
                 _timer.Stop();
                 UnhookWindowsHookEx(_hookID);
             };
+        }
+        
+        private async Task CaptureFullScreenAsync()
+        {
+            try
+            {
+                await Task.Delay(50); // Small delay to ensure clean state
+                
+                // Calculate total screen area in pixels (heuristic)
+                var source = PresentationSource.FromVisual(this);
+                double dpiX = 1.0, dpiY = 1.0;
+                if (source != null)
+                {
+                    dpiX = source.CompositionTarget.TransformToDevice.M11;
+                    dpiY = source.CompositionTarget.TransformToDevice.M22;
+                }
+
+                int pxX = (int)(Left * dpiX); // Likely 0 or negative depending on monitor setup
+                int pxY = (int)(Top * dpiY);
+                int pxW = (int)(Width * dpiX);
+                int pxH = (int)(Height * dpiY);
+                
+                // Use screen capture utility to get the full desktop image
+                // Assuming CaptureArea takes screen coordinates (pixels)
+                var area = new Int32Rect(pxX, pxY, pxW, pxH);
+                _fullScreenImage = Utilities.ScreenCaptureUtility.CaptureArea(area);
+                
+                if (_fullScreenImage != null)
+                {
+                    Background = new ImageBrush(_fullScreenImage);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Fullscreen capture failed: {ex.Message}");
+            }
         }
 
         private IntPtr SetHook(LowLevelMouseProc proc)
@@ -138,26 +187,23 @@ namespace CatchCapture
                 
                 if (msg == WM_LBUTTONDOWN)
                 {
-                    // SWALLOW Click -> Start our logic
                     POINT pt;
                     GetCursorPos(out pt);
                     _dragStartPoint = new Point(pt.X - Left, pt.Y - Top);
                     _isDragging = true;
 
                     Dispatcher.BeginInvoke(() => {
-                        // Don't hide highlight yet, wait until drag actually starts or click finishes
-                        // Just reset selection rect just in case
+                        // Don't hide highlight immediately
                         _selectionRect.Width = 0;
                         _selectionRect.Height = 0;
                         Canvas.SetLeft(_selectionRect, _dragStartPoint.X);
                         Canvas.SetTop(_selectionRect, _dragStartPoint.Y);
                     });
 
-                    return (IntPtr)1; // Eat event (Stop propagation)
+                    return (IntPtr)1; // Eat event
                 }
                 else if (msg == WM_LBUTTONUP)
                 {
-                    // SWALLOW Click -> End logic
                     if (_isDragging)
                     {
                         _isDragging = false;
@@ -168,10 +214,9 @@ namespace CatchCapture
                         Vector diff = currentPos - _dragStartPoint;
 
                         Dispatcher.BeginInvoke(() => {
-                           // If moved less than 5px, treat as CLICK
                            if (diff.Length < 5)
                            {
-                               // Single Click: Capture Highlighted Element if visible
+                               // Single Click: Capture Highlighted
                                if (_highlightRect.Visibility == Visibility.Visible && !_currentElementRect.IsEmpty)
                                {
                                    CaptureArea(_currentElementRect);
@@ -179,7 +224,7 @@ namespace CatchCapture
                            }
                            else
                            {
-                               // Drag: Capture Selected Region
+                               // Drag: Capture Selection
                                CaptureArea(new Rect(
                                    Canvas.GetLeft(_selectionRect), 
                                    Canvas.GetTop(_selectionRect), 
@@ -192,7 +237,6 @@ namespace CatchCapture
                 }
                 else if (msg == WM_RBUTTONDOWN)
                 {
-                    // SWALLOW Right Click -> Cancel
                     Dispatcher.BeginInvoke(() => {
                         DialogResult = false;
                         Close();
@@ -201,8 +245,6 @@ namespace CatchCapture
                 }
                 else if (msg == WM_MOUSEMOVE)
                 {
-                   // PASS-THROUGH Mouse Move (Let underlying apps see hover)
-                   // But update our drag selection visual
                    if (_isDragging)
                    {
                         POINT pt;
@@ -224,7 +266,7 @@ namespace CatchCapture
                             Canvas.SetTop(_infoText, y - 25);
                             _infoText.Text = $"{(int)w} x {(int)h}";
                             
-                            // Now we are dragging, update visibility
+                            // Drag started => show selection, hide highlight
                             if (_selectionRect.Visibility != Visibility.Visible)
                             {
                                 _highlightRect.Visibility = Visibility.Collapsed;
@@ -233,7 +275,6 @@ namespace CatchCapture
                             }
                         });
                    }
-                   // Return CallNextHookEx to allow others to see mouse move
                 }
             }
             return CallNextHookEx(_hookID, nCode, wParam, lParam);
@@ -242,9 +283,11 @@ namespace CatchCapture
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
-            // Apply WS_EX_TRANSPARENT to allow UIA Hit Testing to pass through the window
             var hwnd = new WindowInteropHelper(this).Handle;
             int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
+            // WS_EX_TRANSPARENT allows UIA to see through.
+            // Even with ImageBrush background, this style makes mouse events pass through (caught by hook)
+            // and hit tests pass through (good for UIA).
             SetWindowLong(hwnd, GWL_EXSTYLE, extendedStyle | WS_EX_TRANSPARENT | WS_EX_LAYERED);
         }
 
@@ -257,17 +300,16 @@ namespace CatchCapture
                 Background = Brushes.Transparent
             };
 
-            // 1. Highlight Rectangle (Hover) - Blue
+            // 1. Highlight Rectangle - Blue
             _highlightRect = new Rectangle
             {
-                Stroke = new SolidColorBrush(Color.FromRgb(30, 144, 255)), // DodgerBlue
+                Stroke = new SolidColorBrush(Color.FromRgb(30, 144, 255)),
                 StrokeThickness = 2,
-                RadiusX = 0, RadiusY = 0,
                 Fill = new SolidColorBrush(Color.FromArgb(20, 30, 144, 255)),
                 Visibility = Visibility.Collapsed
             };
 
-            // 2. Selection Rectangle (Drag)
+            // 2. Selection Rectangle
             _selectionRect = new Rectangle
             {
                 Stroke = new SolidColorBrush(Color.FromRgb(0, 120, 215)),
@@ -293,8 +335,6 @@ namespace CatchCapture
                 Foreground = new SolidColorBrush(Color.FromArgb(200, 255, 255, 255)),
                 FontSize = 16,
                 FontWeight = FontWeights.Bold,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
                 Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 4, ShadowDepth = 2 }
             };
             Canvas.SetLeft(_guideText, (Width - 400) / 2);
@@ -306,7 +346,6 @@ namespace CatchCapture
             canvas.Children.Add(_infoText);
             Content = canvas;
             
-             // Auto-hide guide
              Task.Delay(3000).ContinueWith(_ => Dispatcher.Invoke(() => { 
                 if(_guideText != null) _guideText.Visibility = Visibility.Collapsed; 
              }));
@@ -314,7 +353,6 @@ namespace CatchCapture
 
         private void OnTimerTick(object? sender, EventArgs e)
         {
-            // ESC Key or Right Click -> Cancel
             if ((GetAsyncKeyState(VK_ESCAPE) & 0x8000) != 0)
             {
                 DialogResult = false;
@@ -338,14 +376,12 @@ namespace CatchCapture
 
                 if (element != null)
                 {
-                    // Prevent catching self or huge parent window
                     if (element.Current.ProcessId == Process.GetCurrentProcess().Id)
                         return;
 
                     Rect r = element.Current.BoundingRectangle;
                     if (r.Width == 0 || r.Height == 0) return;
                     
-                    // Convert Screen to Local
                     double localX = r.X - Left;
                     double localY = r.Y - Top;
 
@@ -359,7 +395,6 @@ namespace CatchCapture
 
                     Canvas.SetLeft(_infoText, localX);
                     Canvas.SetTop(_infoText, localY - 25 > 0 ? localY - 25 : localY + r.Height + 5);
-                    
                     _infoText.Text = $"{(int)r.Width} x {(int)r.Height}";
                     _infoText.Visibility = Visibility.Visible;
                 }
@@ -367,48 +402,46 @@ namespace CatchCapture
             catch { }
         }
 
-        private async void CaptureArea(Rect rect)
+        private void CaptureArea(Rect rect)
         {
             if (rect.Width <= 0 || rect.Height <= 0) return;
+            if (_fullScreenImage == null) return;
 
             try 
             {
-                // 1. Calculate DPI/Pixels BEFORE hiding
-                // PresentationSource might be invalid if window is hidden/closed, so get it now.
-                double dpiX = 1.0, dpiY = 1.0;
                 var source = PresentationSource.FromVisual(this);
+                double dpiX = 1.0, dpiY = 1.0;
                 if (source != null)
                 {
                     dpiX = source.CompositionTarget.TransformToDevice.M11;
                     dpiY = source.CompositionTarget.TransformToDevice.M22;
                 }
 
-                double screenX = Left + rect.X;
-                double screenY = Top + rect.Y;
+                int x = (int)(rect.X * dpiX);
+                int y = (int)(rect.Y * dpiY);
+                int w = (int)(rect.Width * dpiX);
+                int h = (int)(rect.Height * dpiY);
 
-                int pxX = (int)(screenX * dpiX);
-                int pxY = (int)(screenY * dpiY);
-                int pxW = (int)(rect.Width * dpiX);
-                int pxH = (int)(rect.Height * dpiY);
+                // Check bounds within full screen image
+                if (x < 0) x = 0;
+                if (y < 0) y = 0;
+                if (x + w > _fullScreenImage.PixelWidth) w = _fullScreenImage.PixelWidth - x;
+                if (y + h > _fullScreenImage.PixelHeight) h = _fullScreenImage.PixelHeight - y;
 
-                // 2. Hide UI effectively using Opacity
-                // Using Visibility.Hidden can sometimes detach MessageLoop or VisualSource too early
-                Opacity = 0;
-                await Task.Delay(100); // Give enough time for compositor to clear the window
-
-                // 3. Capture
-                var area = new Int32Rect(pxX, pxY, pxW, pxH);
-                var bitmap = Utilities.ScreenCaptureUtility.CaptureArea(area);
-                CapturedImage = bitmap;
-                
-                DialogResult = true;
-                Close();
+                if (w > 0 && h > 0)
+                {
+                    var cropped = new CroppedBitmap(_fullScreenImage, new Int32Rect(x, y, w, h));
+                    CapturedImage = cropped;
+                    DialogResult = true;
+                    Close();
+                }
             }
-            catch
+            catch(Exception ex)
             {
-                // If failed, show again
-                Opacity = 1;
-                Visibility = Visibility.Visible;
+                Debug.WriteLine($"Capture failed: {ex.Message}");
+                // Fallback attempt?
+                DialogResult = false; 
+                Close();
             }
         }
     }
