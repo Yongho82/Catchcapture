@@ -93,6 +93,12 @@ namespace CatchCapture.Utilities
         private double numberingBadgeSize = 24; // 넘버링 배지 크기
         private double numberingTextSize = 12;  // 넘버링 텍스트 크기
         private bool showMagnifier = true;
+        // Magnifier UI extras
+        private TextBlock? coordsTextBlock;
+        private Rectangle? colorPreviewRect;
+        private TextBlock? colorValueTextBlock;
+        private bool isColorHexFormat = true;
+        private Color lastHoverColor = Colors.Transparent;
 
         // 언어 변경 시 런타임 갱신을 위해 툴바 참조 저장
         private Border? toolbarContainer;
@@ -300,6 +306,24 @@ namespace CatchCapture.Utilities
                 e.Handled = true;
                 return;
             }
+
+            // Shift Key Toggle for Color Format
+            if (e.Key == Key.LeftShift || e.Key == Key.RightShift)
+            {
+                if (!e.IsRepeat)
+                {
+                   isColorHexFormat = !isColorHexFormat;
+                   UpdateColorInfoText();
+                }
+                e.Handled = true;
+            }
+
+            // C for Copy Color
+            if (e.Key == Key.C)
+            {
+                CopyColorToClipboard(closeWindow: true);
+                e.Handled = true;
+            }
             
             // 즉시편집 모드일 때만 나머지 단축키 활성화
             if (!instantEditMode) return;
@@ -344,61 +368,71 @@ namespace CatchCapture.Utilities
         private void CreateMagnifier()
         {
             if (!showMagnifier) return;
-            // [수정] 테두리 두께와 둥근 모서리 설정
             double borderThick = 2.0;
-            double cornerRad = 20.0;
-            // 이미지가 들어갈 실제 내부 크기 (전체 크기 - 양쪽 테두리 두께)
-            double innerSize = MagnifierSize - (borderThick * 2);
+            double cornerRad = 15.0; // [Requested] Rounded corners
+            
+            // Image part
+            double innerSize = MagnifierSize; 
 
-            // 돋보기 이미지 (테두리 안쪽 크기에 맞춤)
+            // 1. Magnifier Image
             magnifierImage = new Image
             {
                 Width = innerSize,
                 Height = innerSize,
-                Stretch = Stretch.Fill, // Fill로 변경하여 확대된 이미지가 꽉 차게
+                Stretch = Stretch.Fill,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
             };
             RenderOptions.SetBitmapScalingMode(magnifierImage, BitmapScalingMode.NearestNeighbor);
 
-            // 돋보기 내부 십자선 (별도 UI 요소)
-            double crosshairLength = 30;
+            // 2. Crosshairs inside Magnifier [Requested] Red Dotted
             double centerPos = innerSize / 2.0;
             
             magnifierCrosshairH = new Line
             {
-                X1 = centerPos - crosshairLength,
-                X2 = centerPos + crosshairLength,
-                Y1 = centerPos,
-                Y2 = centerPos,
+                X1 = 0, X2 = innerSize,
+                Y1 = centerPos, Y2 = centerPos,
                 Stroke = Brushes.Red,
-                StrokeThickness = 2,
-                IsHitTestVisible = false
-            };
-            
-            magnifierCrosshairV = new Line
-            {
-                X1 = centerPos,
-                X2 = centerPos,
-                Y1 = centerPos - crosshairLength,
-                Y2 = centerPos + crosshairLength,
-                Stroke = Brushes.Red,
-                StrokeThickness = 2,
+                StrokeThickness = 1,
+                StrokeDashArray = new DoubleCollection { 3, 2 }, // Dotted
                 IsHitTestVisible = false
             };
 
-            // 이미지 + 십자선을 담는 캔버스
+            magnifierCrosshairV = new Line
+            {
+                X1 = centerPos, X2 = centerPos,
+                Y1 = 0, Y2 = innerSize,
+                Stroke = Brushes.Red,
+                StrokeThickness = 1,
+                StrokeDashArray = new DoubleCollection { 3, 2 }, // Dotted
+                IsHitTestVisible = false
+            };
+
+            // Center small frame (pixel selector)
+            var centerFrame = new Rectangle
+            {
+                Width = 7, Height = 7,
+                Stroke = Brushes.Black,
+                StrokeThickness = 1,
+                Fill = Brushes.Transparent,
+                IsHitTestVisible = false
+            };
+            Canvas.SetLeft(centerFrame, centerPos - 3.5);
+            Canvas.SetTop(centerFrame, centerPos - 3.5);
+
+            // Container for Image + Crosshairs
             magnifierCanvas = new Canvas
             {
                 Width = innerSize,
                 Height = innerSize,
-                ClipToBounds = true
+                Background = Brushes.White
             };
             magnifierCanvas.Children.Add(magnifierImage);
             magnifierCanvas.Children.Add(magnifierCrosshairH);
             magnifierCanvas.Children.Add(magnifierCrosshairV);
-            
-            // 클리핑 (둥근 모서리)
+            magnifierCanvas.Children.Add(centerFrame);
+
+            // Clip content to rounded corners
             magnifierCanvas.Clip = new RectangleGeometry
             {
                 Rect = new Rect(0, 0, innerSize, innerSize),
@@ -406,20 +440,100 @@ namespace CatchCapture.Utilities
                 RadiusY = Math.Max(0, cornerRad - borderThick)
             };
 
-            // 돋보기 테두리
+            // 3. Info Panel (Bottom)
+            var infoStack = new StackPanel
+            {
+                Orientation = Orientation.Vertical
+            };
+
+            var infoBorder = new Border
+            {
+                Background = new SolidColorBrush(Color.FromRgb(40, 40, 40)), // Sleek Dark
+                Padding = new Thickness(8),
+                Child = infoStack,
+                CornerRadius = new CornerRadius(0, 0, cornerRad, cornerRad) // Rounded bottom
+            };
+
+            // 3.1 Coordinates
+            coordsTextBlock = new TextBlock
+            {
+                Text = "(0, 0)",
+                Foreground = Brushes.White,
+                FontSize = 14,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Margin = new Thickness(0, 5, 0, 5)
+            };
+
+            // 3.2 Color Row (Preview + Value)
+            var colorRow = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Margin = new Thickness(0, 5, 0, 5)
+            };
+            
+            colorPreviewRect = new Rectangle
+            {
+                Width = 14, Height = 14,
+                Stroke = Brushes.White,
+                StrokeThickness = 1,
+                Fill = Brushes.White,
+                Margin = new Thickness(0, 0, 8, 0),
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            
+            colorValueTextBlock = new TextBlock
+            {
+                Text = "#FFFFFF",
+                Foreground = Brushes.White,
+                FontSize = 14,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            
+            colorRow.Children.Add(colorPreviewRect);
+            colorRow.Children.Add(colorValueTextBlock);
+
+            // 3.3 Helper Text
+            var helpText1 = new TextBlock
+            {
+                Text = "[C] 색상복사",
+                Foreground = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                FontSize = 11,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Margin = new Thickness(0, 5, 0, 0)
+            };
+            var helpText2 = new TextBlock
+            {
+                Text = "[Shift] RGB/HEX 값 바꾸기",
+                Foreground = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                FontSize = 11,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Margin = new Thickness(0, 2, 0, 5)
+            };
+
+            infoStack.Children.Add(coordsTextBlock);
+            infoStack.Children.Add(colorRow);
+            infoStack.Children.Add(helpText1);
+            infoStack.Children.Add(helpText2);
+
+            // Main Container (Border -> StackPanel)
+            var containerStack = new StackPanel();
+            containerStack.Children.Add(magnifierCanvas);
+            containerStack.Children.Add(infoBorder);
+
             magnifierBorder = new Border
             {
                 Width = MagnifierSize,
-                Height = MagnifierSize,
-                BorderBrush = Brushes.White,
+                // Height is Auto
+                BorderBrush = Brushes.White, // White Border
                 BorderThickness = new Thickness(borderThick),
                 Background = Brushes.Black,
-                Child = magnifierCanvas, // 캔버스를 자식으로
-                CornerRadius = new CornerRadius(cornerRad),
-                Visibility = Visibility.Collapsed
+                Child = containerStack,
+                Visibility = Visibility.Collapsed,
+                CornerRadius = new CornerRadius(cornerRad) // Rounded total
             };
-            
-            // 그림자 효과
+
+            // Shadow
             magnifierBorder.Effect = new System.Windows.Media.Effects.DropShadowEffect
             {
                 Color = Colors.Black,
@@ -429,9 +543,10 @@ namespace CatchCapture.Utilities
             };
 
             canvas.Children.Add(magnifierBorder);
-            Panel.SetZIndex(magnifierBorder, 1000); // 최상위 표시
-            
-            // 화면 전체 십자선 초기화
+            Panel.SetZIndex(magnifierBorder, 1000);
+
+            // Fullscreen Crosshair (Keep existing logic but user didn't ask to change it, 
+            // but previous code had it. I'll preserve it.)
             crosshairHorizontal = new Line
             {
                 Stroke = Brushes.Red,
@@ -447,7 +562,10 @@ namespace CatchCapture.Utilities
                 Visibility = Visibility.Collapsed
             };
             
-            // 캔버스에 추가 (돋보기보다 위에)
+            // Add full screen crosshairs behind magnifier? Or atop?
+            // Existing code added them after magnifier but typically crosshairs are below UI.
+            // But previous code was: canvas.Children.Add(crosshairHorizontal);
+            // I'll keep it.
             canvas.Children.Add(crosshairHorizontal);
             canvas.Children.Add(crosshairVertical);
             Panel.SetZIndex(crosshairHorizontal, 1001);
@@ -493,7 +611,15 @@ namespace CatchCapture.Utilities
             // 최소 크기 확인
             if (width < 5 || height < 5)
             {
-                CatchCapture.CustomMessageBox.Show(LocalizationManager.Get("SelectionTooSmall"), LocalizationManager.Get("Info"));
+                // Just Clicked (very small movement) -> Copy Color with Sticker
+                CopyColorToClipboard(closeWindow: false); // Sticker shows, but don't close.
+                // Or user might want close? "그냥 클릭하면 클립보드에 색상 정보를 카피해줬으면 하거든"
+                // Doesn't say close. 'C' says close. 
+                // I'll keep it open to allow picking another color.
+                
+                // Reset selection
+                selectionRectangle.Width = 0;
+                selectionRectangle.Height = 0;
                 return;
             }
 
@@ -654,16 +780,14 @@ namespace CatchCapture.Utilities
                 // 돋보기 표시
                 magnifierBorder.Visibility = Visibility.Visible;
 
-                // 마우스 위치를 픽셀 좌표로 변환
                 var dpi = VisualTreeHelper.GetDpi(this);
                 int centerX = (int)(mousePos.X * dpi.DpiScaleX);
                 int centerY = (int)(mousePos.Y * dpi.DpiScaleY);
 
-                // 확대할 영역 크기 계산
+                // 1. Update Zoomed Image
                 int cropSize = (int)(MagnifierSize / MagnificationFactor);
                 int halfCrop = cropSize / 2;
 
-                // 크롭 영역 계산 (경계 체크)
                 int cropX = Math.Max(0, Math.Min(centerX - halfCrop, screenCapture.PixelWidth - cropSize));
                 int cropY = Math.Max(0, Math.Min(centerY - halfCrop, screenCapture.PixelHeight - cropSize));
                 int cropW = Math.Min(cropSize, screenCapture.PixelWidth - cropX);
@@ -671,56 +795,117 @@ namespace CatchCapture.Utilities
 
                 if (cropW > 0 && cropH > 0)
                 {
-                    // 영역 크롭 (가벼운 연산)
                     var croppedBitmap = new CroppedBitmap(screenCapture, new Int32Rect(cropX, cropY, cropW, cropH));
-                    
-                    // 이미지 소스만 업데이트 (RenderTargetBitmap 제거로 성능 대폭 개선)
-                    // 십자선은 별도 UI 요소(magnifierCrosshairH/V)로 이미 표시됨
                     magnifierImage.Source = croppedBitmap;
                 }
 
-                // 돋보기 위치 설정 (마우스 우측 하단)
-                double offsetX = 30; // 마우스에서 30px 떨어짐
-                double offsetY = 30;
+                // 2. Extract Color at Cursor
+                if (centerX >= 0 && centerY >= 0 && centerX < screenCapture.PixelWidth && centerY < screenCapture.PixelHeight)
+                {
+                    // For efficiency, maybe we could read from 'croppedBitmap' center, but it might be slightly offset due to clamping.
+                    // Reading from main bitmap:
+                    byte[] pixels = new byte[4]; 
+                    // Create a 1x1 crop to read pixel? OR CopyPixels from large image.
+                    // CopyPixels from large image is efficient enough for single pixel.
+                    var rect = new Int32Rect(centerX, centerY, 1, 1);
+                    try 
+                    {
+                        // Note: Stride calculation. 4 bytes per pixel.
+                        screenCapture.CopyPixels(rect, pixels, 4, 0);
+                        // BGRA assumption
+                        lastHoverColor = Color.FromRgb(pixels[2], pixels[1], pixels[0]);
+                        
+                        if (colorPreviewRect != null) 
+                            colorPreviewRect.Fill = new SolidColorBrush(lastHoverColor);
+                        
+                        UpdateColorInfoText();
+                    }
+                    catch { }
+                }
+
+                // 3. Update Coords Text
+                if (coordsTextBlock != null)
+                {
+                    coordsTextBlock.Text = $"({centerX}, {centerY})";
+                }
+
+                // 4. Update Position
+                double offsetX = 20; 
+                double offsetY = 20; 
                 
                 double magnifierX = mousePos.X + offsetX;
                 double magnifierY = mousePos.Y + offsetY;
                 
-                // 화면 경계 체크 (화면 밖으로 나가면 반대쪽으로 이동)
+                // Get actual height including the new info panel
+                double totalHeight = magnifierBorder.ActualHeight;
+                if (double.IsNaN(totalHeight) || totalHeight == 0) totalHeight = MagnifierSize + 100; // Estimate
+
                 if (magnifierX + MagnifierSize > vWidth)
                     magnifierX = mousePos.X - MagnifierSize - offsetX;
-                if (magnifierY + MagnifierSize > vHeight)
-                    magnifierY = mousePos.Y - MagnifierSize - offsetY;
+                if (magnifierY + totalHeight > vHeight)
+                    magnifierY = mousePos.Y - totalHeight - offsetY;
 
                 Canvas.SetLeft(magnifierBorder, magnifierX);
                 Canvas.SetTop(magnifierBorder, magnifierY);
-                
-                // 화면 전체 십자선 업데이트
+
+                // 5. Update Fullscreen Crosshairs
                 if (crosshairHorizontal != null && crosshairVertical != null)
                 {
                     crosshairHorizontal.Visibility = Visibility.Visible;
                     crosshairVertical.Visibility = Visibility.Visible;
                     
-                    // 가로선 (화면 왼쪽 끝에서 오른쪽 끝까지)
-                    crosshairHorizontal.X1 = 0;
-                    crosshairHorizontal.X2 = vWidth;
-                    crosshairHorizontal.Y1 = mousePos.Y;
-                    crosshairHorizontal.Y2 = mousePos.Y;
+                    crosshairHorizontal.X1 = vLeft; crosshairHorizontal.X2 = vLeft + vWidth;
+                    crosshairHorizontal.Y1 = mousePos.Y; crosshairHorizontal.Y2 = mousePos.Y;
                     
-                    // 세로선 (화면 위쪽 끝에서 아래쪽 끝까지)
-                    crosshairVertical.X1 = mousePos.X;
-                    crosshairVertical.X2 = mousePos.X;
-                    crosshairVertical.Y1 = 0;
-                    crosshairVertical.Y2 = vHeight;
+                    crosshairVertical.X1 = mousePos.X; crosshairVertical.X2 = mousePos.X;
+                    crosshairVertical.Y1 = vTop; crosshairVertical.Y2 = vTop + vHeight;
                 }
             }
             catch
             {
-                // 돋보기 업데이트 실패 시 숨김
                 magnifierBorder.Visibility = Visibility.Collapsed;
-                if (crosshairHorizontal != null) crosshairHorizontal.Visibility = Visibility.Collapsed;
-                if (crosshairVertical != null) crosshairVertical.Visibility = Visibility.Collapsed;
             }
+        }
+
+        private void UpdateColorInfoText()
+        {
+            if (colorValueTextBlock == null) return;
+            
+            // Force Layout Update or Text Refresh
+            if (isColorHexFormat)
+            {
+                colorValueTextBlock.Text = $"#{lastHoverColor.R:X2}{lastHoverColor.G:X2}{lastHoverColor.B:X2}";
+            }
+            else
+            {
+                colorValueTextBlock.Text = $"({lastHoverColor.R}, {lastHoverColor.G}, {lastHoverColor.B})";
+            }
+        }
+
+        private void CopyColorToClipboard(bool closeWindow = false)
+        {
+            try
+            {
+                string textToCopy = "";
+                if (isColorHexFormat)
+                    textToCopy = $"#{lastHoverColor.R:X2}{lastHoverColor.G:X2}{lastHoverColor.B:X2}";
+                else
+                    textToCopy = $"{lastHoverColor.R}, {lastHoverColor.G}, {lastHoverColor.B}";
+                
+                Clipboard.SetText(textToCopy);
+                
+                // Show Sticker (Toast)
+                string msg = "클립보드에 복사되었습니다.";
+                
+                StickerWindow.Show(msg);
+
+                if (closeWindow)
+                {
+                    DialogResult = false; // Cancel capture essentially, but job done.
+                    Close();
+                }
+            }
+            catch { }
         }
 
         private void SnippingWindow_Deactivated(object? sender, EventArgs e)
