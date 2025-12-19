@@ -3715,10 +3715,32 @@ public partial class MainWindow : Window
         
         return CallNextHookEx(_keyboardHookId, nCode, wParam, lParam);
     }
-    private async void InitializeTips()
+    private List<string> GetDefaultTips(string lang)
     {
-        // 기본 팁 (오프라인 또는 로드 실패 시 사용)
-        var defaultTips = new List<string>
+        if (lang == "en")
+        {
+            return new List<string>
+            {
+                "Double-click captured images to edit them quickly.",
+                "Click the Google icon to search for the image on Google.",
+                "You can customize menu positions and visibility in Settings.",
+                "Use OCR to extract text and instantly translate with Google.",
+                "Use Ctrl+Shift+A for quick area capture."
+            };
+        }
+        else if (lang == "ja")
+        {
+            return new List<string>
+            {
+                "キャプチャした画像をダブルクリックすると、すぐに編集できます。",
+                "Googleアイコンをクリックすると、画像をGoogleで検索できます。",
+                "設定でメニューの位置や表示をカスタマイズできます。",
+                "OCRを使用してテキストを抽出し、Google翻訳ですぐに翻訳できます。",
+                "Ctrl+Shift+Aで素早くエリアキャプチャができます。"
+            };
+        }
+        // Default to Korean
+        return new List<string>
         {
             "캡처 목록 이미지를 더블클릭해 빠르게 편집할 수 있어요.",
             "구글 아이콘을 누르면 구글 이미지 검색이 됩니다.",
@@ -3726,8 +3748,15 @@ public partial class MainWindow : Window
             "OCR 문자 추출 후 구글 즉시 번역을 활용할 수 있어요.",
             "Ctrl+Shift+A 단축키로 빠르게 영역 캡처할 수 있어요."
         };
+    }
 
-        tips = defaultTips;
+    private async void InitializeTips()
+    {
+        // 최신 설정 로드 (언어 확인용)
+        var currentSettings = Settings.Load();
+        
+        // 초기 팁 설정
+        tips = GetDefaultTips(currentSettings.Language);
 
         // 웹에서 팁 로드 시도
         try
@@ -3786,6 +3815,19 @@ public partial class MainWindow : Window
     {
         try
         {
+            // 언어 변경 확인을 위해 설정 다시 로드
+            var currentSettings = Settings.Load();
+            
+            // ★ 중요: 먼저 로컬 기본 팁으로 언어 변경 적용 (웹 실패 대비)
+            tips = GetDefaultTips(currentSettings.Language);
+            
+            // UI 즉시 업데이트
+            Dispatcher.Invoke(() => 
+            {
+               currentTipIndex = 0;
+               if (tips.Count > 0) TipTextBlock.Text = tips[0];
+            });
+
             using var client = new System.Net.Http.HttpClient();
             client.Timeout = TimeSpan.FromSeconds(5);
             string url = "https://ezupsoft.com/catchcapture/tooltip.html";
@@ -3794,19 +3836,16 @@ public partial class MainWindow : Window
             var tipData = System.Text.Json.JsonSerializer.Deserialize<TipData>(json);
             if (tipData?.tips != null)
             {
-                var currentSettings = Settings.Load();
                 string lang = currentSettings.Language ?? "ko";
                 if (tipData.tips.TryGetValue(lang, out var langTips) && langTips.Count > 0)
                 {
                     tips = langTips;
+                    // 웹 데이터가 유효하면 업데이트
+                    Dispatcher.Invoke(() => 
+                    {
+                       if (tips.Count > 0) TipTextBlock.Text = tips[0];
+                    });
                 }
-            }
-            
-            // 즉시 첫 번째 팁 표시
-            currentTipIndex = 0;
-            if (tips.Count > 0)
-            {
-                Dispatcher.Invoke(() => TipTextBlock.Text = tips[0]);
             }
         }
         catch { }

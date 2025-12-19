@@ -328,16 +328,30 @@
 
                             <Separator Style="{StaticResource SeparatorStyle}"/>
 
-                            <!-- 즉시편집 스위치 -->
-                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="3,10,10,5"> <!-- 왼쪽 마진 10px 추가 -->
-                                <TextBlock x:Name="InstantEditLabel" Text="즉시편집" 
-                                          VerticalAlignment="Center" 
-                                          FontSize="11" 
-                                          Foreground="#666666"
-                                          Margin="0,0,5,0"/> <!-- 오른쪽 마진 5px -->
+                            <!-- 미니 스위치 패널 (정렬 개선) -->
+                            <Grid HorizontalAlignment="Center" Margin="0,10,0,5">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="8"/> <!-- 간격 -->
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- 즉시편집 -->
+                                <TextBlock x:Name="InstantEditLabel" 
+                                           Grid.Row="0" Grid.Column="0"
+                                           Text="즉시편집" 
+                                           VerticalAlignment="Center" 
+                                           HorizontalAlignment="Right"
+                                           FontSize="11" 
+                                           Foreground="#666666"
+                                           Margin="0,0,8,0"/>
                                 
-                                <!-- 토글 스위치 -->
                                 <Border x:Name="InstantEditToggleBorder" 
+                                       Grid.Row="0" Grid.Column="1"
                                        Width="30" 
                                        Height="16" 
                                        CornerRadius="8" 
@@ -355,23 +369,25 @@
                                         </Ellipse.Effect>
                                     </Ellipse>
                                 </Border>
-                            </StackPanel>
 
-                            <!-- 편집열기 스위치 (여기 들어가야 함) -->
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,0,10,5">
-                                <TextBlock x:Name="OpenEditorLabel" Text="편집열기" 
-                                        VerticalAlignment="Center" 
-                                        FontSize="11" 
-                                        Foreground="#666666"
-                                        Margin="0,0,6,0"/>
+                                <!-- 편집열기 -->
+                                <TextBlock x:Name="OpenEditorLabel" 
+                                           Grid.Row="2" Grid.Column="0"
+                                           Text="편집열기" 
+                                           VerticalAlignment="Center" 
+                                           HorizontalAlignment="Right"
+                                           FontSize="11" 
+                                           Foreground="#666666"
+                                           Margin="0,0,8,0"/>
                                 
                                 <Border x:Name="OpenEditorToggleBorder" 
-                                    Width="30" 
-                                    Height="16" 
-                                    CornerRadius="8" 
-                                    Background="#CCCCCC"
-                                    Cursor="Hand"
-                                    MouseLeftButtonDown="OpenEditorToggle_Click">
+                                       Grid.Row="2" Grid.Column="1"
+                                       Width="30" 
+                                       Height="16" 
+                                       CornerRadius="8" 
+                                       Background="#CCCCCC"
+                                       Cursor="Hand"
+                                       MouseLeftButtonDown="OpenEditorToggle_Click">
                                     <Ellipse x:Name="OpenEditorToggleCircle" 
                                             Width="12" 
                                             Height="12" 
@@ -383,7 +399,7 @@
                                         </Ellipse.Effect>
                                     </Ellipse>
                                 </Border>
-                            </StackPanel>
+                            </Grid>
 
                            <!-- 모드 선택 구분선 -->
                             <Grid Margin="0,5,0,8">
