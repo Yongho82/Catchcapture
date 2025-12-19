@@ -18,9 +18,9 @@ namespace CatchCapture
             InitializeComponent();
             PinnedImage.Source = image;
             
-            // 이미지 크기에 맞춰 윈도우 크기 설정 (여백 제거)
-            this.Width = image.PixelWidth;
-            this.Height = image.PixelHeight;
+            // 이미지 크기에 맞춰 윈도우 크기 설정 (테두리 2px * 2 = 4px 포함)
+            this.Width = image.PixelWidth + 4;
+            this.Height = image.PixelHeight + 4;
 
             InitializeContextMenu();
             
@@ -135,6 +135,15 @@ namespace CatchCapture
             if (direction > 0)
             {
                  SendMessage(hWnd, WM_SYSCOMMAND, (IntPtr)(SC_SIZE + direction), IntPtr.Zero);
+            }
+        }
+
+        // 키보드 이벤트 처리 (Delete 키로 닫기)
+        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Delete)
+            {
+                Close();
             }
         }
     }

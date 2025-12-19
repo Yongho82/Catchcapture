@@ -71,8 +71,7 @@ namespace CatchCapture.Models
             "FullScreen", "DesignatedCapture", "WindowCapture", "ElementCapture", "ScrollCapture", "OcrCapture", "ScreenRecord"
         };              
 
-        // System settings
-        public bool StartWithWindows { get; set; } = false;
+        public bool StartWithWindows { get; set; } = true;
         public string StartupMode { get; set; } = "Normal"; // "Normal", "Simple", "Tray"
         public string Language { get; set; } = "ko"; // "ko", "en", "ja", "zh", "es", "de", "fr"
         
@@ -218,19 +217,19 @@ namespace CatchCapture.Models
         {
             return new HotkeySettings
             {
-                // 캡처 기능: Ctrl+Shift 조합, 비활성화
-                RegionCapture = new ToggleHotkey { Enabled = false, Ctrl = true, Shift = true, Key = "A" },
-                DelayCapture = new ToggleHotkey { Enabled = false, Ctrl = true, Shift = true, Key = "D" },
-                RealTimeCapture = new ToggleHotkey { Enabled = false, Ctrl = true, Shift = true, Key = "R" },
-                MultiCapture = new ToggleHotkey { Enabled = false, Ctrl = true, Shift = true, Key = "M" },
-                FullScreen = new ToggleHotkey { Enabled = false, Ctrl = true, Shift = true, Key = "F" },
-                DesignatedCapture = new ToggleHotkey { Enabled = false, Ctrl = true, Shift = true, Key = "W" },
-                WindowCapture = new ToggleHotkey { Enabled = false, Ctrl = true, Shift = true, Key = "C" },
-                ElementCapture = new ToggleHotkey { Enabled = false, Ctrl = true, Shift = true, Key = "E" },
-                ScrollCapture = new ToggleHotkey { Enabled = false, Ctrl = true, Shift = true, Key = "S" },
+                // 캡처 기능: Ctrl+Shift 조합, 기본값 활성화
+                RegionCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "A" },
+                DelayCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "D" },
+                RealTimeCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "R" },
+                MultiCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "M" },
+                FullScreen = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "F" },
+                DesignatedCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "W" },
+                WindowCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "C" },
+                ElementCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "E" },
+                ScrollCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "S" },
 
-                OcrCapture = new ToggleHotkey { Enabled = false, Ctrl = true, Shift = true, Key = "O" },
-                ScreenRecord = new ToggleHotkey { Enabled = false, Ctrl = true, Shift = true, Key = "V" },
+                OcrCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "O" },
+                ScreenRecord = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "V" },
 
                 // 편집/기타 기능: 활성화
                 SaveAll = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "S" },
