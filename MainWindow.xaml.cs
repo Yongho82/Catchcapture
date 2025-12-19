@@ -845,17 +845,6 @@ public partial class MainWindow : Window
     {
         var mods = Keyboard.Modifiers;
 
-        // 1) Settings 기반 핫키를 최우선으로 처리
-        try
-        {
-            if (HandleSettingsHotkeys(e))
-            {
-                e.Handled = true;
-                return;
-            }
-        }
-        catch { /* ignore hotkey errors to avoid blocking */ }
-
         // Ctrl+C: 선택 복사
         if (e.Key == Key.C && mods == ModifierKeys.Control)
         {
@@ -921,6 +910,17 @@ public partial class MainWindow : Window
             }
             return;
         }
+
+        // 1) Settings 기반 핫키를 후순위로 처리 (리스트 상호작용 우선)
+        try
+        {
+            if (HandleSettingsHotkeys(e))
+            {
+                e.Handled = true;
+                return;
+            }
+        }
+        catch { /* ignore hotkey errors to avoid blocking */ }
 
         // Ctrl+A: 영역 캡처 시작
         if (e.Key == Key.A && mods == ModifierKeys.Control)
