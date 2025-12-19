@@ -10,11 +10,11 @@ none
 false
 TRACE;DEBUG;NET;NET8_0;NETCOREAPP
 C:\Yonghoprogram\Catchcapture\App.xaml
-13-1190236354
-53-1271211067
-47934424381
+141203560378
+54-1656667868
+481696976399
 217287133294
-Controls\TwoTierToolButton.xaml;CustomMessageBox.xaml;MainWindow.xaml;OcrResultWindow.xaml;PreviewWindow.xaml;PrintPreviewWindow.xaml;PrivacyPolicyWindow.xaml;Recording\RecordingOverlay.xaml;Recording\RecordingWindow.xaml;SettingsWindow.xaml;SimpleModeSettingsButton.xaml;SimpleModeWindow.xaml;TrayModeWindow.xaml;
+Controls\TwoTierToolButton.xaml;CustomMessageBox.xaml;MainWindow.xaml;OcrResultWindow.xaml;PinnedImageWindow.xaml;PreviewWindow.xaml;PrintPreviewWindow.xaml;PrivacyPolicyWindow.xaml;Recording\RecordingOverlay.xaml;Recording\RecordingWindow.xaml;SettingsWindow.xaml;SimpleModeSettingsButton.xaml;SimpleModeWindow.xaml;TrayModeWindow.xaml;
 
 False
 

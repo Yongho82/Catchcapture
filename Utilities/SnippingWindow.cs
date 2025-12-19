@@ -1195,6 +1195,13 @@ namespace CatchCapture.Utilities
                 await PerformOcr();
             };
 
+            // [추가] 고정핀 버튼
+            var pinButton = CreateToolButton("pin.png", LocalizationManager.Get("Pin") ?? "Pin", LocalizationManager.Get("PinToScreen") ?? "Pin to Screen");
+            pinButton.Click += (s, e) => 
+            {
+                PinImageToScreen();
+            };
+
             // 구분선
             var separator = new Border
             {
@@ -1470,6 +1477,7 @@ namespace CatchCapture.Utilities
             toolbarPanel.Children.Add(eraserButton);
             toolbarPanel.Children.Add(imageSearchButton);
             toolbarPanel.Children.Add(ocrButton);
+            toolbarPanel.Children.Add(pinButton); // [Fix] Add pinButton to toolbar
             toolbarPanel.Children.Add(separator);
             toolbarPanel.Children.Add(cancelButton);
             toolbarPanel.Children.Add(doneButton);
@@ -4774,6 +4782,52 @@ namespace CatchCapture.Utilities
                          border.Margin = new Thickness(3, 0, 3, 0);
                      }
                 }
+            }
+        }
+        // [추가] 화면 고정 로직
+        private void PinImageToScreen()
+        {
+            try
+            {
+                // 1. 현재 선택 영역 확정 (그려진 요소 포함하여 이미지 생성)
+                if (drawnElements.Count > 0)
+                {
+                    SaveDrawingsToImage();
+                }
+                
+                // 2. 고정할 이미지 가져오기
+                // SaveDrawingsToImage()가 호출되면 SelectedFrozenImage가 갱신되어있음.
+                var pinnedBmp = SelectedFrozenImage;
+                
+                if (pinnedBmp == null) return;
+                
+                // 3. PinnedImageWindow 생성
+                var pinnedWin = new PinnedImageWindow(pinnedBmp);
+                
+                // 4. 위치 설정 (실제 스크린 좌표)
+                double left = Canvas.GetLeft(selectionRectangle);
+                double top = Canvas.GetTop(selectionRectangle);
+                
+                // SnippingWindow Left/Top을 더해서 절대 좌표 계산
+                pinnedWin.Left = this.Left + left;
+                pinnedWin.Top = this.Top + top;
+                
+                // 5. 창 표시
+                pinnedWin.Show();
+                
+                // 알림 표시
+                string msg = LocalizationManager.Get("PinnedToScreen");
+                if (msg == "PinnedToScreen") msg = "이미지가 상단에 고정되었습니다.";
+                StickerWindow.Show(msg);
+                
+                // 6. 현재 캡처 종료 (저장하지 않고 핀만 남김 -> DialogResult false)
+                // 재캡처가 가능하도록 세션 종료
+                DialogResult = false;
+                Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Pin Error: " + ex.Message);
             }
         }
     }

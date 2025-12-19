@@ -141,3 +141,6 @@ C:\yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\refint\CatchC
 C:\yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\CatchCapture.pdb
 C:\yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\CatchCapture.genruntimeconfig.cache
 C:\yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\ref\CatchCapture.dll
+C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\PinnedImageWindow.baml
+C:\Yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\PinnedImageWindow.g.cs
+C:\Yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\icons\pin.png

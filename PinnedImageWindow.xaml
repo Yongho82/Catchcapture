@@ -1,0 +1,135 @@
+<Window x:Class="CatchCapture.PinnedImageWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Pinned Image" 
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        ResizeMode="NoResize"
+        MinHeight="50" MinWidth="50">
+    
+    <Window.Resources>
+        <Style TargetType="Button" x:Key="OverlayButtonStyle">
+            <Setter Property="Width" Value="24"/>
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="3">
+                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#66FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid Name="MainGrid" MouseEnter="MainGrid_MouseEnter" MouseLeave="MainGrid_MouseLeave">
+        <!-- 메인 콘텐츠 (이미지) -->
+        <Border Name="ContainerBorder" Margin="0" Background="Transparent" MouseLeftButtonDown="Window_MouseLeftButtonDown">
+             <!-- 그림자 효과 제거 (여백 없으므로 잘림) -->
+             <!--
+             <Border.Effect>
+                <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="2" Opacity="0.4"/>
+            </Border.Effect>
+            -->
+            <Image Name="PinnedImage" Stretch="Fill"/>
+        </Border>
+
+        <!-- [추가] 시각적 선택 오버레이 (점선 테두리 및 핸들) -->
+        <Grid Name="SelectionOverlay" Margin="0" Visibility="Collapsed" IsHitTestVisible="False">
+            <!-- 점선 테두리 -->
+            <Border BorderBrush="#AA000000" BorderThickness="1" SnapsToDevicePixels="True">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsActive}" Value="True">
+                                <Setter Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect ShadowDepth="0" Color="White" BlurRadius="5"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+            </Border>
+            <Rectangle Stroke="White" StrokeThickness="1" StrokeDashArray="4 2" SnapsToDevicePixels="True" Fill="Transparent"/>
+
+            <!-- 8방향 핸들 (내부로 위치 조정) -->
+            <Rectangle HorizontalAlignment="Left" VerticalAlignment="Top" Width="7" Height="7" Fill="White" Stroke="#555" Margin="0"/>
+            <Rectangle HorizontalAlignment="Center" VerticalAlignment="Top" Width="7" Height="7" Fill="White" Stroke="#555" Margin="0"/>
+            <Rectangle HorizontalAlignment="Right" VerticalAlignment="Top" Width="7" Height="7" Fill="White" Stroke="#555" Margin="0"/>
+            
+            <Rectangle HorizontalAlignment="Left" VerticalAlignment="Center" Width="7" Height="7" Fill="White" Stroke="#555" Margin="0"/>
+            <Rectangle HorizontalAlignment="Right" VerticalAlignment="Center" Width="7" Height="7" Fill="White" Stroke="#555" Margin="0"/>
+            
+            <Rectangle HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="7" Height="7" Fill="White" Stroke="#555" Margin="0"/>
+            <Rectangle HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="7" Height="7" Fill="White" Stroke="#555" Margin="0"/>
+            <Rectangle HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="7" Height="7" Fill="White" Stroke="#555" Margin="0"/>
+        </Grid>
+
+        <!-- 상단 우측 오버레이 버튼 패널 -->
+        <Border Name="ActionPanel" HorizontalAlignment="Right" VerticalAlignment="Top" 
+                Margin="5" Background="#99000000" CornerRadius="4" Visibility="Collapsed">
+            <StackPanel Orientation="Horizontal" Margin="2">
+                <Button x:Name="BtnCopy" Click="Copy_Click" Style="{StaticResource OverlayButtonStyle}" ToolTip="Copy">
+                    <Path Data="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" 
+                          Fill="White" Width="14" Height="14" Stretch="Uniform"/>
+                </Button>
+                <Button x:Name="BtnSave" Click="Save_Click" Style="{StaticResource OverlayButtonStyle}" ToolTip="Save">
+                    <Path Data="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z" 
+                          Fill="White" Width="14" Height="14" Stretch="Uniform"/>
+                </Button>
+                <Button x:Name="BtnClose" Click="Close_Click" Style="{StaticResource OverlayButtonStyle}" ToolTip="Close" Background="#00000000">
+                    <Button.Triggers>
+                        <!-- 닫기 버튼은 호버 시 빨간색 -->
+                        <EventTrigger RoutedEvent="MouseEnter">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" To="#CCF44336" Duration="0:0:0.1"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="MouseLeave">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0.1"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </Button.Triggers>
+                    <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" 
+                          Fill="White" Width="14" Height="14" Stretch="Uniform"/>
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <!-- 리사이즈 핸들 (8방향) - 기능 동작용 투명 레이어 -->
+        <!-- 투명하지만 HitTestVisible=True -->
+        <Rectangle Name="ResizeN" VerticalAlignment="Top" Height="6" Cursor="SizeNS" Fill="Transparent" PreviewMouseLeftButtonDown="Resize_Init"/>
+        <Rectangle Name="ResizeS" VerticalAlignment="Bottom" Height="6" Cursor="SizeNS" Fill="Transparent" PreviewMouseLeftButtonDown="Resize_Init"/>
+        <Rectangle Name="ResizeW" HorizontalAlignment="Left" Width="6" Cursor="SizeWE" Fill="Transparent" PreviewMouseLeftButtonDown="Resize_Init"/>
+        <Rectangle Name="ResizeE" HorizontalAlignment="Right" Width="6" Cursor="SizeWE" Fill="Transparent" PreviewMouseLeftButtonDown="Resize_Init"/>
+        
+        <Rectangle Name="ResizeNW" VerticalAlignment="Top" HorizontalAlignment="Left" Width="10" Height="10" Cursor="SizeNWSE" Fill="Transparent" PreviewMouseLeftButtonDown="Resize_Init"/>
+        <Rectangle Name="ResizeNE" VerticalAlignment="Top" HorizontalAlignment="Right" Width="10" Height="10" Cursor="SizeNESW" Fill="Transparent" PreviewMouseLeftButtonDown="Resize_Init"/>
+        <Rectangle Name="ResizeSW" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="10" Height="10" Cursor="SizeNESW" Fill="Transparent" PreviewMouseLeftButtonDown="Resize_Init"/>
+        <Rectangle Name="ResizeSE" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="10" Height="10" Cursor="SizeNWSE" Fill="Transparent" PreviewMouseLeftButtonDown="Resize_Init"/>
+    </Grid>
+</Window>

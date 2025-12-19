@@ -36,6 +36,7 @@
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/numbering.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/ocr_capture.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/openfolder.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/pin.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/pin_gray.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/pin_red.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/printer.png")]
