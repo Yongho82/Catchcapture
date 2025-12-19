@@ -105,6 +105,13 @@ namespace CatchCapture.Utilities
         private StackPanel? toolbarPanel;
         private bool isVerticalToolbarLayout = false; // 툴바가 세로 레이아웃인지 추적
 
+        // [추가] 리사이즈 핸들 관련 필드
+        private List<Rectangle> resizeHandles = new List<Rectangle>();
+        private bool isResizing = false;
+        private string resizeDirection = "";
+        private Point resizeStartPoint;
+        private Rect resizeStartRect;
+
         public Int32Rect SelectedArea { get; private set; }
         public bool IsCancelled { get; private set; } = false;
         public BitmapSource? SelectedFrozenImage { get; private set; }
@@ -1143,109 +1150,36 @@ namespace CatchCapture.Utilities
                     toolbarTop = selectionTop - 44 - 10;
             }
             
-            // 팔레트 위치 계산 (툴바 레이아웃에 따라 다르게 배치)
-            double GetPaletteLeft()
-            {
-                if (isVerticalToolbarLayout)
-                {
-                    // 세로 레이아웃: 툴바 옆(왼쪽 또는 오른쪽)
-                    if (toolbarLeft > selectionLeft)
-                        return toolbarLeft + toolbarWidth + 10; // 툴바가 우측 -> 팔레트는 더 오른쪽
-                    else
-                        return toolbarLeft - 330; // 툴바가 좌측 -> 팔레트는 더 왼쪽
-                }
-                else
-                {
-                    // 가로 레이아웃: 선택 영역 좌측 기준
-                    return selectionLeft;
-                }
-            }
-            
-            double GetPaletteTop()
-            {
-                if (isVerticalToolbarLayout)
-                {
-                    // 세로 레이아웃: 툴바와 같은 높이
-                    return toolbarTop;
-                }
-                else
-                {
-                    // 가로 레이아웃: 툴바 아래
-                    return toolbarTop + 60;
-                }
-            }
+            // 팔레트는 동적 계산으로 변경되었으므로 내부 함수 제거
+
             
             // 펜 버튼
             var penButton = CreateToolButton("pen.png", LocalizationManager.Get("Pen"), LocalizationManager.Get("Pen"));
-            penButton.Click += (s, e) => 
-            {
-                currentTool = "펜";
-                SetActiveToolButton(penButton);
-                ShowColorPalette("펜", GetPaletteLeft(), GetPaletteTop());
-                EnableDrawingMode();
-            };
+            penButton.Click += (s, e) => ToggleToolPalette("펜", penButton);
             
             // 형광펜 버튼
             var highlighterButton = CreateToolButton("highlight.png", LocalizationManager.Get("Highlighter"), LocalizationManager.Get("Highlighter"));
-            highlighterButton.Click += (s, e) => 
-            {
-                currentTool = "형광펜";
-                selectedColor = Colors.Yellow;
-                SetActiveToolButton(highlighterButton);
-                ShowColorPalette("형광펜", GetPaletteLeft(), GetPaletteTop());
-                EnableDrawingMode();
-            };
+            highlighterButton.Click += (s, e) => ToggleToolPalette("형광펜", highlighterButton);
             
             // 텍스트 버튼
             var textButton = CreateToolButton("text.png", LocalizationManager.Get("Text"), LocalizationManager.Get("TextAdd"));
-            textButton.Click += (s, e) => 
-            {
-                currentTool = "텍스트";
-                SetActiveToolButton(textButton);
-                ShowColorPalette("텍스트", GetPaletteLeft(), GetPaletteTop());
-                EnableTextMode();
-            };
+            textButton.Click += (s, e) => ToggleToolPalette("텍스트", textButton);
             
             // 도형 버튼
             var shapeButton = CreateToolButton("shape.png", LocalizationManager.Get("ShapeLbl"), LocalizationManager.Get("ShapeOptions"));
-            shapeButton.Click += (s, e) => 
-            {
-                currentTool = "도형";
-                SetActiveToolButton(shapeButton);
-                ShowColorPalette("도형", GetPaletteLeft(), GetPaletteTop());
-                EnableShapeMode();
-            };
+            shapeButton.Click += (s, e) => ToggleToolPalette("도형", shapeButton);
             
             // 넘버링 버튼 (도형 다음)
             var numberingButton = CreateToolButton("numbering.png", LocalizationManager.Get("Numbering"), LocalizationManager.Get("Numbering"));
-            numberingButton.Click += (s, e) =>
-            {
-                currentTool = "넘버링";
-                SetActiveToolButton(numberingButton);
-                
-                ShowColorPalette("넘버링", GetPaletteLeft(), GetPaletteTop());
-                EnableNumberingMode();
-            };
+            numberingButton.Click += (s, e) => ToggleToolPalette("넘버링", numberingButton);
             
             // 모자이크 버튼
             var mosaicButton = CreateToolButton("mosaic.png", LocalizationManager.Get("Mosaic"), LocalizationManager.Get("Mosaic"));
-            mosaicButton.Click += (s, e) => 
-            { 
-                currentTool = "모자이크"; 
-                SetActiveToolButton(mosaicButton);
-                ShowColorPalette("모자이크", GetPaletteLeft(), GetPaletteTop());
-                EnableMosaicMode();
-            };
+            mosaicButton.Click += (s, e) => ToggleToolPalette("모자이크", mosaicButton);
             
             // 지우개 버튼
             var eraserButton = CreateToolButton("eraser.png", LocalizationManager.Get("Eraser"), LocalizationManager.Get("Eraser"));
-            eraserButton.Click += (s, e) => 
-            { 
-                currentTool = "지우개"; 
-                SetActiveToolButton(eraserButton);
-                HideColorPalette(); 
-                EnableEraserMode();
-            };
+            eraserButton.Click += (s, e) => ToggleToolPalette("지우개", eraserButton);
 
             // 이미지 검색 버튼
             var imageSearchButton = CreateToolButton("img_find.png", LocalizationManager.Get("ImageSearch"), LocalizationManager.Get("ImageSearchTooltip"));
@@ -1264,6 +1198,7 @@ namespace CatchCapture.Utilities
             // 구분선
             var separator = new Border
             {
+                Tag = "Separator", // [분별용 태그]
                 Width = isVerticalToolbarLayout ? 30 : 1,
                 Height = isVerticalToolbarLayout ? 1 : 30,
                 Background = new SolidColorBrush(Color.FromRgb(220, 220, 220)),
@@ -1364,11 +1299,11 @@ namespace CatchCapture.Utilities
                         if (textBox.Tag is ValueTuple<Button, Button> tagButtons1)
                         {
                             var confirmButton = tagButtons1.Item1;
-                            var cancelButton = tagButtons1.Item2;
+                            var cancelButton1 = tagButtons1.Item2; // Renamed to avoid partial conflict
                             if (confirmButton != null && canvas.Children.Contains(confirmButton))
                                 canvas.Children.Remove(confirmButton);
-                            if (cancelButton != null && canvas.Children.Contains(cancelButton))
-                                canvas.Children.Remove(cancelButton);
+                            if (cancelButton1 != null && canvas.Children.Contains(cancelButton1))
+                                canvas.Children.Remove(cancelButton1);
                         }
                     }
                 }
@@ -1382,6 +1317,7 @@ namespace CatchCapture.Utilities
                     toolbarContainer = null;
                 }
                 HideColorPalette();
+                RemoveResizeHandles(); // 리사이즈 핸들 제거
                 
                 // 즉시편집 모드 해제하고 다시 영역 선택 시작
                 isSelecting = false;
@@ -1400,6 +1336,9 @@ namespace CatchCapture.Utilities
                 this.MouseMove += SnippingWindow_MouseMove;
                 this.MouseLeftButtonUp += SnippingWindow_MouseLeftButtonUp;
             };
+
+            // [추가] 리사이즈 핸들 생성
+            CreateResizeHandles();
                        
             // 완료 버튼
             var doneButton = new Button
@@ -1488,6 +1427,7 @@ namespace CatchCapture.Utilities
             // 구분선 2
             var separator2 = new Border
             {
+                Tag = "Separator",
                 Width = isVerticalToolbarLayout ? 30 : 1,
                 Height = isVerticalToolbarLayout ? 1 : 30,
                 Background = new SolidColorBrush(Color.FromRgb(220, 220, 220)),
@@ -1505,6 +1445,7 @@ namespace CatchCapture.Utilities
             // 구분선 3
             var separator3 = new Border
             {
+                Tag = "Separator",
                 Width = isVerticalToolbarLayout ? 30 : 1,
                 Height = isVerticalToolbarLayout ? 1 : 30,
                 Background = new SolidColorBrush(Color.FromRgb(220, 220, 220)),
@@ -1539,16 +1480,13 @@ namespace CatchCapture.Utilities
             toolbarPanel.Children.Add(copyButton);
             toolbarPanel.Children.Add(saveButton);
             
-            // 툴바를 선택 영역 바로 아래에 배치
-            canvas.Children.Add(toolbarContainer);    
-            Canvas.SetLeft(toolbarContainer, toolbarLeft);
-            Canvas.SetTop(toolbarContainer, toolbarTop);
+            // 툴바 위치 설정 (초기화)
+            UpdateToolbarPosition();
 
-            // 펜을 기본 도구로 선택하고 빨간색으로 설정
+            // 펜을 기본 도구로 선택하고 빨간색으로 설정 (팔레트는 띄우지 않음)
             currentTool = "펜";
             selectedColor = Colors.Red;
             SetActiveToolButton(penButton);
-            ShowColorPalette("펜", GetPaletteLeft(), GetPaletteTop());
             EnableDrawingMode();
         }
 
@@ -3883,28 +3821,28 @@ namespace CatchCapture.Utilities
             {
                 case "펜":
                     currentTool = "펜";
-                    ShowColorPalette("펜", toolbarLeft, toolbarTop + 60); // [수정]
-                    EnableDrawingMode();
+                // 팔레트 위치 재계산 (동적)
+                ShowPaletteAtCurrentPosition(); 
                     break;
                 case "형광펜":
                     currentTool = "형광펜";
                     selectedColor = Colors.Yellow;
-                    ShowColorPalette("형광펜", toolbarLeft, toolbarTop + 60); // [수정]
+                    ShowPaletteAtCurrentPosition();
                     EnableDrawingMode();
                     break;
                 case "텍스트":
                     currentTool = "텍스트";
-                    ShowColorPalette("텍스트", toolbarLeft, toolbarTop + 60); // [수정]
+                    ShowPaletteAtCurrentPosition();
                     EnableTextMode();
                     break;
                 case "도형":
                     currentTool = "도형";
-                    ShowColorPalette("도형", toolbarLeft, toolbarTop + 60); // [수정]
+                    ShowPaletteAtCurrentPosition();
                     EnableShapeMode();
                     break;
                 case "모자이크":
                     currentTool = "모자이크";
-                    ShowColorPalette("모자이크", toolbarLeft, toolbarTop + 60); // [수정]
+                    ShowPaletteAtCurrentPosition();
                     EnableMosaicMode();
                     break;
                 case "지우개":
@@ -3914,15 +3852,95 @@ namespace CatchCapture.Utilities
                     break;
                 case "넘버링":
                     currentTool = "넘버링";
-                    ShowColorPalette("넘버링", toolbarLeft, toolbarTop + 60);  // ← 팔레트 표시
+                    ShowPaletteAtCurrentPosition();
                     EnableNumberingMode();
                     break;
                 default:
                     // 기본 펜 선택
                     currentTool = "펜";
-                    ShowColorPalette("펜", toolbarLeft, toolbarTop + 60); // [수정]
+                    ShowPaletteAtCurrentPosition();
                     EnableDrawingMode();
                     break;
+            }
+        }
+        
+        // [추가] 툴바 버튼 클릭 처리 (토글 및 모드 전환)
+        private void ToggleToolPalette(string toolName, Button button)
+        {
+            // 같은 툴이면 토글
+            if (currentTool == toolName)
+            {
+                if (colorPalette != null && canvas.Children.Contains(colorPalette))
+                {
+                    HideColorPalette();
+                }
+                else
+                {
+                    if (toolName != "지우개")
+                        ShowPaletteAtCurrentPosition();
+                }
+            }
+            // 다른 툴이면 전환 및 팔레트 표시
+            else
+            {
+                currentTool = toolName;
+                SetActiveToolButton(button);
+                
+                switch (toolName)
+                {
+                    case "펜": EnableDrawingMode(); break;
+                    case "형광펜": selectedColor = Colors.Yellow; EnableDrawingMode(); break; // 형광펜은 노란색 기본
+                    case "텍스트": EnableTextMode(); break;
+                    case "도형": EnableShapeMode(); break;
+                    case "넘버링": EnableNumberingMode(); break;
+                    case "모자이크": EnableMosaicMode(); break;
+                    case "지우개": EnableEraserMode(); HideColorPalette(); return;
+                }
+                
+                // 툴 변경 시에는 팔레트 표시 (사용자의 "클릭했을때 나오게" 요청 반영)
+                ShowPaletteAtCurrentPosition();
+            }
+        }
+
+        private void ShowPaletteAtCurrentPosition()
+        {
+             Point pos = CalculatePalettePosition();
+             ShowColorPalette(currentTool, pos.X, pos.Y);
+        }
+
+        private Point CalculatePalettePosition()
+        {
+            if (toolbarContainer == null) return new Point(0,0);
+            
+            double tLeft = Canvas.GetLeft(toolbarContainer);
+            double tTop = Canvas.GetTop(toolbarContainer);
+            double tWidth = toolbarContainer.ActualWidth;
+            if (double.IsNaN(tWidth) || tWidth < 10) tWidth = isVerticalToolbarLayout ? 60 : 450;
+            
+            if (isVerticalToolbarLayout)
+            {
+                 // 세로 레이아웃
+                 double selectionLeft = Canvas.GetLeft(selectionRectangle);
+                 // 툴바가 선택 영역 오른쪽에 있으면 팔레트는 더 오른쪽
+                 if (tLeft > selectionLeft)
+                     return new Point(tLeft + tWidth + 10, tTop);
+                 else
+                     return new Point(tLeft - 330, tTop);
+            }
+            else
+            {
+                // 가로 레이아웃: 툴바 아래
+                return new Point(tLeft, tTop + 60);
+            }
+        }
+        
+        private void UpdatePalettePosition()
+        {
+            if (colorPalette != null && canvas.Children.Contains(colorPalette))
+            {
+                Point pos = CalculatePalettePosition();
+                Canvas.SetLeft(colorPalette, pos.X);
+                Canvas.SetTop(colorPalette, pos.Y);
             }
         }
 
@@ -4382,6 +4400,381 @@ namespace CatchCapture.Utilities
             };
             
             numberingNext++;
+        }
+
+        // [추가] 리사이즈 핸들 생성 메서드
+        private void CreateResizeHandles()
+        {
+            RemoveResizeHandles();
+
+            string[] directions = { "NW", "N", "NE", "W", "E", "SW", "S", "SE" };
+            Cursor[] cursors = { Cursors.SizeNWSE, Cursors.SizeNS, Cursors.SizeNESW, Cursors.SizeWE, Cursors.SizeWE, Cursors.SizeNESW, Cursors.SizeNS, Cursors.SizeNWSE };
+
+            for (int i = 0; i < 8; i++)
+            {
+                var handle = new Rectangle
+                {
+                    Width = 10,
+                    Height = 10,
+                    Fill = Brushes.White,
+                    Stroke = Brushes.Black,
+                    StrokeThickness = 1,
+                    Tag = directions[i],
+                    Cursor = cursors[i]
+                };
+
+                handle.PreviewMouseLeftButtonDown += ResizeHandle_PreviewMouseLeftButtonDown;
+                // MouseMove는 Canvas 전체에서 처리하거나 핸들에서 처리. 
+                // 핸들이 작아서 빠르게 움직이면 놓칠 수 있으니 캡처 사용.
+                
+                canvas.Children.Add(handle);
+                Panel.SetZIndex(handle, 2000); // 최상위
+                resizeHandles.Add(handle);
+            }
+
+            // 캔버스 전체에 드래그 이벤트 연결 (핸들 놓침 방지용)
+            canvas.PreviewMouseMove += ResizeHandle_PreviewMouseMove;
+            canvas.PreviewMouseLeftButtonUp += ResizeHandle_PreviewMouseLeftButtonUp;
+
+            UpdateResizeHandles();
+        }
+
+        private void RemoveResizeHandles()
+        {
+            foreach (var handle in resizeHandles)
+            {
+                canvas.Children.Remove(handle);
+            }
+            resizeHandles.Clear();
+            
+            canvas.PreviewMouseMove -= ResizeHandle_PreviewMouseMove;
+            canvas.PreviewMouseLeftButtonUp -= ResizeHandle_PreviewMouseLeftButtonUp;
+        }
+
+        private void UpdateResizeHandles()
+        {
+            if (resizeHandles.Count != 8) return;
+
+            double left = Canvas.GetLeft(selectionRectangle);
+            double top = Canvas.GetTop(selectionRectangle);
+            double w = selectionRectangle.Width;
+            double h = selectionRectangle.Height;
+            double offset = 5; // 핸들 크기의 절반
+
+            // NW (0)
+            SetHandlePosition(resizeHandles[0], left - offset, top - offset);
+            // N (1)
+            SetHandlePosition(resizeHandles[1], left + w / 2 - offset, top - offset);
+            // NE (2)
+            SetHandlePosition(resizeHandles[2], left + w - offset, top - offset);
+            // W (3)
+            SetHandlePosition(resizeHandles[3], left - offset, top + h / 2 - offset);
+            // E (4)
+            SetHandlePosition(resizeHandles[4], left + w - offset, top + h / 2 - offset);
+            // SW (5)
+            SetHandlePosition(resizeHandles[5], left - offset, top + h - offset);
+            // S (6)
+            SetHandlePosition(resizeHandles[6], left + w / 2 - offset, top + h - offset);
+            // SE (7)
+            SetHandlePosition(resizeHandles[7], left + w - offset, top + h - offset);
+        }
+
+        private void SetHandlePosition(UIElement element, double x, double y)
+        {
+            Canvas.SetLeft(element, x);
+            Canvas.SetTop(element, y);
+        }
+
+        private void ResizeHandle_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is Rectangle handle && handle.Tag is string dir)
+            {
+                isResizing = true;
+                resizeDirection = dir;
+                resizeStartPoint = e.GetPosition(canvas);
+                resizeStartRect = new Rect(
+                    Canvas.GetLeft(selectionRectangle),
+                    Canvas.GetTop(selectionRectangle),
+                    selectionRectangle.Width,
+                    selectionRectangle.Height
+                );
+
+                handle.CaptureMouse();
+                e.Handled = true;
+            }
+        }
+
+        private void ResizeHandle_PreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            if (!isResizing) return;
+
+            Point currentPoint = e.GetPosition(canvas);
+            double dx = currentPoint.X - resizeStartPoint.X;
+            double dy = currentPoint.Y - resizeStartPoint.Y;
+
+            double newLeft = resizeStartRect.Left;
+            double newTop = resizeStartRect.Top;
+            double newWidth = resizeStartRect.Width;
+            double newHeight = resizeStartRect.Height;
+
+            // 최소 크기 제한
+            double minSize = 20;
+
+            if (resizeDirection.Contains("N"))
+            {
+                newTop += dy;
+                newHeight -= dy;
+                if (newHeight < minSize) { newTop -= (minSize - newHeight); newHeight = minSize; }
+            }
+            if (resizeDirection.Contains("S"))
+            {
+                newHeight += dy;
+                if (newHeight < minSize) newHeight = minSize;
+            }
+            if (resizeDirection.Contains("W"))
+            {
+                newLeft += dx;
+                newWidth -= dx;
+                if (newWidth < minSize) { newLeft -= (minSize - newWidth); newWidth = minSize; }
+            }
+            if (resizeDirection.Contains("E"))
+            {
+                newWidth += dx;
+                if (newWidth < minSize) newWidth = minSize;
+            }
+
+            // 영역 업데이트
+            Canvas.SetLeft(selectionRectangle, newLeft);
+            Canvas.SetTop(selectionRectangle, newTop);
+            selectionRectangle.Width = newWidth;
+            selectionRectangle.Height = newHeight;
+            selectionGeometry.Rect = new Rect(newLeft, newTop, newWidth, newHeight);
+
+            // 핸들 위치 업데이트
+            UpdateResizeHandles();
+            
+            // 크기 텍스트 업데이트
+            UpdateSizeText(new Rect(newLeft, newTop, newWidth, newHeight));
+
+            // 툴바 위치 업데이트 (실시간)
+            UpdateToolbarPosition();
+
+            // 팔레트 위치 업데이트 (실시간)
+            if (colorPalette != null && currentTool != "")
+            {
+                 // 현재 툴바 위치 기준으로 다시 계산
+                 // 복잡하므로 툴바 위치 업데이트 후 간단히 재호출하거나 숨겼다가 다시 표시? 
+                 // 실시간 이동이 자연스러우므로 다시 계산 로직 수행
+                 // (기존 ShowColorPalette 내부 로직 재사용이 어려우므로 간단히 따라가게 처리)
+                 // 여기서는 툴바가 이동했으므로 팔레트 위치도 업데이트 필요
+                 // 간단히: 툴바와 팔레트의 상대 위치는 유지되거나 다시 계산됨.
+                 // -> UpdateToolbarPosition에서 handled? No.
+                 // -> Re-call ShowColorPalette logic or Move it manually.
+                 // For now, let's keep simple: Close palette on resize start? No, user wants to modify.
+                 // Just update palette position if possible.
+                 double tLeft = Canvas.GetLeft(toolbarContainer);
+                 double tTop = Canvas.GetTop(toolbarContainer);
+                 // 팔레트 위치 재계산 로직 복제... 대신 existing logic uses stored state?
+                 // Let's just update handles and toolbar for now. Palette might drift. 
+                 // Fix: Close palette on resize start or move it. 
+                 // Better: Hide palette during drag, show on up?
+            }
+        }
+
+        private void ResizeHandle_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (isResizing)
+            {
+                isResizing = false;
+                
+                // 캡처 해제 (모든 핸들 확인)
+                foreach (var h in resizeHandles) h.ReleaseMouseCapture();
+                
+                // 최종 변경 사항 반영 (SelectedArea 등)
+                UpdateSelectedAreaFromRect();
+                
+                e.Handled = true;
+            }
+        }
+
+        private void UpdateSizeText(Rect rect)
+        {
+            if (sizeTextBlock.Visibility != Visibility.Visible) sizeTextBlock.Visibility = Visibility.Visible;
+            sizeTextBlock.Text = $"{(int)rect.Width} x {(int)rect.Height}";
+            Canvas.SetLeft(sizeTextBlock, rect.Right - sizeTextBlock.ActualWidth - 8);
+            Canvas.SetTop(sizeTextBlock, rect.Bottom - sizeTextBlock.ActualHeight - 8);
+        }
+
+        private void UpdateSelectedAreaFromRect()
+        {
+             // 현재 selectionRectangle 기준으로 SelectedArea 및 SelectedFrozenImage 갱신
+             double left = Canvas.GetLeft(selectionRectangle);
+             double top = Canvas.GetTop(selectionRectangle);
+             double width = selectionRectangle.Width;
+             double height = selectionRectangle.Height;
+
+             var dpi = VisualTreeHelper.GetDpi(this);
+             int pxLeft = (int)Math.Round(left * dpi.DpiScaleX);
+             int pxTop = (int)Math.Round(top * dpi.DpiScaleY);
+             int pxWidth = (int)Math.Round(width * dpi.DpiScaleX);
+             int pxHeight = (int)Math.Round(height * dpi.DpiScaleY);
+
+             int globalX = (int)Math.Round(vLeft) + pxLeft;
+             int globalY = (int)Math.Round(vTop) + pxTop;
+
+             SelectedArea = new Int32Rect(globalX, globalY, pxWidth, pxHeight);
+
+             // Frozen Image 갱신
+             if (screenCapture != null && pxWidth > 0 && pxHeight > 0)
+             {
+                 int relX = globalX - (int)Math.Round(vLeft);
+                 int relY = globalY - (int)Math.Round(vTop);
+
+                 relX = Math.Max(0, Math.Min(relX, screenCapture.PixelWidth - 1));
+                 relY = Math.Max(0, Math.Min(relY, screenCapture.PixelHeight - 1));
+                 int cw = Math.Max(0, Math.Min(pxWidth, screenCapture.PixelWidth - relX));
+                 int ch = Math.Max(0, Math.Min(pxHeight, screenCapture.PixelHeight - relY));
+
+                 if (cw > 0 && ch > 0)
+                 {
+                     SelectedFrozenImage = new CroppedBitmap(screenCapture, new Int32Rect(relX, relY, cw, ch));
+                 }
+             }
+        }
+
+        private void UpdateToolbarPosition()
+        {
+            if (toolbarContainer == null) return;
+
+            double selectionLeft = Canvas.GetLeft(selectionRectangle);
+            double selectionTop = Canvas.GetTop(selectionRectangle);
+            double selectionWidth = selectionRectangle.Width;
+            double selectionHeight = selectionRectangle.Height;
+
+            // [레이아웃 결정 로직 개선]
+            // 기본값: 하단 배치
+            // 하단 공간 부족 -> 상단 배치
+            // 상단 공간도 부족 -> 우측 세로 배치
+            
+            double toolbarH = 55; // 가로 모드 높이
+            // double toolbarW = 450; // warning CS0219: 'toolbarW' 할당되었지만 사용되지 않았습니다.
+            
+            bool bottomBlocked = (selectionTop + selectionHeight + toolbarH + 10) > vHeight;
+            bool topBlocked = (selectionTop - toolbarH - 10) < 0;
+
+            bool shouldUseVertical = false;
+
+            if (bottomBlocked)
+            {
+                if (topBlocked)
+                {
+                    shouldUseVertical = true; // 상하 모두 막힘 -> 세로 전환
+                }
+                else
+                {
+                    shouldUseVertical = false; // 상단은 가능 -> 가로 상단
+                }
+            }
+            else
+            {
+                shouldUseVertical = false; // 하단 가능 -> 가로 하단
+            }
+
+            // 레이아웃 변경 적용
+            if (shouldUseVertical != isVerticalToolbarLayout)
+            {
+                UpdateToolbarLayout(shouldUseVertical);
+            }
+
+            // 위치 계산
+            double toolbarWidth = toolbarContainer.ActualWidth > 0 ? toolbarContainer.ActualWidth : (isVerticalToolbarLayout ? 60 : 450);
+            double toolbarHeight = toolbarContainer.ActualHeight > 0 ? toolbarContainer.ActualHeight : (isVerticalToolbarLayout ? 600 : 55);
+            
+            double toolbarLeft, toolbarTop;
+            
+            if (isVerticalToolbarLayout)
+            {
+                // 세로: 우측
+                toolbarLeft = selectionLeft + selectionWidth + 10;
+                toolbarTop = selectionTop;
+                
+                if (toolbarLeft + toolbarWidth > vWidth) toolbarLeft = selectionLeft - toolbarWidth - 10;
+                if (toolbarLeft < 10) toolbarLeft = 10;
+                if (toolbarTop + toolbarHeight > vHeight) toolbarTop = vHeight - toolbarHeight - 10;
+                if (toolbarTop < 10) toolbarTop = 10;
+            }
+            else
+            {
+                // 가로: 하단 or 상단
+                toolbarLeft = selectionLeft;
+                if (bottomBlocked)
+                {
+                    // 상단
+                    toolbarTop = selectionTop - toolbarHeight - 10;
+                }
+                else
+                {
+                    // 하단
+                    toolbarTop = selectionTop + selectionHeight + 10;
+                }
+                
+                if (toolbarLeft + toolbarWidth > vWidth) toolbarLeft = vWidth - toolbarWidth - 10;
+                if (toolbarLeft < 10) toolbarLeft = 10;
+            }
+
+            Canvas.SetLeft(toolbarContainer, toolbarLeft);
+            Canvas.SetTop(toolbarContainer, toolbarTop);
+
+            // 툴바가 아직 Canvas에 없으면 추가
+            if (!canvas.Children.Contains(toolbarContainer))
+            {
+                canvas.Children.Add(toolbarContainer);
+            }
+            
+            // [추가] 동적 팔레트 위치 업데이트
+            UpdatePalettePosition();
+        }
+
+        // [추가] 툴바 레이아웃 동적 변경
+        private void UpdateToolbarLayout(bool isVertical)
+        {
+            if (toolbarContainer == null || toolbarPanel == null) return;
+
+            isVerticalToolbarLayout = isVertical;
+
+            // 컨테이너 크기 모드 변경
+            if (isVertical)
+            {
+                toolbarContainer.Width = 60;
+                toolbarContainer.Height = double.NaN;
+                toolbarPanel.Orientation = Orientation.Vertical;
+            }
+            else
+            {
+                toolbarContainer.Width = double.NaN;
+                toolbarContainer.Height = 55;
+                toolbarPanel.Orientation = Orientation.Horizontal;
+            }
+
+            // 구분선 스타일 변경
+            foreach (var child in toolbarPanel.Children)
+            {
+                if (child is Border border && border.Tag as string == "Separator")
+                {
+                     if (isVertical)
+                     {
+                         border.Width = 30;
+                         border.Height = 1;
+                         border.Margin = new Thickness(0, 3, 0, 3);
+                     }
+                     else
+                     {
+                         border.Width = 1;
+                         border.Height = 30;
+                         border.Margin = new Thickness(3, 0, 3, 0);
+                     }
+                }
+            }
         }
     }
 }

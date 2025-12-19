@@ -2765,7 +2765,7 @@ public partial class MainWindow : Window
     private const int VK_F1 = 0x70;
     private const int VK_ESCAPE = 0x1B;
     
-    private LowLevelKeyboardProc _f1HookProc;
+    private LowLevelKeyboardProc? _f1HookProc;
     private IntPtr _f1HookID = IntPtr.Zero;
 
     private void StartRealTimeCaptureMode()

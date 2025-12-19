@@ -162,13 +162,13 @@ namespace CatchCapture
              if (source == null) return;
              
              // Check Handles (Need to check if it's one of our handles)
-             if (_cropHandles.Contains(source as Rectangle))
+             if (source is Rectangle handle && _cropHandles.Contains(handle))
              {
                  _isCropResizing = true;
-                 _activeCropHandle = source.Tag as string ?? "";
+                 _activeCropHandle = handle.Tag as string ?? "";
                  _cropDragStart = e.GetPosition(ImageCanvas);
                  _cropOriginalArea = _cropArea;
-                 source.CaptureMouse();
+                 handle.CaptureMouse();
                  e.Handled = true;
                  return;
              }
