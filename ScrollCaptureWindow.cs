@@ -511,7 +511,7 @@ namespace CatchCapture
                     }
                     catch { }
 
-                    await Task.Delay(400); // 스크롤 후 대기
+                await Task.Delay(550); // 스크롤 후 대기 시간 증가 (애니메이션 고려)
 
                     // 캡처
                     var newShot = CaptureRegion(captureRect.Left, captureRect.Top, width, height);
@@ -582,17 +582,16 @@ namespace CatchCapture
                 int differentPixels = 0;
                 int totalChecked = 0;
 
-                // 50픽셀 간격으로 더 정밀하게 스캔
-                for (int y = 0; y < bmp1.Height; y += 50)
+                // 100 픽셀 간격으로 빠르게 스캔 (성능 최적화)
+                for (int y = 0; y < bmp1.Height; y += 100)
                 {
-                    for (int x = 0; x < bmp1.Width; x += 50)
+                    for (int x = 0; x < bmp1.Width; x += 100)
                     {
                         var c1 = bmp1.GetPixel(x, y);
                         var c2 = bmp2.GetPixel(x, y);
 
                         totalChecked++;
 
-                        // 10 이상 차이나면 다른 픽셀로 간주
                         if (Math.Abs(c1.R - c2.R) > 10 ||
                             Math.Abs(c1.G - c2.G) > 10 ||
                             Math.Abs(c1.B - c2.B) > 10)
@@ -602,9 +601,9 @@ namespace CatchCapture
                     }
                 }
 
-                // 98% 이상 같으면 동일한 이미지로 판단 (더 엄격하게)
-                double similarity = 1.0 - ((double)differentPixels / totalChecked);
-                return similarity > 0.98;
+                // 99% 이상 같으면 동일 (엄격)
+                double similarity = 1.0 - ((double)differentPixels / Math.Max(1, totalChecked));
+                return similarity > 0.99;
             }
             catch
             {
@@ -622,7 +621,7 @@ namespace CatchCapture
 
             for (int i = 1; i < screenshots.Count; i++)
             {
-                // 다음 이미지와 합치기 (헤더 높이와 하단 여백 전달)
+                // 다음 이미지와 합치기
                 finalImage = StitchImages(finalImage, screenshots[i], headerHeight, bottomMargin);
             }
 
@@ -633,69 +632,122 @@ namespace CatchCapture
 
         private Bitmap StitchImages(Bitmap top, Bitmap bottom, int headerHeight, int bottomMargin = 0)
         {
-            // 다중 프로브 전략: 상단 위주로 검색 (스크롤이 작으므로 Bottom의 상단이 Top의 하단과 매칭됨)
-            double[] probeRatios = { 0.1, 0.2, 0.3, 0.5 }; 
+            // 생략 방지를 위한 '전역 최적 매칭(Best Match)' 알고리즘
+            // 단순히 첫 번째 매칭을 찾는 것이 아니라, 전체 범위에서 오차(Error)가 가장 적은 지점을 찾습니다.
+            // 유사 패턴(헤더, 배너 등)에 현혹되지 않고 가장 확실한 연결점을 찾기 위함입니다.
+
+            // Bottom의 1/3 지점을 기준점(Probe)으로 설정 (헤더/푸터 간섭 최소화)
+            int probeY_In_Bottom = Math.Max(headerHeight, bottom.Height / 3); 
             
-            foreach (var ratio in probeRatios)
+            int bestY = -1;
+            long minError = long.MaxValue;
+
+            // 검색 범위: Top 이미지 전체 스캔 (헤더 바로 밑 ~ 하단 끝)
+            // 스크롤 양이 적든 많든 모든 가능성을 열어두고 최적의 위치를 찾습니다.
+            int startSearchY = headerHeight; 
+            int endSearchY = top.Height - Math.Max(10, bottomMargin);
+
+            // 뒤에서부터 검색 (최신 내용 우선)
+            for (int y = endSearchY; y >= startSearchY; y--)
             {
-                int probeY_in_Bottom = Math.Max(headerHeight, (int)(bottom.Height * ratio));
+                // 1차 필터: 한 줄 빠르게 비교 (Fast Rejection)
+                if (!IsLineSimilar(top, y, bottom, probeY_In_Bottom)) continue;
+
+                // 2차 정밀 검사: 5줄 블록 오차 계산
+                long error = GetBlockError(top, y, bottom, probeY_In_Bottom);
                 
-                // 안전 장치
-                if (probeY_in_Bottom >= bottom.Height - 20) continue;
-
-                // ★ 핵심 수정 1: 검색 범위를 창 높이만큼 충분히 확보 ★
-                // 스크롤이 작아서 겹치는 부분이 매우 큼. 500px로는 부족함.
-                int searchRange = bottom.Height; 
-                int startSearchY = Math.Max(headerHeight, top.Height - searchRange);
-                int endSearchY = top.Height - Math.Max(10, bottomMargin); 
-
-                // ★ 핵심 수정 2: Top-Down 검색으로 변경 ★
-                // 범위가 충분하므로 위에서부터 찾아야 중복을 확실히 제거함
-                for (int y = startSearchY; y <= endSearchY; y++)
+                // 완벽에 가까운 매칭이면 즉시 채택 (성능 최적화)
+                if (error < 500) 
                 {
-                    if (IsRowMatch(top, y, bottom, probeY_in_Bottom))
-                    {
-                        // 매칭 성공! 검증 강화
-                        if (VerifyMatch(top, y, bottom, probeY_in_Bottom))
-                        {
-                            Log($"매칭 성공 (Ratio {ratio:P0}): matchY={y}, probeY={probeY_in_Bottom}");
-                            return CreateStitchedImage(top, bottom, y, probeY_in_Bottom);
-                        }
-                    }
+                    bestY = y;
+                    minError = error;
+                    break;
+                }
+
+                // 가장 오차가 적은 지점 갱신
+                if (error < minError)
+                {
+                    minError = error;
+                    bestY = y;
                 }
             }
 
-            // 모든 시도 실패 시: Fallback
-            // 스크롤 양이 작으므로(120px), 안전하게 100px 정도만 겹쳤다고 가정하고 붙임
-            // 이렇게 하면 최소한 내용은 이어짐 (약간의 중복이나 공백이 있을 순 있어도 날려먹진 않음)
-            Log("매칭 완전 실패. Fallback: 안전하게 100px 겹침 처리");
-            int assumedOverlap = 100; 
-            int fallbackMatchY = Math.Max(0, top.Height - assumedOverlap);
-            int fallbackProbeY = headerHeight; 
-            
-            return CreateStitchedImage(top, bottom, fallbackMatchY, fallbackProbeY);
-        }
+            // 임계값: 오차가 이 값보다 크면 매칭 실패로 간주
+            // (너비 * 검사라인수 * 픽셀당평균오차) 대략적인 허용치
+            long threshold = (long)(top.Width) * 30 * 5; 
 
-        private bool VerifyMatch(Bitmap top, int y, Bitmap bottom, int probeY)
-        {
-            // 추가 검증: 5줄 더 확인
-            int checkRange = Math.Min(20, top.Height - y - 1);
-            checkRange = Math.Min(checkRange, bottom.Height - probeY - 1);
-            
-            if (checkRange < 5) return true; // 검증 공간 부족하면 그냥 통과
-
-            for (int k = 5; k < checkRange; k += 5)
+            if (bestY != -1 && minError < threshold)
             {
-                if (!IsRowMatch(top, y + k, bottom, probeY + k)) return false;
+                Log($"Best 매칭 성공: TopY={bestY} (Error={minError})");
+                return CreateStitchedImage(top, bottom, bestY, probeY_In_Bottom);
             }
-            return true;
+
+            // 실패 시 Fallback: '생략'은 절대 안 됨. 차라리 100px만 겹쳐서 '중복'이 낫다.
+            Log("매칭 실패. Fallback: 안전하게 최소 스크롤(100px)만 처리");
+            
+            // Top 이미지를 최대한 살리는 방향으로 (Top.Height - 100)
+            int safeScrollAmount = 100;
+            int safeTopY = Math.Max(headerHeight, top.Height - safeScrollAmount);
+            
+            return CreateStitchedImage(top, bottom, safeTopY, headerHeight);
         }
 
+        private bool IsLineSimilar(Bitmap bmp1, int y1, Bitmap bmp2, int y2)
+        {
+            if (y1 >= bmp1.Height || y2 >= bmp2.Height) return false;
+            
+            int w = Math.Min(bmp1.Width, bmp2.Width);
+            int step = 20; // 20픽셀 간격으로 듬성듬성 비교
+            int diffCount = 0;
+            int total = 0;
+            
+            for(int x = w/10; x < w*9/10; x += step) 
+            {
+                total++;
+                System.Drawing.Color c1 = bmp1.GetPixel(x, y1);
+                System.Drawing.Color c2 = bmp2.GetPixel(x, y2);
+                // RGB 차이가 크면 불일치
+                if (Math.Abs(c1.R - c2.R) > 30 || Math.Abs(c1.G - c2.G) > 30 || Math.Abs(c1.B - c2.B) > 30)
+                    diffCount++;
+            }
+            // 30% 이상 다르면 유사하지 않음
+            return diffCount < total * 0.3; 
+        }
+
+        private long GetBlockError(Bitmap top, int topY, Bitmap bottom, int bottomY)
+        {
+            // 검증할 오프셋: 기준점 포함 아래로 5줄 검사 (+0, +10, +20, +30, +40)
+            int[] offsets = { 0, 10, 20, 30, 40 }; 
+            long totalDiff = 0;
+            int w = Math.Min(top.Width, bottom.Width);
+            
+            foreach (int dy in offsets)
+            {
+                int ty = topY + dy;
+                int by = bottomY + dy;
+                
+                // 범위를 벗어나면 패널티 없이 중단 (이미지 끝부분일 수 있음)
+                if (ty >= top.Height || by >= bottom.Height) break; 
+                
+                for (int x = w/10; x < w*9/10; x += 15) // 15px 간격
+                {
+                    System.Drawing.Color c1 = top.GetPixel(x, ty);
+                    System.Drawing.Color c2 = bottom.GetPixel(x, by);
+                    
+                    // 오차 절대값 누적
+                    totalDiff += Math.Abs(c1.R - c2.R) + Math.Abs(c1.G - c2.G) + Math.Abs(c1.B - c2.B);
+                }
+            }
+            return totalDiff;
+        }
         private Bitmap CreateStitchedImage(Bitmap top, Bitmap bottom, int topCutY, int bottomStartY)
         {
              int topHeight = topCutY;
              int bottomHeight = bottom.Height - bottomStartY;
              
+             // 높이 합산이 너무 크면 제한 (메모리 보호)
+             if (topHeight + bottomHeight > 30000) bottomHeight = 0;
+
              var result = new Bitmap(top.Width, topHeight + bottomHeight);
              using (var g = Graphics.FromImage(result))
              {
@@ -707,36 +759,6 @@ namespace CatchCapture
              }
              top.Dispose();
              return result;
-        }
-
-        private bool IsRowMatch(Bitmap bmp1, int y1, Bitmap bmp2, int y2)
-        {
-            if (y1 < 0 || y1 >= bmp1.Height || y2 < 0 || y2 >= bmp2.Height) return false;
-
-            int width = Math.Min(bmp1.Width, bmp2.Width);
-            int startX = (int)(width * 0.1); 
-            int endX = (int)(width * 0.9);   
-
-            int totalPoints = 0;
-            int mismatchPoints = 0;
-
-            // 5픽셀 간격으로 더 촘촘하게 검사하되, 오차를 허용
-            for (int x = startX; x < endX; x += 5) 
-            {
-                totalPoints++;
-                var c1 = bmp1.GetPixel(x, y1);
-                var c2 = bmp2.GetPixel(x, y2);
-
-                // 픽셀 오차 허용 범위 (15)
-                if (Math.Abs(c1.R - c2.R) > 15 || Math.Abs(c1.G - c2.G) > 15 || Math.Abs(c1.B - c2.B) > 15)
-                {
-                    mismatchPoints++;
-                }
-            }
-
-            // 전체의 20% 이하만 틀리면 매칭 성공으로 간주 (유연한 매칭)
-            // 예: 움직이는 배너나 미세한 변화 무시
-            return mismatchPoints <= (totalPoints * 0.1);
         }
 
         private BitmapSource ConvertBitmapToBitmapSource(Bitmap bitmap)
