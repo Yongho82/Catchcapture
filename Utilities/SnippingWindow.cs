@@ -290,10 +290,26 @@ namespace CatchCapture.Utilities
                 // Debug logging disabled
             };
             memoryCleanupTimer.Start();
-            this.KeyDown += SnippingWindow_KeyDown;
+            this.PreviewKeyDown += SnippingWindow_PreviewKeyDown;
 
             // 언어 변경 이벤트 구독: 즉시편집 UI 텍스트 런타임 갱신
             try { LocalizationManager.LanguageChanged += OnLanguageChanged; } catch { }
+        }
+
+        private void SnippingWindow_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            // 즉시편집 모드에서 엔터키 입력 시 확정 처리 (버튼 포커스 문제 해결)
+            if (instantEditMode && e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.None)
+            {
+                // 텍스트 박스 편집 중일 때는 엔터키가 줄바꿈 역할을 해야 하므로 닫지 않음
+                if (selectedTextBox != null && !selectedTextBox.IsReadOnly)
+                {
+                    return;
+                }
+
+                ConfirmAndClose();
+                e.Handled = true;
+            }
         }
 
         private void SnippingWindow_KeyDown(object sender, KeyEventArgs e)
