@@ -502,4 +502,8 @@
   <data name="Preview" xml:space="preserve"><value>Preview</value></data>
   <data name="ThemeSampleLabel" xml:space="preserve"><value>Preview Sample</value></data>
   <data name="ThemeSampleText" xml:space="preserve"><value>This is a theme preview sample text. (ABCabc 123)</value></data>
+  <data name="RecordingSettings" xml:space="preserve"><value>Recording Settings</value></data>
+  <data name="BasicSettings" xml:space="preserve"><value>Basic Settings</value></data>
+  <data name="RecordingStartStopHotkey" xml:space="preserve"><value>Record/Stop Hotkey</value></data>
+  <data name="RecordStartStop" xml:space="preserve"><value>Record/Stop</value></data>
 </root>

@@ -8,6 +8,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.Windows.Automation;
+using System.Windows.Interop;
 using System.Runtime.InteropServices;
 using CatchCapture.Models;
 
@@ -36,8 +37,9 @@ namespace CatchCapture.Recording
         [StructLayout(LayoutKind.Sequential)]
         private struct RECT { public int Left; public int Top; public int Right; public int Bottom; }
         
-        // 녹화 설정
+        // 설정
         private RecordingSettings _settings;
+        private CatchCapture.Models.Settings _globalSettings;
         
         // 녹화기
         private ScreenRecorder? _recorder;
@@ -67,7 +69,8 @@ namespace CatchCapture.Recording
         {
             InitializeComponent();
             
-            _settings = new RecordingSettings();
+            _globalSettings = CatchCapture.Models.Settings.Load();
+            _settings = _globalSettings.Recording;
             
             // 타이머 초기화
             _recordingTimer = new DispatcherTimer();
@@ -109,32 +112,42 @@ namespace CatchCapture.Recording
         
         private void RecordingWindow_Loaded(object sender, RoutedEventArgs e)
     {
-        // 먼저 주 모니터에 도구상자 배치
-        var primaryScreen = System.Windows.Forms.Screen.PrimaryScreen;
-        if (primaryScreen != null)
+        try
         {
-            var bounds = primaryScreen.WorkingArea;
-            this.Left = bounds.X + (bounds.Width - this.Width) / 2;
-            this.Top = bounds.Y + 50;
+            // 먼저 주 모니터에 도구상자 배치
+            var primaryScreen = System.Windows.Forms.Screen.PrimaryScreen;
+            if (primaryScreen != null)
+            {
+                var bounds = primaryScreen.WorkingArea;
+                this.Left = bounds.X + (bounds.Width - this.Width) / 2;
+                this.Top = bounds.Y + 50;
+            }
+            
+            // 도구상자가 배치된 후 오버레이 표시 (같은 모니터에)
+            ShowOverlay();
+            
+            // MP3 모드가 아닐 때만 오버레이 기준으로 위치 재조정
+            if (_settings.Format != RecordingFormat.MP3 && _overlay != null && _overlay.IsVisible)
+            {
+                var selectionArea = _overlay.SelectionArea;
+                this.Left = selectionArea.Left + (selectionArea.Width - this.Width) / 2;
+                this.Top = Math.Max(0, selectionArea.Top - this.Height - 10);
+            }
+            
+            // 오버레이보다 위에 표시되도록 활성화
+            this.Activate();
+            this.Topmost = true;
+            
+            // 위치 잡은 후 보이게 하기
+            this.Opacity = 1;
+
+            // 글로벌 서비스 단축키 등록
+            RegisterGlobalHotKey();
         }
-        
-        // 도구상자가 배치된 후 오버레이 표시 (같은 모니터에)
-        ShowOverlay();
-        
-        // MP3 모드가 아닐 때만 오버레이 기준으로 위치 재조정
-        if (_settings.Format != RecordingFormat.MP3 && _overlay != null && _overlay.IsVisible)
+        catch (Exception ex)
         {
-            var selectionArea = _overlay.SelectionArea;
-            this.Left = selectionArea.Left + (selectionArea.Width - this.Width) / 2;
-            this.Top = Math.Max(0, selectionArea.Top - this.Height - 10);
+            System.Diagnostics.Debug.WriteLine($"RecordingWindow_Loaded error: {ex.Message}");
         }
-        
-        // 오버레이보다 위에 표시되도록 활성화
-        this.Activate();
-        this.Topmost = true;
-        
-        // 위치 잡은 후 보이게 하기
-        this.Opacity = 1;
     }
         
     /// <summary>
@@ -205,11 +218,6 @@ namespace CatchCapture.Recording
         {
             switch (e.Key)
             {
-                case Key.F9:
-                    // F9: 녹화 시작/정지
-                    RecordButton_Click(this, new RoutedEventArgs());
-                    e.Handled = true;
-                    break;
                 case Key.Escape:
                     // ESC: 녹화 중지 및 창 닫기
                     if (IsRecording)
@@ -224,6 +232,66 @@ namespace CatchCapture.Recording
                     break;
             }
         }
+
+        private const int HOTKEY_ID_REC_START_STOP = 9500;
+        private IntPtr _hwnd;
+        private HwndSource? _hwndSource;
+
+        private void RegisterGlobalHotKey()
+        {
+            var hk = _globalSettings.Hotkeys.RecordingStartStop;
+            if (hk == null || !hk.Enabled || string.IsNullOrEmpty(hk.Key)) return;
+
+            try
+            {
+                _hwnd = new WindowInteropHelper(this).Handle;
+                _hwndSource = HwndSource.FromHwnd(_hwnd);
+                _hwndSource.AddHook(HwndHook);
+
+                uint modifiers = 0;
+                if (hk.Ctrl) modifiers |= 0x0002;
+                if (hk.Alt) modifiers |= 0x0001;
+                if (hk.Shift) modifiers |= 0x0004;
+                if (hk.Win) modifiers |= 0x0008;
+
+                // Key string to VK
+                if (Enum.TryParse<System.Windows.Forms.Keys>(hk.Key, out var keys))
+                {
+                    RegisterHotKey(_hwnd, HOTKEY_ID_REC_START_STOP, modifiers, (uint)keys);
+                }
+            }
+            catch { }
+        }
+
+        private void UnregisterGlobalHotKey()
+        {
+            try
+            {
+                if (_hwnd != IntPtr.Zero)
+                {
+                    UnregisterHotKey(_hwnd, HOTKEY_ID_REC_START_STOP);
+                    _hwndSource?.RemoveHook(HwndHook);
+                }
+            }
+            catch { }
+        }
+
+        private IntPtr HwndHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            const int WM_HOTKEY = 0x0312;
+            if (msg == WM_HOTKEY && wParam.ToInt32() == HOTKEY_ID_REC_START_STOP)
+            {
+                RecordButton_Click(this, new RoutedEventArgs());
+                handled = true;
+            }
+            return IntPtr.Zero;
+        }
+
+        [DllImport("user32.dll")]
+        private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
+
+        [DllImport("user32.dll")]
+        private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
         
         /// <summary>
         /// 오버레이에서 ESC 키 눌렸을 때 처리
@@ -664,6 +732,8 @@ namespace CatchCapture.Recording
         /// </summary>
         private void RecordingWindow_Closed(object? sender, EventArgs e)
         {
+            UnregisterGlobalHotKey();
+
             _recordingTimer.Stop();
             _recorder?.Dispose();
             

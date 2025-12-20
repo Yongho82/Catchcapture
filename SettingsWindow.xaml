@@ -410,6 +410,7 @@
                     <Button x:Name="NavCapture" Content="캡처 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Capture"/>
                     <Button x:Name="NavTheme" Content="테마 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Theme" />
                     <Button x:Name="NavMenuEdit" Content="메뉴 편집" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="MenuEdit"/>
+                    <Button x:Name="NavRecording" Content="녹화 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Recording"/>
                     <Button x:Name="NavSystem" Content="시스템 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="System"/>
                     <Button x:Name="NavHotkey" Content="단축키 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Hotkey"/>
                 </StackPanel>
@@ -648,6 +649,73 @@
                         </ListBox.ItemTemplate>
                     </ListBox>
                     
+                </StackPanel>
+            </Border>
+
+            <!-- Recording Page -->
+            <Border x:Name="PageRecording" Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8" Padding="30" Visibility="Collapsed">
+                <Border.Effect>
+                    <DropShadowEffect Color="Black" Direction="270" ShadowDepth="1" Opacity="0.05" BlurRadius="10"/>
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock x:Name="RecordingSectionTitle" Text="녹화 설정" Style="{StaticResource SectionTitle}"/>
+                    
+                    <GroupBox x:Name="RecBasicGroup" Header="기본 설정" Margin="0,0,0,20" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,15">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="140"/>
+                                    <ColumnDefinition Width="250"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="RecFormatLabel" Text="파일 형식" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                                <ComboBox x:Name="CboRecFormat" Grid.Column="1">
+                                    <ComboBoxItem Content="MP4"/>
+                                    <ComboBoxItem Content="GIF"/>
+                                </ComboBox>
+                            </Grid>
+
+                            <Grid Margin="0,0,0,15">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="140"/>
+                                    <ColumnDefinition Width="250"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="RecQualityLabel" Text="화질(MP4)" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                                <ComboBox x:Name="CboRecQuality" Grid.Column="1">
+                                    <ComboBoxItem Content="고화질" Tag="High"/>
+                                    <ComboBoxItem Content="보통" Tag="Medium"/>
+                                    <ComboBoxItem Content="저화질" Tag="Low"/>
+                                </ComboBox>
+                            </Grid>
+
+                            <Grid Margin="0,0,0,15">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="140"/>
+                                    <ColumnDefinition Width="250"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="RecFpsLabel" Text="프레임(MP4)" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                                <ComboBox x:Name="CboRecFps" Grid.Column="1">
+                                    <ComboBoxItem Content="15"/>
+                                    <ComboBoxItem Content="30"/>
+                                    <ComboBoxItem Content="60"/>
+                                </ComboBox>
+                            </Grid>
+
+                            <CheckBox x:Name="ChkRecMouse" Content="마우스 표시" Margin="0,5"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <GroupBox x:Name="RecHotkeyGroup" Header="녹화/중지 단축키" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <CheckBox x:Name="HkRecStartStopEnabled" Content="녹화/중지" VerticalAlignment="Center" Margin="0,0,20,0"/>
+                            
+                            <CheckBox x:Name="HkRecStartStopCtrl" Content="Ctrl" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                            <CheckBox x:Name="HkRecStartStopShift" Content="Shift" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                            <CheckBox x:Name="HkRecStartStopAlt" Content="Alt" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                            <CheckBox x:Name="HkRecStartStopWin" Content="Win" Margin="0,0,20,0" VerticalAlignment="Center"/>
+                            
+                            <ComboBox x:Name="HkRecStartStopKey" Width="100" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </GroupBox>
                 </StackPanel>
             </Border>
 

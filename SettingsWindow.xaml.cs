@@ -33,6 +33,7 @@ namespace CatchCapture
                 LoadCapturePage();
                 LoadMenuEditPage();
                 LoadSystemPage();
+                LoadRecordingPage();
                 LoadHotkeysPage();
                 
                 // Store original theme for cancel revert
@@ -82,6 +83,7 @@ private void UpdateUIText()
                 if (SidebarGeneralText != null) SidebarGeneralText.Text = LocalizationManager.GetString("General");
                 if (NavCapture != null) NavCapture.Content = LocalizationManager.GetString("CaptureSettings");
                 if (NavMenuEdit != null) NavMenuEdit.Content = LocalizationManager.GetString("MenuEdit");
+                if (NavRecording != null) NavRecording.Content = LocalizationManager.GetString("RecordingSettings");
                 if (NavSystem != null) NavSystem.Content = LocalizationManager.GetString("SystemSettings");
                 if (NavHotkey != null) NavHotkey.Content = LocalizationManager.GetString("HotkeySettings");
                 
@@ -206,6 +208,16 @@ private void UpdateUIText()
                 if (ThemeTextColorLabel != null) ThemeTextColorLabel.Text = LocalizationManager.GetString("ThemeTextColor");
                 if (ThemeColorGuide != null) ThemeColorGuide.Text = LocalizationManager.GetString("ThemeColorGuide");
 
+                // 녹화 페이지
+                if (RecordingSectionTitle != null) RecordingSectionTitle.Text = LocalizationManager.GetString("RecordingSettings");
+                if (RecBasicGroup != null) RecBasicGroup.Header = LocalizationManager.GetString("BasicSettings");
+                if (RecFormatLabel != null) RecFormatLabel.Text = LocalizationManager.GetString("FileFormat");
+                if (RecQualityLabel != null) RecQualityLabel.Text = LocalizationManager.GetString("Quality") + "(MP4)";
+                if (RecFpsLabel != null) RecFpsLabel.Text = LocalizationManager.GetString("FrameRate") + "(MP4)";
+                if (ChkRecMouse != null) ChkRecMouse.Content = LocalizationManager.GetString("ShowMouseCursor") ?? "마우스 표시";
+                if (RecHotkeyGroup != null) RecHotkeyGroup.Header = LocalizationManager.GetString("RecordingStartStopHotkey") ?? "녹화/중지 단축키";
+                if (HkRecStartStopEnabled != null) HkRecStartStopEnabled.Content = LocalizationManager.GetString("RecordStartStop") ?? "녹화/중지";
+
                 // 하단 버튼
                 if (CancelButton != null) CancelButton.Content = LocalizationManager.GetString("Cancel");
                 if (ApplyButton != null) ApplyButton.Content = LocalizationManager.GetString("Apply");
@@ -234,7 +246,8 @@ private void UpdateUIText()
                 HkWindowCaptureKey, HkElementCaptureKey, HkScrollCaptureKey,
                 HkOcrCaptureKey, HkScreenRecordKey,
                 HkSimpleModeKey, HkTrayModeKey,
-                HkSaveAllKey, HkDeleteAllKey, HkOpenSettingsKey, HkOpenEditorKey 
+                HkSaveAllKey, HkDeleteAllKey, HkOpenSettingsKey, HkOpenEditorKey,
+                HkRecStartStopKey
             };
 
             foreach (var box in boxes)
@@ -271,12 +284,14 @@ private void InitLanguageComboBox()
             NavCapture.FontWeight = tag == "Capture" ? FontWeights.Bold : FontWeights.Normal;
             NavTheme.FontWeight = tag == "Theme" ? FontWeights.Bold : FontWeights.Normal;
             NavMenuEdit.FontWeight = tag == "MenuEdit" ? FontWeights.Bold : FontWeights.Normal;
+            NavRecording.FontWeight = tag == "Recording" ? FontWeights.Bold : FontWeights.Normal;
             NavSystem.FontWeight = tag == "System" ? FontWeights.Bold : FontWeights.Normal;
             NavHotkey.FontWeight = tag == "Hotkey" ? FontWeights.Bold : FontWeights.Normal;
             
             PageCapture.Visibility = tag == "Capture" ? Visibility.Visible : Visibility.Collapsed;
             PageTheme.Visibility = tag == "Theme" ? Visibility.Visible : Visibility.Collapsed;
             PageMenuEdit.Visibility = tag == "MenuEdit" ? Visibility.Visible : Visibility.Collapsed;
+            PageRecording.Visibility = tag == "Recording" ? Visibility.Visible : Visibility.Collapsed;
             PageSystem.Visibility = tag == "System" ? Visibility.Visible : Visibility.Collapsed;
             PageHotkey.Visibility = tag == "Hotkey" ? Visibility.Visible : Visibility.Collapsed;
         }
@@ -415,6 +430,58 @@ private void InitLanguageComboBox()
             }
         }
 
+        private void LoadRecordingPage()
+        {
+            var rec = _settings.Recording;
+            
+            // Format
+            if (CboRecFormat != null)
+            {
+                string fmt = rec.Format.ToString();
+                foreach (ComboBoxItem item in CboRecFormat.Items)
+                {
+                    if (item.Content.ToString() == fmt)
+                    {
+                        CboRecFormat.SelectedItem = item;
+                        break;
+                    }
+                }
+            }
+
+            // Quality
+            if (CboRecQuality != null)
+            {
+                string qual = rec.Quality.ToString();
+                foreach (ComboBoxItem item in CboRecQuality.Items)
+                {
+                    if (item.Tag?.ToString() == qual)
+                    {
+                        CboRecQuality.SelectedItem = item;
+                        break;
+                    }
+                }
+            }
+
+            // FPS
+            if (CboRecFps != null)
+            {
+                string fps = rec.FrameRate.ToString();
+                foreach (ComboBoxItem item in CboRecFps.Items)
+                {
+                    if (item.Content.ToString() == fps)
+                    {
+                        CboRecFps.SelectedItem = item;
+                        break;
+                    }
+                }
+            }
+
+            if (ChkRecMouse != null) ChkRecMouse.IsChecked = rec.ShowMouseEffects;
+
+            // Hotkey
+            BindHotkey(_settings.Hotkeys.RecordingStartStop, HkRecStartStopEnabled, HkRecStartStopCtrl, HkRecStartStopShift, HkRecStartStopAlt, HkRecStartStopWin, HkRecStartStopKey);
+        }
+
         private void LoadCapturePage()
         {
             if (CboFormat != null)
@@ -519,6 +586,7 @@ private void InitLanguageComboBox()
             EnsureDefaultKey(hk.DeleteAll, "X");
             EnsureDefaultKey(hk.OpenSettings, "O");
             EnsureDefaultKey(hk.OpenEditor, "E");
+            EnsureDefaultKey(hk.RecordingStartStop, "F3");
 
             // Bind to UI
             BindHotkey(hk.RegionCapture, HkRegionEnabled, HkRegionCtrl, HkRegionShift, HkRegionAlt, HkRegionWin, HkRegionKey);
@@ -538,6 +606,7 @@ private void InitLanguageComboBox()
             BindHotkey(hk.DeleteAll, HkDeleteAllEnabled, HkDeleteAllCtrl, HkDeleteAllShift, HkDeleteAllAlt, HkDeleteAllWin, HkDeleteAllKey);
             BindHotkey(hk.OpenSettings, HkOpenSettingsEnabled, HkOpenSettingsCtrl, HkOpenSettingsShift, HkOpenSettingsAlt, HkOpenSettingsWin, HkOpenSettingsKey);
             BindHotkey(hk.OpenEditor, HkOpenEditorEnabled, HkOpenEditorCtrl, HkOpenEditorShift, HkOpenEditorAlt, HkOpenEditorWin, HkOpenEditorKey);
+            BindHotkey(hk.RecordingStartStop, HkRecStartStopEnabled, HkRecStartStopCtrl, HkRecStartStopShift, HkRecStartStopAlt, HkRecStartStopWin, HkRecStartStopKey);
         }
 
         private static void BindHotkey(ToggleHotkey src, CheckBox? en, CheckBox? ctrl, CheckBox? shift, CheckBox? alt, CheckBox? win, ComboBox? key)
@@ -681,6 +750,7 @@ private void InitLanguageComboBox()
             ReadHotkey(_settings.Hotkeys.DeleteAll, HkDeleteAllEnabled, HkDeleteAllCtrl, HkDeleteAllShift, HkDeleteAllAlt, HkDeleteAllWin, HkDeleteAllKey);
             ReadHotkey(_settings.Hotkeys.OpenSettings, HkOpenSettingsEnabled, HkOpenSettingsCtrl, HkOpenSettingsShift, HkOpenSettingsAlt, HkOpenSettingsWin, HkOpenSettingsKey);
             ReadHotkey(_settings.Hotkeys.OpenEditor, HkOpenEditorEnabled, HkOpenEditorCtrl, HkOpenEditorShift, HkOpenEditorAlt, HkOpenEditorWin, HkOpenEditorKey);
+            ReadHotkey(_settings.Hotkeys.RecordingStartStop, HkRecStartStopEnabled, HkRecStartStopCtrl, HkRecStartStopShift, HkRecStartStopAlt, HkRecStartStopWin, HkRecStartStopKey);
 
             EnsureDefaultKey(_settings.Hotkeys.RegionCapture, "A");
             EnsureDefaultKey(_settings.Hotkeys.DelayCapture, "D");
@@ -699,6 +769,28 @@ private void InitLanguageComboBox()
             EnsureDefaultKey(_settings.Hotkeys.DeleteAll, "X");
             EnsureDefaultKey(_settings.Hotkeys.OpenSettings, "O");
             EnsureDefaultKey(_settings.Hotkeys.OpenEditor, "E");
+            EnsureDefaultKey(_settings.Hotkeys.RecordingStartStop, "F3");
+
+            // Recording Page Harvest
+            if (CboRecFormat.SelectedItem is ComboBoxItem recFmtItem)
+            {
+                if (Enum.TryParse<RecordingFormat>(recFmtItem.Content.ToString(), out var format))
+                    _settings.Recording.Format = format;
+            }
+
+            if (CboRecQuality.SelectedItem is ComboBoxItem recQualItem)
+            {
+                if (Enum.TryParse<RecordingQuality>(recQualItem.Tag?.ToString(), out var quality))
+                    _settings.Recording.Quality = quality;
+            }
+
+            if (CboRecFps.SelectedItem is ComboBoxItem recFpsItem)
+            {
+                if (int.TryParse(recFpsItem.Content.ToString(), out int fps))
+                    _settings.Recording.FrameRate = fps;
+            }
+
+            _settings.Recording.ShowMouseEffects = ChkRecMouse.IsChecked == true;
 
             // System settings
             _settings.StartWithWindows = StartWithWindowsCheckBox.IsChecked == true;

@@ -18,6 +18,9 @@ namespace CatchCapture.Models
         public string ThemeMode { get; set; } = "General"; // "General", "Dark", "Light", "Blue"
         public string ThemeBackgroundColor { get; set; } = "#FFFFFF";
         public string ThemeTextColor { get; set; } = "#333333";
+        
+        // Recording Settings
+        public RecordingSettings Recording { get; set; } = new RecordingSettings();
 
         public void Save()
         {
@@ -214,6 +217,9 @@ namespace CatchCapture.Models
         public ToggleHotkey OpenSettings { get; set; } = new ToggleHotkey();         // 설정
         public ToggleHotkey OpenEditor { get; set; } = new ToggleHotkey();           // 에디터
 
+        // 녹화 시 시작/중지 단축키 (RecordingWindow 전용)
+        public ToggleHotkey RecordingStartStop { get; set; } = new ToggleHotkey();
+
         // Legacy (kept for backward compatibility with older settings.json)
         public ToggleHotkey SimpleCapture { get; set; } = new ToggleHotkey();
         public ToggleHotkey SizeCapture { get; set; } = new ToggleHotkey();
@@ -243,6 +249,7 @@ namespace CatchCapture.Models
                 TrayMode = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "T" },
                 OpenSettings = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "O" },
                 OpenEditor = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "E" },
+                RecordingStartStop = new ToggleHotkey { Enabled = true, Key = "F3" },
 
                 // Legacy defaults left as disabled
                 SimpleCapture = new ToggleHotkey { Enabled = false },
