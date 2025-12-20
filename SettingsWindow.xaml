@@ -102,26 +102,68 @@
         <Style TargetType="CheckBox">
             <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="0"/>
-            <Setter Property="Padding" Value="8,0,0,0"/>
+            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="Padding" Value="10,0,0,0"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="CheckBox">
                         <StackPanel Orientation="Horizontal" Background="Transparent">
-                            <Grid VerticalAlignment="Center">
-                                <Border x:Name="checkBoxBorder" Width="14" Height="14" CornerRadius="3" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorder}" Background="White"/>
-                                <Path x:Name="checkMark" Data="M 3,7 L 5,9 L 11,3" Stroke="#007AFF" StrokeThickness="1.5" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Grid VerticalAlignment="Center" Width="18" Height="18">
+                                <Border x:Name="checkBoxBorder" 
+                                        Width="16" Height="16" 
+                                        CornerRadius="4" 
+                                        BorderThickness="1.2" 
+                                        BorderBrush="{DynamicResource ThemeBorder}" 
+                                        Background="White"
+                                        SnapsToDevicePixels="True">
+                                    <Grid>
+                                        <!-- 하이그로시 광택 오버레이 (부드럽게 조정) -->
+                                        <Border x:Name="glossyOverlay" CornerRadius="3" Opacity="0">
+                                            <Border.Background>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                    <GradientStop Color="#40FFFFFF" Offset="0"/>
+                                                    <GradientStop Color="#00FFFFFF" Offset="0.4"/>
+                                                </LinearGradientBrush>
+                                            </Border.Background>
+                                        </Border>
+                                        <!-- 체크 표시 (크기 축소 및 중앙 정렬 최적화) -->
+                                        <Path x:Name="checkMark" 
+                                              Data="M 4.5,8.5 L 7.5,11.5 L 12.5,6.5" 
+                                              Stroke="White" 
+                                              StrokeThickness="1.8" 
+                                              StrokeStartLineCap="Round" 
+                                              StrokeEndLineCap="Round" 
+                                              StrokeLineJoin="Round"
+                                              Visibility="Collapsed" 
+                                              HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center"
+                                              Margin="-0.5,0,0,0.5"/>
+                                    </Grid>
+                                </Border>
                             </Grid>
                             <ContentPresenter Margin="{TemplateBinding Padding}" VerticalAlignment="Center"/>
                         </StackPanel>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="checkBoxBorder" Property="BorderBrush" Value="{StaticResource AccentColor}"/>
+                                <Setter TargetName="checkBoxBorder" Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="#70BFFF" Offset="0"/>
+                                            <GradientStop Color="#4090FF" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="checkBoxBorder" Property="BorderBrush" Value="#3080EF"/>
                                 <Setter TargetName="checkMark" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="glossyOverlay" Property="Opacity" Value="1"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="checkBoxBorder" Property="BorderBrush" Value="{StaticResource AccentColor}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -134,20 +176,37 @@
             <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
-                        <StackPanel Orientation="Horizontal" Background="Transparent" Margin="0,2">
-                            <Grid VerticalAlignment="Center">
-                                <Ellipse x:Name="OuterEllipse" Width="14" Height="14" Stroke="{DynamicResource ThemeBorder}" StrokeThickness="1" Fill="White"/>
-                                <Ellipse x:Name="InnerEllipse" Width="8" Height="8" Fill="{StaticResource AccentColor}" Visibility="Collapsed"/>
+                        <StackPanel Orientation="Horizontal" Background="Transparent" Margin="0,3">
+                            <Grid VerticalAlignment="Center" Width="18" Height="18">
+                                <Ellipse x:Name="OuterEllipse" 
+                                         Width="16" Height="16" 
+                                         Stroke="{DynamicResource ThemeBorder}" 
+                                         StrokeThickness="1.2" 
+                                         Fill="White"/>
+                                <Ellipse x:Name="InnerEllipse" 
+                                         Width="8" Height="8" 
+                                         Visibility="Collapsed">
+                                    <Ellipse.Fill>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="#70BFFF" Offset="0"/>
+                                            <GradientStop Color="#4090FF" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Ellipse.Fill>
+                                </Ellipse>
                             </Grid>
-                            <ContentPresenter Margin="8,0,0,0" VerticalAlignment="Center"/>
+                            <ContentPresenter Margin="10,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="OuterEllipse" Property="Stroke" Value="{StaticResource AccentColor}"/>
+                                <Setter TargetName="OuterEllipse" Property="Stroke" Value="#4090FF"/>
                                 <Setter TargetName="InnerEllipse" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="OuterEllipse" Property="Stroke" Value="{StaticResource AccentColor}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
