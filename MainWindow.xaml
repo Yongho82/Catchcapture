@@ -177,20 +177,21 @@
                             <Button x:Name="TitleSimpleModeButton" Style="{StaticResource WindowControlButtonStyle}"
                                     Click="SimpleModeButton_Click" ToolTip="간편 모드" 
                                     WindowChrome.IsHitTestVisibleInChrome="True" Margin="0,0,5,0">
-                                <Rectangle Width="14" Height="14" Fill="{DynamicResource ThemeTitleForeground}">
-                                    <Rectangle.OpacityMask>
-                                        <ImageBrush ImageSource="/icons/simple_mode.png" RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    </Rectangle.OpacityMask>
-                                </Rectangle>
+                                <Image Source="/icons/simple_mode.png" Width="14" Height="14" 
+                                       RenderOptions.BitmapScalingMode="HighQuality"/>
                             </Button>
                             <Button x:Name="TitleTrayModeButton" Style="{StaticResource WindowControlButtonStyle}"
                                     Click="TrayModeButton_Click" ToolTip="트레이 모드" 
                                     WindowChrome.IsHitTestVisibleInChrome="True" Margin="0,0,5,0">
-                                <Rectangle Width="14" Height="14" Fill="{DynamicResource ThemeTitleForeground}">
-                                    <Rectangle.OpacityMask>
-                                        <ImageBrush ImageSource="/icons/tray_mode.png" RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    </Rectangle.OpacityMask>
-                                </Rectangle>
+                                <Image Source="/icons/tray_mode.png" Width="14" Height="14" 
+                                       RenderOptions.BitmapScalingMode="HighQuality"/>
+                            </Button>
+                            <Button x:Name="TitleThemeButton" Style="{StaticResource WindowControlButtonStyle}"
+                                    Click="ThemeCycleButton_Click" ToolTip="테마 변경" 
+                                    WindowChrome.IsHitTestVisibleInChrome="True" Margin="0,0,5,0">
+                                <TextBlock Text="&#xE706;" FontFamily="Segoe MDL2 Assets" FontSize="12" 
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource ThemeTitleForeground}"/>
                             </Button>
                             <Button x:Name="MinimizeButton" Style="{StaticResource WindowControlButtonStyle}"
                                     Click="MinimizeButton_Click" ToolTip="최소화" 

@@ -3016,6 +3016,46 @@ public partial class MainWindow : Window
         ToggleSimpleMode();
     }
 
+    private void ThemeCycleButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (settings == null) return;
+
+        string[] modes = { "General", "Dark", "Light", "Blue" };
+        int currentIndex = Array.IndexOf(modes, settings.ThemeMode);
+        if (currentIndex == -1) currentIndex = 0;
+
+        int nextIndex = (currentIndex + 1) % modes.Length;
+        settings.ThemeMode = modes[nextIndex];
+
+        // 테마별 기본 색상 설정
+        if (settings.ThemeMode == "General")
+        {
+            settings.ThemeBackgroundColor = "#FFFFFF";
+            settings.ThemeTextColor = "#333333";
+        }
+        else if (settings.ThemeMode == "Dark")
+        {
+            settings.ThemeBackgroundColor = "#1E1E1E";
+            settings.ThemeTextColor = "#FFFFFF";
+        }
+        else if (settings.ThemeMode == "Light")
+        {
+            settings.ThemeBackgroundColor = "#F5F7FA";
+            settings.ThemeTextColor = "#2C3E50";
+        }
+        else if (settings.ThemeMode == "Blue")
+        {
+            settings.ThemeBackgroundColor = "#E3F2FD";
+            settings.ThemeTextColor = "#1565C0";
+        }
+
+        // 설정 저장
+        Settings.Save(settings);
+
+        // 테마 즉시 적용
+        App.ApplyTheme(settings);
+    }
+
     private void ToggleSimpleMode()
     {
         if (simpleModeWindow == null || !simpleModeWindow.IsVisible)
