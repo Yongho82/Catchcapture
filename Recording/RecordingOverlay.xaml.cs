@@ -378,8 +378,7 @@ namespace CatchCapture.Recording
                                 double newLeft = rect.Left - this.Left;
                                 double newTop = rect.Top - this.Top;
                                 
-                                _selectionArea = new Rect(newLeft, newTop, rect.Width, rect.Height);
-                                UpdateVisuals();
+                                SelectionArea = new Rect(newLeft, newTop, rect.Width, rect.Height);
                                 snapped = true;
                             }
                         }
@@ -423,8 +422,7 @@ namespace CatchCapture.Recording
                                         double newLeft = rect.Left - this.Left;
                                         double newTop = rect.Top - this.Top;
                                         
-                                        _selectionArea = new Rect(newLeft, newTop, width, height);
-                                        UpdateVisuals();
+                                        SelectionArea = new Rect(newLeft, newTop, width, height);
                                         return;
                                     }
                                 }
@@ -452,8 +450,7 @@ namespace CatchCapture.Recording
             newTopDefault = Math.Max(0, Math.Min(newTopDefault, screenHeight - _originalArea.Height));
             
             // 스냅되지 않은 경우 원래 크기로 복귀
-            _selectionArea = new Rect(newLeftDefault, newTopDefault, _originalArea.Width, _originalArea.Height);
-            UpdateVisuals();
+            SelectionArea = new Rect(newLeftDefault, newTopDefault, _originalArea.Width, _originalArea.Height);
         }
         
         private void SelectionBorder_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -462,7 +459,6 @@ namespace CatchCapture.Recording
             {
                 _isDragging = false;
                 SelectionBorder.ReleaseMouseCapture();
-                AreaChanged?.Invoke(this, _selectionArea);
             }
         }
         
@@ -528,8 +524,7 @@ namespace CatchCapture.Recording
             if (l + w > screenWidth) w = screenWidth - l;
             if (t + h > screenHeight) h = screenHeight - t;
             
-            _selectionArea = new Rect(l, t, w, h);
-            UpdateVisuals();
+            SelectionArea = new Rect(l, t, w, h);
         }
         
         private void Overlay_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -538,7 +533,6 @@ namespace CatchCapture.Recording
             {
                 _isResizing = false;
                 Mouse.Capture(null);
-                AreaChanged?.Invoke(this, _selectionArea);
             }
         }
         

@@ -58,6 +58,7 @@ namespace CatchCapture.Recording
         private Rect? _savedArea = null; // 전체 화면 전 크기 저장용
         private System.Drawing.Point _lastMousePos; // 마지막 마우스 위치
         private int _mouseIdleCount = 0; // 마우스 정지 카운터
+        private bool _isAttachedToOverlay = true; // 도구상자가 영역을 따라다니는지 여부
         
         // 상태
         public bool IsRecording => _recorder?.IsRecording ?? false;
@@ -261,6 +262,9 @@ namespace CatchCapture.Recording
                     _autoHideTimer.Stop();
                     BeginAnimation(TopProperty, null); // 애니메이션 제거해야 DragMove 가능
                 }
+
+                // 사용자가 직접 도구상자를 움직이면 자동 추적 중단
+                _isAttachedToOverlay = false;
 
                 DragMove();
                 
@@ -1194,6 +1198,14 @@ namespace CatchCapture.Recording
             _settings.LastAreaHeight = area.Height;
             
             UpdateUI();
+
+            // 도구상자가 도킹 상태가 아니고, 사용자가 수동으로 옮기지 않았을 때만 영역을 따라다님
+            if (_isAttachedToOverlay && !_isDocked)
+            {
+                // 영역 위에 중앙 배치
+                this.Left = area.Left + (area.Width - this.Width) / 2;
+                this.Top = Math.Max(0, area.Top - this.Height - 10);
+            }
         }
         
         #endregion
