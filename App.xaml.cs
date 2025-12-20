@@ -177,21 +177,49 @@ public partial class App : Application
                 // Title Bar Colors (Specific colors for General mode as per user feedback)
                 if (settings.ThemeMode == "General")
                 {
-                    var mainBlue = Color.FromRgb(78, 106, 223);
-                    Application.Current.Resources["ThemeTitleBackground"] = new SolidColorBrush(mainBlue); 
+                    // High-Glossy Blue Gradient for Main Title Bar (vibrant dark blue)
+                    var mainGlossyBrush = new LinearGradientBrush();
+                    mainGlossyBrush.StartPoint = new Point(0, 0);
+                    mainGlossyBrush.EndPoint = new Point(0, 1);
+                    mainGlossyBrush.GradientStops.Add(new GradientStop(Color.FromRgb(110, 140, 240), 0.0)); // 상단 하이라이트
+                    mainGlossyBrush.GradientStops.Add(new GradientStop(Color.FromRgb(78, 106, 223), 0.4));  // 메인 블루
+                    mainGlossyBrush.GradientStops.Add(new GradientStop(Color.FromRgb(50, 75, 180), 1.0));   // 하단 쉐도우
+                    
+                    Application.Current.Resources["ThemeTitleBackground"] = mainGlossyBrush;
                     Application.Current.Resources["ThemeTitleForeground"] = Brushes.White;
-                    Application.Current.Resources["ThemeSimpleTitleBackground"] = new SolidColorBrush(Color.FromRgb(206, 230, 255)); 
+
+                    // Light Glossy Gradient for Simple Title Bar
+                    var simpleGlossyBrush = new LinearGradientBrush();
+                    simpleGlossyBrush.StartPoint = new Point(0, 0);
+                    simpleGlossyBrush.EndPoint = new Point(0, 1);
+                    simpleGlossyBrush.GradientStops.Add(new GradientStop(Color.FromRgb(225, 240, 255), 0.0));
+                    simpleGlossyBrush.GradientStops.Add(new GradientStop(Color.FromRgb(206, 230, 255), 0.5));
+                    simpleGlossyBrush.GradientStops.Add(new GradientStop(Color.FromRgb(185, 210, 245), 1.0));
+                    
+                    Application.Current.Resources["ThemeSimpleTitleBackground"] = simpleGlossyBrush;
                     Application.Current.Resources["ThemeSimpleTitleForeground"] = new SolidColorBrush(Color.FromRgb(32, 61, 133)); 
                     
-                    // Match window border to title for seamless look
-                    Application.Current.Resources["ThemeWindowBorder"] = new SolidColorBrush(mainBlue);
+                    // Match window border to the bottom color of title for seamless look
+                    Application.Current.Resources["ThemeWindowBorder"] = new SolidColorBrush(Color.FromRgb(70, 95, 200));
                 }
                 else if (settings.ThemeMode == "Dark")
                 {
-                    Application.Current.Resources["ThemeTitleBackground"] = new SolidColorBrush(Color.FromRgb(45, 45, 45));
+                    // High-Glossy Dark Gradient (하이그로시 느낌의 블랙 그라데이션)
+                    var glossyBrush = new LinearGradientBrush();
+                    glossyBrush.StartPoint = new Point(0, 0);
+                    glossyBrush.EndPoint = new Point(0, 1);
+                    glossyBrush.GradientStops.Add(new GradientStop(Color.FromRgb(55, 55, 55), 0.0)); // 상단: 반사 느낌의 그레이
+                    glossyBrush.GradientStops.Add(new GradientStop(Color.FromRgb(30, 30, 30), 0.4)); // 중간
+                    glossyBrush.GradientStops.Add(new GradientStop(Color.FromRgb(10, 10, 10), 1.0)); // 하단: 딥 블랙
+                    
+                    Application.Current.Resources["ThemeTitleBackground"] = glossyBrush;
                     Application.Current.Resources["ThemeTitleForeground"] = Brushes.White;
-                    Application.Current.Resources["ThemeSimpleTitleBackground"] = new SolidColorBrush(Color.FromRgb(60, 60, 60));
+                    
+                    Application.Current.Resources["ThemeSimpleTitleBackground"] = glossyBrush;
                     Application.Current.Resources["ThemeSimpleTitleForeground"] = Brushes.White;
+                    
+                    // Sharp glossy outline (선명한 하이그로시 윤곽선)
+                    Application.Current.Resources["ThemeWindowBorder"] = new SolidColorBrush(Color.FromRgb(60, 60, 60));
                 }
                 else
                 {

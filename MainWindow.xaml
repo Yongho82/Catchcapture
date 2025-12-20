@@ -93,11 +93,19 @@
         </Style>
 
 
-        <!-- 구분선 스타일 -->
+        <!-- 구분선 스타일 (정교한 1픽셀 라인) -->
         <Style x:Key="SeparatorStyle" TargetType="Separator">
             <Setter Property="Margin" Value="10,3,10,3"/>
-            <Setter Property="Background" Value="#E0E6F0"/>
+            <Setter Property="Background" Value="{DynamicResource ThemeBorder}"/>
             <Setter Property="Height" Value="1"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Separator">
+                        <Rectangle Height="1" Fill="{TemplateBinding Background}" SnapsToDevicePixels="True"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
         
         <!-- 그림자 효과 -->
@@ -211,7 +219,7 @@
                     </Grid.RowDefinitions>
 
                     <!-- 왼쪽 버튼 영역 (전체 높이) -->
-                    <Border Grid.Column="0" Grid.RowSpan="2" Background="{DynamicResource ThemeBackground}" BorderThickness="0,0,1,0" BorderBrush="{DynamicResource ThemeBorder}">
+                    <Border Grid.Column="0" Grid.RowSpan="2" Background="{DynamicResource ThemeBackground}" BorderThickness="0,0,1,0" BorderBrush="{DynamicResource ThemeBorder}" SnapsToDevicePixels="True">
                         <StackPanel x:Name="CaptureButtonsPanel" Margin="0,12,0,12">
                             <Button x:Name="AreaCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="AreaCaptureButton_Click">
                                 <StackPanel Orientation="Horizontal">
@@ -394,16 +402,16 @@
                                 </Border>
                             </Grid>
 
-                           <!-- 모드 선택 구분선 -->
-                            <Grid Margin="0,5,0,8">
+                            <!-- 모드 선택 구분선 (위치 상향 조정 및 라인 정밀화) -->
+                            <Grid Margin="0,3,0,10">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Separator Grid.Column="0" VerticalAlignment="Center" Background="{DynamicResource ThemeBorder}"/>
-                                <TextBlock x:Name="ModeSelectText" Grid.Column="1" Text="모드 선택" FontSize="10.5" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" Margin="0,0"/>
-                                <Separator Grid.Column="2" VerticalAlignment="Center" Background="{DynamicResource ThemeBorder}"/>
+                                <Rectangle Height="1" VerticalAlignment="Center" Fill="{DynamicResource ThemeBorder}" SnapsToDevicePixels="True"/>
+                                <TextBlock x:Name="ModeSelectText" Grid.Column="1" Text="모드 선택" FontSize="10.5" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" Margin="5,0"/>
+                                <Rectangle Grid.Column="2" Height="1" VerticalAlignment="Center" Fill="{DynamicResource ThemeBorder}" SnapsToDevicePixels="True"/>
                             </Grid>
 
                             <!-- 간편/트레이 모드 버튼 (초소형/심플) -->
@@ -503,8 +511,8 @@
                         </Grid>
                     </Border>
 
-                    <!-- 하단 고정 아이콘 바 -->
-                    <Border Grid.Column="1" Grid.Row="1" Background="{DynamicResource ThemeBackground}" BorderThickness="0,1,0,0" BorderBrush="#E0E6F0" Height="50">
+                    <!-- 하단 고정 아이콘 바 (라인 두께 및 색상 조정) -->
+                    <Border Grid.Column="1" Grid.Row="1" Background="{DynamicResource ThemeBackground}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ThemeBorder}" Height="50" SnapsToDevicePixels="True">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                             <!-- 복사 버튼 -->
                             <Button x:Name="CopySelectedButton" Click="CopySelectedButton_Click" IsEnabled="False"
@@ -524,7 +532,7 @@
                                 </StackPanel>
                             </Button>
                             
-                            <Separator Width="1" Height="25" Margin="2,0" Background="#E0E6F0"/>
+                            <Separator Width="1" Height="25" Margin="2,0" Background="{DynamicResource ThemeBorder}"/>
                             
                             <!-- 전체 저장 버튼 -->
                             <Button x:Name="SaveAllButton" Click="SaveAllButton_Click" IsEnabled="False"
@@ -535,7 +543,7 @@
                                 </StackPanel>
                             </Button>
                             
-                            <Separator Width="1" Height="25" Margin="2,0" Background="#E0E6F0"/>
+                            <Separator Width="1" Height="25" Margin="2,0" Background="{DynamicResource ThemeBorder}"/>
                             
                             <!-- 전체 삭제 버튼 -->
                             <Button x:Name="DeleteAllButton" Click="DeleteAllButton_Click" IsEnabled="False"
@@ -546,7 +554,7 @@
                                 </StackPanel>
                             </Button>
                             
-                            <Separator Width="1" Height="25" Margin="2,0" Background="#E0E6F0"/>
+                            <Separator Width="1" Height="25" Margin="2,0" Background="{DynamicResource ThemeBorder}"/>
                             
                             <!-- 설정 버튼 -->
                             <Button x:Name="SettingsBottomButton" Click="SettingsSideButton_Click"
@@ -562,9 +570,10 @@
                 <!-- 하단 팁 영역 -->
                 <Border Grid.Row="2" 
                         Background="{DynamicResource ThemeBackground}" 
-                        BorderBrush="#DDDDDD" 
+                        BorderBrush="{DynamicResource ThemeBorder}" 
                         BorderThickness="0,1,0,0"
-                        Height="28">
+                        Height="28"
+                        SnapsToDevicePixels="True">
                     <StackPanel Orientation="Horizontal" 
                                 VerticalAlignment="Center" 
                                 Margin="12,0">
