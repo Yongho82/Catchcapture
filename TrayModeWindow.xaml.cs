@@ -450,9 +450,9 @@ namespace CatchCapture
                     FontSize = 16,
                     FontWeight = FontWeights.Bold,
                     Style = this.FindResource("TinyButtonStyle") as Style,
-                    ToolTip = LocalizationManager.Get("ShowHiddenIcons"),
-                    Foreground = new SolidColorBrush(Color.FromRgb(102, 102, 102))
+                    ToolTip = LocalizationManager.Get("ShowHiddenIcons")
                 };
+                expandButton.SetResourceReference(Button.ForegroundProperty, "ThemeForeground");
                 expandButton.Click += ExpandToggleButton_Click;
                 panel.Children.Add(expandButton);
             }
@@ -473,6 +473,7 @@ namespace CatchCapture
                 ToolTip = LocalizationManager.Get("AddIcon"),
                 Opacity = 0.3
             };
+            addButton.SetResourceReference(Button.ForegroundProperty, "ThemeForeground");
             
             addButton.Click += ShowAddIconMenu;
             grid.Children.Add(addButton);
@@ -652,9 +653,9 @@ namespace CatchCapture
                 FontSize = GetOptimalFontSize(labelText),  // ✅ 동적 폰트 크기
                 HorizontalAlignment = HorizontalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
-                Margin = new Thickness(0, 1, 0, 0),
-                Foreground = new SolidColorBrush(Color.FromRgb(102, 102, 102))
+                Margin = new Thickness(0, 1, 0, 0)
             };
+            textBlock.SetResourceReference(TextBlock.ForegroundProperty, "ThemeForeground");
             stackPanel.Children.Add(textBlock);
             
             button.Content = stackPanel;
@@ -686,7 +687,8 @@ namespace CatchCapture
             {
                 Source = new BitmapImage(new Uri(source, UriKind.Relative)),
                 Width = 24,
-                Height = 24
+                Height = 24,
+                SnapsToDevicePixels = true
             };
             
             RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
@@ -1219,9 +1221,9 @@ namespace CatchCapture
                 FontSize = GetOptimalFontSize(TruncateForLabel(app.DisplayName)),  // ✅ 동적 폰트 크기
                 HorizontalAlignment = HorizontalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
-                Margin = new Thickness(0, 1, 0, 0),
-                Foreground = new SolidColorBrush(Color.FromRgb(102, 102, 102))
+                Margin = new Thickness(0, 1, 0, 0)
             };
+            text.SetResourceReference(TextBlock.ForegroundProperty, "ThemeForeground");
             stack.Children.Add(text);
             
             button.Content = stack;
@@ -1248,7 +1250,7 @@ namespace CatchCapture
                 var bmp = icon.ToBitmap();
                 var hbitmap = bmp.GetHbitmap();
                 var source = Imaging.CreateBitmapSourceFromHBitmap(hbitmap, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromWidthAndHeight(24, 24));
-                return new WpfImage { Source = source, Width = 24, Height = 24 };
+                return new WpfImage { Source = source, Width = 24, Height = 24, SnapsToDevicePixels = true };
             }
             catch { return null; }
         }

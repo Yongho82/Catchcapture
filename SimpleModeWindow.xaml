@@ -55,6 +55,15 @@
             <Setter Property="Height" Value="50"/>
             <Setter Property="Margin" Value="2"/>
             <Setter Property="Opacity" Value="0.3"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
+        </Style>
+
+        <!-- 작은 공통 버튼 스타일 -->
+        <Style x:Key="TinyButtonStyle" TargetType="Button" BasedOn="{StaticResource SimpleModeButtonStyle}">
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Margin" Value="1"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
         </Style>
 
         <!-- Light ContextMenu style (reuse key for Simple Mode) -->
@@ -138,7 +147,7 @@
                         <Grid Width="30" Height="14">
                             <Border x:Name="SwitchBorder" 
                                     CornerRadius="7" 
-                                    Background="#CCCCCC"/>
+                                    Background="{DynamicResource ThemeBorder}"/>
                             <Ellipse x:Name="SwitchThumb" 
                                      Width="10" Height="10" 
                                      Fill="White" 

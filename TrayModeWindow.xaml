@@ -10,7 +10,8 @@
         ResizeMode="NoResize"
         Topmost="True"
         ShowInTaskbar="False"
-        Deactivated="Window_Deactivated">
+        Deactivated="Window_Deactivated"
+        SnapsToDevicePixels="True">
     
     <Window.Resources>
         <!-- 아이콘 버튼 스타일 -->
@@ -83,6 +84,7 @@
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -186,7 +188,7 @@
                 </StackPanel>
 
                 <!-- 즉시편집 스위치 -->
-                <Border Width="30" Height="16" CornerRadius="8" Background="#CCCCCC" 
+                <Border Width="30" Height="16" CornerRadius="8" Background="{DynamicResource ThemeBorder}" 
                         Cursor="Hand" Margin="0,5"
                         x:Name="InstantEditToggleBorder" MouseLeftButtonDown="InstantEditToggle_Click">
                     <Ellipse x:Name="InstantEditToggleCircle" Width="12" Height="12" 
@@ -217,7 +219,7 @@
                 </Button>
 
                 <!-- 구분선 -->
-                <Separator Margin="5,10" Background="#E0E6F0" Height="1"/>
+                <Separator Margin="5,10" Background="{DynamicResource ThemeBorder}" Height="1"/>
                 
                 <!-- 영역 캡처 -->
                 <Button x:Name="AreaCaptureButton" Style="{StaticResource IconButtonStyle}" 
@@ -269,7 +271,7 @@
                 </Button>
                 
                 <!-- 구분선 -->
-                <Separator Margin="5,10" Background="#E0E6F0" Height="1"/>
+                <Separator Margin="5,10" Background="{DynamicResource ThemeBorder}" Height="1"/>
                 
                 <!-- 복사 -->
                 <Button x:Name="CopyButton" Style="{StaticResource IconButtonStyle}" 
@@ -286,7 +288,7 @@
                 </Button>
                 
                 <!-- 구분선 -->
-                <Separator Margin="5,10" Background="#E0E6F0" Height="1"/>
+                <Separator Margin="5,10" Background="{DynamicResource ThemeBorder}" Height="1"/>
                 
                 <!-- 저장 -->
                 <Button x:Name="SaveButton" Style="{StaticResource IconButtonStyle}" 
@@ -303,7 +305,7 @@
                 </Button>
                 
                 <!-- 구분선 -->
-                <Separator Margin="5,10" Background="#E0E6F0" Height="1"/>
+                <Separator Margin="5,10" Background="{DynamicResource ThemeBorder}" Height="1"/>
                 
                 <!-- 삭제 -->
                 <Button x:Name="DeleteButton" Style="{StaticResource IconButtonStyle}" 
@@ -330,7 +332,8 @@
                 <Button x:Name="SettingsButton" Style="{StaticResource IconButtonStyle}" 
                         Click="SettingsButton_Click">
                 <TextBlock Text="&#xE7E8;" FontFamily="Segoe MDL2 Assets" FontSize="16"
-                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Foreground="{DynamicResource ThemeForeground}"/>
                 </Button>
                 
                 <!-- 접기/펼치기 버튼 -->

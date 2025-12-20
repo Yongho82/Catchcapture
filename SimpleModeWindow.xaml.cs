@@ -595,11 +595,12 @@ namespace CatchCapture
                 Content = "⇄",
                 FontSize = 12,  // 16 → 12로 축소
                 FontWeight = FontWeights.Bold,
-                Style = this.FindResource("IconButtonStyle") as Style,
-                ToolTip = "숨겨진 아이콘 보기",
-                Opacity = 0.6,
+                Style = this.FindResource("TinyButtonStyle") as Style,
+                ToolTip = LocalizationManager.Get("ShowHiddenIcons"),
+                Opacity = 0.3,
                 Height = 32  // 높이 32px로 제한
             };
+            expandButton.SetResourceReference(Button.ForegroundProperty, "ThemeForeground");
             expandButton.Click += ExpandButton_Click;
             ButtonsPanelV.Children.Add(expandButton);
         }
@@ -812,9 +813,9 @@ namespace CatchCapture
                 FontSize = 8 * _uiScale,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
-                Margin = new Thickness(0, 4, 0, 0),
-                Foreground = new SolidColorBrush(Color.FromRgb(102, 102, 102))
+                Margin = new Thickness(0, 4, 0, 0)
             };
+            textBlock.SetResourceReference(TextBlock.ForegroundProperty, "ThemeForeground");
             stackPanel.Children.Add(textBlock);
             
             button.Content = stackPanel;
@@ -916,7 +917,8 @@ namespace CatchCapture
             {
                 Source = new BitmapImage(new Uri(iconPath!, UriKind.Relative)),
                 Width = 20 * _uiScale,
-                Height = 20 * _uiScale
+                Height = 20 * _uiScale,
+                SnapsToDevicePixels = true
             };
             RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
             
@@ -1069,6 +1071,7 @@ namespace CatchCapture
                 Style = this.FindResource("AddButtonStyle") as Style,
                 ToolTip = CatchCapture.Models.LocalizationManager.Get("AddIcon")
             };
+            button.SetResourceReference(Button.ForegroundProperty, "ThemeForeground");
             
             // ★ 세로 모드일 때 높이 제한
             if (isVertical)
@@ -1245,9 +1248,9 @@ namespace CatchCapture
                 FontSize = 8 * _uiScale,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
-                Margin = new Thickness(0, 4, 0, 0),
-                Foreground = new SolidColorBrush(Color.FromRgb(102, 102, 102))
+                Margin = new Thickness(0, 4, 0, 0)
             };
+            text.SetResourceReference(TextBlock.ForegroundProperty, "ThemeForeground");
             stack.Children.Add(text);
             
             button.Content = stack;
@@ -1274,7 +1277,7 @@ namespace CatchCapture
                 var bmp = icon.ToBitmap();
                 var hbitmap = bmp.GetHbitmap();
                 var source = Imaging.CreateBitmapSourceFromHBitmap(hbitmap, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromWidthAndHeight(20, 20));
-                return new WpfImage { Source = source, Width = 20 * _uiScale, Height = 20 * _uiScale };
+                return new WpfImage { Source = source, Width = 20 * _uiScale, Height = 20 * _uiScale, SnapsToDevicePixels = true };
             }
             catch { return null; }
         }
