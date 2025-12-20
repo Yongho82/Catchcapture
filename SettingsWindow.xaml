@@ -586,7 +586,7 @@
                             <Style TargetType="ListBoxItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                                 <Setter Property="Padding" Value="0"/>
-                                <Setter Property="Margin" Value="4"/>
+                                <Setter Property="Margin" Value="4,2"/>
                                 <Setter Property="Background" Value="Transparent"/>
                                 <Setter Property="Template">
                                     <Setter.Value>
@@ -596,26 +596,27 @@
                                                     BorderBrush="{DynamicResource ThemeBorder}" 
                                                     BorderThickness="1" 
                                                     CornerRadius="6" 
-                                                    Padding="12,10"
-                                                    Cursor="Hand">
+                                                    Padding="10,5"
+                                                    Cursor="Hand"
+                                                    SnapsToDevicePixels="True">
                                                 <Border.Effect>
-                                                    <DropShadowEffect Color="#000000" Direction="270" ShadowDepth="1" Opacity="0.06" BlurRadius="3"/>
+                                                    <DropShadowEffect Color="#000000" Direction="270" ShadowDepth="1" Opacity="0.05" BlurRadius="2"/>
                                                 </Border.Effect>
-                                                <Grid>
+                                                <Grid TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="Auto"/>
                                                         <ColumnDefinition Width="*"/>
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
-                                                    <TextBlock Grid.Column="0" Text="☰" FontSize="14" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                                    <TextBlock Grid.Column="0" Text="☰" FontSize="12" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" VerticalAlignment="Center" Margin="0,0,10,0"/>
                                                     <ContentPresenter Grid.Column="1" VerticalAlignment="Center"/>
                                                     <Button Grid.Column="2" Content="✕" 
-                                                            Width="24" Height="24" 
-                                                            FontSize="12"
+                                                            Width="22" Height="22" 
+                                                            FontSize="10"
                                                             Background="Transparent"
                                                             BorderThickness="0"
                                                             Foreground="{DynamicResource ThemeForeground}"
-                                                            Opacity="0.5"
+                                                            Opacity="0.6"
                                                             Cursor="Hand"
                                                             Click="DeleteMenuItem_Click"
                                                             Tag="{Binding}"/>
@@ -624,11 +625,11 @@
                                             <ControlTemplate.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
                                                     <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ThemeBorder}"/>
-                                                    <Setter TargetName="Bd" Property="Opacity" Value="0.6"/>
+                                                    <!-- Opacity 제거하여 텍스트 번짐 방지 -->
                                                 </Trigger>
                                                 <Trigger Property="IsSelected" Value="True">
                                                     <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ThemeBorder}"/>
-                                                    <Setter TargetName="Bd" Property="Opacity" Value="0.8"/>
+                                                    <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource AccentColor}"/>
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>
@@ -639,10 +640,10 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding DisplayName}" 
-                                           FontSize="13"
-                                           FontWeight="Medium"
+                                           FontSize="12"
                                            Foreground="{DynamicResource ThemeForeground}"
-                                           VerticalAlignment="Center"/>
+                                           VerticalAlignment="Center"
+                                           SnapsToDevicePixels="True"/>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
