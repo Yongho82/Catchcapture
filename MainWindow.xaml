@@ -61,9 +61,9 @@
 
         <!-- 하단 버튼 스타일 (호버 효과 추가) -->
         <Style x:Key="BottomButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="35"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Margin" Value="1,0,1,0"/>
+            <Setter Property="Width" Value="37"/>
+            <Setter Property="Height" Value="37"/>
+            <Setter Property="Margin" Value="2,0,2,0"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -520,7 +520,7 @@
                                     Style="{StaticResource BottomButtonStyle}">
                                 <StackPanel>
                                     <Image Source="/icons/copy_selected.png" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,0,2"/>
-                                    <TextBlock x:Name="CopySelectedBottomText" Text="복사" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                                    <TextBlock x:Name="CopySelectedBottomText" Text="복사" FontSize="9" FontWeight="Normal" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="{DynamicResource ThemeForeground}" Opacity="0.8" TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType"/>
                                 </StackPanel>
                             </Button>
                             
@@ -529,40 +529,40 @@
                                     Style="{StaticResource BottomButtonStyle}">
                                 <StackPanel>
                                     <Image Source="/icons/copy_all.png" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,0,2"/>
-                                    <TextBlock x:Name="CopyAllBottomText" Text="전체복사" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                                    <TextBlock x:Name="CopyAllBottomText" Text="전체복사" FontSize="9" FontWeight="Normal" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="{DynamicResource ThemeForeground}" Opacity="0.8" TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType"/>
                                 </StackPanel>
                             </Button>
                             
-                            <Separator Width="1" Height="25" Margin="2,0" Background="{DynamicResource ThemeBorder}"/>
+                            <Separator Width="1" Height="25" Margin="3,0" Background="{DynamicResource ThemeBorder}"/>
                             
                             <!-- 전체 저장 버튼 -->
                             <Button x:Name="SaveAllButton" Click="SaveAllButton_Click" IsEnabled="False"
                                     Style="{StaticResource BottomButtonStyle}">
                                 <StackPanel>
                                     <Image Source="/icons/save_all.png" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,0,2"/>
-                                    <TextBlock x:Name="SaveAllBottomText" Text="전체저장" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                                    <TextBlock x:Name="SaveAllBottomText" Text="전체저장" FontSize="9" FontWeight="Normal" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="{DynamicResource ThemeForeground}" Opacity="0.8" TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType"/>
                                 </StackPanel>
                             </Button>
                             
-                            <Separator Width="1" Height="25" Margin="2,0" Background="{DynamicResource ThemeBorder}"/>
+                            <Separator Width="1" Height="25" Margin="3,0" Background="{DynamicResource ThemeBorder}"/>
                             
                             <!-- 전체 삭제 버튼 -->
                             <Button x:Name="DeleteAllButton" Click="DeleteAllButton_Click" IsEnabled="False"
                                     Style="{StaticResource BottomButtonStyle}">
                                 <StackPanel>
                                     <Image Source="/icons/delete_all.png" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,0,2"/>
-                                    <TextBlock x:Name="DeleteAllBottomText" Text="전체삭제" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                                    <TextBlock x:Name="DeleteAllBottomText" Text="전체삭제" FontSize="9" FontWeight="Normal" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="{DynamicResource ThemeForeground}" Opacity="0.8" TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType"/>
                                 </StackPanel>
                             </Button>
                             
-                            <Separator Width="1" Height="25" Margin="2,0" Background="{DynamicResource ThemeBorder}"/>
+                            <Separator Width="1" Height="25" Margin="3,0" Background="{DynamicResource ThemeBorder}"/>
                             
                             <!-- 설정 버튼 -->
                             <Button x:Name="SettingsBottomButton" Click="SettingsSideButton_Click"
                                     Style="{StaticResource BottomButtonStyle}">
                                 <StackPanel>
                                     <Image Source="/icons/setting.png" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,0,2"/>
-                                    <TextBlock x:Name="SettingsBottomText" Text="설정" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                                    <TextBlock x:Name="SettingsBottomText" Text="설정" FontSize="9" FontWeight="Normal" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="{DynamicResource ThemeForeground}" Opacity="0.8" TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
