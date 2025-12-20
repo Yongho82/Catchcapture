@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="설정" Height="600" Width="850"
         WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
-        Background="#F5F5F7"
+        Background="{DynamicResource ThemeBackground}"
         FontFamily="Malgun Gothic, Segoe UI">
 
     <Window.Resources>
@@ -19,7 +19,7 @@
         <Style x:Key="SidebarButton" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Padding" Value="15,10"/>
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
@@ -43,7 +43,7 @@
         <Style x:Key="SectionTitle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
             <Setter Property="Margin" Value="0,0,0,10"/>
         </Style>
 
@@ -75,9 +75,9 @@
         </Style>
 
         <Style x:Key="MacButtonSecondary" TargetType="Button" BasedOn="{StaticResource MacButtonPrimary}">
-            <Setter Property="Background" Value="#FFFFFF"/>
-            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
-            <Setter Property="BorderBrush" Value="#D0D0D0"/>
+            <Setter Property="Background" Value="{DynamicResource ThemeBackground}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorder}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -148,7 +148,7 @@
         </Grid.ColumnDefinitions>
 
         <!-- Sidebar -->
-        <Border Grid.Column="0" Background="{StaticResource SidebarBackground}" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,0">
+        <Border Grid.Column="0" Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="0,0,1,0">
             <DockPanel Margin="0,30,0,20">
                 <!-- Bottom Info - DockPanel.Dock="Bottom" -->
                 <StackPanel DockPanel.Dock="Bottom" Margin="25,0,0,0">
@@ -169,12 +169,13 @@
                     <!-- App Logo/Title -->
                     <StackPanel Orientation="Horizontal" Margin="25,0,0,30">
                         <Image Source="/Icons/camera.png" Width="24" Height="24" Margin="0,0,10,0" RenderOptions.BitmapScalingMode="HighQuality"/>
-                        <TextBlock x:Name="SidebarAppNameText" Text="CatchCapture" FontSize="18" FontWeight="Bold" Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="SidebarAppNameText" Text="CatchCapture" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <!-- Navigation -->
                     <TextBlock x:Name="SidebarGeneralText" Text="" Visibility="Collapsed" FontSize="12" Foreground="{StaticResource TextSecondary}" Margin="25,0,0,5" FontWeight="SemiBold"/>
                     <Button x:Name="NavCapture" Content="캡처 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Capture"/>
+                    <Button x:Name="NavTheme" Content="테마 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Theme" />
                     <Button x:Name="NavMenuEdit" Content="메뉴 편집" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="MenuEdit"/>
                     <Button x:Name="NavSystem" Content="시스템 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="System"/>
                     <Button x:Name="NavHotkey" Content="단축키 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Hotkey"/>
@@ -190,7 +191,7 @@
             </Grid.RowDefinitions>
 
             <!-- Capture Page -->
-            <Border x:Name="PageCapture" Grid.Row="0" Background="{StaticResource ContentBackground}" CornerRadius="8" Padding="30">
+            <Border x:Name="PageCapture" Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8" Padding="30">
                 <Border.Effect>
                     <DropShadowEffect Color="Black" Direction="270" ShadowDepth="1" Opacity="0.05" BlurRadius="10"/>
                 </Border.Effect>
@@ -253,8 +254,53 @@
                 </StackPanel>
             </Border>
 
+            <!-- Theme Page -->
+            <Border x:Name="PageTheme" Grid.Row="0" Background="{StaticResource ContentBackground}" CornerRadius="8" Padding="30" Visibility="Collapsed">
+                <Border.Effect>
+                    <DropShadowEffect Color="Black" Direction="270" ShadowDepth="1" Opacity="0.05" BlurRadius="10"/>
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock x:Name="ThemeSectionTitle" Text="테마 설정" Style="{StaticResource SectionTitle}"/>
+
+                    <GroupBox x:Name="ThemePresetGroup" Header="테마 선택" Margin="0,0,0,20" BorderBrush="{StaticResource BorderColor}" Padding="15">
+                        <StackPanel>
+                            <RadioButton x:Name="ThemeGeneral" Content="일반 (기본)" GroupName="Theme" Margin="0,5" Tag="General" Checked="Theme_Checked"/>
+                            <RadioButton x:Name="ThemeDark" Content="다크 모드" GroupName="Theme" Margin="0,5" Tag="Dark" Checked="Theme_Checked"/>
+                            <RadioButton x:Name="ThemeLight" Content="라이트 모드" GroupName="Theme" Margin="0,5" Tag="Light" Checked="Theme_Checked"/>
+                            <RadioButton x:Name="ThemeBlue" Content="블루 모드" GroupName="Theme" Margin="0,5" Tag="Blue" Checked="Theme_Checked"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <GroupBox x:Name="ThemeCustomGroup" Header="사용자 지정 색상" BorderBrush="{StaticResource BorderColor}" Padding="15">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="30"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="배경 색상" VerticalAlignment="Center" Foreground="{StaticResource TextSecondary}"/>
+                                <TextBox x:Name="TxtThemeBgColor" Grid.Column="1" Height="26" VerticalContentAlignment="Center" Margin="0,0,10,0" TextChanged="ThemeColor_TextChanged"/>
+                                <Border x:Name="PreviewThemeBgColor" Grid.Column="2" Width="26" Height="26" CornerRadius="3" BorderBrush="#CCC" BorderThickness="1"/>
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="30"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="텍스트 색상" VerticalAlignment="Center" Foreground="{StaticResource TextSecondary}"/>
+                                <TextBox x:Name="TxtThemeTextColor" Grid.Column="1" Height="26" VerticalContentAlignment="Center" Margin="0,0,10,0" TextChanged="ThemeColor_TextChanged"/>
+                                <Border x:Name="PreviewThemeTextColor" Grid.Column="2" Width="26" Height="26" CornerRadius="3" BorderBrush="#CCC" BorderThickness="1"/>
+                            </Grid>
+                            <TextBlock Text="※ HEX 색상 코드(예: #FFFFFF)를 입력하세요." FontSize="11" Foreground="{StaticResource TextSecondary}" Margin="0,10,0,0"/>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+            </Border>
+
             <!-- Menu Edit Page -->
-            <Border x:Name="PageMenuEdit" Grid.Row="0" Background="{StaticResource ContentBackground}" CornerRadius="8" Padding="30" Visibility="Collapsed">
+            <Border x:Name="PageMenuEdit" Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8" Padding="30" Visibility="Collapsed">
                 <Border.Effect>
                     <DropShadowEffect Color="Black" Direction="270" ShadowDepth="1" Opacity="0.05" BlurRadius="10"/>
                 </Border.Effect>
@@ -357,11 +403,11 @@
                         </ListBox.ItemContainerStyle>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding DisplayName}" 
+                                <!-- <TextBlock Text="{Binding Label}" 
                                            FontSize="13"
                                            FontWeight="Medium"
-                                           Foreground="#333333"
-                                           VerticalAlignment="Center"/>
+                                           Foreground="{DynamicResource ThemeForeground}"
+                                           VerticalAlignment="Center"/> -->
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
@@ -378,7 +424,7 @@
             </Border>
 
             <!-- Hotkey Page -->
-            <Border x:Name="PageHotkey" Grid.Row="0" Background="{StaticResource ContentBackground}" CornerRadius="8" Padding="20" Visibility="Collapsed">
+            <Border x:Name="PageHotkey" Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8" Padding="20" Visibility="Collapsed">
                  <Border.Effect>
                     <DropShadowEffect Color="Black" Direction="270" ShadowDepth="1" Opacity="0.05" BlurRadius="10"/>
                 </Border.Effect>
@@ -593,7 +639,7 @@
             </Border>
 
             <!-- System Page -->
-            <Border x:Name="PageSystem" Grid.Row="0" Background="{StaticResource ContentBackground}" CornerRadius="8" Padding="30" Visibility="Collapsed">
+            <Border x:Name="PageSystem" Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8" Padding="30" Visibility="Collapsed">
                 <Border.Effect>
                     <DropShadowEffect Color="Black" Direction="270" ShadowDepth="1" Opacity="0.05" BlurRadius="10"/>
                 </Border.Effect>

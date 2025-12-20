@@ -28,6 +28,7 @@ namespace CatchCapture
             LoadMenuEditPage();
             LoadSystemPage();
             LoadHotkeysPage();
+            LoadThemePage();
             HighlightNav(NavCapture, "Capture");
         }
 
@@ -226,14 +227,86 @@ private void InitLanguageComboBox()
         private void HighlightNav(Button btn, string tag)
         {
             NavCapture.FontWeight = tag == "Capture" ? FontWeights.Bold : FontWeights.Normal;
+            NavTheme.FontWeight = tag == "Theme" ? FontWeights.Bold : FontWeights.Normal;
             NavMenuEdit.FontWeight = tag == "MenuEdit" ? FontWeights.Bold : FontWeights.Normal;
             NavSystem.FontWeight = tag == "System" ? FontWeights.Bold : FontWeights.Normal;
             NavHotkey.FontWeight = tag == "Hotkey" ? FontWeights.Bold : FontWeights.Normal;
             
             PageCapture.Visibility = tag == "Capture" ? Visibility.Visible : Visibility.Collapsed;
+            PageTheme.Visibility = tag == "Theme" ? Visibility.Visible : Visibility.Collapsed;
             PageMenuEdit.Visibility = tag == "MenuEdit" ? Visibility.Visible : Visibility.Collapsed;
             PageSystem.Visibility = tag == "System" ? Visibility.Visible : Visibility.Collapsed;
             PageHotkey.Visibility = tag == "Hotkey" ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void LoadThemePage()
+        {
+            // Set Radio Button based on current ThemeMode
+            string mode = _settings.ThemeMode ?? "General";
+            switch (mode)
+            {
+                case "Dark": ThemeDark.IsChecked = true; break;
+                case "Light": ThemeLight.IsChecked = true; break; // Explicit Light mode
+                case "Blue": ThemeBlue.IsChecked = true; break;
+                default: ThemeGeneral.IsChecked = true; break; // "General"
+            }
+
+            // Set Color TextBoxes
+            TxtThemeBgColor.Text = _settings.ThemeBackgroundColor ?? "#FFFFFF";
+            TxtThemeTextColor.Text = _settings.ThemeTextColor ?? "#333333";
+            
+            UpdateColorPreviews();
+        }
+
+        private void UpdateColorPreviews()
+        {
+            try
+            {
+                PreviewThemeBgColor.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(TxtThemeBgColor.Text));
+            }
+            catch { PreviewThemeBgColor.Background = Brushes.Transparent; }
+
+            try
+            {
+                PreviewThemeTextColor.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(TxtThemeTextColor.Text));
+            }
+            catch { PreviewThemeTextColor.Background = Brushes.Transparent; }
+        }
+
+        private void Theme_Checked(object sender, RoutedEventArgs e)
+        {
+            if (sender is RadioButton rb && rb.IsChecked == true && rb.Tag is string info)
+            {
+                if (info == "General")
+                {
+                    TxtThemeBgColor.Text = "#FFFFFF";
+                    TxtThemeTextColor.Text = "#333333";
+                }
+                else if (info == "Dark")
+                {
+                    TxtThemeBgColor.Text = "#2D2D2D";
+                    TxtThemeTextColor.Text = "#FFFFFF";
+                }
+                else if (info == "Light")
+                {
+                    TxtThemeBgColor.Text = "#F5F5F7";
+                    TxtThemeTextColor.Text = "#333333";
+                }
+                else if (info == "Blue")
+                {
+                    TxtThemeBgColor.Text = "#E3F2FD"; // Light Blue bg
+                    TxtThemeTextColor.Text = "#0d47a1"; // Dark Blue text
+                }
+                // Custom doesn't change text boxes automatically
+            }
+        }
+
+        private void ThemeColor_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            UpdateColorPreviews();
+            // Optional: Switch to Custom mode if logic requires, but for now just let it be.
+            // If user types, we might want to uncheck presets or have a "Custom" invisible state.
+            // But requirement said user configures it.
         }
 
         private void Nav_Click(object sender, RoutedEventArgs e)
@@ -522,6 +595,15 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
 
             // Menu items order
             _settings.MainMenuItems = _menuItems.Select(m => m.Key).ToList();
+
+            // Theme Settings
+            if (ThemeDark.IsChecked == true) _settings.ThemeMode = "Dark";
+            else if (ThemeLight.IsChecked == true) _settings.ThemeMode = "Light";
+            else if (ThemeBlue.IsChecked == true) _settings.ThemeMode = "Blue";
+            else _settings.ThemeMode = "General";
+
+            _settings.ThemeBackgroundColor = TxtThemeBgColor.Text;
+            _settings.ThemeTextColor = TxtThemeTextColor.Text;
 
             Settings.Save(_settings);
             // 디버그용 메시지박스 제거 - 설정이 자동으로 저장됨

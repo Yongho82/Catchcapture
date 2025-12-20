@@ -27,7 +27,7 @@
             <Setter Property="Height" Value="35"/>
             <Setter Property="Margin" Value="5,3,5,3"/>
             <Setter Property="Background" Value="#F8F8F8"/>
-            <Setter Property="Foreground" Value="#333333"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -220,7 +220,7 @@
                     </Grid.RowDefinitions>
 
                     <!-- 왼쪽 버튼 영역 (전체 높이) -->
-                    <Border Grid.Column="0" Grid.RowSpan="2" Background="#FFFFFF" BorderThickness="0,0,1,0" BorderBrush="#E0E6F0">
+                    <Border Grid.Column="0" Grid.RowSpan="2" Background="{DynamicResource ThemeBackground}" BorderThickness="0,0,1,0" BorderBrush="{DynamicResource ThemeBorder}">
                         <StackPanel x:Name="CaptureButtonsPanel" Margin="0,12,0,12">
                             <Button x:Name="AreaCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="AreaCaptureButton_Click">
                                 <StackPanel Orientation="Horizontal">
@@ -459,7 +459,7 @@
                     </Border>
 
                     <!-- 오른쪽 캡처 표시 영역 -->
-                    <Border Grid.Column="1" Grid.Row="0" Background="#FFFFFF" Margin="0,0,0,0">
+                    <Border Grid.Column="1" Grid.Row="0" Background="{DynamicResource ThemeBackground}" Margin="0,0,0,0">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"/>
@@ -503,21 +503,21 @@
                                 </Button.Template>
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/openfolder.png" Width="18" Height="18" Margin="0,0,5,0" RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock x:Name="OpenSaveFolderButtonText" Text="저장 폴더 열기" FontSize="12" Foreground="#666666" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="OpenSaveFolderButtonText" Text="저장 폴더 열기" FontSize="12" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                         </Grid>
                     </Border>
 
                     <!-- 하단 고정 아이콘 바 -->
-                    <Border Grid.Column="1" Grid.Row="1" Background="#F8F9FC" BorderThickness="0,1,0,0" BorderBrush="#E0E6F0" Height="50">
+                    <Border Grid.Column="1" Grid.Row="1" Background="{DynamicResource ThemeBackground}" BorderThickness="0,1,0,0" BorderBrush="#E0E6F0" Height="50">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                             <!-- 복사 버튼 -->
                             <Button x:Name="CopySelectedButton" Click="CopySelectedButton_Click" IsEnabled="False"
                                     Style="{StaticResource BottomButtonStyle}">
                                 <StackPanel>
                                     <Image Source="/icons/copy_selected.png" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,0,2"/>
-                                    <TextBlock x:Name="CopySelectedBottomText" Text="복사" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="#666"/>
+                                    <TextBlock x:Name="CopySelectedBottomText" Text="복사" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
                                 </StackPanel>
                             </Button>
                             
@@ -526,7 +526,7 @@
                                     Style="{StaticResource BottomButtonStyle}">
                                 <StackPanel>
                                     <Image Source="/icons/copy_all.png" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,0,2"/>
-                                    <TextBlock x:Name="CopyAllBottomText" Text="전체복사" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="#666"/>
+                                    <TextBlock x:Name="CopyAllBottomText" Text="전체복사" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
                                 </StackPanel>
                             </Button>
                             
@@ -537,7 +537,7 @@
                                     Style="{StaticResource BottomButtonStyle}">
                                 <StackPanel>
                                     <Image Source="/icons/save_all.png" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,0,2"/>
-                                    <TextBlock x:Name="SaveAllBottomText" Text="전체저장" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="#666"/>
+                                    <TextBlock x:Name="SaveAllBottomText" Text="전체저장" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
                                 </StackPanel>
                             </Button>
                             
@@ -548,7 +548,7 @@
                                     Style="{StaticResource BottomButtonStyle}">
                                 <StackPanel>
                                     <Image Source="/icons/delete_all.png" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,0,2"/>
-                                    <TextBlock x:Name="DeleteAllBottomText" Text="전체삭제" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="#666"/>
+                                    <TextBlock x:Name="DeleteAllBottomText" Text="전체삭제" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
                                 </StackPanel>
                             </Button>
                             
@@ -559,7 +559,7 @@
                                     Style="{StaticResource BottomButtonStyle}">
                                 <StackPanel>
                                     <Image Source="/icons/setting.png" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,0,2"/>
-                                    <TextBlock x:Name="SettingsBottomText" Text="설정" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="#666"/>
+                                    <TextBlock x:Name="SettingsBottomText" Text="설정" FontSize="8" FontFamily="Segoe UI" HorizontalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
@@ -567,7 +567,7 @@
                 </Grid>     
                 <!-- 하단 팁 영역 -->
                 <Border Grid.Row="2" 
-                        Background="#F5F5F5" 
+                        Background="{DynamicResource ThemeBackground}" 
                         BorderBrush="#DDDDDD" 
                         BorderThickness="0,1,0,0"
                         Height="28">

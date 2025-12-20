@@ -7,6 +7,8 @@ using System.Diagnostics;
 using System.IO.Pipes;
 using System.IO;
 using System.Linq;
+using System.Windows.Media;
+using CatchCapture.Models;
 
 namespace CatchCapture;
 
@@ -38,6 +40,10 @@ public partial class App : Application
         var settings = CatchCapture.Models.Settings.Load();
         CatchCapture.Resources.LocalizationManager.SetLanguage(settings.Language ?? "ko");
         
+        // 테마 설정 적용
+        ApplyTheme(settings);
+        Settings.SettingsChanged += OnSettingsChanged;
+
         // 자동시작 여부 확인
         bool isAutoStart = e.Args.Length > 0 && 
                           (e.Args[0].Equals("/autostart", StringComparison.OrdinalIgnoreCase) || 
@@ -127,5 +133,41 @@ public partial class App : Application
             // ignore
         }
         base.OnExit(e);
+    }
+    private void OnSettingsChanged(object? sender, EventArgs e)
+    {
+        Dispatcher.Invoke(() =>
+        {
+            var settings = Settings.Load();
+            ApplyTheme(settings);
+        });
+    }
+
+    public static void ApplyTheme(Settings settings)
+    {
+        try
+        {
+            var bgUrl = settings.ThemeBackgroundColor ?? "#FFFFFF";
+            var fgUrl = settings.ThemeTextColor ?? "#333333";
+
+            Color bgColor = (Color)ColorConverter.ConvertFromString(bgUrl);
+            Color fgColor = (Color)ColorConverter.ConvertFromString(fgUrl);
+
+            Application.Current.Resources["ThemeBackground"] = new SolidColorBrush(bgColor);
+            Application.Current.Resources["ThemeForeground"] = new SolidColorBrush(fgColor);
+            
+            // Derive a border color
+            // Simple logic: if bg is dark, border is light, else dark
+            // Or just allow user to set it later. For now, use a safe gray.
+             Application.Current.Resources["ThemeBorder"] = new SolidColorBrush(Color.FromRgb(200, 200, 200)); 
+             if (settings.ThemeMode == "Dark")
+             {
+                 Application.Current.Resources["ThemeBorder"] = new SolidColorBrush(Color.FromRgb(60, 60, 60));
+             }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to apply theme: {ex.Message}");
+        }
     }
 }

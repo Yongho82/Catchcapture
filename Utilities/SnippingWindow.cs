@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Windows.Documents;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
@@ -1081,7 +1082,6 @@ namespace CatchCapture.Utilities
             // [수정] 편집 툴바 컨테이너 (둥근 모서리 Border)
             toolbarContainer = new Border
             {
-                Background = Brushes.White,
                 CornerRadius = new CornerRadius(8),
                 Padding = new Thickness(5),
                 Effect = new System.Windows.Media.Effects.DropShadowEffect
@@ -1092,7 +1092,9 @@ namespace CatchCapture.Utilities
                     Opacity = 0.15
                 }
             };
-            
+            toolbarContainer.SetResourceReference(Border.BackgroundProperty, "ThemeBackground");
+            toolbarContainer.SetResourceReference(TextElement.ForegroundProperty, "ThemeForeground");
+
             if (isVerticalToolbarLayout)
             {
                 toolbarContainer.Width = 60; // 세로 레이아웃 고정 너비
@@ -1522,11 +1524,11 @@ namespace CatchCapture.Utilities
             var border = new Border
             {
                 CornerRadius = new CornerRadius(6),
-                Background = Brushes.White,
                 BorderBrush = Brushes.Transparent,
                 BorderThickness = new Thickness(0),
                 Padding = new Thickness(0.5)
             };
+            border.SetResourceReference(Border.BackgroundProperty, "ThemeBackground");
             
             // 아이콘 + 텍스트 세로 배치
             var stackPanel = new StackPanel
@@ -1592,7 +1594,7 @@ namespace CatchCapture.Utilities
             {
                 if (button != activeToolButton)
                 {
-                    border.Background = Brushes.White;
+                    border.SetResourceReference(Border.BackgroundProperty, "ThemeBackground");
                     border.BorderBrush = new SolidColorBrush(Color.FromRgb(224, 230, 240));
                 }
             };
@@ -1717,7 +1719,7 @@ namespace CatchCapture.Utilities
             // 이전 활성 버튼 초기화 (Border 스타일 복구)
             if (activeToolButton != null && activeToolButton.Content is Border oldBorder)
             {
-                oldBorder.Background = Brushes.White;
+                oldBorder.SetResourceReference(Border.BackgroundProperty, "ThemeBackground");
                 oldBorder.BorderBrush = new SolidColorBrush(Color.FromRgb(224, 230, 240));
             }
             
@@ -1738,13 +1740,14 @@ namespace CatchCapture.Utilities
             // 팔레트 컨테이너 생성
             var background = new Border
             {
-                Background = Brushes.White,
                 BorderBrush = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
                 BorderThickness = new Thickness(1),
                 CornerRadius = new CornerRadius(8),
                 Padding = new Thickness(10),
                 Width = 320
             };
+            background.SetResourceReference(Border.BackgroundProperty, "ThemeBackground");
+            background.SetResourceReference(TextElement.ForegroundProperty, "ThemeForeground"); // 텍스트 색상 상속
             
             var mainGrid = new Grid();
             mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 색상
@@ -1791,11 +1794,12 @@ namespace CatchCapture.Utilities
                     Width = 20,
                     Height = 20,
                     Margin = new Thickness(2),
-                    Background = Brushes.White,
                     BorderBrush = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
                     BorderThickness = new Thickness(1),
                     Cursor = Cursors.Hand
                 };
+                addButton.SetResourceReference(Button.BackgroundProperty, "ThemeBackground");
+                addButton.SetResourceReference(Button.ForegroundProperty, "ThemeForeground");
                 addButton.Click += (s, e) =>
                 {
                     var colorDialog = new System.Windows.Forms.ColorDialog();

@@ -4,6 +4,11 @@
              xmlns:local="clr-namespace:CatchCapture"
              ShutdownMode="OnMainWindowClose">
     <Application.Resources>
+        <!-- Theme Resources -->
+        <SolidColorBrush x:Key="ThemeBackground" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="ThemeForeground" Color="#333333"/>
+        <SolidColorBrush x:Key="ThemeBorder" Color="#E0E0E0"/>
+
         <!-- 전역 스크롤바 스타일 (기본 - 얇고 연한 스타일) -->
         <Style x:Key="{x:Type ScrollBar}" TargetType="{x:Type ScrollBar}">
             <Setter Property="Background" Value="Transparent"/>

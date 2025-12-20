@@ -14,6 +14,11 @@ namespace CatchCapture.Models
         public bool OpenEditorAfterCapture { get; set; } = true; // 캡처 후 편집창 자동 열기
         public bool ShowMagnifier { get; set; } = false; // 영역 캡처 시 돋보기 표시
 
+        // Theme Settings
+        public string ThemeMode { get; set; } = "General"; // "General", "Dark", "Light", "Blue"
+        public string ThemeBackgroundColor { get; set; } = "#FFFFFF";
+        public string ThemeTextColor { get; set; } = "#333333";
+
         public void Save()
         {
             Save(this);

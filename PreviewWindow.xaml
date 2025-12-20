@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         Title="Catch Capture 이미지 편집" Height="800" Width="1390"
         WindowStartupLocation="CenterOwner"
-        Background="#F8F9FC">
+        Background="{DynamicResource ThemeBackground}">
     
     <Window.Resources>
         <!-- 툴바 버튼 스타일 -->
@@ -127,9 +127,9 @@
         </Grid.ColumnDefinitions>
 
         <!-- 도구 모음 -->
-        <Border Grid.Row="0" Grid.ColumnSpan="2" Background="White" BorderBrush="#E0E6F0" BorderThickness="0,0,0,1" Effect="{StaticResource MaterialShadow}">
+        <Border Grid.Row="0" Grid.ColumnSpan="2" Background="{DynamicResource ThemeBackground}" BorderBrush="#E0E6F0" BorderThickness="0,0,0,1" Effect="{StaticResource MaterialShadow}">
             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
-                <StackPanel Orientation="Horizontal" Margin="10,8">
+                <StackPanel Orientation="Horizontal" Margin="10,8" TextElement.Foreground="{DynamicResource ThemeForeground}">
 
                     <Button x:Name="RecaptureButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="RecaptureButton_Click" ToolTip="영역캡처">
                         <StackPanel VerticalAlignment="Top">
@@ -406,7 +406,7 @@
 
         <!-- 아이콘 하단에 표시되는 도구 옵션 팝업 -->
         <Popup x:Name="ToolOptionsPopup" Placement="Bottom" StaysOpen="False" AllowsTransparency="True">
-            <Border Background="White" BorderBrush="#D0D7E5" BorderThickness="1" CornerRadius="6" Padding="10" Effect="{StaticResource MaterialShadow}">
+            <Border Background="{DynamicResource ThemeBackground}" BorderBrush="#D0D7E5" BorderThickness="1" CornerRadius="6" Padding="10" Effect="{StaticResource MaterialShadow}">
                 <StackPanel x:Name="ToolOptionsPopupContent" Orientation="Horizontal" />
             </Border>
         </Popup>
@@ -511,7 +511,7 @@
         </Border>
 
         <!-- 하단 옵션 패널 (편집 도구 옵션) - 이미지 위에 오버레이 -->
-        <Border x:Name="EditToolPanel" Grid.Row="1" Grid.ColumnSpan="2" Background="White" BorderBrush="#D0D7E5" 
+        <Border x:Name="EditToolPanel" Grid.Row="1" Grid.ColumnSpan="2" Background="{DynamicResource ThemeBackground}" BorderBrush="#D0D7E5" 
                 BorderThickness="0,1,0,0" Visibility="Collapsed" Effect="{StaticResource MaterialShadow}"
                 VerticalAlignment="Bottom">
             <Grid Margin="0">
@@ -527,7 +527,7 @@
                     </Grid.ColumnDefinitions>
                     
                     <!-- 패널 제목 -->
-                    <TextBlock x:Name="ToolTitleText" Text="도구 옵션" FontWeight="SemiBold" FontSize="12"
+                    <TextBlock x:Name="ToolTitleText" Text="도구 옵션" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource ThemeForeground}"
                                Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,0"/>
                     
                     <!-- 옵션 컨텐츠 - 가로 배열로 변경 -->
@@ -566,7 +566,7 @@
         <!-- 우측 캡처 리스트 패널 -->
         <Border x:Name="CaptureListBorder" 
                 Grid.Row="1" Grid.Column="1"
-                Background="#FFFFFF" 
+                Background="{DynamicResource ThemeBackground}" 
                 BorderBrush="#E0E6F0" 
                 BorderThickness="1,0,0,0">
             <Border.Effect>
@@ -583,7 +583,7 @@
                 </Grid.RowDefinitions>
                                 
                 <!-- 헤더 영역 -->
-                <Border Grid.Row="0" Background="#F8F9FC" BorderThickness="0,0,0,1" BorderBrush="#E0E6F0" Padding="12,10">
+                <Border Grid.Row="0" Background="{DynamicResource ThemeBackground}" BorderThickness="0,0,0,1" BorderBrush="#E0E6F0" Padding="12,10">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -592,7 +592,7 @@
                         
                         <!-- 제목과 캡처 개수 -->
                         <Grid Grid.Row="0">
-                            <TextBlock x:Name="RecentCapturesTitle" Text="최근 캡처 목록" FontWeight="SemiBold" FontSize="13" Foreground="#333" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="RecentCapturesTitle" Text="최근 캡처 목록" FontWeight="SemiBold" FontSize="13" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
                             <TextBlock x:Name="CaptureCountText" Text="(0)" FontSize="12" Foreground="#888" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                         </Grid>
                         

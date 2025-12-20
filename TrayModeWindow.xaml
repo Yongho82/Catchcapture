@@ -102,17 +102,17 @@
 
         <!-- Dark ContextMenu style -->
         <Style x:Key="DarkContextMenu" TargetType="ContextMenu">
-            <Setter Property="Background" Value="#2D2D30"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#686868"/>
+            <Setter Property="Background" Value="{DynamicResource ThemeBackground}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorder}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
 
         <!-- Dark MenuItem style (icon column collapses when no Icon) -->
         <Style x:Key="DarkMenuItem" TargetType="MenuItem">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
+            <Setter Property="Background" Value="{DynamicResource ThemeBackground}"/>
             <Setter Property="Padding" Value="10,6"/>
             <Setter Property="Icon" Value="{x:Null}"/>
             <Setter Property="Template">
@@ -155,7 +155,7 @@
         </Style>
     </Window.Resources>
     
-    <Border Background="White" CornerRadius="8" BorderThickness="1" BorderBrush="#E0E6F0">
+    <Border Background="{DynamicResource ThemeBackground}" CornerRadius="8" BorderThickness="1" BorderBrush="#E0E6F0">
         <Border.Effect>
             <DropShadowEffect ShadowDepth="2" BlurRadius="10" Opacity="0.3" Direction="270"/>
         </Border.Effect>
@@ -206,7 +206,8 @@
                                FontSize="18" 
                                FontWeight="Bold"
                                HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
+                               VerticalAlignment="Center"
+                               Foreground="{DynamicResource ThemeForeground}"/>
                 </Button>
 
                 <!-- 구분선 -->
@@ -329,7 +330,7 @@
                 <!-- 접기/펼치기 버튼 -->
                 <Button x:Name="FoldButton" Style="{StaticResource TinyButtonStyle}" 
                         Click="FoldButton_Click">
-                    <TextBlock x:Name="FoldIcon" Text="▼" FontSize="14" FontWeight="Bold" Foreground="#666"
+                    <TextBlock x:Name="FoldIcon" Text="▼" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Button>
             </StackPanel>
