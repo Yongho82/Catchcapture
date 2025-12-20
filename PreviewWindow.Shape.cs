@@ -291,16 +291,16 @@ namespace CatchCapture
         private void UpdateShapeTypeButtons()
         {
             if (rectButton != null)
-                rectButton.Background = (shapeType == ShapeType.Rectangle) ? Brushes.LightBlue : Brushes.Transparent;
+                rectButton.Background = (shapeType == ShapeType.Rectangle) ? GetActiveToolBrush() : Brushes.Transparent;
 
             if (ellipseButton != null)
-                ellipseButton.Background = (shapeType == ShapeType.Ellipse) ? Brushes.LightBlue : Brushes.Transparent;
+                ellipseButton.Background = (shapeType == ShapeType.Ellipse) ? GetActiveToolBrush() : Brushes.Transparent;
 
             if (lineButton != null)
-                lineButton.Background = (shapeType == ShapeType.Line) ? Brushes.LightBlue : Brushes.Transparent;
+                lineButton.Background = (shapeType == ShapeType.Line) ? GetActiveToolBrush() : Brushes.Transparent;
 
             if (arrowButton != null)
-                arrowButton.Background = (shapeType == ShapeType.Arrow) ? Brushes.LightBlue : Brushes.Transparent;
+                arrowButton.Background = (shapeType == ShapeType.Arrow) ? GetActiveToolBrush() : Brushes.Transparent;
         }
 
         #endregion

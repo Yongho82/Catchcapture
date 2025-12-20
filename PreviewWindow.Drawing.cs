@@ -359,9 +359,9 @@ namespace CatchCapture
 
             selectionRectangle = new Rectangle
             {
-                Stroke = Brushes.Red,
+                Stroke = GetActiveToolBrush(),
                 StrokeThickness = 2,
-                Fill = new SolidColorBrush(Color.FromArgb(30, 255, 0, 0))
+                Fill = new SolidColorBrush(Color.FromArgb(30, 100, 149, 237)) // Softer blue
             };
 
             Canvas.SetLeft(selectionRectangle, startPoint.X);

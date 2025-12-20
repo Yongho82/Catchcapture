@@ -13,10 +13,10 @@ namespace CatchCapture
 {
     public partial class SettingsWindow : Window
     {
-        private Settings _settings;
-        private string _originalThemeMode;
-        private string _originalThemeBg;
-        private string _originalThemeFg;
+        private Settings _settings = null!;
+        private string _originalThemeMode = string.Empty;
+        private string _originalThemeBg = string.Empty;
+        private string _originalThemeFg = string.Empty;
         private int[] _customColors = new int[16]; // 색상 대화상자의 사용자 지정 색상 저장
 
         public SettingsWindow()
@@ -89,7 +89,6 @@ private void UpdateUIText()
                 if (MenuEditSectionTitle != null) MenuEditSectionTitle.Text = LocalizationManager.GetString("MenuEdit");
                 if (MenuEditGuideText != null) MenuEditGuideText.Text = LocalizationManager.GetString("MenuEditGuide");
                 if (AddMenuButton != null) AddMenuButton.Content = "+ " + (LocalizationManager.GetString("Add") ?? "추가"); 
-                if (RestoreMenuButton != null) RestoreMenuButton.Content = LocalizationManager.GetString("RestoreDefaultMenus");
                 
                 // 앱 이름과 하단 정보
                 if (SidebarAppNameText != null) SidebarAppNameText.Text = LocalizationManager.GetString("AppTitle");
@@ -299,21 +298,30 @@ private void InitLanguageComboBox()
             {
                 if (PreviewThemeBgColor != null)
                 {
-                    PreviewThemeBgColor.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(_settings.ThemeBackgroundColor ?? "#FFFFFF"));
+                    string bgColor = string.IsNullOrEmpty(_settings.ThemeBackgroundColor) ? "#FFFFFF" : _settings.ThemeBackgroundColor;
+                    PreviewThemeBgColor.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(bgColor));
                 }
             }
-            catch { if (PreviewThemeBgColor != null) PreviewThemeBgColor.Background = Brushes.Transparent; }
+            catch { if (PreviewThemeBgColor != null) PreviewThemeBgColor.Background = Brushes.White; }
 
             try
             {
                 if (PreviewThemeTextColor != null)
                 {
-                    PreviewThemeTextColor.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(_settings.ThemeTextColor ?? "#333333"));
+                    string textColor = string.IsNullOrEmpty(_settings.ThemeTextColor) ? "#333333" : _settings.ThemeTextColor;
+                    PreviewThemeTextColor.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(textColor));
                 }
             }
-            catch { if (PreviewThemeTextColor != null) PreviewThemeTextColor.Background = Brushes.Transparent; }
+            catch { if (PreviewThemeTextColor != null) PreviewThemeTextColor.Background = Brushes.Black; }
             
-            // Apply real-time preview
+            // 사용자 지정 모드일 때만 색상 선택 가능하도록 활성화
+            if (ThemeCustomGroup != null && ThemeCustom != null)
+            {
+                ThemeCustomGroup.IsEnabled = ThemeCustom.IsChecked == true;
+                ThemeCustomGroup.Opacity = ThemeCustom.IsChecked == true ? 1.0 : 0.5;
+            }
+
+            // Apply real-time preview to the whole app
             App.ApplyTheme(_settings);
         }
 
@@ -342,6 +350,12 @@ private void InitLanguageComboBox()
                     _settings.ThemeBackgroundColor = "#E3F2FD";
                     _settings.ThemeTextColor = "#0d47a1";
                 }
+                else if (info == "Custom")
+                {
+                    // If switching to custom, ensure we have at least some default colors
+                    if (string.IsNullOrEmpty(_settings.ThemeBackgroundColor)) _settings.ThemeBackgroundColor = "#FFFFFF";
+                    if (string.IsNullOrEmpty(_settings.ThemeTextColor)) _settings.ThemeTextColor = "#333333";
+                }
                 
                 UpdateColorPreviews();
             }
@@ -358,7 +372,9 @@ private void InitLanguageComboBox()
             {
                 var dialog = new System.Windows.Forms.ColorDialog();
                 dialog.FullOpen = true;
-                dialog.CustomColors = _customColors; // 이전의 사용자 지정 색상 복구
+                
+                // 팔레트 상태 복원 (깊은 복사)
+                if (_customColors != null) dialog.CustomColors = (int[])_customColors.Clone();
                 
                 string currentHex = type == "Bg" ? (_settings.ThemeBackgroundColor ?? "#FFFFFF") : (_settings.ThemeTextColor ?? "#333333");
                 try
@@ -370,7 +386,9 @@ private void InitLanguageComboBox()
 
                 if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                    _customColors = dialog.CustomColors; // 팔레트 상태 저장
+                    // 팔레트 상태 저장 (깊은 복사)
+                    _customColors = (int[])dialog.CustomColors.Clone();
+                    
                     string hex = $"#{dialog.Color.R:X2}{dialog.Color.G:X2}{dialog.Color.B:X2}";
                     
                     if (type == "Bg") _settings.ThemeBackgroundColor = hex;
@@ -380,12 +398,11 @@ private void InitLanguageComboBox()
                     if (ThemeCustom != null) 
                     {
                         ThemeCustom.IsChecked = true;
-                        // IsChecked를 바꾸면 Theme_Checked 이벤트가 발생하여 UpdateColorPreviews -> App.ApplyTheme가 호출됨
+                        _settings.ThemeMode = "Custom";
                     }
                     
-                    // 만약 이미 Custom이었거나 이벤트가 안 탔을 경우를 대비해 직접 호출
                     UpdateColorPreviews();
-                    App.ApplyTheme(_settings);
+                    // App.ApplyTheme는 UpdateColorPreviews 내부에서 자동으로 호출됨
                 }
             }
         }
@@ -1115,37 +1132,6 @@ private void InitLanguageComboBox()
             else
             {
                 CatchCapture.CustomMessageBox.Show("추가할 메뉴를 선택해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-        }
-
-        private void RestoreMenu_Click(object sender, RoutedEventArgs e)
-        {
-            var result = CatchCapture.CustomMessageBox.Show(
-                "기본 메뉴로 복원하시겠습니까?",
-                "확인",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
-
-            if (result == MessageBoxResult.Yes)
-            {
-                // Restore to default menu items
-                _menuItems.Clear();
-                var defaultKeys = new[]
-                {
-                    "AreaCapture", "DelayCapture", "RealTimeCapture", "MultiCapture",
-                    "FullScreen", "DesignatedCapture", "WindowCapture", "ElementCapture", "ScrollCapture", "OcrCapture"
-                };
-
-                foreach (var key in defaultKeys)
-                {
-                    _menuItems.Add(new MenuItemViewModel
-                    {
-                        Key = key,
-                        DisplayName = GetMenuItemDisplayName(key)
-                    });
-                }
-
-                UpdateAvailableMenus();
             }
         }
 

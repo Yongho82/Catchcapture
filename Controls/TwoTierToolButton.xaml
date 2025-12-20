@@ -32,16 +32,19 @@
                             <!-- 라벨 -->
                             <Viewbox Width="54" Stretch="Uniform" StretchDirection="DownOnly">
                                 <TextBlock Text="{Binding Label, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                         Foreground="{DynamicResource ThemeForeground}"
                                          FontSize="12" HorizontalAlignment="Center"/>
                             </Viewbox>
                         </StackPanel>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#E8F3FF" TargetName="border"/>
+                            <Setter Property="Background" Value="{DynamicResource ThemeBorder}" TargetName="border"/>
+                            <Setter Property="Opacity" Value="0.6" TargetName="border"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter Property="Background" Value="#CCE4FF" TargetName="border"/>
+                            <Setter Property="Background" Value="{DynamicResource ThemeBorder}" TargetName="border"/>
+                            <Setter Property="Opacity" Value="0.8" TargetName="border"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -59,14 +62,16 @@
                             BorderThickness="0"
                             CornerRadius="0,0,6,6"
                             Height="13">
-                        <TextBlock Text="▼" FontSize="8" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#888"/>
+                        <TextBlock Text="▼" FontSize="8" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#E8F3FF" TargetName="border"/>
+                            <Setter Property="Background" Value="{DynamicResource ThemeBorder}" TargetName="border"/>
+                            <Setter Property="Opacity" Value="0.6" TargetName="border"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter Property="Background" Value="#CCE4FF" TargetName="border"/>
+                            <Setter Property="Background" Value="{DynamicResource ThemeBorder}" TargetName="border"/>
+                            <Setter Property="Opacity" Value="0.8" TargetName="border"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

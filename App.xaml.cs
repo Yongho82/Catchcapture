@@ -172,6 +172,37 @@ public partial class App : Application
                     borderColor = Color.FromRgb(220, 220, 220); // Darker border for light bg
                 }
                 Application.Current.Resources["ThemeBorder"] = new SolidColorBrush(borderColor);
+                Application.Current.Resources["ThemeWindowBorder"] = new SolidColorBrush(borderColor); // Default to standard border
+
+                // Title Bar Colors (Specific colors for General mode as per user feedback)
+                if (settings.ThemeMode == "General")
+                {
+                    var mainBlue = Color.FromRgb(78, 106, 223);
+                    Application.Current.Resources["ThemeTitleBackground"] = new SolidColorBrush(mainBlue); 
+                    Application.Current.Resources["ThemeTitleForeground"] = Brushes.White;
+                    Application.Current.Resources["ThemeSimpleTitleBackground"] = new SolidColorBrush(Color.FromRgb(206, 230, 255)); 
+                    Application.Current.Resources["ThemeSimpleTitleForeground"] = new SolidColorBrush(Color.FromRgb(32, 61, 133)); 
+                    
+                    // Match window border to title for seamless look
+                    Application.Current.Resources["ThemeWindowBorder"] = new SolidColorBrush(mainBlue);
+                }
+                else if (settings.ThemeMode == "Dark")
+                {
+                    Application.Current.Resources["ThemeTitleBackground"] = new SolidColorBrush(Color.FromRgb(45, 45, 45));
+                    Application.Current.Resources["ThemeTitleForeground"] = Brushes.White;
+                    Application.Current.Resources["ThemeSimpleTitleBackground"] = new SolidColorBrush(Color.FromRgb(60, 60, 60));
+                    Application.Current.Resources["ThemeSimpleTitleForeground"] = Brushes.White;
+                }
+                else
+                {
+                    // For Blue and Light modes, use theme-based colors
+                    var bgBrush = new SolidColorBrush(bgColor);
+                    var fgBrush = new SolidColorBrush(fgColor);
+                    Application.Current.Resources["ThemeTitleBackground"] = bgBrush;
+                    Application.Current.Resources["ThemeTitleForeground"] = fgBrush;
+                    Application.Current.Resources["ThemeSimpleTitleBackground"] = bgBrush;
+                    Application.Current.Resources["ThemeSimpleTitleForeground"] = fgBrush;
+                }
             }
         }
         catch (Exception ex)

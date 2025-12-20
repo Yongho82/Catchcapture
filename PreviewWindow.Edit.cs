@@ -330,7 +330,7 @@ namespace CatchCapture
                 FontFamily = new FontFamily(textFontFamily),
                 Foreground = new SolidColorBrush(textColor),
                 Background = Brushes.Transparent,
-                BorderBrush = new SolidColorBrush(Colors.DeepSkyBlue),
+                BorderBrush = GetActiveToolBrush(),
                 BorderThickness = new Thickness(2),
                 Padding = new Thickness(5),
                 TextWrapping = TextWrapping.Wrap,
@@ -379,7 +379,7 @@ namespace CatchCapture
         {
             textBox.IsReadOnly = false;
             textBox.BorderThickness = new Thickness(2);
-            textBox.BorderBrush = new SolidColorBrush(Colors.DeepSkyBlue);
+            textBox.BorderBrush = GetActiveToolBrush();
 
             // IME(한글 입력) 활성화 설정
             try {
@@ -400,11 +400,11 @@ namespace CatchCapture
                 Height = 24,
                 FontSize = 14,
                 FontWeight = FontWeights.Bold,
-                Background = new SolidColorBrush(Color.FromArgb(255, 76, 175, 80)),
+                Background = new SolidColorBrush(Color.FromArgb(200, 76, 175, 80)),
                 Foreground = Brushes.White,
                 BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
-                ToolTip = CatchCapture.Models.LocalizationManager.Get("Confirm") + " (Ctrl+Enter)"
+                ToolTip = CatchCapture.Resources.LocalizationManager.GetString("Confirm") + " (Ctrl+Enter)"
             };
 
             // 취소 버튼 (✕)
@@ -415,11 +415,11 @@ namespace CatchCapture
                 Height = 24,
                 FontSize = 14,
                 FontWeight = FontWeights.Bold,
-                Background = new SolidColorBrush(Color.FromArgb(255, 244, 67, 54)),
+                Background = new SolidColorBrush(Color.FromArgb(200, 244, 67, 54)),
                 Foreground = Brushes.White,
                 BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
-                ToolTip = CatchCapture.Models.LocalizationManager.Get("Cancel") + " (Esc)"
+                ToolTip = CatchCapture.Resources.LocalizationManager.GetString("Cancel") + " (Esc)"
             };
 
             // 이벤트 연결
@@ -693,7 +693,7 @@ namespace CatchCapture
                     FontFamily = fontFamily,
                     Foreground = foreground,
                     Background = Brushes.Transparent,
-                    BorderBrush = new SolidColorBrush(Colors.DeepSkyBlue),
+                    BorderBrush = GetActiveToolBrush(),
                     BorderThickness = new Thickness(2),
                     Padding = new Thickness(5),
                     TextWrapping = TextWrapping.Wrap,
@@ -778,7 +778,7 @@ namespace CatchCapture
             {
                 Width = width + 4,
                 Height = height + 4,
-                Stroke = new SolidColorBrush(Colors.DeepSkyBlue),
+                Stroke = GetActiveToolBrush(),
                 StrokeThickness = 2,
                 StrokeDashArray = new DoubleCollection { 4, 2 },
                 Fill = Brushes.Transparent,
@@ -796,11 +796,11 @@ namespace CatchCapture
                 Width = 24,
                 Height = 24,
                 FontSize = 12,
-                Background = new SolidColorBrush(Color.FromArgb(255, 244, 67, 54)),
+                Background = new SolidColorBrush(Color.FromArgb(200, 244, 67, 54)),
                 Foreground = Brushes.White,
                 BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
-                ToolTip = CatchCapture.Models.LocalizationManager.Get("Delete")
+                ToolTip = CatchCapture.Resources.LocalizationManager.GetString("Delete")
             };
 
             textDeleteButton.Click += (s, e) =>

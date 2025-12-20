@@ -960,8 +960,23 @@ namespace CatchCapture
             // Debug logging disabled
         }
 
-        // 활성화된 툴 버튼 강조 표시 색상 (호버 색상과 동일하게 유지)
-        private static readonly Brush ActiveToolBackground = (Brush)new BrushConverter().ConvertFromString("#E8F3FF")!;
+        // 활성화된 툴 버튼 강조 표시 색상 (테마에 따라 동적으로 결정됨)
+        private Brush GetActiveToolBrush()
+        {
+            try
+            {
+                // 테마의 테두리 색상을 가져옴
+                var borderBrush = Application.Current.Resources["ThemeBorder"] as SolidColorBrush;
+                if (borderBrush != null)
+                {
+                    var color = borderBrush.Color;
+                    // 약간 더 진하게 혹은 투명하게 조정하여 강조 효과 생성
+                    return new SolidColorBrush(Color.FromArgb(180, color.R, color.G, color.B));
+                }
+            }
+            catch { }
+            return new SolidColorBrush(Color.FromRgb(232, 243, 255)); // 기본값 (연한 파랑)
+        }
         private static readonly Brush InactiveToolBackground = Brushes.Transparent;
 
         private void SetActiveToolButton(FrameworkElement? active)
@@ -984,12 +999,14 @@ namespace CatchCapture
                 if (element == null) continue;
                 
                 bool isActive = (active != null && element == active);
-                var bgColor = isActive ? ActiveToolBackground : InactiveToolBackground;
+                var bgColor = isActive ? GetActiveToolBrush() : InactiveToolBackground;
                 
-                // Button인 경우 (CropButton, ShapeButton)
+                // Button인 경우 (CropButton, ShapeButton, ImageSearch, Share, OCR)
                 if (element is Button b)
                 {
                     b.Background = bgColor;
+                    // 선택된 경우 약간의 투명도 조절로 강조
+                    b.Opacity = isActive ? 1.0 : 0.9;
                 }
                 // TwoTierToolButton인 경우 (펜, 형광펜, 텍스트, 모자이크, 지우개)
                 else if (element is CatchCapture.Controls.TwoTierToolButton ttb)

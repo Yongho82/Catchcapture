@@ -54,7 +54,7 @@ namespace CatchCapture
             Border separator = new Border
             {
                 Width = 1,
-                Background = new SolidColorBrush(Color.FromRgb(230, 230, 230)),
+                Background = (Brush)Application.Current.Resources["ThemeBorder"],
                 Margin = new Thickness(0, 5, 15, 5)
             };
             Grid.SetColumn(separator, 1);
@@ -102,7 +102,8 @@ namespace CatchCapture
                 {
                     Text = $"{p}px",
                     FontSize = 11,
-                    Foreground = Brushes.Gray,
+                    Foreground = (Brush)Application.Current.Resources["ThemeForeground"],
+                    Opacity = 0.6,
                     Margin = new Thickness(8, 0, 0, 0),
                     VerticalAlignment = VerticalAlignment.Center
                 };
@@ -111,8 +112,9 @@ namespace CatchCapture
 
                 if (highlightThickness == p)
                 {
-                    item.Background = new SolidColorBrush(Color.FromRgb(240, 240, 255));
-                    text.Foreground = Brushes.Black;
+                    item.Background = GetActiveToolBrush();
+                    text.Foreground = (Brush)Application.Current.Resources["ThemeForeground"];
+                    text.Opacity = 1.0;
                     text.FontWeight = FontWeights.Bold;
                 }
 
@@ -151,7 +153,8 @@ namespace CatchCapture
             {
                 Text = $"{(highlightColor.A / 255.0 * 100):F0}%",
                 FontSize = 11,
-                Foreground = Brushes.Gray,
+                Foreground = (Brush)Application.Current.Resources["ThemeForeground"],
+                Opacity = 0.6,
                 HorizontalAlignment = HorizontalAlignment.Right,
                 Margin = new Thickness(0, 2, 0, 0)
             };
@@ -271,7 +274,7 @@ namespace CatchCapture
             Border separator = new Border
             {
                 Width = 1,
-                Background = new SolidColorBrush(Color.FromRgb(230, 230, 230)),
+                Background = (Brush)Application.Current.Resources["ThemeBorder"],
                 Margin = new Thickness(0, 5, 15, 5)
             };
             Grid.SetColumn(separator, 1);
@@ -334,7 +337,8 @@ namespace CatchCapture
             {
                 Text = $"{textSize:F0}px",
                 FontSize = 11,
-                Foreground = Brushes.Gray,
+                Foreground = (Brush)Application.Current.Resources["ThemeForeground"],
+                Opacity = 0.6,
                 HorizontalAlignment = HorizontalAlignment.Right,
                 Margin = new Thickness(0, 2, 0, 0)
             };
@@ -532,7 +536,7 @@ namespace CatchCapture
             Border separator = new Border
             {
                 Width = 1,
-                Background = new SolidColorBrush(Color.FromRgb(230, 230, 230)),
+                Background = (Brush)Application.Current.Resources["ThemeBorder"],
                 Margin = new Thickness(0, 5, 15, 5)
             };
             Grid.SetColumn(separator, 1);
@@ -576,7 +580,8 @@ namespace CatchCapture
                 {
                     Text = $"{p}px",
                     FontSize = 11,
-                    Foreground = Brushes.Gray,
+                    Foreground = (Brush)Application.Current.Resources["ThemeForeground"],
+                    Opacity = 0.6,
                     Margin = new Thickness(8, 0, 0, 0),
                     VerticalAlignment = VerticalAlignment.Center
                 };
@@ -591,7 +596,7 @@ namespace CatchCapture
                     {
                         if (child is Grid g) g.Background = Brushes.Transparent;
                     }
-                    item.Background = new SolidColorBrush(Color.FromArgb(40, 0, 120, 212));
+                    item.Background = GetActiveToolBrush();
                 };
 
                 thicknessList.Children.Add(item);
@@ -790,7 +795,8 @@ namespace CatchCapture
             {
                 Text = LocalizationManager.Get("MagicWandDesc"),
                 FontSize = 11,
-                Foreground = Brushes.Gray,
+                Foreground = (Brush)Application.Current.Resources["ThemeForeground"],
+                Opacity = 0.6,
                 Margin = new Thickness(0, 8, 0, 0),
                 TextWrapping = TextWrapping.Wrap
             };

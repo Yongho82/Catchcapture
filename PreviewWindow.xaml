@@ -127,7 +127,7 @@
         </Grid.ColumnDefinitions>
 
         <!-- 도구 모음 -->
-        <Border Grid.Row="0" Grid.ColumnSpan="2" Background="{DynamicResource ThemeBackground}" BorderBrush="#E0E6F0" BorderThickness="0,0,0,1" Effect="{StaticResource MaterialShadow}">
+        <Border Grid.Row="0" Grid.ColumnSpan="2" Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="0,0,0,1" Effect="{StaticResource MaterialShadow}">
             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
                 <StackPanel Orientation="Horizontal" Margin="10,8" TextElement.Foreground="{DynamicResource ThemeForeground}">
 
@@ -135,7 +135,7 @@
                         <StackPanel VerticalAlignment="Top">
                             <Image Source="icons/area_capture.png" Width="28" Height="20" Margin="0,2,0,7"/>
                             <Viewbox Width="54" Stretch="Uniform" StretchDirection="DownOnly">
-                                <TextBlock x:Name="RecaptureLabelText" Text="재캡처" FontSize="12" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="RecaptureLabelText" Text="재캡처" Foreground="{DynamicResource ThemeForeground}" FontSize="12" HorizontalAlignment="Center"/>
                             </Viewbox>
                         </StackPanel>
                     </Button>
@@ -147,7 +147,7 @@
                         <StackPanel VerticalAlignment="Top">
                             <Image Source="icons/printer.png" Width="20" Height="20" Margin="0,2,0,7"/>
                             <Viewbox Width="54" Stretch="Uniform" StretchDirection="DownOnly">
-                                <TextBlock x:Name="PrintLabelText" Text="인쇄" FontSize="12" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="PrintLabelText" Text="인쇄" Foreground="{DynamicResource ThemeForeground}" FontSize="12" HorizontalAlignment="Center"/>
                             </Viewbox>
                         </StackPanel>
                     </Button>
@@ -156,7 +156,7 @@
                         <StackPanel VerticalAlignment="Top">
                             <Image Source="icons/save_selected.png" Width="20" Height="20" Margin="0,2,0,7"/>
                             <Viewbox Width="54" Stretch="Uniform" StretchDirection="DownOnly">
-                                <TextBlock x:Name="SaveLabelText" Text="저장" FontSize="12" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="SaveLabelText" Text="저장" Foreground="{DynamicResource ThemeForeground}" FontSize="12" HorizontalAlignment="Center"/>
                             </Viewbox>
                         </StackPanel>
                     </Button>
@@ -165,7 +165,7 @@
                         <StackPanel VerticalAlignment="Top">
                             <Image Source="icons/copy_selected.png" Width="20" Height="20" Margin="0,2,0,7"/>
                             <Viewbox Width="54" Stretch="Uniform" StretchDirection="DownOnly">
-                                <TextBlock x:Name="CopyLabelText" Text="복사" FontSize="12" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="CopyLabelText" Text="복사" Foreground="{DynamicResource ThemeForeground}" FontSize="12" HorizontalAlignment="Center"/>
                             </Viewbox>
                         </StackPanel>
                     </Button>                    
@@ -176,7 +176,7 @@
                         <StackPanel VerticalAlignment="Top">
                             <Image Source="icons/undo.png" Width="20" Height="20" Margin="0,2,0,7"/>
                             <Viewbox Width="54" Stretch="Uniform" StretchDirection="DownOnly">
-                                <TextBlock x:Name="UndoLabelText" Text="실행취소" FontSize="12" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="UndoLabelText" Text="실행취소" Foreground="{DynamicResource ThemeForeground}" FontSize="12" HorizontalAlignment="Center"/>
                             </Viewbox>
                         </StackPanel>
                     </Button>
@@ -185,7 +185,7 @@
                         <StackPanel VerticalAlignment="Top">
                             <Image Source="icons/redo.png" Width="20" Height="20" Margin="0,2,0,7"/>
                             <Viewbox Width="54" Stretch="Uniform" StretchDirection="DownOnly">
-                                <TextBlock x:Name="RedoLabelText" Text="다시실행" FontSize="12" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="RedoLabelText" Text="다시실행" Foreground="{DynamicResource ThemeForeground}" FontSize="12" HorizontalAlignment="Center"/>
                             </Viewbox>
                         </StackPanel>
                     </Button>
@@ -194,7 +194,7 @@
                         <StackPanel VerticalAlignment="Top">
                             <Image Source="icons/reset.png" Width="20" Height="20" Margin="0,2,0,7"/>
                             <Viewbox Width="54" Stretch="Uniform" StretchDirection="DownOnly">
-                                <TextBlock x:Name="ResetLabelText" Text="초기화" FontSize="12" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="ResetLabelText" Text="초기화" Foreground="{DynamicResource ThemeForeground}" FontSize="12" HorizontalAlignment="Center"/>
                             </Viewbox>
                         </StackPanel>
                     </Button>
@@ -205,7 +205,7 @@
                         <StackPanel VerticalAlignment="Top">
                             <Image Source="icons/crop.png" Width="20" Height="20" Margin="0,2,0,7"/>
                             <Viewbox Width="54" Stretch="Uniform" StretchDirection="DownOnly">
-                                <TextBlock x:Name="CropLabelText" Text="자르기" FontSize="12" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="CropLabelText" Text="자르기" Foreground="{DynamicResource ThemeForeground}" FontSize="12" HorizontalAlignment="Center"/>
                             </Viewbox>
                         </StackPanel>
                     </Button>
@@ -214,7 +214,7 @@
                         <StackPanel VerticalAlignment="Top">
                             <Image Source="icons/rotate.png" Width="20" Height="20" Margin="0,2,0,7"/>
                             <Viewbox Width="54" Stretch="Uniform" StretchDirection="DownOnly">
-                                <TextBlock x:Name="RotateLabelText" Text="회전" FontSize="12" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="RotateLabelText" Text="회전" Foreground="{DynamicResource ThemeForeground}" FontSize="12" HorizontalAlignment="Center"/>
                             </Viewbox>
                         </StackPanel>
                     </Button>
@@ -223,7 +223,7 @@
                         <StackPanel VerticalAlignment="Top">
                             <Image Source="icons/flip_horizontal.png" Width="20" Height="20" Margin="0,2,0,7"/>
                             <Viewbox Width="54" Stretch="Uniform" StretchDirection="DownOnly">
-                                <TextBlock x:Name="FlipHorizontalLabelText" Text="좌우반전" FontSize="12" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="FlipHorizontalLabelText" Text="좌우반전" Foreground="{DynamicResource ThemeForeground}" FontSize="12" HorizontalAlignment="Center"/>
                             </Viewbox>
                         </StackPanel>
                     </Button>
@@ -232,7 +232,7 @@
                         <StackPanel VerticalAlignment="Top">
                             <Image Source="icons/flip_vertical.png" Width="20" Height="20" Margin="0,2,0,7"/>
                             <Viewbox Width="54" Stretch="Uniform" StretchDirection="DownOnly">
-                                <TextBlock x:Name="FlipVerticalLabelText" Text="상하반전" FontSize="12" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="FlipVerticalLabelText" Text="상하반전" Foreground="{DynamicResource ThemeForeground}" FontSize="12" HorizontalAlignment="Center"/>
                             </Viewbox>
                         </StackPanel>
                     </Button>
@@ -258,16 +258,18 @@
                                         <StackPanel>
                                             <Image Source="icons/shape.png" Width="20" Height="20" Margin="0,2,0,7"/>
                                             <Viewbox Width="54" Stretch="Uniform" StretchDirection="DownOnly">
-                                                <TextBlock x:Name="ShapeLabelText" Text="도형" FontSize="12" HorizontalAlignment="Center"/>
+                                                <TextBlock x:Name="ShapeLabelText" Text="도형" Foreground="{DynamicResource ThemeForeground}" FontSize="12" HorizontalAlignment="Center"/>
                                             </Viewbox>
                                         </StackPanel>
                                     </Border>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="#E8F3FF" TargetName="border"/>
+                                            <Setter Property="Background" Value="{DynamicResource ThemeBorder}" TargetName="border"/>
+                                            <Setter Property="Opacity" Value="0.6" TargetName="border"/>
                                         </Trigger>
                                         <Trigger Property="IsPressed" Value="True">
-                                            <Setter Property="Background" Value="#CCE4FF" TargetName="border"/>
+                                            <Setter Property="Background" Value="{DynamicResource ThemeBorder}" TargetName="border"/>
+                                            <Setter Property="Opacity" Value="0.8" TargetName="border"/>
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
@@ -285,14 +287,16 @@
                                             BorderThickness="0"
                                             CornerRadius="0,0,6,6"
                                             Height="13">
-                                        <TextBlock Text="▼" FontSize="8" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#888"/>
+                                        <TextBlock Text="▼" FontSize="8" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
                                     </Border>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="#E8F3FF" TargetName="border"/>
+                                            <Setter Property="Background" Value="{DynamicResource ThemeBorder}" TargetName="border"/>
+                                            <Setter Property="Opacity" Value="0.6" TargetName="border"/>
                                         </Trigger>
                                         <Trigger Property="IsPressed" Value="True">
-                                            <Setter Property="Background" Value="#CCE4FF" TargetName="border"/>
+                                            <Setter Property="Background" Value="{DynamicResource ThemeBorder}" TargetName="border"/>
+                                            <Setter Property="Opacity" Value="0.8" TargetName="border"/>
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
@@ -377,7 +381,7 @@
                         <StackPanel VerticalAlignment="Top">
                             <Image Source="icons/img_find.png" Width="20" Height="20" Margin="0,2,0,7"/>
                             <Viewbox Width="51" Stretch="Uniform" StretchDirection="DownOnly">
-                                <TextBlock x:Name="ImageSearchLabelText" Text="이미지 검색" FontSize="12" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="ImageSearchLabelText" Text="이미지 검색" Foreground="{DynamicResource ThemeForeground}" FontSize="12" HorizontalAlignment="Center"/>
                             </Viewbox>
                         </StackPanel>
                     </Button>
@@ -387,16 +391,16 @@
                         <StackPanel VerticalAlignment="Top">
                             <Image Source="icons/share_img.png" Width="20" Height="20" Margin="0,2,0,7"/>
                             <Viewbox Width="51" Stretch="Uniform" StretchDirection="DownOnly">
-                                <TextBlock x:Name="ShareLabelText" Text="공유" FontSize="12" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="ShareLabelText" Text="공유" Foreground="{DynamicResource ThemeForeground}" FontSize="12" HorizontalAlignment="Center"/>
                             </Viewbox>
                         </StackPanel>
                     </Button>
 
                     <Button x:Name="OcrButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="OcrButton_Click" ToolTip="텍스트 추출">
                         <StackPanel VerticalAlignment="Top">
-                            <TextBlock x:Name="OcrLabelText" Text="OCR" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,2,0,7"/>
+                            <TextBlock x:Name="OcrLabelText" Text="OCR" Foreground="{DynamicResource ThemeForeground}" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,2,0,7"/>
                             <Viewbox Width="51" Stretch="Uniform" StretchDirection="DownOnly">
-                                <TextBlock x:Name="OcrExtractLabelText" Text="추출" FontSize="12" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="OcrExtractLabelText" Text="추출" Foreground="{DynamicResource ThemeForeground}" FontSize="12" HorizontalAlignment="Center"/>
                             </Viewbox>
                         </StackPanel>
                     </Button> 
@@ -406,13 +410,13 @@
 
         <!-- 아이콘 하단에 표시되는 도구 옵션 팝업 -->
         <Popup x:Name="ToolOptionsPopup" Placement="Bottom" StaysOpen="False" AllowsTransparency="True">
-            <Border Background="{DynamicResource ThemeBackground}" BorderBrush="#D0D7E5" BorderThickness="1" CornerRadius="6" Padding="10" Effect="{StaticResource MaterialShadow}">
+            <Border Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="6" Padding="10" Effect="{StaticResource MaterialShadow}">
                 <StackPanel x:Name="ToolOptionsPopupContent" Orientation="Horizontal" />
             </Border>
         </Popup>
 
         <!-- 이미지 표시 영역 -->
-        <Border Grid.Row="1" Grid.Column="0" Background="#ECEDF2" BorderThickness="0">
+        <Border Grid.Row="1" Grid.Column="0" Background="{DynamicResource ThemeBackground}" BorderThickness="0">
             <Grid>
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                     <Canvas x:Name="ImageCanvas">
@@ -424,19 +428,21 @@
                             <DrawingBrush TileMode="Tile" Viewport="0,0,16,16" ViewportUnits="Absolute">
                                 <DrawingBrush.Drawing>
                                     <DrawingGroup>
-                                        <GeometryDrawing Brush="#FFFFFF">
+                                        <GeometryDrawing Brush="{DynamicResource ThemeBackground}">
                                             <GeometryDrawing.Geometry>
                                                 <RectangleGeometry Rect="0,0,16,16"/>
                                             </GeometryDrawing.Geometry>
                                         </GeometryDrawing>
-                                        <GeometryDrawing Brush="#E0E0E0">
-                                            <GeometryDrawing.Geometry>
-                                                <GeometryGroup>
-                                                    <RectangleGeometry Rect="0,0,8,8"/>
-                                                    <RectangleGeometry Rect="8,8,8,8"/>
-                                                </GeometryGroup>
-                                            </GeometryDrawing.Geometry>
-                                        </GeometryDrawing>
+                                        <DrawingGroup Opacity="0.5">
+                                            <GeometryDrawing Brush="{DynamicResource ThemeBorder}">
+                                                <GeometryDrawing.Geometry>
+                                                    <GeometryGroup>
+                                                        <RectangleGeometry Rect="0,0,8,8"/>
+                                                        <RectangleGeometry Rect="8,8,8,8"/>
+                                                    </GeometryGroup>
+                                                </GeometryDrawing.Geometry>
+                                            </GeometryDrawing>
+                                        </DrawingGroup>
                                     </DrawingGroup>
                                 </DrawingBrush.Drawing>
                             </DrawingBrush>
@@ -468,7 +474,8 @@
                                     CornerRadius="4,0,0,4">
                                 <Path x:Name="Arrow" 
                                       Data="M 4,0 L 8,5 L 4,10 Z" 
-                                      Fill="#888888" 
+                                      Fill="{DynamicResource ThemeForeground}" 
+                                      Opacity="0.5"
                                       Stretch="Uniform"
                                       Width="6"
                                       Height="12"
@@ -477,7 +484,7 @@
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="Arrow" Property="Fill" Value="#555555"/>
+                                    <Setter TargetName="Arrow" Property="Opacity" Value="0.8"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -511,7 +518,7 @@
         </Border>
 
         <!-- 하단 옵션 패널 (편집 도구 옵션) - 이미지 위에 오버레이 -->
-        <Border x:Name="EditToolPanel" Grid.Row="1" Grid.ColumnSpan="2" Background="{DynamicResource ThemeBackground}" BorderBrush="#D0D7E5" 
+        <Border x:Name="EditToolPanel" Grid.Row="1" Grid.ColumnSpan="2" Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" 
                 BorderThickness="0,1,0,0" Visibility="Collapsed" Effect="{StaticResource MaterialShadow}"
                 VerticalAlignment="Bottom">
             <Grid Margin="0">
@@ -540,7 +547,9 @@
                     <Button x:Name="CloseOptionsButton" Grid.Column="2" Content="✕" 
                             Width="22" Height="22"
                             HorizontalAlignment="Right" VerticalAlignment="Center"
-                            Background="#F0F0F0" BorderThickness="0" FontSize="10" FontWeight="Bold" 
+                            Background="{DynamicResource ThemeBorder}" BorderThickness="0" FontSize="10" FontWeight="Bold" 
+                            Foreground="{DynamicResource ThemeForeground}"
+                            Opacity="0.8"
                             Cursor="Hand" Click="CloseOptionsButton_Click">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
@@ -550,10 +559,7 @@
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#FFE0E0" TargetName="border"/>
-                                    </Trigger>
-                                    <Trigger Property="IsPressed" Value="True">
-                                        <Setter Property="Background" Value="#FFCCCC" TargetName="border"/>
+                                        <Setter Property="Opacity" Value="1" TargetName="border"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -567,7 +573,7 @@
         <Border x:Name="CaptureListBorder" 
                 Grid.Row="1" Grid.Column="1"
                 Background="{DynamicResource ThemeBackground}" 
-                BorderBrush="#E0E6F0" 
+                BorderBrush="{DynamicResource ThemeBorder}" 
                 BorderThickness="1,0,0,0">
             <Border.Effect>
                 <DropShadowEffect ShadowDepth="0" BlurRadius="8" Opacity="0.15" Direction="180"/>
@@ -583,7 +589,7 @@
                 </Grid.RowDefinitions>
                                 
                 <!-- 헤더 영역 -->
-                <Border Grid.Row="0" Background="{DynamicResource ThemeBackground}" BorderThickness="0,0,0,1" BorderBrush="#E0E6F0" Padding="12,10">
+                <Border Grid.Row="0" Background="{DynamicResource ThemeBackground}" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ThemeBorder}" Padding="12,10">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -593,7 +599,7 @@
                         <!-- 제목과 캡처 개수 -->
                         <Grid Grid.Row="0">
                             <TextBlock x:Name="RecentCapturesTitle" Text="최근 캡처 목록" FontWeight="SemiBold" FontSize="13" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
-                            <TextBlock x:Name="CaptureCountText" Text="(0)" FontSize="12" Foreground="#888" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="CaptureCountText" Text="(0)" FontSize="12" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                         </Grid>
                         
                         <!-- 썸네일 크기 조절 슬라이더 -->
@@ -604,13 +610,13 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             
-                            <TextBlock x:Name="SizeLabelText" Grid.Column="0" Text="크기" FontSize="10" Foreground="#666" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <TextBlock x:Name="SizeLabelText" Grid.Column="0" Text="크기" FontSize="10" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" VerticalAlignment="Center" Margin="0,0,8,0"/>
                             <Slider x:Name="ThumbnailSizeSlider" Grid.Column="1" 
                                     Minimum="80" Maximum="200" Value="80" 
                                     TickFrequency="10" IsSnapToTickEnabled="True"
                                     VerticalAlignment="Center"
                                     ValueChanged="ThumbnailSizeSlider_ValueChanged"/>
-                            <TextBlock x:Name="ThumbnailSizeText" Grid.Column="2" Text="80" FontSize="10" Foreground="#666" VerticalAlignment="Center" Margin="8,0,0,0" Width="30"/>
+                            <TextBlock x:Name="ThumbnailSizeText" Grid.Column="2" Text="80" FontSize="10" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" VerticalAlignment="Center" Margin="8,0,0,0" Width="30"/>
                         </Grid>
                     </Grid>
                 </Border>

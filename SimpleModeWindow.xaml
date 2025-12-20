@@ -160,7 +160,7 @@
 
     <Grid>
         <!-- 가로 모드 레이아웃 -->
-        <Border x:Name="HorizontalRoot" CornerRadius="8" Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" Visibility="Visible">
+        <Border x:Name="HorizontalRoot" CornerRadius="8" Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeWindowBorder}" BorderThickness="1" Visibility="Visible">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="24"/>
@@ -168,7 +168,7 @@
                 </Grid.RowDefinitions>
                 
                 <!-- 타이틀바 -->
-                <Border Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8,8,0,0" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="0,0,0,1">
+                <Border Grid.Row="0" Background="{DynamicResource ThemeSimpleTitleBackground}" CornerRadius="8,8,0,0" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="0,0,0,1">
                     <Grid>
                         <Image Source="/icons/simple_title.png" Width="14" Height="14" HorizontalAlignment="Center" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality"/>
                         <!-- 즉시편집 스위치 (왼쪽) -->
@@ -179,7 +179,7 @@
                                        FontWeight="SemiBold"
                                        VerticalAlignment="Center" 
                                        Margin="0,0,3,0" 
-                                       Foreground="{DynamicResource ThemeForeground}"/>
+                                       Foreground="{DynamicResource ThemeSimpleTitleForeground}"/>
                             <ToggleButton x:Name="InstantEditToggleH" 
                                           Width="30" Height="14" 
                                           Style="{StaticResource SwitchToggleButtonStyle}"
@@ -188,7 +188,7 @@
                             <!-- A+ size toggle button -->
                             <Button x:Name="APlusButtonH" Width="20" Height="18" Margin="4,0,0,0" Background="Transparent" BorderThickness="0">
                                 <Button.Content>
-                                    <TextBlock Text="A+" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}"/>
+                                    <TextBlock Text="A+" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource ThemeSimpleTitleForeground}"/>
                                 </Button.Content>
                                 <Button.Style>
                                     <Style TargetType="Button" BasedOn="{StaticResource ControlButtonStyle}">
@@ -205,7 +205,7 @@
                                 <Image Source="/icons/tray_mode.png" Width="12" Height="12"/>
                             </Button>
                             <Button x:Name="CloseBtnH" Style="{StaticResource ControlButtonStyle}" Click="CloseButton_Click">
-                                <TextBlock Text="✕" FontSize="9" Foreground="{DynamicResource ThemeForeground}"/>
+                                <TextBlock Text="✕" FontSize="9" Foreground="{DynamicResource ThemeSimpleTitleForeground}"/>
                             </Button>
                         </StackPanel>
                     </Grid>
@@ -217,7 +217,7 @@
         </Border>
 
         <!-- 세로 모드 레이아웃 -->
-        <Border x:Name="VerticalRoot" CornerRadius="8" Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" Visibility="Collapsed">
+        <Border x:Name="VerticalRoot" CornerRadius="8" Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeWindowBorder}" BorderThickness="1" Visibility="Collapsed">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="30"/>
@@ -226,7 +226,7 @@
                 </Grid.RowDefinitions>
 
                 <!-- 드래그 핸들 -->
-                <Border Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8,8,0,0" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="0,0,0,1">
+                <Border Grid.Row="0" Background="{DynamicResource ThemeSimpleTitleBackground}" CornerRadius="8,8,0,0" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="0,0,0,1">
                     <Image Source="/icons/simple_title.png" Width="14" Height="14" HorizontalAlignment="Center" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality"/>
                 </Border>
 

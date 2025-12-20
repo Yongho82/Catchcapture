@@ -456,7 +456,7 @@
                                 <TextBlock x:Name="ThemeBgColorLabel" Text="배경 색상" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
                                 <Border x:Name="PreviewThemeBgColor" Grid.Column="1" Width="40" Height="26" CornerRadius="4" 
                                         BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1.5" 
-                                        Cursor="Hand" MouseLeftButtonDown="PreviewColor_Click" Tag="Bg"/>
+                                        Cursor="Hand" MouseLeftButtonUp="PreviewColor_Click" Tag="Bg"/>
                             </Grid>
                             <Grid Margin="0,0,0,5">
                                 <Grid.ColumnDefinitions>
@@ -466,7 +466,7 @@
                                 <TextBlock x:Name="ThemeTextColorLabel" Text="텍스트 색상" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
                                 <Border x:Name="PreviewThemeTextColor" Grid.Column="1" Width="40" Height="26" CornerRadius="4" 
                                         BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1.5" 
-                                        Cursor="Hand" MouseLeftButtonDown="PreviewColor_Click" Tag="Text"/>
+                                        Cursor="Hand" MouseLeftButtonUp="PreviewColor_Click" Tag="Text"/>
                             </Grid>
                             <TextBlock x:Name="ThemeColorGuide" Text="※ 색상 상자를 클릭하여 테마 색상을 선택하세요." FontSize="11" Foreground="{DynamicResource ThemeForeground}" Margin="0,15,0,0" Opacity="0.7"/>
                         </StackPanel>
@@ -588,14 +588,6 @@
                         </ListBox.ItemTemplate>
                     </ListBox>
                     
-                        <!-- Restore Button Only -->
-                        <Button x:Name="RestoreMenuButton" 
-                                Content="기본 메뉴로 복원" 
-                                Height="32"
-                                Padding="20,0"
-                                HorizontalAlignment="Right"
-                                Click="RestoreMenu_Click"
-                                Style="{StaticResource MacButtonSecondary}"/>
                 </StackPanel>
             </Border>
 

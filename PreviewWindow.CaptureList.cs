@@ -99,8 +99,8 @@ namespace CatchCapture
                 Child = grid,
                 Margin = new Thickness(0, 6, 0, 6),
                 BorderThickness = new Thickness(2),
-                BorderBrush = index == imageIndex ? Brushes.DodgerBlue : new SolidColorBrush(Color.FromArgb(30, 0, 0, 0)),
-                Background = Brushes.White,
+                BorderBrush = index == imageIndex ? GetActiveToolBrush() : (Brush)Application.Current.Resources["ThemeBorder"],
+                Background = (Brush)Application.Current.Resources["ThemeBackground"],
                 CornerRadius = new CornerRadius(6),
                 Effect = new DropShadowEffect { ShadowDepth = 1, BlurRadius = 5, Opacity = 0.2, Direction = 270 },
                 Tag = index,
@@ -200,13 +200,13 @@ namespace CatchCapture
                     if (index == newIndex)
                     {
                         // 새로 선택된 항목 강조
-                        border.BorderBrush = Brushes.DodgerBlue;
+                        border.BorderBrush = GetActiveToolBrush();
                         border.BorderThickness = new Thickness(2);
                     }
                     else if (index == oldIndex)
                     {
                         // 이전 선택 항목 강조 해제
-                        border.BorderBrush = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0));
+                        border.BorderBrush = (Brush)Application.Current.Resources["ThemeBorder"];
                         border.BorderThickness = new Thickness(2);
                     }
                 }
