@@ -14,22 +14,41 @@ namespace CatchCapture
     public partial class SettingsWindow : Window
     {
         private Settings _settings;
+        private string _originalThemeMode;
+        private string _originalThemeBg;
+        private string _originalThemeFg;
+        private int[] _customColors = new int[16]; // 색상 대화상자의 사용자 지정 색상 저장
 
         public SettingsWindow()
         {
-            InitializeComponent();
-            _settings = Settings.Load();
-            UpdateUIText(); // 다국어 텍스트 적용
-            // 언어 변경 이벤트 구독 (닫힐 때 해제)
-            CatchCapture.Models.LocalizationManager.LanguageChanged += OnLanguageChanged;
-            InitKeyComboBoxes(); // 콤보박스 초기화
-            InitLanguageComboBox(); // 언어 콤보 아이템 채우기
-            LoadCapturePage();
-            LoadMenuEditPage();
-            LoadSystemPage();
-            LoadHotkeysPage();
-            LoadThemePage();
-            HighlightNav(NavCapture, "Capture");
+            try
+            {
+                InitializeComponent();
+                _settings = Settings.Load();
+                UpdateUIText(); // 다국어 텍스트 적용
+                // 언어 변경 이벤트 구독 (닫힐 때 해제)
+                CatchCapture.Models.LocalizationManager.LanguageChanged += OnLanguageChanged;
+                InitKeyComboBoxes(); // 콤보박스 초기화
+                InitLanguageComboBox(); // 언어 콤보 아이템 채우기
+                LoadCapturePage();
+                LoadMenuEditPage();
+                LoadSystemPage();
+                LoadHotkeysPage();
+                
+                // Store original theme for cancel revert
+                _originalThemeMode = _settings.ThemeMode ?? "General";
+                _originalThemeBg = _settings.ThemeBackgroundColor ?? "#FFFFFF";
+                _originalThemeFg = _settings.ThemeTextColor ?? "#333333";
+                
+                LoadThemePage();
+                HighlightNav(NavCapture, "Capture");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"SettingsWindow Constructor Error: {ex.Message}");
+                // 생성자에서 오류 발생 시 최소한 창은 열리거나 오류 메시지를 보여줘야 함
+                System.Windows.MessageBox.Show("설정 창을 로드하는 중 오류가 발생했습니다: " + ex.Message);
+            }
         }
 
         private void OnLanguageChanged(object? sender, EventArgs e)
@@ -54,126 +73,150 @@ namespace CatchCapture
 
 private void UpdateUIText()
         {
-            // 창 제목
-            this.Title = LocalizationManager.GetString("Settings");
-            // 사이드바
-            SidebarGeneralText.Text = LocalizationManager.GetString("General");
-            NavCapture.Content = LocalizationManager.GetString("CaptureSettings"); // 키 확인 필요 (CaptureSettings가 더 적절해 보임)
-            if (NavMenuEdit != null) NavMenuEdit.Content = LocalizationManager.GetString("MenuEdit");
-            NavSystem.Content = LocalizationManager.GetString("SystemSettings");
-            NavHotkey.Content = LocalizationManager.GetString("HotkeySettings");
-            // 메뉴 편집 페이지 (추가)
-            if (MenuEditSectionTitle != null) MenuEditSectionTitle.Text = LocalizationManager.GetString("MenuEdit");
-            if (MenuEditGuideText != null) MenuEditGuideText.Text = LocalizationManager.GetString("MenuEditGuide");
-            // Add 버튼의 리소스 키가 없다면 임시로 "Add" 사용하거나 "+ 추가" 유지
-            // LocalizationManager.GetString("Add")가 있다면 사용
-            if (AddMenuButton != null) AddMenuButton.Content = "+ " + (LocalizationManager.GetString("Add") ?? "추가"); 
-            if (RestoreMenuButton != null) RestoreMenuButton.Content = LocalizationManager.GetString("RestoreDefaultMenus");
-            // 앱 이름(사이드바 상단)과 하단 정보
-            if (SidebarAppNameText != null)
-                SidebarAppNameText.Text = LocalizationManager.GetString("AppTitle"); // AppName 대신 AppTitle 사용
-            if (VersionText != null)
-                VersionText.Text = $"{LocalizationManager.GetString("Version")} 1.0.0";
-            if (WebsiteIcon != null)
-                WebsiteIcon.ToolTip = LocalizationManager.GetString("VisitHomepage");
-            if (RestoreDefaultsText != null)
-                RestoreDefaultsText.Text = LocalizationManager.GetString("RestoreDefaults");
-            if (PrivacyPolicyText != null)
-                PrivacyPolicyText.Text = LocalizationManager.GetString("PrivacyPolicy");
-            // 캡처 페이지
-            CaptureSectionTitle.Text = LocalizationManager.GetString("CaptureSettings");
-            SaveSettingsGroup.Header = LocalizationManager.GetString("SaveSettings");
-            SavePathText.Text = LocalizationManager.GetString("SavePath");
-            BtnBrowse.Content = LocalizationManager.GetString("Change");
-            FileFormatText.Text = LocalizationManager.GetString("FileFormat");
-            QualityText.Text = LocalizationManager.GetString("Quality");
-            OptionsGroup.Header = LocalizationManager.GetString("Options");
-            ChkAutoSave.Content = LocalizationManager.GetString("AutoSaveCapture");
-            ChkShowPreview.Content = LocalizationManager.GetString("ShowPreviewAfterCapture");
-            ChkShowMagnifier.Content = LocalizationManager.GetString("ShowMagnifier") ?? "영역 캡처 시 돋보기 표시";
-            // 단축키 페이지
-            HotkeySectionTitle.Text = LocalizationManager.GetString("HotkeySettings");
-            PrintScreenGroup.Header = LocalizationManager.GetString("UsePrintScreen");
-            ChkUsePrintScreen.Content = LocalizationManager.GetString("UsePrintScreen");
-            
-            // Print Screen 액션 항목 (표시는 로컬라이즈, 저장 값은 한국어로 유지)
-            // 기존 아이템을 지우고 다시 채워야 함
-            string? currentActionTag = null;
-            if (CboPrintScreenAction.SelectedItem is ComboBoxItem selectedAction)
+            try
             {
-                currentActionTag = selectedAction.Tag as string ?? null;
-            }
-            var items = new[]
-            {
-                (key: "AreaCapture", tag: "영역 캡처"),
-                (key: "DelayCapture", tag: "지연 캡처"),
-                (key: "RealTimeCapture", tag: "실시간 캡처"),
-                (key: "MultiCapture", tag: "다중 캡처"),
-                (key: "FullScreen", tag: "전체화면"),
-                (key: "DesignatedCapture", tag: "지정 캡처"),
-                (key: "WindowCapture", tag: "창 캡처"),
-                (key: "ElementCapture", tag: "단위 캡처"),
-                (key: "ScrollCapture", tag: "스크롤 캡처"),
-                (key: "OcrCapture", tag: "OCR 캡처"),
-                (key: "ScreenRecording", tag: "동영상 녹화"),
-            };
-            
-            CboPrintScreenAction.Items.Clear();
-            foreach (var (key, tag) in items)
-            {
-                var item = new ComboBoxItem
-                {
-                    Content = LocalizationManager.GetString(key),
-                    Tag = tag
-                };
-                CboPrintScreenAction.Items.Add(item);
+                // 창 제목
+                this.Title = LocalizationManager.GetString("Settings");
                 
-                // 선택 상태 복원
-                if (tag == currentActionTag)
+                // 사이드바
+                if (SidebarGeneralText != null) SidebarGeneralText.Text = LocalizationManager.GetString("General");
+                if (NavCapture != null) NavCapture.Content = LocalizationManager.GetString("CaptureSettings");
+                if (NavMenuEdit != null) NavMenuEdit.Content = LocalizationManager.GetString("MenuEdit");
+                if (NavSystem != null) NavSystem.Content = LocalizationManager.GetString("SystemSettings");
+                if (NavHotkey != null) NavHotkey.Content = LocalizationManager.GetString("HotkeySettings");
+                
+                // 메뉴 편집 페이지
+                if (MenuEditSectionTitle != null) MenuEditSectionTitle.Text = LocalizationManager.GetString("MenuEdit");
+                if (MenuEditGuideText != null) MenuEditGuideText.Text = LocalizationManager.GetString("MenuEditGuide");
+                if (AddMenuButton != null) AddMenuButton.Content = "+ " + (LocalizationManager.GetString("Add") ?? "추가"); 
+                if (RestoreMenuButton != null) RestoreMenuButton.Content = LocalizationManager.GetString("RestoreDefaultMenus");
+                
+                // 앱 이름과 하단 정보
+                if (SidebarAppNameText != null) SidebarAppNameText.Text = LocalizationManager.GetString("AppTitle");
+                if (VersionText != null) VersionText.Text = $"{LocalizationManager.GetString("Version")} 1.0.0";
+                if (WebsiteIcon != null) WebsiteIcon.ToolTip = LocalizationManager.GetString("VisitHomepage");
+                if (RestoreDefaultsText != null) RestoreDefaultsText.Text = LocalizationManager.GetString("RestoreDefaults");
+                if (PrivacyPolicyText != null) PrivacyPolicyText.Text = LocalizationManager.GetString("PrivacyPolicy");
+                
+                // 캡처 페이지
+                if (CaptureSectionTitle != null) CaptureSectionTitle.Text = LocalizationManager.GetString("CaptureSettings");
+                if (SaveSettingsGroup != null) SaveSettingsGroup.Header = LocalizationManager.GetString("SaveSettings");
+                if (SavePathText != null) SavePathText.Text = LocalizationManager.GetString("SavePath");
+                if (BtnBrowse != null) BtnBrowse.Content = LocalizationManager.GetString("Change");
+                if (FileFormatText != null) FileFormatText.Text = LocalizationManager.GetString("FileFormat");
+                if (QualityText != null) QualityText.Text = LocalizationManager.GetString("Quality");
+                if (OptionsGroup != null) OptionsGroup.Header = LocalizationManager.GetString("Options");
+                if (ChkAutoSave != null) ChkAutoSave.Content = LocalizationManager.GetString("AutoSaveCapture");
+                if (ChkShowPreview != null) ChkShowPreview.Content = LocalizationManager.GetString("ShowPreviewAfterCapture");
+                if (ChkShowMagnifier != null) ChkShowMagnifier.Content = LocalizationManager.GetString("ShowMagnifier") ?? "영역 캡처 시 돋보기 표시";
+                
+                // 단축키 페이지
+                if (HotkeySectionTitle != null) HotkeySectionTitle.Text = LocalizationManager.GetString("HotkeySettings");
+                if (PrintScreenGroup != null) PrintScreenGroup.Header = LocalizationManager.GetString("UsePrintScreen");
+                if (ChkUsePrintScreen != null) ChkUsePrintScreen.Content = LocalizationManager.GetString("UsePrintScreen");
+                
+                // Print Screen 액션 항목
+                if (CboPrintScreenAction != null)
                 {
-                    CboPrintScreenAction.SelectedItem = item;
+                    string? currentActionTag = null;
+                    if (CboPrintScreenAction.SelectedItem is ComboBoxItem selectedAction)
+                    {
+                        currentActionTag = selectedAction.Tag as string ?? null;
+                    }
+                    var items = new[]
+                    {
+                        (key: "AreaCapture", tag: "영역 캡처"),
+                        (key: "DelayCapture", tag: "지연 캡처"),
+                        (key: "RealTimeCapture", tag: "실시간 캡처"),
+                        (key: "MultiCapture", tag: "다중 캡처"),
+                        (key: "FullScreen", tag: "전체화면"),
+                        (key: "DesignatedCapture", tag: "지정 캡처"),
+                        (key: "WindowCapture", tag: "창 캡처"),
+                        (key: "ElementCapture", tag: "단위 캡처"),
+                        (key: "ScrollCapture", tag: "스크롤 캡처"),
+                        (key: "OcrCapture", tag: "OCR 캡처"),
+                        (key: "ScreenRecording", tag: "동영상 녹화"),
+                    };
+                    
+                    CboPrintScreenAction.Items.Clear();
+                    foreach (var (key, tag) in items)
+                    {
+                        var item = new ComboBoxItem
+                        {
+                            Content = LocalizationManager.GetString(key),
+                            Tag = tag
+                        };
+                        CboPrintScreenAction.Items.Add(item);
+                        
+                        if (tag == currentActionTag)
+                        {
+                            CboPrintScreenAction.SelectedItem = item;
+                        }
+                    }
+                    if (CboPrintScreenAction.SelectedItem == null && CboPrintScreenAction.Items.Count > 0)
+                    {
+                         CboPrintScreenAction.SelectedIndex = 0;
+                    }
                 }
+                
+                // 단축키 체크박스 라벨
+                if (HkRegionEnabled != null) HkRegionEnabled.Content = LocalizationManager.GetString("AreaCapture");
+                if (HkDelayEnabled != null) HkDelayEnabled.Content = LocalizationManager.GetString("DelayCapture");
+                if (HkRealTimeEnabled != null) HkRealTimeEnabled.Content = LocalizationManager.GetString("RealTimeCapture");
+                if (HkMultiEnabled != null) HkMultiEnabled.Content = LocalizationManager.GetString("MultiCapture");
+                if (HkFullEnabled != null) HkFullEnabled.Content = LocalizationManager.GetString("FullScreen");
+                if (HkDesignatedEnabled != null) HkDesignatedEnabled.Content = LocalizationManager.GetString("DesignatedCapture");
+                if (HkWindowCaptureEnabled != null) HkWindowCaptureEnabled.Content = LocalizationManager.GetString("WindowCapture");
+                if (HkElementCaptureEnabled != null) HkElementCaptureEnabled.Content = LocalizationManager.GetString("ElementCapture");
+                if (HkScrollCaptureEnabled != null) HkScrollCaptureEnabled.Content = LocalizationManager.GetString("ScrollCapture");
+                if (HkOcrCaptureEnabled != null) HkOcrCaptureEnabled.Content = LocalizationManager.GetString("OcrCapture");
+                if (HkScreenRecordEnabled != null) HkScreenRecordEnabled.Content = LocalizationManager.GetString("ScreenRecording");
+                if (HkSimpleModeEnabled != null) HkSimpleModeEnabled.Content = LocalizationManager.GetString("SimpleMode");
+                if (HkTrayModeEnabled != null) HkTrayModeEnabled.Content = LocalizationManager.GetString("TrayMode");
+                if (HkSaveAllEnabled != null) HkSaveAllEnabled.Content = LocalizationManager.GetString("SaveAll");
+                if (HkDeleteAllEnabled != null) HkDeleteAllEnabled.Content = LocalizationManager.GetString("DeleteAll");
+                if (HkOpenSettingsEnabled != null) HkOpenSettingsEnabled.Content = LocalizationManager.GetString("OpenSettings");
+                if (HkOpenEditorEnabled != null) HkOpenEditorEnabled.Content = LocalizationManager.GetString("OpenEditor");
+                
+                // 시스템 페이지
+                if (SystemSectionTitle != null) SystemSectionTitle.Text = LocalizationManager.GetString("SystemSettings");
+                if (StartupGroup != null) StartupGroup.Header = LocalizationManager.GetString("StartupMode");
+                if (StartWithWindowsCheckBox != null) StartWithWindowsCheckBox.Content = LocalizationManager.GetString("StartWithWindows");
+                if (StartupModeText != null) StartupModeText.Text = LocalizationManager.GetString("StartupMode");
+                if (StartupModeTrayRadio != null) StartupModeTrayRadio.Content = LocalizationManager.GetString("StartInTray");
+                if (StartupModeNormalRadio != null) StartupModeNormalRadio.Content = LocalizationManager.GetString("StartInNormal");
+                if (StartupModeSimpleRadio != null) StartupModeSimpleRadio.Content = LocalizationManager.GetString("StartInSimple");
+                if (StartupModeNotice != null) StartupModeNotice.Text = LocalizationManager.GetString("StartupModeNotice");
+                
+                // 언어 페이지
+                if (LanguageGroup != null) LanguageGroup.Header = LocalizationManager.GetString("LanguageSettings");
+                if (LanguageLabelText != null) LanguageLabelText.Text = LocalizationManager.GetString("LanguageLabel");
+                if (LanguageRestartNotice != null) LanguageRestartNotice.Text = LocalizationManager.GetString("RestartRequired");
+
+                // 테마 페이지
+                if (NavTheme != null) NavTheme.Content = LocalizationManager.GetString("ThemeSettings");
+                if (ThemeSectionTitle != null) ThemeSectionTitle.Text = LocalizationManager.GetString("ThemeSettings");
+                if (ThemePresetGroup != null) ThemePresetGroup.Header = LocalizationManager.GetString("ThemePreset");
+                if (ThemeGeneral != null) ThemeGeneral.Content = LocalizationManager.GetString("ThemeGeneral");
+                if (ThemeDark != null) ThemeDark.Content = LocalizationManager.GetString("ThemeDark");
+                if (ThemeLight != null) ThemeLight.Content = LocalizationManager.GetString("ThemeLight");
+                if (ThemeBlue != null) ThemeBlue.Content = LocalizationManager.GetString("ThemeBlue");
+                if (ThemeCustom != null) ThemeCustom.Content = LocalizationManager.GetString("ThemeCustom");
+                if (ThemeCustomGroup != null) ThemeCustomGroup.Header = LocalizationManager.GetString("ThemeCustom");
+                if (ThemeBgColorLabel != null) ThemeBgColorLabel.Text = LocalizationManager.GetString("ThemeBgColor");
+                if (ThemeTextColorLabel != null) ThemeTextColorLabel.Text = LocalizationManager.GetString("ThemeTextColor");
+                if (ThemeColorGuide != null) ThemeColorGuide.Text = LocalizationManager.GetString("ThemeColorGuide");
+
+                // 하단 버튼
+                if (CancelButton != null) CancelButton.Content = LocalizationManager.GetString("Cancel");
+                if (ApplyButton != null) ApplyButton.Content = LocalizationManager.GetString("Apply");
+                if (SaveButton != null) SaveButton.Content = LocalizationManager.GetString("Save");
             }
-            if (CboPrintScreenAction.SelectedItem == null && CboPrintScreenAction.Items.Count > 0)
+            catch (Exception ex)
             {
-                 CboPrintScreenAction.SelectedIndex = 0;
+                System.Diagnostics.Debug.WriteLine($"UpdateUIText error: {ex.Message}");
+                // 에러가 발생해도 프로그램이 크래시되지 않도록 합니다
             }
-            // 단축키 체크박스 라벨
-            HkRegionEnabled.Content = LocalizationManager.GetString("AreaCapture");
-            HkDelayEnabled.Content = LocalizationManager.GetString("DelayCapture");
-            HkRealTimeEnabled.Content = LocalizationManager.GetString("RealTimeCapture");
-            HkMultiEnabled.Content = LocalizationManager.GetString("MultiCapture");
-            HkFullEnabled.Content = LocalizationManager.GetString("FullScreen");
-            HkDesignatedEnabled.Content = LocalizationManager.GetString("DesignatedCapture");
-            HkWindowCaptureEnabled.Content = LocalizationManager.GetString("WindowCapture");
-            HkElementCaptureEnabled.Content = LocalizationManager.GetString("ElementCapture");
-            HkScrollCaptureEnabled.Content = LocalizationManager.GetString("ScrollCapture");
-            HkOcrCaptureEnabled.Content = LocalizationManager.GetString("OcrCapture");
-            HkScreenRecordEnabled.Content = LocalizationManager.GetString("ScreenRecording");
-            HkSimpleModeEnabled.Content = LocalizationManager.GetString("SimpleMode"); // ScreenRecord 아래로 이동 (Step 3에서 XAML 변경됨)
-            HkTrayModeEnabled.Content = LocalizationManager.GetString("TrayMode");
-            HkSaveAllEnabled.Content = LocalizationManager.GetString("SaveAll");
-            HkDeleteAllEnabled.Content = LocalizationManager.GetString("DeleteAll");
-            HkOpenSettingsEnabled.Content = LocalizationManager.GetString("OpenSettings");
-            HkOpenEditorEnabled.Content = LocalizationManager.GetString("OpenEditor");
-            // 시스템 페이지
-            SystemSectionTitle.Text = LocalizationManager.GetString("SystemSettings");
-            StartupGroup.Header = LocalizationManager.GetString("StartupMode");
-            StartWithWindowsCheckBox.Content = LocalizationManager.GetString("StartWithWindows");
-            StartupModeText.Text = LocalizationManager.GetString("StartupMode");
-            StartupModeTrayRadio.Content = LocalizationManager.GetString("StartInTray");
-            StartupModeNormalRadio.Content = LocalizationManager.GetString("StartInNormal");
-            StartupModeSimpleRadio.Content = LocalizationManager.GetString("StartInSimple");
-            if (StartupModeNotice != null)
-                StartupModeNotice.Text = LocalizationManager.GetString("StartupModeNotice");
-            // 언어 페이지
-            LanguageGroup.Header = LocalizationManager.GetString("LanguageSettings");
-            LanguageLabelText.Text = LocalizationManager.GetString("LanguageLabel");
-            if (LanguageRestartNotice != null)
-                LanguageRestartNotice.Text = LocalizationManager.GetString("RestartRequired");
-            // 하단 버튼
-            CancelButton.Content = LocalizationManager.GetString("Cancel");
-            SaveButton.Content = LocalizationManager.GetString("Save");
         }
 
         private void InitKeyComboBoxes()
@@ -241,20 +284,12 @@ private void InitLanguageComboBox()
 
         private void LoadThemePage()
         {
-            // Set Radio Button based on current ThemeMode
-            string mode = _settings.ThemeMode ?? "General";
-            switch (mode)
-            {
-                case "Dark": ThemeDark.IsChecked = true; break;
-                case "Light": ThemeLight.IsChecked = true; break; // Explicit Light mode
-                case "Blue": ThemeBlue.IsChecked = true; break;
-                default: ThemeGeneral.IsChecked = true; break; // "General"
-            }
+            if (ThemeDark != null && _settings.ThemeMode == "Dark") ThemeDark.IsChecked = true;
+            else if (ThemeLight != null && _settings.ThemeMode == "Light") ThemeLight.IsChecked = true;
+            else if (ThemeBlue != null && _settings.ThemeMode == "Blue") ThemeBlue.IsChecked = true;
+            else if (ThemeCustom != null && _settings.ThemeMode == "Custom") ThemeCustom.IsChecked = true;
+            else if (ThemeGeneral != null) ThemeGeneral.IsChecked = true;
 
-            // Set Color TextBoxes
-            TxtThemeBgColor.Text = _settings.ThemeBackgroundColor ?? "#FFFFFF";
-            TxtThemeTextColor.Text = _settings.ThemeTextColor ?? "#333333";
-            
             UpdateColorPreviews();
         }
 
@@ -262,51 +297,97 @@ private void InitLanguageComboBox()
         {
             try
             {
-                PreviewThemeBgColor.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(TxtThemeBgColor.Text));
+                if (PreviewThemeBgColor != null)
+                {
+                    PreviewThemeBgColor.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(_settings.ThemeBackgroundColor ?? "#FFFFFF"));
+                }
             }
-            catch { PreviewThemeBgColor.Background = Brushes.Transparent; }
+            catch { if (PreviewThemeBgColor != null) PreviewThemeBgColor.Background = Brushes.Transparent; }
 
             try
             {
-                PreviewThemeTextColor.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(TxtThemeTextColor.Text));
+                if (PreviewThemeTextColor != null)
+                {
+                    PreviewThemeTextColor.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(_settings.ThemeTextColor ?? "#333333"));
+                }
             }
-            catch { PreviewThemeTextColor.Background = Brushes.Transparent; }
+            catch { if (PreviewThemeTextColor != null) PreviewThemeTextColor.Background = Brushes.Transparent; }
+            
+            // Apply real-time preview
+            App.ApplyTheme(_settings);
         }
 
         private void Theme_Checked(object sender, RoutedEventArgs e)
         {
             if (sender is RadioButton rb && rb.IsChecked == true && rb.Tag is string info)
             {
+                _settings.ThemeMode = info;
                 if (info == "General")
                 {
-                    TxtThemeBgColor.Text = "#FFFFFF";
-                    TxtThemeTextColor.Text = "#333333";
+                    _settings.ThemeBackgroundColor = "#FFFFFF";
+                    _settings.ThemeTextColor = "#333333";
                 }
                 else if (info == "Dark")
                 {
-                    TxtThemeBgColor.Text = "#2D2D2D";
-                    TxtThemeTextColor.Text = "#FFFFFF";
+                    _settings.ThemeBackgroundColor = "#2D2D2D";
+                    _settings.ThemeTextColor = "#FFFFFF";
                 }
                 else if (info == "Light")
                 {
-                    TxtThemeBgColor.Text = "#F5F5F7";
-                    TxtThemeTextColor.Text = "#333333";
+                    _settings.ThemeBackgroundColor = "#F5F5F7";
+                    _settings.ThemeTextColor = "#333333";
                 }
                 else if (info == "Blue")
                 {
-                    TxtThemeBgColor.Text = "#E3F2FD"; // Light Blue bg
-                    TxtThemeTextColor.Text = "#0d47a1"; // Dark Blue text
+                    _settings.ThemeBackgroundColor = "#E3F2FD";
+                    _settings.ThemeTextColor = "#0d47a1";
                 }
-                // Custom doesn't change text boxes automatically
+                
+                UpdateColorPreviews();
             }
         }
 
         private void ThemeColor_TextChanged(object sender, TextChangedEventArgs e)
         {
             UpdateColorPreviews();
-            // Optional: Switch to Custom mode if logic requires, but for now just let it be.
-            // If user types, we might want to uncheck presets or have a "Custom" invisible state.
-            // But requirement said user configures it.
+        }
+
+        private void PreviewColor_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (sender is Border border && border.Tag is string type)
+            {
+                var dialog = new System.Windows.Forms.ColorDialog();
+                dialog.FullOpen = true;
+                dialog.CustomColors = _customColors; // 이전의 사용자 지정 색상 복구
+                
+                string currentHex = type == "Bg" ? (_settings.ThemeBackgroundColor ?? "#FFFFFF") : (_settings.ThemeTextColor ?? "#333333");
+                try
+                {
+                    var color = (Color)ColorConverter.ConvertFromString(currentHex);
+                    dialog.Color = System.Drawing.Color.FromArgb(color.R, color.G, color.B);
+                }
+                catch { }
+
+                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    _customColors = dialog.CustomColors; // 팔레트 상태 저장
+                    string hex = $"#{dialog.Color.R:X2}{dialog.Color.G:X2}{dialog.Color.B:X2}";
+                    
+                    if (type == "Bg") _settings.ThemeBackgroundColor = hex;
+                    else _settings.ThemeTextColor = hex;
+                    
+                    // 무조건 사용자 지정(Custom) 모드로 전환
+                    if (ThemeCustom != null) 
+                    {
+                        ThemeCustom.IsChecked = true;
+                        // IsChecked를 바꾸면 Theme_Checked 이벤트가 발생하여 UpdateColorPreviews -> App.ApplyTheme가 호출됨
+                    }
+                    
+                    // 만약 이미 Custom이었거나 이벤트가 안 탔을 경우를 대비해 직접 호출
+                    UpdateColorPreviews();
+                    App.ApplyTheme(_settings);
+                }
+            }
         }
 
         private void Nav_Click(object sender, RoutedEventArgs e)
@@ -319,39 +400,40 @@ private void InitLanguageComboBox()
 
         private void LoadCapturePage()
         {
-            // Format
-            // Format
-            string fmt = _settings.FileSaveFormat ?? "PNG";
-            foreach (ComboBoxItem item in CboFormat.Items)
+            if (CboFormat != null)
             {
-                if (item.Content?.ToString()?.Equals(fmt, StringComparison.OrdinalIgnoreCase) == true)
+                string fmt = _settings.FileSaveFormat ?? "PNG";
+                foreach (ComboBoxItem item in CboFormat.Items)
                 {
-                    CboFormat.SelectedItem = item;
-                    break;
+                    if (item != null && item.Content?.ToString()?.Equals(fmt, StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        CboFormat.SelectedItem = item;
+                        break;
+                    }
                 }
+                if (CboFormat.SelectedItem == null && CboFormat.Items.Count > 0) CboFormat.SelectedIndex = 0;
             }
-            // 품질 콤보박스 설정
-            foreach (ComboBoxItem item in CboQuality.Items)
+
+            if (CboQuality != null)
             {
-                if (item.Tag?.ToString() == _settings.ImageQuality.ToString())
+                foreach (ComboBoxItem item in CboQuality.Items)
                 {
-                    CboQuality.SelectedItem = item;
-                    break;
+                    if (item != null && item.Tag?.ToString() == _settings.ImageQuality.ToString())
+                    {
+                        CboQuality.SelectedItem = item;
+                        break;
+                    }
                 }
+                if (CboQuality.SelectedItem == null && CboQuality.Items.Count > 0) CboQuality.SelectedIndex = 0;
             }
-            if (CboQuality.SelectedItem == null)
-                CboQuality.SelectedIndex = 0; // 기본값: 100%
-            // Folder
+
             var defaultInstallFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture");
-            TxtFolder.Text = string.IsNullOrWhiteSpace(_settings.DefaultSaveFolder)
+            if (TxtFolder != null) TxtFolder.Text = string.IsNullOrWhiteSpace(_settings.DefaultSaveFolder)
                 ? defaultInstallFolder
                 : _settings.DefaultSaveFolder;
-            // Auto-save
-            ChkAutoSave.IsChecked = _settings.AutoSaveCapture;
-            // Show preview
-            ChkShowPreview.IsChecked = _settings.ShowPreviewAfterCapture;
-            // Show magnifier
-            ChkShowMagnifier.IsChecked = _settings.ShowMagnifier;
+            if (ChkAutoSave != null) ChkAutoSave.IsChecked = _settings.AutoSaveCapture;
+            if (ChkShowPreview != null) ChkShowPreview.IsChecked = _settings.ShowPreviewAfterCapture;
+            if (ChkShowMagnifier != null) ChkShowMagnifier.IsChecked = _settings.ShowMagnifier;
             
             // Print Screen key
             ChkUsePrintScreen.IsChecked = _settings.UsePrintScreenKey;
@@ -369,31 +451,27 @@ private void InitLanguageComboBox()
 
         private void LoadSystemPage()
         {
-            // 윈도우 시작 시 자동 실행
-            StartWithWindowsCheckBox.IsChecked = _settings.StartWithWindows;
+            if (StartWithWindowsCheckBox != null) StartWithWindowsCheckBox.IsChecked = _settings.StartWithWindows;
             
-            // 시작 모드
-            if (_settings.StartupMode == "Tray")
-                StartupModeTrayRadio.IsChecked = true;
-            else if (_settings.StartupMode == "Normal")
-                StartupModeNormalRadio.IsChecked = true;
-            else if (_settings.StartupMode == "Simple")
-                StartupModeSimpleRadio.IsChecked = true;
-            else
-                StartupModeTrayRadio.IsChecked = true; // 기본값
-            
+            if (StartupModeTrayRadio != null && _settings.StartupMode == "Tray") StartupModeTrayRadio.IsChecked = true;
+            else if (StartupModeSimpleRadio != null && _settings.StartupMode == "Simple") StartupModeSimpleRadio.IsChecked = true;
+            else if (StartupModeNormalRadio != null) StartupModeNormalRadio.IsChecked = true;
+
             // 언어 설정
             string currentLang = _settings.Language ?? "ko";
-            foreach (ComboBoxItem item in LanguageComboBox.Items)
+            if (LanguageComboBox != null)
             {
-                if (item.Tag?.ToString() == currentLang)
+                foreach (ComboBoxItem item in LanguageComboBox.Items)
                 {
-                    LanguageComboBox.SelectedItem = item;
-                    break;
+                    if (item.Tag?.ToString() == currentLang)
+                    {
+                        LanguageComboBox.SelectedItem = item;
+                        break;
+                    }
                 }
+                if (LanguageComboBox.SelectedItem == null)
+                    LanguageComboBox.SelectedIndex = 0; // 기본값: 한국어
             }
-            if (LanguageComboBox.SelectedItem == null)
-                LanguageComboBox.SelectedIndex = 0; // 기본값: 한국어
         }
 
         private static void EnsureDefaultKey(ToggleHotkey hk, string defaultKey)
@@ -445,14 +523,30 @@ private void InitLanguageComboBox()
             BindHotkey(hk.OpenEditor, HkOpenEditorEnabled, HkOpenEditorCtrl, HkOpenEditorShift, HkOpenEditorAlt, HkOpenEditorWin, HkOpenEditorKey);
         }
 
-        private static void BindHotkey(ToggleHotkey src, CheckBox en, CheckBox ctrl, CheckBox shift, CheckBox alt, CheckBox win, ComboBox key)
+        private static void BindHotkey(ToggleHotkey src, CheckBox? en, CheckBox? ctrl, CheckBox? shift, CheckBox? alt, CheckBox? win, ComboBox? key)
         {
-            en.IsChecked = src.Enabled;
-            ctrl.IsChecked = src.Ctrl;
-            shift.IsChecked = src.Shift;
-            alt.IsChecked = src.Alt;
-            win.IsChecked = src.Win;
-            key.SelectedItem = (src.Key ?? string.Empty).Trim().ToUpperInvariant();
+            if (src == null) return;
+            if (en != null) en.IsChecked = src.Enabled;
+            if (ctrl != null) ctrl.IsChecked = src.Ctrl;
+            if (shift != null) shift.IsChecked = src.Shift;
+            if (alt != null) alt.IsChecked = src.Alt;
+            if (win != null) win.IsChecked = src.Win;
+            if (key != null)
+            {
+                string val = (src.Key ?? string.Empty).Trim().ToUpperInvariant();
+                foreach (var item in key.Items)
+                {
+                    if (item != null && item.ToString() == val)
+                    {
+                        key.SelectedItem = item;
+                        break;
+                    }
+                }
+                if (key.SelectedItem == null && !string.IsNullOrEmpty(val))
+                {
+                    key.Text = val;
+                }
+            }
         }
 
         private static void ReadHotkey(ToggleHotkey dst, CheckBox en, CheckBox ctrl, CheckBox shift, CheckBox alt, CheckBox win, ComboBox key)
@@ -477,14 +571,43 @@ private void InitLanguageComboBox()
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            // Capture options
+            HarvestSettings();
+            Settings.Save(_settings);
+            
+            // Re-store original theme so cancel doesn't revert to old values if we clicked Apply before
+            _originalThemeMode = _settings.ThemeMode;
+            _originalThemeBg = _settings.ThemeBackgroundColor;
+            _originalThemeFg = _settings.ThemeTextColor;
+
+            DialogResult = true;
+            Close();
+        }
+
+        private void Apply_Click(object sender, RoutedEventArgs e)
+        {
+            HarvestSettings();
+            Settings.Save(_settings);
+
+            // Re-store original theme so cancel doesn't revert to old values
+            _originalThemeMode = _settings.ThemeMode;
+            _originalThemeBg = _settings.ThemeBackgroundColor;
+            _originalThemeFg = _settings.ThemeTextColor;
+
+            // Apply theme real-time (already happening but let's be safe)
+            App.ApplyTheme(_settings);
+            
+            // Feedback for Apply
+            // CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("SettingsSaved"), LocalizationManager.GetString("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void HarvestSettings()
+        {
             // Capture options
             if (CboFormat.SelectedItem is ComboBoxItem item)
             {
                 _settings.FileSaveFormat = item.Content?.ToString() ?? "PNG";
             }
             
-            // 품질 설정 (콤보박스에서)
             if (CboQuality.SelectedItem is ComboBoxItem qualityItem)
             {
                 if (int.TryParse(qualityItem.Tag?.ToString(), out int quality))
@@ -500,6 +623,7 @@ private void InitLanguageComboBox()
             {
                 _settings.ImageQuality = 100;
             }
+
             var desiredFolder = (TxtFolder.Text ?? string.Empty).Trim();
             if (string.IsNullOrWhiteSpace(desiredFolder))
             {
@@ -510,26 +634,23 @@ private void InitLanguageComboBox()
             _settings.ShowPreviewAfterCapture = ChkShowPreview.IsChecked == true;
             _settings.ShowMagnifier = ChkShowMagnifier.IsChecked == true;
             
-            // Print Screen key
             _settings.UsePrintScreenKey = ChkUsePrintScreen.IsChecked == true;
             if (CboPrintScreenAction.SelectedItem is ComboBoxItem actionItem)
             {
-                // 저장은 한국어 기본 문자열(Tag)로 유지 (기존 스위치 로직 호환)
                 _settings.PrintScreenAction = actionItem.Tag?.ToString() ?? "영역 캡처";
             }
 
-            // Ensure folder exists if autosave is enabled
             if (_settings.AutoSaveCapture)
             {
                 try { if (!System.IO.Directory.Exists(_settings.DefaultSaveFolder)) System.IO.Directory.CreateDirectory(_settings.DefaultSaveFolder); }
-                catch { /* ignore create errors; user may fix path later */ }
+                catch { }
             }
 
-            // Hotkeys - read and normalize
+            // Hotkeys
             ReadHotkey(_settings.Hotkeys.RegionCapture, HkRegionEnabled, HkRegionCtrl, HkRegionShift, HkRegionAlt, HkRegionWin, HkRegionKey);
             ReadHotkey(_settings.Hotkeys.DelayCapture, HkDelayEnabled, HkDelayCtrl, HkDelayShift, HkDelayAlt, HkDelayWin, HkDelayKey);
             ReadHotkey(_settings.Hotkeys.RealTimeCapture, HkRealTimeEnabled, HkRealTimeCtrl, HkRealTimeShift, HkRealTimeAlt, HkRealTimeWin, HkRealTimeKey); 
-ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiShift, HkMultiAlt, HkMultiWin, HkMultiKey); 
+            ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiShift, HkMultiAlt, HkMultiWin, HkMultiKey); 
             ReadHotkey(_settings.Hotkeys.FullScreen, HkFullEnabled, HkFullCtrl, HkFullShift, HkFullAlt, HkFullWin, HkFullKey);
             ReadHotkey(_settings.Hotkeys.DesignatedCapture, HkDesignatedEnabled, HkDesignatedCtrl, HkDesignatedShift, HkDesignatedAlt, HkDesignatedWin, HkDesignatedKey);
             ReadHotkey(_settings.Hotkeys.WindowCapture, HkWindowCaptureEnabled, HkWindowCaptureCtrl, HkWindowCaptureShift, HkWindowCaptureAlt, HkWindowCaptureWin, HkWindowCaptureKey);
@@ -544,7 +665,6 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
             ReadHotkey(_settings.Hotkeys.OpenSettings, HkOpenSettingsEnabled, HkOpenSettingsCtrl, HkOpenSettingsShift, HkOpenSettingsAlt, HkOpenSettingsWin, HkOpenSettingsKey);
             ReadHotkey(_settings.Hotkeys.OpenEditor, HkOpenEditorEnabled, HkOpenEditorCtrl, HkOpenEditorShift, HkOpenEditorAlt, HkOpenEditorWin, HkOpenEditorKey);
 
-            // Ensure defaults if user left any key empty
             EnsureDefaultKey(_settings.Hotkeys.RegionCapture, "A");
             EnsureDefaultKey(_settings.Hotkeys.DelayCapture, "D");
             EnsureDefaultKey(_settings.Hotkeys.RealTimeCapture, "R");
@@ -563,56 +683,44 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
             EnsureDefaultKey(_settings.Hotkeys.OpenSettings, "O");
             EnsureDefaultKey(_settings.Hotkeys.OpenEditor, "E");
 
-            // 시스템 설정
+            // System settings
             _settings.StartWithWindows = StartWithWindowsCheckBox.IsChecked == true;
-            if (StartupModeTrayRadio.IsChecked == true)
-            {
-                _settings.StartupMode = "Tray";
-                _settings.LastActiveMode = "Tray";  // 시작 모드와 마지막 모드 동기화
-            }
-            else if (StartupModeNormalRadio.IsChecked == true)
-            {
-                _settings.StartupMode = "Normal";
-                _settings.LastActiveMode = "Normal";  // 시작 모드와 마지막 모드 동기화
-            }
-            else if (StartupModeSimpleRadio.IsChecked == true)
-            {
-                _settings.StartupMode = "Simple";
-                _settings.LastActiveMode = "Simple";  // 시작 모드와 마지막 모드 동기화
-            }
+            if (StartupModeTrayRadio.IsChecked == true) { _settings.StartupMode = "Tray"; _settings.LastActiveMode = "Tray"; }
+            else if (StartupModeNormalRadio.IsChecked == true) { _settings.StartupMode = "Normal"; _settings.LastActiveMode = "Normal"; }
+            else if (StartupModeSimpleRadio.IsChecked == true) { _settings.StartupMode = "Simple"; _settings.LastActiveMode = "Simple"; }
             
-            // 언어 설정
+            // Language
             if (LanguageComboBox.SelectedItem is ComboBoxItem langItem)
             {
                 var lang = langItem.Tag?.ToString() ?? "ko";
                 _settings.Language = lang;
-                // 런타임 언어 적용 (재시작 없이)
                 CatchCapture.Models.LocalizationManager.SetLanguage(lang);
             }
             
-            // 윈도우 시작 프로그램 등록/해제
             SetStartup(_settings.StartWithWindows);
 
-            // Menu items order
+            // Menu order
             _settings.MainMenuItems = _menuItems.Select(m => m.Key).ToList();
 
-            // Theme Settings
-            if (ThemeDark.IsChecked == true) _settings.ThemeMode = "Dark";
-            else if (ThemeLight.IsChecked == true) _settings.ThemeMode = "Light";
-            else if (ThemeBlue.IsChecked == true) _settings.ThemeMode = "Blue";
+            // Theme Setting
+            if (ThemeDark != null && ThemeDark.IsChecked == true) _settings.ThemeMode = "Dark";
+            else if (ThemeLight != null && ThemeLight.IsChecked == true) _settings.ThemeMode = "Light";
+            else if (ThemeBlue != null && ThemeBlue.IsChecked == true) _settings.ThemeMode = "Blue";
+            else if (ThemeCustom != null && ThemeCustom.IsChecked == true) _settings.ThemeMode = "Custom";
             else _settings.ThemeMode = "General";
-
-            _settings.ThemeBackgroundColor = TxtThemeBgColor.Text;
-            _settings.ThemeTextColor = TxtThemeTextColor.Text;
-
-            Settings.Save(_settings);
-            // 디버그용 메시지박스 제거 - 설정이 자동으로 저장됨
-            DialogResult = true;
-            Close();
+            
+            // Background color and text color already updated in real-time in _settings
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
+            // Revert theme to original if changed
+            var revertSettings = Settings.Load();
+            revertSettings.ThemeMode = _originalThemeMode;
+            revertSettings.ThemeBackgroundColor = _originalThemeBg;
+            revertSettings.ThemeTextColor = _originalThemeFg;
+            App.ApplyTheme(revertSettings);
+            
             DialogResult = false;
             CatchCapture.Models.LocalizationManager.LanguageChanged -= OnLanguageChanged;
             Close();
@@ -750,6 +858,12 @@ ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiS
         private System.Collections.ObjectModel.ObservableCollection<MenuItemViewModel> _menuItems = 
             new System.Collections.ObjectModel.ObservableCollection<MenuItemViewModel>();
 
+        private static void FillKeyCombo(ComboBox? combo, List<string> keys)
+        {
+            if (combo == null) return;
+            combo.Items.Clear();
+            foreach (var k in keys) combo.Items.Add(k);
+        }
         private void LoadMenuEditPage()
         {
             _menuItems.Clear();

@@ -338,7 +338,8 @@
                                            VerticalAlignment="Center" 
                                            HorizontalAlignment="Right"
                                            FontSize="11" 
-                                           Foreground="#666666"
+                                           Foreground="{DynamicResource ThemeForeground}"
+                                           Opacity="0.8"
                                            Margin="0,0,8,0"/>
                                 
                                 <Border x:Name="InstantEditToggleBorder" 
@@ -346,7 +347,7 @@
                                        Width="30" 
                                        Height="16" 
                                        CornerRadius="8" 
-                                       Background="#CCCCCC"
+                                       Background="#3D3D3D"
                                        Cursor="Hand"
                                        MouseLeftButtonDown="InstantEditToggle_Click">
                                     <Ellipse x:Name="InstantEditToggleCircle" 
@@ -368,7 +369,8 @@
                                            VerticalAlignment="Center" 
                                            HorizontalAlignment="Right"
                                            FontSize="11" 
-                                           Foreground="#666666"
+                                           Foreground="{DynamicResource ThemeForeground}"
+                                           Opacity="0.8"
                                            Margin="0,0,8,0"/>
                                 
                                 <Border x:Name="OpenEditorToggleBorder" 
@@ -376,7 +378,7 @@
                                        Width="30" 
                                        Height="16" 
                                        CornerRadius="8" 
-                                       Background="#CCCCCC"
+                                       Background="#3D3D3D"
                                        Cursor="Hand"
                                        MouseLeftButtonDown="OpenEditorToggle_Click">
                                     <Ellipse x:Name="OpenEditorToggleCircle" 

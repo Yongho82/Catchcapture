@@ -145,6 +145,8 @@ public partial class App : Application
 
     public static void ApplyTheme(Settings settings)
     {
+        if (settings == null) return;
+        
         try
         {
             var bgUrl = settings.ThemeBackgroundColor ?? "#FFFFFF";
@@ -153,21 +155,28 @@ public partial class App : Application
             Color bgColor = (Color)ColorConverter.ConvertFromString(bgUrl);
             Color fgColor = (Color)ColorConverter.ConvertFromString(fgUrl);
 
-            Application.Current.Resources["ThemeBackground"] = new SolidColorBrush(bgColor);
-            Application.Current.Resources["ThemeForeground"] = new SolidColorBrush(fgColor);
-            
-            // Derive a border color
-            // Simple logic: if bg is dark, border is light, else dark
-            // Or just allow user to set it later. For now, use a safe gray.
-             Application.Current.Resources["ThemeBorder"] = new SolidColorBrush(Color.FromRgb(200, 200, 200)); 
-             if (settings.ThemeMode == "Dark")
-             {
-                 Application.Current.Resources["ThemeBorder"] = new SolidColorBrush(Color.FromRgb(60, 60, 60));
-             }
+            if (Application.Current != null && Application.Current.Resources != null)
+            {
+                Application.Current.Resources["ThemeBackground"] = new SolidColorBrush(bgColor);
+                Application.Current.Resources["ThemeForeground"] = new SolidColorBrush(fgColor);
+
+                // Derive a border color based on brightness
+                double brightness = (0.299 * bgColor.R + 0.587 * bgColor.G + 0.114 * bgColor.B) / 255;
+                Color borderColor;
+                if (brightness < 0.5) // Dark background
+                {
+                    borderColor = Color.FromRgb(80, 80, 80); // Lighter border for dark bg
+                }
+                else // Light background
+                {
+                    borderColor = Color.FromRgb(220, 220, 220); // Darker border for light bg
+                }
+                Application.Current.Resources["ThemeBorder"] = new SolidColorBrush(borderColor);
+            }
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Failed to apply theme: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"Failed to apply theme: {ex.Message}");
         }
     }
 }

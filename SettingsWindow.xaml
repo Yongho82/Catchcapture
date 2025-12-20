@@ -100,6 +100,7 @@
         
         <!-- CheckBox Style -->
         <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Margin" Value="0"/>
             <Setter Property="Padding" Value="8,0,0,0"/>
@@ -110,23 +111,17 @@
                         <StackPanel Orientation="Horizontal" Background="Transparent">
                             <Grid VerticalAlignment="Center">
                                 <Border x:Name="checkBoxBorder" Width="14" Height="14" CornerRadius="3" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorder}" Background="White"/>
-                                <Path x:Name="checkMark" Data="M 3,7 L 5,9 L 11,3" Stroke="White" StrokeThickness="1.5" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Path x:Name="checkMark" Data="M 3,7 L 5,9 L 11,3" Stroke="#007AFF" StrokeThickness="1.5" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Grid>
                             <ContentPresenter Margin="{TemplateBinding Padding}" VerticalAlignment="Center"/>
                         </StackPanel>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="checkBoxBorder" Property="Background" Value="{StaticResource AccentColor}"/>
                                 <Setter TargetName="checkBoxBorder" Property="BorderBrush" Value="{StaticResource AccentColor}"/>
                                 <Setter TargetName="checkMark" Property="Visibility" Value="Visible"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="checkBoxBorder" Property="BorderBrush" Value="{StaticResource AccentColor}"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="checkBoxBorder" Property="Opacity" Value="0.5"/>
-                                <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
-                                <Setter Property="Opacity" Value="0.5"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -134,13 +129,75 @@
             </Setter>
         </Style>
 
+        <!-- RadioButton Style -->
+        <Style TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <StackPanel Orientation="Horizontal" Background="Transparent" Margin="0,2">
+                            <Grid VerticalAlignment="Center">
+                                <Ellipse x:Name="OuterEllipse" Width="14" Height="14" Stroke="{DynamicResource ThemeBorder}" StrokeThickness="1" Fill="White"/>
+                                <Ellipse x:Name="InnerEllipse" Width="8" Height="8" Fill="{StaticResource AccentColor}" Visibility="Collapsed"/>
+                            </Grid>
+                            <ContentPresenter Margin="8,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="OuterEllipse" Property="Stroke" Value="{StaticResource AccentColor}"/>
+                                <Setter TargetName="InnerEllipse" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- GroupBox Style -->
+        <Style TargetType="GroupBox">
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GroupBox">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Border Grid.Row="0" Grid.RowSpan="2" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Margin="0,8,0,0"/>
+                            <Border Grid.Row="0" HorizontalAlignment="Left" Background="{DynamicResource ThemeBackground}" Margin="12,0,0,0" Padding="5,0">
+                                <ContentPresenter ContentSource="Header" RecognizesAccessKey="True" TextElement.Foreground="{DynamicResource ThemeForeground}" TextElement.FontWeight="SemiBold"/>
+                            </Border>
+                            <ContentPresenter Grid.Row="1" Margin="{TemplateBinding Padding}"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- ComboBox Style -->
         <Style TargetType="ComboBox">
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorder}"/>
             <Setter Property="Height" Value="26"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Padding" Value="6,0"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Margin" Value="0"/>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                    </Style>
+                </Setter.Value>
+            </Setter>
         </Style>
 
     </Window.Resources>
@@ -159,6 +216,7 @@
                      <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                         <TextBlock x:Name="VersionText" Text="버전 1.0.0" FontSize="12" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
                         <TextBlock x:Name="WebsiteIcon" Text="🏠" FontSize="14" Margin="10,0,0,0" Cursor="Hand" VerticalAlignment="Center" 
+                                   Foreground="{DynamicResource ThemeForeground}" Opacity="0.8"
                                    MouseLeftButtonUp="Website_Click" ToolTip="홈페이지 방문"/>
                      </StackPanel>
                      <StackPanel Orientation="Horizontal">
@@ -272,32 +330,33 @@
                             <RadioButton x:Name="ThemeDark" Content="다크 모드" GroupName="Theme" Margin="0,5" Tag="Dark" Checked="Theme_Checked"/>
                             <RadioButton x:Name="ThemeLight" Content="라이트 모드" GroupName="Theme" Margin="0,5" Tag="Light" Checked="Theme_Checked"/>
                             <RadioButton x:Name="ThemeBlue" Content="블루 모드" GroupName="Theme" Margin="0,5" Tag="Blue" Checked="Theme_Checked"/>
+                            <RadioButton x:Name="ThemeCustom" Content="사용자 지정" GroupName="Theme" Margin="0,5" Tag="Custom" Checked="Theme_Checked"/>
                         </StackPanel>
                     </GroupBox>
 
                     <GroupBox x:Name="ThemeCustomGroup" Header="사용자 지정 색상" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
                         <StackPanel>
-                            <Grid Margin="0,0,0,10">
+                            <Grid Margin="0,0,0,15">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="100"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="30"/>
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="배경 색상" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
-                                <TextBox x:Name="TxtThemeBgColor" Grid.Column="1" Height="26" VerticalContentAlignment="Center" Margin="0,0,10,0" TextChanged="ThemeColor_TextChanged"/>
-                                <Border x:Name="PreviewThemeBgColor" Grid.Column="2" Width="26" Height="26" CornerRadius="3" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1"/>
+                                <TextBlock x:Name="ThemeBgColorLabel" Text="배경 색상" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                                <Border x:Name="PreviewThemeBgColor" Grid.Column="1" Width="40" Height="26" CornerRadius="4" 
+                                        BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1.5" 
+                                        Cursor="Hand" MouseLeftButtonDown="PreviewColor_Click" Tag="Bg"/>
                             </Grid>
-                            <Grid>
+                            <Grid Margin="0,0,0,5">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="100"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="30"/>
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="텍스트 색상" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
-                                <TextBox x:Name="TxtThemeTextColor" Grid.Column="1" Height="26" VerticalContentAlignment="Center" Margin="0,0,10,0" TextChanged="ThemeColor_TextChanged"/>
-                                <Border x:Name="PreviewThemeTextColor" Grid.Column="2" Width="26" Height="26" CornerRadius="3" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1"/>
+                                <TextBlock x:Name="ThemeTextColorLabel" Text="텍스트 색상" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                                <Border x:Name="PreviewThemeTextColor" Grid.Column="1" Width="40" Height="26" CornerRadius="4" 
+                                        BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1.5" 
+                                        Cursor="Hand" MouseLeftButtonDown="PreviewColor_Click" Tag="Text"/>
                             </Grid>
-                            <TextBlock Text="※ HEX 색상 코드(예: #FFFFFF)를 입력하세요." FontSize="11" Foreground="{DynamicResource ThemeForeground}" Margin="0,10,0,0"/>
+                            <TextBlock x:Name="ThemeColorGuide" Text="※ 색상 상자를 클릭하여 테마 색상을 선택하세요." FontSize="11" Foreground="{DynamicResource ThemeForeground}" Margin="0,15,0,0" Opacity="0.7"/>
                         </StackPanel>
                     </GroupBox>
                 </StackPanel>
@@ -408,11 +467,11 @@
                         </ListBox.ItemContainerStyle>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <!-- <TextBlock Text="{Binding Label}" 
+                                <TextBlock Text="{Binding DisplayName}" 
                                            FontSize="13"
                                            FontWeight="Medium"
                                            Foreground="{DynamicResource ThemeForeground}"
-                                           VerticalAlignment="Center"/> -->
+                                           VerticalAlignment="Center"/>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
@@ -699,9 +758,10 @@
             </Border>
 
             <!-- Action Buttons -->
-            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
-                <Button x:Name="SaveButton" Content="저장" Style="{StaticResource MacButtonPrimary}" Click="Save_Click" Width="80" Margin="0,0,10,0"/>
-                <Button x:Name="CancelButton" Content="취소" Style="{StaticResource MacButtonSecondary}" Click="Cancel_Click" Width="80"/>
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,0,20,0">
+                <Button x:Name="CancelButton" Content="취소" Width="100" Height="34" Margin="0,0,10,0" Style="{StaticResource MacButtonSecondary}" Click="Cancel_Click"/>
+                <Button x:Name="ApplyButton" Content="적용" Width="100" Height="34" Margin="0,0,10,0" Style="{StaticResource MacButtonSecondary}" Click="Apply_Click"/>
+                <Button x:Name="SaveButton" Content="저장" Width="100" Height="34" Style="{StaticResource MacButtonPrimary}" Click="Save_Click"/>
             </StackPanel>
         </Grid>
     </Grid>

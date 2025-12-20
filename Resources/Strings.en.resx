@@ -187,6 +187,99 @@
   <data name="SettingsSaved" xml:space="preserve">
     <value>Settings saved successfully</value>
   </data>
+  <data name="CaptureSettings" xml:space="preserve">
+    <value>Capture Settings</value>
+  </data>
+  <data name="SystemSettings" xml:space="preserve">
+    <value>System Settings</value>
+  </data>
+  <data name="HotkeySettings" xml:space="preserve">
+    <value>Hotkey Settings</value>
+  </data>
+  <data name="MenuEdit" xml:space="preserve">
+    <value>Menu Edit</value>
+  </data>
+  <data name="MenuEditGuide" xml:space="preserve">
+    <value>Drag to change menu order</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="RestoreDefaultMenus" xml:space="preserve">
+    <value>Restore Default Menus</value>
+  </data>
+  <data name="AppTitle" xml:space="preserve">
+    <value>CatchCapture</value>
+  </data>
+  <data name="Version" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="VisitHomepage" xml:space="preserve">
+    <value>Visit Homepage</value>
+  </data>
+  <data name="RestoreDefaults" xml:space="preserve">
+    <value>Restore Defaults</value>
+  </data>
+  <data name="PrivacyPolicy" xml:space="preserve">
+    <value>Privacy Policy</value>
+  </data>
+  <data name="SaveSettings" xml:space="preserve">
+    <value>Save Settings</value>
+  </data>
+  <data name="SavePath" xml:space="preserve">
+    <value>Save Path</value>
+  </data>
+  <data name="Change" xml:space="preserve">
+    <value>Change</value>
+  </data>
+  <data name="FileFormat" xml:space="preserve">
+    <value>File Format</value>
+  </data>
+  <data name="Quality" xml:space="preserve">
+    <value>Quality</value>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>Options</value>
+  </data>
+  <data name="AutoSaveCapture" xml:space="preserve">
+    <value>Auto Save</value>
+  </data>
+  <data name="ShowPreviewAfterCapture" xml:space="preserve">
+    <value>Show Preview After Capture</value>
+  </data>
+  <data name="ShowMagnifier" xml:space="preserve">
+    <value>Show Magnifier</value>
+  </data>
+  <data name="UsePrintScreen" xml:space="preserve">
+    <value>Use Print Screen Key</value>
+  </data>
+  <data name="StartupMode" xml:space="preserve">
+    <value>Startup Mode</value>
+  </data>
+  <data name="StartInTray" xml:space="preserve">
+    <value>Start in Tray</value>
+  </data>
+  <data name="StartInNormal" xml:space="preserve">
+    <value>Start in Normal</value>
+  </data>
+  <data name="StartInSimple" xml:space="preserve">
+    <value>Start in Simple</value>
+  </data>
+  <data name="StartupModeNotice" xml:space="preserve">
+    <value>※ Startup mode sets the initial screen when the program starts.</value>
+  </data>
+  <data name="LanguageSettings" xml:space="preserve">
+    <value>Language Settings</value>
+  </data>
+  <data name="LanguageLabel" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="RestartRequired" xml:space="preserve">
+    <value>Restart required after changing language.</value>
+  </data>
+  <data name="Info" xml:space="preserve">
+    <value>Info</value>
+  </data>
   
   <!-- Messages -->
   <data name="Confirm" xml:space="preserve">
@@ -395,4 +488,18 @@
   <data name="ToolClearAll" xml:space="preserve"><value>Clear All</value></data>
   <data name="OpenSaveFolder" xml:space="preserve"><value>Open Save Folder</value></data>
   <data name="ModeSelect" xml:space="preserve"><value>Mode Selection</value></data>
+  <data name="ThemeSettings" xml:space="preserve"><value>Theme Settings</value></data>
+  <data name="ThemePreset" xml:space="preserve"><value>Theme Presets</value></data>
+  <data name="ThemeGeneral" xml:space="preserve"><value>General (Default)</value></data>
+  <data name="ThemeDark" xml:space="preserve"><value>Dark Mode</value></data>
+  <data name="ThemeLight" xml:space="preserve"><value>Light Mode</value></data>
+  <data name="ThemeBlue" xml:space="preserve"><value>Blue Mode</value></data>
+  <data name="ThemeCustom" xml:space="preserve"><value>Custom</value></data>
+  <data name="ThemeBgColor" xml:space="preserve"><value>Background Color</value></data>
+  <data name="ThemeTextColor" xml:space="preserve"><value>Text Color</value></data>
+  <data name="ThemeColorGuide" xml:space="preserve"><value>※ Click the color boxes to choose colors.</value></data>
+  <data name="Apply" xml:space="preserve"><value>Apply</value></data>
+  <data name="Preview" xml:space="preserve"><value>Preview</value></data>
+  <data name="ThemeSampleLabel" xml:space="preserve"><value>Preview Sample</value></data>
+  <data name="ThemeSampleText" xml:space="preserve"><value>This is a theme preview sample text. (ABCabc 123)</value></data>
 </root>

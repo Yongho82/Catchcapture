@@ -187,6 +187,99 @@
   <data name="SettingsSaved" xml:space="preserve">
     <value>설정이 저장되었습니다</value>
   </data>
+  <data name="CaptureSettings" xml:space="preserve">
+    <value>캡처 설정</value>
+  </data>
+  <data name="SystemSettings" xml:space="preserve">
+    <value>시스템 설정</value>
+  </data>
+  <data name="HotkeySettings" xml:space="preserve">
+    <value>단축키 설정</value>
+  </data>
+  <data name="MenuEdit" xml:space="preserve">
+    <value>메뉴 편집</value>
+  </data>
+  <data name="MenuEditGuide" xml:space="preserve">
+    <value>드래그하여 메뉴 순서를 변경하세요</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>추가</value>
+  </data>
+  <data name="RestoreDefaultMenus" xml:space="preserve">
+    <value>기본 메뉴 복원</value>
+  </data>
+  <data name="AppTitle" xml:space="preserve">
+    <value>CatchCapture</value>
+  </data>
+  <data name="Version" xml:space="preserve">
+    <value>버전</value>
+  </data>
+  <data name="VisitHomepage" xml:space="preserve">
+    <value>홈페이지 방문</value>
+  </data>
+  <data name="RestoreDefaults" xml:space="preserve">
+    <value>기본설정 복원</value>
+  </data>
+  <data name="PrivacyPolicy" xml:space="preserve">
+    <value>개인정보 처리방침</value>
+  </data>
+  <data name="SaveSettings" xml:space="preserve">
+    <value>저장 설정</value>
+  </data>
+  <data name="SavePath" xml:space="preserve">
+    <value>저장 경로</value>
+  </data>
+  <data name="Change" xml:space="preserve">
+    <value>변경</value>
+  </data>
+  <data name="FileFormat" xml:space="preserve">
+    <value>파일 포맷</value>
+  </data>
+  <data name="Quality" xml:space="preserve">
+    <value>품질</value>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>옵션</value>
+  </data>
+  <data name="AutoSaveCapture" xml:space="preserve">
+    <value>자동 저장</value>
+  </data>
+  <data name="ShowPreviewAfterCapture" xml:space="preserve">
+    <value>캡처 후 미리보기 표시</value>
+  </data>
+  <data name="ShowMagnifier" xml:space="preserve">
+    <value>영역 캡처 시 돋보기 표시</value>
+  </data>
+  <data name="UsePrintScreen" xml:space="preserve">
+    <value>Print Screen 키 사용</value>
+  </data>
+  <data name="StartupMode" xml:space="preserve">
+    <value>시작 모드</value>
+  </data>
+  <data name="StartInTray" xml:space="preserve">
+    <value>트레이 모드로 시작</value>
+  </data>
+  <data name="StartInNormal" xml:space="preserve">
+    <value>일반 모드로 시작</value>
+  </data>
+  <data name="StartInSimple" xml:space="preserve">
+    <value>간편 모드로 시작</value>
+  </data>
+  <data name="StartupModeNotice" xml:space="preserve">
+    <value>※ 시작 모드는 프로그램이 실행될 때 처음 표시되는 화면을 설정합니다.</value>
+  </data>
+  <data name="LanguageSettings" xml:space="preserve">
+    <value>언어 설정</value>
+  </data>
+  <data name="LanguageLabel" xml:space="preserve">
+    <value>언어</value>
+  </data>
+  <data name="RestartRequired" xml:space="preserve">
+    <value>언어 변경 후 프로그램을 다시 시작해야 합니다.</value>
+  </data>
+  <data name="Info" xml:space="preserve">
+    <value>알림</value>
+  </data>
   
   <!-- Messages -->
   <data name="Confirm" xml:space="preserve">
@@ -395,4 +488,18 @@
   <data name="ToolClearAll" xml:space="preserve"><value>모두 지우기</value></data>
   <data name="OpenSaveFolder" xml:space="preserve"><value>저장 폴더 열기</value></data>
   <data name="ModeSelect" xml:space="preserve"><value>모드 선택</value></data>
+  <data name="ThemeSettings" xml:space="preserve"><value>테마 설정</value></data>
+  <data name="ThemePreset" xml:space="preserve"><value>테마 선택</value></data>
+  <data name="ThemeGeneral" xml:space="preserve"><value>일반 (기본)</value></data>
+  <data name="ThemeDark" xml:space="preserve"><value>다크 모드</value></data>
+  <data name="ThemeLight" xml:space="preserve"><value>라이트 모드</value></data>
+  <data name="ThemeBlue" xml:space="preserve"><value>블루 모드</value></data>
+  <data name="ThemeCustom" xml:space="preserve"><value>사용자 지정</value></data>
+  <data name="ThemeBgColor" xml:space="preserve"><value>배경 색상</value></data>
+  <data name="ThemeTextColor" xml:space="preserve"><value>텍스트 색상</value></data>
+  <data name="ThemeColorGuide" xml:space="preserve"><value>※ 색상 상자를 클릭하여 테마 색상을 선택하세요.</value></data>
+  <data name="Apply" xml:space="preserve"><value>적용</value></data>
+  <data name="Preview" xml:space="preserve"><value>미리보기</value></data>
+  <data name="ThemeSampleLabel" xml:space="preserve"><value>미리보기 샘플</value></data>
+  <data name="ThemeSampleText" xml:space="preserve"><value>테마 미리보기 샘플 텍스트입니다. (ABCabc 123)</value></data>
 </root>
