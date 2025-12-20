@@ -31,10 +31,12 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#E8F3FF" TargetName="border"/>
+                                <Setter Property="Background" Value="{DynamicResource ThemeBorder}" TargetName="border"/>
+                                <Setter Property="Opacity" Value="0.6" TargetName="border"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="#D0DAFF" TargetName="border"/>
+                                <Setter Property="Background" Value="{DynamicResource ThemeBorder}" TargetName="border"/>
+                                <Setter Property="Opacity" Value="0.8" TargetName="border"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -60,10 +62,12 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#E8F3FF" TargetName="border"/>
+                                <Setter Property="Background" Value="{DynamicResource ThemeBorder}" TargetName="border"/>
+                                <Setter Property="Opacity" Value="0.6" TargetName="border"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="#D0DAFF" TargetName="border"/>
+                                <Setter Property="Background" Value="{DynamicResource ThemeBorder}" TargetName="border"/>
+                                <Setter Property="Opacity" Value="0.8" TargetName="border"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -89,10 +93,12 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#E8F3FF" TargetName="border"/>
+                                <Setter Property="Background" Value="{DynamicResource ThemeBorder}" TargetName="border"/>
+                                <Setter Property="Opacity" Value="0.6" TargetName="border"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="#D0DAFF" TargetName="border"/>
+                                <Setter Property="Background" Value="{DynamicResource ThemeBorder}" TargetName="border"/>
+                                <Setter Property="Opacity" Value="0.8" TargetName="border"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -150,12 +156,12 @@
         <!-- Dark Separator -->
         <Style x:Key="DarkSeparator" TargetType="Separator">
             <Setter Property="Margin" Value="6,3"/>
-            <Setter Property="Background" Value="#505050"/>
+            <Setter Property="Background" Value="{DynamicResource ThemeBorder}"/>
             <Setter Property="Height" Value="1"/>
         </Style>
     </Window.Resources>
     
-    <Border Background="{DynamicResource ThemeBackground}" CornerRadius="8" BorderThickness="1" BorderBrush="#E0E6F0">
+    <Border Background="{DynamicResource ThemeBackground}" CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorder}">
         <Border.Effect>
             <DropShadowEffect ShadowDepth="2" BlurRadius="10" Opacity="0.3" Direction="270"/>
         </Border.Effect>

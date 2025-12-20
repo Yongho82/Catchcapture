@@ -25,7 +25,8 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#EEF2FF" TargetName="border"/>
+                                <Setter Property="Background" Value="{DynamicResource ThemeBorder}" TargetName="border"/>
+                                <Setter Property="Opacity" Value="0.6" TargetName="border"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -60,7 +61,7 @@
         <Style x:Key="DarkContextMenu" TargetType="ContextMenu">
             <Setter Property="Background" Value="{DynamicResource ThemeBackground}"/>
             <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
-            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorder}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
@@ -69,7 +70,7 @@
         <Style x:Key="LightSeparator" TargetType="Separator">
             <Setter Property="Height" Value="1"/>
             <Setter Property="Margin" Value="0"/>
-            <Setter Property="Background" Value="#E0E0E0"/>
+            <Setter Property="Background" Value="{DynamicResource ThemeBorder}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -113,7 +114,8 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsHighlighted" Value="True">
-                                <Setter Property="Background" Value="#EEF2FF"/>
+                                <Setter Property="Background" Value="{DynamicResource ThemeBorder}"/>
+                                <Setter Property="Opacity" Value="0.6"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.5"/>
@@ -158,7 +160,7 @@
 
     <Grid>
         <!-- 가로 모드 레이아웃 -->
-        <Border x:Name="HorizontalRoot" CornerRadius="8" Background="{DynamicResource ThemeBackground}" BorderBrush="#E0E0E0" BorderThickness="1" Visibility="Visible">
+        <Border x:Name="HorizontalRoot" CornerRadius="8" Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" Visibility="Visible">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="24"/>
@@ -166,14 +168,7 @@
                 </Grid.RowDefinitions>
                 
                 <!-- 타이틀바 -->
-                <Border Grid.Row="0" CornerRadius="8,8,0,0" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
-                    <Border.Background>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                            <GradientStop Color="#E3F2FD" Offset="0"/>
-                            <GradientStop Color="#BBDEFB" Offset="0.5"/>
-                            <GradientStop Color="#E3F2FD" Offset="1"/>
-                        </LinearGradientBrush>
-                    </Border.Background>
+                <Border Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8,8,0,0" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="0,0,0,1">
                     <Grid>
                         <Image Source="/icons/simple_title.png" Width="14" Height="14" HorizontalAlignment="Center" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality"/>
                         <!-- 즉시편집 스위치 (왼쪽) -->
@@ -222,7 +217,7 @@
         </Border>
 
         <!-- 세로 모드 레이아웃 -->
-        <Border x:Name="VerticalRoot" CornerRadius="8" Background="{DynamicResource ThemeBackground}" BorderBrush="#E0E0E0" BorderThickness="1" Visibility="Collapsed">
+        <Border x:Name="VerticalRoot" CornerRadius="8" Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" Visibility="Collapsed">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="30"/>
@@ -231,7 +226,7 @@
                 </Grid.RowDefinitions>
 
                 <!-- 드래그 핸들 -->
-                <Border Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8,8,0,0" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
+                <Border Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8,8,0,0" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="0,0,0,1">
                     <Image Source="/icons/simple_title.png" Width="14" Height="14" HorizontalAlignment="Center" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality"/>
                 </Border>
 
@@ -239,7 +234,7 @@
                 <StackPanel x:Name="ButtonsPanelV" Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="2,3,2,4"/>
 
                 <!-- 하단 제어 버튼들 -->
-                <Border Grid.Row="2" BorderBrush="#E0E0E0" BorderThickness="0,1,0,0" Padding="0,5">
+                <Border Grid.Row="2" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="0,1,0,0" Padding="0,5">
                     <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0">
                         <!-- 즉시편집 스위치 -->
                         <ToggleButton x:Name="InstantEditToggleV" 

@@ -1210,7 +1210,7 @@ namespace CatchCapture.Utilities
                 Tag = "Separator", // [분별용 태그]
                 Width = isVerticalToolbarLayout ? 30 : 1,
                 Height = isVerticalToolbarLayout ? 1 : 30,
-                Background = new SolidColorBrush(Color.FromRgb(220, 220, 220)),
+                Background = (Brush)Application.Current.FindResource("ThemeBorder"),
                 Margin = isVerticalToolbarLayout ? new Thickness(0, 3, 0, 3) : new Thickness(3, 0, 3, 0)
             };
 
@@ -1254,8 +1254,9 @@ namespace CatchCapture.Utilities
                 Text = LocalizationManager.Get("Recapture"),
                 FontSize = 9,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Foreground = new SolidColorBrush(Color.FromRgb(60, 60, 60))
+                Foreground = (Brush)Application.Current.FindResource("ThemeForeground")
             };
+            cancelLabel.SetResourceReference(TextBlock.ForegroundProperty, "ThemeForeground");
             
             var cancelViewbox = new Viewbox
             {
@@ -1271,28 +1272,25 @@ namespace CatchCapture.Utilities
             var cancelBorder = new Border
             {
                 CornerRadius = new CornerRadius(6),
-                Background = Brushes.White,
                 BorderBrush = Brushes.Transparent,
                 BorderThickness = new Thickness(0),
                 Padding = new Thickness(2),
                 Child = cancelStackPanel
             };
+            cancelBorder.SetResourceReference(Border.BackgroundProperty, "ThemeBackground");
             
             cancelButton.Content = cancelBorder;
             
             cancelButton.MouseEnter += (s, e) =>
             {
-                // 재캡처는 일반 도구처럼 파란색 계열 호버 효과
-                cancelBorder.Background = new SolidColorBrush(Color.FromRgb(232, 243, 255));
-                cancelBorder.BorderBrush = new SolidColorBrush(Color.FromRgb(0, 120, 212));
-                cancelLabel.Foreground = new SolidColorBrush(Color.FromRgb(0, 120, 212));
+                cancelBorder.SetResourceReference(Border.BackgroundProperty, "ThemeBorder");
+                cancelBorder.Opacity = 0.6;
             };
             
             cancelButton.MouseLeave += (s, e) =>
             {
-                cancelBorder.Background = Brushes.White;
-                cancelBorder.BorderBrush = Brushes.Transparent;
-                cancelLabel.Foreground = new SolidColorBrush(Color.FromRgb(60, 60, 60));
+                cancelBorder.SetResourceReference(Border.BackgroundProperty, "ThemeBackground");
+                cancelBorder.Opacity = 1.0;
             };
             
             cancelButton.Click += (s, e) =>
@@ -1380,17 +1378,19 @@ namespace CatchCapture.Utilities
                 FontSize = 16,  // 크기를 약간 줄임
                 FontWeight = FontWeights.Bold,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Foreground = new SolidColorBrush(Color.FromRgb(60, 60, 60)),
+                Foreground = (Brush)Application.Current.FindResource("ThemeForeground"),
                 Margin = new Thickness(0, -2, 0, 0)  // 위로 2px 이동
             };
+            doneText.SetResourceReference(TextBlock.ForegroundProperty, "ThemeForeground");
             
             var doneLabel = new TextBlock
             {
                 Text = LocalizationManager.Get("OK"),
                 FontSize = 9,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Foreground = new SolidColorBrush(Color.FromRgb(60, 60, 60))
+                Foreground = (Brush)Application.Current.FindResource("ThemeForeground")
             };
+            doneLabel.SetResourceReference(TextBlock.ForegroundProperty, "ThemeForeground");
             
             doneStackPanel.Children.Add(doneText);
             doneStackPanel.Children.Add(doneLabel);
@@ -1399,32 +1399,25 @@ namespace CatchCapture.Utilities
             var doneBorder = new Border
             {
                 CornerRadius = new CornerRadius(6),
-                Background = Brushes.White,
                 BorderBrush = Brushes.Transparent,
                 BorderThickness = new Thickness(0),
                 Padding = new Thickness(2),
                 Child = doneStackPanel
             };
+            doneBorder.SetResourceReference(Border.BackgroundProperty, "ThemeBackground");
             
             doneButton.Content = doneBorder;
             
             doneButton.MouseEnter += (s, e) =>
             {
-                if (drawnElements.Count > 0)
-                {
-                    // 편집한 내용이 있으면 진한 하늘색
-                    doneBorder.Background = new SolidColorBrush(Color.FromRgb(100, 180, 255));
-                }
-                else
-                {
-                    // 편집 안 했으면 기본 호버색
-                    doneBorder.Background = new SolidColorBrush(Color.FromRgb(232, 243, 255));
-                }
+                doneBorder.SetResourceReference(Border.BackgroundProperty, "ThemeBorder");
+                doneBorder.Opacity = (drawnElements.Count > 0) ? 0.9 : 0.6;
             };
             
             doneButton.MouseLeave += (s, e) =>
             {
-                doneBorder.Background = Brushes.White;
+                doneBorder.SetResourceReference(Border.BackgroundProperty, "ThemeBackground");
+                doneBorder.Opacity = 1.0;
             };
             
             // 완료 버튼 클릭 이벤트
@@ -1439,7 +1432,7 @@ namespace CatchCapture.Utilities
                 Tag = "Separator",
                 Width = isVerticalToolbarLayout ? 30 : 1,
                 Height = isVerticalToolbarLayout ? 1 : 30,
-                Background = new SolidColorBrush(Color.FromRgb(220, 220, 220)),
+                Background = (Brush)Application.Current.FindResource("ThemeBorder"),
                 Margin = isVerticalToolbarLayout ? new Thickness(0, 3, 0, 3) : new Thickness(3, 0, 3, 0)
             };
             
@@ -1567,9 +1560,9 @@ namespace CatchCapture.Utilities
                 Text = label,
                 FontSize = 9,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Foreground = new SolidColorBrush(Color.FromRgb(60, 60, 60)),
                 Margin = new Thickness(0, 0, 0, 0)
             };
+            textBlock.SetResourceReference(TextBlock.ForegroundProperty, "ThemeForeground");
             
             var viewbox = new Viewbox
             {
@@ -1586,8 +1579,8 @@ namespace CatchCapture.Utilities
             // 호버 효과 (Border의 색상을 변경)
             button.MouseEnter += (s, e) =>
             {
-                border.Background = new SolidColorBrush(Color.FromRgb(232, 243, 255));
-                border.BorderBrush = new SolidColorBrush(Color.FromRgb(0, 120, 212));
+                border.SetResourceReference(Border.BackgroundProperty, "ThemeBorder");
+                border.Opacity = 0.6;
             };
             
             button.MouseLeave += (s, e) =>
@@ -1595,7 +1588,7 @@ namespace CatchCapture.Utilities
                 if (button != activeToolButton)
                 {
                     border.SetResourceReference(Border.BackgroundProperty, "ThemeBackground");
-                    border.BorderBrush = new SolidColorBrush(Color.FromRgb(224, 230, 240));
+                    border.Opacity = 1.0;
                 }
             };
             
@@ -1645,11 +1638,12 @@ namespace CatchCapture.Utilities
             var border = new Border
             {
                 CornerRadius = new CornerRadius(6),
-                Background = Brushes.White,
                 BorderBrush = Brushes.Transparent,
                 BorderThickness = new Thickness(0),
                 Padding = new Thickness(0.5)
             };
+            border.SetResourceReference(Border.BackgroundProperty, "ThemeBackground");
+
             var stackPanel = new StackPanel
             {
                 VerticalAlignment = VerticalAlignment.Center,
@@ -1683,9 +1677,9 @@ namespace CatchCapture.Utilities
                 Text = label,
                 FontSize = 9,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Foreground = new SolidColorBrush(Color.FromRgb(60, 60, 60)),
                 Margin = new Thickness(0, 0, 0, 0)
             };
+            textBlock.SetResourceReference(TextBlock.ForegroundProperty, "ThemeForeground");
             
             var viewbox = new Viewbox
             {
@@ -1701,14 +1695,14 @@ namespace CatchCapture.Utilities
             
             button.MouseEnter += (s, e) =>
             {
-                border.Background = new SolidColorBrush(Color.FromRgb(232, 243, 255));
-                border.BorderBrush = new SolidColorBrush(Color.FromRgb(0, 120, 212));
+                border.SetResourceReference(Border.BackgroundProperty, "ThemeBorder");
+                border.Opacity = 0.6;
             };
             
             button.MouseLeave += (s, e) =>
             {
-                border.Background = Brushes.White;
-                border.BorderBrush = new SolidColorBrush(Color.FromRgb(224, 230, 240));
+                border.SetResourceReference(Border.BackgroundProperty, "ThemeBackground");
+                border.Opacity = 1.0;
             };
             
             return button;
@@ -1720,15 +1714,15 @@ namespace CatchCapture.Utilities
             if (activeToolButton != null && activeToolButton.Content is Border oldBorder)
             {
                 oldBorder.SetResourceReference(Border.BackgroundProperty, "ThemeBackground");
-                oldBorder.BorderBrush = new SolidColorBrush(Color.FromRgb(224, 230, 240));
+                oldBorder.Opacity = 1.0;
             }
             
             // 새 활성 버튼 설정 (Border 스타일 강조)
             activeToolButton = button;
             if (activeToolButton != null && activeToolButton.Content is Border newBorder)
             {
-                newBorder.Background = new SolidColorBrush(Color.FromRgb(232, 243, 255));
-                newBorder.BorderBrush = new SolidColorBrush(Color.FromRgb(0, 120, 212));
+                newBorder.SetResourceReference(Border.BackgroundProperty, "ThemeBorder");
+                newBorder.Opacity = 0.8;
             }
         }
         
@@ -1740,12 +1734,12 @@ namespace CatchCapture.Utilities
             // 팔레트 컨테이너 생성
             var background = new Border
             {
-                BorderBrush = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
                 BorderThickness = new Thickness(1),
                 CornerRadius = new CornerRadius(8),
                 Padding = new Thickness(10),
                 Width = 320
             };
+            background.SetResourceReference(Border.BorderBrushProperty, "ThemeBorder");
             background.SetResourceReference(Border.BackgroundProperty, "ThemeBackground");
             background.SetResourceReference(TextElement.ForegroundProperty, "ThemeForeground"); // 텍스트 색상 상속
             
@@ -1794,7 +1788,7 @@ namespace CatchCapture.Utilities
                     Width = 20,
                     Height = 20,
                     Margin = new Thickness(2),
-                    BorderBrush = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                    BorderBrush = (Brush)Application.Current.FindResource("ThemeBorder"),
                     BorderThickness = new Thickness(1),
                     Cursor = Cursors.Hand
                 };
@@ -1823,7 +1817,7 @@ namespace CatchCapture.Utilities
                 {
                     Width = 1,
                     Height = 30,
-                    Background = new SolidColorBrush(Color.FromRgb(220, 220, 220)),  // 밝은 회색
+                    Background = (Brush)Application.Current.FindResource("ThemeBorder"),  // 밝은 회색
                     Margin = new Thickness(3, 0, 3, 0)  // 마진도 줄임
                 };
                 Grid.SetColumn(separator, 1);
@@ -2032,7 +2026,8 @@ namespace CatchCapture.Utilities
                         item.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(30) });
                         item.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
                         
-                        var line = new Border { Height = p, Width = 30, Background = Brushes.Black, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center };
+                        var line = new Border { Height = p, Width = 30, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center };
+                        line.SetResourceReference(Border.BackgroundProperty, "ThemeForeground");
                         Grid.SetColumn(line, 0); item.Children.Add(line);
                         
                         var text = new TextBlock
@@ -2040,7 +2035,8 @@ namespace CatchCapture.Utilities
                             Text = $"{p}px",
                             FontSize = 11,
                             HorizontalAlignment = HorizontalAlignment.Center,
-                            Foreground = Brushes.Gray,
+                            Foreground = (Brush)Application.Current.FindResource("ThemeForeground"),
+                            Opacity = 0.6,
                             Margin = new Thickness(8, 0, 0, 0)
                         };
                         Grid.SetColumn(text, 1); item.Children.Add(text);
@@ -2074,12 +2070,12 @@ namespace CatchCapture.Utilities
                 Width = 20,
                 Height = 20,
                 Background = new SolidColorBrush(c),
-                BorderBrush = (c == selectedColor) ? Brushes.Black : new SolidColorBrush(Color.FromRgb(220, 220, 220)),
                 BorderThickness = new Thickness(c == selectedColor ? 2 : 1),
                 Margin = new Thickness(2),
                 CornerRadius = new CornerRadius(4),
                 Cursor = Cursors.Hand
             };
+            swatch.SetResourceReference(Border.BorderBrushProperty, (c == selectedColor) ? "ThemeForeground" : "ThemeBorder");
             
             if (c == selectedColor)
             {

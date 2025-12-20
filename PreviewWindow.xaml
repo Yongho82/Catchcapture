@@ -24,10 +24,10 @@
                             </Grid.RowDefinitions>
                             <Track x:Name="PART_Track" Grid.Row="0" IsDirectionReversed="true" Focusable="false">
                                 <Track.Thumb>
-                                    <Thumb x:Name="Thumb" Background="#888888">
+                                    <Thumb x:Name="Thumb" Background="{DynamicResource ThemeForeground}">
                                         <Thumb.Template>
                                             <ControlTemplate TargetType="{x:Type Thumb}">
-                                                <Rectangle Fill="{TemplateBinding Background}" RadiusX="3" RadiusY="3" />
+                                                <Rectangle Fill="{TemplateBinding Background}" RadiusX="3" RadiusY="3" Opacity="0.3"/>
                                             </ControlTemplate>
                                         </Thumb.Template>
                                     </Thumb>
@@ -78,12 +78,12 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <!-- 옅은 하늘색 호버 색상 -->
-                                <Setter Property="Background" Value="#E8F3FF" TargetName="border"/>
+                                <Setter Property="Background" Value="{DynamicResource ThemeBorder}" TargetName="border"/>
+                                <Setter Property="Opacity" Value="0.6" TargetName="border"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <!-- 호버보다 약간 진한 하늘색 -->
-                                <Setter Property="Background" Value="#CCE4FF" TargetName="border"/>
+                                <Setter Property="Background" Value="{DynamicResource ThemeBorder}" TargetName="border"/>
+                                <Setter Property="Opacity" Value="0.8" TargetName="border"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.5" TargetName="border"/>

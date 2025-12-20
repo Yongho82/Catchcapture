@@ -9,11 +9,12 @@
     <Window.Resources>
         <!-- Colors -->
         <SolidColorBrush x:Key="SidebarBackground" Color="#F0F0F0"/>
-        <SolidColorBrush x:Key="ContentBackground" Color="#FFFFFF"/>
         <SolidColorBrush x:Key="AccentColor" Color="#007AFF"/> <!-- Mac Blue -->
-        <SolidColorBrush x:Key="TextPrimary" Color="#333333"/>
-        <SolidColorBrush x:Key="TextSecondary" Color="#666666"/>
-        <SolidColorBrush x:Key="BorderColor" Color="#E0E0E0"/>
+        
+        <!-- We use DynamicResource directly in styles instead of these keys where possible, 
+             but for GroupBox and others, we might need them. 
+             Since Color property of SolidColorBrush is not a DP, we can't use DynamicResource there.
+             We will instead use these in the Styles via DynamicResource ThemeBackground/Foreground. -->
 
         <!-- Styles -->
         <Style x:Key="SidebarButton" TargetType="Button">
@@ -32,7 +33,8 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#E0E0E0"/>
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource ThemeBorder}"/>
+                                <Setter TargetName="bd" Property="Opacity" Value="0.5"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -87,7 +89,8 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#F5F5F5"/>
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource ThemeBorder}"/>
+                                <Setter TargetName="bd" Property="Opacity" Value="0.6"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -106,7 +109,7 @@
                     <ControlTemplate TargetType="CheckBox">
                         <StackPanel Orientation="Horizontal" Background="Transparent">
                             <Grid VerticalAlignment="Center">
-                                <Border x:Name="checkBoxBorder" Width="14" Height="14" CornerRadius="3" BorderThickness="1" BorderBrush="#C0C0C0" Background="White"/>
+                                <Border x:Name="checkBoxBorder" Width="14" Height="14" CornerRadius="3" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorder}" Background="White"/>
                                 <Path x:Name="checkMark" Data="M 3,7 L 5,9 L 11,3" Stroke="White" StrokeThickness="1.5" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Grid>
                             <ContentPresenter Margin="{TemplateBinding Padding}" VerticalAlignment="Center"/>
@@ -122,7 +125,8 @@
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="checkBoxBorder" Property="Opacity" Value="0.5"/>
-                                <Setter Property="Foreground" Value="#AAA"/>
+                                <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
+                                <Setter Property="Opacity" Value="0.5"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -153,14 +157,14 @@
                 <!-- Bottom Info - DockPanel.Dock="Bottom" -->
                 <StackPanel DockPanel.Dock="Bottom" Margin="25,0,0,0">
                      <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                        <TextBlock x:Name="VersionText" Text="버전 1.0.0" FontSize="12" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="VersionText" Text="버전 1.0.0" FontSize="12" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
                         <TextBlock x:Name="WebsiteIcon" Text="🏠" FontSize="14" Margin="10,0,0,0" Cursor="Hand" VerticalAlignment="Center" 
                                    MouseLeftButtonUp="Website_Click" ToolTip="홈페이지 방문"/>
                      </StackPanel>
                      <StackPanel Orientation="Horizontal">
-                        <TextBlock x:Name="RestoreDefaultsText" Text="기본설정 복원" FontSize="11" Foreground="{StaticResource TextSecondary}" Cursor="Hand" MouseLeftButtonUp="RestoreDefaults_Click"/>
-                        <TextBlock Text="  |  " FontSize="11" Foreground="{StaticResource TextSecondary}"/>
-                        <TextBlock x:Name="PrivacyPolicyText" Text="개인정보 처리방침" FontSize="11" Foreground="{StaticResource TextSecondary}" Cursor="Hand" MouseLeftButtonUp="PrivacyPolicy_Click"/>
+                        <TextBlock x:Name="RestoreDefaultsText" Text="기본설정 복원" FontSize="11" Foreground="{DynamicResource ThemeForeground}" Cursor="Hand" MouseLeftButtonUp="RestoreDefaults_Click"/>
+                        <TextBlock Text="  |  " FontSize="11" Foreground="{DynamicResource ThemeForeground}"/>
+                        <TextBlock x:Name="PrivacyPolicyText" Text="개인정보 처리방침" FontSize="11" Foreground="{DynamicResource ThemeForeground}" Cursor="Hand" MouseLeftButtonUp="PrivacyPolicy_Click"/>
                      </StackPanel>
                 </StackPanel>
                 
@@ -173,7 +177,7 @@
                     </StackPanel>
 
                     <!-- Navigation -->
-                    <TextBlock x:Name="SidebarGeneralText" Text="" Visibility="Collapsed" FontSize="12" Foreground="{StaticResource TextSecondary}" Margin="25,0,0,5" FontWeight="SemiBold"/>
+                    <TextBlock x:Name="SidebarGeneralText" Text="" Visibility="Collapsed" FontSize="12" Foreground="{DynamicResource ThemeForeground}" Margin="25,0,0,5" FontWeight="SemiBold"/>
                     <Button x:Name="NavCapture" Content="캡처 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Capture"/>
                     <Button x:Name="NavTheme" Content="테마 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Theme" />
                     <Button x:Name="NavMenuEdit" Content="메뉴 편집" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="MenuEdit"/>
@@ -198,15 +202,15 @@
                 <StackPanel>
                     <TextBlock x:Name="CaptureSectionTitle" Text="캡처 설정" Style="{StaticResource SectionTitle}"/>
                     
-                    <GroupBox x:Name="SaveSettingsGroup" Header="저장 설정" Margin="0,0,0,20" BorderBrush="{StaticResource BorderColor}" Padding="15">
+                    <GroupBox x:Name="SaveSettingsGroup" Header="저장 설정" Margin="0,0,0,20" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
                         <StackPanel>
-                            <TextBlock x:Name="SavePathText" Text="저장 경로" Foreground="{StaticResource TextSecondary}" Margin="0,0,0,5"/>
+                            <TextBlock x:Name="SavePathText" Text="저장 경로" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" Margin="0,0,0,5"/>
                             <Grid Margin="0,0,0,15">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBox x:Name="TxtFolder" Height="30" VerticalContentAlignment="Center" Padding="5,0" IsReadOnly="True" Background="#FAFAFA" BorderBrush="{StaticResource BorderColor}"/>
+                                <TextBox x:Name="TxtFolder" Height="30" VerticalContentAlignment="Center" Padding="5,0" IsReadOnly="True" Background="Transparent" Foreground="{DynamicResource ThemeForeground}" BorderBrush="{DynamicResource ThemeBorder}"/>
                                 <Button x:Name="BtnBrowse" Grid.Column="1" Content="변경" Margin="10,0,0,0" Padding="10,0" Click="BtnBrowse_Click" Style="{StaticResource MacButtonSecondary}" Height="30"/>
                             </Grid>
                             
@@ -219,7 +223,7 @@
                                     <ColumnDefinition Width="80"/>
                                 </Grid.ColumnDefinitions>
                                 
-                                <TextBlock x:Name="FileFormatText" Grid.Column="0" Text="파일 포맷" VerticalAlignment="Center" Foreground="{StaticResource TextSecondary}" Margin="0,0,10,0"/>
+                                <TextBlock x:Name="FileFormatText" Grid.Column="0" Text="파일 포맷" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}" Margin="0,0,10,0"/>
                                 <ComboBox x:Name="CboFormat" Grid.Column="1" SelectionChanged="CboFormat_SelectionChanged">
                                     <ComboBoxItem Content="PNG"/>
                                     <ComboBoxItem Content="JPG"/>
@@ -227,7 +231,7 @@
                                     <ComboBoxItem Content="GIF"/>
                                 </ComboBox>
 
-                                <TextBlock x:Name="QualityText" Grid.Column="3" Text="품질" VerticalAlignment="Center" Foreground="{StaticResource TextSecondary}" Margin="0,0,10,0"/>
+                                <TextBlock x:Name="QualityText" Grid.Column="3" Text="품질" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}" Margin="0,0,10,0"/>
                                 <ComboBox x:Name="CboQuality" Grid.Column="4" Height="26">
                                     <ComboBoxItem Content="100%" Tag="100" IsSelected="True"/>
                                     <ComboBoxItem Content="90%" Tag="90"/>
@@ -244,7 +248,7 @@
                         </StackPanel>
                     </GroupBox>
 
-                    <GroupBox x:Name="OptionsGroup" Header="옵션" BorderBrush="{StaticResource BorderColor}" Padding="15">
+                    <GroupBox x:Name="OptionsGroup" Header="옵션" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
                         <StackPanel>
                             <CheckBox x:Name="ChkAutoSave" Content="캡처 시 자동으로 파일 저장" Margin="0,5"/>
                             <CheckBox x:Name="ChkShowPreview" Content="캡처 후 미리보기/편집 창 표시" Margin="0,5"/>
@@ -255,14 +259,14 @@
             </Border>
 
             <!-- Theme Page -->
-            <Border x:Name="PageTheme" Grid.Row="0" Background="{StaticResource ContentBackground}" CornerRadius="8" Padding="30" Visibility="Collapsed">
+            <Border x:Name="PageTheme" Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8" Padding="30" Visibility="Collapsed">
                 <Border.Effect>
                     <DropShadowEffect Color="Black" Direction="270" ShadowDepth="1" Opacity="0.05" BlurRadius="10"/>
                 </Border.Effect>
                 <StackPanel>
                     <TextBlock x:Name="ThemeSectionTitle" Text="테마 설정" Style="{StaticResource SectionTitle}"/>
 
-                    <GroupBox x:Name="ThemePresetGroup" Header="테마 선택" Margin="0,0,0,20" BorderBrush="{StaticResource BorderColor}" Padding="15">
+                    <GroupBox x:Name="ThemePresetGroup" Header="테마 선택" Margin="0,0,0,20" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
                         <StackPanel>
                             <RadioButton x:Name="ThemeGeneral" Content="일반 (기본)" GroupName="Theme" Margin="0,5" Tag="General" Checked="Theme_Checked"/>
                             <RadioButton x:Name="ThemeDark" Content="다크 모드" GroupName="Theme" Margin="0,5" Tag="Dark" Checked="Theme_Checked"/>
@@ -271,7 +275,7 @@
                         </StackPanel>
                     </GroupBox>
 
-                    <GroupBox x:Name="ThemeCustomGroup" Header="사용자 지정 색상" BorderBrush="{StaticResource BorderColor}" Padding="15">
+                    <GroupBox x:Name="ThemeCustomGroup" Header="사용자 지정 색상" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
                         <StackPanel>
                             <Grid Margin="0,0,0,10">
                                 <Grid.ColumnDefinitions>
@@ -279,9 +283,9 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="30"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="배경 색상" VerticalAlignment="Center" Foreground="{StaticResource TextSecondary}"/>
+                                <TextBlock Text="배경 색상" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
                                 <TextBox x:Name="TxtThemeBgColor" Grid.Column="1" Height="26" VerticalContentAlignment="Center" Margin="0,0,10,0" TextChanged="ThemeColor_TextChanged"/>
-                                <Border x:Name="PreviewThemeBgColor" Grid.Column="2" Width="26" Height="26" CornerRadius="3" BorderBrush="#CCC" BorderThickness="1"/>
+                                <Border x:Name="PreviewThemeBgColor" Grid.Column="2" Width="26" Height="26" CornerRadius="3" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1"/>
                             </Grid>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -289,11 +293,11 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="30"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="텍스트 색상" VerticalAlignment="Center" Foreground="{StaticResource TextSecondary}"/>
+                                <TextBlock Text="텍스트 색상" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
                                 <TextBox x:Name="TxtThemeTextColor" Grid.Column="1" Height="26" VerticalContentAlignment="Center" Margin="0,0,10,0" TextChanged="ThemeColor_TextChanged"/>
-                                <Border x:Name="PreviewThemeTextColor" Grid.Column="2" Width="26" Height="26" CornerRadius="3" BorderBrush="#CCC" BorderThickness="1"/>
+                                <Border x:Name="PreviewThemeTextColor" Grid.Column="2" Width="26" Height="26" CornerRadius="3" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1"/>
                             </Grid>
-                            <TextBlock Text="※ HEX 색상 코드(예: #FFFFFF)를 입력하세요." FontSize="11" Foreground="{StaticResource TextSecondary}" Margin="0,10,0,0"/>
+                            <TextBlock Text="※ HEX 색상 코드(예: #FFFFFF)를 입력하세요." FontSize="11" Foreground="{DynamicResource ThemeForeground}" Margin="0,10,0,0"/>
                         </StackPanel>
                     </GroupBox>
                 </StackPanel>
@@ -317,7 +321,7 @@
                         <TextBlock x:Name="MenuEditGuideText" Grid.Column="0"
                                    Text="드래그하여 메뉴 순서를 변경하세요." 
                                    FontSize="12" 
-                                   Foreground="{StaticResource TextSecondary}" 
+                                   Foreground="{DynamicResource ThemeForeground}" 
                                    VerticalAlignment="Center"
                                    TextWrapping="Wrap"/>
                         
@@ -340,9 +344,9 @@
                     <!-- Menu Items ListBox with Drag-Drop -->
                     <ListBox x:Name="MenuItemsListBox" 
                              Height="320" 
-                             BorderBrush="{StaticResource BorderColor}"
+                             BorderBrush="{DynamicResource ThemeBorder}"
                              BorderThickness="1"
-                             Background="#FAFAFA"
+                             Background="Transparent"
                              AllowDrop="True"
                              PreviewMouseLeftButtonDown="MenuItemsListBox_PreviewMouseLeftButtonDown"
                              PreviewMouseMove="MenuItemsListBox_PreviewMouseMove"
@@ -353,13 +357,13 @@
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                                 <Setter Property="Padding" Value="0"/>
                                 <Setter Property="Margin" Value="4"/>
-                                <Setter Property="Background" Value="White"/>
+                                <Setter Property="Background" Value="Transparent"/>
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate TargetType="ListBoxItem">
                                             <Border x:Name="Bd" 
                                                     Background="{TemplateBinding Background}" 
-                                                    BorderBrush="#E5E5E5" 
+                                                    BorderBrush="{DynamicResource ThemeBorder}" 
                                                     BorderThickness="1" 
                                                     CornerRadius="6" 
                                                     Padding="12,10"
@@ -373,14 +377,15 @@
                                                         <ColumnDefinition Width="*"/>
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
-                                                    <TextBlock Grid.Column="0" Text="☰" FontSize="14" Foreground="#999" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                                    <TextBlock Grid.Column="0" Text="☰" FontSize="14" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" VerticalAlignment="Center" Margin="0,0,10,0"/>
                                                     <ContentPresenter Grid.Column="1" VerticalAlignment="Center"/>
                                                     <Button Grid.Column="2" Content="✕" 
                                                             Width="24" Height="24" 
                                                             FontSize="12"
                                                             Background="Transparent"
                                                             BorderThickness="0"
-                                                            Foreground="#999"
+                                                            Foreground="{DynamicResource ThemeForeground}"
+                                                            Opacity="0.5"
                                                             Cursor="Hand"
                                                             Click="DeleteMenuItem_Click"
                                                             Tag="{Binding}"/>
@@ -388,12 +393,12 @@
                                             </Border>
                                             <ControlTemplate.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="Bd" Property="Background" Value="#F5F5F5"/>
-                                                    <Setter TargetName="Bd" Property="BorderBrush" Value="#007AFF"/>
+                                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ThemeBorder}"/>
+                                                    <Setter TargetName="Bd" Property="Opacity" Value="0.6"/>
                                                 </Trigger>
                                                 <Trigger Property="IsSelected" Value="True">
-                                                    <Setter TargetName="Bd" Property="Background" Value="#EBF5FF"/>
-                                                    <Setter TargetName="Bd" Property="BorderBrush" Value="#007AFF"/>
+                                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ThemeBorder}"/>
+                                                    <Setter TargetName="Bd" Property="Opacity" Value="0.8"/>
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>
@@ -438,7 +443,7 @@
                     
                     <!-- Print Screen 키 설정 -->
                     <StackPanel Grid.Row="0" Margin="0,40,0,20">
-                        <GroupBox x:Name="PrintScreenGroup" Header="Print Screen 키 사용" BorderBrush="{StaticResource BorderColor}" Padding="15">
+                        <GroupBox x:Name="PrintScreenGroup" Header="Print Screen 키 사용" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -492,11 +497,11 @@
                             </Grid.RowDefinitions>
 
                             <!-- Header -->
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="Ctrl" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource TextSecondary}"/>
-                            <TextBlock Grid.Row="0" Grid.Column="2" Text="Shift" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource TextSecondary}"/>
-                            <TextBlock Grid.Row="0" Grid.Column="3" Text="Alt" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource TextSecondary}"/>
-                            <TextBlock Grid.Row="0" Grid.Column="4" Text="Win" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource TextSecondary}"/>
-                            <TextBlock Grid.Row="0" Grid.Column="5" Text="Key" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" Foreground="{StaticResource TextSecondary}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="Ctrl" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="2" Text="Shift" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="3" Text="Alt" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="4" Text="Win" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="5" Text="Key" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" Foreground="{DynamicResource ThemeForeground}"/>
 
                             <!-- Region Capture -->
                             <CheckBox x:Name="HkRegionEnabled" Grid.Row="1" Grid.Column="0" Content="영역 캡처" FontWeight="SemiBold"/>
@@ -646,7 +651,7 @@
                 <StackPanel>
                     <TextBlock x:Name="SystemSectionTitle" Text="시스템 설정" Style="{StaticResource SectionTitle}"/>
                     
-                    <GroupBox x:Name="StartupGroup" Header="시작 설정" Margin="0,0,0,20" BorderBrush="{StaticResource BorderColor}" Padding="15">
+                    <GroupBox x:Name="StartupGroup" Header="시작 설정" Margin="0,0,0,20" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
                         <StackPanel>
                             <!-- 윈도우 시작 시 자동 실행 -->
                             <CheckBox x:Name="StartWithWindowsCheckBox" 
@@ -654,7 +659,7 @@
                                       Margin="0,5"/>
                             
                             <!-- 시작 모드 선택 -->
-                            <TextBlock x:Name="StartupModeText" Text="시작 모드" FontWeight="SemiBold" Margin="0,20,0,10" Foreground="{StaticResource TextSecondary}"/>
+                            <TextBlock x:Name="StartupModeText" Text="시작 모드" FontWeight="SemiBold" Margin="0,20,0,10" Foreground="{DynamicResource ThemeForeground}"/>
                             <RadioButton x:Name="StartupModeTrayRadio" 
                                          Content="트레이 모드로 시작" 
                                          GroupName="StartupMode" 
@@ -672,23 +677,23 @@
                     </GroupBox>
                     
                     <!-- Language Settings -->
-                    <GroupBox x:Name="LanguageGroup" Header="언어 설정" Margin="0,0,0,20" BorderBrush="{StaticResource BorderColor}" Padding="15">
+                    <GroupBox x:Name="LanguageGroup" Header="언어 설정" Margin="0,0,0,20" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="200"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock x:Name="LanguageLabelText" Grid.Column="0" Text="언어" VerticalAlignment="Center" Foreground="{StaticResource TextSecondary}" Margin="0,0,10,0"/>
+                            <TextBlock x:Name="LanguageLabelText" Grid.Column="0" Text="언어" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}" Margin="0,0,10,0"/>
                             <ComboBox x:Name="LanguageComboBox" Grid.Column="1" />
-                            <TextBlock x:Name="LanguageRestartNotice" Grid.Column="2" Text="언어 변경 후 프로그램을 다시 시작해야 합니다." Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                            <TextBlock x:Name="LanguageRestartNotice" Grid.Column="2" Text="언어 변경 후 프로그램을 다시 시작해야 합니다." Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center" Margin="10,0,0,0"/>
                         </Grid>
                     </GroupBox>
                     
                     <TextBlock x:Name="StartupModeNotice"
                                Text="※ 시작 모드는 프로그램이 실행될 때 처음 표시되는 화면을 설정합니다."
                                FontSize="11"
-                               Foreground="{StaticResource TextSecondary}"
+                               Foreground="{DynamicResource ThemeForeground}"
                                Margin="5,10,0,0"/>
                 </StackPanel>
             </Border>
