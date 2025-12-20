@@ -449,11 +449,12 @@ namespace CatchCapture
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            // LastActiveMode 변경 제거 - 설정 창에서만 변경하도록 수정
-            
             // ★ MainWindow에 간편모드가 숨겨졌음을 알림
             if (_mainWindow != null)
             {
+                // 재실행 시 간편모드로 뜨도록 명시적 설정 저장
+                _mainWindow.settings.LastActiveMode = "Simple";
+                Settings.Save(_mainWindow.settings);
                 _mainWindow.OnSimpleModeHidden();
             }
             

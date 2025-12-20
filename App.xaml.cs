@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.IO.Pipes;
 using System.IO;
+using System.Linq;
 
 namespace CatchCapture;
 
@@ -91,14 +92,12 @@ public partial class App : Application
                         // Activate main window on UI thread
                         Dispatcher.Invoke(() =>
                         {
-                            var mainWindow = Application.Current.MainWindow as MainWindow;
+                            // Application.Current.MainWindow may change to SimpleModeWindow
+                            // Search all windows to find the MainWindow instance
+                            var mainWindow = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
                             if (mainWindow != null)
                             {
-                                mainWindow.Show();
-                                mainWindow.WindowState = WindowState.Normal;
-                                mainWindow.Activate();
-                                mainWindow.Topmost = true;
-                                mainWindow.Topmost = false;
+                                mainWindow.ActivateWindow();
                             }
                         });
                     }

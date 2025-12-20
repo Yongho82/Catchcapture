@@ -34,7 +34,7 @@ public partial class MainWindow : Window
     private List<CaptureImage> captures = new List<CaptureImage>();
     private int selectedIndex = -1;
     private Border? selectedBorder = null;
-    private Settings settings;
+    public Settings settings;
     private SimpleModeWindow? simpleModeWindow = null;
     private Point lastPosition;
     private int captureDelaySeconds = 0;
@@ -485,6 +485,54 @@ public partial class MainWindow : Window
         return bmp;
     }
 
+    public void ActivateWindow()
+    {
+        // 최신 설정 로드
+        settings = Settings.Load();
+        var lastMode = settings.LastActiveMode ?? "Normal";
+
+        switch (lastMode)
+        {
+            case "Simple":
+                if (simpleModeWindow == null || !simpleModeWindow.IsVisible)
+                {
+                    SwitchToSimpleMode();
+                }
+                else
+                {
+                    simpleModeWindow.Show();
+                    simpleModeWindow.Activate();
+                    simpleModeWindow.Topmost = true;
+                }
+                break;
+
+            case "Tray":
+                if (trayModeWindow == null)
+                {
+                    ShowTrayModeWindow();
+                }
+                else
+                {
+                    trayModeWindow.Show();
+                    trayModeWindow.Activate();
+                    trayModeWindow.Topmost = true;
+                }
+                break;
+
+            case "Normal":
+            default:
+                if (!this.IsVisible)
+                {
+                    this.Show();
+                }
+                this.WindowState = WindowState.Normal;
+                this.Activate();
+                this.Topmost = true;
+                this.Topmost = false;
+                break;
+        }
+    }
+
     private void ShowMainWindow()
     {
         // 마지막 활성 모드 복원
@@ -507,8 +555,16 @@ public partial class MainWindow : Window
                 break;
                 
             case "Tray":
-                // 트레이모드에서 열기를 눌렀으면 일반모드로 전환
-                SwitchToNormalMode();
+                // 트레이모드에서는 트레이모드 창을 토글하거나 표시
+                if (trayModeWindow == null)
+                {
+                    ShowTrayModeWindow();
+                }
+                else
+                {
+                    trayModeWindow.Show();
+                    trayModeWindow.Activate();
+                }
                 break;
                 
             case "Normal":
@@ -2977,89 +3033,95 @@ public partial class MainWindow : Window
         // ★ 간편모드 상태 저장 (맨 처음에 추가)
         settings.LastActiveMode = "Simple";
         Settings.Save(settings);        
-        simpleModeWindow = new SimpleModeWindow(this);
-        // 간편모드를 작업표시줄 대표로 사용하기 위해 Owner 해제 및 Taskbar 표시
-         
-        // 이벤트 핸들러 등록
-        simpleModeWindow.AreaCaptureRequested += async (s, e) => 
+        if (simpleModeWindow == null)
         {
-            // 즉시편집 설정 확인
-            var currentSettings = Settings.Load();
-            bool instantEdit = currentSettings.SimpleModeInstantEdit;
-            
-            // 캐시된 스크린샷을 사용하여 빠른 영역 캡처
-            var cachedScreen = await Task.Run(() => ScreenCaptureUtility.CaptureScreen());
-            
-            // SnippingWindow 표시 (여기서 사용자가 영역 선택)
-            using var snippingWindow = new SnippingWindow(false, cachedScreen);
-            
-            // 즉시편집 모드 활성화 (ShowDialog 전에 설정)
-            if (instantEdit)
-            {
-                snippingWindow.EnableInstantEditMode();
-            }
-            
-            if (snippingWindow.ShowDialog() == true)
-            {
-                // 선택된 영역 캡처 - 동결된 프레임 우선 사용
-                var selectedArea = snippingWindow.SelectedArea;
-                var capturedImage = snippingWindow.SelectedFrozenImage ?? ScreenCaptureUtility.CaptureArea(selectedArea);
+            simpleModeWindow = new SimpleModeWindow(this);
+            // 창이 완전히 닫히면 참조 해제
+            simpleModeWindow.Closed += (s, e) => { simpleModeWindow = null; };
+            // 간편모드를 작업표시줄 대표로 사용하기 위해 Owner 해제 및 Taskbar 표시
 
+            // 이벤트 핸들러 등록
+            simpleModeWindow.AreaCaptureRequested += async (s, e) => 
+            {
+                // 즉시편집 설정 확인
+                var currentSettings = Settings.Load();
+                bool instantEdit = currentSettings.SimpleModeInstantEdit;
+                
+                // 캐시된 스크린샷을 사용하여 빠른 영역 캡처
+                var cachedScreen = await Task.Run(() => ScreenCaptureUtility.CaptureScreen());
+                
+                // SnippingWindow 표시 (여기서 사용자가 영역 선택)
+                using var snippingWindow = new SnippingWindow(false, cachedScreen);
+                
+                // 즉시편집 모드 활성화 (ShowDialog 전에 설정)
+                if (instantEdit)
+                {
+                    snippingWindow.EnableInstantEditMode();
+                }
+                
+                if (snippingWindow.ShowDialog() == true)
+                {
+                    // 선택된 영역 캡처 - 동결된 프레임 우선 사용
+                    var selectedArea = snippingWindow.SelectedArea;
+                    var capturedImage = snippingWindow.SelectedFrozenImage ?? ScreenCaptureUtility.CaptureArea(selectedArea);
+
+                    // 클립보드에 복사
+                    ScreenCaptureUtility.CopyImageToClipboard(capturedImage);
+
+                    // 캡처 목록에 추가
+                    AddCaptureToList(capturedImage);
+
+                    // 간편모드 창 다시 표시 및 알림
+                    simpleModeWindow?.Show();
+                    simpleModeWindow?.Activate();
+                    if (simpleModeWindow != null)
+                    {
+                        simpleModeWindow.Topmost = true;
+                        // 여기서 알림 표시
+                        var notification = new GuideWindow(LocalizationManager.GetString("CopiedToClipboard"), TimeSpan.FromSeconds(0.4));
+                        notification.Owner = simpleModeWindow;
+                        notification.Show();
+                    }
+                }
+                else
+                {
+                    // 캡처 취소 시 간편모드 창 다시 표시
+                    simpleModeWindow?.Show();
+                    simpleModeWindow?.Activate();
+                }
+            };
+            
+            simpleModeWindow.FullScreenCaptureRequested += (s, e) => 
+            {
+                // 전체화면 캡처 수행
+                FlushUIAfterHide();
+                
+                var capturedImage = ScreenCaptureUtility.CaptureScreen();
+                
                 // 클립보드에 복사
                 ScreenCaptureUtility.CopyImageToClipboard(capturedImage);
-
+                
                 // 캡처 목록에 추가
                 AddCaptureToList(capturedImage);
-
-                // 간편모드 창 다시 표시 및 알림
+                
+                // 간편모드 창 다시 표시
                 simpleModeWindow?.Show();
                 simpleModeWindow?.Activate();
-                if (simpleModeWindow != null)
-                {
-                    simpleModeWindow.Topmost = true;
-                    // 여기서 알림 표시
-                    var notification = new GuideWindow(LocalizationManager.GetString("CopiedToClipboard"), TimeSpan.FromSeconds(0.4));
-                    notification.Owner = simpleModeWindow;
-                    notification.Show();
-                }
-            }
-            else
+            };
+            
+            simpleModeWindow.DesignatedCaptureRequested += (s, e) =>
             {
-                // 캡처 취소 시 간편모드 창 다시 표시
-                simpleModeWindow?.Show();
-                simpleModeWindow?.Activate();
-            }
-        };
-        
-        simpleModeWindow.FullScreenCaptureRequested += (s, e) => 
-        {
-            // 전체화면 캡처 수행
-            FlushUIAfterHide();
+                // 간편모드 전용 지정캡처 로직 (메인창 표시하지 않음)
+                PerformDesignatedCaptureForSimpleMode();
+            };
             
-            var capturedImage = ScreenCaptureUtility.CaptureScreen();
-            
-            // 클립보드에 복사
-            ScreenCaptureUtility.CopyImageToClipboard(capturedImage);
-            
-            // 캡처 목록에 추가
-            AddCaptureToList(capturedImage);
-            
-            // 간편모드 창 다시 표시
-            simpleModeWindow?.Show();
-        };
-        
-        simpleModeWindow.DesignatedCaptureRequested += (s, e) =>
-        {
-            // 간편모드 전용 지정캡처 로직 (메인창 표시하지 않음)
-            PerformDesignatedCaptureForSimpleMode();
-        };
-        
-        simpleModeWindow.ExitSimpleModeRequested += (s, e) => 
-        {
-            HideSimpleMode();
-            this.Show();
-            this.Activate();
-        };
+            simpleModeWindow.ExitSimpleModeRequested += (s, e) => 
+            {
+                HideSimpleMode();
+                this.Show();
+                this.Activate();
+            };
+        }
 
         // 메인 창 위치를 기준으로 간편모드 위치 지정
         // 메인창 좌표 기준 좌측 상단에 살짝 여백을 두고 표시
@@ -3073,6 +3135,7 @@ public partial class MainWindow : Window
         simpleModeWindow.ShowInTaskbar = true; // 간편모드를 작업표시줄 대표로
         simpleModeWindow.Topmost = true;
         simpleModeWindow.Show();
+        simpleModeWindow.Activate();
 
         // 앱의 MainWindow를 간편모드로 전환하여 작업표시줄 포커스가 간편모드로 가도록 함
         Application.Current.MainWindow = simpleModeWindow;
@@ -3090,8 +3153,6 @@ public partial class MainWindow : Window
             simpleModeWindow.ShowInTaskbar = false;
             // Close() 대신 Hide()를 사용하여 프로그램 종료 방지
             simpleModeWindow.Hide();
-            // 간편모드 창 참조 해제 (이벤트 핸들러는 자동으로 해제됨)
-            simpleModeWindow = null;
         }
         
         // 메인 창 복원 및 작업표시줄 아이콘 다시 표시
