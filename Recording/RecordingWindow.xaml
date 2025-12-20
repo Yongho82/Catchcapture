@@ -147,10 +147,23 @@
                 <RowDefinition Height="*"/>  <!-- 툴바 -->
             </Grid.RowDefinitions>
             
-            <!-- 타이틀바 -->
-            <Border Grid.Row="0" CornerRadius="8,8,0,0" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown" Background="Transparent">
+            <!-- 타이틀바 (하이그로시 3D 효과) -->
+            <Border Grid.Row="0" CornerRadius="8,8,0,0" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
                 <Grid>
-                    <Border CornerRadius="8,8,0,0" Background="#4361EE"/>
+                    <!-- 하이그로시 그라데이션 배경 -->
+                    <Border CornerRadius="8,8,0,0">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                <GradientStop Color="#6E8CF0" Offset="0.0"/> <!-- 상단 하이라이트 -->
+                                <GradientStop Color="#4E6ADF" Offset="0.4"/> <!-- 메인 블루 -->
+                                <GradientStop Color="#324BB4" Offset="1.0"/> <!-- 하단 쉐도우 -->
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
+                    
+                    <!-- 입체감을 위한 상단 미세 선 -->
+                    <Border BorderThickness="0,1,0,0" BorderBrush="#A0FFFFFF" CornerRadius="8,8,0,0" Opacity="0.3"/>
+                    
                     <StackPanel Orientation="Horizontal" Margin="10,0,0,0">
                         <Image Source="/icons/videocamera.png" Width="14" Height="14" Margin="0,0,6,0" 
                                RenderOptions.BitmapScalingMode="HighQuality"/>
