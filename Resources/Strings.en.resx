@@ -247,6 +247,9 @@
   <data name="ShowPreviewAfterCapture" xml:space="preserve">
     <value>Show Preview After Capture</value>
   </data>
+  <data name="Default" xml:space="preserve">
+    <value>Default</value>
+  </data>
   <data name="ShowMagnifier" xml:space="preserve">
     <value>Show Magnifier</value>
   </data>
@@ -506,4 +509,14 @@
   <data name="BasicSettings" xml:space="preserve"><value>Basic Settings</value></data>
   <data name="RecordingStartStopHotkey" xml:space="preserve"><value>Record/Stop Hotkey</value></data>
   <data name="RecordStartStop" xml:space="preserve"><value>Record/Stop</value></data>
+  <data name="CaptureLineSettings" xml:space="preserve"><value>Capture Line Settings</value></data>
+  <data name="OverlayBgColor" xml:space="preserve"><value>Overlay Background Color</value></data>
+  <data name="LineStyle" xml:space="preserve"><value>Line Style</value></data>
+  <data name="LineThickness" xml:space="preserve"><value>Line Thickness</value></data>
+  <data name="LineColor" xml:space="preserve"><value>Line Color</value></data>
+  <data name="CaptureSettingsGuide" xml:space="preserve"><value>* Click the color boxes to choose capture guide colors.</value></data>
+  <data name="SolidLine" xml:space="preserve"><value>Solid</value></data>
+  <data name="DashLine" xml:space="preserve"><value>Dash</value></data>
+  <data name="DotLine" xml:space="preserve"><value>Dot</value></data>
+  <data name="DashDotLine" xml:space="preserve"><value>DashDot</value></data>
 </root>

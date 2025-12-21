@@ -247,6 +247,9 @@
   <data name="ShowPreviewAfterCapture" xml:space="preserve">
     <value>캡처 후 미리보기 표시</value>
   </data>
+  <data name="Default" xml:space="preserve">
+    <value>기본값</value>
+  </data>
   <data name="ShowMagnifier" xml:space="preserve">
     <value>영역 캡처 시 돋보기 표시</value>
   </data>
@@ -506,4 +509,14 @@
   <data name="BasicSettings" xml:space="preserve"><value>기본 설정</value></data>
   <data name="RecordingStartStopHotkey" xml:space="preserve"><value>녹화/중지 단축키</value></data>
   <data name="RecordStartStop" xml:space="preserve"><value>녹화/중지</value></data>
+  <data name="CaptureLineSettings" xml:space="preserve"><value>캡처 라인 설정</value></data>
+  <data name="OverlayBgColor" xml:space="preserve"><value>오버레이 배경색</value></data>
+  <data name="LineStyle" xml:space="preserve"><value>라인 스타일</value></data>
+  <data name="LineThickness" xml:space="preserve"><value>라인 두께</value></data>
+  <data name="LineColor" xml:space="preserve"><value>라인 색상</value></data>
+  <data name="CaptureSettingsGuide" xml:space="preserve"><value>※ 색상 상자를 클릭하여 캡처 가이드 색상을 선택하세요.</value></data>
+  <data name="SolidLine" xml:space="preserve"><value>단선 (Solid)</value></data>
+  <data name="DashLine" xml:space="preserve"><value>파선 (Dash)</value></data>
+  <data name="DotLine" xml:space="preserve"><value>점선 (Dot)</value></data>
+  <data name="DashDotLine" xml:space="preserve"><value>쇄선 (DashDot)</value></data>
 </root>

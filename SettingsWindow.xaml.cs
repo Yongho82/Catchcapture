@@ -17,6 +17,7 @@ namespace CatchCapture
         private string _originalThemeMode = string.Empty;
         private string _originalThemeBg = string.Empty;
         private string _originalThemeFg = string.Empty;
+        private string _currentPage = "Capture";
         private int[] _customColors = new int[16]; // 색상 대화상자의 사용자 지정 색상 저장
 
         public SettingsWindow()
@@ -220,6 +221,12 @@ private void UpdateUIText()
                 if (LineColorLabel != null) LineColorLabel.Text = LocalizationManager.GetString("LineColor") ?? "라인 색상";
                 if (CaptureSettingsGuide != null) CaptureSettingsGuide.Text = LocalizationManager.GetString("CaptureSettingsGuide") ?? "※ 색상 상자를 클릭하여 캡처 가이드 색상을 선택하세요.";
 
+                // 라인 스타일 개별 텍스트
+                if (TxtSolid != null) TxtSolid.Text = LocalizationManager.GetString("SolidLine") ?? "단선 (Solid)";
+                if (TxtDash != null) TxtDash.Text = LocalizationManager.GetString("DashLine") ?? "파선 (Dash)";
+                if (TxtDot != null) TxtDot.Text = LocalizationManager.GetString("DotLine") ?? "점선 (Dot)";
+                if (TxtDashDot != null) TxtDashDot.Text = LocalizationManager.GetString("DashDotLine") ?? "쇄선 (DashDot)";
+
                 // 녹화 페이지
                 if (RecordingSectionTitle != null) RecordingSectionTitle.Text = LocalizationManager.GetString("RecordingSettings");
                 if (RecBasicGroup != null) RecBasicGroup.Header = LocalizationManager.GetString("BasicSettings");
@@ -234,6 +241,7 @@ private void UpdateUIText()
                 if (CancelButton != null) CancelButton.Content = LocalizationManager.GetString("Cancel");
                 if (ApplyButton != null) ApplyButton.Content = LocalizationManager.GetString("Apply");
                 if (SaveButton != null) SaveButton.Content = LocalizationManager.GetString("Save");
+                if (PageDefaultButton != null) PageDefaultButton.Content = LocalizationManager.GetString("Default") ?? "기본값";
             }
             catch (Exception ex)
             {
@@ -293,6 +301,7 @@ private void InitLanguageComboBox()
 
         private void HighlightNav(Button btn, string tag)
         {
+            _currentPage = tag;
             NavCapture.FontWeight = tag == "Capture" ? FontWeights.Bold : FontWeights.Normal;
             NavTheme.FontWeight = tag == "Theme" ? FontWeights.Bold : FontWeights.Normal;
             NavMenuEdit.FontWeight = tag == "MenuEdit" ? FontWeights.Bold : FontWeights.Normal;
@@ -341,6 +350,25 @@ private void InitLanguageComboBox()
                     }
                 }
                 if (CboLineThickness.SelectedItem == null) CboLineThickness.SelectedIndex = 1; // Default: 1.0
+            }
+
+            // Load Overlay Opacity
+            if (SldOverlayOpacity != null)
+            {
+                try
+                {
+                    string colorStr = _settings.OverlayBackgroundColor ?? "#8C000000";
+                    if (colorStr.Length == 9)
+                    {
+                        byte alpha = Convert.ToByte(colorStr.Substring(1, 2), 16);
+                        SldOverlayOpacity.Value = alpha;
+                    }
+                    else
+                    {
+                        SldOverlayOpacity.Value = 140;
+                    }
+                }
+                catch { SldOverlayOpacity.Value = 140; }
             }
 
             UpdateColorPreviews();
@@ -434,6 +462,25 @@ private void InitLanguageComboBox()
             }
         }
 
+        private void SldOverlayOpacity_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (_settings == null || SldOverlayOpacity == null) return;
+            
+            string currentHex = _settings.OverlayBackgroundColor ?? "#8C000000";
+            if (currentHex.Length == 9)
+            {
+                byte alpha = (byte)e.NewValue;
+                _settings.OverlayBackgroundColor = $"#{alpha:X2}{currentHex.Substring(3)}";
+                UpdateColorPreviews();
+            }
+            else if (currentHex.Length == 7)
+            {
+                byte alpha = (byte)e.NewValue;
+                _settings.OverlayBackgroundColor = $"#{alpha:X2}{currentHex.Substring(1)}";
+                UpdateColorPreviews();
+            }
+        }
+
         private void ThemeColor_TextChanged(object sender, TextChangedEventArgs e)
         {
             UpdateColorPreviews();
@@ -472,11 +519,9 @@ private void InitLanguageComboBox()
                     if (type == "OverlayBg")
                     {
                         // Overlay background usually needs transparency. 
-                        // If it was already hex with alpha, let's keep the alpha from before if possible, 
-                        // or just use a default alpha (140/255 = 8C).
-                        string alpha = "8C"; 
-                        if (currentHex.Length == 9) alpha = currentHex.Substring(1, 2);
-                        _settings.OverlayBackgroundColor = $"#{alpha}{dialog.Color.R:X2}{dialog.Color.G:X2}{dialog.Color.B:X2}";
+                        byte alpha = 140; 
+                        if (SldOverlayOpacity != null) alpha = (byte)SldOverlayOpacity.Value;
+                        _settings.OverlayBackgroundColor = $"#{alpha:X2}{dialog.Color.R:X2}{dialog.Color.G:X2}{dialog.Color.B:X2}";
                     }
                     else
                     {
@@ -758,6 +803,66 @@ private void InitLanguageComboBox()
 
             DialogResult = true;
             Close();
+        }
+
+        private void PageDefault_Click(object sender, RoutedEventArgs e)
+        {
+            if (_settings == null) return;
+            var defaults = new Settings();
+
+            if (_currentPage == "Theme")
+            {
+                // 테마 관련 설정만 초기화
+                _settings.ThemeMode = defaults.ThemeMode;
+                _settings.ThemeBackgroundColor = defaults.ThemeBackgroundColor;
+                _settings.ThemeTextColor = defaults.ThemeTextColor;
+                _settings.CustomThemeBackgroundColor = defaults.CustomThemeBackgroundColor;
+                _settings.CustomThemeTextColor = defaults.CustomThemeTextColor;
+                _settings.OverlayBackgroundColor = defaults.OverlayBackgroundColor;
+                _settings.CaptureLineColor = defaults.CaptureLineColor;
+                _settings.CaptureLineThickness = defaults.CaptureLineThickness;
+                _settings.CaptureLineStyle = defaults.CaptureLineStyle;
+                
+                LoadThemePage();
+            }
+            else if (_currentPage == "Capture")
+            {
+                _settings.FileSaveFormat = defaults.FileSaveFormat;
+                _settings.ImageQuality = defaults.ImageQuality;
+                _settings.DefaultSaveFolder = defaults.DefaultSaveFolder;
+                _settings.AutoSaveCapture = defaults.AutoSaveCapture;
+                _settings.ShowPreviewAfterCapture = defaults.ShowPreviewAfterCapture;
+                _settings.ShowMagnifier = defaults.ShowMagnifier;
+                _settings.UsePrintScreenKey = defaults.UsePrintScreenKey;
+                _settings.PrintScreenAction = defaults.PrintScreenAction;
+                
+                LoadCapturePage();
+            }
+            else if (_currentPage == "Recording")
+            {
+                _settings.Recording = defaults.Recording;
+                LoadRecordingPage();
+            }
+            else if (_currentPage == "System")
+            {
+                _settings.StartWithWindows = defaults.StartWithWindows;
+                _settings.StartupMode = defaults.StartupMode;
+                // 언어는 유지함이 일반적이나 필요시 포함 가능
+                LoadSystemPage();
+            }
+            else if (_currentPage == "Hotkey")
+            {
+                _settings.Hotkeys = defaults.Hotkeys;
+                LoadHotkeysPage();
+            }
+            else if (_currentPage == "MenuEdit")
+            {
+                _settings.MainMenuItems = defaults.MainMenuItems;
+                LoadMenuEditPage();
+            }
+
+            // 테마 변경사항 즉시 반영
+            App.ApplyTheme(_settings);
         }
 
         private void Apply_Click(object sender, RoutedEventArgs e)

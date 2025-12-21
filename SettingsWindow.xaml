@@ -489,89 +489,111 @@
             </Border>
 
             <!-- Theme Page -->
-            <Border x:Name="PageTheme" Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8" Padding="20" Visibility="Collapsed">
+            <Border x:Name="PageTheme" Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8" Padding="15,10,15,10" Visibility="Collapsed">
                 <Border.Effect>
                     <DropShadowEffect Color="Black" Direction="270" ShadowDepth="1" Opacity="0.05" BlurRadius="10"/>
                 </Border.Effect>
-                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,10,0">
-                    <StackPanel>
-                        <TextBlock x:Name="ThemeSectionTitle" Text="테마 설정" Style="{StaticResource SectionTitle}"/>
+                <StackPanel>
+                    <TextBlock x:Name="ThemeSectionTitle" Text="테마 설정" Style="{StaticResource SectionTitle}" Margin="0,0,0,8"/>
 
-                        <GroupBox x:Name="ThemePresetGroup" Header="테마 선택" Margin="0,0,0,15" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
-                            <StackPanel>
-                                <RadioButton x:Name="ThemeGeneral" Content="일반 (기본)" GroupName="Theme" Margin="0,5" Tag="General" Checked="Theme_Checked"/>
-                                <RadioButton x:Name="ThemeDark" Content="다크 모드" GroupName="Theme" Margin="0,5" Tag="Dark" Checked="Theme_Checked"/>
-                                <RadioButton x:Name="ThemeLight" Content="라이트 모드" GroupName="Theme" Margin="0,5" Tag="Light" Checked="Theme_Checked"/>
-                                <RadioButton x:Name="ThemeBlue" Content="블루 모드" GroupName="Theme" Margin="0,5" Tag="Blue" Checked="Theme_Checked"/>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <RadioButton x:Name="ThemeCustom" Content="사용자 지정" GroupName="Theme" Margin="0,5,20,5" Tag="Custom" Checked="Theme_Checked" VerticalAlignment="Center"/>
-                                    <StackPanel Grid.Column="1" Orientation="Horizontal" x:Name="CustomColorPanel" VerticalAlignment="Center">
-                                        <TextBlock x:Name="ThemeBgLabel" Text="배경" VerticalAlignment="Center" Margin="0,0,5,0" FontSize="11" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7"/>
-                                        <Border x:Name="PreviewThemeBgColor" Width="26" Height="18" CornerRadius="3" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" Cursor="Hand" MouseLeftButtonUp="PreviewColor_Click" Tag="Bg" Margin="0,0,12,0"/>
-                                        <TextBlock x:Name="ThemeTextLabel" Text="텍스트" VerticalAlignment="Center" Margin="0,0,5,0" FontSize="11" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7"/>
-                                        <Border x:Name="PreviewThemeTextColor" Width="26" Height="18" CornerRadius="3" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" Cursor="Hand" MouseLeftButtonUp="PreviewColor_Click" Tag="Text"/>
-                                    </StackPanel>
-                                </Grid>
-                            </StackPanel>
-                        </GroupBox>
+                    <GroupBox x:Name="ThemePresetGroup" Header="테마 선택" Margin="0,0,0,8" BorderBrush="{DynamicResource ThemeBorder}" Padding="10,5">
+                        <StackPanel>
+                            <RadioButton x:Name="ThemeGeneral" Content="일반 (기본)" GroupName="Theme" Margin="0,2" Tag="General" Checked="Theme_Checked"/>
+                            <RadioButton x:Name="ThemeDark" Content="다크 모드" GroupName="Theme" Margin="0,2" Tag="Dark" Checked="Theme_Checked"/>
+                            <RadioButton x:Name="ThemeLight" Content="라이트 모드" GroupName="Theme" Margin="0,2" Tag="Light" Checked="Theme_Checked"/>
+                            <RadioButton x:Name="ThemeBlue" Content="블루 모드" GroupName="Theme" Margin="0,2" Tag="Blue" Checked="Theme_Checked"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <RadioButton x:Name="ThemeCustom" Content="사용자 지정" GroupName="Theme" Margin="0,2,15,2" Tag="Custom" Checked="Theme_Checked" VerticalAlignment="Center"/>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" x:Name="CustomColorPanel" VerticalAlignment="Center">
+                                    <TextBlock x:Name="ThemeBgLabel" Text="배경" VerticalAlignment="Center" Margin="0,0,5,0" FontSize="11" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7"/>
+                                    <Border x:Name="PreviewThemeBgColor" Width="24" Height="16" CornerRadius="3" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" Cursor="Hand" MouseLeftButtonUp="PreviewColor_Click" Tag="Bg" Margin="0,0,10,0"/>
+                                    <TextBlock x:Name="ThemeTextLabel" Text="텍스트" VerticalAlignment="Center" Margin="0,0,5,0" FontSize="11" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7"/>
+                                    <Border x:Name="PreviewThemeTextColor" Width="24" Height="16" CornerRadius="3" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" Cursor="Hand" MouseLeftButtonUp="PreviewColor_Click" Tag="Text"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </GroupBox>
 
-                        <GroupBox x:Name="CaptureLineSettingsGroup" Header="캡처 라인 설정" Margin="0,0,0,10" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
-                            <StackPanel>
-                                <Grid Margin="0,0,0,12">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="130"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock x:Name="OverlayBgLabel" Text="오버레이 배경색" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
-                                    <Border x:Name="PreviewOverlayBgColor" Grid.Column="1" Width="44" Height="24" HorizontalAlignment="Left" CornerRadius="4" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" Cursor="Hand" MouseLeftButtonUp="PreviewColor_Click" Tag="OverlayBg"/>
-                                </Grid>
-                                
-                                <Grid Margin="0,0,0,12">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="130"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock x:Name="LineStyleLabel" Text="라인 스타일" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
-                                    <ComboBox x:Name="CboLineStyle" Grid.Column="1" Width="140" HorizontalAlignment="Left">
-                                        <ComboBoxItem Content="단선 (Solid)" Tag="Solid"/>
-                                        <ComboBoxItem Content="파선 (Dash)" Tag="Dash"/>
-                                        <ComboBoxItem Content="점선 (Dot)" Tag="Dot"/>
-                                        <ComboBoxItem Content="쇄선 (DashDot)" Tag="DashDot"/>
-                                    </ComboBox>
-                                </Grid>
-                                
-                                <Grid Margin="0,0,0,12">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="130"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock x:Name="LineThicknessLabel" Text="라인 두께" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
-                                    <ComboBox x:Name="CboLineThickness" Grid.Column="1" Width="80" HorizontalAlignment="Left">
-                                        <ComboBoxItem Content="0.5px" Tag="0.5"/>
-                                        <ComboBoxItem Content="1.0px" Tag="1.0"/>
-                                        <ComboBoxItem Content="1.5px" Tag="1.5"/>
-                                        <ComboBoxItem Content="2.0px" Tag="2.0"/>
-                                        <ComboBoxItem Content="3.0px" Tag="3.0"/>
-                                    </ComboBox>
-                                </Grid>
-                                
-                                <Grid Margin="0,0,0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="130"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock x:Name="LineColorLabel" Text="라인 색상" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
-                                    <Border x:Name="PreviewLineColor" Grid.Column="1" Width="44" Height="24" HorizontalAlignment="Left" CornerRadius="4" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" Cursor="Hand" MouseLeftButtonUp="PreviewColor_Click" Tag="LineColor"/>
-                                </Grid>
-                                <TextBlock x:Name="CaptureSettingsGuide" Text="※ 색상 상자를 클릭하여 캡처 가이드 색상을 선택하세요." FontSize="11" Foreground="{DynamicResource ThemeForeground}" Margin="0,15,0,0" Opacity="0.7"/>
-                            </StackPanel>
-                        </GroupBox>
-                    </StackPanel>
-                </ScrollViewer>
+                    <GroupBox x:Name="CaptureLineSettingsGroup" Header="캡처 라인 설정" Margin="0,0,0,5" BorderBrush="{DynamicResource ThemeBorder}" Padding="10,8">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="130"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="OverlayBgLabel" Text="오버레이 배경색" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <Border x:Name="PreviewOverlayBgColor" Width="42" Height="22" HorizontalAlignment="Left" CornerRadius="4" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" Cursor="Hand" MouseLeftButtonUp="PreviewColor_Click" Tag="OverlayBg"/>
+                                    <Slider x:Name="SldOverlayOpacity" Margin="12,0,0,0" Width="90" Minimum="0" Maximum="255" Value="140" VerticalAlignment="Center" ValueChanged="SldOverlayOpacity_ValueChanged"/>
+                                    <TextBlock Text="{Binding Value, ElementName=SldOverlayOpacity, StringFormat={}{0:0}}" VerticalAlignment="Center" Margin="6,0,0,0" FontSize="10" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" Width="22"/>
+                                </StackPanel>
+                            </Grid>
+                            
+                            <Grid Margin="0,0,0,6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="130"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="LineStyleLabel" Text="라인 스타일" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                                <ComboBox x:Name="CboLineStyle" Grid.Column="1" Width="170" HorizontalAlignment="Left" VerticalContentAlignment="Center" Height="26">
+                                    <ComboBoxItem Tag="Solid">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Rectangle Width="35" Height="2" Fill="{DynamicResource ThemeForeground}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="TxtSolid" Text="단선 (Solid)" VerticalAlignment="Center" FontSize="12"/>
+                                        </StackPanel>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem Tag="Dash">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Line X1="0" Y1="0" X2="35" Y2="0" Stroke="{DynamicResource ThemeForeground}" StrokeThickness="2" StrokeDashArray="4 3" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="TxtDash" Text="파선 (Dash)" VerticalAlignment="Center" FontSize="12"/>
+                                        </StackPanel>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem Tag="Dot">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Line X1="0" Y1="0" X2="35" Y2="0" Stroke="{DynamicResource ThemeForeground}" StrokeThickness="2" StrokeDashArray="1 3" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="TxtDot" Text="점선 (Dot)" VerticalAlignment="Center" FontSize="12"/>
+                                        </StackPanel>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem Tag="DashDot">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Line X1="0" Y1="0" X2="35" Y2="0" Stroke="{DynamicResource ThemeForeground}" StrokeThickness="2" StrokeDashArray="4 3 1 3" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="TxtDashDot" Text="쇄선 (DashDot)" VerticalAlignment="Center" FontSize="12"/>
+                                        </StackPanel>
+                                    </ComboBoxItem>
+                                </ComboBox>
+                            </Grid>
+                            
+                            <Grid Margin="0,0,0,6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="130"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="LineThicknessLabel" Text="라인 두께" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                                <ComboBox x:Name="CboLineThickness" Grid.Column="1" Width="75" HorizontalAlignment="Left" Height="26">
+                                    <ComboBoxItem Content="0.5px" Tag="0.5"/>
+                                    <ComboBoxItem Content="1.0px" Tag="1.0"/>
+                                    <ComboBoxItem Content="1.5px" Tag="1.5"/>
+                                    <ComboBoxItem Content="2.0px" Tag="2.0"/>
+                                    <ComboBoxItem Content="3.0px" Tag="3.0"/>
+                                </ComboBox>
+                            </Grid>
+                            
+                            <Grid Margin="0,0,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="130"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="LineColorLabel" Text="라인 색상" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                                <Border x:Name="PreviewLineColor" Grid.Column="1" Width="42" Height="22" HorizontalAlignment="Left" CornerRadius="4" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" Cursor="Hand" MouseLeftButtonUp="PreviewColor_Click" Tag="LineColor"/>
+                            </Grid>
+                        </StackPanel>
+                    </GroupBox>
+                    <TextBlock x:Name="CaptureSettingsGuide" Text="※ 색상 상자를 클릭하여 캡처 가이드 색상을 선택하세요." FontSize="10" Foreground="{DynamicResource ThemeForeground}" Margin="0,8,0,0" Opacity="0.6"/>
+                </StackPanel>
             </Border>
 
             <!-- Menu Edit Page -->
@@ -1031,6 +1053,7 @@
 
             <!-- Action Buttons -->
             <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,0,20,0">
+                <Button x:Name="PageDefaultButton" Content="기본값" Width="100" Height="34" Margin="0,0,10,0" Style="{StaticResource MacButtonSecondary}" Click="PageDefault_Click"/>
                 <Button x:Name="CancelButton" Content="취소" Width="100" Height="34" Margin="0,0,10,0" Style="{StaticResource MacButtonSecondary}" Click="Cancel_Click"/>
                 <Button x:Name="ApplyButton" Content="적용" Width="100" Height="34" Margin="0,0,10,0" Style="{StaticResource MacButtonSecondary}" Click="Apply_Click"/>
                 <Button x:Name="SaveButton" Content="저장" Width="100" Height="34" Style="{StaticResource MacButtonPrimary}" Click="Save_Click"/>
