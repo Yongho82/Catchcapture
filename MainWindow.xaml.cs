@@ -1577,18 +1577,107 @@ public partial class MainWindow : Window
         }
     }
 
-    private void WindowCaptureButton_Click(object sender, RoutedEventArgs e)
+    private async void WindowCaptureButton_Click(object sender, RoutedEventArgs e)
     {
         try
         {
+            // 간편모드 체크
+            bool isSimpleMode = simpleModeWindow != null && simpleModeWindow.IsVisible;
+            
+            // 즉시편집 설정 확인
+            var currentSettings = Settings.Load();
+            bool instantEdit = currentSettings.SimpleModeInstantEdit;
+            
             this.Hide();
+            if (simpleModeWindow != null) simpleModeWindow.Hide();
+            if (trayModeWindow != null) trayModeWindow.Hide();
+            
+            await Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.Render);
+            FlushUIAfterHide();
             System.Threading.Thread.Sleep(10);
 
             var windowCaptureOverlay = new CatchCapture.Utilities.WindowCaptureOverlay();
             
             if (windowCaptureOverlay.ShowDialog() == true && windowCaptureOverlay.CapturedImage != null)
             {
-                AddCaptureToList(windowCaptureOverlay.CapturedImage);
+                // 즉시편집 모드가 활성화되어 있으면 SnippingWindow로 전환
+                if (instantEdit && !windowCaptureOverlay.CapturedRect.IsEmpty)
+                {
+                    // 전체 화면 스크린샷 캡처
+                    var screenshot = await Task.Run(() => ScreenCaptureUtility.CaptureScreen());
+                    
+                    // SnippingWindow를 즉시편집 모드로 열기
+                    using var snippingWindow = new SnippingWindow(false, screenshot);
+                    snippingWindow.EnableInstantEditMode();
+                    
+                    // 캡처된 창의 위치를 미리 선택된 영역으로 설정
+                    snippingWindow.SetPreselectedArea(windowCaptureOverlay.CapturedRect);
+                    
+                    if (snippingWindow.ShowDialog() == true)
+                    {
+                        var selectedArea = snippingWindow.SelectedArea;
+                        var capturedImage = snippingWindow.SelectedFrozenImage ?? ScreenCaptureUtility.CaptureArea(selectedArea);
+                        
+                        this.Opacity = 1;
+                        AddCaptureToList(capturedImage);
+                        
+                        // 캡처 완료 후 모드별 창 복원
+                        if (isSimpleMode)
+                        {
+                            if (simpleModeWindow != null)
+                            {
+                                simpleModeWindow._suppressActivatedExpand = true;
+                                simpleModeWindow.Show();
+                                simpleModeWindow.Activate();
+                            }
+                        }
+                        else if (!settings.IsTrayMode)
+                        {
+                            this.Show();
+                            this.Activate();
+                        }
+                        else
+                        {
+                            if (trayModeWindow != null)
+                            {
+                                trayModeWindow.Show();
+                                trayModeWindow.Activate();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // 취소 시
+                        this.Opacity = 1;
+                        if (isSimpleMode)
+                        {
+                            if (simpleModeWindow != null)
+                            {
+                                simpleModeWindow._suppressActivatedExpand = true;
+                                simpleModeWindow.Show();
+                                simpleModeWindow.Activate();
+                            }
+                        }
+                        else if (!settings.IsTrayMode)
+                        {
+                            this.Show();
+                            this.Activate();
+                        }
+                        else
+                        {
+                            if (trayModeWindow != null)
+                            {
+                                trayModeWindow.Show();
+                                trayModeWindow.Activate();
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    // 즉시편집 모드가 아니면 기존 방식대로
+                    AddCaptureToList(windowCaptureOverlay.CapturedImage);
+                }
             }
             else
             {
@@ -1606,18 +1695,107 @@ public partial class MainWindow : Window
         }
     }
     
-    private void ElementCaptureButton_Click(object sender, RoutedEventArgs e)
+    private async void ElementCaptureButton_Click(object sender, RoutedEventArgs e)
     {
         try
         {
+            // 간편모드 체크
+            bool isSimpleMode = simpleModeWindow != null && simpleModeWindow.IsVisible;
+            
+            // 즉시편집 설정 확인
+            var currentSettings = Settings.Load();
+            bool instantEdit = currentSettings.SimpleModeInstantEdit;
+            
             this.Hide();
+            if (simpleModeWindow != null) simpleModeWindow.Hide();
+            if (trayModeWindow != null) trayModeWindow.Hide();
+            
+            await Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.Render);
+            FlushUIAfterHide();
             System.Threading.Thread.Sleep(10);
 
             var elementCaptureWindow = new ElementCaptureWindow();
             
             if (elementCaptureWindow.ShowDialog() == true && elementCaptureWindow.CapturedImage != null)
             {
-                AddCaptureToList(elementCaptureWindow.CapturedImage);
+                // 즉시편집 모드가 활성화되어 있으면 SnippingWindow로 전환
+                if (instantEdit && !elementCaptureWindow.CapturedRect.IsEmpty)
+                {
+                    // 전체 화면 스크린샷 캡처
+                    var screenshot = await Task.Run(() => ScreenCaptureUtility.CaptureScreen());
+                    
+                    // SnippingWindow를 즉시편집 모드로 열기
+                    using var snippingWindow = new SnippingWindow(false, screenshot);
+                    snippingWindow.EnableInstantEditMode();
+                    
+                    // 캡처된 요소의 위치를 미리 선택된 영역으로 설정
+                    snippingWindow.SetPreselectedArea(elementCaptureWindow.CapturedRect);
+                    
+                    if (snippingWindow.ShowDialog() == true)
+                    {
+                        var selectedArea = snippingWindow.SelectedArea;
+                        var capturedImage = snippingWindow.SelectedFrozenImage ?? ScreenCaptureUtility.CaptureArea(selectedArea);
+                        
+                        this.Opacity = 1;
+                        AddCaptureToList(capturedImage);
+                        
+                        // 캡처 완료 후 모드별 창 복원
+                        if (isSimpleMode)
+                        {
+                            if (simpleModeWindow != null)
+                            {
+                                simpleModeWindow._suppressActivatedExpand = true;
+                                simpleModeWindow.Show();
+                                simpleModeWindow.Activate();
+                            }
+                        }
+                        else if (!settings.IsTrayMode)
+                        {
+                            this.Show();
+                            this.Activate();
+                        }
+                        else
+                        {
+                            if (trayModeWindow != null)
+                            {
+                                trayModeWindow.Show();
+                                trayModeWindow.Activate();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // 취소 시
+                        this.Opacity = 1;
+                        if (isSimpleMode)
+                        {
+                            if (simpleModeWindow != null)
+                            {
+                                simpleModeWindow._suppressActivatedExpand = true;
+                                simpleModeWindow.Show();
+                                simpleModeWindow.Activate();
+                            }
+                        }
+                        else if (!settings.IsTrayMode)
+                        {
+                            this.Show();
+                            this.Activate();
+                        }
+                        else
+                        {
+                            if (trayModeWindow != null)
+                            {
+                                trayModeWindow.Show();
+                                trayModeWindow.Activate();
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    // 즉시편집 모드가 아니면 기존 방식대로
+                    AddCaptureToList(elementCaptureWindow.CapturedImage);
+                }
             }
             else
             {

@@ -88,6 +88,7 @@ namespace CatchCapture.Utilities
         private Rectangle highlightRect;
         private IntPtr currentTargetWindow = IntPtr.Zero;
         public BitmapSource? CapturedImage { get; private set; }
+        public Rect CapturedRect { get; private set; } = Rect.Empty;
 
         public WindowCaptureOverlay()
         {
@@ -290,6 +291,9 @@ namespace CatchCapture.Utilities
                 int height = rect.Bottom - rect.Top;
 
                 if (width <= 0 || height <= 0) return;
+
+                // 캡처된 영역의 화면 좌표 저장
+                CapturedRect = new Rect(rect.Left, rect.Top, width, height);
 
                 var bitmap = new System.Drawing.Bitmap(width, height);
                 using (var g = System.Drawing.Graphics.FromImage(bitmap))

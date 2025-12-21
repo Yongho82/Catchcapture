@@ -910,6 +910,65 @@ namespace CatchCapture.Utilities
             instantEditMode = true;
         }
 
+        // 미리 선택된 영역 설정 (창캡처/단위캡처용)
+        public void SetPreselectedArea(Rect screenRect)
+        {
+            if (!instantEditMode) return;
+            
+            // 화면 좌표를 캔버스 좌표로 변환
+            double canvasX = screenRect.X - vLeft;
+            double canvasY = screenRect.Y - vTop;
+            
+            currentSelectionRect = new Rect(canvasX, canvasY, screenRect.Width, screenRect.Height);
+            
+            // DPI 변환
+            var dpi = VisualTreeHelper.GetDpi(this);
+            int pxLeft = (int)Math.Round(canvasX * dpi.DpiScaleX);
+            int pxTop = (int)Math.Round(canvasY * dpi.DpiScaleY);
+            int pxWidth = (int)Math.Round(screenRect.Width * dpi.DpiScaleX);
+            int pxHeight = (int)Math.Round(screenRect.Height * dpi.DpiScaleY);
+
+            int globalX = (int)Math.Round(vLeft) + pxLeft;
+            int globalY = (int)Math.Round(vTop) + pxTop;
+
+            SelectedArea = new Int32Rect(globalX, globalY, pxWidth, pxHeight);
+
+            // 선택 영역 이미지 생성
+            try
+            {
+                if (screenCapture != null && pxWidth > 0 && pxHeight > 0)
+                {
+                    int relX = globalX - (int)Math.Round(vLeft);
+                    int relY = globalY - (int)Math.Round(vTop);
+
+                    relX = Math.Max(0, Math.Min(relX, screenCapture.PixelWidth - 1));
+                    relY = Math.Max(0, Math.Min(relY, screenCapture.PixelHeight - 1));
+                    int cw = Math.Max(0, Math.Min(pxWidth, screenCapture.PixelWidth - relX));
+                    int ch = Math.Max(0, Math.Min(pxHeight, screenCapture.PixelHeight - relY));
+
+                    if (cw > 0 && ch > 0)
+                    {
+                        var cropRect = new Int32Rect(relX, relY, cw, ch);
+                        SelectedFrozenImage = new CroppedBitmap(screenCapture, cropRect);
+                    }
+                }
+            }
+            catch { }
+
+            // 선택 영역 시각화
+            if (selectionOverlay != null)
+            {
+                selectionOverlay.SetRect(currentSelectionRect);
+                selectionOverlay.SetVisibility(Visibility.Visible);
+            }
+
+            // 즉시편집 툴바 표시
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                ShowEditToolbar();
+            }), System.Windows.Threading.DispatcherPriority.Loaded);
+        }
+
         private void ShowEditToolbar()
         {
             // 선택 모드 종료

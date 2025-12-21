@@ -80,6 +80,7 @@ namespace CatchCapture
         private BitmapSource? _fullScreenImage;
 
         public BitmapSource? CapturedImage { get; private set; }
+        public Rect CapturedRect { get; private set; } = Rect.Empty;
 
         // --- Magnifier Fields ---
         private const double MagnifierSize = 150;
@@ -486,6 +487,10 @@ namespace CatchCapture
                 {
                     var cropped = new CroppedBitmap(_fullScreenImage, new Int32Rect(x, y, w, h));
                     CapturedImage = cropped;
+                    
+                    // 캡처된 영역의 화면 좌표 저장 (Left, Top 기준으로 변환)
+                    CapturedRect = new Rect(Left + rect.X, Top + rect.Y, rect.Width, rect.Height);
+                    
                     DialogResult = true;
                     Close();
                 }
