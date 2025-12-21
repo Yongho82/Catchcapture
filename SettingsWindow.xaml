@@ -418,7 +418,7 @@
         </Border>
 
         <!-- Content Area -->
-        <Grid Grid.Column="1" Margin="30">
+        <Grid Grid.Column="1" Margin="30,30,30,15">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
@@ -1052,7 +1052,7 @@
             </Border>
 
             <!-- Action Buttons -->
-            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,0,20,0">
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,20,20,0">
                 <Button x:Name="PageDefaultButton" Content="기본값" Width="100" Height="34" Margin="0,0,10,0" Style="{StaticResource MacButtonSecondary}" Click="PageDefault_Click"/>
                 <Button x:Name="CancelButton" Content="취소" Width="100" Height="34" Margin="0,0,10,0" Style="{StaticResource MacButtonSecondary}" Click="Cancel_Click"/>
                 <Button x:Name="ApplyButton" Content="적용" Width="100" Height="34" Margin="0,0,10,0" Style="{StaticResource MacButtonSecondary}" Click="Apply_Click"/>

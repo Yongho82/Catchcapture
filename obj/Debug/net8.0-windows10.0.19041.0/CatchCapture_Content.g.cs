@@ -59,6 +59,7 @@
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/tray_mode.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/undo.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/unit_capture.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/unit_capture1.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/videocamera.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/window_cap.png")]
 

@@ -144,3 +144,4 @@ C:\yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\refint\CatchC
 C:\yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\CatchCapture.pdb
 C:\yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\CatchCapture.genruntimeconfig.cache
 C:\yonghoprogram\Catchcapture\obj\Debug\net8.0-windows10.0.19041.0\ref\CatchCapture.dll
+C:\yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\icons\unit_capture1.png
