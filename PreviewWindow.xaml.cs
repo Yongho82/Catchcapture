@@ -35,27 +35,9 @@ namespace CatchCapture
         private List<Point> drawingPoints = new List<Point>();
         private EditMode currentEditMode = EditMode.None;
         // Pen & Highlight settings
-        private Color selectedColor = Colors.Red;
-        private double penThickness = 3;
-        private ShapeType shapeType = ShapeType.Rectangle;
-        private List<Color> customColors = new List<Color>();
-
-        private double shapeBorderThickness = 2;
-        private bool shapeIsFilled = false;
-        private double shapeFillOpacity = 0.5;
-        // 기본 형광펜은 중간 투명도(약 45~50%)와 중간 두께로 시작
-        private double highlightOpacity = 0.5;
-        private double highlightThickness = 8;
-        private double textSize = 16;
-        private double eraserSize = 20;
-        private FontWeight textFontWeight = FontWeights.Normal;
-        private FontStyle textFontStyle = FontStyles.Normal;
-        private string textFontFamily = "Arial";
+        // Fields removed as requested (using SharedCanvasEditor)
+        // selectedColor, penThickness, shapeType, etc. are now managed by _editorManager
         // 라이브 스트로크 미리보기 - _editorManager에서 관리
-
-
-
-
         // 로그 파일 경로 (미사용)
         // private string logFilePath = "shape_debug.log";
 
@@ -188,13 +170,13 @@ namespace CatchCapture
                 layer = new CatchCapture.Models.DrawingLayer
                 {
                     Type = DrawingLayerType.Shape,
-                    ShapeType = shapeType, // 현재 설정된 타입 사용
+                    ShapeType = _editorManager.CurrentShapeType, // 현재 설정된 타입 사용
                     StartPoint = startPoint,
                     EndPoint = new Point(Canvas.GetLeft(shape) + shape.Width, Canvas.GetTop(shape) + shape.Height), // 대략적 계산
-                    Color = selectedColor,
-                    Thickness = shapeBorderThickness,
-                    IsFilled = shapeIsFilled,
-                    FillOpacity = shapeFillOpacity,
+                    Color = _editorManager.SelectedColor,
+                    Thickness = _editorManager.ShapeBorderThickness,
+                    IsFilled = _editorManager.ShapeIsFilled,
+                    FillOpacity = _editorManager.ShapeFillOpacity,
                     IsInteractive = true,
                     LayerId = nextLayerId++
                 };
@@ -251,7 +233,7 @@ namespace CatchCapture
             double maxWindowHeight = workAreaHeight * 0.95;
 
             // 최소 창 크기 설정
-            double minWindowWidth = 1390;
+            double minWindowWidth = 1450;
             double minWindowHeight = 800;
 
             // UI 요소 크기 예상치
@@ -845,10 +827,11 @@ namespace CatchCapture
             ImageCanvas.Cursor = Cursors.Cross;
 
             // 기본값 설정 (사각형, 검정색, 윤곽선)
-            shapeType = ShapeType.Rectangle;
-            selectedColor = Colors.Black;
-            shapeBorderThickness = 2;
-            shapeIsFilled = false;
+            // 기본값 설정 (사각형, 검정색, 윤곽선) - EditorManager 사용 
+            // _editorManager.CurrentShapeType = ShapeType.Rectangle;
+            // _editorManager.SelectedColor = Colors.Black;
+            // _editorManager.ShapeBorderThickness = 2;
+            // _editorManager.ShapeIsFilled = false;
 
             WriteLog("기본 도형 그리기 모드 설정: 사각형, 검정색, 윤곽선");
             SetActiveToolButton(ShapeButton);
@@ -877,8 +860,9 @@ namespace CatchCapture
             ImageCanvas.Cursor = Cursors.Pen;
 
             // 기본값 설정 (노란색, 중간 투명도, 8px)
-            selectedColor = Colors.Yellow;
-            highlightThickness = 8;
+            // 기본값 설정 (노란색, 중간 투명도, 8px) - EditorManager 사용
+            // selectedColor = Colors.Yellow;
+            // highlightThickness = 8;
             
             // 바로 그리기 시작 (팝업 표시 안 함)
             SetActiveToolButton(HighlightToolButton);
@@ -891,8 +875,9 @@ namespace CatchCapture
             ImageCanvas.Cursor = Cursors.Pen;
 
             // 기본값 설정 (검정, 3px)
-            selectedColor = Colors.Black;
-            penThickness = 3;
+            // 기본값 설정 (검정, 3px) - EditorManager 사용
+            // selectedColor = Colors.Black;
+            // penThickness = 3;
             
             // 바로 그리기 시작 (팝업 표시 안 함)
             SetActiveToolButton(PenToolButton);  // ← 이 줄 추가

@@ -50,6 +50,7 @@ namespace CatchCapture.Controls
             NumberingOptions.Visibility = Visibility.Collapsed;
             MosaicOptions.Visibility = Visibility.Collapsed;
             EraserOptions.Visibility = Visibility.Collapsed;
+            MagicWandOptions.Visibility = Visibility.Collapsed; // [추가] 마법봉 옵션 숨기기
             ColorSection.Visibility = Visibility.Visible;
             Separator.Visibility = Visibility.Visible;
 
@@ -113,6 +114,64 @@ namespace CatchCapture.Controls
                     }
                     break;
             }
+            LoadEditorValues();
+        }
+
+        public void LoadEditorValues()
+        {
+            if (_editor == null) return;
+
+            // [추가] 에디터의 현재 값을 UI에 반영 (텍스트/넘버링 선택 시 연동)
+            
+            // 폰트 크기
+            double currentSize = (_currentMode == "넘버링") ? _editor.NumberingTextSize : _editor.TextFontSize;
+            bool found = false;
+            foreach (var item in FontSizeComboBox.Items)
+            {
+                if (double.TryParse(item.ToString(), out double sz) && Math.Abs(sz - currentSize) < 0.1)
+                {
+                    FontSizeComboBox.SelectedItem = item;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) FontSizeComboBox.Text = currentSize.ToString();
+
+            // 폰트 종류
+            FontComboBox.SelectedItem = _editor.TextFontFamily;
+
+            // 스타일 버튼
+            if (BoldBtn != null) BoldBtn.IsChecked = (_editor.TextFontWeight == FontWeights.Bold);
+            if (ItalicBtn != null) ItalicBtn.IsChecked = (_editor.TextFontStyle == FontStyles.Italic);
+            if (UnderlineBtn != null) UnderlineBtn.IsChecked = _editor.TextUnderlineEnabled;
+            if (ShadowBtn != null) ShadowBtn.IsChecked = _editor.TextShadowEnabled;
+
+            // 색상
+            UpdateColorSelection(_editor.SelectedColor);
+
+            // 펜/형광펜 두께 및 투명도
+            if (_currentMode == "형광펜")
+            {
+                PenSizeSlider.Value = _editor.HighlightThickness;
+                PenOpacitySlider.Value = _editor.HighlightOpacity;
+            }
+            else if (_currentMode == "펜")
+            {
+                PenSizeSlider.Value = _editor.PenThickness;
+            }
+
+            // 도형 상태
+            if (_currentMode == "도형") LoadShapeState();
+
+            // 모자이크
+            MosaicSlider.Value = _editor.MosaicIntensity;
+            
+            // 지우개
+            EraserSlider.Value = _editor.EraserSize;
+            
+            // 마법봉
+            MagicWandToleranceSlider.Value = _editor.MagicWandTolerance;
+            MagicWandContiguousCheck.IsChecked = _editor.MagicWandContiguous;
         }
 
         private void InitializeEvents()
@@ -147,6 +206,9 @@ namespace CatchCapture.Controls
                         _editor.NumberingBadgeSize = sz * 2.0; // 배지 크기를 폰트 크기의 2배로 연동
                     }
                     else _editor.TextFontSize = sz;
+
+                    // [추가] 선택된 객체가 있으면 즉시 적용
+                    _editor.ApplyCurrentTextSettingsToSelectedObject();
                 }
                 catch { }
             };
@@ -171,7 +233,11 @@ namespace CatchCapture.Controls
             {
                 if (_editor == null || FontComboBox.SelectedItem == null) return;
                 string? f = FontComboBox.SelectedItem?.ToString();
-                if (f != null) _editor.TextFontFamily = f;
+                if (f != null) {
+                    _editor.TextFontFamily = f;
+                    // [추가] 선택된 객체가 있으면 즉시 적용
+                    _editor.ApplyCurrentTextSettingsToSelectedObject();
+                }
             };
 
             // Text Styles (ToggleButtons) - with null checks
@@ -243,6 +309,9 @@ namespace CatchCapture.Controls
             _editor.TextFontStyle = (ItalicBtn.IsChecked == true) ? FontStyles.Italic : FontStyles.Normal;
             _editor.TextUnderlineEnabled = (UnderlineBtn.IsChecked == true);
             _editor.TextShadowEnabled = (ShadowBtn.IsChecked == true);
+
+            // [추가] 선택된 객체가 있으면 즉시 적용
+            _editor.ApplyCurrentTextSettingsToSelectedObject();
         }
 
         private void BuildColorPalette()
@@ -281,7 +350,11 @@ namespace CatchCapture.Controls
             
             border.MouseLeftButtonDown += (s, e) =>
             {
-                if (_editor != null) _editor.SelectedColor = c;
+                if (_editor != null) {
+                    _editor.SelectedColor = c;
+                    // [추가] 선택된 객체가 있으면 즉시 적용
+                    _editor.ApplyCurrentTextSettingsToSelectedObject();
+                }
                 UpdateColorSelection(c);
             };
             

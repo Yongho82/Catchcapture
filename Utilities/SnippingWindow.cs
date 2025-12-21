@@ -983,7 +983,7 @@ namespace CatchCapture.Utilities
 
             
             // 선택 버튼
-            var selectButton = CreateToolButton("sc_cursor.png", LocalizationManager.Get("Select"), LocalizationManager.Get("SelectTooltip"));
+            var selectButton = CreateToolButton("cursor.png", LocalizationManager.Get("Select"), LocalizationManager.Get("SelectTooltip"));
             selectButton.Tag = "선택";
             selectButton.Click += (s, e) => ToggleToolPalette("선택", selectButton);
 
@@ -1677,11 +1677,41 @@ namespace CatchCapture.Utilities
             DeselectObject();
 
             selectedObject = element;
-
+            if (_editorManager != null) _editorManager.SelectedObject = element;
 
             // 선택 강조 효과 (점선 테두리)
             UpdateObjectSelectionUI();
             CreateObjectResizeHandles();
+
+            // [추가] 선택된 객체의 설정을 팔레트에 반영
+            SyncSelectedObjectToEditor();
+        }
+
+        private void SyncSelectedObjectToEditor()
+        {
+            if (selectedObject == null || _editorManager == null) return;
+
+            if (selectedObject is TextBox tb)
+            {
+                _editorManager.TextFontSize = tb.FontSize;
+                _editorManager.TextFontFamily = tb.FontFamily.Source;
+                _editorManager.TextFontWeight = tb.FontWeight;
+                _editorManager.TextFontStyle = tb.FontStyle;
+                _editorManager.TextUnderlineEnabled = tb.TextDecorations == TextDecorations.Underline;
+                // Shadow sync is harder without custom logic, but let's assume standard
+            }
+            else if (selectedObject is Canvas group && group.Children.Count >= 1 && group.Children[0] is Border badge)
+            {
+                // Numbering Badge sync
+                _editorManager.NumberingBadgeSize = badge.Width;
+                if (group.Children.Count >= 2 && group.Children[1] is TextBox note)
+                {
+                    _editorManager.NumberingTextSize = note.FontSize;
+                }
+            }
+
+            // UI 갱신
+            _toolOptionsControl?.LoadEditorValues();
         }
 
         private void DeselectObject()
@@ -1693,6 +1723,7 @@ namespace CatchCapture.Utilities
                 // 추후 SharedCanvasEditor에서 선택 해제 로직을 통합 관리할 수도 있음
                 
                 selectedObject = null;
+                if (_editorManager != null) _editorManager.SelectedObject = null;
                 if (objectSelectionBorder != null)
                 {
                     canvas.Children.Remove(objectSelectionBorder);

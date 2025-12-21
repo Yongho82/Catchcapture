@@ -165,7 +165,7 @@ namespace CatchCapture
             // 커스텀 커서 이미지 로드
             try
             {
-                var cursorImagePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icons", "sc_cursor.png");
+                var cursorImagePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icons", "cursor.png");
                 if (System.IO.File.Exists(cursorImagePath))
                 {
                     customCursor = new System.Windows.Controls.Image

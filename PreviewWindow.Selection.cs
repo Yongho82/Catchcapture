@@ -88,17 +88,20 @@ namespace CatchCapture
             DeselectObject();
 
             selectedObject = element;
+            if (_editorManager != null) _editorManager.SelectedObject = element;
 
             if (element is TextBox textBox)
             {
                 ShowTextSelection(textBox);
                 SyncSelectedObjectToGlobalSettings();
+                _toolOptionsControl?.LoadEditorValues(); // [추가] UI 동기화
                 return;
             }
 
             UpdateObjectSelectionUI();
             CreateObjectResizeHandles();
             SyncSelectedObjectToGlobalSettings();
+            _toolOptionsControl?.LoadEditorValues(); // [추가] UI 동기화
             ShowSelectionOptions();
         }
 
@@ -108,51 +111,51 @@ namespace CatchCapture
 
             if (selectedObject is FrameworkElement fe && fe.Tag is CatchCapture.Models.DrawingLayer layer)
             {
-                layer.Color = selectedColor;
-                layer.Thickness = shapeBorderThickness;
-                layer.IsFilled = shapeIsFilled;
-                layer.FillOpacity = shapeFillOpacity;
+                layer.Color = _editorManager.SelectedColor;
+                layer.Thickness = _editorManager.ShapeBorderThickness;
+                layer.IsFilled = _editorManager.ShapeIsFilled;
+                layer.FillOpacity = _editorManager.ShapeFillOpacity;
                 ShapeDrawingHelper.ApplyDrawingLayer(selectedObject, layer);
             }
             else if (selectedObject is FrameworkElement fe2 && fe2.Tag is CatchCapture.Utilities.ShapeMetadata metadata)
             {
-                metadata.Color = selectedColor;
-                metadata.Thickness = shapeBorderThickness;
-                metadata.IsFilled = shapeIsFilled;
-                metadata.FillOpacity = shapeFillOpacity;
+                metadata.Color = _editorManager.SelectedColor;
+                metadata.Thickness = _editorManager.ShapeBorderThickness;
+                metadata.IsFilled = _editorManager.ShapeIsFilled;
+                metadata.FillOpacity = _editorManager.ShapeFillOpacity;
                 
                 if (selectedObject is Shape s)
                 {
-                    s.Stroke = new SolidColorBrush(selectedColor);
-                    s.StrokeThickness = shapeBorderThickness;
+                    s.Stroke = new SolidColorBrush(_editorManager.SelectedColor);
+                    s.StrokeThickness = _editorManager.ShapeBorderThickness;
                     if (s is Rectangle || s is Ellipse)
                     {
-                        s.Fill = shapeIsFilled ? new SolidColorBrush(Color.FromArgb((byte)(shapeFillOpacity * 255), selectedColor.R, selectedColor.G, selectedColor.B)) : Brushes.Transparent;
+                        s.Fill = _editorManager.ShapeIsFilled ? new SolidColorBrush(Color.FromArgb((byte)(_editorManager.ShapeFillOpacity * 255), _editorManager.SelectedColor.R, _editorManager.SelectedColor.G, _editorManager.SelectedColor.B)) : Brushes.Transparent;
                     }
                 }
                 else if (selectedObject is Canvas arrowCanvas)
                 {
-                    ShapeDrawingHelper.UpdateArrow(arrowCanvas, metadata.StartPoint, metadata.EndPoint, selectedColor, shapeBorderThickness);
+                    ShapeDrawingHelper.UpdateArrow(arrowCanvas, metadata.StartPoint, metadata.EndPoint, _editorManager.SelectedColor, _editorManager.ShapeBorderThickness);
                 }
             }
             else if (selectedObject is Polyline polyline)
             {
-                polyline.Stroke = new SolidColorBrush(selectedColor);
+                polyline.Stroke = new SolidColorBrush(_editorManager.SelectedColor);
                 // 형광펜인 경우 투명도 유지를 위해 Opacity를 확인하거나 다시 설정할 수 있음
             }
             else if (selectedObject is TextBox textBox)
             {
-                textBox.Foreground = new SolidColorBrush(selectedColor);
-                textBox.FontSize = textSize;
-                textBox.FontFamily = new FontFamily(textFontFamily);
-                textBox.FontWeight = textFontWeight;
-                textBox.FontStyle = textFontStyle;
-                // textBox values are usually applied via TextBox_TextChanged or similarly,
-                // but for style changes we apply them directly.
+                // [수정] 공용 에디터 매니저의 기능 사용 (일관성 유지)
+                _editorManager?.ApplyCurrentTextSettingsToSelectedObject();
+                
+                // 개별 연동 (필요한 경우)
+                textBox.Foreground = new SolidColorBrush(_editorManager.SelectedColor);
             }
             else if (selectedObject is Canvas canvas && canvas.Children.Count > 0 && canvas.Children[0] is Border badge)
             {
-                badge.Background = new SolidColorBrush(selectedColor);
+                // [수정] 공용 에디터 매니저의 기능 사용
+                _editorManager?.ApplyCurrentTextSettingsToSelectedObject();
+                badge.Background = new SolidColorBrush(_editorManager.SelectedColor);
             }
         }
 
@@ -162,38 +165,40 @@ namespace CatchCapture
 
             if (selectedObject is FrameworkElement fe && fe.Tag is CatchCapture.Models.DrawingLayer layer)
             {
-                selectedColor = layer.Color;
-                shapeBorderThickness = layer.Thickness;
-                shapeIsFilled = layer.IsFilled;
-                shapeFillOpacity = layer.FillOpacity;
-                if (layer.ShapeType.HasValue) shapeType = layer.ShapeType.Value;
+                _editorManager.SelectedColor = layer.Color;
+                _editorManager.ShapeBorderThickness = layer.Thickness;
+                _editorManager.ShapeIsFilled = layer.IsFilled;
+                _editorManager.ShapeFillOpacity = layer.FillOpacity;
+                if (layer.ShapeType.HasValue) _editorManager.CurrentShapeType = layer.ShapeType.Value;
             }
             else if (selectedObject is FrameworkElement fe2 && fe2.Tag is CatchCapture.Utilities.ShapeMetadata metadata)
             {
-                selectedColor = metadata.Color;
-                shapeBorderThickness = metadata.Thickness;
-                shapeIsFilled = metadata.IsFilled;
-                shapeFillOpacity = metadata.FillOpacity;
-                shapeType = metadata.ShapeType;
+                _editorManager.SelectedColor = metadata.Color;
+                _editorManager.ShapeBorderThickness = metadata.Thickness;
+                _editorManager.ShapeIsFilled = metadata.IsFilled;
+                _editorManager.ShapeFillOpacity = metadata.FillOpacity;
+                _editorManager.CurrentShapeType = metadata.ShapeType;
             }
             else if (selectedObject is Polyline polyline)
             {
-                if (polyline.Stroke is SolidColorBrush scb) selectedColor = scb.Color;
+                if (polyline.Stroke is SolidColorBrush scb) _editorManager.SelectedColor = scb.Color;
                 // 두께도 동기화 가능
-                penThickness = polyline.StrokeThickness;
+                _editorManager.PenThickness = (int)polyline.StrokeThickness;
             }
             else if (selectedObject is TextBox textBox)
             {
-                if (textBox.Foreground is SolidColorBrush scb) selectedColor = scb.Color;
-                textSize = textBox.FontSize;
-                textFontFamily = textBox.FontFamily.Source;
-                textFontWeight = textBox.FontWeight;
-                textFontStyle = textBox.FontStyle;
+                if (textBox.Foreground is SolidColorBrush scb) _editorManager.SelectedColor = scb.Color;
+                _editorManager.TextFontSize = textBox.FontSize;
+                _editorManager.TextFontFamily = textBox.FontFamily.Source;
+                _editorManager.TextFontWeight = textBox.FontWeight;
+                _editorManager.TextFontStyle = textBox.FontStyle;
             }
             else if (selectedObject is Canvas canvas && canvas.Children.Count > 0 && canvas.Children[0] is Border badge)
             {
-                if (badge.Background is SolidColorBrush scb) selectedColor = scb.Color;
+                if (badge.Background is SolidColorBrush scb) _editorManager.SelectedColor = scb.Color;
             }
+
+            SyncEditorProperties(); // [추가] 에디터 매니저와 동기화
         }
 
         private void ShowSelectionOptions()

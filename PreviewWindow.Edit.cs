@@ -326,9 +326,9 @@ namespace CatchCapture
             {
                 MinWidth = 100,
                 MinHeight = 30,
-                FontSize = textSize,
-                FontFamily = new FontFamily(textFontFamily),
-                Foreground = new SolidColorBrush(selectedColor),
+                FontSize = _editorManager.TextFontSize,
+                FontFamily = new FontFamily(_editorManager.TextFontFamily),
+                Foreground = new SolidColorBrush(_editorManager.SelectedColor),
                 Background = Brushes.Transparent,
                 BorderBrush = GetActiveToolBrush(),
                 BorderThickness = new Thickness(2),
@@ -336,8 +336,8 @@ namespace CatchCapture
                 TextWrapping = TextWrapping.Wrap,
                 AcceptsReturn = true,
                 VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-                FontWeight = textFontWeight,
-                FontStyle = textFontStyle,
+                FontWeight = _editorManager.TextFontWeight,
+                FontStyle = _editorManager.TextFontStyle,
                 Focusable = true, // 명시적으로 포커스 가능하도록 설정
                 IsTabStop = true
             };
@@ -364,11 +364,11 @@ namespace CatchCapture
                 Type = CatchCapture.Models.DrawingLayerType.Text,
                 Text = "",
                 TextPosition = new Point(textBoxLeft, textBoxTop),
-                Color = selectedColor,
-                FontSize = textSize,
-                FontFamily = textFontFamily,
-                FontWeight = textFontWeight,
-                FontStyle = textFontStyle,
+                Color = _editorManager.SelectedColor,
+                FontSize = _editorManager.TextFontSize,
+                FontFamily = _editorManager.TextFontFamily,
+                FontWeight = _editorManager.TextFontWeight,
+                FontStyle = _editorManager.TextFontStyle,
                 IsInteractive = true,
                 LayerId = nextLayerId++
             };

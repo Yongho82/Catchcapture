@@ -112,12 +112,12 @@ namespace CatchCapture
 
         private void UpdateEraserCursor(Point point)
         {
+            if (_editorManager == null) return;
+
             if (eraserCursor == null)
             {
                 eraserCursor = new Ellipse
                 {
-                    Width = eraserSize,
-                    Height = eraserSize,
                     Stroke = Brushes.Black,
                     StrokeThickness = 1,
                     Fill = new SolidColorBrush(Color.FromArgb(50, 255, 255, 255)), // 반투명 흰색
@@ -127,14 +127,14 @@ namespace CatchCapture
             }
 
             // 크기 업데이트 (지우개 크기 변경 시 반영)
-            if (eraserCursor.Width != eraserSize)
+            if (eraserCursor.Width != _editorManager.EraserSize)
             {
-                eraserCursor.Width = eraserSize;
-                eraserCursor.Height = eraserSize;
+                eraserCursor.Width = _editorManager.EraserSize;
+                eraserCursor.Height = _editorManager.EraserSize;
             }
 
-            Canvas.SetLeft(eraserCursor, point.X - eraserSize / 2);
-            Canvas.SetTop(eraserCursor, point.Y - eraserSize / 2);
+            Canvas.SetLeft(eraserCursor, point.X - _editorManager.EraserSize / 2);
+            Canvas.SetTop(eraserCursor, point.Y - _editorManager.EraserSize / 2);
         }
 
         private void HideEraserCursor()
@@ -195,9 +195,6 @@ namespace CatchCapture
         {
             if (_editorManager == null) return;
 
-            _editorManager.SelectedColor = selectedColor; // Unified color
-            _editorManager.PenThickness = (int)penThickness;
-            _editorManager.HighlightThickness = (int)highlightThickness;
             _editorManager.CurrentTool = currentEditMode switch
             {
                 EditMode.Pen => "펜",
@@ -209,13 +206,6 @@ namespace CatchCapture
                 EditMode.Eraser => "지우개",
                 _ => ""
             };
-            _editorManager.CurrentShapeType = shapeType;
-            _editorManager.ShapeBorderThickness = shapeBorderThickness;
-            _editorManager.ShapeIsFilled = shapeIsFilled;
-            _editorManager.ShapeFillOpacity = shapeFillOpacity;
-            _editorManager.TextFontSize = textSize;
-            _editorManager.TextFontFamily = textFontFamily;
-            _editorManager.HighlightOpacity = highlightOpacity;
         }
         #endregion
     }

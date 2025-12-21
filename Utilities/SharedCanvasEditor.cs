@@ -19,7 +19,7 @@ namespace CatchCapture.Utilities
         private readonly Canvas _canvas;
         private readonly List<UIElement> _drawnElements;
         private readonly Stack<UIElement> _undoStack;
-        
+        public UIElement? SelectedObject { get; set; }
         public string CurrentTool { get; set; } = "펜";
         public Color SelectedColor { get; set; } = Colors.Red;
         public double PenThickness { get; set; } = 3;
@@ -350,6 +350,7 @@ namespace CatchCapture.Utilities
                     note.BorderBrush = Brushes.White;
                     note.BorderThickness = new Thickness(1);
                     btnPanel.Visibility = Visibility.Visible;
+                    SelectedObject = group; // [추가] 선택된 객체 설정
                     note.Focus();
                     e.Handled = true;
                 }
@@ -360,6 +361,7 @@ namespace CatchCapture.Utilities
             badge.MouseLeftButtonDown += (s, e) => {
                 isDragging = true;
                 lastPos = e.GetPosition(_canvas);
+                SelectedObject = group; // [추가] 선택된 객체 설정
                 badge.CaptureMouse();
                 e.Handled = true;
             };
@@ -469,6 +471,7 @@ namespace CatchCapture.Utilities
                     textBox.BorderThickness = new Thickness(2);
                     // 배경은 투명이라도 테두리가 생기므로 인식 가능
                     btnPanel.Visibility = Visibility.Visible;
+                    SelectedObject = group; // [추가] 선택된 객체 설정
                     textBox.Focus();
                     e.Handled = true;
                     return;
@@ -476,6 +479,7 @@ namespace CatchCapture.Utilities
                 
                 isDragging = true;
                 lastPos = e.GetPosition(_canvas);
+                SelectedObject = group; // [추가] 선택된 객체 설정
                 group.CaptureMouse();
                 e.Handled = true;
             };
@@ -525,6 +529,38 @@ namespace CatchCapture.Utilities
                 next++;
             }
             NextNumber = next;
+        }
+
+        public void ApplyCurrentTextSettingsToSelectedObject()
+        {
+            if (SelectedObject == null) return;
+
+            TextBox? tb = null;
+            if (SelectedObject is TextBox t) tb = t;
+            else if (SelectedObject is Canvas group)
+            {
+                // Numbering or grouped text
+                foreach (var child in group.Children)
+                {
+                    if (child is TextBox note) { tb = note; break; }
+                }
+
+                // If Numbering, also maybe resize badge
+                if (group.Children.Count >= 1 && group.Children[0] is Border badge)
+                {
+                    badge.Width = badge.Height = NumberingBadgeSize;
+                    badge.CornerRadius = new CornerRadius(NumberingBadgeSize / 2);
+                    if (badge.Child is TextBlock btb) { btb.FontSize = NumberingBadgeSize * 0.5; }
+                }
+            }
+
+            if (tb != null)
+            {
+                ApplyTextStyleToTextBox(tb);
+                tb.FontSize = (CurrentTool == "넘버링") ? NumberingTextSize : TextFontSize;
+                // If text color should also be updated:
+                tb.Foreground = new SolidColorBrush(SelectedColor);
+            }
         }
 
         private void ApplyTextStyleToTextBox(TextBox tb)
