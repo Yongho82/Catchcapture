@@ -888,8 +888,8 @@ namespace CatchCapture
         #region 마법봉 (배경 제거)
 
         // 마법봉 설정
-        private int magicWandTolerance = 32; // 색상 허용 오차 (0-255)
-        private bool magicWandContiguous = true; // 연속 영역만 선택
+        private int magicWandTolerance => _editorManager?.MagicWandTolerance ?? 32; // 색상 허용 오차 (0-255)
+        private bool magicWandContiguous => _editorManager?.MagicWandContiguous ?? true; // 연속 영역만 선택
         
         // 마법봉 드래그 관련
         private bool isMagicWandDragging = false;
@@ -1148,7 +1148,7 @@ namespace CatchCapture
         /// </summary>
         public void SetMagicWandTolerance(int tolerance)
         {
-            magicWandTolerance = Math.Clamp(tolerance, 0, 255);
+            if (_editorManager != null) _editorManager.MagicWandTolerance = Math.Clamp(tolerance, 0, 255);
         }
 
         /// <summary>
@@ -1156,7 +1156,7 @@ namespace CatchCapture
         /// </summary>
         public void SetMagicWandContiguous(bool contiguous)
         {
-            magicWandContiguous = contiguous;
+            if (_editorManager != null) _editorManager.MagicWandContiguous = contiguous;
         }
 
         /// <summary>

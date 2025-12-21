@@ -48,12 +48,9 @@ namespace CatchCapture
         private double highlightThickness = 8;
         private double textSize = 16;
         private double eraserSize = 20;
-        private int mosaicSize = 10;
         private FontWeight textFontWeight = FontWeights.Normal;
         private FontStyle textFontStyle = FontStyles.Normal;
         private string textFontFamily = "Arial";
-        private bool textShadowEnabled = false;
-        private bool textUnderlineEnabled = false;
         // 라이브 스트로크 미리보기 - _editorManager에서 관리
 
 
@@ -78,6 +75,7 @@ namespace CatchCapture
 
         private SharedCanvasEditor _editorManager;
         private Stack<UIElement> _editorUndoStack = new Stack<UIElement>();
+        private CatchCapture.Controls.ToolOptionsControl _toolOptionsControl;
 
         private List<CatchCapture.Models.DrawingLayer> drawingLayers = new List<CatchCapture.Models.DrawingLayer>();
         private Dictionary<int, List<CatchCapture.Models.DrawingLayer>> captureDrawingLayers = new Dictionary<int, List<CatchCapture.Models.DrawingLayer>>();
@@ -148,6 +146,10 @@ namespace CatchCapture
                 if (element is FrameworkElement fe) CreateLayerForElement(fe);
             };
             _editorManager.MosaicRequired += (rect) => ApplyMosaic(rect);
+
+            // 공용 도구 옵션 컨트롤 초기화
+            _toolOptionsControl = new CatchCapture.Controls.ToolOptionsControl();
+            _toolOptionsControl.Initialize(_editorManager);
         }
 
         private void ApplyMosaic(Rect rect)

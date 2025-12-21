@@ -45,6 +45,14 @@ namespace CatchCapture.Utilities
         public bool TextUnderlineEnabled { get; set; } = false;
         public bool TextShadowEnabled { get; set; } = false;
 
+        // 기타 도구
+        public double MosaicIntensity { get; set; } = 15;
+        public double EraserSize { get; set; } = 20;
+
+        // 마법봉 관련
+        public int MagicWandTolerance { get; set; } = 32;
+        public bool MagicWandContiguous { get; set; } = true;
+
         private Polyline? _currentPolyline;
         private Point _lastDrawPoint;
         private bool _isDrawingShape = false;

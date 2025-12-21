@@ -1,0 +1,372 @@
+using System;
+using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Input;
+using CatchCapture.Models; // For Color Palette
+using CatchCapture.Utilities; // For SharedCanvasEditor
+using ResLoc = CatchCapture.Resources.LocalizationManager;
+
+namespace CatchCapture.Controls
+{
+    public partial class ToolOptionsControl : UserControl
+    {
+        private SharedCanvasEditor? _editor;
+        private string _currentMode = "";
+        private List<Color> _customColors = new List<Color>();
+
+
+
+        public ToolOptionsControl()
+        {
+            InitializeComponent();
+            InitializeEvents();
+            BuildColorPalette();
+            // Start listening to Localization changes if needed, or just set initial text
+            // UpdateLocalization();
+        }
+
+        public void Initialize(SharedCanvasEditor editor)
+        {
+            _editor = editor;
+            // Load initial values from editor
+            LoadValuesFromEditor();
+        }
+
+        public void SetMode(string toolName)
+        {
+            _currentMode = toolName;
+            
+            // Hide all first
+            PenOptions.Visibility = Visibility.Collapsed;
+            PenOpacityPanel.Visibility = Visibility.Collapsed; // 형광펜만 켬
+            TextOptions.Visibility = Visibility.Collapsed;
+            ShapeOptions.Visibility = Visibility.Collapsed;
+            NumberingOptions.Visibility = Visibility.Collapsed;
+            MosaicOptions.Visibility = Visibility.Collapsed;
+            EraserOptions.Visibility = Visibility.Collapsed;
+            ColorSection.Visibility = Visibility.Visible;
+            Separator.Visibility = Visibility.Visible;
+
+            switch (toolName)
+            {
+                case "펜":
+                    PenOptions.Visibility = Visibility.Visible;
+                    if (_editor != null) PenSizeSlider.Value = _editor.PenThickness;
+                    // 펜은 불투명도 조절 없음 (보통)
+                    break;
+                case "형광펜":
+                    PenOptions.Visibility = Visibility.Visible;
+                    PenOpacityPanel.Visibility = Visibility.Visible;
+                    if (_editor != null)
+                    {
+                        PenSizeSlider.Value = _editor.HighlightThickness;
+                        PenOpacitySlider.Value = _editor.HighlightOpacity;
+                    }
+                    break;
+                case "텍스트":
+                    TextOptions.Visibility = Visibility.Visible;
+                    if (_editor != null)
+                    {
+                        TextSizeSlider.Value = _editor.TextFontSize;
+                        // Font Selection
+                        FontComboBox.SelectedItem = _editor.TextFontFamily;
+                    }
+                    break;
+                case "도형":
+                    ShapeOptions.Visibility = Visibility.Visible;
+                    // Load Shape State
+                    LoadShapeState();
+                    break;
+                case "넘버링":
+                    NumberingOptions.Visibility = Visibility.Visible;
+                    if (_editor != null) NumSizeSlider.Value = _editor.NumberingBadgeSize;
+                    break;
+                case "모자이크":
+                    MosaicOptions.Visibility = Visibility.Visible;
+                    ColorSection.Visibility = Visibility.Collapsed; // 모자이크는 색상 없음
+                    Separator.Visibility = Visibility.Collapsed;
+                    if (_editor != null) MosaicSlider.Value = _editor.MosaicIntensity;
+                    break;
+                case "지우개":
+                    EraserOptions.Visibility = Visibility.Visible;
+                    ColorSection.Visibility = Visibility.Collapsed;
+                    Separator.Visibility = Visibility.Collapsed;
+                    if (_editor != null) EraserSlider.Value = _editor.EraserSize;
+                    break;
+                case "마법봉":
+                    MagicWandOptions.Visibility = Visibility.Visible;
+                    ColorSection.Visibility = Visibility.Collapsed;
+                    Separator.Visibility = Visibility.Collapsed;
+                    if (_editor != null)
+                    {
+                        MagicWandToleranceSlider.Value = _editor.MagicWandTolerance;
+                        MagicWandContiguousCheck.IsChecked = _editor.MagicWandContiguous;
+                    }
+                    break;
+            }
+        }
+
+        private void InitializeEvents()
+        {
+            // Pen/Highlight
+            PenSizeSlider.ValueChanged += (s, e) =>
+            {
+                if (_editor == null) return;
+                if (_currentMode == "형광펜") _editor.HighlightThickness = e.NewValue;
+                else _editor.PenThickness = e.NewValue;
+                PenSizeValue.Text = $"{(int)e.NewValue}px";
+            };
+            PenOpacitySlider.ValueChanged += (s, e) =>
+            {
+                 if (_editor == null) return;
+                 if (_currentMode == "형광펜") _editor.HighlightOpacity = e.NewValue;
+                 PenOpacityValue.Text = $"{(int)(e.NewValue * 100)}%";
+            };
+
+            // Text
+            TextSizeSlider.ValueChanged += (s, e) =>
+            {
+                if (_editor == null) return;
+                _editor.TextFontSize = e.NewValue;
+                TextSizeValue.Text = $"{(int)e.NewValue}px";
+                // if (_editor.SelectedObject is TextBox tb) tb.FontSize = e.NewValue;
+            };
+            
+            // Fonts
+            string[] fonts = { 
+                "Malgun Gothic", "Gulim", "Dotum", "Batang", "Gungsuh", 
+                "Arial", "Segoe UI", "Verdana", "Tahoma", "Times New Roman", 
+                "Consolas", "Impact", "Comic Sans MS" 
+            };
+            foreach (var f in fonts) FontComboBox.Items.Add(f);
+            
+            FontComboBox.SelectionChanged += (s, e) =>
+            {
+                if (_editor == null || FontComboBox.SelectedItem == null) return;
+                string? f = FontComboBox.SelectedItem?.ToString();
+                if (f != null)
+                {
+                    _editor.TextFontFamily = f;
+                    // if (_editor.SelectedObject is TextBox tb) tb.FontFamily = new FontFamily(f);
+                }
+            };
+
+            // Text Styles
+            BoldCheck.Checked += (s, e) => UpdateTextStyle();
+            BoldCheck.Unchecked += (s, e) => UpdateTextStyle();
+            ItalicCheck.Checked += (s, e) => UpdateTextStyle();
+            ItalicCheck.Unchecked += (s, e) => UpdateTextStyle();
+            UnderlineCheck.Checked += (s, e) => UpdateTextStyle();
+            UnderlineCheck.Unchecked += (s, e) => UpdateTextStyle();
+            ShadowCheck.Checked += (s, e) => UpdateTextStyle();
+            ShadowCheck.Unchecked += (s, e) => UpdateTextStyle();
+
+            // Shapes
+            ShapeRect.Checked += (s, e) => { if (_editor!=null) _editor.CurrentShapeType = ShapeType.Rectangle; };
+            ShapeCircle.Checked += (s, e) => { if (_editor!=null) _editor.CurrentShapeType = ShapeType.Ellipse; };
+            ShapeLine.Checked += (s, e) => { if (_editor!=null) _editor.CurrentShapeType = ShapeType.Line; };
+            ShapeArrow.Checked += (s, e) => { if (_editor!=null) _editor.CurrentShapeType = ShapeType.Arrow; };
+            
+            ShapeOutline.Checked += (s, e) => { 
+                if (_editor!=null) { _editor.ShapeIsFilled = false; ShapeOpacityPanel.IsEnabled = false; ShapeOpacityPanel.Opacity = 0.5; }
+            };
+            ShapeFill.Checked += (s, e) => { 
+                if (_editor!=null) { _editor.ShapeIsFilled = true; ShapeOpacityPanel.IsEnabled = true; ShapeOpacityPanel.Opacity = 1.0; }
+            };
+            
+            ShapeOpacitySlider.ValueChanged += (s, e) =>
+            {
+                if (_editor == null) return;
+                _editor.ShapeFillOpacity = e.NewValue;
+                ShapeOpacityValue.Text = $"{(int)(e.NewValue * 100)}%";
+            };
+
+            // Numbering
+            NumSizeSlider.ValueChanged += (s,e) => {
+                if (_editor == null) return;
+                _editor.NumberingBadgeSize = e.NewValue;
+                _editor.NumberingTextSize = e.NewValue * 0.5;
+                NumSizeValue.Text = $"{(int)e.NewValue}px";
+            };
+
+            // Mosaic
+            MosaicSlider.ValueChanged += (s,e) => {
+                if (_editor == null) return;
+                _editor.MosaicIntensity = e.NewValue;
+                MosaicValue.Text = $"{(int)e.NewValue}";
+            };
+            
+            // Eraser
+            EraserSlider.ValueChanged += (s,e) => {
+                if (_editor == null) return;
+                _editor.EraserSize = e.NewValue;
+                EraserValue.Text = $"{(int)e.NewValue}px";
+            };
+
+            // Magic Wand
+            MagicWandToleranceSlider.ValueChanged += (s, e) => {
+                if (_editor == null) return;
+                _editor.MagicWandTolerance = (int)e.NewValue;
+                MagicWandToleranceValue.Text = $"{(int)e.NewValue}";
+            };
+            MagicWandContiguousCheck.Checked += (s, e) => {
+                if (_editor != null) _editor.MagicWandContiguous = true;
+            };
+            MagicWandContiguousCheck.Unchecked += (s, e) => {
+                if (_editor != null) _editor.MagicWandContiguous = false;
+            };
+        }
+        
+        private void UpdateTextStyle()
+        {
+            if (_editor == null) return;
+            _editor.TextFontWeight = (BoldCheck.IsChecked == true) ? FontWeights.Bold : FontWeights.Normal;
+            _editor.TextFontStyle = (ItalicCheck.IsChecked == true) ? FontStyles.Italic : FontStyles.Normal;
+            _editor.TextUnderlineEnabled = (UnderlineCheck.IsChecked == true);
+            _editor.TextShadowEnabled = (ShadowCheck.IsChecked == true);
+
+            // TODO: Apply to selected object when SelectedObject property is added to SharedCanvasEditor
+            /*
+            if (_editor.SelectedObject is TextBox tb)
+            {
+                tb.FontWeight = _editor.TextFontWeight;
+                tb.FontStyle = _editor.TextFontStyle;
+                
+                if (_editor.TextUnderlineEnabled) tb.TextDecorations = TextDecorations.Underline;
+                else tb.TextDecorations = null;
+
+                if (_editor.TextShadowEnabled) 
+                    tb.Effect = new System.Windows.Media.Effects.DropShadowEffect { Color = Colors.Black, BlurRadius = 2, ShadowDepth = 1, Opacity = 0.5 };
+                else 
+                    tb.Effect = null;
+            }
+            */
+        }
+
+        private void BuildColorPalette()
+        {
+            ColorGrid.Children.Clear();
+            // Shared Palette
+            foreach (var c in UIConstants.SharedColorPalette)
+            {
+                if (c != Colors.Transparent) 
+                    ColorGrid.Children.Add(CreateColorSwatch(c));
+            }
+            
+            // Custom Colors (Placeholder - ideally this syncs with persistent storage)
+            // For now, just add a + button
+             var addButton = new Button
+             {
+                 Content = "+", Width = 20, Height = 20, Margin = new Thickness(2),
+                 BorderThickness = new Thickness(1), Cursor = Cursors.Hand,
+                 Background = Brushes.White
+             };
+             addButton.Click += AddCustomColor;
+             ColorGrid.Children.Add(addButton);
+        }
+
+        private Border CreateColorSwatch(Color c)
+        {
+            var border = new Border
+            {
+                Width = 20, Height = 20, Margin = new Thickness(2),
+                CornerRadius = new CornerRadius(4),
+                Background = new SolidColorBrush(c),
+                BorderThickness = new Thickness(1),
+                BorderBrush = Brushes.Gray,
+                Cursor = Cursors.Hand
+            };
+            
+            border.MouseLeftButtonDown += (s, e) =>
+            {
+                if (_editor != null) _editor.SelectedColor = c;
+                UpdateColorSelection(c);
+            };
+            
+            return border;
+        }
+
+        private void UpdateColorSelection(Color selected)
+        {
+            foreach (var child in ColorGrid.Children)
+            {
+                if (child is Border b && b.Background is SolidColorBrush sc)
+                {
+                    bool isSel = (sc.Color == selected);
+                    b.BorderThickness = new Thickness(isSel ? 2 : 1);
+                    b.BorderBrush = isSel ? Brushes.Black : Brushes.Gray;
+                    b.Effect = isSel ? new System.Windows.Media.Effects.DropShadowEffect { ShadowDepth = 0, BlurRadius = 5, Color = Colors.Gray } : null;
+                }
+            }
+        }
+        
+        private void AddCustomColor(object sender, RoutedEventArgs e)
+        {
+             var dlg = new System.Windows.Forms.ColorDialog();
+             if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+             {
+                  var newColor = Color.FromArgb(dlg.Color.A, dlg.Color.R, dlg.Color.G, dlg.Color.B);
+                  _customColors.Add(newColor);
+                  ColorGrid.Children.Insert(ColorGrid.Children.Count - 1, CreateColorSwatch(newColor));
+                  if (_editor != null) _editor.SelectedColor = newColor;
+                  UpdateColorSelection(newColor);
+             }
+        }
+
+        private void LoadValuesFromEditor()
+        {
+            if (_editor == null) return;
+            UpdateColorSelection(_editor.SelectedColor);
+            
+            // Text Styles
+            BoldCheck.IsChecked = _editor.TextFontWeight == FontWeights.Bold;
+            ItalicCheck.IsChecked = _editor.TextFontStyle == FontStyles.Italic;
+            UnderlineCheck.IsChecked = _editor.TextUnderlineEnabled;
+            ShadowCheck.IsChecked = _editor.TextShadowEnabled;
+        }
+        
+        private void LoadShapeState()
+        {
+            if (_editor == null) return;
+            // Shapes
+            switch (_editor.CurrentShapeType)
+            {
+                case ShapeType.Rectangle: ShapeRect.IsChecked = true; break;
+                case ShapeType.Ellipse: ShapeCircle.IsChecked = true; break;
+                case ShapeType.Line: ShapeLine.IsChecked = true; break;
+                case ShapeType.Arrow: ShapeArrow.IsChecked = true; break;
+            }
+             ShapeOutline.IsChecked = !_editor.ShapeIsFilled;
+             ShapeFill.IsChecked = _editor.ShapeIsFilled;
+             ShapeOpacitySlider.Value = _editor.ShapeFillOpacity;
+             ShapeOpacityPanel.IsEnabled = _editor.ShapeIsFilled;
+             ShapeOpacityPanel.Opacity = _editor.ShapeIsFilled ? 1.0 : 0.5;
+        }
+
+        private void UpdateLocalization()
+        {
+            // Set text from LocalizationManager
+            ColorLabel.Text = ResLoc.GetString("Color");
+            PenSizeLabel.Text = ResLoc.GetString("Thickness");
+            PenOpacityLabel.Text = ResLoc.GetString("Opacity");
+            FontLabel.Text = ResLoc.GetString("Font");
+            TextSizeLabel.Text = ResLoc.GetString("SizeLabel");
+            StyleLabel.Text = ResLoc.GetString("Style");
+            BoldCheck.Content = ResLoc.GetString("Bold");
+            ItalicCheck.Content = ResLoc.GetString("Italic");
+            UnderlineCheck.Content = ResLoc.GetString("Underline");
+            ShadowCheck.Content = ResLoc.GetString("Shadow");
+            ShapeLabel.Text = ResLoc.GetString("Shape");
+            ShapeOutline.Content = ResLoc.GetString("Outline");
+            ShapeFill.Content = ResLoc.GetString("Fill");
+            ShapeOpacityLabel.Text = ResLoc.GetString("FillOpacity");
+            NumSizeLabel.Text = ResLoc.GetString("Size");
+            MosaicLabel.Text = ResLoc.GetString("Intensity");
+            EraserLabel.Text = ResLoc.GetString("Size");
+            MagicWandLabel.Text = ResLoc.GetString("MagicWandToleranceLabel");
+            MagicWandContiguousCheck.Content = ResLoc.GetString("MagicWandContiguousOnly");
+        }
+    }
+}
