@@ -20,6 +20,7 @@ namespace CatchCapture.Utilities
     {
         private Point startPoint;
         private readonly Canvas canvas;
+        private Canvas? _drawingCanvas;
         private bool isSelecting = false;
         private readonly TextBlock? infoTextBlock;
         private Image screenImage;
@@ -33,31 +34,14 @@ namespace CatchCapture.Utilities
         private bool disposed = false;
         private System.Windows.Threading.DispatcherTimer? memoryCleanupTimer;
         private bool instantEditMode = false; 
-        private Border? colorPalette;
-        private Color selectedColor = Colors.Yellow; // 형광펜 기본 색상
-        private List<Color> customColors = new List<Color>();
+        private CatchCapture.Controls.ToolOptionsControl? _toolOptionsControl;
         private string currentTool = ""; 
         private List<UIElement> drawnElements = new List<UIElement>();
         private Stack<UIElement> undoStack = new Stack<UIElement>();
-        private int penThickness = 3; 
  
         private Button? activeToolButton; 
-         // 도형 관련 필드
-        private ShapeType shapeType = ShapeType.Rectangle;
-        private double shapeBorderThickness = 2;
-        private double shapeFillOpacity = 0.5; // 기본 투명도 50%
-        private bool shapeIsFilled = false;
-        // [추가] 모자이크 관련 필드
-        private double mosaicIntensity = 15; // 모자이크 강도 (기본값)
-        // 텍스트 편집 관련 필드
-        private double textFontSize = 16;
-        private string textFontFamily = "Malgun Gothic";
-        private FontWeight textFontWeight = FontWeights.Normal; // 추가
-        private FontStyle textFontStyle = FontStyles.Normal; // 추가
-        private bool textUnderlineEnabled = false; // 추가
-        private bool textShadowEnabled = false; // 추가
-        
         private Border? magnifierBorder;
+
         private Image? magnifierImage;
         private const double MagnifierSize = 150; // 돋보기 크기
         private const double MagnificationFactor = 3.0; // 확대 배율
@@ -66,10 +50,6 @@ namespace CatchCapture.Utilities
         // 십자선 관련 필드 추가
         private Line? crosshairHorizontal;
         private Line? crosshairVertical;
-        private double highlightOpacity = 0.5; // 형광펜 투명도 (0.0 ~ 1.0)
-        private double highlightThickness = 8.0; // 형광펜 두께(double)로 변경
-        private double numberingBadgeSize = 24; // 넘버링 배지 크기
-        private double numberingTextSize = 12;  // 넘버링 텍스트 크기
         private bool showMagnifier = true;
         // Magnifier UI extras
         private TextBlock? coordsTextBlock;
@@ -146,10 +126,15 @@ namespace CatchCapture.Utilities
             canvas.Background = Brushes.Transparent;
             Content = canvas;
 
-            // [수정] 오버레이 먼저 표시: 스크린샷 이미지 컨테이너만 미리 생성
             screenImage = new Image();
             Panel.SetZIndex(screenImage, -1);
             canvas.Children.Add(screenImage);
+
+            // [추가] 드로잉 전용 캔버스 (영역 제한용 Clip 적용)
+            _drawingCanvas = new Canvas();
+            _drawingCanvas.Width = vWidth;
+            _drawingCanvas.Height = vHeight;
+            canvas.Children.Add(_drawingCanvas);
 
             // 캐시된 스크린샷이 있으면 즉시 사용
             if (cachedScreenshot != null)
@@ -242,8 +227,9 @@ namespace CatchCapture.Utilities
             memoryCleanupTimer.Start();
             this.PreviewKeyDown += SnippingWindow_PreviewKeyDown;
 
-            _editorManager = new SharedCanvasEditor(canvas, drawnElements, undoStack);
+            _editorManager = new SharedCanvasEditor(_drawingCanvas ?? canvas, drawnElements, undoStack);
             _editorManager.MosaicRequired += (rect) => ApplyMosaic(rect);
+            _editorManager.ElementAdded += OnElementAdded;
 
             // 언어 변경 이벤트 구독: 즉시편집 UI 텍스트 런타임 갱신
             try { LocalizationManager.LanguageChanged += OnLanguageChanged; } catch { }
@@ -952,9 +938,9 @@ namespace CatchCapture.Utilities
             double selectionWidth = currentSelectionRect.Width;
             double selectionHeight = currentSelectionRect.Height;
             
-            // [수정] 하단 감지: 선택 영역이 화면 하단에 가까운지 확인
-            bool isNearBottom = (selectionTop + selectionHeight + 160) > vHeight; // 툴바+팔레트 공간(~160px) 확보 불가
-            isVerticalToolbarLayout = isNearBottom; // 멤버 변수에 저장
+            // [수정] 툴바 위치 계산 로직 통합
+            var (isVertical, tLeft, tTop) = CalculateToolbarPosition();
+            isVerticalToolbarLayout = isVertical;
             
             // [수정] 편집 툴바 컨테이너 (둥근 모서리 Border)
             toolbarContainer = new Border
@@ -991,77 +977,40 @@ namespace CatchCapture.Utilities
             
             toolbarContainer.Child = toolbarPanel;
             
-            // [이동] 툴바 위치를 먼저 계산
-            double toolbarWidth = isVerticalToolbarLayout ? 60 : 450;
-            double toolbarHeight = isVerticalToolbarLayout ? 600 : 55;
-            double toolbarLeft, toolbarTop;
-            
-            if (isVerticalToolbarLayout)
-            {
-                // 세로 레이아웃: 선택 영역 우측에 배치
-                toolbarLeft = selectionLeft + selectionWidth + 10;
-                toolbarTop = selectionTop;
-                
-                // 우측 경계 체크
-                if (toolbarLeft + toolbarWidth > vWidth)
-                    toolbarLeft = selectionLeft - toolbarWidth - 10; // 왼쪽에 배치
-                if (toolbarLeft < 10)
-                    toolbarLeft = 10;
-                    
-                // 상하 경계 체크
-                if (toolbarTop + toolbarHeight > vHeight)
-                    toolbarTop = vHeight - toolbarHeight - 10;
-                if (toolbarTop < 10)
-                    toolbarTop = 10;
-            }
-            else
-            {
-                // 가로 레이아웃: 선택 영역 하단에 배치 (기존 로직)
-                toolbarLeft = selectionLeft;
-                toolbarTop = selectionTop + selectionHeight + 10;
-                
-                // 화면 경계 체크
-                if (toolbarLeft + toolbarWidth > vWidth)
-                    toolbarLeft = vWidth - toolbarWidth - 10;
-                if (toolbarLeft < 10)
-                    toolbarLeft = 10;
-                if (toolbarTop + 44 > vHeight)
-                    toolbarTop = selectionTop - 44 - 10;
-            }
-            
             // 팔레트는 동적 계산으로 변경되었으므로 내부 함수 제거
 
             
             // 선택 버튼
             var selectButton = CreateToolButton("sc_cursor.png", LocalizationManager.Get("Select"), LocalizationManager.Get("SelectTooltip"));
+            selectButton.Tag = "선택";
             selectButton.Click += (s, e) => ToggleToolPalette("선택", selectButton);
 
-            // 펜 버튼
             var penButton = CreateToolButton("pen.png", LocalizationManager.Get("Pen"), LocalizationManager.Get("Pen"));
+            penButton.Tag = "펜";
             penButton.Click += (s, e) => ToggleToolPalette("펜", penButton);
             
-            // 형광펜 버튼
             var highlighterButton = CreateToolButton("highlight.png", LocalizationManager.Get("Highlighter"), LocalizationManager.Get("Highlighter"));
+            highlighterButton.Tag = "형광펜";
             highlighterButton.Click += (s, e) => ToggleToolPalette("형광펜", highlighterButton);
             
-            // 텍스트 버튼
             var textButton = CreateToolButton("text.png", LocalizationManager.Get("Text"), LocalizationManager.Get("TextAdd"));
+            textButton.Tag = "텍스트";
             textButton.Click += (s, e) => ToggleToolPalette("텍스트", textButton);
             
-            // 도형 버튼
             var shapeButton = CreateToolButton("shape.png", LocalizationManager.Get("ShapeLbl"), LocalizationManager.Get("ShapeOptions"));
+            shapeButton.Tag = "도형";
             shapeButton.Click += (s, e) => ToggleToolPalette("도형", shapeButton);
             
-            // 넘버링 버튼 (도형 다음)
             var numberingButton = CreateToolButton("numbering.png", LocalizationManager.Get("Numbering"), LocalizationManager.Get("Numbering"));
+            numberingButton.Tag = "넘버링";
             numberingButton.Click += (s, e) => ToggleToolPalette("넘버링", numberingButton);
             
-            // 모자이크 버튼
             var mosaicButton = CreateToolButton("mosaic.png", LocalizationManager.Get("Mosaic"), LocalizationManager.Get("Mosaic"));
+            mosaicButton.Tag = "모자이크";
             mosaicButton.Click += (s, e) => ToggleToolPalette("모자이크", mosaicButton);
             
-            // 지우개 버튼
             var eraserButton = CreateToolButton("eraser.png", LocalizationManager.Get("Eraser"), LocalizationManager.Get("Eraser"));
+            eraserButton.Tag = "지우개";
             eraserButton.Click += (s, e) => ToggleToolPalette("지우개", eraserButton);
 
             // 이미지 검색 버튼
@@ -1176,24 +1125,11 @@ namespace CatchCapture.Utilities
             
             cancelButton.Click += (s, e) =>
             {
-                // 모든 그린 요소 제거
+                // 모든 그린 요소 제거 (드로잉 전용 캔버스에서 제거)
                 foreach (var element in drawnElements.ToList())
                 {
-                    canvas.Children.Remove(element);
-                    
-                    // 텍스트박스인 경우 관련 버튼도 제거
-                    if (element is TextBox textBox && textBox.Tag != null)
-                    {
-                        if (textBox.Tag is ValueTuple<Button, Button> tagButtons1)
-                        {
-                            var confirmButton = tagButtons1.Item1;
-                            var cancelButton1 = tagButtons1.Item2; // Renamed to avoid partial conflict
-                            if (confirmButton != null && canvas.Children.Contains(confirmButton))
-                                canvas.Children.Remove(confirmButton);
-                            if (cancelButton1 != null && canvas.Children.Contains(cancelButton1))
-                                canvas.Children.Remove(cancelButton1);
-                        }
-                    }
+                    (_drawingCanvas ?? canvas).Children.Remove(element);
+                    InteractiveEditor.RemoveInteractiveElement(_drawingCanvas ?? canvas, element);
                 }
                 drawnElements.Clear();
                 undoStack.Clear();
@@ -1204,7 +1140,7 @@ namespace CatchCapture.Utilities
                     canvas.Children.Remove(toolbarContainer);
                     toolbarContainer = null;
                 }
-                HideColorPalette();
+                HideColorPalette(); // Hide the new tool options control
                 RemoveResizeHandles(); // 리사이즈 핸들 제거
                 
                 // 즉시편집 모드 해제하고 다시 영역 선택 시작
@@ -1363,11 +1299,23 @@ namespace CatchCapture.Utilities
             // 툴바 위치 설정 (초기화)
             UpdateToolbarPosition();
 
-            // 펜을 기본 도구로 선택하고 빨간색으로 설정 (팔레트는 띄우지 않음)
-            currentTool = "펜";
-            selectedColor = Colors.Red;
-            SetActiveToolButton(penButton);
-            EnableDrawingMode();
+            // [추가] 드로잉 영역 클리핑 설정
+            if (_drawingCanvas != null)
+                _drawingCanvas.Clip = new RectangleGeometry(currentSelectionRect);
+
+            // 도구 옵션 컨트롤 초기화
+            _toolOptionsControl = new CatchCapture.Controls.ToolOptionsControl();
+            _toolOptionsControl.Initialize(_editorManager);
+            _toolOptionsControl.Visibility = Visibility.Collapsed;
+            canvas.Children.Add(_toolOptionsControl);
+            Panel.SetZIndex(_toolOptionsControl, 3000);
+
+            // 펜을 기본 도구로 선택 (첫 실행 시에만, 팔레트는 열지 않음)
+            if (string.IsNullOrEmpty(currentTool))
+            {
+                EnableDrawingMode("펜");
+                SetActiveToolButton(penButton);
+            }
         }
 
         private Button CreateToolButton(string iconPath, string label, string tooltip)
@@ -1603,530 +1551,17 @@ namespace CatchCapture.Utilities
             }
         }
         
-        private void ShowColorPalette(string tool, double left, double top)
-        {
-            // 기존 팔레트 제거
-            HideColorPalette();
-            
-            // [수정] 도구에 따라 레이아웃 분기 (도형은 세로형, 나머지는 가로형)
-            Border background;
-            
-            if (tool == "도형")
-            {
-                // [도형] PreviewWindow와 동일한 세로형 레이아웃으로 변경
-                background = new Border
-                {
-                    Width = 240, // 세로형 레이아웃에 맞는 너비 (220 -> 240 넉넉하게)
-                    BorderThickness = new Thickness(1),
-                    CornerRadius = new CornerRadius(8),
-                    Padding = new Thickness(10)
-                };
-                
-                var mainStack = new StackPanel { Orientation = Orientation.Vertical };
-                
-                // (1) 도형 종류 섹션
-                var shapeLabel = new TextBlock 
-                { 
-                    Text = LocalizationManager.Get("ShapeLbl"), 
-                    FontWeight = FontWeights.SemiBold, 
-                    FontSize = 12, 
-                    Margin = new Thickness(0, 0, 0, 4) 
-                };
-                mainStack.Children.Add(shapeLabel);
-
-                var shapeRow = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 10) };
-                // CreateShapeOptionButton은 스니핑윈도우 내부에 존재하는 메서드 사용
-                shapeRow.Children.Add(CreateShapeOptionButton("□", ShapeType.Rectangle));
-                shapeRow.Children.Add(CreateShapeOptionButton("○", ShapeType.Ellipse));
-                shapeRow.Children.Add(CreateShapeOptionButton("╱", ShapeType.Line));
-                shapeRow.Children.Add(CreateShapeOptionButton("↗", ShapeType.Arrow));
-                mainStack.Children.Add(shapeRow);
-                
-                // (2) 스타일 섹션 (윤곽선/채우기 + 투명도)
-                var styleLabel = new TextBlock 
-                { 
-                    Text = LocalizationManager.Get("LineStyle"), 
-                    FontWeight = FontWeights.SemiBold, 
-                    FontSize = 12, 
-                    Margin = new Thickness(0, 0, 0, 4) 
-                };
-                mainStack.Children.Add(styleLabel);
-                
-                var fillRow = new StackPanel { Orientation = Orientation.Horizontal };
-                var outlineBtn = CreateFillOptionButton(LocalizationManager.Get("Outline"), false);
-                var fillBtn = CreateFillOptionButton(LocalizationManager.Get("Fill"), true);
-                fillRow.Children.Add(outlineBtn);
-                fillRow.Children.Add(fillBtn);
-                mainStack.Children.Add(fillRow);
-                
-                // 투명도 슬라이더 (채우기일 때만 활성화)
-                var opacityPanel = new StackPanel 
-                { 
-                    Orientation = Orientation.Horizontal, 
-                    Margin = new Thickness(0, 8, 0, 0),
-                    IsEnabled = shapeIsFilled,
-                    Opacity = shapeIsFilled ? 1.0 : 0.5,
-                    Tag = "OpacityPanel"
-                };
-                
-                opacityPanel.Children.Add(new TextBlock 
-                { 
-                    Text = LocalizationManager.Get("FillOpacity"), 
-                    FontSize = 10, 
-                    Foreground = Brushes.Gray, 
-                    VerticalAlignment = VerticalAlignment.Center, 
-                    Margin = new Thickness(0, 0, 8, 0) 
-                });
-                
-                var opacitySlider = new Slider 
-                { 
-                    Minimum = 0, Maximum = 100, 
-                    Value = shapeFillOpacity * 100, 
-                    Width = 80, 
-                    VerticalAlignment = VerticalAlignment.Center, 
-                    IsSnapToTickEnabled = true, 
-                    TickFrequency = 10 
-                };
-                
-                var opacityVal = new TextBlock 
-                { 
-                    Text = $"{(int)(shapeFillOpacity * 100)}%", 
-                    FontSize = 10, 
-                    Foreground = Brushes.Gray, 
-                    VerticalAlignment = VerticalAlignment.Center, 
-                    Margin = new Thickness(8, 0, 0, 0),
-                    Width = 30
-                };
-                
-                opacitySlider.ValueChanged += (s, e) => 
-                { 
-                    shapeFillOpacity = opacitySlider.Value / 100.0; 
-                    opacityVal.Text = $"{(int)opacitySlider.Value}%";
-                };
-                
-                opacityPanel.Children.Add(opacitySlider);
-                opacityPanel.Children.Add(opacityVal);
-                mainStack.Children.Add(opacityPanel);
-                
-                // 버튼 클릭 시 불투명도 패널 제어
-                fillBtn.Click += (s, e) => { opacityPanel.IsEnabled = true; opacityPanel.Opacity = 1.0; };
-                outlineBtn.Click += (s, e) => { opacityPanel.IsEnabled = false; opacityPanel.Opacity = 0.5; };
-                
-                // 구분선
-                mainStack.Children.Add(new Border { Height = 1, Background = (Brush)Application.Current.FindResource("ThemeBorder"), Margin = new Thickness(0, 10, 0, 10) });
-
-                // (3) 색상 섹션
-                var colorGrid = new WrapPanel { Width = 220 };
-                AddColorSwatches(colorGrid);
-                mainStack.Children.Add(colorGrid);
-                
-                background.Child = mainStack;
-            }
-            else
-            {
-                // [기본] 가로형 그리드 (좌측 색상 | 옵션) - 기존 형광펜, 텍스트, 펜, 넘버링 등
-                background = new Border
-                {
-                    Width = 320,
-                    BorderThickness = new Thickness(1),
-                    CornerRadius = new CornerRadius(8),
-                    Padding = new Thickness(10)
-                };
-                
-                var mainGrid = new Grid();
-                mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 색상
-                mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 구분선
-                mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); // 옵션
-                background.Child = mainGrid;
-
-                // 1. 색상 섹션 (모자이크 제외)
-                if (tool != "모자이크")
-                {
-                    var colorSection = new StackPanel { Margin = new Thickness(0, 0, 15, 0) };
-                    colorSection.Children.Add(new TextBlock { Text = LocalizationManager.Get("Color"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) });
-                    
-                    var colorGrid = new WrapPanel { Width = 150 };
-                    AddColorSwatches(colorGrid);
-                    
-                    colorSection.Children.Add(colorGrid);
-                    Grid.SetColumn(colorSection, 0);
-                    mainGrid.Children.Add(colorSection);
-                    
-                    // 구분선
-                    var separator = new Border
-                    {
-                        Width = 1,
-                        Height = 30,
-                        Background = (Brush)Application.Current.FindResource("ThemeBorder"),
-                        Margin = new Thickness(3, 0, 3, 0)
-                    };
-                    Grid.SetColumn(separator, 1);
-                    mainGrid.Children.Add(separator);
-                }
-
-                // 2. 옵션 섹션
-                var optionSection = new StackPanel();
-                Grid.SetColumn(optionSection, 2);
-                mainGrid.Children.Add(optionSection);
-                
-                if (tool == "넘버링")
-                {
-                    // [넘버링 수정] PreviewWindow와 동일하게 슬라이더 1개로 통일
-                    optionSection.Children.Add(new TextBlock { Text = LocalizationManager.Get("Size"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) });
-                    
-                    var sizePanel = new StackPanel { Orientation = Orientation.Horizontal };
-                    var sizeSlider = new Slider 
-                    { 
-                        Minimum = 10, Maximum = 60, 
-                        Value = numberingBadgeSize, 
-                        Width = 100, 
-                        VerticalAlignment = VerticalAlignment.Center 
-                    }; 
-                    var sizeVal = new TextBlock 
-                    { 
-                        Text = $"{(int)numberingBadgeSize}px", 
-                        VerticalAlignment = VerticalAlignment.Center, 
-                        Margin = new Thickness(8, 0, 0, 0) 
-                    };
-                    
-                    sizeSlider.ValueChanged += (s, e) => 
-                    {
-                        numberingBadgeSize = e.NewValue;
-                        numberingTextSize = e.NewValue * 0.5; // 텍스트 크기 자동 조정 (비율 유지)
-                        sizeVal.Text = $"{(int)e.NewValue}px";
-                    };
-                    sizePanel.Children.Add(sizeSlider);
-                    sizePanel.Children.Add(sizeVal);
-                    optionSection.Children.Add(sizePanel);
-                }
-                else if (tool == "텍스트")
-                {
-                    // 폰트 선택
-                    optionSection.Children.Add(new TextBlock { Text = LocalizationManager.Get("Font"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 4) });
-                    var fontCombo = new ComboBox { Width = 120, Height = 25, Margin = new Thickness(0, 0, 0, 10) };
-                    string[] fonts = { 
-                        "Malgun Gothic", "Gulim", "Dotum", "Batang", "Gungsuh", 
-                        "Arial", "Segoe UI", "Verdana", "Tahoma", "Times New Roman", 
-                        "Consolas", "Impact", "Comic Sans MS" 
-                    };
-                    foreach (var f in fonts) fontCombo.Items.Add(f);
-                    fontCombo.SelectedItem = textFontFamily;
-                    fontCombo.SelectionChanged += (s, e) => 
-                    { 
-                        if (fontCombo.SelectedItem is string newFont) 
-                        { 
-                            textFontFamily = newFont; 
-                            if (selectedObject is TextBox tb) tb.FontFamily = new FontFamily(newFont); 
-                        } 
-                    };
-                    optionSection.Children.Add(fontCombo);
-
-                    // 크기 (Slider)
-                    optionSection.Children.Add(new TextBlock { Text = LocalizationManager.Get("SizeLabel"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 4) });
-                    var sizeSlider = new Slider { Minimum = 8, Maximum = 72, Value = textFontSize, Width = 120, Margin = new Thickness(0,0,0,2) };
-                    var sizeVal = new TextBlock { Text = $"{(int)textFontSize}px", FontSize = 11, Foreground = Brushes.Gray, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 0, 0, 8) };
-                    
-                    sizeSlider.ValueChanged += (s, e) => 
-                    { 
-                        textFontSize = e.NewValue; 
-                        sizeVal.Text = $"{(int)textFontSize}px"; 
-                        if (selectedObject is TextBox tb) tb.FontSize = textFontSize; 
-                    };
-                    optionSection.Children.Add(sizeSlider);
-                    optionSection.Children.Add(sizeVal);
-
-                    // 스타일 구분선
-                    optionSection.Children.Add(new Border { Height = 10 });
-                    optionSection.Children.Add(new TextBlock { Text = LocalizationManager.Get("Style"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 4) });
-
-                    var stylePanel = new StackPanel();
-
-                    // Bold
-                    var boldCheck = new CheckBox { Content = LocalizationManager.Get("Bold"), IsChecked = textFontWeight == FontWeights.Bold, Margin = new Thickness(0, 2, 0, 2) };
-                    boldCheck.Checked += (s, e) => { textFontWeight = FontWeights.Bold; if (selectedObject is TextBox tb) tb.FontWeight = FontWeights.Bold; };
-                    boldCheck.Unchecked += (s, e) => { textFontWeight = FontWeights.Normal; if (selectedObject is TextBox tb) tb.FontWeight = FontWeights.Normal; };
-                    stylePanel.Children.Add(boldCheck);
-
-                    // Italic
-                    var italicCheck = new CheckBox { Content = LocalizationManager.Get("Italic"), IsChecked = textFontStyle == FontStyles.Italic, Margin = new Thickness(0, 2, 0, 2) };
-                    italicCheck.Checked += (s, e) => { textFontStyle = FontStyles.Italic; if (selectedObject is TextBox tb) tb.FontStyle = FontStyles.Italic; };
-                    italicCheck.Unchecked += (s, e) => { textFontStyle = FontStyles.Normal; if (selectedObject is TextBox tb) tb.FontStyle = FontStyles.Normal; };
-                    stylePanel.Children.Add(italicCheck);
-
-                    // Underline
-                    var underlineCheck = new CheckBox { Content = LocalizationManager.Get("Underline"), IsChecked = textUnderlineEnabled, Margin = new Thickness(0, 2, 0, 2) };
-                    underlineCheck.Checked += (s, e) => 
-                    { 
-                        textUnderlineEnabled = true; 
-                        if (selectedObject is TextBox tb) tb.TextDecorations = TextDecorations.Underline; 
-                    };
-                    underlineCheck.Unchecked += (s, e) => 
-                    { 
-                        textUnderlineEnabled = false; 
-                        if (selectedObject is TextBox tb) tb.TextDecorations = null; 
-                    };
-                    stylePanel.Children.Add(underlineCheck);
-
-                    // Shadow
-                    var shadowCheck = new CheckBox { Content = LocalizationManager.Get("Shadow"), IsChecked = textShadowEnabled, Margin = new Thickness(0, 2, 0, 2) };
-                    shadowCheck.Checked += (s, e) => 
-                    { 
-                        textShadowEnabled = true; 
-                        if (selectedObject is TextBox tb) 
-                            tb.Effect = new System.Windows.Media.Effects.DropShadowEffect { Color = Colors.Black, BlurRadius = 2, ShadowDepth = 1, Opacity = 0.5 }; 
-                    };
-                    shadowCheck.Unchecked += (s, e) => 
-                    { 
-                        textShadowEnabled = false; 
-                        if (selectedObject is TextBox tb) tb.Effect = null; 
-                    };
-                    stylePanel.Children.Add(shadowCheck);
-
-                    optionSection.Children.Add(stylePanel);
-                }
-                else if (tool == "모자이크")
-                {
-                    // [기존 모자이크 옵션 유지]
-                    var optionLabel = new TextBlock { Text = LocalizationManager.Get("Mosaic"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
-                    optionSection.Children.Add(optionLabel);
-
-                    var intensityPanel = new StackPanel { Orientation = Orientation.Horizontal };
-                    intensityPanel.Children.Add(new TextBlock { Text = LocalizationManager.Get("Intensity") + ":", VerticalAlignment = VerticalAlignment.Center, Width = 35 });
-
-                    var slider = new Slider
-                    {
-                        Minimum = 5, Maximum = 50, Value = mosaicIntensity, Width = 120,
-                        VerticalAlignment = VerticalAlignment.Center, IsSnapToTickEnabled = true, TickFrequency = 5,
-                        ToolTip = LocalizationManager.Get("Intensity")
-                    };
-                    slider.ValueChanged += (s, e) => { mosaicIntensity = slider.Value; };
-                    intensityPanel.Children.Add(slider);
-                    optionSection.Children.Add(intensityPanel);
-                }
-                else if (tool == "형광펜")
-                {
-                    // 두께
-                    optionSection.Children.Add(new TextBlock { Text = LocalizationManager.Get("Thickness"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) });
-                    var thicknessSlider = new Slider 
-                    { 
-                        Minimum = 1, Maximum = 50, Value = highlightThickness, 
-                        Width = 100, Margin = new Thickness(0, 0, 0, 5) 
-                    };
-                    thicknessSlider.ValueChanged += (s, e) => { highlightThickness = e.NewValue; };
-                    optionSection.Children.Add(thicknessSlider);
-
-                    // 투명도
-                    optionSection.Children.Add(new TextBlock { Text = LocalizationManager.Get("Opacity"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 8, 0, 8) });
-                    var opacityPanel = new StackPanel { Orientation = Orientation.Horizontal };
-                    var opacitySlider = new Slider 
-                    { 
-                        Minimum = 0, Maximum = 1, Value = highlightOpacity, 
-                        Width = 100, Margin = new Thickness(0, 0, 0, 5) 
-                    };
-                    var opacityVal = new TextBlock { Text = $"{(int)(highlightOpacity * 100)}%", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(8,0,0,0)};
-                    
-                    opacitySlider.ValueChanged += (s, e) => 
-                    { 
-                        highlightOpacity = e.NewValue; 
-                        opacityVal.Text = $"{(int)(e.NewValue * 100)}%"; 
-                    };
-                    opacityPanel.Children.Add(opacitySlider);
-                    opacityPanel.Children.Add(opacityVal);
-                    optionSection.Children.Add(opacityPanel);
-                }
-
-
-
-                else
-                {
-                    // [기본 펜]
-                    var thicknessLabel = new TextBlock { Text = LocalizationManager.Get("Thickness"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
-                    optionSection.Children.Add(thicknessLabel);
-                    
-                    var thicknessList = new StackPanel();
-                    int[] presets = new int[] { 1, 3, 5, 8, 12 };
-                    foreach (var p in presets)
-                    {
-                        var item = new Grid { Margin = new Thickness(0, 0, 0, 8), Cursor = Cursors.Hand, Background = Brushes.Transparent };
-                        item.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(30) });
-                        item.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-                        
-                        var line = new Border { Height = p, Width = 30, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center };
-                        line.SetResourceReference(Border.BackgroundProperty, "ThemeForeground");
-                        Grid.SetColumn(line, 0); item.Children.Add(line);
-                        
-                        var text = new TextBlock { Text = $"{p}px", FontSize = 11, HorizontalAlignment = HorizontalAlignment.Center, Foreground = (Brush)Application.Current.FindResource("ThemeForeground"), Opacity = 0.6, Margin = new Thickness(8, 0, 0, 0) };
-                        Grid.SetColumn(text, 1); item.Children.Add(text);
-
-                        int thickness = p;
-                        item.MouseLeftButtonDown += (s, e) =>
-                        {
-                            penThickness = thickness;
-                            foreach (var child in thicknessList.Children) { if (child is Grid g) g.Background = Brushes.Transparent; }
-                            item.Background = new SolidColorBrush(Color.FromArgb(40, 0, 120, 212));
-                        };
-                        if (penThickness == thickness) item.Background = new SolidColorBrush(Color.FromArgb(40, 0, 120, 212));
-                        thicknessList.Children.Add(item);
-                    }
-                    optionSection.Children.Add(thicknessList);
-                }
-            }
-            
-            background.SetResourceReference(Border.BackgroundProperty, "ThemeBackground");
-            background.SetResourceReference(Border.BorderBrushProperty, "ThemeBorder");
-            background.SetResourceReference(TextElement.ForegroundProperty, "ThemeForeground");
-            
-            background.Effect = new System.Windows.Media.Effects.DropShadowEffect
-            {
-                Color = Colors.Black, BlurRadius = 5, ShadowDepth = 1, Opacity = 0.2
-            };
-            
-            canvas.Children.Add(background);
-            Canvas.SetLeft(background, left);
-            Canvas.SetTop(background, top);
-            colorPalette = background;
-        }
-
-        // [추가] 색상 패널 생성 도우미 메서드
-        private void AddColorSwatches(WrapPanel colorGrid)
-        {
-             foreach (var c in UIConstants.SharedColorPalette) 
-                 if (c != Colors.Transparent) colorGrid.Children.Add(CreateColorSwatch(c, colorGrid));
-             
-             foreach (var c in customColors) 
-                 colorGrid.Children.Add(CreateColorSwatch(c, colorGrid));
-             
-             // [+] 버튼
-             var addButton = new Button
-             {
-                 Content = "+", Width = 20, Height = 20, Margin = new Thickness(2),
-                 BorderThickness = new Thickness(1), Cursor = Cursors.Hand
-             };
-             addButton.SetResourceReference(Button.BorderBrushProperty, "ThemeBorder");
-             addButton.SetResourceReference(Button.BackgroundProperty, "ThemeBackground");
-             addButton.SetResourceReference(Button.ForegroundProperty, "ThemeForeground");
-             
-             addButton.Click += (s, e) =>
-             {
-                 var dlg = new System.Windows.Forms.ColorDialog();
-                 if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                 {
-                      var newColor = Color.FromArgb(dlg.Color.A, dlg.Color.R, dlg.Color.G, dlg.Color.B);
-                      customColors.Add(newColor);
-                      colorGrid.Children.Insert(colorGrid.Children.Count - 1, CreateColorSwatch(newColor, colorGrid));
-                      selectedColor = newColor;
-                      UpdateColorSelection(colorGrid);
-                 }
-             };
-             colorGrid.Children.Add(addButton);
-        }
-
-        // [추가] 채우기/윤곽선 스타일 버튼 생성
-        private Button CreateFillOptionButton(string text, bool isFilled)
-        {
-             var btn = new Button
-             {
-                 Content = text, Width = 65, Height = 28, Margin = new Thickness(0, 0, 4, 0),
-                 FontSize = 10,
-                 Background = (shapeIsFilled == isFilled) ? new SolidColorBrush(Color.FromRgb(72, 152, 255)) : Brushes.White,
-                 Foreground = (shapeIsFilled == isFilled) ? Brushes.White : new SolidColorBrush(Color.FromRgb(60, 60, 60)),
-                 BorderBrush = new SolidColorBrush(Color.FromRgb(200, 200, 200)), BorderThickness = new Thickness(1)
-             };
-             btn.Style = null; // 스타일 초기화
-             
-             btn.Click += (s, e) =>
-             {
-                 shapeIsFilled = isFilled;
-                 // 버튼 상태 갱신 (부모 패널의 형제 요소들 순회)
-                 if (s is Button b && b.Parent is StackPanel sp)
-                 {
-                     foreach(var child in sp.Children)
-                     {
-                         if (child is Button otherBtn)
-                         {
-                             // 간단히 텍스트로 채우기 버튼 식별 (LocalizationManager 값과 비교)
-                             bool otherIsFilled = otherBtn.Content.ToString() == LocalizationManager.Get("Fill");
-                             bool active = (shapeIsFilled == otherIsFilled);
-                             otherBtn.Background = active ? new SolidColorBrush(Color.FromRgb(72, 152, 255)) : Brushes.White;
-                             otherBtn.Foreground = active ? Brushes.White : new SolidColorBrush(Color.FromRgb(60, 60, 60));
-                         }
-                     }
-                 }
-             };
-             return btn;
-        }
-        
-        private Border CreateColorSwatch(Color c, WrapPanel parentPanel)
-        {
-            var swatch = new Border
-            {
-                Width = 20,
-                Height = 20,
-                Background = new SolidColorBrush(c),
-                BorderThickness = new Thickness(c == selectedColor ? 2 : 1),
-                Margin = new Thickness(2),
-                CornerRadius = new CornerRadius(4),
-                Cursor = Cursors.Hand
-            };
-            swatch.SetResourceReference(Border.BorderBrushProperty, (c == selectedColor) ? "ThemeForeground" : "ThemeBorder");
-            
-            if (c == selectedColor)
-            {
-                swatch.Effect = new System.Windows.Media.Effects.DropShadowEffect
-                {
-                    Color = Colors.Black,
-                    BlurRadius = 2,
-                    ShadowDepth = 0,
-                    Opacity = 0.5
-                };
-            }
-            
-            swatch.MouseLeftButtonDown += (s, e) =>
-            {
-                selectedColor = c;
-                UpdateColorSelection(parentPanel);
-                
-                // [수정] 도구에 따라 적절한 모드 활성화
-                if (currentTool == "텍스트")
-                {
-                    EnableTextMode();
-                }
-                else
-                {
-                    EnableDrawingMode();
-                }
-            };
-            
-            return swatch;
-        }
-        
-        private void UpdateColorSelection(WrapPanel panel)
-        {
-            foreach (var child in panel.Children)
-            {
-                if (child is Border b && b.Background is SolidColorBrush sc)
-                {
-                    bool isSelected = (sc.Color == selectedColor);
-                    b.BorderBrush = isSelected ? Brushes.Black : new SolidColorBrush(Color.FromRgb(220, 220, 220));
-                    b.BorderThickness = new Thickness(isSelected ? 2 : 1);
-                    b.Effect = isSelected ? new System.Windows.Media.Effects.DropShadowEffect
-                    {
-                        Color = Colors.Black,
-                        BlurRadius = 2,
-                        ShadowDepth = 0,
-                        Opacity = 0.5
-                    } : null;
-                }
-            }
-        }
-        
         private void HideColorPalette()
         {
-            if (colorPalette != null && canvas.Children.Contains(colorPalette))
+            if (_toolOptionsControl != null)
             {
-                canvas.Children.Remove(colorPalette);
-                colorPalette = null;
+                _toolOptionsControl.Visibility = Visibility.Collapsed;
             }
+        }
+
+        private void OnElementAdded(UIElement element)
+        {
+            // [제거] 개별 요소 Clip 대신 _drawingCanvas Clip 사용
         }
 
         private void SetupEditorEvents()
@@ -2141,9 +1576,9 @@ namespace CatchCapture.Utilities
             canvas.MouseLeftButtonUp += Canvas_DrawMouseUp;
         }
 
-        private void EnableDrawingMode()
+        private void EnableDrawingMode(string tool = "펜")
         {
-            currentTool = "펜";
+            currentTool = tool;
             canvas.Cursor = Cursors.Pen;
             SetupEditorEvents();
         }
@@ -2428,10 +1863,10 @@ namespace CatchCapture.Utilities
             // 마지막 요소 제거
             var lastElement = drawnElements[drawnElements.Count - 1];
             drawnElements.RemoveAt(drawnElements.Count - 1);
-            canvas.Children.Remove(lastElement);
+            (_drawingCanvas ?? canvas).Children.Remove(lastElement);
             
             // [수정] InteractiveEditor를 통해 관련 부속 요소들도 함께 제거
-            InteractiveEditor.RemoveInteractiveElement(canvas, lastElement);
+            InteractiveEditor.RemoveInteractiveElement(_drawingCanvas ?? canvas, lastElement);
         }
         
         private void ResetAllDrawings()
@@ -2453,10 +1888,10 @@ namespace CatchCapture.Utilities
                 // 모든 그린 요소 제거
                 foreach (var element in drawnElements.ToList())
                 {
-                    canvas.Children.Remove(element);
+                    (_drawingCanvas ?? canvas).Children.Remove(element);
                     
                     // InteractiveEditor를 통해 관련 부속 요소 제거
-                    InteractiveEditor.RemoveInteractiveElement(canvas, element);
+                    InteractiveEditor.RemoveInteractiveElement(_drawingCanvas ?? canvas, element);
                 }
                 
                 drawnElements.Clear();
@@ -2697,21 +2132,6 @@ namespace CatchCapture.Utilities
         {
             if (_editorManager == null) return;
             _editorManager.CurrentTool = currentTool;
-            _editorManager.SelectedColor = selectedColor;
-            _editorManager.PenThickness = penThickness;
-            _editorManager.HighlightThickness = highlightThickness;
-            _editorManager.HighlightOpacity = highlightOpacity;
-            _editorManager.CurrentShapeType = shapeType;
-            _editorManager.ShapeBorderThickness = shapeBorderThickness;
-            _editorManager.ShapeIsFilled = shapeIsFilled;
-            _editorManager.ShapeFillOpacity = shapeFillOpacity;
-            _editorManager.NumberingTextSize = numberingTextSize;
-            _editorManager.TextFontSize = textFontSize;
-            _editorManager.TextFontFamily = textFontFamily;
-            _editorManager.TextFontWeight = textFontWeight;
-            _editorManager.TextFontStyle = textFontStyle;
-            _editorManager.TextUnderlineEnabled = textUnderlineEnabled;
-            _editorManager.TextShadowEnabled = textShadowEnabled;
         }
 
         private void UpdateObjectSelectionUI()
@@ -3185,7 +2605,7 @@ namespace CatchCapture.Utilities
 
                 // 2. 축소 (모자이크 강도만큼)
                 // 강도가 클수록 이미지가 작아졌다가 늘어나면서 픽셀이 커짐
-                double scale = 1.0 / Math.Max(1, mosaicIntensity);
+                double scale = 1.0 / Math.Max(1, _editorManager.MosaicIntensity);
                 
                 var scaleTransform = new ScaleTransform(scale, scale);
                 var transformed = new TransformedBitmap(cropped, scaleTransform);
@@ -3206,43 +2626,13 @@ namespace CatchCapture.Utilities
 
                 Canvas.SetLeft(mosaicImage, x);
                 Canvas.SetTop(mosaicImage, y);
-
-                canvas.Children.Add(mosaicImage);
+                
+                (_drawingCanvas ?? canvas).Children.Add(mosaicImage);
                 drawnElements.Add(mosaicImage);
             }
             catch { /* 오류 무시 */ }
         }
-        // 도형 옵션 버튼 생성 도우미 (사각형/원/선/화살표)
-        private Button CreateShapeOptionButton(string content, ShapeType type)
-        {
-            var button = new Button
-            {
-                Content = content,
-                Width = 30,
-                Height = 24,
-                Margin = new Thickness(2, 0, 2, 0),
-                FontSize = 14,
-                Padding = new Thickness(0, -4, 0, 0),
-                Background = shapeType == type ? new SolidColorBrush(Color.FromRgb(200, 230, 255)) : Brushes.White,
-                BorderBrush = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
-                BorderThickness = new Thickness(1),
-                Cursor = Cursors.Hand
-            };
-
-            button.Click += (s, e) =>
-            {
-                shapeType = type;
-                if (button.Parent is Panel parent)
-                {
-                    foreach (var child in parent.Children)
-                    {
-                        if (child is Button btn) btn.Background = Brushes.White;
-                    }
-                    button.Background = new SolidColorBrush(Color.FromRgb(200, 230, 255));
-                }
-            };
-            return button;
-        }
+        // CreateShapeOptionButton이 더 이상 사용되지 않음 (ToolOptionsControl로 통합)
 
         // 언어 변경 시 즉시편집 툴바/팔레트 런타임 갱신
         private void OnLanguageChanged(object? sender, EventArgs e)
@@ -3258,23 +2648,10 @@ namespace CatchCapture.Utilities
             catch { }
         }
 
-        // 툴바/팔레트를 재생성하면서 현재 상태(도구/색/두께/도형옵션)를 보존
+        // 툴바/팔레트를 재생성하면서 현재 상태를 보존
         private void RebuildInstantEditUIPreservingState()
         {
-            // 현재 상태 보존
-            string prevTool = currentTool;
-            var prevColor = selectedColor;
-            int prevPen = penThickness;
-            double prevHigh = highlightThickness;
-            double prevHighOpacity = highlightOpacity; // [추가]
-            var prevShapeType = shapeType;
-            double prevShapeBorder = shapeBorderThickness;
-            bool prevShapeFill = shapeIsFilled;
-            double prevShapeOpacity = shapeFillOpacity;
-            double prevBadgeSize = numberingBadgeSize; // [추가]
-            double prevTextSize = numberingTextSize;   // [추가]
-
-            // 기존 팔레트/툴바 제거
+            // 기존 툴바/팔레트 제거
             HideColorPalette();
             if (toolbarContainer != null)
             {
@@ -3282,94 +2659,54 @@ namespace CatchCapture.Utilities
                 toolbarContainer = null;
                 toolbarPanel = null;
             }
-
-            // 툴바 재생성 (LocalizationManager.Get으로 라벨/툴팁 재적용)
-            ShowEditToolbar();
-
-            // 상태 복원
-            selectedColor = prevColor;
-            penThickness = prevPen;
-            highlightThickness = prevHigh;
-            highlightOpacity = prevHighOpacity; 
-            shapeType = prevShapeType;
-            shapeBorderThickness = prevShapeBorder;
-            shapeIsFilled = prevShapeFill;
-            shapeFillOpacity = prevShapeOpacity;
-            numberingBadgeSize = prevBadgeSize; 
-            numberingTextSize = prevTextSize;
-
-            // 현재 도구 다시 반영 (팔레트 표시 포함)
-            double selectionLeft = currentSelectionRect.Left;
-            double selectionTop = currentSelectionRect.Top;
-            double selectionHeight = currentSelectionRect.Height;
-            double toolbarLeft = selectionLeft;
-            double toolbarTop = selectionTop + selectionHeight + 10;
-            if (toolbarTop + 44 > vHeight) toolbarTop = selectionTop - 44 - 10;
-
-            switch (prevTool)
+             if (_toolOptionsControl != null)
             {
-                case "펜":
-                    currentTool = "펜";
-                // 팔레트 위치 재계산 (동적)
-                ShowPaletteAtCurrentPosition(); 
-                    break;
-                case "형광펜":
-                    currentTool = "형광펜";
-                    selectedColor = Colors.Yellow;
-                    ShowPaletteAtCurrentPosition();
-                    EnableDrawingMode();
-                    break;
-                case "텍스트":
-                    currentTool = "텍스트";
-                    ShowPaletteAtCurrentPosition();
-                    EnableTextMode();
-                    break;
-                case "도형":
-                    currentTool = "도형";
-                    ShowPaletteAtCurrentPosition();
-                    EnableShapeMode();
-                    break;
-                case "모자이크":
-                    currentTool = "모자이크";
-                    ShowPaletteAtCurrentPosition();
-                    EnableMosaicMode();
-                    break;
-                case "지우개":
-                    currentTool = "지우개";
-                    HideColorPalette();
-                    EnableEraserMode();
-                    break;
-                case "넘버링":
-                    currentTool = "넘버링";
-                    ShowPaletteAtCurrentPosition();
-                    EnableNumberingMode();
-                    break;
-                default:
-                    // 기본 펜 선택
-                    currentTool = "펜";
-                    ShowPaletteAtCurrentPosition();
-                    EnableDrawingMode();
-                    break;
+                try { canvas.Children.Remove(_toolOptionsControl); } catch { }
+                _toolOptionsControl = null;
+            }
+
+            // 툴바 재생성
+            ShowEditToolbar();
+            
+            // 현재 도구 다시 반영
+            if (_toolOptionsControl != null)
+            {
+                _toolOptionsControl.SetMode(currentTool);
+                // 모드에 따른 추가 설정 (필요시)
+                switch (currentTool)
+                {
+                    case "선택": EnableSelectMode(); break;
+                    case "텍스트": EnableTextMode(); break;
+                    case "도형": EnableShapeMode(); break;
+                    case "모자이크": EnableMosaicMode(); break;
+                    case "지우개": EnableEraserMode(); break;
+                    case "넘버링": EnableNumberingMode(); break;
+                    default: EnableDrawingMode(currentTool); break;
+                }
+
+                // 버튼 하이라이트 복원
+                var btn = toolbarPanel?.Children.OfType<Button>().FirstOrDefault(b => b.Tag as string == currentTool);
+                if (btn != null) SetActiveToolButton(btn);
+
+                // 옵션 팔레트 복원 (지우개/선택 제외)
+                ShowPaletteAtCurrentPosition();
             }
         }
         
-        // [추가] 툴바 버튼 클릭 처리 (토글 및 모드 전환)
         private void ToggleToolPalette(string toolName, Button button)
         {
-            // 같은 툴이면 토글
             if (currentTool == toolName)
             {
-                if (colorPalette != null && canvas.Children.Contains(colorPalette))
+                if (_toolOptionsControl != null && _toolOptionsControl.Visibility == Visibility.Visible)
                 {
                     HideColorPalette();
                 }
                 else
                 {
-                    if (toolName != "지우개")
-                        ShowPaletteAtCurrentPosition();
+                    if (toolName != "선택" && toolName != "지우개")
+                        ShowToolOptions(toolName);
                 }
             }
-            // 다른 툴이면 전환 및 팔레트 표시
             else
             {
                 currentTool = toolName;
@@ -3379,23 +2716,197 @@ namespace CatchCapture.Utilities
                 {
                     case "선택": EnableSelectMode(); HideColorPalette(); return; 
                     case "펜": EnableDrawingMode(); break;
-                    case "형광펜": selectedColor = Colors.Yellow; EnableDrawingMode(); break; 
+                    case "형광펜": EnableDrawingMode("형광펜"); break; 
                     case "텍스트": EnableTextMode(); break;
                     case "도형": EnableShapeMode(); break;
                     case "넘버링": EnableNumberingMode(); break;
                     case "모자이크": EnableMosaicMode(); break;
-                    case "지우개": EnableEraserMode(); HideColorPalette(); return;
+                    case "지우개": EnableEraserMode(); break;
                 }
                 
-                // 툴 변경 시에는 팔레트 표시 (사용자의 "클릭했을때 나오게" 요청 반영)
-                ShowPaletteAtCurrentPosition();
+                ShowToolOptions(toolName);
             }
+        }
+
+        private void ShowToolOptions(string toolName)
+        {
+            if (_toolOptionsControl == null) return;
+            
+            _toolOptionsControl.SetMode(toolName);
+            Point pos = CalculatePalettePosition();
+            Canvas.SetLeft(_toolOptionsControl, pos.X);
+            Canvas.SetTop(_toolOptionsControl, pos.Y);
+            _toolOptionsControl.Visibility = Visibility.Visible;
         }
 
         private void ShowPaletteAtCurrentPosition()
         {
-             Point pos = CalculatePalettePosition();
-             ShowColorPalette(currentTool, pos.X, pos.Y);
+             if (currentTool != "" && currentTool != "선택")
+                 ShowToolOptions(currentTool);
+        }
+
+        private (bool isVertical, double left, double top) CalculateToolbarPosition()
+        {
+            // currentSelectionRect는 캔버스 기준 좌표 (0,0부터 시작)
+            double sLeft = currentSelectionRect.Left;
+            double sTop = currentSelectionRect.Top;
+            double sWidth = currentSelectionRect.Width;
+            double sHeight = currentSelectionRect.Height;
+
+            // 가로 툴바 크기
+            double hWidth = 460; 
+            double hHeight = 65; 
+            double margin = 10;
+            
+            // 캔버스(가상 스크린) 크기 - currentSelectionRect는 이미 캔버스 좌표계
+            double canvasWidth = vWidth;
+            double canvasHeight = vHeight;
+
+            // 하단/상단 여유 공간 계산 (캔버스 기준)
+            double bottomSpace = canvasHeight - (sTop + sHeight);
+            double topSpace = sTop;
+
+            // 하단 또는 상단에 툴바를 배치할 수 있는지 확인
+            bool canFitBottom = bottomSpace >= (hHeight + margin);
+            bool canFitTop = topSpace >= (hHeight + margin);
+
+            // [추가] 선택 영역이 매우 크면서 한쪽 여유가 부족하면 세로 모드 선호
+            // 조건: 높이 1000px 이상 AND (하단 여유 < 50px OR 상단 여유 < 50px)
+            bool isTallSelection = sHeight >= 1000 && (bottomSpace < 50 || topSpace < 50);
+
+            // [디버깅] 파일 로그 출력
+            try
+            {
+                string logPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "CatchCapture_Toolbar_Debug.txt");
+                string log = $"[{DateTime.Now:HH:mm:ss.fff}] Selection: ({sLeft}, {sTop}, {sWidth}x{sHeight})\n" +
+                             $"  Canvas Size: {canvasWidth}x{canvasHeight}\n" +
+                             $"  Bottom Space: {bottomSpace:F1}px, Top Space: {topSpace:F1}px\n" +
+                             $"  Required: {hHeight + margin}px\n" +
+                             $"  Can Fit Bottom: {canFitBottom}, Can Fit Top: {canFitTop}\n" +
+                             $"  Tall Selection: {isTallSelection} (height={sHeight:F0}, both spaces < 100)\n";
+                System.IO.File.AppendAllText(logPath, log);
+            }
+            catch { }
+
+            // 키 큰 선택 영역이면 무조건 세로 모드
+            if (isTallSelection)
+            {
+                double vtWidth = 70;
+                double vtHeight = 580; 
+                
+                bool canFitRight = (sLeft + sWidth + vtWidth + 15) <= canvasWidth;
+                bool canFitLeft = (sLeft - vtWidth - 15) >= 0;
+
+                double top = sTop + (sHeight - vtHeight) / 2;
+                if (top + vtHeight > canvasHeight - 10) top = canvasHeight - vtHeight - 10;
+                if (top < 10) top = 10;
+
+                string position = "";
+                double finalLeft = 0;
+                
+                if (canFitRight)
+                {
+                    position = "VERTICAL RIGHT (Tall Selection)";
+                    finalLeft = sLeft + sWidth + 10;
+                }
+                else if (canFitLeft)
+                {
+                    position = "VERTICAL LEFT (Tall Selection)";
+                    finalLeft = sLeft - vtWidth - 10;
+                }
+                else
+                {
+                    position = "VERTICAL INSIDE (Tall Selection)";
+                    finalLeft = sLeft + sWidth - vtWidth - 15;
+                    if (finalLeft < sLeft) finalLeft = sLeft + 5;
+                }
+
+                try
+                {
+                    string logPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "CatchCapture_Toolbar_Debug.txt");
+                    System.IO.File.AppendAllText(logPath, $"  Mode: {position} at ({finalLeft:F1}, {top:F1})\n\n");
+                }
+                catch { }
+                
+                return (true, finalLeft, top);
+            }
+
+            // 우선순위: 하단 > 상단 > 세로(우측)
+            if (canFitBottom)
+            {
+                // 하단 배치
+                double left = sLeft;
+                if (left + hWidth > canvasWidth - 10) left = canvasWidth - hWidth - 10;
+                if (left < 10) left = 10;
+                
+                try
+                {
+                    string logPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "CatchCapture_Toolbar_Debug.txt");
+                    System.IO.File.AppendAllText(logPath, $"  Mode: HORIZONTAL BOTTOM at ({left:F1}, {sTop + sHeight + margin:F1})\n\n");
+                }
+                catch { }
+                
+                return (false, left, sTop + sHeight + margin);
+            }
+            else if (canFitTop)
+            {
+                // 상단 배치
+                double left = sLeft;
+                if (left + hWidth > canvasWidth - 10) left = canvasWidth - hWidth - 10;
+                if (left < 10) left = 10;
+                
+                try
+                {
+                    string logPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "CatchCapture_Toolbar_Debug.txt");
+                    System.IO.File.AppendAllText(logPath, $"  Mode: HORIZONTAL TOP at ({left:F1}, {sTop - hHeight - margin:F1})\n\n");
+                }
+                catch { }
+                
+                return (false, left, sTop - hHeight - margin);
+            }
+            else
+            {
+                // 세로 레이아웃 (상하 모두 부족)
+                double vtWidth = 70;
+                double vtHeight = 580; 
+                
+                bool canFitRight = (sLeft + sWidth + vtWidth + 15) <= canvasWidth;
+                bool canFitLeft = (sLeft - vtWidth - 15) >= 0;
+
+                // 세로 위치는 선택 영역 중앙 정렬 시도
+                double top = sTop + (sHeight - vtHeight) / 2;
+                if (top + vtHeight > canvasHeight - 10) top = canvasHeight - vtHeight - 10;
+                if (top < 10) top = 10;
+
+                string position = "";
+                double finalLeft = 0;
+                
+                if (canFitRight)
+                {
+                    position = "VERTICAL RIGHT";
+                    finalLeft = sLeft + sWidth + 10;
+                }
+                else if (canFitLeft)
+                {
+                    position = "VERTICAL LEFT";
+                    finalLeft = sLeft - vtWidth - 10;
+                }
+                else
+                {
+                    position = "VERTICAL INSIDE";
+                    finalLeft = sLeft + sWidth - vtWidth - 15;
+                    if (finalLeft < sLeft) finalLeft = sLeft + 5;
+                }
+
+                try
+                {
+                    string logPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "CatchCapture_Toolbar_Debug.txt");
+                    System.IO.File.AppendAllText(logPath, $"  Mode: {position} at ({finalLeft:F1}, {top:F1})\n\n");
+                }
+                catch { }
+                
+                return (true, finalLeft, top);
+            }
         }
 
         private Point CalculatePalettePosition()
@@ -3405,7 +2916,9 @@ namespace CatchCapture.Utilities
             double tLeft = Canvas.GetLeft(toolbarContainer);
             double tTop = Canvas.GetTop(toolbarContainer);
             double tWidth = toolbarContainer.ActualWidth;
+            double tHeight = toolbarContainer.ActualHeight;
             if (double.IsNaN(tWidth) || tWidth < 10) tWidth = isVerticalToolbarLayout ? 60 : 450;
+            if (double.IsNaN(tHeight)) tHeight = isVerticalToolbarLayout ? 550 : 55;
             
             if (isVerticalToolbarLayout)
             {
@@ -3413,24 +2926,41 @@ namespace CatchCapture.Utilities
                  double selectionLeft = currentSelectionRect.Left;
                  // 툴바가 선택 영역 오른쪽에 있으면 팔레트는 더 오른쪽
                  if (tLeft > selectionLeft)
-                     return new Point(tLeft + tWidth + 10, tTop);
+                 {
+                     double targetX = tLeft + tWidth + 10;
+                     // 화면 밖으로 나가면 왼쪽으로
+                     if (targetX + 300 > vWidth) return new Point(tLeft - 310, tTop);
+                     return new Point(targetX, tTop);
+                 }
                  else
-                     return new Point(tLeft - 330, tTop);
+                 {
+                     return new Point(tLeft - 310, tTop);
+                 }
             }
             else
             {
-                // 가로 레이아웃: 툴바 아래
-                return new Point(tLeft, tTop + 60);
+                // 가로 레이아웃: 툴바와 겹치지 않게 선택 영역 내부 또는 툴바 위에 배치
+                // 보통 툴바가 하단에 있으면 팔레트는 위에, 툴바가 상단에 있으면 팔레트는 아래에.
+                if (tTop > currentSelectionRect.Bottom)
+                {
+                    // 툴바가 선택영역 하단 외부에 있음 -> 팔레트는 툴바 바로 위 (선택영역 내부 하단 기점)
+                    return new Point(tLeft, tTop - 130); // 130: 팔레트 대략 높이
+                }
+                else
+                {
+                    // 툴바가 선택영역 상단 외부에 있음 -> 팔레트는 툴바 바로 아래
+                    return new Point(tLeft, tTop + tHeight + 10);
+                }
             }
         }
         
         private void UpdatePalettePosition()
         {
-            if (colorPalette != null && canvas.Children.Contains(colorPalette))
+            if (_toolOptionsControl != null && _toolOptionsControl.Visibility == Visibility.Visible)
             {
                 Point pos = CalculatePalettePosition();
-                Canvas.SetLeft(colorPalette, pos.X);
-                Canvas.SetTop(colorPalette, pos.Y);
+                Canvas.SetLeft(_toolOptionsControl, pos.X);
+                Canvas.SetTop(_toolOptionsControl, pos.Y);
             }
         }
 
@@ -3581,6 +3111,10 @@ namespace CatchCapture.Utilities
             selectionOverlay?.SetRect(new Rect(newLeft, newTop, newWidth, newHeight));
             currentSelectionRect = new Rect(newLeft, newTop, newWidth, newHeight);
 
+            // 드로잉 영역 클리핑 업데이트
+            if (_drawingCanvas != null)
+                _drawingCanvas.Clip = new RectangleGeometry(currentSelectionRect);
+
             // 핸들 위치 업데이트
             UpdateResizeHandles();
             
@@ -3590,25 +3124,7 @@ namespace CatchCapture.Utilities
             UpdateToolbarPosition();
 
             // 팔레트 위치 업데이트 (실시간)
-            if (colorPalette != null && currentTool != "")
-            {
-                 // 현재 툴바 위치 기준으로 다시 계산
-                 // 복잡하므로 툴바 위치 업데이트 후 간단히 재호출하거나 숨겼다가 다시 표시? 
-                 // 실시간 이동이 자연스러우므로 다시 계산 로직 수행
-                 // (기존 ShowColorPalette 내부 로직 재사용이 어려우므로 간단히 따라가게 처리)
-                 // 여기서는 툴바가 이동했으므로 팔레트 위치도 업데이트 필요
-                 // 간단히: 툴바와 팔레트의 상대 위치는 유지되거나 다시 계산됨.
-                 // -> UpdateToolbarPosition에서 handled? No.
-                 // -> Re-call ShowColorPalette logic or Move it manually.
-                 // For now, let's keep simple: Close palette on resize start? No, user wants to modify.
-                 // Just update palette position if possible.
-                 double tLeft = Canvas.GetLeft(toolbarContainer);
-                 double tTop = Canvas.GetTop(toolbarContainer);
-                 // 팔레트 위치 재계산 로직 복제... 대신 existing logic uses stored state?
-                 // Let's just update handles and toolbar for now. Palette might drift. 
-                 // Fix: Close palette on resize start or move it. 
-                 // Better: Hide palette during drag, show on up?
-            }
+            UpdatePalettePosition();
         }
 
         private void ResizeHandle_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -3634,6 +3150,10 @@ namespace CatchCapture.Utilities
 
         private void UpdateSelectedAreaFromRect()
         {
+             // 드로잉 영역 클리핑 업데이트
+             if (_drawingCanvas != null)
+                 _drawingCanvas.Clip = new RectangleGeometry(currentSelectionRect);
+
              // 현재 selectionRectangle 기준으로 SelectedArea 및 SelectedFrozenImage 갱신
              double left = currentSelectionRect.Left;
              double top = currentSelectionRect.Top;
@@ -3673,92 +3193,24 @@ namespace CatchCapture.Utilities
         {
             if (toolbarContainer == null) return;
 
-            double selectionLeft = currentSelectionRect.Left;
-            double selectionTop = currentSelectionRect.Top;
-            double selectionWidth = currentSelectionRect.Width;
-            double selectionHeight = currentSelectionRect.Height;
+            var (isVertical, tLeft, tTop) = CalculateToolbarPosition();
 
-            // [레이아웃 결정 로직 개선]
-            // 기본값: 하단 배치
-            // 하단 공간 부족 -> 상단 배치
-            // 상단 공간도 부족 -> 우측 세로 배치
+            // 상하 공간 부족 시 레이아웃 변경
+            if (isVertical != isVerticalToolbarLayout)
+            {
+                UpdateToolbarLayout(isVertical);
+            }
+
+            Canvas.SetLeft(toolbarContainer, tLeft);
+            Canvas.SetTop(toolbarContainer, tTop);
             
-            double toolbarH = 55; // 가로 모드 높이
-            // double toolbarW = 450; // warning CS0219: 'toolbarW' 할당되었지만 사용되지 않았습니다.
-            
-            bool bottomBlocked = (selectionTop + selectionHeight + toolbarH + 10) > vHeight;
-            bool topBlocked = (selectionTop - toolbarH - 10) < 0;
-
-            bool shouldUseVertical = false;
-
-            if (bottomBlocked)
-            {
-                if (topBlocked)
-                {
-                    shouldUseVertical = true; // 상하 모두 막힘 -> 세로 전환
-                }
-                else
-                {
-                    shouldUseVertical = false; // 상단은 가능 -> 가로 상단
-                }
-            }
-            else
-            {
-                shouldUseVertical = false; // 하단 가능 -> 가로 하단
-            }
-
-            // 레이아웃 변경 적용
-            if (shouldUseVertical != isVerticalToolbarLayout)
-            {
-                UpdateToolbarLayout(shouldUseVertical);
-            }
-
-            // 위치 계산
-            double toolbarWidth = toolbarContainer.ActualWidth > 0 ? toolbarContainer.ActualWidth : (isVerticalToolbarLayout ? 60 : 450);
-            double toolbarHeight = toolbarContainer.ActualHeight > 0 ? toolbarContainer.ActualHeight : (isVerticalToolbarLayout ? 600 : 55);
-            
-            double toolbarLeft, toolbarTop;
-            
-            if (isVerticalToolbarLayout)
-            {
-                // 세로: 우측
-                toolbarLeft = selectionLeft + selectionWidth + 10;
-                toolbarTop = selectionTop;
-                
-                if (toolbarLeft + toolbarWidth > vWidth) toolbarLeft = selectionLeft - toolbarWidth - 10;
-                if (toolbarLeft < 10) toolbarLeft = 10;
-                if (toolbarTop + toolbarHeight > vHeight) toolbarTop = vHeight - toolbarHeight - 10;
-                if (toolbarTop < 10) toolbarTop = 10;
-            }
-            else
-            {
-                // 가로: 하단 or 상단
-                toolbarLeft = selectionLeft;
-                if (bottomBlocked)
-                {
-                    // 상단
-                    toolbarTop = selectionTop - toolbarHeight - 10;
-                }
-                else
-                {
-                    // 하단
-                    toolbarTop = selectionTop + selectionHeight + 10;
-                }
-                
-                if (toolbarLeft + toolbarWidth > vWidth) toolbarLeft = vWidth - toolbarWidth - 10;
-                if (toolbarLeft < 10) toolbarLeft = 10;
-            }
-
-            Canvas.SetLeft(toolbarContainer, toolbarLeft);
-            Canvas.SetTop(toolbarContainer, toolbarTop);
-
             // 툴바가 아직 Canvas에 없으면 추가
             if (!canvas.Children.Contains(toolbarContainer))
             {
                 canvas.Children.Add(toolbarContainer);
             }
             
-            // [추가] 동적 팔레트 위치 업데이트
+            // 팔레트 위치도 함께 업데이트
             UpdatePalettePosition();
         }
 
