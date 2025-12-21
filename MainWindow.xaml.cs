@@ -3020,7 +3020,7 @@ public partial class MainWindow : Window
     {
         if (settings == null) return;
 
-        string[] modes = { "General", "Dark", "Light", "Blue" };
+        string[] modes = { "General", "Dark", "Light", "Blue", "Custom" };
         int currentIndex = Array.IndexOf(modes, settings.ThemeMode);
         if (currentIndex == -1) currentIndex = 0;
 
@@ -3047,6 +3047,12 @@ public partial class MainWindow : Window
         {
             settings.ThemeBackgroundColor = "#E3F2FD";
             settings.ThemeTextColor = "#1565C0";
+        }
+        else if (settings.ThemeMode == "Custom")
+        {
+            // 사용자 지정 테마 복원
+            settings.ThemeBackgroundColor = settings.CustomThemeBackgroundColor ?? "#FFFFFF";
+            settings.ThemeTextColor = settings.CustomThemeTextColor ?? "#333333";
         }
 
         // 설정 저장
