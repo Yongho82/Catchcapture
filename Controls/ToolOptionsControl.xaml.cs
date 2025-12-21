@@ -23,15 +23,19 @@ namespace CatchCapture.Controls
             InitializeComponent();
             InitializeEvents();
             BuildColorPalette();
-            // Start listening to Localization changes if needed, or just set initial text
-            // UpdateLocalization();
         }
 
         public void Initialize(SharedCanvasEditor editor)
         {
             _editor = editor;
-            // Load initial values from editor
-            LoadValuesFromEditor();
+            if (IsLoaded)
+            {
+                LoadValuesFromEditor();
+            }
+            else
+            {
+                Loaded += (s, e) => LoadValuesFromEditor();
+            }
         }
 
         public void SetMode(string toolName)
@@ -69,9 +73,8 @@ namespace CatchCapture.Controls
                     TextOptions.Visibility = Visibility.Visible;
                     if (_editor != null)
                     {
-                        TextSizeSlider.Value = _editor.TextFontSize;
-                        // Font Selection
                         FontComboBox.SelectedItem = _editor.TextFontFamily;
+                        FontSizeComboBox.SelectedItem = (int)_editor.TextFontSize;
                     }
                     break;
                 case "도형":
@@ -81,7 +84,13 @@ namespace CatchCapture.Controls
                     break;
                 case "넘버링":
                     NumberingOptions.Visibility = Visibility.Visible;
-                    if (_editor != null) NumSizeSlider.Value = _editor.NumberingBadgeSize;
+                    TextOptions.Visibility = Visibility.Visible; 
+                    if (_editor != null)
+                    {
+                        NumSizeSlider.Value = _editor.NumberingBadgeSize;
+                        FontSizeComboBox.SelectedItem = (int)_editor.NumberingTextSize;
+                        FontComboBox.SelectedItem = _editor.TextFontFamily;
+                    }
                     break;
                 case "모자이크":
                     MosaicOptions.Visibility = Visibility.Visible;
@@ -125,13 +134,27 @@ namespace CatchCapture.Controls
                  PenOpacityValue.Text = $"{(int)(e.NewValue * 100)}%";
             };
 
-            // Text
+            // Text Sizes ComboBox
+            int[] sizes = { 8, 9, 10, 11, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 72 };
+            foreach (var sz in sizes) FontSizeComboBox.Items.Add(sz);
+            
+            FontSizeComboBox.SelectionChanged += (s, e) => {
+                if (_editor == null || FontSizeComboBox.SelectedItem == null) return;
+                try
+                {
+                    double sz = Convert.ToDouble(FontSizeComboBox.SelectedItem);
+                    if (_currentMode == "넘버링") _editor.NumberingTextSize = sz;
+                    else _editor.TextFontSize = sz;
+                }
+                catch { }
+            };
+
+            // Text Size Slider (Legacy support if needed, otherwise hidden)
             TextSizeSlider.ValueChanged += (s, e) =>
             {
                 if (_editor == null) return;
-                _editor.TextFontSize = e.NewValue;
-                TextSizeValue.Text = $"{(int)e.NewValue}px";
-                // if (_editor.SelectedObject is TextBox tb) tb.FontSize = e.NewValue;
+                if (_currentMode == "넘버링") _editor.NumberingTextSize = e.NewValue;
+                else _editor.TextFontSize = e.NewValue;
             };
             
             // Fonts
@@ -146,22 +169,14 @@ namespace CatchCapture.Controls
             {
                 if (_editor == null || FontComboBox.SelectedItem == null) return;
                 string? f = FontComboBox.SelectedItem?.ToString();
-                if (f != null)
-                {
-                    _editor.TextFontFamily = f;
-                    // if (_editor.SelectedObject is TextBox tb) tb.FontFamily = new FontFamily(f);
-                }
+                if (f != null) _editor.TextFontFamily = f;
             };
 
-            // Text Styles
-            BoldCheck.Checked += (s, e) => UpdateTextStyle();
-            BoldCheck.Unchecked += (s, e) => UpdateTextStyle();
-            ItalicCheck.Checked += (s, e) => UpdateTextStyle();
-            ItalicCheck.Unchecked += (s, e) => UpdateTextStyle();
-            UnderlineCheck.Checked += (s, e) => UpdateTextStyle();
-            UnderlineCheck.Unchecked += (s, e) => UpdateTextStyle();
-            ShadowCheck.Checked += (s, e) => UpdateTextStyle();
-            ShadowCheck.Unchecked += (s, e) => UpdateTextStyle();
+            // Text Styles (ToggleButtons) - with null checks
+            if (BoldBtn != null) BoldBtn.Click += (s, e) => UpdateTextStyle();
+            if (ItalicBtn != null) ItalicBtn.Click += (s, e) => UpdateTextStyle();
+            if (UnderlineBtn != null) UnderlineBtn.Click += (s, e) => UpdateTextStyle();
+            if (ShadowBtn != null) ShadowBtn.Click += (s, e) => UpdateTextStyle();
 
             // Shapes
             ShapeRect.Checked += (s, e) => { if (_editor!=null) _editor.CurrentShapeType = ShapeType.Rectangle; };
@@ -221,28 +236,11 @@ namespace CatchCapture.Controls
         
         private void UpdateTextStyle()
         {
-            if (_editor == null) return;
-            _editor.TextFontWeight = (BoldCheck.IsChecked == true) ? FontWeights.Bold : FontWeights.Normal;
-            _editor.TextFontStyle = (ItalicCheck.IsChecked == true) ? FontStyles.Italic : FontStyles.Normal;
-            _editor.TextUnderlineEnabled = (UnderlineCheck.IsChecked == true);
-            _editor.TextShadowEnabled = (ShadowCheck.IsChecked == true);
-
-            // TODO: Apply to selected object when SelectedObject property is added to SharedCanvasEditor
-            /*
-            if (_editor.SelectedObject is TextBox tb)
-            {
-                tb.FontWeight = _editor.TextFontWeight;
-                tb.FontStyle = _editor.TextFontStyle;
-                
-                if (_editor.TextUnderlineEnabled) tb.TextDecorations = TextDecorations.Underline;
-                else tb.TextDecorations = null;
-
-                if (_editor.TextShadowEnabled) 
-                    tb.Effect = new System.Windows.Media.Effects.DropShadowEffect { Color = Colors.Black, BlurRadius = 2, ShadowDepth = 1, Opacity = 0.5 };
-                else 
-                    tb.Effect = null;
-            }
-            */
+            if (_editor == null || BoldBtn == null || ItalicBtn == null || UnderlineBtn == null || ShadowBtn == null) return;
+            _editor.TextFontWeight = (BoldBtn.IsChecked == true) ? FontWeights.Bold : FontWeights.Normal;
+            _editor.TextFontStyle = (ItalicBtn.IsChecked == true) ? FontStyles.Italic : FontStyles.Normal;
+            _editor.TextUnderlineEnabled = (UnderlineBtn.IsChecked == true);
+            _editor.TextShadowEnabled = (ShadowBtn.IsChecked == true);
         }
 
         private void BuildColorPalette()
@@ -321,10 +319,14 @@ namespace CatchCapture.Controls
             UpdateColorSelection(_editor.SelectedColor);
             
             // Text Styles
-            BoldCheck.IsChecked = _editor.TextFontWeight == FontWeights.Bold;
-            ItalicCheck.IsChecked = _editor.TextFontStyle == FontStyles.Italic;
-            UnderlineCheck.IsChecked = _editor.TextUnderlineEnabled;
-            ShadowCheck.IsChecked = _editor.TextShadowEnabled;
+            if (BoldBtn != null) BoldBtn.IsChecked = _editor.TextFontWeight == FontWeights.Bold;
+            if (ItalicBtn != null) ItalicBtn.IsChecked = _editor.TextFontStyle == FontStyles.Italic;
+            if (UnderlineBtn != null) UnderlineBtn.IsChecked = _editor.TextUnderlineEnabled;
+            if (ShadowBtn != null) ShadowBtn.IsChecked = _editor.TextShadowEnabled;
+
+            // Font & Size ComboBoxes
+            if (FontComboBox != null) FontComboBox.SelectedItem = _editor.TextFontFamily;
+            if (FontSizeComboBox != null) FontSizeComboBox.SelectedItem = (int)_editor.TextFontSize;
         }
         
         private void LoadShapeState()
@@ -354,10 +356,10 @@ namespace CatchCapture.Controls
             FontLabel.Text = ResLoc.GetString("Font");
             TextSizeLabel.Text = ResLoc.GetString("SizeLabel");
             StyleLabel.Text = ResLoc.GetString("Style");
-            BoldCheck.Content = ResLoc.GetString("Bold");
-            ItalicCheck.Content = ResLoc.GetString("Italic");
-            UnderlineCheck.Content = ResLoc.GetString("Underline");
-            ShadowCheck.Content = ResLoc.GetString("Shadow");
+            BoldCheck.Content = BoldBtn.ToolTip = ResLoc.GetString("Bold");
+            ItalicCheck.Content = ItalicBtn.ToolTip = ResLoc.GetString("Italic");
+            UnderlineCheck.Content = UnderlineBtn.ToolTip = ResLoc.GetString("Underline");
+            ShadowCheck.Content = ShadowBtn.ToolTip = ResLoc.GetString("Shadow");
             ShapeLabel.Text = ResLoc.GetString("Shape");
             ShapeOutline.Content = ResLoc.GetString("Outline");
             ShapeFill.Content = ResLoc.GetString("Fill");

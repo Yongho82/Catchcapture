@@ -12,10 +12,31 @@
             <Setter Property="FontFamily" Value="Malgun Gothic"/>
             <Setter Property="Foreground" Value="#333333"/>
         </Style>
-         <Style x:Key="ToolButtonStyle" TargetType="RadioButton">
+         <Style x:Key="RadioButtonStyle" TargetType="RadioButton">
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="border" BorderBrush="#CCCCCC" BorderThickness="1" Background="Transparent" CornerRadius="3">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#E6F7FF"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="#1890FF"/>
+                                <Setter Property="Foreground" Value="#1890FF"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#F5F5F5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ToggleButtonStyle" TargetType="ToggleButton">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
                         <Border x:Name="border" BorderBrush="#CCCCCC" BorderThickness="1" Background="Transparent" CornerRadius="3">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
@@ -69,26 +90,31 @@
                 
                 <!-- 텍스트 옵션 -->
                 <StackPanel x:Name="TextOptions" Visibility="Collapsed">
-                    <TextBlock Text="폰트" FontWeight="SemiBold" Margin="0,0,0,4" x:Name="FontLabel"/>
-                    <ComboBox x:Name="FontComboBox" Width="120" Height="25" Margin="0,0,0,10"/>
-                    
-                    <TextBlock Text="크기" FontWeight="SemiBold" Margin="0,0,0,4" x:Name="TextSizeLabel"/>
-                    <StackPanel Orientation="Horizontal">
-                        <Slider x:Name="TextSizeSlider" Minimum="8" Maximum="72" Width="120"/>
-                        <TextBlock x:Name="TextSizeValue" Margin="8,0,0,0" VerticalAlignment="Center" Foreground="Gray" FontSize="11"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <StackPanel>
+                            <TextBlock Text="폰트" FontWeight="SemiBold" Margin="0,0,0,4" x:Name="FontLabel"/>
+                            <ComboBox x:Name="FontComboBox" Width="100" Height="25"/>
+                        </StackPanel>
+                        <StackPanel Margin="10,0,0,0">
+                            <TextBlock Text="크기" FontWeight="SemiBold" Margin="0,0,0,4" x:Name="TextSizeLabel"/>
+                            <ComboBox x:Name="FontSizeComboBox" Width="55" Height="25"/>
+                        </StackPanel>
+                        <!-- (기존 슬라이더는 코드 숨김 파일과의 호환성을 위해 유지하거나 제거 가능, 여기서는 일단 제거 제안) -->
+                        <Slider x:Name="TextSizeSlider" Visibility="Collapsed"/>
                     </StackPanel>
-
-                    <Border Height="10"/>
+                    
                     <TextBlock Text="스타일" FontWeight="SemiBold" Margin="0,0,0,4" x:Name="StyleLabel"/>
-                    <StackPanel Orientation="Vertical">
-                        <StackPanel Orientation="Horizontal" Margin="0,2">
-                             <CheckBox x:Name="BoldCheck" Content="굵게"/>
-                             <CheckBox x:Name="ItalicCheck" Content="기울임" Margin="10,0,0,0"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,2">
-                             <CheckBox x:Name="UnderlineCheck" Content="밑줄"/>
-                             <CheckBox x:Name="ShadowCheck" Content="그림자" Margin="10,0,0,0"/>
-                        </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <ToggleButton x:Name="BoldBtn" Content="B" FontWeight="Bold" Width="25" Height="25" Style="{StaticResource ToggleButtonStyle}"/>
+                        <ToggleButton x:Name="ItalicBtn" Content="I" FontStyle="Italic" Width="25" Height="25" Margin="4,0" Style="{StaticResource ToggleButtonStyle}"/>
+                        <ToggleButton x:Name="UnderlineBtn" Content="U" Width="25" Height="25" Style="{StaticResource ToggleButtonStyle}"/>
+                        <ToggleButton x:Name="ShadowBtn" Content="S" Width="25" Height="25" Margin="4,0" Style="{StaticResource ToggleButtonStyle}"/>
+                        
+                        <!-- 기존 체크박스 히든 처리 (코드 연동용) -->
+                        <CheckBox x:Name="BoldCheck" Visibility="Collapsed"/>
+                        <CheckBox x:Name="ItalicCheck" Visibility="Collapsed"/>
+                        <CheckBox x:Name="UnderlineCheck" Visibility="Collapsed"/>
+                        <CheckBox x:Name="ShadowCheck" Visibility="Collapsed"/>
                     </StackPanel>
                 </StackPanel>
                 
@@ -96,10 +122,10 @@
                  <StackPanel x:Name="ShapeOptions" Visibility="Collapsed">
                     <TextBlock Text="도형" FontWeight="SemiBold" Margin="0,0,0,4" x:Name="ShapeLabel"/>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                        <RadioButton x:Name="ShapeRect" Content="▢" Style="{StaticResource ToolButtonStyle}" Width="30" Height="25"/>
-                        <RadioButton x:Name="ShapeCircle" Content="○" Style="{StaticResource ToolButtonStyle}" Width="30" Height="25" Margin="5,0"/>
-                        <RadioButton x:Name="ShapeLine" Content="╱" Style="{StaticResource ToolButtonStyle}" Width="30" Height="25"/>
-                        <RadioButton x:Name="ShapeArrow" Content="↗" Style="{StaticResource ToolButtonStyle}" Width="30" Height="25" Margin="5,0"/>
+                        <RadioButton x:Name="ShapeRect" Content="▢" Style="{StaticResource RadioButtonStyle}" Width="30" Height="25"/>
+                        <RadioButton x:Name="ShapeCircle" Content="○" Style="{StaticResource RadioButtonStyle}" Width="30" Height="25" Margin="5,0"/>
+                        <RadioButton x:Name="ShapeLine" Content="╱" Style="{StaticResource RadioButtonStyle}" Width="30" Height="25"/>
+                        <RadioButton x:Name="ShapeArrow" Content="↗" Style="{StaticResource RadioButtonStyle}" Width="30" Height="25" Margin="5,0"/>
                     </StackPanel>
                     
                     <StackPanel Orientation="Horizontal">

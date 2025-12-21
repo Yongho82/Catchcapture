@@ -237,12 +237,14 @@ namespace CatchCapture.Utilities
 
         private void SnippingWindow_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            // 즉시편집 모드에서 엔터키 입력 시 확정 처리 (버튼 포커스 문제 해결)
+            // 즉시편집 모드에서 엔터키 입력 시 확정 처리
             if (instantEditMode && e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.None)
             {
-                // 텍스트 박스 편집 중일 때는 엔터키가 줄바꿈 역할을 해야 하므로 닫지 않음
-                if (Keyboard.FocusedElement is TextBox tb && !tb.IsReadOnly)
+                // 텍스트 박스 편집 중이고 줄바꿈을 허용하는 경우 윈도우를 닫지 않음
+                var focused = Keyboard.FocusedElement;
+                if (focused is TextBox tb && !tb.IsReadOnly && tb.AcceptsReturn)
                 {
+                    // TextBox가 Enter를 직접 처리하도록 둠
                     return;
                 }
 
@@ -2202,8 +2204,11 @@ namespace CatchCapture.Utilities
                     DeselectObject();
                     if (toRemove != null)
                     {
-                        canvas.Children.Remove(toRemove);
+                        (_drawingCanvas ?? canvas).Children.Remove(toRemove);
                         drawnElements.Remove(toRemove);
+                        
+                        // [추가] 부속 요소들(텍스트 버튼 등)도 함께 제거
+                        InteractiveEditor.RemoveInteractiveElement(_drawingCanvas ?? canvas, toRemove);
                     }
                 };
                 canvas.Children.Add(objectDeleteButton);
@@ -2834,19 +2839,21 @@ namespace CatchCapture.Utilities
             // 우선순위: 하단 > 상단 > 세로(우측)
             if (canFitBottom)
             {
-                // 하단 배치
+                // 하단 배치 - 텍스트박스 가림 방지를 위해 마진 확대
                 double left = sLeft;
                 if (left + hWidth > canvasWidth - 10) left = canvasWidth - hWidth - 10;
                 if (left < 10) left = 10;
                 
+                double finalTop = sTop + sHeight + 12; // 가로형 팔레트로 변경되어 다시 12px로 조정
+                
                 try
                 {
                     string logPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "CatchCapture_Toolbar_Debug.txt");
-                    System.IO.File.AppendAllText(logPath, $"  Mode: HORIZONTAL BOTTOM at ({left:F1}, {sTop + sHeight + margin:F1})\n\n");
+                    System.IO.File.AppendAllText(logPath, $"  Mode: HORIZONTAL BOTTOM at ({left:F1}, {finalTop:F1})\n\n");
                 }
                 catch { }
                 
-                return (false, left, sTop + sHeight + margin);
+                return (false, left, finalTop);
             }
             else if (canFitTop)
             {
@@ -2858,11 +2865,11 @@ namespace CatchCapture.Utilities
                 try
                 {
                     string logPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "CatchCapture_Toolbar_Debug.txt");
-                    System.IO.File.AppendAllText(logPath, $"  Mode: HORIZONTAL TOP at ({left:F1}, {sTop - hHeight - margin:F1})\n\n");
+                    System.IO.File.AppendAllText(logPath, $"  Mode: HORIZONTAL TOP at ({left:F1}, {sTop - hHeight - 15:F1})\n\n");
                 }
                 catch { }
                 
-                return (false, left, sTop - hHeight - margin);
+                return (false, left, sTop - hHeight - 15);
             }
             else
             {

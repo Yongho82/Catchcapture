@@ -274,11 +274,14 @@ namespace CatchCapture.Utilities
                 Width = 120, MinHeight = bSize,
                 Background = new SolidColorBrush(Color.FromArgb(100, 0, 0, 0)),
                 BorderBrush = Brushes.White, BorderThickness = new Thickness(1),
-                Foreground = Brushes.White, FontSize = NumberingTextSize,
+                Foreground = Brushes.White, 
+                FontSize = NumberingTextSize,
                 Text = "", VerticalContentAlignment = VerticalAlignment.Center,
                 Padding = new Thickness(3), TextWrapping = TextWrapping.Wrap,
                 AcceptsReturn = true
             };
+            ApplyTextStyleToTextBox(note);
+            
             group.Children.Add(note);
             Canvas.SetLeft(note, bSize + 5);
             Canvas.SetTop(note, 0);
@@ -286,14 +289,16 @@ namespace CatchCapture.Utilities
             // 확정/삭제 버튼
             var btnPanel = new StackPanel { Orientation = Orientation.Horizontal };
             var confirmBtn = new Button { 
-                Content = "✓", Width = 20, Height = 20, Margin = new Thickness(2,0,0,0),
+                Content = "✓", Width = 24, Height = 24, Margin = new Thickness(2,0,0,0),
                 Background = Brushes.Green, Foreground = Brushes.White, BorderThickness = new Thickness(0),
-                Cursor = Cursors.Hand
+                Cursor = Cursors.Hand,
+                FontSize = 12, FontWeight = FontWeights.Bold
             };
             var deleteBtn = new Button { 
-                Content = "✕", Width = 20, Height = 20, Margin = new Thickness(2,0,0,0),
+                Content = "✕", Width = 24, Height = 24, Margin = new Thickness(2,0,0,0),
                 Background = Brushes.Red, Foreground = Brushes.White, BorderThickness = new Thickness(0),
-                Cursor = Cursors.Hand
+                Cursor = Cursors.Hand,
+                FontSize = 12, FontWeight = FontWeights.Bold
             };
             btnPanel.Children.Add(confirmBtn);
             btnPanel.Children.Add(deleteBtn);
@@ -321,11 +326,30 @@ namespace CatchCapture.Utilities
             deleteBtn.Click += (s, e) => {
                 _canvas.Children.Remove(group);
                 _drawnElements.Remove(group);
+                
+                // [추가] 번호 시퀀스 관리: 삭제된 번호가 마지막 번호였거나 끊겼을 때 유동적으로 처리
+                RecalculateNextNumber();
             };
 
-            // 드래그 로직 (그룹 이동)
+            // 드래그 및 더블 클릭 수정 로직 (그룹 이동)
             bool isDragging = false;
             Point lastPos = new Point();
+            
+            // 배지나 노트를 더블 클릭하면 편집 모드 재활성화
+            MouseButtonEventHandler doubleClickEdit = (s, e) => {
+                if (e.ClickCount == 2) {
+                    note.IsReadOnly = false;
+                    note.Background = new SolidColorBrush(Color.FromArgb(100, 0, 0, 0));
+                    note.BorderBrush = Brushes.White;
+                    note.BorderThickness = new Thickness(1);
+                    btnPanel.Visibility = Visibility.Visible;
+                    note.Focus();
+                    e.Handled = true;
+                }
+            };
+            badge.PreviewMouseLeftButtonDown += doubleClickEdit;
+            note.PreviewMouseLeftButtonDown += doubleClickEdit;
+
             badge.MouseLeftButtonDown += (s, e) => {
                 isDragging = true;
                 lastPos = e.GetPosition(_canvas);
@@ -362,9 +386,6 @@ namespace CatchCapture.Utilities
                 MinWidth = 100,
                 MinHeight = 30,
                 FontSize = TextFontSize,
-                FontFamily = new FontFamily(TextFontFamily),
-                FontWeight = TextFontWeight,
-                FontStyle = TextFontStyle,
                 Foreground = new SolidColorBrush(SelectedColor),
                 Background = Brushes.Transparent,
                 BorderBrush = new SolidColorBrush(Colors.DeepSkyBlue),
@@ -373,22 +394,7 @@ namespace CatchCapture.Utilities
                 TextWrapping = TextWrapping.Wrap,
                 AcceptsReturn = true
             };
-
-            if (TextUnderlineEnabled)
-            {
-                textBox.TextDecorations = TextDecorations.Underline;
-            }
-
-            if (TextShadowEnabled)
-            {
-                textBox.Effect = new System.Windows.Media.Effects.DropShadowEffect
-                {
-                    Color = Colors.Black,
-                    BlurRadius = 2,
-                    ShadowDepth = 1,
-                    Opacity = 0.5
-                };
-            }
+            ApplyTextStyleToTextBox(textBox);
 
             // 그룹화하여 버튼 함께 관리 (넘버링과 동일 스타일)
             var group = new Canvas { Background = Brushes.Transparent };
@@ -398,14 +404,16 @@ namespace CatchCapture.Utilities
 
             var btnPanel = new StackPanel { Orientation = Orientation.Horizontal };
             var confirmBtn = new Button { 
-                Content = "✓", Width = 22, Height = 22, Margin = new Thickness(2,0,0,0),
+                Content = "✓", Width = 24, Height = 24, Margin = new Thickness(2,0,0,0),
                 Background = Brushes.Green, Foreground = Brushes.White, BorderThickness = new Thickness(0),
-                Cursor = Cursors.Hand
+                Cursor = Cursors.Hand,
+                FontSize = 12, FontWeight = FontWeights.Bold
             };
             var deleteBtn = new Button { 
-                Content = "✕", Width = 22, Height = 22, Margin = new Thickness(2,0,0,0),
+                Content = "✕", Width = 24, Height = 24, Margin = new Thickness(2,0,0,0),
                 Background = Brushes.Red, Foreground = Brushes.White, BorderThickness = new Thickness(0),
-                Cursor = Cursors.Hand
+                Cursor = Cursors.Hand,
+                FontSize = 12, FontWeight = FontWeights.Bold
             };
             btnPanel.Children.Add(confirmBtn);
             btnPanel.Children.Add(deleteBtn);
@@ -487,6 +495,53 @@ namespace CatchCapture.Utilities
         public void ResetNumbering()
         {
             NextNumber = 1;
+        }
+
+        public void RecalculateNextNumber()
+        {
+            int max = 0;
+            foreach (var el in _drawnElements)
+            {
+                if (el is Canvas group && group.Children.Count >= 1 && group.Children[0] is Border badge)
+                {
+                    if (badge.Child is TextBlock tb && int.TryParse(tb.Text, out int num))
+                    {
+                        if (num > max) max = num;
+                    }
+                }
+            }
+            NextNumber = max + 1;
+        }
+
+        private void ApplyTextStyleToTextBox(TextBox tb)
+        {
+            tb.FontFamily = new FontFamily(TextFontFamily);
+            tb.FontWeight = TextFontWeight;
+            tb.FontStyle = TextFontStyle;
+            
+            if (TextUnderlineEnabled)
+            {
+                tb.TextDecorations = TextDecorations.Underline;
+            }
+            else
+            {
+                tb.TextDecorations = null;
+            }
+
+            if (TextShadowEnabled)
+            {
+                tb.Effect = new System.Windows.Media.Effects.DropShadowEffect
+                {
+                    Color = Colors.Black,
+                    BlurRadius = 2,
+                    ShadowDepth = 1,
+                    Opacity = 0.5
+                };
+            }
+            else
+            {
+                tb.Effect = null;
+            }
         }
 
         private Color GetContrastColor(Color c)
