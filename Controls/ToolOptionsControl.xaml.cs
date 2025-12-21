@@ -83,11 +83,9 @@ namespace CatchCapture.Controls
                     LoadShapeState();
                     break;
                 case "넘버링":
-                    NumberingOptions.Visibility = Visibility.Visible;
                     TextOptions.Visibility = Visibility.Visible; 
                     if (_editor != null)
                     {
-                        NumSizeSlider.Value = _editor.NumberingBadgeSize;
                         FontSizeComboBox.SelectedItem = (int)_editor.NumberingTextSize;
                         FontComboBox.SelectedItem = _editor.TextFontFamily;
                     }
@@ -143,7 +141,11 @@ namespace CatchCapture.Controls
                 try
                 {
                     double sz = Convert.ToDouble(FontSizeComboBox.SelectedItem);
-                    if (_currentMode == "넘버링") _editor.NumberingTextSize = sz;
+                    if (_currentMode == "넘버링") 
+                    {
+                        _editor.NumberingTextSize = sz;
+                        _editor.NumberingBadgeSize = sz * 2.0; // 배지 크기를 폰트 크기의 2배로 연동
+                    }
                     else _editor.TextFontSize = sz;
                 }
                 catch { }
