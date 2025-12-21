@@ -40,6 +40,10 @@ namespace CatchCapture.Utilities
         // 텍스트 관련
         public string TextFontFamily { get; set; } = "Arial";
         public double TextFontSize { get; set; } = 16;
+        public FontWeight TextFontWeight { get; set; } = FontWeights.Normal;
+        public FontStyle TextFontStyle { get; set; } = FontStyles.Normal;
+        public bool TextUnderlineEnabled { get; set; } = false;
+        public bool TextShadowEnabled { get; set; } = false;
 
         private Polyline? _currentPolyline;
         private Point _lastDrawPoint;
@@ -351,6 +355,8 @@ namespace CatchCapture.Utilities
                 MinHeight = 30,
                 FontSize = TextFontSize,
                 FontFamily = new FontFamily(TextFontFamily),
+                FontWeight = TextFontWeight,
+                FontStyle = TextFontStyle,
                 Foreground = new SolidColorBrush(SelectedColor),
                 Background = Brushes.Transparent,
                 BorderBrush = new SolidColorBrush(Colors.DeepSkyBlue),
@@ -359,6 +365,22 @@ namespace CatchCapture.Utilities
                 TextWrapping = TextWrapping.Wrap,
                 AcceptsReturn = true
             };
+
+            if (TextUnderlineEnabled)
+            {
+                textBox.TextDecorations = TextDecorations.Underline;
+            }
+
+            if (TextShadowEnabled)
+            {
+                textBox.Effect = new System.Windows.Media.Effects.DropShadowEffect
+                {
+                    Color = Colors.Black,
+                    BlurRadius = 2,
+                    ShadowDepth = 1,
+                    Opacity = 0.5
+                };
+            }
 
             // 그룹화하여 버튼 함께 관리 (넘버링과 동일 스타일)
             var group = new Canvas { Background = Brushes.Transparent };
@@ -413,9 +435,21 @@ namespace CatchCapture.Utilities
             // 드래그 로직 (그룹 이동)
             bool isDragging = false;
             Point lastPos = new Point();
-            group.MouseLeftButtonDown += (s, e) => {
+            group.PreviewMouseLeftButtonDown += (s, e) => {
                 // ReadOnly일 때만 드래그 허용 (편집 중엔 텍스트 선택 우선)
                 if (!textBox.IsReadOnly) return;
+                
+                // 더블 클릭 시 수정 모드 활성화
+                if (e.ClickCount == 2)
+                {
+                    textBox.IsReadOnly = false;
+                    textBox.BorderThickness = new Thickness(2);
+                    // 배경은 투명이라도 테두리가 생기므로 인식 가능
+                    btnPanel.Visibility = Visibility.Visible;
+                    textBox.Focus();
+                    e.Handled = true;
+                    return;
+                }
                 
                 isDragging = true;
                 lastPos = e.GetPosition(_canvas);

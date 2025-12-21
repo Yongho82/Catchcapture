@@ -56,11 +56,7 @@ namespace CatchCapture
         private bool textUnderlineEnabled = false;
         // 라이브 스트로크 미리보기 - _editorManager에서 관리
 
-        // 도형 버튼을 멤버 변수로 선언
-        private Button? rectButton;
-        private Button? ellipseButton;
-        private Button? lineButton;
-        private Button? arrowButton;
+
 
 
         // 로그 파일 경로 (미사용)

@@ -590,9 +590,18 @@ namespace CatchCapture
             StackPanel sizeSection = new StackPanel();
             sizeSection.Children.Add(new TextBlock { Text = LocalizationManager.Get("Size"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) });
             
-            Slider sizeSlider = new Slider { Minimum = 10, Maximum = 60, Value = textSize, Width = 100, Margin = new Thickness(0, 0, 0, 5) };
-            TextBlock sizeVal = new TextBlock { Text = $"{(int)textSize}px", HorizontalAlignment = HorizontalAlignment.Center };
-            sizeSlider.ValueChanged += (s, e) => { textSize = (int)e.NewValue; sizeVal.Text = $"{(int)textSize}px"; };
+            // _editorManager의 NumberingBadgeSize 사용
+            double currentSize = _editorManager.NumberingBadgeSize;
+            
+            Slider sizeSlider = new Slider { Minimum = 10, Maximum = 60, Value = currentSize, Width = 100, Margin = new Thickness(0, 0, 0, 5) };
+            TextBlock sizeVal = new TextBlock { Text = $"{(int)currentSize}px", HorizontalAlignment = HorizontalAlignment.Center };
+            
+            sizeSlider.ValueChanged += (s, e) => { 
+                double val = e.NewValue;
+                _editorManager.NumberingBadgeSize = val;
+                _editorManager.NumberingTextSize = val * 0.5; // 50% 비율 유지
+                sizeVal.Text = $"{(int)val}px"; 
+            };
             
             sizeSection.Children.Add(sizeSlider);
             sizeSection.Children.Add(sizeVal);

@@ -40,7 +40,7 @@ namespace CatchCapture.Utilities
         private List<UIElement> drawnElements = new List<UIElement>();
         private Stack<UIElement> undoStack = new Stack<UIElement>();
         private int penThickness = 3; 
-        private int highlightThickness = 8; 
+ 
         private Button? activeToolButton; 
          // 도형 관련 필드
         private ShapeType shapeType = ShapeType.Rectangle;
@@ -50,8 +50,13 @@ namespace CatchCapture.Utilities
         // [추가] 모자이크 관련 필드
         private double mosaicIntensity = 15; // 모자이크 강도 (기본값)
         // 텍스트 편집 관련 필드
-        private int textFontSize = 16;
+        private double textFontSize = 16;
         private string textFontFamily = "Malgun Gothic";
+        private FontWeight textFontWeight = FontWeights.Normal; // 추가
+        private FontStyle textFontStyle = FontStyles.Normal; // 추가
+        private bool textUnderlineEnabled = false; // 추가
+        private bool textShadowEnabled = false; // 추가
+        
         private Border? magnifierBorder;
         private Image? magnifierImage;
         private const double MagnifierSize = 150; // 돋보기 크기
@@ -62,6 +67,7 @@ namespace CatchCapture.Utilities
         private Line? crosshairHorizontal;
         private Line? crosshairVertical;
         private double highlightOpacity = 0.5; // 형광펜 투명도 (0.0 ~ 1.0)
+        private double highlightThickness = 8.0; // 형광펜 두께(double)로 변경
         private double numberingBadgeSize = 24; // 넘버링 배지 크기
         private double numberingTextSize = 12;  // 넘버링 텍스트 크기
         private bool showMagnifier = true;
@@ -1602,290 +1608,338 @@ namespace CatchCapture.Utilities
             // 기존 팔레트 제거
             HideColorPalette();
             
-            // 팔레트 컨테이너 생성
-            var background = new Border
-            {
-                BorderThickness = new Thickness(1),
-                CornerRadius = new CornerRadius(8),
-                Padding = new Thickness(10),
-                Width = 320
-            };
-            background.SetResourceReference(Border.BorderBrushProperty, "ThemeBorder");
-            background.SetResourceReference(Border.BackgroundProperty, "ThemeBackground");
-            background.SetResourceReference(TextElement.ForegroundProperty, "ThemeForeground"); // 텍스트 색상 상속
+            // [수정] 도구에 따라 레이아웃 분기 (도형은 세로형, 나머지는 가로형)
+            Border background;
             
-            var mainGrid = new Grid();
-            mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 색상
-            mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 구분선
-            mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); // 옵션
-            background.Child = mainGrid;
-            
-            background.Effect = new System.Windows.Media.Effects.DropShadowEffect
+            if (tool == "도형")
             {
-                Color = Colors.Black,
-                BlurRadius = 5,
-                ShadowDepth = 1,
-                Opacity = 0.2
-            };
-            
-            // 1. 색상 섹션 (모자이크가 아닐 때만 표시)
-            if (tool != "모자이크")
-            {
-                var colorSection = new StackPanel { Margin = new Thickness(0, 0, 15, 0) };
-                var colorLabel = new TextBlock
+                // [도형] PreviewWindow와 동일한 세로형 레이아웃으로 변경
+                background = new Border
                 {
-                    Text = LocalizationManager.Get("Color"),
-                    FontWeight = FontWeights.SemiBold,
-                    Margin = new Thickness(0, 0, 0, 8)
-                };
-                colorSection.Children.Add(colorLabel);
-                
-                var colorGrid = new WrapPanel { Width = 150 };
-                
-                foreach (var c in UIConstants.SharedColorPalette)
-                {
-                    colorGrid.Children.Add(CreateColorSwatch(c, colorGrid));
-                }
-                
-                foreach (var c in customColors)
-                {
-                    colorGrid.Children.Add(CreateColorSwatch(c, colorGrid));
-                }
-                
-                // [+] 버튼
-                var addButton = new Button
-                {
-                    Content = "+",
-                    Width = 20,
-                    Height = 20,
-                    Margin = new Thickness(2),
-                    BorderBrush = (Brush)Application.Current.FindResource("ThemeBorder"),
+                    Width = 240, // 세로형 레이아웃에 맞는 너비 (220 -> 240 넉넉하게)
                     BorderThickness = new Thickness(1),
-                    Cursor = Cursors.Hand
+                    CornerRadius = new CornerRadius(8),
+                    Padding = new Thickness(10)
                 };
-                addButton.SetResourceReference(Button.BackgroundProperty, "ThemeBackground");
-                addButton.SetResourceReference(Button.ForegroundProperty, "ThemeForeground");
-                addButton.Click += (s, e) =>
-                {
-                    var colorDialog = new System.Windows.Forms.ColorDialog();
-                    if (colorDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                    {
-                        var newColor = Color.FromArgb(colorDialog.Color.A, colorDialog.Color.R, colorDialog.Color.G, colorDialog.Color.B);
-                        customColors.Add(newColor);
-                        colorGrid.Children.Insert(colorGrid.Children.Count - 1, CreateColorSwatch(newColor, colorGrid));
-                        selectedColor = newColor;
-                        UpdateColorSelection(colorGrid);
-                    }
+                
+                var mainStack = new StackPanel { Orientation = Orientation.Vertical };
+                
+                // (1) 도형 종류 섹션
+                var shapeLabel = new TextBlock 
+                { 
+                    Text = LocalizationManager.Get("ShapeLbl"), 
+                    FontWeight = FontWeights.SemiBold, 
+                    FontSize = 12, 
+                    Margin = new Thickness(0, 0, 0, 4) 
                 };
-                colorGrid.Children.Add(addButton);
+                mainStack.Children.Add(shapeLabel);
+
+                var shapeRow = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 10) };
+                // CreateShapeOptionButton은 스니핑윈도우 내부에 존재하는 메서드 사용
+                shapeRow.Children.Add(CreateShapeOptionButton("□", ShapeType.Rectangle));
+                shapeRow.Children.Add(CreateShapeOptionButton("○", ShapeType.Ellipse));
+                shapeRow.Children.Add(CreateShapeOptionButton("╱", ShapeType.Line));
+                shapeRow.Children.Add(CreateShapeOptionButton("↗", ShapeType.Arrow));
+                mainStack.Children.Add(shapeRow);
                 
-                colorSection.Children.Add(colorGrid);
-                Grid.SetColumn(colorSection, 0);
-                mainGrid.Children.Add(colorSection);
-                
-                // 2. 구분선
-                var separator = new Border
-                {
-                    Width = 1,
-                    Height = 30,
-                    Background = (Brush)Application.Current.FindResource("ThemeBorder"),  // 밝은 회색
-                    Margin = new Thickness(3, 0, 3, 0)  // 마진도 줄임
+                // (2) 스타일 섹션 (윤곽선/채우기 + 투명도)
+                var styleLabel = new TextBlock 
+                { 
+                    Text = LocalizationManager.Get("LineStyle"), 
+                    FontWeight = FontWeights.SemiBold, 
+                    FontSize = 12, 
+                    Margin = new Thickness(0, 0, 0, 4) 
                 };
-                Grid.SetColumn(separator, 1);
-                mainGrid.Children.Add(separator);
-            }
-            
-            // 3. 옵션 섹션 (도구별 분기)
-            var optionSection = new StackPanel();
-            Grid.SetColumn(optionSection, 2);
-            mainGrid.Children.Add(optionSection);
-
-            if (tool == "텍스트")
-            {
-                // [텍스트 옵션]
-                var optionLabel = new TextBlock { Text = LocalizationManager.Get("TextOptions"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
-                optionSection.Children.Add(optionLabel);
-
-                // 폰트 크기
-                var sizePanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 5) };
-                sizePanel.Children.Add(new TextBlock { Text = LocalizationManager.Get("SizeLabel") + ":", VerticalAlignment = VerticalAlignment.Center, Width = 40 });
-                var sizeCombo = new ComboBox { Width = 60, Height = 25 };
-                int[] sizes = { 10, 12, 14, 16, 18, 24, 36, 48, 72 };
-                foreach (var s in sizes) sizeCombo.Items.Add(s);
-                sizeCombo.SelectedItem = textFontSize;
-                sizeCombo.SelectionChanged += (s, e) => { if (sizeCombo.SelectedItem is int newSize) { textFontSize = newSize; if (selectedObject is TextBox tb) tb.FontSize = newSize; } };
-                sizePanel.Children.Add(sizeCombo);
-                optionSection.Children.Add(sizePanel);
-
-                // 폰트 종류
-                var fontPanel = new StackPanel { Orientation = Orientation.Horizontal };
-                fontPanel.Children.Add(new TextBlock { Text = LocalizationManager.Get("Font") + ":", VerticalAlignment = VerticalAlignment.Center, Width = 40 });
-                var fontCombo = new ComboBox { Width = 100, Height = 25 };
-                string[] fonts = { "Malgun Gothic", "Arial", "Consolas", "Gulim", "Dotum" };
-                foreach (var f in fonts) fontCombo.Items.Add(f);
-                fontCombo.SelectedItem = textFontFamily;
-                fontCombo.SelectionChanged += (s, e) => { if (fontCombo.SelectedItem is string newFont) { textFontFamily = newFont; if (selectedObject is TextBox tb) tb.FontFamily = new FontFamily(newFont); } };
-                fontPanel.Children.Add(fontCombo);
-                optionSection.Children.Add(fontPanel);
-            }
-            else if (tool == "도형")
-            {
-                // [도형 옵션]
-                var optionLabel = new TextBlock { Text = LocalizationManager.Get("ShapeOptions"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
-                optionSection.Children.Add(optionLabel);
-
-                // 도형 종류
-                var shapeTypePanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 8) };
-                shapeTypePanel.Children.Add(CreateShapeOptionButton("□", ShapeType.Rectangle));
-                shapeTypePanel.Children.Add(CreateShapeOptionButton("○", ShapeType.Ellipse));
-                shapeTypePanel.Children.Add(CreateShapeOptionButton("╱", ShapeType.Line));
-                shapeTypePanel.Children.Add(CreateShapeOptionButton("↗", ShapeType.Arrow));
-                optionSection.Children.Add(shapeTypePanel);
-
-                // 두께
-                var thicknessPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 5) };
-                thicknessPanel.Children.Add(new TextBlock { Text = LocalizationManager.Get("Thickness") + ":", VerticalAlignment = VerticalAlignment.Center, Width = 35, FontSize = 11 });
-                var thicknessSlider = new Slider { Minimum = 1, Maximum = 10, Value = shapeBorderThickness, Width = 80, IsSnapToTickEnabled = true, TickFrequency = 1, VerticalAlignment = VerticalAlignment.Center };
-                thicknessSlider.ValueChanged += (s, e) => { shapeBorderThickness = thicknessSlider.Value; };
-                thicknessPanel.Children.Add(thicknessSlider);
-                optionSection.Children.Add(thicknessPanel);
-
-                // 채우기 및 투명도
-                var fillPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 2, 0, 0) };
-                var fillCheckBox = new CheckBox { Content = LocalizationManager.Get("Fill"), IsChecked = shapeIsFilled, FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
-                fillCheckBox.Checked += (s, e) => { shapeIsFilled = true; };
-                fillCheckBox.Unchecked += (s, e) => { shapeIsFilled = false; };
-                fillPanel.Children.Add(fillCheckBox);
-                var opacitySlider = new Slider { Minimum = 0, Maximum = 1, Value = shapeFillOpacity, Width = 60, Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center, ToolTip = LocalizationManager.Get("FillOpacity") };
-                opacitySlider.ValueChanged += (s, e) => { shapeFillOpacity = opacitySlider.Value; };
-                fillPanel.Children.Add(opacitySlider);
-                optionSection.Children.Add(fillPanel);
-            }
-            else if (tool == "모자이크")
-            {
-                // [모자이크 옵션]
-                var optionLabel = new TextBlock { Text = LocalizationManager.Get("Mosaic"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
-                optionSection.Children.Add(optionLabel);
-
-                var intensityPanel = new StackPanel { Orientation = Orientation.Horizontal };
-                intensityPanel.Children.Add(new TextBlock { Text = LocalizationManager.Get("Intensity") + ":", VerticalAlignment = VerticalAlignment.Center, Width = 35 });
-
-                var slider = new Slider
-                {
-                    Minimum = 5,
-                    Maximum = 50,
-                    Value = mosaicIntensity,
-                    Width = 120,
-                    VerticalAlignment = VerticalAlignment.Center,
-                    IsSnapToTickEnabled = true,
-                    TickFrequency = 5,
-                    ToolTip = LocalizationManager.Get("Intensity")
+                mainStack.Children.Add(styleLabel);
+                
+                var fillRow = new StackPanel { Orientation = Orientation.Horizontal };
+                var outlineBtn = CreateFillOptionButton(LocalizationManager.Get("Outline"), false);
+                var fillBtn = CreateFillOptionButton(LocalizationManager.Get("Fill"), true);
+                fillRow.Children.Add(outlineBtn);
+                fillRow.Children.Add(fillBtn);
+                mainStack.Children.Add(fillRow);
+                
+                // 투명도 슬라이더 (채우기일 때만 활성화)
+                var opacityPanel = new StackPanel 
+                { 
+                    Orientation = Orientation.Horizontal, 
+                    Margin = new Thickness(0, 8, 0, 0),
+                    IsEnabled = shapeIsFilled,
+                    Opacity = shapeIsFilled ? 1.0 : 0.5,
+                    Tag = "OpacityPanel"
                 };
-                slider.ValueChanged += (s, e) => { mosaicIntensity = slider.Value; };
-                intensityPanel.Children.Add(slider);
                 
-                optionSection.Children.Add(intensityPanel);
-            }
-            
-            else if (tool == "형광펜")
-            {
-                // [형광펜 옵션: 두께 + 투명도]
-                var thicknessLabel = new TextBlock { Text = LocalizationManager.Get("Thickness"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
-                optionSection.Children.Add(thicknessLabel);
+                opacityPanel.Children.Add(new TextBlock 
+                { 
+                    Text = LocalizationManager.Get("FillOpacity"), 
+                    FontSize = 10, 
+                    Foreground = Brushes.Gray, 
+                    VerticalAlignment = VerticalAlignment.Center, 
+                    Margin = new Thickness(0, 0, 8, 0) 
+                });
                 
-                var thicknessList = new StackPanel();
-                int[] presets = new int[] { 5, 8, 12, 16, 20 }; // 형광펜은 좀 더 두껍게
-                foreach (var p in presets)
-                {
-                    var item = new Grid { Margin = new Thickness(0, 0, 0, 8), Cursor = Cursors.Hand, Background = Brushes.Transparent };
-                    item.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(30) });
-                    item.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-                    
-                    var line = new Border { Height = p, Width = 30, Background = new SolidColorBrush(Color.FromArgb((byte)(highlightOpacity * 255), 255, 255, 0)), HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center };
-                    Grid.SetColumn(line, 0); item.Children.Add(line);
-                    
-                    var text = new TextBlock
-                    {
-                        Text = $"{p}px",
-                        FontSize = 11,
-                        HorizontalAlignment = HorizontalAlignment.Center,
-                        Foreground = Brushes.Gray,
-                        Margin = new Thickness(8, 0, 0, 0)
-                    };
-                    Grid.SetColumn(text, 1); item.Children.Add(text);
-
-                    int thickness = p;
-                    item.MouseLeftButtonDown += (s, e) =>
-                    {
-                        highlightThickness = thickness;
-                        foreach (var child in thicknessList.Children) { if (child is Grid g) g.Background = Brushes.Transparent; }
-                        item.Background = new SolidColorBrush(Color.FromArgb(40, 0, 120, 212));
-                    };
-                    // 현재 선택된 두께 표시
-                    if (highlightThickness == thickness) item.Background = new SolidColorBrush(Color.FromArgb(40, 0, 120, 212));
-
-                    thicknessList.Children.Add(item);
-                }
-                optionSection.Children.Add(thicknessList);
-
-                // 투명도 슬라이더
-                var opacityLabel = new TextBlock { Text = LocalizationManager.Get("FillOpacity"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 10, 0, 8) };
-                optionSection.Children.Add(opacityLabel);
-
-                var opacityPanel = new StackPanel { Orientation = Orientation.Horizontal };
                 var opacitySlider = new Slider 
                 { 
-                    Minimum = 0.1, 
-                    Maximum = 1.0, 
-                    Value = highlightOpacity, 
-                    Width = 100, 
-                    VerticalAlignment = VerticalAlignment.Center,
-                    IsSnapToTickEnabled = true,
-                    TickFrequency = 0.1
+                    Minimum = 0, Maximum = 100, 
+                    Value = shapeFillOpacity * 100, 
+                    Width = 80, 
+                    VerticalAlignment = VerticalAlignment.Center, 
+                    IsSnapToTickEnabled = true, 
+                    TickFrequency = 10 
                 };
-                var opacityValueText = new TextBlock { Text = $"{(int)(highlightOpacity * 100)}%", FontSize = 11, Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center, Width = 35 };
+                
+                var opacityVal = new TextBlock 
+                { 
+                    Text = $"{(int)(shapeFillOpacity * 100)}%", 
+                    FontSize = 10, 
+                    Foreground = Brushes.Gray, 
+                    VerticalAlignment = VerticalAlignment.Center, 
+                    Margin = new Thickness(8, 0, 0, 0),
+                    Width = 30
+                };
                 
                 opacitySlider.ValueChanged += (s, e) => 
                 { 
-                    highlightOpacity = opacitySlider.Value; 
-                    opacityValueText.Text = $"{(int)(highlightOpacity * 100)}%";
+                    shapeFillOpacity = opacitySlider.Value / 100.0; 
+                    opacityVal.Text = $"{(int)opacitySlider.Value}%";
                 };
                 
                 opacityPanel.Children.Add(opacitySlider);
-                opacityPanel.Children.Add(opacityValueText);
-                optionSection.Children.Add(opacityPanel);
-            }
-            else if (tool == "넘버링")
-            {
-                // [넘버링 옵션: 배지 크기 + 텍스트 크기]
-                var optionLabel = new TextBlock { Text = LocalizationManager.Get("NumberingOptions"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
-                optionSection.Children.Add(optionLabel);
+                opacityPanel.Children.Add(opacityVal);
+                mainStack.Children.Add(opacityPanel);
+                
+                // 버튼 클릭 시 불투명도 패널 제어
+                fillBtn.Click += (s, e) => { opacityPanel.IsEnabled = true; opacityPanel.Opacity = 1.0; };
+                outlineBtn.Click += (s, e) => { opacityPanel.IsEnabled = false; opacityPanel.Opacity = 0.5; };
+                
+                // 구분선
+                mainStack.Children.Add(new Border { Height = 1, Background = (Brush)Application.Current.FindResource("ThemeBorder"), Margin = new Thickness(0, 10, 0, 10) });
 
-                // 배지 크기
-                var badgePanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 5) };
-                badgePanel.Children.Add(new TextBlock { Text = LocalizationManager.Get("NumberingBadge"), VerticalAlignment = VerticalAlignment.Center, Width = 45, FontSize = 11 });
-                var badgeCombo = new ComboBox { Width = 60, Height = 22, FontSize = 11 };
-                int[] badgeSizes = { 16, 20, 24, 28, 32, 36 };
-                foreach (var s in badgeSizes) badgeCombo.Items.Add(s);
-                badgeCombo.SelectedItem = (int)numberingBadgeSize;
-                badgeCombo.SelectionChanged += (s, e) => { if (badgeCombo.SelectedItem is int newSize) numberingBadgeSize = newSize; };
-                badgePanel.Children.Add(badgeCombo);
-                optionSection.Children.Add(badgePanel);
-
-                // 텍스트 크기
-                var textPanel = new StackPanel { Orientation = Orientation.Horizontal };
-                textPanel.Children.Add(new TextBlock { Text = LocalizationManager.Get("NumberingText"), VerticalAlignment = VerticalAlignment.Center, Width = 45, FontSize = 11 });
-                var textCombo = new ComboBox { Width = 60, Height = 22, FontSize = 11 };
-                int[] textSizes = { 10, 11, 12, 14, 16, 18, 20 };
-                foreach (var s in textSizes) textCombo.Items.Add(s);
-                textCombo.SelectedItem = (int)numberingTextSize;
-                textCombo.SelectionChanged += (s, e) => { if (textCombo.SelectedItem is int newSize) numberingTextSize = newSize; };
-                textPanel.Children.Add(textCombo);
-                optionSection.Children.Add(textPanel);
+                // (3) 색상 섹션
+                var colorGrid = new WrapPanel { Width = 220 };
+                AddColorSwatches(colorGrid);
+                mainStack.Children.Add(colorGrid);
+                
+                background.Child = mainStack;
             }
             else
             {
-                 // [기본 두께 옵션 (펜)]
+                // [기본] 가로형 그리드 (좌측 색상 | 옵션) - 기존 형광펜, 텍스트, 펜, 넘버링 등
+                background = new Border
+                {
+                    Width = 320,
+                    BorderThickness = new Thickness(1),
+                    CornerRadius = new CornerRadius(8),
+                    Padding = new Thickness(10)
+                };
+                
+                var mainGrid = new Grid();
+                mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 색상
+                mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 구분선
+                mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); // 옵션
+                background.Child = mainGrid;
+
+                // 1. 색상 섹션 (모자이크 제외)
+                if (tool != "모자이크")
+                {
+                    var colorSection = new StackPanel { Margin = new Thickness(0, 0, 15, 0) };
+                    colorSection.Children.Add(new TextBlock { Text = LocalizationManager.Get("Color"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) });
+                    
+                    var colorGrid = new WrapPanel { Width = 150 };
+                    AddColorSwatches(colorGrid);
+                    
+                    colorSection.Children.Add(colorGrid);
+                    Grid.SetColumn(colorSection, 0);
+                    mainGrid.Children.Add(colorSection);
+                    
+                    // 구분선
+                    var separator = new Border
+                    {
+                        Width = 1,
+                        Height = 30,
+                        Background = (Brush)Application.Current.FindResource("ThemeBorder"),
+                        Margin = new Thickness(3, 0, 3, 0)
+                    };
+                    Grid.SetColumn(separator, 1);
+                    mainGrid.Children.Add(separator);
+                }
+
+                // 2. 옵션 섹션
+                var optionSection = new StackPanel();
+                Grid.SetColumn(optionSection, 2);
+                mainGrid.Children.Add(optionSection);
+                
+                if (tool == "넘버링")
+                {
+                    // [넘버링 수정] PreviewWindow와 동일하게 슬라이더 1개로 통일
+                    optionSection.Children.Add(new TextBlock { Text = LocalizationManager.Get("Size"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) });
+                    
+                    var sizePanel = new StackPanel { Orientation = Orientation.Horizontal };
+                    var sizeSlider = new Slider 
+                    { 
+                        Minimum = 10, Maximum = 60, 
+                        Value = numberingBadgeSize, 
+                        Width = 100, 
+                        VerticalAlignment = VerticalAlignment.Center 
+                    }; 
+                    var sizeVal = new TextBlock 
+                    { 
+                        Text = $"{(int)numberingBadgeSize}px", 
+                        VerticalAlignment = VerticalAlignment.Center, 
+                        Margin = new Thickness(8, 0, 0, 0) 
+                    };
+                    
+                    sizeSlider.ValueChanged += (s, e) => 
+                    {
+                        numberingBadgeSize = e.NewValue;
+                        numberingTextSize = e.NewValue * 0.5; // 텍스트 크기 자동 조정 (비율 유지)
+                        sizeVal.Text = $"{(int)e.NewValue}px";
+                    };
+                    sizePanel.Children.Add(sizeSlider);
+                    sizePanel.Children.Add(sizeVal);
+                    optionSection.Children.Add(sizePanel);
+                }
+                else if (tool == "텍스트")
+                {
+                    // 폰트 선택
+                    optionSection.Children.Add(new TextBlock { Text = LocalizationManager.Get("Font"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 4) });
+                    var fontCombo = new ComboBox { Width = 120, Height = 25, Margin = new Thickness(0, 0, 0, 10) };
+                    string[] fonts = { 
+                        "Malgun Gothic", "Gulim", "Dotum", "Batang", "Gungsuh", 
+                        "Arial", "Segoe UI", "Verdana", "Tahoma", "Times New Roman", 
+                        "Consolas", "Impact", "Comic Sans MS" 
+                    };
+                    foreach (var f in fonts) fontCombo.Items.Add(f);
+                    fontCombo.SelectedItem = textFontFamily;
+                    fontCombo.SelectionChanged += (s, e) => 
+                    { 
+                        if (fontCombo.SelectedItem is string newFont) 
+                        { 
+                            textFontFamily = newFont; 
+                            if (selectedObject is TextBox tb) tb.FontFamily = new FontFamily(newFont); 
+                        } 
+                    };
+                    optionSection.Children.Add(fontCombo);
+
+                    // 크기 (Slider)
+                    optionSection.Children.Add(new TextBlock { Text = LocalizationManager.Get("SizeLabel"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 4) });
+                    var sizeSlider = new Slider { Minimum = 8, Maximum = 72, Value = textFontSize, Width = 120, Margin = new Thickness(0,0,0,2) };
+                    var sizeVal = new TextBlock { Text = $"{(int)textFontSize}px", FontSize = 11, Foreground = Brushes.Gray, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 0, 0, 8) };
+                    
+                    sizeSlider.ValueChanged += (s, e) => 
+                    { 
+                        textFontSize = e.NewValue; 
+                        sizeVal.Text = $"{(int)textFontSize}px"; 
+                        if (selectedObject is TextBox tb) tb.FontSize = textFontSize; 
+                    };
+                    optionSection.Children.Add(sizeSlider);
+                    optionSection.Children.Add(sizeVal);
+
+                    // 스타일 구분선
+                    optionSection.Children.Add(new Border { Height = 10 });
+                    optionSection.Children.Add(new TextBlock { Text = LocalizationManager.Get("Style"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 4) });
+
+                    var stylePanel = new StackPanel();
+
+                    // Bold
+                    var boldCheck = new CheckBox { Content = LocalizationManager.Get("Bold"), IsChecked = textFontWeight == FontWeights.Bold, Margin = new Thickness(0, 2, 0, 2) };
+                    boldCheck.Checked += (s, e) => { textFontWeight = FontWeights.Bold; if (selectedObject is TextBox tb) tb.FontWeight = FontWeights.Bold; };
+                    boldCheck.Unchecked += (s, e) => { textFontWeight = FontWeights.Normal; if (selectedObject is TextBox tb) tb.FontWeight = FontWeights.Normal; };
+                    stylePanel.Children.Add(boldCheck);
+
+                    // Italic
+                    var italicCheck = new CheckBox { Content = LocalizationManager.Get("Italic"), IsChecked = textFontStyle == FontStyles.Italic, Margin = new Thickness(0, 2, 0, 2) };
+                    italicCheck.Checked += (s, e) => { textFontStyle = FontStyles.Italic; if (selectedObject is TextBox tb) tb.FontStyle = FontStyles.Italic; };
+                    italicCheck.Unchecked += (s, e) => { textFontStyle = FontStyles.Normal; if (selectedObject is TextBox tb) tb.FontStyle = FontStyles.Normal; };
+                    stylePanel.Children.Add(italicCheck);
+
+                    // Underline
+                    var underlineCheck = new CheckBox { Content = LocalizationManager.Get("Underline"), IsChecked = textUnderlineEnabled, Margin = new Thickness(0, 2, 0, 2) };
+                    underlineCheck.Checked += (s, e) => 
+                    { 
+                        textUnderlineEnabled = true; 
+                        if (selectedObject is TextBox tb) tb.TextDecorations = TextDecorations.Underline; 
+                    };
+                    underlineCheck.Unchecked += (s, e) => 
+                    { 
+                        textUnderlineEnabled = false; 
+                        if (selectedObject is TextBox tb) tb.TextDecorations = null; 
+                    };
+                    stylePanel.Children.Add(underlineCheck);
+
+                    // Shadow
+                    var shadowCheck = new CheckBox { Content = LocalizationManager.Get("Shadow"), IsChecked = textShadowEnabled, Margin = new Thickness(0, 2, 0, 2) };
+                    shadowCheck.Checked += (s, e) => 
+                    { 
+                        textShadowEnabled = true; 
+                        if (selectedObject is TextBox tb) 
+                            tb.Effect = new System.Windows.Media.Effects.DropShadowEffect { Color = Colors.Black, BlurRadius = 2, ShadowDepth = 1, Opacity = 0.5 }; 
+                    };
+                    shadowCheck.Unchecked += (s, e) => 
+                    { 
+                        textShadowEnabled = false; 
+                        if (selectedObject is TextBox tb) tb.Effect = null; 
+                    };
+                    stylePanel.Children.Add(shadowCheck);
+
+                    optionSection.Children.Add(stylePanel);
+                }
+                else if (tool == "모자이크")
+                {
+                    // [기존 모자이크 옵션 유지]
+                    var optionLabel = new TextBlock { Text = LocalizationManager.Get("Mosaic"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
+                    optionSection.Children.Add(optionLabel);
+
+                    var intensityPanel = new StackPanel { Orientation = Orientation.Horizontal };
+                    intensityPanel.Children.Add(new TextBlock { Text = LocalizationManager.Get("Intensity") + ":", VerticalAlignment = VerticalAlignment.Center, Width = 35 });
+
+                    var slider = new Slider
+                    {
+                        Minimum = 5, Maximum = 50, Value = mosaicIntensity, Width = 120,
+                        VerticalAlignment = VerticalAlignment.Center, IsSnapToTickEnabled = true, TickFrequency = 5,
+                        ToolTip = LocalizationManager.Get("Intensity")
+                    };
+                    slider.ValueChanged += (s, e) => { mosaicIntensity = slider.Value; };
+                    intensityPanel.Children.Add(slider);
+                    optionSection.Children.Add(intensityPanel);
+                }
+                else if (tool == "형광펜")
+                {
+                    // 두께
+                    optionSection.Children.Add(new TextBlock { Text = LocalizationManager.Get("Thickness"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) });
+                    var thicknessSlider = new Slider 
+                    { 
+                        Minimum = 1, Maximum = 50, Value = highlightThickness, 
+                        Width = 100, Margin = new Thickness(0, 0, 0, 5) 
+                    };
+                    thicknessSlider.ValueChanged += (s, e) => { highlightThickness = e.NewValue; };
+                    optionSection.Children.Add(thicknessSlider);
+
+                    // 투명도
+                    optionSection.Children.Add(new TextBlock { Text = LocalizationManager.Get("Opacity"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 8, 0, 8) });
+                    var opacityPanel = new StackPanel { Orientation = Orientation.Horizontal };
+                    var opacitySlider = new Slider 
+                    { 
+                        Minimum = 0, Maximum = 1, Value = highlightOpacity, 
+                        Width = 100, Margin = new Thickness(0, 0, 0, 5) 
+                    };
+                    var opacityVal = new TextBlock { Text = $"{(int)(highlightOpacity * 100)}%", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(8,0,0,0)};
+                    
+                    opacitySlider.ValueChanged += (s, e) => 
+                    { 
+                        highlightOpacity = e.NewValue; 
+                        opacityVal.Text = $"{(int)(e.NewValue * 100)}%"; 
+                    };
+                    opacityPanel.Children.Add(opacitySlider);
+                    opacityPanel.Children.Add(opacityVal);
+                    optionSection.Children.Add(opacityPanel);
+                }
+
+
+
+                else
+                {
+                    // [기본 펜]
                     var thicknessLabel = new TextBlock { Text = LocalizationManager.Get("Thickness"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) };
                     optionSection.Children.Add(thicknessLabel);
                     
@@ -1901,15 +1955,7 @@ namespace CatchCapture.Utilities
                         line.SetResourceReference(Border.BackgroundProperty, "ThemeForeground");
                         Grid.SetColumn(line, 0); item.Children.Add(line);
                         
-                        var text = new TextBlock
-                        {
-                            Text = $"{p}px",
-                            FontSize = 11,
-                            HorizontalAlignment = HorizontalAlignment.Center,
-                            Foreground = (Brush)Application.Current.FindResource("ThemeForeground"),
-                            Opacity = 0.6,
-                            Margin = new Thickness(8, 0, 0, 0)
-                        };
+                        var text = new TextBlock { Text = $"{p}px", FontSize = 11, HorizontalAlignment = HorizontalAlignment.Center, Foreground = (Brush)Application.Current.FindResource("ThemeForeground"), Opacity = 0.6, Margin = new Thickness(8, 0, 0, 0) };
                         Grid.SetColumn(text, 1); item.Children.Add(text);
 
                         int thickness = p;
@@ -1919,19 +1965,95 @@ namespace CatchCapture.Utilities
                             foreach (var child in thicknessList.Children) { if (child is Grid g) g.Background = Brushes.Transparent; }
                             item.Background = new SolidColorBrush(Color.FromArgb(40, 0, 120, 212));
                         };
-                        // 현재 선택된 두께 표시
                         if (penThickness == thickness) item.Background = new SolidColorBrush(Color.FromArgb(40, 0, 120, 212));
-
                         thicknessList.Children.Add(item);
                     }
                     optionSection.Children.Add(thicknessList);
+                }
             }
+            
+            background.SetResourceReference(Border.BackgroundProperty, "ThemeBackground");
+            background.SetResourceReference(Border.BorderBrushProperty, "ThemeBorder");
+            background.SetResourceReference(TextElement.ForegroundProperty, "ThemeForeground");
+            
+            background.Effect = new System.Windows.Media.Effects.DropShadowEffect
+            {
+                Color = Colors.Black, BlurRadius = 5, ShadowDepth = 1, Opacity = 0.2
+            };
             
             canvas.Children.Add(background);
             Canvas.SetLeft(background, left);
             Canvas.SetTop(background, top);
-            
             colorPalette = background;
+        }
+
+        // [추가] 색상 패널 생성 도우미 메서드
+        private void AddColorSwatches(WrapPanel colorGrid)
+        {
+             foreach (var c in UIConstants.SharedColorPalette) 
+                 if (c != Colors.Transparent) colorGrid.Children.Add(CreateColorSwatch(c, colorGrid));
+             
+             foreach (var c in customColors) 
+                 colorGrid.Children.Add(CreateColorSwatch(c, colorGrid));
+             
+             // [+] 버튼
+             var addButton = new Button
+             {
+                 Content = "+", Width = 20, Height = 20, Margin = new Thickness(2),
+                 BorderThickness = new Thickness(1), Cursor = Cursors.Hand
+             };
+             addButton.SetResourceReference(Button.BorderBrushProperty, "ThemeBorder");
+             addButton.SetResourceReference(Button.BackgroundProperty, "ThemeBackground");
+             addButton.SetResourceReference(Button.ForegroundProperty, "ThemeForeground");
+             
+             addButton.Click += (s, e) =>
+             {
+                 var dlg = new System.Windows.Forms.ColorDialog();
+                 if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                 {
+                      var newColor = Color.FromArgb(dlg.Color.A, dlg.Color.R, dlg.Color.G, dlg.Color.B);
+                      customColors.Add(newColor);
+                      colorGrid.Children.Insert(colorGrid.Children.Count - 1, CreateColorSwatch(newColor, colorGrid));
+                      selectedColor = newColor;
+                      UpdateColorSelection(colorGrid);
+                 }
+             };
+             colorGrid.Children.Add(addButton);
+        }
+
+        // [추가] 채우기/윤곽선 스타일 버튼 생성
+        private Button CreateFillOptionButton(string text, bool isFilled)
+        {
+             var btn = new Button
+             {
+                 Content = text, Width = 65, Height = 28, Margin = new Thickness(0, 0, 4, 0),
+                 FontSize = 10,
+                 Background = (shapeIsFilled == isFilled) ? new SolidColorBrush(Color.FromRgb(72, 152, 255)) : Brushes.White,
+                 Foreground = (shapeIsFilled == isFilled) ? Brushes.White : new SolidColorBrush(Color.FromRgb(60, 60, 60)),
+                 BorderBrush = new SolidColorBrush(Color.FromRgb(200, 200, 200)), BorderThickness = new Thickness(1)
+             };
+             btn.Style = null; // 스타일 초기화
+             
+             btn.Click += (s, e) =>
+             {
+                 shapeIsFilled = isFilled;
+                 // 버튼 상태 갱신 (부모 패널의 형제 요소들 순회)
+                 if (s is Button b && b.Parent is StackPanel sp)
+                 {
+                     foreach(var child in sp.Children)
+                     {
+                         if (child is Button otherBtn)
+                         {
+                             // 간단히 텍스트로 채우기 버튼 식별 (LocalizationManager 값과 비교)
+                             bool otherIsFilled = otherBtn.Content.ToString() == LocalizationManager.Get("Fill");
+                             bool active = (shapeIsFilled == otherIsFilled);
+                             otherBtn.Background = active ? new SolidColorBrush(Color.FromRgb(72, 152, 255)) : Brushes.White;
+                             otherBtn.Foreground = active ? Brushes.White : new SolidColorBrush(Color.FromRgb(60, 60, 60));
+                         }
+                     }
+                 }
+             };
+             return btn;
         }
         
         private Border CreateColorSwatch(Color c, WrapPanel parentPanel)
@@ -2586,6 +2708,10 @@ namespace CatchCapture.Utilities
             _editorManager.NumberingTextSize = numberingTextSize;
             _editorManager.TextFontSize = textFontSize;
             _editorManager.TextFontFamily = textFontFamily;
+            _editorManager.TextFontWeight = textFontWeight;
+            _editorManager.TextFontStyle = textFontStyle;
+            _editorManager.TextUnderlineEnabled = textUnderlineEnabled;
+            _editorManager.TextShadowEnabled = textShadowEnabled;
         }
 
         private void UpdateObjectSelectionUI()
@@ -3139,7 +3265,7 @@ namespace CatchCapture.Utilities
             string prevTool = currentTool;
             var prevColor = selectedColor;
             int prevPen = penThickness;
-            int prevHigh = highlightThickness;
+            double prevHigh = highlightThickness;
             double prevHighOpacity = highlightOpacity; // [추가]
             var prevShapeType = shapeType;
             double prevShapeBorder = shapeBorderThickness;
