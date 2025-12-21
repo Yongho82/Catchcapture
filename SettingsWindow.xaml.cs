@@ -43,9 +43,9 @@ namespace CatchCapture
 
                 // Ensure custom theme colors are initialized
                 if (string.IsNullOrEmpty(_settings.CustomThemeBackgroundColor))
-                    _settings.CustomThemeBackgroundColor = _settings.ThemeMode == "Custom" ? _settings.ThemeBackgroundColor : "#FFFFFF";
+                    _settings.CustomThemeBackgroundColor = (_settings.ThemeMode == "Custom" ? _settings.ThemeBackgroundColor : "#FFFFFF") ?? "#FFFFFF";
                 if (string.IsNullOrEmpty(_settings.CustomThemeTextColor))
-                    _settings.CustomThemeTextColor = _settings.ThemeMode == "Custom" ? _settings.ThemeTextColor : "#333333";
+                    _settings.CustomThemeTextColor = (_settings.ThemeMode == "Custom" ? _settings.ThemeTextColor : "#333333") ?? "#333333";
                 
                 LoadThemePage();
                 HighlightNav(NavCapture, "Capture");
@@ -209,10 +209,16 @@ private void UpdateUIText()
                 if (ThemeLight != null) ThemeLight.Content = LocalizationManager.GetString("ThemeLight");
                 if (ThemeBlue != null) ThemeBlue.Content = LocalizationManager.GetString("ThemeBlue");
                 if (ThemeCustom != null) ThemeCustom.Content = LocalizationManager.GetString("ThemeCustom");
-                if (ThemeCustomGroup != null) ThemeCustomGroup.Header = LocalizationManager.GetString("ThemeCustom");
-                if (ThemeBgColorLabel != null) ThemeBgColorLabel.Text = LocalizationManager.GetString("ThemeBgColor");
-                if (ThemeTextColorLabel != null) ThemeTextColorLabel.Text = LocalizationManager.GetString("ThemeTextColor");
-                if (ThemeColorGuide != null) ThemeColorGuide.Text = LocalizationManager.GetString("ThemeColorGuide");
+                if (ThemeBgLabel != null) ThemeBgLabel.Text = LocalizationManager.GetString("ThemeBgColor") ?? "배경";
+                if (ThemeTextLabel != null) ThemeTextLabel.Text = LocalizationManager.GetString("ThemeTextColor") ?? "텍스트";
+
+                // 캡처 라인 설정 (Theme 페이지 하단)
+                if (CaptureLineSettingsGroup != null) CaptureLineSettingsGroup.Header = LocalizationManager.GetString("CaptureLineSettings") ?? "캡처 라인 설정";
+                if (OverlayBgLabel != null) OverlayBgLabel.Text = LocalizationManager.GetString("OverlayBgColor") ?? "오버레이 배경색";
+                if (LineStyleLabel != null) LineStyleLabel.Text = LocalizationManager.GetString("LineStyle") ?? "라인 스타일";
+                if (LineThicknessLabel != null) LineThicknessLabel.Text = LocalizationManager.GetString("LineThickness") ?? "라인 두께";
+                if (LineColorLabel != null) LineColorLabel.Text = LocalizationManager.GetString("LineColor") ?? "라인 색상";
+                if (CaptureSettingsGuide != null) CaptureSettingsGuide.Text = LocalizationManager.GetString("CaptureSettingsGuide") ?? "※ 색상 상자를 클릭하여 캡처 가이드 색상을 선택하세요.";
 
                 // 녹화 페이지
                 if (RecordingSectionTitle != null) RecordingSectionTitle.Text = LocalizationManager.GetString("RecordingSettings");
@@ -310,6 +316,33 @@ private void InitLanguageComboBox()
             else if (ThemeCustom != null && _settings.ThemeMode == "Custom") ThemeCustom.IsChecked = true;
             else if (ThemeGeneral != null) ThemeGeneral.IsChecked = true;
 
+            // Load Capture Line Settings
+            if (CboLineStyle != null)
+            {
+                foreach (ComboBoxItem item in CboLineStyle.Items)
+                {
+                    if (item.Tag?.ToString() == _settings.CaptureLineStyle)
+                    {
+                        CboLineStyle.SelectedItem = item;
+                        break;
+                    }
+                }
+                if (CboLineStyle.SelectedItem == null) CboLineStyle.SelectedIndex = 1; // Default: Dash
+            }
+
+            if (CboLineThickness != null)
+            {
+                foreach (ComboBoxItem item in CboLineThickness.Items)
+                {
+                    if (item.Tag?.ToString() == _settings.CaptureLineThickness.ToString("0.0"))
+                    {
+                        CboLineThickness.SelectedItem = item;
+                        break;
+                    }
+                }
+                if (CboLineThickness.SelectedItem == null) CboLineThickness.SelectedIndex = 1; // Default: 1.0
+            }
+
             UpdateColorPreviews();
         }
 
@@ -334,12 +367,31 @@ private void InitLanguageComboBox()
                 }
             }
             catch { if (PreviewThemeTextColor != null) PreviewThemeTextColor.Background = Brushes.Black; }
-            
-            // 사용자 지정 모드일 때만 색상 선택 가능하도록 활성화
-            if (ThemeCustomGroup != null && ThemeCustom != null)
+
+            try
             {
-                ThemeCustomGroup.IsEnabled = ThemeCustom.IsChecked == true;
-                ThemeCustomGroup.Opacity = ThemeCustom.IsChecked == true ? 1.0 : 0.5;
+                if (PreviewOverlayBgColor != null)
+                {
+                    string color = string.IsNullOrEmpty(_settings.OverlayBackgroundColor) ? "#8C000000" : _settings.OverlayBackgroundColor;
+                    PreviewOverlayBgColor.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(color));
+                }
+            }
+            catch { if (PreviewOverlayBgColor != null) PreviewOverlayBgColor.Background = new SolidColorBrush(Color.FromArgb(140, 0, 0, 0)); }
+
+            try
+            {
+                if (PreviewLineColor != null)
+                {
+                    string color = string.IsNullOrEmpty(_settings.CaptureLineColor) ? "#FF0000" : _settings.CaptureLineColor;
+                    PreviewLineColor.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(color));
+                }
+            }
+            catch { if (PreviewLineColor != null) PreviewLineColor.Background = Brushes.Red; }
+            
+            // 사용자 지정 모드일 때만 색상 선택 패널 활성화
+            if (CustomColorPanel != null && ThemeCustom != null)
+            {
+                CustomColorPanel.Visibility = ThemeCustom.IsChecked == true ? Visibility.Visible : Visibility.Hidden;
             }
 
             // Apply real-time preview to the whole app
@@ -397,9 +449,16 @@ private void InitLanguageComboBox()
                 // 팔레트 상태 복원 (깊은 복사)
                 if (_customColors != null) dialog.CustomColors = (int[])_customColors.Clone();
                 
-                string currentHex = type == "Bg" ? (_settings.ThemeBackgroundColor ?? "#FFFFFF") : (_settings.ThemeTextColor ?? "#333333");
+                string currentHex = "#FFFFFF";
+                if (type == "Bg") currentHex = _settings.ThemeBackgroundColor ?? "#FFFFFF";
+                else if (type == "Text") currentHex = _settings.ThemeTextColor ?? "#333333";
+                else if (type == "OverlayBg") currentHex = _settings.OverlayBackgroundColor ?? "#8C000000";
+                else if (type == "LineColor") currentHex = _settings.CaptureLineColor ?? "#FF0000";
+
                 try
                 {
+                    // If it has alpha channel (e.g. #8C000000), ColorConverter handles it. 
+                    // But ColorDialog only handles RGB.
                     var color = (Color)ColorConverter.ConvertFromString(currentHex);
                     dialog.Color = System.Drawing.Color.FromArgb(color.R, color.G, color.B);
                 }
@@ -410,28 +469,46 @@ private void InitLanguageComboBox()
                     // 팔레트 상태 저장 (깊은 복사)
                     _customColors = (int[])dialog.CustomColors.Clone();
                     
-                    string hex = $"#{dialog.Color.R:X2}{dialog.Color.G:X2}{dialog.Color.B:X2}";
-                    
-                    if (type == "Bg") 
+                    if (type == "OverlayBg")
                     {
-                        _settings.ThemeBackgroundColor = hex;
-                        _settings.CustomThemeBackgroundColor = hex;
+                        // Overlay background usually needs transparency. 
+                        // If it was already hex with alpha, let's keep the alpha from before if possible, 
+                        // or just use a default alpha (140/255 = 8C).
+                        string alpha = "8C"; 
+                        if (currentHex.Length == 9) alpha = currentHex.Substring(1, 2);
+                        _settings.OverlayBackgroundColor = $"#{alpha}{dialog.Color.R:X2}{dialog.Color.G:X2}{dialog.Color.B:X2}";
                     }
-                    else 
+                    else
                     {
-                        _settings.ThemeTextColor = hex;
-                        _settings.CustomThemeTextColor = hex;
-                    }
-                    
-                    // 무조건 사용자 지정(Custom) 모드로 전환
-                    if (ThemeCustom != null) 
-                    {
-                        ThemeCustom.IsChecked = true;
-                        _settings.ThemeMode = "Custom";
+                        string hex = $"#{dialog.Color.R:X2}{dialog.Color.G:X2}{dialog.Color.B:X2}";
+                        
+                        if (type == "Bg") 
+                        {
+                            _settings.ThemeBackgroundColor = hex;
+                            _settings.CustomThemeBackgroundColor = hex;
+                        }
+                        else if (type == "Text")
+                        {
+                            _settings.ThemeTextColor = hex;
+                            _settings.CustomThemeTextColor = hex;
+                        }
+                        else if (type == "LineColor")
+                        {
+                            _settings.CaptureLineColor = hex;
+                        }
+                        
+                        // 사용자 지정 테마 색상을 바꾼 경우에만 모드 전환
+                        if (type == "Bg" || type == "Text")
+                        {
+                            if (ThemeCustom != null) 
+                            {
+                                ThemeCustom.IsChecked = true;
+                                _settings.ThemeMode = "Custom";
+                            }
+                        }
                     }
                     
                     UpdateColorPreviews();
-                    // App.ApplyTheme는 UpdateColorPreviews 내부에서 자동으로 호출됨
                 }
             }
         }
@@ -802,6 +879,17 @@ private void InitLanguageComboBox()
             {
                 if (int.TryParse(recFpsItem.Content.ToString(), out int fps))
                     _settings.Recording.FrameRate = fps;
+            }
+
+            // Capture Line Settings Harvest
+            if (CboLineStyle.SelectedItem is ComboBoxItem lineStyleItem)
+            {
+                _settings.CaptureLineStyle = lineStyleItem.Tag?.ToString() ?? "Dash";
+            }
+            if (CboLineThickness.SelectedItem is ComboBoxItem lineThickItem)
+            {
+                if (double.TryParse(lineThickItem.Tag?.ToString(), out double thick))
+                    _settings.CaptureLineThickness = thick;
             }
 
             _settings.Recording.ShowMouseEffects = ChkRecMouse.IsChecked == true;

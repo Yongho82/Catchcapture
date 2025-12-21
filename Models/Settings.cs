@@ -21,6 +21,12 @@ namespace CatchCapture.Models
         // Stored custom theme colors (persists even when switching to other themes)
         public string CustomThemeBackgroundColor { get; set; } = "#FFFFFF";
         public string CustomThemeTextColor { get; set; } = "#333333";
+
+        // Capture Line & Overlay Settings
+        public string OverlayBackgroundColor { get; set; } = "#8C000000"; // Default: 140/255 opacity black
+        public string CaptureLineColor { get; set; } = "#FF0000";       // Default: Red
+        public double CaptureLineThickness { get; set; } = 1.0;
+        public string CaptureLineStyle { get; set; } = "Dash";          // "Solid", "Dash", "Dot", "DashDot"
         
         // Recording Settings
         public RecordingSettings Recording { get; set; } = new RecordingSettings();

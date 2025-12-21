@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using CatchCapture.Models;
 
 namespace CatchCapture.Utilities
 {
@@ -106,11 +107,17 @@ namespace CatchCapture.Utilities
 
             // UI 구성
             var canvas = new Canvas();
+            var settings = Settings.Load();
+
+            Color strikeColor;
+            try { strikeColor = (Color)ColorConverter.ConvertFromString(settings.CaptureLineColor); }
+            catch { strikeColor = Colors.Red; }
+
             highlightRect = new Rectangle
             {
-                Stroke = Brushes.Red,
-                StrokeThickness = 2,
-                Fill = new SolidColorBrush(Color.FromArgb(5, 255, 0, 0)),
+                Stroke = new SolidColorBrush(strikeColor),
+                StrokeThickness = settings.CaptureLineThickness,
+                Fill = new SolidColorBrush(Color.FromArgb(15, strikeColor.R, strikeColor.G, strikeColor.B)), // Slightly more visible
                 Visibility = Visibility.Collapsed
             };
             canvas.Children.Add(highlightRect);

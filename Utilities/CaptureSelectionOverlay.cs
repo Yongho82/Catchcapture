@@ -60,6 +60,8 @@ namespace CatchCapture.Utilities
 
         private void InitializeOverlay()
         {
+            var settings = Settings.Load();
+
             // 전체 화면 어둡게 처리
             double vWidth = SystemParameters.VirtualScreenWidth;
             double vHeight = SystemParameters.VirtualScreenHeight;
@@ -73,10 +75,14 @@ namespace CatchCapture.Utilities
             _overlayGeometryGroup.Children.Add(fullScreenGeometry);
             _overlayGeometryGroup.Children.Add(_selectionGeometry);
 
+            Color overlayColor;
+            try { overlayColor = (Color)ColorConverter.ConvertFromString(settings.OverlayBackgroundColor); }
+            catch { overlayColor = Color.FromArgb(140, 0, 0, 0); }
+
             _overlayPath = new System.Windows.Shapes.Path
             {
                 Data = _overlayGeometryGroup,
-                Fill = new SolidColorBrush(Color.FromArgb(140, 0, 0, 0)), // 약간 어둡게
+                Fill = new SolidColorBrush(overlayColor),
                 IsHitTestVisible = false
             };
             
@@ -92,17 +98,27 @@ namespace CatchCapture.Utilities
 
         private void InitializeSelectionUI()
         {
-            // 빨간 점선 사각형
-            var strokeBrush = new SolidColorBrush(Colors.Red);
+            var settings = Settings.Load();
+
+            // 라인 색상
+            Color strokeColor;
+            try { strokeColor = (Color)ColorConverter.ConvertFromString(settings.CaptureLineColor); }
+            catch { strokeColor = Colors.Red; }
+            var strokeBrush = new SolidColorBrush(strokeColor);
             strokeBrush.Freeze();
             
-            var dashArray = new DoubleCollection { 2, 3 };
-            dashArray.Freeze();
+            // 라인 스타일
+            DoubleCollection? dashArray = null;
+            if (settings.CaptureLineStyle == "Dash") dashArray = new DoubleCollection { 4, 3 };
+            else if (settings.CaptureLineStyle == "Dot") dashArray = new DoubleCollection { 1, 3 };
+            else if (settings.CaptureLineStyle == "DashDot") dashArray = new DoubleCollection { 4, 3, 1, 3 };
+            
+            if (dashArray != null) dashArray.Freeze();
 
             _selectionRectangle = new Rectangle
             {
                 Stroke = strokeBrush,
-                StrokeThickness = 1,
+                StrokeThickness = settings.CaptureLineThickness,
                 StrokeDashArray = dashArray,
                 StrokeDashCap = PenLineCap.Square,
                 Fill = Brushes.Transparent,
