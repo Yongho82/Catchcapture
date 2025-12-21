@@ -1,0 +1,14 @@
+
+Utilities\SnippingWindow.cs:192:            // (sizeTextBlock 및 selectionRectangle 생성 코드 제거됨)
+Utilities\SnippingWindow.cs:229:            // moveStopwatch.Start(); // Removed
+Utilities\SnippingWindow.cs:553:            // sizeTextBlock.Visibility = Visibility.Collapsed;
+Utilities\SnippingWindow.cs:880:                // moveStopwatch?.Stop();
+Utilities\SnippingWindow.cs:883:                /* Removed overlayPath and selectionRectangle cleanup as they are handled by selectionOverlay.Dispose() */
+Utilities\SnippingWindow.cs:940:            sizeTextBlock.Visibility = Visibility.Collapsed;
+Utilities\SnippingWindow.cs:2070:                if (screenCapture != null && selectionRectangle != null)
+Utilities\SnippingWindow.cs:3532:            if (selectionRectangle == null) return false;
+Utilities\SnippingWindow.cs:4423:            Canvas.SetLeft(selectionRectangle, newLeft);
+Utilities\SnippingWindow.cs:4424:            Canvas.SetTop(selectionRectangle, newTop);
+Utilities\SnippingWindow.cs:4427:            selectionGeometry.Rect = new Rect(newLeft, newTop, newWidth, newHeight);
+Utilities\SnippingWindow.cs:4483:             // 현재 selectionRectangle 기준으로 SelectedArea 및 SelectedFrozenImage 갱신
+

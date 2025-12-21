@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -19,23 +19,12 @@ namespace CatchCapture.Utilities
     public class SnippingWindow : Window, IDisposable
     {
         private Point startPoint;
-        private readonly Rectangle selectionRectangle;
         private readonly Canvas canvas;
         private bool isSelecting = false;
         private readonly TextBlock? infoTextBlock;
-        private readonly TextBlock sizeTextBlock;
-        private readonly System.Windows.Shapes.Path overlayPath;
         private Image screenImage;
         private BitmapSource? screenCapture;
-        private readonly RectangleGeometry fullScreenGeometry;
-        private readonly RectangleGeometry selectionGeometry;
-        private readonly System.Diagnostics.Stopwatch moveStopwatch = new();
-        private const int MinMoveIntervalMs = 4; // ~240Hz 업데이트 제한
-        private Point lastUpdatePoint;
-        private const double MinMoveDelta = 1.0; // 최소 픽셀 이동 임계값
-        // Rendering 프레임 병합용
-        private bool hasPendingUpdate = false;
-        private Rect pendingRect;
+
         // Virtual screen bounds
         private readonly double vLeft;
         private readonly double vTop;
@@ -116,6 +105,9 @@ namespace CatchCapture.Utilities
         public Int32Rect SelectedArea { get; private set; }
         public bool IsCancelled { get; private set; } = false;
         public BitmapSource? SelectedFrozenImage { get; private set; }
+        
+        // 선택 영역 정보 (즉시편집 모드에서 사용)
+        private Rect currentSelectionRect = Rect.Empty;
 
         public SnippingWindow(bool showGuideText = false, BitmapSource? cachedScreenshot = null)
         {
@@ -174,30 +166,9 @@ namespace CatchCapture.Utilities
                 canvas.Children.Add(screenImage);
             }
 
-            // 반투명 오버레이 생성: 전체를 어둡게, 선택 영역은 투명한 '구멍'
-            fullScreenGeometry = new RectangleGeometry(new Rect(0, 0, vWidth, vHeight));
-            selectionGeometry = new RectangleGeometry(new Rect(0, 0, 0, 0));
-            if (fullScreenGeometry.CanFreeze) fullScreenGeometry.Freeze();
-            // selectionGeometry는 런타임 갱신 필요하므로 Freeze 불가
-
-            var geometryGroup = new GeometryGroup { FillRule = FillRule.EvenOdd };
-            geometryGroup.Children.Add(fullScreenGeometry);
-            geometryGroup.Children.Add(selectionGeometry);
-
-            overlayPath = new System.Windows.Shapes.Path
-            {
-                Data = geometryGroup,
-                Fill = new SolidColorBrush(Color.FromArgb(140, 0, 0, 0)) // 약간 어둡게
-            };
-            overlayPath.IsHitTestVisible = false;
-            if (overlayPath.Fill is SolidColorBrush sb && sb.CanFreeze) sb.Freeze();
-            // 렌더링 캐시 힌트로 성능 개선
-            RenderOptions.SetCachingHint(overlayPath, CachingHint.Cache);
-            RenderOptions.SetCacheInvalidationThresholdMinimum(overlayPath, 0.5);
-            RenderOptions.SetCacheInvalidationThresholdMaximum(overlayPath, 2.0);
-            overlayPath.CacheMode = new BitmapCache();
-            canvas.Children.Add(overlayPath);
-
+            // 통합 오버레이 클래스 초기화 (기존 직접 생성하던 Geometry/Path/Rectangle 대체)
+            selectionOverlay = new CaptureSelectionOverlay(canvas);
+            
             // 가이드 텍스트 (옵션)
             if (showGuideText)
             {
@@ -218,38 +189,8 @@ namespace CatchCapture.Utilities
                 Canvas.SetTop(infoTextBlock, vTop + 20 - vTop);
             }
 
-            // 크기 표시용 텍스트 블록 추가
-            sizeTextBlock = new TextBlock
-            {
-                Foreground = Brushes.White,
-                Background = new SolidColorBrush(Color.FromArgb(200, 0, 0, 0)),
-                Padding = new Thickness(8, 4, 8, 4),
-                FontSize = 12,
-                FontWeight = FontWeights.Bold,
-                Visibility = Visibility.Collapsed
-            };
-            TextOptions.SetTextFormattingMode(sizeTextBlock, TextFormattingMode.Display);
-            if (sizeTextBlock.Background is SolidColorBrush sb3 && sb3.CanFreeze) sb3.Freeze();
-            canvas.Children.Add(sizeTextBlock);
+            // (sizeTextBlock 및 selectionRectangle 생성 코드 제거됨)
 
-            // 선택 영역 직사각형(테두리만 표시)
-            var strokeBrush = new SolidColorBrush(Colors.Red);
-            strokeBrush.Freeze(); // GC로부터 보호
-            
-            var dashArray = new DoubleCollection { 2, 3 };
-            dashArray.Freeze(); // GC로부터 보호
-            
-            selectionRectangle = new Rectangle
-            {
-                Stroke = strokeBrush,
-                StrokeThickness = 1,
-                StrokeDashArray = dashArray,
-                StrokeDashCap = PenLineCap.Square,
-                Fill = Brushes.Transparent
-            };
-            selectionRectangle.IsHitTestVisible = false;
-            selectionRectangle.SnapsToDevicePixels = true;
-            canvas.Children.Add(selectionRectangle);
             // 돋보기 생성
             CreateMagnifier();
 
@@ -285,7 +226,7 @@ namespace CatchCapture.Utilities
 
             // 비동기 캡처 제거: 어둡게 되는 시점과 즉시 상호작용 가능 상태를 일치시킴
 
-            moveStopwatch.Start();
+            // moveStopwatch.Start(); // Removed
             magnifierStopwatch.Start();
 
             // 메모리 모니터링 타이머 설정 (5분마다 실행)
@@ -602,57 +543,51 @@ namespace CatchCapture.Utilities
         {
             startPoint = e.GetPosition(canvas);
             isSelecting = true;
-            hasPendingUpdate = false;
             Mouse.Capture(this);
-            CompositionTarget.Rendering += CompositionTarget_Rendering;
+            // CompositionTarget.Rendering += CompositionTarget_Rendering; // 제거됨 (오버레이 클래스 내에서 처리)
 
-            // 선택 영역 초기화
-            Canvas.SetLeft(selectionRectangle, startPoint.X);
-            Canvas.SetTop(selectionRectangle, startPoint.Y);
-            selectionRectangle.Width = 0;
-            selectionRectangle.Height = 0;
+            // 오버레이 시작
+            selectionOverlay?.StartSelection(startPoint);
             
-            // 크기 표시 숨기기
-            sizeTextBlock.Visibility = Visibility.Collapsed;
+            // 크기 표시 숨기기 (오버레이가 처리하지만 혹시 모르니 제거)
+            // sizeTextBlock.Visibility = Visibility.Collapsed;
         }
         private void SnippingWindow_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             if (!isSelecting) return;
             isSelecting = false;
-            CompositionTarget.Rendering -= CompositionTarget_Rendering;
+            // CompositionTarget.Rendering -= CompositionTarget_Rendering; // 제거됨
             if (Mouse.Captured == this) Mouse.Capture(null);
             
             // 돋보기 숨기기
             if (magnifierBorder != null)
                 magnifierBorder.Visibility = Visibility.Collapsed;
             
-            Point endPoint = e.GetPosition(canvas);
+            // 오버레이 종료 및 최종 사각형 획득
+            Rect finalRect = selectionOverlay?.EndSelection(hideVisuals: !instantEditMode) ?? new Rect(0,0,0,0);
+            
+            // 선택 영역 저장 (다른 메서드에서 사용)
+            currentSelectionRect = finalRect;
 
-            // 선택된 영역 계산
-            double left = Math.Min(startPoint.X, endPoint.X);
-            double top = Math.Min(startPoint.Y, endPoint.Y);
-            double width = Math.Abs(endPoint.X - startPoint.X);
-            double height = Math.Abs(endPoint.Y - startPoint.Y);
+            // 선택된 영역 계산 (Start/End Point 대신 최종 Rect 사용)
+            double width = finalRect.Width;
+            double height = finalRect.Height;
 
             // 최소 크기 확인
             if (width < 5 || height < 5)
             {
                 // Just Clicked (very small movement) -> Copy Color with Sticker
-                CopyColorToClipboard(closeWindow: false); // Sticker shows, but don't close.
-                // Or user might want close? "그냥 클릭하면 클립보드에 색상 정보를 카피해줬으면 하거든"
-                // Doesn't say close. 'C' says close. 
-                // I'll keep it open to allow picking another color.
+                CopyColorToClipboard(closeWindow: false); 
                 
-                // Reset selection
-                selectionRectangle.Width = 0;
-                selectionRectangle.Height = 0;
+                // Reset selection (오버레이 리셋)
+                selectionOverlay?.Reset();
                 return;
             }
 
             // Convert from WPF DIPs to device pixels and offset by virtual screen origin
             var dpi = VisualTreeHelper.GetDpi(this);
-            int pxLeft = (int)Math.Round(left * dpi.DpiScaleX);
-            int pxTop = (int)Math.Round(top * dpi.DpiScaleY);
+            int pxLeft = (int)Math.Round(finalRect.Left * dpi.DpiScaleX);
+            int pxTop = (int)Math.Round(finalRect.Top * dpi.DpiScaleY);
             int pxWidth = (int)Math.Round(width * dpi.DpiScaleX);
             int pxHeight = (int)Math.Round(height * dpi.DpiScaleY);
 
@@ -694,25 +629,26 @@ namespace CatchCapture.Utilities
                 Close();
             }
         }
+        // 리팩토링된 오버레이 클래스 사용
+        private CaptureSelectionOverlay? selectionOverlay;
+        
         // 돋보기 업데이트용 throttling
         private Point lastMagnifierPoint;
-        private const double MinMagnifierMoveDelta = 3.0; // 돋보기는 3픽셀 이상 이동시에만 업데이트
+        private const double MinMagnifierMoveDelta = 3.0; 
         private readonly System.Diagnostics.Stopwatch magnifierStopwatch = new();
-        private const int MinMagnifierIntervalMs = 16; // 약 60Hz로 제한
+        private const int MinMagnifierIntervalMs = 16; 
+        private const int MinMagnifierIntervalMsDragging = 33; 
+        private const double MinMagnifierMoveDeltaDragging = 5.0; 
 
-        // 드래그 중 돋보기 갱신 빈도 제한
-        private const int MinMagnifierIntervalMsDragging = 33; // 드래그 중 약 30Hz
-        private const double MinMagnifierMoveDeltaDragging = 5.0; // 드래그 중 5픽셀 이상
-
+        // MouseMove Handler
         private void SnippingWindow_MouseMove(object sender, MouseEventArgs e)
         {
             Point currentPoint = e.GetPosition(canvas);
             
-            // 드래그 중/아닐 때 모두 돋보기 표시 (단, 갱신 빈도 다름)
+            // 드래그 중 돋보기 처리
             int magnifierInterval = isSelecting ? MinMagnifierIntervalMsDragging : MinMagnifierIntervalMs;
             double magnifierDelta = isSelecting ? MinMagnifierMoveDeltaDragging : MinMagnifierMoveDelta;
             
-            // 돋보기 throttling
             if (magnifierStopwatch.ElapsedMilliseconds >= magnifierInterval ||
                 Math.Abs(currentPoint.X - lastMagnifierPoint.X) >= magnifierDelta ||
                 Math.Abs(currentPoint.Y - lastMagnifierPoint.Y) >= magnifierDelta)
@@ -723,27 +659,11 @@ namespace CatchCapture.Utilities
             }
             
             if (!isSelecting) return;
-            if (moveStopwatch.ElapsedMilliseconds < MinMoveIntervalMs) return;
-            moveStopwatch.Restart();
 
-            // 너무 작은 이동은 무시
-            if (Math.Abs(currentPoint.X - lastUpdatePoint.X) < MinMoveDelta &&
-                Math.Abs(currentPoint.Y - lastUpdatePoint.Y) < MinMoveDelta)
-            {
-                return;
-            }
-            lastUpdatePoint = currentPoint;
-
-            // 마우스 위치로부터 목표 사각형만 계산하고, 실제 UI 업데이트는 Rendering 시에 수행
-            double left = Math.Min(startPoint.X, currentPoint.X);
-            double top = Math.Min(startPoint.Y, currentPoint.Y);
-            double width = Math.Abs(currentPoint.X - startPoint.X);
-            double height = Math.Abs(currentPoint.Y - startPoint.Y);
-            pendingRect = new Rect(left, top, width, height);
-            hasPendingUpdate = true;
+            // 오버레이 업데이트 위임 (내부적으로 스로틀링 처리됨)
+            selectionOverlay?.UpdateSelection(currentPoint);
         }
 
-        // 돋보기 숨기기 헬퍼 메서드 (필요시 사용)
         private void HideMagnifier()
         {
             if (magnifierBorder != null)
@@ -754,47 +674,7 @@ namespace CatchCapture.Utilities
                 crosshairVertical.Visibility = Visibility.Collapsed;
         }
 
-         private string? lastSizeText;
-        private void CompositionTarget_Rendering(object? sender, EventArgs e)
-        {
-            if (!hasPendingUpdate) return;
-            var rect = pendingRect;
-            hasPendingUpdate = false;
-
-            // 선택 영역 업데이트
-            Canvas.SetLeft(selectionRectangle, rect.Left);
-            Canvas.SetTop(selectionRectangle, rect.Top);
-            selectionRectangle.Width = rect.Width;
-            selectionRectangle.Height = rect.Height;
-
-            // 오버레이의 투명 영역(선택 영역)을 갱신
-            selectionGeometry.Rect = rect;
-
-            // 정보 텍스트는 고정 문구 유지
-            // 크기 텍스트는 간헐적 갱신
-            if (rect.Width > 5 && rect.Height > 5)
-            {
-                sizeTextBlock.Visibility = Visibility.Visible;
-                string text = $"{(int)rect.Width} x {(int)rect.Height}";
-                if (text != lastSizeText)
-                {
-                    sizeTextBlock.Text = text;
-                    // 최소 측정으로 DesiredSize 확보
-                    sizeTextBlock.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-                    lastSizeText = text;
-                }
-                double tw = sizeTextBlock.DesiredSize.Width;
-                double th = sizeTextBlock.DesiredSize.Height;
-                const double margin = 8;
-                // 선택 영역 내부의 오른쪽-아래 모서리에 배치
-                Canvas.SetLeft(sizeTextBlock, rect.Left + rect.Width - tw - margin);
-                Canvas.SetTop(sizeTextBlock, rect.Top + rect.Height - th - margin);
-            }
-            else
-            {
-                sizeTextBlock.Visibility = Visibility.Collapsed;
-            }
-        }
+        // CompositionTarget_Rendering 메서드 제거 (CaptureSelectionOverlay가 내부적으로 처리)
         private void UpdateMagnifier(Point mousePos)
         {
             if (!showMagnifier) return;
@@ -987,7 +867,8 @@ namespace CatchCapture.Utilities
                 }
 
                 // 이벤트 핸들러 해제
-                CompositionTarget.Rendering -= CompositionTarget_Rendering;
+                // CompositionTarget.Rendering -= CompositionTarget_Rendering; // 제거됨
+                selectionOverlay?.Dispose();
                 
                 // 마우스 캡처 해제
                 if (Mouse.Captured == this)
@@ -996,18 +877,10 @@ namespace CatchCapture.Utilities
                 }
 
                 // 스톱워치 정지
-                moveStopwatch?.Stop();
+                // moveStopwatch?.Stop();
 
                 // 캐시 모드 해제로 GPU 메모리 정리
-                if (overlayPath?.CacheMode is BitmapCache cache)
-                {
-                    overlayPath.CacheMode = null;
-                }
-                
-                if (selectionRectangle?.CacheMode is BitmapCache cache2)
-                {
-                    selectionRectangle.CacheMode = null;
-                }
+                /* Removed overlayPath and selectionRectangle cleanup as they are handled by selectionOverlay.Dispose() */
 
                 // 강제 가비지 컬렉션 (메모리 누수 방지)
                 GC.Collect();
@@ -1064,16 +937,16 @@ namespace CatchCapture.Utilities
                 crosshairVertical.Visibility = Visibility.Collapsed;
             
             // 크기 표시 숨기기
-            sizeTextBlock.Visibility = Visibility.Collapsed;
+            selectionOverlay?.SetSizeTextVisibility(Visibility.Collapsed);
             
             // 마우스 커서 변경
             Cursor = Cursors.Arrow;
             
             // 선택 영역 위치 계산
-            double selectionLeft = Canvas.GetLeft(selectionRectangle);
-            double selectionTop = Canvas.GetTop(selectionRectangle);
-            double selectionWidth = selectionRectangle.Width;
-            double selectionHeight = selectionRectangle.Height;
+            double selectionLeft = currentSelectionRect.Left;
+            double selectionTop = currentSelectionRect.Top;
+            double selectionWidth = currentSelectionRect.Width;
+            double selectionHeight = currentSelectionRect.Height;
             
             // [수정] 하단 감지: 선택 영역이 화면 하단에 가까운지 확인
             bool isNearBottom = (selectionTop + selectionHeight + 160) > vHeight; // 툴바+팔레트 공간(~160px) 확보 불가
@@ -1330,14 +1203,9 @@ namespace CatchCapture.Utilities
                 isSelecting = false;
                 
                 // 선택 영역 초기화
-                Canvas.SetLeft(selectionRectangle, 0);
-                Canvas.SetTop(selectionRectangle, 0);
-                selectionRectangle.Width = 0;
-                selectionRectangle.Height = 0;
-                // 오버레이 geometry 초기화
-                selectionGeometry.Rect = new Rect(0, 0, 0, 0);
-                // 크기 텍스트 숨기기
-                sizeTextBlock.Visibility = Visibility.Collapsed;                        
+                selectionOverlay?.Reset();
+                currentSelectionRect = Rect.Empty;
+                
                 // 마우스 이벤트 복원
                 this.MouseLeftButtonDown += SnippingWindow_MouseLeftButtonDown;
                 this.MouseMove += SnippingWindow_MouseMove;
@@ -2199,12 +2067,12 @@ namespace CatchCapture.Utilities
                 // 선택 영역만 크롭하여 OCR 수행
                 BitmapSource? imageToOcr = null;
                 
-                if (screenCapture != null && selectionRectangle != null)
+                if (screenCapture != null && !currentSelectionRect.IsEmpty)
                 {
-                    double selectionLeft = Canvas.GetLeft(selectionRectangle);
-                    double selectionTop = Canvas.GetTop(selectionRectangle);
-                    double selectionWidth = selectionRectangle.Width;
-                    double selectionHeight = selectionRectangle.Height;
+                    double selectionLeft = currentSelectionRect.Left;
+                    double selectionTop = currentSelectionRect.Top;
+                    double selectionWidth = currentSelectionRect.Width;
+                    double selectionHeight = currentSelectionRect.Height;
                     
                     // 선택 영역만 크롭
                     var croppedBitmap = new CroppedBitmap(
@@ -2918,10 +2786,10 @@ namespace CatchCapture.Utilities
             };
 
             // 위치 설정
-            double selectionLeft = Canvas.GetLeft(selectionRectangle);
-            double selectionTop = Canvas.GetTop(selectionRectangle);
-            double selectionRight = selectionLeft + selectionRectangle.Width;
-            double selectionBottom = selectionTop + selectionRectangle.Height;
+            double selectionLeft = currentSelectionRect.Left;
+            double selectionTop = currentSelectionRect.Top;
+            double selectionRight = selectionLeft + currentSelectionRect.Width;
+            double selectionBottom = selectionTop + currentSelectionRect.Height;
 
             // 버튼이 선택 영역을 벗어나지 않도록 위치 조정
             double confirmLeft = Math.Min(left + 105, selectionRight - 24);
@@ -3034,10 +2902,10 @@ namespace CatchCapture.Utilities
             };
             
             // 선택 영역 경계 계산
-            double selectionLeft = Canvas.GetLeft(selectionRectangle);
-            double selectionTop = Canvas.GetTop(selectionRectangle);
-            double selectionRight = selectionLeft + selectionRectangle.Width;
-            double selectionBottom = selectionTop + selectionRectangle.Height;
+            double selectionLeft = currentSelectionRect.Left;
+            double selectionTop = currentSelectionRect.Top;
+            double selectionRight = selectionLeft + currentSelectionRect.Width;
+            double selectionBottom = selectionTop + currentSelectionRect.Height;
 
             // 텍스트박스가 선택 영역을 벗어나지 않도록 위치 제한
             double textBoxLeft = Math.Max(selectionLeft, Math.Min(clickPoint.X, selectionRight - textBox.MinWidth));
@@ -3428,10 +3296,10 @@ namespace CatchCapture.Utilities
         private void SaveDrawingsToImage()
         {
             // 선택 영역의 위치와 크기
-            double selectionLeft = Canvas.GetLeft(selectionRectangle);
-            double selectionTop = Canvas.GetTop(selectionRectangle);
-            double selectionWidth = selectionRectangle.Width;
-            double selectionHeight = selectionRectangle.Height;
+            double selectionLeft = currentSelectionRect.Left;
+            double selectionTop = currentSelectionRect.Top;
+            double selectionWidth = currentSelectionRect.Width;
+            double selectionHeight = currentSelectionRect.Height;
             
             // DPI 스케일 계산
             var dpi = VisualTreeHelper.GetDpi(this);
@@ -3661,12 +3529,12 @@ namespace CatchCapture.Utilities
 
         private bool IsPointInSelection(Point point)
         {
-            if (selectionRectangle == null) return false;
+            if (currentSelectionRect.IsEmpty) return false;
             
-            double left = Canvas.GetLeft(selectionRectangle);
-            double top = Canvas.GetTop(selectionRectangle);
-            double right = left + selectionRectangle.Width;
-            double bottom = top + selectionRectangle.Height;
+            double left = currentSelectionRect.Left;
+            double top = currentSelectionRect.Top;
+            double right = left + currentSelectionRect.Width;
+            double bottom = top + currentSelectionRect.Height;
             
             return point.X >= left && point.X <= right && 
                    point.Y >= top && point.Y <= bottom;
@@ -3818,9 +3686,9 @@ namespace CatchCapture.Utilities
             numberingTextSize = prevTextSize;
 
             // 현재 도구 다시 반영 (팔레트 표시 포함)
-            double selectionLeft = Canvas.GetLeft(selectionRectangle);
-            double selectionTop = Canvas.GetTop(selectionRectangle);
-            double selectionHeight = selectionRectangle.Height;
+            double selectionLeft = currentSelectionRect.Left;
+            double selectionTop = currentSelectionRect.Top;
+            double selectionHeight = currentSelectionRect.Height;
             double toolbarLeft = selectionLeft;
             double toolbarTop = selectionTop + selectionHeight + 10;
             if (toolbarTop + 44 > vHeight) toolbarTop = selectionTop - 44 - 10;
@@ -3928,7 +3796,7 @@ namespace CatchCapture.Utilities
             if (isVerticalToolbarLayout)
             {
                  // 세로 레이아웃
-                 double selectionLeft = Canvas.GetLeft(selectionRectangle);
+                 double selectionLeft = currentSelectionRect.Left;
                  // 툴바가 선택 영역 오른쪽에 있으면 팔레트는 더 오른쪽
                  if (tLeft > selectionLeft)
                      return new Point(tLeft + tWidth + 10, tTop);
@@ -4463,10 +4331,10 @@ namespace CatchCapture.Utilities
         {
             if (resizeHandles.Count != 8) return;
 
-            double left = Canvas.GetLeft(selectionRectangle);
-            double top = Canvas.GetTop(selectionRectangle);
-            double w = selectionRectangle.Width;
-            double h = selectionRectangle.Height;
+            double left = currentSelectionRect.Left;
+            double top = currentSelectionRect.Top;
+            double w = currentSelectionRect.Width;
+            double h = currentSelectionRect.Height;
             double offset = 5; // 핸들 크기의 절반
 
             // NW (0)
@@ -4501,10 +4369,10 @@ namespace CatchCapture.Utilities
                 resizeDirection = dir;
                 resizeStartPoint = e.GetPosition(canvas);
                 resizeStartRect = new Rect(
-                    Canvas.GetLeft(selectionRectangle),
-                    Canvas.GetTop(selectionRectangle),
-                    selectionRectangle.Width,
-                    selectionRectangle.Height
+                    currentSelectionRect.Left,
+                    currentSelectionRect.Top,
+                    currentSelectionRect.Width,
+                    currentSelectionRect.Height
                 );
 
                 handle.CaptureMouse();
@@ -4552,17 +4420,13 @@ namespace CatchCapture.Utilities
             }
 
             // 영역 업데이트
-            Canvas.SetLeft(selectionRectangle, newLeft);
-            Canvas.SetTop(selectionRectangle, newTop);
-            selectionRectangle.Width = newWidth;
-            selectionRectangle.Height = newHeight;
-            selectionGeometry.Rect = new Rect(newLeft, newTop, newWidth, newHeight);
+            selectionOverlay?.SetRect(new Rect(newLeft, newTop, newWidth, newHeight));
+            currentSelectionRect = new Rect(newLeft, newTop, newWidth, newHeight);
 
             // 핸들 위치 업데이트
             UpdateResizeHandles();
             
-            // 크기 텍스트 업데이트
-            UpdateSizeText(new Rect(newLeft, newTop, newWidth, newHeight));
+            // 크기 텍스트 업데이트 (handled by SetRect inside selectionOverlay)
 
             // 툴바 위치 업데이트 (실시간)
             UpdateToolbarPosition();
@@ -4607,19 +4471,16 @@ namespace CatchCapture.Utilities
 
         private void UpdateSizeText(Rect rect)
         {
-            if (sizeTextBlock.Visibility != Visibility.Visible) sizeTextBlock.Visibility = Visibility.Visible;
-            sizeTextBlock.Text = $"{(int)rect.Width} x {(int)rect.Height}";
-            Canvas.SetLeft(sizeTextBlock, rect.Right - sizeTextBlock.ActualWidth - 8);
-            Canvas.SetTop(sizeTextBlock, rect.Bottom - sizeTextBlock.ActualHeight - 8);
+            // 이제 CaptureSelectionOverlay가 크기 텍스트를 처리합니다
         }
 
         private void UpdateSelectedAreaFromRect()
         {
              // 현재 selectionRectangle 기준으로 SelectedArea 및 SelectedFrozenImage 갱신
-             double left = Canvas.GetLeft(selectionRectangle);
-             double top = Canvas.GetTop(selectionRectangle);
-             double width = selectionRectangle.Width;
-             double height = selectionRectangle.Height;
+             double left = currentSelectionRect.Left;
+             double top = currentSelectionRect.Top;
+             double width = currentSelectionRect.Width;
+             double height = currentSelectionRect.Height;
 
              var dpi = VisualTreeHelper.GetDpi(this);
              int pxLeft = (int)Math.Round(left * dpi.DpiScaleX);
@@ -4654,10 +4515,10 @@ namespace CatchCapture.Utilities
         {
             if (toolbarContainer == null) return;
 
-            double selectionLeft = Canvas.GetLeft(selectionRectangle);
-            double selectionTop = Canvas.GetTop(selectionRectangle);
-            double selectionWidth = selectionRectangle.Width;
-            double selectionHeight = selectionRectangle.Height;
+            double selectionLeft = currentSelectionRect.Left;
+            double selectionTop = currentSelectionRect.Top;
+            double selectionWidth = currentSelectionRect.Width;
+            double selectionHeight = currentSelectionRect.Height;
 
             // [레이아웃 결정 로직 개선]
             // 기본값: 하단 배치
@@ -4805,8 +4666,8 @@ namespace CatchCapture.Utilities
                 var pinnedWin = new PinnedImageWindow(pinnedBmp);
                 
                 // 4. 위치 설정 (실제 스크린 좌표)
-                double left = Canvas.GetLeft(selectionRectangle);
-                double top = Canvas.GetTop(selectionRectangle);
+                double left = currentSelectionRect.Left;
+                double top = currentSelectionRect.Top;
                 
                 // SnippingWindow Left/Top을 더해서 절대 좌표 계산
                 pinnedWin.Left = this.Left + left;
@@ -4832,3 +4693,4 @@ namespace CatchCapture.Utilities
         }
     }
 }
+
