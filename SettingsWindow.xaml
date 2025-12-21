@@ -489,49 +489,51 @@
             </Border>
 
             <!-- Theme Page -->
-            <Border x:Name="PageTheme" Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8" Padding="30" Visibility="Collapsed">
+            <Border x:Name="PageTheme" Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8" Padding="20" Visibility="Collapsed">
                 <Border.Effect>
                     <DropShadowEffect Color="Black" Direction="270" ShadowDepth="1" Opacity="0.05" BlurRadius="10"/>
                 </Border.Effect>
-                <StackPanel>
-                    <TextBlock x:Name="ThemeSectionTitle" Text="테마 설정" Style="{StaticResource SectionTitle}"/>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,10,0">
+                    <StackPanel>
+                        <TextBlock x:Name="ThemeSectionTitle" Text="테마 설정" Style="{StaticResource SectionTitle}"/>
 
-                    <GroupBox x:Name="ThemePresetGroup" Header="테마 선택" Margin="0,0,0,20" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
-                        <StackPanel>
-                            <RadioButton x:Name="ThemeGeneral" Content="일반 (기본)" GroupName="Theme" Margin="0,5" Tag="General" Checked="Theme_Checked"/>
-                            <RadioButton x:Name="ThemeDark" Content="다크 모드" GroupName="Theme" Margin="0,5" Tag="Dark" Checked="Theme_Checked"/>
-                            <RadioButton x:Name="ThemeLight" Content="라이트 모드" GroupName="Theme" Margin="0,5" Tag="Light" Checked="Theme_Checked"/>
-                            <RadioButton x:Name="ThemeBlue" Content="블루 모드" GroupName="Theme" Margin="0,5" Tag="Blue" Checked="Theme_Checked"/>
-                            <RadioButton x:Name="ThemeCustom" Content="사용자 지정" GroupName="Theme" Margin="0,5" Tag="Custom" Checked="Theme_Checked"/>
-                        </StackPanel>
-                    </GroupBox>
+                        <GroupBox x:Name="ThemePresetGroup" Header="테마 선택" Margin="0,0,0,15" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
+                            <StackPanel>
+                                <RadioButton x:Name="ThemeGeneral" Content="일반 (기본)" GroupName="Theme" Margin="0,5" Tag="General" Checked="Theme_Checked"/>
+                                <RadioButton x:Name="ThemeDark" Content="다크 모드" GroupName="Theme" Margin="0,5" Tag="Dark" Checked="Theme_Checked"/>
+                                <RadioButton x:Name="ThemeLight" Content="라이트 모드" GroupName="Theme" Margin="0,5" Tag="Light" Checked="Theme_Checked"/>
+                                <RadioButton x:Name="ThemeBlue" Content="블루 모드" GroupName="Theme" Margin="0,5" Tag="Blue" Checked="Theme_Checked"/>
+                                <RadioButton x:Name="ThemeCustom" Content="사용자 지정" GroupName="Theme" Margin="0,5" Tag="Custom" Checked="Theme_Checked"/>
+                            </StackPanel>
+                        </GroupBox>
 
-                    <GroupBox x:Name="ThemeCustomGroup" Header="사용자 지정 색상" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
-                        <StackPanel>
-                            <Grid Margin="0,0,0,15">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="100"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock x:Name="ThemeBgColorLabel" Text="배경 색상" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
-                                <Border x:Name="PreviewThemeBgColor" Grid.Column="1" Width="40" Height="26" CornerRadius="4" 
-                                        BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1.5" 
-                                        Cursor="Hand" MouseLeftButtonUp="PreviewColor_Click" Tag="Bg"/>
-                            </Grid>
-                            <Grid Margin="0,0,0,5">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="100"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock x:Name="ThemeTextColorLabel" Text="텍스트 색상" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
-                                <Border x:Name="PreviewThemeTextColor" Grid.Column="1" Width="40" Height="26" CornerRadius="4" 
-                                        BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1.5" 
-                                        Cursor="Hand" MouseLeftButtonUp="PreviewColor_Click" Tag="Text"/>
-                            </Grid>
-                            <TextBlock x:Name="ThemeColorGuide" Text="※ 색상 상자를 클릭하여 테마 색상을 선택하세요." FontSize="11" Foreground="{DynamicResource ThemeForeground}" Margin="0,15,0,0" Opacity="0.7"/>
-                        </StackPanel>
-                    </GroupBox>
-                </StackPanel>
+                        <GroupBox x:Name="ThemeCustomGroup" Header="사용자 지정 색상" BorderBrush="{DynamicResource ThemeBorder}" Padding="15" Margin="0,0,0,10">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,15">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock x:Name="ThemeBgColorLabel" Text="배경 색상" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                                    <Border x:Name="PreviewThemeBgColor" Grid.Column="1" Width="40" Height="26" CornerRadius="4" 
+                                            BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1.5" 
+                                            Cursor="Hand" MouseLeftButtonUp="PreviewColor_Click" Tag="Bg"/>
+                                </Grid>
+                                <Grid Margin="0,0,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock x:Name="ThemeTextColorLabel" Text="텍스트 색상" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                                    <Border x:Name="PreviewThemeTextColor" Grid.Column="1" Width="40" Height="26" CornerRadius="4" 
+                                            BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1.5" 
+                                            Cursor="Hand" MouseLeftButtonUp="PreviewColor_Click" Tag="Text"/>
+                                </Grid>
+                                <TextBlock x:Name="ThemeColorGuide" Text="※ 색상 상자를 클릭하여 테마 색상을 선택하세요." FontSize="11" Foreground="{DynamicResource ThemeForeground}" Margin="0,15,0,0" Opacity="0.7"/>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
             </Border>
 
             <!-- Menu Edit Page -->

@@ -18,6 +18,9 @@ namespace CatchCapture.Models
         public string ThemeMode { get; set; } = "General"; // "General", "Dark", "Light", "Blue"
         public string ThemeBackgroundColor { get; set; } = "#FFFFFF";
         public string ThemeTextColor { get; set; } = "#333333";
+        // Stored custom theme colors (persists even when switching to other themes)
+        public string CustomThemeBackgroundColor { get; set; } = "#FFFFFF";
+        public string CustomThemeTextColor { get; set; } = "#333333";
         
         // Recording Settings
         public RecordingSettings Recording { get; set; } = new RecordingSettings();

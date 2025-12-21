@@ -40,6 +40,12 @@ namespace CatchCapture
                 _originalThemeMode = _settings.ThemeMode ?? "General";
                 _originalThemeBg = _settings.ThemeBackgroundColor ?? "#FFFFFF";
                 _originalThemeFg = _settings.ThemeTextColor ?? "#333333";
+
+                // Ensure custom theme colors are initialized
+                if (string.IsNullOrEmpty(_settings.CustomThemeBackgroundColor))
+                    _settings.CustomThemeBackgroundColor = _settings.ThemeMode == "Custom" ? _settings.ThemeBackgroundColor : "#FFFFFF";
+                if (string.IsNullOrEmpty(_settings.CustomThemeTextColor))
+                    _settings.CustomThemeTextColor = _settings.ThemeMode == "Custom" ? _settings.ThemeTextColor : "#333333";
                 
                 LoadThemePage();
                 HighlightNav(NavCapture, "Capture");
@@ -367,9 +373,9 @@ private void InitLanguageComboBox()
                 }
                 else if (info == "Custom")
                 {
-                    // If switching to custom, ensure we have at least some default colors
-                    if (string.IsNullOrEmpty(_settings.ThemeBackgroundColor)) _settings.ThemeBackgroundColor = "#FFFFFF";
-                    if (string.IsNullOrEmpty(_settings.ThemeTextColor)) _settings.ThemeTextColor = "#333333";
+                    // Restore saved custom colors
+                    _settings.ThemeBackgroundColor = _settings.CustomThemeBackgroundColor ?? "#FFFFFF";
+                    _settings.ThemeTextColor = _settings.CustomThemeTextColor ?? "#333333";
                 }
                 
                 UpdateColorPreviews();
@@ -406,8 +412,16 @@ private void InitLanguageComboBox()
                     
                     string hex = $"#{dialog.Color.R:X2}{dialog.Color.G:X2}{dialog.Color.B:X2}";
                     
-                    if (type == "Bg") _settings.ThemeBackgroundColor = hex;
-                    else _settings.ThemeTextColor = hex;
+                    if (type == "Bg") 
+                    {
+                        _settings.ThemeBackgroundColor = hex;
+                        _settings.CustomThemeBackgroundColor = hex;
+                    }
+                    else 
+                    {
+                        _settings.ThemeTextColor = hex;
+                        _settings.CustomThemeTextColor = hex;
+                    }
                     
                     // 무조건 사용자 지정(Custom) 모드로 전환
                     if (ThemeCustom != null) 
