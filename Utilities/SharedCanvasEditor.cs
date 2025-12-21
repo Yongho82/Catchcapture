@@ -36,6 +36,10 @@ namespace CatchCapture.Utilities
         public int NextNumber { get; set; } = 1;
         public double NumberingBadgeSize { get; set; } = 24;
         public double NumberingTextSize { get; set; } = 12;
+        
+        // 텍스트 관련
+        public string TextFontFamily { get; set; } = "Arial";
+        public double TextFontSize { get; set; } = 16;
 
         private Polyline? _currentPolyline;
         private Point _lastDrawPoint;
@@ -70,6 +74,12 @@ namespace CatchCapture.Utilities
             if (CurrentTool == "넘버링")
             {
                 CreateNumberingAt(clickPoint);
+                return;
+            }
+
+            if (CurrentTool == "텍스트")
+            {
+                AddTextAt(clickPoint);
                 return;
             }
 
@@ -227,33 +237,57 @@ namespace CatchCapture.Utilities
         {
             var group = new Canvas { Background = Brushes.Transparent };
             double bSize = NumberingBadgeSize;
+            int myNumber = NextNumber;
             
             var badge = new Border {
                 Width = bSize, Height = bSize, 
                 CornerRadius = new CornerRadius(bSize/2),
                 Background = new SolidColorBrush(SelectedColor),
-                BorderBrush = Brushes.White, BorderThickness = new Thickness(2)
+                BorderBrush = Brushes.White, BorderThickness = new Thickness(2),
+                Cursor = Cursors.Hand
             };
             
             var txt = new TextBlock {
-                Text = NextNumber.ToString(),
-                Foreground = GetContrastColor(SelectedColor),
+                Text = myNumber.ToString(),
+                Foreground = GetContrastBrush(SelectedColor),
                 FontWeight = FontWeights.Bold, FontSize = bSize * 0.5,
                 HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center
             };
             badge.Child = txt;
             group.Children.Add(badge);
+            Canvas.SetLeft(badge, 0);
+            Canvas.SetTop(badge, 0);
             
             var note = new TextBox {
-                Width = 120, Height = 24,
-                Background = new SolidColorBrush(Color.FromArgb(80, 0, 0, 0)),
+                Width = 120, MinHeight = bSize,
+                Background = new SolidColorBrush(Color.FromArgb(100, 0, 0, 0)),
                 BorderBrush = Brushes.White, BorderThickness = new Thickness(1),
                 Foreground = Brushes.White, FontSize = NumberingTextSize,
-                Text = "", VerticalContentAlignment = VerticalAlignment.Center
+                Text = "", VerticalContentAlignment = VerticalAlignment.Center,
+                Padding = new Thickness(3), TextWrapping = TextWrapping.Wrap,
+                AcceptsReturn = true
             };
             group.Children.Add(note);
-            Canvas.SetLeft(note, bSize + 2);
+            Canvas.SetLeft(note, bSize + 5);
             Canvas.SetTop(note, 0);
+
+            // 확정/삭제 버튼
+            var btnPanel = new StackPanel { Orientation = Orientation.Horizontal };
+            var confirmBtn = new Button { 
+                Content = "✓", Width = 20, Height = 20, Margin = new Thickness(2,0,0,0),
+                Background = Brushes.Green, Foreground = Brushes.White, BorderThickness = new Thickness(0),
+                Cursor = Cursors.Hand
+            };
+            var deleteBtn = new Button { 
+                Content = "✕", Width = 20, Height = 20, Margin = new Thickness(2,0,0,0),
+                Background = Brushes.Red, Foreground = Brushes.White, BorderThickness = new Thickness(0),
+                Cursor = Cursors.Hand
+            };
+            btnPanel.Children.Add(confirmBtn);
+            btnPanel.Children.Add(deleteBtn);
+            group.Children.Add(btnPanel);
+            Canvas.SetLeft(btnPanel, bSize + 130);
+            Canvas.SetTop(btnPanel, 2);
 
             _canvas.Children.Add(group);
             Canvas.SetLeft(group, p.X - bSize / 2);
@@ -262,10 +296,163 @@ namespace CatchCapture.Utilities
             _drawnElements.Add(group);
             _undoStack?.Push(group);
             NextNumber++;
+
+            // 상호작용 로직
+            confirmBtn.Click += (s, e) => {
+                note.IsReadOnly = true;
+                note.Background = Brushes.Transparent;
+                note.BorderThickness = new Thickness(0);
+                btnPanel.Visibility = Visibility.Collapsed;
+                group.Background = null; // 인터랙션 종료 시 투명 배경 제거 (히트테스트 최적화)
+            };
+
+            deleteBtn.Click += (s, e) => {
+                _canvas.Children.Remove(group);
+                _drawnElements.Remove(group);
+            };
+
+            // 드래그 로직 (그룹 이동)
+            bool isDragging = false;
+            Point lastPos = new Point();
+            badge.MouseLeftButtonDown += (s, e) => {
+                isDragging = true;
+                lastPos = e.GetPosition(_canvas);
+                badge.CaptureMouse();
+                e.Handled = true;
+            };
+            badge.MouseMove += (s, e) => {
+                if (isDragging) {
+                    Point currentPos = e.GetPosition(_canvas);
+                    double dx = currentPos.X - lastPos.X;
+                    double dy = currentPos.Y - lastPos.Y;
+                    Canvas.SetLeft(group, Canvas.GetLeft(group) + dx);
+                    Canvas.SetTop(group, Canvas.GetTop(group) + dy);
+                    lastPos = currentPos;
+                    e.Handled = true;
+                }
+            };
+            badge.MouseLeftButtonUp += (s, e) => {
+                isDragging = false;
+                badge.ReleaseMouseCapture();
+                e.Handled = true;
+            };
+
             ElementAdded?.Invoke(group);
             ActionOccurred?.Invoke();
+            
+            note.Focus();
         }
 
-        private Brush GetContrastColor(Color c) => (c.R * 0.299 + c.G * 0.587 + c.B * 0.114) > 128 ? Brushes.Black : Brushes.White;
+        public void AddTextAt(Point p)
+        {
+            var textBox = new TextBox
+            {
+                MinWidth = 100,
+                MinHeight = 30,
+                FontSize = TextFontSize,
+                FontFamily = new FontFamily(TextFontFamily),
+                Foreground = new SolidColorBrush(SelectedColor),
+                Background = Brushes.Transparent,
+                BorderBrush = new SolidColorBrush(Colors.DeepSkyBlue),
+                BorderThickness = new Thickness(2),
+                Padding = new Thickness(5),
+                TextWrapping = TextWrapping.Wrap,
+                AcceptsReturn = true
+            };
+
+            // 그룹화하여 버튼 함께 관리 (넘버링과 동일 스타일)
+            var group = new Canvas { Background = Brushes.Transparent };
+            group.Children.Add(textBox);
+            Canvas.SetLeft(textBox, 0);
+            Canvas.SetTop(textBox, 0);
+
+            var btnPanel = new StackPanel { Orientation = Orientation.Horizontal };
+            var confirmBtn = new Button { 
+                Content = "✓", Width = 22, Height = 22, Margin = new Thickness(2,0,0,0),
+                Background = Brushes.Green, Foreground = Brushes.White, BorderThickness = new Thickness(0),
+                Cursor = Cursors.Hand
+            };
+            var deleteBtn = new Button { 
+                Content = "✕", Width = 22, Height = 22, Margin = new Thickness(2,0,0,0),
+                Background = Brushes.Red, Foreground = Brushes.White, BorderThickness = new Thickness(0),
+                Cursor = Cursors.Hand
+            };
+            btnPanel.Children.Add(confirmBtn);
+            btnPanel.Children.Add(deleteBtn);
+            group.Children.Add(btnPanel);
+            
+            // 버튼 위치 동기화 로직
+            void UpdateBtnPos() {
+                double w = double.IsNaN(textBox.Width) ? textBox.ActualWidth : textBox.Width;
+                if (w < 100) w = 100;
+                Canvas.SetLeft(btnPanel, w + 5);
+                Canvas.SetTop(btnPanel, 2);
+            }
+            textBox.SizeChanged += (s, e) => UpdateBtnPos();
+
+            _canvas.Children.Add(group);
+            Canvas.SetLeft(group, p.X);
+            Canvas.SetTop(group, p.Y);
+
+            _drawnElements.Add(group);
+            _undoStack?.Push(group);
+
+            confirmBtn.Click += (s, e) => {
+                textBox.IsReadOnly = true;
+                textBox.BorderThickness = new Thickness(0);
+                btnPanel.Visibility = Visibility.Collapsed;
+                textBox.Background = Brushes.Transparent;
+                group.Background = null;
+            };
+
+            deleteBtn.Click += (s, e) => {
+                _canvas.Children.Remove(group);
+                _drawnElements.Remove(group);
+            };
+
+            // 드래그 로직 (그룹 이동)
+            bool isDragging = false;
+            Point lastPos = new Point();
+            group.MouseLeftButtonDown += (s, e) => {
+                // ReadOnly일 때만 드래그 허용 (편집 중엔 텍스트 선택 우선)
+                if (!textBox.IsReadOnly) return;
+                
+                isDragging = true;
+                lastPos = e.GetPosition(_canvas);
+                group.CaptureMouse();
+                e.Handled = true;
+            };
+            group.MouseMove += (s, e) => {
+                if (isDragging) {
+                    Point currentPos = e.GetPosition(_canvas);
+                    Canvas.SetLeft(group, Canvas.GetLeft(group) + (currentPos.X - lastPos.X));
+                    Canvas.SetTop(group, Canvas.GetTop(group) + (currentPos.Y - lastPos.Y));
+                    lastPos = currentPos;
+                }
+            };
+            group.MouseLeftButtonUp += (s, e) => {
+                isDragging = false;
+                group.ReleaseMouseCapture();
+            };
+
+            UpdateBtnPos();
+            
+            ElementAdded?.Invoke(group);
+            ActionOccurred?.Invoke();
+            textBox.Focus();
+        }
+
+        public void ResetNumbering()
+        {
+            NextNumber = 1;
+        }
+
+        private Color GetContrastColor(Color c)
+        {
+            double brightness = (c.R * 0.299 + c.G * 0.587 + c.B * 0.114);
+            return brightness > 128 ? Colors.Black : Colors.White;
+        }
+
+        private Brush GetContrastBrush(Color c) => new SolidColorBrush(GetContrastColor(c));
     }
 }

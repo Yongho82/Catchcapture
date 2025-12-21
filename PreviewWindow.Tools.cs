@@ -44,10 +44,10 @@ namespace CatchCapture
             colorSection.Children.Add(colorLabel);
 
             // 색상 그리드 (WrapPanel)
-            WrapPanel colorGrid = new WrapPanel { Width = 130 }; // 5개씩 배치될 정도의 너비
+            WrapPanel colorGrid = new WrapPanel { Width = 150 }; // 6개씩 배치될 정도의 너비
             
             // 기본 색상들 (공용 팔레트 사용, 투명 제외)
-            foreach (var c in SharedColorPalette)
+            foreach (var c in UIConstants.SharedColorPalette)
             {
                 if (c == Colors.Transparent) continue;
                 colorGrid.Children.Add(CreateColorSwatch(c, colorGrid));
@@ -114,8 +114,8 @@ namespace CatchCapture
                     // 3. [+] 버튼 다시 추가 (맨 뒤로)
                     colorGrid.Children.Add(addButton);
                     
-                    // 4. 바로 선택 처리
-                    penColor = newColor;
+                    // 3. 바로 선택 처리
+                    selectedColor = newColor;
                     UpdateColorSelection(colorGrid);
                 }
             };
@@ -255,15 +255,15 @@ namespace CatchCapture
                 Width = 20,
                 Height = 20,
                 Background = new SolidColorBrush(c),
-                BorderBrush = (c == penColor) ? Brushes.Black : new SolidColorBrush(Color.FromRgb(220, 220, 220)),
-                BorderThickness = new Thickness(c == penColor ? 2 : 1),
+                BorderBrush = (c == selectedColor) ? Brushes.Black : new SolidColorBrush(Color.FromRgb(220, 220, 220)),
+                BorderThickness = new Thickness(c == selectedColor ? 2 : 1),
                 Margin = new Thickness(2),
                 CornerRadius = new CornerRadius(4), // 둥근 모서리
                 Cursor = Cursors.Hand
             };
 
             // 선택 표시용 그림자 효과
-            if (c == penColor)
+            if (c == selectedColor)
             {
                 swatch.Effect = new DropShadowEffect
                 {
@@ -276,7 +276,7 @@ namespace CatchCapture
 
             swatch.MouseLeftButtonDown += (s, e) =>
             {
-                penColor = c;
+                selectedColor = c;
                 UpdateColorSelection(parentPanel);
             };
 
@@ -292,7 +292,7 @@ namespace CatchCapture
             {
                 if (child is Border b && b.Background is SolidColorBrush sc)
                 {
-                    bool isSelected = (sc.Color == penColor);
+                    bool isSelected = (sc.Color == selectedColor);
                     b.BorderBrush = isSelected ? Brushes.Black : new SolidColorBrush(Color.FromRgb(220, 220, 220));
                     b.BorderThickness = new Thickness(isSelected ? 2 : 1);
                     b.Effect = isSelected ? new DropShadowEffect

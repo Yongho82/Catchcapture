@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 using System.Windows.Shapes;
 using CatchCapture.Models;
 
@@ -28,153 +29,45 @@ namespace CatchCapture
 
             // --- 1. 왼쪽: 색상 섹션 ---
             StackPanel colorSection = new StackPanel { Margin = new Thickness(0, 0, 15, 0) };
-            
-            TextBlock colorLabel = new TextBlock 
-            { 
-                Text = LocalizationManager.Get("Color"), 
-                FontWeight = FontWeights.SemiBold, 
-                Margin = new Thickness(0, 0, 0, 8) 
-            };
-            colorSection.Children.Add(colorLabel);
+            colorSection.Children.Add(new TextBlock { Text = LocalizationManager.Get("Color"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) });
 
-            // 색상 그리드 (WrapPanel)
             WrapPanel colorGrid = new WrapPanel { Width = 150 };
-            
-            foreach (var c in SharedColorPalette)
+            foreach (var c in UIConstants.SharedColorPalette)
             {
                 if (c == Colors.Transparent) continue;
                 colorGrid.Children.Add(CreateHighlightColorSwatch(c, colorGrid));
             }
-
             colorSection.Children.Add(colorGrid);
             Grid.SetColumn(colorSection, 0);
             mainGrid.Children.Add(colorSection);
 
-            // --- 2. 가운데: 구분선 ---
-            Border separator = new Border
-            {
-                Width = 1,
-                Background = (Brush)Application.Current.Resources["ThemeBorder"],
-                Margin = new Thickness(0, 5, 15, 5)
-            };
-            Grid.SetColumn(separator, 1);
-            mainGrid.Children.Add(separator);
+            // --- 2. 중간: 구분선 ---
+            Border sep = new Border { Width = 1, Background = (Brush)Application.Current.Resources["ThemeBorder"], Margin = new Thickness(0, 5, 15, 5) };
+            Grid.SetColumn(sep, 1);
+            mainGrid.Children.Add(sep);
 
-            // --- 3. 오른쪽: 두께+투명도 섹션 ---
-            StackPanel rightSection = new StackPanel();
-
-            // 두께 라벨
-            TextBlock thicknessLabel = new TextBlock 
-            { 
-                Text = LocalizationManager.Get("Thickness"), 
-                FontWeight = FontWeights.SemiBold, 
-                Margin = new Thickness(0, 0, 0, 8) 
-            };
-            rightSection.Children.Add(thicknessLabel);
-
-            // 두께 프리셋 리스트
-            StackPanel thicknessList = new StackPanel();
-            int[] presets = new int[] { 1, 3, 5, 8, 12 };
-
-            foreach (var p in presets)
-            {
-                Grid item = new Grid 
-                { 
-                    Margin = new Thickness(0, 0, 0, 8), 
-                    Cursor = Cursors.Hand, 
-                    Background = Brushes.Transparent 
-                };
-                item.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(30) });
-                item.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-
-                Border line = new Border
-                {
-                    Height = p,
-                    Width = 30,
-                    Background = Brushes.Black,
-                    HorizontalAlignment = HorizontalAlignment.Left,
-                    VerticalAlignment = VerticalAlignment.Center
-                };
-                Grid.SetColumn(line, 0);
-                item.Children.Add(line);
-
-                TextBlock text = new TextBlock
-                {
-                    Text = $"{p}px",
-                    FontSize = 11,
-                    Foreground = (Brush)Application.Current.Resources["ThemeForeground"],
-                    Opacity = 0.6,
-                    Margin = new Thickness(8, 0, 0, 0),
-                    VerticalAlignment = VerticalAlignment.Center
-                };
-                Grid.SetColumn(text, 1);
-                item.Children.Add(text);
-
-                if (highlightThickness == p)
-                {
-                    item.Background = GetActiveToolBrush();
-                    text.Foreground = (Brush)Application.Current.Resources["ThemeForeground"];
-                    text.Opacity = 1.0;
-                    text.FontWeight = FontWeights.Bold;
-                }
-
-                int thickness = p;
-                item.MouseLeftButtonDown += (s, e) =>
-                {
-                    highlightThickness = thickness;
-                    ShowHighlightOptionsPopup();
-                };
-
-                thicknessList.Children.Add(item);
-            }
-            rightSection.Children.Add(thicknessList);
-
-            // 투명도 섹션
-            rightSection.Children.Add(new Border { Height = 10 }); // 간격
-
-            TextBlock opacityLabel = new TextBlock 
-            { 
-                Text = LocalizationManager.Get("Opacity"), 
-                FontWeight = FontWeights.SemiBold, 
-                Margin = new Thickness(0, 0, 0, 4) 
-            };
-            rightSection.Children.Add(opacityLabel);
-
-            Slider opacitySlider = new Slider
-            {
-                Minimum = 10,
-                Maximum = 255,
-                Value = highlightColor.A,
-                Width = 80,
-                VerticalAlignment = VerticalAlignment.Center
-            };
+            // --- 3. 오른쪽: 두께 + 투명도 섹션 ---
+            StackPanel rightSection = new StackPanel { Width = 100 };
             
-            TextBlock opacityValue = new TextBlock
-            {
-                Text = $"{(highlightColor.A / 255.0 * 100):F0}%",
-                FontSize = 11,
-                Foreground = (Brush)Application.Current.Resources["ThemeForeground"],
-                Opacity = 0.6,
-                HorizontalAlignment = HorizontalAlignment.Right,
-                Margin = new Thickness(0, 2, 0, 0)
-            };
+            // 두께
+            rightSection.Children.Add(new TextBlock { Text = LocalizationManager.Get("Thickness"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) });
+            Slider thicknessSlider = new Slider { Minimum = 1, Maximum = 50, Value = highlightThickness, Margin = new Thickness(0, 0, 0, 5) };
+            thicknessSlider.ValueChanged += (s, e) => { highlightThickness = e.NewValue; };
+            rightSection.Children.Add(thicknessSlider);
 
-            opacitySlider.ValueChanged += (s, e) =>
-            {
-                highlightColor = Color.FromArgb((byte)e.NewValue, highlightColor.R, highlightColor.G, highlightColor.B);
-                opacityValue.Text = $"{(e.NewValue / 255.0 * 100):F0}%";
-            };
-
+            // 투명도
+            rightSection.Children.Add(new TextBlock { Text = LocalizationManager.Get("Opacity"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 8, 0, 8) });
+            Slider opacitySlider = new Slider { Minimum = 0, Maximum = 1, Value = highlightOpacity, Margin = new Thickness(0, 0, 0, 5) };
+            TextBlock opacityVal = new TextBlock { Text = $"{(int)(highlightOpacity * 100)}%", HorizontalAlignment = HorizontalAlignment.Center };
+            opacitySlider.ValueChanged += (s, e) => { highlightOpacity = e.NewValue; opacityVal.Text = $"{(int)(e.NewValue * 100)}%"; };
             rightSection.Children.Add(opacitySlider);
-            rightSection.Children.Add(opacityValue);
+            rightSection.Children.Add(opacityVal);
 
             Grid.SetColumn(rightSection, 2);
             mainGrid.Children.Add(rightSection);
 
             ToolOptionsPopupContent.Children.Add(mainGrid);
-
-            var highlightButton = this.FindName("HighlightToolButton") as FrameworkElement;
-            ToolOptionsPopup.PlacementTarget = highlightButton ?? this;
+            ToolOptionsPopup.PlacementTarget = HighlightToolButton;
             ToolOptionsPopup.Placement = PlacementMode.Bottom;
             ToolOptionsPopup.IsOpen = true;
         }
@@ -186,16 +79,18 @@ namespace CatchCapture
                 Width = 20,
                 Height = 20,
                 Background = new SolidColorBrush(c),
-                BorderBrush = (c.R == highlightColor.R && c.G == highlightColor.G && c.B == highlightColor.B) ? Brushes.Black : new SolidColorBrush(Color.FromRgb(220, 220, 220)),
-                BorderThickness = new Thickness((c.R == highlightColor.R && c.G == highlightColor.G && c.B == highlightColor.B) ? 2 : 1),
                 Margin = new Thickness(2),
                 CornerRadius = new CornerRadius(4),
                 Cursor = Cursors.Hand
             };
 
-            if (c.R == highlightColor.R && c.G == highlightColor.G && c.B == highlightColor.B)
+            swatch.BorderBrush = (c == selectedColor) ? Brushes.Black : new SolidColorBrush(Color.FromRgb(220, 220, 220));
+            swatch.BorderThickness = new Thickness((c == selectedColor) ? 2 : 1);
+
+            // 선택 표시용 그림자 효과
+            if (c == selectedColor)
             {
-                swatch.Effect = new System.Windows.Media.Effects.DropShadowEffect
+                swatch.Effect = new DropShadowEffect
                 {
                     Color = Colors.Black,
                     BlurRadius = 2,
@@ -206,32 +101,13 @@ namespace CatchCapture
 
             swatch.MouseLeftButtonDown += (s, e) =>
             {
-                highlightColor = Color.FromArgb(highlightColor.A, c.R, c.G, c.B);
-                UpdateHighlightColorSelection(parentPanel);
+                selectedColor = c;
+                UpdateColorSelection(parentPanel);
             };
 
             return swatch;
         }
 
-        private void UpdateHighlightColorSelection(WrapPanel panel)
-        {
-            foreach (var child in panel.Children)
-            {
-                if (child is Border b && b.Background is SolidColorBrush sc)
-                {
-                    bool isSelected = (sc.Color.R == highlightColor.R && sc.Color.G == highlightColor.G && sc.Color.B == highlightColor.B);
-                    b.BorderBrush = isSelected ? Brushes.Black : new SolidColorBrush(Color.FromRgb(220, 220, 220));
-                    b.BorderThickness = new Thickness(isSelected ? 2 : 1);
-                    b.Effect = isSelected ? new System.Windows.Media.Effects.DropShadowEffect
-                    {
-                        Color = Colors.Black,
-                        BlurRadius = 2,
-                        ShadowDepth = 0,
-                        Opacity = 0.5
-                    } : null;
-                }
-            }
-        }
 
         #endregion
 
@@ -260,7 +136,7 @@ namespace CatchCapture
 
             WrapPanel colorGrid = new WrapPanel { Width = 150 };
             
-            foreach (var c in SharedColorPalette)
+            foreach (var c in UIConstants.SharedColorPalette)
             {
                 if (c == Colors.Transparent) continue;
                 colorGrid.Children.Add(CreateTextColorSwatch(c, colorGrid));
@@ -427,14 +303,14 @@ namespace CatchCapture
                 Width = 20,
                 Height = 20,
                 Background = new SolidColorBrush(c),
-                BorderBrush = (c == textColor) ? Brushes.Black : new SolidColorBrush(Color.FromRgb(220, 220, 220)),
-                BorderThickness = new Thickness((c == textColor) ? 2 : 1),
+                BorderBrush = (c == selectedColor) ? Brushes.Black : new SolidColorBrush(Color.FromRgb(220, 220, 220)),
+                BorderThickness = new Thickness((c == selectedColor) ? 2 : 1),
                 Margin = new Thickness(2),
                 CornerRadius = new CornerRadius(4),
                 Cursor = Cursors.Hand
             };
 
-            if (c == textColor)
+            if (c == selectedColor)
             {
                 swatch.Effect = new System.Windows.Media.Effects.DropShadowEffect
                 {
@@ -447,174 +323,14 @@ namespace CatchCapture
 
             swatch.MouseLeftButtonDown += (s, e) =>
             {
-                textColor = c;
-                UpdateTextColorSelection(parentPanel);
+                selectedColor = c;
+                UpdateColorSelection(parentPanel);
                 ApplyPropertyChangesToSelectedObject();
             };
 
             return swatch;
         }
 
-        private void UpdateTextColorSelection(WrapPanel panel)
-        {
-            foreach (var child in panel.Children)
-            {
-                if (child is Border b && b.Background is SolidColorBrush sc)
-                {
-                    bool isSelected = (sc.Color == textColor);
-                    b.BorderBrush = isSelected ? Brushes.Black : new SolidColorBrush(Color.FromRgb(220, 220, 220));
-                    b.BorderThickness = new Thickness(isSelected ? 2 : 1);
-                    b.Effect = isSelected ? new System.Windows.Media.Effects.DropShadowEffect
-                    {
-                        Color = Colors.Black,
-                        BlurRadius = 2,
-                        ShadowDepth = 0,
-                        Opacity = 0.5
-                    } : null;
-                }
-            }
-        }
-
-        #endregion
-
-        #region 펜 옵션
-
-        // NOTE: Renamed to avoid duplicating existing ShowPenOptionsPopup in PreviewWindow.Tools.cs
-        private void BuildPenOptionsPopup()
-        {
-            ToolOptionsPopupContent.Children.Clear();
-
-            // 메인 그리드 (좌: 색상, 중: 구분선, 우: 두께)
-            Grid mainGrid = new Grid();
-            mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 색상
-            mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 구분선
-            mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 두께
-
-            // --- 1. 왼쪽: 색상 섹션 ---
-            StackPanel colorSection = new StackPanel { Margin = new Thickness(0, 0, 15, 0) };
-
-            TextBlock colorLabel = new TextBlock
-            {
-                Text = LocalizationManager.Get("Color"),
-                FontWeight = FontWeights.SemiBold,
-                Margin = new Thickness(0, 0, 0, 8)
-            };
-            colorSection.Children.Add(colorLabel);
-
-            WrapPanel colorGrid = new WrapPanel { Width = 150 };
-            foreach (var c in SharedColorPalette)
-            {
-                if (c == Colors.Transparent) continue;
-                var swatch = new Border
-                {
-                    Width = 20,
-                    Height = 20,
-                    Background = new SolidColorBrush(c),
-                    BorderBrush = (c == penColor) ? Brushes.Black : new SolidColorBrush(Color.FromRgb(220, 220, 220)),
-                    BorderThickness = new Thickness((c == penColor) ? 2 : 1),
-                    Margin = new Thickness(2),
-                    CornerRadius = new CornerRadius(4),
-                    Cursor = Cursors.Hand
-                };
-                swatch.MouseLeftButtonDown += (s, e) =>
-                {
-                    penColor = c;
-                    foreach (var child in colorGrid.Children)
-                    {
-                        if (child is Border b && b.Background is SolidColorBrush sc)
-                        {
-                            bool isSelected = (sc.Color == penColor);
-                            b.BorderBrush = isSelected ? Brushes.Black : new SolidColorBrush(Color.FromRgb(220, 220, 220));
-                            b.BorderThickness = new Thickness(isSelected ? 2 : 1);
-                        }
-                    }
-                };
-                colorGrid.Children.Add(swatch);
-            }
-            colorSection.Children.Add(colorGrid);
-            Grid.SetColumn(colorSection, 0);
-            mainGrid.Children.Add(colorSection);
-
-            // --- 2. 가운데: 구분선 ---
-            Border separator = new Border
-            {
-                Width = 1,
-                Background = (Brush)Application.Current.Resources["ThemeBorder"],
-                Margin = new Thickness(0, 5, 15, 5)
-            };
-            Grid.SetColumn(separator, 1);
-            mainGrid.Children.Add(separator);
-
-            // --- 3. 오른쪽: 두께 섹션 ---
-            StackPanel thicknessSection = new StackPanel();
-            TextBlock thicknessLabel = new TextBlock
-            {
-                Text = LocalizationManager.Get("Thickness"),
-                FontWeight = FontWeights.SemiBold,
-                Margin = new Thickness(0, 0, 0, 8)
-            };
-            thicknessSection.Children.Add(thicknessLabel);
-
-            StackPanel thicknessList = new StackPanel();
-            int[] presets = new int[] { 1, 3, 5, 8, 12 };
-            foreach (var p in presets)
-            {
-                Grid item = new Grid
-                {
-                    Margin = new Thickness(0, 0, 0, 8),
-                    Cursor = Cursors.Hand,
-                    Background = Brushes.Transparent
-                };
-                item.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(30) });
-                item.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-
-                Border line = new Border
-                {
-                    Height = p,
-                    Width = 30,
-                    Background = Brushes.Black,
-                    HorizontalAlignment = HorizontalAlignment.Left,
-                    VerticalAlignment = VerticalAlignment.Center
-                };
-                Grid.SetColumn(line, 0);
-                item.Children.Add(line);
-
-                TextBlock text = new TextBlock
-                {
-                    Text = $"{p}px",
-                    FontSize = 11,
-                    Foreground = (Brush)Application.Current.Resources["ThemeForeground"],
-                    Opacity = 0.6,
-                    Margin = new Thickness(8, 0, 0, 0),
-                    VerticalAlignment = VerticalAlignment.Center
-                };
-                Grid.SetColumn(text, 1);
-                item.Children.Add(text);
-
-                int thickness = p;
-                item.MouseLeftButtonDown += (s, e) =>
-                {
-                    penThickness = thickness;
-                    foreach (var child in thicknessList.Children)
-                    {
-                        if (child is Grid g) g.Background = Brushes.Transparent;
-                    }
-                    item.Background = GetActiveToolBrush();
-                };
-
-                thicknessList.Children.Add(item);
-            }
-            thicknessSection.Children.Add(thicknessList);
-            Grid.SetColumn(thicknessSection, 2);
-            mainGrid.Children.Add(thicknessSection);
-
-            ToolOptionsPopupContent.Children.Add(mainGrid);
-
-            var penButton = this.FindName("PenToolButton") as FrameworkElement;
-            ToolOptionsPopup.PlacementTarget = penButton ?? this;
-            ToolOptionsPopup.Placement = PlacementMode.Bottom;
-            ToolOptionsPopup.IsOpen = true;
-        }
 
         #endregion
 
@@ -838,6 +554,79 @@ namespace CatchCapture
             ToolOptionsPopup.PlacementTarget = this.FindName("MagicWandToolButton") as FrameworkElement ?? this;
             ToolOptionsPopup.Placement = PlacementMode.Bottom;
             ToolOptionsPopup.IsOpen = true;
+        }
+
+        #endregion
+        #region 넘버링 옵션
+
+        private void ShowNumberingOptionsPopup()
+        {
+            ToolOptionsPopupContent.Children.Clear();
+
+            Grid mainGrid = new Grid();
+            mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 색상
+            mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 구분선
+            mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 크기
+
+            // 1. 색상
+            StackPanel colorSection = new StackPanel { Margin = new Thickness(0, 0, 15, 0) };
+            colorSection.Children.Add(new TextBlock { Text = LocalizationManager.Get("Color"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) });
+            WrapPanel colorGrid = new WrapPanel { Width = 150 };
+            foreach (var c in UIConstants.SharedColorPalette)
+            {
+                if (c == Colors.Transparent) continue;
+                colorGrid.Children.Add(CreateColorSwatch(c, colorGrid, (color) => { selectedColor = color; UpdateColorSelection(colorGrid, selectedColor); }));
+            }
+            colorSection.Children.Add(colorGrid);
+            Grid.SetColumn(colorSection, 0);
+            mainGrid.Children.Add(colorSection);
+
+            // 2. 구분선
+            Border sep = new Border { Width = 1, Background = (Brush)Application.Current.Resources["ThemeBorder"], Margin = new Thickness(0, 5, 15, 5) };
+            Grid.SetColumn(sep, 1);
+            mainGrid.Children.Add(sep);
+
+            // 3. 크기
+            StackPanel sizeSection = new StackPanel();
+            sizeSection.Children.Add(new TextBlock { Text = LocalizationManager.Get("Size"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) });
+            
+            Slider sizeSlider = new Slider { Minimum = 10, Maximum = 60, Value = textSize, Width = 100, Margin = new Thickness(0, 0, 0, 5) };
+            TextBlock sizeVal = new TextBlock { Text = $"{(int)textSize}px", HorizontalAlignment = HorizontalAlignment.Center };
+            sizeSlider.ValueChanged += (s, e) => { textSize = (int)e.NewValue; sizeVal.Text = $"{(int)textSize}px"; };
+            
+            sizeSection.Children.Add(sizeSlider);
+            sizeSection.Children.Add(sizeVal);
+            Grid.SetColumn(sizeSection, 2);
+            mainGrid.Children.Add(sizeSection);
+
+            ToolOptionsPopupContent.Children.Add(mainGrid);
+            ToolOptionsPopup.PlacementTarget = NumberingToolButton;
+            ToolOptionsPopup.Placement = PlacementMode.Bottom;
+            ToolOptionsPopup.IsOpen = true;
+        }
+
+        private Border CreateColorSwatch(Color c, WrapPanel parent, Action<Color> onSelected)
+        {
+            var swatch = new Border { Width = 20, Height = 20, Background = new SolidColorBrush(c), Margin = new Thickness(2), CornerRadius = new CornerRadius(4), Cursor = Cursors.Hand };
+            UpdateSwatchSelection(swatch, c == selectedColor);
+            swatch.MouseLeftButtonDown += (s, e) => { onSelected(c); };
+            return swatch;
+        }
+
+        private void UpdateSwatchSelection(Border b, bool isSelected)
+        {
+            b.BorderBrush = isSelected ? Brushes.Black : new SolidColorBrush(Color.FromRgb(220, 220, 220));
+            b.BorderThickness = new Thickness(isSelected ? 2 : 1);
+            b.Effect = isSelected ? new DropShadowEffect { Color = Colors.Black, BlurRadius = 2, ShadowDepth = 0, Opacity = 0.5 } : null;
+        }
+
+        private void UpdateColorSelection(WrapPanel panel, Color current)
+        {
+            foreach (var child in panel.Children)
+            {
+                if (child is Border b && b.Background is SolidColorBrush sc)
+                    UpdateSwatchSelection(b, sc.Color == current);
+            }
         }
 
         #endregion

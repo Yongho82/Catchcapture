@@ -195,7 +195,7 @@ namespace CatchCapture
         {
             if (_editorManager == null) return;
 
-            _editorManager.SelectedColor = currentEditMode == EditMode.Pen ? penColor : (currentEditMode == EditMode.Highlight ? highlightColor : shapeColor);
+            _editorManager.SelectedColor = selectedColor; // Unified color
             _editorManager.PenThickness = (int)penThickness;
             _editorManager.HighlightThickness = (int)highlightThickness;
             _editorManager.CurrentTool = currentEditMode switch
@@ -205,12 +205,17 @@ namespace CatchCapture
                 EditMode.Shape => "도형",
                 EditMode.Mosaic => "모자이크",
                 EditMode.Numbering => "넘버링",
+                EditMode.Text => "텍스트",
+                EditMode.Eraser => "지우개",
                 _ => ""
             };
             _editorManager.CurrentShapeType = shapeType;
             _editorManager.ShapeBorderThickness = shapeBorderThickness;
             _editorManager.ShapeIsFilled = shapeIsFilled;
             _editorManager.ShapeFillOpacity = shapeFillOpacity;
+            _editorManager.TextFontSize = textSize;
+            _editorManager.TextFontFamily = textFontFamily;
+            _editorManager.HighlightOpacity = highlightOpacity;
         }
         #endregion
     }

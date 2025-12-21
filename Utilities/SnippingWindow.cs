@@ -36,13 +36,6 @@ namespace CatchCapture.Utilities
         private Border? colorPalette;
         private Color selectedColor = Colors.Yellow; // 형광펜 기본 색상
         private List<Color> customColors = new List<Color>();
-        // PreviewWindow와 동일한 공용 색상 팔레트
-        private static readonly Color[] SharedColorPalette = new[]
-        {
-            Colors.Black, Colors.White, Colors.Red, Colors.Orange,
-            Colors.Yellow, Colors.Green, Colors.Blue, Colors.Purple,
-            Color.FromRgb(139, 69, 19), Color.FromRgb(255, 192, 203)
-        };
         private string currentTool = ""; 
         private List<UIElement> drawnElements = new List<UIElement>();
         private Stack<UIElement> undoStack = new Stack<UIElement>();
@@ -57,18 +50,14 @@ namespace CatchCapture.Utilities
         // [추가] 모자이크 관련 필드
         private double mosaicIntensity = 15; // 모자이크 강도 (기본값)
         // 텍스트 편집 관련 필드
-        private TextBox? selectedTextBox;
         private int textFontSize = 16;
         private string textFontFamily = "Malgun Gothic";
-        private Rectangle? textSelectionBorder; // 선택된 텍스트 테두리
-        private Button? textDeleteButton; // 삭제 버튼
         private Border? magnifierBorder;
         private Image? magnifierImage;
         private const double MagnifierSize = 150; // 돋보기 크기
         private const double MagnificationFactor = 3.0; // 확대 배율
         // 넘버링 도구 관련
         private int numberingNext = 1; // 배지 번호 자동 증가
-        private Dictionary<int, Canvas> numberingGroups = new Dictionary<int, Canvas>();  // ← 추가
         // 십자선 관련 필드 추가
         private Line? crosshairHorizontal;
         private Line? crosshairVertical;
@@ -260,7 +249,7 @@ namespace CatchCapture.Utilities
             if (instantEditMode && e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.None)
             {
                 // 텍스트 박스 편집 중일 때는 엔터키가 줄바꿈 역할을 해야 하므로 닫지 않음
-                if (selectedTextBox != null && !selectedTextBox.IsReadOnly)
+                if (Keyboard.FocusedElement is TextBox tb && !tb.IsReadOnly)
                 {
                     return;
                 }
@@ -1651,9 +1640,9 @@ namespace CatchCapture.Utilities
                 };
                 colorSection.Children.Add(colorLabel);
                 
-                var colorGrid = new WrapPanel { Width = 130 };
+                var colorGrid = new WrapPanel { Width = 150 };
                 
-                foreach (var c in SharedColorPalette)
+                foreach (var c in UIConstants.SharedColorPalette)
                 {
                     colorGrid.Children.Add(CreateColorSwatch(c, colorGrid));
                 }
@@ -1724,7 +1713,7 @@ namespace CatchCapture.Utilities
                 int[] sizes = { 10, 12, 14, 16, 18, 24, 36, 48, 72 };
                 foreach (var s in sizes) sizeCombo.Items.Add(s);
                 sizeCombo.SelectedItem = textFontSize;
-                sizeCombo.SelectionChanged += (s, e) => { if (sizeCombo.SelectedItem is int newSize) { textFontSize = newSize; if (selectedTextBox != null) selectedTextBox.FontSize = newSize; } };
+                sizeCombo.SelectionChanged += (s, e) => { if (sizeCombo.SelectedItem is int newSize) { textFontSize = newSize; if (selectedObject is TextBox tb) tb.FontSize = newSize; } };
                 sizePanel.Children.Add(sizeCombo);
                 optionSection.Children.Add(sizePanel);
 
@@ -1735,7 +1724,7 @@ namespace CatchCapture.Utilities
                 string[] fonts = { "Malgun Gothic", "Arial", "Consolas", "Gulim", "Dotum" };
                 foreach (var f in fonts) fontCombo.Items.Add(f);
                 fontCombo.SelectedItem = textFontFamily;
-                fontCombo.SelectionChanged += (s, e) => { if (fontCombo.SelectedItem is string newFont) { textFontFamily = newFont; if (selectedTextBox != null) selectedTextBox.FontFamily = new FontFamily(newFont); } };
+                fontCombo.SelectionChanged += (s, e) => { if (fontCombo.SelectedItem is string newFont) { textFontFamily = newFont; if (selectedObject is TextBox tb) tb.FontFamily = new FontFamily(newFont); } };
                 fontPanel.Children.Add(fontCombo);
                 optionSection.Children.Add(fontPanel);
             }
@@ -2018,57 +2007,45 @@ namespace CatchCapture.Utilities
             }
         }
 
-        private void EnableDrawingMode()
+        private void SetupEditorEvents()
         {
-            Cursor = Cursors.Pen;
-            
-            // [수정] 텍스트 모드 이벤트 제거 (중복 실행 방지)
-            canvas.MouseLeftButtonDown -= Canvas_TextMouseDown;
-            
-            // 기존 그리기 이벤트 제거 후 다시 등록
             canvas.MouseLeftButtonDown -= Canvas_DrawMouseDown;
             canvas.MouseMove -= Canvas_DrawMouseMove;
             canvas.MouseLeftButtonUp -= Canvas_DrawMouseUp;
+            canvas.MouseLeftButtonDown -= Canvas_SelectMouseDown;
             
             canvas.MouseLeftButtonDown += Canvas_DrawMouseDown;
             canvas.MouseMove += Canvas_DrawMouseMove;
             canvas.MouseLeftButtonUp += Canvas_DrawMouseUp;
-            
-            // 텍스트 선택 해제
-            if (selectedTextBox != null)
-            {
-                ClearTextSelection();
-            }
         }
+
+        private void EnableDrawingMode()
+        {
+            currentTool = "펜";
+            canvas.Cursor = Cursors.Pen;
+            SetupEditorEvents();
+        }
+
         private void EnableTextMode()
         {
-            Cursor = Cursors.IBeam;
-            
-            // 텍스트 입력용 마우스 이벤트 등록
-            canvas.MouseLeftButtonDown -= Canvas_DrawMouseDown; // 그리기 이벤트 제거
-            canvas.MouseMove -= Canvas_DrawMouseMove;
-            canvas.MouseLeftButtonUp -= Canvas_DrawMouseUp;
-            
-            canvas.MouseLeftButtonDown += Canvas_TextMouseDown;
+            currentTool = "텍스트";
+            canvas.Cursor = Cursors.IBeam;
+            SetupEditorEvents();
         }
 
         private void EnableSelectMode()
         {
+            currentTool = "";
             canvas.Cursor = Cursors.Arrow;
 
             // 기존 이벤트 제거
             canvas.MouseLeftButtonDown -= Canvas_DrawMouseDown;
-            canvas.MouseLeftButtonDown -= Canvas_TextMouseDown;
-            canvas.MouseLeftButtonDown -= Canvas_EraserMouseDown;
-            canvas.MouseLeftButtonDown -= Canvas_SelectMouseDown; // 중복 방지
+            canvas.MouseLeftButtonDown -= Canvas_SelectMouseDown;
             canvas.MouseMove -= Canvas_DrawMouseMove;
             canvas.MouseLeftButtonUp -= Canvas_DrawMouseUp;
 
             // 선택용 이벤트 등록
             canvas.MouseLeftButtonDown += Canvas_SelectMouseDown;
-
-            // 텍스트 선택 해제
-            if (selectedTextBox != null) ClearTextSelection();
         }
 
         private void Canvas_SelectMouseDown(object sender, MouseButtonEventArgs e)
@@ -2084,7 +2061,7 @@ namespace CatchCapture.Utilities
             for (int i = drawnElements.Count - 1; i >= 0; i--)
             {
                 var element = drawnElements[i];
-                if (IsPointInElement(clickPoint, element))
+                if (InteractiveEditor.IsPointInElement(clickPoint, element))
                 {
                     clickedElement = element;
                     break;
@@ -2120,7 +2097,7 @@ namespace CatchCapture.Utilities
                 double dx = currentPoint.X - objectDragLastPoint.X;
                 double dy = currentPoint.Y - objectDragLastPoint.Y;
 
-                MoveElement(selectedObject, dx, dy);
+                InteractiveEditor.MoveElement(selectedObject, dx, dy);
                 objectDragLastPoint = currentPoint;
                 UpdateObjectSelectionUI();
             }
@@ -2142,12 +2119,6 @@ namespace CatchCapture.Utilities
 
             selectedObject = element;
 
-            // 텍스트박스인 경우 기존 텍스트 선택 로직 사용
-            if (element is TextBox textBox)
-            {
-                ShowTextSelection(textBox);
-                return;
-            }
 
             // 선택 강조 효과 (점선 테두리)
             UpdateObjectSelectionUI();
@@ -2158,7 +2129,9 @@ namespace CatchCapture.Utilities
         {
             if (selectedObject != null)
             {
-                if (selectedObject is TextBox) ClearTextSelection();
+                // [수정] 텍스트박스인 경우 SharedCanvasEditor 내부 텍스트박스로의 접근이 제한적이므로
+                // 일단은 전용 선택 해제 로직 없이 일반 선택 해제만 진행
+                // 추후 SharedCanvasEditor에서 선택 해제 로직을 통합 관리할 수도 있음
                 
                 selectedObject = null;
                 if (objectSelectionBorder != null)
@@ -2189,19 +2162,9 @@ namespace CatchCapture.Utilities
 
         private void EnableEraserMode()
         {
-            canvas.Cursor = Cursors.Hand; // 지우개 커서
-            
-            // 기존 이벤트 제거
-            canvas.MouseLeftButtonDown -= Canvas_DrawMouseDown;
-            canvas.MouseLeftButtonDown -= Canvas_TextMouseDown;
-            canvas.MouseLeftButtonDown -= Canvas_SelectMouseDown;
-            canvas.MouseMove -= Canvas_DrawMouseMove;
-            canvas.MouseLeftButtonUp -= Canvas_DrawMouseUp;
-            
-            // 지우개 이벤트 등록
-            canvas.MouseLeftButtonDown += Canvas_EraserMouseDown;
-            
-            // 모든 선택 해제
+            currentTool = "지우개";
+            canvas.Cursor = Cursors.Hand;
+            SetupEditorEvents();
             DeselectObject();
         }
         private async Task PerformOcr()
@@ -2345,28 +2308,8 @@ namespace CatchCapture.Utilities
             drawnElements.RemoveAt(drawnElements.Count - 1);
             canvas.Children.Remove(lastElement);
             
-            // 텍스트박스인 경우 관련 버튼도 제거
-            if (lastElement is TextBox textBox)
-            {
-                if (textBox.Tag != null)
-                {
-                    if (textBox.Tag is ValueTuple<Button, Button> tagButtons1)
-                    {
-                        var confirmButton = tagButtons1.Item1;
-                        var cancelButton = tagButtons1.Item2;
-                        if (confirmButton != null && canvas.Children.Contains(confirmButton))
-                            canvas.Children.Remove(confirmButton);
-                        if (cancelButton != null && canvas.Children.Contains(cancelButton))
-                            canvas.Children.Remove(cancelButton);
-                    }
-                }
-            }
-            
-            // 선택 상태 초기화
-            if (selectedTextBox == lastElement)
-            {
-                ClearTextSelection();
-            }
+            // [수정] InteractiveEditor를 통해 관련 부속 요소들도 함께 제거
+            InteractiveEditor.RemoveInteractiveElement(canvas, lastElement);
         }
         
         private void ResetAllDrawings()
@@ -2390,23 +2333,12 @@ namespace CatchCapture.Utilities
                 {
                     canvas.Children.Remove(element);
                     
-                    // 텍스트박스인 경우 관련 버튼도 제거
-                    if (element is TextBox textBox && textBox.Tag != null)
-                    {
-                        if (textBox.Tag is ValueTuple<Button, Button> tagButtons2)
-                        {
-                            var confirmButton = tagButtons2.Item1;
-                            var cancelButton = tagButtons2.Item2;
-                            if (confirmButton != null && canvas.Children.Contains(confirmButton))
-                                canvas.Children.Remove(confirmButton);
-                            if (cancelButton != null && canvas.Children.Contains(cancelButton))
-                                canvas.Children.Remove(cancelButton);
-                        }
-                    }
+                    // InteractiveEditor를 통해 관련 부속 요소 제거
+                    InteractiveEditor.RemoveInteractiveElement(canvas, element);
                 }
                 
                 drawnElements.Clear();
-                ClearTextSelection();
+                _editorManager.ResetNumbering(); // 넘버링 번호도 초기화
             }
         }
         
@@ -2562,7 +2494,7 @@ namespace CatchCapture.Utilities
                 Panel.SetZIndex(handle, 2010);
                 objectResizeHandles.Add(handle);
             }
-            UpdateObjectResizeHandles(GetElementBounds(selectedObject));
+            UpdateObjectResizeHandles(InteractiveEditor.GetElementBounds(selectedObject));
         }
 
         private void RemoveObjectResizeHandles()
@@ -2621,7 +2553,7 @@ namespace CatchCapture.Utilities
                 double dx = currentPoint.X - objectDragLastPoint.X;
                 double dy = currentPoint.Y - objectDragLastPoint.Y;
 
-                ResizeElement(selectedObject, dx, dy, objectResizeDirection);
+                InteractiveEditor.ResizeElement(selectedObject, dx, dy, objectResizeDirection);
                 objectDragLastPoint = currentPoint;
                 UpdateObjectSelectionUI();
             }
@@ -2638,94 +2570,6 @@ namespace CatchCapture.Utilities
                 e.Handled = true;
             }
         }
-
-        private void ResizeElement(UIElement element, double dx, double dy, string dir)
-        {
-            // 리사이즈 로직 구현 
-            if (element is Shape shape && (shape is Rectangle || shape is Ellipse))
-            {
-                double left = Canvas.GetLeft(shape);
-                double top = Canvas.GetTop(shape);
-                double width = shape.Width;
-                double height = shape.Height;
-
-                if (dir.Contains("W")) { left += dx; width -= dx; }
-                if (dir.Contains("E")) { width += dx; }
-                if (dir.Contains("N")) { top += dy; height -= dy; }
-                if (dir.Contains("S")) { height += dy; }
-
-                if (width < 5) width = 5;
-                if (height < 5) height = 5;
-
-                shape.Width = width;
-                shape.Height = height;
-                Canvas.SetLeft(shape, left);
-                Canvas.SetTop(shape, top);
-                
-                // 메타데이터 업데이트
-                if (shape.Tag is ShapeMetadata metadata)
-                {
-                    metadata.StartPoint = new Point(left, top);
-                    metadata.EndPoint = new Point(left + width, top + height);
-                }
-            }
-            else if (element is TextBox textBox)
-            {
-                double left = Canvas.GetLeft(textBox);
-                double top = Canvas.GetTop(textBox);
-                double width = textBox.ActualWidth;
-                double height = textBox.ActualHeight;
-
-                if (dir.Contains("W")) { left += dx; width -= dx; }
-                if (dir.Contains("E")) { width += dx; }
-                if (dir.Contains("N")) { top += dy; height -= dy; }
-                if (dir.Contains("S")) { height += dy; }
-
-                if (width < 20) width = 20;
-                if (height < 20) height = 20;
-
-                textBox.Width = width;
-                textBox.Height = height;
-                Canvas.SetLeft(textBox, left);
-                Canvas.SetTop(textBox, top);
-            }
-            else if (element is Line line)
-            {
-                if (dir == "NW" || dir == "W" || dir == "N") { line.X1 += dx; line.Y1 += dy; }
-                else if (dir == "SE" || dir == "E" || dir == "S") { line.X2 += dx; line.Y2 += dy; }
-                
-                if (line.Tag is ShapeMetadata metadata)
-                {
-                    metadata.StartPoint = new Point(line.X1, line.Y1);
-                    metadata.EndPoint = new Point(line.X2, line.Y2);
-                }
-            }
-            else if (element is Canvas arrowCanvas && arrowCanvas.Tag is ShapeMetadata metadata)
-            {
-                // 화살표는 다시 그려야 함
-                if (dir == "NW" || dir == "W" || dir == "N") { metadata.StartPoint = new Point(metadata.StartPoint.X + dx, metadata.StartPoint.Y + dy); }
-                else if (dir == "SE" || dir == "E" || dir == "S") { metadata.EndPoint = new Point(metadata.EndPoint.X + dx, metadata.EndPoint.Y + dy); }
-                
-                ShapeDrawingHelper.UpdateArrow(arrowCanvas, metadata.StartPoint, metadata.EndPoint, metadata.Color, metadata.Thickness);
-            }
-        }
-
-        private bool IsPointInElement(Point pt, UIElement element)
-        {
-            return InteractiveEditor.IsPointInElement(pt, element);
-        }
-
-        private void MoveElement(UIElement element, double dx, double dy)
-        {
-            InteractiveEditor.MoveElement(element, dx, dy);
-            
-            // 메타데이터 업데이트
-            if (element is FrameworkElement fe && fe.Tag is ShapeMetadata metadata)
-            {
-                metadata.StartPoint = new Point(metadata.StartPoint.X + dx, metadata.StartPoint.Y + dy);
-                metadata.EndPoint = new Point(metadata.EndPoint.X + dx, metadata.EndPoint.Y + dy);
-            }
-        }
         
         private void SyncEditorProperties()
         {
@@ -2739,16 +2583,16 @@ namespace CatchCapture.Utilities
             _editorManager.ShapeBorderThickness = shapeBorderThickness;
             _editorManager.ShapeIsFilled = shapeIsFilled;
             _editorManager.ShapeFillOpacity = shapeFillOpacity;
-            _editorManager.NextNumber = numberingNext;
-            _editorManager.NumberingBadgeSize = numberingBadgeSize;
             _editorManager.NumberingTextSize = numberingTextSize;
+            _editorManager.TextFontSize = textFontSize;
+            _editorManager.TextFontFamily = textFontFamily;
         }
 
         private void UpdateObjectSelectionUI()
         {
             if (selectedObject == null) return;
 
-            Rect bounds = GetElementBounds(selectedObject);
+            Rect bounds = InteractiveEditor.GetElementBounds(selectedObject);
             
             if (objectSelectionBorder == null)
             {
@@ -2824,181 +2668,27 @@ namespace CatchCapture.Utilities
             UpdateObjectResizeHandles(bounds);
         }
 
-        private Rect GetElementBounds(UIElement element)
-        {
-            if (element is Line line)
-            {
-                return new Rect(new Point(line.X1, line.Y1), new Point(line.X2, line.Y2));
-            }
-            if (element is Polyline polyline)
-            {
-                double minX = polyline.Points.Min(p => p.X);
-                double minY = polyline.Points.Min(p => p.Y);
-                double maxX = polyline.Points.Max(p => p.X);
-                double maxY = polyline.Points.Max(p => p.Y);
-                return new Rect(minX, minY, maxX - minX, maxY - minY);
-            }
-            if (element is Canvas canvasElement)
-            {
-                // 화살표 등
-                double minX = double.MaxValue, minY = double.MaxValue, maxX = double.MinValue, maxY = double.MinValue;
-                foreach (UIElement child in canvasElement.Children)
-                {
-                    Rect r = GetElementBounds(child);
-                    if (r.Left < minX) minX = r.Left;
-                    if (r.Top < minY) minY = r.Top;
-                    if (r.Right > maxX) maxX = r.Right;
-                    if (r.Bottom > maxY) maxY = r.Bottom;
-                }
-                return new Rect(minX, minY, maxX - minX, maxY - minY);
-            }
-            if (element is Polygon polygon)
-            {
-                double minX = polygon.Points.Min(p => p.X);
-                double minY = polygon.Points.Min(p => p.Y);
-                double maxX = polygon.Points.Max(p => p.X);
-                double maxY = polygon.Points.Max(p => p.Y);
-                return new Rect(minX, minY, maxX - minX, maxY - minY);
-            }
-            
-            double left = Canvas.GetLeft(element);
-            double top = Canvas.GetTop(element);
-            double width = (element is FrameworkElement fe) ? fe.ActualWidth : 0;
-            if (width == 0 && element is Shape s) width = s.Width;
-            double height = (element is FrameworkElement fe2) ? fe2.ActualHeight : 0;
-            if (height == 0 && element is Shape s2) height = s2.Height;
-            
-            return new Rect(left, top, width, height);
-        }
-
-        private void Canvas_EraserMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            // 버튼 클릭 시 무시
-            if (e.OriginalSource is FrameworkElement source && 
-               (source is Button || source.Parent is Button || source.TemplatedParent is Button))
-                return;
-
-            Point clickPoint = e.GetPosition(canvas);
-            
-            // 선택 영역 내부인지 확인
-            if (!IsPointInSelection(clickPoint))
-                return;
-
-            UIElement? elementToRemove = null;
-            
-            for (int i = drawnElements.Count - 1; i >= 0; i--)
-            {
-                var element = drawnElements[i];
-                if (IsPointInElement(clickPoint, element))
-                {
-                    elementToRemove = element;
-                    break;
-                }
-            }
-            
-            // 요소 삭제
-            if (elementToRemove != null)
-            {
-                canvas.Children.Remove(elementToRemove);
-                drawnElements.Remove(elementToRemove);
-                if (selectedObject == elementToRemove) DeselectObject();
-            }
-        }
-        
-        // 점에서 선까지의 거리 계산 (지우개용 헬퍼 메서드)
-        private double DistanceFromPointToLine(Point point, Point lineStart, Point lineEnd)
-        {
-            double A = point.X - lineStart.X;
-            double B = point.Y - lineStart.Y;
-            double C = lineEnd.X - lineStart.X;
-            double D = lineEnd.Y - lineStart.Y;
-
-            double dot = A * C + B * D;
-            double lenSq = C * C + D * D;
-            double param = -1;
-            
-            if (lenSq != 0)
-                param = dot / lenSq;
-
-            double xx, yy;
-
-            if (param < 0)
-            {
-                xx = lineStart.X;
-                yy = lineStart.Y;
-            }
-            else if (param > 1)
-            {
-                xx = lineEnd.X;
-                yy = lineEnd.Y;
-            }
-            else
-            {
-                xx = lineStart.X + param * C;
-                yy = lineStart.Y + param * D;
-            }
-
-            double dx = point.X - xx;
-            double dy = point.Y - yy;
-            
-            return Math.Sqrt(dx * dx + dy * dy);
-        }
         private void EnableShapeMode()
         {
+            currentTool = "도형";
             canvas.Cursor = Cursors.Cross;
-            
-            // 마우스 이벤트 재설정
-            canvas.MouseLeftButtonDown -= Canvas_TextMouseDown;
-            canvas.MouseLeftButtonDown -= Canvas_DrawMouseDown;
-            canvas.MouseMove -= Canvas_DrawMouseMove;
-            canvas.MouseLeftButtonUp -= Canvas_DrawMouseUp;
-
-            canvas.MouseLeftButtonDown += Canvas_DrawMouseDown;
-            canvas.MouseMove += Canvas_DrawMouseMove;
-            canvas.MouseLeftButtonUp += Canvas_DrawMouseUp;
-            
-            // 텍스트 선택 해제
-            if (selectedTextBox != null)
-            {
-                ClearTextSelection();
-            }
+            SetupEditorEvents();
         }
-        
+
         private void EnableMosaicMode()
         {
-            canvas.Cursor = Cursors.Cross; // [수정] 십자 커서로 변경
-            
-            // 이벤트 재설정 (텍스트 모드 등에서 전환될 때를 대비)
-            canvas.MouseLeftButtonDown -= Canvas_TextMouseDown;
-            canvas.MouseLeftButtonDown -= Canvas_DrawMouseDown;
-            canvas.MouseMove -= Canvas_DrawMouseMove;
-            canvas.MouseLeftButtonUp -= Canvas_DrawMouseUp;
-
-            canvas.MouseLeftButtonDown += Canvas_DrawMouseDown;
-            canvas.MouseMove += Canvas_DrawMouseMove;
-            canvas.MouseLeftButtonUp += Canvas_DrawMouseUp;
-            
-            // 텍스트 선택 해제
-            if (selectedTextBox != null)
-            {
-                ClearTextSelection();
-            }
+            currentTool = "모자이크";
+            canvas.Cursor = Cursors.Cross;
+            SetupEditorEvents();
         }
 
-        private UIElement? CreateShape(Point start, Point current)
+        private void EnableNumberingMode()
         {
-            return ShapeDrawingHelper.CreateShape(
-                shapeType, start, current, selectedColor, 
-                shapeBorderThickness, shapeIsFilled, shapeFillOpacity);
+            currentTool = "넘버링";
+            canvas.Cursor = Cursors.Hand;
+            SetupEditorEvents();
         }
 
-        // [삭제됨] ShapeDrawingHelper.CreateArrow 사용
-
-
-        private void UpdateShapeProperties(UIElement shape, Point start, Point current)
-        {
-            ShapeDrawingHelper.UpdateShapeProperties(shape, start, current, selectedColor, shapeBorderThickness);
-        }
 
         // [추가] 부모 컨트롤 찾기 헬퍼
         private T? FindParent<T>(DependencyObject child) where T : DependencyObject
@@ -3012,365 +2702,6 @@ namespace CatchCapture.Utilities
             return FindParent<T>(parentObject);
         }
 
-        // [추가] 텍스트 박스 편집 모드 활성화 (버튼 생성 및 이벤트 연결)
-        private void EnableTextBoxEditing(TextBox textBox)
-        {
-            textBox.IsReadOnly = false;
-            textBox.Background = Brushes.Transparent;
-            textBox.BorderThickness = new Thickness(2);
-            textBox.BorderBrush = new SolidColorBrush(Colors.DeepSkyBlue);
-            
-            double left = Canvas.GetLeft(textBox);
-            double top = Canvas.GetTop(textBox);
-            
-            // 확정 버튼 생성
-            var confirmButton = new Button
-            {
-                Content = "✓",
-                Width = 24,
-                Height = 24,
-                FontSize = 14,
-                FontWeight = FontWeights.Bold,
-                Background = new SolidColorBrush(Color.FromArgb(255, 76, 175, 80)), // 초록색
-                Foreground = Brushes.White,
-                BorderThickness = new Thickness(0),
-                Cursor = Cursors.Hand,
-                ToolTip = LocalizationManager.Get("Confirm")
-            };
-
-            // 취소 버튼 생성
-            var cancelButton = new Button
-            {
-                Content = "✕",
-                Width = 24,
-                Height = 24,
-                FontSize = 14,
-                FontWeight = FontWeights.Bold,
-                Background = new SolidColorBrush(Color.FromArgb(255, 244, 67, 54)), // 빨간색
-                Foreground = Brushes.White,
-                BorderThickness = new Thickness(0),
-                Cursor = Cursors.Hand,
-                ToolTip = LocalizationManager.Get("Cancel")
-            };
-
-            // 이벤트 연결
-            confirmButton.Click += (s, e) => ConfirmTextBox(textBox, confirmButton, cancelButton);
-            cancelButton.Click += (s, e) =>
-            {
-                canvas.Children.Remove(textBox);
-                canvas.Children.Remove(confirmButton);
-                canvas.Children.Remove(cancelButton);
-                drawnElements.Remove(textBox);
-                selectedTextBox = null;
-            };
-
-            // 위치 설정
-            double selectionLeft = currentSelectionRect.Left;
-            double selectionTop = currentSelectionRect.Top;
-            double selectionRight = selectionLeft + currentSelectionRect.Width;
-            double selectionBottom = selectionTop + currentSelectionRect.Height;
-
-            // 버튼이 선택 영역을 벗어나지 않도록 위치 조정
-            double confirmLeft = Math.Min(left + 105, selectionRight - 24);
-            double confirmTop = Math.Max(top - 28, selectionTop);
-            double cancelLeft = Math.Min(left + 77, selectionRight - 24);
-            double cancelTop = Math.Max(top - 28, selectionTop);
-
-            Canvas.SetLeft(confirmButton, confirmLeft);
-            Canvas.SetTop(confirmButton, confirmTop);
-            Canvas.SetLeft(cancelButton, cancelLeft);
-            Canvas.SetTop(cancelButton, cancelTop);
-
-            canvas.Children.Add(confirmButton);
-            canvas.Children.Add(cancelButton);
-
-            // 태그 업데이트 (버튼 참조 저장)
-            textBox.Tag = (confirmButton, cancelButton);
-            
-            // 키 이벤트 핸들러 재등록 (중복 방지)
-            textBox.KeyDown -= TextBox_KeyDown;
-            textBox.KeyDown += TextBox_KeyDown;
-            
-            textBox.Focus();
-        }
-
-        // [추가] 텍스트 박스 키 이벤트 핸들러
-        private void TextBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (sender is TextBox textBox)
-            {
-                // 편집 중 (IsReadOnly == false)일 때: Ctrl+Enter 확정, Esc 취소
-                if (!textBox.IsReadOnly)
-                {
-                    if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.Control)
-                    {
-                        if (textBox.Tag is ValueTuple<Button, Button> tags1)
-                        {
-                            var confirmButton = tags1.Item1;
-                            var cancelButton = tags1.Item2;
-                            ConfirmTextBox(textBox, confirmButton, cancelButton);
-                            e.Handled = true;
-                        }
-                    }
-                    else if (e.Key == Key.Escape)
-                    {
-                        if (textBox.Tag is ValueTuple<Button, Button> tags2)
-                        {
-                            var confirmButton = tags2.Item1;
-                            var cancelButton = tags2.Item2;
-                            canvas.Children.Remove(textBox);
-                            canvas.Children.Remove(confirmButton);
-                            canvas.Children.Remove(cancelButton);
-                            drawnElements.Remove(textBox);
-                            selectedTextBox = null;
-                            e.Handled = true;
-                        }
-                    }
-                    return;
-                }
-
-                // 확정 상태에서는 Ctrl+Enter로 편집 전환, Esc로 선택 해제만 처리
-                if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.Control)
-                {
-                    ClearTextSelection();
-                    EnableTextBoxEditing(textBox);
-                    textBox.SelectAll();
-                    e.Handled = true;
-                }
-                else if (e.Key == Key.Escape)
-                {
-                    ClearTextSelection();
-                    e.Handled = true;
-                }
-            }
-        }
-
-        private void Canvas_TextMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            // 버튼이나 텍스트박스 클릭 시 무시 (이벤트 버블링 방지 -> X버튼 클릭 문제 해결)
-            if (e.OriginalSource is DependencyObject obj && 
-               (FindParent<Button>(obj) != null || FindParent<TextBox>(obj) != null))
-            {
-                return;
-            }
-
-            Point clickPoint = e.GetPosition(canvas);
-            
-            // 선택 영역 내부인지 확인
-            if (!IsPointInSelection(clickPoint))
-                return;
-
-            // 기존 선택 해제
-            ClearTextSelection();    
-
-            // 새 텍스트박스 생성
-            var textBox = new TextBox
-            {
-                MinWidth = 100,
-                MinHeight = 30,
-                FontSize = textFontSize,
-                FontFamily = new FontFamily(textFontFamily),
-                Foreground = new SolidColorBrush(selectedColor),
-                Background = Brushes.Transparent,
-                BorderBrush = new SolidColorBrush(Colors.DeepSkyBlue),
-                BorderThickness = new Thickness(2),
-                Padding = new Thickness(5),
-                TextWrapping = TextWrapping.Wrap,
-                AcceptsReturn = true,
-                VerticalScrollBarVisibility = ScrollBarVisibility.Auto
-            };
-            
-            // 선택 영역 경계 계산
-            double selectionLeft = currentSelectionRect.Left;
-            double selectionTop = currentSelectionRect.Top;
-            double selectionRight = selectionLeft + currentSelectionRect.Width;
-            double selectionBottom = selectionTop + currentSelectionRect.Height;
-
-            // 텍스트박스가 선택 영역을 벗어나지 않도록 위치 제한
-            double textBoxLeft = Math.Max(selectionLeft, Math.Min(clickPoint.X, selectionRight - textBox.MinWidth));
-            double textBoxTop = Math.Max(selectionTop, Math.Min(clickPoint.Y, selectionBottom - textBox.MinHeight));
-
-            Canvas.SetLeft(textBox, textBoxLeft);
-            Canvas.SetTop(textBox, textBoxTop);
-            
-            canvas.Children.Add(textBox);
-            drawnElements.Add(textBox);
-            selectedTextBox = textBox;
-            
-            // 드래그 이벤트 등록
-            textBox.PreviewMouseLeftButtonDown += TextBox_PreviewMouseLeftButtonDown;
-            textBox.PreviewMouseMove += TextBox_PreviewMouseMove;
-            textBox.PreviewMouseLeftButtonUp += TextBox_PreviewMouseLeftButtonUp;
-
-            // 편집 모드 활성화 (버튼 생성 등)
-            EnableTextBoxEditing(textBox);
-        }
-
-        // 텍스트박스 드래그 관련 변수
-        private bool isTextDragging = false;
-        private Point textDragStartPoint;
-
-        private void TextBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (sender is TextBox textBox)
-            {
-                // 이미 편집 중이면(IsReadOnly == false) 간섭하지 않음 (텍스트 선택, 커서 이동 등 허용)
-                if (!textBox.IsReadOnly) return;
-
-                // 선택 표시 (점선, 휴지통)
-                ShowTextSelection(textBox);
-                selectedTextBox = textBox;
-                
-                // 확정된 텍스트박스는 바로 드래그 가능
-                isTextDragging = true;
-                textDragStartPoint = e.GetPosition(canvas);
-                textBox.CaptureMouse();
-                e.Handled = true;
-            }
-        }
-
-        private void TextBox_PreviewMouseMove(object sender, MouseEventArgs e)
-        {
-            if (isTextDragging && sender is TextBox textBox)
-            {
-                Point currentPoint = e.GetPosition(canvas);
-                
-                double offsetX = currentPoint.X - textDragStartPoint.X;
-                double offsetY = currentPoint.Y - textDragStartPoint.Y;
-                
-                double newLeft = Canvas.GetLeft(textBox) + offsetX;
-                double newTop = Canvas.GetTop(textBox) + offsetY;
-                
-                Canvas.SetLeft(textBox, newLeft);
-                Canvas.SetTop(textBox, newTop);
-                
-                // 점선 테두리도 함께 이동
-                if (textSelectionBorder != null)
-                {
-                    Canvas.SetLeft(textSelectionBorder, newLeft - 2);
-                    Canvas.SetTop(textSelectionBorder, newTop - 2);
-                }
-                
-                // 삭제 버튼도 함께 이동
-                if (textDeleteButton != null)
-                {
-                    double width = textBox.ActualWidth > 0 ? textBox.ActualWidth : textBox.MinWidth;
-                    Canvas.SetLeft(textDeleteButton, newLeft + width - 20);
-                    Canvas.SetTop(textDeleteButton, newTop - 28);
-                }
-                
-                textDragStartPoint = currentPoint;
-            }
-        }
-
-        private void TextBox_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            if (isTextDragging && sender is TextBox textBox)
-            {
-                isTextDragging = false;
-                textBox.ReleaseMouseCapture();
-                
-                // [추가] 드래그 완료 후 선택 해제하여 다음 클릭 시 새 텍스트박스가 생성되지 않도록 함
-                ClearTextSelection();
-                e.Handled = true;
-            }
-        }
-
-        private void ConfirmTextBox(TextBox textBox, Button confirmButton, Button cancelButton)
-        {
-            if (textBox == null) return;
-            
-            // 텍스트박스 확정 처리
-            textBox.IsReadOnly = true;
-            textBox.BorderThickness = new Thickness(0);
-            textBox.Background = Brushes.Transparent;
-            textBox.Cursor = Cursors.Arrow;
-            
-            // 확정/취소 버튼 제거
-            canvas.Children.Remove(confirmButton);
-            canvas.Children.Remove(cancelButton);
-            
-            selectedTextBox = null;
-        }
-
-        private void ClearTextSelection()
-        {
-            // 기존 텍스트박스가 있으면 포커스 해제
-            if (selectedTextBox != null)
-            {
-                selectedTextBox.IsReadOnly = true;
-                selectedTextBox.BorderThickness = new Thickness(0);
-                selectedTextBox.Background = Brushes.Transparent;
-            }
-            
-            // 선택 테두리 제거
-            if (textSelectionBorder != null && canvas.Children.Contains(textSelectionBorder))
-            {
-                canvas.Children.Remove(textSelectionBorder);
-                textSelectionBorder = null;
-            }
-            
-            // 삭제 버튼 제거
-            if (textDeleteButton != null && canvas.Children.Contains(textDeleteButton))
-            {
-                canvas.Children.Remove(textDeleteButton);
-                textDeleteButton = null;
-            }
-        }
-
-        private void ShowTextSelection(TextBox textBox)
-        {
-            // 기존 선택 해제
-            ClearTextSelection();
-            
-            double left = Canvas.GetLeft(textBox);
-            double top = Canvas.GetTop(textBox);
-            double width = textBox.ActualWidth > 0 ? textBox.ActualWidth : textBox.MinWidth;
-            double height = textBox.ActualHeight > 0 ? textBox.ActualHeight : textBox.MinHeight;
-            
-            // 점선 테두리 생성
-            textSelectionBorder = new Rectangle
-            {
-                Width = width + 4,
-                Height = height + 4,
-                Stroke = new SolidColorBrush(Colors.DeepSkyBlue),
-                StrokeThickness = 2,
-                StrokeDashArray = new DoubleCollection { 4, 2 },
-                Fill = Brushes.Transparent,
-                IsHitTestVisible = false
-            };
-            
-            Canvas.SetLeft(textSelectionBorder, left - 2);
-            Canvas.SetTop(textSelectionBorder, top - 2);
-            canvas.Children.Add(textSelectionBorder);
-            
-            // 삭제 버튼 생성
-            textDeleteButton = new Button
-            {
-                Content = "🗑️",
-                Width = 24,
-                Height = 24,
-                FontSize = 12,
-                Background = new SolidColorBrush(Color.FromArgb(255, 244, 67, 54)), // 빨간색
-                Foreground = Brushes.White,
-                BorderThickness = new Thickness(0),
-                Cursor = Cursors.Hand,
-                ToolTip = LocalizationManager.Get("Delete")
-            };
-            
-            textDeleteButton.Click += (s, e) =>
-            {
-                // 텍스트박스 삭제
-                canvas.Children.Remove(textBox);
-                canvas.Children.Remove(textDeleteButton);
-                drawnElements.Remove(textBox);
-                selectedTextBox = null;
-            };
-            
-            Canvas.SetLeft(textDeleteButton, left + width - 20);
-            Canvas.SetTop(textDeleteButton, top - 28);
-            canvas.Children.Add(textDeleteButton);
-        }
 
         private void Canvas_DrawMouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -3447,7 +2778,6 @@ namespace CatchCapture.Utilities
                             LineJoin = PenLineJoin.Round
                         };
 
-                        // 투명도가 있는 경우 PushOpacity 사용
                         if (polyline.Opacity < 1.0)
                         {
                             drawingContext.PushOpacity(polyline.Opacity);
@@ -3458,7 +2788,6 @@ namespace CatchCapture.Utilities
                             drawingContext.DrawLine(pen, adjustedPoints[i], adjustedPoints[i + 1]);
                         }
 
-                        // PushOpacity를 사용했으면 Pop 필요
                         if (polyline.Opacity < 1.0)
                         {
                             drawingContext.Pop();
@@ -3469,6 +2798,26 @@ namespace CatchCapture.Utilities
                         if (string.IsNullOrWhiteSpace(textBox.Text))
                             continue;
                         
+                        double tLeft = Canvas.GetLeft(textBox);
+                        double tTop = Canvas.GetTop(textBox);
+                        if (double.IsNaN(tLeft)) tLeft = 0;
+                        if (double.IsNaN(tTop)) tTop = 0;
+                        double textLeft = tLeft - selectionLeft;
+                        double textTop = tTop - selectionTop;
+
+                        double tWidth = textBox.Width;
+                        double tHeight = textBox.Height;
+                        if (double.IsNaN(tWidth)) tWidth = textBox.ActualWidth;
+                        if (double.IsNaN(tHeight)) tHeight = textBox.ActualHeight;
+
+                        // 배경 및 테두리 (활성화된 상태일 때만 그릴지 검토, 일단 항상 그림)
+                        if (textBox.Background != null && textBox.Background != Brushes.Transparent)
+                        {
+                            drawingContext.DrawRectangle(textBox.Background, 
+                                (textBox.BorderThickness.Left > 0) ? new Pen(textBox.BorderBrush, textBox.BorderThickness.Left) : null,
+                                new Rect(textLeft, textTop, tWidth, tHeight));
+                        }
+
                         var formattedText = new FormattedText(
                             textBox.Text,
                             System.Globalization.CultureInfo.CurrentCulture,
@@ -3478,43 +2827,58 @@ namespace CatchCapture.Utilities
                             textBox.Foreground,
                             VisualTreeHelper.GetDpi(this).PixelsPerDip);
                         
-                        double textLeft = Canvas.GetLeft(textBox) - selectionLeft;
-                        double textTop = Canvas.GetTop(textBox) - selectionTop;
-                        
-                        drawingContext.DrawText(formattedText, new Point(textLeft, textTop));
+                        drawingContext.DrawText(formattedText, new Point(textLeft + textBox.Padding.Left, textTop + textBox.Padding.Top));
                     }     
                     else if (element is Shape shape)
                     {
                         if (shape is Line line)
                         {
-                            // [수정] 선 좌표 보정 (선택 영역 기준)
                             drawingContext.DrawLine(new Pen(line.Stroke, line.StrokeThickness), 
                                 new Point(line.X1 - selectionLeft, line.Y1 - selectionTop), 
                                 new Point(line.X2 - selectionLeft, line.Y2 - selectionTop));
                         }
                         else
                         {
-                            // [수정] 도형 좌표 보정 (선택 영역 기준)
-                            double left = Canvas.GetLeft(shape) - selectionLeft;
-                            double top = Canvas.GetTop(shape) - selectionTop;
+                            double sLeft = Canvas.GetLeft(shape);
+                            double sTop = Canvas.GetTop(shape);
+                            if (double.IsNaN(sLeft)) sLeft = 0;
+                            if (double.IsNaN(sTop)) sTop = 0;
+                            double left = sLeft - selectionLeft;
+                            double top = sTop - selectionTop;
+                            
+                            double sWidth = shape.Width;
+                            double sHeight = shape.Height;
+                            if (double.IsNaN(sWidth)) sWidth = shape.ActualWidth;
+                            if (double.IsNaN(sHeight)) sHeight = shape.ActualHeight;
+
                             drawingContext.PushTransform(new TranslateTransform(left, top));
 
                             if (shape is Rectangle rect)
                             {
-                                drawingContext.DrawRectangle(rect.Fill, new Pen(rect.Stroke, rect.StrokeThickness), new Rect(0, 0, rect.Width, rect.Height));
+                                drawingContext.DrawRectangle(rect.Fill, new Pen(rect.Stroke, rect.StrokeThickness), new Rect(0, 0, sWidth, sHeight));
                             }
                             else if (shape is Ellipse ellipse)
                             {
-                                drawingContext.DrawEllipse(ellipse.Fill, new Pen(ellipse.Stroke, ellipse.StrokeThickness), new Point(ellipse.Width / 2, ellipse.Height / 2), ellipse.Width / 2, ellipse.Height / 2);
+                                drawingContext.DrawEllipse(ellipse.Fill, new Pen(ellipse.Stroke, ellipse.StrokeThickness), new Point(sWidth / 2, sHeight / 2), sWidth / 2, sHeight / 2);
                             }
                             drawingContext.Pop();
                         } 
                     }
                     else if (element is Image image)
                     {
-                        double left = Canvas.GetLeft(image) - selectionLeft;
-                        double top = Canvas.GetTop(image) - selectionTop;
-                        drawingContext.DrawImage(image.Source, new Rect(left, top, image.Width, image.Height));
+                        double iLeft = Canvas.GetLeft(image);
+                        double iTop = Canvas.GetTop(image);
+                        if (double.IsNaN(iLeft)) iLeft = 0;
+                        if (double.IsNaN(iTop)) iTop = 0;
+                        double left = iLeft - selectionLeft;
+                        double top = iTop - selectionTop;
+                        
+                        double iWidth = image.Width;
+                        double iHeight = image.Height;
+                        if (double.IsNaN(iWidth)) iWidth = image.ActualWidth;
+                        if (double.IsNaN(iHeight)) iHeight = image.ActualHeight;
+
+                        drawingContext.DrawImage(image.Source, new Rect(left, top, iWidth, iHeight));
                     }                    
                     else if (element is Canvas canvas)
                     {
@@ -3531,22 +2895,35 @@ namespace CatchCapture.Utilities
 
                         if (isNumbering)
                         {
-                            // [넘버링 그룹 렌더링]
-                            double groupLeft = Canvas.GetLeft(canvas) - selectionLeft;
-                            double groupTop = Canvas.GetTop(canvas) - selectionTop;
+                            double gLeft = Canvas.GetLeft(canvas);
+                            double gTop = Canvas.GetTop(canvas);
+                            if (double.IsNaN(gLeft)) gLeft = 0;
+                            if (double.IsNaN(gTop)) gTop = 0;
+                            double groupLeft = gLeft - selectionLeft;
+                            double groupTop = gTop - selectionTop;
                             
                             foreach (var child in canvas.Children)
                             {
                                 if (child is Border border)
                                 {
                                     // 배지 렌더링
-                                    double badgeLeft = groupLeft + Canvas.GetLeft(border);
-                                    double badgeTop = groupTop + Canvas.GetTop(border);
+                                    double bLeft = Canvas.GetLeft(border);
+                                    double bTop = Canvas.GetTop(border);
+                                    if (double.IsNaN(bLeft)) bLeft = 0;
+                                    if (double.IsNaN(bTop)) bTop = 0;
+
+                                    double badgeLeft = groupLeft + bLeft;
+                                    double badgeTop = groupTop + bTop;
                                     
+                                    double bWidth = border.Width;
+                                    double bHeight = border.Height;
+                                    if (double.IsNaN(bWidth)) bWidth = border.ActualWidth;
+                                    if (double.IsNaN(bHeight)) bHeight = border.ActualHeight;
+
                                     var ellipse = new EllipseGeometry(
-                                        new Point(badgeLeft + border.Width / 2, badgeTop + border.Height / 2),
-                                        border.Width / 2,
-                                        border.Height / 2);
+                                        new Point(badgeLeft + bWidth / 2, badgeTop + bHeight / 2),
+                                        bWidth / 2,
+                                        bHeight / 2);
                                     
                                     drawingContext.DrawGeometry(border.Background, 
                                         new Pen(border.BorderBrush, border.BorderThickness.Left), ellipse);
@@ -3564,20 +2941,34 @@ namespace CatchCapture.Utilities
                                             VisualTreeHelper.GetDpi(this).PixelsPerDip);
                                         
                                         drawingContext.DrawText(formattedText, 
-                                            new Point(badgeLeft + (border.Width - formattedText.Width) / 2, 
-                                                    badgeTop + (border.Height - formattedText.Height) / 2));
+                                            new Point(badgeLeft + (bWidth - formattedText.Width) / 2, 
+                                                    badgeTop + (bHeight - formattedText.Height) / 2));
                                     }
                                 }
                                 else if (child is TextBox noteTextBox && !string.IsNullOrWhiteSpace(noteTextBox.Text))
                                 {
                                     // 텍스트박스 렌더링
-                                    double textBoxLeft = groupLeft + Canvas.GetLeft(noteTextBox);
-                                    double textBoxTop = groupTop + Canvas.GetTop(noteTextBox);
+                                    double tbLeft = Canvas.GetLeft(noteTextBox);
+                                    double tbTop = Canvas.GetTop(noteTextBox);
+                                    if (double.IsNaN(tbLeft)) tbLeft = 0;
+                                    if (double.IsNaN(tbTop)) tbTop = 0;
+
+                                    double textBoxLeft = groupLeft + tbLeft;
+                                    double textBoxTop = groupTop + tbTop;
                                     
-                                    // Padding 반영
-                                    double paddingLeft = noteTextBox.Padding.Left;
-                                    double paddingTop = noteTextBox.Padding.Top;
-                                    
+                                    double ntWidth = noteTextBox.Width;
+                                    double ntHeight = noteTextBox.Height;
+                                    if (double.IsNaN(ntWidth)) ntWidth = noteTextBox.ActualWidth;
+                                    if (double.IsNaN(ntHeight)) ntHeight = noteTextBox.ActualHeight;
+
+                                    // 텍스트박스 배경/테두리 그리기
+                                    if (noteTextBox.Background != null && noteTextBox.Background != Brushes.Transparent)
+                                    {
+                                        drawingContext.DrawRectangle(noteTextBox.Background, 
+                                            (noteTextBox.BorderThickness.Left > 0) ? new Pen(noteTextBox.BorderBrush, noteTextBox.BorderThickness.Left) : null,
+                                            new Rect(textBoxLeft, textBoxTop, ntWidth, ntHeight));
+                                    }
+
                                     var formattedText = new FormattedText(
                                         noteTextBox.Text,
                                         System.Globalization.CultureInfo.CurrentCulture,
@@ -3587,7 +2978,7 @@ namespace CatchCapture.Utilities
                                         noteTextBox.Foreground,
                                         VisualTreeHelper.GetDpi(this).PixelsPerDip);
                                     
-                                    drawingContext.DrawText(formattedText, new Point(textBoxLeft + paddingLeft, textBoxTop + paddingTop));
+                                    drawingContext.DrawText(formattedText, new Point(textBoxLeft + noteTextBox.Padding.Left, textBoxTop + noteTextBox.Padding.Top));
                                 }
                             }
                         }
@@ -3620,8 +3011,8 @@ namespace CatchCapture.Utilities
                             }
                         }
                     }
-                } // foreach 종료
-            } // using 종료
+                }
+            }
             
             renderBitmap.Render(drawingVisual);
             renderBitmap.Freeze();
@@ -3917,462 +3308,7 @@ namespace CatchCapture.Utilities
             }
         }
 
-        private void EnableNumberingMode()
-        {
-            // 기존 이벤트 제거
-            canvas.MouseLeftButtonDown -= Canvas_TextMouseDown;
-            canvas.MouseLeftButtonDown -= Canvas_DrawMouseDown;
-            canvas.MouseMove -= Canvas_DrawMouseMove;
-            canvas.MouseLeftButtonUp -= Canvas_DrawMouseUp;
 
-            // 넘버링용 이벤트 다시 등록
-            canvas.MouseLeftButtonDown += Canvas_DrawMouseDown;
-            canvas.MouseMove += Canvas_DrawMouseMove;
-            canvas.MouseLeftButtonUp += Canvas_DrawMouseUp;
-            
-            // 그리기 모드 비활성화 (넘버링은 클릭만 필요)
-            
-            Cursor = Cursors.Arrow;
-        }
-
-        // 배경 색상에 대비되는 텍스트 색상 반환 (흰색 또는 검은색)
-        private Color GetContrastColor(Color backgroundColor)
-        {
-            // 밝기 계산 (0-255)
-            double brightness = (backgroundColor.R * 0.299 + backgroundColor.G * 0.587 + backgroundColor.B * 0.114);
-            
-            // 밝기가 128 이상이면 검은색, 아니면 흰색
-            return brightness > 128 ? Colors.Black : Colors.White;
-        }
-
-        private void CreateNumberingAt(Point canvasPoint)
-        {
-            int myNumber = numberingNext;
-            
-            var group = new Canvas();
-            group.Background = Brushes.Transparent;
-            numberingGroups[myNumber] = group;
-
-            double badgeSize = numberingBadgeSize; // [수정] 설정된 배지 크기 사용
-            var badgeBorder = new Border
-            {
-                Width = badgeSize,
-                Height = badgeSize,
-                CornerRadius = new CornerRadius(badgeSize / 2),
-                Background = new SolidColorBrush(selectedColor),
-                BorderBrush = Brushes.White,
-                BorderThickness = new Thickness(2)
-            };
-
-            // 배지 색상의 밝기에 따라 텍스트 색상 결정
-            Color textColor = GetContrastColor(selectedColor);
-
-            var numText = new TextBlock
-            {
-                Text = myNumber.ToString(),
-                Foreground = new SolidColorBrush(textColor),
-                FontWeight = FontWeights.Bold,
-                FontSize = badgeSize * 0.5, // [수정] 배지 크기에 비례하여 폰트 크기 자동 조정
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-            badgeBorder.Child = numText;
-            group.Children.Add(badgeBorder);
-            Canvas.SetLeft(badgeBorder, 0);
-            Canvas.SetTop(badgeBorder, 0);
-
-            var noteBox = new TextBox
-            {
-                Width = 160, // 기본 너비
-                Height = Math.Max(28, numberingTextSize + 16), // [수정] 폰트 크기에 맞춰 높이 자동 조절
-                Background = new SolidColorBrush(Color.FromArgb(80, 0, 0, 0)),
-                BorderBrush = Brushes.White,
-                BorderThickness = new Thickness(2),
-                Padding = new Thickness(3, 2, 3, 2),
-                FontSize = numberingTextSize, // [수정] 설정된 텍스트 크기 사용
-                Foreground = new SolidColorBrush(selectedColor),
-                Text = string.Empty
-            };
-            group.Children.Add(noteBox);
-            Canvas.SetLeft(noteBox, badgeSize + 2);
-            Canvas.SetTop(noteBox, -(noteBox.Height - badgeSize) / 2);
-
-            Border? selectionBorder = null;
-            RoutedEventHandler? gotFocusHandler = null;
-            RoutedEventHandler? lostFocusHandler = null;
-
-            gotFocusHandler = (s, e) =>
-            {
-                // ReadOnly 상태면 테두리 표시 안 함 (확정 후)
-                if (noteBox.IsReadOnly) return;
-                
-                if (selectionBorder == null)
-                {
-                    selectionBorder = new Border
-                    {
-                        BorderBrush = new SolidColorBrush(Color.FromRgb(100, 200, 255)),
-                        BorderThickness = new Thickness(2),
-                        Background = Brushes.Transparent,
-                        Width = noteBox.Width + 4,
-                        Height = noteBox.Height + 4,
-                        IsHitTestVisible = false
-                    };
-                    group.Children.Add(selectionBorder);
-                    Canvas.SetLeft(selectionBorder, Canvas.GetLeft(noteBox) - 2);
-                    Canvas.SetTop(selectionBorder, Canvas.GetTop(noteBox) - 2);
-                    Panel.SetZIndex(selectionBorder, -1);
-                }
-                else
-                {
-                    selectionBorder.Visibility = Visibility.Visible;
-                }
-            };
-
-            lostFocusHandler = (s, e) =>
-            {
-                if (selectionBorder != null)
-                {
-                    selectionBorder.Visibility = Visibility.Collapsed;  // ← 추가
-                }                
-            };
-            var confirmBtn = new Button
-            {
-                Width = 22,
-                Height = 22,
-                Background = new SolidColorBrush(Color.FromRgb(76, 175, 80)),
-                BorderThickness = new Thickness(0),
-                Cursor = Cursors.Hand,
-                ToolTip = LocalizationManager.Get("OK")
-            };
-            
-            confirmBtn.Content = new TextBlock
-            {
-                Text = "✓",
-                Foreground = Brushes.White,
-                FontWeight = FontWeights.Bold,
-                FontSize = 12,
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Center
-            };
-
-            var deleteBtn = new Button
-            {
-                Width = 22,
-                Height = 22,
-                Background = Brushes.White,
-                BorderThickness = new Thickness(0),
-                Cursor = Cursors.Hand,
-                ToolTip = LocalizationManager.Get("Delete")
-            };
-            try
-            {
-                deleteBtn.Content = new Image
-                {
-                    Source = new BitmapImage(new Uri("pack://application:,,,/icons/delete_selected.png")),
-                    Width = 18,
-                    Height = 18
-                };
-            }
-            catch { deleteBtn.Content = new TextBlock { Text = "🗑", FontSize = 14 }; }
-
-            void UpdateButtonsPosition()
-            {
-                double nbLeft = Canvas.GetLeft(noteBox);
-                double nbTop = Canvas.GetTop(noteBox);
-                double midY = nbTop + (noteBox.Height - confirmBtn.Height) / 2.0;
-                Canvas.SetLeft(confirmBtn, nbLeft + noteBox.Width + 6);
-                Canvas.SetTop(confirmBtn, midY);
-                Canvas.SetLeft(deleteBtn, nbLeft + noteBox.Width + 6 + confirmBtn.Width + 6);
-                Canvas.SetTop(deleteBtn, midY);
-            }
-
-            group.Children.Add(confirmBtn);
-            group.Children.Add(deleteBtn);
-            Panel.SetZIndex(confirmBtn, 1000);
-            Panel.SetZIndex(deleteBtn, 1000);
-
-            UpdateButtonsPosition();
-
-            canvas.Children.Add(group);
-            Canvas.SetLeft(group, canvasPoint.X - badgeSize / 2);
-            Canvas.SetTop(group, canvasPoint.Y - badgeSize / 2);
-            Panel.SetZIndex(group, 500);
-
-            // Undo/관리 목록에 추가
-            drawnElements.Add(group);
-            undoStack.Push(group);
-
-            // 드래그 이벤트 (간단 버전)
-            bool isDrag = false;
-            Point dragStart = new Point();
-
-            MouseButtonEventHandler? noteBoxMouseDown = null;
-            MouseEventHandler? noteBoxMouseMove = null;
-            MouseButtonEventHandler? noteBoxMouseUp = null;
-
-            noteBoxMouseDown = (s, e) =>
-            {
-                var pos = e.GetPosition(noteBox);
-                bool isNearBorder = pos.X < 5 || pos.X > noteBox.Width - 5 || 
-                                    pos.Y < 5 || pos.Y > noteBox.Height - 5;
-                
-                if (isNearBorder)
-                {
-                    // 다른 마우스 캡처가 있으면 해제
-                    if (noteBox.IsMouseCaptured) noteBox.ReleaseMouseCapture();
-                    if (badgeBorder.IsMouseCaptured) badgeBorder.ReleaseMouseCapture();
-                    
-                    isDrag = true;
-                    dragStart = e.GetPosition(group);
-                    noteBox.CaptureMouse();
-                    e.Handled = true;
-                }
-            };
-
-            noteBoxMouseMove = (s, e) =>
-            {
-                if (!isDrag) return;
-                var p = e.GetPosition(group);
-                double dx = p.X - dragStart.X;
-                double dy = p.Y - dragStart.Y;
-                
-                double newLeft = Canvas.GetLeft(noteBox) + dx;
-                double newTop = Canvas.GetTop(noteBox) + dy;
-                
-                Canvas.SetLeft(noteBox, newLeft);
-                Canvas.SetTop(noteBox, newTop);
-                
-                // 점선 테두리도 함께 이동
-                if (selectionBorder != null)
-                {
-                    Canvas.SetLeft(selectionBorder, newLeft - 2);
-                    Canvas.SetTop(selectionBorder, newTop - 2);
-                }
-                
-                // 삭제 버튼도 함께 이동
-                if (deleteBtn != null)
-                {
-                    double width = noteBox.ActualWidth > 0 ? noteBox.ActualWidth : noteBox.MinWidth;
-                    Canvas.SetLeft(deleteBtn, newLeft + width - 20);
-                    Canvas.SetTop(deleteBtn, newTop - 28);
-                }
-                
-                dragStart = p;
-            };
-
-            noteBoxMouseUp = (s, e) =>
-            {
-                isDrag = false;
-                if (noteBox.IsMouseCaptured)
-                {
-                    noteBox.ReleaseMouseCapture();
-                }
-            };
-
-            noteBox.PreviewMouseLeftButtonDown += noteBoxMouseDown;
-            noteBox.PreviewMouseMove += noteBoxMouseMove;
-            noteBox.PreviewMouseLeftButtonUp += noteBoxMouseUp;
-
-            bool isDragBadge = false;
-            Point dragStartBadge = new Point();
-            Point originBadge = new Point();
-
-            MouseButtonEventHandler? badgeMouseDown = null;
-            MouseEventHandler? badgeMouseMove = null;
-            MouseButtonEventHandler? badgeMouseUp = null;
-
-            badgeMouseDown = (s, e) =>
-            {
-                isDragBadge = true;
-                dragStartBadge = e.GetPosition(group);
-                originBadge = new Point(Canvas.GetLeft(badgeBorder), Canvas.GetTop(badgeBorder));
-                badgeBorder.CaptureMouse();
-                e.Handled = true;
-            };
-
-            badgeMouseMove = (s, e) =>
-            {
-                if (!isDragBadge) return;
-                var p = e.GetPosition(group);
-                double dx = p.X - dragStartBadge.X;
-                double dy = p.Y - dragStartBadge.Y;
-                Canvas.SetLeft(badgeBorder, originBadge.X + dx);
-                Canvas.SetTop(badgeBorder, originBadge.Y + dy);
-                e.Handled = true;
-            };
-
-            badgeMouseUp = (s, e) =>
-            {
-                isDragBadge = false;
-                try { badgeBorder.ReleaseMouseCapture(); } catch { }
-            };
-
-            badgeBorder.PreviewMouseLeftButtonDown += badgeMouseDown;
-            badgeBorder.PreviewMouseMove += badgeMouseMove;
-            badgeBorder.PreviewMouseLeftButtonUp += badgeMouseUp;
-
-            deleteBtn.Click += (s, e) =>
-            {
-                if (canvas.Children.Contains(group)) canvas.Children.Remove(group);
-                drawnElements.Remove(group);
-                
-                numberingGroups.Remove(myNumber);
-                
-                if (numberingGroups.Count > 0)
-                {
-                    numberingNext = numberingGroups.Keys.Max() + 1;
-                }
-                else
-                {
-                    numberingNext = 1;
-                }
-            };
-
-            confirmBtn.Click += (s, e) =>
-            {
-                noteBox.IsReadOnly = true;
-                noteBox.BorderBrush = Brushes.Transparent;  // 테두리는 투명하게
-                noteBox.Background = Brushes.Transparent;
-                // BorderThickness는 그대로 유지 (위치 변화 방지)
-                // noteBox.BorderThickness = new Thickness(0);  ← 주석 처리
-                confirmBtn.Visibility = Visibility.Collapsed;
-                deleteBtn.Visibility = Visibility.Collapsed;
-                // 포커스 해제 및 테두리 숨김
-                noteBox.Focusable = false;  // ← 추가: 포커스 불가로 설정
-                if (selectionBorder != null)
-                {
-                    selectionBorder.Visibility = Visibility.Collapsed;  // ← 추가
-                }                
-                noteBox.PreviewMouseLeftButtonDown -= noteBoxMouseDown;
-                noteBox.PreviewMouseMove -= noteBoxMouseMove;
-                noteBox.PreviewMouseLeftButtonUp -= noteBoxMouseUp;
-                
-                badgeBorder.PreviewMouseLeftButtonDown -= badgeMouseDown;
-                badgeBorder.PreviewMouseMove -= badgeMouseMove;
-                badgeBorder.PreviewMouseLeftButtonUp -= badgeMouseUp;
-                
-                noteBox.Cursor = Cursors.Arrow;
-                badgeBorder.Cursor = Cursors.Arrow;
-
-                bool isConfirmed = true;
-                bool isDragGroup = false;
-                Point dragStartGroup = new Point();
-                Point originGroupPos = new Point();
-                
-                MouseButtonEventHandler? groupMouseDown = null;
-                MouseEventHandler? groupMouseMove = null;
-                MouseButtonEventHandler? groupMouseUp = null;
-                
-                groupMouseDown = (gs, ge) =>
-                {
-                    isDragGroup = true;
-                    dragStartGroup = ge.GetPosition(canvas);
-                    originGroupPos = new Point(Canvas.GetLeft(group), Canvas.GetTop(group));
-                    
-                    // 클릭한 요소가 캡처해야 함
-                    if (gs is UIElement element)
-                    {
-                        element.CaptureMouse();
-                    }
-                    ge.Handled = true;
-                };
-
-                groupMouseMove = (gs, ge) =>
-                {
-                    // 드래그 중이 아니거나 마우스 캡처가 없으면 중단
-                    if (!isDragGroup) return;
-                    if (gs is UIElement element && !element.IsMouseCaptured) 
-                    {
-                        isDragGroup = false;
-                        return;
-                    }
-                    
-                    var p = ge.GetPosition(canvas);
-                    double dx = p.X - dragStartGroup.X;
-                    double dy = p.Y - dragStartGroup.Y;
-                    Canvas.SetLeft(group, originGroupPos.X + dx);
-                    Canvas.SetTop(group, originGroupPos.Y + dy);
-                    ge.Handled = true;
-                };
-
-                groupMouseUp = (gs, ge) =>
-                {
-                    isDragGroup = false;
-                    if (gs is UIElement element && element.IsMouseCaptured)
-                    {
-                        element.ReleaseMouseCapture();
-                    }
-                };
-                                
-                badgeBorder.MouseLeftButtonDown += groupMouseDown;
-                badgeBorder.MouseMove += groupMouseMove;
-                badgeBorder.MouseLeftButtonUp += groupMouseUp;
-
-                noteBox.MouseLeftButtonDown += groupMouseDown;
-                noteBox.MouseMove += groupMouseMove;
-                noteBox.MouseLeftButtonUp += groupMouseUp;
-                // LostMouseCapture 이벤트 추가 (안전장치)
-                badgeBorder.LostMouseCapture += (s, e) =>
-                {
-                    isDragGroup = false;
-                };
-
-                noteBox.LostMouseCapture += (s, e) =>
-                {
-                    isDragGroup = false;
-                };
-
-                badgeBorder.Cursor = Cursors.SizeAll;
-                noteBox.Cursor = Cursors.SizeAll;
-                badgeBorder.Cursor = Cursors.SizeAll;
-                noteBox.Cursor = Cursors.SizeAll;
-
-                MouseButtonEventHandler? noteBoxDoubleClick = null;
-                noteBoxDoubleClick = (ns, ne) =>
-                {
-                    if (isConfirmed)
-                    {
-                        // 편집 모드로 전환
-                        noteBox.IsReadOnly = false;
-                        noteBox.Focusable = true;  // ← 추가: 포커스 가능하게
-                        noteBox.BorderBrush = Brushes.White;
-                        noteBox.Background = new SolidColorBrush(Color.FromArgb(80, 0, 0, 0));
-                        noteBox.BorderThickness = new Thickness(2);
-                        confirmBtn.Visibility = Visibility.Visible;
-                        deleteBtn.Visibility = Visibility.Visible;
-                        
-                        // 그룹 드래그 이벤트 제거
-                        badgeBorder.MouseLeftButtonDown -= groupMouseDown;
-                        badgeBorder.MouseMove -= groupMouseMove;
-                        badgeBorder.MouseLeftButtonUp -= groupMouseUp;
-
-                        noteBox.MouseLeftButtonDown -= groupMouseDown;
-                        noteBox.MouseMove -= groupMouseMove;
-                        noteBox.MouseLeftButtonUp -= groupMouseUp;
-                        
-                        // 개별 드래그 이벤트 재등록
-                        noteBox.PreviewMouseLeftButtonDown += noteBoxMouseDown;
-                        noteBox.PreviewMouseMove += noteBoxMouseMove;
-                        noteBox.PreviewMouseLeftButtonUp += noteBoxMouseUp;
-                        
-                        badgeBorder.PreviewMouseLeftButtonDown += badgeMouseDown;
-                        badgeBorder.PreviewMouseMove += badgeMouseMove;
-                        badgeBorder.PreviewMouseLeftButtonUp += badgeMouseUp;
-                        
-                        // 커서 복원
-                        noteBox.Cursor = Cursors.Arrow;
-                        badgeBorder.Cursor = Cursors.Arrow;
-                        
-                        isConfirmed = false;
-                        noteBox.Focus();  // 포커스 설정
-                        ne.Handled = true;
-                    }
-                };
-                noteBox.MouseDoubleClick += noteBoxDoubleClick;
-            };
-            
-            numberingNext++;
-        }
 
         // [추가] 리사이즈 핸들 생성 메서드
         private void CreateResizeHandles()

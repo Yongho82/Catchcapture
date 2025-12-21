@@ -155,6 +155,9 @@
   <data name="Numbering" xml:space="preserve">
     <value>Numbering</value>
   </data>
+  <data name="NumberingMode" xml:space="preserve">
+    <value>Numbering Mode</value>
+  </data>
   <data name="Crop" xml:space="preserve">
     <value>Crop</value>
   </data>

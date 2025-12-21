@@ -108,21 +108,51 @@ namespace CatchCapture
 
             if (selectedObject is FrameworkElement fe && fe.Tag is CatchCapture.Models.DrawingLayer layer)
             {
-                layer.Color = shapeColor;
+                layer.Color = selectedColor;
                 layer.Thickness = shapeBorderThickness;
                 layer.IsFilled = shapeIsFilled;
                 layer.FillOpacity = shapeFillOpacity;
                 ShapeDrawingHelper.ApplyDrawingLayer(selectedObject, layer);
             }
+            else if (selectedObject is FrameworkElement fe2 && fe2.Tag is CatchCapture.Utilities.ShapeMetadata metadata)
+            {
+                metadata.Color = selectedColor;
+                metadata.Thickness = shapeBorderThickness;
+                metadata.IsFilled = shapeIsFilled;
+                metadata.FillOpacity = shapeFillOpacity;
+                
+                if (selectedObject is Shape s)
+                {
+                    s.Stroke = new SolidColorBrush(selectedColor);
+                    s.StrokeThickness = shapeBorderThickness;
+                    if (s is Rectangle || s is Ellipse)
+                    {
+                        s.Fill = shapeIsFilled ? new SolidColorBrush(Color.FromArgb((byte)(shapeFillOpacity * 255), selectedColor.R, selectedColor.G, selectedColor.B)) : Brushes.Transparent;
+                    }
+                }
+                else if (selectedObject is Canvas arrowCanvas)
+                {
+                    ShapeDrawingHelper.UpdateArrow(arrowCanvas, metadata.StartPoint, metadata.EndPoint, selectedColor, shapeBorderThickness);
+                }
+            }
+            else if (selectedObject is Polyline polyline)
+            {
+                polyline.Stroke = new SolidColorBrush(selectedColor);
+                // 형광펜인 경우 투명도 유지를 위해 Opacity를 확인하거나 다시 설정할 수 있음
+            }
             else if (selectedObject is TextBox textBox)
             {
-                textBox.Foreground = new SolidColorBrush(textColor);
+                textBox.Foreground = new SolidColorBrush(selectedColor);
                 textBox.FontSize = textSize;
                 textBox.FontFamily = new FontFamily(textFontFamily);
                 textBox.FontWeight = textFontWeight;
                 textBox.FontStyle = textFontStyle;
                 // textBox values are usually applied via TextBox_TextChanged or similarly,
                 // but for style changes we apply them directly.
+            }
+            else if (selectedObject is Canvas canvas && canvas.Children.Count > 0 && canvas.Children[0] is Border badge)
+            {
+                badge.Background = new SolidColorBrush(selectedColor);
             }
         }
 
@@ -132,19 +162,37 @@ namespace CatchCapture
 
             if (selectedObject is FrameworkElement fe && fe.Tag is CatchCapture.Models.DrawingLayer layer)
             {
-                shapeColor = layer.Color;
+                selectedColor = layer.Color;
                 shapeBorderThickness = layer.Thickness;
                 shapeIsFilled = layer.IsFilled;
                 shapeFillOpacity = layer.FillOpacity;
                 if (layer.ShapeType.HasValue) shapeType = layer.ShapeType.Value;
             }
+            else if (selectedObject is FrameworkElement fe2 && fe2.Tag is CatchCapture.Utilities.ShapeMetadata metadata)
+            {
+                selectedColor = metadata.Color;
+                shapeBorderThickness = metadata.Thickness;
+                shapeIsFilled = metadata.IsFilled;
+                shapeFillOpacity = metadata.FillOpacity;
+                shapeType = metadata.ShapeType;
+            }
+            else if (selectedObject is Polyline polyline)
+            {
+                if (polyline.Stroke is SolidColorBrush scb) selectedColor = scb.Color;
+                // 두께도 동기화 가능
+                penThickness = polyline.StrokeThickness;
+            }
             else if (selectedObject is TextBox textBox)
             {
-                if (textBox.Foreground is SolidColorBrush scb) textColor = scb.Color;
+                if (textBox.Foreground is SolidColorBrush scb) selectedColor = scb.Color;
                 textSize = textBox.FontSize;
                 textFontFamily = textBox.FontFamily.Source;
                 textFontWeight = textBox.FontWeight;
                 textFontStyle = textBox.FontStyle;
+            }
+            else if (selectedObject is Canvas canvas && canvas.Children.Count > 0 && canvas.Children[0] is Border badge)
+            {
+                if (badge.Background is SolidColorBrush scb) selectedColor = scb.Color;
             }
         }
 
@@ -202,7 +250,7 @@ namespace CatchCapture
         {
             if (selectedObject == null) return;
 
-            Rect bounds = GetElementBounds(selectedObject);
+            Rect bounds = InteractiveEditor.GetElementBounds(selectedObject);
             
             if (objectSelectionBorder == null)
             {
@@ -282,78 +330,7 @@ namespace CatchCapture
             UpdateObjectResizeHandles(bounds);
         }
 
-        private Rect GetElementBounds(UIElement element)
-        {
-            if (element is Line line) return new Rect(new Point(line.X1, line.Y1), new Point(line.X2, line.Y2));
-            if (element is Polyline polyline)
-            {
-                double minX = polyline.Points.Min(p => p.X);
-                double minY = polyline.Points.Min(p => p.Y);
-                double maxX = polyline.Points.Max(p => p.X);
-                double maxY = polyline.Points.Max(p => p.Y);
-                return new Rect(minX, minY, maxX - minX, maxY - minY);
-            }
-            if (element is Canvas canvasElement)
-            {
-                double minX = double.MaxValue, minY = double.MaxValue, maxX = double.MinValue, maxY = double.MinValue;
-                foreach (UIElement child in canvasElement.Children)
-                {
-                    Rect r = GetElementBounds(child);
-                    if (r.Left < minX) minX = r.Left;
-                    if (r.Top < minY) minY = r.Top;
-                    if (r.Right > maxX) maxX = r.Right;
-                    if (r.Bottom > maxY) maxY = r.Bottom;
-                }
-                return new Rect(minX, minY, maxX - minX, maxY - minY);
-            }
 
-            double left = Canvas.GetLeft(element);
-            double top = Canvas.GetTop(element);
-            double width = (element is FrameworkElement fe) ? fe.ActualWidth : 0;
-            if (width == 0 && element is Shape s) width = s.Width;
-            double height = (element is FrameworkElement fe2) ? fe2.ActualHeight : 0;
-            if (height == 0 && element is Shape s2) height = s2.Height;
-            
-            return new Rect(left, top, width, height);
-        }
-
-        private bool IsPointInElement(Point pt, UIElement element)
-        {
-            return InteractiveEditor.IsPointInElement(pt, element);
-        }
-
-        private void MoveElement(UIElement element, double dx, double dy)
-        {
-            if (element is Line line) { line.X1 += dx; line.Y1 += dy; line.X2 += dx; line.Y2 += dy; }
-            else if (element is Polyline polyline)
-            {
-                for (int i = 0; i < polyline.Points.Count; i++)
-                {
-                    var p = polyline.Points[i];
-                    polyline.Points[i] = new Point(p.X + dx, p.Y + dy);
-                }
-            }
-            else if (element is Canvas arrowCanvas)
-            {
-                foreach (var child in arrowCanvas.Children)
-                {
-                    if (child is Line l) { l.X1 += dx; l.Y1 += dy; l.X2 += dx; l.Y2 += dy; }
-                    else if (child is Polygon p) { for (int i = 0; i < p.Points.Count; i++) { var pt = p.Points[i]; p.Points[i] = new Point(pt.X + dx, pt.Y + dy); } }
-                }
-            }
-            else
-            {
-                Canvas.SetLeft(element, Canvas.GetLeft(element) + dx);
-                Canvas.SetTop(element, Canvas.GetTop(element) + dy);
-            }
-
-            if (element is FrameworkElement fe && fe.Tag is CatchCapture.Models.DrawingLayer layer)
-            {
-                if (layer.StartPoint.HasValue) layer.StartPoint = new Point(layer.StartPoint.Value.X + dx, layer.StartPoint.Value.Y + dy);
-                if (layer.EndPoint.HasValue) layer.EndPoint = new Point(layer.EndPoint.Value.X + dx, layer.EndPoint.Value.Y + dy);
-                if (layer.TextPosition.HasValue) layer.TextPosition = new Point(layer.TextPosition.Value.X + dx, layer.TextPosition.Value.Y + dy);
-            }
-        }
 
         private void CreateObjectResizeHandles()
         {
@@ -376,7 +353,7 @@ namespace CatchCapture
                 Panel.SetZIndex(handle, 2010);
                 objectResizeHandles.Add(handle);
             }
-            UpdateObjectResizeHandles(GetElementBounds(selectedObject));
+            UpdateObjectResizeHandles(InteractiveEditor.GetElementBounds(selectedObject));
         }
 
         private void RemoveObjectResizeHandles() { foreach (var h in objectResizeHandles) ImageCanvas.Children.Remove(h); objectResizeHandles.Clear(); }
@@ -428,7 +405,7 @@ namespace CatchCapture
                 Point currentPoint = e.GetPosition(ImageCanvas);
                 double dx = currentPoint.X - objectDragLastPoint.X;
                 double dy = currentPoint.Y - objectDragLastPoint.Y;
-                ResizeElement(selectedObject, dx, dy, objectResizeDirection);
+                InteractiveEditor.ResizeElement(selectedObject, dx, dy, objectResizeDirection);
                 objectDragLastPoint = currentPoint;
                 UpdateObjectSelectionUI();
             }
@@ -446,51 +423,6 @@ namespace CatchCapture
             }
         }
 
-        private void ResizeElement(UIElement element, double dx, double dy, string dir)
-        {
-            if (element is Shape shape && (shape is Rectangle || shape is Ellipse))
-            {
-                double left = Canvas.GetLeft(shape), top = Canvas.GetTop(shape), width = shape.Width, height = shape.Height;
-                if (dir.Contains("W")) { left += dx; width -= dx; } if (dir.Contains("E")) { width += dx; }
-                if (dir.Contains("N")) { top += dy; height -= dy; } if (dir.Contains("S")) { height += dy; }
-                if (width < 5) width = 5; if (height < 5) height = 5;
-                shape.Width = width; shape.Height = height; Canvas.SetLeft(shape, left); Canvas.SetTop(shape, top);
-                if (shape.Tag is CatchCapture.Models.DrawingLayer layer) { layer.StartPoint = new Point(left, top); layer.EndPoint = new Point(left + width, top + height); }
-            }
-            else if (element is TextBox textBox)
-            {
-                double left = Canvas.GetLeft(textBox), top = Canvas.GetTop(textBox), width = textBox.ActualWidth, height = textBox.ActualHeight;
-                if (dir.Contains("W")) { left += dx; width -= dx; } if (dir.Contains("E")) { width += dx; }
-                if (dir.Contains("N")) { top += dy; height -= dy; } if (dir.Contains("S")) { height += dy; }
-                if (width < 20) width = 20; if (height < 20) height = 20;
-                textBox.Width = width; textBox.Height = height; Canvas.SetLeft(textBox, left); Canvas.SetTop(textBox, top);
-                if (textBox.Tag is CatchCapture.Models.DrawingLayer layer) { layer.TextPosition = new Point(left, top); }
-            }
-            else if (element is Line line)
-            {
-                if (dir == "NW" || dir == "W" || dir == "N") { line.X1 += dx; line.Y1 += dy; }
-                else if (dir == "SE" || dir == "E" || dir == "S") { line.X2 += dx; line.Y2 += dy; }
-                if (line.Tag is CatchCapture.Models.DrawingLayer layer) { layer.StartPoint = new Point(line.X1, line.Y1); layer.EndPoint = new Point(line.X2, line.Y2); }
-            }
-            else if (element is Canvas arrowCanvas && arrowCanvas.Tag is CatchCapture.Models.DrawingLayer layer)
-            {
-                var start = layer.StartPoint ?? new Point(0, 0);
-                var end = layer.EndPoint ?? new Point(0, 0);
-                if (dir == "NW" || dir == "W" || dir == "N") { start = new Point(start.X + dx, start.Y + dy); }
-                else if (dir == "SE" || dir == "E" || dir == "S") { end = new Point(end.X + dx, end.Y + dy); }
-                layer.StartPoint = start;
-                layer.EndPoint = end;
-                ShapeDrawingHelper.UpdateArrow(arrowCanvas, start, end, layer.Color, layer.Thickness);
-            }
-        }
 
-        private double DistanceFromPointToLine(Point pt, Point p1, Point p2)
-        {
-            double length = Math.Sqrt(Math.Pow(p2.X - p1.X, 2) + Math.Pow(p2.Y - p1.Y, 2));
-            if (length == 0) return Math.Sqrt(Math.Pow(pt.X - p1.X, 2) + Math.Pow(pt.Y - p1.Y, 2));
-            double t = ((pt.X - p1.X) * (p2.X - p1.X) + (pt.Y - p1.Y) * (p2.Y - p1.Y)) / (length * length);
-            t = Math.Max(0, Math.Min(1, t));
-            return Math.Sqrt(Math.Pow(pt.X - (p1.X + t * (p2.X - p1.X)), 2) + Math.Pow(pt.Y - (p1.Y + t * (p2.Y - p1.Y)), 2));
-        }
     }
 }

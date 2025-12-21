@@ -364,17 +364,19 @@
                         </controls:TwoTierToolButton.IconContent>
                     </controls:TwoTierToolButton>
 
-                    <Button x:Name="NumberingButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="NumberingButton_Click" ToolTip="번호 매기기">
-                        <StackPanel VerticalAlignment="Top">
-                            <Canvas Width="20" Height="20" Margin="0,2,0,7">
+                    <controls:TwoTierToolButton 
+                        x:Name="NumberingToolButton"
+                        Label="넘버링" 
+                        ToolTipText="번호 매기기"
+                        MainButtonClick="NumberingButton_Click"
+                        OptionsButtonClick="NumberingOptionsButton_Click">
+                        <controls:TwoTierToolButton.IconContent>
+                            <Canvas Width="20" Height="20">
                                 <Ellipse Fill="DeepSkyBlue" Width="18" Height="18" Canvas.Left="1" Canvas.Top="1"/>
                                 <TextBlock Text="1" Foreground="White" FontSize="10" FontWeight="Bold" Canvas.Left="6" Canvas.Top="2"/>
                             </Canvas>
-                            <Viewbox Width="54" Stretch="Uniform" StretchDirection="DownOnly">
-                                <TextBlock x:Name="NumberingLabelText" Text="넘버링" Foreground="{DynamicResource ThemeForeground}" FontSize="12" HorizontalAlignment="Center"/>
-                            </Viewbox>
-                        </StackPanel>
-                    </Button>
+                        </controls:TwoTierToolButton.IconContent>
+                    </controls:TwoTierToolButton>
                     
                     <controls:TwoTierToolButton 
                         x:Name="EraserToolButton"

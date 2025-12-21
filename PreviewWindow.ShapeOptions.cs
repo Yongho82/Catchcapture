@@ -180,14 +180,14 @@ namespace CatchCapture
                     Width = 18,
                     Height = 18,
                     Background = new SolidColorBrush(color),
-                    BorderBrush = color.Equals(shapeColor) ? Brushes.Black : Brushes.Transparent,
+                    BorderBrush = color.Equals(selectedColor) ? Brushes.Black : Brushes.Transparent,
                     BorderThickness = new Thickness(2),
                     Margin = new Thickness(3, 0, 0, 0),
                     CornerRadius = new CornerRadius(2)
                 };
                 colorBorder.MouseLeftButtonDown += (s, e) =>
                 {
-                    shapeColor = color;
+                    selectedColor = color;
                     foreach (UIElement element in colorPanel.Children)
                     {
                         if (element is Border border)
@@ -457,99 +457,65 @@ namespace CatchCapture
         {
             var panel = new StackPanel { Orientation = Orientation.Vertical };
 
-            // 색상 팔레트 (3행 6열, 더 많은 색상과 좁은 간격)
-            var colorGrid = new UniformGrid
-            {
-                Rows = 3,
-                Columns = 6,
-                Margin = new Thickness(0, 4, 0, 0)
-            };
+            // 색상 팔레트 (WrapPanel 사용으로 다른 도구와 통일)
+            var colorGrid = new WrapPanel { Width = 150 };
 
-            foreach (var color in SharedColorPalette)
+            foreach (var color in UIConstants.SharedColorPalette)
             {
-                var colorBtn = CreateColorButton(color);
-                colorGrid.Children.Add(colorBtn);
+                if (color == Colors.Transparent) continue;
+                colorGrid.Children.Add(CreateColorSwatch(color, colorGrid));
             }
 
+            foreach (var color in customColors)
+            {
+                colorGrid.Children.Add(CreateColorSwatch(color, colorGrid));
+            }
+
+            // [+] 버튼 (사용자 정의 색상 추가)
+            Button addButton = new Button
+            {
+                Width = 20, Height = 20, Margin = new Thickness(2),
+                Background = Brushes.White,
+                BorderBrush = new SolidColorBrush(Color.FromRgb(220, 220, 220)),
+                BorderThickness = new Thickness(1),
+                Content = new TextBlock { Text = "+", FontWeight = FontWeights.Bold, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center },
+                Cursor = Cursors.Hand
+            };
+            
+            // 둥근 모서리 템플릿 적용
+            var template = new ControlTemplate(typeof(Button));
+            var borderFactory = new FrameworkElementFactory(typeof(Border));
+            borderFactory.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Button.BackgroundProperty));
+            borderFactory.SetValue(Border.BorderBrushProperty, new TemplateBindingExtension(Button.BorderBrushProperty));
+            borderFactory.SetValue(Border.BorderThicknessProperty, new TemplateBindingExtension(Button.BorderThicknessProperty));
+            borderFactory.SetValue(Border.CornerRadiusProperty, new CornerRadius(4));
+            var contentPresenter = new FrameworkElementFactory(typeof(ContentPresenter));
+            contentPresenter.SetValue(ContentPresenter.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+            contentPresenter.SetValue(ContentPresenter.VerticalAlignmentProperty, VerticalAlignment.Center);
+            borderFactory.AppendChild(contentPresenter);
+            template.VisualTree = borderFactory;
+            addButton.Template = template;
+
+            addButton.Click += (s, e) =>
+            {
+                var dialog = new System.Windows.Forms.ColorDialog();
+                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    var newColor = Color.FromArgb(dialog.Color.A, dialog.Color.R, dialog.Color.G, dialog.Color.B);
+                    if (!customColors.Contains(newColor)) customColors.Add(newColor);
+                    colorGrid.Children.Remove(addButton);
+                    colorGrid.Children.Add(CreateColorSwatch(newColor, colorGrid));
+                    colorGrid.Children.Add(addButton);
+                    selectedColor = newColor;
+                    UpdateColorSelection(colorGrid);
+                    ApplyPropertyChangesToSelectedObject();
+                }
+            };
+            colorGrid.Children.Add(addButton);
             panel.Children.Add(colorGrid);
             return panel;
         }
 
-        private Button CreateColorButton(Color color)
-        {
-            // 투명색(지우개)인 경우 특별 처리
-            bool isTransparent = color == Colors.Transparent;
-
-            var button = new Button
-            {
-                Width = 32,
-                Height = 32,
-                Margin = new Thickness(0.2),
-                BorderThickness = new Thickness(0),
-                Style = null,
-                Tag = color,
-                Cursor = Cursors.Hand
-            };
-
-            // 버튼 템플릿 생성
-            var template = new ControlTemplate(typeof(Button));
-            var factory = new FrameworkElementFactory(typeof(Border));
-            factory.Name = "ButtonBorder";
-            factory.SetValue(Border.CornerRadiusProperty, new CornerRadius(6));
-            factory.SetValue(Border.PaddingProperty, new Thickness(4));
-
-            // 선택된 색상인지 확인하여 배경 설정
-            bool isSelected = shapeColor == color;
-            factory.SetValue(Border.BackgroundProperty, isSelected ? new SolidColorBrush(Color.FromRgb(173, 216, 255)) : Brushes.Transparent);
-
-            // 내부 색상 원 생성
-            var innerFactory = new FrameworkElementFactory(typeof(Border));
-            innerFactory.SetValue(Border.WidthProperty, 16.0);
-            innerFactory.SetValue(Border.HeightProperty, 16.0);
-            innerFactory.SetValue(Border.CornerRadiusProperty, new CornerRadius(8));
-            innerFactory.SetValue(Border.HorizontalAlignmentProperty, HorizontalAlignment.Center);
-            innerFactory.SetValue(Border.VerticalAlignmentProperty, VerticalAlignment.Center);
-
-            if (isTransparent)
-            {
-                innerFactory.SetValue(Border.BackgroundProperty, Brushes.White);
-                innerFactory.SetValue(Border.BorderBrushProperty, new SolidColorBrush(Color.FromRgb(200, 200, 200)));
-                innerFactory.SetValue(Border.BorderThicknessProperty, new Thickness(1));
-
-                var textFactory = new FrameworkElementFactory(typeof(TextBlock));
-                textFactory.SetValue(TextBlock.TextProperty, "✕");
-                textFactory.SetValue(TextBlock.FontSizeProperty, 12.0);
-                textFactory.SetValue(TextBlock.ForegroundProperty, new SolidColorBrush(Color.FromRgb(100, 100, 100)));
-                textFactory.SetValue(TextBlock.HorizontalAlignmentProperty, HorizontalAlignment.Center);
-                textFactory.SetValue(TextBlock.VerticalAlignmentProperty, VerticalAlignment.Center);
-                innerFactory.AppendChild(textFactory);
-            }
-            else
-            {
-                innerFactory.SetValue(Border.BackgroundProperty, new SolidColorBrush(color));
-                innerFactory.SetValue(Border.BorderBrushProperty, new SolidColorBrush(Color.FromRgb(220, 220, 220)));
-                innerFactory.SetValue(Border.BorderThicknessProperty, new Thickness(1));
-            }
-
-            factory.AppendChild(innerFactory);
-            template.VisualTree = factory;
-
-            // 트리거 추가 (호버 효과)
-            var hoverTrigger = new Trigger { Property = Button.IsMouseOverProperty, Value = true };
-            if (!isSelected)
-            {
-                hoverTrigger.Setters.Add(new Setter(Border.BackgroundProperty, new SolidColorBrush(Color.FromRgb(240, 248, 255)), "ButtonBorder"));
-            }
-            template.Triggers.Add(hoverTrigger);
-
-            button.Template = template;
-
-            // 리스트에 추가
-            colorButtons.Add(button);
-
-            button.Click += (s, e) => { shapeColor = color; UpdateColorButtonsInPopup(); ApplyPropertyChangesToSelectedObject(); };
-            return button;
-        }
 
         private void UpdateShapeTypeButtonsInPopup()
         {
@@ -604,63 +570,6 @@ namespace CatchCapture
                         }
                     }
                 }
-            }
-        }
-
-        private void UpdateColorButtonsInPopup()
-        {
-            foreach (var button in colorButtons)
-            {
-                var buttonColor = (Color)button.Tag;
-                bool isSelected = buttonColor == shapeColor;
-                bool isTransparent = buttonColor == Colors.Transparent;
-
-                var template = new ControlTemplate(typeof(Button));
-                var factory = new FrameworkElementFactory(typeof(Border));
-                factory.Name = "ButtonBorder";
-                factory.SetValue(Border.CornerRadiusProperty, new CornerRadius(6));
-                factory.SetValue(Border.PaddingProperty, new Thickness(4));
-                factory.SetValue(Border.BackgroundProperty, isSelected ? new SolidColorBrush(Color.FromRgb(173, 216, 255)) : Brushes.Transparent);
-
-                var innerFactory = new FrameworkElementFactory(typeof(Border));
-                innerFactory.SetValue(Border.WidthProperty, 16.0);
-                innerFactory.SetValue(Border.HeightProperty, 16.0);
-                innerFactory.SetValue(Border.CornerRadiusProperty, new CornerRadius(8));
-                innerFactory.SetValue(Border.HorizontalAlignmentProperty, HorizontalAlignment.Center);
-                innerFactory.SetValue(Border.VerticalAlignmentProperty, VerticalAlignment.Center);
-
-                if (isTransparent)
-                {
-                    innerFactory.SetValue(Border.BackgroundProperty, Brushes.White);
-                    innerFactory.SetValue(Border.BorderBrushProperty, new SolidColorBrush(Color.FromRgb(200, 200, 200)));
-                    innerFactory.SetValue(Border.BorderThicknessProperty, new Thickness(1));
-
-                    var textFactory = new FrameworkElementFactory(typeof(TextBlock));
-                    textFactory.SetValue(TextBlock.TextProperty, "✕");
-                    textFactory.SetValue(TextBlock.FontSizeProperty, 12.0);
-                    textFactory.SetValue(TextBlock.ForegroundProperty, new SolidColorBrush(Color.FromRgb(100, 100, 100)));
-                    textFactory.SetValue(TextBlock.HorizontalAlignmentProperty, HorizontalAlignment.Center);
-                    textFactory.SetValue(TextBlock.VerticalAlignmentProperty, VerticalAlignment.Center);
-                    innerFactory.AppendChild(textFactory);
-                }
-                else
-                {
-                    innerFactory.SetValue(Border.BackgroundProperty, new SolidColorBrush(buttonColor));
-                    innerFactory.SetValue(Border.BorderBrushProperty, new SolidColorBrush(Color.FromRgb(220, 220, 220)));
-                    innerFactory.SetValue(Border.BorderThicknessProperty, new Thickness(1));
-                }
-
-                factory.AppendChild(innerFactory);
-                template.VisualTree = factory;
-
-                var hoverTrigger = new Trigger { Property = Button.IsMouseOverProperty, Value = true };
-                if (!isSelected)
-                {
-                    hoverTrigger.Setters.Add(new Setter(Border.BackgroundProperty, new SolidColorBrush(Color.FromRgb(240, 248, 255)), "ButtonBorder"));
-                }
-                template.Triggers.Add(hoverTrigger);
-
-                button.Template = template;
             }
         }
         private void UpdateShapeTypeButtons()

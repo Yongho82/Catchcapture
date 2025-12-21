@@ -35,44 +35,17 @@ namespace CatchCapture
         private List<Point> drawingPoints = new List<Point>();
         private EditMode currentEditMode = EditMode.None;
         // Pen & Highlight settings
-        private Color penColor = Colors.Black;
+        private Color selectedColor = Colors.Red;
         private double penThickness = 3;
         private ShapeType shapeType = ShapeType.Rectangle;
-        private Color shapeColor = Colors.Red;
         private List<Color> customColors = new List<Color>();
 
-        // 공용 색상 팔레트 정의
-        private static readonly Color[] SharedColorPalette = new Color[]
-        {
-            // 1행
-            Colors.Black,
-            Color.FromRgb(128, 128, 128),
-            Colors.White,
-            Colors.Red,
-            Color.FromRgb(255, 193, 7),
-            Color.FromRgb(40, 167, 69),
-            // 2행
-            Color.FromRgb(32, 201, 151),
-            Color.FromRgb(23, 162, 184),
-            Color.FromRgb(0, 123, 255),
-            Color.FromRgb(108, 117, 125),
-            Color.FromRgb(220, 53, 69),
-            Color.FromRgb(255, 133, 27),
-            // 3행
-            Color.FromRgb(111, 66, 193),
-            Color.FromRgb(232, 62, 140),
-            Color.FromRgb(13, 110, 253),
-            Color.FromRgb(25, 135, 84),
-            Color.FromRgb(102, 16, 242),
-            Colors.Transparent
-        };
         private double shapeBorderThickness = 2;
         private bool shapeIsFilled = false;
         private double shapeFillOpacity = 0.5;
         // 기본 형광펜은 중간 투명도(약 45~50%)와 중간 두께로 시작
-        private Color highlightColor = Color.FromArgb(120, Colors.Yellow.R, Colors.Yellow.G, Colors.Yellow.B);
+        private double highlightOpacity = 0.5;
         private double highlightThickness = 8;
-        private Color textColor = Colors.Red;
         private double textSize = 16;
         private double eraserSize = 20;
         private int mosaicSize = 10;
@@ -220,7 +193,7 @@ namespace CatchCapture
                     ShapeType = shapeType, // 현재 설정된 타입 사용
                     StartPoint = startPoint,
                     EndPoint = new Point(Canvas.GetLeft(shape) + shape.Width, Canvas.GetTop(shape) + shape.Height), // 대략적 계산
-                    Color = shapeColor,
+                    Color = selectedColor,
                     Thickness = shapeBorderThickness,
                     IsFilled = shapeIsFilled,
                     FillOpacity = shapeFillOpacity,
@@ -872,7 +845,7 @@ namespace CatchCapture
 
             // 기본값 설정 (사각형, 검정색, 윤곽선)
             shapeType = ShapeType.Rectangle;
-            shapeColor = Colors.Black;
+            selectedColor = Colors.Black;
             shapeBorderThickness = 2;
             shapeIsFilled = false;
 
@@ -903,7 +876,7 @@ namespace CatchCapture
             ImageCanvas.Cursor = Cursors.Pen;
 
             // 기본값 설정 (노란색, 중간 투명도, 8px)
-            highlightColor = Color.FromArgb(120, Colors.Yellow.R, Colors.Yellow.G, Colors.Yellow.B);
+            selectedColor = Colors.Yellow;
             highlightThickness = 8;
             
             // 바로 그리기 시작 (팝업 표시 안 함)
@@ -917,7 +890,7 @@ namespace CatchCapture
             ImageCanvas.Cursor = Cursors.Pen;
 
             // 기본값 설정 (검정, 3px)
-            penColor = Colors.Black;
+            selectedColor = Colors.Black;
             penThickness = 3;
             
             // 바로 그리기 시작 (팝업 표시 안 함)
@@ -1213,8 +1186,25 @@ namespace CatchCapture
         {
             CancelCurrentEditMode();
             currentEditMode = EditMode.Numbering;
-            SetActiveToolButton(NumberingButton);
+            SetActiveToolButton(NumberingToolButton);
             ImageCanvas.Cursor = Cursors.Arrow;
+        }
+
+        private void NumberingOptionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (currentEditMode != EditMode.Numbering)
+            {
+                CancelCurrentEditMode();
+                currentEditMode = EditMode.Numbering;
+                SetActiveToolButton(NumberingToolButton);
+            }
+
+            if (ToolOptionsPopup.IsOpen)
+            {
+                ToolOptionsPopup.IsOpen = false;
+                return;
+            }
+            ShowNumberingOptionsPopup();
         }
 
         private void SetActiveToolButton(UIElement? active)
@@ -1244,7 +1234,7 @@ namespace CatchCapture
                 MosaicToolButton,
                 EraserToolButton,
                 MagicWandToolButton,
-                NumberingButton
+                NumberingToolButton
             };
 
             foreach (var element in toolButtons)
@@ -1453,10 +1443,10 @@ namespace CatchCapture
                 MagicWandToolButton.ToolTipText = LocalizationManager.GetString("BackgroundRemovalTooltip");
             }
 
-            if (MagicWandToolButton != null)
+            if (NumberingToolButton != null)
             {
-                MagicWandToolButton.Label = LocalizationManager.GetString("BackgroundRemoval");
-                MagicWandToolButton.ToolTipText = LocalizationManager.GetString("BackgroundRemovalTooltip");
+                NumberingToolButton.Label = LocalizationManager.GetString("Numbering") ?? "넘버링";
+                NumberingToolButton.ToolTipText = LocalizationManager.GetString("NumberingMode") ?? "번호 매기기";
             }
             // Image Search & Share & OCR
             if(ImageSearchLabelText != null) ImageSearchLabelText.Text = LocalizationManager.GetString("ImageSearch");
