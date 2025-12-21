@@ -137,7 +137,8 @@ namespace CatchCapture
         private void ApplyMosaic(Rect rect)
         {
             SaveForUndo();
-            currentImage = ImageEditUtility.ApplyMosaic(currentImage, new Int32Rect((int)rect.X, (int)rect.Y, (int)rect.Width, (int)rect.Height), 15);
+            int intensity = (int)(_editorManager?.MosaicIntensity ?? 15);
+            currentImage = ImageEditUtility.ApplyMosaic(currentImage, new Int32Rect((int)rect.X, (int)rect.Y, (int)rect.Width, (int)rect.Height), intensity);
             UpdatePreviewImage();
         }
 

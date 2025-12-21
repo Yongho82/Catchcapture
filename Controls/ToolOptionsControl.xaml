@@ -133,7 +133,17 @@
                         <RadioButton x:Name="ShapeFill" Content="채우기" Margin="10,0,0,0"/>
                     </StackPanel>
                     
-                    <StackPanel x:Name="ShapeOpacityPanel" Margin="0,8,0,0" IsEnabled="False" Opacity="0.5">
+                    <!-- 테두리 두께 (테두리 모드일 때 보임) -->
+                    <StackPanel x:Name="ShapeThicknessPanel" Margin="0,8,0,0">
+                         <TextBlock Text="두께" FontSize="10" Foreground="Gray" Margin="0,0,0,2" x:Name="ShapeThicknessLabel"/>
+                         <StackPanel Orientation="Horizontal">
+                            <Slider x:Name="ShapeThicknessSlider" Minimum="1" Maximum="20" Width="100"/>
+                            <TextBlock x:Name="ShapeThicknessValue" Margin="6,0,0,0" VerticalAlignment="Center" FontSize="10"/>
+                         </StackPanel>
+                    </StackPanel>
+
+                    <!-- 채우기 투명도 (채우기 모드일 때 보임) -->
+                    <StackPanel x:Name="ShapeOpacityPanel" Margin="0,8,0,0" IsEnabled="False" Opacity="0.5" Visibility="Collapsed">
                          <TextBlock Text="채우기 투명도" FontSize="10" Foreground="Gray" Margin="0,0,0,2" x:Name="ShapeOpacityLabel"/>
                          <StackPanel Orientation="Horizontal">
                             <Slider x:Name="ShapeOpacitySlider" Minimum="0" Maximum="1" Width="100"/>

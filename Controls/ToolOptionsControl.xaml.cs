@@ -163,6 +163,8 @@ namespace CatchCapture.Controls
             // 도형 상태
             if (_currentMode == "도형") LoadShapeState();
 
+            ShapeThicknessSlider.Value = _editor.ShapeBorderThickness;
+
             // 모자이크
             MosaicSlider.Value = _editor.MosaicIntensity;
             
@@ -253,12 +255,29 @@ namespace CatchCapture.Controls
             ShapeArrow.Checked += (s, e) => { if (_editor!=null) _editor.CurrentShapeType = ShapeType.Arrow; };
             
             ShapeOutline.Checked += (s, e) => { 
-                if (_editor!=null) { _editor.ShapeIsFilled = false; ShapeOpacityPanel.IsEnabled = false; ShapeOpacityPanel.Opacity = 0.5; }
+                if (_editor!=null) { 
+                    _editor.ShapeIsFilled = false; 
+                    ShapeOpacityPanel.Visibility = Visibility.Collapsed;
+                    ShapeThicknessPanel.Visibility = Visibility.Visible;
+                }
             };
             ShapeFill.Checked += (s, e) => { 
-                if (_editor!=null) { _editor.ShapeIsFilled = true; ShapeOpacityPanel.IsEnabled = true; ShapeOpacityPanel.Opacity = 1.0; }
+                if (_editor!=null) { 
+                    _editor.ShapeIsFilled = true; 
+                    ShapeOpacityPanel.Visibility = Visibility.Visible;
+                    ShapeOpacityPanel.IsEnabled = true; 
+                    ShapeOpacityPanel.Opacity = 1.0;
+                    ShapeThicknessPanel.Visibility = Visibility.Collapsed;
+                }
             };
             
+            ShapeThicknessSlider.ValueChanged += (s, e) =>
+            {
+                if (_editor == null) return;
+                _editor.ShapeBorderThickness = e.NewValue;
+                ShapeThicknessValue.Text = $"{(int)e.NewValue}px";
+            };
+
             ShapeOpacitySlider.ValueChanged += (s, e) =>
             {
                 if (_editor == null) return;
@@ -418,8 +437,19 @@ namespace CatchCapture.Controls
              ShapeOutline.IsChecked = !_editor.ShapeIsFilled;
              ShapeFill.IsChecked = _editor.ShapeIsFilled;
              ShapeOpacitySlider.Value = _editor.ShapeFillOpacity;
-             ShapeOpacityPanel.IsEnabled = _editor.ShapeIsFilled;
-             ShapeOpacityPanel.Opacity = _editor.ShapeIsFilled ? 1.0 : 0.5;
+             
+             if (_editor.ShapeIsFilled)
+             {
+                 ShapeOpacityPanel.Visibility = Visibility.Visible;
+                 ShapeOpacityPanel.IsEnabled = true;
+                 ShapeOpacityPanel.Opacity = 1.0;
+                 ShapeThicknessPanel.Visibility = Visibility.Collapsed;
+             }
+             else
+             {
+                 ShapeOpacityPanel.Visibility = Visibility.Collapsed;
+                 ShapeThicknessPanel.Visibility = Visibility.Visible;
+             }
         }
 
         private void UpdateLocalization()
@@ -438,6 +468,7 @@ namespace CatchCapture.Controls
             ShapeLabel.Text = ResLoc.GetString("Shape");
             ShapeOutline.Content = ResLoc.GetString("Outline");
             ShapeFill.Content = ResLoc.GetString("Fill");
+            ShapeThicknessLabel.Text = ResLoc.GetString("Thickness");
             ShapeOpacityLabel.Text = ResLoc.GetString("FillOpacity");
             NumSizeLabel.Text = ResLoc.GetString("Size");
             MosaicLabel.Text = ResLoc.GetString("Intensity");
