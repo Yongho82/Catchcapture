@@ -23,46 +23,37 @@ namespace CatchCapture
             if (ImageCanvas == null) return;
 
             Point clickPoint = e.GetPosition(ImageCanvas);
-            WriteLog($"MouseDown: 위치({clickPoint.X:F1}, {clickPoint.Y:F1}), 편집모드={currentEditMode}, isDrawingShape={isDrawingShape}");
-
-            // 도형 모드에서의 처리
-            if (currentEditMode == EditMode.Shape)
-            {
-                // 클릭 위치 저장
-                startPoint = clickPoint;
-                // 드래그는 아직 시작되지 않음
-                isDragStarted = false;
-                isDrawingShape = true;
-                WriteLog($"도형 그리기 대기: 시작점({startPoint.X:F1}, {startPoint.Y:F1}), 도형타입={shapeType}");
-                e.Handled = true;
-                return;
-            }
+            WriteLog($"MouseDown: 위치({clickPoint.X:F1}, {clickPoint.Y:F1}), 편집모드={currentEditMode}");
 
             // 다른 모드 처리
             startPoint = clickPoint;
 
+            SyncEditorProperties();
+
             switch (currentEditMode)
             {
+                case EditMode.Select:
+                    Preview_SelectMouseDown(sender, e);
+                    break;
                 case EditMode.Crop:
                     Crop_MouseDown(sender, e);
                     break;
+                case EditMode.Eraser:
                 case EditMode.Highlight:
                 case EditMode.Pen:
-                    StartDrawing();
+                case EditMode.Shape:
+                case EditMode.Mosaic:
+                case EditMode.Numbering:
+                    _editorManager.StartDrawing(clickPoint, e.OriginalSource);
                     break;
                 case EditMode.Text:
                     AddText();
-                    break;
-                case EditMode.Mosaic:
-                    StartMosaic();
-                    break;
-                case EditMode.Eraser:
-                    StartEraser();
                     break;
                 case EditMode.MagicWand:
                     StartMagicWandSelection();
                     break;
             }
+            e.Handled = true;
         }
 
         // 지우개 커서
@@ -97,36 +88,6 @@ namespace CatchCapture
             // 왼쪽 버튼이 눌려 있지 않으면 드래그 로직은 실행하지 않음
             if (e.LeftButton != MouseButtonState.Pressed) return;
 
-            // 도형 모드 처리
-            if (currentEditMode == EditMode.Shape && isDrawingShape)
-            {
-                // 드래그 시작 플래그 설정
-                if (!isDragStarted)
-                {
-                    isDragStarted = true;
-                    WriteLog($"드래그 시작: 현재점({currentPoint.X:F1}, {currentPoint.Y:F1})");
-                }
-
-                // 임시 도형 생성 또는 업데이트
-                if (tempShape == null)
-                {
-                    // 새 도형 생성
-                    tempShape = CreateShape(startPoint, currentPoint);
-                    if (tempShape != null)
-                    {
-                        ImageCanvas.Children.Add(tempShape);
-                        WriteLog($"임시 도형 생성: {tempShape.GetType().Name}");
-                    }
-                }
-                else
-                {
-                    // 기존 도형 업데이트
-                    UpdateShapeProperties(tempShape, startPoint, currentPoint);
-                }
-                e.Handled = true;
-                return;
-            }
-
             // 다른 모드 처리
             switch (currentEditMode)
             {
@@ -135,13 +96,13 @@ namespace CatchCapture
                     break;
                 case EditMode.Pen:
                 case EditMode.Highlight:
-                    UpdateDrawing(currentPoint);
-                    break;
+                case EditMode.Shape:
                 case EditMode.Mosaic:
-                    UpdateMosaic(currentPoint);
+                case EditMode.Numbering:
+                    _editorManager.UpdateDrawing(currentPoint);
                     break;
                 case EditMode.Eraser:
-                    UpdateEraser(currentPoint);
+                    _editorManager.UpdateDrawing(currentPoint);
                     break;
                 case EditMode.MagicWand:
                     UpdateMagicWandSelection(currentPoint);
@@ -193,27 +154,7 @@ namespace CatchCapture
             if (ImageCanvas == null) return;
 
             Point endPoint = e.GetPosition(ImageCanvas);
-            WriteLog($"MouseUp: 위치({endPoint.X:F1}, {endPoint.Y:F1}), 편집모드={currentEditMode}, isDrawingShape={isDrawingShape}, isDragStarted={isDragStarted}");
-
-            // 도형 모드 처리
-            if (currentEditMode == EditMode.Shape && isDrawingShape)
-            {
-                if (isDragStarted)
-                {
-                    WriteLog($"도형 완성: 시작({startPoint.X:F1}, {startPoint.Y:F1}), 끝({endPoint.X:F1}, {endPoint.Y:F1})");
-                    ApplyShape(endPoint);
-                }
-                else
-                {
-                    WriteLog("드래그 없이 클릭만 함 - 도형 취소");
-                    CleanupTemporaryShape();
-                }
-
-                isDrawingShape = false;
-                isDragStarted = false;
-                e.Handled = true;
-                return;
-            }
+            WriteLog($"MouseUp: 위치({endPoint.X:F1}, {endPoint.Y:F1}), 편집모드={currentEditMode}");
 
             // 다른 모드 처리
             switch (currentEditMode)
@@ -221,15 +162,13 @@ namespace CatchCapture
                 case EditMode.Crop:
                     Crop_MouseUp(sender, e);
                     break;
+                case EditMode.Eraser:
                 case EditMode.Pen:
                 case EditMode.Highlight:
-                    FinishDrawing();
-                    break;
+                case EditMode.Shape:
                 case EditMode.Mosaic:
-                    FinishMosaic();
-                    break;
-                case EditMode.Eraser:
-                    FinishEraser();
+                case EditMode.Numbering:
+                    _editorManager.FinishDrawing();
                     break;
                 case EditMode.MagicWand:
                     FinishMagicWandSelection(endPoint);
@@ -251,219 +190,28 @@ namespace CatchCapture
 
         #endregion
 
-        #region 펜/형광펜 그리기
-
-        private void StartDrawing()
+        #region SyncEditorProperties
+        private void SyncEditorProperties()
         {
-            drawingPoints.Clear();
-            drawingPoints.Add(startPoint);
+            if (_editorManager == null) return;
 
-            // 마우스 캡처 - 캔버스 밖으로 나가도 이벤트 받음
-            ImageCanvas.CaptureMouse();
-
-            // 라이브 스트로크 경로 생성
-            liveStrokePath = new Path();
-            PathGeometry pathGeometry = new PathGeometry();
-            PathFigure pathFigure = new PathFigure { StartPoint = startPoint };
-            liveStrokeSegment = new PolyLineSegment();
-            pathFigure.Segments.Add(liveStrokeSegment);
-            pathGeometry.Figures.Add(pathFigure);
-            liveStrokePath.Data = pathGeometry;
-
-            if (currentEditMode == EditMode.Pen)
+            _editorManager.SelectedColor = currentEditMode == EditMode.Pen ? penColor : (currentEditMode == EditMode.Highlight ? highlightColor : shapeColor);
+            _editorManager.PenThickness = (int)penThickness;
+            _editorManager.HighlightThickness = (int)highlightThickness;
+            _editorManager.CurrentTool = currentEditMode switch
             {
-                liveStrokePath.Stroke = new SolidColorBrush(penColor);
-                liveStrokePath.StrokeThickness = penThickness;
-            }
-            else // Highlight
-            {
-                liveStrokePath.Stroke = new SolidColorBrush(highlightColor);
-                liveStrokePath.StrokeThickness = highlightThickness;
-            }
-
-            liveStrokePath.StrokeStartLineCap = PenLineCap.Round;
-            liveStrokePath.StrokeEndLineCap = PenLineCap.Round;
-            liveStrokePath.StrokeLineJoin = PenLineJoin.Round;
-
-            ImageCanvas.Children.Add(liveStrokePath);
-        }
-
-        private void UpdateDrawing(Point currentPoint)
-        {
-            drawingPoints.Add(currentPoint);
-            if (liveStrokeSegment != null)
-            {
-                liveStrokeSegment.Points.Add(currentPoint);
-            }
-        }
-
-        private void FinishDrawing()
-        {
-            // 마우스 캡처 해제
-            ImageCanvas.ReleaseMouseCapture();
-
-            if (drawingPoints.Count < 2)
-            {
-                if (liveStrokePath != null)
-                {
-                    ImageCanvas.Children.Remove(liveStrokePath);
-                }
-                return;
-            }
-            SaveForUndo();
-
-            // 레이어에 추가
-            var layer = new DrawingLayer
-            {
-                LayerId = nextLayerId++,
-                Type = currentEditMode == EditMode.Pen ? DrawingLayerType.Pen : DrawingLayerType.Highlight,
-                Points = drawingPoints.ToArray(),
-                Color = currentEditMode == EditMode.Pen ? penColor : highlightColor,
-                Thickness = currentEditMode == EditMode.Pen ? penThickness : highlightThickness
+                EditMode.Pen => "펜",
+                EditMode.Highlight => "형광펜",
+                EditMode.Shape => "도형",
+                EditMode.Mosaic => "모자이크",
+                EditMode.Numbering => "넘버링",
+                _ => ""
             };
-            drawingLayers.Add(layer);
-
-            // 레이어 렌더링
-            var newImage = LayerRenderer.RenderLayers(originalImage, drawingLayers);
-            
-            // allCaptures 업데이트 (PropertyChanged 강제 발생을 위해 null로 초기화 후 재설정)
-            if (allCaptures != null && imageIndex >= 0 && imageIndex < allCaptures.Count)
-            {
-                allCaptures[imageIndex].Image = null!;
-                allCaptures[imageIndex].Image = newImage;
-            }
-            
-            currentImage = newImage;
-            UpdatePreviewImage();
-
-            if (liveStrokePath != null)
-            {
-                ImageCanvas.Children.Remove(liveStrokePath);
-                liveStrokePath = null;
-                liveStrokeSegment = null;
-            }
-
-            drawingPoints.Clear();
+            _editorManager.CurrentShapeType = shapeType;
+            _editorManager.ShapeBorderThickness = shapeBorderThickness;
+            _editorManager.ShapeIsFilled = shapeIsFilled;
+            _editorManager.ShapeFillOpacity = shapeFillOpacity;
         }
-
-        #endregion
-
-        #region 모자이크
-
-        private void StartMosaic()
-        {
-            if (selectionRectangle != null)
-            {
-                ImageCanvas.Children.Remove(selectionRectangle);
-            }
-
-            selectionRectangle = new Rectangle
-            {
-                Stroke = GetActiveToolBrush(),
-                StrokeThickness = 2,
-                Fill = new SolidColorBrush(Color.FromArgb(30, 100, 149, 237)) // Softer blue
-            };
-
-            Canvas.SetLeft(selectionRectangle, startPoint.X);
-            Canvas.SetTop(selectionRectangle, startPoint.Y);
-
-            ImageCanvas.Children.Add(selectionRectangle);
-        }
-
-        private void UpdateMosaic(Point currentPoint)
-        {
-            if (selectionRectangle == null) return;
-
-            double left = Math.Min(startPoint.X, currentPoint.X);
-            double top = Math.Min(startPoint.Y, currentPoint.Y);
-            double width = Math.Abs(currentPoint.X - startPoint.X);
-            double height = Math.Abs(currentPoint.Y - startPoint.Y);
-
-            Canvas.SetLeft(selectionRectangle, left);
-            Canvas.SetTop(selectionRectangle, top);
-            selectionRectangle.Width = width;
-            selectionRectangle.Height = height;
-        }
-
-        private void FinishMosaic()
-        {
-            if (selectionRectangle == null) return;
-
-            double left = Canvas.GetLeft(selectionRectangle);
-            double top = Canvas.GetTop(selectionRectangle);
-            double width = selectionRectangle.Width;
-            double height = selectionRectangle.Height;
-
-            // 최소 크기 확인
-            if (width < 5 || height < 5)
-            {
-                MessageBox.Show(LocalizationManager.Get("SelectionTooSmall"), LocalizationManager.Get("Info"));
-                ImageCanvas.Children.Remove(selectionRectangle);
-                selectionRectangle = null;
-                return;
-            }
-
-            Int32Rect mosaicRect = new Int32Rect((int)left, (int)top, (int)width, (int)height);
-
-            SaveForUndo();
-            currentImage = ImageEditUtility.ApplyMosaic(currentImage, mosaicRect, mosaicSize);
-            UpdatePreviewImage();
-
-            ImageCanvas.Children.Remove(selectionRectangle);
-            selectionRectangle = null;
-
-            // 모자이크 적용 후에도 모드 유지
-            currentEditMode = EditMode.Mosaic;
-            ImageCanvas.Cursor = Cursors.Cross;
-        }
-
-        #endregion
-
-        #region 지우개
-
-        private void StartEraser()
-        {
-            drawingPoints.Clear();
-            drawingPoints.Add(startPoint);
-        }
-
-        private void UpdateEraser(Point currentPoint)
-        {
-            drawingPoints.Add(currentPoint);
-
-            SaveForUndo();
-            ApplyEraserToPoints();
-        }
-
-        private void FinishEraser()
-        {
-            if (drawingPoints.Count > 0)
-            {
-                SaveForUndo();
-                ApplyEraserToPoints();
-            }
-            drawingPoints.Clear();
-        }
-
-        private void ApplyEraserToPoints()
-        {
-            if (drawingPoints.Count == 0) return;
-
-            // 각 지우개 포인트에서 겹치는 레이어 찾기
-            foreach (var pt in drawingPoints)
-            {
-                var affectedLayers = LayerRenderer.FindLayersInRegion(drawingLayers, pt, eraserSize / 2);
-                foreach (var layerIndex in affectedLayers)
-                {
-                    drawingLayers[layerIndex].IsErased = true;
-                }
-            }
-
-            // 레이어 재렌더링
-            currentImage = LayerRenderer.RenderLayers(originalImage, drawingLayers);
-            UpdatePreviewImage();
-        }
-
         #endregion
     }
 }

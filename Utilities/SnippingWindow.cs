@@ -44,11 +44,8 @@ namespace CatchCapture.Utilities
             Color.FromRgb(139, 69, 19), Color.FromRgb(255, 192, 203)
         };
         private string currentTool = ""; 
-        private bool isDrawingEnabled = false; 
         private List<UIElement> drawnElements = new List<UIElement>();
         private Stack<UIElement> undoStack = new Stack<UIElement>();
-        private Point lastDrawPoint; 
-        private Polyline? currentPolyline; 
         private int penThickness = 3; 
         private int highlightThickness = 8; 
         private Button? activeToolButton; 
@@ -57,12 +54,8 @@ namespace CatchCapture.Utilities
         private double shapeBorderThickness = 2;
         private double shapeFillOpacity = 0.5; // 기본 투명도 50%
         private bool shapeIsFilled = false;
-        private UIElement? tempShape;
-        private Point shapeStartPoint;
-        private bool isDrawingShape = false;
         // [추가] 모자이크 관련 필드
         private double mosaicIntensity = 15; // 모자이크 강도 (기본값)
-        private Rectangle? tempMosaicSelection; // 모자이크 영역 선택용 사각형
         // 텍스트 편집 관련 필드
         private TextBox? selectedTextBox;
         private int textFontSize = 16;
@@ -95,12 +88,25 @@ namespace CatchCapture.Utilities
         private StackPanel? toolbarPanel;
         private bool isVerticalToolbarLayout = false; // 툴바가 세로 레이아웃인지 추적
 
-        // [추가] 리사이즈 핸들 관련 필드
+        // [추가] 리사이즈 핸들 관련 필드 (캡처 영역용)
         private List<Rectangle> resizeHandles = new List<Rectangle>();
         private bool isResizing = false;
         private string resizeDirection = "";
         private Point resizeStartPoint;
         private Rect resizeStartRect;
+
+        // [추가] 요소 선택 및 조정 관련 필드 (그려진 객체용)
+        private UIElement? selectedObject;
+        private Rectangle? objectSelectionBorder;
+        private List<Rectangle> objectResizeHandles = new List<Rectangle>();
+        private bool isDraggingObject = false;
+        private bool isResizingObject = false;
+        private string objectResizeDirection = "";
+        private Point objectDragLastPoint;
+        private Button? objectDeleteButton;
+        private Button? objectConfirmButton;
+
+        private SharedCanvasEditor _editorManager;
 
         public Int32Rect SelectedArea { get; private set; }
         public bool IsCancelled { get; private set; } = false;
@@ -240,6 +246,9 @@ namespace CatchCapture.Utilities
             };
             memoryCleanupTimer.Start();
             this.PreviewKeyDown += SnippingWindow_PreviewKeyDown;
+
+            _editorManager = new SharedCanvasEditor(canvas, drawnElements, undoStack);
+            _editorManager.MosaicRequired += (rect) => ApplyMosaic(rect);
 
             // 언어 변경 이벤트 구독: 즉시편집 UI 텍스트 런타임 갱신
             try { LocalizationManager.LanguageChanged += OnLanguageChanged; } catch { }
@@ -1028,6 +1037,10 @@ namespace CatchCapture.Utilities
             // 팔레트는 동적 계산으로 변경되었으므로 내부 함수 제거
 
             
+            // 선택 버튼
+            var selectButton = CreateToolButton("sc_cursor.png", LocalizationManager.Get("Select"), LocalizationManager.Get("SelectTooltip"));
+            selectButton.Click += (s, e) => ToggleToolPalette("선택", selectButton);
+
             // 펜 버튼
             var penButton = CreateToolButton("pen.png", LocalizationManager.Get("Pen"), LocalizationManager.Get("Pen"));
             penButton.Click += (s, e) => ToggleToolPalette("펜", penButton);
@@ -1331,6 +1344,7 @@ namespace CatchCapture.Utilities
             saveButton.Click += (s, e) => SaveToFile();
 
             // [수정] 버튼들을 toolbarStackPanel에 추가
+            toolbarPanel.Children.Add(selectButton);
             toolbarPanel.Children.Add(penButton);
             toolbarPanel.Children.Add(highlighterButton);
             toolbarPanel.Children.Add(textButton);
@@ -2006,7 +2020,6 @@ namespace CatchCapture.Utilities
 
         private void EnableDrawingMode()
         {
-            isDrawingEnabled = true;
             Cursor = Cursors.Pen;
             
             // [수정] 텍스트 모드 이벤트 제거 (중복 실행 방지)
@@ -2029,7 +2042,6 @@ namespace CatchCapture.Utilities
         }
         private void EnableTextMode()
         {
-            isDrawingEnabled = false;
             Cursor = Cursors.IBeam;
             
             // 텍스트 입력용 마우스 이벤트 등록
@@ -2040,25 +2052,157 @@ namespace CatchCapture.Utilities
             canvas.MouseLeftButtonDown += Canvas_TextMouseDown;
         }
 
+        private void EnableSelectMode()
+        {
+            canvas.Cursor = Cursors.Arrow;
+
+            // 기존 이벤트 제거
+            canvas.MouseLeftButtonDown -= Canvas_DrawMouseDown;
+            canvas.MouseLeftButtonDown -= Canvas_TextMouseDown;
+            canvas.MouseLeftButtonDown -= Canvas_EraserMouseDown;
+            canvas.MouseLeftButtonDown -= Canvas_SelectMouseDown; // 중복 방지
+            canvas.MouseMove -= Canvas_DrawMouseMove;
+            canvas.MouseLeftButtonUp -= Canvas_DrawMouseUp;
+
+            // 선택용 이벤트 등록
+            canvas.MouseLeftButtonDown += Canvas_SelectMouseDown;
+
+            // 텍스트 선택 해제
+            if (selectedTextBox != null) ClearTextSelection();
+        }
+
+        private void Canvas_SelectMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            // 리사이즈 핸들이나 이미 선택된 요소의 부속 버튼 클릭 시 무시
+            if (e.OriginalSource is FrameworkElement fe && (fe.Name.StartsWith("ResizeHandle") || fe.Parent is Button || fe is Button))
+                return;
+
+            Point clickPoint = e.GetPosition(canvas);
+
+            // 요소 찾기 (역순으로 검색하여 가장 위에 있는 요소 선택)
+            UIElement? clickedElement = null;
+            for (int i = drawnElements.Count - 1; i >= 0; i--)
+            {
+                var element = drawnElements[i];
+                if (IsPointInElement(clickPoint, element))
+                {
+                    clickedElement = element;
+                    break;
+                }
+            }
+
+            if (clickedElement != null)
+            {
+                SelectObject(clickedElement);
+                if (clickedElement is not TextBox) // 텍스트박스는 자체 드래그 로직 사용
+                {
+                    isDraggingObject = true;
+                    objectDragLastPoint = clickPoint;
+                    canvas.CaptureMouse();
+                    
+                    canvas.MouseMove -= Canvas_SelectMouseMove;
+                    canvas.MouseMove += Canvas_SelectMouseMove;
+                    canvas.MouseLeftButtonUp -= Canvas_SelectMouseUp;
+                    canvas.MouseLeftButtonUp += Canvas_SelectMouseUp;
+                }
+            }
+            else
+            {
+                DeselectObject();
+            }
+        }
+
+        private void Canvas_SelectMouseMove(object sender, MouseEventArgs e)
+        {
+            if (isDraggingObject && selectedObject != null)
+            {
+                Point currentPoint = e.GetPosition(canvas);
+                double dx = currentPoint.X - objectDragLastPoint.X;
+                double dy = currentPoint.Y - objectDragLastPoint.Y;
+
+                MoveElement(selectedObject, dx, dy);
+                objectDragLastPoint = currentPoint;
+                UpdateObjectSelectionUI();
+            }
+        }
+
+        private void Canvas_SelectMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (isDraggingObject)
+            {
+                isDraggingObject = false;
+                canvas.ReleaseMouseCapture();
+            }
+        }
+
+        private void SelectObject(UIElement element)
+        {
+            if (selectedObject == element) return;
+            DeselectObject();
+
+            selectedObject = element;
+
+            // 텍스트박스인 경우 기존 텍스트 선택 로직 사용
+            if (element is TextBox textBox)
+            {
+                ShowTextSelection(textBox);
+                return;
+            }
+
+            // 선택 강조 효과 (점선 테두리)
+            UpdateObjectSelectionUI();
+            CreateObjectResizeHandles();
+        }
+
+        private void DeselectObject()
+        {
+            if (selectedObject != null)
+            {
+                if (selectedObject is TextBox) ClearTextSelection();
+                
+                selectedObject = null;
+                if (objectSelectionBorder != null)
+                {
+                    canvas.Children.Remove(objectSelectionBorder);
+                    objectSelectionBorder = null;
+                }
+                if (objectDeleteButton != null)
+                {
+                    canvas.Children.Remove(objectDeleteButton);
+                    objectDeleteButton = null;
+                }
+                if (objectConfirmButton != null)
+                {
+                    canvas.Children.Remove(objectConfirmButton);
+                    objectConfirmButton = null;
+                }
+                RemoveObjectResizeHandles();
+            }
+            isDraggingObject = false;
+            isResizingObject = false;
+            Mouse.Capture(null);
+            canvas.MouseMove -= Canvas_SelectMouseMove;
+            canvas.MouseLeftButtonUp -= Canvas_SelectMouseUp;
+            canvas.MouseMove -= ObjectResizeHandle_MouseMove;
+            canvas.MouseLeftButtonUp -= ObjectResizeHandle_MouseUp;
+        }
+
         private void EnableEraserMode()
         {
-            isDrawingEnabled = false;
             canvas.Cursor = Cursors.Hand; // 지우개 커서
             
             // 기존 이벤트 제거
             canvas.MouseLeftButtonDown -= Canvas_DrawMouseDown;
             canvas.MouseLeftButtonDown -= Canvas_TextMouseDown;
+            canvas.MouseLeftButtonDown -= Canvas_SelectMouseDown;
             canvas.MouseMove -= Canvas_DrawMouseMove;
             canvas.MouseLeftButtonUp -= Canvas_DrawMouseUp;
             
             // 지우개 이벤트 등록
             canvas.MouseLeftButtonDown += Canvas_EraserMouseDown;
             
-            // 텍스트 선택 해제
-            if (selectedTextBox != null)
-            {
-                ClearTextSelection();
-            }
+            // 모든 선택 해제
+            DeselectObject();
         }
         private async Task PerformOcr()
         {
@@ -2389,6 +2533,344 @@ namespace CatchCapture.Utilities
             }
         }
 
+        private void CreateObjectResizeHandles()
+        {
+            RemoveObjectResizeHandles();
+            if (selectedObject == null) return;
+            if (selectedObject is Polyline) return; // Polyline은 리사이즈 복잡해서 일단 보류
+
+            string[] directions = { "NW", "N", "NE", "W", "E", "SW", "S", "SE" };
+            Cursor[] cursors = { Cursors.SizeNWSE, Cursors.SizeNS, Cursors.SizeNESW, Cursors.SizeWE, Cursors.SizeWE, Cursors.SizeNESW, Cursors.SizeNS, Cursors.SizeNWSE };
+
+            for (int i = 0; i < directions.Length; i++)
+            {
+                var handle = new Rectangle
+                {
+                    Name = "ResizeHandle_" + directions[i],
+                    Width = 8,
+                    Height = 8,
+                    Fill = Brushes.White,
+                    Stroke = Brushes.DeepSkyBlue,
+                    StrokeThickness = 1,
+                    Cursor = cursors[i]
+                };
+
+                string dir = directions[i];
+                handle.MouseLeftButtonDown += (s, e) => ObjectResizeHandle_MouseDown(s, e, dir);
+                
+                canvas.Children.Add(handle);
+                Panel.SetZIndex(handle, 2010);
+                objectResizeHandles.Add(handle);
+            }
+            UpdateObjectResizeHandles(GetElementBounds(selectedObject));
+        }
+
+        private void RemoveObjectResizeHandles()
+        {
+            foreach (var h in objectResizeHandles) canvas.Children.Remove(h);
+            objectResizeHandles.Clear();
+        }
+
+        private void UpdateObjectResizeHandles(Rect bounds)
+        {
+            foreach (var handle in objectResizeHandles)
+            {
+                string dir = handle.Name.Replace("ResizeHandle_", "");
+                double left = 0, top = 0;
+
+                switch (dir)
+                {
+                    case "NW": left = bounds.Left - 4; top = bounds.Top - 4; break;
+                    case "N": left = bounds.Left + bounds.Width / 2 - 4; top = bounds.Top - 4; break;
+                    case "NE": left = bounds.Right - 4; top = bounds.Top - 4; break;
+                    case "W": left = bounds.Left - 4; top = bounds.Top + bounds.Height / 2 - 4; break;
+                    case "E": left = bounds.Right - 4; top = bounds.Top + bounds.Height / 2 - 4; break;
+                    case "SW": left = bounds.Left - 4; top = bounds.Bottom - 4; break;
+                    case "S": left = bounds.Left + bounds.Width / 2 - 4; top = bounds.Bottom - 4; break;
+                    case "SE": left = bounds.Right - 4; top = bounds.Bottom - 4; break;
+                }
+
+                Canvas.SetLeft(handle, left);
+                Canvas.SetTop(handle, top);
+            }
+        }
+
+        private void ObjectResizeHandle_MouseDown(object sender, MouseButtonEventArgs e, string direction)
+        {
+            if (sender is UIElement handle)
+            {
+                objectResizeDirection = direction;
+                objectDragLastPoint = e.GetPosition(canvas);
+                
+                canvas.CaptureMouse();
+                canvas.MouseMove -= ObjectResizeHandle_MouseMove;
+                canvas.MouseMove += ObjectResizeHandle_MouseMove;
+                canvas.MouseLeftButtonUp -= ObjectResizeHandle_MouseUp;
+                canvas.MouseLeftButtonUp += ObjectResizeHandle_MouseUp;
+                
+                isResizingObject = true;
+                e.Handled = true;
+            }
+        }
+
+        private void ObjectResizeHandle_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (isResizingObject && selectedObject != null)
+            {
+                Point currentPoint = e.GetPosition(canvas);
+                double dx = currentPoint.X - objectDragLastPoint.X;
+                double dy = currentPoint.Y - objectDragLastPoint.Y;
+
+                ResizeElement(selectedObject, dx, dy, objectResizeDirection);
+                objectDragLastPoint = currentPoint;
+                UpdateObjectSelectionUI();
+            }
+        }
+
+        private void ObjectResizeHandle_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (isResizingObject)
+            {
+                isResizingObject = false;
+                canvas.ReleaseMouseCapture();
+                canvas.MouseMove -= ObjectResizeHandle_MouseMove;
+                canvas.MouseLeftButtonUp -= ObjectResizeHandle_MouseUp;
+                e.Handled = true;
+            }
+        }
+
+        private void ResizeElement(UIElement element, double dx, double dy, string dir)
+        {
+            // 리사이즈 로직 구현 
+            if (element is Shape shape && (shape is Rectangle || shape is Ellipse))
+            {
+                double left = Canvas.GetLeft(shape);
+                double top = Canvas.GetTop(shape);
+                double width = shape.Width;
+                double height = shape.Height;
+
+                if (dir.Contains("W")) { left += dx; width -= dx; }
+                if (dir.Contains("E")) { width += dx; }
+                if (dir.Contains("N")) { top += dy; height -= dy; }
+                if (dir.Contains("S")) { height += dy; }
+
+                if (width < 5) width = 5;
+                if (height < 5) height = 5;
+
+                shape.Width = width;
+                shape.Height = height;
+                Canvas.SetLeft(shape, left);
+                Canvas.SetTop(shape, top);
+                
+                // 메타데이터 업데이트
+                if (shape.Tag is ShapeMetadata metadata)
+                {
+                    metadata.StartPoint = new Point(left, top);
+                    metadata.EndPoint = new Point(left + width, top + height);
+                }
+            }
+            else if (element is TextBox textBox)
+            {
+                double left = Canvas.GetLeft(textBox);
+                double top = Canvas.GetTop(textBox);
+                double width = textBox.ActualWidth;
+                double height = textBox.ActualHeight;
+
+                if (dir.Contains("W")) { left += dx; width -= dx; }
+                if (dir.Contains("E")) { width += dx; }
+                if (dir.Contains("N")) { top += dy; height -= dy; }
+                if (dir.Contains("S")) { height += dy; }
+
+                if (width < 20) width = 20;
+                if (height < 20) height = 20;
+
+                textBox.Width = width;
+                textBox.Height = height;
+                Canvas.SetLeft(textBox, left);
+                Canvas.SetTop(textBox, top);
+            }
+            else if (element is Line line)
+            {
+                if (dir == "NW" || dir == "W" || dir == "N") { line.X1 += dx; line.Y1 += dy; }
+                else if (dir == "SE" || dir == "E" || dir == "S") { line.X2 += dx; line.Y2 += dy; }
+                
+                if (line.Tag is ShapeMetadata metadata)
+                {
+                    metadata.StartPoint = new Point(line.X1, line.Y1);
+                    metadata.EndPoint = new Point(line.X2, line.Y2);
+                }
+            }
+            else if (element is Canvas arrowCanvas && arrowCanvas.Tag is ShapeMetadata metadata)
+            {
+                // 화살표는 다시 그려야 함
+                if (dir == "NW" || dir == "W" || dir == "N") { metadata.StartPoint = new Point(metadata.StartPoint.X + dx, metadata.StartPoint.Y + dy); }
+                else if (dir == "SE" || dir == "E" || dir == "S") { metadata.EndPoint = new Point(metadata.EndPoint.X + dx, metadata.EndPoint.Y + dy); }
+                
+                ShapeDrawingHelper.UpdateArrow(arrowCanvas, metadata.StartPoint, metadata.EndPoint, metadata.Color, metadata.Thickness);
+            }
+        }
+
+        private bool IsPointInElement(Point pt, UIElement element)
+        {
+            return InteractiveEditor.IsPointInElement(pt, element);
+        }
+
+        private void MoveElement(UIElement element, double dx, double dy)
+        {
+            InteractiveEditor.MoveElement(element, dx, dy);
+            
+            // 메타데이터 업데이트
+            if (element is FrameworkElement fe && fe.Tag is ShapeMetadata metadata)
+            {
+                metadata.StartPoint = new Point(metadata.StartPoint.X + dx, metadata.StartPoint.Y + dy);
+                metadata.EndPoint = new Point(metadata.EndPoint.X + dx, metadata.EndPoint.Y + dy);
+            }
+        }
+        
+        private void SyncEditorProperties()
+        {
+            if (_editorManager == null) return;
+            _editorManager.CurrentTool = currentTool;
+            _editorManager.SelectedColor = selectedColor;
+            _editorManager.PenThickness = penThickness;
+            _editorManager.HighlightThickness = highlightThickness;
+            _editorManager.HighlightOpacity = highlightOpacity;
+            _editorManager.CurrentShapeType = shapeType;
+            _editorManager.ShapeBorderThickness = shapeBorderThickness;
+            _editorManager.ShapeIsFilled = shapeIsFilled;
+            _editorManager.ShapeFillOpacity = shapeFillOpacity;
+            _editorManager.NextNumber = numberingNext;
+            _editorManager.NumberingBadgeSize = numberingBadgeSize;
+            _editorManager.NumberingTextSize = numberingTextSize;
+        }
+
+        private void UpdateObjectSelectionUI()
+        {
+            if (selectedObject == null) return;
+
+            Rect bounds = GetElementBounds(selectedObject);
+            
+            if (objectSelectionBorder == null)
+            {
+                objectSelectionBorder = new Rectangle
+                {
+                    Stroke = Brushes.DeepSkyBlue,
+                    StrokeThickness = 1,
+                    StrokeDashArray = new DoubleCollection { 4, 2 },
+                    IsHitTestVisible = false
+                };
+                canvas.Children.Add(objectSelectionBorder);
+            }
+
+            objectSelectionBorder.Width = bounds.Width + 6;
+            objectSelectionBorder.Height = bounds.Height + 6;
+            Canvas.SetLeft(objectSelectionBorder, bounds.Left - 3);
+            Canvas.SetTop(objectSelectionBorder, bounds.Top - 3);
+
+            // 확정 버튼 (V)
+            if (objectConfirmButton == null)
+            {
+                objectConfirmButton = new Button
+                {
+                    Content = "✓",
+                    Width = 20,
+                    Height = 20,
+                    Background = Brushes.Green,
+                    Foreground = Brushes.White,
+                    FontSize = 10,
+                    FontWeight = FontWeights.Bold,
+                    BorderThickness = new Thickness(0),
+                    Cursor = Cursors.Hand,
+                    ToolTip = LocalizationManager.Get("Confirm") ?? "확정"
+                };
+                objectConfirmButton.Click += (s, e) => {
+                    DeselectObject();
+                };
+                canvas.Children.Add(objectConfirmButton);
+            }
+            Canvas.SetLeft(objectConfirmButton, bounds.Right - 18);
+            Canvas.SetTop(objectConfirmButton, bounds.Top - 15);
+
+            // 삭제 버튼
+            if (objectDeleteButton == null)
+            {
+                objectDeleteButton = new Button
+                {
+                    Content = "✕",
+                    Width = 20,
+                    Height = 20,
+                    Background = Brushes.Red,
+                    Foreground = Brushes.White,
+                    FontSize = 10,
+                    FontWeight = FontWeights.Bold,
+                    BorderThickness = new Thickness(0),
+                    Cursor = Cursors.Hand,
+                    ToolTip = LocalizationManager.Get("Delete") ?? "삭제"
+                };
+                objectDeleteButton.Click += (s, e) => {
+                    UIElement? toRemove = selectedObject;
+                    DeselectObject();
+                    if (toRemove != null)
+                    {
+                        canvas.Children.Remove(toRemove);
+                        drawnElements.Remove(toRemove);
+                    }
+                };
+                canvas.Children.Add(objectDeleteButton);
+            }
+            Canvas.SetLeft(objectDeleteButton, bounds.Right + 5);
+            Canvas.SetTop(objectDeleteButton, bounds.Top - 15);
+            
+            UpdateObjectResizeHandles(bounds);
+        }
+
+        private Rect GetElementBounds(UIElement element)
+        {
+            if (element is Line line)
+            {
+                return new Rect(new Point(line.X1, line.Y1), new Point(line.X2, line.Y2));
+            }
+            if (element is Polyline polyline)
+            {
+                double minX = polyline.Points.Min(p => p.X);
+                double minY = polyline.Points.Min(p => p.Y);
+                double maxX = polyline.Points.Max(p => p.X);
+                double maxY = polyline.Points.Max(p => p.Y);
+                return new Rect(minX, minY, maxX - minX, maxY - minY);
+            }
+            if (element is Canvas canvasElement)
+            {
+                // 화살표 등
+                double minX = double.MaxValue, minY = double.MaxValue, maxX = double.MinValue, maxY = double.MinValue;
+                foreach (UIElement child in canvasElement.Children)
+                {
+                    Rect r = GetElementBounds(child);
+                    if (r.Left < minX) minX = r.Left;
+                    if (r.Top < minY) minY = r.Top;
+                    if (r.Right > maxX) maxX = r.Right;
+                    if (r.Bottom > maxY) maxY = r.Bottom;
+                }
+                return new Rect(minX, minY, maxX - minX, maxY - minY);
+            }
+            if (element is Polygon polygon)
+            {
+                double minX = polygon.Points.Min(p => p.X);
+                double minY = polygon.Points.Min(p => p.Y);
+                double maxX = polygon.Points.Max(p => p.X);
+                double maxY = polygon.Points.Max(p => p.Y);
+                return new Rect(minX, minY, maxX - minX, maxY - minY);
+            }
+            
+            double left = Canvas.GetLeft(element);
+            double top = Canvas.GetTop(element);
+            double width = (element is FrameworkElement fe) ? fe.ActualWidth : 0;
+            if (width == 0 && element is Shape s) width = s.Width;
+            double height = (element is FrameworkElement fe2) ? fe2.ActualHeight : 0;
+            if (height == 0 && element is Shape s2) height = s2.Height;
+            
+            return new Rect(left, top, width, height);
+        }
+
         private void Canvas_EraserMouseDown(object sender, MouseButtonEventArgs e)
         {
             // 버튼 클릭 시 무시
@@ -2407,90 +2889,11 @@ namespace CatchCapture.Utilities
             for (int i = drawnElements.Count - 1; i >= 0; i--)
             {
                 var element = drawnElements[i];
-                
-                if (element is Polyline polyline)
+                if (IsPointInElement(clickPoint, element))
                 {
-                    // Polyline의 점들 중 하나라도 클릭 범위 내에 있으면 선택
-                    foreach (var point in polyline.Points)
-                    {
-                        if (Math.Abs(point.X - clickPoint.X) < 10 && Math.Abs(point.Y - clickPoint.Y) < 10)
-                        {
-                            elementToRemove = polyline;
-                            break;
-                        }
-                    }
-                }
-                else if (element is TextBox textBox)
-                {
-                    double left = Canvas.GetLeft(textBox);
-                    double top = Canvas.GetTop(textBox);
-                    double right = left + textBox.ActualWidth;
-                    double bottom = top + textBox.ActualHeight;
-                    
-                    if (clickPoint.X >= left && clickPoint.X <= right &&
-                        clickPoint.Y >= top && clickPoint.Y <= bottom)
-                    {
-                        elementToRemove = textBox;
-                    }
-                }
-                else if (element is Shape shape)
-                {
-                    if (shape is Line line)
-                    {
-                        // 선의 경우 클릭 위치가 선 근처인지 확인
-                        double distance = DistanceFromPointToLine(clickPoint, new Point(line.X1, line.Y1), new Point(line.X2, line.Y2));
-                        if (distance < 10)
-                        {
-                            elementToRemove = shape;
-                        }
-                    }
-                    else
-                    {
-                        double left = Canvas.GetLeft(shape);
-                        double top = Canvas.GetTop(shape);
-                        double right = left + shape.Width;
-                        double bottom = top + shape.Height;
-                        
-                        if (clickPoint.X >= left && clickPoint.X <= right &&
-                            clickPoint.Y >= top && clickPoint.Y <= bottom)
-                        {
-                            elementToRemove = shape;
-                        }
-                    }
-                }
-                else if (element is Canvas arrowCanvas)
-                {
-                    // 화살표의 경우 자식 요소 확인
-                    foreach (var child in arrowCanvas.Children)
-                    {
-                        if (child is Line l)
-                        {
-                            double distance = DistanceFromPointToLine(clickPoint, new Point(l.X1, l.Y1), new Point(l.X2, l.Y2));
-                            if (distance < 10)
-                            {
-                                elementToRemove = arrowCanvas;
-                                break;
-                            }
-                        }
-                    }
-                }
-                else if (element is Image image)
-                {
-                    // 모자이크 이미지
-                    double left = Canvas.GetLeft(image);
-                    double top = Canvas.GetTop(image);
-                    double right = left + image.Width;
-                    double bottom = top + image.Height;
-                    
-                    if (clickPoint.X >= left && clickPoint.X <= right &&
-                        clickPoint.Y >= top && clickPoint.Y <= bottom)
-                    {
-                        elementToRemove = image;
-                    }
-                }
-                
-                if (elementToRemove != null)
+                    elementToRemove = element;
                     break;
+                }
             }
             
             // 요소 삭제
@@ -2498,6 +2901,7 @@ namespace CatchCapture.Utilities
             {
                 canvas.Children.Remove(elementToRemove);
                 drawnElements.Remove(elementToRemove);
+                if (selectedObject == elementToRemove) DeselectObject();
             }
         }
         
@@ -2541,7 +2945,6 @@ namespace CatchCapture.Utilities
         }
         private void EnableShapeMode()
         {
-            isDrawingEnabled = true;
             canvas.Cursor = Cursors.Cross;
             
             // 마우스 이벤트 재설정
@@ -2563,7 +2966,6 @@ namespace CatchCapture.Utilities
         
         private void EnableMosaicMode()
         {
-            isDrawingEnabled = true;
             canvas.Cursor = Cursors.Cross; // [수정] 십자 커서로 변경
             
             // 이벤트 재설정 (텍스트 모드 등에서 전환될 때를 대비)
@@ -2585,140 +2987,17 @@ namespace CatchCapture.Utilities
 
         private UIElement? CreateShape(Point start, Point current)
         {
-            double left = Math.Min(start.X, current.X);
-            double top = Math.Min(start.Y, current.Y);
-            double width = Math.Abs(current.X - start.X);
-            double height = Math.Abs(current.Y - start.Y);
-
-            Shape? shape = null;
-
-            switch (shapeType)
-            {
-                case ShapeType.Rectangle:
-                    shape = new Rectangle
-                    {
-                        Width = width,
-                        Height = height,
-                        Stroke = new SolidColorBrush(selectedColor),
-                        StrokeThickness = shapeBorderThickness,
-                        // [수정] 투명도 적용
-                        Fill = shapeIsFilled ? new SolidColorBrush(Color.FromArgb((byte)(shapeFillOpacity * 255), selectedColor.R, selectedColor.G, selectedColor.B)) : Brushes.Transparent
-                    };
-                    Canvas.SetLeft(shape, left);
-                    Canvas.SetTop(shape, top);
-                    break;
-
-                case ShapeType.Ellipse:
-                    shape = new Ellipse
-                    {
-                        Width = width,
-                        Height = height,
-                        Stroke = new SolidColorBrush(selectedColor),
-                        StrokeThickness = shapeBorderThickness,
-                        // [수정] 투명도 적용
-                        Fill = shapeIsFilled ? new SolidColorBrush(Color.FromArgb((byte)(shapeFillOpacity * 255), selectedColor.R, selectedColor.G, selectedColor.B)) : Brushes.Transparent
-                    };
-                    Canvas.SetLeft(shape, left);
-                    Canvas.SetTop(shape, top);
-                    break;
-
-                case ShapeType.Line:
-                    shape = new Line
-                    {
-                        X1 = start.X, Y1 = start.Y,
-                        X2 = current.X, Y2 = current.Y,
-                        Stroke = new SolidColorBrush(selectedColor),
-                        StrokeThickness = shapeBorderThickness
-                    };
-                    break;
-
-                case ShapeType.Arrow:
-                    return CreateArrow(start, current);
-            }
-            return shape;
+            return ShapeDrawingHelper.CreateShape(
+                shapeType, start, current, selectedColor, 
+                shapeBorderThickness, shapeIsFilled, shapeFillOpacity);
         }
 
-        private UIElement CreateArrow(Point start, Point end)
-        {
-            Canvas arrowCanvas = new Canvas();
-            Line line = new Line
-            {
-                X1 = start.X, Y1 = start.Y,
-                X2 = end.X, Y2 = end.Y,
-                Stroke = new SolidColorBrush(selectedColor),
-                StrokeThickness = shapeBorderThickness
-            };
-            arrowCanvas.Children.Add(line);
+        // [삭제됨] ShapeDrawingHelper.CreateArrow 사용
 
-            double angle = Math.Atan2(end.Y - start.Y, end.X - start.X);
-            double arrowLength = 15 + shapeBorderThickness * 2;
-            double arrowAngle = Math.PI / 6;
-
-            Point arrowPoint1 = new Point(end.X - arrowLength * Math.Cos(angle - arrowAngle), end.Y - arrowLength * Math.Sin(angle - arrowAngle));
-            Point arrowPoint2 = new Point(end.X - arrowLength * Math.Cos(angle + arrowAngle), end.Y - arrowLength * Math.Sin(angle + arrowAngle));
-
-            Polygon arrowHead = new Polygon
-            {
-                Points = new PointCollection { end, arrowPoint1, arrowPoint2 },
-                Fill = new SolidColorBrush(selectedColor),
-                Stroke = new SolidColorBrush(selectedColor),
-                StrokeThickness = 1
-            };
-            arrowCanvas.Children.Add(arrowHead);
-            return arrowCanvas;
-        }
 
         private void UpdateShapeProperties(UIElement shape, Point start, Point current)
         {
-            if (shape == null) return;
-            double left = Math.Min(start.X, current.X);
-            double top = Math.Min(start.Y, current.Y);
-            double width = Math.Abs(current.X - start.X);
-            double height = Math.Abs(current.Y - start.Y);
-
-            if (shape is Rectangle rect)
-            {
-                rect.Width = width; rect.Height = height;
-                Canvas.SetLeft(rect, left); Canvas.SetTop(rect, top);
-            }
-            else if (shape is Ellipse ellipse)
-            {
-                ellipse.Width = width; ellipse.Height = height;
-                Canvas.SetLeft(ellipse, left); Canvas.SetTop(ellipse, top);
-            }
-            else if (shape is Line shapeLine)
-            {
-                shapeLine.X1 = start.X; shapeLine.Y1 = start.Y;
-                shapeLine.X2 = current.X; shapeLine.Y2 = current.Y;
-            }
-            else if (shape is Canvas arrowCanvas)
-            {
-                arrowCanvas.Children.Clear();
-                Line line = new Line
-                {
-                    X1 = start.X, Y1 = start.Y,
-                    X2 = current.X, Y2 = current.Y,
-                    Stroke = new SolidColorBrush(selectedColor),
-                    StrokeThickness = shapeBorderThickness
-                };
-                arrowCanvas.Children.Add(line);
-
-                double angle = Math.Atan2(current.Y - start.Y, current.X - start.X);
-                double arrowLength = 15 + shapeBorderThickness * 2;
-                double arrowAngle = Math.PI / 6;
-
-                Point arrowPoint1 = new Point(current.X - arrowLength * Math.Cos(angle - arrowAngle), current.Y - arrowLength * Math.Sin(angle - arrowAngle));
-                Point arrowPoint2 = new Point(current.X - arrowLength * Math.Cos(angle + arrowAngle), current.Y - arrowLength * Math.Sin(angle + arrowAngle));
-
-                Polygon arrowHead = new Polygon
-                {
-                    Points = new PointCollection { current, arrowPoint1, arrowPoint2 },
-                    Fill = new SolidColorBrush(selectedColor),
-                    Stroke = new SolidColorBrush(selectedColor),
-                    StrokeThickness = 1
-                };
-                arrowCanvas.Children.Add(arrowHead);
-            }
+            ShapeDrawingHelper.UpdateShapeProperties(shape, start, current, selectedColor, shapeBorderThickness);
         }
 
         // [추가] 부모 컨트롤 찾기 헬퍼
@@ -3096,201 +3375,24 @@ namespace CatchCapture.Utilities
         private void Canvas_DrawMouseDown(object sender, MouseButtonEventArgs e)
         {
             Point clickPoint = e.GetPosition(canvas);
-            
-            // 선택 영역 내부인지 확인
-            if (!IsPointInSelection(clickPoint))
-                return;
-            
-            // 넘버링 모드 처리
-            if (currentTool == "넘버링")
-            {    
-                // 기존 넘버링 그룹 클릭은 무시 (드래그용)
-                if (e.OriginalSource is FrameworkElement clickedElement)
-                {
-                    // 클릭한 요소의 부모를 따라가서 Canvas(그룹)인지 확인
-                    DependencyObject parent = clickedElement;
-                    while (parent != null && parent != canvas)
-                    {
-                        if (parent is Canvas groupCanvas && 
-                            numberingGroups.ContainsValue(groupCanvas))
-                        {
-                            return;  // 기존 넘버링 그룹이므로 새로 생성 안 함
-                        }
-                        parent = VisualTreeHelper.GetParent(parent);
-                    }
-                }
-                
-                // 툴바의 버튼만 무시
-                if (e.OriginalSource is Button || 
-                    (e.OriginalSource is FrameworkElement fe && fe.Parent is Button))
-                {
-                    return;
-                }               
-                CreateNumberingAt(clickPoint);
-                return;
-            }
-            
-            // 다른 도구들은 버튼 클릭 무시
-            if (e.OriginalSource is FrameworkElement source && 
-            (source is Button || source.Parent is Button || source.TemplatedParent is Button))
-                return;
+            if (!IsPointInSelection(clickPoint)) return;
 
-            if (currentTool == "도형")
-            {
-                isDrawingShape = true;
-                shapeStartPoint = clickPoint;
-                tempShape = CreateShape(shapeStartPoint, shapeStartPoint);
-                if (tempShape != null)
-                {
-                    canvas.Children.Add(tempShape);
-                }
-                canvas.CaptureMouse();
-                return;
-            }
-            else if (currentTool == "모자이크")
-            {
-                isDrawingShape = true;
-                shapeStartPoint = clickPoint;
-                
-                tempMosaicSelection = new Rectangle
-                {
-                    Stroke = Brushes.Black,
-                    StrokeThickness = 1,
-                    StrokeDashArray = new DoubleCollection { 4, 2 },
-                    Fill = new SolidColorBrush(Color.FromArgb(50, 0, 0, 0))
-                };
-                Canvas.SetLeft(tempMosaicSelection, clickPoint.X);
-                Canvas.SetTop(tempMosaicSelection, clickPoint.Y);
-                tempMosaicSelection.Width = 0;
-                tempMosaicSelection.Height = 0;
-
-                canvas.Children.Add(tempMosaicSelection);
-                canvas.CaptureMouse();
-                return;
-            }
-            // ← 라인 2836-2848 삭제 (중복된 넘버링 처리 제거)
-
-            if (!isDrawingEnabled) return;
-            
-            lastDrawPoint = clickPoint;
-            
-            // 새 선 시작
-            Color strokeColor = selectedColor;
-            // 형광펜은 Opacity 속성으로 투명도 조절하므로 여기서는 원색 사용
-            
-            currentPolyline = new Polyline
-            {
-                Stroke = new SolidColorBrush(strokeColor),
-                StrokeThickness = currentTool == "형광펜" ? highlightThickness : penThickness,
-                StrokeStartLineCap = PenLineCap.Round,
-                StrokeEndLineCap = PenLineCap.Round,
-                StrokeLineJoin = PenLineJoin.Round
-            };
-
-            if (currentTool == "형광펜")
-            {
-                currentPolyline.Opacity = highlightOpacity; // [수정] 설정된 투명도 사용
-            }
-            
-            currentPolyline.Points.Add(lastDrawPoint);
-            canvas.Children.Add(currentPolyline);
-            drawnElements.Add(currentPolyline);
-            
-            canvas.CaptureMouse();
+            SyncEditorProperties();
+            _editorManager.StartDrawing(clickPoint, e.OriginalSource);
+            numberingNext = _editorManager.NextNumber; // 넘버링 번호 동기화
         }
         
         private void Canvas_DrawMouseMove(object sender, MouseEventArgs e)
         {
             Point currentPoint = e.GetPosition(canvas);
+            if (!IsPointInSelection(currentPoint)) return;
 
-            // 선택 영역 내부인지 확인
-            if (!IsPointInSelection(currentPoint))
-                return;
-
-            if (currentTool == "도형")
-            {
-                if (isDrawingShape && tempShape != null)
-                {
-                    UpdateShapeProperties(tempShape, shapeStartPoint, currentPoint);
-                }
-                return;
-            }
-            else if (currentTool == "모자이크")
-            {
-                if (isDrawingShape && tempMosaicSelection != null)
-                {
-                    double left = Math.Min(shapeStartPoint.X, currentPoint.X);
-                    double top = Math.Min(shapeStartPoint.Y, currentPoint.Y);
-                    double width = Math.Abs(currentPoint.X - shapeStartPoint.X);
-                    double height = Math.Abs(currentPoint.Y - shapeStartPoint.Y);
-
-                    tempMosaicSelection.Width = width;
-                    tempMosaicSelection.Height = height;
-                    Canvas.SetLeft(tempMosaicSelection, left);
-                    Canvas.SetTop(tempMosaicSelection, top);
-                }
-                return;
-            }
-
-            if (!isDrawingEnabled || currentPolyline == null) return;
-            if (e.LeftButton != MouseButtonState.Pressed) return;
-            
-            // 부드러운 선을 위해 중간 점들을 보간
-            double distance = Math.Sqrt(
-                Math.Pow(currentPoint.X - lastDrawPoint.X, 2) + 
-                Math.Pow(currentPoint.Y - lastDrawPoint.Y, 2));
-            
-            if (distance > 2)
-            {
-                int steps = (int)(distance / 2);
-                for (int i = 1; i <= steps; i++)
-                {
-                    double t = (double)i / steps;
-                    Point interpolated = new Point(
-                        lastDrawPoint.X + (currentPoint.X - lastDrawPoint.X) * t,
-                        lastDrawPoint.Y + (currentPoint.Y - lastDrawPoint.Y) * t);
-                    currentPolyline.Points.Add(interpolated);
-                }
-            }
-            
-            currentPolyline.Points.Add(currentPoint);
-            lastDrawPoint = currentPoint;
+            _editorManager.UpdateDrawing(currentPoint);
         }
         
         private void Canvas_DrawMouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (currentTool == "도형")
-            {
-                if (isDrawingShape && tempShape != null)
-                {
-                    drawnElements.Add(tempShape);
-                    tempShape = null;
-                    isDrawingShape = false;
-                }
-                canvas.ReleaseMouseCapture();
-                return;
-            }
-            else if (currentTool == "모자이크")
-            {
-                if (isDrawingShape && tempMosaicSelection != null)
-                {
-                    // 모자이크 적용
-                    Rect rect = new Rect(Canvas.GetLeft(tempMosaicSelection), Canvas.GetTop(tempMosaicSelection), tempMosaicSelection.Width, tempMosaicSelection.Height);
-                    ApplyMosaic(rect);
-
-                    // 임시 사각형 제거
-                    canvas.Children.Remove(tempMosaicSelection);
-                    tempMosaicSelection = null;
-                    isDrawingShape = false;
-                }
-                canvas.ReleaseMouseCapture();
-                return;
-            }
-
-            if (!isDrawingEnabled) return;
-            
-            currentPolyline = null;
-            canvas.ReleaseMouseCapture();
+            _editorManager.FinishDrawing();
         }
 
         private void SaveDrawingsToImage()
@@ -3540,13 +3642,7 @@ namespace CatchCapture.Utilities
                    point.Y >= top && point.Y <= bottom;
         }
         // 파일 맨 끝에 추가
-        public enum ShapeType
-        {
-            Rectangle,
-            Ellipse,
-            Line,
-            Arrow
-        }
+
         private void ApplyMosaic(Rect rect)
         {
             if (screenCapture == null) return;
@@ -3764,8 +3860,9 @@ namespace CatchCapture.Utilities
                 
                 switch (toolName)
                 {
+                    case "선택": EnableSelectMode(); HideColorPalette(); return; 
                     case "펜": EnableDrawingMode(); break;
-                    case "형광펜": selectedColor = Colors.Yellow; EnableDrawingMode(); break; // 형광펜은 노란색 기본
+                    case "형광펜": selectedColor = Colors.Yellow; EnableDrawingMode(); break; 
                     case "텍스트": EnableTextMode(); break;
                     case "도형": EnableShapeMode(); break;
                     case "넘버링": EnableNumberingMode(); break;
@@ -3834,7 +3931,6 @@ namespace CatchCapture.Utilities
             canvas.MouseLeftButtonUp += Canvas_DrawMouseUp;
             
             // 그리기 모드 비활성화 (넘버링은 클릭만 필요)
-            isDrawingEnabled = false;
             
             Cursor = Cursors.Arrow;
         }

@@ -250,6 +250,12 @@
   <data name="Default" xml:space="preserve">
     <value>Default</value>
   </data>
+  <data name="Select" xml:space="preserve">
+    <value>Select</value>
+  </data>
+  <data name="SelectTooltip" xml:space="preserve">
+    <value>Select and adjust elements</value>
+  </data>
   <data name="ShowMagnifier" xml:space="preserve">
     <value>Show Magnifier</value>
   </data>

@@ -329,7 +329,7 @@ namespace CatchCapture.Utilities
             return rtb;
         }
         
-        public static BitmapSource ApplyShape(BitmapSource source, System.Windows.Point startPoint, System.Windows.Point endPoint, ShapeType shapeType, System.Windows.Media.Color color, double thickness, bool isFilled)
+        public static BitmapSource ApplyShape(BitmapSource source, System.Windows.Point startPoint, System.Windows.Point endPoint, ShapeType shapeType, System.Windows.Media.Color color, double thickness, bool isFilled, double fillOpacity = 0.5)
         {
             double left = Math.Min(startPoint.X, endPoint.X);
             double top = Math.Min(startPoint.Y, endPoint.Y);
@@ -350,7 +350,7 @@ namespace CatchCapture.Utilities
                 };
                 if (pen.CanFreeze) pen.Freeze();
 
-                Brush fillBrush = isFilled ? new SolidColorBrush(Color.FromArgb(128, color.R, color.G, color.B)) : Brushes.Transparent;
+                Brush fillBrush = isFilled ? new SolidColorBrush(Color.FromArgb((byte)(fillOpacity * 255), color.R, color.G, color.B)) : Brushes.Transparent;
                 
                 switch (shapeType)
                 {
@@ -390,26 +390,34 @@ namespace CatchCapture.Utilities
             drawingContext.DrawLine(pen, startPoint, endPoint);
             
             // 화살표 머리 크기 계산
-            double arrowLength = Math.Sqrt(Math.Pow(endPoint.X - startPoint.X, 2) + Math.Pow(endPoint.Y - startPoint.Y, 2));
-            double arrowHeadWidth = Math.Min(10, arrowLength / 3);
+            double arrowHeadLength = 15 + thickness * 2;
+            double arrowAngle = Math.PI / 6;
             
             // 화살표 각도 계산
             double angle = Math.Atan2(endPoint.Y - startPoint.Y, endPoint.X - startPoint.X);
-            double arrowHeadAngle1 = angle + Math.PI / 6; // 30도
-            double arrowHeadAngle2 = angle - Math.PI / 6; // -30도
             
-            // 화살표 머리 끝점 계산
             Point arrowHead1 = new Point(
-                endPoint.X - arrowHeadWidth * Math.Cos(arrowHeadAngle1),
-                endPoint.Y - arrowHeadWidth * Math.Sin(arrowHeadAngle1));
-                
+                endPoint.X - arrowHeadLength * Math.Cos(angle - arrowAngle),
+                endPoint.Y - arrowHeadLength * Math.Sin(angle - arrowAngle)
+            );
+
             Point arrowHead2 = new Point(
-                endPoint.X - arrowHeadWidth * Math.Cos(arrowHeadAngle2),
-                endPoint.Y - arrowHeadWidth * Math.Sin(arrowHeadAngle2));
+                endPoint.X - arrowHeadLength * Math.Cos(angle + arrowAngle),
+                endPoint.Y - arrowHeadLength * Math.Sin(angle + arrowAngle)
+            );
             
-            // 화살표 머리 그리기
-            drawingContext.DrawLine(pen, endPoint, arrowHead1);
-            drawingContext.DrawLine(pen, endPoint, arrowHead2);
+            // 화살표 머리 그리기 (삼각형 Polygon 스타일로 통일)
+            StreamGeometry streamGeometry = new StreamGeometry();
+            using (StreamGeometryContext geometryContext = streamGeometry.Open())
+            {
+                geometryContext.BeginFigure(endPoint, true, true);
+                geometryContext.LineTo(arrowHead1, true, false);
+                geometryContext.LineTo(arrowHead2, true, false);
+            }
+            if (streamGeometry.CanFreeze) streamGeometry.Freeze();
+            
+            // 머리는 채우기(Brush)와 테두리(Pen) 모두 적용
+            drawingContext.DrawGeometry(pen.Brush, new Pen(pen.Brush, 1), streamGeometry);
         }
 
         private static void DrawTextWithShadow(DrawingContext ctx, FormattedText text, System.Windows.Point position, System.Windows.Media.Color shadowColor, System.Windows.Vector shadowOffset)

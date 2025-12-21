@@ -311,6 +311,7 @@ namespace CatchCapture
                 if (fontComboBox.SelectedItem is string fontName)
                 {
                     textFontFamily = fontName;
+                    ApplyPropertyChangesToSelectedObject();
                 }
             };
             rightSection.Children.Add(fontComboBox);
@@ -347,6 +348,7 @@ namespace CatchCapture
             {
                 textSize = e.NewValue;
                 sizeValue.Text = $"{e.NewValue:F0}px";
+                ApplyPropertyChangesToSelectedObject();
             };
 
             rightSection.Children.Add(sizeSlider);
@@ -371,8 +373,8 @@ namespace CatchCapture
                 IsChecked = textFontWeight == FontWeights.Bold,
                 Margin = new Thickness(0, 2, 0, 2)
             };
-            boldCheckBox.Checked += (s, e) => textFontWeight = FontWeights.Bold;
-            boldCheckBox.Unchecked += (s, e) => textFontWeight = FontWeights.Normal;
+            boldCheckBox.Checked += (s, e) => { textFontWeight = FontWeights.Bold; ApplyPropertyChangesToSelectedObject(); };
+            boldCheckBox.Unchecked += (s, e) => { textFontWeight = FontWeights.Normal; ApplyPropertyChangesToSelectedObject(); };
             stylePanel.Children.Add(boldCheckBox);
 
             CheckBox italicCheckBox = new CheckBox
@@ -381,8 +383,8 @@ namespace CatchCapture
                 IsChecked = textFontStyle == FontStyles.Italic,
                 Margin = new Thickness(0, 2, 0, 2)
             };
-            italicCheckBox.Checked += (s, e) => textFontStyle = FontStyles.Italic;
-            italicCheckBox.Unchecked += (s, e) => textFontStyle = FontStyles.Normal;
+            italicCheckBox.Checked += (s, e) => { textFontStyle = FontStyles.Italic; ApplyPropertyChangesToSelectedObject(); };
+            italicCheckBox.Unchecked += (s, e) => { textFontStyle = FontStyles.Normal; ApplyPropertyChangesToSelectedObject(); };
             stylePanel.Children.Add(italicCheckBox);
 
             CheckBox underlineCheckBox = new CheckBox
@@ -447,6 +449,7 @@ namespace CatchCapture
             {
                 textColor = c;
                 UpdateTextColorSelection(parentPanel);
+                ApplyPropertyChangesToSelectedObject();
             };
 
             return swatch;
@@ -691,6 +694,13 @@ namespace CatchCapture
 
         private void HighlightOptionsButton_Click(object sender, RoutedEventArgs e)
         {
+            if (currentEditMode != EditMode.Highlight)
+            {
+                CancelCurrentEditMode();
+                currentEditMode = EditMode.Highlight;
+                SetActiveToolButton(HighlightToolButton);
+            }
+
             if (ToolOptionsPopup.IsOpen)
             {
                 ToolOptionsPopup.IsOpen = false;
@@ -701,6 +711,13 @@ namespace CatchCapture
 
         private void TextOptionsButton_Click(object sender, RoutedEventArgs e)
         {
+            if (currentEditMode != EditMode.Text)
+            {
+                CancelCurrentEditMode();
+                currentEditMode = EditMode.Text;
+                SetActiveToolButton(TextToolButton);
+            }
+
             if (ToolOptionsPopup.IsOpen)
             {
                 ToolOptionsPopup.IsOpen = false;
@@ -711,6 +728,13 @@ namespace CatchCapture
 
         private void MosaicOptionsButton_Click(object sender, RoutedEventArgs e)
         {
+            if (currentEditMode != EditMode.Mosaic)
+            {
+                CancelCurrentEditMode();
+                currentEditMode = EditMode.Mosaic;
+                SetActiveToolButton(MosaicToolButton);
+            }
+
             if (ToolOptionsPopup.IsOpen)
             {
                 ToolOptionsPopup.IsOpen = false;
@@ -721,6 +745,13 @@ namespace CatchCapture
 
         private void EraserOptionsButton_Click(object sender, RoutedEventArgs e)
         {
+            if (currentEditMode != EditMode.Eraser)
+            {
+                CancelCurrentEditMode();
+                currentEditMode = EditMode.Eraser;
+                SetActiveToolButton(EraserToolButton);
+            }
+
             if (ToolOptionsPopup.IsOpen)
             {
                 ToolOptionsPopup.IsOpen = false;

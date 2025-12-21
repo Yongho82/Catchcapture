@@ -27,8 +27,8 @@ namespace CatchCapture.Utilities
                 // 1. 원본 이미지 그리기
                 drawingContext.DrawImage(baseImage, new Rect(0, 0, baseImage.PixelWidth, baseImage.PixelHeight));
 
-                // 2. 각 레이어를 순서대로 렌더링
-                foreach (var layer in layers.Where(l => !l.IsErased))
+                // 2. 각 레이어를 순서대로 렌더링 (인터랙티브 레이어 제외)
+                foreach (var layer in layers.Where(l => !l.IsErased && !l.IsInteractive))
                 {
                     RenderLayer(drawingContext, layer);
                 }

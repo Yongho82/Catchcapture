@@ -250,6 +250,12 @@
   <data name="Default" xml:space="preserve">
     <value>기본값</value>
   </data>
+  <data name="Select" xml:space="preserve">
+    <value>선택</value>
+  </data>
+  <data name="SelectTooltip" xml:space="preserve">
+    <value>요소 선택 및 조정</value>
+  </data>
   <data name="ShowMagnifier" xml:space="preserve">
     <value>영역 캡처 시 돋보기 표시</value>
   </data>

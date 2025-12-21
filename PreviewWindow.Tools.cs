@@ -228,6 +228,23 @@ namespace CatchCapture
             ToolOptionsPopup.IsOpen = true;
         }
 
+        private void PenOptionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (currentEditMode != EditMode.Pen)
+            {
+                CancelCurrentEditMode();
+                currentEditMode = EditMode.Pen;
+                SetActiveToolButton(PenToolButton);
+            }
+
+            if (ToolOptionsPopup.IsOpen)
+            {
+                ToolOptionsPopup.IsOpen = false;
+                return;
+            }
+            ShowPenOptionsPopup();
+        }
+
         /// <summary>
         /// 색상 버튼 생성 헬퍼
         /// </summary>

@@ -220,7 +220,7 @@ namespace CatchCapture
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(5, 0, 5, 0)
             };
-            thicknessSlider.ValueChanged += (s, e) => { shapeBorderThickness = thicknessSlider.Value; };
+            thicknessSlider.ValueChanged += (s, e) => { shapeBorderThickness = thicknessSlider.Value; ApplyPropertyChangesToSelectedObject(); };
             EditToolContent.Children.Add(thicknessSlider);
 
             // 채우기 옵션
@@ -300,17 +300,19 @@ namespace CatchCapture
             {
                 shapeType = type;
                 UpdateShapeTypeButtonsInPopup();
+                ApplyPropertyChangesToSelectedObject();
 
-                // 도형 그리기 모드 설정
-                CancelCurrentEditMode();
-                currentEditMode = EditMode.Shape;
-                ImageCanvas.Cursor = Cursors.Cross;
-                isDrawingShape = false;
-                isDragStarted = false;
-                SetActiveToolButton(ShapeButton);
-
-                // 팝업 닫기
-                ToolOptionsPopup.IsOpen = false;
+                // 도형 그리기 모드 설정 (선택 모드였더라도 새 도형을 선택하면 도형 모드로 전환)
+                if (currentEditMode != EditMode.Shape)
+                {
+                    CancelCurrentEditMode();
+                    currentEditMode = EditMode.Shape;
+                    ImageCanvas.Cursor = Cursors.Cross;
+                    SetActiveToolButton(ShapeButton);
+                    
+                    // 팝업 닫기 (새 도형 모드로 전환할 때만)
+                    ToolOptionsPopup.IsOpen = false;
+                }
             };
 
             return button;
@@ -381,6 +383,7 @@ namespace CatchCapture
             {
                 shapeFillOpacity = opacitySlider.Value / 100.0;
                 opacityValueText.Text = $"{(int)opacitySlider.Value}%";
+                ApplyPropertyChangesToSelectedObject();
             };
 
             // 채우기 버튼 클릭 시 슬라이더 활성화/비활성화 연동을 위해 태그에 저장
@@ -446,7 +449,7 @@ namespace CatchCapture
             button.MouseEnter += (s, e) => { if (shapeIsFilled != isFilled) button.Background = new SolidColorBrush(Color.FromRgb(240, 248, 255)); };
             button.MouseLeave += (s, e) => { if (shapeIsFilled != isFilled) button.Background = Brushes.White; };
 
-            button.Click += (s, e) => { shapeIsFilled = isFilled; UpdateFillButtonsInPopup(); };
+            button.Click += (s, e) => { shapeIsFilled = isFilled; UpdateFillButtonsInPopup(); ApplyPropertyChangesToSelectedObject(); };
             return button;
         }
 
@@ -544,7 +547,7 @@ namespace CatchCapture
             // 리스트에 추가
             colorButtons.Add(button);
 
-            button.Click += (s, e) => { shapeColor = color; UpdateColorButtonsInPopup(); };
+            button.Click += (s, e) => { shapeColor = color; UpdateColorButtonsInPopup(); ApplyPropertyChangesToSelectedObject(); };
             return button;
         }
 
@@ -659,6 +662,20 @@ namespace CatchCapture
 
                 button.Template = template;
             }
+        }
+        private void UpdateShapeTypeButtons()
+        {
+            if (rectButton != null)
+                rectButton.Background = (shapeType == ShapeType.Rectangle) ? GetActiveToolBrush() : Brushes.Transparent;
+
+            if (ellipseButton != null)
+                ellipseButton.Background = (shapeType == ShapeType.Ellipse) ? GetActiveToolBrush() : Brushes.Transparent;
+
+            if (lineButton != null)
+                lineButton.Background = (shapeType == ShapeType.Line) ? GetActiveToolBrush() : Brushes.Transparent;
+
+            if (arrowButton != null)
+                arrowButton.Background = (shapeType == ShapeType.Arrow) ? GetActiveToolBrush() : Brushes.Transparent;
         }
     }
 }

@@ -81,10 +81,7 @@ namespace CatchCapture
         private string textFontFamily = "Arial";
         private bool textShadowEnabled = false;
         private bool textUnderlineEnabled = false;
-        private UIElement? tempShape;
-        // 라이브 스트로크 미리보기 (형광펜/펜 공용)
-        private System.Windows.Shapes.Path? liveStrokePath;
-        private PolyLineSegment? liveStrokeSegment;
+        // 라이브 스트로크 미리보기 - _editorManager에서 관리
 
         // 도형 버튼을 멤버 변수로 선언
         private Button? rectButton;
@@ -92,8 +89,6 @@ namespace CatchCapture
         private Button? lineButton;
         private Button? arrowButton;
 
-        private bool isDrawingShape = false;
-        private bool isDragStarted = false; // 마우스 드래그가 시작되었는지
 
         // 로그 파일 경로 (미사용)
         // private string logFilePath = "shape_debug.log";
@@ -101,8 +96,22 @@ namespace CatchCapture
         public event EventHandler<ImageUpdatedEventArgs>? ImageUpdated;
         private List<CaptureImage>? allCaptures; // 클래스 멤버 변수로 추가 (20줄 부근)
 
+        private List<UIElement> drawnElements = new List<UIElement>();
+        private UIElement? selectedObject;
+        private Rectangle? objectSelectionBorder;
+        private List<Rectangle> objectResizeHandles = new List<Rectangle>();
+        private bool isDraggingObject = false;
+        private bool isResizingObject = false;
+        private string objectResizeDirection = "";
+        private Point objectDragLastPoint;
+        private Button? objectDeleteButton;
+        private Button? objectConfirmButton;
+
+        private SharedCanvasEditor _editorManager;
+        private Stack<UIElement> _editorUndoStack = new Stack<UIElement>();
+
         private List<CatchCapture.Models.DrawingLayer> drawingLayers = new List<CatchCapture.Models.DrawingLayer>();
-                private Dictionary<int, List<CatchCapture.Models.DrawingLayer>> captureDrawingLayers = new Dictionary<int, List<CatchCapture.Models.DrawingLayer>>();
+        private Dictionary<int, List<CatchCapture.Models.DrawingLayer>> captureDrawingLayers = new Dictionary<int, List<CatchCapture.Models.DrawingLayer>>();
         private int nextLayerId = 1;
 
         public PreviewWindow(BitmapSource image, int index, List<CaptureImage>? captures = null)
@@ -163,6 +172,94 @@ namespace CatchCapture
             this.Loaded += (s, e) => { try { UpdateUIText(); } catch { } };
             // Live language switch
             LocalizationManager.LanguageChanged += PreviewWindow_LanguageChanged;
+
+            _editorManager = new SharedCanvasEditor(ImageCanvas, drawnElements, _editorUndoStack);
+            _editorManager.ActionOccurred += () => SyncEditorToLayers();
+            _editorManager.ElementAdded += (element) => {
+                if (element is FrameworkElement fe) CreateLayerForElement(fe);
+            };
+            _editorManager.MosaicRequired += (rect) => ApplyMosaic(rect);
+        }
+
+        private void ApplyMosaic(Rect rect)
+        {
+            SaveForUndo();
+            currentImage = ImageEditUtility.ApplyMosaic(currentImage, new Int32Rect((int)rect.X, (int)rect.Y, (int)rect.Width, (int)rect.Height), 15);
+            UpdatePreviewImage();
+        }
+
+        private void CreateLayerForElement(FrameworkElement element)
+        {
+            if (element.Tag is CatchCapture.Models.DrawingLayer) return;
+
+            CatchCapture.Models.DrawingLayer? layer = null;
+
+            if (element is Polyline polyline)
+            {
+                layer = new CatchCapture.Models.DrawingLayer
+                {
+                    Type = polyline.Opacity < 1.0 ? DrawingLayerType.Highlight : DrawingLayerType.Pen,
+                    Points = polyline.Points.ToArray(),
+                    Color = ((SolidColorBrush)polyline.Stroke).Color,
+                    Thickness = polyline.StrokeThickness,
+                    IsInteractive = true,
+                    LayerId = nextLayerId++
+                };
+            }
+            else if (element is FrameworkElement fe && fe.Tag is CatchCapture.Models.DrawingLayer existingLayer)
+            {
+                // Already tagged (e.g. Shape created via ShapeDrawingHelper might already have a layer in some flows)
+                return;
+            }
+            else if (element is Shape shape)
+            {
+                // 도형 레이어 생성
+                layer = new CatchCapture.Models.DrawingLayer
+                {
+                    Type = DrawingLayerType.Shape,
+                    ShapeType = shapeType, // 현재 설정된 타입 사용
+                    StartPoint = startPoint,
+                    EndPoint = new Point(Canvas.GetLeft(shape) + shape.Width, Canvas.GetTop(shape) + shape.Height), // 대략적 계산
+                    Color = shapeColor,
+                    Thickness = shapeBorderThickness,
+                    IsFilled = shapeIsFilled,
+                    FillOpacity = shapeFillOpacity,
+                    IsInteractive = true,
+                    LayerId = nextLayerId++
+                };
+            }
+            else if (element is Canvas groupCanvas)
+            {
+                // 넘버링 등은 일단 Shape나 Custom으로 처리하거나 별도 타입 추가 가능
+                // 여기서는 일단 Shape 기본값으로 저장 (추후 확장)
+            }
+
+            if (layer != null)
+            {
+                element.Tag = layer;
+                drawingLayers.Add(layer);
+            }
+        }
+
+        private void SyncEditorToLayers()
+        {
+            // 수정된 요소들의 상태를 레이어에 반영
+            foreach (var element in drawnElements)
+            {
+                if (element is FrameworkElement fe && fe.Tag is CatchCapture.Models.DrawingLayer layer)
+                {
+                    var bounds = InteractiveEditor.GetElementBounds(element);
+                    if (layer.Type == DrawingLayerType.Shape)
+                    {
+                        layer.StartPoint = new Point(bounds.Left, bounds.Top);
+                        layer.EndPoint = new Point(bounds.Right, bounds.Bottom);
+                    }
+                    else if (layer.Type == DrawingLayerType.Pen || layer.Type == DrawingLayerType.Highlight)
+                    {
+                        if (element is Polyline p) layer.Points = p.Points.ToArray();
+                    }
+                }
+            }
         }
 
         // 이미지 크기에 맞게 창 크기를 조정하고 필요시 줌 조정
@@ -399,7 +496,7 @@ namespace CatchCapture
         
         private void CancelCurrentEditMode()
         {
-            WriteLog($"CancelCurrentEditMode 호출: 이전 모드={currentEditMode}, tempShape={tempShape != null}");
+            WriteLog($"CancelCurrentEditMode 호출: 이전 모드={currentEditMode}");
 
             // 현재 편집 모드 취소
             currentEditMode = EditMode.None;
@@ -412,9 +509,6 @@ namespace CatchCapture
                 selectionRectangle = null;
             }
 
-            // 임시 도형 정리 - 헬퍼 메서드 호출
-            WriteLog("CancelCurrentEditMode에서 CleanupTemporaryShape 호출");
-            CleanupTemporaryShape();
             CleanupCropUI(); // Crop UI 정리
 
             // 도구 패널 숨김
@@ -431,11 +525,9 @@ namespace CatchCapture
                 ImageCanvas.Cursor = Cursors.Arrow;
             }
 
-            // 그리기 포인트 초기화
+            // 그리기 포인트 초기화 - _editorManager에서 관리됨
             drawingPoints.Clear();
-            isDrawingShape = false;
-            isDragStarted = false;
-            WriteLog("그리기 상태 초기화: isDrawingShape=false, isDragStarted=false");
+            WriteLog("그리기 상태 초기화");
 
             // 활성 강조 해제
             SetActiveToolButton(null);
@@ -445,6 +537,7 @@ namespace CatchCapture
 
         private void CopyButton_Click(object sender, RoutedEventArgs e)
         {
+            BakeDrawnElements();
             ScreenCaptureUtility.CopyImageToClipboard(currentImage);
             ShowToastMessage(LocalizationManager.GetString("CopyToClipboard"));
         }
@@ -504,8 +597,34 @@ namespace CatchCapture
 
             storyboard.Begin();
         }
+        private void BakeDrawnElements()
+        {
+            if (drawnElements.Count == 0) return;
+
+            SaveForUndo();
+            
+            // 모든 인터랙티브 요소를 고정 레이어로 전환
+            foreach (var element in drawnElements.ToList())
+            {
+                if (element is FrameworkElement fe && fe.Tag is CatchCapture.Models.DrawingLayer layer)
+                {
+                    layer.IsInteractive = false;
+                }
+                ImageCanvas.Children.Remove(element);
+            }
+            
+            drawnElements.Clear();
+            DeselectObject();
+
+            // 전체 레이어 재렌더링
+            currentImage = CatchCapture.Utilities.LayerRenderer.RenderLayers(originalImage, drawingLayers);
+            UpdatePreviewImage();
+        }
+
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
+            BakeDrawnElements();
+            // ... (rest of the save logic)
             // 자동 파일 이름 생성
             string timestamp = DateTime.Now.ToString("yyyy-MM-dd HHmmss");
 
@@ -610,27 +729,38 @@ namespace CatchCapture
                 // 현재 상태를 Redo 스택에 저장
                 redoStack.Push(currentImage);
                 redoOriginalStack.Push(originalImage);
-                var currentLayersCopy = drawingLayers.Select(layer => new CatchCapture.Models.DrawingLayer
+                redoLayersStack.Push(drawingLayers.Select(layer => new CatchCapture.Models.DrawingLayer
                 {
                     LayerId = layer.LayerId,
                     Type = layer.Type,
                     Points = layer.Points?.ToArray(),
                     Color = layer.Color,
                     Thickness = layer.Thickness,
-                    IsErased = layer.IsErased
-                }).ToList();
-                redoLayersStack.Push(currentLayersCopy);
+                    IsErased = layer.IsErased,
+                    IsInteractive = layer.IsInteractive,
+                    StartPoint = layer.StartPoint,
+                    EndPoint = layer.EndPoint,
+                    ShapeType = layer.ShapeType,
+                    IsFilled = layer.IsFilled,
+                    FillOpacity = layer.FillOpacity,
+                    Text = layer.Text,
+                    TextPosition = layer.TextPosition,
+                    FontSize = layer.FontSize,
+                    FontWeight = layer.FontWeight,
+                    FontStyle = layer.FontStyle,
+                    FontFamily = layer.FontFamily,
+                    HasShadow = layer.HasShadow,
+                    HasUnderline = layer.HasUnderline
+                }).ToList());
                 
-                // Undo 스택에서 복원
+                // Undo 스택에서 이전 상태 복원
                 currentImage = undoStack.Pop();
+                originalImage = undoOriginalStack.Pop();
                 drawingLayers = undoLayersStack.Pop();
-                if (undoOriginalStack.Count > 0)
-                {
-                    originalImage = undoOriginalStack.Pop();
-                }
                 
-                UpdatePreviewImage();
+                SyncDrawnElementsFromLayers(); // ← 인터랙티브 요소 동기화
                 UpdateUndoRedoButtons();
+                UpdatePreviewImage();
             }
         }
 
@@ -649,27 +779,39 @@ namespace CatchCapture
                      // 여기 로직은 약간 복잡하므로 단순화:
                      undoOriginalStack.Push(originalImage);
 
-                var currentLayersCopy = drawingLayers.Select(layer => new CatchCapture.Models.DrawingLayer
+                undoLayersStack.Push(drawingLayers.Select(layer => new CatchCapture.Models.DrawingLayer
                 {
                     LayerId = layer.LayerId,
                     Type = layer.Type,
                     Points = layer.Points?.ToArray(),
                     Color = layer.Color,
                     Thickness = layer.Thickness,
-                    IsErased = layer.IsErased
-                }).ToList();
-                undoLayersStack.Push(currentLayersCopy);
+                    IsErased = layer.IsErased,
+                    IsInteractive = layer.IsInteractive,
+                    StartPoint = layer.StartPoint,
+                    EndPoint = layer.EndPoint,
+                    ShapeType = layer.ShapeType,
+                    IsFilled = layer.IsFilled,
+                    FillOpacity = layer.FillOpacity,
+                    Text = layer.Text,
+                    TextPosition = layer.TextPosition,
+                    FontSize = layer.FontSize,
+                    FontWeight = layer.FontWeight,
+                    FontStyle = layer.FontStyle,
+                    FontFamily = layer.FontFamily,
+                    HasShadow = layer.HasShadow,
+                    HasUnderline = layer.HasUnderline
+                }).ToList());
                 
                 // Redo 스택에서 복원
                 currentImage = redoStack.Pop();
-                drawingLayers = redoLayersStack.Pop();
                 if (redoOriginalStack.Count > 0)
-                {
                     originalImage = redoOriginalStack.Pop();
-                }
+                drawingLayers = redoLayersStack.Pop();
                 
-                UpdatePreviewImage();
+                SyncDrawnElementsFromLayers();
                 UpdateUndoRedoButtons();
+                UpdatePreviewImage();
             }
         }
 
@@ -734,10 +876,6 @@ namespace CatchCapture
             shapeBorderThickness = 2;
             shapeIsFilled = false;
 
-            // 상태 초기화
-            isDrawingShape = false;
-            isDragStarted = false;
-
             WriteLog("기본 도형 그리기 모드 설정: 사각형, 검정색, 윤곽선");
             SetActiveToolButton(ShapeButton);
         }
@@ -786,19 +924,6 @@ namespace CatchCapture
             SetActiveToolButton(PenToolButton);  // ← 이 줄 추가
         }
 
-        // 새로 추가: 옵션 버튼 클릭 핸들러
-        private void PenOptionsButton_Click(object sender, RoutedEventArgs e)
-        {
-            // 팝업이 이미 열려있으면 닫기
-            if (ToolOptionsPopup.IsOpen)
-            {
-                ToolOptionsPopup.IsOpen = false;
-                return;
-            }
-
-            // 펜 옵션 팝업 표시
-            ShowPenOptionsPopup();
-        }
 
         private void TextButton_Click(object sender, RoutedEventArgs e)
         {
@@ -914,12 +1039,103 @@ namespace CatchCapture
                 Points = layer.Points?.ToArray(),
                 Color = layer.Color,
                 Thickness = layer.Thickness,
-                IsErased = layer.IsErased
+                IsErased = layer.IsErased,
+                IsInteractive = layer.IsInteractive,
+                StartPoint = layer.StartPoint,
+                EndPoint = layer.EndPoint,
+                ShapeType = layer.ShapeType,
+                IsFilled = layer.IsFilled,
+                FillOpacity = layer.FillOpacity,
+                Text = layer.Text,
+                TextPosition = layer.TextPosition,
+                FontSize = layer.FontSize,
+                FontWeight = layer.FontWeight,
+                FontStyle = layer.FontStyle,
+                FontFamily = layer.FontFamily,
+                HasShadow = layer.HasShadow,
+                HasUnderline = layer.HasUnderline
             }).ToList();
             undoLayersStack.Push(layersCopy);
             redoLayersStack.Clear();
             
             UpdateUndoRedoButtons();
+        }
+
+        private void SyncDrawnElementsFromLayers()
+        {
+            if (ImageCanvas == null || drawnElements == null) return;
+
+            // 기존 WPF 요소 제거
+            foreach (var element in drawnElements)
+            {
+                ImageCanvas.Children.Remove(element);
+            }
+            drawnElements.Clear();
+            DeselectObject();
+
+            // 인터랙티브 레이어로부터 WPF 요소 재생성
+            foreach (var layer in drawingLayers.Where(l => l.IsInteractive && !l.IsErased))
+            {
+                UIElement? element = null;
+
+                if (layer.Type == CatchCapture.Models.DrawingLayerType.Shape && layer.ShapeType.HasValue)
+                {
+                    element = ShapeDrawingHelper.CreateShape(
+                        layer.ShapeType.Value,
+                        layer.StartPoint ?? new Point(0,0),
+                        layer.EndPoint ?? new Point(0,0),
+                        layer.Color,
+                        layer.Thickness,
+                        layer.IsFilled,
+                        layer.FillOpacity
+                    );
+                }
+                else if (layer.Type == CatchCapture.Models.DrawingLayerType.Text)
+                {
+                    element = RecreateTextBoxFromLayer(layer);
+                }
+
+                if (element is FrameworkElement fe)
+                {
+                    fe.Tag = layer;
+                    drawnElements.Add(element);
+                    ImageCanvas.Children.Add(element);
+                }
+            }
+        }
+
+        private TextBox RecreateTextBoxFromLayer(CatchCapture.Models.DrawingLayer layer)
+        {
+            var textBox = new TextBox
+            {
+                Text = layer.Text,
+                FontSize = layer.FontSize,
+                FontFamily = new FontFamily(layer.FontFamily),
+                Foreground = new SolidColorBrush(layer.Color),
+                Background = Brushes.Transparent,
+                BorderBrush = Brushes.Transparent,
+                BorderThickness = new Thickness(0),
+                Padding = new Thickness(5),
+                TextWrapping = TextWrapping.Wrap,
+                AcceptsReturn = true,
+                FontWeight = layer.FontWeight,
+                FontStyle = layer.FontStyle,
+                IsReadOnly = true,
+                Cursor = Cursors.Arrow,
+                Tag = layer
+            };
+
+            Canvas.SetLeft(textBox, layer.TextPosition?.X ?? 0);
+            Canvas.SetTop(textBox, layer.TextPosition?.Y ?? 0);
+            
+            // 이벤트 재연결
+            textBox.PreviewMouseLeftButtonDown += TextBox_PreviewMouseLeftButtonDown;
+            textBox.PreviewMouseMove += TextBox_PreviewMouseMove;
+            textBox.PreviewMouseLeftButtonUp += TextBox_PreviewMouseLeftButtonUp;
+            textBox.MouseDoubleClick += TextBox_MouseDoubleClick;
+            textBox.GotFocus += TextBox_GotFocus;
+
+            return textBox;
         }
 
         private void UpdateUndoRedoButtons()
@@ -937,9 +1153,6 @@ namespace CatchCapture
                 return;
             }
 
-            // 임시 도형 정리
-            WriteLog("UpdatePreviewImage에서 CleanupTemporaryShape 호출");
-            CleanupTemporaryShape();
 
             WriteLog($"이미지 소스 업데이트: {currentImage.PixelWidth}x{currentImage.PixelHeight}");
             PreviewImage.Source = currentImage;
@@ -988,14 +1201,42 @@ namespace CatchCapture
             catch { }
             return new SolidColorBrush(Color.FromRgb(232, 243, 255)); // 기본값 (연한 파랑)
         }
-        private static readonly Brush InactiveToolBackground = Brushes.Transparent;
-
-        private void SetActiveToolButton(FrameworkElement? active)
+        private void SelectButton_Click(object sender, RoutedEventArgs e)
         {
-            // 툴바의 편집 도구 버튼들만 대상으로 처리
-            var toolButtons = new List<FrameworkElement?>
+            CancelCurrentEditMode();
+            currentEditMode = EditMode.Select;
+            SetActiveToolButton(SelectButton);
+            ImageCanvas.Cursor = Cursors.Arrow;
+        }
+
+        private void NumberingButton_Click(object sender, RoutedEventArgs e)
+        {
+            CancelCurrentEditMode();
+            currentEditMode = EditMode.Numbering;
+            SetActiveToolButton(NumberingButton);
+            ImageCanvas.Cursor = Cursors.Arrow;
+        }
+
+        private void SetActiveToolButton(UIElement? active)
+        {
+            DeselectObject();
+            var InactiveToolBackground = Brushes.Transparent;
+
+            // 모든 툴 버튼 목록 (TwoTierToolButton과 일반 Button 혼용)
+            var toolButtons = new List<UIElement?>
             {
+                RecaptureButton,
+                PrintButton,
+                SaveButton,
+                CopyButton,
+                UndoButton,
+                RedoButton,
+                ResetButton,
                 CropButton,
+                RotateButton,
+                FlipHorizontalButton,
+                FlipVerticalButton,
+                SelectButton,
                 ShapeButton,
                 HighlightToolButton,
                 PenToolButton,        // 펜 버튼 추가
@@ -1003,6 +1244,7 @@ namespace CatchCapture
                 MosaicToolButton,
                 EraserToolButton,
                 MagicWandToolButton,
+                NumberingButton
             };
 
             foreach (var element in toolButtons)
@@ -1244,6 +1486,7 @@ namespace CatchCapture
     public enum EditMode
     {
         None,
+        Select,
         Crop,
         Pen,
         Highlight,
@@ -1251,7 +1494,8 @@ namespace CatchCapture
         Mosaic,
         Eraser,
         Shape,
-        MagicWand
+        MagicWand,
+        Numbering
     }
 
     public class ImageUpdatedEventArgs : EventArgs

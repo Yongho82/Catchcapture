@@ -46,8 +46,10 @@ namespace CatchCapture.Models
         public Int32Rect? MosaicArea { get; set; }
         public int MosaicPixelSize { get; set; }
         
-        // 레이어 식별용
+        // 레이어 식별 및 상태용
         public int LayerId { get; set; }
         public bool IsErased { get; set; } = false;
+        public bool IsInteractive { get; set; } = false;
+        public double FillOpacity { get; set; } = 0.5;
     }
 }

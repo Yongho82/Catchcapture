@@ -355,7 +355,25 @@ namespace CatchCapture
             Panel.SetZIndex(textBox, 1000); // 최상위 레이어로 설정
 
             ImageCanvas.Children.Add(textBox);
+            drawnElements.Add(textBox);
             selectedTextBox = textBox;
+
+            // 레이어 생성 및 연결
+            var layer = new CatchCapture.Models.DrawingLayer
+            {
+                Type = CatchCapture.Models.DrawingLayerType.Text,
+                Text = "",
+                TextPosition = new Point(textBoxLeft, textBoxTop),
+                Color = textColor,
+                FontSize = textSize,
+                FontFamily = textFontFamily,
+                FontWeight = textFontWeight,
+                FontStyle = textFontStyle,
+                IsInteractive = true,
+                LayerId = nextLayerId++
+            };
+            textBox.Tag = layer;
+            drawingLayers.Add(layer);
 
             // 드래그 이벤트 등록
             textBox.PreviewMouseLeftButtonDown += TextBox_PreviewMouseLeftButtonDown;
@@ -426,9 +444,11 @@ namespace CatchCapture
             confirmButton.Click += (s, e) => ConfirmTextBox(textBox, confirmButton, cancelButton);
             cancelButton.Click += (s, e) =>
             {
+                if (textBox.Tag is CatchCapture.Models.DrawingLayer l) drawingLayers.Remove(l);
                 ImageCanvas.Children.Remove(textBox);
                 ImageCanvas.Children.Remove(confirmButton);
                 ImageCanvas.Children.Remove(cancelButton);
+                drawnElements.Remove(textBox);
                 selectedTextBox = null;
             };
 
@@ -490,14 +510,25 @@ namespace CatchCapture
         {
             if (textBox == null) return;
 
+            // 상태 저장
+            SaveForUndo();
+
             // 빈 텍스트는 삭제
             if (string.IsNullOrWhiteSpace(textBox.Text))
             {
+                if (textBox.Tag is CatchCapture.Models.DrawingLayer l) drawingLayers.Remove(l);
                 ImageCanvas.Children.Remove(textBox);
                 ImageCanvas.Children.Remove(confirmButton);
                 ImageCanvas.Children.Remove(cancelButton);
+                drawnElements.Remove(textBox);
                 selectedTextBox = null;
                 return;
+            }
+
+            // 레이어 텍스트 업데이트
+            if (textBox.Tag is CatchCapture.Models.DrawingLayer textLayer)
+            {
+                textLayer.Text = textBox.Text;
             }
 
             // 텍스트박스 확정 처리
@@ -574,6 +605,7 @@ namespace CatchCapture
         /// </summary>
         private void TextBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            if (currentEditMode != EditMode.Select) return;
             if (sender is TextBox textBox)
             {
                 // 편집 중이면 드래그 불가 (텍스트 선택 허용)
@@ -720,6 +752,8 @@ namespace CatchCapture
                 Panel.SetZIndex(newTextBox, 1000);
 
                 ImageCanvas.Children.Add(newTextBox);
+                drawnElements.Remove(oldTextBox);
+                drawnElements.Add(newTextBox);
                 selectedTextBox = newTextBox;
 
                 // 이벤트 등록
@@ -805,6 +839,11 @@ namespace CatchCapture
 
             textDeleteButton.Click += (s, e) =>
             {
+                if (textBox.Tag is CatchCapture.Models.DrawingLayer l) 
+                {
+                    SaveForUndo();
+                    drawingLayers.Remove(l);
+                }
                 ImageCanvas.Children.Remove(textBox);
                 ImageCanvas.Children.Remove(textDeleteButton);
                 ClearTextSelection();
