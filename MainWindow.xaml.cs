@@ -35,7 +35,7 @@ public partial class MainWindow : Window
     private int selectedIndex = -1;
     private Border? selectedBorder = null;
     public Settings settings;
-    private SimpleModeWindow? simpleModeWindow = null;
+    internal SimpleModeWindow? simpleModeWindow = null;
     private Point lastPosition;
     private int captureDelaySeconds = 0;
     
@@ -49,9 +49,10 @@ public partial class MainWindow : Window
     private int currentTipIndex = 0;
 
     // 트레이 아이콘
-    public System.Windows.Forms.NotifyIcon? notifyIcon;  // private를 public으로 변경
+    public System.Windows.Forms.NotifyIcon? notifyIcon;
     private bool isExit = false;
-    private TrayModeWindow? trayModeWindow;
+    internal TrayModeWindow? trayModeWindow;
+    internal bool _wasSimpleModeVisibleBeforeRecapture = false;
     // 캡처 직후 자동으로 열린 미리보기 창 수 (메인창 숨김/복원 관리)
     private int _autoPreviewOpenCount = 0;
     // 트레이 컨텍스트 메뉴 및 항목 참조 (언어 변경 시 즉시 갱신용)
@@ -1201,14 +1202,18 @@ public partial class MainWindow : Window
 
     private async Task StartAreaCaptureAsync()
     {
-        // 간편모드 체크 추가
-        bool isSimpleMode = simpleModeWindow != null && simpleModeWindow.IsVisible;
+        // 간편모드 체크 추가 (재캡처 플래그 포함)
+        bool isSimpleMode = (simpleModeWindow != null && simpleModeWindow.IsVisible) || _wasSimpleModeVisibleBeforeRecapture;
+        _wasSimpleModeVisibleBeforeRecapture = false; // 플래그 사용 후 리셋
+
         // 즉시편집 설정 확인
         var currentSettings = Settings.Load();
         bool instantEdit = currentSettings.SimpleModeInstantEdit;
         
         // 1단계: 즉시 숨기기 (Opacity 조정보다 Hide가 더 빠르고 확실함)
         this.Hide();
+        if (simpleModeWindow != null) simpleModeWindow.Hide(); 
+        if (trayModeWindow != null) trayModeWindow.Hide();
         
         // 2단계: UI 업데이트 강제 대기 (Render 우선순위 사용)
         // Task.Delay 대신 Dispatcher.Yield나 Render 우선순위 InvokeAsync만 사용
@@ -1257,6 +1262,7 @@ public partial class MainWindow : Window
                 // 간편 모드: 간편모드 창 다시 표시
                 if (simpleModeWindow != null)
                 {
+                    simpleModeWindow._suppressActivatedExpand = true;
                     simpleModeWindow.Show();
                     simpleModeWindow.Activate();
                 }
@@ -1288,6 +1294,7 @@ public partial class MainWindow : Window
                 // 간편 모드: 간편모드 창만 다시 표시
                 if (simpleModeWindow != null)
                 {
+                    simpleModeWindow._suppressActivatedExpand = true;
                     simpleModeWindow.Show();
                     simpleModeWindow.Activate();
                 }

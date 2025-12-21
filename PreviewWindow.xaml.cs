@@ -576,6 +576,17 @@ namespace CatchCapture
                 
                 if (mainWindow != null)
                 {
+                    if (mainWindow.simpleModeWindow != null && mainWindow.simpleModeWindow.IsVisible)
+                    {
+                        mainWindow._wasSimpleModeVisibleBeforeRecapture = true;
+                        mainWindow.simpleModeWindow._suppressActivatedExpand = true;
+                        mainWindow.simpleModeWindow.Hide();
+                    }
+                    if (mainWindow.trayModeWindow != null && mainWindow.trayModeWindow.IsVisible)
+                    {
+                        mainWindow.trayModeWindow.Hide();
+                    }
+
                     // 편집창 닫기
                     this.Close();
                     

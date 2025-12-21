@@ -49,6 +49,7 @@ namespace CatchCapture
         public event EventHandler? FullScreenCaptureRequested;
         public event EventHandler? ExitSimpleModeRequested;
         public event EventHandler? DesignatedCaptureRequested;
+        internal bool _suppressActivatedExpand = false;
         
 
         public SimpleModeWindow(MainWindow mainWindow)
@@ -89,6 +90,13 @@ namespace CatchCapture
             this.Activated += (_, __) => 
             {
                 ForceTopmost();
+                
+                if (_suppressActivatedExpand)
+                {
+                    _suppressActivatedExpand = false;
+                    return;
+                }
+
                 // 작업표시줄 클릭 등으로 활성화될 때, 상단에 숨겨져 있으면 내려오게 함
                 if (_dockSide == DockSide.Top && _isCollapsed)
                 {
