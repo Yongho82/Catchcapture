@@ -547,6 +547,7 @@ namespace CatchCapture
             InstantEditToggleH.IsChecked = settings.SimpleModeInstantEdit;
             InstantEditToggleV.IsChecked = settings.SimpleModeInstantEdit;
             _uiScaleLevel = settings.SimpleModeUIScaleLevel;
+            _uiScale = _uiScaleLevel == 2 ? 1.3 : 1.0;
             ApplyUIScale();
             BuildIconButtons();
         }

@@ -1810,6 +1810,12 @@ namespace CatchCapture.Utilities
                 var resultWindow = new OcrResultWindow(ocrResult.Text, ocrResult.ShowWarning);
                 resultWindow.Owner = this;
                 resultWindow.ShowDialog();
+
+                // 구글 번역 요청 시 즉시편집 오버레이 종료
+                if (resultWindow.RequestGoogleTranslate)
+                {
+                    this.Close();
+                }
             }
             catch (Exception ex)
             {

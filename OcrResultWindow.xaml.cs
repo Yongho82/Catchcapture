@@ -51,11 +51,13 @@ namespace CatchCapture
             }
         }
         
+        public bool RequestGoogleTranslate { get; private set; } = false;
+
         private void GoogleTranslateButton_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(ResultTextBox.Text))
             {
-                ShowGuideMessage(LocalizationManager.Get("NoExtractedTextOcr"), TimeSpan.FromSeconds(2));
+                // 간단한 메시지박스로 대체하거나 생략 (이미 닫힐 것이므로)
                 return;
             }
 
@@ -68,7 +70,7 @@ namespace CatchCapture
                 string detectedLang = DetectLanguage(ResultTextBox.Text);
                 
                 // 3. 현재 UI 언어 가져오기
-                string uiLang = LocalizationManager.CurrentLanguage; // "ko", "zh", "ja", "en" 등
+                string uiLang = LocalizationManager.CurrentLanguage; 
                 
                 // 4. 타겟 언어 결정
                 string targetLang = DetermineTargetLanguage(detectedLang, uiLang);
@@ -103,21 +105,25 @@ namespace CatchCapture
                     UseShellExecute = true
                 });
                 
-                // 8. 2초 후 자동으로 Ctrl+V 입력
-                Task.Delay(2000).ContinueWith(_ => 
+                // 8. 2초 후 자동으로 Ctrl+V 입력 (비동기, 메인 UI 스레드 의존성 최소화)
+                Task.Run(async () => 
                 {
-                    Dispatcher.Invoke(() => 
+                    await Task.Delay(2000);
+                    Application.Current.Dispatcher.Invoke(() => 
                     {
                         SendCtrlV();
                     });
                 });
                 
-                // 9. 안내 메시지 (GuideWindow)
-                ShowGuideMessage(LocalizationManager.Get("OpeningGoogleTranslate"), TimeSpan.FromSeconds(3));
+                // 9. 요청 플래그 설정 및 창 닫기
+                RequestGoogleTranslate = true;
+                this.DialogResult = true; 
+                this.Close();
             }
             catch (Exception ex)
             {
-                ShowGuideMessage(string.Format(LocalizationManager.Get("GoogleTranslateFailed"), ex.Message), TimeSpan.FromSeconds(3));
+                // 오류 발생 시 메시지 박스 (창이 닫히지 않았을 경우)
+                MessageBox.Show(string.Format(LocalizationManager.Get("GoogleTranslateFailed"), ex.Message));
             }
         }
 
