@@ -241,12 +241,19 @@ namespace CatchCapture.Utilities
             {
                 _canvas.Children.Remove(toRemove);
                 _drawnElements.Remove(toRemove);
+                
+                // [추가] 지우개로 번호를 지웠을 때도 다음 번호 재계산
+                RecalculateNextNumber();
+                
                 ActionOccurred?.Invoke();
             }
         }
 
         public void CreateNumberingAt(Point p)
         {
+            // [추가] 번호 생성 전 유동적으로 다음 번호 계산 (중복 방지 및 빈 번호 채우기)
+            RecalculateNextNumber();
+
             var group = new Canvas { Background = Brushes.Transparent };
             double bSize = NumberingBadgeSize;
             int myNumber = NextNumber;
@@ -499,18 +506,25 @@ namespace CatchCapture.Utilities
 
         public void RecalculateNextNumber()
         {
-            int max = 0;
+            var existingNumbers = new HashSet<int>();
             foreach (var el in _drawnElements)
             {
                 if (el is Canvas group && group.Children.Count >= 1 && group.Children[0] is Border badge)
                 {
                     if (badge.Child is TextBlock tb && int.TryParse(tb.Text, out int num))
                     {
-                        if (num > max) max = num;
+                        existingNumbers.Add(num);
                     }
                 }
             }
-            NextNumber = max + 1;
+
+            // 1부터 시작하여 비어있는 가장 작은 번호를 찾음
+            int next = 1;
+            while (existingNumbers.Contains(next))
+            {
+                next++;
+            }
+            NextNumber = next;
         }
 
         private void ApplyTextStyleToTextBox(TextBox tb)

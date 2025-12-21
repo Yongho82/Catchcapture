@@ -730,6 +730,7 @@ namespace CatchCapture
                 drawingLayers = undoLayersStack.Pop();
                 
                 SyncDrawnElementsFromLayers(); // ← 인터랙티브 요소 동기화
+                _editorManager?.RecalculateNextNumber(); // 넘버링 번호 동기화
                 UpdateUndoRedoButtons();
                 UpdatePreviewImage();
             }
@@ -781,6 +782,7 @@ namespace CatchCapture
                 drawingLayers = redoLayersStack.Pop();
                 
                 SyncDrawnElementsFromLayers();
+                _editorManager?.RecalculateNextNumber(); // 넘버링 번호 동기화
                 UpdateUndoRedoButtons();
                 UpdatePreviewImage();
             }
@@ -795,6 +797,7 @@ namespace CatchCapture
                     SaveForUndo();
                     currentImage = originalImage;
                     drawingLayers.Clear(); // 레이어 초기화
+                    _editorManager?.ResetNumbering(); // 넘버링 번호 초기화
                     UpdatePreviewImage();
                 }
             }

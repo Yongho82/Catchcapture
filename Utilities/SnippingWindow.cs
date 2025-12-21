@@ -1869,6 +1869,9 @@ namespace CatchCapture.Utilities
             
             // [수정] InteractiveEditor를 통해 관련 부속 요소들도 함께 제거
             InteractiveEditor.RemoveInteractiveElement(_drawingCanvas ?? canvas, lastElement);
+
+            // [추가] 번호 도구의 경우 다음 번호를 다시 계산
+            _editorManager?.RecalculateNextNumber();
         }
         
         private void ResetAllDrawings()
@@ -2209,6 +2212,9 @@ namespace CatchCapture.Utilities
                         
                         // [추가] 부속 요소들(텍스트 버튼 등)도 함께 제거
                         InteractiveEditor.RemoveInteractiveElement(_drawingCanvas ?? canvas, toRemove);
+
+                        // [추가] 번호 도구의 경우 다음 번호 재계산
+                        _editorManager?.RecalculateNextNumber();
                     }
                 };
                 canvas.Children.Add(objectDeleteButton);
