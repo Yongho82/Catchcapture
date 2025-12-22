@@ -432,6 +432,20 @@ namespace CatchCapture
             }
         }
 
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            // 그려진 요소(Visible)가 하나라도 있다면 닫을 때 합성하여 부모 리스트 업데이트 (자동 저장)
+            if (drawnElements != null && drawnElements.Any(el => el.Visibility == Visibility.Visible))
+            {
+                var finalImage = GetCombinedImage();
+                if (finalImage != null)
+                {
+                    ImageUpdated?.Invoke(this, new ImageUpdatedEventArgs(imageIndex, finalImage));
+                }
+            }
+            base.OnClosing(e);
+        }
+
         // 실제 크기로 리셋
         private void ResetZoom()
         {
