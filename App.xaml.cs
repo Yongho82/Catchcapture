@@ -174,6 +174,22 @@ public partial class App : Application
                 Application.Current.Resources["ThemeBorder"] = new SolidColorBrush(borderColor);
                 Application.Current.Resources["ThemeWindowBorder"] = new SolidColorBrush(borderColor); // Default to standard border
 
+                // Sidebar Button Dynamic Colors based on brightness
+                if (brightness < 0.5) // Dark Theme
+                {
+                    Application.Current.Resources["ThemeSidebarButtonBackground"] = Brushes.Transparent;
+                    Application.Current.Resources["ThemeSidebarButtonBorder"] = new SolidColorBrush(Color.FromRgb(60, 60, 60)); // 세련된 실선
+                    Application.Current.Resources["ThemeSidebarButtonHoverBackground"] = new SolidColorBrush(Color.FromRgb(50, 50, 50));
+                    Application.Current.Resources["ThemeSidebarButtonPressedBackground"] = new SolidColorBrush(Color.FromRgb(70, 70, 70));
+                }
+                else // Light Theme
+                {
+                    Application.Current.Resources["ThemeSidebarButtonBackground"] = new SolidColorBrush(Color.FromRgb(249, 249, 249)); // #F9F9F9
+                    Application.Current.Resources["ThemeSidebarButtonBorder"] = Brushes.Transparent;
+                    Application.Current.Resources["ThemeSidebarButtonHoverBackground"] = new SolidColorBrush(Color.FromRgb(240, 247, 255)); // #F0F7FF
+                    Application.Current.Resources["ThemeSidebarButtonPressedBackground"] = new SolidColorBrush(Color.FromRgb(224, 238, 255)); // #E0EEFF
+                }
+
                 // Title Bar Colors (Specific colors for General mode as per user feedback)
                 if (settings.ThemeMode == "General")
                 {
