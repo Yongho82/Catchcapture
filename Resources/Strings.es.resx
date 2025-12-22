@@ -66,33 +66,63 @@
   
   <!-- Capture Types -->
   <data name="AreaCapture" xml:space="preserve">
+    <value>Área</value>
+  </data>
+  <data name="AreaCaptureTooltip" xml:space="preserve">
     <value>Captura de Área</value>
   </data>
   <data name="DelayCapture" xml:space="preserve">
+    <value>Retardo</value>
+  </data>
+  <data name="DelayCaptureTooltip" xml:space="preserve">
     <value>Captura Retardada</value>
   </data>
   <data name="RealTimeCapture" xml:space="preserve">
+    <value>Instante</value>
+  </data>
+  <data name="RealTimeCaptureTooltip" xml:space="preserve">
     <value>Captura Instantánea</value>
   </data>
   <data name="MultiCapture" xml:space="preserve">
+    <value>Multi</value>
+  </data>
+  <data name="MultiCaptureTooltip" xml:space="preserve">
     <value>Captura Múltiple</value>
   </data>
   <data name="FullScreen" xml:space="preserve">
+    <value>Pantalla</value>
+  </data>
+  <data name="FullScreenTooltip" xml:space="preserve">
     <value>Pantalla Completa</value>
   </data>
   <data name="DesignatedCapture" xml:space="preserve">
+    <value>Fija</value>
+  </data>
+  <data name="DesignatedCaptureTooltip" xml:space="preserve">
     <value>Área Fija</value>
   </data>
   <data name="WindowCapture" xml:space="preserve">
+    <value>Ventana</value>
+  </data>
+  <data name="WindowCaptureTooltip" xml:space="preserve">
     <value>Captura de Ventana</value>
   </data>
   <data name="ElementCapture" xml:space="preserve">
+    <value>Elemento</value>
+  </data>
+  <data name="ElementCaptureTooltip" xml:space="preserve">
     <value>Captura de Elemento</value>
   </data>
   <data name="ScrollCapture" xml:space="preserve">
+    <value>Desplazar</value>
+  </data>
+  <data name="ScrollCaptureTooltip" xml:space="preserve">
     <value>Captura de Desplazamiento</value>
   </data>
   <data name="OcrCapture" xml:space="preserve">
+    <value>OCR</value>
+  </data>
+  <data name="OcrCaptureTooltip" xml:space="preserve">
     <value>Captura OCR</value>
   </data>
   
@@ -101,9 +131,15 @@
     <value>Modo Normal</value>
   </data>
   <data name="SimpleMode" xml:space="preserve">
+    <value>Simple</value>
+  </data>
+  <data name="SimpleModeTooltip" xml:space="preserve">
     <value>Modo Simple</value>
   </data>
   <data name="TrayMode" xml:space="preserve">
+    <value>Bandeja</value>
+  </data>
+  <data name="TrayModeTooltip" xml:space="preserve">
     <value>Modo Bandeja</value>
   </data>
   
@@ -139,6 +175,9 @@
   </data>
   <data name="Highlighter" xml:space="preserve">
     <value>Resaltador</value>
+  </data>
+  <data name="HighlighterTooltip" xml:space="preserve">
+    <value>Resaltador (Marcador)</value>
   </data>
   <data name="Text" xml:space="preserve">
     <value>Texto</value>
@@ -281,8 +320,18 @@
   <data name="FlipH" xml:space="preserve"><value>Voltear H</value></data>
   <data name="FlipV" xml:space="preserve"><value>Voltear V</value></data>
   <data name="CopySelected" xml:space="preserve"><value>Copiar</value></data>
-  <data name="InstantEdit" xml:space="preserve"><value>Edición instantánea</value></data>
-  <data name="OpenEditor" xml:space="preserve"><value>Abrir editor</value></data>
+  <data name="InstantEdit" xml:space="preserve">
+    <value>Edición</value>
+  </data>
+  <data name="InstantEditTooltip" xml:space="preserve">
+    <value>Edición instantánea</value>
+  </data>
+  <data name="OpenEditor" xml:space="preserve">
+    <value>Editor</value>
+  </data>
+  <data name="OpenEditorTooltip" xml:space="preserve">
+    <value>Abrir editor</value>
+  </data>
   <data name="RealTimeF1Guide" xml:space="preserve"><value>Presione F1 cuando esté listo.</value></data>
   <data name="DelayNone" xml:space="preserve"><value>Sin retardo</value></data>
   <data name="Delay3Sec" xml:space="preserve"><value>3 seg</value></data>

@@ -1042,47 +1042,47 @@ namespace CatchCapture.Utilities
 
             
             // 선택 버튼
-            var selectButton = CreateToolButton("cursor.png", LocalizationManager.Get("Select"), LocalizationManager.Get("SelectTooltip"));
+            var selectButton = CreateToolButton("cursor.png", ResLoc.GetString("Select"), GetLocalizedTooltip("Select"));
             selectButton.Tag = "선택";
             selectButton.Click += (s, e) => ToggleToolPalette("선택", selectButton);
 
-            var penButton = CreateToolButton("pen.png", LocalizationManager.Get("Pen"), LocalizationManager.Get("Pen"));
+            var penButton = CreateToolButton("pen.png", ResLoc.GetString("Pen"), GetLocalizedTooltip("Pen"));
             penButton.Tag = "펜";
             penButton.Click += (s, e) => ToggleToolPalette("펜", penButton);
             
-            var highlighterButton = CreateToolButton("highlight.png", LocalizationManager.Get("Highlighter"), LocalizationManager.Get("Highlighter"));
+            var highlighterButton = CreateToolButton("highlight.png", ResLoc.GetString("Highlighter"), GetLocalizedTooltip("Highlighter"));
             highlighterButton.Tag = "형광펜";
             highlighterButton.Click += (s, e) => ToggleToolPalette("형광펜", highlighterButton);
             
-            var textButton = CreateToolButton("text.png", LocalizationManager.Get("Text"), LocalizationManager.Get("TextAdd"));
+            var textButton = CreateToolButton("text.png", ResLoc.GetString("Text"), GetLocalizedTooltip("TextAdd"));
             textButton.Tag = "텍스트";
             textButton.Click += (s, e) => ToggleToolPalette("텍스트", textButton);
             
-            var shapeButton = CreateToolButton("shape.png", LocalizationManager.Get("ShapeLbl"), LocalizationManager.Get("ShapeOptions"));
+            var shapeButton = CreateToolButton("shape.png", ResLoc.GetString("ShapeLbl"), GetLocalizedTooltip("ShapeOptions"));
             shapeButton.Tag = "도형";
             shapeButton.Click += (s, e) => ToggleToolPalette("도형", shapeButton);
             
-            var numberingButton = CreateToolButton("numbering.png", LocalizationManager.Get("Numbering"), LocalizationManager.Get("Numbering"));
+            var numberingButton = CreateToolButton("numbering.png", ResLoc.GetString("Numbering"), GetLocalizedTooltip("Numbering"));
             numberingButton.Tag = "넘버링";
             numberingButton.Click += (s, e) => ToggleToolPalette("넘버링", numberingButton);
             
-            var mosaicButton = CreateToolButton("mosaic.png", LocalizationManager.Get("Mosaic"), LocalizationManager.Get("Mosaic"));
+            var mosaicButton = CreateToolButton("mosaic.png", ResLoc.GetString("Mosaic"), GetLocalizedTooltip("Mosaic"));
             mosaicButton.Tag = "모자이크";
             mosaicButton.Click += (s, e) => ToggleToolPalette("모자이크", mosaicButton);
             
-            var eraserButton = CreateToolButton("eraser.png", LocalizationManager.Get("Eraser"), LocalizationManager.Get("Eraser"));
+            var eraserButton = CreateToolButton("eraser.png", ResLoc.GetString("Eraser"), GetLocalizedTooltip("Eraser"));
             eraserButton.Tag = "지우개";
             eraserButton.Click += (s, e) => ToggleToolPalette("지우개", eraserButton);
 
             // 이미지 검색 버튼
-            var imageSearchButton = CreateToolButton("img_find.png", LocalizationManager.Get("ImageSearch"), LocalizationManager.Get("ImageSearchTooltip"));
+            var imageSearchButton = CreateToolButton("img_find.png", ResLoc.GetString("ImageSearch"), GetLocalizedTooltip("ImageSearch"));
             imageSearchButton.Click += async (s, e) => 
             { 
                 await PerformImageSearch();
             };
 
             // OCR 버튼
-            var ocrButton = CreateToolButton("extract_text.png", LocalizationManager.Get("OCR"), LocalizationManager.Get("Extract"));
+            var ocrButton = CreateToolButton("extract_text.png", ResLoc.GetString("OcrCapture") ?? "OCR", GetLocalizedTooltip("OcrCapture"));
             ocrButton.Click += async (s, e) => 
             { 
                 await PerformOcr();
@@ -1265,8 +1265,16 @@ namespace CatchCapture.Utilities
             };
             doneLabel.SetResourceReference(TextBlock.ForegroundProperty, "ThemeForeground");
             
+            var doneViewbox = new Viewbox
+            {
+                Width = 43,
+                Stretch = Stretch.Uniform,
+                StretchDirection = StretchDirection.DownOnly,
+                Child = doneLabel
+            };
+            
             doneStackPanel.Children.Add(doneText);
-            doneStackPanel.Children.Add(doneLabel);
+            doneStackPanel.Children.Add(doneViewbox);
             
             // 완료 버튼용 Border
             var doneBorder = new Border
@@ -1328,11 +1336,11 @@ namespace CatchCapture.Utilities
             };
             
             // 복사 버튼
-            var copyButton = CreateActionButton("copy_selected.png", LocalizationManager.Get("CopySelected"), $"{LocalizationManager.Get("CopyToClipboard")} (Ctrl+C)");
+            var copyButton = CreateActionButton("copy_selected.png", ResLoc.GetString("CopySelected"), $"{GetLocalizedTooltip("CopyToClipboard")} (Ctrl+C)");
             copyButton.Click += (s, e) => CopyToClipboard();
             
             // 저장 버튼
-            var saveButton = CreateActionButton("save_selected.png", LocalizationManager.Get("Save"), $"{LocalizationManager.Get("Save")} (Ctrl+S)");
+            var saveButton = CreateActionButton("save_selected.png", ResLoc.GetString("Save"), $"{GetLocalizedTooltip("Save")} (Ctrl+S)");
             saveButton.Click += (s, e) => SaveToFile();
 
             // [수정] 버튼들을 toolbarStackPanel에 추가
@@ -1479,6 +1487,17 @@ namespace CatchCapture.Utilities
             };
             
             return button;
+        }
+
+        private string GetLocalizedTooltip(string key)
+        {
+            string tooltipKey = key + "Tooltip";
+            string tt = ResLoc.GetString(tooltipKey);
+            if (tt == tooltipKey) // Not found
+            {
+                return ResLoc.GetString(key);
+            }
+            return tt;
         }
 
         private string GetEmojiForTool(string label)

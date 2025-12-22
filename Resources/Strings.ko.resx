@@ -153,7 +153,10 @@
     <value>모자이크</value>
   </data>
   <data name="Numbering" xml:space="preserve">
-    <value>넘버링</value>
+    <value>번호</value>
+  </data>
+  <data name="NumberingTooltip" xml:space="preserve">
+    <value>번호 매기기(넘버링)</value>
   </data>
   <data name="NumberingMode" xml:space="preserve">
     <value>번호 매기기</value>

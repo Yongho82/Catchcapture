@@ -66,33 +66,63 @@
   
   <!-- Capture Types -->
   <data name="AreaCapture" xml:space="preserve">
+    <value>Zone</value>
+  </data>
+  <data name="AreaCaptureTooltip" xml:space="preserve">
     <value>Capture de Zone</value>
   </data>
   <data name="DelayCapture" xml:space="preserve">
+    <value>Délai</value>
+  </data>
+  <data name="DelayCaptureTooltip" xml:space="preserve">
     <value>Capture Différée</value>
   </data>
   <data name="RealTimeCapture" xml:space="preserve">
+    <value>Instantané</value>
+  </data>
+  <data name="RealTimeCaptureTooltip" xml:space="preserve">
     <value>Capture Instantanée</value>
   </data>
   <data name="MultiCapture" xml:space="preserve">
+    <value>Multi</value>
+  </data>
+  <data name="MultiCaptureTooltip" xml:space="preserve">
     <value>Capture Multiple</value>
   </data>
   <data name="FullScreen" xml:space="preserve">
+    <value>Écran</value>
+  </data>
+  <data name="FullScreenTooltip" xml:space="preserve">
     <value>Plein Écran</value>
   </data>
   <data name="DesignatedCapture" xml:space="preserve">
+    <value>Fixe</value>
+  </data>
+  <data name="DesignatedCaptureTooltip" xml:space="preserve">
     <value>Zone Fixe</value>
   </data>
   <data name="WindowCapture" xml:space="preserve">
+    <value>Fenêtre</value>
+  </data>
+  <data name="WindowCaptureTooltip" xml:space="preserve">
     <value>Capture de Fenêtre</value>
   </data>
   <data name="ElementCapture" xml:space="preserve">
+    <value>Élément</value>
+  </data>
+  <data name="ElementCaptureTooltip" xml:space="preserve">
     <value>Capture d'Élément</value>
   </data>
   <data name="ScrollCapture" xml:space="preserve">
+    <value>Défilement</value>
+  </data>
+  <data name="ScrollCaptureTooltip" xml:space="preserve">
     <value>Capture de Défilement</value>
   </data>
   <data name="OcrCapture" xml:space="preserve">
+    <value>OCR</value>
+  </data>
+  <data name="OcrCaptureTooltip" xml:space="preserve">
     <value>Capture OCR</value>
   </data>
   
@@ -101,9 +131,15 @@
     <value>Mode Normal</value>
   </data>
   <data name="SimpleMode" xml:space="preserve">
+    <value>Simple</value>
+  </data>
+  <data name="SimpleModeTooltip" xml:space="preserve">
     <value>Mode Simple</value>
   </data>
   <data name="TrayMode" xml:space="preserve">
+    <value>Barre</value>
+  </data>
+  <data name="TrayModeTooltip" xml:space="preserve">
     <value>Mode Barre</value>
   </data>
   
@@ -140,6 +176,9 @@
   <data name="Highlighter" xml:space="preserve">
     <value>Surligneur</value>
   </data>
+  <data name="HighlighterTooltip" xml:space="preserve">
+    <value>Surligneur (Marqueur)</value>
+  </data>
   <data name="Text" xml:space="preserve">
     <value>Texte</value>
   </data>
@@ -153,6 +192,9 @@
     <value>Mosaïque</value>
   </data>
   <data name="Numbering" xml:space="preserve">
+    <value>Nombre</value>
+  </data>
+  <data name="NumberingTooltip" xml:space="preserve">
     <value>Numérotation</value>
   </data>
   <data name="Crop" xml:space="preserve">
@@ -281,8 +323,18 @@
   <data name="FlipH" xml:space="preserve"><value>Flip H</value></data>
   <data name="FlipV" xml:space="preserve"><value>Flip V</value></data>
   <data name="CopySelected" xml:space="preserve"><value>Copy</value></data>
-  <data name="InstantEdit" xml:space="preserve"><value>Édition instantanée</value></data>
-  <data name="OpenEditor" xml:space="preserve"><value>Ouvrir l'éditeur</value></data>
+  <data name="InstantEdit" xml:space="preserve">
+    <value>Édition</value>
+  </data>
+  <data name="InstantEditTooltip" xml:space="preserve">
+    <value>Édition instantanée</value>
+  </data>
+  <data name="OpenEditor" xml:space="preserve">
+    <value>Éditeur</value>
+  </data>
+  <data name="OpenEditorTooltip" xml:space="preserve">
+    <value>Ouvrir l'éditeur</value>
+  </data>
   <data name="RealTimeF1Guide" xml:space="preserve"><value>Appuyez sur F1 lorsque vous êtes prêt.</value></data>
   <data name="DelayNone" xml:space="preserve"><value>Sans délai</value></data>
   <data name="Delay3Sec" xml:space="preserve"><value>3 sec</value></data>
@@ -361,8 +413,15 @@
   <data name="ComputerApps" xml:space="preserve"><value>Applications</value></data>
   <data name="Open" xml:space="preserve"><value>Ouvrir</value></data>
   <data name="ShowMagnifier" xml:space="preserve"><value>Afficher la loupe lors de la capture de zone</value></data>
-  <data name="ScreenRecording" xml:space="preserve"><value>Enregistrer</value></data>
-  <data name="Record" xml:space="preserve"><value>Enregistrer</value></data>
+  <data name="ScreenRecording" xml:space="preserve">
+    <value>Vidéo</value>
+  </data>
+  <data name="ScreenRecordingTooltip" xml:space="preserve">
+    <value>Enregistrement d'écran</value>
+  </data>
+  <data name="Record" xml:space="preserve">
+    <value>Vidéo</value>
+  </data>
   <data name="RecordingTool" xml:space="preserve"><value>Outil d'enregistrement</value></data>
   <data name="StartStopRecording" xml:space="preserve"><value>Démarrer/Arrêter l'enregistrement</value></data>
   <data name="Pause" xml:space="preserve"><value>Pause</value></data>

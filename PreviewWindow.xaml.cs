@@ -123,8 +123,9 @@ namespace CatchCapture
             LocalizationManager.LanguageChanged += PreviewWindow_LanguageChanged;
 
             _editorManager = new SharedCanvasEditor(ImageCanvas, drawnElements, _editorUndoStack);
-            _editorManager.ActionOccurred += () => SyncEditorToLayers();
+            _editorManager.ActionOccurred += () => { SyncEditorToLayers(); UpdateUndoRedoButtons(); };
             _editorManager.ElementAdded += (element) => {
+                SaveForUndo();
                 if (element is FrameworkElement fe) CreateLayerForElement(fe);
             };
             _editorManager.MosaicRequired += (rect) => ApplyMosaic(rect);
@@ -776,16 +777,50 @@ namespace CatchCapture
 
         private void ResetButton_Click(object sender, RoutedEventArgs e)
         {
-            if (undoStack.Count > 0 || true)
+            if (CustomMessageBox.Show(LocalizationManager.GetString("ConfirmReset"), LocalizationManager.GetString("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
-                if (CustomMessageBox.Show(LocalizationManager.GetString("ConfirmReset"), LocalizationManager.GetString("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                // 현재 상태를 Undo 스택에 저장
+                undoStack.Push(currentImage);
+                undoOriginalStack.Push(originalImage);
+                
+                var layersCopy = drawingLayers.Select(layer => new CatchCapture.Models.DrawingLayer
                 {
-                    SaveForUndo();
-                    currentImage = originalImage;
-                    drawingLayers.Clear(); // 레이어 초기화
-                    _editorManager?.ResetNumbering(); // 넘버링 번호 초기화
-                    UpdatePreviewImage();
-                }
+                    LayerId = layer.LayerId,
+                    Type = layer.Type,
+                    Points = layer.Points?.ToArray(),
+                    Color = layer.Color,
+                    Thickness = layer.Thickness,
+                    IsErased = layer.IsErased,
+                    IsInteractive = layer.IsInteractive,
+                    StartPoint = layer.StartPoint,
+                    EndPoint = layer.EndPoint,
+                    ShapeType = layer.ShapeType,
+                    IsFilled = layer.IsFilled,
+                    FillOpacity = layer.FillOpacity,
+                    Text = layer.Text,
+                    TextPosition = layer.TextPosition,
+                    FontSize = layer.FontSize,
+                    FontWeight = layer.FontWeight,
+                    FontStyle = layer.FontStyle,
+                    FontFamily = layer.FontFamily,
+                    HasShadow = layer.HasShadow,
+                    HasUnderline = layer.HasUnderline
+                }).ToList();
+                undoLayersStack.Push(layersCopy);
+                
+                // Redo 스택 초기화 (새로운 작업이므로)
+                redoStack.Clear();
+                redoOriginalStack.Clear();
+                redoLayersStack.Clear();
+                
+                // 원본으로 리셋
+                currentImage = originalImage;
+                drawingLayers.Clear(); // 레이어 초기화
+                _editorManager?.ResetNumbering(); // 넘버링 번호 초기화
+                SyncDrawnElementsFromLayers();
+                
+                UpdateUndoRedoButtons();
+                UpdatePreviewImage();
             }
         }
 
@@ -1056,6 +1091,23 @@ namespace CatchCapture
                 else if (layer.Type == CatchCapture.Models.DrawingLayerType.Text)
                 {
                     element = RecreateTextBoxFromLayer(layer);
+                }
+                else if (layer.Type == CatchCapture.Models.DrawingLayerType.Pen || layer.Type == CatchCapture.Models.DrawingLayerType.Highlight)
+                {
+                    var polyline = new Polyline
+                    {
+                        Stroke = new SolidColorBrush(layer.Color),
+                        StrokeThickness = layer.Thickness,
+                        StrokeStartLineCap = PenLineCap.Round,
+                        StrokeEndLineCap = PenLineCap.Round,
+                        StrokeLineJoin = PenLineJoin.Round,
+                        Points = new PointCollection(layer.Points ?? Enumerable.Empty<Point>())
+                    };
+                    if (layer.Type == CatchCapture.Models.DrawingLayerType.Highlight)
+                    {
+                        polyline.Opacity = 0.5;
+                    }
+                    element = polyline;
                 }
 
                 if (element is FrameworkElement fe)
@@ -1409,7 +1461,7 @@ namespace CatchCapture
             if (HighlightToolButton != null)
             {
                 HighlightToolButton.Label = LocalizationManager.GetString("Highlighter");
-                HighlightToolButton.ToolTipText = LocalizationManager.GetString("Highlighter");
+                HighlightToolButton.ToolTipText = GetLocalizedTooltip("Highlighter");
             }
             if (TextToolButton != null)
             {
@@ -1435,8 +1487,8 @@ namespace CatchCapture
 
             if (NumberingToolButton != null)
             {
-                NumberingToolButton.Label = LocalizationManager.GetString("Numbering") ?? "넘버링";
-                NumberingToolButton.ToolTipText = LocalizationManager.GetString("NumberingMode") ?? "번호 매기기";
+                NumberingToolButton.Label = LocalizationManager.GetString("Numbering") ?? "Nombre";
+                NumberingToolButton.ToolTipText = GetLocalizedTooltip("Numbering");
             }
 
             // Select
@@ -1447,8 +1499,8 @@ namespace CatchCapture
             if(ImageSearchButton != null) ImageSearchButton.ToolTip = LocalizationManager.GetString("ImageSearch");
             if(ShareLabelText != null) ShareLabelText.Text = LocalizationManager.GetString("Share");
             if(ShareButton != null) ShareButton.ToolTip = LocalizationManager.GetString("Share");
-            if(OcrExtractLabelText != null) OcrExtractLabelText.Text = LocalizationManager.GetString("Extract");
-            if(OcrButton != null) OcrButton.ToolTip = LocalizationManager.GetString("OcrCapture"); // Use OcrCapture key
+            if (OcrExtractLabelText != null) OcrExtractLabelText.Text = LocalizationManager.GetString("Extract");
+            if (OcrButton != null) OcrButton.ToolTip = GetLocalizedTooltip("OcrCapture"); // Use OcrCaptureTooltip with fallback
             // Panels
             if(ToolTitleText != null) ToolTitleText.Text = LocalizationManager.GetString("ToolOptions");
             if(RecentCapturesTitle != null) RecentCapturesTitle.Text = LocalizationManager.GetString("RecentCaptures");
@@ -1458,6 +1510,17 @@ namespace CatchCapture
             if (ZoomResetButton != null)
                 ZoomResetButton.Content = LocalizationManager.GetString("OriginalSize");
             UpdateImageInfo();
+        }
+
+        private string GetLocalizedTooltip(string key)
+        {
+            string tooltipKey = key + "Tooltip";
+            string tt = LocalizationManager.GetString(tooltipKey);
+            if (tt == tooltipKey) // Not found
+            {
+                return LocalizationManager.GetString(key);
+            }
+            return tt;
         }
 
         protected override void OnClosed(EventArgs e)

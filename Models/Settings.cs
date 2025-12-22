@@ -11,7 +11,7 @@ namespace CatchCapture.Models
         // General
         public bool ShowSavePrompt { get; set; } = true;
         public bool ShowPreviewAfterCapture { get; set; } = false;
-        public bool OpenEditorAfterCapture { get; set; } = true; // 캡처 후 편집창 자동 열기
+        public bool OpenEditorAfterCapture { get; set; } = false; // 캡처 후 편집창 자동 열기
         public bool ShowMagnifier { get; set; } = false; // 영역 캡처 시 돋보기 표시
 
         // Theme Settings
@@ -76,7 +76,7 @@ namespace CatchCapture.Models
         public List<ExternalAppShortcut> SimpleModeApps { get; set; } = new List<ExternalAppShortcut>();
 
         // Simple mode instant edit
-        public bool SimpleModeInstantEdit { get; set; } = false;
+        public bool SimpleModeInstantEdit { get; set; } = true;
         
         // Simple mode UI scale level (0: default, 1: large icons only, 2: large icons + text)
         public int SimpleModeUIScaleLevel { get; set; } = 0;

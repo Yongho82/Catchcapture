@@ -557,8 +557,9 @@
                     </Grid.ColumnDefinitions>
                     
                     <!-- 패널 제목 -->
-                    <TextBlock x:Name="ToolTitleText" Text="도구 옵션" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource ThemeForeground}"
-                               Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <Viewbox Grid.Column="0" MaxWidth="80" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,10,0">
+                        <TextBlock x:Name="ToolTitleText" Text="도구 옵션" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource ThemeForeground}"/>
+                    </Viewbox>
                     
                     <!-- 옵션 컨텐츠 - 가로 배열로 변경 -->
                     <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" 
@@ -621,7 +622,9 @@
                         
                         <!-- 제목과 캡처 개수 -->
                         <Grid Grid.Row="0">
-                            <TextBlock x:Name="RecentCapturesTitle" Text="최근 캡처 목록" FontWeight="SemiBold" FontSize="13" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
+                            <Viewbox MaxWidth="120" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                <TextBlock x:Name="RecentCapturesTitle" Text="최근 캡처 목록" FontWeight="SemiBold" FontSize="13" Foreground="{DynamicResource ThemeForeground}"/>
+                            </Viewbox>
                             <TextBlock x:Name="CaptureCountText" Text="(0)" FontSize="12" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                         </Grid>
                         
@@ -633,7 +636,9 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             
-                            <TextBlock x:Name="SizeLabelText" Grid.Column="0" Text="크기" FontSize="10" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <Viewbox Grid.Column="0" MaxWidth="40" Stretch="Uniform" StretchDirection="DownOnly" VerticalAlignment="Center" Margin="0,0,8,0">
+                                <TextBlock x:Name="SizeLabelText" Text="크기" FontSize="10" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
+                            </Viewbox>
                             <Slider x:Name="ThumbnailSizeSlider" Grid.Column="1" 
                                     Minimum="80" Maximum="200" Value="80" 
                                     TickFrequency="10" IsSnapToTickEnabled="True"

@@ -525,7 +525,9 @@
                                     <ColumnDefinition Width="130"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock x:Name="OverlayBgLabel" Text="오버레이 배경색" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                                <Viewbox MaxWidth="125" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                    <TextBlock x:Name="OverlayBgLabel" Text="오버레이 배경색" Foreground="{DynamicResource ThemeForeground}"/>
+                                </Viewbox>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal">
                                     <Border x:Name="PreviewOverlayBgColor" Width="42" Height="22" HorizontalAlignment="Left" CornerRadius="4" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" Cursor="Hand" MouseLeftButtonUp="PreviewColor_Click" Tag="OverlayBg"/>
                                     <Slider x:Name="SldOverlayOpacity" Margin="12,0,0,0" Width="90" Minimum="0" Maximum="255" Value="140" VerticalAlignment="Center" ValueChanged="SldOverlayOpacity_ValueChanged"/>
@@ -538,7 +540,9 @@
                                     <ColumnDefinition Width="130"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock x:Name="LineStyleLabel" Text="라인 스타일" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                                <Viewbox MaxWidth="125" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                    <TextBlock x:Name="LineStyleLabel" Text="라인 스타일" Foreground="{DynamicResource ThemeForeground}"/>
+                                </Viewbox>
                                 <ComboBox x:Name="CboLineStyle" Grid.Column="1" Width="170" HorizontalAlignment="Left" VerticalContentAlignment="Center" Height="26">
                                     <ComboBoxItem Tag="Solid">
                                         <StackPanel Orientation="Horizontal">
@@ -572,7 +576,9 @@
                                     <ColumnDefinition Width="130"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock x:Name="LineThicknessLabel" Text="라인 두께" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                                <Viewbox MaxWidth="125" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                    <TextBlock x:Name="LineThicknessLabel" Text="라인 두께" Foreground="{DynamicResource ThemeForeground}"/>
+                                </Viewbox>
                                 <ComboBox x:Name="CboLineThickness" Grid.Column="1" Width="75" HorizontalAlignment="Left" Height="26">
                                     <ComboBoxItem Content="0.5px" Tag="0.5"/>
                                     <ComboBoxItem Content="1.0px" Tag="1.0"/>
@@ -587,7 +593,9 @@
                                     <ColumnDefinition Width="130"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock x:Name="LineColorLabel" Text="라인 색상" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                                <Viewbox MaxWidth="125" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                    <TextBlock x:Name="LineColorLabel" Text="라인 색상" Foreground="{DynamicResource ThemeForeground}"/>
+                                </Viewbox>
                                 <Border x:Name="PreviewLineColor" Grid.Column="1" Width="42" Height="22" HorizontalAlignment="Left" CornerRadius="4" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" Cursor="Hand" MouseLeftButtonUp="PreviewColor_Click" Tag="LineColor"/>
                             </Grid>
                         </StackPanel>
@@ -1054,9 +1062,9 @@
             <!-- Action Buttons -->
             <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,20,20,0">
                 <Button x:Name="PageDefaultButton" Content="기본값" Width="100" Height="34" Margin="0,0,10,0" Style="{StaticResource MacButtonSecondary}" Click="PageDefault_Click"/>
-                <Button x:Name="CancelButton" Content="취소" Width="100" Height="34" Margin="0,0,10,0" Style="{StaticResource MacButtonSecondary}" Click="Cancel_Click"/>
                 <Button x:Name="ApplyButton" Content="적용" Width="100" Height="34" Margin="0,0,10,0" Style="{StaticResource MacButtonSecondary}" Click="Apply_Click"/>
-                <Button x:Name="SaveButton" Content="저장" Width="100" Height="34" Style="{StaticResource MacButtonPrimary}" Click="Save_Click"/>
+                <Button x:Name="SaveButton" Content="저장" Width="100" Height="34" Margin="0,0,10,0" Style="{StaticResource MacButtonPrimary}" Click="Save_Click"/>
+                <Button x:Name="CancelButton" Content="취소" Width="100" Height="34" Style="{StaticResource MacButtonSecondary}" Click="Cancel_Click"/>
             </StackPanel>
         </Grid>
     </Grid>

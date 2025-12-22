@@ -283,7 +283,9 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/area_capture.png" Width="16" Height="16" Margin="0,0,5,0" 
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock x:Name="AreaCaptureButtonText" Text="영역 캡처" HorizontalAlignment="Left" FontSize="12"/>
+                                    <Viewbox Width="100" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left">
+                                        <TextBlock x:Name="AreaCaptureButtonText" Text="영역 캡처" FontSize="12"/>
+                                    </Viewbox>
                                 </StackPanel>
                             </Button>
 
@@ -316,7 +318,9 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/clock.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock x:Name="DelayCaptureButtonText" Text="지연 캡처" HorizontalAlignment="Left" FontSize="12"/>
+                                    <Viewbox Width="100" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left">
+                                        <TextBlock x:Name="DelayCaptureButtonText" Text="지연 캡처" FontSize="12"/>
+                                    </Viewbox>
                                 </StackPanel>
                             </Button>
                             
@@ -325,7 +329,9 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/real-time.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock x:Name="RealTimeCaptureButtonText" Text="순간 캡처" HorizontalAlignment="Left" FontSize="12"/>
+                                    <Viewbox Width="100" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left">
+                                        <TextBlock x:Name="RealTimeCaptureButtonText" Text="순간 캡처" FontSize="12"/>
+                                    </Viewbox>
                                 </StackPanel>
                             </Button>
                             
@@ -334,7 +340,9 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/multi_capture.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock x:Name="MultiCaptureButtonText" Text="멀티 캡처" HorizontalAlignment="Left" FontSize="12"/>
+                                    <Viewbox Width="100" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left">
+                                        <TextBlock x:Name="MultiCaptureButtonText" Text="멀티 캡처" FontSize="12"/>
+                                    </Viewbox>
                                 </StackPanel>
                             </Button>
                             
@@ -342,7 +350,9 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/full_screen.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock x:Name="FullScreenButtonText" Text="전체화면" HorizontalAlignment="Left" FontSize="12"/>
+                                    <Viewbox Width="100" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left">
+                                        <TextBlock x:Name="FullScreenButtonText" Text="전체화면" FontSize="12"/>
+                                    </Viewbox>
                                 </StackPanel>
                             </Button>
                             
@@ -351,7 +361,9 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/designated.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock x:Name="DesignatedCaptureButtonText" Text="지정캡처" HorizontalAlignment="Left" FontSize="12"/>
+                                    <Viewbox Width="100" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left">
+                                        <TextBlock x:Name="DesignatedCaptureButtonText" Text="지정캡처" FontSize="12"/>
+                                    </Viewbox>
                                 </StackPanel>
                             </Button>
                             <!-- 창 캡처 버튼 -->
@@ -359,7 +371,9 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/window_cap.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock x:Name="WindowCaptureButtonText" Text="창 캡처" HorizontalAlignment="Left" FontSize="12"/>
+                                    <Viewbox Width="100" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left">
+                                        <TextBlock x:Name="WindowCaptureButtonText" Text="창 캡처" FontSize="12"/>
+                                    </Viewbox>
                                 </StackPanel>
                             </Button>
                             
@@ -368,7 +382,9 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/unit_capture.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock x:Name="ElementCaptureButtonText" Text="단위 캡처" HorizontalAlignment="Left" FontSize="12"/>
+                                    <Viewbox Width="100" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left">
+                                        <TextBlock x:Name="ElementCaptureButtonText" Text="단위 캡처" FontSize="12"/>
+                                    </Viewbox>
                                 </StackPanel>
                             </Button>
                             
@@ -377,7 +393,9 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/scroll_capture.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock x:Name="ScrollCaptureButtonText" Text="스크롤 캡처" HorizontalAlignment="Left" FontSize="12"/>
+                                    <Viewbox Width="100" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left">
+                                        <TextBlock x:Name="ScrollCaptureButtonText" Text="스크롤 캡처" FontSize="12"/>
+                                    </Viewbox>
                                 </StackPanel>
                             </Button>
 
@@ -386,7 +404,9 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/ocr_capture.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock x:Name="OcrCaptureButtonText" Text="문자 추출" HorizontalAlignment="Left" FontSize="12"/>
+                                    <Viewbox Width="100" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left">
+                                        <TextBlock x:Name="OcrCaptureButtonText" Text="문자 추출" FontSize="12"/>
+                                    </Viewbox>
                                 </StackPanel>
                             </Button>
                             
@@ -395,7 +415,9 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/icons/videocamera.png" Width="16" Height="16" Margin="0,0,5,0"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock x:Name="ScreenRecordButtonText" HorizontalAlignment="Left" FontSize="12"/>
+                                    <Viewbox Width="100" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left">
+                                        <TextBlock x:Name="ScreenRecordButtonText" FontSize="12"/>
+                                    </Viewbox>
                                 </StackPanel>
                             </Button>
 
@@ -414,15 +436,14 @@
                                 </Grid.ColumnDefinitions>
 
                                 <!-- 즉시편집 -->
-                                <TextBlock x:Name="InstantEditLabel" 
-                                           Grid.Row="0" Grid.Column="0"
-                                           Text="즉시편집" 
-                                           VerticalAlignment="Center" 
-                                           HorizontalAlignment="Right"
-                                           FontSize="11" 
-                                           Foreground="{DynamicResource ThemeForeground}"
-                                           Opacity="0.8"
-                                           Margin="0,0,8,0"/>
+                                <Viewbox x:Name="InstantEditPanel" Width="65" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Right" Margin="0,0,8,0" Grid.Row="0" Grid.Column="0">
+                                    <TextBlock x:Name="InstantEditLabel" 
+                                               Text="즉시편집" 
+                                               VerticalAlignment="Center" 
+                                               FontSize="11" 
+                                               Foreground="{DynamicResource ThemeForeground}"
+                                               Opacity="0.8"/>
+                                </Viewbox>
                                 
                                 <Border x:Name="InstantEditToggleBorder" 
                                        Grid.Row="0" Grid.Column="1"
@@ -445,15 +466,14 @@
                                 </Border>
 
                                 <!-- 편집열기 -->
-                                <TextBlock x:Name="OpenEditorLabel" 
-                                           Grid.Row="2" Grid.Column="0"
-                                           Text="편집열기" 
-                                           VerticalAlignment="Center" 
-                                           HorizontalAlignment="Right"
-                                           FontSize="11" 
-                                           Foreground="{DynamicResource ThemeForeground}"
-                                           Opacity="0.8"
-                                           Margin="0,0,8,0"/>
+                                <Viewbox x:Name="OpenEditorPanel" Width="65" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Right" Margin="0,0,8,0" Grid.Row="2" Grid.Column="0">
+                                    <TextBlock x:Name="OpenEditorLabel" 
+                                               Text="편집열기" 
+                                               VerticalAlignment="Center" 
+                                               FontSize="11" 
+                                               Foreground="{DynamicResource ThemeForeground}"
+                                               Opacity="0.8"/>
+                                </Viewbox>
                                 
                                 <Border x:Name="OpenEditorToggleBorder" 
                                        Grid.Row="2" Grid.Column="1"
@@ -484,7 +504,9 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <Rectangle Height="1" VerticalAlignment="Center" Fill="{DynamicResource ThemeBorder}" SnapsToDevicePixels="True"/>
-                                <TextBlock x:Name="ModeSelectText" Grid.Column="1" Text="모드 선택" FontSize="10.5" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" Margin="5,0"/>
+                                <Viewbox Grid.Column="1" MaxWidth="100" Stretch="Uniform" StretchDirection="DownOnly" Margin="5,0">
+                                    <TextBlock x:Name="ModeSelectText" Text="모드 선택" FontSize="10.5" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
+                                </Viewbox>
                                 <Rectangle Grid.Column="2" Height="1" VerticalAlignment="Center" Fill="{DynamicResource ThemeBorder}" SnapsToDevicePixels="True"/>
                             </Grid>
 
@@ -507,7 +529,9 @@
                                     </Button.Template>
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <Image Source="/icons/simple_mode.png" Width="12" Height="12" Margin="0,0,3,0" RenderOptions.BitmapScalingMode="HighQuality"/>
-                                        <TextBlock x:Name="SimpleModeButtonText" Text="간편모드" FontSize="12" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}" FontWeight="Normal"/>
+                                        <Viewbox Width="52" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left">
+                                            <TextBlock x:Name="SimpleModeButtonText" Text="간편모드" FontSize="12" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}" FontWeight="Normal"/>
+                                        </Viewbox>
                                     </StackPanel>
                                 </Button>
 
@@ -528,7 +552,9 @@
                                     </Button.Template>
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <Image Source="/icons/tray_mode.png" Width="12" Height="12" Margin="0,0,3,0" RenderOptions.BitmapScalingMode="HighQuality"/>
-                                        <TextBlock x:Name="TrayModeButtonText" Text="트레이모드" FontSize="12" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}" FontWeight="Normal"/>
+                                        <Viewbox Width="52" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left">
+                                            <TextBlock x:Name="TrayModeButtonText" Text="트레이모드" FontSize="12" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}" FontWeight="Normal"/>
+                                        </Viewbox>
                                     </StackPanel>
                                 </Button>
                             </UniformGrid>
