@@ -493,10 +493,205 @@ namespace CatchCapture
 
         #region 도구 버튼 이벤트
 
+        /// <summary>
+        /// drawnElements를 직접 렌더링하여 합성 이미지 생성 (SnippingWindow 방식)
+        /// DPI 스케일링을 고려하여 정확하게 렌더링
+        /// </summary>
+        private BitmapSource GetCombinedImage()
+        {
+            try
+            {
+                // DPI 정보 획득
+                double dpiX = currentImage.DpiX;
+                double dpiY = currentImage.DpiY;
+                int pixelWidth = currentImage.PixelWidth;
+                int pixelHeight = currentImage.PixelHeight;
+
+                // 논리적 크기 계산 (WPF 좌표계)
+                double logicWidth = currentImage.Width;
+                double logicHeight = currentImage.Height;
+
+                if (logicWidth <= 0 || logicHeight <= 0)
+                {
+                    // Fallback if Width/Height metadata is missing
+                    logicWidth = pixelWidth * 96.0 / dpiX;
+                    logicHeight = pixelHeight * 96.0 / dpiY;
+                }
+
+                var renderBitmap = new RenderTargetBitmap(pixelWidth, pixelHeight, dpiX, dpiY, PixelFormats.Pbgra32);
+                var drawingVisual = new DrawingVisual();
+
+                using (var dc = drawingVisual.RenderOpen())
+                {
+                    // 1. 배경 이미지 (논리 좌표 크기로 그리기)
+                    dc.DrawImage(currentImage, new Rect(0, 0, logicWidth, logicHeight));
+
+                    // 2. 그려진 요소들 렌더링
+                    foreach (var element in drawnElements)
+                    {
+                        if (element.Visibility != Visibility.Visible) continue;
+
+                        try
+                        {
+                            if (element is Polyline polyline)
+                            {
+                                var pen = new Pen(polyline.Stroke, polyline.StrokeThickness)
+                                {
+                                    StartLineCap = PenLineCap.Round,
+                                    EndLineCap = PenLineCap.Round,
+                                    LineJoin = PenLineJoin.Round
+                                };
+                                
+                                if (polyline.Opacity < 1.0) dc.PushOpacity(polyline.Opacity);
+                                
+                                // Polyline Points 확인
+                                if (polyline.Points != null && polyline.Points.Count > 1)
+                                {
+                                    for (int i = 0; i < polyline.Points.Count - 1; i++)
+                                    {
+                                        dc.DrawLine(pen, polyline.Points[i], polyline.Points[i + 1]);
+                                    }
+                                }
+                                
+                                if (polyline.Opacity < 1.0) dc.Pop();
+                            }
+                            else if (element is Line line)
+                            {
+                                dc.DrawLine(new Pen(line.Stroke, line.StrokeThickness), 
+                                    new Point(line.X1, line.Y1), new Point(line.X2, line.Y2));
+                            }
+                            else if (element is Shape shape)
+                            {
+                                double left = Canvas.GetLeft(shape);
+                                double top = Canvas.GetTop(shape);
+                                if (double.IsNaN(left)) left = 0;
+                                if (double.IsNaN(top)) top = 0;
+
+                                dc.PushTransform(new TranslateTransform(left, top));
+                                
+                                if (shape is Rectangle rect)
+                                {
+                                    double w = double.IsNaN(rect.Width) ? rect.ActualWidth : rect.Width;
+                                    double h = double.IsNaN(rect.Height) ? rect.ActualHeight : rect.Height;
+                                    // 안전장치
+                                    if (w <= 0 || double.IsNaN(w)) w = 0;
+                                    if (h <= 0 || double.IsNaN(h)) h = 0;
+
+                                    dc.DrawRectangle(rect.Fill, new Pen(rect.Stroke, rect.StrokeThickness), new Rect(0, 0, w, h));
+                                }
+                                else if (shape is Ellipse ellipse)
+                                {
+                                    double w = double.IsNaN(ellipse.Width) ? ellipse.ActualWidth : ellipse.Width;
+                                    double h = double.IsNaN(ellipse.Height) ? ellipse.ActualHeight : ellipse.Height;
+                                    if (w <= 0 || double.IsNaN(w)) w = 0;
+                                    if (h <= 0 || double.IsNaN(h)) h = 0;
+
+                                    dc.DrawEllipse(ellipse.Fill, new Pen(ellipse.Stroke, ellipse.StrokeThickness), 
+                                        new Point(w/2, h/2), w/2, h/2);
+                                }
+                                dc.Pop();
+                            }
+                            else if (element is TextBox textBox)
+                            {
+                                if (string.IsNullOrWhiteSpace(textBox.Text)) continue;
+
+                                double left = Canvas.GetLeft(textBox);
+                                double top = Canvas.GetTop(textBox);
+                                if (double.IsNaN(left)) left = 0;
+                                if (double.IsNaN(top)) top = 0;
+
+                                var formattedText = new FormattedText(
+                                    textBox.Text,
+                                    System.Globalization.CultureInfo.CurrentCulture,
+                                    FlowDirection.LeftToRight,
+                                    new Typeface(textBox.FontFamily, textBox.FontStyle, textBox.FontWeight, textBox.FontStretch),
+                                    textBox.FontSize,
+                                    textBox.Foreground,
+                                    VisualTreeHelper.GetDpi(this).PixelsPerDip);
+
+                                dc.DrawText(formattedText, new Point(left + textBox.Padding.Left, top + textBox.Padding.Top));
+                            }
+                            else if (element is Canvas groupCanvas)
+                            {
+                                double gLeft = Canvas.GetLeft(groupCanvas);
+                                double gTop = Canvas.GetTop(groupCanvas);
+                                if (double.IsNaN(gLeft)) gLeft = 0;
+                                if (double.IsNaN(gTop)) gTop = 0;
+                                
+                                dc.PushTransform(new TranslateTransform(gLeft, gTop));
+                                
+                                foreach(var child in groupCanvas.Children)
+                                {
+                                    if (child is Border border)
+                                    {
+                                        double bLeft = Canvas.GetLeft(border);
+                                        double bTop = Canvas.GetTop(border);
+                                        if(double.IsNaN(bLeft)) bLeft = 0;
+                                        if(double.IsNaN(bTop)) bTop = 0;
+
+                                        double bw = double.IsNaN(border.Width) ? border.ActualWidth : border.Width;
+                                        double bh = double.IsNaN(border.Height) ? border.ActualHeight : border.Height;
+                                        
+                                        var ellipseGeo = new EllipseGeometry(new Point(bLeft + bw/2, bTop + bh/2), bw/2, bh/2);
+                                        dc.DrawGeometry(border.Background, null, ellipseGeo);
+                                        
+                                        if (border.Child is TextBlock tb)
+                                        {
+                                            var ft = new FormattedText(
+                                                tb.Text,
+                                                System.Globalization.CultureInfo.CurrentCulture,
+                                                FlowDirection.LeftToRight,
+                                                new Typeface(tb.FontFamily, tb.FontStyle, tb.FontWeight, tb.FontStretch),
+                                                tb.FontSize,
+                                                tb.Foreground,
+                                                VisualTreeHelper.GetDpi(this).PixelsPerDip);
+                                            dc.DrawText(ft, new Point(bLeft + (bw - ft.Width)/2, bTop + (bh - ft.Height)/2));
+                                        }
+                                    }
+                                    else if (child is TextBox tb)
+                                    {
+                                        if (string.IsNullOrWhiteSpace(tb.Text)) continue;
+                                        double tLeft = Canvas.GetLeft(tb);
+                                        double tTop = Canvas.GetTop(tb);
+                                        if (double.IsNaN(tLeft)) tLeft = 0;
+                                        if (double.IsNaN(tTop)) tTop = 0;
+                                        
+                                        var ft = new FormattedText(
+                                            tb.Text,
+                                            System.Globalization.CultureInfo.CurrentCulture,
+                                            FlowDirection.LeftToRight,
+                                            new Typeface(tb.FontFamily, tb.FontStyle, tb.FontWeight, tb.FontStretch),
+                                            tb.FontSize,
+                                            tb.Foreground,
+                                            VisualTreeHelper.GetDpi(this).PixelsPerDip);
+                                        dc.DrawText(ft, new Point(tLeft + tb.Padding.Left, tTop + tb.Padding.Top));
+                                    }
+                                }
+                                dc.Pop();
+                            }
+                        }
+                        catch (Exception innerEx)
+                        {
+                            // 특정 요소 렌더링 실패해도 계속 진행
+                             System.Diagnostics.Debug.WriteLine($"Error rendering element {element}: {innerEx.Message}");
+                        }
+                    }
+                }
+                renderBitmap.Render(drawingVisual);
+                return renderBitmap;
+            }
+            catch (Exception ex)
+            {
+                // 치명적 오류 시 메시지 표시 및 원본 반환
+                 System.Diagnostics.Debug.WriteLine($"이미지 합성 중 오류: {ex.Message}");
+                return currentImage; 
+            }
+        }
+
         private void CopyButton_Click(object sender, RoutedEventArgs e)
         {
-            BakeDrawnElements();
-            ScreenCaptureUtility.CopyImageToClipboard(currentImage);
+            var finalImage = GetCombinedImage();
+            ScreenCaptureUtility.CopyImageToClipboard(finalImage);
             ShowToastMessage(LocalizationManager.GetString("CopyToClipboard"));
         }
 
@@ -580,8 +775,7 @@ namespace CatchCapture
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            BakeDrawnElements();
-            // ... (rest of the save logic)
+            var finalImage = GetCombinedImage();
             // 자동 파일 이름 생성
             string timestamp = DateTime.Now.ToString("yyyy-MM-dd HHmmss");
 
@@ -612,7 +806,7 @@ namespace CatchCapture
             {
                 try
                 {
-                    ScreenCaptureUtility.SaveImageToFile(currentImage, dialog.FileName);
+                    ScreenCaptureUtility.SaveImageToFile(finalImage, dialog.FileName);
                     CustomMessageBox.Show(LocalizationManager.GetString("ImageSaved"), LocalizationManager.GetString("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
