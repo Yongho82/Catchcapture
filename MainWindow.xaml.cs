@@ -1463,6 +1463,11 @@ public partial class MainWindow : Window
     {
         try
         {
+            // 녹화 시작 전 현재 모드 저장
+            // 간편모드에서는 SimpleModeWindow가 먼저 Hide()를 호출하므로 IsVisible 대신 존재 여부만 확인
+            bool wasSimpleMode = simpleModeWindow != null;
+            bool wasTrayMode = settings.IsTrayMode;
+            
             this.Hide(); 
             FlushUIAfterHide();
 
@@ -1470,19 +1475,21 @@ public partial class MainWindow : Window
             recordingWindow.Closed += (s, args) =>
             {
                 // 녹화 창이 닫힐 때 이전 모드로 복원
-                if (settings.LastActiveMode == "Simple" && simpleModeWindow != null)
+                if (wasSimpleMode && simpleModeWindow != null)
                 {
                     // 간편 모드로 복원
                     simpleModeWindow.Show();
                     simpleModeWindow.Activate();
+                    simpleModeWindow.Topmost = true;
                 }
-                else if (settings.LastActiveMode == "Tray" && trayModeWindow != null)
+                else if (wasTrayMode && trayModeWindow != null)
                 {
                     // 트레이 모드로 복원
                     trayModeWindow.Show();
                     trayModeWindow.Activate();
+                    trayModeWindow.Topmost = true;
                 }
-                else if (!settings.IsTrayMode)
+                else
                 {
                     // 일반 모드로 복원
                     this.Show();
