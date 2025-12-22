@@ -141,7 +141,64 @@
             </Setter>
         </Style>
         
-        <!-- 텍스트 렌더링 개선 스타일 -->
+        <!-- 세련된 컨텍스트 메뉴 스타일 -->
+        <Style x:Key="ModernContextMenu" TargetType="ContextMenu">
+            <Setter Property="Background" Value="{DynamicResource ThemeBackground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="4"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ContextMenu">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="15" Opacity="0.15" ShadowDepth="3" Direction="270"/>
+                            </Border.Effect>
+                            <ItemsPresenter Margin="2"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ModernMenuItem" TargetType="MenuItem">
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
+            <Setter Property="Padding" Value="8,0,20,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="MenuItem">
+                        <Border x:Name="templateRoot"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                CornerRadius="6"
+                                Margin="2,1">
+                            <Grid VerticalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="30"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <ContentPresenter x:Name="Icon" ContentSource="Icon" Margin="8,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="{TemplateBinding Header}" 
+                                           VerticalAlignment="Center" Margin="{TemplateBinding Padding}"
+                                           FontSize="11.5"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="templateRoot" Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource ThemeTitleForeground}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 텍스트 렌더링 개선 스타일 (복구!) -->
         <Style x:Key="ClearTextStyle" TargetType="TextBlock">
             <Setter Property="TextOptions.TextFormattingMode" Value="Ideal"/>
             <Setter Property="TextOptions.TextRenderingMode" Value="Auto"/>
@@ -233,11 +290,27 @@
                             <!-- 지연 캡처 버튼 (우측 서브메뉴) -->
                             <Button x:Name="DelayCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="DelayCaptureButton_Click">
                                 <Button.ContextMenu>
-                                    <ContextMenu Placement="Right" PlacementTarget="{Binding ElementName=DelayCaptureButton}">
-                                        <MenuItem x:Name="DelayNoneMenu" Header="지연없음" Tag="0" Click="DelayMenuItem_Click"/>
-                                        <MenuItem x:Name="Delay3Menu" Header="3초" Tag="3" Click="DelayMenuItem_Click"/>
-                                        <MenuItem x:Name="Delay5Menu" Header="5초" Tag="5" Click="DelayMenuItem_Click"/>
-                                        <MenuItem x:Name="Delay10Menu" Header="10초" Tag="10" Click="DelayMenuItem_Click"/>
+                                    <ContextMenu Style="{StaticResource ModernContextMenu}" Placement="Right" PlacementTarget="{Binding ElementName=DelayCaptureButton}">
+                                        <MenuItem x:Name="DelayNoneMenu" Style="{StaticResource ModernMenuItem}" Header="지연없음" Tag="0" Click="DelayMenuItem_Click">
+                                            <MenuItem.Icon>
+                                                <TextBlock Text="0" FontWeight="Bold" Opacity="0.5" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem x:Name="Delay3Menu" Style="{StaticResource ModernMenuItem}" Header="3초" Tag="3" Click="DelayMenuItem_Click">
+                                            <MenuItem.Icon>
+                                                <TextBlock Text="3" FontWeight="Bold" Foreground="#007AFF" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem x:Name="Delay5Menu" Style="{StaticResource ModernMenuItem}" Header="5초" Tag="5" Click="DelayMenuItem_Click">
+                                            <MenuItem.Icon>
+                                                <TextBlock Text="5" FontWeight="Bold" Foreground="#007AFF" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem x:Name="Delay10Menu" Style="{StaticResource ModernMenuItem}" Header="10초" Tag="10" Click="DelayMenuItem_Click">
+                                            <MenuItem.Icon>
+                                                <TextBlock Text="10" FontWeight="Bold" Foreground="#34C759" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
                                     </ContextMenu>
                                 </Button.ContextMenu>
                                 <StackPanel Orientation="Horizontal">

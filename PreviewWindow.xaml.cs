@@ -310,14 +310,17 @@ namespace CatchCapture
         {
             if (e.Key == Key.Escape)
             {
+                // 텍스트 박스 입력 중일 때는 ESC를 눌러도 창이 닫히지 않도록 방지
+                if (e.OriginalSource is TextBox) return;
+
                 if (currentEditMode == EditMode.Crop)
                 {
                     CancelCrop();
                 }
                 else
                 {
-                    // 현재 편집 모드 취소
-                    CancelCurrentEditMode();
+                    // 현재 편집 모드가 없는 경우에만 편집창 닫기 (사용자 요청)
+                    this.Close();
                 }
             }
             else if (e.Key == Key.Enter)
