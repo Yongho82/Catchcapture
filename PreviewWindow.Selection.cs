@@ -117,7 +117,7 @@ namespace CatchCapture
                 layer.FillOpacity = _editorManager.ShapeFillOpacity;
                 ShapeDrawingHelper.ApplyDrawingLayer(selectedObject, layer);
             }
-            else if (selectedObject is FrameworkElement fe2 && fe2.Tag is CatchCapture.Utilities.ShapeMetadata metadata)
+            else if (selectedObject is FrameworkElement fe2 && fe2.Tag is CatchCapture.Utilities.ShapeMetadata metadata && _editorManager != null)
             {
                 metadata.Color = _editorManager.SelectedColor;
                 metadata.Thickness = _editorManager.ShapeBorderThickness;
@@ -138,30 +138,30 @@ namespace CatchCapture
                     ShapeDrawingHelper.UpdateArrow(arrowCanvas, metadata.StartPoint, metadata.EndPoint, _editorManager.SelectedColor, _editorManager.ShapeBorderThickness);
                 }
             }
-            else if (selectedObject is Polyline polyline)
+            else if (selectedObject is Polyline polyline && _editorManager != null)
             {
                 polyline.Stroke = new SolidColorBrush(_editorManager.SelectedColor);
                 // 형광펜인 경우 투명도 유지를 위해 Opacity를 확인하거나 다시 설정할 수 있음
             }
-            else if (selectedObject is TextBox textBox)
+            else if (selectedObject is TextBox textBox && _editorManager != null)
             {
                 // [수정] 공용 에디터 매니저의 기능 사용 (일관성 유지)
-                _editorManager?.ApplyCurrentTextSettingsToSelectedObject();
+                _editorManager.ApplyCurrentTextSettingsToSelectedObject();
                 
                 // 개별 연동 (필요한 경우)
                 textBox.Foreground = new SolidColorBrush(_editorManager.SelectedColor);
             }
-            else if (selectedObject is Canvas canvas && canvas.Children.Count > 0 && canvas.Children[0] is Border badge)
+            else if (selectedObject is Canvas canvas && canvas.Children.Count > 0 && canvas.Children[0] is Border badge && _editorManager != null)
             {
                 // [수정] 공용 에디터 매니저의 기능 사용
-                _editorManager?.ApplyCurrentTextSettingsToSelectedObject();
+                _editorManager.ApplyCurrentTextSettingsToSelectedObject();
                 badge.Background = new SolidColorBrush(_editorManager.SelectedColor);
             }
         }
 
         private void SyncSelectedObjectToGlobalSettings()
         {
-            if (selectedObject == null) return;
+            if (selectedObject == null || _editorManager == null) return;
 
             if (selectedObject is FrameworkElement fe && fe.Tag is CatchCapture.Models.DrawingLayer layer)
             {

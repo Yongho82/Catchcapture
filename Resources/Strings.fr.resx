@@ -392,4 +392,41 @@
   <data name="ToolNumbering" xml:space="preserve"><value>Numérotation</value></data>
   <data name="ToolClearAll" xml:space="preserve"><value>Tout effacer</value></data>
   <data name="OpenSaveFolder" xml:space="preserve"><value>Ouvrir le dossier de sauvegarde</value></data>
+  <data name="ModeSelect" xml:space="preserve"><value>Sélection du mode</value></data>
+  <data name="ThemeSettings" xml:space="preserve"><value>Paramètres du thème</value></data>
+  <data name="ThemePreset" xml:space="preserve"><value>Préréglages du thème</value></data>
+  <data name="ThemeGeneral" xml:space="preserve"><value>Général (Par défaut)</value></data>
+  <data name="ThemeDark" xml:space="preserve"><value>Mode sombre</value></data>
+  <data name="ThemeLight" xml:space="preserve"><value>Mode clair</value></data>
+  <data name="ThemeBlue" xml:space="preserve"><value>Mode bleu</value></data>
+  <data name="ThemeCustom" xml:space="preserve"><value>Personnalisé</value></data>
+  <data name="ThemeBgColor" xml:space="preserve"><value>Couleur d'arrière-plan</value></data>
+  <data name="ThemeTextColor" xml:space="preserve"><value>Couleur du texte</value></data>
+  <data name="ThemeColorGuide" xml:space="preserve"><value>* Cliquez sur les cases de couleur pour choisir les couleurs du thème.</value></data>
+  <data name="Apply" xml:space="preserve"><value>Appliquer</value></data>
+  <data name="Preview" xml:space="preserve"><value>Aperçu</value></data>
+  <data name="ThemeSampleLabel" xml:space="preserve"><value>Échantillon d'aperçu</value></data>
+  <data name="ThemeSampleText" xml:space="preserve"><value>Il s'agit d'un texte d'aperçu du thème. (ABCabc 123)</value></data>
+  <data name="RecordingSettings" xml:space="preserve"><value>Paramètres d'enregistrement</value></data>
+  <data name="BasicSettings" xml:space="preserve"><value>Paramètres de base</value></data>
+  <data name="RecordingStartStopHotkey" xml:space="preserve"><value>Raccourci Démarrer/Arrêter l'enregistrement</value></data>
+  <data name="RecordStartStop" xml:space="preserve"><value>Enregistrer/Arrêter</value></data>
+  <data name="CaptureLineSettings" xml:space="preserve"><value>Paramètres de la ligne de capture</value></data>
+  <data name="OverlayBgColor" xml:space="preserve"><value>Couleur d'arrière-plan de superposition</value></data>
+  <data name="LineStyle" xml:space="preserve"><value>Style de ligne</value></data>
+  <data name="LineThickness" xml:space="preserve"><value>Épaisseur de ligne</value></data>
+  <data name="LineColor" xml:space="preserve"><value>Couleur de la ligne</value></data>
+  <data name="CaptureSettingsGuide" xml:space="preserve"><value>* Cliquez sur les cases de couleur pour choisir les couleurs du guide de capture.</value></data>
+  <data name="SolidLine" xml:space="preserve"><value>Pleine (Solid)</value></data>
+  <data name="DashLine" xml:space="preserve"><value>Pointillés (Dash)</value></data>
+  <data name="DotLine" xml:space="preserve"><value>Points (Dot)</value></data>
+  <data name="DashDotLine" xml:space="preserve"><value>Trait-point (DashDot)</value></data>
+  <data name="Outline" xml:space="preserve"><value>Contour</value></data>
+  <data name="QualityHigh" xml:space="preserve"><value>Haute qualité</value></data>
+  <data name="QualityMedium" xml:space="preserve"><value>Moyenne</value></data>
+  <data name="QualityLow" xml:space="preserve"><value>Basse qualité</value></data>
+  <data name="Select" xml:space="preserve"><value>Sélectionner</value></data>
+  <data name="SelectTooltip" xml:space="preserve"><value>Sélectionner et ajuster les éléments</value></data>
+  <data name="NumberingMode" xml:space="preserve"><value>Mode numérotation</value></data>
+  <data name="OpenSettings" xml:space="preserve"><value>Ouvrir les paramètres</value></data>
 </root>

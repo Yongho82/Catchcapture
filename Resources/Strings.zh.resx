@@ -395,4 +395,38 @@
   <data name="ToolNumbering" xml:space="preserve"><value>编号</value></data>
   <data name="ToolClearAll" xml:space="preserve"><value>清除所有</value></data>
   <data name="OpenSaveFolder" xml:space="preserve"><value>打开保存文件夹</value></data>
+  <data name="ThemeSettings" xml:space="preserve"><value>主题设置</value></data>
+  <data name="ThemePreset" xml:space="preserve"><value>主题预设</value></data>
+  <data name="ThemeGeneral" xml:space="preserve"><value>一般 (默认)</value></data>
+  <data name="ThemeDark" xml:space="preserve"><value>深色模式</value></data>
+  <data name="ThemeLight" xml:space="preserve"><value>浅色模式</value></data>
+  <data name="ThemeBlue" xml:space="preserve"><value>蓝色模式</value></data>
+  <data name="ThemeCustom" xml:space="preserve"><value>自定义</value></data>
+  <data name="ThemeBgColor" xml:space="preserve"><value>背景颜色</value></data>
+  <data name="ThemeTextColor" xml:space="preserve"><value>文本颜色</value></data>
+  <data name="ThemeColorGuide" xml:space="preserve"><value>※ 点击颜色框选择主题颜色。</value></data>
+  <data name="Apply" xml:space="preserve"><value>应用</value></data>
+  <data name="Preview" xml:space="preserve"><value>预览</value></data>
+  <data name="ThemeSampleLabel" xml:space="preserve"><value>预览示例</value></data>
+  <data name="ThemeSampleText" xml:space="preserve"><value>这是主题预览示例文字。(ABCabc 123)</value></data>
+  <data name="RecordingSettings" xml:space="preserve"><value>录制设置</value></data>
+  <data name="BasicSettings" xml:space="preserve"><value>基本设置</value></data>
+  <data name="RecordingStartStopHotkey" xml:space="preserve"><value>录制/停止快捷键</value></data>
+  <data name="RecordStartStop" xml:space="preserve"><value>录制/停止</value></data>
+  <data name="CaptureLineSettings" xml:space="preserve"><value>捕获线设置</value></data>
+  <data name="OverlayBgColor" xml:space="preserve"><value>叠加背景色</value></data>
+  <data name="LineThickness" xml:space="preserve"><value>线条粗细</value></data>
+  <data name="LineColor" xml:space="preserve"><value>线条颜色</value></data>
+  <data name="CaptureSettingsGuide" xml:space="preserve"><value>※ 点击颜色框选择捕获指南颜色。</value></data>
+  <data name="SolidLine" xml:space="preserve"><value>实线 (Solid)</value></data>
+  <data name="DashLine" xml:space="preserve"><value>虚线 (Dash)</value></data>
+  <data name="DotLine" xml:space="preserve"><value>点线 (Dot)</value></data>
+  <data name="DashDotLine" xml:space="preserve"><value>点划线 (DashDot)</value></data>
+  <data name="QualityHigh" xml:space="preserve"><value>高画质</value></data>
+  <data name="QualityMedium" xml:space="preserve"><value>中等</value></data>
+  <data name="QualityLow" xml:space="preserve"><value>低画质</value></data>
+  <data name="Select" xml:space="preserve"><value>选择</value></data>
+  <data name="SelectTooltip" xml:space="preserve"><value>选择并调整元素</value></data>
+  <data name="NumberingMode" xml:space="preserve"><value>编号模式</value></data>
+  <data name="OpenSettings" xml:space="preserve"><value>打开设置</value></data>
 </root>

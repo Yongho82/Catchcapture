@@ -355,7 +355,7 @@ private void InitLanguageComboBox()
             {
                 foreach (ComboBoxItem item in CboLineThickness.Items)
                 {
-                    if (item.Tag?.ToString() == _settings.CaptureLineThickness.ToString("0.0"))
+                    if (item.Tag?.ToString() == _settings.CaptureLineThickness.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture))
                     {
                         CboLineThickness.SelectedItem = item;
                         break;
@@ -1005,7 +1005,7 @@ private void InitLanguageComboBox()
             }
             if (CboLineThickness.SelectedItem is ComboBoxItem lineThickItem)
             {
-                if (double.TryParse(lineThickItem.Tag?.ToString(), out double thick))
+                if (double.TryParse(lineThickItem.Tag?.ToString(), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double thick))
                     _settings.CaptureLineThickness = thick;
             }
 
