@@ -528,4 +528,8 @@
   <data name="DashLine" xml:space="preserve"><value>Dash</value></data>
   <data name="DotLine" xml:space="preserve"><value>Dot</value></data>
   <data name="DashDotLine" xml:space="preserve"><value>DashDot</value></data>
+  <data name="Outline" xml:space="preserve"><value>Outline</value></data>
+  <data name="QualityHigh" xml:space="preserve"><value>High Quality</value></data>
+  <data name="QualityMedium" xml:space="preserve"><value>Medium</value></data>
+  <data name="QualityLow" xml:space="preserve"><value>Low Quality</value></data>
 </root>

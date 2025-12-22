@@ -237,6 +237,18 @@ private void UpdateUIText()
                 if (RecHotkeyGroup != null) RecHotkeyGroup.Header = LocalizationManager.GetString("RecordingStartStopHotkey") ?? "녹화/중지 단축키";
                 if (HkRecStartStopEnabled != null) HkRecStartStopEnabled.Content = LocalizationManager.GetString("RecordStartStop") ?? "녹화/중지";
 
+                // 녹화 품질 콤보박스 아이템 로컬라이징
+                if (CboRecQuality != null)
+                {
+                    foreach (ComboBoxItem item in CboRecQuality.Items)
+                    {
+                        string? tag = item.Tag as string;
+                        if (tag == "High") item.Content = LocalizationManager.GetString("QualityHigh");
+                        else if (tag == "Medium") item.Content = LocalizationManager.GetString("QualityMedium");
+                        else if (tag == "Low") item.Content = LocalizationManager.GetString("QualityLow");
+                    }
+                }
+
                 // 하단 버튼
                 if (CancelButton != null) CancelButton.Content = LocalizationManager.GetString("Cancel");
                 if (ApplyButton != null) ApplyButton.Content = LocalizationManager.GetString("Apply");

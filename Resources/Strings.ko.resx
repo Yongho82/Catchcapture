@@ -528,4 +528,8 @@
   <data name="DashLine" xml:space="preserve"><value>파선 (Dash)</value></data>
   <data name="DotLine" xml:space="preserve"><value>점선 (Dot)</value></data>
   <data name="DashDotLine" xml:space="preserve"><value>쇄선 (DashDot)</value></data>
+  <data name="Outline" xml:space="preserve"><value>테두리</value></data>
+  <data name="QualityHigh" xml:space="preserve"><value>고화질</value></data>
+  <data name="QualityMedium" xml:space="preserve"><value>보통</value></data>
+  <data name="QualityLow" xml:space="preserve"><value>저화질</value></data>
 </root>

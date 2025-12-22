@@ -23,6 +23,8 @@ namespace CatchCapture.Controls
             InitializeComponent();
             InitializeEvents();
             BuildColorPalette();
+            UpdateLocalization();
+            ResLoc.LanguageChanged += (s, e) => UpdateLocalization();
         }
 
         public void Initialize(SharedCanvasEditor editor)

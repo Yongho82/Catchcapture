@@ -1438,6 +1438,10 @@ namespace CatchCapture
                 NumberingToolButton.Label = LocalizationManager.GetString("Numbering") ?? "넘버링";
                 NumberingToolButton.ToolTipText = LocalizationManager.GetString("NumberingMode") ?? "번호 매기기";
             }
+
+            // Select
+            if(SelectLabelText != null) SelectLabelText.Text = LocalizationManager.GetString("Select");
+            if(SelectButton != null) SelectButton.ToolTip = LocalizationManager.GetString("SelectTooltip");
             // Image Search & Share & OCR
             if(ImageSearchLabelText != null) ImageSearchLabelText.Text = LocalizationManager.GetString("ImageSearch");
             if(ImageSearchButton != null) ImageSearchButton.ToolTip = LocalizationManager.GetString("ImageSearch");
