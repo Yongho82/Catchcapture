@@ -3029,6 +3029,11 @@ namespace CatchCapture.Utilities
             if (double.IsNaN(tWidth) || tWidth < 10) tWidth = isVerticalToolbarLayout ? 60 : 450;
             if (double.IsNaN(tHeight)) tHeight = isVerticalToolbarLayout ? 550 : 55;
             
+            // 팔레트 예상 크기
+            double paletteHeight = 150; // 팔레트의 대략적인 높이
+            double paletteWidth = 300;  // 팔레트의 대략적인 너비
+            double margin = 10;
+            
             if (isVerticalToolbarLayout)
             {
                  // 세로 레이아웃
@@ -3036,29 +3041,35 @@ namespace CatchCapture.Utilities
                  // 툴바가 선택 영역 오른쪽에 있으면 팔레트는 더 오른쪽
                  if (tLeft > selectionLeft)
                  {
-                     double targetX = tLeft + tWidth + 10;
+                     double targetX = tLeft + tWidth + margin;
                      // 화면 밖으로 나가면 왼쪽으로
-                     if (targetX + 300 > vWidth) return new Point(tLeft - 310, tTop);
+                     if (targetX + paletteWidth > vWidth) return new Point(tLeft - paletteWidth - margin, tTop);
                      return new Point(targetX, tTop);
                  }
                  else
                  {
-                     return new Point(tLeft - 310, tTop);
+                     return new Point(tLeft - paletteWidth - margin, tTop);
                  }
             }
             else
             {
-                // 가로 레이아웃: 툴바와 겹치지 않게 선택 영역 내부 또는 툴바 위에 배치
-                // 보통 툴바가 하단에 있으면 팔레트는 위에, 툴바가 상단에 있으면 팔레트는 아래에.
-                if (tTop > currentSelectionRect.Bottom)
+                // 가로 레이아웃: 하단 여유 공간을 감지하여 팔레트 위치 결정
+                // 툴바 하단부터 캔버스 끝까지의 여유 공간 계산
+                double spaceBelow = vHeight - (tTop + tHeight);
+                double spaceAbove = tTop - currentSelectionRect.Top;
+                
+                // 하단에 팔레트를 배치할 충분한 공간이 있는지 확인
+                bool canFitBelow = spaceBelow >= (paletteHeight + margin);
+                
+                if (canFitBelow)
                 {
-                    // 툴바가 선택영역 하단 외부에 있음 -> 팔레트는 툴바 바로 위 (선택영역 내부 하단 기점)
-                    return new Point(tLeft, tTop - 130); // 130: 팔레트 대략 높이
+                    // 하단에 공간이 있으면 툴바 아래에 팔레트 배치
+                    return new Point(tLeft, tTop + tHeight + margin);
                 }
                 else
                 {
-                    // 툴바가 선택영역 상단 외부에 있음 -> 팔레트는 툴바 바로 아래
-                    return new Point(tLeft, tTop + tHeight + 10);
+                    // 하단에 공간이 없으면 툴바 위에 팔레트 배치
+                    return new Point(tLeft, tTop - paletteHeight - margin);
                 }
             }
         }
