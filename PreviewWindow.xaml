@@ -442,7 +442,7 @@
         <Border Grid.Row="1" Grid.Column="0" Background="{DynamicResource ThemeBackground}" BorderThickness="0">
             <Grid>
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                    <Canvas x:Name="ImageCanvas">
+                    <Canvas x:Name="ImageCanvas" ClipToBounds="True">
                         <Canvas.LayoutTransform>
                             <ScaleTransform x:Name="CanvasScaleTransform"/>
                         </Canvas.LayoutTransform>

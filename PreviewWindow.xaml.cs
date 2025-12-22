@@ -557,20 +557,19 @@ namespace CatchCapture
         }
         private void BakeDrawnElements()
         {
-            if (drawnElements.Count == 0) return;
-
+            // 변경 전 상태 저장
             SaveForUndo();
             
-            // 모든 인터랙티브 요소를 고정 레이어로 전환
-            foreach (var element in drawnElements.ToList())
+            // 모든 레이어를 강제로 Interactive = false로 변경하여 이미지에 구워지도록 함
+            foreach (var layer in drawingLayers)
             {
-                if (element is FrameworkElement fe && fe.Tag is CatchCapture.Models.DrawingLayer layer)
-                {
-                    layer.IsInteractive = false;
-                }
-                ImageCanvas.Children.Remove(element);
+                layer.IsInteractive = false;
             }
             
+            // 화면의 편집 요소 제거
+            // 지우개 커서 등 일시적인 요소도 포함될 수 있으므로 Children 전체를 비우는 것이 깔끔함
+            // 단, 다른 로직에 영향이 없도록 조심 (현재 구조상 안전해 보임)
+            ImageCanvas.Children.Clear();
             drawnElements.Clear();
             DeselectObject();
 
