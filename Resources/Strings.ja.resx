@@ -188,6 +188,13 @@
     <value>設定が保存されました</value>
   </data>
   
+  <data name="Version" xml:space="preserve">
+    <value>バージョン</value>
+  </data>
+  <data name="Default" xml:space="preserve">
+    <value>デフォルト</value>
+  </data>
+  
   <!-- Messages -->
   <data name="Confirm" xml:space="preserve">
     <value>確認</value>

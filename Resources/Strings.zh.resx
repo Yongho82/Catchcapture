@@ -188,6 +188,13 @@
     <value>设置已保存</value>
   </data>
   
+  <data name="Version" xml:space="preserve">
+    <value>版本</value>
+  </data>
+  <data name="Default" xml:space="preserve">
+    <value>默认值</value>
+  </data>
+  
   <!-- Messages -->
   <data name="Confirm" xml:space="preserve">
     <value>确认</value>

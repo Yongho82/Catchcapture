@@ -35,7 +35,26 @@ namespace CatchCapture.Resources
                     _currentCulture = value;
                     CultureInfo.CurrentUICulture = value;
                     CultureInfo.CurrentCulture = value;
+                    UpdateResources();
                     LanguageChanged?.Invoke(null, EventArgs.Empty);
+                }
+            }
+        }
+
+        private static void UpdateResources()
+        {
+            if (System.Windows.Application.Current == null) return;
+
+            // 모든 리소스 키를 반복하여 Application resources에 등록
+            // 이렇게 하면 XAML에서 {DynamicResource Key} 형식을 사용할 수 있습니다.
+            var resourceSet = _resourceManager?.GetResourceSet(_currentCulture, true, true);
+            if (resourceSet != null)
+            {
+                foreach (System.Collections.DictionaryEntry entry in resourceSet)
+                {
+                    string key = entry.Key.ToString();
+                    string value = entry.Value?.ToString() ?? key;
+                    System.Windows.Application.Current.Resources[key] = value;
                 }
             }
         }

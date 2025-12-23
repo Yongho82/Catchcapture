@@ -230,6 +230,13 @@
     <value>Paramètres enregistrés</value>
   </data>
   
+  <data name="Version" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="Default" xml:space="preserve">
+    <value>Par défaut</value>
+  </data>
+  
   <!-- Messages -->
   <data name="Confirm" xml:space="preserve">
     <value>Confirmer</value>

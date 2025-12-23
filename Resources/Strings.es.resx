@@ -227,6 +227,13 @@
     <value>Configuración guardada</value>
   </data>
   
+  <data name="Version" xml:space="preserve">
+    <value>Versión</value>
+  </data>
+  <data name="Default" xml:space="preserve">
+    <value>Predeterminado</value>
+  </data>
+  
   <!-- Messages -->
   <data name="Confirm" xml:space="preserve">
     <value>Confirmar</value>

@@ -458,4 +458,5 @@
   <data name="PrintingError" xml:space="preserve"><value>Error occurred while printing</value></data>
   <data name="PreviewGenerationError" xml:space="preserve"><value>Error generating preview</value></data>
   <data name="PrintJobName" xml:space="preserve"><value>CatchCapture Image Print</value></data>
+  <data name="Close" xml:space="preserve"><value>Close</value></data>
 </root>

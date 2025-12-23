@@ -194,6 +194,13 @@
     <value>설정이 저장되었습니다</value>
   </data>
   
+  <data name="Version" xml:space="preserve">
+    <value>버전</value>
+  </data>
+  <data name="Default" xml:space="preserve">
+    <value>기본값</value>
+  </data>
+  
   <!-- Messages -->
   <data name="Confirm" xml:space="preserve">
     <value>확인</value>
@@ -447,4 +454,5 @@
   <data name="PrintingError" xml:space="preserve"><value>인쇄 중 오류가 발생했습니다</value></data>
   <data name="PreviewGenerationError" xml:space="preserve"><value>미리보기 생성 오류</value></data>
   <data name="PrintJobName" xml:space="preserve"><value>CatchCapture 이미지 인쇄</value></data>
+  <data name="Close" xml:space="preserve"><value>닫기</value></data>
 </root>
