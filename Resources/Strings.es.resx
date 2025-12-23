@@ -478,4 +478,18 @@
   <data name="SelectTooltip" xml:space="preserve"><value>Seleccionar y ajustar elementos</value></data>
   <data name="NumberingMode" xml:space="preserve"><value>Modo de numeración</value></data>
   <data name="OpenSettings" xml:space="preserve"><value>Abrir ajustes</value></data>
+
+  <!-- Print Preview -->
+  <data name="PrintPreviewTitle" xml:space="preserve"><value>Vista previa de impresión</value></data>
+  <data name="OrientationLabel" xml:space="preserve"><value>Orientación:</value></data>
+  <data name="Portrait" xml:space="preserve"><value>Retrato</value></data>
+  <data name="Landscape" xml:space="preserve"><value>Paisaje</value></data>
+  <data name="PrintOptionsLabel" xml:space="preserve"><value>Opciones de impresión:</value></data>
+  <data name="FitToPage" xml:space="preserve"><value>Ajustar a la página</value></data>
+  <data name="ActualSize" xml:space="preserve"><value>Tamaño real</value></data>
+  <data name="FillPage" xml:space="preserve"><value>Llenar página</value></data>
+  <data name="PrintingStarted" xml:space="preserve"><value>Impresión iniciada.</value></data>
+  <data name="PrintingError" xml:space="preserve"><value>Error al imprimir</value></data>
+  <data name="PreviewGenerationError" xml:space="preserve"><value>Error al generar vista previa</value></data>
+  <data name="PrintJobName" xml:space="preserve"><value>Impresión de CatchCapture</value></data>
 </root>

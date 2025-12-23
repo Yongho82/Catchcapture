@@ -190,65 +190,9 @@
   <data name="SettingsSaved" xml:space="preserve">
     <value>Settings saved successfully</value>
   </data>
-  <data name="CaptureSettings" xml:space="preserve">
-    <value>Capture Settings</value>
-  </data>
-  <data name="SystemSettings" xml:space="preserve">
-    <value>System Settings</value>
-  </data>
-  <data name="HotkeySettings" xml:space="preserve">
-    <value>Hotkey Settings</value>
-  </data>
-  <data name="MenuEdit" xml:space="preserve">
-    <value>Menu Edit</value>
-  </data>
-  <data name="MenuEditGuide" xml:space="preserve">
-    <value>Drag to change menu order</value>
-  </data>
-  <data name="Add" xml:space="preserve">
-    <value>Add</value>
-  </data>
-  <data name="RestoreDefaultMenus" xml:space="preserve">
-    <value>Restore Default Menus</value>
-  </data>
-  <data name="AppTitle" xml:space="preserve">
-    <value>CatchCapture</value>
-  </data>
+
   <data name="Version" xml:space="preserve">
     <value>Version</value>
-  </data>
-  <data name="VisitHomepage" xml:space="preserve">
-    <value>Visit Homepage</value>
-  </data>
-  <data name="RestoreDefaults" xml:space="preserve">
-    <value>Restore Defaults</value>
-  </data>
-  <data name="PrivacyPolicy" xml:space="preserve">
-    <value>Privacy Policy</value>
-  </data>
-  <data name="SaveSettings" xml:space="preserve">
-    <value>Save Settings</value>
-  </data>
-  <data name="SavePath" xml:space="preserve">
-    <value>Save Path</value>
-  </data>
-  <data name="Change" xml:space="preserve">
-    <value>Change</value>
-  </data>
-  <data name="FileFormat" xml:space="preserve">
-    <value>File Format</value>
-  </data>
-  <data name="Quality" xml:space="preserve">
-    <value>Quality</value>
-  </data>
-  <data name="Options" xml:space="preserve">
-    <value>Options</value>
-  </data>
-  <data name="AutoSaveCapture" xml:space="preserve">
-    <value>Auto Save</value>
-  </data>
-  <data name="ShowPreviewAfterCapture" xml:space="preserve">
-    <value>Show Preview After Capture</value>
   </data>
   <data name="Default" xml:space="preserve">
     <value>Default</value>
@@ -259,39 +203,7 @@
   <data name="SelectTooltip" xml:space="preserve">
     <value>Select and adjust elements</value>
   </data>
-  <data name="ShowMagnifier" xml:space="preserve">
-    <value>Show Magnifier</value>
-  </data>
-  <data name="UsePrintScreen" xml:space="preserve">
-    <value>Use Print Screen Key</value>
-  </data>
-  <data name="StartupMode" xml:space="preserve">
-    <value>Startup Mode</value>
-  </data>
-  <data name="StartInTray" xml:space="preserve">
-    <value>Start in Tray</value>
-  </data>
-  <data name="StartInNormal" xml:space="preserve">
-    <value>Start in Normal</value>
-  </data>
-  <data name="StartInSimple" xml:space="preserve">
-    <value>Start in Simple</value>
-  </data>
-  <data name="StartupModeNotice" xml:space="preserve">
-    <value>※ Startup mode sets the initial screen when the program starts.</value>
-  </data>
-  <data name="LanguageSettings" xml:space="preserve">
-    <value>Language Settings</value>
-  </data>
-  <data name="LanguageLabel" xml:space="preserve">
-    <value>Language</value>
-  </data>
-  <data name="RestartRequired" xml:space="preserve">
-    <value>Restart required after changing language.</value>
-  </data>
-  <data name="Info" xml:space="preserve">
-    <value>Info</value>
-  </data>
+
   
   <!-- Messages -->
   <data name="Confirm" xml:space="preserve">
@@ -532,4 +444,18 @@
   <data name="QualityHigh" xml:space="preserve"><value>High Quality</value></data>
   <data name="QualityMedium" xml:space="preserve"><value>Medium</value></data>
   <data name="QualityLow" xml:space="preserve"><value>Low Quality</value></data>
+  
+  <!-- Print Preview -->
+  <data name="PrintPreviewTitle" xml:space="preserve"><value>Print Preview</value></data>
+  <data name="OrientationLabel" xml:space="preserve"><value>Orientation:</value></data>
+  <data name="Portrait" xml:space="preserve"><value>Portrait</value></data>
+  <data name="Landscape" xml:space="preserve"><value>Landscape</value></data>
+  <data name="PrintOptionsLabel" xml:space="preserve"><value>Print Options:</value></data>
+  <data name="FitToPage" xml:space="preserve"><value>Fit to Page</value></data>
+  <data name="ActualSize" xml:space="preserve"><value>Actual Size</value></data>
+  <data name="FillPage" xml:space="preserve"><value>Fill Page</value></data>
+  <data name="PrintingStarted" xml:space="preserve"><value>Printing started.</value></data>
+  <data name="PrintingError" xml:space="preserve"><value>Error occurred while printing</value></data>
+  <data name="PreviewGenerationError" xml:space="preserve"><value>Error generating preview</value></data>
+  <data name="PrintJobName" xml:space="preserve"><value>CatchCapture Image Print</value></data>
 </root>

@@ -149,8 +149,9 @@ namespace CatchCapture
 
             // 새 이미지로 전환
             imageIndex = newIndex;
-            originalImage = allCaptures[newIndex].Image;
-            currentImage = allCaptures[newIndex].Image;
+            var newCapture = allCaptures[newIndex];
+            originalImage = newCapture.GetOriginalImage();
+            currentImage = originalImage;
 
             // Undo/Redo 스택 초기화
             undoStack.Clear();

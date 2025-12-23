@@ -429,4 +429,18 @@
   <data name="SelectTooltip" xml:space="preserve"><value>选择并调整元素</value></data>
   <data name="NumberingMode" xml:space="preserve"><value>编号模式</value></data>
   <data name="OpenSettings" xml:space="preserve"><value>打开设置</value></data>
+
+  <!-- Print Preview -->
+  <data name="PrintPreviewTitle" xml:space="preserve"><value>打印预览</value></data>
+  <data name="OrientationLabel" xml:space="preserve"><value>方向:</value></data>
+  <data name="Portrait" xml:space="preserve"><value>纵向</value></data>
+  <data name="Landscape" xml:space="preserve"><value>横向</value></data>
+  <data name="PrintOptionsLabel" xml:space="preserve"><value>打印选项:</value></data>
+  <data name="FitToPage" xml:space="preserve"><value>适应页面</value></data>
+  <data name="ActualSize" xml:space="preserve"><value>实际大小</value></data>
+  <data name="FillPage" xml:space="preserve"><value>填充页面</value></data>
+  <data name="PrintingStarted" xml:space="preserve"><value>开始打印。</value></data>
+  <data name="PrintingError" xml:space="preserve"><value>打印时发生错误</value></data>
+  <data name="PreviewGenerationError" xml:space="preserve"><value>生成预览错误</value></data>
+  <data name="PrintJobName" xml:space="preserve"><value>CatchCapture 打印</value></data>
 </root>

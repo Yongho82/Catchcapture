@@ -430,4 +430,18 @@
   <data name="SelectTooltip" xml:space="preserve"><value>要素の選択と調整</value></data>
   <data name="NumberingMode" xml:space="preserve"><value>番号付けモード</value></data>
   <data name="OpenSettings" xml:space="preserve"><value>設定を開く</value></data>
+
+  <!-- Print Preview -->
+  <data name="PrintPreviewTitle" xml:space="preserve"><value>印刷プレビュー</value></data>
+  <data name="OrientationLabel" xml:space="preserve"><value>方向:</value></data>
+  <data name="Portrait" xml:space="preserve"><value>縦</value></data>
+  <data name="Landscape" xml:space="preserve"><value>横</value></data>
+  <data name="PrintOptionsLabel" xml:space="preserve"><value>印刷オプション:</value></data>
+  <data name="FitToPage" xml:space="preserve"><value>ページに合わせる</value></data>
+  <data name="ActualSize" xml:space="preserve"><value>実際のサイズ</value></data>
+  <data name="FillPage" xml:space="preserve"><value>ページを埋める</value></data>
+  <data name="PrintingStarted" xml:space="preserve"><value>印刷を開始します。</value></data>
+  <data name="PrintingError" xml:space="preserve"><value>印刷中にエラーが発生しました</value></data>
+  <data name="PreviewGenerationError" xml:space="preserve"><value>プレビュー生成エラー</value></data>
+  <data name="PrintJobName" xml:space="preserve"><value>CatchCapture 印刷</value></data>
 </root>

@@ -219,7 +219,7 @@ namespace CatchCapture
                             }
                         }
                         
-                        printDialog.PrintDocument(DocumentViewer.Document.DocumentPaginator, "CatchCapture 이미지 인쇄");
+                        printDialog.PrintDocument(DocumentViewer.Document.DocumentPaginator, LocalizationManager.Get("PrintJobName"));
                         MessageBox.Show(LocalizationManager.Get("PrintingStarted"), LocalizationManager.Get("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                 }

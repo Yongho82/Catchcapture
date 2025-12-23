@@ -2191,7 +2191,7 @@ public partial class MainWindow : Window
         googleBtn.Click += (s, e) => 
         {
             e.Handled = true;
-            SearchImageOnGoogle(captureImage.Image);
+            SearchImageOnGoogle(captureImage.GetOriginalImage());
         };
 
         // 버튼 생성 헬퍼 함수
@@ -2277,7 +2277,7 @@ public partial class MainWindow : Window
 
         // 공유 버튼 추가
         Button shareBtn = CreateHoverButton("share_img.png", LocalizationManager.GetString("Share"));
-        shareBtn.Click += (s, e) => { e.Handled = true; ShareImage(captureImage.Image); };
+        shareBtn.Click += (s, e) => { e.Handled = true; ShareImage(captureImage.GetOriginalImage()); };
 
         // 패널에 버튼 추가 (구글 -> 공유 -> 저장 -> 삭제)
         buttonPanel.Children.Add(googleBtn);
@@ -2483,8 +2483,9 @@ public partial class MainWindow : Window
 
         foreach (var capture in captures)
         {
-            totalWidth = Math.Max(totalWidth, capture.Image.PixelWidth);
-            totalHeight += capture.Image.PixelHeight;
+            var img = capture.GetOriginalImage();
+            totalWidth = Math.Max(totalWidth, img.PixelWidth);
+            totalHeight += img.PixelHeight;
         }
 
         DrawingVisual drawingVisual = new DrawingVisual();
@@ -2493,8 +2494,9 @@ public partial class MainWindow : Window
             int currentY = 0;
             foreach (var capture in captures)
             {
-                drawingContext.DrawImage(capture.Image, new Rect(0, currentY, capture.Image.PixelWidth, capture.Image.PixelHeight));
-                currentY += capture.Image.PixelHeight;
+                var img = capture.GetOriginalImage();
+                drawingContext.DrawImage(img, new Rect(0, currentY, img.PixelWidth, img.PixelHeight));
+                currentY += img.PixelHeight;
             }
         }
 
@@ -2602,7 +2604,7 @@ public partial class MainWindow : Window
             for (int i = 0; i < captures.Count; i++)
             {
                 string fileName = System.IO.Path.Combine(folderPath, $"캡처_{timestamp}_{i + 1}{ext}");
-                ScreenCaptureUtility.SaveImageToFile(captures[i].Image, fileName, quality);
+                ScreenCaptureUtility.SaveImageToFile(captures[i].GetOriginalImage(), fileName, quality);
                 captures[i].IsSaved = true;
                 captures[i].SavedPath = fileName;
             }

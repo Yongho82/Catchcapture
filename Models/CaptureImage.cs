@@ -9,7 +9,7 @@ namespace CatchCapture.Models
 {
     public class CaptureImage : INotifyPropertyChanged, IDisposable
     {
-        private BitmapSource _image = null!;
+        private BitmapSource? _image = null;
         private BitmapSource? _thumbnail = null;
         private DateTime _captureTime;
         private bool _isSaved;
@@ -23,7 +23,7 @@ namespace CatchCapture.Models
         /// </summary>
         public BitmapSource Image
         {
-            get => _useThumbnailMode && _thumbnail != null ? _thumbnail : _image;
+            get => (_useThumbnailMode && _image == null) ? (_thumbnail ?? _image!) : (_image ?? _thumbnail!);
             set
             {
                 if (_image != value)
@@ -39,10 +39,11 @@ namespace CatchCapture.Models
         /// </summary>
         public BitmapSource GetOriginalImage()
         {
-            // 썸네일 모드가 아니면 메모리의 원본 반환
-            if (!_useThumbnailMode || _image != null)
+            // 썸네일 모드가 아니거나 이미 로드되어 있으면 반환
+            // (썸네일 모드인 경우 로드된 원본은 _image에 캐시됨)
+            if (!_useThumbnailMode || (_image != null && _image != _thumbnail))
             {
-                return _image;
+                return _image ?? _thumbnail!;
             }
             
             // 파일에서 원본 로드
@@ -56,16 +57,19 @@ namespace CatchCapture.Models
                     bitmap.CacheOption = BitmapCacheOption.OnLoad; // 파일 잠금 방지
                     bitmap.EndInit();
                     bitmap.Freeze();
+                    
+                    // 로드된 원본 캐시 (필요 시)
+                    _image = bitmap;
                     return bitmap;
                 }
                 catch
                 {
                     // 로드 실패 시 썸네일이라도 반환
-                    return _thumbnail ?? _image;
+                    return (_thumbnail ?? _image)!;
                 }
             }
             
-            return _thumbnail ?? _image;
+            return (_thumbnail ?? _image)!;
         }
 
         public DateTime CaptureTime
@@ -125,7 +129,7 @@ namespace CatchCapture.Models
         public CaptureImage(BitmapSource thumbnail, string savedFilePath)
         {
             _thumbnail = thumbnail;
-            _image = thumbnail; // fallback
+            _image = null; // 원본 이미지는 필요할 때 파일에서 로드
             _useThumbnailMode = true;
             _savedPath = savedFilePath;
             CaptureTime = DateTime.Now;

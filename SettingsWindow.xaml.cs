@@ -300,7 +300,10 @@ private void InitLanguageComboBox()
                 (Code: "ja", Name: "日本語"),
                 (Code: "es", Name: "Español"),
                 (Code: "de", Name: "Deutsch"),
-                (Code: "fr", Name: "Français")
+                (Code: "fr", Name: "Français"),
+                (Code: "pt", Name: "Português"),
+                (Code: "ru", Name: "Русский"),
+                (Code: "it", Name: "Italiano")
             };
             foreach (var (code, name) in langs)
             {

@@ -478,4 +478,18 @@
   <data name="SelectTooltip" xml:space="preserve"><value>Elemente auswählen und anpassen</value></data>
   <data name="NumberingMode" xml:space="preserve"><value>Nummerierungsmodus</value></data>
   <data name="OpenSettings" xml:space="preserve"><value>Einstellungen öffnen</value></data>
+
+  <!-- Print Preview -->
+  <data name="PrintPreviewTitle" xml:space="preserve"><value>Druckvorschau</value></data>
+  <data name="OrientationLabel" xml:space="preserve"><value>Ausrichtung:</value></data>
+  <data name="Portrait" xml:space="preserve"><value>Hochformat</value></data>
+  <data name="Landscape" xml:space="preserve"><value>Querformat</value></data>
+  <data name="PrintOptionsLabel" xml:space="preserve"><value>Druckoptionen:</value></data>
+  <data name="FitToPage" xml:space="preserve"><value>An Seite anpassen</value></data>
+  <data name="ActualSize" xml:space="preserve"><value>Tatsächliche Größe</value></data>
+  <data name="FillPage" xml:space="preserve"><value>Seite füllen</value></data>
+  <data name="PrintingStarted" xml:space="preserve"><value>Druckvorgang gestartet.</value></data>
+  <data name="PrintingError" xml:space="preserve"><value>Fehler beim Drucken</value></data>
+  <data name="PreviewGenerationError" xml:space="preserve"><value>Fehler bei der Vorschauerstellung</value></data>
+  <data name="PrintJobName" xml:space="preserve"><value>CatchCapture Druck</value></data>
 </root>

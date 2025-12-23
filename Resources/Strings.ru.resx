@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" use="preserve" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <data name="AppTitle" xml:space="preserve"><value>CatchCapture</value></data>
+  <data name="AreaCapture" xml:space="preserve"><value>Захват области</value></data>
+  <data name="DelayCapture" xml:space="preserve"><value>Захват с задержкой</value></data>
+  <data name="RealTimeCapture" xml:space="preserve"><value>Мгновенный захват</value></data>
+  <data name="MultiCapture" xml:space="preserve"><value>Мультизахват</value></data>
+  <data name="FullScreen" xml:space="preserve"><value>Весь экран</value></data>
+  <data name="DesignatedCapture" xml:space="preserve"><value>Фикс. область</value></data>
+  <data name="WindowCapture" xml:space="preserve"><value>Захват окна</value></data>
+  <data name="ElementCapture" xml:space="preserve"><value>Захват элемента</value></data>
+  <data name="ScrollCapture" xml:space="preserve"><value>Захват прокрутки</value></data>
+  <data name="OcrCapture" xml:space="preserve"><value>OCR захват</value></data>
+  <data name="NormalMode" xml:space="preserve"><value>Обычный</value></data>
+  <data name="SimpleMode" xml:space="preserve"><value>Простой</value></data>
+  <data name="TrayMode" xml:space="preserve"><value>Трей</value></data>
+  <data name="Settings" xml:space="preserve"><value>Настройки</value></data>
+  <data name="Exit" xml:space="preserve"><value>Выход</value></data>
+  <data name="Save" xml:space="preserve"><value>Сохранить</value></data>
+  <data name="SaveAll" xml:space="preserve"><value>Сохранить все</value></data>
+  <data name="Delete" xml:space="preserve"><value>Удалить</value></data>
+  <data name="DeleteAll" xml:space="preserve"><value>Удалить все</value></data>
+  <data name="Copy" xml:space="preserve"><value>Копировать</value></data>
+  <data name="Print" xml:space="preserve"><value>Печать</value></data>
+  <data name="Pen" xml:space="preserve"><value>Перо</value></data>
+  <data name="Highlighter" xml:space="preserve"><value>Маркер</value></data>
+  <data name="Text" xml:space="preserve"><value>Текст</value></data>
+  <data name="Shape" xml:space="preserve"><value>Фигура</value></data>
+  <data name="Eraser" xml:space="preserve"><value>Ластик</value></data>
+  <data name="Mosaic" xml:space="preserve"><value>Мозаика</value></data>
+  <data name="Numbering" xml:space="preserve"><value>Нумерация</value></data>
+  <data name="NumberingMode" xml:space="preserve"><value>Режим нумерации</value></data>
+  <data name="Crop" xml:space="preserve"><value>Обрезать</value></data>
+  <data name="Rotate" xml:space="preserve"><value>Повернуть</value></data>
+  <data name="Undo" xml:space="preserve"><value>Отменить</value></data>
+  <data name="Redo" xml:space="preserve"><value>Вернуть</value></data>
+  <data name="General" xml:space="preserve"><value>Общее</value></data>
+  <data name="Language" xml:space="preserve"><value>Язык</value></data>
+  <data name="Hotkeys" xml:space="preserve"><value>Горячие клавиши</value></data>
+  <data name="StartWithWindows" xml:space="preserve"><value>Запуск с Windows</value></data>
+  <data name="StartInTrayMode" xml:space="preserve"><value>Запуск в трее</value></data>
+  <data name="SettingsSaved" xml:space="preserve"><value>Настройки сохранены</value></data>
+  <data name="CaptureSettings" xml:space="preserve"><value>Настройки захвата</value></data>
+  <data name="SystemSettings" xml:space="preserve"><value>Системные настройки</value></data>
+  <data name="HotkeySettings" xml:space="preserve"><value>Настройки горячих клавиш</value></data>
+  <data name="MenuEdit" xml:space="preserve"><value>Правка меню</value></data>
+  <data name="MenuEditGuide" xml:space="preserve"><value>Перетащите для смены порядка</value></data>
+  <data name="Add" xml:space="preserve"><value>Добавить</value></data>
+  <data name="RestoreDefaultMenus" xml:space="preserve"><value>Сброс меню</value></data>
+  <data name="Version" xml:space="preserve"><value>Версия</value></data>
+  <data name="VisitHomepage" xml:space="preserve"><value>Сайт программы</value></data>
+  <data name="RestoreDefaults" xml:space="preserve"><value>Сброс настроек</value></data>
+  <data name="PrivacyPolicy" xml:space="preserve"><value>Политика конфиденциальности</value></data>
+  <data name="SaveSettings" xml:space="preserve"><value>Сохранить настройки</value></data>
+  <data name="SavePath" xml:space="preserve"><value>Путь сохранения</value></data>
+  <data name="Change" xml:space="preserve"><value>Изменить</value></data>
+  <data name="FileFormat" xml:space="preserve"><value>Формат файла</value></data>
+  <data name="Quality" xml:space="preserve"><value>Качество</value></data>
+  <data name="Options" xml:space="preserve"><value>Опции</value></data>
+  <data name="AutoSaveCapture" xml:space="preserve"><value>Автосохранение</value></data>
+  <data name="ShowPreviewAfterCapture" xml:space="preserve"><value>Предпросмотр после захвата</value></data>
+  <data name="Default" xml:space="preserve"><value>По умолчанию</value></data>
+  <data name="Select" xml:space="preserve"><value>Выбрать</value></data>
+  <data name="SelectTooltip" xml:space="preserve"><value>Выбор и настройка элементов</value></data>
+  <data name="UsePrintScreen" xml:space="preserve"><value>Использовать Print Screen</value></data>
+  <data name="StartupMode" xml:space="preserve"><value>Режим запуска</value></data>
+  <data name="StartInTray" xml:space="preserve"><value>Запуск в трее</value></data>
+  <data name="StartInNormal" xml:space="preserve"><value>Запуск в обычном режиме</value></data>
+  <data name="StartInSimple" xml:space="preserve"><value>Запуск в простом режиме</value></data>
+  <data name="StartupModeNotice" xml:space="preserve"><value>※ Режим запуска определяет начальный экран.</value></data>
+  <data name="LanguageSettings" xml:space="preserve"><value>Языковые настройки</value></data>
+  <data name="LanguageLabel" xml:space="preserve"><value>Язык</value></data>
+  <data name="RestartRequired" xml:space="preserve"><value>Требуется перезапуск для смены языка.</value></data>
+  <data name="Info" xml:space="preserve"><value>Информация</value></data>
+  <data name="Confirm" xml:space="preserve"><value>ОК</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Отмена</value></data>
+  <data name="Yes" xml:space="preserve"><value>Да</value></data>
+  <data name="No" xml:space="preserve"><value>Нет</value></data>
+  <data name="Error" xml:space="preserve"><value>Ошибка</value></data>
+  <data name="Success" xml:space="preserve"><value>Успех</value></data>
+  <data name="Capture" xml:space="preserve"><value>Захват</value></data>
+  <data name="Captured" xml:space="preserve"><value>Захвачено</value></data>
+  <data name="Recapture" xml:space="preserve"><value>Переснять</value></data>
+  <data name="CopyToClipboard" xml:space="preserve"><value>Копировать в буфер</value></data>
+  <data name="Reset" xml:space="preserve"><value>Сброс</value></data>
+  <data name="FlipHorizontal" xml:space="preserve"><value>Отразить по Г</value></data>
+  <data name="FlipVertical" xml:space="preserve"><value>Отразить по В</value></data>
+  <data name="ImageSearch" xml:space="preserve"><value>Поиск по картинке</value></data>
+  <data name="Share" xml:space="preserve"><value>Поделиться</value></data>
+  <data name="Extract" xml:space="preserve"><value>Извлечь</value></data>
+  <data name="ToolOptions" xml:space="preserve"><value>Опции инструмента</value></data>
+  <data name="RecentCaptures" xml:space="preserve"><value>Недавние захваты</value></data>
+  <data name="Size" xml:space="preserve"><value>Размер</value></data>
+  <data name="OriginalSize" xml:space="preserve"><value>Оригинал</value></data>
+  <data name="ResetToOriginal" xml:space="preserve"><value>Сбросить к оригиналу</value></data>
+  <data name="AddText" xml:space="preserve"><value>Добавить текст</value></data>
+  <data name="DrawShapeTooltip" xml:space="preserve"><value>Рисовать фигуру (Прямоугольник)</value></data>
+  <data name="ShapeOptions" xml:space="preserve"><value>Опции фигуры</value></data>
+  <data name="ImageSizePrefix" xml:space="preserve"><value>Размер: </value></data>
+  <data name="NoExtractedText" xml:space="preserve"><value>Текст не найден.</value></data>
+  <data name="ImageSaveTitle" xml:space="preserve"><value>Сохранить изображение</value></data>
+  <data name="ImageSaved" xml:space="preserve"><value>Изображение сохранено.</value></data>
+  <data name="NoImageToPrint" xml:space="preserve"><value>Нет изображений для печати.</value></data>
+  <data name="PrintPreviewError" xml:space="preserve"><value>Ошибка предпросмотра печати</value></data>
+  <data name="RecaptureError" xml:space="preserve"><value>Ошибка перезахвата</value></data>
+  <data name="ConfirmReset" xml:space="preserve"><value>Сбросить к оригиналу? Все изменения будут потеряны.</value></data>
+  <data name="EditImage" xml:space="preserve"><value>Правка картинки</value></data>
+  <data name="PenTooltip" xml:space="preserve"><value>Перо (Черный, 3px)</value></data>
+  <data name="BackgroundRemoval" xml:space="preserve"><value>Удалить фон</value></data>
+  <data name="BackgroundRemovalTooltip" xml:space="preserve"><value>Автоудаление фона</value></data>
+  <data name="ImageSearchTooltip" xml:space="preserve"><value>Поиск в Google</value></data>
+  <data name="ExtractText" xml:space="preserve"><value>Текст (OCR)</value></data>
+  <data name="ZoomReset" xml:space="preserve"><value>Оригинал (100%)</value></data>
+  <data name="ZoomResetTooltip" xml:space="preserve"><value>Реальный размер</value></data>
+  <data name="ZoomOut" xml:space="preserve"><value>Отдалить</value></data>
+  <data name="ZoomIn" xml:space="preserve"><value>Приблизить</value></data>
+  <data name="SizeLabel" xml:space="preserve"><value>Размер</value></data>
+  <data name="ShapeLbl" xml:space="preserve"><value>Фигура</value></data>
+  <data name="PenLbl" xml:space="preserve"><value>Перо</value></data>
+  <data name="HighlighterLbl" xml:space="preserve"><value>Маркер</value></data>
+  <data name="TextAdd" xml:space="preserve"><value>Текст</value></data>
+  <data name="UndoLbl" xml:space="preserve"><value>Отмена</value></data>
+  <data name="ScreenRecording" xml:space="preserve"><value>Запись</value></data>
+  <data name="Record" xml:space="preserve"><value>Запись</value></data>
+  <data name="RedoLbl" xml:space="preserve"><value>Вернуть</value></data>
+  <data name="ResetLbl" xml:space="preserve"><value>Сброс</value></data>
+  <data name="FlipH" xml:space="preserve"><value>Г</value></data>
+  <data name="FlipV" xml:space="preserve"><value>В</value></data>
+  <data name="CopySelected" xml:space="preserve"><value>Копия</value></data>
+  <data name="InstantEdit" xml:space="preserve"><value>Быстрая правка</value></data>
+  <data name="OpenEditor" xml:space="preserve"><value>Открыть редактор</value></data>
+  <data name="OpenSettings" xml:space="preserve"><value>Открыть настройки</value></data>
+  <data name="RealTimeF1Guide" xml:space="preserve"><value>Нажмите F1 для захвата.</value></data>
+  <data name="DelayNone" xml:space="preserve"><value>Без задержки</value></data>
+  <data name="Delay3Sec" xml:space="preserve"><value>3 сек</value></data>
+  <data name="Delay5Sec" xml:space="preserve"><value>5 сек</value></data>
+  <data name="Delay10Sec" xml:space="preserve"><value>10 сек</value></data>
+  <data name="MultiCaptureGuide" xml:space="preserve"><value>ENTER: Склеить&#xA;F1: Снять&#xA;ESC: Выход</value></data>
+  <data name="MultiCaptureMinReq" xml:space="preserve"><value>Захватите хотя бы одну область.</value></data>
+  <data name="InvalidCompositeSize" xml:space="preserve"><value>Неверный размер изображения.</value></data>
+  <data name="CompositeTooLarge" xml:space="preserve"><value>Картинка слишком большая ({0}x{1}). Макс: 32000x32000.</value></data>
+  <data name="CompositeError" xml:space="preserve"><value>Ошибка склейки: {0}</value></data>
+  <data name="CaptureError" xml:space="preserve"><value>Ошибка захвата: {0}</value></data>
+  <data name="NumberingOptions" xml:space="preserve"><value>Опции размера</value></data>
+  <data name="NumberingBadge" xml:space="preserve"><value>Значок</value></data>
+  <data name="NumberingText" xml:space="preserve"><value>Текст</value></data>
+  <data name="EditConfirmGuide" xml:space="preserve"><value>Подтвердите(✓) правки перед продолжением.</value></data>
+  <data name="Color" xml:space="preserve"><value>Цвет</value></data>
+  <data name="TextOptions" xml:space="preserve"><value>Опции текста</value></data>
+  <data name="Font" xml:space="preserve"><value>Шрифт</value></data>
+  <data name="Thickness" xml:space="preserve"><value>Толщина</value></data>
+  <data name="Fill" xml:space="preserve"><value>Заливка</value></data>
+  <data name="FillOpacity" xml:space="preserve"><value>Прозрачность</value></data>
+  <data name="Intensity" xml:space="preserve"><value>Интенсивность</value></data>
+  <data name="ComputerApp" xml:space="preserve"><value>Программа...</value></data>
+  <data name="SelectApplication" xml:space="preserve"><value>Выбрать программу</value></data>
+  <data name="SortNameAsc" xml:space="preserve"><value>Имя ▲</value></data>
+  <data name="SortNameDesc" xml:space="preserve"><value>Имя ▼</value></data>
+  <data name="Browse" xml:space="preserve"><value>Обзор...</value></data>
+  <data name="SelectExecutable" xml:space="preserve"><value>Выбрать EXE</value></data>
+  <data name="ConfirmDeleteShortcut" xml:space="preserve"><value>Удалить ярлык '{0}'?</value></data>
+  <data name="DeleteShortcut" xml:space="preserve"><value>Удалить ярлык</value></data>
+  <data name="AppLaunchFailed" xml:space="preserve"><value>Ошибка запуска: {0}</value></data>
+  <data name="GoogleSearch" xml:space="preserve"><value>Поиск Google</value></data>
+  <data name="CopiedToClipboard" xml:space="preserve"><value>Скопировано в буфер.</value></data>
+  <data name="AllCopiedToClipboard" xml:space="preserve"><value>Все скопировано в буфер.</value></data>
+  <data name="SelectSaveFolder" xml:space="preserve"><value>Папка сохранения</value></data>
+  <data name="UnsavedImagesDeleteConfirm" xml:space="preserve"><value>Есть несохраненные фото. Удалить все?</value></data>
+  <data name="UnsavedImageDeleteConfirm" xml:space="preserve"><value>Фото не сохранено. Удалить?</value></data>
+  <data name="ShareImageTitle" xml:space="preserve"><value>Поделиться</value></data>
+  <data name="ShareImageDesc" xml:space="preserve"><value>Отправить фото</value></data>
+  <data name="ShareError" xml:space="preserve"><value>Ошибка отправки</value></data>
+  <data name="AllImagesSaved" xml:space="preserve"><value>Все фото сохранены.</value></data>
+  <data name="CopyAll" xml:space="preserve"><value>Копировать все</value></data>
+  <data name="PixelSizeLabel" xml:space="preserve"><value>Размер в пикселях</value></data>
+  <data name="MagicWandToleranceLabel" xml:space="preserve"><value>Допуск</value></data>
+  <data name="MagicWandContiguousOnly" xml:space="preserve"><value>Только смежные области</value></data>
+  <data name="MagicWandDesc" xml:space="preserve"><value>Клик - удаление фона, тяните - выбор области</value></data>
+  <data name="MagicWandTip" xml:space="preserve"><value>Клик или тяните для удаления фона</value></data>
+  <data name="Opacity" xml:space="preserve"><value>Прозрачность</value></data>
+  <data name="Style" xml:space="preserve"><value>Стиль</value></data>
+  <data name="Bold" xml:space="preserve"><value>Жирный</value></data>
+  <data name="Italic" xml:space="preserve"><value>Курсив</value></data>
+  <data name="Underline" xml:space="preserve"><value>Подчеркнутый</value></data>
+  <data name="Shadow" xml:space="preserve"><value>Тень</value></data>
+  <data name="OcrResultTitle" xml:space="preserve"><value>Результат OCR</value></data>
+  <data name="ExtractedText" xml:space="preserve"><value>Текст</value></data>
+  <data name="GoogleTranslate" xml:space="preserve"><value>Google Переводчик</value></data>
+  <data name="Close" xml:space="preserve"><value>Закрыть</value></data>
+  <data name="NoExtractedTextOcr" xml:space="preserve"><value>Текст не найден.</value></data>
+  <data name="OpeningGoogleTranslate" xml:space="preserve"><value>Запуск переводчика...\nТекст в буфере.</value></data>
+  <data name="GoogleTranslateFailed" xml:space="preserve"><value>Ошибка запуска Google: {0}</value></data>
+  <data name="RedirectingToTranslate" xml:space="preserve"><value>Переадресация в Google...</value></data>
+  <data name="OcrLanguagePackWarning" xml:space="preserve"><value>※ Для точного OCR яп./кит. установите языковой пакет Windows.</value></data>
+  <data name="SimpleModeDockinGuide" xml:space="preserve"><value>💡 Тяните в край экрана для прилипания!</value></data>
+  <data name="ExitSimpleMode" xml:space="preserve"><value>Выход из простого режима</value></data>
+  <data name="MinimizeToTray" xml:space="preserve"><value>Свернуть в трей</value></data>
+  <data name="Enlarge" xml:space="preserve"><value>Увеличить UI</value></data>
+  <data name="SwitchToNormalMode" xml:space="preserve"><value>Обычный режим</value></data>
+  <data name="SwitchToSimpleMode" xml:space="preserve"><value>Простой режим</value></data>
+  <data name="Pin" xml:space="preserve"><value>Закрепить</value></data>
+  <data name="Unpin" xml:space="preserve"><value>Открепить</value></data>
+  <data name="ViewCaptureList" xml:space="preserve"><value>Список захватов</value></data>
+  <data name="AddIcon" xml:space="preserve"><value>Добавить значок</value></data>
+  <data name="HideToTray" xml:space="preserve"><value>Скрыть в трей</value></data>
+  <data name="Fold" xml:space="preserve"><value>Свернуть</value></data>
+  <data name="UnitCapture" xml:space="preserve"><value>Захват юнита</value></data>
+  <data name="ComputerApps" xml:space="preserve"><value>Программы</value></data>
+  <data name="Open" xml:space="preserve"><value>Открыть</value></data>
+  <data name="ShowMagnifier" xml:space="preserve"><value>Показывать лупу Durante Area Capture</value></data>
+  <data name="RecordingTool" xml:space="preserve"><value>Запись</value></data>
+  <data name="StartStopRecording" xml:space="preserve"><value>Старт/Стоп записи</value></data>
+  <data name="Pause" xml:space="preserve"><value>Пауза</value></data>
+  <data name="Resume" xml:space="preserve"><value>Продолжить</value></data>
+  <data name="SystemAudioOff" xml:space="preserve"><value>Аудио системы (ВЫКЛ)</value></data>
+  <data name="SystemAudioOn" xml:space="preserve"><value>Аудио системы (ВКЛ)</value></data>
+  <data name="MicrophoneOff" xml:space="preserve"><value>Микрофон (ВЫКЛ)</value></data>
+  <data name="MicrophoneOn" xml:space="preserve"><value>Микрофон (ВКЛ)</value></data>
+  <data name="VideoQuality" xml:space="preserve"><value>Качество</value></data>
+  <data name="FrameRate" xml:space="preserve"><value>Частота кадров</value></data>
+  <data name="ShowMouseCursor" xml:space="preserve"><value>Курсор мыши</value></data>
+  <data name="Countdown" xml:space="preserve"><value>Отсчет</value></data>
+  <data name="HideToolbar" xml:space="preserve"><value>Скрыть тулбар</value></data>
+  <data name="ShowToolbar" xml:space="preserve"><value>Показать тулбар</value></data>
+  <data name="AutoSnap" xml:space="preserve"><value>Магнит</value></data>
+  <data name="AreaSelection" xml:space="preserve"><value>Область</value></data>
+  <data name="DrawingTools" xml:space="preserve"><value>Рисование</value></data>
+  <data name="ToolPen" xml:space="preserve"><value>Перо</value></data>
+  <data name="ToolHighlighter" xml:space="preserve"><value>Маркер</value></data>
+  <data name="ToolEraser" xml:space="preserve"><value>Ластик</value></data>
+  <data name="ToolLine" xml:space="preserve"><value>Линия</value></data>
+  <data name="ToolArrow" xml:space="preserve"><value>Стрелка</value></data>
+  <data name="ToolRectangle" xml:space="preserve"><value>Прямоуг.</value></data>
+  <data name="ToolEllipse" xml:space="preserve"><value>Эллипс</value></data>
+  <data name="ToolNumbering" xml:space="preserve"><value>Нумерация</value></data>
+  <data name="ToolClearAll" xml:space="preserve"><value>Очистить все</value></data>
+  <data name="OpenSaveFolder" xml:space="preserve"><value>Папка сохранения</value></data>
+  <data name="ModeSelect" xml:space="preserve"><value>Выбор режима</value></data>
+  <data name="ThemeSettings" xml:space="preserve"><value>Настройки темы</value></data>
+  <data name="ThemePreset" xml:space="preserve"><value>Пресеты</value></data>
+  <data name="ThemeGeneral" xml:space="preserve"><value>Общая</value></data>
+  <data name="ThemeDark" xml:space="preserve"><value>Темная</value></data>
+  <data name="ThemeLight" xml:space="preserve"><value>Светлая</value></data>
+  <data name="ThemeBlue" xml:space="preserve"><value>Синяя</value></data>
+  <data name="ThemeCustom" xml:space="preserve"><value>Своя</value></data>
+  <data name="ThemeBgColor" xml:space="preserve"><value>Цвет фона</value></data>
+  <data name="ThemeTextColor" xml:space="preserve"><value>Цвет текста</value></data>
+  <data name="ThemeColorGuide" xml:space="preserve"><value>※ Кликните по квадрату для выбора цвета.</value></data>
+  <data name="Apply" xml:space="preserve"><value>Применить</value></data>
+  <data name="Preview" xml:space="preserve"><value>Предпросмотр</value></data>
+  <data name="ThemeSampleLabel" xml:space="preserve"><value>Пример темы</value></data>
+  <data name="ThemeSampleText" xml:space="preserve"><value>АБВгд 123 Пример текста темы.</value></data>
+  <data name="RecordingSettings" xml:space="preserve"><value>Запись</value></data>
+  <data name="BasicSettings" xml:space="preserve"><value>Базовые</value></data>
+  <data name="RecordingStartStopHotkey" xml:space="preserve"><value>Клавиша зап./стоп</value></data>
+  <data name="RecordStartStop" xml:space="preserve"><value>Запись/Стоп</value></data>
+  <data name="CaptureLineSettings" xml:space="preserve"><value>Линии захвата</value></data>
+  <data name="OverlayBgColor" xml:space="preserve"><value>Цвет фона оверлея</value></data>
+  <data name="LineStyle" xml:space="preserve"><value>Стиль линии</value></data>
+  <data name="LineThickness" xml:space="preserve"><value>Толщина</value></data>
+  <data name="LineColor" xml:space="preserve"><value>Цвет</value></data>
+  <data name="CaptureSettingsGuide" xml:space="preserve"><value>* Кликните для выбора цвета напр. линий.</value></data>
+  <data name="SolidLine" xml:space="preserve"><value>Сплошная</value></data>
+  <data name="DashLine" xml:space="preserve"><value>Штрих</value></data>
+  <data name="DotLine" xml:space="preserve"><value>Точки</value></data>
+  <data name="DashDotLine" xml:space="preserve"><value>Штрих-точка</value></data>
+  <data name="Outline" xml:space="preserve"><value>Контур</value></data>
+  <data name="QualityHigh" xml:space="preserve"><value>Высокое</value></data>
+  <data name="QualityMedium" xml:space="preserve"><value>Среднее</value></data>
+  <data name="QualityLow" xml:space="preserve"><value>Низкое</value></data>
+
+  <!-- Print Preview -->
+  <data name="PrintPreviewTitle" xml:space="preserve"><value>Предварительный просмотр</value></data>
+  <data name="OrientationLabel" xml:space="preserve"><value>Ориентация:</value></data>
+  <data name="Portrait" xml:space="preserve"><value>Портретная</value></data>
+  <data name="Landscape" xml:space="preserve"><value>Альбомная</value></data>
+  <data name="PrintOptionsLabel" xml:space="preserve"><value>Опции печати:</value></data>
+  <data name="FitToPage" xml:space="preserve"><value>По размеру страницы</value></data>
+  <data name="ActualSize" xml:space="preserve"><value>Реальный размер</value></data>
+  <data name="FillPage" xml:space="preserve"><value>Заполнить страницу</value></data>
+  <data name="PrintingStarted" xml:space="preserve"><value>Печать начата.</value></data>
+  <data name="PrintingError" xml:space="preserve"><value>Ошибка при печати</value></data>
+  <data name="PreviewGenerationError" xml:space="preserve"><value>Ошибка создания предпросмотра</value></data>
+  <data name="PrintJobName" xml:space="preserve"><value>Печать CatchCapture</value></data>
+</root>

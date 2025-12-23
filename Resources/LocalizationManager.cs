@@ -94,7 +94,10 @@ namespace CatchCapture.Resources
             ("zh", "简体中文"),
             ("es", "Español"),
             ("de", "Deutsch"),
-            ("fr", "Français")
+            ("fr", "Français"),
+            ("pt", "Português"),
+            ("ru", "Русский"),
+            ("it", "Italiano")
         };
 
         /// <summary>

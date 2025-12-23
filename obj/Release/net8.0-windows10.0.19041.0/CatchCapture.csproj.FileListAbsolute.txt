@@ -149,3 +149,15 @@ C:\Yonghoprogram\Catchcapture\obj\Release\net8.0-windows10.0.19041.0\refint\Catc
 C:\Yonghoprogram\Catchcapture\obj\Release\net8.0-windows10.0.19041.0\CatchCapture.pdb
 C:\Yonghoprogram\Catchcapture\obj\Release\net8.0-windows10.0.19041.0\CatchCapture.genruntimeconfig.cache
 C:\Yonghoprogram\Catchcapture\obj\Release\net8.0-windows10.0.19041.0\ref\CatchCapture.dll
+C:\Yonghoprogram\Catchcapture\bin\Release\net8.0-windows10.0.19041.0\it\CatchCapture.resources.dll
+C:\Yonghoprogram\Catchcapture\bin\Release\net8.0-windows10.0.19041.0\pt\CatchCapture.resources.dll
+C:\Yonghoprogram\Catchcapture\bin\Release\net8.0-windows10.0.19041.0\ru\CatchCapture.resources.dll
+C:\Yonghoprogram\Catchcapture\obj\Release\net8.0-windows10.0.19041.0\CatchCapture.Resources.Strings.it.resources
+C:\Yonghoprogram\Catchcapture\obj\Release\net8.0-windows10.0.19041.0\CatchCapture.Resources.Strings.pt.resources
+C:\Yonghoprogram\Catchcapture\obj\Release\net8.0-windows10.0.19041.0\CatchCapture.Resources.Strings.ru.resources
+C:\Yonghoprogram\Catchcapture\obj\Release\net8.0-windows10.0.19041.0\it\CatchCapture.resources.cs
+C:\Yonghoprogram\Catchcapture\obj\Release\net8.0-windows10.0.19041.0\it\CatchCapture.resources.dll
+C:\Yonghoprogram\Catchcapture\obj\Release\net8.0-windows10.0.19041.0\pt\CatchCapture.resources.cs
+C:\Yonghoprogram\Catchcapture\obj\Release\net8.0-windows10.0.19041.0\pt\CatchCapture.resources.dll
+C:\Yonghoprogram\Catchcapture\obj\Release\net8.0-windows10.0.19041.0\ru\CatchCapture.resources.cs
+C:\Yonghoprogram\Catchcapture\obj\Release\net8.0-windows10.0.19041.0\ru\CatchCapture.resources.dll
