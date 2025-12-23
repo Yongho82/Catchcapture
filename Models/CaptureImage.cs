@@ -1,5 +1,8 @@
 using System;
 using System.ComponentModel;
+using System.IO;
+using System.Windows;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace CatchCapture.Models
@@ -7,13 +10,20 @@ namespace CatchCapture.Models
     public class CaptureImage : INotifyPropertyChanged, IDisposable
     {
         private BitmapSource _image = null!;
+        private BitmapSource? _thumbnail = null;
         private DateTime _captureTime;
         private bool _isSaved;
         private string _savedPath = string.Empty;
+        
+        // ★ 메모리 최적화: 썸네일 기반 저장 여부
+        private bool _useThumbnailMode = false;
 
+        /// <summary>
+        /// 표시용 이미지 (썸네일 모드면 썸네일, 아니면 원본)
+        /// </summary>
         public BitmapSource Image
         {
-            get => _image;
+            get => _useThumbnailMode && _thumbnail != null ? _thumbnail : _image;
             set
             {
                 if (_image != value)
@@ -22,6 +32,40 @@ namespace CatchCapture.Models
                     OnPropertyChanged(nameof(Image));
                 }
             }
+        }
+
+        /// <summary>
+        /// ★ 메모리 최적화: 원본 이미지 가져오기 (필요 시 파일에서 로드)
+        /// </summary>
+        public BitmapSource GetOriginalImage()
+        {
+            // 썸네일 모드가 아니면 메모리의 원본 반환
+            if (!_useThumbnailMode || _image != null)
+            {
+                return _image;
+            }
+            
+            // 파일에서 원본 로드
+            if (!string.IsNullOrEmpty(_savedPath) && File.Exists(_savedPath))
+            {
+                try
+                {
+                    var bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.UriSource = new Uri(_savedPath);
+                    bitmap.CacheOption = BitmapCacheOption.OnLoad; // 파일 잠금 방지
+                    bitmap.EndInit();
+                    bitmap.Freeze();
+                    return bitmap;
+                }
+                catch
+                {
+                    // 로드 실패 시 썸네일이라도 반환
+                    return _thumbnail ?? _image;
+                }
+            }
+            
+            return _thumbnail ?? _image;
         }
 
         public DateTime CaptureTime
@@ -63,12 +107,63 @@ namespace CatchCapture.Models
             }
         }
 
+        /// <summary>
+        /// 기존 생성자 (자동저장 OFF 시 사용 - 원본 메모리 유지)
+        /// </summary>
         public CaptureImage(BitmapSource image)
         {
-            Image = image;
+            _image = image;
+            _useThumbnailMode = false;
             CaptureTime = DateTime.Now;
             IsSaved = false;
             SavedPath = string.Empty;
+        }
+
+        /// <summary>
+        /// ★ 메모리 최적화: 썸네일 모드 생성자 (자동저장 ON 시 사용)
+        /// </summary>
+        public CaptureImage(BitmapSource thumbnail, string savedFilePath)
+        {
+            _thumbnail = thumbnail;
+            _image = thumbnail; // fallback
+            _useThumbnailMode = true;
+            _savedPath = savedFilePath;
+            CaptureTime = DateTime.Now;
+            IsSaved = true;
+        }
+
+        /// <summary>
+        /// ★ 메모리 최적화: 썸네일 생성 (200x150 크기)
+        /// </summary>
+        public static BitmapSource CreateThumbnail(BitmapSource source, int maxWidth = 200, int maxHeight = 150)
+        {
+            if (source == null) return null!;
+            
+            double scaleX = (double)maxWidth / source.PixelWidth;
+            double scaleY = (double)maxHeight / source.PixelHeight;
+            double scale = Math.Min(scaleX, scaleY);
+            
+            // 이미 작으면 그대로 반환
+            if (scale >= 1.0)
+            {
+                source.Freeze();
+                return source;
+            }
+            
+            int newWidth = (int)(source.PixelWidth * scale);
+            int newHeight = (int)(source.PixelHeight * scale);
+            
+            var visual = new DrawingVisual();
+            using (var context = visual.RenderOpen())
+            {
+                context.DrawImage(source, new Rect(0, 0, newWidth, newHeight));
+            }
+            
+            var renderBitmap = new RenderTargetBitmap(newWidth, newHeight, 96, 96, PixelFormats.Pbgra32);
+            renderBitmap.Render(visual);
+            renderBitmap.Freeze();
+            
+            return renderBitmap;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -94,6 +189,7 @@ namespace CatchCapture.Models
                 {
                     // 이미지 참조 해제
                     _image = null!;
+                    _thumbnail = null;
                     PropertyChanged = null;
                 }
                 disposed = true;

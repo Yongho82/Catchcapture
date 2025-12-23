@@ -1010,7 +1010,8 @@ public partial class MainWindow : Window
         {
             if (selectedIndex >= 0 && selectedIndex < captures.Count)
             {
-                ShowPreviewWindow(captures[selectedIndex].Image, selectedIndex);
+                // ★ 메모리 최적화: 원본 이미지 로드 (썸네일 모드에서도 파일에서 원본 로드)
+                ShowPreviewWindow(captures[selectedIndex].GetOriginalImage(), selectedIndex);
                 e.Handled = true;
             }
             return;
@@ -1920,43 +1921,59 @@ public partial class MainWindow : Window
     {
         try
         {
-            // 캡처 이미지 객체 생성
-            var captureImage = new CaptureImage(image);
-            captures.Add(captureImage);
-            try 
+            var currentSettings = CatchCapture.Models.Settings.Load();
+            CaptureImage captureImage;
+            
+            // ★ 메모리 최적화: 자동저장 시 썸네일만 메모리에 저장
+            if (currentSettings.AutoSaveCapture)
             {
-                var currentSettings = CatchCapture.Models.Settings.Load();
-                if (currentSettings.AutoSaveCapture)
+                string saveFolder = currentSettings.DefaultSaveFolder;
+                // 폴더 경로가 비어있으면 기본 경로 설정
+                if (string.IsNullOrWhiteSpace(saveFolder))
                 {
-                    string saveFolder = currentSettings.DefaultSaveFolder;
-                    // 폴더 경로가 비어있으면 기본 경로 설정
-                    if (string.IsNullOrWhiteSpace(saveFolder))
-                    {
-                        saveFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture");
-                    }
-                    
-                    // 폴더가 없으면 생성
-                    if (!System.IO.Directory.Exists(saveFolder))
-                    {
-                        System.IO.Directory.CreateDirectory(saveFolder);
-                    }
+                    saveFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture");
+                }
+                
+                // 폴더가 없으면 생성
+                if (!System.IO.Directory.Exists(saveFolder))
+                {
+                    System.IO.Directory.CreateDirectory(saveFolder);
+                }
 
-                    string timestamp = DateTime.Now.ToString("yyyy-MM-dd HHmmss");
-                    
-                    // 설정된 포맷에 맞는 확장자 결정
-                    string format = currentSettings.FileSaveFormat.ToLower();
-                    string ext = $".{format}";
-                    
-                    string filename = $"AutoSave_{timestamp}_{captures.Count}{ext}";
-                    string fullPath = System.IO.Path.Combine(saveFolder, filename);
+                string timestamp = DateTime.Now.ToString("yyyy-MM-dd HHmmss");
+                
+                // 설정된 포맷에 맞는 확장자 결정
+                string format = currentSettings.FileSaveFormat.ToLower();
+                string ext = $".{format}";
+                
+                string filename = $"AutoSave_{timestamp}_{captures.Count + 1}{ext}";
+                string fullPath = System.IO.Path.Combine(saveFolder, filename);
 
+                try
+                {
+                    // 원본 파일로 저장
                     CatchCapture.Utilities.ScreenCaptureUtility.SaveImageToFile(image, fullPath, currentSettings.ImageQuality);
+                    
+                    // ★ 썸네일 생성 (200x150)
+                    var thumbnail = CaptureImage.CreateThumbnail(image, 200, 150);
+                    
+                    // ★ 썸네일 모드로 CaptureImage 생성 (메모리 절약)
+                    captureImage = new CaptureImage(thumbnail, fullPath);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"자동 저장 실패: {ex.Message}");
+                    // 저장 실패 시 원본 유지
+                    captureImage = new CaptureImage(image);
                 }
             }
-            catch (Exception ex)
+            else
             {
-                System.Diagnostics.Debug.WriteLine($"자동 저장 실패: {ex.Message}");
+                // 자동저장 OFF → 기존 방식 (원본 메모리 유지)
+                captureImage = new CaptureImage(image);
             }
+            
+            captures.Add(captureImage);
 
             // UI에 이미지 추가 - 최신 캡처를 위에 표시하기 위해 인덱스 0에 추가
             var border = CreateCaptureItem(captureImage, captures.Count - 1);
@@ -2096,7 +2113,8 @@ public partial class MainWindow : Window
             if (e.ClickCount == 2)
             {
                 int actualIndex = (int)((Image)s).Tag;
-                ShowPreviewWindow(captureImage.Image, actualIndex);
+                // ★ 메모리 최적화: 원본 이미지 로드
+                ShowPreviewWindow(captureImage.GetOriginalImage(), actualIndex);
                 e.Handled = true;
             }
         };
@@ -2293,7 +2311,8 @@ public partial class MainWindow : Window
             if (e.ClickCount == 2)
             {
                 int actualIndex = (int)((Border)s).Tag;
-                ShowPreviewWindow(captureImage.Image, actualIndex);
+                // ★ 메모리 최적화: 원본 이미지 로드
+                ShowPreviewWindow(captureImage.GetOriginalImage(), actualIndex);
                 e.Handled = true;
             }
             // 싱글클릭 시 선택
@@ -2442,7 +2461,8 @@ public partial class MainWindow : Window
     {
         if (selectedIndex >= 0 && selectedIndex < captures.Count)
         {
-            var image = captures[selectedIndex].Image;
+            // ★ 메모리 최적화: 원본 이미지 로드 (썸네일 모드에서도 파일에서 원본 로드)
+            var image = captures[selectedIndex].GetOriginalImage();
             ScreenCaptureUtility.CopyImageToClipboard(image);
             ShowGuideMessage(LocalizationManager.GetString("CopiedToClipboard"), TimeSpan.FromSeconds(1));
         }
@@ -2546,7 +2566,8 @@ public partial class MainWindow : Window
             try
             {
                 // 설정된 품질 사용
-                ScreenCaptureUtility.SaveImageToFile(captureImage.Image, dialog.FileName, settings.ImageQuality);
+                // ★ 메모리 최적화: 원본 이미지 로드 (썸네일 모드에서도 파일에서 원본 로드)
+                ScreenCaptureUtility.SaveImageToFile(captureImage.GetOriginalImage(), dialog.FileName, settings.ImageQuality);
                 captureImage.IsSaved = true;
                 captureImage.SavedPath = dialog.FileName;
                 ShowGuideMessage(LocalizationManager.GetString("ImageSaved"), TimeSpan.FromSeconds(1));
@@ -2624,6 +2645,9 @@ public partial class MainWindow : Window
                 CaptureListPanel.Children.RemoveAt(uiIndex);
             }
 
+            // ★ 메모리 최적화: 삭제 전 Dispose 호출
+            captures[selectedIndex].Dispose();
+            
             captures.RemoveAt(selectedIndex);
             UpdateCaptureItemIndexes();
             UpdateCaptureCount();

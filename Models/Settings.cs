@@ -44,7 +44,7 @@ namespace CatchCapture.Models
         public string FileSaveFormat { get; set; } = "PNG"; // PNG, JPG, BMP, GIF
         public int ImageQuality { get; set; } = 100;
         public string DefaultSaveFolder { get; set; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "CatchCapture");
-        public bool AutoSaveCapture { get; set; } = false;
+        public bool AutoSaveCapture { get; set; } = true; // ★ 메모리 최적화: 기본값 true
 
         // Persisted window states
         public double LastMainLeft { get; set; } = 0;
