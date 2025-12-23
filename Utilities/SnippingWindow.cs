@@ -2858,7 +2858,17 @@ namespace CatchCapture.Utilities
         {
             if (_toolOptionsControl == null) return;
             
+            // 레이아웃 계산을 위해 잠시 Hidden 처리
+            if (_toolOptionsControl.Visibility != Visibility.Visible)
+                _toolOptionsControl.Visibility = Visibility.Hidden;
+
             _toolOptionsControl.SetMode(toolName);
+            
+            // 강제 레이아웃 갱신하여 ActualWidth 확보
+            _toolOptionsControl.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            _toolOptionsControl.Arrange(new Rect(new Point(0, 0), _toolOptionsControl.DesiredSize));
+            _toolOptionsControl.UpdateLayout();
+            
             Point pos = CalculatePalettePosition();
             Canvas.SetLeft(_toolOptionsControl, pos.X);
             Canvas.SetTop(_toolOptionsControl, pos.Y);
@@ -2900,19 +2910,24 @@ namespace CatchCapture.Utilities
             // 조건: 높이 1000px 이상 AND (하단 여유 < 50px OR 상단 여유 < 50px)
             bool isTallSelection = sHeight >= 1000 && (bottomSpace < 50 || topSpace < 50);
 
-            // [디버깅] 파일 로그 출력
-            try
+            // [추가 요청] 화면 오른쪽 끝에서 드래그 시 툴바가 잘리는 문제 해결
+            // 오른쪽 끝에 붙어있으면 강제로 왼쪽 세로 모드 적용 (공간이 있다면)
+            bool isAtRightEdge = (sLeft + sWidth) > (canvasWidth - 50);
+            if (isAtRightEdge)
             {
-                string logPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "CatchCapture_Toolbar_Debug.txt");
-                string log = $"[{DateTime.Now:HH:mm:ss.fff}] Selection: ({sLeft}, {sTop}, {sWidth}x{sHeight})\n" +
-                             $"  Canvas Size: {canvasWidth}x{canvasHeight}\n" +
-                             $"  Bottom Space: {bottomSpace:F1}px, Top Space: {topSpace:F1}px\n" +
-                             $"  Required: {hHeight + margin}px\n" +
-                             $"  Can Fit Bottom: {canFitBottom}, Can Fit Top: {canFitTop}\n" +
-                             $"  Tall Selection: {isTallSelection} (height={sHeight:F0}, both spaces < 100)\n";
-                System.IO.File.AppendAllText(logPath, log);
+                double vtWidth = 70;
+                double vtHeight = 580;
+                
+                // 왼쪽에 공간이 있고, 화면 높이가 툴바보다 큰 경우에만 강제 적용
+                if ((sLeft - vtWidth - 10) >= 0 && canvasHeight >= vtHeight) 
+                {
+                     double top = sTop + (sHeight - vtHeight) / 2;
+                     if (top + vtHeight > canvasHeight - 10) top = canvasHeight - vtHeight - 10;
+                     if (top < 10) top = 10;
+                     
+                     return (true, sLeft - vtWidth - 10, top);
+                }
             }
-            catch { }
 
             // 키 큰 선택 영역이면 무조건 세로 모드
             if (isTallSelection)
@@ -3048,9 +3063,15 @@ namespace CatchCapture.Utilities
             if (double.IsNaN(tWidth) || tWidth < 10) tWidth = isVerticalToolbarLayout ? 60 : 450;
             if (double.IsNaN(tHeight)) tHeight = isVerticalToolbarLayout ? 550 : 55;
             
-            // 팔레트 예상 크기
-            double paletteHeight = 150; // 팔레트의 대략적인 높이
-            double paletteWidth = 300;  // 팔레트의 대략적인 너비
+            // 팔레트 예상 크기 (실제 크기 반영 노력)
+            double paletteHeight = 150; 
+            double paletteWidth = 360;  // 기본값 증가 (300 -> 360)
+            
+            if (_toolOptionsControl != null && _toolOptionsControl.ActualWidth > 10)
+            {
+                paletteWidth = _toolOptionsControl.ActualWidth;
+            }
+
             double margin = 10;
             
             if (isVerticalToolbarLayout)
