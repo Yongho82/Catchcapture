@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" use="preserve" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="AppTitle" xml:space="preserve"><value>CatchCapture</value></data>
+  <data name="AreaCapture" xml:space="preserve"><value>จับภาพพื้นที่</value></data>
+  <data name="DelayCapture" xml:space="preserve"><value>ภาพถ่ายตามเวลา</value></data>
+  <data name="RealTimeCapture" xml:space="preserve"><value>จับภาพทันที</value></data>
+  <data name="MultiCapture" xml:space="preserve"><value>จับภาพหลายจุด</value></data>
+  <data name="FullScreen" xml:space="preserve"><value>เต็มหน้าจอ</value></data>
+  <data name="DesignatedCapture" xml:space="preserve"><value>พื้นที่คงที่</value></data>
+  <data name="WindowCapture" xml:space="preserve"><value>จับภาพหน้าต่าง</value></data>
+  <data name="ElementCapture" xml:space="preserve"><value>จับภาพองค์ประกอบ</value></data>
+  <data name="ScrollCapture" xml:space="preserve"><value>จับภาพแบบเลื่อน</value></data>
+  <data name="OcrCapture" xml:space="preserve"><value>จับภาพ OCR</value></data>
+  <data name="NormalMode" xml:space="preserve"><value>โหมดปกติ</value></data>
+  <data name="SimpleMode" xml:space="preserve"><value>โหมดง่าย</value></data>
+  <data name="TrayMode" xml:space="preserve"><value>โหมดถาด</value></data>
+  <data name="Settings" xml:space="preserve"><value>การตั้งค่า</value></data>
+  <data name="Exit" xml:space="preserve"><value>ออก</value></data>
+  <data name="Save" xml:space="preserve"><value>บันทึก</value></data>
+  <data name="SaveAll" xml:space="preserve"><value>บันทึกทั้งหมด</value></data>
+  <data name="Delete" xml:space="preserve"><value>ลบ</value></data>
+  <data name="DeleteAll" xml:space="preserve"><value>ลบทั้งหมด</value></data>
+  <data name="Copy" xml:space="preserve"><value>คัดลอก</value></data>
+  <data name="Print" xml:space="preserve"><value>พิมพ์</value></data>
+  <data name="Pen" xml:space="preserve"><value>ปากกา</value></data>
+  <data name="Highlighter" xml:space="preserve"><value>ปากกาเน้นข้อความ</value></data>
+  <data name="Text" xml:space="preserve"><value>ข้อความ</value></data>
+  <data name="Shape" xml:space="preserve"><value>รูปร่าง</value></data>
+  <data name="Eraser" xml:space="preserve"><value>ยางลบ</value></data>
+  <data name="Mosaic" xml:space="preserve"><value>โมเสก</value></data>
+  <data name="Numbering" xml:space="preserve"><value>ลำดับเลข</value></data>
+  <data name="NumberingMode" xml:space="preserve"><value>โหมดลำดับเลข</value></data>
+  <data name="Crop" xml:space="preserve"><value>ครอบตัด</value></data>
+  <data name="Rotate" xml:space="preserve"><value>หมุน</value></data>
+  <data name="Undo" xml:space="preserve"><value>เลิกทำ</value></data>
+  <data name="Redo" xml:space="preserve"><value>ทำซ้ำ</value></data>
+  <data name="General" xml:space="preserve"><value>ทั่วไป</value></data>
+  <data name="Language" xml:space="preserve"><value>ภาษา</value></data>
+  <data name="Hotkeys" xml:space="preserve"><value>ปุ่มลัด</value></data>
+  <data name="StartWithWindows" xml:space="preserve"><value>เริ่มพร้อม Windows</value></data>
+  <data name="StartInTrayMode" xml:space="preserve"><value>เริ่มในโหมดถาด</value></data>
+  <data name="SettingsSaved" xml:space="preserve"><value>บันทึกการตั้งค่าสำเร็จ</value></data>
+  <data name="Version" xml:space="preserve"><value>เวอร์ชัน</value></data>
+  <data name="Default" xml:space="preserve"><value>ค่าเริ่มต้น</value></data>
+  <data name="Select" xml:space="preserve"><value>เลือก</value></data>
+  <data name="SelectTooltip" xml:space="preserve"><value>เลือกและปรับแต่งองค์ประกอบ</value></data>
+  <data name="Confirm" xml:space="preserve"><value>ยืนยัน</value></data>
+  <data name="Cancel" xml:space="preserve"><value>ยกเลิก</value></data>
+  <data name="Yes" xml:space="preserve"><value>ใช่</value></data>
+  <data name="No" xml:space="preserve"><value>ไม่</value></data>
+  <data name="Error" xml:space="preserve"><value>ข้อผิดพลาด</value></data>
+  <data name="Success" xml:space="preserve"><value>สำเร็จ</value></data>
+  <data name="Capture" xml:space="preserve"><value>จับภาพ</value></data>
+  <data name="Captured" xml:space="preserve"><value>จับภาพแล้ว</value></data>
+  <data name="Recapture" xml:space="preserve"><value>จับภาพใหม่</value></data>
+  <data name="CopyToClipboard" xml:space="preserve"><value>คัดลอกไปยังคลิปบอร์ด</value></data>
+  <data name="Reset" xml:space="preserve"><value>รีเซ็ต</value></data>
+  <data name="FlipHorizontal" xml:space="preserve"><value>พลิกแนวนอน</value></data>
+  <data name="FlipVertical" xml:space="preserve"><value>พลิกแนวตั้ง</value></data>
+  <data name="ImageSearch" xml:space="preserve"><value>ค้นหาภาพ</value></data>
+  <data name="Share" xml:space="preserve"><value>แชร์</value></data>
+  <data name="Extract" xml:space="preserve"><value>แยกข้อความ</value></data>
+  <data name="ToolOptions" xml:space="preserve"><value>ตัวเลือกเครื่องมือ</value></data>
+  <data name="RecentCaptures" xml:space="preserve"><value>ภาพที่จับล่าสุด</value></data>
+  <data name="Size" xml:space="preserve"><value>ขนาด</value></data>
+  <data name="OriginalSize" xml:space="preserve"><value>ขนาดเดิม</value></data>
+  <data name="ResetToOriginal" xml:space="preserve"><value>รีเซ็ตเป็นขนาดเดิม</value></data>
+  <data name="AddText" xml:space="preserve"><value>เพิ่มข้อความ</value></data>
+  <data name="DrawShapeTooltip" xml:space="preserve"><value>วาดรูปร่าง (ค่าเริ่มต้น: สี่เหลี่ยม)</value></data>
+  <data name="ShapeOptions" xml:space="preserve"><value>ตัวเลือกรูปร่าง</value></data>
+  <data name="ImageSizePrefix" xml:space="preserve"><value>ขนาดภาพ: </value></data>
+  <data name="RestartRequired" xml:space="preserve"><value>ต้องเริ่มโปรแกรมใหม่เพื่อใช้การเปลี่ยนภาษา</value></data>
+  <data name="MenuEdit" xml:space="preserve"><value>แก้ไขเมนู</value></data>
+  <data name="MenuEditGuide" xml:space="preserve"><value>ลากและวางเพื่อจัดลำดับใหม่หรือลบรายการเมนู</value></data>
+  <data name="Add" xml:space="preserve"><value>เพิ่ม</value></data>
+  <data name="RestoreDefaultMenus" xml:space="preserve"><value>คืนค่าเมนูเริ่มต้น</value></data>
+  <data name="VisitHomepage" xml:space="preserve"><value>ไปที่โฮมเพจ</value></data>
+  <data name="RestoreDefaults" xml:space="preserve"><value>คืนค่าเริ่มต้น</value></data>
+  <data name="PrivacyPolicy" xml:space="preserve"><value>นโยบายความเป็นส่วนตัว</value></data>
+  <data name="CaptureSettings" xml:space="preserve"><value>การตั้งค่าการจับภาพ</value></data>
+  <data name="SaveSettings" xml:space="preserve"><value>การตั้งค่าการบันทึก</value></data>
+  <data name="SavePath" xml:space="preserve"><value>ตำแหน่งบันทึก</value></data>
+  <data name="Change" xml:space="preserve"><value>เปลี่ยน</value></data>
+  <data name="FileFormat" xml:space="preserve"><value>รูปแบบไฟล์</value></data>
+  <data name="Quality" xml:space="preserve"><value>คุณภาพ</value></data>
+  <data name="Options" xml:space="preserve"><value>ตัวเลือก</value></data>
+  <data name="AutoSaveCapture" xml:space="preserve"><value>บันทึกอัตโนมัติหลังจับภาพ</value></data>
+  <data name="ShowPreviewAfterCapture" xml:space="preserve"><value>แสดงตัวอย่างหลังจับภาพ</value></data>
+  <data name="HotkeySettings" xml:space="preserve"><value>การตั้งค่าปุ่มลัด</value></data>
+  <data name="UsePrintScreen" xml:space="preserve"><value>ใช้ปุ่ม Print Screen</value></data>
+  <data name="SystemSettings" xml:space="preserve"><value>การตั้งค่าระบบ</value></data>
+  <data name="StartupMode" xml:space="preserve"><value>โหมดเริ่มต้น</value></data>
+  <data name="StartInNormal" xml:space="preserve"><value>เริ่มในโหมดปกติ</value></data>
+  <data name="StartInSimple" xml:space="preserve"><value>เริ่มในโหมดง่าย</value></data>
+  <data name="StartInTray" xml:space="preserve"><value>เริ่มในโหมดถาด</value></data>
+  <data name="StartupModeNotice" xml:space="preserve"><value>※ โหมดถาดจะแสดงเฉพาะไอคอนในถาดระบบ</value></data>
+  <data name="LanguageSettings" xml:space="preserve"><value>การตั้งค่าภาษา</value></data>
+  <data name="LanguageLabel" xml:space="preserve"><value>เลือกภาษา</value></data>
+  <data name="NoExtractedText" xml:space="preserve"><value>ไม่พบข้อความที่แยกสกัด</value></data>
+  <data name="Info" xml:space="preserve"><value>ข้อมูล</value></data>
+  <data name="ImageSaveTitle" xml:space="preserve"><value>บันทึกภาพ</value></data>
+  <data name="ImageSaved" xml:space="preserve"><value>บันทึกภาพสำเร็จ</value></data>
+  <data name="NoImageToPrint" xml:space="preserve"><value>ไม่มีภาพที่จะพิมพ์</value></data>
+  <data name="PrintPreviewError" xml:space="preserve"><value>เกิดข้อผิดพลาดในการดูตัวอย่างก่อนพิมพ์</value></data>
+  <data name="RecaptureError" xml:space="preserve"><value>เกิดข้อผิดพลาดในการจับภาพใหม่</value></data>
+  <data name="ConfirmReset" xml:space="preserve"><value>คืนค่าเดิม? การเปลี่ยนแปลงทั้งหมดจะหายไป</value></data>
+  <data name="EditImage" xml:space="preserve"><value>แก้ไขภาพ</value></data>
+  <data name="PenTooltip" xml:space="preserve"><value>ปากกา (เริ่มต้น: ดำ, 3px)</value></data>
+  <data name="BackgroundRemoval" xml:space="preserve"><value>ลบพื้นหลัง</value></data>
+  <data name="BackgroundRemovalTooltip" xml:space="preserve"><value>ลบพื้นหลังอัตโนมัติ</value></data>
+  <data name="ImageSearchTooltip" xml:space="preserve"><value>ค้นหาภาพด้วย Google</value></data>
+  <data name="ExtractText" xml:space="preserve"><value>แยกข้อความ (OCR)</value></data>
+  <data name="ZoomReset" xml:space="preserve"><value>ขนาดเดิม (100%)</value></data>
+  <data name="ZoomResetTooltip" xml:space="preserve"><value>ดูขนาดจริง</value></data>
+  <data name="ZoomOut" xml:space="preserve"><value>ซูมออก</value></data>
+  <data name="ZoomIn" xml:space="preserve"><value>ซูมเข้า</value></data>
+  <data name="SizeLabel" xml:space="preserve"><value>ขนาด</value></data>
+  <data name="ShapeLbl" xml:space="preserve"><value>รูปร่าง</value></data>
+  <data name="PenLbl" xml:space="preserve"><value>ปากกา</value></data>
+  <data name="HighlighterLbl" xml:space="preserve"><value>เน้นข้อความ</value></data>
+  <data name="TextAdd" xml:space="preserve"><value>เพิ่มข้อความ</value></data>
+  <data name="UndoLbl" xml:space="preserve"><value>เลิกทำ</value></data>
+  <data name="ScreenRecording" xml:space="preserve"><value>บันทึกหน้าจอ</value></data>
+  <data name="Record" xml:space="preserve"><value>บันทึก</value></data>
+  <data name="RedoLbl" xml:space="preserve"><value>ทำซ้ำ</value></data>
+  <data name="ResetLbl" xml:space="preserve"><value>รีเซ็ต</value></data>
+  <data name="FlipH" xml:space="preserve"><value>พลิกแนวนอน</value></data>
+  <data name="FlipV" xml:space="preserve"><value>พลิกแนวตั้ง</value></data>
+  <data name="CopySelected" xml:space="preserve"><value>คัดลอก</value></data>
+  <data name="InstantEdit" xml:space="preserve"><value>แก้ไขทันที</value></data>
+  <data name="OpenEditor" xml:space="preserve"><value>เปิดตัวแก้ไข</value></data>
+  <data name="OpenSettings" xml:space="preserve"><value>เปิดการตั้งค่า</value></data>
+  <data name="RealTimeF1Guide" xml:space="preserve"><value>กด F1 เมื่อพร้อมจะจับภาพ</value></data>
+  <data name="DelayNone" xml:space="preserve"><value>ไม่มีการหน่วงเวลา</value></data>
+  <data name="Delay3Sec" xml:space="preserve"><value>3 วินาที</value></data>
+  <data name="Delay5Sec" xml:space="preserve"><value>5 วินาที</value></data>
+  <data name="Delay10Sec" xml:space="preserve"><value>10 วินาที</value></data>
+  <data name="MultiCaptureGuide" xml:space="preserve"><value>ENTER: รวมภาพ&#xA;F1: บันทึกแยก&#xA;ESC: ออก</value></data>
+  <data name="MultiCaptureMinReq" xml:space="preserve"><value>โปรดจับภาพอย่างน้อยหนึ่งบริเวณ</value></data>
+  <data name="InvalidCompositeSize" xml:space="preserve"><value>ขนาดภาพรวมภาพไม่ถูกต้อง</value></data>
+  <data name="CompositeTooLarge" xml:space="preserve"><value>ภาพรวมภาพใหญ่เกินไป ({0}x{1}) ขนาดสูงสุดคือ 32000x32000</value></data>
+  <data name="CompositeError" xml:space="preserve"><value>เกิดข้อผิดพลาดในการรวมภาพ: {0}</value></data>
+  <data name="CaptureError" xml:space="preserve"><value>เกิดข้อผิดพลาดในการจับภาพ: {0}</value></data>
+  <data name="NumberingOptions" xml:space="preserve"><value>การตั้งค่าขนาด</value></data>
+  <data name="NumberingBadge" xml:space="preserve"><value>สัญลักษณ์</value></data>
+  <data name="NumberingText" xml:space="preserve"><value>ข้อความ</value></data>
+  <data name="EditConfirmGuide" xml:space="preserve"><value>โปรดยืนยัน(✓) การแก้ไขก่อนดำเนินการต่อ</value></data>
+  <data name="Color" xml:space="preserve"><value>สี</value></data>
+  <data name="TextOptions" xml:space="preserve"><value>ตัวเลือกข้อความ</value></data>
+  <data name="Font" xml:space="preserve"><value>แบบอักษร</value></data>
+  <data name="Thickness" xml:space="preserve"><value>ความหนา</value></data>
+  <data name="Fill" xml:space="preserve"><value>เติมสี</value></data>
+  <data name="FillOpacity" xml:space="preserve"><value>ความโปร่งแสง</value></data>
+  <data name="Intensity" xml:space="preserve"><value>ความเข้ม</value></data>
+  <data name="ComputerApp" xml:space="preserve"><value>แอปคอมพิวเตอร์...</value></data>
+  <data name="SelectApplication" xml:space="preserve"><value>เลือกแอปพลิเคชัน</value></data>
+  <data name="SortNameAsc" xml:space="preserve"><value>ชื่อ ▲</value></data>
+  <data name="SortNameDesc" xml:space="preserve"><value>ชื่อ ▼</value></data>
+  <data name="Browse" xml:space="preserve"><value>เรียกดู...</value></data>
+  <data name="SelectExecutable" xml:space="preserve"><value>เลือกไฟล์โปรแกรม</value></data>
+  <data name="ConfirmDeleteShortcut" xml:space="preserve"><value>ลบทางลัด '{0}' หรือไม่?</value></data>
+  <data name="DeleteShortcut" xml:space="preserve"><value>ลบทางลัด</value></data>
+  <data name="AppLaunchFailed" xml:space="preserve"><value>ไม่สามารถเปิดแอป: {0}</value></data>
+  <data name="GoogleSearch" xml:space="preserve"><value>ค้นหาภาพ Google</value></data>
+  <data name="CopiedToClipboard" xml:space="preserve"><value>คัดลอกไปยังคลิปบอร์ดแล้ว</value></data>
+  <data name="AllCopiedToClipboard" xml:space="preserve"><value>คัดลอกภาพทั้งหมดไปยังคลิปบอร์ดแล้ว</value></data>
+  <data name="SelectSaveFolder" xml:space="preserve"><value>เลือกโฟลเดอร์สำหรับบันทึก</value></data>
+  <data name="UnsavedImagesDeleteConfirm" xml:space="preserve"><value>มีภาพที่ยังไม่ได้บันทึก คุณแน่ใจหรือไม่ว่าต้องการลบทั้งหมด?</value></data>
+  <data name="UnsavedImageDeleteConfirm" xml:space="preserve"><value>ภาพนี้ยังไม่ได้บันทึก คุณแน่ใจหรือไม่ว่าต้องการลบ?</value></data>
+  <data name="ShareImageTitle" xml:space="preserve"><value>แชร์ภาพ</value></data>
+  <data name="ShareImageDesc" xml:space="preserve"><value>แชร์ภาพที่จับได้</value></data>
+  <data name="ShareError" xml:space="preserve"><value>ข้อผิดพลาดในการแชร์</value></data>
+  <data name="AllImagesSaved" xml:space="preserve"><value>บันทึกภาพทั้งหมดแล้ว</value></data>
+  <data name="CopyAll" xml:space="preserve"><value>คัดลอกทั้งหมด</value></data>
+  <data name="PixelSizeLabel" xml:space="preserve"><value>ขนาดพิกเซล</value></data>
+  <data name="MagicWandToleranceLabel" xml:space="preserve"><value>ค่าความคลาดเคลื่อน</value></data>
+  <data name="MagicWandContiguousOnly" xml:space="preserve"><value>พื้นที่ที่ต่อเนื่องกันเท่านั้น</value></data>
+  <data name="MagicWandDesc" xml:space="preserve"><value>คลิกเพื่อลบพื้นหลัง หรือลากเพื่อเลือกพื้นที่</value></data>
+  <data name="MagicWandTip" xml:space="preserve"><value>คลิกหรือลากเพื่อลบพื้นหลัง</value></data>
+  <data name="Opacity" xml:space="preserve"><value>ความโปร่งแสง</value></data>
+  <data name="Style" xml:space="preserve"><value>สไตล์</value></data>
+  <data name="Bold" xml:space="preserve"><value>หนา</value></data>
+  <data name="Italic" xml:space="preserve"><value>เอียง</value></data>
+  <data name="Underline" xml:space="preserve"><value>ขีดเส้นใต้</value></data>
+  <data name="Shadow" xml:space="preserve"><value>เงา</value></data>
+  <data name="OcrResultTitle" xml:space="preserve"><value>ผลลัพธ์การแยกข้อความ</value></data>
+  <data name="ExtractedText" xml:space="preserve"><value>ข้อความที่แยกได้</value></data>
+  <data name="GoogleTranslate" xml:space="preserve"><value>Google แปลภาษา</value></data>
+  <data name="Close" xml:space="preserve"><value>ปิด</value></data>
+  <data name="NoExtractedTextOcr" xml:space="preserve"><value>ไม่พบข้อความที่สกัดได้</value></data>
+  <data name="OpeningGoogleTranslate" xml:space="preserve"><value>กำลังเปิด Google แปลภาษา...\nคัดลอกข้อความเป็นคลิปบอร์ดแล้ว</value></data>
+  <data name="GoogleTranslateFailed" xml:space="preserve"><value>ไม่สามารถเปิด Google แปลภาษา: {0}</value></data>
+  <data name="RedirectingToTranslate" xml:space="preserve"><value>กำลังนำไปยัง Google แปลภาษา...</value></data>
+  <data name="OcrLanguagePackWarning" xml:space="preserve"><value>※ หากการรู้จำภาษาญี่ปุ่น/จีนไม่แม่นยำ โปรดลองติดตั้งชุดภาษาในการตั้งค่า Windows > เวลาและภาษา > ภาษา</value></data>
+  <data name="SimpleModeDockinGuide" xml:space="preserve"><value>💡 เคล็ดลับ: ลากไปที่ขอบด้านบน ซ้าย หรือขวาของหน้าจอเพื่อยึดติด!</value></data>
+  <data name="ExitSimpleMode" xml:space="preserve"><value>ออกจากโหมดง่าย</value></data>
+  <data name="MinimizeToTray" xml:space="preserve"><value>ย่อส่วนลงถาดระบบ</value></data>
+  <data name="Enlarge" xml:space="preserve"><value>ขยาย UI</value></data>
+  <data name="SwitchToNormalMode" xml:space="preserve"><value>สลับเป็นโหมดปกติ</value></data>
+  <data name="SwitchToSimpleMode" xml:space="preserve"><value>สลับเป็นโหมดง่าย</value></data>
+  <data name="Pin" xml:space="preserve"><value>ปักหมุด</value></data>
+  <data name="Unpin" xml:space="preserve"><value>ถอนหมุด</value></data>
+  <data name="ViewCaptureList" xml:space="preserve"><value>ดูรายการที่จับภาพ</value></data>
+  <data name="AddIcon" xml:space="preserve"><value>เพิ่มไอคอน</value></data>
+  <data name="HideToTray" xml:space="preserve"><value>ซ่อนลงถาดระบบ</value></data>
+  <data name="Fold" xml:space="preserve"><value>พับ</value></data>
+  <data name="UnitCapture" xml:space="preserve"><value>จับภาพตามหน่วย</value></data>
+  <data name="ComputerApps" xml:space="preserve"><value>แอปคอมพิวเตอร์</value></data>
+  <data name="Open" xml:space="preserve"><value>เปิด</value></data>
+  <data name="ShowMagnifier" xml:space="preserve"><value>แสดงแว่นขยายระหว่างจับภาพพื้นที่</value></data>
+  <data name="RecordingTool" xml:space="preserve"><value>การบันทึก</value></data>
+  <data name="StartStopRecording" xml:space="preserve"><value>เริ่ม/หยุด บันทึก</value></data>
+  <data name="Pause" xml:space="preserve"><value>หยุดชั่วคราว</value></data>
+  <data name="Resume" xml:space="preserve"><value>ทำต่อ</value></data>
+  <data name="SystemAudioOff" xml:space="preserve"><value>เสียงระบบ (ปิด)</value></data>
+  <data name="SystemAudioOn" xml:space="preserve"><value>เสียงระบบ (เปิด)</value></data>
+  <data name="MicrophoneOff" xml:space="preserve"><value>ไมโครโฟน (ปิด)</value></data>
+  <data name="MicrophoneOn" xml:space="preserve"><value>ไมโครโฟน (เปิด)</value></data>
+  <data name="VideoQuality" xml:space="preserve"><value>คุณภาพ (HD/SD/LD)</value></data>
+  <data name="FrameRate" xml:space="preserve"><value>อัตราเฟรม</value></data>
+  <data name="ShowMouseCursor" xml:space="preserve"><value>แสดงตัวชี้เมาส์</value></data>
+  <data name="Countdown" xml:space="preserve"><value>นับถอยหลัง</value></data>
+  <data name="HideToolbar" xml:space="preserve"><value>ซ่อนแถบเครื่องมือ</value></data>
+  <data name="ShowToolbar" xml:space="preserve"><value>แสดงแถบเครื่องมือ</value></data>
+  <data name="AutoSnap" xml:space="preserve"><value>แม่เหล็ก</value></data>
+  <data name="AreaSelection" xml:space="preserve"><value>เลือกพื้นที่</value></data>
+  <data name="DrawingTools" xml:space="preserve"><value>เครื่องมือวาดรูป</value></data>
+  <data name="ToolPen" xml:space="preserve"><value>ปากกา</value></data>
+  <data name="ToolHighlighter" xml:space="preserve"><value>เน้นข้อความ</value></data>
+  <data name="ToolEraser" xml:space="preserve"><value>ยางลบ</value></data>
+  <data name="ToolLine" xml:space="preserve"><value>เส้น</value></data>
+  <data name="ToolArrow" xml:space="preserve"><value>ลูกศร</value></data>
+  <data name="ToolRectangle" xml:space="preserve"><value>สี่เหลี่ยม</value></data>
+  <data name="ToolEllipse" xml:space="preserve"><value>วงรี</value></data>
+  <data name="ToolNumbering" xml:space="preserve"><value>ลำดับเลข</value></data>
+  <data name="ToolClearAll" xml:space="preserve"><value>ล้างทั้งหมด</value></data>
+  <data name="OpenSaveFolder" xml:space="preserve"><value>เปิดโฟลเดอร์สำหรับบันทึก</value></data>
+  <data name="ModeSelect" xml:space="preserve"><value>การเลือกโหมด</value></data>
+  <data name="ThemeSettings" xml:space="preserve"><value>การตั้งค่าธีม</value></data>
+  <data name="ThemePreset" xml:space="preserve"><value>ชุดธีมสำเร็จรูป</value></data>
+  <data name="ThemeGeneral" xml:space="preserve"><value>ทั่วไป (ค่าเริ่มต้น)</value></data>
+  <data name="ThemeDark" xml:space="preserve"><value>โหมดมืด</value></data>
+  <data name="ThemeLight" xml:space="preserve"><value>โหมดสว่าง</value></data>
+  <data name="ThemeBlue" xml:space="preserve"><value>โหมดสีฟ้า</value></data>
+  <data name="ThemeCustom" xml:space="preserve"><value>กำหนดเอง</value></data>
+  <data name="ThemeBgColor" xml:space="preserve"><value>สีพื้นหลัง</value></data>
+  <data name="ThemeTextColor" xml:space="preserve"><value>สีข้อความ</value></data>
+  <data name="ThemeColorGuide" xml:space="preserve"><value>※ คลิกที่ช่องสีเพื่อเลือกสี</value></data>
+  <data name="Apply" xml:space="preserve"><value>นำไปใช้</value></data>
+  <data name="Preview" xml:space="preserve"><value>แสดงตัวอย่าง</value></data>
+  <data name="ThemeSampleLabel" xml:space="preserve"><value>ตัวอย่างการแสดงผล</value></data>
+  <data name="ThemeSampleText" xml:space="preserve"><value>นี่คือตัวอย่างข้อความพรีวิวธีม (ABCabc 123)</value></data>
+  <data name="RecordingSettings" xml:space="preserve"><value>การตั้งค่าการบันทึกรูปภาพ</value></data>
+  <data name="BasicSettings" xml:space="preserve"><value>การตั้งค่าพื้นฐาน</value></data>
+  <data name="RecordingStartStopHotkey" xml:space="preserve"><value>ปุ่มลัด บันทึก/หยุด</value></data>
+  <data name="RecordStartStop" xml:space="preserve"><value>บันทึก/หยุด</value></data>
+  <data name="CaptureLineSettings" xml:space="preserve"><value>การตั้งค่าเส้นนำสำหรับการจับภาพ</value></data>
+  <data name="OverlayBgColor" xml:space="preserve"><value>สีพื้นหลังซ้อนทับ</value></data>
+  <data name="LineStyle" xml:space="preserve"><value>สไตล์เส้น</value></data>
+  <data name="LineThickness" xml:space="preserve"><value>ความหนาของเส้น</value></data>
+  <data name="LineColor" xml:space="preserve"><value>สีเส้น</value></data>
+  <data name="CaptureSettingsGuide" xml:space="preserve"><value>* คลิกที่ช่องสีเพื่อเลือกสีเส้นนำการจับภาพ</value></data>
+  <data name="SolidLine" xml:space="preserve"><value>เส้นทึบ</value></data>
+  <data name="DashLine" xml:space="preserve"><value>เส้นประยาว</value></data>
+  <data name="DotLine" xml:space="preserve"><value>เส้นไข่ปลา</value></data>
+  <data name="DashDotLine" xml:space="preserve"><value>เส้นประจุด</value></data>
+  <data name="Outline" xml:space="preserve"><value>เส้นขอบ</value></data>
+  <data name="QualityHigh" xml:space="preserve"><value>คุณภาพสูง</value></data>
+  <data name="QualityMedium" xml:space="preserve"><value>ปานกลาง</value></data>
+  <data name="QualityLow" xml:space="preserve"><value>คุณภาพต่ำ</value></data>
+  <data name="PrintPreviewTitle" xml:space="preserve"><value>ตัวอย่างก่อนพิมพ์</value></data>
+  <data name="OrientationLabel" xml:space="preserve"><value>ทิศทาง:</value></data>
+  <data name="Portrait" xml:space="preserve"><value>แนวตั้ง</value></data>
+  <data name="Landscape" xml:space="preserve"><value>แนวนอน</value></data>
+  <data name="PrintOptionsLabel" xml:space="preserve"><value>ตัวเลือกการพิมพ์:</value></data>
+  <data name="FitToPage" xml:space="preserve"><value>พอดีกับหน้ากระดาษ</value></data>
+  <data name="ActualSize" xml:space="preserve"><value>ขนาดจริง</value></data>
+  <data name="FillPage" xml:space="preserve"><value>เต็มหน้ากระดาษ</value></data>
+  <data name="PrintingStarted" xml:space="preserve"><value>เริ่มการพิมพ์แล้ว</value></data>
+  <data name="PrintingError" xml:space="preserve"><value>เกิดข้อผิดพลาดระหว่างการพิมพ์</value></data>
+  <data name="PreviewGenerationError" xml:space="preserve"><value>เกิดข้อผิดพลาดในการสร้างตัวอย่าง</value></data>
+  <data name="PrintJobName" xml:space="preserve"><value>พิมพ์ภาพ CatchCapture</value></data>
+</root>

@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" use="preserve" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AppTitle" xml:space="preserve"><value>CatchCapture</value></data>
+  <data name="AreaCapture" xml:space="preserve"><value>區域截圖</value></data>
+  <data name="DelayCapture" xml:space="preserve"><value>延時截圖</value></data>
+  <data name="RealTimeCapture" xml:space="preserve"><value>即時截圖</value></data>
+  <data name="MultiCapture" xml:space="preserve"><value>多重截圖</value></data>
+  <data name="FullScreen" xml:space="preserve"><value>全螢幕</value></data>
+  <data name="DesignatedCapture" xml:space="preserve"><value>固定區域</value></data>
+  <data name="WindowCapture" xml:space="preserve"><value>視窗截圖</value></data>
+  <data name="ElementCapture" xml:space="preserve"><value>元素截圖</value></data>
+  <data name="ScrollCapture" xml:space="preserve"><value>滾動截圖</value></data>
+  <data name="OcrCapture" xml:space="preserve"><value>OCR文字識別</value></data>
+  <data name="NormalMode" xml:space="preserve"><value>普通模式</value></data>
+  <data name="SimpleMode" xml:space="preserve"><value>簡易模式</value></data>
+  <data name="TrayMode" xml:space="preserve"><value>托盤模式</value></data>
+  <data name="Settings" xml:space="preserve"><value>設定</value></data>
+  <data name="Exit" xml:space="preserve"><value>退出</value></data>
+  <data name="Save" xml:space="preserve"><value>儲存</value></data>
+  <data name="SaveAll" xml:space="preserve"><value>全部儲存</value></data>
+  <data name="Delete" xml:space="preserve"><value>刪除</value></data>
+  <data name="DeleteAll" xml:space="preserve"><value>全部刪除</value></data>
+  <data name="Copy" xml:space="preserve"><value>複製</value></data>
+  <data name="Print" xml:space="preserve"><value>列印</value></data>
+  <data name="Pen" xml:space="preserve"><value>畫筆</value></data>
+  <data name="Highlighter" xml:space="preserve"><value>螢光筆</value></data>
+  <data name="Text" xml:space="preserve"><value>文字</value></data>
+  <data name="Shape" xml:space="preserve"><value>形狀</value></data>
+  <data name="Eraser" xml:space="preserve"><value>橡皮擦</value></data>
+  <data name="Mosaic" xml:space="preserve"><value>馬賽克</value></data>
+  <data name="Numbering" xml:space="preserve"><value>編號</value></data>
+  <data name="NumberingMode" xml:space="preserve"><value>編號模式</value></data>
+  <data name="Crop" xml:space="preserve"><value>裁剪</value></data>
+  <data name="Rotate" xml:space="preserve"><value>旋轉</value></data>
+  <data name="Undo" xml:space="preserve"><value>復原</value></data>
+  <data name="Redo" xml:space="preserve"><value>重做</value></data>
+  <data name="General" xml:space="preserve"><value>一般</value></data>
+  <data name="Language" xml:space="preserve"><value>語言</value></data>
+  <data name="Hotkeys" xml:space="preserve"><value>快速鍵</value></data>
+  <data name="StartWithWindows" xml:space="preserve"><value>隨 Windows 啟動</value></data>
+  <data name="StartInTrayMode" xml:space="preserve"><value>以托盤模式啟動</value></data>
+  <data name="SettingsSaved" xml:space="preserve"><value>設定已成功儲存</value></data>
+  <data name="Version" xml:space="preserve"><value>版本</value></data>
+  <data name="Default" xml:space="preserve"><value>預設</value></data>
+  <data name="Select" xml:space="preserve"><value>選取</value></data>
+  <data name="SelectTooltip" xml:space="preserve"><value>選擇並調整元素</value></data>
+  <data name="Confirm" xml:space="preserve"><value>確定</value></data>
+  <data name="Cancel" xml:space="preserve"><value>取消</value></data>
+  <data name="Yes" xml:space="preserve"><value>是</value></data>
+  <data name="No" xml:space="preserve"><value>否</value></data>
+  <data name="Error" xml:space="preserve"><value>錯誤</value></data>
+  <data name="Success" xml:space="preserve"><value>成功</value></data>
+  <data name="Capture" xml:space="preserve"><value>截圖</value></data>
+  <data name="Captured" xml:space="preserve"><value>已捕捉</value></data>
+  <data name="Recapture" xml:space="preserve"><value>重新截圖</value></data>
+  <data name="CopyToClipboard" xml:space="preserve"><value>複製到剪貼簿</value></data>
+  <data name="Reset" xml:space="preserve"><value>重設</value></data>
+  <data name="FlipHorizontal" xml:space="preserve"><value>水平翻轉</value></data>
+  <data name="FlipVertical" xml:space="preserve"><value>垂直翻轉</value></data>
+  <data name="ImageSearch" xml:space="preserve"><value>圖片搜索</value></data>
+  <data name="Share" xml:space="preserve"><value>分享</value></data>
+  <data name="Extract" xml:space="preserve"><value>提取</value></data>
+  <data name="ToolOptions" xml:space="preserve"><value>工具選項</value></data>
+  <data name="RecentCaptures" xml:space="preserve"><value>最近截圖</value></data>
+  <data name="Size" xml:space="preserve"><value>大小</value></data>
+  <data name="OriginalSize" xml:space="preserve"><value>原始大小</value></data>
+  <data name="ResetToOriginal" xml:space="preserve"><value>恢復原始大小</value></data>
+  <data name="AddText" xml:space="preserve"><value>新增文字</value></data>
+  <data name="DrawShapeTooltip" xml:space="preserve"><value>繪製形狀 (預設: 矩形)</value></data>
+  <data name="ShapeOptions" xml:space="preserve"><value>形狀選項</value></data>
+  <data name="ImageSizePrefix" xml:space="preserve"><value>圖片大小: </value></data>
+  <data name="RestartRequired" xml:space="preserve"><value>需要重啟以套用語言更改。</value></data>
+  <data name="MenuEdit" xml:space="preserve"><value>編輯選單</value></data>
+  <data name="MenuEditGuide" xml:space="preserve"><value>拖放以重新排序或刪除選單項目。</value></data>
+  <data name="Add" xml:space="preserve"><value>新增</value></data>
+  <data name="RestoreDefaultMenus" xml:space="preserve"><value>還原預設選單</value></data>
+  <data name="VisitHomepage" xml:space="preserve"><value>訪問主頁</value></data>
+  <data name="RestoreDefaults" xml:space="preserve"><value>恢復預設值</value></data>
+  <data name="PrivacyPolicy" xml:space="preserve"><value>隱私政策</value></data>
+  <data name="CaptureSettings" xml:space="preserve"><value>截圖設定</value></data>
+  <data name="SaveSettings" xml:space="preserve"><value>儲存設定</value></data>
+  <data name="SavePath" xml:space="preserve"><value>儲存路徑</value></data>
+  <data name="Change" xml:space="preserve"><value>更改</value></data>
+  <data name="FileFormat" xml:space="preserve"><value>檔案格式</value></data>
+  <data name="Quality" xml:space="preserve"><value>品質</value></data>
+  <data name="Options" xml:space="preserve"><value>選項</value></data>
+  <data name="AutoSaveCapture" xml:space="preserve"><value>截圖後自動儲存</value></data>
+  <data name="ShowPreviewAfterCapture" xml:space="preserve"><value>截圖後顯示預覽視窗</value></data>
+  <data name="HotkeySettings" xml:space="preserve"><value>快速鍵設定</value></data>
+  <data name="UsePrintScreen" xml:space="preserve"><value>使用 Print Screen 鍵</value></data>
+  <data name="SystemSettings" xml:space="preserve"><value>系統設定</value></data>
+  <data name="StartupMode" xml:space="preserve"><value>啟動模式</value></data>
+  <data name="StartInNormal" xml:space="preserve"><value>以正常模式啟動</value></data>
+  <data name="StartInSimple" xml:space="preserve"><value>以簡易模式啟動</value></data>
+  <data name="StartInTray" xml:space="preserve"><value>以托盤模式啟動</value></data>
+  <data name="StartupModeNotice" xml:space="preserve"><value>※ 托盤模式僅顯示托盤圖示。</value></data>
+  <data name="LanguageSettings" xml:space="preserve"><value>語言設定</value></data>
+  <data name="LanguageLabel" xml:space="preserve"><value>選擇語言</value></data>
+  <data name="NoExtractedText" xml:space="preserve"><value>未提取到文字。</value></data>
+  <data name="Info" xml:space="preserve"><value>訊息</value></data>
+  <data name="ImageSaveTitle" xml:space="preserve"><value>儲存圖片</value></data>
+  <data name="ImageSaved" xml:space="preserve"><value>圖片儲存成功。</value></data>
+  <data name="NoImageToPrint" xml:space="preserve"><value>沒有可列印的圖片。</value></data>
+  <data name="PrintPreviewError" xml:space="preserve"><value>列印預覽錯誤</value></data>
+  <data name="RecaptureError" xml:space="preserve"><value>重新捕捉錯誤</value></data>
+  <data name="ConfirmReset" xml:space="preserve"><value>重設為原始狀態？所有更改將丟失。</value></data>
+  <data name="EditImage" xml:space="preserve"><value>編輯圖片</value></data>
+  <data name="PenTooltip" xml:space="preserve"><value>畫筆 (預設: 黑色, 3px)</value></data>
+  <data name="BackgroundRemoval" xml:space="preserve"><value>移除背景</value></data>
+  <data name="BackgroundRemovalTooltip" xml:space="preserve"><value>自動移除背景</value></data>
+  <data name="ImageSearchTooltip" xml:space="preserve"><value>Google 圖片搜索</value></data>
+  <data name="ExtractText" xml:space="preserve"><value>提取文字 (OCR)</value></data>
+  <data name="ZoomReset" xml:space="preserve"><value>原始大小 (100%)</value></data>
+  <data name="ZoomResetTooltip" xml:space="preserve"><value>查看實際大小</value></data>
+  <data name="ZoomOut" xml:space="preserve"><value>縮小</value></data>
+  <data name="ZoomIn" xml:space="preserve"><value>放大</value></data>
+  <data name="SizeLabel" xml:space="preserve"><value>大小</value></data>
+  <data name="ShapeLbl" xml:space="preserve"><value>形狀</value></data>
+  <data name="PenLbl" xml:space="preserve"><value>畫筆</value></data>
+  <data name="HighlighterLbl" xml:space="preserve"><value>螢光筆</value></data>
+  <data name="TextAdd" xml:space="preserve"><value>新增文字</value></data>
+  <data name="UndoLbl" xml:space="preserve"><value>復原</value></data>
+  <data name="ScreenRecording" xml:space="preserve"><value>錄影</value></data>
+  <data name="Record" xml:space="preserve"><value>錄製</value></data>
+  <data name="RedoLbl" xml:space="preserve"><value>重做</value></data>
+  <data name="ResetLbl" xml:space="preserve"><value>重設</value></data>
+  <data name="FlipH" xml:space="preserve"><value>水平翻轉</value></data>
+  <data name="FlipV" xml:space="preserve"><value>垂直翻轉</value></data>
+  <data name="CopySelected" xml:space="preserve"><value>複製</value></data>
+  <data name="InstantEdit" xml:space="preserve"><value>即時編輯</value></data>
+  <data name="OpenEditor" xml:space="preserve"><value>開啟編輯器</value></data>
+  <data name="OpenSettings" xml:space="preserve"><value>開啟設定</value></data>
+  <data name="RealTimeF1Guide" xml:space="preserve"><value>準備好後請按 F1 進行截圖。</value></data>
+  <data name="DelayNone" xml:space="preserve"><value>無延遲</value></data>
+  <data name="Delay3Sec" xml:space="preserve"><value>3 秒</value></data>
+  <data name="Delay5Sec" xml:space="preserve"><value>5 秒</value></data>
+  <data name="Delay10Sec" xml:space="preserve"><value>10 秒</value></data>
+  <data name="MultiCaptureGuide" xml:space="preserve"><value>ENTER: 合成&#xA;F1: 單獨儲存&#xA;ESC: 退出</value></data>
+  <data name="MultiCaptureMinReq" xml:space="preserve"><value>請至少捕捉一個區域。</value></data>
+  <data name="InvalidCompositeSize" xml:space="preserve"><value>無效的合成圖片大小。</value></data>
+  <data name="CompositeTooLarge" xml:space="preserve"><value>合成圖片太大了 ({0}x{1})。最大尺寸為 32000x32000。</value></data>
+  <data name="CompositeError" xml:space="preserve"><value>合成圖片時出錯: {0}</value></data>
+  <data name="CaptureError" xml:space="preserve"><value>截圖出錯: {0}</value></data>
+  <data name="NumberingOptions" xml:space="preserve"><value>大小設定</value></data>
+  <data name="NumberingBadge" xml:space="preserve"><value>徽章</value></data>
+  <data name="NumberingText" xml:space="preserve"><value>文字</value></data>
+  <data name="EditConfirmGuide" xml:space="preserve"><value>請在繼續之前確認 (✓) 編輯。</value></data>
+  <data name="Color" xml:space="preserve"><value>顏色</value></data>
+  <data name="TextOptions" xml:space="preserve"><value>文字選項</value></data>
+  <data name="Font" xml:space="preserve"><value>字體</value></data>
+  <data name="Thickness" xml:space="preserve"><value>粗細</value></data>
+  <data name="Fill" xml:space="preserve"><value>填充</value></data>
+  <data name="FillOpacity" xml:space="preserve"><value>不透明度</value></data>
+  <data name="Intensity" xml:space="preserve"><value>強度</value></data>
+  <data name="ComputerApp" xml:space="preserve"><value>電腦應用程式...</value></data>
+  <data name="SelectApplication" xml:space="preserve"><value>選擇應用程式</value></data>
+  <data name="SortNameAsc" xml:space="preserve"><value>名稱 ▲</value></data>
+  <data name="SortNameDesc" xml:space="preserve"><value>名稱 ▼</value></data>
+  <data name="Browse" xml:space="preserve"><value>瀏覽...</value></data>
+  <data name="SelectExecutable" xml:space="preserve"><value>選擇可執行檔案</value></data>
+  <data name="ConfirmDeleteShortcut" xml:space="preserve"><value>刪除捷徑 '{0}'？</value></data>
+  <data name="DeleteShortcut" xml:space="preserve"><value>刪除捷徑</value></data>
+  <data name="AppLaunchFailed" xml:space="preserve"><value>啟動應用程式失敗: {0}</value></data>
+  <data name="GoogleSearch" xml:space="preserve"><value>搜索 Google 圖片</value></data>
+  <data name="CopiedToClipboard" xml:space="preserve"><value>已複製到剪貼簿。</value></data>
+  <data name="AllCopiedToClipboard" xml:space="preserve"><value>所有圖片已複製到剪貼簿。</value></data>
+  <data name="SelectSaveFolder" xml:space="preserve"><value>選擇儲存資料夾</value></data>
+  <data name="UnsavedImagesDeleteConfirm" xml:space="preserve"><value>有未儲存的圖片。您確定要全部刪除嗎？</value></data>
+  <data name="UnsavedImageDeleteConfirm" xml:space="preserve"><value>此圖片未儲存。您確定要刪除它嗎？</value></data>
+  <data name="ShareImageTitle" xml:space="preserve"><value>分享圖片</value></data>
+  <data name="ShareImageDesc" xml:space="preserve"><value>分享捕捉的圖片</value></data>
+  <data name="ShareError" xml:space="preserve"><value>分享出錯</value></data>
+  <data name="AllImagesSaved" xml:space="preserve"><value>所有圖片已儲存。</value></data>
+  <data name="CopyAll" xml:space="preserve"><value>全部複製</value></data>
+  <data name="PixelSizeLabel" xml:space="preserve"><value>像素大小</value></data>
+  <data name="MagicWandToleranceLabel" xml:space="preserve"><value>容差</value></data>
+  <data name="MagicWandContiguousOnly" xml:space="preserve"><value>僅限連通區域</value></data>
+  <data name="MagicWandDesc" xml:space="preserve"><value>點擊以移除背景，或拖動以選取區域</value></data>
+  <data name="MagicWandTip" xml:space="preserve"><value>點擊或拖動以移除背景</value></data>
+  <data name="Opacity" xml:space="preserve"><value>不透明度</value></data>
+  <data name="Style" xml:space="preserve"><value>樣式</value></data>
+  <data name="Bold" xml:space="preserve"><value>粗體</value></data>
+  <data name="Italic" xml:space="preserve"><value>斜體</value></data>
+  <data name="Underline" xml:space="preserve"><value>底線</value></data>
+  <data name="Shadow" xml:space="preserve"><value>陰影</value></data>
+  <data name="OcrResultTitle" xml:space="preserve"><value>文字提取結果</value></data>
+  <data name="ExtractedText" xml:space="preserve"><value>提取的文字</value></data>
+  <data name="GoogleTranslate" xml:space="preserve"><value>Google 翻譯</value></data>
+  <data name="Close" xml:space="preserve"><value>關閉</value></data>
+  <data name="NoExtractedTextOcr" xml:space="preserve"><value>沒有提取到文字。</value></data>
+  <data name="OpeningGoogleTranslate" xml:space="preserve"><value>正在開啟 Google 翻譯...\n文字已複製到剪貼簿。</value></data>
+  <data name="GoogleTranslateFailed" xml:space="preserve"><value>開啟 Google 翻譯失敗: {0}</value></data>
+  <data name="RedirectingToTranslate" xml:space="preserve"><value>正在跳轉到 Google 翻譯...</value></data>
+  <data name="OcrLanguagePackWarning" xml:space="preserve"><value>※ 如果日文/中文識別不準確，請嘗試在 Windows 設定 > 時間與語言 > 語言中安裝語言包。</value></data>
+  <data name="SimpleModeDockinGuide" xml:space="preserve"><value>💡 提示：拖動到螢幕頂部、左側或右側邊緣即可停靠！</value></data>
+  <data name="ExitSimpleMode" xml:space="preserve"><value>退出簡易模式</value></data>
+  <data name="MinimizeToTray" xml:space="preserve"><value>最小化到托盤</value></data>
+  <data name="Enlarge" xml:space="preserve"><value>放大介面</value></data>
+  <data name="SwitchToNormalMode" xml:space="preserve"><value>切換到普通模式</value></data>
+  <data name="SwitchToSimpleMode" xml:space="preserve"><value>切換到簡易模式</value></data>
+  <data name="Pin" xml:space="preserve"><value>固定</value></data>
+  <data name="Unpin" xml:space="preserve"><value>取消固定</value></data>
+  <data name="ViewCaptureList" xml:space="preserve"><value>查看捕捉列表</value></data>
+  <data name="AddIcon" xml:space="preserve"><value>新增圖示</value></data>
+  <data name="HideToTray" xml:space="preserve"><value>隱藏到托盤</value></data>
+  <data name="Fold" xml:space="preserve"><value>收摺</value></data>
+  <data name="UnitCapture" xml:space="preserve"><value>單元捕捉</value></data>
+  <data name="ComputerApps" xml:space="preserve"><value>電腦應用程式</value></data>
+  <data name="Open" xml:space="preserve"><value>開啟</value></data>
+  <data name="ShowMagnifier" xml:space="preserve"><value>區域截圖時顯示放大鏡</value></data>
+  <data name="RecordingTool" xml:space="preserve"><value>錄影</value></data>
+  <data name="StartStopRecording" xml:space="preserve"><value>開始/停止錄影</value></data>
+  <data name="Pause" xml:space="preserve"><value>暫停</value></data>
+  <data name="Resume" xml:space="preserve"><value>繼續</value></data>
+  <data name="SystemAudioOff" xml:space="preserve"><value>系統音訊 (關閉)</value></data>
+  <data name="SystemAudioOn" xml:space="preserve"><value>系統音訊 (開啟)</value></data>
+  <data name="MicrophoneOff" xml:space="preserve"><value>麥克風 (關閉)</value></data>
+  <data name="MicrophoneOn" xml:space="preserve"><value>麥克風 (開啟)</value></data>
+  <data name="VideoQuality" xml:space="preserve"><value>品質 (HD/SD/LD)</value></data>
+  <data name="FrameRate" xml:space="preserve"><value>幀率</value></data>
+  <data name="ShowMouseCursor" xml:space="preserve"><value>顯示滑鼠游標</value></data>
+  <data name="Countdown" xml:space="preserve"><value>倒數計時</value></data>
+  <data name="HideToolbar" xml:space="preserve"><value>隱藏工具列</value></data>
+  <data name="ShowToolbar" xml:space="preserve"><value>顯示工具列</value></data>
+  <data name="AutoSnap" xml:space="preserve"><value>磁吸</value></data>
+  <data name="AreaSelection" xml:space="preserve"><value>選取區域</value></data>
+  <data name="DrawingTools" xml:space="preserve"><value>繪圖工具</value></data>
+  <data name="ToolPen" xml:space="preserve"><value>畫筆</value></data>
+  <data name="ToolHighlighter" xml:space="preserve"><value>螢光筆</value></data>
+  <data name="ToolEraser" xml:space="preserve"><value>橡皮擦</value></data>
+  <data name="ToolLine" xml:space="preserve"><value>直線</value></data>
+  <data name="ToolArrow" xml:space="preserve"><value>箭頭</value></data>
+  <data name="ToolRectangle" xml:space="preserve"><value>矩形</value></data>
+  <data name="ToolEllipse" xml:space="preserve"><value>橢圓形</value></data>
+  <data name="ToolNumbering" xml:space="preserve"><value>編號</value></data>
+  <data name="ToolClearAll" xml:space="preserve"><value>全部清除</value></data>
+  <data name="OpenSaveFolder" xml:space="preserve"><value>開啟儲存資料夾</value></data>
+  <data name="ModeSelect" xml:space="preserve"><value>模式選擇</value></data>
+  <data name="ThemeSettings" xml:space="preserve"><value>配色設定</value></data>
+  <data name="ThemePreset" xml:space="preserve"><value>配色預設</value></data>
+  <data name="ThemeGeneral" xml:space="preserve"><value>一般 (預設)</value></data>
+  <data name="ThemeDark" xml:space="preserve"><value>深色模式</value></data>
+  <data name="ThemeLight" xml:space="preserve"><value>淺色模式</value></data>
+  <data name="ThemeBlue" xml:space="preserve"><value>藍色模式</value></data>
+  <data name="ThemeCustom" xml:space="preserve"><value>自定義</value></data>
+  <data name="ThemeBgColor" xml:space="preserve"><value>背景顏色</value></data>
+  <data name="ThemeTextColor" xml:space="preserve"><value>文字顏色</value></data>
+  <data name="ThemeColorGuide" xml:space="preserve"><value>※ 點擊顏色方框以選擇顏色。</value></data>
+  <data name="Apply" xml:space="preserve"><value>套用</value></data>
+  <data name="Preview" xml:space="preserve"><value>預覽</value></data>
+  <data name="ThemeSampleLabel" xml:space="preserve"><value>預覽範例</value></data>
+  <data name="ThemeSampleText" xml:space="preserve"><value>這是配色預覽範例文字。(ABCabc 123)</value></data>
+  <data name="RecordingSettings" xml:space="preserve"><value>錄影設定</value></data>
+  <data name="BasicSettings" xml:space="preserve"><value>基本設定</value></data>
+  <data name="RecordingStartStopHotkey" xml:space="preserve"><value>啟動/停止錄影快速鍵</value></data>
+  <data name="RecordStartStop" xml:space="preserve"><value>錄製/停止</value></data>
+  <data name="CaptureLineSettings" xml:space="preserve"><value>截圖指南線設定</value></data>
+  <data name="OverlayBgColor" xml:space="preserve"><value>疊加層背景顏色</value></data>
+  <data name="LineStyle" xml:space="preserve"><value>線條樣式</value></data>
+  <data name="LineThickness" xml:space="preserve"><value>線條粗細</value></data>
+  <data name="LineColor" xml:space="preserve"><value>線條顏色</value></data>
+  <data name="CaptureSettingsGuide" xml:space="preserve"><value>* 點擊顏色方框以選擇指南線顏色。</value></data>
+  <data name="SolidLine" xml:space="preserve"><value>實線</value></data>
+  <data name="DashLine" xml:space="preserve"><value>虛線</value></data>
+  <data name="DotLine" xml:space="preserve"><value>點線</value></data>
+  <data name="DashDotLine" xml:space="preserve"><value>點劃線</value></data>
+  <data name="Outline" xml:space="preserve"><value>輪廓</value></data>
+  <data name="QualityHigh" xml:space="preserve"><value>高畫質</value></data>
+  <data name="QualityMedium" xml:space="preserve"><value>中等品質</value></data>
+  <data name="QualityLow" xml:space="preserve"><value>低畫質</value></data>
+  <data name="PrintPreviewTitle" xml:space="preserve"><value>列印預覽</value></data>
+  <data name="OrientationLabel" xml:space="preserve"><value>方向:</value></data>
+  <data name="Portrait" xml:space="preserve"><value>縱向</value></data>
+  <data name="Landscape" xml:space="preserve"><value>橫向</value></data>
+  <data name="PrintOptionsLabel" xml:space="preserve"><value>列印選項:</value></data>
+  <data name="FitToPage" xml:space="preserve"><value>調整至符合一頁</value></data>
+  <data name="ActualSize" xml:space="preserve"><value>實際大小</value></data>
+  <data name="FillPage" xml:space="preserve"><value>填滿頁面</value></data>
+  <data name="PrintingStarted" xml:space="preserve"><value>開始列印。</value></data>
+  <data name="PrintingError" xml:space="preserve"><value>列印時發生錯誤</value></data>
+  <data name="PreviewGenerationError" xml:space="preserve"><value>產生預覽時出錯</value></data>
+  <data name="PrintJobName" xml:space="preserve"><value>CatchCapture 圖片列印</value></data>
+</root>

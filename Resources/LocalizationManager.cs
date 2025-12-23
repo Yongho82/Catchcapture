@@ -111,12 +111,18 @@ namespace CatchCapture.Resources
             ("en", "English"),
             ("ja", "日本語"),
             ("zh", "简体中文"),
+            ("zh-TW", "繁體中文"),
             ("es", "Español"),
             ("de", "Deutsch"),
             ("fr", "Français"),
             ("pt", "Português"),
             ("ru", "Русский"),
-            ("it", "Italiano")
+            ("it", "Italiano"),
+            ("vi", "Tiếng Việt"),
+            ("id", "Bahasa Indonesia"),
+            ("th", "ไทย"),
+            ("tr", "Türkçe"),
+            ("ar", "العربية")
         };
 
         /// <summary>

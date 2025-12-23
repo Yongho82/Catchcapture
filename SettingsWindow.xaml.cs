@@ -292,20 +292,7 @@ private void InitLanguageComboBox()
         {
             if (LanguageComboBox == null) return;
             LanguageComboBox.Items.Clear();
-            var langs = new[]
-            {
-                (Code: "ko", Name: "한국어"),
-                (Code: "en", Name: "English"),
-                (Code: "zh", Name: "简体中文"),
-                (Code: "ja", Name: "日本語"),
-                (Code: "es", Name: "Español"),
-                (Code: "de", Name: "Deutsch"),
-                (Code: "fr", Name: "Français"),
-                (Code: "pt", Name: "Português"),
-                (Code: "ru", Name: "Русский"),
-                (Code: "it", Name: "Italiano")
-            };
-            foreach (var (code, name) in langs)
+            foreach (var (code, name) in LocalizationManager.SupportedLanguages)
             {
                 LanguageComboBox.Items.Add(new ComboBoxItem { Content = name, Tag = code });
             }
