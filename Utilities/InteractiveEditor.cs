@@ -110,12 +110,11 @@ namespace CatchCapture.Utilities
                 Canvas.SetLeft(element, left + dx);
                 Canvas.SetTop(element, top + dy);
 
-                // Arrows might have children that need explicit coordinate updates 
-                foreach(var child in groupCanvas.Children)
-                {
-                    if (child is Line l) { l.X1 += dx; l.Y1 += dy; l.X2 += dx; l.Y2 += dy; }
-                    else if (child is Polygon p) { for (int i = 0; i < p.Points.Count; i++) p.Points[i] = new Point(p.Points[i].X + dx, p.Points[i].Y + dy); }
-                }
+                // Arrows are inside a Canvas, so moving the Canvas (SetLeft/Top) is enough.
+                // Do NOT update children coordinates manually, otherwise they move twice (once by Canvas offset, once by coordinate change).
+                
+                // However, we MUST update the ShapeMetadata/DrawingLayer below so that saving/restoring works with the new coordinates.
+                // The metadata update logic is already at the end of this function.
             }
             else
             {
@@ -156,6 +155,15 @@ namespace CatchCapture.Utilities
                 return new Rect(new Point(Math.Min(line.X1, line.X2), Math.Min(line.Y1, line.Y2)),
                                 new Point(Math.Max(line.X1, line.X2), Math.Max(line.Y1, line.Y2)));
             }
+            else if (element is Polygon polygon)
+            {
+                if (polygon.Points.Count == 0) return Rect.Empty;
+                double minX = polygon.Points.Min(p => p.X);
+                double minY = polygon.Points.Min(p => p.Y);
+                double maxX = polygon.Points.Max(p => p.X);
+                double maxY = polygon.Points.Max(p => p.Y);
+                return new Rect(minX, minY, maxX - minX, maxY - minY);
+            }
             else if (element is Canvas groupCanvas)
             {
                 if (groupCanvas.Children.Count == 0) return Rect.Empty;
@@ -173,7 +181,15 @@ namespace CatchCapture.Utilities
                         found = true;
                     }
                 }
-                return found ? new Rect(minX, minY, maxX - minX, maxY - minY) : Rect.Empty;
+
+                if (!found) return Rect.Empty;
+
+                double left = Canvas.GetLeft(groupCanvas);
+                double top = Canvas.GetTop(groupCanvas);
+                if (double.IsNaN(left)) left = 0;
+                if (double.IsNaN(top)) top = 0;
+
+                return new Rect(minX + left, minY + top, maxX - minX, maxY - minY);
             }
             else
             {

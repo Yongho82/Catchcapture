@@ -1737,6 +1737,7 @@ namespace CatchCapture.Utilities
                 InteractiveEditor.MoveElement(selectedObject, dx, dy);
                 objectDragLastPoint = currentPoint;
                 UpdateObjectSelectionUI();
+                UpdateObjectResizeHandles(InteractiveEditor.GetElementBounds(selectedObject));
             }
         }
 
@@ -2233,6 +2234,7 @@ namespace CatchCapture.Utilities
                 InteractiveEditor.ResizeElement(selectedObject, dx, dy, objectResizeDirection);
                 objectDragLastPoint = currentPoint;
                 UpdateObjectSelectionUI();
+                UpdateObjectResizeHandles(InteractiveEditor.GetElementBounds(selectedObject));
             }
         }
 
