@@ -39,10 +39,10 @@ public partial class MainWindow : Window
     private Point lastPosition;
     private int captureDelaySeconds = 0;
     
-    // 스크린샷 캐시 (성능 최적화용)
-    private BitmapSource? cachedScreenshot = null;
+    // ★ 메모리 최적화: 스크린샷 캐시를 WeakReference로 변경 (메모리 압박 시 자동 해제)
+    private WeakReference<BitmapSource>? cachedScreenshotRef = null;
     private DateTime lastScreenshotTime = DateTime.MinValue;
-    private readonly TimeSpan screenshotCacheTimeout = TimeSpan.FromSeconds(5);
+    private readonly TimeSpan screenshotCacheTimeout = TimeSpan.FromSeconds(3); // 3초로 늘림
     private System.Windows.Threading.DispatcherTimer? screenshotCacheTimer;
     private System.Windows.Threading.DispatcherTimer? tipTimer;
     private List<string> tips = new List<string>();
@@ -65,8 +65,8 @@ public partial class MainWindow : Window
     private System.Windows.Forms.ToolStripMenuItem? traySettingsItem; 
     private System.Windows.Forms.ToolStripMenuItem? trayExitItem;
 
-        // 프리로딩을 위한 변수
-    private BitmapSource? preloadedScreenshot;
+        // ★ 메모리 최적화: 프리로딩을 WeakReference로 변경
+    private WeakReference<BitmapSource>? preloadedScreenshotRef;
     private DateTime preloadedTime;
     private bool isPreloading = false;
 
@@ -1120,7 +1120,8 @@ public partial class MainWindow : Window
             
             // UI 스레드에서 결과 저장 (Freeze 필수)
             shot.Freeze();
-            preloadedScreenshot = shot;
+            // ★ 메모리 최적화: WeakReference로 저장
+            preloadedScreenshotRef = new WeakReference<BitmapSource>(shot);
             preloadedTime = DateTime.Now;
         }
         catch
@@ -1189,17 +1190,22 @@ public partial class MainWindow : Window
     {
         var now = DateTime.Now;
         
-        // 캐시가 유효한지 확인 (2초 이내)
+        // ★ 메모리 최적화: WeakReference에서 캐시된 스크린샷 가져오기
+        BitmapSource? cachedScreenshot = null;
+        cachedScreenshotRef?.TryGetTarget(out cachedScreenshot);
+        
+        // 캐시가 유효한지 확인 (3초 이내)
         if (cachedScreenshot != null && (now - lastScreenshotTime) < screenshotCacheTimeout)
         {
             return cachedScreenshot;
         }
         
         // 새로운 스크린샷 캡처 및 캐시 업데이트
-        cachedScreenshot = ScreenCaptureUtility.CaptureScreen();
+        var newScreenshot = ScreenCaptureUtility.CaptureScreen();
+        cachedScreenshotRef = new WeakReference<BitmapSource>(newScreenshot);
         lastScreenshotTime = now;
         
-        return cachedScreenshot;
+        return newScreenshot;
     }
 
     private async Task StartAreaCaptureAsync()
@@ -1227,11 +1233,15 @@ public partial class MainWindow : Window
         // 3단계: 스크린샷 캡처 (프리로딩 확인)
         BitmapSource screenshot;
         
+        // ★ 메모리 최적화: WeakReference에서 프리로드 스크린샷 가져오기
+        BitmapSource? preloadedShot = null;
+        preloadedScreenshotRef?.TryGetTarget(out preloadedShot);
+        
         // 프리로딩된 이미지가 있고, 2초 이내의 것이라면 사용
-        if (preloadedScreenshot != null && (DateTime.Now - preloadedTime).TotalSeconds < 2.0)
+        if (preloadedShot != null && (DateTime.Now - preloadedTime).TotalSeconds < 2.0)
         {
-            screenshot = preloadedScreenshot;
-            preloadedScreenshot = null; // 사용 후 초기화
+            screenshot = preloadedShot;
+            preloadedScreenshotRef = null; // 사용 후 초기화
         }
         else
         {
@@ -3163,15 +3173,19 @@ public partial class MainWindow : Window
 
     private void InitializeScreenshotCache()
     {
-        // 백그라운드에서 주기적으로 스크린샷을 미리 캐시하는 타이머 설정
+        // ★ 메모리 최적화: 캐시 갱신 주기를 3초로 늘림 (불필요한 캡처 감소)
         screenshotCacheTimer = new System.Windows.Threading.DispatcherTimer
         {
-            Interval = TimeSpan.FromSeconds(1) // 1초마다 캐시 갱신 확인
+            Interval = TimeSpan.FromSeconds(3) // 3초마다 캐시 갱신 확인
         };
         
         screenshotCacheTimer.Tick += (s, e) =>
         {
             var now = DateTime.Now;
+            
+            // WeakReference에서 캐시된 스크린샷 가져오기
+            BitmapSource? cachedScreenshot = null;
+            cachedScreenshotRef?.TryGetTarget(out cachedScreenshot);
             
             // 캐시가 만료되었거나 없으면 백그라운드에서 새로 캡처
             if (cachedScreenshot == null || (now - lastScreenshotTime) > screenshotCacheTimeout)
@@ -3186,7 +3200,8 @@ public partial class MainWindow : Window
                         // UI 스레드에서 캐시 업데이트
                         Dispatcher.BeginInvoke(new Action(() =>
                         {
-                            cachedScreenshot = newScreenshot;
+                            // ★ 메모리 최적화: WeakReference로 저장
+                            cachedScreenshotRef = new WeakReference<BitmapSource>(newScreenshot);
                             lastScreenshotTime = now;
                         }), System.Windows.Threading.DispatcherPriority.Background);
                     }

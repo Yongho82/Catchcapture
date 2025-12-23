@@ -443,7 +443,35 @@ namespace CatchCapture
                     ImageUpdated?.Invoke(this, new ImageUpdatedEventArgs(imageIndex, finalImage));
                 }
             }
+            
+            // ★ 메모리 최적화: 창 닫을 때 리소스 정리
+            CleanupResources();
+            
             base.OnClosing(e);
+        }
+
+        /// <summary>
+        /// ★ 메모리 최적화: 창 닫을 때 모든 리소스 정리
+        /// </summary>
+        private void CleanupResources()
+        {
+            // Undo/Redo 스택 정리
+            undoStack.Clear();
+            redoStack.Clear();
+            undoOriginalStack.Clear();
+            redoOriginalStack.Clear();
+            undoLayersStack.Clear();
+            redoLayersStack.Clear();
+            
+            // 그려진 요소 정리
+            drawnElements.Clear();
+            drawingLayers.Clear();
+            
+            // 이벤트 핸들러 해제
+            LocalizationManager.LanguageChanged -= PreviewWindow_LanguageChanged;
+            
+            // 명시적 GC 요청 (대용량 이미지 메모리 회수)
+            GC.Collect(0, GCCollectionMode.Optimized);
         }
 
         // 실제 크기로 리셋
@@ -1228,6 +1256,9 @@ namespace CatchCapture
 
         #region 유틸리티 메서드
 
+        // ★ 메모리 최적화: Undo 스택 최대 개수 제한
+        private const int MAX_UNDO_STACK_SIZE = 10;
+
         private void SaveForUndo()
         {
             undoStack.Push(currentImage);
@@ -1235,6 +1266,9 @@ namespace CatchCapture
 
             undoOriginalStack.Push(originalImage);
             redoOriginalStack.Clear();
+            
+            // ★ 메모리 최적화: 스택 크기 제한
+            TrimUndoStacks();
             
             // 레이어 상태도 저장 (깊은 복사)
             var layersCopy = drawingLayers.Select(layer => new CatchCapture.Models.DrawingLayer
@@ -1264,6 +1298,53 @@ namespace CatchCapture
             redoLayersStack.Clear();
             
             UpdateUndoRedoButtons();
+        }
+
+        /// <summary>
+        /// ★ 메모리 최적화: Undo/Redo 스택 크기를 제한하여 메모리 사용량 절감
+        /// </summary>
+        private void TrimUndoStacks()
+        {
+            // Undo 스택 크기 제한
+            while (undoStack.Count > MAX_UNDO_STACK_SIZE)
+            {
+                // 가장 오래된 항목 제거 (Stack을 List로 변환 후 처리)
+                var items = undoStack.ToArray();
+                undoStack.Clear();
+                for (int i = 0; i < MAX_UNDO_STACK_SIZE; i++)
+                {
+                    undoStack.Push(items[MAX_UNDO_STACK_SIZE - 1 - i]);
+                }
+                break;
+            }
+            
+            while (undoOriginalStack.Count > MAX_UNDO_STACK_SIZE)
+            {
+                var items = undoOriginalStack.ToArray();
+                undoOriginalStack.Clear();
+                for (int i = 0; i < MAX_UNDO_STACK_SIZE; i++)
+                {
+                    undoOriginalStack.Push(items[MAX_UNDO_STACK_SIZE - 1 - i]);
+                }
+                break;
+            }
+            
+            while (undoLayersStack.Count > MAX_UNDO_STACK_SIZE)
+            {
+                var items = undoLayersStack.ToArray();
+                undoLayersStack.Clear();
+                for (int i = 0; i < MAX_UNDO_STACK_SIZE; i++)
+                {
+                    undoLayersStack.Push(items[MAX_UNDO_STACK_SIZE - 1 - i]);
+                }
+                break;
+            }
+            
+            // 명시적 GC 힌트 (대용량 이미지 메모리 회수 유도)
+            if (undoStack.Count == MAX_UNDO_STACK_SIZE)
+            {
+                GC.Collect(0, GCCollectionMode.Optimized);
+            }
         }
 
         private void SyncDrawnElementsFromLayers()
