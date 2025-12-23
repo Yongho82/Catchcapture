@@ -75,8 +75,7 @@ namespace CatchCapture
             _toolOptionsControl.SetMode("도형");
             ToolOptionsPopupContent.Children.Add(_toolOptionsControl);
             
-            var shapeButton = this.FindName("ShapeButton") as FrameworkElement;
-            ToolOptionsPopup.PlacementTarget = shapeButton ?? this;
+            ToolOptionsPopup.PlacementTarget = ShapeToolGrid;
             ToolOptionsPopup.Placement = PlacementMode.Bottom;
             ToolOptionsPopup.IsOpen = true;
         }
@@ -135,6 +134,13 @@ namespace CatchCapture
 
         private void HighlightOptionsButton_Click(object sender, RoutedEventArgs e)
         {
+            if (currentEditMode != EditMode.Highlight)
+            {
+                CancelCurrentEditMode();
+                currentEditMode = EditMode.Highlight;
+                SetActiveToolButton(HighlightToolButton);
+            }
+
             if (ToolOptionsPopup.IsOpen && ToolOptionsPopup.PlacementTarget == HighlightToolButton)
             {
                 ToolOptionsPopup.IsOpen = false;
@@ -147,6 +153,13 @@ namespace CatchCapture
 
         private void TextOptionsButton_Click(object sender, RoutedEventArgs e)
         {
+            if (currentEditMode != EditMode.Text)
+            {
+                CancelCurrentEditMode();
+                currentEditMode = EditMode.Text;
+                SetActiveToolButton(TextToolButton);
+            }
+
             if (ToolOptionsPopup.IsOpen && ToolOptionsPopup.PlacementTarget == TextToolButton)
             {
                 ToolOptionsPopup.IsOpen = false;
@@ -159,6 +172,13 @@ namespace CatchCapture
 
         private void MosaicOptionsButton_Click(object sender, RoutedEventArgs e)
         {
+            if (currentEditMode != EditMode.Mosaic)
+            {
+                CancelCurrentEditMode();
+                currentEditMode = EditMode.Mosaic;
+                SetActiveToolButton(MosaicToolButton);
+            }
+
             if (ToolOptionsPopup.IsOpen && ToolOptionsPopup.PlacementTarget == MosaicToolButton)
             {
                 ToolOptionsPopup.IsOpen = false;
@@ -171,6 +191,13 @@ namespace CatchCapture
 
         private void EraserOptionsButton_Click(object sender, RoutedEventArgs e)
         {
+            if (currentEditMode != EditMode.Eraser)
+            {
+                CancelCurrentEditMode();
+                currentEditMode = EditMode.Eraser;
+                SetActiveToolButton(EraserToolButton);
+            }
+
             if (ToolOptionsPopup.IsOpen && ToolOptionsPopup.PlacementTarget == EraserToolButton)
             {
                 ToolOptionsPopup.IsOpen = false;

@@ -1115,8 +1115,15 @@ namespace CatchCapture
         {
             WriteLog("ShapeOptionsButton_Click 호출 - 옵션 팝업 표시");
 
+            if (currentEditMode != EditMode.Shape)
+            {
+                CancelCurrentEditMode();
+                currentEditMode = EditMode.Shape;
+                SetActiveToolButton(ShapeButton);
+            }
+
             // 팝업이 이미 열려있으면 닫기
-            if (ToolOptionsPopup.IsOpen)
+            if (ToolOptionsPopup.IsOpen && ToolOptionsPopup.PlacementTarget == ShapeToolGrid)
             {
                 ToolOptionsPopup.IsOpen = false;
                 return;
@@ -1529,7 +1536,7 @@ namespace CatchCapture
                 SetActiveToolButton(NumberingToolButton);
             }
 
-            if (ToolOptionsPopup.IsOpen)
+            if (ToolOptionsPopup.IsOpen && ToolOptionsPopup.PlacementTarget == NumberingToolButton)
             {
                 ToolOptionsPopup.IsOpen = false;
                 return;

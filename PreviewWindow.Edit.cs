@@ -1083,19 +1083,8 @@ namespace CatchCapture
                 int refY = Math.Clamp(y1, 0, currentImage.PixelHeight - 1);
                 
                 // Undo 스택에 현재 상태 저장 (이미지 + 레이어)
-                undoStack.Push(currentImage);
-                var currentLayersCopy = drawingLayers.Select(layer => new CatchCapture.Models.DrawingLayer
-                {
-                    LayerId = layer.LayerId,
-                    Type = layer.Type,
-                    Points = layer.Points?.ToArray(),
-                    Color = layer.Color,
-                    Thickness = layer.Thickness,
-                    IsErased = layer.IsErased
-                }).ToList();
-                undoLayersStack.Push(currentLayersCopy);
-                redoStack.Clear();
-                redoLayersStack.Clear();
+                SaveForUndo();
+                /* Manual stack management replaced by SaveForUndo() to prevent crashes */
 
                 // BitmapSource를 WriteableBitmap으로 변환
                 WriteableBitmap writeable = new WriteableBitmap(currentImage);
@@ -1184,19 +1173,8 @@ namespace CatchCapture
                 }
 
                 // Undo 스택에 현재 상태 저장 (이미지 + 레이어)
-                undoStack.Push(currentImage);
-                var currentLayersCopy = drawingLayers.Select(layer => new CatchCapture.Models.DrawingLayer
-                {
-                    LayerId = layer.LayerId,
-                    Type = layer.Type,
-                    Points = layer.Points?.ToArray(),
-                    Color = layer.Color,
-                    Thickness = layer.Thickness,
-                    IsErased = layer.IsErased
-                }).ToList();
-                undoLayersStack.Push(currentLayersCopy);
-                redoStack.Clear();
-                redoLayersStack.Clear();
+                SaveForUndo();
+                /* Manual stack management replaced by SaveForUndo() to prevent crashes */
 
                 // BitmapSource를 WriteableBitmap으로 변환
                 WriteableBitmap writeable = new WriteableBitmap(currentImage);
@@ -1299,7 +1277,21 @@ namespace CatchCapture
 
         private void MagicWandOptionsButton_Click(object sender, RoutedEventArgs e)
         {
-            ShowMagicWandOptions();
+            if (currentEditMode != EditMode.MagicWand)
+            {
+                CancelCurrentEditMode();
+                currentEditMode = EditMode.MagicWand;
+                SetActiveToolButton(MagicWandToolButton);
+            }
+
+            if (ToolOptionsPopup.IsOpen && ToolOptionsPopup.PlacementTarget == MagicWandToolButton)
+            {
+                ToolOptionsPopup.IsOpen = false;
+            }
+            else
+            {
+                ShowMagicWandOptions();
+            }
         }
 
         /// <summary>

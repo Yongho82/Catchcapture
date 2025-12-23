@@ -247,7 +247,7 @@
                     </Button>
                     
                     <!-- 도형 버튼 그룹 (메인 버튼 + 드롭다운) -->
-                    <Grid Width="56" Height="65" Margin="2,0">
+                    <Grid x:Name="ShapeToolGrid" Width="56" Height="65" Margin="2,0">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="52"/>
                             <RowDefinition Height="13"/>
