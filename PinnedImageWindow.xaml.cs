@@ -138,13 +138,18 @@ namespace CatchCapture
             }
         }
 
-        // 키보드 이벤트 처리 (Delete 키로 닫기)
+        // 키보드 이벤트 처리 (Delete 키로 닫기, Ctrl+C로 복사)
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Delete && !e.IsRepeat)
             {
                 e.Handled = true; // 이벤트가 다른 창으로 전파되는 것을 방지
                 Close();
+            }
+            else if (e.Key == Key.C && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                Copy_Click(sender, e);
+                e.Handled = true;
             }
         }
     }
