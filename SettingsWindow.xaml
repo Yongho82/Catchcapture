@@ -1014,10 +1014,44 @@
                     
                     <GroupBox x:Name="StartupGroup" Header="시작 설정" Margin="0,0,0,20" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
                         <StackPanel>
-                            <!-- 윈도우 시작 시 자동 실행 -->
-                            <CheckBox x:Name="StartWithWindowsCheckBox" 
-                                      Content="윈도우 시작 시 자동 실행" 
-                                      Margin="0,5"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,5">
+                                <!-- 윈도우 시작 시 자동 실행 -->
+                                <CheckBox x:Name="StartWithWindowsCheckBox" 
+                                          Content="윈도우 시작 시 자동 실행" 
+                                          Margin="0,0,20,0"/>
+
+                                <!-- 관리자 권한으로 시작 -->
+                                <CheckBox x:Name="RunAsAdminCheckBox" 
+                                          Content="{DynamicResource StartAsAdmin}" 
+                                          Margin="0,0,5,0"/>
+                                
+                                <!-- 도움말 아이콘 (클릭 시 팝업 전용) -->
+                                <Border x:Name="AdminInfoIcon" Width="16" Height="16" CornerRadius="8" 
+                                        BorderBrush="{DynamicResource ThemeForeground}" BorderThickness="1" 
+                                        Opacity="0.6" VerticalAlignment="Center" Cursor="Hand"
+                                        MouseLeftButtonUp="AdminInfoIcon_MouseLeftButtonUp">
+                                    <TextBlock Text="i" FontSize="11" FontWeight="Bold" 
+                                               HorizontalAlignment="Center" VerticalAlignment="Center" 
+                                               Foreground="{DynamicResource ThemeForeground}" Margin="0,0,0,1"/>
+                                </Border>
+
+                                <!-- 도움말 팝업 -->
+                                <Popup x:Name="AdminInfoPopup" StaysOpen="False" 
+                                       PlacementTarget="{Binding ElementName=AdminInfoIcon}" 
+                                       Placement="Bottom" VerticalOffset="5" AllowsTransparency="True">
+                                    <Border Background="{DynamicResource ThemeBackground}" 
+                                            BorderBrush="{DynamicResource ThemeBorder}" 
+                                            BorderThickness="1" CornerRadius="6" Padding="12" MaxWidth="280">
+                                        <Border.Effect>
+                                            <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.15"/>
+                                        </Border.Effect>
+                                        <TextBlock Text="{DynamicResource StartAsAdminTooltip}" 
+                                                   TextWrapping="Wrap" FontSize="12" 
+                                                   Foreground="{DynamicResource ThemeForeground}"
+                                                   LineHeight="18" TextOptions.TextFormattingMode="Display"/>
+                                    </Border>
+                                </Popup>
+                            </StackPanel>
                             
                             <!-- 시작 모드 선택 -->
                             <TextBlock x:Name="StartupModeText" Text="시작 모드" FontWeight="SemiBold" Margin="0,20,0,10" Foreground="{DynamicResource ThemeForeground}"/>

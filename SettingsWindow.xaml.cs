@@ -674,6 +674,7 @@ private void InitLanguageComboBox()
         private void LoadSystemPage()
         {
             if (StartWithWindowsCheckBox != null) StartWithWindowsCheckBox.IsChecked = _settings.StartWithWindows;
+            if (RunAsAdminCheckBox != null) RunAsAdminCheckBox.IsChecked = _settings.RunAsAdmin;
             
             if (StartupModeTrayRadio != null && _settings.StartupMode == "Tray") StartupModeTrayRadio.IsChecked = true;
             else if (StartupModeSimpleRadio != null && _settings.StartupMode == "Simple") StartupModeSimpleRadio.IsChecked = true;
@@ -1003,6 +1004,7 @@ private void InitLanguageComboBox()
 
             // System settings
             _settings.StartWithWindows = StartWithWindowsCheckBox.IsChecked == true;
+            _settings.RunAsAdmin = RunAsAdminCheckBox.IsChecked == true;
             if (StartupModeTrayRadio.IsChecked == true) { _settings.StartupMode = "Tray"; _settings.LastActiveMode = "Tray"; }
             else if (StartupModeNormalRadio.IsChecked == true) { _settings.StartupMode = "Normal"; _settings.LastActiveMode = "Normal"; }
             else if (StartupModeSimpleRadio.IsChecked == true) { _settings.StartupMode = "Simple"; _settings.LastActiveMode = "Simple"; }
@@ -1028,6 +1030,14 @@ private void InitLanguageComboBox()
             else _settings.ThemeMode = "General";
             
             // Background color and text color already updated in real-time in _settings
+        }
+
+        private void AdminInfoIcon_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (AdminInfoPopup != null)
+            {
+                AdminInfoPopup.IsOpen = !AdminInfoPopup.IsOpen;
+            }
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
