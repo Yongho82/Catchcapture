@@ -246,7 +246,10 @@ namespace CatchCapture.Recording
             {
                 _hwnd = new WindowInteropHelper(this).Handle;
                 _hwndSource = HwndSource.FromHwnd(_hwnd);
-                _hwndSource.AddHook(HwndHook);
+                if (_hwndSource != null)
+                {
+                    _hwndSource.AddHook(HwndHook);
+                }
 
                 uint modifiers = 0;
                 if (hk.Ctrl) modifiers |= 0x0002;
@@ -254,13 +257,42 @@ namespace CatchCapture.Recording
                 if (hk.Shift) modifiers |= 0x0004;
                 if (hk.Win) modifiers |= 0x0008;
 
-                // Key string to VK
-                if (Enum.TryParse<System.Windows.Forms.Keys>(hk.Key, out var keys))
+                uint vk = 0;
+                string keyStr = hk.Key.ToUpperInvariant();
+                
+                // Manual conversion to VK for F-keys and letters/digits
+                if (keyStr.Length == 1)
                 {
-                    RegisterHotKey(_hwnd, HOTKEY_ID_REC_START_STOP, modifiers, (uint)keys);
+                    vk = (uint)keyStr[0];
+                }
+                else if (keyStr.StartsWith("F") && int.TryParse(keyStr.Substring(1), out int fNum) && fNum >= 1 && fNum <= 12)
+                {
+                    vk = (uint)(0x70 + fNum - 1); // VK_F1 = 0x70
+                }
+                else
+                {
+                    // Fallback to Enum.TryParse if manual fails or for other special keys
+                    if (Enum.TryParse<System.Windows.Forms.Keys>(hk.Key, out var keys))
+                    {
+                        vk = (uint)keys;
+                    }
+                }
+
+                if (vk != 0)
+                {
+                    UnregisterHotKey(_hwnd, HOTKEY_ID_REC_START_STOP); // Clean up if existing
+                    bool success = RegisterHotKey(_hwnd, HOTKEY_ID_REC_START_STOP, modifiers, vk);
+                    if (!success)
+                    {
+                        string msg = CatchCapture.Resources.LocalizationManager.GetString("HotkeyRegisterError") ?? $"녹화 단축키({hk.Key})를 등록할 수 없습니다. 다른 프로그램에서 사용 중인지 확인해 주세요.";
+                        MessageBox.Show(msg, CatchCapture.Resources.LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error registering hotkey: {ex.Message}");
+            }
         }
 
         private void UnregisterGlobalHotKey()

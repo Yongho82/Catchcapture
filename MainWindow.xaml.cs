@@ -38,6 +38,8 @@ public partial class MainWindow : Window
     internal SimpleModeWindow? simpleModeWindow = null;
     private Point lastPosition;
     private int captureDelaySeconds = 0;
+    private Recording.RecordingWindow? activeRecordingWindow = null; // Track active recording window
+    
     
     // ★ 메모리 최적화: 스크린샷 캐시를 WeakReference로 변경 (메모리 압박 시 자동 해제)
     private WeakReference<BitmapSource>? cachedScreenshotRef = null;
@@ -1482,6 +1484,14 @@ public partial class MainWindow : Window
     {
         try
         {
+            // [Fix] Check if already open
+            if (activeRecordingWindow != null && activeRecordingWindow.IsVisible)
+            {
+                activeRecordingWindow.Activate();
+                activeRecordingWindow.Topmost = true;
+                return;
+            }
+
             // 녹화 시작 전 현재 모드 저장
             // 간편모드에서는 SimpleModeWindow가 먼저 Hide()를 호출하므로 IsVisible 대신 존재 여부만 확인
             bool wasSimpleMode = simpleModeWindow != null;
@@ -1490,9 +1500,11 @@ public partial class MainWindow : Window
             this.Hide(); 
             FlushUIAfterHide();
 
-            var recordingWindow = new Recording.RecordingWindow();
-            recordingWindow.Closed += (s, args) =>
+            activeRecordingWindow = new Recording.RecordingWindow();
+            activeRecordingWindow.Closed += (s, args) =>
             {
+                activeRecordingWindow = null; // Clear reference
+
                 // 녹화 창이 닫힐 때 이전 모드로 복원
                 if (wasSimpleMode && simpleModeWindow != null)
                 {
@@ -1516,7 +1528,7 @@ public partial class MainWindow : Window
                     this.Activate();
                 }
             };
-            recordingWindow.Show();
+            activeRecordingWindow.Show();
         }
         catch (Exception ex)
         {
@@ -3616,6 +3628,17 @@ public partial class MainWindow : Window
             // Reload settings after potential changes
             settings = Settings.Load();
             return true;
+        }
+        // 녹화 시작/정지 (F3)
+        if (MatchHotkey(hk.RecordingStartStop, e))
+        {
+            if (activeRecordingWindow != null && activeRecordingWindow.IsVisible)
+            {
+                // Use reflection or a public method to trigger record button click
+                // For now, we assume F3 is handled globally by RecordingWindow itself
+                // but if MainWindow has focus, it might need to pass it or at least not block it.
+            }
+            return false; // Let it bubble up or be handled by global hotkey
         }
         return false;
     }
