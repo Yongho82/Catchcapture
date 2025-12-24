@@ -605,7 +605,21 @@ namespace CatchCapture.Utilities
                     if (cw > 0 && ch > 0)
                     {
                         var cropRect = new Int32Rect(relX, relY, cw, ch);
-                        SelectedFrozenImage = new CroppedBitmap(screenCapture, cropRect);
+                        // [메모리 최적화] CroppedBitmap은 원본(3모니터 전체)을 참조하므로, 
+                        // 작은 영역을 잘라도 35MB+가 메모리에 남음. "Deep Copy"를 수행하여 연결 고리 끊기.
+                        var tempCrop = new CroppedBitmap(screenCapture, cropRect);
+                        
+                        var visual = new DrawingVisual();
+                        using (var ctx = visual.RenderOpen())
+                        {
+                            ctx.DrawImage(tempCrop, new Rect(0, 0, cw, ch));
+                        }
+                        
+                        var rtb = new RenderTargetBitmap(cw, ch, 96, 96, PixelFormats.Pbgra32);
+                        rtb.Render(visual);
+                        rtb.Freeze(); // 불변 객체로 만들어 성능 향상 및 스레드 공유 가능
+
+                        SelectedFrozenImage = rtb;
                     }
                 }
             }

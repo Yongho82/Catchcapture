@@ -35,12 +35,12 @@ namespace CatchCapture.Models
         }
 
         /// <summary>
-        /// ★ 메모리 최적화: 원본 이미지 가져오기 (필요 시 파일에서 로드)
+        /// ★ 메모리 최적화: 원본 이미지 가져오기 (필요 시 파일에서 로드, 캐싱하지 않음)
         /// </summary>
         public BitmapSource GetOriginalImage()
         {
             // 썸네일 모드가 아니거나 이미 로드되어 있으면 반환
-            // (썸네일 모드인 경우 로드된 원본은 _image에 캐시됨)
+            // (썸네일 모드인 경우 로드된 원본은 _image에 캐시됨 - 기존 호환성)
             if (!_useThumbnailMode || (_image != null && _image != _thumbnail))
             {
                 return _image ?? _thumbnail!;
@@ -58,8 +58,8 @@ namespace CatchCapture.Models
                     bitmap.EndInit();
                     bitmap.Freeze();
                     
-                    // 로드된 원본 캐시 (필요 시)
-                    _image = bitmap;
+                    // [수정] 로드된 원본을 _image에 저장하지 않고 반환만 함
+                    // 이렇게 해야 편집창이 닫혔을 때 GC가 원본 이미지를 수거할 수 있음
                     return bitmap;
                 }
                 catch

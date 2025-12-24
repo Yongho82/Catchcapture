@@ -1232,7 +1232,7 @@ public partial class MainWindow : Window
         FlushUIAfterHide();
         
         // 3단계: 스크린샷 캡처 (프리로딩 확인)
-        BitmapSource screenshot;
+        BitmapSource? screenshot = null;
         
         // ★ 메모리 최적화: WeakReference에서 프리로드 스크린샷 가져오기
         BitmapSource? preloadedShot = null;
@@ -1251,83 +1251,89 @@ public partial class MainWindow : Window
         }
 
         // 캡처된 스크린샷을 전달하여 SnippingWindow가 즉시 표시되도록
-        using var snippingWindow = new SnippingWindow(false, screenshot);
-        
-        // 즉시편집 모드 활성화
-        if (instantEdit)
+        using (var snippingWindow = new SnippingWindow(false, screenshot))
         {
-            snippingWindow.EnableInstantEditMode();
-        }
+            // 즉시편집 모드 활성화
+            if (instantEdit)
+            {
+                snippingWindow.EnableInstantEditMode();
+            }
 
-        if (snippingWindow.ShowDialog() == true)
-        {
-            var selectedArea = snippingWindow.SelectedArea;
-            var capturedImage = snippingWindow.SelectedFrozenImage ?? ScreenCaptureUtility.CaptureArea(selectedArea);
-            
-            // 4단계: Opacity 복원
-            this.Opacity = 1;
-            
-            AddCaptureToList(capturedImage);
-            
-            // 캡처 완료 후 모드별 창 복원
-            if (isSimpleMode)
+            if (snippingWindow.ShowDialog() == true)
             {
-                // 간편 모드: 간편모드 창 다시 표시
-                if (simpleModeWindow != null)
+                var selectedArea = snippingWindow.SelectedArea;
+                var capturedImage = snippingWindow.SelectedFrozenImage ?? ScreenCaptureUtility.CaptureArea(selectedArea);
+                
+                // 4단계: Opacity 복원
+                this.Opacity = 1;
+                
+                AddCaptureToList(capturedImage);
+                
+                // 캡처 완료 후 모드별 창 복원
+                if (isSimpleMode)
                 {
-                    simpleModeWindow._suppressActivatedExpand = true;
-                    simpleModeWindow.Show();
-                    simpleModeWindow.Activate();
+                    // 간편 모드: 간편모드 창 다시 표시
+                    if (simpleModeWindow != null)
+                    {
+                        simpleModeWindow._suppressActivatedExpand = true;
+                        simpleModeWindow.Show();
+                        simpleModeWindow.Activate();
+                    }
                 }
-            }
-            else if (!settings.IsTrayMode)
-            {
-                // 일반 모드: 메인 창 표시
-                this.Show();
-                this.Activate();
+                else if (!settings.IsTrayMode)
+                {
+                    // 일반 모드: 메인 창 표시
+                    this.Show();
+                    this.Activate();
+                }
+                else
+                {
+                    // 트레이 모드: 트레이 모드 창 다시 표시
+                    if (trayModeWindow != null)
+                    {
+                        trayModeWindow.Show();
+                        trayModeWindow.Activate();
+                    }
+                }
             }
             else
             {
-                // 트레이 모드: 트레이 모드 창 다시 표시
-                if (trayModeWindow != null)
+                // 4단계: Opacity 복원
+                this.Opacity = 1;
+                
+                // 캡처 취소 시
+                if (isSimpleMode)
                 {
-                    trayModeWindow.Show();
-                    trayModeWindow.Activate();
+                    // 간편 모드: 간편모드 창만 다시 표시
+                    if (simpleModeWindow != null)
+                    {
+                        simpleModeWindow._suppressActivatedExpand = true;
+                        simpleModeWindow.Show();
+                        simpleModeWindow.Activate();
+                    }
+                }
+                else if (!settings.IsTrayMode)
+                {
+                    // 일반 모드: 메인 창 표시
+                    this.Show();
+                    this.Activate();
+                }
+                else
+                {
+                    // 트레이 모드: 트레이 모드 창 다시 표시
+                    if (trayModeWindow != null)
+                    {
+                        trayModeWindow.Show();
+                        trayModeWindow.Activate();
+                    }
                 }
             }
-        }
-        else
-        {
-            // 4단계: Opacity 복원
-            this.Opacity = 1;
-            
-            // 캡처 취소 시
-            if (isSimpleMode)
-            {
-                // 간편 모드: 간편모드 창만 다시 표시
-                if (simpleModeWindow != null)
-                {
-                    simpleModeWindow._suppressActivatedExpand = true;
-                    simpleModeWindow.Show();
-                    simpleModeWindow.Activate();
-                }
-            }
-            else if (!settings.IsTrayMode)
-            {
-                // 일반 모드: 메인 창 표시
-                this.Show();
-                this.Activate();
-            }
-            else
-            {
-                // 트레이 모드: 트레이 모드 창 다시 표시
-                if (trayModeWindow != null)
-                {
-                    trayModeWindow.Show();
-                    trayModeWindow.Activate();
-                }
-            }
-        }
+        } // using block ends here, disposing snippingWindow
+
+        // ★ [메모리 최적화 핵심] 대용량 스크린샷 참조 해제 및 즉시 GC 수행
+        // async 메서드 내 지역 변수는 오랫동안 살아남을 수 있으므로 여기서 명시적으로 죽여야 함
+        screenshot = null;
+        GC.Collect(0, GCCollectionMode.Forced);
     }
 
     public void StartAreaCapture()
@@ -3197,49 +3203,48 @@ public partial class MainWindow : Window
         return IntPtr.Zero;
     }
 
+    // 변경된 로직: 무조건적인 타이머 대신, 사용자가 윈도우 위에서 활동할 때만 프리로딩 수행
     private void InitializeScreenshotCache()
     {
-        // ★ 메모리 최적화: 캐시 갱신 주기를 3초로 늘림 (불필요한 캡처 감소)
-        screenshotCacheTimer = new System.Windows.Threading.DispatcherTimer
+        // 윈도우(또는 메인 컨테이너)에 마우스가 들어오거나 움직일 때 프리로딩 트리거
+        this.MouseMove += (s, e) => CheckAndPreloadScreenshot();
+        this.MouseEnter += (s, e) => CheckAndPreloadScreenshot();
+    }
+
+    private void CheckAndPreloadScreenshot()
+    {
+        var now = DateTime.Now;
+
+        // 마지막 캡처로부터 2초 이상 지났을 때만 다시 프리로딩 (과도한 캡처 방지)
+        if ((now - lastScreenshotTime).TotalSeconds < 2) return;
+
+        // 이미 진행 중인 백그라운드 작업이 있다면 스킵
+        if (isPreloading) return;
+
+        isPreloading = true;
+
+        // 백그라운드 스레드에서 캡처 수행
+        System.Threading.Tasks.Task.Run(() =>
         {
-            Interval = TimeSpan.FromSeconds(3) // 3초마다 캐시 갱신 확인
-        };
-        
-        screenshotCacheTimer.Tick += (s, e) =>
-        {
-            var now = DateTime.Now;
-            
-            // WeakReference에서 캐시된 스크린샷 가져오기
-            BitmapSource? cachedScreenshot = null;
-            cachedScreenshotRef?.TryGetTarget(out cachedScreenshot);
-            
-            // 캐시가 만료되었거나 없으면 백그라운드에서 새로 캡처
-            if (cachedScreenshot == null || (now - lastScreenshotTime) > screenshotCacheTimeout)
+            try
             {
-                // 백그라운드 스레드에서 스크린샷 캡처 (UI 블로킹 방지)
-                System.Threading.Tasks.Task.Run(() =>
+                // 전체 화면 캡처
+                var newScreenshot = ScreenCaptureUtility.CaptureScreen();
+                newScreenshot.Freeze(); // 다른 스레드에서 접근 가능하도록 Freeze
+
+                // UI 스레드에서 캐시 업데이트
+                Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    try
-                    {
-                        var newScreenshot = ScreenCaptureUtility.CaptureScreen();
-                        
-                        // UI 스레드에서 캐시 업데이트
-                        Dispatcher.BeginInvoke(new Action(() =>
-                        {
-                            // ★ 메모리 최적화: WeakReference로 저장
-                            cachedScreenshotRef = new WeakReference<BitmapSource>(newScreenshot);
-                            lastScreenshotTime = now;
-                        }), System.Windows.Threading.DispatcherPriority.Background);
-                    }
-                    catch
-                    {
-                        // 스크린샷 캡처 실패 시 무시
-                    }
-                });
+                    cachedScreenshotRef = new WeakReference<BitmapSource>(newScreenshot);
+                    lastScreenshotTime = DateTime.Now;
+                    isPreloading = false;
+                }), System.Windows.Threading.DispatcherPriority.Background);
             }
-        };
-        
-        screenshotCacheTimer.Start();
+            catch
+            {
+                isPreloading = false;
+            }
+        });
     }
 
     #endregion
