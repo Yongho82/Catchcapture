@@ -1,1 +1,25 @@
-installer/dist/*.exe
+# Visual Studio / .NET Core
+bin/
+obj/
+[Bb]in/
+[Oo]bj/
+*.user
+*.userosscache
+*.sln.docstates
+
+# User-specific files
+.vs/
+.vscode/
+
+# Build results
+[Aa]pp[Pp]ackages/
+BundleArtifacts/
+Package.StoreAssociation.xml
+_PkgInfo.txt
+
+# Temp files
+*.log
+*.tmp
+status.txt
+pull_output.txt
+build_error.txt
