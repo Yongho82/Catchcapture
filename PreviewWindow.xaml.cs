@@ -135,6 +135,8 @@ namespace CatchCapture
             _toolOptionsControl.Initialize(_editorManager);
         }
 
+
+
         private void ApplyMosaic(Rect rect)
         {
             SaveForUndo();
@@ -1820,7 +1822,46 @@ namespace CatchCapture
 
         protected override void OnClosed(EventArgs e)
         {
-            try { LocalizationManager.LanguageChanged -= PreviewWindow_LanguageChanged; } catch { }
+            try 
+            { 
+                // [메모리 최적화] 정적 이벤트 핸들러 해제
+                LocalizationManager.LanguageChanged -= PreviewWindow_LanguageChanged; 
+                
+                // 이미지 캔버스 이벤트 해제
+                if (ImageCanvas != null)
+                {
+                    ImageCanvas.MouseLeftButtonDown -= ImageCanvas_MouseLeftButtonDown;
+                    ImageCanvas.MouseMove -= ImageCanvas_MouseMove;
+                    ImageCanvas.MouseLeftButtonUp -= ImageCanvas_MouseLeftButtonUp;
+                    ImageCanvas.MouseLeave -= ImageCanvas_MouseLeave;
+                }
+
+                // [메모리 최적화] 대용량 비트맵 스택 비우기
+                if (undoStack != null) undoStack.Clear();
+                if (redoStack != null) redoStack.Clear();
+                if (undoOriginalStack != null) undoOriginalStack.Clear();
+                if (redoOriginalStack != null) redoOriginalStack.Clear();
+                if (undoLayersStack != null) undoLayersStack.Clear();
+                if (redoLayersStack != null) redoLayersStack.Clear();
+                if (_editorUndoStack != null) _editorUndoStack.Clear();
+                
+                // 메인 이미지 참조 해제
+                originalImage = null!;
+                currentImage = null!;
+                if (PreviewImage != null) PreviewImage.Source = null;
+                
+                // 그 외 참조 해제
+                allCaptures = null;
+                _editorManager = null!;
+
+                // ★ 메모리 강제 정리: 편집창이 닫히면 30MB+ 이미지들이 더 이상 필요 없음
+                // 즉시 회수하여 메인 프로그램 메모리를 가볍게 유지
+                GC.Collect(0, GCCollectionMode.Forced);
+                GC.WaitForPendingFinalizers();
+
+            } 
+            catch { }
+            
             base.OnClosed(e);
         }
     }

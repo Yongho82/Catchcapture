@@ -2650,6 +2650,16 @@ public partial class MainWindow : Window
 
             if (uiIndex >= 0)
             {
+                // [메모리 최적화] UI 컨트롤에서 이미지 참조 끊기
+                if (CaptureListPanel.Children[uiIndex] is Border border && border.Child is Grid grid)
+                {
+                    foreach (var gridChild in grid.Children)
+                    {
+                        if (gridChild is Image img)
+                            img.Source = null;
+                    }
+                }
+                
                 CaptureListPanel.Children.RemoveAt(uiIndex);
             }
 
@@ -2662,9 +2672,15 @@ public partial class MainWindow : Window
             UpdateButtonStates();
             selectedBorder = null;
             selectedIndex = -1;
+            
+            UpdateEmptyStateLogo();
+
+            // [메모리 최적화] 삭제 시 즉시 메모리 회수
+            GC.Collect(0, GCCollectionMode.Forced);
+            GC.WaitForPendingFinalizers();
         }
     }
-
+    
     // 캡처 아이템 인덱스 업데이트
     private void UpdateCaptureItemIndexes()
     {
@@ -2721,13 +2737,39 @@ public partial class MainWindow : Window
             }
         }
 
+        // [메모리 최적화] UI 컨트롤에서 이미지 참조 끊기
+        foreach (var child in CaptureListPanel.Children)
+        {
+            if (child is Border border && border.Child is Grid grid)
+            {
+                foreach (var gridChild in grid.Children)
+                {
+                    if (gridChild is Image img)
+                    {
+                        img.Source = null; // 참조 해제
+                    }
+                }
+            }
+        }
+
+        // 모델 데이터 정리 (Dispose 호출)
+        foreach (var capture in captures)
+        {
+            capture.Dispose();
+        }
+
         CaptureListPanel.Children.Clear();
         captures.Clear();
         selectedBorder = null;
         selectedIndex = -1;
         UpdateButtonStates();
         UpdateCaptureCount();
+        
         UpdateEmptyStateLogo();
+        
+        // [메모리 최적화] 삭제 후 즉시 메모리 회수
+        GC.Collect(0, GCCollectionMode.Forced);
+        GC.WaitForPendingFinalizers();
     }
 
     public void OpenSettingsWindow()

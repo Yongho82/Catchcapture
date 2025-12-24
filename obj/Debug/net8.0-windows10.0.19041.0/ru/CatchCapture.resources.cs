@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCopyrightAttribute("Copyright © 2025 이지업소프트. All rights reserved.")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("강력한 화면 캡처 및 편집 도구 - 영역 캡처, 스크롤 캡처, OCR, 실시간 편집 기능 제공")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fbc02534eca1ac88de233ee1c8418aa087b17926")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0f87b731237efd1d2f4e8e6c2227a61723eb5ae8")]
 [assembly: System.Reflection.AssemblyProductAttribute("CatchCapture")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CatchCapture")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
