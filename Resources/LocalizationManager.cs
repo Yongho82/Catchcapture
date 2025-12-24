@@ -52,7 +52,11 @@ namespace CatchCapture.Resources
             {
                 foreach (System.Collections.DictionaryEntry entry in resourceSet)
                 {
-                    string key = entry.Key.ToString();
+                    if (entry.Key == null) continue;
+                    
+                    string? key = entry.Key.ToString();
+                    if (key == null) continue;
+
                     string value = entry.Value?.ToString() ?? key;
                     System.Windows.Application.Current.Resources[key] = value;
                 }

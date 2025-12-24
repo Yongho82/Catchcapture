@@ -1957,12 +1957,13 @@ namespace CatchCapture.Utilities
                     return;
                 }
 
-                // 메인창의 기존 이미지 검색 플로우 재사용 (Image Edit와 동일 경로)
-                var ownerWin = this.Owner as MainWindow ?? Application.Current?.MainWindow as MainWindow;
-                if (ownerWin != null)
-                {
-                    ownerWin.SearchImageOnGoogle(imageToSearch);
-                }
+                // 공용 유틸리티 사용하여 구글 이미지 검색 실행 (3.5초 + 더블 탭)
+                CatchCapture.Utilities.GoogleSearchUtility.SearchImage(imageToSearch);
+                
+                // 안내 메시지 표시 (이미 창이 닫히기 전 잠깐 보여줌)
+                try { 
+                    new GuideWindow(ResLoc.GetString("SearchingOnGoogle"), TimeSpan.FromSeconds(3)).Show(); 
+                } catch { }
 
                 // 검색 트리거 후 오버레이 닫기
                 try { DialogResult = true; Close(); } catch { }

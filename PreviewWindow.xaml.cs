@@ -1618,12 +1618,10 @@ namespace CatchCapture
                 BitmapSource? src = PreviewImage?.Source as BitmapSource;
                 if (src == null) return;
 
-                // Call MainWindow's existing Google image search logic
-                var owner = this.Owner as MainWindow;
-                if (owner != null)
-                {
-                    owner.SearchImageOnGoogle(src);
-                }
+                // 공용 유틸리티 사용하여 구글 이미지 검색 실행 (3.5초 + 더블 탭)
+                CatchCapture.Utilities.GoogleSearchUtility.SearchImage(src);
+                // 안내 메시지 표시
+                try { new GuideWindow(LocalizationManager.GetString("SearchingOnGoogle"), TimeSpan.FromSeconds(3)) { Owner = this }.Show(); } catch { }
             }
             catch { }
         }

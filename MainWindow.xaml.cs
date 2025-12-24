@@ -43,7 +43,7 @@ public partial class MainWindow : Window
     private WeakReference<BitmapSource>? cachedScreenshotRef = null;
     private DateTime lastScreenshotTime = DateTime.MinValue;
     private readonly TimeSpan screenshotCacheTimeout = TimeSpan.FromSeconds(3); // 3초로 늘림
-    private System.Windows.Threading.DispatcherTimer? screenshotCacheTimer;
+
     private System.Windows.Threading.DispatcherTimer? tipTimer;
     private List<string> tips = new List<string>();
     private int currentTipIndex = 0;
@@ -2830,73 +2830,13 @@ public partial class MainWindow : Window
     }
     
     // 구글 렌즈 검색 기능 (HTML 리다이렉트 방식 - 2025년 대응)
+    // 구글 렌즈 검색 기능 (공용 유틸리티 사용)
     public void SearchImageOnGoogle(BitmapSource image)
     {
         try
         {
-            ScreenCaptureUtility.CopyImageToClipboard(image);
-            // 1. 이미지 리사이징 (Base64 길이 최적화)
-            // 긴 변을 400px로 제한 (검색 정확도와 용량의 균형)
-            double scale = 1.0;
-            double maxSide = 400.0;
-            if (image.PixelWidth > maxSide || image.PixelHeight > maxSide)
-            {
-                scale = Math.Min(maxSide / image.PixelWidth, maxSide / image.PixelHeight);
-            }
-
-            var transformedBitmap = new TransformedBitmap(image, new ScaleTransform(scale, scale));
-
-            // 2. JPEG로 압축 (품질 70%)
-            var encoder = new JpegBitmapEncoder { QualityLevel = 70 }; 
-            encoder.Frames.Add(BitmapFrame.Create(transformedBitmap));
-            
-            using var ms = new MemoryStream();
-            encoder.Save(ms);
-            byte[] imageBytes = ms.ToArray();
-
-            // 3. Base64 인코딩
-            string base64 = Convert.ToBase64String(imageBytes);
-            
-            // 4. 구글 렌즈 URL 생성
-            string lensUrl = $"https://lens.google.com/upload?ep=gsbubb&hl=ko&re=df&st={DateTimeOffset.Now.ToUnixTimeMilliseconds()}#base64:{base64}";
-
-            // 5. 임시 HTML 파일 생성 (커맨드라인 길이 제한 우회)
-            string tempPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"google_lens_{DateTime.Now.Ticks}.html");
-            
-            string htmlContent = $@"
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset='utf-8'>
-    <title>Google Lens</title>
-</head>
-<body>
-    <p>구글 렌즈로 이동 중...</p>
-    <script>
-        window.location.href = ""{lensUrl}"";
-    </script>
-</body>
-</html>";
-
-            System.IO.File.WriteAllText(tempPath, htmlContent);
-
-            // 6. 브라우저로 HTML 파일 실행
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-            {
-                FileName = tempPath,
-                UseShellExecute = true
-            });
-            
-            // 안내 메시지
-            ShowGuideMessage(LocalizationManager.GetString("SearchingOnGoogle"), TimeSpan.FromSeconds(2));
-                        // 추가: 2초 후 자동으로 Ctrl+V 입력
-            Task.Delay(2000).ContinueWith(_ => 
-            {
-                Dispatcher.Invoke(() => 
-                {
-                    SendCtrlV();
-                });
-            });
+            CatchCapture.Utilities.GoogleSearchUtility.SearchImage(image);
+            ShowGuideMessage(LocalizationManager.GetString("SearchingOnGoogle"), TimeSpan.FromSeconds(3));
         }
         catch (Exception ex)
         {
@@ -2910,35 +2850,8 @@ public partial class MainWindow : Window
             });
         }
     }
-    
-    [DllImport("user32.dll")]
-    private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
 
-    private const int VK_CONTROL = 0x11;
-    private const int VK_V = 0x56;
-    private const uint KEYEVENTF_KEYUP = 0x0002;
 
-    private void SendCtrlV()
-    {
-        try
-        {
-            // Ctrl 누름
-            keybd_event(VK_CONTROL, 0, 0, UIntPtr.Zero);
-            Thread.Sleep(50); // 짧은 딜레이
-            // V 누름
-            keybd_event(VK_V, 0, 0, UIntPtr.Zero);
-            Thread.Sleep(50);
-            // V 뗌
-            keybd_event(VK_V, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
-            Thread.Sleep(50);
-            // Ctrl 뗌
-            keybd_event(VK_CONTROL, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
-        }
-        catch
-        {
-            // 실패해도 무시
-        }
-    }
 
     // Windows 공유 기능
     [System.Runtime.InteropServices.DllImport("shell32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
