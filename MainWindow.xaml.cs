@@ -1964,7 +1964,7 @@ public partial class MainWindow : Window
                     var thumbnail = CaptureImage.CreateThumbnail(image, 200, 150);
                     
                     // ★ 썸네일 모드로 CaptureImage 생성 (메모리 절약)
-                    captureImage = new CaptureImage(thumbnail, fullPath);
+                    captureImage = new CaptureImage(thumbnail, fullPath, image.PixelWidth, image.PixelHeight);
                 }
                 catch (Exception ex)
                 {
@@ -2140,7 +2140,7 @@ public partial class MainWindow : Window
         
         TextBlock sizeText = new TextBlock
         {
-            Text = $"{captureImage.Image.PixelWidth} x {captureImage.Image.PixelHeight}",
+            Text = $"{captureImage.OriginalWidth} x {captureImage.OriginalHeight}",
             Foreground = Brushes.White,
             FontSize = 10
         };

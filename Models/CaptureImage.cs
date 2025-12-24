@@ -18,6 +18,9 @@ namespace CatchCapture.Models
         // ★ 메모리 최적화: 썸네일 기반 저장 여부
         private bool _useThumbnailMode = false;
 
+        private int _originalWidth;
+        private int _originalHeight;
+
         /// <summary>
         /// 표시용 이미지 (썸네일 모드면 썸네일, 아니면 원본)
         /// </summary>
@@ -111,12 +114,17 @@ namespace CatchCapture.Models
             }
         }
 
+        public int OriginalWidth => _originalWidth;
+        public int OriginalHeight => _originalHeight;
+
         /// <summary>
         /// 기존 생성자 (자동저장 OFF 시 사용 - 원본 메모리 유지)
         /// </summary>
         public CaptureImage(BitmapSource image)
         {
             _image = image;
+            _originalWidth = image.PixelWidth;
+            _originalHeight = image.PixelHeight;
             _useThumbnailMode = false;
             CaptureTime = DateTime.Now;
             IsSaved = false;
@@ -126,10 +134,12 @@ namespace CatchCapture.Models
         /// <summary>
         /// ★ 메모리 최적화: 썸네일 모드 생성자 (자동저장 ON 시 사용)
         /// </summary>
-        public CaptureImage(BitmapSource thumbnail, string savedFilePath)
+        public CaptureImage(BitmapSource thumbnail, string savedFilePath, int originalWidth, int originalHeight)
         {
             _thumbnail = thumbnail;
             _image = null; // 원본 이미지는 필요할 때 파일에서 로드
+            _originalWidth = originalWidth;
+            _originalHeight = originalHeight;
             _useThumbnailMode = true;
             _savedPath = savedFilePath;
             CaptureTime = DateTime.Now;

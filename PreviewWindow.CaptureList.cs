@@ -85,7 +85,7 @@ namespace CatchCapture
 
             TextBlock sizeText = new TextBlock
             {
-                Text = $"{captureImage.Image.PixelWidth} x {captureImage.Image.PixelHeight}",
+                Text = $"{captureImage.OriginalWidth} x {captureImage.OriginalHeight}",
                 Foreground = Brushes.White,
                 FontSize = 10
             };

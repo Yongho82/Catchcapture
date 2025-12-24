@@ -491,9 +491,9 @@ namespace CatchCapture
                 screenshots.Add(CaptureRegion(captureRect.Left, captureRect.Top, width, height));
 
                 // 강제 스크롤 시도
-                int maxScrolls = 50; // 스크롤 양이 줄어드니 횟수를 늘림
-                // 스크롤 양을 아주 작게 고정 (천천히 내려가도록)
-                int scrollAmount = -120; // 휠 1칸 (표준)
+                // 캡처 속도 향상을 위해 대기 시간만 최적화 (스크롤 보폭은 기존 유지)
+                int maxScrolls = 50; 
+                int scrollAmount = -120; // 휠 1칸 (기존 보폭 유지)
 
                 for (int i = 0; i < maxScrolls; i++)
                 {
@@ -511,7 +511,7 @@ namespace CatchCapture
                     }
                     catch { }
 
-                await Task.Delay(550); // 스크롤 후 대기 시간 증가 (애니메이션 고려)
+                await Task.Delay(350); // 스크롤 후 대기 시간 최적화 (대부분의 애니메이션이 완료되는 시간)
 
                     // 캡처
                     var newShot = CaptureRegion(captureRect.Left, captureRect.Top, width, height);
