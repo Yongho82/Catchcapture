@@ -2448,6 +2448,14 @@ public partial class MainWindow : Window
 
     #region 복사 기능
 
+    private void OpenMyNoteButton_Click(object sender, RoutedEventArgs e)
+    {
+        // 내 노트 탐색기 열기
+        var explorer = new NoteExplorerWindow();
+        explorer.Owner = this;
+        explorer.Show();
+    }
+
     private void CopySelectedButton_Click(object sender, RoutedEventArgs e)
     {
         CopySelectedImage();

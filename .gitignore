@@ -23,3 +23,6 @@ _PkgInfo.txt
 status.txt
 pull_output.txt
 build_error.txt
+
+# Installer
+installer/dist/

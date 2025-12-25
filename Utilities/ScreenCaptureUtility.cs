@@ -40,6 +40,37 @@ namespace CatchCapture.Utilities
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern IntPtr GetActiveWindow();
 
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
+
+        public static (string AppName, string Title) GetActiveWindowMetadata()
+        {
+            try
+            {
+                IntPtr hWnd = GetForegroundWindow();
+                if (hWnd == IntPtr.Zero) return ("Unknown", "Unknown");
+
+                // Get Title
+                StringBuilder titleBuilder = new StringBuilder(256);
+                GetWindowText(hWnd, titleBuilder, 256);
+                string title = titleBuilder.ToString();
+
+                // Get Process Name
+                GetWindowThreadProcessId(hWnd, out uint processId);
+                var process = System.Diagnostics.Process.GetProcessById((int)processId);
+                string appName = process.ProcessName;
+
+                return (appName, title);
+            }
+            catch
+            {
+                return ("Unknown", "Unknown");
+            }
+        }
+
         [DllImport("user32.dll")]
         private static extern short GetAsyncKeyState(int vKey);
 

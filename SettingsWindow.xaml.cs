@@ -1070,6 +1070,12 @@ private void InitLanguageComboBox()
             LoadMenuEditPage();  // 메뉴 편집도 기본값으로 복원
             LoadSystemPage();
             LoadHotkeysPage();
+            LoadThemePage();     // 테마 페이지 UI 갱신 (캡처 라인 설정 포함)
+            LoadRecordingPage(); // 녹화 페이지 UI 갱신
+
+            // 테마 즉시 적용
+            App.ApplyTheme(_settings);
+
             CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("SettingsSaved"), LocalizationManager.GetString("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
         }
 

@@ -90,10 +90,18 @@ namespace CatchCapture.Utilities
         // 선택 영역 정보 (즉시편집 모드에서 사용)
         private Rect currentSelectionRect = Rect.Empty;
 
+        private string? _sourceApp;
+        private string? _sourceTitle;
+
         public SnippingWindow(bool showGuideText = false, BitmapSource? cachedScreenshot = null)
         {
             var settings = Settings.Load();
             showMagnifier = settings.ShowMagnifier;
+
+            // Capture metadata for the active window before this window takes focus
+            var meta = ScreenCaptureUtility.GetActiveWindowMetadata();
+            _sourceApp = meta.AppName;
+            _sourceTitle = meta.Title;
 
             WindowStyle = WindowStyle.None;
             ResizeMode = ResizeMode.NoResize;
@@ -1349,6 +1357,10 @@ namespace CatchCapture.Utilities
                 Margin = isVerticalToolbarLayout ? new Thickness(0, 3, 0, 3) : new Thickness(3, 0, 3, 0)
             };
             
+            // 노트저장 버튼
+            var saveNoteButton = CreateActionButton("my_note.png", "노트저장", "내 노트에 저장");
+            saveNoteButton.Click += (s, e) => SaveToNote();
+
             // 복사 버튼
             var copyButton = CreateActionButton("copy_selected.png", ResLoc.GetString("CopySelected"), $"{GetLocalizedTooltip("CopyToClipboard")} (Ctrl+C)");
             copyButton.Click += (s, e) => CopyToClipboard();
@@ -1376,6 +1388,7 @@ namespace CatchCapture.Utilities
             toolbarPanel.Children.Add(undoButton);
             toolbarPanel.Children.Add(resetButton);
             toolbarPanel.Children.Add(separator3);
+            toolbarPanel.Children.Add(saveNoteButton);
             toolbarPanel.Children.Add(copyButton);
             toolbarPanel.Children.Add(saveButton);
             
@@ -3476,6 +3489,33 @@ namespace CatchCapture.Utilities
             catch (Exception ex)
             {
                 MessageBox.Show("Pin Error: " + ex.Message);
+            }
+        }
+        private void SaveToNote()
+        {
+            try
+            {
+                // 그린 내용을 이미지에 합성
+                if (drawnElements.Count > 0)
+                {
+                    SaveDrawingsToImage();
+                }
+
+                if (SelectedFrozenImage != null)
+                {
+                    var noteWin = new NoteInputWindow(SelectedFrozenImage, _sourceApp, _sourceTitle);
+                    noteWin.Owner = this;
+                    if (noteWin.ShowDialog() == true)
+                    {
+                        // 저장 후 닫기
+                        DialogResult = true;
+                        Close();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"노트 저장 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

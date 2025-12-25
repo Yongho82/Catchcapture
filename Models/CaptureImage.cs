@@ -20,6 +20,8 @@ namespace CatchCapture.Models
 
         private int _originalWidth;
         private int _originalHeight;
+        private string? _sourceApp;
+        private string? _sourceTitle;
 
         /// <summary>
         /// 표시용 이미지 (썸네일 모드면 썸네일, 아니면 원본)
@@ -116,6 +118,8 @@ namespace CatchCapture.Models
 
         public int OriginalWidth => _originalWidth;
         public int OriginalHeight => _originalHeight;
+        public string? SourceApp { get => _sourceApp; set => _sourceApp = value; }
+        public string? SourceTitle { get => _sourceTitle; set => _sourceTitle = value; }
 
         /// <summary>
         /// 기존 생성자 (자동저장 OFF 시 사용 - 원본 메모리 유지)
@@ -129,6 +133,11 @@ namespace CatchCapture.Models
             CaptureTime = DateTime.Now;
             IsSaved = false;
             SavedPath = string.Empty;
+            
+            // Capture metadata if possible
+            var meta = CatchCapture.Utilities.ScreenCaptureUtility.GetActiveWindowMetadata();
+            _sourceApp = meta.AppName;
+            _sourceTitle = meta.Title;
         }
 
         /// <summary>

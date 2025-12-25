@@ -586,29 +586,52 @@
                                 <StackPanel x:Name="CaptureListPanel" Margin="10"/>
                             </ScrollViewer>
 
-                            <!-- 저장 폴더 열기 버튼 -->
-                            <Button x:Name="OpenSaveFolderButton" Grid.Row="1" 
-                                    Click="OpenSaveFolderButton_Click"
-                                    HorizontalAlignment="Right" VerticalAlignment="Center"
-                                    Margin="0,5,10,5"
-                                    Background="Transparent" BorderThickness="0" Cursor="Hand">
-                                <Button.Template>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border Background="{TemplateBinding Background}">
-                                            <ContentPresenter/>
-                                        </Border>
-                                        <ControlTemplate.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Opacity" Value="0.7"/>
-                                            </Trigger>
-                                        </ControlTemplate.Triggers>
-                                    </ControlTemplate>
-                                </Button.Template>
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="/icons/openfolder.png" Width="18" Height="18" Margin="0,0,5,0" RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <TextBlock x:Name="OpenSaveFolderButtonText" Text="저장 폴더 열기" FontSize="12" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Button>
+                            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,5,10,5">
+                                <!-- 내 노트 열기 버튼 -->
+                                <Button x:Name="OpenMyNoteButton" 
+                                        Click="OpenMyNoteButton_Click"
+                                        Margin="0,0,15,0"
+                                        Background="Transparent" BorderThickness="0" Cursor="Hand">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}">
+                                                <ContentPresenter/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Opacity" Value="0.7"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="/icons/my_note.png" Width="18" Height="18" Margin="0,0,5,0" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                        <TextBlock x:Name="OpenMyNoteButtonText" Text="내 노트 열기" FontSize="12" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+
+                                <!-- 저장 폴더 열기 버튼 -->
+                                <Button x:Name="OpenSaveFolderButton" 
+                                        Click="OpenSaveFolderButton_Click"
+                                        Background="Transparent" BorderThickness="0" Cursor="Hand">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}">
+                                                <ContentPresenter/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Opacity" Value="0.7"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="/icons/openfolder.png" Width="18" Height="18" Margin="0,0,5,0" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                        <TextBlock x:Name="OpenSaveFolderButtonText" Text="저장 폴더 열기" FontSize="12" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
                         </Grid>
                     </Border>
 

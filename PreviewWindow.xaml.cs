@@ -63,6 +63,9 @@ namespace CatchCapture
         private Dictionary<int, List<CatchCapture.Models.DrawingLayer>> captureDrawingLayers = new Dictionary<int, List<CatchCapture.Models.DrawingLayer>>();
         private int nextLayerId = 1;
 
+        private string? _sourceApp;
+        private string? _sourceTitle;
+
         public PreviewWindow(BitmapSource image, int index, List<CaptureImage>? captures = null)
         {
             InitializeComponent();
@@ -88,6 +91,13 @@ namespace CatchCapture
 
             // 이미지 크기에 맞게 창 크기 조정 (최대 크기 제한 적용)
             AdjustWindowSizeToFitImage();
+
+            // Store metadata from the current capture if available
+            if (allCaptures != null && index >= 0 && index < allCaptures.Count)
+            {
+                _sourceApp = allCaptures[index].SourceApp;
+                _sourceTitle = allCaptures[index].SourceTitle;
+            }
 
             // 이벤트 핸들러 등록
             ImageCanvas.MouseLeftButtonDown += ImageCanvas_MouseLeftButtonDown;
@@ -878,6 +888,24 @@ namespace CatchCapture
             catch (Exception ex)
             {
                 CustomMessageBox.Show($"{LocalizationManager.GetString("PrintPreviewError")}: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void SaveNoteButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var finalImage = GetCombinedImage();
+                if (finalImage != null)
+                {
+                    var noteWin = new NoteInputWindow(finalImage, _sourceApp, _sourceTitle);
+                    noteWin.Owner = this;
+                    noteWin.ShowDialog();
+                }
+            }
+            catch (Exception ex)
+            {
+                CustomMessageBox.Show($"노트 저장 중 오류가 발생했습니다: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
