@@ -220,10 +220,13 @@
                         </ListBox.ItemsPanel>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Border Background="White" BorderBrush="#EEEEEE" BorderThickness="1" CornerRadius="3" Padding="8,4" Margin="0,0,8,8">
+                                <Border Background="#F7F9FC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,0,8,8">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="📎" Margin="0,0,5,0" Foreground="#666666"/>
-                                        <TextBlock Text="{Binding}" Foreground="#333333" FontSize="12"/>
+                                        <TextBlock Text="📎" Margin="0,0,5,0" Foreground="#718096" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding DisplayName}" Foreground="#2D3748" FontSize="12" VerticalAlignment="Center"/>
+                                        <Button Click="BtnRemoveAttachment_Click" Margin="8,0,0,0" Background="Transparent" BorderThickness="0" Cursor="Hand" VerticalAlignment="Center">
+                                            <TextBlock Text="✕" Foreground="#A0AEC0" FontSize="10" FontWeight="Bold"/>
+                                        </Button>
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>

@@ -50,7 +50,6 @@
             <ScrollViewer Grid.Row="1" Margin="20,0,20,15" VerticalScrollBarVisibility="Auto">
                  <StackPanel>
                      <!-- Rich Content Viewer -->
-                     <!-- IsReadOnly=True to act as viewer -->
                      <RichTextBox x:Name="ContentViewer" IsReadOnly="True" BorderThickness="0" Background="Transparent" 
                                   Padding="0" Margin="0" IsDocumentEnabled="True">
                          <RichTextBox.Resources>
@@ -78,6 +77,27 @@
                              </ItemsPanelTemplate>
                          </ItemsControl.ItemsPanel>
                      </ItemsControl>
+
+                     <!-- Attachments -->
+                     <StackPanel x:Name="PanelAttachments" Margin="0,15,0,0">
+                         <Separator Background="#F0F0F0" Margin="0,0,0,15"/>
+                         <TextBlock Text="📎 첨부 파일" FontSize="14" FontWeight="Bold" Foreground="#333333" Margin="0,0,0,10"/>
+                         <ItemsControl x:Name="ItemsAttachments">
+                             <ItemsControl.ItemTemplate>
+                                 <DataTemplate>
+                                     <Border Background="#F8F9FA" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,0,0,5">
+                                         <Grid>
+                                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                                 <TextBlock Text="📄" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                                 <TextBlock Text="{Binding OriginalName}" Foreground="#1A73E8" FontSize="13" VerticalAlignment="Center" Cursor="Hand" MouseLeftButtonDown="Attachment_Click" TextDecorations="Underline"/>
+                                             </StackPanel>
+                                             <TextBlock Text="{Binding FileType}" Foreground="#9AA0A6" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                         </Grid>
+                                     </Border>
+                                 </DataTemplate>
+                             </ItemsControl.ItemTemplate>
+                         </ItemsControl>
+                     </StackPanel>
                  </StackPanel>
             </ScrollViewer>
 

@@ -11,6 +11,7 @@ using System.Windows.Documents;
 using System.Windows.Media;
 using System.Linq;
 using System.ComponentModel;
+using CatchCapture.Models;
 
 namespace CatchCapture
 {
@@ -169,6 +170,7 @@ namespace CatchCapture
                                 note.Images = GetNoteImages(noteId, imgDir);
                                 note.Thumbnail = note.Images.FirstOrDefault();
                                 note.Tags = GetNoteTags(noteId);
+                                note.Attachments = GetNoteAttachments(noteId);
                                 notes.Add(note);
                             }
                         }
@@ -299,6 +301,39 @@ namespace CatchCapture
             return tags;
         }
 
+        private List<NoteAttachment> GetNoteAttachments(long noteId)
+        {
+            var attachments = new List<NoteAttachment>();
+            try
+            {
+                using (var connection = new SqliteConnection($"Data Source={DatabaseManager.Instance.DbFilePath}"))
+                {
+                    connection.Open();
+                    string sql = "SELECT Id, FilePath, OriginalName, FileType FROM NoteAttachments WHERE NoteId = $noteId";
+                    using (var command = new SqliteCommand(sql, connection))
+                    {
+                        command.Parameters.AddWithValue("$noteId", noteId);
+                        using (var reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                attachments.Add(new NoteAttachment
+                                {
+                                    Id = reader.GetInt64(0),
+                                    NoteId = noteId,
+                                    FilePath = reader.GetString(1),
+                                    OriginalName = reader.GetString(2),
+                                    FileType = reader.IsDBNull(3) ? "" : reader.GetString(3)
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+            return attachments;
+        }
+
         private void LstNotes_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (LstNotes.SelectedItem is NoteViewModel note)
@@ -308,6 +343,7 @@ namespace CatchCapture
                 TxtPreviewApp.Text = string.IsNullOrEmpty(note.SourceApp) ? "직접 작성" : note.SourceApp;
                 TxtPreviewDate.Text = note.CreatedAt.ToString("yyyy-MM-dd HH:mm");
                 PreviewTags.ItemsSource = note.Tags;
+                PreviewAttachments.ItemsSource = note.Attachments;
                 
                 // Use FlowDocument to show EXACT interleaved order (matches Viewer)
                 if (!string.IsNullOrEmpty(note.ContentXaml))
@@ -344,6 +380,30 @@ namespace CatchCapture
             else
             {
                 PreviewGrid.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void Attachment_Click(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is TextBlock tb && tb.DataContext is NoteAttachment attachment)
+            {
+                try
+                {
+                    string attachDir = DatabaseManager.Instance.GetAttachmentsFolderPath();
+                    string fullPath = Path.Combine(attachDir, attachment.FilePath);
+                    if (File.Exists(fullPath))
+                    {
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(fullPath) { UseShellExecute = true });
+                    }
+                    else
+                    {
+                        CatchCapture.CustomMessageBox.Show("파일을 찾을 수 없습니다.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    CatchCapture.CustomMessageBox.Show("파일을 여는 중 오류 발생: " + ex.Message);
+                }
             }
         }
 
@@ -626,6 +686,9 @@ namespace CatchCapture
 
         private List<string> _tags = new List<string>();
         public List<string> Tags { get => _tags; set { _tags = value; OnPropertyChanged(nameof(Tags)); } }
+
+        private List<NoteAttachment> _attachments = new List<NoteAttachment>();
+        public List<NoteAttachment> Attachments { get => _attachments; set { _attachments = value; OnPropertyChanged(nameof(Attachments)); } }
 
         private bool _isSelected;
         public bool IsSelected 

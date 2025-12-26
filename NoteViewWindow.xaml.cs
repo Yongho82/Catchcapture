@@ -11,6 +11,7 @@ using System.Windows.Markup;
 using System.Xml;
 using System.Windows.Media.Imaging;
 using CatchCapture.Models;
+using System.Linq;
 
 namespace CatchCapture
 {
@@ -34,6 +35,8 @@ namespace CatchCapture
                 using (var connection = new SqliteConnection($"Data Source={DatabaseManager.Instance.DbFilePath}"))
                 {
                     connection.Open();
+                    
+                    // 1. Load basic note data
                     string sql = "SELECT Title, Content, ContentXaml, CreatedAt, SourceApp, SourceUrl, CategoryId FROM Notes WHERE Id = $id";
                     using (var command = new SqliteCommand(sql, connection))
                     {
@@ -61,38 +64,35 @@ namespace CatchCapture
                                     CategoryCircle.Fill = brush ?? System.Windows.Media.Brushes.Gray;
                                 }
 
-                                    // Load Content
-                                    bool xamlLoaded = false;
-                                    if (!string.IsNullOrEmpty(contentXaml))
+                                bool xamlLoaded = false;
+                                if (!string.IsNullOrEmpty(contentXaml))
+                                {
+                                    try 
                                     {
-                                        // Load Rich Content (XAML)
-                                        try 
-                                        {
-                                            var flowDocument = (FlowDocument)System.Windows.Markup.XamlReader.Parse(contentXaml);
-                                            flowDocument.PagePadding = new Thickness(0);
-                                            ContentViewer.Document = flowDocument;
-                                            xamlLoaded = true;
-                                        }
-                                        catch
-                                        {
-                                            SetPlainTextContent(content);
-                                        }
+                                        var flowDocument = (FlowDocument)System.Windows.Markup.XamlReader.Parse(contentXaml);
+                                        flowDocument.PagePadding = new Thickness(0);
+                                        ContentViewer.Document = flowDocument;
+                                        xamlLoaded = true;
                                     }
-                                    else
+                                    catch
                                     {
                                         SetPlainTextContent(content);
                                     }
-                                    
-                                    // Load images manually ONLY if XAML was not loaded (Fallback for legacy notes)
-                                    if (!xamlLoaded)
-                                    {
-                                        LoadAttachedImages();
-                                    }
                                 }
+                                else
+                                {
+                                    SetPlainTextContent(content);
+                                }
+                                
+                                if (!xamlLoaded)
+                                {
+                                    LoadAttachedImages();
+                                }
+                            }
                         }
                     }
-                    
-                    // Load Tags
+
+                    // 2. Load Tags
                     string tagSql = @"SELECT t.Name FROM Tags t JOIN NoteTags nt ON t.Id = nt.TagId WHERE nt.NoteId = $id";
                     using (var command = new SqliteCommand(tagSql, connection))
                     {
@@ -104,6 +104,30 @@ namespace CatchCapture
                             ItemsTags.ItemsSource = tags;
                         }
                     }
+
+                    // 3. Load Attachments
+                    string attachSql = "SELECT Id, FilePath, OriginalName, FileType FROM NoteAttachments WHERE NoteId = $id";
+                    using (var command = new SqliteCommand(attachSql, connection))
+                    {
+                        command.Parameters.AddWithValue("$id", _noteId);
+                        using (var reader = command.ExecuteReader())
+                        {
+                            var attachments = new List<NoteAttachment>();
+                            while (reader.Read())
+                            {
+                                attachments.Add(new NoteAttachment
+                                {
+                                    Id = reader.GetInt64(0),
+                                    NoteId = _noteId,
+                                    FilePath = reader.GetString(1),
+                                    OriginalName = reader.GetString(2),
+                                    FileType = reader.IsDBNull(3) ? "" : reader.GetString(3)
+                                });
+                            }
+                            ItemsAttachments.ItemsSource = attachments;
+                            PanelAttachments.Visibility = attachments.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -112,25 +136,47 @@ namespace CatchCapture
             }
         }
 
+        private void Attachment_Click(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is TextBlock tb && tb.DataContext is NoteAttachment attachment)
+            {
+                try
+                {
+                    string attachDir = DatabaseManager.Instance.GetAttachmentsFolderPath();
+                    string fullPath = Path.Combine(attachDir, attachment.FilePath);
+                    if (File.Exists(fullPath))
+                    {
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(fullPath) { UseShellExecute = true });
+                    }
+                    else
+                    {
+                        CatchCapture.CustomMessageBox.Show("파일을 찾을 수 없습니다.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    CatchCapture.CustomMessageBox.Show("파일을 여는 중 오류 발생: " + ex.Message);
+                }
+            }
+        }
+
         private void SetPlainTextContent(string text)
         {
             var p = new Paragraph(new Run(text));
             var doc = new FlowDocument(p);
-            doc.PagePadding = new Thickness(0); // Remove default padding
+            doc.PagePadding = new Thickness(0);
             ContentViewer.Document = doc;
         }
 
         private void LoadAttachedImages()
         {
-            // Insert images at the BEGINNING of document to preserve order (image first, then text)
             try
             {
-                var images = new List<string>();
                 using (var connection = new SqliteConnection($"Data Source={DatabaseManager.Instance.DbFilePath}"))
                 {
                     connection.Open();
-                    string imgSql = "SELECT FilePath FROM NoteImages WHERE NoteId = $id ORDER BY OrderIndex ASC";
-                    using (var command = new SqliteCommand(imgSql, connection))
+                    string sql = "SELECT FilePath FROM NoteImages WHERE NoteId = $id ORDER BY OrderIndex";
+                    using (var command = new SqliteCommand(sql, connection))
                     {
                         command.Parameters.AddWithValue("$id", _noteId);
                         using (var reader = command.ExecuteReader())
@@ -138,80 +184,45 @@ namespace CatchCapture
                             string imgDir = DatabaseManager.Instance.GetImageFolderPath();
                             while (reader.Read())
                             {
-                                string path = Path.Combine(imgDir, reader.GetString(0));
-                                if(File.Exists(path)) images.Add(path);
+                                string filePath = reader.GetString(0);
+                                string fullPath = Path.Combine(imgDir, filePath);
+                                if (File.Exists(fullPath))
+                                {
+                                    AddImageToContentViewer(fullPath);
+                                }
                             }
                         }
                     }
-                }
-
-                if (images.Count > 0)
-                {
-                    var doc = ContentViewer.Document ?? new FlowDocument();
-                    doc.PagePadding = new Thickness(0);
-                    
-                    // Insert FIRST image before text content
-                    var firstBlock = doc.Blocks.FirstBlock;
-                    
-                    var firstBitmap = new BitmapImage();
-                    firstBitmap.BeginInit();
-                    firstBitmap.UriSource = new Uri(images[0]);
-                    firstBitmap.CacheOption = BitmapCacheOption.OnLoad;
-                    firstBitmap.EndInit();
-
-                    var firstContainer = new BlockUIContainer(new System.Windows.Controls.Image { 
-                        Source = firstBitmap, 
-                        Stretch = System.Windows.Media.Stretch.Uniform, 
-                        MaxWidth = 600, 
-                        HorizontalAlignment = HorizontalAlignment.Left, 
-                        Margin = new Thickness(0, 0, 0, 10) 
-                    });
-                    
-                    if (firstBlock != null)
-                        doc.Blocks.InsertBefore(firstBlock, firstContainer);
-                    else
-                        doc.Blocks.Add(firstContainer);
-                    
-                    // Append remaining images AFTER text content
-                    for (int i = 1; i < images.Count; i++)
-                    {
-                        var bitmap = new BitmapImage();
-                        bitmap.BeginInit();
-                        bitmap.UriSource = new Uri(images[i]);
-                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                        bitmap.EndInit();
-
-                        var container = new BlockUIContainer(new System.Windows.Controls.Image { 
-                            Source = bitmap, 
-                            Stretch = System.Windows.Media.Stretch.Uniform, 
-                            MaxWidth = 600, 
-                            HorizontalAlignment = HorizontalAlignment.Left, 
-                            Margin = new Thickness(0, 10, 0, 10) 
-                        });
-                        
-                        doc.Blocks.Add(container);
-                    }
-                    ContentViewer.Document = doc;
                 }
             }
             catch { }
         }
 
-        private void BtnClose_Click(object sender, RoutedEventArgs e)
+        private void AddImageToContentViewer(string path)
         {
-            this.Close();
+            try
+            {
+                var bitmap = new BitmapImage(new Uri(path));
+                var image = new Image { Source = bitmap, MaxWidth = 800, Margin = new Thickness(0, 10, 0, 10) };
+                var container = new BlockUIContainer(image);
+                ContentViewer.Document.Blocks.Add(container);
+            }
+            catch { }
         }
 
         private void BtnEdit_Click(object sender, RoutedEventArgs e)
         {
-            var editWin = new NoteInputWindow(_noteId);
-            editWin.Owner = this.Owner; 
-            this.Close(); // Close view window
-            editWin.ShowDialog();
-            // Note: If calling from Explorer, Explorer will refresh.
-            // If we want to reopen View after edit, we'd need chaining. 
-            // Standard UX: detailed view -> edit -> save -> detailed view is nice, but back to list is also fine.
-            // Current flow: View -> Edit -> Close -> List.
+            var inputWin = new NoteInputWindow(_noteId);
+            inputWin.Owner = this;
+            if (inputWin.ShowDialog() == true)
+            {
+                LoadNoteData();
+            }
+        }
+
+        private void BtnClose_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
         }
     }
 }

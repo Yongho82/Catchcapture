@@ -18,11 +18,20 @@ namespace CatchCapture
         private BitmapSource? _capturedImage;
         private string? _sourceApp;
         private string? _sourceUrl;
-        private List<string> _attachmentPaths = new List<string>();
+        private List<AttachmentItem> _attachments = new List<AttachmentItem>();
         
         // For Edit Mode
         private long? _editingNoteId = null;
         private bool _isEditMode => _editingNoteId.HasValue;
+
+        public class AttachmentItem
+        {
+            public string? FullPath { get; set; } // Local path for new files
+            public string DisplayName { get; set; } = "";
+            public bool IsExisting { get; set; }
+            public long? AttachmentId { get; set; }
+            public string? FilePath { get; set; } // DB filename for existing files
+        }
 
         // Constructor for New Note (Capture or Empty)
         public NoteInputWindow(BitmapSource? image, string? sourceApp = null, string? sourceUrl = null)
@@ -210,12 +219,47 @@ namespace CatchCapture
                         }
                     }
 
-                    // Note: Image loading for legacy notes is now handled in Step 1's else block
+                    // 3. Load Attachments
+                    string attachSql = "SELECT Id, FilePath, OriginalName FROM NoteAttachments WHERE NoteId = $id";
+                    using (var command = new SqliteCommand(attachSql, connection))
+                    {
+                        command.Parameters.AddWithValue("$id", noteId);
+                        using (var reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var item = new AttachmentItem
+                                {
+                                    AttachmentId = reader.GetInt64(0),
+                                    FilePath = reader.GetString(1),
+                                    DisplayName = reader.GetString(2),
+                                    IsExisting = true
+                                };
+                                _attachments.Add(item);
+                            }
+                            RefreshAttachmentList();
+                        }
+                    }
                 }
             }
             catch (Exception ex)
             {
                 CatchCapture.CustomMessageBox.Show("노트 정보를 불러오는 중 오류 발생: " + ex.Message);
+            }
+        }
+
+        private void RefreshAttachmentList()
+        {
+            LstAttachments.ItemsSource = null;
+            LstAttachments.ItemsSource = _attachments;
+        }
+
+        private void BtnRemoveAttachment_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.DataContext is AttachmentItem item)
+            {
+                _attachments.Remove(item);
+                RefreshAttachmentList();
             }
         }
 
@@ -248,9 +292,15 @@ namespace CatchCapture
             {
                 foreach (string fullPath in dialog.FileNames)
                 {
-                    _attachmentPaths.Add(fullPath);
-                    LstAttachments.Items.Add(Path.GetFileName(fullPath));
+                    var item = new AttachmentItem
+                    {
+                        FullPath = fullPath,
+                        DisplayName = Path.GetFileName(fullPath),
+                        IsExisting = false
+                    };
+                    _attachments.Add(item);
                 }
+                RefreshAttachmentList();
             }
         }
 
@@ -382,15 +432,69 @@ namespace CatchCapture
 
                 // Attachments
                 string attachDir = DatabaseManager.Instance.GetAttachmentsFolderPath();
-                foreach (var oldPath in _attachmentPaths)
+                
+                // If editing, we might need to delete old ones from DB that were removed from list
+                if (_isEditMode)
                 {
-                    if (File.Exists(oldPath))
+                    using (var connection = new SqliteConnection($"Data Source={DatabaseManager.Instance.DbFilePath}"))
                     {
-                        string originalName = Path.GetFileName(oldPath);
+                        connection.Open();
+                        // Get current attachment IDs for this note from DB
+                        var dbIds = new List<long>();
+                        string getIdsSql = "SELECT Id FROM NoteAttachments WHERE NoteId = $id";
+                        using(var cmd = new SqliteCommand(getIdsSql, connection))
+                        {
+                            cmd.Parameters.AddWithValue("$id", targetNoteId);
+                            using(var reader = cmd.ExecuteReader())
+                            {
+                                while(reader.Read()) dbIds.Add(reader.GetInt64(0));
+                            }
+                        }
+
+                        // IDs that are in DB but NOT in our current _attachments list should be deleted
+                        var remainingIds = _attachments.Where(a => a.IsExisting).Select(a => a.AttachmentId!.Value).ToList();
+                        foreach(var idToDelete in dbIds.Except(remainingIds))
+                        {
+                            // Optional: Delete physical file too? 
+                            // For simplicity, let's just delete from DB for now, 
+                            // or fetch path and delete if we want to be thorough.
+                            string getFilePathSql = "SELECT FilePath FROM NoteAttachments WHERE Id = $id";
+                            string? filePathToDelete = null;
+                            using(var cmd = new SqliteCommand(getFilePathSql, connection))
+                            {
+                                cmd.Parameters.AddWithValue("$id", idToDelete);
+                                filePathToDelete = cmd.ExecuteScalar()?.ToString();
+                            }
+
+                            string deleteAttachSql = "DELETE FROM NoteAttachments WHERE Id = $id";
+                            using(var cmd = new SqliteCommand(deleteAttachSql, connection))
+                            {
+                                cmd.Parameters.AddWithValue("$id", idToDelete);
+                                cmd.ExecuteNonQuery();
+                            }
+
+                            if(!string.IsNullOrEmpty(filePathToDelete))
+                            {
+                                try
+                                {
+                                    string fullPath = Path.Combine(attachDir, filePathToDelete);
+                                    if(File.Exists(fullPath)) File.Delete(fullPath);
+                                }
+                                catch { }
+                            }
+                        }
+                    }
+                }
+
+                foreach (var item in _attachments.Where(a => !a.IsExisting))
+                {
+                    if (File.Exists(item.FullPath))
+                    {
+                        string originalName = item.DisplayName;
                         string newFileName = $"{Guid.NewGuid()}_{originalName}";
                         string newFullPath = Path.Combine(attachDir, newFileName);
                         
-                        File.Copy(oldPath, newFullPath);
+                        File.Copy(item.FullPath, newFullPath);
                         DatabaseManager.Instance.InsertAttachment(targetNoteId, newFileName, originalName);
                     }
                 }
