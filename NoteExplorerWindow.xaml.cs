@@ -153,6 +153,12 @@ namespace CatchCapture
 
                 LstNotes.ItemsSource = notes;
                 UpdatePaginationButtons(totalCount);
+                
+                // Auto-select first item if exists
+                if (notes.Count > 0)
+                {
+                    LstNotes.SelectedIndex = 0;
+                }
             }
             catch (Exception ex)
             {
