@@ -103,22 +103,42 @@ namespace CatchCapture
                                 string content = reader.IsDBNull(1) ? "" : reader.GetString(1);
                                 string contentXaml = reader.IsDBNull(5) ? "" : reader.GetString(5);
 
-                                if (!string.IsNullOrEmpty(contentXaml))
+                                // Always load images from NoteImages table first
+                                Editor.Document.Blocks.Clear();
+                                
+                                string imgSql = "SELECT FilePath FROM NoteImages WHERE NoteId = $imgNoteId ORDER BY OrderIndex ASC";
+                                string imgDir = DatabaseManager.Instance.GetImageFolderPath();
+                                using (var imgCmd = new SqliteCommand(imgSql, connection))
                                 {
-                                    Editor.SetXaml(contentXaml);
-                                    // If we loaded XAML, we shouldn't manually add images from DB as they are likely embedded in XAML
-                                    // or linked. However, our SetXaml keeps images.
-                                    // Skip "3. Load Images" step? 
-                                    // NoteImages table is still useful for List Preview.
-                                    // But Editor content is restored fully from XAML.
+                                    imgCmd.Parameters.AddWithValue("$imgNoteId", noteId);
+                                    using (var imgReader = imgCmd.ExecuteReader())
+                                    {
+                                        while (imgReader.Read())
+                                        {
+                                            string fileName = imgReader.GetString(0);
+                                            string fullPath = Path.Combine(imgDir, fileName);
+                                            if (File.Exists(fullPath))
+                                            {
+                                                try
+                                                {
+                                                    var bitmap = new BitmapImage();
+                                                    bitmap.BeginInit();
+                                                    bitmap.UriSource = new Uri(fullPath);
+                                                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                                                    bitmap.EndInit();
+                                                    bitmap.Freeze();
+                                                    Editor.InsertImage(bitmap);
+                                                }
+                                                catch { }
+                                            }
+                                        }
+                                    }
                                 }
-                                else
+                                
+                                // Then add text content AFTER images
+                                if (!string.IsNullOrEmpty(content))
                                 {
-                                    // Fallback to text + images appending (legacy)
-                                    Editor.Document.Blocks.Clear();
                                     Editor.Document.Blocks.Add(new Paragraph(new Run(content)));
-                                    
-                                    // We will load images in step 3
                                 }
 
                                 _sourceApp = reader.IsDBNull(2) ? null : reader.GetString(2);
@@ -162,60 +182,7 @@ namespace CatchCapture
                         }
                     }
 
-                    // 3. Load Images (Only if not loaded by XAML)
-                    // We check if Editor has images. If it does (from SetXaml), we skip appending.
-                    // Actually SetXaml might have loaded images, or not. 
-                    // But if we loaded XAML, the structure is correct. We should NOT append all images again at the bottom.
-                    // However, we need to handle "Legacy" notes which don't have Xaml.
-                    
-                    bool hasXaml = !string.IsNullOrEmpty(Editor.GetXaml()) && Editor.GetAllImages().Count > 0;
-                    // Note: GetXaml returns string. If the note was pure text xaml, count is 0. 
-                    // Logic: If we successfully loaded XAML from DB (checked in step 1), we should skip this.
-                    // Re-check contentXaml from step 1 is hard since variable scope lost.
-                    // Let's rely on Editor state. If we have images, we assume they are from XAML.
-                    // Wait, if XAML had 0 images, but DB has images (legacy note with attached images but no XAML representation), we MUST load them.
-                    
-                    // Better approach: Pass a flag from Step 1.
-                    // Refactoring to keep scope:
-                    // I'll assume if Editor blocks are not empty (which they are not if text loaded), it's hard to tell.
-                    // Let's modify Step 1 to set a flag 'isXamlLoaded'.
-                    // Can't easily do cross-snippet variable share without larger replace.
-                    // I will just check if Editor.GetAllImages().Count == 0.
-                    // If XAML loaded images, count > 0.
-                    // If XAML didn't load images (text only), but DB has images, we append them.
-                    
-                    if (Editor.GetAllImages().Count == 0)
-                    {
-                        string imgSql = "SELECT FilePath FROM NoteImages WHERE NoteId = $id ORDER BY OrderIndex ASC";
-                        string imgDir = DatabaseManager.Instance.GetImageFolderPath();
-                        using (var command = new SqliteCommand(imgSql, connection))
-                        {
-                            command.Parameters.AddWithValue("$id", noteId);
-                            using (var reader = command.ExecuteReader())
-                            {
-                                while (reader.Read())
-                                {
-                                    string fileName = reader.GetString(0);
-                                    string fullPath = Path.Combine(imgDir, fileName);
-                                    if (File.Exists(fullPath))
-                                    {
-                                        try
-                                        {
-                                        var bitmap = new BitmapImage();
-                                        bitmap.BeginInit();
-                                        bitmap.UriSource = new Uri(fullPath);
-                                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                                        bitmap.EndInit();
-                                        bitmap.Freeze();
-                                        
-                                        Editor.InsertImage(bitmap);
-                                        }
-                                        catch { }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    // Note: Image loading for legacy notes is now handled in Step 1's else block
                 }
             }
             catch (Exception ex)

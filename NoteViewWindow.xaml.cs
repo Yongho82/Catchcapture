@@ -117,7 +117,7 @@ namespace CatchCapture
 
         private void LoadAttachedImages()
         {
-            // Only used if XAML content is missing. Appends images to the bottom.
+            // Insert images at the BEGINNING of document to preserve order (image first, then text)
             try
             {
                 var images = new List<string>();
@@ -143,16 +143,32 @@ namespace CatchCapture
                 if (images.Count > 0)
                 {
                     var doc = ContentViewer.Document ?? new FlowDocument();
-                    foreach (var imgPath in images)
+                    doc.PagePadding = new Thickness(0);
+                    
+                    // Get first block (text content) to insert images before it
+                    var firstBlock = doc.Blocks.FirstBlock;
+                    
+                    // Insert images in reverse order at the beginning
+                    for (int i = images.Count - 1; i >= 0; i--)
                     {
                         var bitmap = new BitmapImage();
                         bitmap.BeginInit();
-                        bitmap.UriSource = new Uri(imgPath);
+                        bitmap.UriSource = new Uri(images[i]);
                         bitmap.CacheOption = BitmapCacheOption.OnLoad;
                         bitmap.EndInit();
 
-                        var container = new BlockUIContainer(new System.Windows.Controls.Image { Source = bitmap, Stretch = System.Windows.Media.Stretch.Uniform, MaxWidth = 600, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 10, 0, 10) });
-                        doc.Blocks.Add(container);
+                        var container = new BlockUIContainer(new System.Windows.Controls.Image { 
+                            Source = bitmap, 
+                            Stretch = System.Windows.Media.Stretch.Uniform, 
+                            MaxWidth = 600, 
+                            HorizontalAlignment = HorizontalAlignment.Left, 
+                            Margin = new Thickness(0, 0, 0, 10) 
+                        });
+                        
+                        if (firstBlock != null)
+                            doc.Blocks.InsertBefore(firstBlock, container);
+                        else
+                            doc.Blocks.Add(container);
                     }
                     ContentViewer.Document = doc;
                 }
