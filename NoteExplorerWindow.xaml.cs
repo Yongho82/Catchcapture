@@ -8,6 +8,7 @@ using CatchCapture.Utilities;
 using Microsoft.Data.Sqlite;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Media;
 using System.Linq;
 using System.ComponentModel;
 
@@ -314,7 +315,9 @@ namespace CatchCapture
                     try
                     {
                         var flowDocument = (FlowDocument)System.Windows.Markup.XamlReader.Parse(note.ContentXaml);
-                        flowDocument.PagePadding = new Thickness(0);
+                        flowDocument.PagePadding = new Thickness(0, 0, 10, 0); // Add slight right padding for scrollbar
+                        flowDocument.FontFamily = new FontFamily("Malgun Gothic, Segoe UI");
+                        flowDocument.FontSize = 15;
                         
                         // Small optimization: Images in preview should be uniformly stretched
                         foreach (var block in flowDocument.Blocks)
@@ -344,11 +347,13 @@ namespace CatchCapture
             }
         }
 
-        private void SetPlainTextPreview(string content)
+        private void SetPlainTextPreview(string? content)
         {
-            var p = new Paragraph(new Run(content));
+            var p = new Paragraph(new Run(content ?? ""));
             var doc = new FlowDocument(p);
             doc.PagePadding = new Thickness(0);
+            doc.FontFamily = new FontFamily("Malgun Gothic, Segoe UI");
+            doc.FontSize = 15;
             PreviewViewer.Document = doc;
         }
 
