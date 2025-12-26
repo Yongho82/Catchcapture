@@ -26,16 +26,46 @@ namespace CatchCapture.Controls
             RtbEditor.UndoLimit = 100;
             
             // Auto-hide sliders when clicking elsewhere
+            // Auto-hide sliders when clicking elsewhere, but check if we clicked inside a slider first
             RtbEditor.PreviewMouseLeftButtonDown += (s, e) =>
             {
+                var originalSource = e.OriginalSource as DependencyObject;
                 foreach (var panel in _sliderPanels)
                 {
+                    if (IsDescendantOrSelf(panel, originalSource))
+                    {
+                        continue; // Clicked inside this panel, don't hide
+                    }
                     panel.Visibility = Visibility.Collapsed;
                 }
             };
-
-            UpdatePlaceholderVisibility();
         }
+
+        private bool IsDescendantOrSelf(DependencyObject parent, DependencyObject node)
+        {
+            if (parent == null || node == null) return false;
+            if (parent == node) return true;
+
+            try
+            {
+                var current = node;
+                while (current != null)
+                {
+                    if (current == parent) return true;
+                    if (current is Visual || current is System.Windows.Media.Media3D.Visual3D)
+                    {
+                        current = VisualTreeHelper.GetParent(current);
+                    }
+                    else
+                    {
+                        current = LogicalTreeHelper.GetParent(current);
+                    }
+                }
+            }
+            catch { } // Ignore visual tree errors
+            return false;
+        }
+
 
         // Public property to access the FlowDocument
         public FlowDocument Document => RtbEditor.Document;
@@ -180,37 +210,39 @@ namespace CatchCapture.Controls
             image.Stretch = Stretch.Uniform;
 
             var mainGrid = new Grid { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 5, 0, 5) };
-            mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
             // Image
             image.Margin = new Thickness(0);
             image.Cursor = Cursors.Hand;
             image.IsHitTestVisible = true;
-            Grid.SetRow(image, 0);
+            Panel.SetZIndex(image, 1);
             mainGrid.Children.Add(image);
 
-            // Resize slider panel
+            // Resize slider panel - overlay at bottom of image
             var sliderPanel = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
                 Margin = new Thickness(0),
-                HorizontalAlignment = HorizontalAlignment.Left
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Bottom
             };
             
             // Add border/shadow to slider panel
             var sliderBorder = new Border
             {
-                Background = new SolidColorBrush(Color.FromArgb(240, 255, 255, 255)), // Semi-transparent white
-                BorderBrush = new SolidColorBrush(Color.FromRgb(224, 224, 224)),
+                Background = new SolidColorBrush(Color.FromArgb(220, 255, 255, 255)), // Semi-transparent white
+                BorderBrush = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
                 BorderThickness = new Thickness(1),
                 CornerRadius = new CornerRadius(4),
-                Padding = new Thickness(8, 2, 8, 2),
-                Margin = new Thickness(0, 2, 0, 0),
-                Child = sliderPanel
+                Padding = new Thickness(8, 4, 8, 4),
+                Margin = new Thickness(5, 0, 5, 5),
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Bottom,
+                Child = sliderPanel,
+                Visibility = Visibility.Collapsed
             };
-            Grid.SetRow(sliderBorder, 1);
-            sliderBorder.Visibility = Visibility.Collapsed; // Hidden initially, toggle on click
+            
+            Panel.SetZIndex(sliderBorder, 2); // Ensure it's on top of image for clicks
             mainGrid.Children.Add(sliderBorder);
             _sliderPanels.Add(sliderBorder);
 
@@ -273,84 +305,47 @@ namespace CatchCapture.Controls
             };
 
             var container = new BlockUIContainer(mainGrid);
-            RtbEditor.Document.Blocks.Add(container);
             
-            // Add a new empty paragraph after the image with proper spacing
-            var newPara = new Paragraph
+            // Wrap in Undo unit
+            RtbEditor.BeginChange();
+            try
             {
-                Margin = new Thickness(0),
-                LineHeight = 1.5  // Default line height
-            };
-            RtbEditor.Document.Blocks.Add(newPara);
+                RtbEditor.Document.Blocks.Add(container);
+                
+                // Add a new empty paragraph after the image with proper spacing
+                var newPara = new Paragraph
+                {
+                    Margin = new Thickness(0),
+                    LineHeight = 1.5  // Default line height
+                };
+                RtbEditor.Document.Blocks.Add(newPara);
+            }
+            finally
+            {
+                RtbEditor.EndChange();
+            }
+
             RtbEditor.ScrollToEnd();
-            UpdatePlaceholderVisibility();
+            RtbEditor.Focus(); // Set focus back to editor
         }
 
         private void RtbEditor_Loaded(object sender, RoutedEventArgs e)
         {
-            // Force visible initially since the editor is empty
-            if (TxtPlaceholder != null)
-            {
-                TxtPlaceholder.Visibility = Visibility.Visible;
-            }
         }
 
         private void RtbEditor_TextChanged(object sender, TextChangedEventArgs e)
         {
-            UpdatePlaceholderVisibility();
         }
 
         private void RtbEditor_GotFocus(object sender, RoutedEventArgs e)
         {
-            UpdatePlaceholderVisibility();
         }
 
         private void RtbEditor_LostFocus(object sender, RoutedEventArgs e)
         {
-            UpdatePlaceholderVisibility();
         }
 
-        private void UpdatePlaceholderVisibility()
-        {
-            if (TxtPlaceholder == null || RtbEditor == null || RtbEditor.Document == null) return;
 
-            try
-            {
-                // Simple check: if there's any text or UIContainers, hide placeholder
-                bool isEmpty = true;
-                
-                // Quick check for blocks
-                if (RtbEditor.Document.Blocks.Count > 1)
-                {
-                    isEmpty = false;
-                }
-                else if (RtbEditor.Document.Blocks.Count == 1)
-                {
-                    var firstBlock = RtbEditor.Document.Blocks.FirstBlock;
-                    
-                    // Check if it's a UIContainer (image)
-                    if (firstBlock is BlockUIContainer)
-                    {
-                        isEmpty = false;
-                    }
-                    else if (firstBlock is Paragraph para)
-                    {
-                        // Only check text if it's a paragraph
-                        var textRange = new TextRange(para.ContentStart, para.ContentEnd);
-                        string text = textRange.Text?.Trim('\r', '\n', ' ', '\t', '\u200B') ?? "";
-                        isEmpty = string.IsNullOrWhiteSpace(text);
-                    }
-                }
-
-                // Hide if has content or has focus
-                TxtPlaceholder.Visibility = (isEmpty && !RtbEditor.IsFocused) ? Visibility.Visible : Visibility.Collapsed;
-            }
-            catch
-            {
-                // If there's any error, just hide the placeholder
-                TxtPlaceholder.Visibility = Visibility.Collapsed;
-            }
-        }
 
         private Cursor GetCursorForPosition(string pos)
         {

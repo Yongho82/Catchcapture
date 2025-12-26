@@ -106,75 +106,75 @@
                 <Separator Width="1" Height="16" Background="#EEEEEE" Margin="4,0" VerticalAlignment="Center"/>
 
                 <!-- Text Formatting -->
-                <Button x:Name="BtnBold" Style="{StaticResource EditorButtonStyle}" Click="BtnBold_Click" ToolTip="굵게 (Ctrl+B)">
+                <Button x:Name="BtnBold" Style="{StaticResource EditorButtonStyle}" Click="BtnBold_Click" ToolTip="굵게 (Ctrl+B)" Focusable="False">
                     <Path Data="{StaticResource IconBold}" Style="{StaticResource EditorIconPath}"/>
                 </Button>
-                <Button x:Name="BtnItalic" Style="{StaticResource EditorButtonStyle}" Click="BtnItalic_Click" ToolTip="기울임 (Ctrl+I)">
+                <Button x:Name="BtnItalic" Style="{StaticResource EditorButtonStyle}" Click="BtnItalic_Click" ToolTip="기울임 (Ctrl+I)" Focusable="False">
                     <Path Data="{StaticResource IconItalic}" Style="{StaticResource EditorIconPath}"/>
                 </Button>
-                <Button x:Name="BtnUnderline" Style="{StaticResource EditorButtonStyle}" Click="BtnUnderline_Click" ToolTip="밑줄 (Ctrl+U)">
+                <Button x:Name="BtnUnderline" Style="{StaticResource EditorButtonStyle}" Click="BtnUnderline_Click" ToolTip="밑줄 (Ctrl+U)" Focusable="False">
                     <Path Data="{StaticResource IconUnderline}" Style="{StaticResource EditorIconPath}"/>
                 </Button>
 
                 <Separator Width="1" Height="16" Background="#EEEEEE" Margin="4,0" VerticalAlignment="Center"/>
 
                 <!-- Text Color -->
-                <Button x:Name="BtnTextColor" Style="{StaticResource EditorButtonStyle}" Click="BtnTextColor_Click" ToolTip="글자 색상">
+                <Button x:Name="BtnTextColor" Style="{StaticResource EditorButtonStyle}" Click="BtnTextColor_Click" ToolTip="글자 색상" Focusable="False">
                     <StackPanel>
                         <Path Data="{StaticResource IconTextColor}" Style="{StaticResource EditorIconPath}" Fill="#E74C3C"/>
                     </StackPanel>
                 </Button>
-                <Button x:Name="BtnHighlight" Style="{StaticResource EditorButtonStyle}" Click="BtnHighlight_Click" ToolTip="배경 색상 (형광펜)">
+                <Button x:Name="BtnHighlight" Style="{StaticResource EditorButtonStyle}" Click="BtnHighlight_Click" ToolTip="배경 색상 (형광펜)" Focusable="False">
                     <Path Data="{StaticResource IconHighlight}" Style="{StaticResource EditorIconPath}" Fill="#F1C40F"/>
                 </Button>
 
                 <Separator Width="1" Height="16" Background="#EEEEEE" Margin="4,0" VerticalAlignment="Center"/>
 
                 <!-- Alignment -->
-                <Button x:Name="BtnAlignLeft" Style="{StaticResource EditorButtonStyle}" Click="BtnAlignLeft_Click" ToolTip="왼쪽 정렬">
+                <Button x:Name="BtnAlignLeft" Style="{StaticResource EditorButtonStyle}" Click="BtnAlignLeft_Click" ToolTip="왼쪽 정렬" Focusable="False">
                     <Path Data="{StaticResource IconAlignLeft}" Style="{StaticResource EditorIconPath}"/>
                 </Button>
-                <Button x:Name="BtnAlignCenter" Style="{StaticResource EditorButtonStyle}" Click="BtnAlignCenter_Click" ToolTip="가운데 정렬">
+                <Button x:Name="BtnAlignCenter" Style="{StaticResource EditorButtonStyle}" Click="BtnAlignCenter_Click" ToolTip="가운데 정렬" Focusable="False">
                     <Path Data="{StaticResource IconAlignCenter}" Style="{StaticResource EditorIconPath}"/>
                 </Button>
-                <Button x:Name="BtnAlignRight" Style="{StaticResource EditorButtonStyle}" Click="BtnAlignRight_Click" ToolTip="오른쪽 정렬">
+                <Button x:Name="BtnAlignRight" Style="{StaticResource EditorButtonStyle}" Click="BtnAlignRight_Click" ToolTip="오른쪽 정렬" Focusable="False">
                     <Path Data="{StaticResource IconAlignRight}" Style="{StaticResource EditorIconPath}"/>
                 </Button>
 
                 <Separator Width="1" Height="16" Background="#EEEEEE" Margin="4,0" VerticalAlignment="Center"/>
 
                 <!-- Lists -->
-                <Button x:Name="BtnBulletList" Style="{StaticResource EditorButtonStyle}" Click="BtnBulletList_Click" ToolTip="글머리 기호">
+                <Button x:Name="BtnBulletList" Style="{StaticResource EditorButtonStyle}" Click="BtnBulletList_Click" ToolTip="글머리 기호" Focusable="False">
                     <Path Data="{StaticResource IconListBullet}" Style="{StaticResource EditorIconPath}"/>
                 </Button>
-                <Button x:Name="BtnNumberList" Style="{StaticResource EditorButtonStyle}" Click="BtnNumberList_Click" ToolTip="번호 매기기">
+                <Button x:Name="BtnNumberList" Style="{StaticResource EditorButtonStyle}" Click="BtnNumberList_Click" ToolTip="번호 매기기" Focusable="False">
                     <Path Data="{StaticResource IconListNumber}" Style="{StaticResource EditorIconPath}"/>
                 </Button>
 
                 <Separator Width="1" Height="16" Background="#EEEEEE" Margin="4,0" VerticalAlignment="Center"/>
 
                 <!-- Insert -->
-                <Button x:Name="BtnInsertImage" Style="{StaticResource EditorButtonStyle}" Click="BtnInsertImage_Click" ToolTip="이미지 삽입">
+                <Button x:Name="BtnInsertImage" Style="{StaticResource EditorButtonStyle}" Click="BtnInsertImage_Click" ToolTip="이미지 삽입" Focusable="False">
                     <Path Data="{StaticResource IconImage}" Style="{StaticResource EditorIconPath}"/>
                 </Button>
-                <Button x:Name="BtnInsertLink" Style="{StaticResource EditorButtonStyle}" Click="BtnInsertLink_Click" ToolTip="링크 삽입">
+                <Button x:Name="BtnInsertLink" Style="{StaticResource EditorButtonStyle}" Click="BtnInsertLink_Click" ToolTip="링크 삽입" Focusable="False">
                     <Path Data="{StaticResource IconLink}" Style="{StaticResource EditorIconPath}"/>
                 </Button>
 
                 <Separator Width="1" Height="16" Background="#EEEEEE" Margin="4,0" VerticalAlignment="Center"/>
 
                 <!-- Undo/Redo -->
-                <Button x:Name="BtnUndo" Style="{StaticResource EditorButtonStyle}" Click="BtnUndo_Click" ToolTip="실행 취소 (Ctrl+Z)">
+                <Button x:Name="BtnUndo" Style="{StaticResource EditorButtonStyle}" Click="BtnUndo_Click" ToolTip="실행 취소 (Ctrl+Z)" Focusable="False">
                     <Path Data="{StaticResource IconUndo}" Style="{StaticResource EditorIconPath}"/>
                 </Button>
-                <Button x:Name="BtnRedo" Style="{StaticResource EditorButtonStyle}" Click="BtnRedo_Click" ToolTip="다시 실행 (Ctrl+Y)">
+                <Button x:Name="BtnRedo" Style="{StaticResource EditorButtonStyle}" Click="BtnRedo_Click" ToolTip="다시 실행 (Ctrl+Y)" Focusable="False">
                     <Path Data="{StaticResource IconRedo}" Style="{StaticResource EditorIconPath}"/>
                 </Button>
 
                 <Separator Width="1" Height="16" Background="#EEEEEE" Margin="4,0" VerticalAlignment="Center"/>
 
                 <!-- Line Spacing -->
-                <Button x:Name="BtnLineSpacing" Style="{StaticResource EditorButtonStyle}" Click="BtnLineSpacing_Click" ToolTip="줄 간격">
+                <Button x:Name="BtnLineSpacing" Style="{StaticResource EditorButtonStyle}" Click="BtnLineSpacing_Click" ToolTip="줄 간격" Focusable="False">
                     <Path Data="{StaticResource IconLineSpacing}" Style="{StaticResource EditorIconPath}"/>
                     <Button.ContextMenu>
                         <ContextMenu>
@@ -204,15 +204,6 @@
                     <Paragraph Margin="0" LineHeight="1.5"></Paragraph>
                 </FlowDocument>
             </RichTextBox>
-            <TextBlock x:Name="TxtPlaceholder" 
-                       Text="내용을 입력하세요 (이미지를 클릭하면 크기 조절 슬라이더가 나타납니다)" 
-                       IsHitTestVisible="False" 
-                       Foreground="#CCCCCC" 
-                       FontSize="15" 
-                       Margin="20,20,20,0"
-                       VerticalAlignment="Top"
-                       HorizontalAlignment="Left"
-                       Visibility="Visible"/>
         </Grid>
 
         <!-- Color Picker Popup -->
