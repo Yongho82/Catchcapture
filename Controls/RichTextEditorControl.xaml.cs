@@ -290,61 +290,14 @@ namespace CatchCapture.Controls
                 MinWidth = 40
             };
 
-            slider.ValueChanged += (s, e) =>
-            {
-                image.Width = slider.Value;
-                sizeText.Text = $"{(int)slider.Value}px";
-            };
-
             sliderPanel.Children.Add(sliderLabel);
             sliderPanel.Children.Add(slider);
             sliderPanel.Children.Add(sizeText);
             // sliderBorder already added to mainGrid at line 187
             
-
-
             var container = new BlockUIContainer(mainGrid);
             
-            // Image click handler - Moved here to access 'container'
-            image.PreviewMouseLeftButtonDown += (s, e) =>
-            {
-                if (e.ClickCount == 2)
-                {
-                    // Double click: Edit image
-                    var bitmap = image.Source as BitmapSource;
-                    if (bitmap != null)
-                    {
-                        var previewWin = new PreviewWindow(bitmap, 0);
-                        previewWin.Owner = Window.GetWindow(this);
-                        previewWin.ImageUpdated += (sw, args) =>
-                        {
-                            image.Source = args.NewImage;
-                        };
-                        previewWin.ShowDialog();
-                    }
-                    e.Handled = true;
-                    return;
-                }
-
-                // 1. Toggle current slider
-                sliderBorder.Visibility = sliderBorder.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
-                
-                // 2. Hide other sliders
-                if (sliderBorder.Visibility == Visibility.Visible)
-                {
-                    foreach (var p in _sliderPanels)
-                    {
-                        if (p != sliderBorder) p.Visibility = Visibility.Collapsed;
-                    }
-                }
-                
-                // 3. FORCE SELECTION of the container so Delete/Backspace works
-                RtbEditor.Focus();
-                // Select the container range
-                RtbEditor.Selection.Select(container.ElementStart, container.ElementEnd);
-                
-                e.Handled = true;
-            };
+            HookImageEvents(image, sliderBorder, container);
             
             // Wrap in Undo unit
             RtbEditor.BeginChange();
@@ -471,12 +424,97 @@ namespace CatchCapture.Controls
                 {
                     var flowDocument = (FlowDocument)System.Windows.Markup.XamlReader.Load(ms);
                     RtbEditor.Document = flowDocument;
+                    RestoreImageBehaviors();
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine("SetXaml Error: " + ex.Message);
             }
+        }
+
+        private void RestoreImageBehaviors()
+        {
+            _sliderPanels.Clear();
+            foreach (var block in RtbEditor.Document.Blocks)
+            {
+                if (block is BlockUIContainer container && container.Child is Grid mainGrid)
+                {
+                    // Check if it's our resizable image structure
+                    if (mainGrid.Children.Count >= 2 && 
+                        mainGrid.Children[0] is System.Windows.Controls.Image image && 
+                        mainGrid.Children[1] is Border sliderBorder)
+                    {
+                        HookImageEvents(image, sliderBorder, container);
+                    }
+                }
+            }
+        }
+
+        private void HookImageEvents(System.Windows.Controls.Image image, Border sliderBorder, BlockUIContainer container)
+        {
+            if (!_sliderPanels.Contains(sliderBorder))
+                _sliderPanels.Add(sliderBorder);
+            
+            // Find slider and size text
+            Slider? slider = null;
+            TextBlock? sizeText = null;
+            if (sliderBorder.Child is StackPanel sp)
+            {
+                slider = sp.Children.OfType<Slider>().FirstOrDefault();
+                sizeText = sp.Children.OfType<TextBlock>().LastOrDefault();
+            }
+
+            if (slider != null && sizeText != null)
+            {
+                slider.ValueChanged += (s, e) =>
+                {
+                    image.Width = slider.Value;
+                    sizeText.Text = $"{(int)slider.Value}px";
+                };
+            }
+
+            sliderBorder.MouseLeftButtonDown += (s, e) => e.Handled = true;
+
+            image.PreviewMouseLeftButtonDown += (s, e) =>
+            {
+                if (e.ClickCount == 2)
+                {
+                    // Double click: Edit image
+                    var bitmap = image.Source as BitmapSource;
+                    if (bitmap != null)
+                    {
+                        var previewWin = new PreviewWindow(bitmap, 0);
+                        previewWin.Owner = Window.GetWindow(this);
+                        previewWin.ImageUpdated += (sw, args) =>
+                        {
+                            image.Source = args.NewImage;
+                        };
+                        previewWin.ShowDialog();
+                    }
+                    e.Handled = true;
+                    return;
+                }
+
+                // 1. Toggle current slider
+                sliderBorder.Visibility = sliderBorder.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
+                
+                // 2. Hide other sliders
+                if (sliderBorder.Visibility == Visibility.Visible)
+                {
+                    foreach (var p in _sliderPanels)
+                    {
+                        if (p != sliderBorder) p.Visibility = Visibility.Collapsed;
+                    }
+                }
+                
+                // 3. FORCE SELECTION of the container so Delete/Backspace works
+                RtbEditor.Focus();
+                // Select the container range
+                RtbEditor.Selection.Select(container.ElementStart, container.ElementEnd);
+                
+                e.Handled = true;
+            };
         }
 
         public void InsertImage(ImageSource imageSource)
