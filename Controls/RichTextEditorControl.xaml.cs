@@ -5,6 +5,7 @@ using System.Windows.Documents;
 using System.Windows.Media;
 
 using System.Linq;
+using System.Windows.Input;
 
 namespace CatchCapture.Controls
 {
@@ -34,6 +35,7 @@ namespace CatchCapture.Controls
             if (CboFontFamily.SelectedItem is FontFamily fontFamily)
             {
                 RtbEditor.Selection.ApplyPropertyValue(TextElement.FontFamilyProperty, fontFamily);
+                RtbEditor.Focus();
             }
         }
 
@@ -41,10 +43,13 @@ namespace CatchCapture.Controls
         private void CboFontSize_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (RtbEditor == null || CboFontSize.SelectedItem == null) return;
-            var item = CboFontSize.SelectedItem as ComboBoxItem;
-            if (double.TryParse(item.Content.ToString(), out double size))
+            if (CboFontSize.SelectedItem is ComboBoxItem item && item.Content != null)
             {
-                RtbEditor.Selection.ApplyPropertyValue(TextElement.FontSizeProperty, size);
+                if (double.TryParse(item.Content.ToString(), out double size))
+                {
+                    RtbEditor.Selection.ApplyPropertyValue(TextElement.FontSizeProperty, size);
+                    RtbEditor.Focus();
+                }
             }
         }
 
@@ -80,6 +85,7 @@ namespace CatchCapture.Controls
                 }
 
                 ColorPickerPopup.IsOpen = false;
+                RtbEditor.Focus();
             }
         }
 
@@ -108,17 +114,112 @@ namespace CatchCapture.Controls
                     var image = new System.Windows.Controls.Image
                     {
                         Source = new System.Windows.Media.Imaging.BitmapImage(new Uri(dialog.FileName)),
-                        MaxWidth = 600,
                         Stretch = Stretch.Uniform
                     };
 
-                    var container = new BlockUIContainer(image);
-                    RtbEditor.Document.Blocks.Add(container);
+                    CreateResizableImage(image);
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show($"이미지를 삽입할 수 없습니다: {ex.Message}", "오류");
                 }
+            }
+        }
+
+        private void CreateResizableImage(System.Windows.Controls.Image image)
+        {
+            // Initial size restriction
+            double maxWidth = RtbEditor.ActualWidth > 0 ? RtbEditor.ActualWidth - 60 : 600;
+            if (image.Source != null)
+            {
+                if (image.Source.Width > maxWidth)
+                {
+                    image.Width = maxWidth;
+                }
+            }
+
+            var grid = new Grid { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 10, 0, 10) };
+            grid.Children.Add(image);
+
+            // Create handles
+            var handles = new Grid { Visibility = Visibility.Collapsed };
+            string[] positions = { "TL", "T", "TR", "L", "R", "BL", "B", "BR" };
+            foreach (var pos in positions)
+            {
+                var borderFactory = new FrameworkElementFactory(typeof(Border));
+                borderFactory.SetValue(Border.BackgroundProperty, Brushes.White);
+                borderFactory.SetValue(Border.BorderBrushProperty, Brushes.DeepSkyBlue);
+                borderFactory.SetValue(Border.BorderThicknessProperty, new Thickness(1.5));
+                borderFactory.SetValue(Border.CornerRadiusProperty, new CornerRadius(5));
+
+                var thumbTemplate = new ControlTemplate(typeof(System.Windows.Controls.Primitives.Thumb));
+                thumbTemplate.VisualTree = borderFactory;
+
+                var thumb = new System.Windows.Controls.Primitives.Thumb
+                {
+                    Width = 10,
+                    Height = 10,
+                    Template = thumbTemplate,
+                    Cursor = GetCursorForPosition(pos)
+                };
+
+                Panel.SetZIndex(thumb, 100);
+
+                thumb.DragDelta += (s, e) =>
+                {
+                    double newWidth = image.Width;
+                    if (pos.Contains("R")) newWidth += e.HorizontalChange;
+                    if (pos.Contains("L")) newWidth -= e.HorizontalChange;
+                    
+                    if (newWidth > 20 && newWidth < (RtbEditor.ActualWidth - 40))
+                    {
+                        image.Width = newWidth;
+                    }
+                };
+
+                // Alignment
+                thumb.HorizontalAlignment = pos.Contains("L") ? HorizontalAlignment.Left : (pos.Contains("R") ? HorizontalAlignment.Right : HorizontalAlignment.Center);
+                thumb.VerticalAlignment = pos.Contains("T") ? VerticalAlignment.Top : (pos.Contains("B") ? VerticalAlignment.Bottom : VerticalAlignment.Center);
+                
+                // Offset
+                double offset = -4;
+                thumb.Margin = new Thickness(
+                    pos.Contains("L") ? offset : 0,
+                    pos.Contains("T") ? offset : 0,
+                    pos.Contains("R") ? offset : 0,
+                    pos.Contains("B") ? offset : 0
+                );
+
+                handles.Children.Add(thumb);
+            }
+
+            grid.Children.Add(handles);
+
+            image.MouseDown += (s, e) =>
+            {
+                handles.Visibility = Visibility.Visible;
+                e.Handled = true;
+            };
+
+            RtbEditor.MouseDown += (s, e) =>
+            {
+                handles.Visibility = Visibility.Collapsed;
+            };
+
+            var container = new BlockUIContainer(grid);
+            RtbEditor.Document.Blocks.Add(container);
+            RtbEditor.ScrollToEnd();
+        }
+
+        private Cursor GetCursorForPosition(string pos)
+        {
+            switch (pos)
+            {
+                case "TL": case "BR": return Cursors.SizeNWSE;
+                case "TR": case "BL": return Cursors.SizeNESW;
+                case "T": case "B": return Cursors.SizeNS;
+                case "L": case "R": return Cursors.SizeWE;
+                default: return Cursors.Arrow;
             }
         }
 
@@ -178,12 +279,10 @@ namespace CatchCapture.Controls
                 var image = new System.Windows.Controls.Image
                 {
                     Source = imageSource,
-                    MaxWidth = 600,
                     Stretch = Stretch.Uniform
                 };
 
-                var container = new BlockUIContainer(image);
-                RtbEditor.Document.Blocks.Add(container);
+                CreateResizableImage(image);
             }
             catch (Exception ex)
             {

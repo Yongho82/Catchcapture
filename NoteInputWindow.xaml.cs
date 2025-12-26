@@ -85,14 +85,13 @@ namespace CatchCapture
             try
             {
                 string title = TxtTitle.Text;
+                if (string.IsNullOrWhiteSpace(title))
+                {
+                    title = "제목없음";
+                }
+                
                 string content = Editor.GetPlainText();
                 string tags = TxtTags.Text;
-
-                if (string.IsNullOrWhiteSpace(title) || title == "제목을 입력하세요")
-                {
-                    MessageBox.Show("제목을 입력해주세요.", "알림");
-                    return;
-                }
                 // 1. Save Image to File
                 string imgDir = DatabaseManager.Instance.GetImageFolderPath();
                 string fileName = $"img_{DateTime.Now:yyyyMMdd_HHmmss_fff}.png";

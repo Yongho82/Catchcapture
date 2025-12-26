@@ -67,7 +67,7 @@
         <Border Grid.Row="0" Background="White" BorderBrush="#EEEEEE" BorderThickness="0,0,0,1" Padding="4,4,4,4">
             <WrapPanel>
                 <!-- Font Family -->
-                <ComboBox x:Name="CboFontFamily" Width="100" Height="26" VerticalContentAlignment="Center"
+                <ComboBox x:Name="CboFontFamily" Width="160" Height="26" VerticalContentAlignment="Center"
                           Background="White" Foreground="#333333" BorderBrush="#E0E0E0" Margin="0,1,6,1" 
                           SelectionChanged="CboFontFamily_SelectionChanged" ToolTip="글꼴">
                      <ComboBox.Resources>
