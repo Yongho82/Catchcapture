@@ -412,29 +412,81 @@ namespace CatchCapture
 
         private void DeleteNote(long noteId)
         {
-             try
+            try
             {
                 using (var connection = new SqliteConnection($"Data Source={DatabaseManager.Instance.DbFilePath}"))
                 {
                     connection.Open();
                     // Soft delete: Update status to 1 (Trash)
-                    // If already in Trash, hard delete? User logic usually is Move to Trash -> Delete from Trash
                     string checkStatusSql = "SELECT Status FROM Notes WHERE Id = $id";
                     long status = 0;
                     using (var cmd = new SqliteCommand(checkStatusSql, connection))
                     {
                         cmd.Parameters.AddWithValue("$id", noteId);
-                        status = (long)(cmd.ExecuteScalar() ?? 0L);
+                        var result = cmd.ExecuteScalar();
+                        status = result != null ? (long)result : 0L;
                     }
 
                     if (status == 1)
                     {
                         // Already in trash, hard delete
+                        // 1. Get file paths to delete from disk BEFORE deleting from DB (due to cascade)
+                        var filesToDelete = new List<string>();
+                        
+                        // Get images
+                        string getImagesSql = "SELECT FilePath FROM NoteImages WHERE NoteId = $id";
+                        string imgDir = DatabaseManager.Instance.GetImageFolderPath();
+                        using (var cmd = new SqliteCommand(getImagesSql, connection))
+                        {
+                            cmd.Parameters.AddWithValue("$id", noteId);
+                            using (var reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    string fileName = reader.GetString(0);
+                                    filesToDelete.Add(Path.Combine(imgDir, fileName));
+                                }
+                            }
+                        }
+
+                        // Get attachments
+                        string getAttachmentsSql = "SELECT FilePath FROM NoteAttachments WHERE NoteId = $id";
+                        string attachDir = DatabaseManager.Instance.GetAttachmentsFolderPath();
+                        using (var cmd = new SqliteCommand(getAttachmentsSql, connection))
+                        {
+                            cmd.Parameters.AddWithValue("$id", noteId);
+                            using (var reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    string fileName = reader.GetString(0);
+                                    filesToDelete.Add(Path.Combine(attachDir, fileName));
+                                }
+                            }
+                        }
+
+                        // 2. Delete from DB
                         string deleteSql = "DELETE FROM Notes WHERE Id = $id";
                         using (var cmd = new SqliteCommand(deleteSql, connection))
                         {
                             cmd.Parameters.AddWithValue("$id", noteId);
                             cmd.ExecuteNonQuery();
+                        }
+
+                        // 3. Delete physical files
+                        foreach (var filePath in filesToDelete)
+                        {
+                            try
+                            {
+                                if (File.Exists(filePath))
+                                {
+                                    File.Delete(filePath);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"파일 삭제 오류 ({filePath}): {ex.Message}");
+                            }
                         }
                     }
                     else
