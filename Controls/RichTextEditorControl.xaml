@@ -162,8 +162,8 @@
         </Border>
 
         <!-- Editor: Removed borders, just pure content area -->
-        <Border Grid.Row="1" Background="Transparent" BorderThickness="0">
-            <RichTextBox x:Name="RtbEditor" 
+        <Grid Grid.Row="1">
+            <RichTextBox x:Name="RtbEditor" TextChanged="RtbEditor_TextChanged" GotFocus="RtbEditor_GotFocus" LostFocus="RtbEditor_LostFocus" Loaded="RtbEditor_Loaded" 
                          Background="Transparent" 
                          Foreground="#333333" 
                          BorderThickness="0" 
@@ -171,12 +171,20 @@
                          AcceptsReturn="True" 
                          Padding="20"
                          CaretBrush="Black"
-                         VerticalScrollBarVisibility="Auto">
+                         VerticalScrollBarVisibility="Auto"
+                         IsDocumentEnabled="True">
                 <FlowDocument>
                     <Paragraph></Paragraph>
                 </FlowDocument>
             </RichTextBox>
-        </Border>
+            <TextBlock x:Name="TxtPlaceholder" 
+                       Text="내용을 입력하세요 (이미지를 클릭하면 크기 조절 슬라이더가 나타납니다)" 
+                       IsHitTestVisible="False" 
+                       Foreground="#CCCCCC" 
+                       FontSize="15" 
+                       Margin="24,22,0,0"
+                       Visibility="Visible"/>
+        </Grid>
 
         <!-- Color Picker Popup -->
         <Popup x:Name="ColorPickerPopup" StaysOpen="False" AllowsTransparency="True">

@@ -6,6 +6,7 @@ using System.Windows.Media;
 
 using System.Linq;
 using System.Windows.Input;
+using System.Windows.Data;
 
 namespace CatchCapture.Controls
 {
@@ -18,6 +19,7 @@ namespace CatchCapture.Controls
             InitializeComponent();
             CboFontFamily.ItemsSource = Fonts.SystemFontFamilies.OrderBy(f => f.Source);
             CboFontFamily.SelectedIndex = 0; // Default selection
+            UpdatePlaceholderVisibility();
         }
 
         // Public property to access the FlowDocument
@@ -128,87 +130,143 @@ namespace CatchCapture.Controls
 
         private void CreateResizableImage(System.Windows.Controls.Image image)
         {
-            // Initial size restriction
-            double maxWidth = RtbEditor.ActualWidth > 0 ? RtbEditor.ActualWidth - 60 : 600;
-            if (image.Source != null)
+            // Set initial width to 360px (User request)
+            image.Width = 360;
+            image.Stretch = Stretch.Uniform;
+
+            var mainGrid = new Grid { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 10, 0, 10) };
+            mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+            // Image
+            image.Margin = new Thickness(0);
+            Grid.SetRow(image, 0);
+            mainGrid.Children.Add(image);
+
+            // Resize slider (hidden by default)
+            var sliderPanel = new StackPanel
             {
-                if (image.Source.Width > maxWidth)
-                {
-                    image.Width = maxWidth;
-                }
-            }
+                Orientation = Orientation.Horizontal,
+                Margin = new Thickness(0, 5, 0, 0),
+                Visibility = Visibility.Collapsed,
+                HorizontalAlignment = HorizontalAlignment.Left
+            };
+            Grid.SetRow(sliderPanel, 1);
 
-            var grid = new Grid { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 10, 0, 10) };
-            grid.Children.Add(image);
-
-            // Create handles
-            var handles = new Grid { Visibility = Visibility.Collapsed };
-            string[] positions = { "TL", "T", "TR", "L", "R", "BL", "B", "BR" };
-            foreach (var pos in positions)
+            var sliderLabel = new TextBlock
             {
-                var borderFactory = new FrameworkElementFactory(typeof(Border));
-                borderFactory.SetValue(Border.BackgroundProperty, Brushes.White);
-                borderFactory.SetValue(Border.BorderBrushProperty, Brushes.DeepSkyBlue);
-                borderFactory.SetValue(Border.BorderThicknessProperty, new Thickness(1.5));
-                borderFactory.SetValue(Border.CornerRadiusProperty, new CornerRadius(5));
+                Text = "크기: ",
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(0, 0, 5, 0),
+                Foreground = new SolidColorBrush(Color.FromRgb(102, 102, 102))
+            };
 
-                var thumbTemplate = new ControlTemplate(typeof(System.Windows.Controls.Primitives.Thumb));
-                thumbTemplate.VisualTree = borderFactory;
-
-                var thumb = new System.Windows.Controls.Primitives.Thumb
-                {
-                    Width = 10,
-                    Height = 10,
-                    Template = thumbTemplate,
-                    Cursor = GetCursorForPosition(pos)
-                };
-
-                Panel.SetZIndex(thumb, 100);
-
-                thumb.DragDelta += (s, e) =>
-                {
-                    double newWidth = image.Width;
-                    if (pos.Contains("R")) newWidth += e.HorizontalChange;
-                    if (pos.Contains("L")) newWidth -= e.HorizontalChange;
-                    
-                    if (newWidth > 20 && newWidth < (RtbEditor.ActualWidth - 40))
-                    {
-                        image.Width = newWidth;
-                    }
-                };
-
-                // Alignment
-                thumb.HorizontalAlignment = pos.Contains("L") ? HorizontalAlignment.Left : (pos.Contains("R") ? HorizontalAlignment.Right : HorizontalAlignment.Center);
-                thumb.VerticalAlignment = pos.Contains("T") ? VerticalAlignment.Top : (pos.Contains("B") ? VerticalAlignment.Bottom : VerticalAlignment.Center);
-                
-                // Offset
-                double offset = -4;
-                thumb.Margin = new Thickness(
-                    pos.Contains("L") ? offset : 0,
-                    pos.Contains("T") ? offset : 0,
-                    pos.Contains("R") ? offset : 0,
-                    pos.Contains("B") ? offset : 0
-                );
-
-                handles.Children.Add(thumb);
-            }
-
-            grid.Children.Add(handles);
-
-            image.MouseDown += (s, e) =>
+            var slider = new Slider
             {
-                handles.Visibility = Visibility.Visible;
+                Minimum = 100,
+                Maximum = 800,
+                Value = 360,
+                Width = 200,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
+            var sizeText = new TextBlock
+            {
+                Text = "360px",
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(10, 0, 0, 0),
+                Foreground = new SolidColorBrush(Color.FromRgb(102, 102, 102)),
+                MinWidth = 50
+            };
+
+            slider.ValueChanged += (s, e) =>
+            {
+                image.Width = slider.Value;
+                sizeText.Text = $"{(int)slider.Value}px";
+            };
+
+            sliderPanel.Children.Add(sliderLabel);
+            sliderPanel.Children.Add(slider);
+            sliderPanel.Children.Add(sizeText);
+            mainGrid.Children.Add(sliderPanel);
+
+            // Click to toggle slider visibility
+            bool sliderVisible = false;
+            image.MouseLeftButtonDown += (s, e) =>
+            {
+                sliderVisible = !sliderVisible;
+                sliderPanel.Visibility = sliderVisible ? Visibility.Visible : Visibility.Collapsed;
                 e.Handled = true;
             };
 
-            RtbEditor.MouseDown += (s, e) =>
-            {
-                handles.Visibility = Visibility.Collapsed;
-            };
-
-            var container = new BlockUIContainer(grid);
+            var container = new BlockUIContainer(mainGrid);
             RtbEditor.Document.Blocks.Add(container);
+            
+            // Add a new empty paragraph after the image for easier typing
+            RtbEditor.Document.Blocks.Add(new Paragraph());
             RtbEditor.ScrollToEnd();
+            UpdatePlaceholderVisibility();
+        }
+
+        private void RtbEditor_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Force visible initially since the editor is empty
+            if (TxtPlaceholder != null)
+            {
+                TxtPlaceholder.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void RtbEditor_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            UpdatePlaceholderVisibility();
+        }
+
+        private void RtbEditor_GotFocus(object sender, RoutedEventArgs e)
+        {
+            UpdatePlaceholderVisibility();
+        }
+
+        private void RtbEditor_LostFocus(object sender, RoutedEventArgs e)
+        {
+            UpdatePlaceholderVisibility();
+        }
+
+        private void UpdatePlaceholderVisibility()
+        {
+            if (TxtPlaceholder == null || RtbEditor == null) return;
+
+            
+            // We keep it visible even if images are present because it contains a tip about resizing.
+            bool exhibitsText = false;
+            // Check for images/UIContainers
+            bool hasImages = false;
+            foreach (var block in RtbEditor.Document.Blocks)
+            {
+                if (block is Paragraph p)
+                {
+                    var pRange = new TextRange(p.ContentStart, p.ContentEnd);
+                    if (!string.IsNullOrWhiteSpace(pRange.Text.Trim('\r', '\n', ' ', '\t', '\u200B')))
+                    {
+                        exhibitsText = true;
+                        break;
+                    }
+                }
+                else if (block is BlockUIContainer)
+                {
+                    hasImages = true;
+                }
+            }
+
+            // Hide placeholder if: focused, has text, or has images
+            if (!exhibitsText && !hasImages && !RtbEditor.IsFocused)
+            {
+                TxtPlaceholder.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                TxtPlaceholder.Visibility = Visibility.Collapsed;
+            }
         }
 
         private Cursor GetCursorForPosition(string pos)
