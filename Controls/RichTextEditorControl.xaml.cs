@@ -13,12 +13,27 @@ namespace CatchCapture.Controls
     public partial class RichTextEditorControl : UserControl
     {
         private bool _isTextColorMode = false;
+        private List<FrameworkElement> _sliderPanels = new List<FrameworkElement>();
 
         public RichTextEditorControl()
         {
             InitializeComponent();
             CboFontFamily.ItemsSource = Fonts.SystemFontFamilies.OrderBy(f => f.Source);
             CboFontFamily.SelectedIndex = 0; // Default selection
+            
+            // Enable Undo for images and content
+            RtbEditor.IsUndoEnabled = true;
+            RtbEditor.UndoLimit = 100;
+            
+            // Auto-hide sliders when clicking elsewhere
+            RtbEditor.PreviewMouseLeftButtonDown += (s, e) =>
+            {
+                foreach (var panel in _sliderPanels)
+                {
+                    panel.Visibility = Visibility.Collapsed;
+                }
+            };
+
             UpdatePlaceholderVisibility();
         }
 
@@ -29,6 +44,36 @@ namespace CatchCapture.Controls
         private void BtnBold_Click(object sender, RoutedEventArgs e) => EditingCommands.ToggleBold.Execute(null, RtbEditor);
         private void BtnItalic_Click(object sender, RoutedEventArgs e) => EditingCommands.ToggleItalic.Execute(null, RtbEditor);
         private void BtnUnderline_Click(object sender, RoutedEventArgs e) => EditingCommands.ToggleUnderline.Execute(null, RtbEditor);
+
+        private void BtnUndo_Click(object sender, RoutedEventArgs e) => RtbEditor.Undo();
+        private void BtnRedo_Click(object sender, RoutedEventArgs e) => RtbEditor.Redo();
+
+        // Line Spacing
+        private void BtnLineSpacingSingle_Click(object sender, RoutedEventArgs e) => SetLineHeight(1.0);
+        private void BtnLineSpacing15_Click(object sender, RoutedEventArgs e) => SetLineHeight(1.5);
+        private void BtnLineSpacingDouble_Click(object sender, RoutedEventArgs e) => SetLineHeight(2.0);
+
+        private void SetLineHeight(double lineHeight)
+        {
+            var paragraph = RtbEditor.CaretPosition.Paragraph;
+            if (paragraph != null)
+            {
+                paragraph.LineHeight = lineHeight;
+                paragraph.Margin = new Thickness(0, 0, 0, 4); // Small bottom margin
+            }
+            RtbEditor.Focus();
+        }
+
+        private void BtnLineSpacing_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button != null && button.ContextMenu != null)
+            {
+                button.ContextMenu.PlacementTarget = button;
+                button.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+                button.ContextMenu.IsOpen = true;
+            }
+        }
 
         // Font Family
         private void CboFontFamily_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -134,31 +179,48 @@ namespace CatchCapture.Controls
             image.Width = 360;
             image.Stretch = Stretch.Uniform;
 
-            var mainGrid = new Grid { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 10, 0, 10) };
+            var mainGrid = new Grid { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 5, 0, 5) };
             mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
             // Image
             image.Margin = new Thickness(0);
+            image.Cursor = Cursors.Hand;
+            image.IsHitTestVisible = true;
             Grid.SetRow(image, 0);
             mainGrid.Children.Add(image);
 
-            // Resize slider (hidden by default)
+            // Resize slider panel
             var sliderPanel = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
-                Margin = new Thickness(0, 5, 0, 0),
-                Visibility = Visibility.Collapsed,
+                Margin = new Thickness(0),
                 HorizontalAlignment = HorizontalAlignment.Left
             };
-            Grid.SetRow(sliderPanel, 1);
+            
+            // Add border/shadow to slider panel
+            var sliderBorder = new Border
+            {
+                Background = new SolidColorBrush(Color.FromArgb(240, 255, 255, 255)), // Semi-transparent white
+                BorderBrush = new SolidColorBrush(Color.FromRgb(224, 224, 224)),
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(4),
+                Padding = new Thickness(8, 2, 8, 2),
+                Margin = new Thickness(0, 2, 0, 0),
+                Child = sliderPanel
+            };
+            Grid.SetRow(sliderBorder, 1);
+            sliderBorder.Visibility = Visibility.Collapsed; // Hidden initially, toggle on click
+            mainGrid.Children.Add(sliderBorder);
+            _sliderPanels.Add(sliderBorder);
 
             var sliderLabel = new TextBlock
             {
-                Text = "크기: ",
+                Text = "Size ",
+                FontSize = 11,
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(0, 0, 5, 0),
-                Foreground = new SolidColorBrush(Color.FromRgb(102, 102, 102))
+                Foreground = new SolidColorBrush(Color.FromRgb(150, 150, 150))
             };
 
             var slider = new Slider
@@ -166,17 +228,19 @@ namespace CatchCapture.Controls
                 Minimum = 100,
                 Maximum = 800,
                 Value = 360,
-                Width = 200,
+                Width = 140,
+                Height = 24,
                 VerticalAlignment = VerticalAlignment.Center
             };
 
             var sizeText = new TextBlock
             {
                 Text = "360px",
+                FontSize = 11,
                 VerticalAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(10, 0, 0, 0),
-                Foreground = new SolidColorBrush(Color.FromRgb(102, 102, 102)),
-                MinWidth = 50
+                Margin = new Thickness(8, 0, 0, 0),
+                Foreground = new SolidColorBrush(Color.FromRgb(150, 150, 150)),
+                MinWidth = 40
             };
 
             slider.ValueChanged += (s, e) =>
@@ -188,22 +252,36 @@ namespace CatchCapture.Controls
             sliderPanel.Children.Add(sliderLabel);
             sliderPanel.Children.Add(slider);
             sliderPanel.Children.Add(sizeText);
-            mainGrid.Children.Add(sliderPanel);
+            // sliderBorder already added to mainGrid at line 187
+            
 
-            // Click to toggle slider visibility
-            bool sliderVisible = false;
-            image.MouseLeftButtonDown += (s, e) =>
+
+            image.PreviewMouseLeftButtonDown += (s, e) =>
             {
-                sliderVisible = !sliderVisible;
-                sliderPanel.Visibility = sliderVisible ? Visibility.Visible : Visibility.Collapsed;
+                // Toggle current slider
+                sliderBorder.Visibility = sliderBorder.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
+                
+                // Hide other sliders
+                if (sliderBorder.Visibility == Visibility.Visible)
+                {
+                    foreach (var p in _sliderPanels)
+                    {
+                        if (p != sliderBorder) p.Visibility = Visibility.Collapsed;
+                    }
+                }
                 e.Handled = true;
             };
 
             var container = new BlockUIContainer(mainGrid);
             RtbEditor.Document.Blocks.Add(container);
             
-            // Add a new empty paragraph after the image for easier typing
-            RtbEditor.Document.Blocks.Add(new Paragraph());
+            // Add a new empty paragraph after the image with proper spacing
+            var newPara = new Paragraph
+            {
+                Margin = new Thickness(0),
+                LineHeight = 1.5  // Default line height
+            };
+            RtbEditor.Document.Blocks.Add(newPara);
             RtbEditor.ScrollToEnd();
             UpdatePlaceholderVisibility();
         }
@@ -234,37 +312,42 @@ namespace CatchCapture.Controls
 
         private void UpdatePlaceholderVisibility()
         {
-            if (TxtPlaceholder == null || RtbEditor == null) return;
+            if (TxtPlaceholder == null || RtbEditor == null || RtbEditor.Document == null) return;
 
-            
-            // We keep it visible even if images are present because it contains a tip about resizing.
-            bool exhibitsText = false;
-            // Check for images/UIContainers
-            bool hasImages = false;
-            foreach (var block in RtbEditor.Document.Blocks)
+            try
             {
-                if (block is Paragraph p)
+                // Simple check: if there's any text or UIContainers, hide placeholder
+                bool isEmpty = true;
+                
+                // Quick check for blocks
+                if (RtbEditor.Document.Blocks.Count > 1)
                 {
-                    var pRange = new TextRange(p.ContentStart, p.ContentEnd);
-                    if (!string.IsNullOrWhiteSpace(pRange.Text.Trim('\r', '\n', ' ', '\t', '\u200B')))
+                    isEmpty = false;
+                }
+                else if (RtbEditor.Document.Blocks.Count == 1)
+                {
+                    var firstBlock = RtbEditor.Document.Blocks.FirstBlock;
+                    
+                    // Check if it's a UIContainer (image)
+                    if (firstBlock is BlockUIContainer)
                     {
-                        exhibitsText = true;
-                        break;
+                        isEmpty = false;
+                    }
+                    else if (firstBlock is Paragraph para)
+                    {
+                        // Only check text if it's a paragraph
+                        var textRange = new TextRange(para.ContentStart, para.ContentEnd);
+                        string text = textRange.Text?.Trim('\r', '\n', ' ', '\t', '\u200B') ?? "";
+                        isEmpty = string.IsNullOrWhiteSpace(text);
                     }
                 }
-                else if (block is BlockUIContainer)
-                {
-                    hasImages = true;
-                }
-            }
 
-            // Hide placeholder if: focused, has text, or has images
-            if (!exhibitsText && !hasImages && !RtbEditor.IsFocused)
-            {
-                TxtPlaceholder.Visibility = Visibility.Visible;
+                // Hide if has content or has focus
+                TxtPlaceholder.Visibility = (isEmpty && !RtbEditor.IsFocused) ? Visibility.Visible : Visibility.Collapsed;
             }
-            else
+            catch
             {
+                // If there's any error, just hide the placeholder
                 TxtPlaceholder.Visibility = Visibility.Collapsed;
             }
         }

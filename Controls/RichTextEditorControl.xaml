@@ -20,6 +20,9 @@
         <!-- Distinct Icons for Color -->
         <Geometry x:Key="IconTextColor">M0,20h24v4H0V20z M11,3L5.5,17h2.25l1.12-3h6.25l1.12,3h2.25L13,3H11z M10,8H14l1.5,4h-7L10,8z</Geometry> <!-- A with underline -->
         <Geometry x:Key="IconHighlight">M17.5,12c-0.83,0-1.5-0.67-1.5-1.5c0-0.83,0.67-1.5,1.5-1.5S19,9.67,19,10.5C19,11.33,18.33,12,17.5,12z M8.93,17.27H15V22H9L8.93,17.27z M20.71,5.63l-2.34-2.34c-0.39-0.39-1.02-0.39-1.41,0l-3.12,3.12l3.75,3.75l3.12-3.12C21.1,6.65,21.1,6.02,20.71,5.63z M12.43,7.82L4.08,16.17l3.75,3.75l8.35-8.35L12.43,7.82z</Geometry> <!-- Marker Pen -->
+        <Geometry x:Key="IconUndo">M12.5,8c-2.65,0-5.05,0.99-6.9,2.6L2,7v9h9l-3.62-3.62c1.39-1.16,3.16-1.88,5.12-1.88c3.54,0,6.55,2.31,7.6,5.5l2.37-0.78 C21.08,11.03,17.15,8,12.5,8z</Geometry>
+        <Geometry x:Key="IconRedo">M18.4,10.6C16.55,8.99,14.15,8,11.5,8c-4.65,0-8.58,3.03-9.96,7.22L3.9,16c1.05-3.19,4.05-5.5,7.6-5.5c1.95,0,3.73,0.72,5.12,1.88 L13,16h9V7L18.4,10.6z</Geometry>
+        <Geometry x:Key="IconLineSpacing">M11,2v2h10V2H11z M11,20v2h10v-2H11z M3,22l4-4l-4-4V22z M3,2v8l4-4L3,2z M7,11h14V9H7V11z</Geometry>
 
         <!-- Button Style -->
         <Style x:Key="EditorButtonStyle" TargetType="Button">
@@ -158,6 +161,30 @@
                     <Path Data="{StaticResource IconLink}" Style="{StaticResource EditorIconPath}"/>
                 </Button>
 
+                <Separator Width="1" Height="16" Background="#EEEEEE" Margin="4,0" VerticalAlignment="Center"/>
+
+                <!-- Undo/Redo -->
+                <Button x:Name="BtnUndo" Style="{StaticResource EditorButtonStyle}" Click="BtnUndo_Click" ToolTip="실행 취소 (Ctrl+Z)">
+                    <Path Data="{StaticResource IconUndo}" Style="{StaticResource EditorIconPath}"/>
+                </Button>
+                <Button x:Name="BtnRedo" Style="{StaticResource EditorButtonStyle}" Click="BtnRedo_Click" ToolTip="다시 실행 (Ctrl+Y)">
+                    <Path Data="{StaticResource IconRedo}" Style="{StaticResource EditorIconPath}"/>
+                </Button>
+
+                <Separator Width="1" Height="16" Background="#EEEEEE" Margin="4,0" VerticalAlignment="Center"/>
+
+                <!-- Line Spacing -->
+                <Button x:Name="BtnLineSpacing" Style="{StaticResource EditorButtonStyle}" Click="BtnLineSpacing_Click" ToolTip="줄 간격">
+                    <Path Data="{StaticResource IconLineSpacing}" Style="{StaticResource EditorIconPath}"/>
+                    <Button.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="1.0 (좁게)" Click="BtnLineSpacingSingle_Click"/>
+                            <MenuItem Header="1.5 (기본)" Click="BtnLineSpacing15_Click"/>
+                            <MenuItem Header="2.0 (넓게)" Click="BtnLineSpacingDouble_Click"/>
+                        </ContextMenu>
+                    </Button.ContextMenu>
+                </Button>
+
             </WrapPanel>
         </Border>
 
@@ -174,7 +201,7 @@
                          VerticalScrollBarVisibility="Auto"
                          IsDocumentEnabled="True">
                 <FlowDocument>
-                    <Paragraph></Paragraph>
+                    <Paragraph Margin="0" LineHeight="1.5"></Paragraph>
                 </FlowDocument>
             </RichTextBox>
             <TextBlock x:Name="TxtPlaceholder" 
@@ -182,7 +209,9 @@
                        IsHitTestVisible="False" 
                        Foreground="#CCCCCC" 
                        FontSize="15" 
-                       Margin="24,22,0,0"
+                       Margin="20,20,20,0"
+                       VerticalAlignment="Top"
+                       HorizontalAlignment="Left"
                        Visibility="Visible"/>
         </Grid>
 
