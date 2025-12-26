@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="글쓰기" Height="920" Width="1200"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
-        WindowStartupLocation="CenterScreen" ShowInTaskbar="True" Topmost="True">
+        WindowStartupLocation="CenterScreen" ShowInTaskbar="True">
     
     <Border Background="#FDFDFD" CornerRadius="12" BorderThickness="1" BorderBrush="#E0E0E0">
         <Border.CacheMode>
@@ -178,7 +178,7 @@
 
                     <!-- File Attachment -->
                     <TextBlock Text="파일 첨부" FontWeight="Bold" Foreground="#666666" Margin="0,0,0,5" FontSize="14"/>
-                    <Button x:Name="BtnAddFile" Click="BtnAddFile_Click" Cursor="Hand" Background="Transparent" BorderThickness="0" Margin="0,0,0,8">
+                    <Button x:Name="BtnAddFile" Click="BtnAddFile_Click" AllowDrop="True" Drop="BtnAddFile_Drop" Cursor="Hand" Background="Transparent" BorderThickness="0" Margin="0,0,0,8">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border CornerRadius="8" Padding="0,15" BorderThickness="1">

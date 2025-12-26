@@ -304,6 +304,31 @@ namespace CatchCapture
             }
         }
 
+        private void BtnAddFile_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                if (files != null)
+                {
+                    foreach (string fullPath in files)
+                    {
+                        if (File.Exists(fullPath))
+                        {
+                            var item = new AttachmentItem
+                            {
+                                FullPath = fullPath,
+                                DisplayName = Path.GetFileName(fullPath),
+                                IsExisting = false
+                            };
+                            _attachments.Add(item);
+                        }
+                    }
+                    RefreshAttachmentList();
+                }
+            }
+        }
+
         private void BtnClose_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
