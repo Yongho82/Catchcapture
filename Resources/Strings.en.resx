@@ -464,4 +464,15 @@
   <data name="NotePath" xml:space="preserve"><value>Note Storage Path</value></data>
   <data name="OpenFolder" xml:space="preserve"><value>Open Folder</value></data>
   <data name="ExtraOptions" xml:space="preserve"><value>Extra Options</value></data>
+  <data name="BackupRestore" xml:space="preserve"><value>Backup &amp; Restore</value></data>
+  <data name="ExportBackup" xml:space="preserve"><value>Export Backup (.zip)</value></data>
+  <data name="ImportBackup" xml:space="preserve"><value>Import Backup (.zip)</value></data>
+  <data name="NoteSecurity" xml:space="preserve"><value>Note Security &amp; Lock</value></data>
+  <data name="EnableNotePassword" xml:space="preserve"><value>Use Password Lock</value></data>
+  <data name="SetChangePassword" xml:space="preserve"><value>Set/Change Password</value></data>
+  <data name="PasswordHint" xml:space="preserve"><value>Password Hint</value></data>
+  <data name="PasswordWarning" xml:space="preserve"><value>* Caution: Data cannot be recovered if the password is lost.</value></data>
+  <data name="ImageOptimization" xml:space="preserve"><value>Image Optimization</value></data>
+  <data name="OptimizeNoteImages" xml:space="preserve"><value>Optimize image size on save</value></data>
+  <data name="ImageQuality" xml:space="preserve"><value>Image Quality</value></data>
 </root>

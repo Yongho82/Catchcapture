@@ -56,7 +56,7 @@ namespace CatchCapture
             {
                 System.Diagnostics.Debug.WriteLine($"SettingsWindow Constructor Error: {ex.Message}");
                 // 생성자에서 오류 발생 시 최소한 창은 열리거나 오류 메시지를 보여줘야 함
-                System.Windows.MessageBox.Show("설정 창을 로드하는 중 오류가 발생했습니다: " + ex.Message);
+                CatchCapture.CustomMessageBox.Show("설정 창을 로드하는 중 오류가 발생했습니다: " + ex.Message, "오류", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
             }
         }
 
@@ -245,6 +245,19 @@ private void UpdateUIText()
                 if (NotePathLabel != null) NotePathLabel.Text = LocalizationManager.GetString("NotePath");
                 if (BtnBrowseNoteFolder != null) BtnBrowseNoteFolder.Content = LocalizationManager.GetString("Change");
                 if (BtnOpenNoteFolder != null) BtnOpenNoteFolder.Content = LocalizationManager.GetString("OpenFolder");
+                
+                if (NoteBackupGroup != null) NoteBackupGroup.Header = LocalizationManager.GetString("BackupRestore");
+                if (BtnExportBackup != null) BtnExportBackup.Content = LocalizationManager.GetString("ExportBackup");
+                if (BtnImportBackup != null) BtnImportBackup.Content = LocalizationManager.GetString("ImportBackup");
+
+                if (NoteSecurityGroup != null) NoteSecurityGroup.Header = LocalizationManager.GetString("NoteSecurity") ?? "노트 보안 및 잠금";
+                if (ChkEnableNotePassword != null) ChkEnableNotePassword.Content = LocalizationManager.GetString("EnableNotePassword") ?? "비밀번호 잠금 사용";
+                if (BtnSetNotePassword != null) BtnSetNotePassword.Content = LocalizationManager.GetString("SetChangePassword") ?? "비밀번호 설정/변경";
+                if (PasswordWarningMsg != null) PasswordWarningMsg.Text = LocalizationManager.GetString("PasswordWarning") ?? "※ 비밀번호 설정 시 분실 시 복구가 불가능하니 주의하십시오.";
+
+                if (NoteOptimizeGroup != null) NoteOptimizeGroup.Header = LocalizationManager.GetString("ImageOptimization") ?? "이미지 최적화";
+                if (ChkOptimizeNoteImages != null) ChkOptimizeNoteImages.Content = LocalizationManager.GetString("OptimizeNoteImages") ?? "저장 시 이미지 용량 최적화";
+                if (NoteQualityLabel != null) NoteQualityLabel.Text = LocalizationManager.GetString("ImageQuality") ?? "이미지 품질";
 
                 // 녹화 품질 콤보박스 아이템 로컬라이징
                 if (CboRecQuality != null)
@@ -798,6 +811,12 @@ private void InitLanguageComboBox()
         private void LoadNotePage()
         {
             TxtNoteFolder.Text = _settings.NoteStoragePath;
+            
+            ChkEnableNotePassword.IsChecked = !string.IsNullOrEmpty(_settings.NotePassword);
+            BtnSetNotePassword.IsEnabled = ChkEnableNotePassword.IsChecked == true;
+            
+            ChkOptimizeNoteImages.IsChecked = _settings.OptimizeNoteImages;
+            SldNoteQuality.Value = _settings.NoteImageQuality;
         }
 
         private void BtnBrowseNoteFolder_Click(object sender, RoutedEventArgs e)
@@ -816,6 +835,126 @@ private void InitLanguageComboBox()
             try { Process.Start("explorer.exe", TxtNoteFolder.Text); } catch { }
         }
 
+        private void ChkEnableNotePassword_Click(object sender, RoutedEventArgs e)
+        {
+            if (ChkEnableNotePassword.IsChecked == true)
+            {
+                // If turning ON, open setup window
+                var pwdWin = new NotePasswordWindow(_settings.NotePassword, _settings.NotePasswordHint);
+                pwdWin.Owner = this;
+                if (pwdWin.ShowDialog() == true)
+                {
+                    _settings.NotePassword = pwdWin.Password;
+                    _settings.NotePasswordHint = pwdWin.Hint;
+                }
+                else
+                {
+                    // User cancelled, revert checkbox
+                    ChkEnableNotePassword.IsChecked = false;
+                }
+            }
+            else
+            {
+                // Turning OFF, confirm
+                if (CatchCapture.CustomMessageBox.Show("비밀번호 잠금을 해제하시겠습니까?", "확인", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
+                {
+                    ChkEnableNotePassword.IsChecked = true;
+                }
+                else
+                {
+                    _settings.NotePassword = null;
+                    _settings.NotePasswordHint = null;
+                }
+            }
+            BtnSetNotePassword.IsEnabled = ChkEnableNotePassword.IsChecked == true;
+        }
+
+        private void BtnSetNotePassword_Click(object sender, RoutedEventArgs e)
+        {
+            var pwdWin = new NotePasswordWindow(_settings.NotePassword, _settings.NotePasswordHint);
+            pwdWin.Owner = this;
+            if (pwdWin.ShowDialog() == true)
+            {
+                _settings.NotePassword = pwdWin.Password;
+                _settings.NotePasswordHint = pwdWin.Hint;
+            }
+        }
+
+        private void BtnExportBackup_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var sfd = new Microsoft.Win32.SaveFileDialog();
+                sfd.Filter = "Zip Files (*.zip)|*.zip";
+                sfd.FileName = $"CatchCapture_Note_Backup_{DateTime.Now:yyyyMMdd}.zip";
+                if (sfd.ShowDialog() == true)
+                {
+                    string sourceDir = TxtNoteFolder.Text;
+                    if (!Directory.Exists(sourceDir))
+                    {
+                        CatchCapture.CustomMessageBox.Show("백업할 폴더가 존재하지 않습니다.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+                    // ZipFile requires System.IO.Compression.FileSystem
+                    System.IO.Compression.ZipFile.CreateFromDirectory(sourceDir, sfd.FileName);
+                    CatchCapture.CustomMessageBox.Show("백업이 완료되었습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                CatchCapture.CustomMessageBox.Show($"백업 중 오류 발생: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnImportBackup_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var ofd = new Microsoft.Win32.OpenFileDialog();
+                ofd.Filter = "Zip Files (*.zip)|*.zip";
+                if (ofd.ShowDialog() == true)
+                {
+                    if (CatchCapture.CustomMessageBox.Show("기존의 모든 노트 데이터가 이 백업 파일로 덮어씌워집니다. 계속하시겠습니까?", "확인", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                    {
+                        string targetDir = TxtNoteFolder.Text;
+                        if (!Directory.Exists(targetDir)) Directory.CreateDirectory(targetDir);
+
+                        // Clear target directory safely
+                        // Be CAREFUL: This is destructive.
+                        // We should probably just extract and overwrite.
+                        System.IO.Compression.ZipFile.ExtractToDirectory(ofd.FileName, targetDir, true);
+                        
+                        CatchCapture.CustomMessageBox.Show("복구가 완료되었습니다. 변경 사항을 적용하려면 프로그램을 다시 시작하는 것이 좋습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                CatchCapture.CustomMessageBox.Show($"복구 중 오류 발생: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private bool ValidateNoteSettings()
+        {
+            if (ChkEnableNotePassword.IsChecked == true)
+            {
+                if (string.IsNullOrWhiteSpace(_settings.NotePassword))
+                {
+                    CatchCapture.CustomMessageBox.Show("비밀번호가 설정되지 않았습니다. 비밀번호를 설정해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    HighlightNav(NavNote, "Note");
+                    return false;
+                }
+                if (string.IsNullOrWhiteSpace(_settings.NotePasswordHint))
+                {
+                    CatchCapture.CustomMessageBox.Show("비밀번호 힌트 설정이 필요합니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    HighlightNav(NavNote, "Note");
+                    return false;
+                }
+            }
+            return true;
+        }
+
         private void BtnBrowse_Click(object sender, RoutedEventArgs e)
         {
             var dlg = new System.Windows.Forms.FolderBrowserDialog();
@@ -828,6 +967,7 @@ private void InitLanguageComboBox()
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
+            if (!ValidateNoteSettings()) return;
             HarvestSettings();
             Settings.Save(_settings);
             
@@ -907,6 +1047,7 @@ private void InitLanguageComboBox()
 
         private void Apply_Click(object sender, RoutedEventArgs e)
         {
+            if (!ValidateNoteSettings()) return;
             HarvestSettings();
             Settings.Save(_settings);
 
@@ -990,6 +1131,14 @@ private void InitLanguageComboBox()
 
             // Note settings
             _settings.NoteStoragePath = TxtNoteFolder.Text;
+            if (ChkEnableNotePassword.IsChecked != true)
+            {
+                _settings.NotePassword = null;
+                _settings.NotePasswordHint = null;
+            }
+            // Note: Password/Hint are already in _settings via modal if it was used
+            _settings.OptimizeNoteImages = ChkOptimizeNoteImages.IsChecked == true;
+            _settings.NoteImageQuality = (int)SldNoteQuality.Value;
 
             EnsureDefaultKey(_settings.Hotkeys.RegionCapture, "A");
             EnsureDefaultKey(_settings.Hotkeys.DelayCapture, "D");

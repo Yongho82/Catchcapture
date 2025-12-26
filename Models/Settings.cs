@@ -47,7 +47,11 @@ namespace CatchCapture.Models
         public bool AutoSaveCapture { get; set; } = true; // ★ 메모리 최적화: 기본값 true
         
         // Note Settings
-        public string NoteStoragePath { get; set; } = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "notedata");
+        public string NoteStoragePath { get; set; } = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "CatchCapture"), "notedata");
+        public string? NotePassword { get; set; }
+        public string? NotePasswordHint { get; set; }
+        public bool OptimizeNoteImages { get; set; } = true;
+        public int NoteImageQuality { get; set; } = 80;
 
         // Persisted window states
         public double LastMainLeft { get; set; } = 0;

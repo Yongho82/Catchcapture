@@ -49,7 +49,7 @@ namespace CatchCapture
                 var notes = new List<NoteViewModel>();
                 string imgDir = DatabaseManager.Instance.GetImageFolderPath();
 
-                using (var connection = new SqliteConnection($"Data Source={Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture", "Database", "catch_notes.db")}"))
+                using (var connection = new SqliteConnection($"Data Source={DatabaseManager.Instance.DbFilePath}"))
                 {
                     connection.Open();
                     string sql = @"
@@ -94,15 +94,17 @@ namespace CatchCapture
                                 {
                                     try
                                     {
-                                        var bitmap = new BitmapImage();
-                                        bitmap.BeginInit();
-                                        bitmap.UriSource = new Uri(fullPath);
-                                        // Increase decode width for higher quality thumbnails
-                                        bitmap.DecodePixelWidth = 400; 
-                                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                                        bitmap.EndInit();
-                                        bitmap.Freeze();
-                                        thumb = bitmap;
+                                        using (var stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                                        {
+                                            var bitmap = new BitmapImage();
+                                            bitmap.BeginInit();
+                                            bitmap.StreamSource = stream;
+                                            bitmap.DecodePixelWidth = 400;
+                                            bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                                            bitmap.EndInit();
+                                            bitmap.Freeze();
+                                            thumb = bitmap;
+                                        }
                                     }
                                     catch { }
                                 }

@@ -12,9 +12,9 @@ namespace CatchCapture.Utilities
         private static DatabaseManager? _instance;
         public static DatabaseManager Instance => _instance ??= new DatabaseManager();
 
-        private string? _customDbPath;
         private string DefaultDbPath => Path.Combine(Settings.Load().NoteStoragePath, "notedb", "catch_notes.db");
-        private string DbPath => _customDbPath ?? DefaultDbPath;
+        private string DbPath => DefaultDbPath;
+        public string DbFilePath => DbPath;
 
         private DatabaseManager()
         {
@@ -155,6 +155,22 @@ namespace CatchCapture.Utilities
             string dbDir = Path.GetDirectoryName(DbPath)!;
             string rootDir = Path.GetDirectoryName(dbDir)!;
             return Path.Combine(rootDir, "attachments");
+        }
+
+        public void AddNoteImage(long noteId, string filePath, int orderIndex)
+        {
+            using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+            {
+                connection.Open();
+                string sql = "INSERT INTO NoteImages (NoteId, FilePath, OrderIndex) VALUES ($noteId, $filePath, $orderIndex);";
+                using (var command = new SqliteCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("$noteId", noteId);
+                    command.Parameters.AddWithValue("$filePath", filePath);
+                    command.Parameters.AddWithValue("$orderIndex", orderIndex);
+                    command.ExecuteNonQuery();
+                }
+            }
         }
 
         public long InsertNote(string title, string content, string tags, string fileName, string? sourceApp, string? sourceUrl, long categoryId = 1)

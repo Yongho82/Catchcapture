@@ -107,7 +107,9 @@ namespace CatchCapture
 
         private void BtnSave_Click(object sender, RoutedEventArgs e)
         {
-            if (_capturedImage == null) return;
+            var imagesInEditor = Editor.GetAllImages();
+            // If the user deleted everything, we can still fall back to the original capture if it exists
+            if (imagesInEditor.Count == 0 && _capturedImage == null) return;
 
             try
             {
@@ -126,21 +128,52 @@ namespace CatchCapture
                     categoryId = cat.Id;
                 }
 
-                // 1. Save Image to File
+                // Prepare Save Folders
+                var settings = Settings.Load();
                 string imgDir = DatabaseManager.Instance.GetImageFolderPath();
-                string fileName = $"img_{DateTime.Now:yyyyMMdd_HHmmss_fff}.png";
-                string fullPath = Path.Combine(imgDir, fileName);
+                if (!Directory.Exists(imgDir)) Directory.CreateDirectory(imgDir);
 
-                using (var fileStream = new FileStream(fullPath, FileMode.Create))
+                List<string> savedFileNames = new List<string>();
+                
+                // Identify images to save: either from editor or fallback capture
+                var imagesToSave = imagesInEditor.Count > 0 ? imagesInEditor : new List<BitmapSource> { _capturedImage! };
+
+                // 1. Save all images to disk
+                foreach (var imgSource in imagesToSave)
                 {
-                    BitmapFrame frame = BitmapFrame.Create(_capturedImage);
-                    PngBitmapEncoder encoder = new PngBitmapEncoder();
-                    encoder.Frames.Add(frame);
-                    encoder.Save(fileStream);
+                    string ext = settings.OptimizeNoteImages ? ".jpg" : ".png";
+                    string fileName = $"img_{DateTime.Now:yyyyMMdd_HHmmss_fff}_{Guid.NewGuid().ToString().Substring(0, 8)}{ext}";
+                    string fullPath = Path.Combine(imgDir, fileName);
+
+                    using (var fileStream = new FileStream(fullPath, FileMode.Create))
+                    {
+                        BitmapFrame frame = BitmapFrame.Create(imgSource);
+                        if (settings.OptimizeNoteImages)
+                        {
+                            JpegBitmapEncoder encoder = new JpegBitmapEncoder();
+                            encoder.QualityLevel = settings.NoteImageQuality;
+                            encoder.Frames.Add(frame);
+                            encoder.Save(fileStream);
+                        }
+                        else
+                        {
+                            PngBitmapEncoder encoder = new PngBitmapEncoder();
+                            encoder.Frames.Add(frame);
+                            encoder.Save(fileStream);
+                        }
+                    }
+                    savedFileNames.Add(fileName);
                 }
 
                 // 2. Save Metadata to DB
-                long noteId = DatabaseManager.Instance.InsertNote(title, content, tags, fileName, _sourceApp, _sourceUrl, categoryId);
+                // InsertNote always inserts ONE image (the primary one)
+                long noteId = DatabaseManager.Instance.InsertNote(title, content, tags, savedFileNames[0], _sourceApp, _sourceUrl, categoryId);
+
+                // 3. Save additional images to DB if any
+                for (int i = 1; i < savedFileNames.Count; i++)
+                {
+                    DatabaseManager.Instance.AddNoteImage(noteId, savedFileNames[i], i);
+                }
 
                 // 3. Save Attachments
                 string attachDir = DatabaseManager.Instance.GetAttachmentsFolderPath();
@@ -157,13 +190,13 @@ namespace CatchCapture
                     }
                 }
 
-                MessageBox.Show("노트가 성공적으로 저장되었습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                CatchCapture.CustomMessageBox.Show("노트가 성공적으로 저장되었습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
                 this.DialogResult = true;
                 this.Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"저장 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                CatchCapture.CustomMessageBox.Show($"저장 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

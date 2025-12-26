@@ -198,6 +198,8 @@
                          AcceptsReturn="True" 
                          Padding="20"
                          CaretBrush="Black"
+                         SelectionBrush="#303498DB"
+                         SelectionOpacity="0.3"
                          VerticalScrollBarVisibility="Auto"
                          IsDocumentEnabled="True"
                          SpellCheck.IsEnabled="False"

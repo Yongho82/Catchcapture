@@ -30,16 +30,23 @@ namespace CatchCapture.Controls
             // Auto-hide sliders when clicking elsewhere, but check if we clicked inside a slider first
             RtbEditor.PreviewMouseLeftButtonDown += (s, e) =>
             {
-                var originalSource = e.OriginalSource as DependencyObject;
-                foreach (var panel in _sliderPanels)
+                if (e.OriginalSource is DependencyObject originalSource)
                 {
-                    if (IsDescendantOrSelf(panel, originalSource))
+                    foreach (var panel in _sliderPanels)
                     {
-                        continue; // Clicked inside this panel, don't hide
+                        if (IsDescendantOrSelf(panel, originalSource))
+                        {
+                            continue; // Clicked inside this panel, don't hide
+                        }
+                        panel.Visibility = Visibility.Collapsed;
                     }
-                    panel.Visibility = Visibility.Collapsed;
                 }
             };
+
+            // Handle Paste and Drop for images
+            DataObject.AddPastingHandler(RtbEditor, OnPaste);
+            RtbEditor.Drop += OnDrop;
+            RtbEditor.AllowDrop = true;
         }
 
         private bool IsDescendantOrSelf(DependencyObject parent, DependencyObject node)
@@ -231,12 +238,12 @@ namespace CatchCapture.Controls
             // Add border/shadow to slider panel
             var sliderBorder = new Border
             {
-                Background = new SolidColorBrush(Color.FromArgb(220, 255, 255, 255)), // Semi-transparent white
-                BorderBrush = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                Background = new SolidColorBrush(Color.FromArgb(120, 0, 0, 0)), // Very transparent black
+                BorderBrush = new SolidColorBrush(Color.FromArgb(40, 255, 255, 255)),
                 BorderThickness = new Thickness(1),
-                CornerRadius = new CornerRadius(4),
-                Padding = new Thickness(8, 4, 8, 4),
-                Margin = new Thickness(5, 0, 5, 5),
+                CornerRadius = new CornerRadius(16), // Rounded pill style
+                Padding = new Thickness(15, 5, 15, 5),
+                Margin = new Thickness(10, 0, 10, 15),
                 HorizontalAlignment = HorizontalAlignment.Left,
                 VerticalAlignment = VerticalAlignment.Bottom,
                 Child = sliderPanel,
@@ -257,7 +264,7 @@ namespace CatchCapture.Controls
                 FontSize = 11,
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(0, 0, 5, 0),
-                Foreground = new SolidColorBrush(Color.FromRgb(150, 150, 150))
+                Foreground = Brushes.White
             };
 
             var slider = new Slider
@@ -276,7 +283,7 @@ namespace CatchCapture.Controls
                 FontSize = 11,
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(8, 0, 0, 0),
-                Foreground = new SolidColorBrush(Color.FromRgb(150, 150, 150)),
+                Foreground = Brushes.White,
                 MinWidth = 40
             };
 
@@ -298,6 +305,24 @@ namespace CatchCapture.Controls
             // Image click handler - Moved here to access 'container'
             image.PreviewMouseLeftButtonDown += (s, e) =>
             {
+                if (e.ClickCount == 2)
+                {
+                    // Double click: Edit image
+                    var bitmap = image.Source as BitmapSource;
+                    if (bitmap != null)
+                    {
+                        var previewWin = new PreviewWindow(bitmap, 0);
+                        previewWin.Owner = Window.GetWindow(this);
+                        previewWin.ImageUpdated += (sw, args) =>
+                        {
+                            image.Source = args.NewImage;
+                        };
+                        previewWin.ShowDialog();
+                    }
+                    e.Handled = true;
+                    return;
+                }
+
                 // 1. Toggle current slider
                 sliderBorder.Visibility = sliderBorder.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
                 
@@ -473,6 +498,76 @@ namespace CatchCapture.Controls
             
             // Insert image
             InsertImage(imageSource);
+        }
+
+        public List<BitmapSource> GetAllImages()
+        {
+            var images = new List<BitmapSource>();
+            foreach (var block in RtbEditor.Document.Blocks)
+            {
+                if (block is BlockUIContainer container && container.Child is Grid grid)
+                {
+                    var img = grid.Children.OfType<System.Windows.Controls.Image>().FirstOrDefault();
+                    if (img?.Source is BitmapSource bs)
+                    {
+                        images.Add(bs);
+                    }
+                }
+            }
+            return images;
+        }
+
+        private void OnPaste(object sender, DataObjectPastingEventArgs e)
+        {
+            if (e.DataObject.GetDataPresent(DataFormats.Bitmap))
+            {
+                var bitmap = e.DataObject.GetData(DataFormats.Bitmap) as BitmapSource;
+                if (bitmap != null)
+                {
+                    InsertImage(bitmap);
+                    e.CancelCommand();
+                }
+            }
+            else if (e.DataObject.GetDataPresent(DataFormats.FileDrop))
+            {
+                var files = e.DataObject.GetData(DataFormats.FileDrop) as string[];
+                if (files != null && files.Length > 0)
+                {
+                    foreach (var file in files)
+                    {
+                        if (IsImageFile(file))
+                        {
+                            try { InsertImage(new BitmapImage(new Uri(file))); } catch { }
+                        }
+                    }
+                    e.CancelCommand();
+                }
+            }
+        }
+
+        private void OnDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                var files = e.Data.GetData(DataFormats.FileDrop) as string[];
+                if (files != null)
+                {
+                    foreach (var file in files)
+                    {
+                        if (IsImageFile(file))
+                        {
+                            try { InsertImage(new BitmapImage(new Uri(file))); } catch { }
+                        }
+                    }
+                    e.Handled = true;
+                }
+            }
+        }
+
+        private bool IsImageFile(string path)
+        {
+            string ext = System.IO.Path.GetExtension(path).ToLower();
+            return new[] { ".jpg", ".jpeg", ".png", ".bmp", ".gif" }.Contains(ext);
         }
     }
 }
