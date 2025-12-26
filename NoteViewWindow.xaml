@@ -6,7 +6,15 @@
         mc:Ignorable="d"
         Title="노트 보기" Height="800" Width="900"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen" ResizeMode="CanResize"
+        MinHeight="500" MinWidth="700">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="80" 
+                      ResizeBorderThickness="8" 
+                      CornerRadius="12" 
+                      GlassFrameThickness="0" />
+    </WindowChrome.WindowChrome>
 
     <Border Background="White" CornerRadius="12" BorderThickness="1" BorderBrush="#E0E0E0">
         <Border.Effect>
@@ -27,11 +35,22 @@
                              <Ellipse x:Name="CategoryCircle" Width="10" Height="10" Fill="#8E2DE2" Margin="0,0,8,0"/>
                              <TextBlock x:Name="TxtCategory" Text="카테고리" Foreground="#555555" FontSize="14" FontWeight="SemiBold"/>
                         </StackPanel>
-                        <Button x:Name="BtnClose" Width="30" Height="30" HorizontalAlignment="Right" VerticalAlignment="Center" 
-                                Click="BtnClose_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="닫기">
-                            <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" 
-                                  Fill="#95A5A6" Stretch="Uniform" Width="14" Height="14"/>
-                        </Button>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                             <Button x:Name="BtnPin" Width="30" Height="30" Click="BtnPin_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="상단 고정" WindowChrome.IsHitTestVisibleInChrome="True">
+                                 <Path x:Name="PathPin" Data="M16,12V4H17V2H7V4H8V12L6,14V16H11.22V23L12,23.77L12.78,23V16H18V14L16,12Z" 
+                                       Fill="#95A5A6" Stretch="Uniform" Width="14" Height="14"/>
+                             </Button>
+                             <Button x:Name="BtnMinimize" Width="30" Height="30" Click="BtnMinimize_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="최소화" WindowChrome.IsHitTestVisibleInChrome="True">
+                                 <Path Data="M20,14H4V10H20V14Z" Fill="#95A5A6" Stretch="Uniform" Width="12" Height="12"/>
+                             </Button>
+                             <Button x:Name="BtnMaximize" Width="30" Height="30" Click="BtnMaximize_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="최대화" WindowChrome.IsHitTestVisibleInChrome="True">
+                                 <Path x:Name="PathMaximize" Data="M4,4H20V20H4V4M6,8V18H18V8H6Z" Fill="#95A5A6" Stretch="Uniform" Width="12" Height="12"/>
+                             </Button>
+                             <Button x:Name="BtnClose" Width="30" Height="30" Click="BtnClose_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="닫기" WindowChrome.IsHitTestVisibleInChrome="True">
+                                 <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" 
+                                       Fill="#95A5A6" Stretch="Uniform" Width="14" Height="14"/>
+                             </Button>
+                        </StackPanel>
                     </Grid>
 
                     <TextBlock x:Name="TxtTitle" Text="노트 제목" FontSize="26" FontWeight="Bold" Foreground="#222222" TextWrapping="Wrap" Margin="0,0,0,10"/>

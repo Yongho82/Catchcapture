@@ -24,8 +24,41 @@ namespace CatchCapture
             InitializeComponent();
             _noteId = noteId;
 
-            this.MouseDown += (s, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
+            this.MouseDown += (s, e) => { 
+                if (e.LeftButton == MouseButtonState.Pressed && e.ClickCount == 1) DragMove(); 
+                else if (e.LeftButton == MouseButtonState.Pressed && e.ClickCount == 2) ToggleMaximize();
+            };
+            this.StateChanged += NoteViewWindow_StateChanged;
             LoadNoteData();
+        }
+
+        private void NoteViewWindow_StateChanged(object? sender, EventArgs e)
+        {
+            if (this.WindowState == WindowState.Maximized)
+            {
+                PathMaximize.Data = System.Windows.Media.Geometry.Parse("M4,8H8V4H20V16H16V20H4V8M16,8V14H18V6H10V8H16M6,10V18H14V10H6Z");
+                BtnMaximize.ToolTip = "이전 크기로 복원";
+            }
+            else
+            {
+                PathMaximize.Data = System.Windows.Media.Geometry.Parse("M4,4H20V20H4V4M6,8V18H18V8H6Z");
+                BtnMaximize.ToolTip = "최대화";
+            }
+        }
+
+        private void ToggleMaximize()
+        {
+            this.WindowState = (this.WindowState == WindowState.Maximized) ? WindowState.Normal : WindowState.Maximized;
+        }
+
+        private void BtnMinimize_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
+
+        private void BtnMaximize_Click(object sender, RoutedEventArgs e)
+        {
+            ToggleMaximize();
         }
 
         private void LoadNoteData()
@@ -65,13 +98,14 @@ namespace CatchCapture
                                 }
 
                                 bool xamlLoaded = false;
-                                if (!string.IsNullOrEmpty(contentXaml))
+                                 if (!string.IsNullOrEmpty(contentXaml))
                                 {
                                     try 
                                     {
                                         var flowDocument = (FlowDocument)System.Windows.Markup.XamlReader.Parse(contentXaml);
                                         flowDocument.PagePadding = new Thickness(0);
                                         ContentViewer.Document = flowDocument;
+                                        HookImageClicks(); // Re-hook for XAML
                                         xamlLoaded = true;
                                     }
                                     catch
@@ -203,11 +237,44 @@ namespace CatchCapture
             try
             {
                 var bitmap = new BitmapImage(new Uri(path));
-                var image = new Image { Source = bitmap, MaxWidth = 800, Margin = new Thickness(0, 10, 0, 10) };
+                var image = new Image { Source = bitmap, MaxWidth = 800, Margin = new Thickness(0, 10, 0, 10), Cursor = Cursors.Hand, Tag = path };
+                image.PreviewMouseLeftButtonDown += (s, e) =>
+                {
+                    try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true }); } catch { }
+                };
                 var container = new BlockUIContainer(image);
                 ContentViewer.Document.Blocks.Add(container);
             }
             catch { }
+        }
+
+        private void HookImageClicks()
+        {
+            foreach (var block in ContentViewer.Document.Blocks)
+            {
+                if (block is BlockUIContainer container)
+                {
+                    Image? img = null;
+                    if (container.Child is Image i) img = i;
+                    else if (container.Child is Grid g) img = g.Children.OfType<Image>().FirstOrDefault();
+
+                    if (img != null)
+                    {
+                        img.Cursor = Cursors.Hand;
+                        img.PreviewMouseLeftButtonDown += (s, ev) => 
+                        {
+                            string? path = null;
+                            if (img.Tag != null) path = img.Tag.ToString();
+                            else if (img.Source is BitmapImage bi && bi.UriSource != null) path = bi.UriSource.LocalPath;
+
+                            if (!string.IsNullOrEmpty(path) && File.Exists(path))
+                            {
+                                try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true }); } catch { }
+                            }
+                        };
+                    }
+                }
+            }
         }
 
         private void BtnEdit_Click(object sender, RoutedEventArgs e)
@@ -218,6 +285,13 @@ namespace CatchCapture
             {
                 LoadNoteData();
             }
+        }
+
+        private void BtnPin_Click(object sender, RoutedEventArgs e)
+        {
+            this.Topmost = !this.Topmost;
+            PathPin.Fill = this.Topmost ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(26, 115, 232)) : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(149, 165, 166));
+            BtnPin.ToolTip = this.Topmost ? "상단 고정 해제" : "상단 고정";
         }
 
         private void BtnClose_Click(object sender, RoutedEventArgs e)

@@ -361,7 +361,21 @@ namespace CatchCapture
                             if (block is BlockUIContainer container && container.Child is Grid g)
                             {
                                 var img = g.Children.OfType<Image>().FirstOrDefault();
-                                if (img != null) img.MaxWidth = 340; // Preview width limit
+                                if (img != null)
+                                {
+                                    img.MaxWidth = 340; // Preview width limit
+                                    img.Cursor = Cursors.Hand;
+                                    img.PreviewMouseLeftButtonDown += (s, ev) =>
+                                   {
+                                       string? path = null;
+                                       if (img.Source is BitmapImage bi && bi.UriSource != null) path = bi.UriSource.LocalPath;
+
+                                       if (!string.IsNullOrEmpty(path) && File.Exists(path))
+                                       {
+                                           try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true }); } catch { }
+                                       }
+                                   };
+                                }
                             }
                         }
 
