@@ -209,7 +209,7 @@ namespace CatchCapture.Controls
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"이미지를 삽입할 수 없습니다: {ex.Message}", "오류");
+                    CatchCapture.CustomMessageBox.Show($"이미지를 삽입할 수 없습니다: {ex.Message}", "오류");
                 }
             }
         }
@@ -405,7 +405,7 @@ namespace CatchCapture.Controls
             var linkText = RtbEditor.Selection.Text;
             if (string.IsNullOrEmpty(linkText))
             {
-                MessageBox.Show("링크로 만들 텍스트를 먼저 선택하세요.", "안내");
+                CatchCapture.CustomMessageBox.Show("링크로 만들 텍스트를 먼저 선택하세요.", "안내");
                 return;
             }
 
@@ -423,7 +423,7 @@ namespace CatchCapture.Controls
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"링크를 삽입할 수 없습니다: {ex.Message}", "오류");
+                    CatchCapture.CustomMessageBox.Show($"링크를 삽입할 수 없습니다: {ex.Message}", "오류");
                 }
             }
         }
@@ -520,7 +520,7 @@ namespace CatchCapture.Controls
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"이미지를 삽입할 수 없습니다: {ex.Message}", "오류");
+                CatchCapture.CustomMessageBox.Show($"이미지를 삽입할 수 없습니다: {ex.Message}", "오류");
             }
         }
 

@@ -54,7 +54,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"탐색기 초기화 중 오류: {ex.Message}\n{ex.StackTrace}");
+                CatchCapture.CustomMessageBox.Show($"탐색기 초기화 중 오류: {ex.Message}\n{ex.StackTrace}");
             }
         }
 
@@ -402,7 +402,7 @@ namespace CatchCapture
         {
             if (sender is Button btn && btn.Tag is long noteId)
             {
-                if (MessageBox.Show("정말로 이 노트를 삭제하시겠습니까?", "삭제 확인", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                if (CatchCapture.CustomMessageBox.Show("정말로 이 노트를 삭제하시겠습니까?", "삭제 확인", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                 {
                     DeleteNote(noteId);
                     LoadNotes(); // Refresh

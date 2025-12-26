@@ -44,11 +44,11 @@ namespace CatchCapture
             {
                 if (id == 1)
                 {
-                    MessageBox.Show("기본 분류는 삭제할 수 없습니다.", "알림");
+                    CatchCapture.CustomMessageBox.Show("기본 분류는 삭제할 수 없습니다.", "알림");
                     return;
                 }
 
-                if (MessageBox.Show("이 분류를 삭제하시겠습니까? 연결된 메모는 '기본' 분류로 이동됩니다.", "확인", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                if (CatchCapture.CustomMessageBox.Show("이 분류를 삭제하시겠습니까? 연결된 메모는 '기본' 분류로 이동됩니다.", "확인", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                 {
                     DatabaseManager.Instance.DeleteCategory(id);
                     LoadCategories();
