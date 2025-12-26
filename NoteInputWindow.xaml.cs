@@ -29,16 +29,21 @@ namespace CatchCapture
             if (!string.IsNullOrEmpty(_sourceUrl)) sourceDisplayName += $" - {_sourceUrl}";
             TxtSourceInfo.Text = sourceDisplayName;
             
-            // Insert captured image into editor
-            if (_capturedImage != null)
-            {
-                Editor.Document.Blocks.Clear(); // Clear initial empty paragraph
-                Editor.InsertImage(_capturedImage);
-                // Add an empty paragraph after image for text input
-                Editor.Document.Blocks.Add(new Paragraph());
-            }
+            // Defer image insertion to Loaded event to ensure RichTextBox is ready for Undo/Selection
+            this.Loaded += NoteInputWindow_Loaded;
             
             this.MouseDown += (s, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
+        }
+
+        private void NoteInputWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Insert captured image into editor once the window is loaded
+            if (_capturedImage != null)
+            {
+                Editor.InitializeWithImage(_capturedImage);
+                // Ensure focus is on the editor so Undo works immediately if needed
+                Editor.Focus(); 
+            }
         }
 
         private void BtnAddFile_Click(object sender, RoutedEventArgs e)

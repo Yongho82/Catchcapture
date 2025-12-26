@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 using System.Linq;
 using System.Windows.Input;
@@ -243,6 +244,10 @@ namespace CatchCapture.Controls
             };
             
             Panel.SetZIndex(sliderBorder, 2); // Ensure it's on top of image for clicks
+            
+            // Handle bubbled event to prevent RichTextBox from interfering with slider drag
+            sliderBorder.MouseLeftButtonDown += (s, e) => e.Handled = true;
+            
             mainGrid.Children.Add(sliderBorder);
             _sliderPanels.Add(sliderBorder);
 
@@ -288,12 +293,15 @@ namespace CatchCapture.Controls
             
 
 
+            var container = new BlockUIContainer(mainGrid);
+            
+            // Image click handler - Moved here to access 'container'
             image.PreviewMouseLeftButtonDown += (s, e) =>
             {
-                // Toggle current slider
+                // 1. Toggle current slider
                 sliderBorder.Visibility = sliderBorder.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
                 
-                // Hide other sliders
+                // 2. Hide other sliders
                 if (sliderBorder.Visibility == Visibility.Visible)
                 {
                     foreach (var p in _sliderPanels)
@@ -301,10 +309,14 @@ namespace CatchCapture.Controls
                         if (p != sliderBorder) p.Visibility = Visibility.Collapsed;
                     }
                 }
+                
+                // 3. FORCE SELECTION of the container so Delete/Backspace works
+                RtbEditor.Focus();
+                // Select the container range
+                RtbEditor.Selection.Select(container.ElementStart, container.ElementEnd);
+                
                 e.Handled = true;
             };
-
-            var container = new BlockUIContainer(mainGrid);
             
             // Wrap in Undo unit
             RtbEditor.BeginChange();
@@ -412,9 +424,36 @@ namespace CatchCapture.Controls
         {
             try
             {
+                ImageSource finalSource = imageSource;
+                
+                // If it's a BitmapSource (not file-based), save to temp file for Undo compatibility
+                if (imageSource is BitmapSource bitmapSource && !(imageSource is BitmapImage))
+                {
+                    string tempPath = System.IO.Path.Combine(
+                        System.IO.Path.GetTempPath(), 
+                        $"catchcapture_temp_{Guid.NewGuid()}.png");
+                    
+                    using (var fileStream = new System.IO.FileStream(tempPath, System.IO.FileMode.Create))
+                    {
+                        var encoder = new PngBitmapEncoder();
+                        encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+                        encoder.Save(fileStream);
+                    }
+                    
+                    // Load as file-based BitmapImage (serializable for Undo)
+                    var bitmapImage = new BitmapImage();
+                    bitmapImage.BeginInit();
+                    bitmapImage.UriSource = new Uri(tempPath);
+                    bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmapImage.EndInit();
+                    bitmapImage.Freeze();
+                    
+                    finalSource = bitmapImage;
+                }
+                
                 var image = new System.Windows.Controls.Image
                 {
-                    Source = imageSource,
+                    Source = finalSource,
                     Stretch = Stretch.Uniform
                 };
 
@@ -424,6 +463,16 @@ namespace CatchCapture.Controls
             {
                 MessageBox.Show($"이미지를 삽입할 수 없습니다: {ex.Message}", "오류");
             }
+        }
+
+        public void InitializeWithImage(ImageSource imageSource)
+        {
+            // Clear existing content using selection (preserves Undo capability)
+            RtbEditor.SelectAll();
+            RtbEditor.Selection.Text = "";
+            
+            // Insert image
+            InsertImage(imageSource);
         }
     }
 }
