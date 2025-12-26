@@ -13,34 +13,32 @@ namespace CatchCapture.Utilities
         public static DatabaseManager Instance => _instance ??= new DatabaseManager();
 
         private string? _customDbPath;
-        private string DefaultDbPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture", "Database", "catch_notes.db");
+        private string DefaultDbPath => Path.Combine(Settings.Load().NoteStoragePath, "notedb", "catch_notes.db");
         private string DbPath => _customDbPath ?? DefaultDbPath;
 
         private DatabaseManager()
         {
             InitializeDatabase();
+            Settings.SettingsChanged += (s, e) => {
+                InitializeDatabase();
+            };
         }
 
-        public void SetCustomDbPath(string path)
-        {
-            _customDbPath = path;
-            InitializeDatabase();
-        }
+        public void Reload() => InitializeDatabase();
 
         private void InitializeDatabase()
         {
-            string? dir = Path.GetDirectoryName(DbPath);
-            if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
-            {
-                Directory.CreateDirectory(dir);
-            }
+            string dbDir = Path.GetDirectoryName(DbPath)!;
+            string rootDir = Path.GetDirectoryName(dbDir)!; // One level up from notedb
 
-            // Create image directory at same location as DB
-            string imgDir = Path.Combine(dir!, "img");
+            if (!Directory.Exists(dbDir)) Directory.CreateDirectory(dbDir);
+
+            // Create img directory at root (outside notedb)
+            string imgDir = Path.Combine(rootDir, "img");
             if (!Directory.Exists(imgDir)) Directory.CreateDirectory(imgDir);
 
-            // Create attachments directory
-            string attachDir = Path.Combine(dir!, "attachments");
+            // Create attachments directory at root
+            string attachDir = Path.Combine(rootDir, "attachments");
             if (!Directory.Exists(attachDir)) Directory.CreateDirectory(attachDir);
 
             using (var connection = new SqliteConnection($"Data Source={DbPath}"))
@@ -147,12 +145,16 @@ namespace CatchCapture.Utilities
 
         public string GetImageFolderPath()
         {
-            return Path.Combine(Path.GetDirectoryName(DbPath)!, "img");
+            string dbDir = Path.GetDirectoryName(DbPath)!;
+            string rootDir = Path.GetDirectoryName(dbDir)!;
+            return Path.Combine(rootDir, "img");
         }
-
+        
         public string GetAttachmentsFolderPath()
         {
-            return Path.Combine(Path.GetDirectoryName(DbPath)!, "attachments");
+            string dbDir = Path.GetDirectoryName(DbPath)!;
+            string rootDir = Path.GetDirectoryName(dbDir)!;
+            return Path.Combine(rootDir, "attachments");
         }
 
         public long InsertNote(string title, string content, string tags, string fileName, string? sourceApp, string? sourceUrl, long categoryId = 1)

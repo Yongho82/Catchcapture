@@ -459,4 +459,9 @@
   <data name="PreviewGenerationError" xml:space="preserve"><value>Error generating preview</value></data>
   <data name="PrintJobName" xml:space="preserve"><value>CatchCapture Image Print</value></data>
   <data name="Close" xml:space="preserve"><value>Close</value></data>
+  <data name="NoteSettings" xml:space="preserve"><value>Note Settings</value></data>
+  <data name="NoteStorage" xml:space="preserve"><value>Storage &amp; Database</value></data>
+  <data name="NotePath" xml:space="preserve"><value>Note Storage Path</value></data>
+  <data name="OpenFolder" xml:space="preserve"><value>Open Folder</value></data>
+  <data name="ExtraOptions" xml:space="preserve"><value>Extra Options</value></data>
 </root>

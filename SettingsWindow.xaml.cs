@@ -35,6 +35,7 @@ namespace CatchCapture
                 LoadMenuEditPage();
                 LoadSystemPage();
                 LoadRecordingPage();
+                LoadNotePage();
                 LoadHotkeysPage();
                 
                 // Store original theme for cancel revert
@@ -236,6 +237,14 @@ private void UpdateUIText()
                 if (ChkRecMouse != null) ChkRecMouse.Content = LocalizationManager.GetString("ShowMouseCursor") ?? "마우스 표시";
                 if (RecHotkeyGroup != null) RecHotkeyGroup.Header = LocalizationManager.GetString("RecordingStartStopHotkey") ?? "녹화/중지 단축키";
                 if (HkRecStartStopEnabled != null) HkRecStartStopEnabled.Content = LocalizationManager.GetString("RecordStartStop") ?? "녹화/중지";
+                
+                // 노트 페이지
+                if (NavNote != null) NavNote.Content = LocalizationManager.GetString("NoteSettings");
+                if (NoteSectionTitle != null) NoteSectionTitle.Text = LocalizationManager.GetString("NoteSettings");
+                if (NoteStorageGroup != null) NoteStorageGroup.Header = LocalizationManager.GetString("NoteStorage");
+                if (NotePathLabel != null) NotePathLabel.Text = LocalizationManager.GetString("NotePath");
+                if (BtnBrowseNoteFolder != null) BtnBrowseNoteFolder.Content = LocalizationManager.GetString("Change");
+                if (BtnOpenNoteFolder != null) BtnOpenNoteFolder.Content = LocalizationManager.GetString("OpenFolder");
 
                 // 녹화 품질 콤보박스 아이템 로컬라이징
                 if (CboRecQuality != null)
@@ -308,6 +317,7 @@ private void InitLanguageComboBox()
             NavTheme.FontWeight = tag == "Theme" ? FontWeights.Bold : FontWeights.Normal;
             NavMenuEdit.FontWeight = tag == "MenuEdit" ? FontWeights.Bold : FontWeights.Normal;
             NavRecording.FontWeight = tag == "Recording" ? FontWeights.Bold : FontWeights.Normal;
+            NavNote.FontWeight = tag == "Note" ? FontWeights.Bold : FontWeights.Normal;
             NavSystem.FontWeight = tag == "System" ? FontWeights.Bold : FontWeights.Normal;
             NavHotkey.FontWeight = tag == "Hotkey" ? FontWeights.Bold : FontWeights.Normal;
             
@@ -315,6 +325,7 @@ private void InitLanguageComboBox()
             PageTheme.Visibility = tag == "Theme" ? Visibility.Visible : Visibility.Collapsed;
             PageMenuEdit.Visibility = tag == "MenuEdit" ? Visibility.Visible : Visibility.Collapsed;
             PageRecording.Visibility = tag == "Recording" ? Visibility.Visible : Visibility.Collapsed;
+            PageNote.Visibility = tag == "Note" ? Visibility.Visible : Visibility.Collapsed;
             PageSystem.Visibility = tag == "System" ? Visibility.Visible : Visibility.Collapsed;
             PageHotkey.Visibility = tag == "Hotkey" ? Visibility.Visible : Visibility.Collapsed;
         }
@@ -784,6 +795,27 @@ private void InitLanguageComboBox()
             dst.Key = (key.SelectedItem as string ?? string.Empty).Trim().ToUpperInvariant();
         }
 
+        private void LoadNotePage()
+        {
+            TxtNoteFolder.Text = _settings.NoteStoragePath;
+        }
+
+        private void BtnBrowseNoteFolder_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new System.Windows.Forms.FolderBrowserDialog();
+            dlg.SelectedPath = TxtNoteFolder.Text;
+            var result = dlg.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                TxtNoteFolder.Text = dlg.SelectedPath;
+            }
+        }
+
+        private void BtnOpenNoteFolder_Click(object sender, RoutedEventArgs e)
+        {
+            try { Process.Start("explorer.exe", TxtNoteFolder.Text); } catch { }
+        }
+
         private void BtnBrowse_Click(object sender, RoutedEventArgs e)
         {
             var dlg = new System.Windows.Forms.FolderBrowserDialog();
@@ -845,6 +877,11 @@ private void InitLanguageComboBox()
             {
                 _settings.Recording = defaults.Recording;
                 LoadRecordingPage();
+            }
+            else if (_currentPage == "Note")
+            {
+                _settings.NoteStoragePath = defaults.NoteStoragePath;
+                LoadNotePage();
             }
             else if (_currentPage == "System")
             {
@@ -950,6 +987,9 @@ private void InitLanguageComboBox()
             ReadHotkey(_settings.Hotkeys.OpenSettings, HkOpenSettingsEnabled, HkOpenSettingsCtrl, HkOpenSettingsShift, HkOpenSettingsAlt, HkOpenSettingsWin, HkOpenSettingsKey);
             ReadHotkey(_settings.Hotkeys.OpenEditor, HkOpenEditorEnabled, HkOpenEditorCtrl, HkOpenEditorShift, HkOpenEditorAlt, HkOpenEditorWin, HkOpenEditorKey);
             ReadHotkey(_settings.Hotkeys.RecordingStartStop, HkRecStartStopEnabled, HkRecStartStopCtrl, HkRecStartStopShift, HkRecStartStopAlt, HkRecStartStopWin, HkRecStartStopKey);
+
+            // Note settings
+            _settings.NoteStoragePath = TxtNoteFolder.Text;
 
             EnsureDefaultKey(_settings.Hotkeys.RegionCapture, "A");
             EnsureDefaultKey(_settings.Hotkeys.DelayCapture, "D");

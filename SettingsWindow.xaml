@@ -411,6 +411,7 @@
                     <Button x:Name="NavTheme" Content="테마 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Theme" />
                     <Button x:Name="NavMenuEdit" Content="메뉴 편집" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="MenuEdit"/>
                     <Button x:Name="NavRecording" Content="녹화 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Recording"/>
+                    <Button x:Name="NavNote" Content="노트 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Note"/>
                     <Button x:Name="NavSystem" Content="시스템 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="System"/>
                     <Button x:Name="NavHotkey" Content="단축키 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Hotkey"/>
                 </StackPanel>
@@ -784,6 +785,40 @@
                             <CheckBox x:Name="HkRecStartStopWin" Content="Win" Margin="0,0,20,0" VerticalAlignment="Center"/>
                             
                             <ComboBox x:Name="HkRecStartStopKey" Width="100" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+            </Border>
+
+            <!-- Note Settings Page -->
+            <Border x:Name="PageNote" Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8" Padding="30" Visibility="Collapsed">
+                <Border.Effect>
+                    <DropShadowEffect Color="Black" Direction="270" ShadowDepth="1" Opacity="0.05" BlurRadius="10"/>
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock x:Name="NoteSectionTitle" Text="노트 설정" Style="{StaticResource SectionTitle}"/>
+                    
+                    <GroupBox x:Name="NoteStorageGroup" Header="저장 및 데이터베이스" Margin="0,0,0,20" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
+                        <StackPanel>
+                            <TextBlock x:Name="NotePathLabel" Text="노트 저장 위치" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" Margin="0,0,0,5"/>
+                            <Grid Margin="0,0,0,15">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="TxtNoteFolder" Height="30" VerticalContentAlignment="Center" Padding="5,0" IsReadOnly="True" Background="Transparent" Foreground="{DynamicResource ThemeForeground}" BorderBrush="{DynamicResource ThemeBorder}"/>
+                                <Button x:Name="BtnBrowseNoteFolder" Grid.Column="1" Content="변경" Margin="10,0,0,0" Padding="10,0" Click="BtnBrowseNoteFolder_Click" Style="{StaticResource MacButtonSecondary}" Height="30"/>
+                            </Grid>
+                            
+                            <TextBlock Text="※ 폴더 구조: [노트폴더]\notedb (데이터베이스), [노트폴더]\img (이미지)" FontSize="11" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" Margin="0,0,0,10"/>
+                            
+                            <Button x:Name="BtnOpenNoteFolder" Content="폴더 열기" Click="BtnOpenNoteFolder_Click" Style="{StaticResource MacButtonSecondary}" HorizontalAlignment="Left" Padding="15,5"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <GroupBox Header="추가 옵션" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
+                        <StackPanel>
+                            <TextBlock Text="준비 중인 기능입니다 (비밀번호 잠금, 백업/복원 등)" FontSize="12" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7"/>
                         </StackPanel>
                     </GroupBox>
                 </StackPanel>

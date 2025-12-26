@@ -45,6 +45,9 @@ namespace CatchCapture.Models
         public int ImageQuality { get; set; } = 100;
         public string DefaultSaveFolder { get; set; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "CatchCapture");
         public bool AutoSaveCapture { get; set; } = true; // ★ 메모리 최적화: 기본값 true
+        
+        // Note Settings
+        public string NoteStoragePath { get; set; } = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "notedata");
 
         // Persisted window states
         public double LastMainLeft { get; set; } = 0;
