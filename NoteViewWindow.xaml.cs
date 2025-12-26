@@ -57,31 +57,33 @@ namespace CatchCapture
                                 if (category != null)
                                 {
                                     TxtCategory.Text = category.Name;
-                                    CategoryCircle.Fill = (System.Windows.Media.Brush)new System.Windows.Media.BrushConverter().ConvertFromString(category.Color);
+                                    var brush = new System.Windows.Media.BrushConverter().ConvertFromString(category.Color) as System.Windows.Media.Brush;
+                                    CategoryCircle.Fill = brush ?? System.Windows.Media.Brushes.Gray;
                                 }
 
-                                // Load Content
-                                if (!string.IsNullOrEmpty(contentXaml))
-                                {
-                                    // Load Rich Content (XAML)
-                                    try 
+                                    // Load Content
+                                    if (!string.IsNullOrEmpty(contentXaml))
                                     {
-                                        var flowDocument = (FlowDocument)XamlReader.Parse(contentXaml);
-                                        ContentViewer.Document = flowDocument;
+                                        // Load Rich Content (XAML)
+                                        try 
+                                        {
+                                            var flowDocument = (FlowDocument)XamlReader.Parse(contentXaml);
+                                            flowDocument.PagePadding = new Thickness(0);
+                                            ContentViewer.Document = flowDocument;
+                                        }
+                                        catch
+                                        {
+                                            SetPlainTextContent(content);
+                                        }
                                     }
-                                    catch
+                                    else
                                     {
-                                        // Fallback to plain text
                                         SetPlainTextContent(content);
                                     }
+                                    
+                                    // ALWAYS load attached images from NoteImages table
+                                    LoadAttachedImages();
                                 }
-                                else
-                                {
-                                    // Load Plain Text + Images (Legacy)
-                                    SetPlainTextContent(content);
-                                    LoadLegacyImages(); 
-                                }
-                            }
                         }
                     }
                     
@@ -101,7 +103,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                MessageBox.Show("노트 로드 실패: " + ex.Message);
+                CatchCapture.CustomMessageBox.Show("노트 로드 실패: " + ex.Message);
             }
         }
 
@@ -109,10 +111,11 @@ namespace CatchCapture
         {
             var p = new Paragraph(new Run(text));
             var doc = new FlowDocument(p);
+            doc.PagePadding = new Thickness(0); // Remove default padding
             ContentViewer.Document = doc;
         }
 
-        private void LoadLegacyImages()
+        private void LoadAttachedImages()
         {
             // Only used if XAML content is missing. Appends images to the bottom.
             try

@@ -47,21 +47,21 @@
             </Grid>
 
             <!-- Content Area -->
-            <ScrollViewer Grid.Row="1" Margin="30,0,30,20" VerticalScrollBarVisibility="Auto">
+            <ScrollViewer Grid.Row="1" Margin="20,0,20,15" VerticalScrollBarVisibility="Auto">
                  <StackPanel>
                      <!-- Rich Content Viewer -->
                      <!-- IsReadOnly=True to act as viewer -->
                      <RichTextBox x:Name="ContentViewer" IsReadOnly="True" BorderThickness="0" Background="Transparent" 
-                                  Padding="0" Margin="0,0,0,20" IsDocumentEnabled="True">
+                                  Padding="0" Margin="0" IsDocumentEnabled="True">
                          <RichTextBox.Resources>
                              <Style TargetType="{x:Type Paragraph}">
-                                 <Setter Property="Margin" Value="0,0,0,10"/>
+                                 <Setter Property="Margin" Value="0,0,0,5"/>
                              </Style>
                          </RichTextBox.Resources>
                      </RichTextBox>
                      
                      <!-- Tags -->
-                     <ItemsControl x:Name="ItemsTags" Margin="0,20,0,0">
+                     <ItemsControl x:Name="ItemsTags" Margin="0,15,0,0">
                          <ItemsControl.ItemTemplate>
                              <DataTemplate>
                                  <Border Background="#F1F3F4" CornerRadius="12" Padding="12,6" Margin="0,0,8,8">

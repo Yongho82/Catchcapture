@@ -8,24 +8,46 @@ using CatchCapture.Utilities;
 using Microsoft.Data.Sqlite;
 using System.Windows.Controls;
 using System.Linq;
+using System.ComponentModel;
 
 namespace CatchCapture
 {
-    public partial class NoteExplorerWindow : Window
+    public partial class NoteExplorerWindow : Window, INotifyPropertyChanged
     {
         private string _currentFilter = "Recent";
         private string? _currentTag = null;
-        private string? _currentSearch = null;
+        private string? _currentSearch = "";
         private int _currentPage = 1;
         private const int PAGE_SIZE = 15;
+
+        private bool _isSelectionMode;
+        public bool IsSelectionMode
+        {
+            get { return _isSelectionMode; }
+            set
+            {
+                if (_isSelectionMode != value)
+                {
+                    _isSelectionMode = value;
+                    OnPropertyChanged(nameof(IsSelectionMode));
+                }
+            }
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         public NoteExplorerWindow()
         {
             try
             {
                 InitializeComponent();
+                this.DataContext = this;
                 this.MouseDown += (s, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
-                LoadNotes(_currentFilter);
+                LoadNotes(filter: "Recent");
                 LoadTags();
             }
             catch (Exception ex)
@@ -162,7 +184,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"노트를 불러오는 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                CatchCapture.CustomMessageBox.Show($"노트를 불러오는 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -387,23 +409,22 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                MessageBox.Show("삭제 중 오류 발생: " + ex.Message);
+                CatchCapture.CustomMessageBox.Show("삭제 중 오류 발생: " + ex.Message);
             }
         }
 
         private void BtnSelectAll_Click(object sender, RoutedEventArgs e)
         {
-            bool select = true;
-            if (sender is CheckBox chk) select = chk.IsChecked ?? false;
-
+            IsSelectionMode = true;
             if (LstNotes.ItemsSource is IEnumerable<NoteViewModel> notes)
             {
-                foreach (var note in notes) note.IsSelected = select;
+                foreach (var note in notes) note.IsSelected = true;
             }
         }
 
         private void BtnUnselectAll_Click(object sender, RoutedEventArgs e)
         {
+            IsSelectionMode = false;
             if (ChkSelectAllHeader != null) ChkSelectAllHeader.IsChecked = false;
             if (LstNotes.ItemsSource is IEnumerable<NoteViewModel> notes)
             {
@@ -418,11 +439,11 @@ namespace CatchCapture
                 var selectedNotes = notes.Where(n => n.IsSelected).ToList();
                 if (selectedNotes.Count == 0)
                 {
-                    MessageBox.Show("삭제할 노트를 선택해주세요.");
+                    CatchCapture.CustomMessageBox.Show("삭제할 노트를 선택해주세요.");
                     return;
                 }
 
-                if (MessageBox.Show($"{selectedNotes.Count}개의 노트를 삭제하시겠습니까?", "삭제 확인", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                if (CatchCapture.CustomMessageBox.Show($"{selectedNotes.Count}개의 노트를 삭제하시겠습니까?", "삭제 확인", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                 {
                     foreach (var note in selectedNotes)
                     {
@@ -460,18 +481,35 @@ namespace CatchCapture
         public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(name));
 
-        public long Id { get; set; }
-        public string? Title { get; set; }
-        public string? PreviewContent { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public string? SourceApp { get; set; }
+        private long _id;
+        public long Id { get => _id; set { _id = value; OnPropertyChanged(nameof(Id)); } }
+
+        private string? _title;
+        public string? Title { get => _title; set { _title = value; OnPropertyChanged(nameof(Title)); } }
+
+        private string? _previewContent;
+        public string? PreviewContent { get => _previewContent; set { _previewContent = value; OnPropertyChanged(nameof(PreviewContent)); OnPropertyChanged(nameof(TruncatedContent)); } }
+
+        private DateTime _createdAt;
+        public DateTime CreatedAt { get => _createdAt; set { _createdAt = value; OnPropertyChanged(nameof(CreatedAt)); OnPropertyChanged(nameof(FormattedDate)); } }
+
+        private string? _sourceApp;
+        public string? SourceApp { get => _sourceApp; set { _sourceApp = value; OnPropertyChanged(nameof(SourceApp)); } }
         
-        public string CategoryName { get; set; } = "기본";
-        public string CategoryColor { get; set; } = "#8E2DE2";
+        private string _categoryName = "기본";
+        public string CategoryName { get => _categoryName; set { _categoryName = value; OnPropertyChanged(nameof(CategoryName)); } }
+
+        private string _categoryColor = "#8E2DE2";
+        public string CategoryColor { get => _categoryColor; set { _categoryColor = value; OnPropertyChanged(nameof(CategoryColor)); } }
         
-        public BitmapSource? Thumbnail { get; set; }
-        public List<BitmapSource> Images { get; set; } = new List<BitmapSource>();
-        public List<string> Tags { get; set; } = new List<string>();
+        private BitmapSource? _thumbnail;
+        public BitmapSource? Thumbnail { get => _thumbnail; set { _thumbnail = value; OnPropertyChanged(nameof(Thumbnail)); } }
+
+        private List<BitmapSource> _images = new List<BitmapSource>();
+        public List<BitmapSource> Images { get => _images; set { _images = value; OnPropertyChanged(nameof(Images)); } }
+
+        private List<string> _tags = new List<string>();
+        public List<string> Tags { get => _tags; set { _tags = value; OnPropertyChanged(nameof(Tags)); } }
 
         private bool _isSelected;
         public bool IsSelected 
@@ -485,7 +523,10 @@ namespace CatchCapture
             get 
             {
                 if (string.IsNullOrEmpty(PreviewContent)) return "";
-                return PreviewContent.Length > 20 ? PreviewContent.Substring(0, 20) + "..." : PreviewContent;
+                // Get only the first line
+                var lines = PreviewContent.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+                string firstLine = lines[0].Trim();
+                return firstLine.Length > 25 ? firstLine.Substring(0, 25) + "..." : firstLine;
             }
         }
 

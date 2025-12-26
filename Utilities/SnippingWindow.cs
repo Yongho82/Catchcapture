@@ -3488,7 +3488,7 @@ namespace CatchCapture.Utilities
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Pin Error: " + ex.Message);
+                CatchCapture.CustomMessageBox.Show("Pin Error: " + ex.Message);
             }
         }
         private void SaveToNote()
@@ -3515,7 +3515,7 @@ namespace CatchCapture.Utilities
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"노트 저장 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                CatchCapture.CustomMessageBox.Show($"노트 저장 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

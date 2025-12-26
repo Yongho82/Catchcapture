@@ -210,16 +210,19 @@ namespace CatchCapture.Utilities
                             noteId = Convert.ToInt64(command.ExecuteScalar());
                         }
 
-                        // 2. Insert Image
-                        string insertImageSql = @"
-                            INSERT INTO NoteImages (NoteId, FilePath, OrderIndex)
-                            VALUES ($noteId, $filePath, 0);";
-                        
-                        using (var command = new SqliteCommand(insertImageSql, connection, transaction))
+                        // 2. Insert Main Image (only if provided)
+                        if (!string.IsNullOrEmpty(fileName))
                         {
-                            command.Parameters.AddWithValue("$noteId", noteId);
-                            command.Parameters.AddWithValue("$filePath", fileName);
-                            command.ExecuteNonQuery();
+                            string insertImageSql = @"
+                                INSERT INTO NoteImages (NoteId, FilePath, OrderIndex)
+                                VALUES ($noteId, $filePath, 0);";
+                            
+                            using (var command = new SqliteCommand(insertImageSql, connection, transaction))
+                            {
+                                command.Parameters.AddWithValue("$noteId", noteId);
+                                command.Parameters.AddWithValue("$filePath", fileName);
+                                command.ExecuteNonQuery();
+                            }
                         }
 
                         // 3. Handle Tags

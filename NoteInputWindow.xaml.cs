@@ -220,7 +220,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                MessageBox.Show("노트 정보를 불러오는 중 오류 발생: " + ex.Message);
+                CatchCapture.CustomMessageBox.Show("노트 정보를 불러오는 중 오류 발생: " + ex.Message);
             }
         }
 
@@ -275,7 +275,7 @@ namespace CatchCapture
             
             if (imagesInEditor.Count == 0 && _capturedImage == null && string.IsNullOrWhiteSpace(TxtTitle.Text) && string.IsNullOrWhiteSpace(Editor.GetPlainText()))
             {
-                 MessageBox.Show("저장할 내용이 없습니다.");
+                 CatchCapture.CustomMessageBox.Show("저장할 내용이 없습니다.");
                  return;
             }
 
@@ -397,11 +397,11 @@ namespace CatchCapture
                 }
                 else
                 {
-                    // INSERT
-                    string mainImage = savedFileNames.Count > 0 ? savedFileNames[0] : "";
-                    targetNoteId = DatabaseManager.Instance.InsertNote(title, content, contentXaml, tags, mainImage, _sourceApp, _sourceUrl, categoryId);
+                    // INSERT - Don't pass mainImage to avoid duplication, we'll add all images via AddNoteImage
+                    targetNoteId = DatabaseManager.Instance.InsertNote(title, content, contentXaml, tags, "", _sourceApp, _sourceUrl, categoryId);
 
-                    for (int i = 1; i < savedFileNames.Count; i++)
+                    // Add all images to NoteImages table
+                    for (int i = 0; i < savedFileNames.Count; i++)
                     {
                         DatabaseManager.Instance.AddNoteImage(targetNoteId, savedFileNames[i], i);
                     }

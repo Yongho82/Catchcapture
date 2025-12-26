@@ -248,7 +248,7 @@
 
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="260"/> <!-- Wider Sidebar -->
+                    <ColumnDefinition Width="220"/> <!-- Reduced Sidebar Width -->
                     <ColumnDefinition Width="*"/>   <!-- Note List -->
                     <ColumnDefinition Width="400"/> <!-- Preview -->
                 </Grid.ColumnDefinitions>
@@ -256,7 +256,7 @@
                 <!-- Sidebar -->
                 <Border Background="#F9FAFB" BorderThickness="0,0,1,0" BorderBrush="#E0E0E0">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <StackPanel Margin="15,20,15,0">
+                        <StackPanel Margin="15,20,5,0">
                             <TextBlock Text="탐색" Foreground="#9AA0A6" FontSize="11" FontWeight="Bold" Margin="15,0,0,10"/>
                             
                             <Button Click="BtnFilter_Click" Tag="All" Style="{StaticResource SidebarItemStyle}">
@@ -376,26 +376,27 @@
                     <Border Grid.Row="1" Background="#F8F9FA" Height="45" BorderThickness="0,0,0,1" BorderBrush="#E0E0E0">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="50"/> <!-- Checkbox -->
+                                <ColumnDefinition Width="28"/> <!-- Optimized Checkbox Width -->
                                 <ColumnDefinition Width="100"/> <!-- Group -->
                                 <ColumnDefinition Width="2*"/>  <!-- Title -->
                                 <ColumnDefinition Width="3*"/>  <!-- Content -->
                                 <ColumnDefinition Width="150"/> <!-- Date -->
                                 <ColumnDefinition Width="60"/>  <!-- Actions -->
                             </Grid.ColumnDefinitions>
-                            <CheckBox x:Name="ChkSelectAllHeader" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" Click="BtnSelectAll_Click">
+                            <CheckBox x:Name="ChkSelectAllHeader" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" Click="BtnSelectAll_Click"
+                                      Visibility="{Binding IsSelectionMode, Converter={StaticResource BooleanToVisibilityConverter}}">
                                 <CheckBox.Style>
                                     <Style TargetType="CheckBox">
                                         <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
                                         <Setter Property="RenderTransform">
                                             <Setter.Value>
-                                                <ScaleTransform ScaleX="1.2" ScaleY="1.2"/>
+                                                <ScaleTransform ScaleX="0.8" ScaleY="0.8"/>
                                             </Setter.Value>
                                         </Setter>
                                     </Style>
                                 </CheckBox.Style>
                             </CheckBox>
-                            <TextBlock Grid.Column="1" Text="그룹" Foreground="#5F6368" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Margin="15,0,0,0"/>
+                            <TextBlock Grid.Column="1" Text="그룹" Foreground="#5F6368" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Margin="5,0,0,0"/>
                             <TextBlock Grid.Column="2" Text="제목" Foreground="#5F6368" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0"/>
                             <TextBlock Grid.Column="3" Text="내용" Foreground="#5F6368" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0"/>
                             <TextBlock Grid.Column="4" Text="마지막 수정일" Foreground="#5F6368" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -412,7 +413,7 @@
                             <DataTemplate>
                                 <Grid Height="50" Background="Transparent"> <!-- Reduced height from 65 -->
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="50"/> <!-- Checkbox -->
+                                        <ColumnDefinition Width="28"/> <!-- Optimized Checkbox Width -->
                                         <ColumnDefinition Width="100"/> <!-- Group -->
                                         <ColumnDefinition Width="2*"/>  <!-- Title -->
                                         <ColumnDefinition Width="3*"/>  <!-- Content -->
@@ -421,13 +422,14 @@
                                     </Grid.ColumnDefinitions>
                                     
                                     <!-- CheckBox -->
-                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                              Visibility="{Binding DataContext.IsSelectionMode, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                         <CheckBox.Style>
                                             <Style TargetType="CheckBox">
                                                 <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
                                                 <Setter Property="RenderTransform">
                                                     <Setter.Value>
-                                                        <ScaleTransform ScaleX="1.2" ScaleY="1.2"/>
+                                                        <ScaleTransform ScaleX="0.8" ScaleY="0.8"/>
                                                     </Setter.Value>
                                                 </Setter>
                                             </Style>
@@ -435,18 +437,18 @@
                                     </CheckBox>
 
                                     <!-- Group -->
-                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="15,0,0,0">
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="5,0,0,0">
                                         <Ellipse Width="10" Height="10" Fill="{Binding CategoryColor}" Margin="0,0,10,0"/>
                                         <TextBlock Text="{Binding CategoryName}" Foreground="#5F6368" FontSize="13" FontWeight="Medium"/>
                                     </StackPanel>
 
                                     <!-- Title -->
                                     <TextBlock Grid.Column="2" Text="{Binding Title}" FontWeight="SemiBold" Foreground="#202124" FontSize="14" 
-                                               VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="10,0"/>
+                                               VerticalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Margin="10,0"/>
 
                                     <!-- Content -->
                                     <TextBlock Grid.Column="3" Text="{Binding TruncatedContent}" Foreground="#5F6368" FontSize="13" 
-                                               VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="10,0"/>
+                                               VerticalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Margin="10,0"/>
 
                                     <!-- Date -->
                                     <TextBlock Grid.Column="4" Text="{Binding FormattedDate}" Foreground="#80868B" FontSize="12" 
@@ -485,9 +487,8 @@
                     </Border>
                 </Grid>
 
-                <!-- Preview Panel -->
                 <Border Grid.Column="2" Background="#FBFCFD" BorderThickness="1,0,0,0" BorderBrush="#F0F0F0">
-                    <Grid x:Name="PreviewGrid" Margin="30,25" Visibility="Collapsed">
+                    <Grid x:Name="PreviewGrid" Margin="20,15" Visibility="Collapsed">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/> <!-- Title & App -->
                             <RowDefinition Height="Auto"/> <!-- Date & Tags -->
@@ -495,14 +496,14 @@
                             <RowDefinition Height="Auto"/> <!-- Edit Button -->
                         </Grid.RowDefinitions>
 
-                        <StackPanel Grid.Row="0" Margin="0,0,0,15">
+                        <StackPanel Grid.Row="0" Margin="0,0,0,10">
                             <TextBlock x:Name="TxtPreviewTitle" Text="제목" FontSize="22" FontWeight="Bold" Foreground="#202124" TextWrapping="Wrap"/>
                             <TextBlock x:Name="TxtPreviewApp" Text="Source App" FontSize="13" Foreground="#80868B" Margin="0,5,0,0"/>
                         </StackPanel>
 
-                        <StackPanel Grid.Row="1" Margin="0,0,0,25">
+                        <StackPanel Grid.Row="1" Margin="0,0,0,15">
                             <TextBlock x:Name="TxtPreviewDate" Text="2023-01-01 12:00" FontSize="12" Foreground="#9AA0A6"/>
-                            <ItemsControl x:Name="PreviewTags" Margin="0,15,0,0">
+                            <ItemsControl x:Name="PreviewTags" Margin="0,10,0,0">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <WrapPanel/>
@@ -519,28 +520,24 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                            <Separator Background="#F0F0F0" Margin="0,10,0,0"/>
+                            <Separator Background="#F0F0F0" Margin="0,5,0,0"/>
                         </StackPanel>
 
-                        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Margin="0,0,-10,0" Padding="0,0,10,0" VerticalContentAlignment="Center">
-                            <StackPanel VerticalAlignment="Center">
+                        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                            <StackPanel VerticalAlignment="Top">
                                 <!-- Multi-Image Gallery -->
-                                <ItemsControl x:Name="PreviewImageGallery" Margin="0,0,0,20">
+                                <ItemsControl x:Name="PreviewImageGallery" Margin="0">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Border CornerRadius="12" Background="White" Margin="15,0,0,15" HorizontalAlignment="Left" MaxWidth="340" BorderThickness="1" BorderBrush="#E0E0E0" ClipToBounds="True">
-                                                <Image Source="{Binding}" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality">
-                                                    <Image.Effect>
-                                                        <DropShadowEffect BlurRadius="8" Color="Black" Opacity="0.08" ShadowDepth="2"/>
-                                                    </Image.Effect>
-                                                </Image>
+                                            <Border CornerRadius="8" Background="White" Margin="0,0,0,5" HorizontalAlignment="Left" MaxWidth="340" BorderThickness="1" BorderBrush="#E0E0E0" ClipToBounds="True">
+                                                <Image Source="{Binding}" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
                                             </Border>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
 
-                                <TextBlock x:Name="TxtPreviewContent" Text="Content" Margin="15,0,0,0"
-                                           Foreground="#3C4043" FontSize="15" TextWrapping="Wrap" LineHeight="24"/>
+                                <TextBlock x:Name="TxtPreviewContent" Text="Content" Margin="0,5,0,0"
+                                           Foreground="#3C4043" FontSize="15" TextWrapping="Wrap" LineHeight="22"/>
                             </StackPanel>
                         </ScrollViewer>
 
