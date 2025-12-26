@@ -307,7 +307,28 @@ namespace CatchCapture
                 TxtPreviewDate.Text = note.CreatedAt.ToString("yyyy-MM-dd HH:mm");
                 TxtPreviewContent.Text = note.PreviewContent;
                 PreviewTags.ItemsSource = note.Tags;
-                PreviewImageGallery.ItemsSource = note.Images;
+                
+                // Show first image at top, others at bottom
+                if (note.Images != null && note.Images.Count > 0)
+                {
+                    ImgPreviewTop.Source = note.Images[0];
+                    BrdPreviewTopImage.Visibility = Visibility.Visible;
+                    
+                    if (note.Images.Count > 1)
+                    {
+                        PreviewImageGallery.ItemsSource = note.Images.Skip(1).ToList();
+                        PreviewImageGallery.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        PreviewImageGallery.Visibility = Visibility.Collapsed;
+                    }
+                }
+                else
+                {
+                    BrdPreviewTopImage.Visibility = Visibility.Collapsed;
+                    PreviewImageGallery.Visibility = Visibility.Collapsed;
+                }
             }
             else
             {
@@ -523,10 +544,17 @@ namespace CatchCapture
             get 
             {
                 if (string.IsNullOrEmpty(PreviewContent)) return "";
-                // Get only the first line
+                // Skip empty lines and find first non-empty line
                 var lines = PreviewContent.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
-                string firstLine = lines[0].Trim();
-                return firstLine.Length > 25 ? firstLine.Substring(0, 25) + "..." : firstLine;
+                foreach (var line in lines)
+                {
+                    string trimmed = line.Trim();
+                    if (!string.IsNullOrEmpty(trimmed))
+                    {
+                        return trimmed.Length > 25 ? trimmed.Substring(0, 25) + "..." : trimmed;
+                    }
+                }
+                return "";
             }
         }
 

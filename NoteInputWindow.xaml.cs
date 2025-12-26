@@ -103,42 +103,73 @@ namespace CatchCapture
                                 string content = reader.IsDBNull(1) ? "" : reader.GetString(1);
                                 string contentXaml = reader.IsDBNull(5) ? "" : reader.GetString(5);
 
-                                // Always load images from NoteImages table first
-                                Editor.Document.Blocks.Clear();
-                                
-                                string imgSql = "SELECT FilePath FROM NoteImages WHERE NoteId = $imgNoteId ORDER BY OrderIndex ASC";
-                                string imgDir = DatabaseManager.Instance.GetImageFolderPath();
-                                using (var imgCmd = new SqliteCommand(imgSql, connection))
+                                // Try XAML first to preserve image/text order
+                                if (!string.IsNullOrEmpty(contentXaml))
                                 {
-                                    imgCmd.Parameters.AddWithValue("$imgNoteId", noteId);
-                                    using (var imgReader = imgCmd.ExecuteReader())
+                                    // XAML preserves the exact order (image1 → text → image2)
+                                    Editor.SetXaml(contentXaml);
+                                }
+                                else
+                                {
+                                    // Legacy mode: Load first image, then text, then remaining images
+                                    Editor.Document.Blocks.Clear();
+                                    
+                                    // Get all images from DB
+                                    var imageFiles = new List<string>();
+                                    string imgSql = "SELECT FilePath FROM NoteImages WHERE NoteId = $imgNoteId ORDER BY OrderIndex ASC";
+                                    string imgDir = DatabaseManager.Instance.GetImageFolderPath();
+                                    using (var imgCmd = new SqliteCommand(imgSql, connection))
                                     {
-                                        while (imgReader.Read())
+                                        imgCmd.Parameters.AddWithValue("$imgNoteId", noteId);
+                                        using (var imgReader = imgCmd.ExecuteReader())
                                         {
-                                            string fileName = imgReader.GetString(0);
-                                            string fullPath = Path.Combine(imgDir, fileName);
-                                            if (File.Exists(fullPath))
+                                            while (imgReader.Read())
                                             {
-                                                try
-                                                {
-                                                    var bitmap = new BitmapImage();
-                                                    bitmap.BeginInit();
-                                                    bitmap.UriSource = new Uri(fullPath);
-                                                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                                                    bitmap.EndInit();
-                                                    bitmap.Freeze();
-                                                    Editor.InsertImage(bitmap);
-                                                }
-                                                catch { }
+                                                string fileName = imgReader.GetString(0);
+                                                string fullPath = Path.Combine(imgDir, fileName);
+                                                if (File.Exists(fullPath))
+                                                    imageFiles.Add(fullPath);
                                             }
                                         }
                                     }
-                                }
-                                
-                                // Then add text content AFTER images
-                                if (!string.IsNullOrEmpty(content))
-                                {
-                                    Editor.Document.Blocks.Add(new Paragraph(new Run(content)));
+                                    
+                                    // Insert first image
+                                    if (imageFiles.Count > 0)
+                                    {
+                                        try
+                                        {
+                                            var bitmap = new BitmapImage();
+                                            bitmap.BeginInit();
+                                            bitmap.UriSource = new Uri(imageFiles[0]);
+                                            bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                                            bitmap.EndInit();
+                                            bitmap.Freeze();
+                                            Editor.InsertImage(bitmap);
+                                        }
+                                        catch { }
+                                    }
+                                    
+                                    // Add text content
+                                    if (!string.IsNullOrEmpty(content))
+                                    {
+                                        Editor.Document.Blocks.Add(new Paragraph(new Run(content)));
+                                    }
+                                    
+                                    // Add remaining images after text
+                                    for (int i = 1; i < imageFiles.Count; i++)
+                                    {
+                                        try
+                                        {
+                                            var bitmap = new BitmapImage();
+                                            bitmap.BeginInit();
+                                            bitmap.UriSource = new Uri(imageFiles[i]);
+                                            bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                                            bitmap.EndInit();
+                                            bitmap.Freeze();
+                                            Editor.InsertImage(bitmap);
+                                        }
+                                        catch { }
+                                    }
                                 }
 
                                 _sourceApp = reader.IsDBNull(2) ? null : reader.GetString(2);
@@ -304,35 +335,11 @@ namespace CatchCapture
                     savedFileNames.Add(fileName);
                 }
 
-                long targetNoteId;
-
-                // Capture XAML content which preserves image/text order
-                // Note: Images must be saved to disk and their sources updated in the editor if they are memory streams?
-                // The loop above saves images to disk. 
                 // CRITICAL: We need to update the editor's image sources to point to the saved files BEFORE getting XAML!
-                // Otherwise XAML might contain massive Base64 strings or broken refs.
-                // However, iterating back to update sources in the UI is tricky here.
-                // Simpler approach: Rely on NoteImages table for list preview, and XAML for "Post View".
-                // But if XAML has local paths, they must be valid.
-                // Since we just saved them to 'imgDir', if the Editor still holds 'BitmapImage' with Uri 'temp...'
-                // Let's assume for now we save the XAML as is. If images are embedded/linked, 
-                // we might need to revisit "Update Editor Image Sources".
-                // (Advanced: Iterate blocks, find images, update Source to savedFileNames[i] full path)
-                
-                // Let's force update image sources in Editor to the saved paths
-                var allImages = Editor.GetAllImages();
-                for(int i=0; i<allImages.Count && i<savedFileNames.Count; i++)
-                {
-                    // This is a rough match by index. 
-                    // Ideally we should track which image is which. 
-                    // Since 'imagesInEditor' came from 'GetAllImages' and we iterated linearly, index match should work.
-                    
-                    // We need a helper in Editor to "UpdateImageSource(int index, string newPath)"
-                    // Implementing "UpdateImageSource" in RichTextEditorControl is cleaner.
-                    // For now, let's assume getXaml works with what we have, but add 'contentXaml' var.
-                }
-
+                Editor.UpdateImageSources(savedFileNames);
                 string contentXaml = Editor.GetXaml();
+
+                long targetNoteId;
 
                 if (_isEditMode)
                 {

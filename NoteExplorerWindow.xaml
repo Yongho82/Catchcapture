@@ -525,7 +525,16 @@
 
                         <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
                             <StackPanel VerticalAlignment="Top">
-                                <!-- Multi-Image Gallery -->
+                                <!-- Top Image (Image 1) -->
+                                <Border x:Name="BrdPreviewTopImage" CornerRadius="8" Background="White" Margin="0,0,0,10" HorizontalAlignment="Left" MaxWidth="340" BorderThickness="1" BorderBrush="#E0E0E0" ClipToBounds="True" Visibility="Collapsed">
+                                    <Image x:Name="ImgPreviewTop" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                </Border>
+
+                                <!-- Text Content -->
+                                <TextBlock x:Name="TxtPreviewContent" Text="Content" Margin="0,0,0,10"
+                                           Foreground="#3C4043" FontSize="15" TextWrapping="Wrap" LineHeight="22"/>
+
+                                <!-- Remaining Images Gallery -->
                                 <ItemsControl x:Name="PreviewImageGallery" Margin="0">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
@@ -535,9 +544,6 @@
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
-
-                                <TextBlock x:Name="TxtPreviewContent" Text="Content" Margin="0,5,0,0"
-                                           Foreground="#3C4043" FontSize="15" TextWrapping="Wrap" LineHeight="22"/>
                             </StackPanel>
                         </ScrollViewer>
 

@@ -145,11 +145,30 @@ namespace CatchCapture
                     var doc = ContentViewer.Document ?? new FlowDocument();
                     doc.PagePadding = new Thickness(0);
                     
-                    // Get first block (text content) to insert images before it
+                    // Insert FIRST image before text content
                     var firstBlock = doc.Blocks.FirstBlock;
                     
-                    // Insert images in reverse order at the beginning
-                    for (int i = images.Count - 1; i >= 0; i--)
+                    var firstBitmap = new BitmapImage();
+                    firstBitmap.BeginInit();
+                    firstBitmap.UriSource = new Uri(images[0]);
+                    firstBitmap.CacheOption = BitmapCacheOption.OnLoad;
+                    firstBitmap.EndInit();
+
+                    var firstContainer = new BlockUIContainer(new System.Windows.Controls.Image { 
+                        Source = firstBitmap, 
+                        Stretch = System.Windows.Media.Stretch.Uniform, 
+                        MaxWidth = 600, 
+                        HorizontalAlignment = HorizontalAlignment.Left, 
+                        Margin = new Thickness(0, 0, 0, 10) 
+                    });
+                    
+                    if (firstBlock != null)
+                        doc.Blocks.InsertBefore(firstBlock, firstContainer);
+                    else
+                        doc.Blocks.Add(firstContainer);
+                    
+                    // Append remaining images AFTER text content
+                    for (int i = 1; i < images.Count; i++)
                     {
                         var bitmap = new BitmapImage();
                         bitmap.BeginInit();
@@ -162,13 +181,10 @@ namespace CatchCapture
                             Stretch = System.Windows.Media.Stretch.Uniform, 
                             MaxWidth = 600, 
                             HorizontalAlignment = HorizontalAlignment.Left, 
-                            Margin = new Thickness(0, 0, 0, 10) 
+                            Margin = new Thickness(0, 10, 0, 10) 
                         });
                         
-                        if (firstBlock != null)
-                            doc.Blocks.InsertBefore(firstBlock, container);
-                        else
-                            doc.Blocks.Add(container);
+                        doc.Blocks.Add(container);
                     }
                     ContentViewer.Document = doc;
                 }

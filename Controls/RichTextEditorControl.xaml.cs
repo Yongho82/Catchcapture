@@ -6,6 +6,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 using System.Linq;
+using System.Collections.Generic;
+using System.IO;
+using CatchCapture.Utilities;
 using System.Windows.Input;
 using System.Windows.Data;
 
@@ -618,6 +621,38 @@ namespace CatchCapture.Controls
         {
             string ext = System.IO.Path.GetExtension(path).ToLower();
             return new[] { ".jpg", ".jpeg", ".png", ".bmp", ".gif" }.Contains(ext);
+        }
+        public void UpdateImageSources(List<string> relativePaths)
+        {
+            var allImages = new List<System.Windows.Controls.Image>();
+            foreach (var block in RtbEditor.Document.Blocks)
+            {
+                if (block is BlockUIContainer container && container.Child is Grid grid)
+                {
+                    var img = grid.Children.OfType<System.Windows.Controls.Image>().FirstOrDefault();
+                    if (img != null) allImages.Add(img);
+                }
+            }
+
+            string imgDir = DatabaseManager.Instance.GetImageFolderPath();
+            for (int i = 0; i < allImages.Count && i < relativePaths.Count; i++)
+            {
+                string fullPath = Path.Combine(imgDir, relativePaths[i]);
+                if (File.Exists(fullPath))
+                {
+                    try
+                    {
+                        var bitmap = new BitmapImage();
+                        bitmap.BeginInit();
+                        bitmap.UriSource = new Uri(fullPath);
+                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                        bitmap.EndInit();
+                        bitmap.Freeze();
+                        allImages[i].Source = bitmap;
+                    }
+                    catch { }
+                }
+            }
         }
     }
 }
