@@ -13,13 +13,19 @@ namespace CatchCapture
 {
     public partial class NoteExplorerWindow : Window
     {
+        private string _currentFilter = "Recent";
+        private string? _currentTag = null;
+        private string? _currentSearch = null;
+        private int _currentPage = 1;
+        private const int PAGE_SIZE = 15;
+
         public NoteExplorerWindow()
         {
             try
             {
                 InitializeComponent();
                 this.MouseDown += (s, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
-                LoadNotes();
+                LoadNotes(_currentFilter);
                 LoadTags();
             }
             catch (Exception ex)
@@ -43,53 +49,83 @@ namespace CatchCapture
             this.Close();
         }
 
-        private void LoadNotes(string filter = "All", string? tag = null)
+        private void LoadNotes(string filter = "Recent", string? tag = null, string? search = null, int page = 1)
         {
             try
             {
+                _currentFilter = filter;
+                _currentTag = tag;
+                _currentSearch = search;
+                _currentPage = page;
+
+                // Update Status Text
+                if (!string.IsNullOrEmpty(search)) TxtStatusInfo.Text = $"검색 결과: '{search}'";
+                else if (!string.IsNullOrEmpty(tag)) TxtStatusInfo.Text = $"태그 필터: #{tag}";
+                else if (filter == "Today") TxtStatusInfo.Text = "오늘의 기록 내용";
+                else if (filter == "Recent") TxtStatusInfo.Text = "최근 1주일 기록 내용";
+                else if (filter == "Trash") TxtStatusInfo.Text = "휴지통 기록 내용";
+                else TxtStatusInfo.Text = "전체 기록 내용";
+
                 var notes = new List<NoteViewModel>();
                 string imgDir = DatabaseManager.Instance.GetImageFolderPath();
+                int totalCount = 0;
 
                 using (var connection = new SqliteConnection($"Data Source={DatabaseManager.Instance.DbFilePath}"))
                 {
                     connection.Open();
-                    // Join with Categories to get name and color
-                    string sql = @"
-                        SELECT n.Id, n.Title, n.Content, n.CreatedAt, n.SourceApp, 
-                               c.Name as CategoryName, c.Color as CategoryColor
-                        FROM Notes n
-                        LEFT JOIN Categories c ON n.CategoryId = c.Id";
                     
+                    // 1. Build Base WHERE clause for reuse
                     List<string> wheres = new List<string>();
-                    
-                    if (filter == "Trash") 
-                    {
-                        wheres.Add("n.Status = 1");
-                    }
+                    if (filter == "Trash") wheres.Add("n.Status = 1");
                     else
                     {
                         wheres.Add("n.Status = 0");
-                        if (filter == "Today") wheres.Add("date(n.CreatedAt) = date('now')");
-                        else if (filter == "Recent") wheres.Add("n.CreatedAt >= date('now', '-7 days')");
+                        if (filter == "Today") wheres.Add("date(n.CreatedAt, 'localtime') = date('now', 'localtime')");
+                        else if (filter == "Recent") wheres.Add("n.CreatedAt >= date('now', 'localtime', '-7 days')");
                         else if (filter == "Default") wheres.Add("n.CategoryId = 1");
                     }
-                    
+
+                    if (!string.IsNullOrEmpty(search))
+                    {
+                        wheres.Add("(n.Title LIKE $search OR n.Content LIKE $search)");
+                    }
+
+                    string joinSql = "";
                     if (!string.IsNullOrEmpty(tag))
                     {
-                        sql += " JOIN NoteTags nt ON n.Id = nt.NoteId JOIN Tags t ON nt.TagId = t.Id";
+                        joinSql = " JOIN NoteTags nt ON n.Id = nt.NoteId JOIN Tags t ON nt.TagId = t.Id";
                         wheres.Add("t.Name = $tag");
                     }
 
-                    if (wheres.Count > 0)
+                    string whereClause = wheres.Count > 0 ? " WHERE " + string.Join(" AND ", wheres) : "";
+
+                    // 2. Count Total for Pagination
+                    string countSql = $"SELECT COUNT(DISTINCT n.Id) FROM Notes n {joinSql} {whereClause}";
+                    using (var countCmd = new SqliteCommand(countSql, connection))
                     {
-                        sql += " WHERE " + string.Join(" AND ", wheres);
+                        if (!string.IsNullOrEmpty(tag)) countCmd.Parameters.AddWithValue("$tag", tag);
+                        if (!string.IsNullOrEmpty(search)) countCmd.Parameters.AddWithValue("$search", $"%{search}%");
+                        totalCount = Convert.ToInt32(countCmd.ExecuteScalar() ?? 0);
                     }
 
-                    sql += " ORDER BY n.CreatedAt DESC";
+                    // 3. Load Data with Limit/Offset
+                    string sql = $@"
+                        SELECT n.Id, n.Title, n.Content, n.CreatedAt, n.SourceApp, 
+                               c.Name as CategoryName, c.Color as CategoryColor
+                        FROM Notes n
+                        LEFT JOIN Categories c ON n.CategoryId = c.Id
+                        {joinSql}
+                        {whereClause}
+                        ORDER BY n.CreatedAt DESC
+                        LIMIT $limit OFFSET $offset";
 
                     using (var command = new SqliteCommand(sql, connection))
                     {
                         if (!string.IsNullOrEmpty(tag)) command.Parameters.AddWithValue("$tag", tag);
+                        if (!string.IsNullOrEmpty(search)) command.Parameters.AddWithValue("$search", $"%{search}%");
+                        command.Parameters.AddWithValue("$limit", PAGE_SIZE);
+                        command.Parameters.AddWithValue("$offset", (page - 1) * PAGE_SIZE);
+
                         using (var reader = command.ExecuteReader())
                         {
                             while (reader.Read())
@@ -106,13 +142,9 @@ namespace CatchCapture
                                     CategoryColor = reader.IsDBNull(6) ? "#8E2DE2" : reader.GetString(6)
                                 };
 
-                                // Load Images for this note
                                 note.Images = GetNoteImages(noteId, imgDir);
                                 note.Thumbnail = note.Images.FirstOrDefault();
-
-                                // Load Tags for this note
                                 note.Tags = GetNoteTags(noteId);
-
                                 notes.Add(note);
                             }
                         }
@@ -120,11 +152,46 @@ namespace CatchCapture
                 }
 
                 LstNotes.ItemsSource = notes;
+                UpdatePaginationButtons(totalCount);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"노트를 불러오는 중 오류가 발생했습니다: {ex.Message}\n{ex.StackTrace}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"노트를 불러오는 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void UpdatePaginationButtons(int totalCount)
+        {
+            PanelPagination.Children.Clear();
+            int totalPages = (int)Math.Ceiling((double)totalCount / PAGE_SIZE);
+            if (totalPages <= 1) return;
+
+            // Simple pagination: 1 2 3 ...
+            for (int i = 1; i <= totalPages; i++)
+            {
+                var btn = new Button
+                {
+                    Content = i.ToString(),
+                    Style = (Style)FindResource("PaginationButtonStyle"),
+                    Tag = (i == _currentPage) ? "Active" : ""
+                };
+                int pageNum = i;
+                btn.Click += (s, e) => LoadNotes(_currentFilter, _currentTag, _currentSearch, pageNum);
+                PanelPagination.Children.Add(btn);
+            }
+        }
+
+        private void TxtSearch_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                LoadNotes(_currentFilter, _currentTag, TxtSearch.Text, 1);
+            }
+        }
+
+        private void BtnSearch_Click(object sender, RoutedEventArgs e)
+        {
+            LoadNotes(_currentFilter, _currentTag, TxtSearch.Text, 1);
         }
 
         private List<BitmapSource> GetNoteImages(long noteId, string imgDir)
@@ -222,8 +289,16 @@ namespace CatchCapture
 
         private void LstNotes_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            // Open note for editing
-            BtnEditNote_Click(sender, e);
+            // Open note for Viewing (Post View)
+            if (LstNotes.SelectedItem is NoteViewModel note)
+            {
+                var viewWin = new NoteViewWindow(note.Id);
+                viewWin.Owner = this;
+                viewWin.ShowDialog();
+                // Refresh in case edit happened inside View->Edit flow
+                LoadNotes();
+                LoadTags();
+            }
         }
 
         private void BtnNewNote_Click(object sender, RoutedEventArgs e)
@@ -310,6 +385,48 @@ namespace CatchCapture
             }
         }
 
+        private void BtnSelectAll_Click(object sender, RoutedEventArgs e)
+        {
+            bool select = true;
+            if (sender is CheckBox chk) select = chk.IsChecked ?? false;
+
+            if (LstNotes.ItemsSource is IEnumerable<NoteViewModel> notes)
+            {
+                foreach (var note in notes) note.IsSelected = select;
+            }
+        }
+
+        private void BtnUnselectAll_Click(object sender, RoutedEventArgs e)
+        {
+            if (ChkSelectAllHeader != null) ChkSelectAllHeader.IsChecked = false;
+            if (LstNotes.ItemsSource is IEnumerable<NoteViewModel> notes)
+            {
+                foreach (var note in notes) note.IsSelected = false;
+            }
+        }
+
+        private void BtnDeleteSelected_Click(object sender, RoutedEventArgs e)
+        {
+            if (LstNotes.ItemsSource is IEnumerable<NoteViewModel> notes)
+            {
+                var selectedNotes = notes.Where(n => n.IsSelected).ToList();
+                if (selectedNotes.Count == 0)
+                {
+                    MessageBox.Show("삭제할 노트를 선택해주세요.");
+                    return;
+                }
+
+                if (MessageBox.Show($"{selectedNotes.Count}개의 노트를 삭제하시겠습니까?", "삭제 확인", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                {
+                    foreach (var note in selectedNotes)
+                    {
+                        DeleteNote(note.Id);
+                    }
+                    LoadNotes(); // Refresh
+                }
+            }
+        }
+
         private void BtnFilter_Click(object sender, RoutedEventArgs e)
         {
             // Reset Sidebar selection visually (simple loop)
@@ -317,7 +434,8 @@ namespace CatchCapture
             // For now just reload data.
             if (sender is Button btn && btn.Tag is string filter)
             {
-                LoadNotes(filter);
+                TxtSearch.Text = "";
+                LoadNotes(filter: filter, page: 1);
             }
         }
 
@@ -325,13 +443,17 @@ namespace CatchCapture
         {
             if (sender is Button btn && btn.Tag is string tagName)
             {
-                LoadNotes(tag: tagName);
+                TxtSearch.Text = "";
+                LoadNotes(tag: tagName, page: 1);
             }
         }
     }
 
-    public class NoteViewModel
+    public class NoteViewModel : System.ComponentModel.INotifyPropertyChanged
     {
+        public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(name));
+
         public long Id { get; set; }
         public string? Title { get; set; }
         public string? PreviewContent { get; set; }
@@ -345,14 +467,22 @@ namespace CatchCapture
         public List<BitmapSource> Images { get; set; } = new List<BitmapSource>();
         public List<string> Tags { get; set; } = new List<string>();
 
-        // For truncated content display (15 chars)
+        private bool _isSelected;
+        public bool IsSelected 
+        { 
+            get => _isSelected; 
+            set { _isSelected = value; OnPropertyChanged(nameof(IsSelected)); } 
+        }
+
         public string TruncatedContent 
         {
             get 
             {
                 if (string.IsNullOrEmpty(PreviewContent)) return "";
-                return PreviewContent.Length > 15 ? PreviewContent.Substring(0, 15) + "..." : PreviewContent;
+                return PreviewContent.Length > 20 ? PreviewContent.Substring(0, 20) + "..." : PreviewContent;
             }
         }
+
+        public string FormattedDate => CreatedAt.ToString("yyyy-MM-dd HH:mm");
     }
 }

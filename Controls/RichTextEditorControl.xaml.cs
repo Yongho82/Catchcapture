@@ -445,6 +445,56 @@ namespace CatchCapture.Controls
             return new TextRange(RtbEditor.Document.ContentStart, RtbEditor.Document.ContentEnd).Text;
         }
 
+        public string GetXaml()
+        {
+            try
+            {
+                var tr = new TextRange(RtbEditor.Document.ContentStart, RtbEditor.Document.ContentEnd);
+                using (var ms = new System.IO.MemoryStream())
+                {
+                    tr.Save(ms, DataFormats.Xaml);
+                    return System.Text.Encoding.UTF8.GetString(ms.ToArray());
+                }
+            }
+            catch (Exception ex)
+            {
+                // Fallback or log
+                Console.WriteLine(ex.Message);
+                return "";
+            }
+        }
+
+        public void SetXaml(string xamlString)
+        {
+            if (string.IsNullOrEmpty(xamlString)) return;
+            try
+            {
+                var tr = new TextRange(RtbEditor.Document.ContentStart, RtbEditor.Document.ContentEnd);
+                using (var ms = new System.IO.MemoryStream(System.Text.Encoding.UTF8.GetBytes(xamlString)))
+                {
+                    tr.Load(ms, DataFormats.Xaml);
+                }
+                
+                // After loading XAML, we might need to re-attach events or adjust images if they are not using correct paths,
+                // but standard XamlPackage handles images poorly. String Xaml usually handles embedded Base64 or relative paths?
+                // TextRange.Save(Xaml) usually creates a XAML string. Images might be problematic if they are local paths.
+                // WPF RichTextBox Xaml format saves images as Base64 usually if Package, but String format?
+                // Let's verify.
+                
+                // Correction: DataFormats.Xaml is just the XAML structure. Images might reference local paths.
+                // Since we save images to disk in this app, if the image source was a file path, it should be fine.
+                // If it was MemoryStream, it might be lost.
+                // In Save logic, we ensure images are saved to disk.
+                // But GetXaml() grabs current state.
+                // Our Save logic in NoteInputWindow iterates images and saves them to disk.
+                // WE SHOULD Update the Editor's image sources to the saved disk paths BEFORE calling GetXaml() to ensure persistence!
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("문서 로드 중 오류: " + ex.Message);
+            }
+        }
+
         public void InsertImage(ImageSource imageSource)
         {
             try

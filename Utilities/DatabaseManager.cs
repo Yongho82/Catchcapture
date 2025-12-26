@@ -123,6 +123,16 @@ namespace CatchCapture.Utilities
                 }
                 catch { /* Column might already exist */ }
 
+                // Migration: Add ContentXaml to Notes
+                try
+                {
+                    using (var command = new SqliteCommand("ALTER TABLE Notes ADD COLUMN ContentXaml TEXT;", connection))
+                    {
+                        command.ExecuteNonQuery();
+                    }
+                }
+                catch { /* Column might already exist */ }
+
                 // Insert Default Categories if empty
                 string checkCategories = "SELECT COUNT(*) FROM Categories;";
                 using (var command = new SqliteCommand(checkCategories, connection))
@@ -173,7 +183,7 @@ namespace CatchCapture.Utilities
             }
         }
 
-        public long InsertNote(string title, string content, string tags, string fileName, string? sourceApp, string? sourceUrl, long categoryId = 1)
+        public long InsertNote(string title, string content, string contentXaml, string tags, string fileName, string? sourceApp, string? sourceUrl, long categoryId = 1)
         {
             using (var connection = new SqliteConnection($"Data Source={DbPath}"))
             {
@@ -184,8 +194,8 @@ namespace CatchCapture.Utilities
                     {
                         // 1. Insert Note
                         string insertNoteSql = @"
-                            INSERT INTO Notes (Title, Content, SourceApp, SourceUrl, CreatedAt, UpdatedAt, CategoryId)
-                            VALUES ($title, $content, $sourceApp, $sourceUrl, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, $categoryId);
+                            INSERT INTO Notes (Title, Content, ContentXaml, SourceApp, SourceUrl, CreatedAt, UpdatedAt, CategoryId)
+                            VALUES ($title, $content, $contentXaml, $sourceApp, $sourceUrl, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, $categoryId);
                             SELECT last_insert_rowid();";
                         
                         long noteId;
@@ -193,6 +203,7 @@ namespace CatchCapture.Utilities
                         {
                             command.Parameters.AddWithValue("$title", title);
                             command.Parameters.AddWithValue("$content", content);
+                            command.Parameters.AddWithValue("$contentXaml", contentXaml);
                             command.Parameters.AddWithValue("$sourceApp", (object?)sourceApp ?? DBNull.Value);
                             command.Parameters.AddWithValue("$sourceUrl", (object?)sourceUrl ?? DBNull.Value);
                             command.Parameters.AddWithValue("$categoryId", categoryId);
@@ -257,7 +268,7 @@ namespace CatchCapture.Utilities
             }
         }
 
-        public void UpdateNote(long noteId, string title, string content, string tags, long categoryId)
+        public void UpdateNote(long noteId, string title, string content, string contentXaml, string tags, long categoryId)
         {
             using (var connection = new SqliteConnection($"Data Source={DbPath}"))
             {
@@ -268,13 +279,14 @@ namespace CatchCapture.Utilities
                     {
                         string updateSql = @"
                             UPDATE Notes 
-                            SET Title = $title, Content = $content, CategoryId = $categoryId, UpdatedAt = CURRENT_TIMESTAMP
+                            SET Title = $title, Content = $content, ContentXaml = $contentXaml, CategoryId = $categoryId, UpdatedAt = CURRENT_TIMESTAMP
                             WHERE Id = $id";
                         
                         using (var command = new SqliteCommand(updateSql, connection, transaction))
                         {
                             command.Parameters.AddWithValue("$title", title);
                             command.Parameters.AddWithValue("$content", content);
+                            command.Parameters.AddWithValue("$contentXaml", contentXaml);
                             command.Parameters.AddWithValue("$categoryId", categoryId);
                             command.Parameters.AddWithValue("$id", noteId);
                             command.ExecuteNonQuery();
@@ -425,6 +437,31 @@ namespace CatchCapture.Utilities
                     command.ExecuteNonQuery();
                 }
             }
+        }
+        public Category? GetCategory(long id)
+        {
+            using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+            {
+                connection.Open();
+                string sql = "SELECT Id, Name, Color FROM Categories WHERE Id = $id";
+                using (var command = new SqliteCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("$id", id);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new Category
+                            {
+                                Id = reader.GetInt64(0),
+                                Name = reader.GetString(1),
+                                Color = reader.IsDBNull(2) ? "#8E2DE2" : reader.GetString(2)
+                            };
+                        }
+                    }
+                }
+            }
+            return null;
         }
     }
 }
