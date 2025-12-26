@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -17,7 +17,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
-using System.Windows.Interop; 
+using System.Windows.Interop;
 using Windows.ApplicationModel.DataTransfer;
 using CatchCapture.Resources;
 using LocalizationManager = CatchCapture.Resources.LocalizationManager;
@@ -39,8 +39,8 @@ public partial class MainWindow : Window
     private Point lastPosition;
     private int captureDelaySeconds = 0;
     private Recording.RecordingWindow? activeRecordingWindow = null; // Track active recording window
-    
-    
+
+
     // ★ 메모리 최적화: 스크린샷 캐시를 WeakReference로 변경 (메모리 압박 시 자동 해제)
     private WeakReference<BitmapSource>? cachedScreenshotRef = null;
     private DateTime lastScreenshotTime = DateTime.MinValue;
@@ -64,7 +64,7 @@ public partial class MainWindow : Window
     private System.Windows.Forms.ToolStripMenuItem? trayNormalItem;
     private System.Windows.Forms.ToolStripMenuItem? traySimpleItem;
     private System.Windows.Forms.ToolStripMenuItem? trayTrayItem;
-    private System.Windows.Forms.ToolStripMenuItem? traySettingsItem; 
+    private System.Windows.Forms.ToolStripMenuItem? traySettingsItem;
     private System.Windows.Forms.ToolStripMenuItem? trayExitItem;
 
         // ★ 메모리 최적화: 프리로딩을 WeakReference로 변경
@@ -101,21 +101,21 @@ public partial class MainWindow : Window
     private const int WM_SYSKEYDOWN = 0x0104;
     private const int WM_SYSKEYUP = 0x0105;
     private const int VK_SNAPSHOT = 0x2C; // Print Screen 키
-    
+
     private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
     private LowLevelKeyboardProc? _keyboardProc;
     private IntPtr _keyboardHookId = IntPtr.Zero;
-    
+
     [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
     private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProc lpfn, IntPtr hMod, uint dwThreadId);
-    
+
     [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool UnhookWindowsHookEx(IntPtr hhk);
-    
+
     [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
     private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
-    
+
     [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
     private static extern IntPtr GetModuleHandle(string? lpModuleName);
 
@@ -140,13 +140,13 @@ public partial class MainWindow : Window
         settings = Settings.Load();
 
         Settings.SettingsChanged += OnSettingsChanged;
-        
+
         // Print Screen 키 감지
         this.PreviewKeyDown += MainWindow_PreviewKeyDown;
-        
+
         // 트레이 아이콘 초기화
         InitializeNotifyIcon();
-        
+
         // 글로벌 단축키 등록
         RegisterGlobalHotkeys();
 
@@ -155,14 +155,14 @@ public partial class MainWindow : Window
 
         // 로컬 단축키 등록
         AddKeyboardShortcuts();
-        
+
         // 타이틀바 드래그 이벤트 설정
         this.MouseLeftButtonDown += Window_MouseLeftButtonDown;
-        
+
         // 간편모드 활성 중에는 작업표시줄 클릭으로 본체가 튀어나오지 않도록 제어
         this.StateChanged += MainWindow_StateChanged;
         this.Activated += MainWindow_Activated;
-        
+
         // 백그라운드 스크린샷 캐시 시스템 초기화
         InitializeScreenshotCache();
         UpdateOpenEditorToggleUI();
@@ -175,15 +175,15 @@ public partial class MainWindow : Window
             RegisterGlobalHotkeys();
             UpdateInstantEditToggleUI();
             UpdateOpenEditorToggleUI(); // 편집열기 토글 UI 초기화
-            UpdateMenuButtonOrder(); 
+            UpdateMenuButtonOrder();
             InitializeTips();
-            
+
             // 다국어 UI 텍스트 적용
             UpdateUIText();
-            
+
             // 언어 변경 즉시 반영
             LocalizationManager.LanguageChanged += MainWindow_LanguageChanged;
-            
+
             // ★★★ 자동시작인 경우 트레이 아이콘으로만 시작 ★★★
             if (isAutoStart)
             {
@@ -212,10 +212,10 @@ public partial class MainWindow : Window
                 }
             }
             UpdateEmptyStateLogo();
-            
+
             // 초기 UI 텍스트 설정
             ScreenRecordButtonText.Text = LocalizationManager.GetString("ScreenRecording");
-            
+
             // refine baseline using ActualHeight now that layout is ready
             // refine baseline commented out to persist fixed 692 baseline
             // try { _baseMainWindowHeight = this.ActualHeight > 0 ? this.ActualHeight : this.Height; } catch { }
@@ -251,7 +251,7 @@ public partial class MainWindow : Window
             { "DesignatedCapture", DesignatedCaptureButton },
             { "WindowCapture", WindowCaptureButton },
             { "ElementCapture", ElementCaptureButton },
-            { "ScrollCapture", ScrollCaptureButton }, 
+            { "ScrollCapture", ScrollCaptureButton },
             { "OcrCapture", OcrCaptureButton },
             { "ScreenRecord", ScreenRecordButton }
         };
@@ -300,7 +300,7 @@ public partial class MainWindow : Window
             if (settings.UsePrintScreenKey)
             {
                 e.Handled = true; // 기본 동작 방지
-                
+
                 // 설정된 액션 실행
                 switch (settings.PrintScreenAction)
                 {
@@ -355,10 +355,10 @@ public partial class MainWindow : Window
             // 아이콘 로드 실패 시 기본 시스템 아이콘 사용 (fallback)
             notifyIcon.Icon = System.Drawing.SystemIcons.Application;
         }
-        
+
         notifyIcon.Visible = true;
         notifyIcon.Text = LocalizationManager.GetString("AppName");
-        
+
         // 클릭 시 트레이 모드 창 토글
         notifyIcon.Click += (s, e) =>
         {
@@ -393,7 +393,7 @@ public partial class MainWindow : Window
         trayNormalItem = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("NormalMode"), LoadMenuImage("window_cap.png"), (s, e) => SwitchToNormalMode());
         traySimpleItem = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("SimpleMode"), LoadMenuImage("simple_mode.png"), (s, e) => SwitchToSimpleMode());
         trayTrayItem = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("TrayMode"), LoadMenuImage("tray_mode.png"), (s, e) => SwitchToTrayMode());
-        
+
         // 4. 종료 항목
         trayExitItem = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("Exit"), LoadMenuImage("power.png"), (s, e) =>
         {
@@ -403,7 +403,7 @@ public partial class MainWindow : Window
 
         // 메뉴 항목 구성 (순서대로 추가)
         trayContextMenu.Items.Clear();
-        
+
         // [열기] 추가
         trayContextMenu.Items.Add(trayOpenItem);
         trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
@@ -411,12 +411,12 @@ public partial class MainWindow : Window
         // [영역 캡처]
         trayContextMenu.Items.Add(trayAreaItem);
         trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
-        
+
         // [모드 전환]
         trayContextMenu.Items.Add(trayNormalItem);
         trayContextMenu.Items.Add(traySimpleItem);
         trayContextMenu.Items.Add(trayTrayItem);
-        
+
         // [설정]
         traySettingsItem = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("Settings"), LoadMenuImage("setting.png"), (s, e) => SettingsSideButton_Click(this, new RoutedEventArgs()));
         trayContextMenu.Items.Add(traySettingsItem);
@@ -426,7 +426,7 @@ public partial class MainWindow : Window
         trayContextMenu.Items.Add(trayExitItem);
 
         notifyIcon.ContextMenuStrip = trayContextMenu;
-        
+
         // 초기 텍스트 동기화
         UpdateTrayMenuTexts();
     }
@@ -542,7 +542,7 @@ public partial class MainWindow : Window
     {
         // 마지막 활성 모드 복원
         var lastMode = settings.LastActiveMode ?? "Normal";
-        
+
         switch (lastMode)
         {
             case "Simple":
@@ -558,7 +558,7 @@ public partial class MainWindow : Window
                     SwitchToSimpleMode();
                 }
                 break;
-                
+
             case "Tray":
                 // 트레이모드에서는 트레이모드 창을 토글하거나 표시
                 if (trayModeWindow == null)
@@ -571,7 +571,7 @@ public partial class MainWindow : Window
                     trayModeWindow.Activate();
                 }
                 break;
-                
+
             case "Normal":
             default:
                 // 일반모드 복원
@@ -604,7 +604,7 @@ public partial class MainWindow : Window
     private void RestoreLastMode()
     {
         var lastMode = settings.LastActiveMode ?? "Normal";
-        
+
         switch (lastMode)
         {
             case "Simple":
@@ -626,7 +626,7 @@ public partial class MainWindow : Window
                     SwitchToSimpleMode();
                 }
                 break;
-                
+
             case "Tray":
                 // ★ 간편모드가 열려있으면 트레이모드 열지 않음
                 if (simpleModeWindow != null && simpleModeWindow.IsVisible)
@@ -635,7 +635,7 @@ public partial class MainWindow : Window
                 }
                 ToggleTrayModeWindow();
                 break;
-                
+
             case "Normal":
             default:
                 if (this.IsVisible)
@@ -655,7 +655,7 @@ public partial class MainWindow : Window
         // ★ 트레이모드 상태 저장
         settings.LastActiveMode = "Tray";
         Settings.Save(settings);
-        
+
         // SimpleModeWindow가 열려 있다면 닫기
         if (simpleModeWindow != null)
         {
@@ -664,10 +664,10 @@ public partial class MainWindow : Window
             simpleModeWindow.Close();
             simpleModeWindow = null;
         }
-        
+
         // MainWindow를 먼저 숨기기
         this.Hide();
-        
+
         ShowTrayModeWindow();
     }
 
@@ -677,7 +677,7 @@ public partial class MainWindow : Window
         {
             // 트레이 모드 설정
             settings.IsTrayMode = true;
-            
+
             // 트레이 모드 창 생성 또는 표시
             if (trayModeWindow == null)
             {
@@ -693,20 +693,20 @@ public partial class MainWindow : Window
                     trayModeWindow.Show();
                 }
             }
-            
+
             // 현재 캡처 개수 업데이트
             trayModeWindow.UpdateCaptureCount(captures.Count);
-            
+
             trayModeWindow.Activate();
             trayModeWindow.Topmost = true;
-            
+
             // 설정 저장
             Settings.Save(settings);
         }
         catch (Exception ex)
         {
             System.Windows.MessageBox.Show($"TrayModeWindow 오류:\n{ex.Message}\n\n임시로 MainWindow를 표시합니다.");
-            
+
             // 오류 발생 시 MainWindow 다시 표시
             this.Show();
             this.Activate();
@@ -717,11 +717,11 @@ public partial class MainWindow : Window
     {
         // 화면 작업 영역 가져오기 (태스크바 제외)
         var workArea = SystemParameters.WorkArea;
-        
+
         // 우측 하단에 위치 (트레이 근처)
         this.Left = workArea.Right - this.Width - 10;
         this.Top = workArea.Bottom - this.Height - 10;
-        
+
         // 위치 저장
         settings.LastTrayLeft = this.Left;
         settings.LastTrayTop = this.Top;
@@ -731,9 +731,9 @@ public partial class MainWindow : Window
     {
         // ★ 일반모드 상태 저장
         settings.LastActiveMode = "Normal";
-        
+
         // 간편 모드가 켜져 있다면 종료
-        Application.Current.MainWindow = this; 
+        Application.Current.MainWindow = this;
         if (simpleModeWindow != null)
         {
             simpleModeWindow.Close();
@@ -749,7 +749,7 @@ public partial class MainWindow : Window
 
         // 트레이 모드 해제
         settings.IsTrayMode = false;
-        
+
         // 작업표시줄 표시
         this.ShowInTaskbar = true;
 
@@ -757,11 +757,11 @@ public partial class MainWindow : Window
         this.WindowStyle = WindowStyle.None;
         this.ResizeMode = ResizeMode.CanResize;
         this.Topmost = false;
-        
+
         // 기본 크기로 복원 (XAML의 기본값에 맞춤)
         this.Width = 400;
         this.Height = 652;
-        
+
         // 저장된 위치로 복원 (0,0은 초기값일 수 있으므로 제외하고 우측 하단으로)
         if (!double.IsNaN(settings.LastMainLeft) && !double.IsNaN(settings.LastMainTop) &&
             !(settings.LastMainLeft == 0 && settings.LastMainTop == 0))
@@ -777,7 +777,7 @@ public partial class MainWindow : Window
             this.Top = workArea.Bottom - this.Height - 10;
             this.WindowStartupLocation = WindowStartupLocation.Manual;
         }
-        
+
         // 창 표시
         this.Show();
         this.WindowState = WindowState.Normal;
@@ -823,17 +823,17 @@ public partial class MainWindow : Window
         // ★ 간편모드 상태 저장
         settings.LastActiveMode = "Simple";
         Settings.Save(settings);
-        
+
         // 트레이 모드 창 닫기
         if (trayModeWindow != null)
         {
             trayModeWindow.Close();
             trayModeWindow = null;
         }
-        
+
         // 트레이 모드 해제
         settings.IsTrayMode = false;
-        
+
         // 기존 간편 모드 로직 호출
         SimpleModeButton_Click(this, new RoutedEventArgs());
     }
@@ -853,23 +853,23 @@ public partial class MainWindow : Window
                 simpleModeWindow.Close();
                 simpleModeWindow = null;
             }
-            
+
             if (trayModeWindow != null)
             {
                 trayModeWindow.Close();
                 trayModeWindow = null;
             }
-            
+
             // 종료 시 트레이 아이콘 정리
             if (notifyIcon != null)
             {
                 notifyIcon.Visible = false;
                 notifyIcon.Dispose();
             }
-            
+
             // 애플리케이션 완전 종료
             Application.Current.Shutdown();
-            
+
             base.OnClosing(e);
         }
     }
@@ -883,7 +883,7 @@ public partial class MainWindow : Window
             this.DragMove();
         }
     }
-    
+
     private void MinimizeButton_Click(object sender, RoutedEventArgs e)
     {
         // 창 최소화
@@ -894,7 +894,7 @@ public partial class MainWindow : Window
     {
         // 닫기 버튼 클릭 시 트레이로 숨기기 (종료 아님)
         this.Hide();
-    }  
+    }
 
     private void AddKeyboardShortcuts()
     {
@@ -1018,7 +1018,7 @@ public partial class MainWindow : Window
             }
             return;
         }
-        
+
         // Ctrl+Z: 실행 취소 (미리보기 창에서 편집된 경우 현재 선택된 이미지를 다시 로드)
         if (e.Key == Key.Z && mods == ModifierKeys.Control)
         {
@@ -1032,7 +1032,7 @@ public partial class MainWindow : Window
             }
             return;
         }
-        
+
         // Ctrl+R: 스크롤 캡처
         if (e.Key == Key.R && mods == ModifierKeys.Control)
         {
@@ -1040,7 +1040,7 @@ public partial class MainWindow : Window
             e.Handled = true;
             return;
         }
-        
+
         // Ctrl+D: 지정 캡처
         if (e.Key == Key.D && mods == ModifierKeys.Control)
         {
@@ -1048,7 +1048,7 @@ public partial class MainWindow : Window
             e.Handled = true;
             return;
         }
-        
+
         // Ctrl+O: 열기 (불러오기)
         if (e.Key == Key.O && mods == ModifierKeys.Control)
         {
@@ -1056,7 +1056,7 @@ public partial class MainWindow : Window
             e.Handled = true;
             return;
         }
-        
+
         // Ctrl+N: 새 캡처 (영역 캡처)
         if (e.Key == Key.N && mods == ModifierKeys.Control)
         {
@@ -1064,7 +1064,7 @@ public partial class MainWindow : Window
             e.Handled = true;
             return;
         }
-        
+
         // Ctrl+T: 상단most 토글
         if (e.Key == Key.T && mods == ModifierKeys.Control)
         {
@@ -1073,14 +1073,14 @@ public partial class MainWindow : Window
             return;
         }
     }
-    
+
     // 상단most 토글 기능
     private void ToggleTopmost()
     {
         this.Topmost = !this.Topmost;
         ShowGuideMessage(LocalizationManager.GetString(this.Topmost ? "TopmostOnMsg" : "TopmostOffMsg"), TimeSpan.FromSeconds(1));
     }
-    
+
     // 파일 열기 다이얼로그
     private void OpenFileDialog_Click(object? sender, RoutedEventArgs? e)
     {
@@ -1090,7 +1090,7 @@ public partial class MainWindow : Window
             Filter = $"{LocalizationManager.GetString("ImageFilesFilter")}|*.png;*.jpg;*.jpeg;*.bmp;*.gif|{LocalizationManager.GetString("AllFiles")}|*.*",
             Multiselect = true
         };
-        
+
         if (dialog.ShowDialog() == true)
         {
             foreach (var fileName in dialog.FileNames)
@@ -1120,7 +1120,7 @@ public partial class MainWindow : Window
         {
             // 백그라운드에서 조용히 캡처
             var shot = await Task.Run(() => ScreenCaptureUtility.CaptureScreen());
-            
+
             // UI 스레드에서 결과 저장 (Freeze 필수)
             shot.Freeze();
             // ★ 메모리 최적화: WeakReference로 저장
@@ -1192,22 +1192,22 @@ public partial class MainWindow : Window
     private BitmapSource GetCachedOrFreshScreenshot()
     {
         var now = DateTime.Now;
-        
+
         // ★ 메모리 최적화: WeakReference에서 캐시된 스크린샷 가져오기
         BitmapSource? cachedScreenshot = null;
         cachedScreenshotRef?.TryGetTarget(out cachedScreenshot);
-        
+
         // 캐시가 유효한지 확인 (3초 이내)
         if (cachedScreenshot != null && (now - lastScreenshotTime) < screenshotCacheTimeout)
         {
             return cachedScreenshot;
         }
-        
+
         // 새로운 스크린샷 캡처 및 캐시 업데이트
         var newScreenshot = ScreenCaptureUtility.CaptureScreen();
         cachedScreenshotRef = new WeakReference<BitmapSource>(newScreenshot);
         lastScreenshotTime = now;
-        
+
         return newScreenshot;
     }
 
@@ -1220,26 +1220,26 @@ public partial class MainWindow : Window
         // 즉시편집 설정 확인
         var currentSettings = Settings.Load();
         bool instantEdit = currentSettings.SimpleModeInstantEdit;
-        
+
         // 1단계: 즉시 숨기기 (Opacity 조정보다 Hide가 더 빠르고 확실함)
         this.Hide();
-        if (simpleModeWindow != null) simpleModeWindow.Hide(); 
+        if (simpleModeWindow != null) simpleModeWindow.Hide();
         if (trayModeWindow != null) trayModeWindow.Hide();
-        
+
         // 2단계: UI 업데이트 강제 대기 (Render 우선순위 사용)
         // Task.Delay 대신 Dispatcher.Yield나 Render 우선순위 InvokeAsync만 사용
         await Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.Render);
-        
+
         // UI가 완전히 사라졌는지 확인 (FlushUIAfterHide 사용)
         FlushUIAfterHide();
-        
+
         // 3단계: 스크린샷 캡처 (프리로딩 확인)
         BitmapSource? screenshot = null;
-        
+
         // ★ 메모리 최적화: WeakReference에서 프리로드 스크린샷 가져오기
         BitmapSource? preloadedShot = null;
         preloadedScreenshotRef?.TryGetTarget(out preloadedShot);
-        
+
         // 프리로딩된 이미지가 있고, 2초 이내의 것이라면 사용
         if (preloadedShot != null && (DateTime.Now - preloadedTime).TotalSeconds < 2.0)
         {
@@ -1265,45 +1265,19 @@ public partial class MainWindow : Window
             {
                 var selectedArea = snippingWindow.SelectedArea;
                 var capturedImage = snippingWindow.SelectedFrozenImage ?? ScreenCaptureUtility.CaptureArea(selectedArea);
-                
+
                 // 4단계: Opacity 복원
                 this.Opacity = 1;
-                
+
+                // AddCaptureToList에서 창 복원 로직을 일원화하여 처리함 (이곳의 중복 호출 제거)
                 AddCaptureToList(capturedImage);
-                
-                // 캡처 완료 후 모드별 창 복원
-                if (isSimpleMode)
-                {
-                    // 간편 모드: 간편모드 창 다시 표시
-                    if (simpleModeWindow != null)
-                    {
-                        simpleModeWindow._suppressActivatedExpand = true;
-                        simpleModeWindow.Show();
-                        simpleModeWindow.Activate();
-                    }
-                }
-                else if (!settings.IsTrayMode)
-                {
-                    // 일반 모드: 메인 창 표시
-                    this.Show();
-                    this.Activate();
-                }
-                else
-                {
-                    // 트레이 모드: 트레이 모드 창 다시 표시
-                    if (trayModeWindow != null)
-                    {
-                        trayModeWindow.Show();
-                        trayModeWindow.Activate();
-                    }
-                }
             }
             else
             {
                 // 4단계: Opacity 복원
                 this.Opacity = 1;
-                
-                // 캡처 취소 시
+
+                // 캡처 취소 시에만 명시적으로 복원 (AddCaptureToList가 호출되지 않으므로)
                 if (isSimpleMode)
                 {
                     // 간편 모드: 간편모드 창만 다시 표시
@@ -1367,7 +1341,7 @@ public partial class MainWindow : Window
             System.Threading.Thread.Sleep(10);
 
             var scrollCaptureWindow = new ScrollCaptureWindow();
-            
+
             if (scrollCaptureWindow.ShowDialog() == true && scrollCaptureWindow.CapturedImage != null)
             {
                 AddCaptureToList(scrollCaptureWindow.CapturedImage);
@@ -1411,33 +1385,34 @@ public partial class MainWindow : Window
         bool wasTrayMode = settings.IsTrayMode;
         // 간편모드 체크: IsVisible이 아닌 존재 여부로 확인 (SimpleModeWindow.PerformCustomCapture에서 이미 숨김)
         bool wasSimpleMode = simpleModeWindow != null;
-        
+
         // 간편모드가 아닐 때만 간편모드 창 숨기기 처리 (이미 PerformCustomCapture에서 처리됨)
         // SimpleModeWindow.PerformCustomCapture에서 이미 Hide()를 호출하므로 여기서는 불필요
-        
+
         // 메인 창이 표시되어 있다면 숨기기
         if (this.IsVisible)
         {
             this.Hide();
         }
-        
+
         // UI 업데이트 강제 대기
         await Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.Render);
         FlushUIAfterHide();
-        
+
         // 스크린샷 캡처
         BitmapSource screenshot = await Task.Run(() => ScreenCaptureUtility.CaptureScreen());
-        
+
         // SnippingWindow 열기 (즉시편집 없이)
         using var snippingWindow = new SnippingWindow(false, screenshot);
-        
+
         if (snippingWindow.ShowDialog() == true)
         {
             var capturedImage = snippingWindow.SelectedFrozenImage ?? ScreenCaptureUtility.CaptureArea(snippingWindow.SelectedArea);
-            
+
             // 캡처 리스트에 추가
+            // AddCaptureToList에서 창 복원 로직을 일원화하여 처리함
             AddCaptureToList(capturedImage, skipPreview: true);
-            
+
             // OCR 실행
             try
             {
@@ -1451,29 +1426,28 @@ public partial class MainWindow : Window
                 MessageBox.Show($"OCR 처리 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        
-        // 메인 창 복원 - 모드별로 적절한 창 복원
-        this.Opacity = 1;
-        
-        if (wasSimpleMode)
-        {
-            // 간편모드였다면 SimpleModeWindow.PerformCustomCapture에서 이미 Show() 호출됨
-            // 여기서는 아무 작업도 하지 않음 (중복 표시 방지)
-        }
-        else if (wasTrayMode)
-        {
-            // 트레이 모드였다면 트레이 창 다시 표시
-            if (trayModeWindow != null)
-            {
-                trayModeWindow.Show();
-                trayModeWindow.Activate();
-            }
-        }
         else
         {
-            // 일반 모드였다면 메인 창 다시 표시
-            this.Show();
-            this.Activate();
+            // 취소 시에만 명시적으로 복원
+            this.Opacity = 1;
+
+            if (wasSimpleMode)
+            {
+                // SimpleModeWindow.PerformCustomCapture에서 처리됨
+            }
+            else if (wasTrayMode)
+            {
+                if (trayModeWindow != null)
+                {
+                    trayModeWindow.Show();
+                    trayModeWindow.Activate();
+                }
+            }
+            else
+            {
+                this.Show();
+                this.Activate();
+            }
         }
     }
 
@@ -1496,8 +1470,8 @@ public partial class MainWindow : Window
             // 간편모드에서는 SimpleModeWindow가 먼저 Hide()를 호출하므로 IsVisible 대신 존재 여부만 확인
             bool wasSimpleMode = simpleModeWindow != null;
             bool wasTrayMode = settings.IsTrayMode;
-            
-            this.Hide(); 
+
+            this.Hide();
             FlushUIAfterHide();
 
             activeRecordingWindow = new Recording.RecordingWindow();
@@ -1545,18 +1519,18 @@ public partial class MainWindow : Window
             var guideWindow = new GuideWindow(LocalizationManager.GetString("ClickWindowThenEnter"), TimeSpan.FromSeconds(2.5));
             guideWindow.Owner = this;
             guideWindow.Show();
-            
+
             // 사용자가 다른 창을 선택할 수 있도록 기다림
             this.Hide();
-            
+
             // 스크롤 캡처 수행
             var capturedImage = ScreenCaptureUtility.CaptureScrollableWindow();
-            
+
             if (capturedImage != null)
             {
                 AddCaptureToList(capturedImage);
                 ShowGuideMessage(LocalizationManager.GetString("ScrollCaptureComplete"), TimeSpan.FromSeconds(1.5));
-                
+
                 // 캡처된 이미지 클립보드에 복사
                 ScreenCaptureUtility.CopyImageToClipboard(capturedImage);
                 ShowGuideMessage(LocalizationManager.GetString("CopiedToClipboard"), TimeSpan.FromSeconds(1.5));
@@ -1621,21 +1595,21 @@ public partial class MainWindow : Window
         {
             // 간편모드 체크
             bool isSimpleMode = simpleModeWindow != null && simpleModeWindow.IsVisible;
-            
+
             // 즉시편집 설정 확인
             var currentSettings = Settings.Load();
             bool instantEdit = currentSettings.SimpleModeInstantEdit;
-            
+
             this.Hide();
             if (simpleModeWindow != null) simpleModeWindow.Hide();
             if (trayModeWindow != null) trayModeWindow.Hide();
-            
+
             await Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.Render);
             FlushUIAfterHide();
             System.Threading.Thread.Sleep(10);
 
             var windowCaptureOverlay = new CatchCapture.Utilities.WindowCaptureOverlay();
-            
+
             if (windowCaptureOverlay.ShowDialog() == true && windowCaptureOverlay.CapturedImage != null)
             {
                 // 즉시편집 모드가 활성화되어 있으면 SnippingWindow로 전환
@@ -1643,22 +1617,22 @@ public partial class MainWindow : Window
                 {
                     // 전체 화면 스크린샷 캡처
                     var screenshot = await Task.Run(() => ScreenCaptureUtility.CaptureScreen());
-                    
+
                     // SnippingWindow를 즉시편집 모드로 열기
                     using var snippingWindow = new SnippingWindow(false, screenshot);
                     snippingWindow.EnableInstantEditMode();
-                    
+
                     // 캡처된 창의 위치를 미리 선택된 영역으로 설정
                     snippingWindow.SetPreselectedArea(windowCaptureOverlay.CapturedRect);
-                    
+
                     if (snippingWindow.ShowDialog() == true)
                     {
                         var selectedArea = snippingWindow.SelectedArea;
                         var capturedImage = snippingWindow.SelectedFrozenImage ?? ScreenCaptureUtility.CaptureArea(selectedArea);
-                        
+
                         this.Opacity = 1;
                         AddCaptureToList(capturedImage);
-                        
+
                         // 캡처 완료 후 모드별 창 복원
                         if (isSimpleMode)
                         {
@@ -1732,28 +1706,28 @@ public partial class MainWindow : Window
             // 창 표시는 AddCaptureToList 또는 else 블록에서 처리
         }
     }
-    
+
     private async void ElementCaptureButton_Click(object sender, RoutedEventArgs e)
     {
         try
         {
             // 간편모드 체크
             bool isSimpleMode = simpleModeWindow != null && simpleModeWindow.IsVisible;
-            
+
             // 즉시편집 설정 확인
             var currentSettings = Settings.Load();
             bool instantEdit = currentSettings.SimpleModeInstantEdit;
-            
+
             this.Hide();
             if (simpleModeWindow != null) simpleModeWindow.Hide();
             if (trayModeWindow != null) trayModeWindow.Hide();
-            
+
             await Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.Render);
             FlushUIAfterHide();
             System.Threading.Thread.Sleep(10);
 
             var elementCaptureWindow = new ElementCaptureWindow();
-            
+
             if (elementCaptureWindow.ShowDialog() == true && elementCaptureWindow.CapturedImage != null)
             {
                 // 즉시편집 모드가 활성화되어 있으면 SnippingWindow로 전환
@@ -1761,22 +1735,22 @@ public partial class MainWindow : Window
                 {
                     // 전체 화면 스크린샷 캡처
                     var screenshot = await Task.Run(() => ScreenCaptureUtility.CaptureScreen());
-                    
+
                     // SnippingWindow를 즉시편집 모드로 열기
                     using var snippingWindow = new SnippingWindow(false, screenshot);
                     snippingWindow.EnableInstantEditMode();
-                    
+
                     // 캡처된 요소의 위치를 미리 선택된 영역으로 설정
                     snippingWindow.SetPreselectedArea(elementCaptureWindow.CapturedRect);
-                    
+
                     if (snippingWindow.ShowDialog() == true)
                     {
                         var selectedArea = snippingWindow.SelectedArea;
                         var capturedImage = snippingWindow.SelectedFrozenImage ?? ScreenCaptureUtility.CaptureArea(selectedArea);
-                        
+
                         this.Opacity = 1;
                         AddCaptureToList(capturedImage);
-                        
+
                         // 캡처 완료 후 모드별 창 복원
                         if (isSimpleMode)
                         {
@@ -1862,7 +1836,7 @@ public partial class MainWindow : Window
 
         // 창 숨기기
         this.Hide();
-        
+
         // 짧은 대기로 창이 완전히 숨겨지도록
         System.Threading.Thread.Sleep(10);
 
@@ -1941,7 +1915,7 @@ public partial class MainWindow : Window
         {
             var currentSettings = CatchCapture.Models.Settings.Load();
             CaptureImage captureImage;
-            
+
             // ★ 메모리 최적화: 자동저장 시 썸네일만 메모리에 저장
             if (currentSettings.AutoSaveCapture)
             {
@@ -1951,7 +1925,7 @@ public partial class MainWindow : Window
                 {
                     saveFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture");
                 }
-                
+
                 // 폴더가 없으면 생성
                 if (!System.IO.Directory.Exists(saveFolder))
                 {
@@ -1959,11 +1933,11 @@ public partial class MainWindow : Window
                 }
 
                 string timestamp = DateTime.Now.ToString("yyyy-MM-dd HHmmss");
-                
+
                 // 설정된 포맷에 맞는 확장자 결정
                 string format = currentSettings.FileSaveFormat.ToLower();
                 string ext = $".{format}";
-                
+
                 string filename = $"AutoSave_{timestamp}_{captures.Count + 1}{ext}";
                 string fullPath = System.IO.Path.Combine(saveFolder, filename);
 
@@ -1971,10 +1945,10 @@ public partial class MainWindow : Window
                 {
                     // 원본 파일로 저장
                     CatchCapture.Utilities.ScreenCaptureUtility.SaveImageToFile(image, fullPath, currentSettings.ImageQuality);
-                    
+
                     // ★ 썸네일 생성 (200x150)
                     var thumbnail = CaptureImage.CreateThumbnail(image, 200, 150);
-                    
+
                     // ★ 썸네일 모드로 CaptureImage 생성 (메모리 절약)
                     captureImage = new CaptureImage(thumbnail, fullPath, image.PixelWidth, image.PixelHeight);
                 }
@@ -1990,7 +1964,7 @@ public partial class MainWindow : Window
                 // 자동저장 OFF → 기존 방식 (원본 메모리 유지)
                 captureImage = new CaptureImage(image);
             }
-            
+
             captures.Add(captureImage);
 
             // UI에 이미지 추가 - 최신 캡처를 위에 표시하기 위해 인덱스 0에 추가
@@ -2002,19 +1976,24 @@ public partial class MainWindow : Window
 
             // 버튼 상태 업데이트
             UpdateButtonStates();
-            
-            
+
+
             // 간편모드가 활성화된 경우 (최우선 체크)
             if (simpleModeWindow != null)
             {
                 // 간편모드에서는 캡처 개수만 업데이트하고 창을 표시하지 않음
                 UpdateCaptureCount();
 
-                // 캡처 도중 숨겨졌을 수 있으므로 다시 표시
-                if (simpleModeWindow.Visibility != Visibility.Visible)
-                {
-                    simpleModeWindow.Show();
-                }
+                // [Fix] 다이얼로그 종료 후 포커스 전환 시 깜빡임 방지를 위해 비동기 실행
+                Dispatcher.BeginInvoke(new Action(() => {
+                    // 캡처 도중 숨겨졌을 수 있으므로 다시 표시
+                    if (simpleModeWindow != null && simpleModeWindow.Visibility != Visibility.Visible)
+                    {
+                        simpleModeWindow._suppressActivatedExpand = true;
+                        simpleModeWindow.Show();
+                        simpleModeWindow.Activate();
+                    }
+                }), System.Windows.Threading.DispatcherPriority.Background);
 
                 // 캡처 후 편집창 자동 열기 (또는 미리보기)
                 if (!skipPreview && (settings.OpenEditorAfterCapture || settings.ShowPreviewAfterCapture))
@@ -2031,9 +2010,15 @@ public partial class MainWindow : Window
                     trayModeWindow = new TrayModeWindow(this);
                 }
                 
-                // 캡처 도중 숨겨졌을 수 있으므로 다시 표시
-                trayModeWindow.Show();
-                trayModeWindow.UpdateCaptureCount(captures.Count);
+                // [Fix] 비동기 실행으로 깜빡임 방지
+                Dispatcher.BeginInvoke(new Action(() => {
+                    if (trayModeWindow != null)
+                    {
+                        trayModeWindow.Show();
+                        trayModeWindow.Activate();
+                        trayModeWindow.UpdateCaptureCount(captures.Count);
+                    }
+                }), System.Windows.Threading.DispatcherPriority.Background);
                 
                 // 트레이모드에서는 자동으로 클립보드에 복사
                 try
@@ -2043,7 +2028,6 @@ public partial class MainWindow : Window
                 }
                 catch
                 {
-                    // 실패 시 재시도 없이 안내 메시지 표시하고 종료 (프로그램 멈춤 방지)
                     ShowGuideMessage(LocalizationManager.GetString("ClipboardCopyFailed"), TimeSpan.FromSeconds(3));
                 }
 
@@ -2056,16 +2040,16 @@ public partial class MainWindow : Window
             else
             {
                 // 일반 모드: 창 표시
-                // 캡처 개수 업데이트 (일반 모드용)
                 UpdateCaptureCount();
                 
-                // 창 표시 (트레이 모드가 아니고 간편모드가 아닐 때만) — 단, 캡처 직후 프리뷰 자동 열기 설정이 켜져 있으면 메인창을 표시하지 않음
-                // 창 표시 (트레이 모드가 아니고 간편모드가 아닐 때만, 그리고 showMainWindow가 true일 때만)
+                // [Fix] 비동기 실행으로 깜빡임 방지
                 if (showMainWindow && !settings.ShowPreviewAfterCapture && !settings.OpenEditorAfterCapture)
                 {
-                    this.Show();
-                    this.WindowState = WindowState.Normal;
-                    this.Activate();
+                    Dispatcher.BeginInvoke(new Action(() => {
+                        this.Show();
+                        this.WindowState = WindowState.Normal;
+                        this.Activate();
+                    }), System.Windows.Threading.DispatcherPriority.Background);
                 }
                 
                 // 캡처 후 미리보기 표시 설정 확인
@@ -2089,7 +2073,7 @@ public partial class MainWindow : Window
                     _autoPreviewOpenCount++;
                     try { this.Hide(); } catch { }
                 }
-            
+
             // 로고 표시 상태 업데이트
             UpdateEmptyStateLogo();
             }
@@ -2109,7 +2093,7 @@ public partial class MainWindow : Window
 
         // 그리드 생성
         Grid grid = new Grid();
-        
+
         // 이미지 컨트롤 생성
         Image image = new Image
         {
@@ -2119,14 +2103,14 @@ public partial class MainWindow : Window
             Stretch = Stretch.Uniform,
             HorizontalAlignment = HorizontalAlignment.Center
         };
-        
+
         RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.NearestNeighbor);
 
         // 인덱스를 태그로 저장
         image.Tag = index;
 
         // 더블 클릭 이벤트 (미리보기)
-        image.MouseDown += (s, e) => 
+        image.MouseDown += (s, e) =>
         {
             if (e.ClickCount == 2)
             {
@@ -2138,7 +2122,7 @@ public partial class MainWindow : Window
         };
 
         grid.Children.Add(image);
-        
+
         // 이미지 크기 텍스트
         Border sizeBorder = new Border
         {
@@ -2149,14 +2133,14 @@ public partial class MainWindow : Window
             VerticalAlignment = VerticalAlignment.Bottom,
             Margin = new Thickness(0, 0, 6, 6)
         };
-        
+
         TextBlock sizeText = new TextBlock
         {
             Text = $"{captureImage.OriginalWidth} x {captureImage.OriginalHeight}",
             Foreground = Brushes.White,
             FontSize = 10
         };
-        
+
         sizeBorder.Child = sizeText;
         grid.Children.Add(sizeBorder);
 
@@ -2198,15 +2182,15 @@ public partial class MainWindow : Window
         var googleIcon = new Image
         {
             Source = new BitmapImage(new Uri("pack://application:,,,/Icons/google_img.png")),
-            Width = 16, 
-            Height = 16, 
+            Width = 16,
+            Height = 16,
             Stretch = Stretch.Uniform
         };
         RenderOptions.SetBitmapScalingMode(googleIcon, BitmapScalingMode.HighQuality);
         googleBtn.Content = googleIcon;
-        
+
         // 클릭 이벤트 연결
-        googleBtn.Click += (s, e) => 
+        googleBtn.Click += (s, e) =>
         {
             e.Handled = true;
             SearchImageOnGoogle(captureImage.GetOriginalImage());
@@ -2223,7 +2207,7 @@ public partial class MainWindow : Window
                 BorderBrush = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0)),
                 Cursor = Cursors.Hand, ToolTip = toolTip
             };
-            
+
             // 둥근 버튼 스타일 적용
             var template = new ControlTemplate(typeof(Button));
             var borderFactory = new FrameworkElementFactory(typeof(Border));
@@ -2255,7 +2239,7 @@ public partial class MainWindow : Window
 
         // 삭제 버튼 추가
         Button deleteBtn = CreateHoverButton("delete_selected.png", LocalizationManager.GetString("Delete"));
-        deleteBtn.Click += (s, e) => 
+        deleteBtn.Click += (s, e) =>
         {
             e.Handled = true;
             if (settings.ShowSavePrompt && !captureImage.IsSaved)
@@ -2267,7 +2251,7 @@ public partial class MainWindow : Window
             // 리스트에서 제거 로직
            Border? currentBorder = null;
             foreach (var child in CaptureListPanel.Children) {
-                if (child is Border b && 
+                if (child is Border b &&
                     b.Child == grid) { currentBorder = b; break; }
             }
             if (currentBorder != null) {
@@ -2279,7 +2263,7 @@ public partial class MainWindow : Window
                 selectedBorder = null; selectedIndex = -1;
             }
         };
-        
+
         // 둥근 버튼 스타일 적용
         var shareTemplate = new ControlTemplate(typeof(Button));
         var shareBorderFactory = new FrameworkElementFactory(typeof(Border));
@@ -2323,7 +2307,7 @@ public partial class MainWindow : Window
         border.MouseLeave += (s, e) => buttonPanel.Visibility = Visibility.Collapsed;
 
         // 클릭 이벤트 (선택)
-        border.MouseLeftButtonDown += (s, e) => 
+        border.MouseLeftButtonDown += (s, e) =>
         {
             // 더블클릭 시 미리보기 창 열기
             if (e.ClickCount == 2)
@@ -2355,9 +2339,9 @@ public partial class MainWindow : Window
                 {
                     System.IO.Directory.CreateDirectory(tempFolder);
                 }
-                
+
                 string tempPath = System.IO.Path.Combine(tempFolder, $"share_{DateTime.Now:yyyyMMdd_HHmmss}.png");
-                
+
                 // PNG로 저장
                 var encoder = new PngBitmapEncoder();
                 encoder.Frames.Add(BitmapFrame.Create(image));
@@ -2365,24 +2349,24 @@ public partial class MainWindow : Window
                 {
                     encoder.Save(fs);
                 }
-                
+
                 // 2. Windows Share 대화상자 호출 (Windows 10 이상)
                 var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
-                
+
                 // DataTransferManager 가져오기
                 var dataTransferManager = Windows.ApplicationModel.DataTransfer.DataTransferManagerInterop.GetForWindow(hwnd);
-                
+
                 dataTransferManager.DataRequested += async (s, args) =>
                 {
                     var request = args.Request;
                     request.Data.Properties.Title = LocalizationManager.GetString("ShareImageTitle");
                     request.Data.Properties.Description = LocalizationManager.GetString("ShareImageDesc");
-                    
+
                     var storageFile = await Windows.Storage.StorageFile.GetFileFromPathAsync(tempPath);
                     request.Data.SetStorageItems(new[] { storageFile });
                     request.Data.SetBitmap(Windows.Storage.Streams.RandomAccessStreamReference.CreateFromFile(storageFile));
                 };
-                
+
                 Windows.ApplicationModel.DataTransfer.DataTransferManagerInterop.ShowShareUIForWindow(hwnd);
             }
             catch (Exception ex)
@@ -2560,13 +2544,13 @@ public partial class MainWindow : Window
     {
         // 자동 파일 이름 생성
         string timestamp = DateTime.Now.ToString("yyyy-MM-dd HHmmss");
-        
+
         // 설정에서 포맷 가져오기
         string format = settings.FileSaveFormat; // PNG, JPG, BMP, GIF, WEBP
         string ext = $".{format}";
-        
+
         string defaultFileName = $"캡처 {timestamp}{ext}";
-        
+
         // 필터 생성 (설정된 포맷을 최우선으로)
         string filter = "모든 파일|*.*";
         if (format.Equals("PNG", StringComparison.OrdinalIgnoreCase))
@@ -2579,14 +2563,14 @@ public partial class MainWindow : Window
             filter = "GIF 이미지|*.gif|PNG 이미지|*.png|JPEG 이미지|*.jpg|BMP 이미지|*.bmp|WEBP 이미지|*.webp|" + filter;
         else if (format.Equals("WEBP", StringComparison.OrdinalIgnoreCase))
             filter = "WEBP 이미지|*.webp|PNG 이미지|*.png|JPEG 이미지|*.jpg|BMP 이미지|*.bmp|GIF 이미지|*.gif|" + filter;
-        
+
         var dialog = new SaveFileDialog
         {
             Title = LocalizationManager.GetString("SaveImage"),
             Filter = filter,
             DefaultExt = ext,
             FileName = defaultFileName,
-            FilterIndex = 1 
+            FilterIndex = 1
         };
 
         if (dialog.ShowDialog() == true)
@@ -2621,7 +2605,7 @@ public partial class MainWindow : Window
         {
             string folderPath = dialog.SelectedPath;
             string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-            
+
             // 설정에서 포맷과 품질 가져오기
             string format = settings.FileSaveFormat.ToLower();
             string ext = $".{format}";
@@ -2659,8 +2643,8 @@ public partial class MainWindow : Window
             int uiIndex = -1;
             for (int i = 0; i < CaptureListPanel.Children.Count; i++)
             {
-                if (CaptureListPanel.Children[i] is Border border && 
-                    border.Tag is int borderTag && 
+                if (CaptureListPanel.Children[i] is Border border &&
+                    border.Tag is int borderTag &&
                     borderTag == selectedIndex)
                 {
                     uiIndex = i;
@@ -2679,20 +2663,20 @@ public partial class MainWindow : Window
                             img.Source = null;
                     }
                 }
-                
+
                 CaptureListPanel.Children.RemoveAt(uiIndex);
             }
 
             // ★ 메모리 최적화: 삭제 전 Dispose 호출
             captures[selectedIndex].Dispose();
-            
+
             captures.RemoveAt(selectedIndex);
             UpdateCaptureItemIndexes();
             UpdateCaptureCount();
             UpdateButtonStates();
             selectedBorder = null;
             selectedIndex = -1;
-            
+
             UpdateEmptyStateLogo();
 
             // [메모리 최적화] 삭제 시 즉시 메모리 회수
@@ -2700,7 +2684,7 @@ public partial class MainWindow : Window
             GC.WaitForPendingFinalizers();
         }
     }
-    
+
     // 캡처 아이템 인덱스 업데이트
     private void UpdateCaptureItemIndexes()
     {
@@ -2784,9 +2768,9 @@ public partial class MainWindow : Window
         selectedIndex = -1;
         UpdateButtonStates();
         UpdateCaptureCount();
-        
+
         UpdateEmptyStateLogo();
-        
+
         // [메모리 최적화] 삭제 후 즉시 메모리 회수
         GC.Collect(0, GCCollectionMode.Forced);
         GC.WaitForPendingFinalizers();
@@ -2812,22 +2796,22 @@ public partial class MainWindow : Window
     {
         // 미리보기 창 생성
         PreviewWindow previewWindow = new PreviewWindow(image, index, captures);
-        previewWindow.ImageUpdated += (sender, e) => 
+        previewWindow.ImageUpdated += (sender, e) =>
         {
             if (e.Index >= 0 && e.Index < captures.Count)
             {
                 // 이미지 업데이트
                 captures[e.Index].Image = e.NewImage;
-                
+
                 // 썸네일 업데이트 - 데이터 인덱스에 해당하는 UI 인덱스 찾기
                 for (int i = 0; i < CaptureListPanel.Children.Count; i++)
                 {
-                    if (CaptureListPanel.Children[i] is Border border && 
-                        border.Tag is int borderTag && 
+                    if (CaptureListPanel.Children[i] is Border border &&
+                        border.Tag is int borderTag &&
                         borderTag == e.Index)
                     {
-                        if (border.Child is Grid grid && 
-                            grid.Children.Count > 0 && 
+                        if (border.Child is Grid grid &&
+                            grid.Children.Count > 0 &&
                             grid.Children[0] is Image thumbnailImage)
                         {
                             thumbnailImage.Source = e.NewImage;
@@ -2837,7 +2821,7 @@ public partial class MainWindow : Window
                 }
             }
         };
-        
+
         previewWindow.Owner = this;
         previewWindow.Show();
         return previewWindow;
@@ -2848,7 +2832,7 @@ public partial class MainWindow : Window
         guideWindow.Owner = this;
         guideWindow.Show();
     }
-    
+
     // 구글 렌즈 검색 기능 (HTML 리다이렉트 방식 - 2025년 대응)
     // 구글 렌즈 검색 기능 (공용 유틸리티 사용)
     public void SearchImageOnGoogle(BitmapSource image)
@@ -2907,15 +2891,15 @@ public partial class MainWindow : Window
         try
         {
             if (hwndSource == null) return;
-            
+
             var helper = new WindowInteropHelper(this);
             IntPtr hwnd = helper.Handle;
-            
+
             // 기존 단축키 해제
             UnregisterHotKey(hwnd, HOTKEY_ID_AREA);
             UnregisterHotKey(hwnd, HOTKEY_ID_FULLSCREEN);
             UnregisterHotKey(hwnd, HOTKEY_ID_WINDOW);
-            
+
             // 설정에서 단축키 가져오기
             if (settings.Hotkeys.RegionCapture.Enabled)
             {
@@ -2977,7 +2961,7 @@ public partial class MainWindow : Window
         {
             var helper = new WindowInteropHelper(this);
             IntPtr hwnd = helper.Handle;
-            
+
             UnregisterHotKey(hwnd, HOTKEY_ID_AREA);
             UnregisterHotKey(hwnd, HOTKEY_ID_FULLSCREEN);
             UnregisterHotKey(hwnd, HOTKEY_ID_WINDOW);
@@ -2986,7 +2970,7 @@ public partial class MainWindow : Window
             UnregisterHotKey(hwnd, HOTKEY_ID_SIMPLE);
             UnregisterHotKey(hwnd, HOTKEY_ID_TRAY);
             UnregisterHotKey(hwnd, HOTKEY_ID_OPENEDITOR);
-            
+
             hwndSource?.RemoveHook(HwndHook);
         }
         catch { /* 해제 중 오류 무시 */ }
@@ -2996,12 +2980,12 @@ public partial class MainWindow : Window
     {
         uint modifiers = 0;
         uint key = 0;
-        
+
         if (hotkey.Ctrl) modifiers |= 0x0002; // MOD_CONTROL
         if (hotkey.Alt) modifiers |= 0x0001; // MOD_ALT
         if (hotkey.Shift) modifiers |= 0x0004; // MOD_SHIFT
         if (hotkey.Win) modifiers |= 0x0008; // MOD_WIN
-        
+
         // 키 변환
         if (!string.IsNullOrEmpty(hotkey.Key))
         {
@@ -3009,13 +2993,13 @@ public partial class MainWindow : Window
             {
                 key = (uint)char.ToUpper(hotkey.Key[0]);
             }
-            else if (hotkey.Key.StartsWith("F", StringComparison.OrdinalIgnoreCase) && 
+            else if (hotkey.Key.StartsWith("F", StringComparison.OrdinalIgnoreCase) &&
                     int.TryParse(hotkey.Key.Substring(1), out int fNum) && fNum >= 1 && fNum <= 12)
             {
                 key = (uint)(0x70 + fNum - 1); // VK_F1 = 0x70
             }
         }
-        
+
         return (modifiers, key);
     }
 
@@ -3031,7 +3015,7 @@ public partial class MainWindow : Window
 
     private const int VK_F1 = 0x70;
     private const int VK_ESCAPE = 0x1B;
-    
+
     private LowLevelKeyboardProc? _f1HookProc;
     private IntPtr _f1HookID = IntPtr.Zero;
 
@@ -3039,28 +3023,28 @@ public partial class MainWindow : Window
     {
         // 원래 모드 기억
         wasInTrayModeBeforeRealTimeCapture = settings.IsTrayMode;
-        
+
         // 캡처 시작 전 메인 창이 보인다면 일반 모드로 확실히 설정
         if (this.Visibility == Visibility.Visible)
         {
             settings.IsTrayMode = false;
             Settings.Save(settings);
         }
-        
+
         // 메인 창 숨기기
         this.Hide();
-        
+
         // 안내 메시지 표시
         var guide = new GuideWindow(LocalizationManager.GetString("RealTimeF1Guide"), null);
         guide.Show();
 
         // 훅 설치
         _f1HookProc = F1HookCallback;
-        
+
         // GetModuleHandle(null) returns the handle to the file used to create the calling process (.exe)
         IntPtr hModule = GetModuleHandle(null);
         _f1HookID = SetWindowsHookEx(WH_KEYBOARD_LL, _f1HookProc, hModule, 0);
-        
+
         if (_f1HookID == IntPtr.Zero)
         {
             // 훅 설치 실패 시 에러 표시 및 복구
@@ -3130,19 +3114,19 @@ public partial class MainWindow : Window
         if (msg == WM_HOTKEY)
         {
             int id = wParam.ToInt32();
-            
+
             switch (id)
             {
                 case HOTKEY_ID_AREA:
                     Dispatcher.Invoke(() => StartAreaCapture());
                     handled = true;
                     break;
-                    
+
                 case HOTKEY_ID_FULLSCREEN:
                     Dispatcher.Invoke(() => CaptureFullScreen());
                     handled = true;
                     break;
-                    
+
                 case HOTKEY_ID_WINDOW:
                     Dispatcher.Invoke(() => DesignatedCaptureButton_Click(this, new RoutedEventArgs()));
                     handled = true;
@@ -3174,7 +3158,7 @@ public partial class MainWindow : Window
                     break;
             }
         }
-        
+
         return IntPtr.Zero;
     }
 
@@ -3293,7 +3277,7 @@ public partial class MainWindow : Window
     {
         // ★ 간편모드 상태 저장 (맨 처음에 추가)
         settings.LastActiveMode = "Simple";
-        Settings.Save(settings);        
+        Settings.Save(settings);
         if (simpleModeWindow == null)
         {
             simpleModeWindow = new SimpleModeWindow(this);
@@ -3302,24 +3286,24 @@ public partial class MainWindow : Window
             // 간편모드를 작업표시줄 대표로 사용하기 위해 Owner 해제 및 Taskbar 표시
 
             // 이벤트 핸들러 등록
-            simpleModeWindow.AreaCaptureRequested += async (s, e) => 
+            simpleModeWindow.AreaCaptureRequested += async (s, e) =>
             {
                 // 즉시편집 설정 확인
                 var currentSettings = Settings.Load();
                 bool instantEdit = currentSettings.SimpleModeInstantEdit;
-                
+
                 // 캐시된 스크린샷을 사용하여 빠른 영역 캡처
                 var cachedScreen = await Task.Run(() => ScreenCaptureUtility.CaptureScreen());
-                
+
                 // SnippingWindow 표시 (여기서 사용자가 영역 선택)
                 using var snippingWindow = new SnippingWindow(false, cachedScreen);
-                
+
                 // 즉시편집 모드 활성화 (ShowDialog 전에 설정)
                 if (instantEdit)
                 {
                     snippingWindow.EnableInstantEditMode();
                 }
-                
+
                 if (snippingWindow.ShowDialog() == true)
                 {
                     // 선택된 영역 캡처 - 동결된 프레임 우선 사용
@@ -3351,32 +3335,32 @@ public partial class MainWindow : Window
                     simpleModeWindow?.Activate();
                 }
             };
-            
-            simpleModeWindow.FullScreenCaptureRequested += (s, e) => 
+
+            simpleModeWindow.FullScreenCaptureRequested += (s, e) =>
             {
                 // 전체화면 캡처 수행
                 FlushUIAfterHide();
-                
+
                 var capturedImage = ScreenCaptureUtility.CaptureScreen();
-                
+
                 // 클립보드에 복사
                 ScreenCaptureUtility.CopyImageToClipboard(capturedImage);
-                
+
                 // 캡처 목록에 추가
                 AddCaptureToList(capturedImage);
-                
+
                 // 간편모드 창 다시 표시
                 simpleModeWindow?.Show();
                 simpleModeWindow?.Activate();
             };
-            
+
             simpleModeWindow.DesignatedCaptureRequested += (s, e) =>
             {
                 // 간편모드 전용 지정캡처 로직 (메인창 표시하지 않음)
                 PerformDesignatedCaptureForSimpleMode();
             };
-            
-            simpleModeWindow.ExitSimpleModeRequested += (s, e) => 
+
+            simpleModeWindow.ExitSimpleModeRequested += (s, e) =>
             {
                 HideSimpleMode();
                 this.Show();
@@ -3415,7 +3399,7 @@ public partial class MainWindow : Window
             // Close() 대신 Hide()를 사용하여 프로그램 종료 방지
             simpleModeWindow.Hide();
         }
-        
+
         // 메인 창 복원 및 작업표시줄 아이콘 다시 표시
         this.ShowInTaskbar = true;
         this.WindowState = WindowState.Normal;
@@ -3478,7 +3462,7 @@ public partial class MainWindow : Window
     {
         // 현재 모드 저장
         var previousMode = settings.LastActiveMode;
-        
+
         var win = new SettingsWindow();
         win.Owner = this;
         var result = win.ShowDialog();
@@ -3489,7 +3473,7 @@ public partial class MainWindow : Window
             // 단축키 재등록
             RegisterGlobalHotkeys();
             UpdateInstantEditToggleUI();
-            
+
             // ★ 모드가 변경된 경우 자동으로 전환
             if (previousMode != settings.LastActiveMode)
             {
@@ -3726,14 +3710,14 @@ public partial class MainWindow : Window
     }
 
     #region Trigger Methods for TrayModeWindow
-    
+
     public void TriggerDelayCapture(int seconds = 0)
     {
         if (seconds > 0)
         {
             captureDelaySeconds = seconds;
         }
-        
+
         // 실시간 카운트다운 표시 후 캡처 시작
         if (captureDelaySeconds <= 0)
         {
@@ -3886,11 +3870,11 @@ public partial class MainWindow : Window
         // 1. 윈도우 제목
         this.Title = LocalizationManager.GetString("AppTitle");
         if (TitleBarAppNameText != null) TitleBarAppNameText.Text = LocalizationManager.GetString("AppTitle");
-        
+
         if (InstantEditLabel != null) InstantEditLabel.Text = LocalizationManager.GetString("InstantEdit");
         if (InstantEditPanel != null) InstantEditPanel.ToolTip = GetLocalizedTooltip("InstantEdit");
         if (InstantEditLabel != null && InstantEditPanel == null) InstantEditLabel.ToolTip = GetLocalizedTooltip("InstantEdit");
-        
+
         if (OpenEditorLabel != null) OpenEditorLabel.Text = LocalizationManager.GetString("OpenEditor");
         if (OpenEditorPanel != null) OpenEditorPanel.ToolTip = GetLocalizedTooltip("OpenEditor");
         if (OpenEditorLabel != null && OpenEditorPanel == null) OpenEditorLabel.ToolTip = GetLocalizedTooltip("OpenEditor");
@@ -3898,10 +3882,10 @@ public partial class MainWindow : Window
         // 2. 메인 버튼들
         if (AreaCaptureButtonText != null) AreaCaptureButtonText.Text = LocalizationManager.GetString("AreaCapture");
         if (AreaCaptureButton != null) AreaCaptureButton.ToolTip = GetLocalizedTooltip("AreaCapture");
-        
+
         if (DelayCaptureButtonText != null) DelayCaptureButtonText.Text = LocalizationManager.GetString("DelayCapture");
         if (DelayCaptureButton != null) DelayCaptureButton.ToolTip = GetLocalizedTooltip("DelayCapture");
-        
+
         if (DelayNoneMenu != null) DelayNoneMenu.Header = LocalizationManager.GetString("DelayNone");
         if (Delay3Menu != null) Delay3Menu.Header = LocalizationManager.GetString("Delay3Sec");
         if (Delay5Menu != null) Delay5Menu.Header = LocalizationManager.GetString("Delay5Sec");
@@ -3909,37 +3893,37 @@ public partial class MainWindow : Window
 
         if (RealTimeCaptureButtonText != null) RealTimeCaptureButtonText.Text = LocalizationManager.GetString("RealTimeCapture");
         if (RealTimeCaptureButton != null) RealTimeCaptureButton.ToolTip = GetLocalizedTooltip("RealTimeCapture");
-        
+
         if (MultiCaptureButtonText != null) MultiCaptureButtonText.Text = LocalizationManager.GetString("MultiCapture");
         if (MultiCaptureButton != null) MultiCaptureButton.ToolTip = GetLocalizedTooltip("MultiCapture");
-        
+
         if (FullScreenButtonText != null) FullScreenButtonText.Text = LocalizationManager.GetString("FullScreen");
         if (FullScreenCaptureButton != null) FullScreenCaptureButton.ToolTip = GetLocalizedTooltip("FullScreen");
-        
+
         if (DesignatedCaptureButtonText != null) DesignatedCaptureButtonText.Text = LocalizationManager.GetString("DesignatedCapture");
         if (DesignatedCaptureButton != null) DesignatedCaptureButton.ToolTip = GetLocalizedTooltip("DesignatedCapture");
-        
+
         if (WindowCaptureButtonText != null) WindowCaptureButtonText.Text = LocalizationManager.GetString("WindowCapture");
         if (WindowCaptureButton != null) WindowCaptureButton.ToolTip = GetLocalizedTooltip("WindowCapture");
-        
+
         if (ElementCaptureButtonText != null) ElementCaptureButtonText.Text = LocalizationManager.GetString("ElementCapture");
         if (ElementCaptureButton != null) ElementCaptureButton.ToolTip = GetLocalizedTooltip("ElementCapture");
-        
+
         if (ScrollCaptureButtonText != null) ScrollCaptureButtonText.Text = LocalizationManager.GetString("ScrollCapture");
         if (ScrollCaptureButton != null) ScrollCaptureButton.ToolTip = GetLocalizedTooltip("ScrollCapture");
-        
+
         if (OcrCaptureButtonText != null) OcrCaptureButtonText.Text = LocalizationManager.GetString("OcrCapture");
         if (OcrCaptureButton != null) OcrCaptureButton.ToolTip = GetLocalizedTooltip("OcrCapture");
-        
+
         if (ScreenRecordButtonText != null) ScreenRecordButtonText.Text = LocalizationManager.GetString("ScreenRecording");
         if (ScreenRecordButton != null) ScreenRecordButton.ToolTip = GetLocalizedTooltip("ScreenRecording");
-        
+
         if (SimpleModeButtonText != null) SimpleModeButtonText.Text = LocalizationManager.GetString("SimpleMode");
         if (SimpleModeButton != null) SimpleModeButton.ToolTip = GetLocalizedTooltip("SimpleMode");
-        
+
         if (TrayModeButtonText != null) TrayModeButtonText.Text = LocalizationManager.GetString("TrayMode");
         if (TrayModeButton != null) TrayModeButton.ToolTip = GetLocalizedTooltip("TrayMode");
-        
+
         if (ModeSelectText != null) ModeSelectText.Text = LocalizationManager.GetString("ModeSelect");
         // 3. 하단 아이콘 버튼들
         if (SettingsBottomText != null) SettingsBottomText.Text = LocalizationManager.GetString("Settings");
@@ -3989,7 +3973,7 @@ public partial class MainWindow : Window
                 }
             }
         }
-        
+
         // 타이틀바 및 기타 버튼 로컬라이제이션
         if (TitleSimpleModeButton != null) TitleSimpleModeButton.ToolTip = LocalizationManager.GetString("SimpleMode");
         if (TitleTrayModeButton != null) TitleTrayModeButton.ToolTip = LocalizationManager.GetString("TrayMode");
@@ -4021,7 +4005,7 @@ public partial class MainWindow : Window
             _keyboardHookId = SetWindowsHookEx(WH_KEYBOARD_LL, _keyboardProc, GetModuleHandle(curModule.ModuleName!), 0);
         }
     }
-    
+
     // ★ Low-Level Keyboard Hook 해제
     private void UninstallKeyboardHook()
     {
@@ -4031,14 +4015,14 @@ public partial class MainWindow : Window
             _keyboardHookId = IntPtr.Zero;
         }
     }
-    
+
     // ★ 키보드 Hook 콜백
     private IntPtr KeyboardHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
     {
         if (nCode >= 0 && (wParam == (IntPtr)WM_KEYDOWN || wParam == (IntPtr)WM_SYSKEYDOWN))
         {
             int vkCode = Marshal.ReadInt32(lParam);
-            
+
             // Print Screen 키 감지
             if (vkCode == VK_SNAPSHOT && settings.UsePrintScreenKey)
             {
@@ -4082,12 +4066,12 @@ public partial class MainWindow : Window
                             break;
                     }
                 }));
-                
+
                 // ★ 이벤트를 삼켜서 윈도우 기본 캡처 방지
                 return (IntPtr)1;
             }
         }
-        
+
         return CallNextHookEx(_keyboardHookId, nCode, wParam, lParam);
     }
     private List<string> GetDefaultTips(string lang)
@@ -4129,7 +4113,7 @@ public partial class MainWindow : Window
     {
         // 최신 설정 로드 (언어 확인용)
         var currentSettings = Settings.Load();
-        
+
         // 초기 팁 설정
         tips = GetDefaultTips(currentSettings.Language);
 
@@ -4140,7 +4124,7 @@ public partial class MainWindow : Window
             client.Timeout = TimeSpan.FromSeconds(5);
             string url = "https://ezupsoft.com/catchcapture/tooltip.html";
             string json = await client.GetStringAsync(url);
-            
+
             var tipData = System.Text.Json.JsonSerializer.Deserialize<TipData>(json);
             if (tipData?.tips != null)
             {
@@ -4178,26 +4162,26 @@ public partial class MainWindow : Window
             }
         };
         tipTimer.Start();
-        
+
         // 설정 변경 시 팁 다시 로드 (언어 변경 포함)
         CatchCapture.Models.Settings.SettingsChanged += async (s, e) =>
         {
             await ReloadTips();
         };
     }
-    
+
     private async Task ReloadTips()
     {
         try
         {
             // 언어 변경 확인을 위해 설정 다시 로드
             var currentSettings = Settings.Load();
-            
+
             // ★ 중요: 먼저 로컬 기본 팁으로 언어 변경 적용 (웹 실패 대비)
             tips = GetDefaultTips(currentSettings.Language);
-            
+
             // UI 즉시 업데이트
-            Dispatcher.Invoke(() => 
+            Dispatcher.Invoke(() =>
             {
                currentTipIndex = 0;
                if (tips.Count > 0) TipTextBlock.Text = tips[0];
@@ -4207,7 +4191,7 @@ public partial class MainWindow : Window
             client.Timeout = TimeSpan.FromSeconds(5);
             string url = "https://ezupsoft.com/catchcapture/tooltip.html";
             string json = await client.GetStringAsync(url);
-            
+
             var tipData = System.Text.Json.JsonSerializer.Deserialize<TipData>(json);
             if (tipData?.tips != null)
             {
@@ -4216,7 +4200,7 @@ public partial class MainWindow : Window
                 {
                     tips = langTips;
                     // 웹 데이터가 유효하면 업데이트
-                    Dispatcher.Invoke(() => 
+                    Dispatcher.Invoke(() =>
                     {
                        if (tips.Count > 0) TipTextBlock.Text = tips[0];
                     });
@@ -4234,7 +4218,7 @@ public partial class MainWindow : Window
 
     // Height auto-adjustment for menu count
     private double _baseMainWindowHeight = 740.0; // Increased baseline to compensate for static footer elements
-    private const double ButtonVerticalStep = 41.0; 
+    private const double ButtonVerticalStep = 41.0;
     private int _baselineMenuCount = 13; // Fixed baseline count (11 menu + 2 fixed)
 
     private void AdjustMainWindowHeightForMenuCount()
@@ -4256,12 +4240,12 @@ public partial class MainWindow : Window
                 }
             }
             catch { }
-            
+
             if (currentCount <= 0) currentCount = 11; // Fallback to safe default
 
             // Calculate diff from baseline (13)
             int diff = _baselineMenuCount - currentCount;
-            
+
             // Calculate target height
             double targetHeight = _baseMainWindowHeight - (diff * ButtonVerticalStep);
 
@@ -4271,7 +4255,7 @@ public partial class MainWindow : Window
             // Apply
             if (!double.IsNaN(targetHeight) && targetHeight > 0)
             {
-                this.MinHeight = targetHeight; 
+                this.MinHeight = targetHeight;
                 this.Height = targetHeight;
             }
         }
@@ -4285,7 +4269,7 @@ public partial class MainWindow : Window
         // MP3인 경우 프레임이 0이어도 허용
         bool isMp3 = settings.Format == CatchCapture.Models.RecordingFormat.MP3;
         if (recorder == null || (recorder.FrameCount == 0 && !isMp3)) return;
-        
+
         Dispatcher.Invoke(() =>
         {
             try
@@ -4297,23 +4281,23 @@ public partial class MainWindow : Window
                     thumbnail = recorder.GetThumbnail();
                     if (thumbnail == null) return;
                 }
-                
+
                 // 저장 경로 미리 계산
                 var currentSettings = Models.Settings.Load();
                 string saveFolder = currentSettings.DefaultSaveFolder;
-                
+
                 if (string.IsNullOrWhiteSpace(saveFolder))
                 {
                     saveFolder = System.IO.Path.Combine(
-                        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), 
+                        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                         "CatchCapture");
                 }
-                
+
                 if (!Directory.Exists(saveFolder))
                 {
                     Directory.CreateDirectory(saveFolder);
                 }
-                
+
                 string timestamp = DateTime.Now.ToString("yyyy-MM-dd HHmmss");
                 string ext;
                 switch (settings.Format)
@@ -4322,31 +4306,31 @@ public partial class MainWindow : Window
                     case CatchCapture.Models.RecordingFormat.MP3: ext = ".mp3"; break;
                     default: ext = ".mp4"; break;
                 }
-                
+
                 string filename = $"Recording_{timestamp}{ext}";
                 string fullPath = System.IO.Path.Combine(saveFolder, filename);
-                
+
                 // 동영상 썸네일 아이템 생성 (재생 버튼 포함)
                 // thumbnail이 null이어도 MP3면 내부에서 처리됨 (스피커 아이콘)
                 var (videoItem, encodingOverlay) = CreateVideoThumbnailItem(thumbnail!, fullPath);
                 CaptureListPanel.Children.Insert(0, videoItem);
-                
+
                 // 버튼 상태 업데이트 (전체 삭제 활성화 등)
                 UpdateButtonStates();
-                
+
                 // 백그라운드에서 저장 시작
                 _ = Task.Run(async () =>
                 {
                     try
                     {
                         await recorder.SaveRecordingAsync(fullPath);
-                        
+
                         // 저장 완료 시 인코딩 표시 제거 및 알림
                         Dispatcher.Invoke(() =>
                         {
                             // 인코딩 오버레이 숨기기 (또는 애니메이션 종료)
                             encodingOverlay.Visibility = Visibility.Collapsed;
-                            
+
                             // 저장 완료 토스트
                             ShowGuideMessage($"녹화 저장 완료: {filename}", TimeSpan.FromSeconds(2));
                         });
@@ -4361,7 +4345,7 @@ public partial class MainWindow : Window
                                 tb.Text = "❌ 오류";
                                 tb.Foreground = Brushes.Red;
                             }
-                            
+
                             MessageBox.Show($"녹화 저장 실패:\n{ex.Message}", "오류",
                                 MessageBoxButton.OK, MessageBoxImage.Error);
                         });
@@ -4379,7 +4363,7 @@ public partial class MainWindow : Window
             }
         });
     }
-    
+
     /// <summary>
     /// 동영상 썸네일 아이템 생성 (재생 버튼 오버레이 + 인코딩 표시 포함)
     /// </summary>
@@ -4399,18 +4383,18 @@ public partial class MainWindow : Window
             Cursor = Cursors.Hand,
             Tag = filePath // 파일 경로 저장
         };
-        
+
         var grid = new Grid();
-        
+
         if (isAudio)
         {
             // MP3용 배경 및 아이콘
             grid.Background = Brushes.Black;
-            
+
             // 중앙 스피커 아이콘
             var speakerIcon = new TextBlock
             {
-                Text = "🔊", 
+                Text = "🔊",
                 FontSize = 40,
                 Foreground = Brushes.White,
                 HorizontalAlignment = HorizontalAlignment.Center,
@@ -4427,7 +4411,7 @@ public partial class MainWindow : Window
                 Stretch = Stretch.UniformToFill
             };
             grid.Children.Add(image);
-            
+
             // 재생 버튼 오버레이 (반투명 원 + ▶)
             var playButtonBg = new Ellipse
             {
@@ -4438,7 +4422,7 @@ public partial class MainWindow : Window
                 VerticalAlignment = VerticalAlignment.Center
             };
             grid.Children.Add(playButtonBg);
-            
+
             var playIcon = new TextBlock
             {
                 Text = "▶",
@@ -4450,7 +4434,7 @@ public partial class MainWindow : Window
             };
             grid.Children.Add(playIcon);
         }
-        
+
         // 포맷 레이블 (우측 상단)
         var formatLabel = new Border
         {
@@ -4470,11 +4454,11 @@ public partial class MainWindow : Window
             Margin = new Thickness(4, 2, 4, 2)
         };
         formatLabel.Child = formatText;
-        
+
         grid.Children.Add(formatLabel);
-        
+
         border.Child = grid;
-        
+
         // 인코딩 중 오버레이 (기존 로직 유지)
         var encodingOverlay = new Border
         {
@@ -4485,14 +4469,14 @@ public partial class MainWindow : Window
             CornerRadius = new CornerRadius(0, 0, 2, 2),
             Visibility = Visibility.Visible // 기본적으로 보임
         };
-        
-        var stack = new StackPanel 
-        { 
-            Orientation = Orientation.Horizontal, 
+
+        var stack = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center
         };
-        
+
         // 회전하는 애니메이션 흉내낼 텍스트 또는 아이콘
         var encodingText = new TextBlock
         {
@@ -4504,18 +4488,18 @@ public partial class MainWindow : Window
         };
         stack.Children.Add(encodingText);
         encodingOverlay.Child = stack;
-        
+
         grid.Children.Add(encodingOverlay);
-        
+
         border.Child = grid;
-        
+
         // 1. 더블 클릭 시 플레이어로 열기 (사용자 요청)
         border.MouseLeftButtonDown += (s, e) =>
         {
             if (e.ClickCount == 2)
             {
                 var filePath = border.Tag as string;
-                
+
                 // 인코딩 중이라면 경고
                 if (encodingOverlay.Visibility == Visibility.Visible)
                 {
@@ -4523,7 +4507,7 @@ public partial class MainWindow : Window
                      e.Handled = true;
                      return;
                 }
-                
+
                 if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
                 {
                     try
@@ -4546,7 +4530,7 @@ public partial class MainWindow : Window
 
         // 2. 우클릭 컨텍스트 메뉴 (저장 폴더 열기, 삭제)
         var contextMenu = new ContextMenu();
-        
+
         var openFolderItem = new MenuItem { Header = "저장 폴더 열기" };
         openFolderItem.Click += (s, e) =>
         {
@@ -4574,18 +4558,18 @@ public partial class MainWindow : Window
         deleteItem.Click += (s, e) =>
         {
             var filePath = border.Tag as string;
-            var confirm = MessageBox.Show("이 동영상을 삭제하시겠습니까?", "삭제 확인", 
+            var confirm = MessageBox.Show("이 동영상을 삭제하시겠습니까?", "삭제 확인",
                 MessageBoxButton.YesNo, MessageBoxImage.Question);
-                
+
             if (confirm == MessageBoxResult.Yes)
             {
                 try
                 {
                     if (File.Exists(filePath)) File.Delete(filePath);
-                    
+
                     // UI에서 제거
                     CaptureListPanel.Children.Remove(border);
-                    
+
                     // 버튼 상태 업데이트 (동영상만 남았을 때도 고려)
                     UpdateButtonStates();
                 }
@@ -4599,7 +4583,7 @@ public partial class MainWindow : Window
         contextMenu.Items.Add(openFolderItem);
         contextMenu.Items.Add(deleteItem);
         border.ContextMenu = contextMenu;
-        
+
         // 마우스 호버 효과 (비디오만)
         if (!isAudio)
         {
@@ -4607,7 +4591,7 @@ public partial class MainWindow : Window
             {
                 border.BorderBrush = new SolidColorBrush(Color.FromRgb(255, 87, 87)); // 빨간색으로 변경
             };
-            
+
             border.MouseLeave += (s, e) =>
             {
                 border.BorderBrush = new SolidColorBrush(Color.FromRgb(67, 97, 238)); // 원래 색상
@@ -4620,13 +4604,13 @@ public partial class MainWindow : Window
             {
                 border.BorderBrush = new SolidColorBrush(Color.FromRgb(100, 150, 255));
             };
-            
+
             border.MouseLeave += (s, e) =>
             {
                 border.BorderBrush = new SolidColorBrush(Color.FromRgb(67, 97, 238));
             };
         }
-        
+
         return (border, encodingOverlay);
     }
 }
