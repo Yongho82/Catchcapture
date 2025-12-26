@@ -199,7 +199,7 @@
                          Padding="20"
                          CaretBrush="Black"
                          VerticalScrollBarVisibility="Auto"
-                         IsDocumentEnabled="False"
+                         IsDocumentEnabled="True"
                          SpellCheck.IsEnabled="False"
                          TextOptions.TextFormattingMode="Display"
                          RenderOptions.ClearTypeHint="Enabled">
