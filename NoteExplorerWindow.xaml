@@ -4,15 +4,17 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="내 노트 탐색기" Height="800" Width="1200"
+        Title="내 노트 탐색기" Height="850" Width="1400"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        
+        <!-- List Mode Item Container Style -->
         <Style x:Key="NoteItemStyle" TargetType="ListBoxItem">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0,0,0,1"/>
-            <Setter Property="BorderBrush" Value="#1FFFFFFF"/>
+            <Setter Property="BorderBrush" Value="#F0F0F0"/>
             <Setter Property="Padding" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -22,11 +24,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#1FFFFFFF"/>
+                                <Setter Property="Background" Value="#F5F7F9"/>
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="#2FFFFFFF"/>
-                                <Setter Property="BorderBrush" Value="#4FFFFFFF"/>
+                                <Setter Property="Background" Value="#EDF2FF"/>
+                                <Setter Property="BorderBrush" Value="#D0D7DE"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -34,93 +36,128 @@
             </Setter>
         </Style>
 
+        <!-- List Mode Column Styles -->
+        <Style x:Key="ListTextStyle" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="#333333"/>
+            <Setter Property="Margin" Value="10,0"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        </Style>
+
         <!-- List Mode Template -->
         <DataTemplate x:Key="ListTemplate">
-            <Grid Height="38">
+            <Grid Height="48">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="40"/>
-                    <ColumnDefinition Width="2*"/>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="150"/>
-                    <ColumnDefinition Width="40"/> <!-- Delete icon -->
+                    <ColumnDefinition Width="120"/> <!-- Category/Group -->
+                    <ColumnDefinition Width="2*"/>  <!-- Title -->
+                    <ColumnDefinition Width="3*"/>  <!-- Content (15 chars) -->
+                    <ColumnDefinition Width="150"/> <!-- Date -->
+                    <ColumnDefinition Width="60"/>  <!-- Actions -->
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="👁" Foreground="#66FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <TextBlock Grid.Column="1" Text="{Binding Title}" Foreground="White" VerticalAlignment="Center" Margin="10,0" TextTrimming="CharacterEllipsis"/>
-                <TextBlock Grid.Column="2" Text="기본 그룹" Foreground="#99FFFFFF" VerticalAlignment="Center" Margin="10,0"/>
-                <TextBlock Grid.Column="3" Text="{Binding CreatedAt, StringFormat=yyyy-MM-dd HH:mm}" Foreground="#99FFFFFF" VerticalAlignment="Center" Margin="10,0"/>
-                <Button Grid.Column="4" Content="🗑" Foreground="#44FFFFFF" Background="Transparent" BorderThickness="0" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand"/>
+                
+                <!-- Group -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="15,0,0,0">
+                    <Ellipse Width="8" Height="8" Fill="{Binding CategoryColor}" Margin="0,0,8,0"/>
+                    <TextBlock Text="{Binding CategoryName}" Style="{StaticResource ListTextStyle}" Margin="0" Foreground="#666666"/>
+                </StackPanel>
+                
+                <!-- Title -->
+                <TextBlock Grid.Column="1" Text="{Binding Title}" Style="{StaticResource ListTextStyle}" FontWeight="SemiBold"/>
+                
+                <!-- Content (Truncated) -->
+                <TextBlock Grid.Column="2" Text="{Binding TruncatedContent}" Style="{StaticResource ListTextStyle}" Foreground="#888888"/>
+                
+                <!-- Date -->
+                <TextBlock Grid.Column="3" Text="{Binding CreatedAt, StringFormat=yyyy-MM-dd HH:mm}" Style="{StaticResource ListTextStyle}" Foreground="#999999" HorizontalAlignment="Center"/>
+                
+                <!-- Delete Button -->
+                <Button Grid.Column="4" Content="✕" Click="BtnDeleteItem_Click" Tag="{Binding Id}"
+                        Background="Transparent" BorderThickness="0" Foreground="#CCCCCC" Cursor="Hand" 
+                        FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Foreground" Value="#E74C3C"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
             </Grid>
         </DataTemplate>
 
-        <!-- Card Mode Template -->
-        <DataTemplate x:Key="CardTemplate">
-            <Border Width="220" Height="260" Background="#1FFFFFFF" CornerRadius="12" Margin="8" Padding="12" BorderThickness="1" BorderBrush="#2FFFFFFF">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Text="{Binding Title}" Foreground="White" FontWeight="Bold" Margin="0,0,0,10" FontSize="14" TextTrimming="CharacterEllipsis"/>
-                    <Border Grid.Row="1" CornerRadius="8" Background="#2FFFFFFF" ClipToBounds="True">
-                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"/>
-                    </Border>
-                    <TextBlock Grid.Row="2" Text="{Binding CreatedAt, StringFormat=yyyy-MM-dd}" Foreground="#88FFFFFF" FontSize="11" Margin="0,10,0,0" HorizontalAlignment="Right"/>
-                </Grid>
-            </Border>
-        </DataTemplate>
-        
-        <!-- Tag Chip Style -->
-        <Style x:Key="TagChipStyle" TargetType="Button">
-            <Setter Property="Background" Value="#15FFFFFF"/>
-            <Setter Property="Foreground" Value="#CCFFFFFF"/>
-            <Setter Property="Padding" Value="10,4"/>
-            <Setter Property="Margin" Value="0,0,6,6"/>
-            <Setter Property="FontSize" Value="11"/>
+        <!-- Sidebar Button Style (Indented Left Aligned) -->
+        <Style x:Key="SidebarButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="#555555"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Padding" Value="25,10,15,10"/>
+            <Setter Property="Margin" Value="0,1"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="12" Padding="{TemplateBinding Padding}" BorderThickness="1" BorderBrush="#20FFFFFF">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="0,20,20,0" Margin="0,0,10,0">
+                            <StackPanel Orientation="Horizontal">
+                                <ContentPresenter VerticalAlignment="Center"/>
+                            </StackPanel>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#F0F2F5"/>
+                                <Setter Property="Foreground" Value="#333333"/>
+                            </Trigger>
+                            <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
+                                <Setter Property="Background" Value="#E8F0FE"/>
+                                <Setter Property="Foreground" Value="#1A73E8"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#30FFFFFF"/>
-                    <Setter Property="Foreground" Value="White"/>
-                </Trigger>
-            </Style.Triggers>
         </Style>
+
+        <!-- Sidebar Active Button Style -->
+        <Style x:Key="SidebarActiveButtonStyle" TargetType="Button" BasedOn="{StaticResource SidebarButtonStyle}">
+            <Setter Property="Background" Value="#E8F0FE"/>
+            <Setter Property="Foreground" Value="#1A73E8"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
     </Window.Resources>
 
-    <Border CornerRadius="20" BorderThickness="1" BorderBrush="#4FFFFFFF">
-        <Border.Background>
-            <SolidColorBrush Color="#FF1A1C1E"/>
-        </Border.Background>
+    <Border Background="#FDFDFD" CornerRadius="12" BorderThickness="1" BorderBrush="#E0E0E0">
         <Border.Effect>
-            <DropShadowEffect BlurRadius="30" Color="Black" Opacity="0.5" ShadowDepth="0"/>
+            <DropShadowEffect BlurRadius="25" Color="Black" Opacity="0.1" ShadowDepth="5"/>
         </Border.Effect>
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="60"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/> <!-- Action Bar -->
+                <RowDefinition Height="*"/>    <!-- Main Content -->
             </Grid.RowDefinitions>
 
-            <!-- Header / Top Bar (ezMemo Style) -->
-            <Grid Grid.Row="0" Background="#FF131313" Margin="0,0,0,1">
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="15,0">
-                    <Button x:Name="BtnNewNote" Content="📄 새 메모" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Foreground="White" Margin="0,0,10,0" Click="BtnNewNote_Click"/>
-                    <Button x:Name="BtnSelectAll" Content="🔵 모두 선택" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Foreground="White" Margin="0,0,10,0"/>
-                    <Button x:Name="BtnDelete" Content="🗑 삭제" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Foreground="White"/>
-                </StackPanel>
-                
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="15,0">
-                    <Border Background="#2FFFFFFF" CornerRadius="5" Width="250" Height="34" Margin="0,0,15,0">
+            <!-- Top Action Bar -->
+            <Grid Grid.Row="0" Margin="25,20,25,15">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="내 노트" FontSize="20" FontWeight="Bold" Foreground="#333333" Margin="0,0,20,0"/>
+                    
+                    <!-- Search Box -->
+                    <Border Background="#F1F3F4" CornerRadius="20" Width="300" Height="38" Padding="15,0">
                         <Grid>
-                            <TextBox x:Name="TxtSearch" Background="Transparent" Foreground="White" BorderThickness="0" Padding="10,5" VerticalContentAlignment="Center"/>
-                            <TextBlock Text="검색" Foreground="#5FFFFFFF" IsHitTestVisible="False" Margin="10,0" VerticalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="🔍" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="#5F6368"/>
+                            <TextBox x:Name="TxtSearch" Grid.Column="1" Background="Transparent" BorderThickness="0" 
+                                     VerticalContentAlignment="Center" FontSize="14" Foreground="#333333"/>
+                            <TextBlock Grid.Column="1" Text="검색" Foreground="#9AA0A6" IsHitTestVisible="False" 
+                                       VerticalAlignment="Center" Margin="2,0" FontSize="14">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -134,35 +171,140 @@
                             </TextBlock>
                         </Grid>
                     </Border>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <!-- Write Note Button -->
+                    <Button x:Name="BtnNewNote" Click="BtnNewNote_Click" Cursor="Hand" Margin="0,0,15,0">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="#8E2DE2" CornerRadius="19" Padding="18,8">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="✏️" Margin="0,0,8,0" VerticalAlignment="Center" FontSize="14"/>
+                                        <TextBlock Text="노트 쓰기" Foreground="White" FontWeight="Bold" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Opacity" Value="0.9"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
                     
-                    <Button x:Name="BtnListMode" Content="〓" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Foreground="White" FontSize="16" Width="30" Click="BtnListMode_Click"/>
-                    <Button x:Name="BtnCardMode" Content="☷" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Foreground="White" FontSize="16" Width="30" Click="BtnCardMode_Click"/>
-                    <Button x:Name="BtnClose" Content="✕" Foreground="White" Background="Transparent" BorderThickness="0" FontSize="18" Width="40" Height="40" Click="BtnClose_Click" Cursor="Hand"/>
+                    <Button x:Name="BtnClose" Width="34" Height="34" Click="BtnClose_Click" 
+                            Background="Transparent" BorderThickness="0" Cursor="Hand">
+                        <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" 
+                              Fill="#95A5A6" Stretch="Uniform" Width="14" Height="14"/>
+                    </Button>
                 </StackPanel>
             </Grid>
 
-            <!-- Content Area (Sidebar, List, Preview) -->
+            <!-- Main Workspace -->
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="200"/> <!-- Sidebar -->
-                    <ColumnDefinition Width="*"/>   <!-- Main List -->
-                    <ColumnDefinition Width="250"/> <!-- Right Preview -->
+                    <ColumnDefinition Width="220"/> <!-- Sidebar -->
+                    <ColumnDefinition Width="*"/>   <!-- Note List -->
+                    <ColumnDefinition Width="400"/> <!-- Preview -->
                 </Grid.ColumnDefinitions>
 
-                <!-- Sidebar (ezMemo Style) -->
-                <Border Background="#FF131313" BorderThickness="0,0,1,0" BorderBrush="#2FFFFFFF">
+                <!-- Sidebar -->
+                <Border BorderThickness="0,0,1,0" BorderBrush="#F0F0F0">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <StackPanel Margin="10">
-                            <Button Content="🏠 전체" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Foreground="White" HorizontalContentAlignment="Left" Padding="10,5" Margin="0,2" Click="BtnFilter_Click" Tag="All"/>
-                            <Button Content="📁 기본그룹" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Foreground="LightCoral" FontWeight="Bold" HorizontalContentAlignment="Left" Padding="10,5" Margin="0,2" Click="BtnFilter_Click" Tag="Default"/>
-                            <Button Content="📅 오늘" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Foreground="White" HorizontalContentAlignment="Left" Padding="10,5" Margin="0,2" Click="BtnFilter_Click" Tag="Today"/>
-                            <Button Content="📅 최근 7일" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Foreground="White" HorizontalContentAlignment="Left" Padding="10,5" Margin="0,2" Click="BtnFilter_Click" Tag="Recent"/>
-                            <Button Content="🚮 휴지통" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Foreground="Gray" HorizontalContentAlignment="Left" Padding="10,5" Margin="0,2" Click="BtnFilter_Click" Tag="Trash"/>
+                        <StackPanel Margin="0,10,0,0">
+                            <Button Content="🏠  전체 노트" Style="{StaticResource SidebarButtonStyle}" Click="BtnFilter_Click" Tag="All"/>
+                            <Button Content="📁  기본 그룹" Style="{StaticResource SidebarButtonStyle}" Click="BtnFilter_Click" Tag="Default" Foreground="#E74C3C"/>
+                            <Button Content="📅  오늘" Style="{StaticResource SidebarButtonStyle}" Click="BtnFilter_Click" Tag="Today"/>
+                            <Button Content="📅  최근 7일" Style="{StaticResource SidebarButtonStyle}" Click="BtnFilter_Click" Tag="Recent"/>
+                            <Button Content="🚮  휴지통" Style="{StaticResource SidebarButtonStyle}" Click="BtnFilter_Click" Tag="Trash"/>
                             
-                            <Separator Background="#20FFFFFF" Margin="0,15"/>
+                            <Separator Background="#F0F0F0" Margin="25,15,15,15"/>
                             
-                            <TextBlock Text="태그" Foreground="#55FFFFFF" FontSize="11" Margin="10,0,0,10"/>
-                            <ItemsControl x:Name="ItemsTags" Margin="5,0">
+                            <TextBlock Text="태그" Foreground="#9AA0A6" FontSize="12" FontWeight="Bold" Margin="25,0,0,10"/>
+                            <ItemsControl x:Name="ItemsTags" Margin="15,0">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Content="{Binding}" Click="BtnTag_Click" Tag="{Binding}" Margin="10,2">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border x:Name="brd" Padding="12,6" Background="#F1F3F4" CornerRadius="15">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="#" Foreground="#9AA0A6" Margin="0,0,4,0"/>
+                                                            <TextBlock Text="{TemplateBinding Content}" Foreground="#5F6368"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="brd" Property="Background" Value="#E8EAED"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+
+                <!-- Note List Area -->
+                <Grid Grid.Column="1" Background="White">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Background="#FBFCFD" Height="40" BorderThickness="0,0,0,1" BorderBrush="#F0F0F0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="3*"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="60"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="그룹" Foreground="#999999" FontSize="12" VerticalAlignment="Center" Margin="25,0,0,0"/>
+                            <TextBlock Grid.Column="1" Text="제목" Foreground="#999999" FontSize="12" VerticalAlignment="Center" Margin="10,0"/>
+                            <TextBlock Grid.Column="2" Text="내용" Foreground="#999999" FontSize="12" VerticalAlignment="Center" Margin="10,0"/>
+                            <TextBlock Grid.Column="3" Text="마지막 수정일" Foreground="#999999" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="4" Text="삭제" Foreground="#999999" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <ListBox x:Name="LstNotes" Grid.Row="1" Background="Transparent" BorderThickness="0" 
+                             ItemContainerStyle="{StaticResource NoteItemStyle}" 
+                             ItemTemplate="{StaticResource ListTemplate}"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             SelectionChanged="LstNotes_SelectionChanged"
+                             MouseDoubleClick="LstNotes_MouseDoubleClick">
+                    </ListBox>
+                </Grid>
+
+                <!-- Preview Panel -->
+                <Border Grid.Column="2" Background="#FBFCFD" BorderThickness="1,0,0,0" BorderBrush="#F0F0F0">
+                    <Grid x:Name="PreviewGrid" Margin="25" Visibility="Collapsed">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/> <!-- Title & App -->
+                            <RowDefinition Height="Auto"/> <!-- Date & Tags -->
+                            <RowDefinition Height="*"/>    <!-- Scrollable Content -->
+                            <RowDefinition Height="Auto"/> <!-- Edit Button -->
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Margin="0,0,0,15">
+                            <TextBlock x:Name="TxtPreviewTitle" Text="제목" FontSize="20" FontWeight="Bold" Foreground="#333333" TextWrapping="Wrap"/>
+                            <TextBlock x:Name="TxtPreviewApp" Text="Source App" FontSize="12" Foreground="#999999" Margin="0,5,0,0"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" Margin="0,0,0,20">
+                            <TextBlock x:Name="TxtPreviewDate" Text="2023-01-01 12:00" FontSize="12" Foreground="#888888"/>
+                            <ItemsControl x:Name="PreviewTags" Margin="0,10,0,0">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <WrapPanel/>
@@ -170,61 +312,54 @@
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Button Content="{Binding}" Style="{StaticResource TagChipStyle}" Click="BtnTag_Click" Tag="{Binding}"/>
+                                        <Border Background="#EEF2FF" CornerRadius="4" Padding="8,3" Margin="0,0,6,6">
+                                            <TextBlock Text="{Binding}" Foreground="#5C6BC0" FontSize="11" FontWeight="Medium"/>
+                                        </Border>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                         </StackPanel>
-                    </ScrollViewer>
-                </Border>
 
-                <!-- Note List (Main Area) -->
-                <Grid Grid.Column="1" Background="#FF1A1C1E">
-                    <!-- List Header for List Mode -->
-                    <Grid x:Name="ListHeader" VerticalAlignment="Top" Height="30" Background="#FF252525">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="40"/> <!-- Eye icon -->
-                            <ColumnDefinition Width="2*"/> <!-- Title -->
-                            <ColumnDefinition Width="1*"/> <!-- Group -->
-                            <ColumnDefinition Width="150"/> <!-- Date -->
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="1" Text="제목" Foreground="#99FFFFFF" FontSize="11" VerticalAlignment="Center" Margin="10,0"/>
-                        <TextBlock Grid.Column="2" Text="그룹" Foreground="#99FFFFFF" FontSize="11" VerticalAlignment="Center" Margin="10,0"/>
-                        <TextBlock Grid.Column="3" Text="수정일" Foreground="#99FFFFFF" FontSize="11" VerticalAlignment="Center" Margin="10,0"/>
-                    </Grid>
-
-                    <ListBox x:Name="LstNotes" Margin="0,30,0,0" Background="Transparent" BorderThickness="0" 
-                             ItemContainerStyle="{StaticResource NoteItemStyle}" 
-                             ItemTemplate="{StaticResource ListTemplate}"
-                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                             SelectionChanged="LstNotes_SelectionChanged">
-                        <ListBox.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel x:Name="NoteItemsPanel"/>
-                            </ItemsPanelTemplate>
-                        </ListBox.ItemsPanel>
-                    </ListBox>
-                </Grid>
-
-                <!-- Right Preview Pane -->
-                <Border Grid.Column="2" Background="#FF131313" BorderThickness="1,0,0,0" BorderBrush="#2FFFFFFF">
-                    <Grid Margin="15">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/> <!-- Title -->
-                            <RowDefinition Height="*"/>    <!-- Thumbnail/Content -->
-                        </Grid.RowDefinitions>
-                        
-                        <TextBlock x:Name="TxtPreviewTitle" Text="선택된 노트 없음" Foreground="White" FontSize="16" FontWeight="Bold" Margin="0,0,0,15"/>
-                        
-                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Margin="0,0,-15,0" Padding="0,0,15,0">
                             <StackPanel>
-                                <Border CornerRadius="12" Background="#1FFFFFFF" Margin="0,0,0,20" BorderThickness="1" BorderBrush="#20FFFFFF">
-                                    <Image x:Name="ImgPreview" Source="{Binding SelectedItem.Thumbnail, ElementName=LstNotes}" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
-                                </Border>
-                                <TextBlock x:Name="TxtPreviewContent" Text="{Binding SelectedItem.PreviewContent, ElementName=LstNotes}" 
-                                           Foreground="#E0FFFFFF" FontSize="13" TextWrapping="Wrap" LineHeight="20"/>
+                                <!-- Multi-Image Gallery -->
+                                <ItemsControl x:Name="PreviewImageGallery" Margin="0,0,0,20">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border CornerRadius="12" Background="White" Margin="10,0,0,12" HorizontalAlignment="Left" MaxWidth="340" BorderThickness="1" BorderBrush="#E0E0E0" ClipToBounds="True">
+                                                <Image Source="{Binding}" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality">
+                                                    <Image.Effect>
+                                                        <DropShadowEffect BlurRadius="10" Color="Black" Opacity="0.05" ShadowDepth="2"/>
+                                                    </Image.Effect>
+                                                </Image>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <TextBlock x:Name="TxtPreviewContent" Text="Content" 
+                                           Foreground="#555555" FontSize="14" TextWrapping="Wrap" LineHeight="22"/>
                             </StackPanel>
                         </ScrollViewer>
+
+                        <!-- Action Buttons -->
+                        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                             <Button x:Name="BtnEditNote" Content="수정하기" Click="BtnEditNote_Click" 
+                                     Background="#F8F9FA" Foreground="#5F6368" Padding="20,10" FontWeight="Bold" Cursor="Hand">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}" CornerRadius="20" BorderBrush="#E0E0E0" BorderThickness="1">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#F1F3F4"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                        </StackPanel>
                     </Grid>
                 </Border>
             </Grid>

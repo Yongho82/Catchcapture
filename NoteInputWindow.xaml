@@ -25,7 +25,7 @@
 
             <!-- 1. Header (Close Only) -->
             <Grid Grid.Row="0" Margin="25,20,25,0">
-                <TextBlock Text="글쓰기" FontSize="20" FontWeight="Bold" Foreground="#333333" VerticalAlignment="Center"/>
+                <TextBlock x:Name="TxtHeaderTitle" Text="글쓰기" FontSize="20" FontWeight="Bold" Foreground="#333333" VerticalAlignment="Center"/>
                 <Button x:Name="BtnClose" Width="30" Height="30" HorizontalAlignment="Right" VerticalAlignment="Center" 
                         Click="BtnClose_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="닫기">
                     <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" 

@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Linq;
 using System.Collections.Generic;
 using CatchCapture.Models;
+using Microsoft.Data.Sqlite;
 
 namespace CatchCapture
 {
@@ -18,8 +19,13 @@ namespace CatchCapture
         private string? _sourceApp;
         private string? _sourceUrl;
         private List<string> _attachmentPaths = new List<string>();
+        
+        // For Edit Mode
+        private long? _editingNoteId = null;
+        private bool _isEditMode => _editingNoteId.HasValue;
 
-        public NoteInputWindow(BitmapSource image, string? sourceApp = null, string? sourceUrl = null)
+        // Constructor for New Note (Capture or Empty)
+        public NoteInputWindow(BitmapSource? image, string? sourceApp = null, string? sourceUrl = null)
         {
             InitializeComponent();
             _capturedImage = image;
@@ -27,16 +33,42 @@ namespace CatchCapture
             _sourceUrl = sourceUrl;
             
             LoadCategories();
+            UpdateUIForMode();
 
             // Display source metadata
             string sourceDisplayName = _sourceApp ?? "알 수 없음";
             if (!string.IsNullOrEmpty(_sourceUrl)) sourceDisplayName += $" - {_sourceUrl}";
             TxtSourceInfo.Text = sourceDisplayName;
             
-            // Defer image insertion to Loaded event to ensure RichTextBox is ready for Undo/Selection
             this.Loaded += NoteInputWindow_Loaded;
-            
             this.MouseDown += (s, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
+        }
+
+        // Constructor for Edit Note
+        public NoteInputWindow(long noteId)
+        {
+            InitializeComponent();
+            _editingNoteId = noteId;
+            
+            LoadCategories();
+            UpdateUIForMode();
+            
+            this.Loaded += (s, e) => LoadNoteData(noteId);
+            this.MouseDown += (s, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
+        }
+
+        private void UpdateUIForMode()
+        {
+            if (_isEditMode)
+            {
+                TxtHeaderTitle.Text = "노트 수정";
+                BtnSave.Content = "수정 완료";
+            }
+            else
+            {
+                TxtHeaderTitle.Text = "노트 쓰기";
+                BtnSave.Content = "작성 완료";
+            }
         }
 
         private void LoadCategories()
@@ -46,6 +78,109 @@ namespace CatchCapture
             if (CboCategory.Items.Count > 0)
             {
                 CboCategory.SelectedIndex = 0;
+            }
+        }
+
+        private void LoadNoteData(long noteId)
+        {
+            try
+            {
+                using (var connection = new SqliteConnection($"Data Source={DatabaseManager.Instance.DbFilePath}"))
+                {
+                    connection.Open();
+                    
+                    // 1. Load Note Info
+                    string sql = "SELECT Title, Content, SourceApp, SourceUrl, CategoryId FROM Notes WHERE Id = $id";
+                    using (var command = new SqliteCommand(sql, connection))
+                    {
+                        command.Parameters.AddWithValue("$id", noteId);
+                        using (var reader = command.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                TxtTitle.Text = reader.IsDBNull(0) ? "" : reader.GetString(0);
+                                string content = reader.IsDBNull(1) ? "" : reader.GetString(1);
+                                
+                                // Set Plain Text to Editor
+                                Editor.Document.Blocks.Clear();
+                                Editor.Document.Blocks.Add(new Paragraph(new Run(content)));
+
+                                _sourceApp = reader.IsDBNull(2) ? null : reader.GetString(2);
+                                _sourceUrl = reader.IsDBNull(3) ? null : reader.GetString(3);
+                                long catId = reader.GetInt64(4);
+
+                                // Select Category
+                                foreach (Category cat in CboCategory.Items)
+                                {
+                                    if (cat.Id == catId)
+                                    {
+                                        CboCategory.SelectedItem = cat;
+                                        break;
+                                    }
+                                }
+                                
+                                // Update source info UI
+                                string sourceDisplayName = _sourceApp ?? "알 수 없음";
+                                if (!string.IsNullOrEmpty(_sourceUrl)) sourceDisplayName += $" - {_sourceUrl}";
+                                TxtSourceInfo.Text = _sourceUrl ?? ""; 
+                            }
+                        }
+                    }
+
+                    // 2. Load Tags
+                    string tagSql = @"
+                        SELECT t.Name FROM Tags t
+                        JOIN NoteTags nt ON t.Id = nt.TagId
+                        WHERE nt.NoteId = $id";
+                    using (var command = new SqliteCommand(tagSql, connection))
+                    {
+                        command.Parameters.AddWithValue("$id", noteId);
+                        using (var reader = command.ExecuteReader())
+                        {
+                            var tags = new List<string>();
+                            while (reader.Read())
+                            {
+                                tags.Add(reader.GetString(0));
+                            }
+                            TxtTags.Text = string.Join(", ", tags);
+                        }
+                    }
+
+                    // 3. Load Images
+                    string imgSql = "SELECT FilePath FROM NoteImages WHERE NoteId = $id ORDER BY OrderIndex ASC";
+                    string imgDir = DatabaseManager.Instance.GetImageFolderPath();
+                    using (var command = new SqliteCommand(imgSql, connection))
+                    {
+                        command.Parameters.AddWithValue("$id", noteId);
+                        using (var reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                string fileName = reader.GetString(0);
+                                string fullPath = Path.Combine(imgDir, fileName);
+                                if (File.Exists(fullPath))
+                                {
+                                    try
+                                    {
+                                        var bitmap = new BitmapImage();
+                                        bitmap.BeginInit();
+                                        bitmap.UriSource = new Uri(fullPath);
+                                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                                        bitmap.EndInit();
+                                        bitmap.Freeze();
+                                        
+                                        Editor.InsertImage(bitmap);
+                                    }
+                                    catch { }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("노트 정보를 불러오는 중 오류 발생: " + ex.Message);
             }
         }
 
@@ -59,11 +194,9 @@ namespace CatchCapture
 
         private void NoteInputWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            // Insert captured image into editor once the window is loaded
-            if (_capturedImage != null)
+            if (!_isEditMode && _capturedImage != null)
             {
                 Editor.InitializeWithImage(_capturedImage);
-                // Ensure focus is on the editor so Undo works immediately if needed
                 Editor.Focus(); 
             }
         }
@@ -93,40 +226,29 @@ namespace CatchCapture
 
         private void ImgPreview_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ClickCount == 2 && _capturedImage != null)
-            {
-                // Open PreviewWindow (image editor)
-                var previewWin = new PreviewWindow(_capturedImage, 0);
-                previewWin.Owner = this;
-                if (previewWin.ShowDialog() == true)
-                {
-                    // Update preview with edited image if editor returned true (not implemented yet in PreviewWindow, but prepared)
-                }
-            }
+            // Preview logic 
         }
 
         private void BtnSave_Click(object sender, RoutedEventArgs e)
         {
             var imagesInEditor = Editor.GetAllImages();
-            // If the user deleted everything, we can still fall back to the original capture if it exists
-            if (imagesInEditor.Count == 0 && _capturedImage == null) return;
+            
+            if (imagesInEditor.Count == 0 && _capturedImage == null && string.IsNullOrWhiteSpace(TxtTitle.Text) && string.IsNullOrWhiteSpace(Editor.GetPlainText()))
+            {
+                 MessageBox.Show("저장할 내용이 없습니다.");
+                 return;
+            }
 
             try
             {
                 string title = TxtTitle.Text;
-                if (string.IsNullOrWhiteSpace(title))
-                {
-                    title = "제목없음";
-                }
+                if (string.IsNullOrWhiteSpace(title)) title = "제목없음";
                 
                 string content = Editor.GetPlainText();
                 string tags = TxtTags.Text;
 
                 long categoryId = 1;
-                if (CboCategory.SelectedItem is Category cat)
-                {
-                    categoryId = cat.Id;
-                }
+                if (CboCategory.SelectedItem is Category cat) categoryId = cat.Id;
 
                 // Prepare Save Folders
                 var settings = Settings.Load();
@@ -135,14 +257,24 @@ namespace CatchCapture
 
                 List<string> savedFileNames = new List<string>();
                 
-                // Identify images to save: either from editor or fallback capture
-                var imagesToSave = imagesInEditor.Count > 0 ? imagesInEditor : new List<BitmapSource> { _capturedImage! };
-
-                // 1. Save all images to disk
-                foreach (var imgSource in imagesToSave)
+                foreach (var imgSource in imagesInEditor)
                 {
+                    string fileName;
+                    
+                    if (imgSource is BitmapImage bi && bi.UriSource != null && bi.UriSource.IsFile)
+                    {
+                        // Existing file check
+                        string filePath = bi.UriSource.LocalPath;
+                        if (Path.GetDirectoryName(filePath)?.Equals(imgDir, StringComparison.OrdinalIgnoreCase) == true)
+                        {
+                            savedFileNames.Add(Path.GetFileName(filePath));
+                            continue;
+                        }
+                    }
+
+                    // Save new file
                     string ext = settings.OptimizeNoteImages ? ".jpg" : ".png";
-                    string fileName = $"img_{DateTime.Now:yyyyMMdd_HHmmss_fff}_{Guid.NewGuid().ToString().Substring(0, 8)}{ext}";
+                    fileName = $"img_{DateTime.Now:yyyyMMdd_HHmmss_fff}_{Guid.NewGuid().ToString().Substring(0, 8)}{ext}";
                     string fullPath = Path.Combine(imgDir, fileName);
 
                     using (var fileStream = new FileStream(fullPath, FileMode.Create))
@@ -165,17 +297,51 @@ namespace CatchCapture
                     savedFileNames.Add(fileName);
                 }
 
-                // 2. Save Metadata to DB
-                // InsertNote always inserts ONE image (the primary one)
-                long noteId = DatabaseManager.Instance.InsertNote(title, content, tags, savedFileNames[0], _sourceApp, _sourceUrl, categoryId);
+                long targetNoteId;
 
-                // 3. Save additional images to DB if any
-                for (int i = 1; i < savedFileNames.Count; i++)
+                if (_isEditMode)
                 {
-                    DatabaseManager.Instance.AddNoteImage(noteId, savedFileNames[i], i);
+                    targetNoteId = _editingNoteId!.Value;
+                    // UPDATE
+                    DatabaseManager.Instance.UpdateNote(targetNoteId, title, content, tags, categoryId);
+                    
+                    using (var connection = new SqliteConnection($"Data Source={DatabaseManager.Instance.DbFilePath}"))
+                    {
+                        connection.Open();
+                        using (var cmd = new SqliteCommand("DELETE FROM NoteImages WHERE NoteId = $id", connection))
+                        {
+                            cmd.Parameters.AddWithValue("$id", targetNoteId);
+                            cmd.ExecuteNonQuery();
+                        }
+                        for (int i = 0; i < savedFileNames.Count; i++)
+                        {
+                            using (var cmd = new SqliteCommand("INSERT INTO NoteImages (NoteId, FilePath, OrderIndex) VALUES ($nid, $path, $idx)", connection))
+                            {
+                                cmd.Parameters.AddWithValue("$nid", targetNoteId);
+                                cmd.Parameters.AddWithValue("$path", savedFileNames[i]);
+                                cmd.Parameters.AddWithValue("$idx", i);
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                    }
+                    
+                    CatchCapture.CustomMessageBox.Show("노트가 성공적으로 수정되었습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    // INSERT
+                    string mainImage = savedFileNames.Count > 0 ? savedFileNames[0] : "";
+                    targetNoteId = DatabaseManager.Instance.InsertNote(title, content, tags, mainImage, _sourceApp, _sourceUrl, categoryId);
+
+                    for (int i = 1; i < savedFileNames.Count; i++)
+                    {
+                        DatabaseManager.Instance.AddNoteImage(targetNoteId, savedFileNames[i], i);
+                    }
+                    
+                    CatchCapture.CustomMessageBox.Show("노트가 성공적으로 저장되었습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
 
-                // 3. Save Attachments
+                // Attachments
                 string attachDir = DatabaseManager.Instance.GetAttachmentsFolderPath();
                 foreach (var oldPath in _attachmentPaths)
                 {
@@ -186,11 +352,10 @@ namespace CatchCapture
                         string newFullPath = Path.Combine(attachDir, newFileName);
                         
                         File.Copy(oldPath, newFullPath);
-                        DatabaseManager.Instance.InsertAttachment(noteId, newFileName, originalName);
+                        DatabaseManager.Instance.InsertAttachment(targetNoteId, newFileName, originalName);
                     }
                 }
 
-                CatchCapture.CustomMessageBox.Show("노트가 성공적으로 저장되었습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
                 this.DialogResult = true;
                 this.Close();
             }

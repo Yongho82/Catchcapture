@@ -257,6 +257,76 @@ namespace CatchCapture.Utilities
             }
         }
 
+        public void UpdateNote(long noteId, string title, string content, string tags, long categoryId)
+        {
+            using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+            {
+                connection.Open();
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        string updateSql = @"
+                            UPDATE Notes 
+                            SET Title = $title, Content = $content, CategoryId = $categoryId, UpdatedAt = CURRENT_TIMESTAMP
+                            WHERE Id = $id";
+                        
+                        using (var command = new SqliteCommand(updateSql, connection, transaction))
+                        {
+                            command.Parameters.AddWithValue("$title", title);
+                            command.Parameters.AddWithValue("$content", content);
+                            command.Parameters.AddWithValue("$categoryId", categoryId);
+                            command.Parameters.AddWithValue("$id", noteId);
+                            command.ExecuteNonQuery();
+                        }
+
+                        string deleteTagsSql = "DELETE FROM NoteTags WHERE NoteId = $noteId";
+                        using (var command = new SqliteCommand(deleteTagsSql, connection, transaction))
+                        {
+                            command.Parameters.AddWithValue("$noteId", noteId);
+                            command.ExecuteNonQuery();
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(tags))
+                        {
+                            var tagList = tags.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                            foreach (var tagName in tagList)
+                            {
+                                string cleanTagName = tagName.Trim().ToLower();
+                                if (string.IsNullOrEmpty(cleanTagName)) continue;
+
+                                string upsertTagSql = @"
+                                    INSERT OR IGNORE INTO Tags (Name) VALUES ($name);
+                                    SELECT Id FROM Tags WHERE Name = $name;";
+                                
+                                long tagId;
+                                using (var command = new SqliteCommand(upsertTagSql, connection, transaction))
+                                {
+                                    command.Parameters.AddWithValue("$name", cleanTagName);
+                                    tagId = (long)command.ExecuteScalar()!;
+                                }
+
+                                string linkTagSql = "INSERT OR IGNORE INTO NoteTags (NoteId, TagId) VALUES ($noteId, $tagId);";
+                                using (var command = new SqliteCommand(linkTagSql, connection, transaction))
+                                {
+                                    command.Parameters.AddWithValue("$noteId", noteId);
+                                    command.Parameters.AddWithValue("$tagId", tagId);
+                                    command.ExecuteNonQuery();
+                                }
+                            }
+                        }
+
+                        transaction.Commit();
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
+
         public void InsertAttachment(long noteId, string filePath, string originalName)
         {
             using (var connection = new SqliteConnection($"Data Source={DbPath}"))
