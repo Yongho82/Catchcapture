@@ -7,6 +7,8 @@ using CatchCapture.Utilities;
 using System.Windows.Documents;
 using System.Windows.Controls;
 using System.Linq;
+using System.Collections.Generic;
+using CatchCapture.Models;
 
 namespace CatchCapture
 {
@@ -24,6 +26,8 @@ namespace CatchCapture
             _sourceApp = sourceApp;
             _sourceUrl = sourceUrl;
             
+            LoadCategories();
+
             // Display source metadata
             string sourceDisplayName = _sourceApp ?? "알 수 없음";
             if (!string.IsNullOrEmpty(_sourceUrl)) sourceDisplayName += $" - {_sourceUrl}";
@@ -33,6 +37,24 @@ namespace CatchCapture
             this.Loaded += NoteInputWindow_Loaded;
             
             this.MouseDown += (s, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
+        }
+
+        private void LoadCategories()
+        {
+            var categories = DatabaseManager.Instance.GetAllCategories();
+            CboCategory.ItemsSource = categories;
+            if (CboCategory.Items.Count > 0)
+            {
+                CboCategory.SelectedIndex = 0;
+            }
+        }
+
+        private void BtnManageCategories_Click(object sender, RoutedEventArgs e)
+        {
+            var manageWin = new CategoryManagementWindow();
+            manageWin.Owner = this;
+            manageWin.ShowDialog();
+            LoadCategories();
         }
 
         private void NoteInputWindow_Loaded(object sender, RoutedEventArgs e)
@@ -97,6 +119,13 @@ namespace CatchCapture
                 
                 string content = Editor.GetPlainText();
                 string tags = TxtTags.Text;
+
+                long categoryId = 1;
+                if (CboCategory.SelectedItem is Category cat)
+                {
+                    categoryId = cat.Id;
+                }
+
                 // 1. Save Image to File
                 string imgDir = DatabaseManager.Instance.GetImageFolderPath();
                 string fileName = $"img_{DateTime.Now:yyyyMMdd_HHmmss_fff}.png";
@@ -111,7 +140,7 @@ namespace CatchCapture
                 }
 
                 // 2. Save Metadata to DB
-                long noteId = DatabaseManager.Instance.InsertNote(title, content, tags, fileName, _sourceApp, _sourceUrl);
+                long noteId = DatabaseManager.Instance.InsertNote(title, content, tags, fileName, _sourceApp, _sourceUrl, categoryId);
 
                 // 3. Save Attachments
                 string attachDir = DatabaseManager.Instance.GetAttachmentsFolderPath();

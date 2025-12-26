@@ -201,10 +201,11 @@
                          VerticalScrollBarVisibility="Auto"
                          IsDocumentEnabled="True"
                          SpellCheck.IsEnabled="False"
-                         TextOptions.TextFormattingMode="Display"
+                         TextOptions.TextFormattingMode="Ideal"
+                         TextOptions.TextRenderingMode="ClearType"
                          RenderOptions.ClearTypeHint="Enabled">
                 <FlowDocument IsOptimalParagraphEnabled="False" PagePadding="0">
-                    <Paragraph Margin="0" LineHeight="1.5" LineStackingStrategy="BlockLineHeight"></Paragraph>
+                    <Paragraph Margin="0" LineHeight="1.5"></Paragraph>
                 </FlowDocument>
             </RichTextBox>
         </Grid>

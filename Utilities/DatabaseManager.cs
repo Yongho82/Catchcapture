@@ -100,11 +100,48 @@ namespace CatchCapture.Utilities
                         FOREIGN KEY(NoteId) REFERENCES Notes(Id) ON DELETE CASCADE
                     );";
 
+                // Create Categories table
+                string createCategoriesTable = @"
+                    CREATE TABLE IF NOT EXISTS Categories (
+                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        Name TEXT UNIQUE NOT NULL,
+                        Color TEXT
+                    );";
+
                 using (var command = new SqliteCommand(createNotesTable, connection)) { command.ExecuteNonQuery(); }
                 using (var command = new SqliteCommand(createImagesTable, connection)) { command.ExecuteNonQuery(); }
                 using (var command = new SqliteCommand(createTagsTable, connection)) { command.ExecuteNonQuery(); }
                 using (var command = new SqliteCommand(createNoteTagsTable, connection)) { command.ExecuteNonQuery(); }
                 using (var command = new SqliteCommand(createAttachmentsTable, connection)) { command.ExecuteNonQuery(); }
+                using (var command = new SqliteCommand(createCategoriesTable, connection)) { command.ExecuteNonQuery(); }
+
+                // Migration: Add CategoryId to Notes
+                try
+                {
+                    using (var command = new SqliteCommand("ALTER TABLE Notes ADD COLUMN CategoryId INTEGER DEFAULT 1;", connection))
+                    {
+                        command.ExecuteNonQuery();
+                    }
+                }
+                catch { /* Column might already exist */ }
+
+                // Insert Default Categories if empty
+                string checkCategories = "SELECT COUNT(*) FROM Categories;";
+                using (var command = new SqliteCommand(checkCategories, connection))
+                {
+                    long count = (long)command.ExecuteScalar()!;
+                    if (count == 0)
+                    {
+                        string insertDefaults = @"
+                            INSERT INTO Categories (Name, Color) VALUES ('기본', '#8E2DE2');
+                            INSERT INTO Categories (Name, Color) VALUES ('커뮤니티', '#3498DB');
+                            INSERT INTO Categories (Name, Color) VALUES ('업무', '#E67E22');";
+                        using (var insertCmd = new SqliteCommand(insertDefaults, connection))
+                        {
+                            insertCmd.ExecuteNonQuery();
+                        }
+                    }
+                }
             }
         }
 
@@ -118,7 +155,7 @@ namespace CatchCapture.Utilities
             return Path.Combine(Path.GetDirectoryName(DbPath)!, "attachments");
         }
 
-        public long InsertNote(string title, string content, string tags, string fileName, string? sourceApp, string? sourceUrl)
+        public long InsertNote(string title, string content, string tags, string fileName, string? sourceApp, string? sourceUrl, long categoryId = 1)
         {
             using (var connection = new SqliteConnection($"Data Source={DbPath}"))
             {
@@ -129,8 +166,8 @@ namespace CatchCapture.Utilities
                     {
                         // 1. Insert Note
                         string insertNoteSql = @"
-                            INSERT INTO Notes (Title, Content, SourceApp, SourceUrl, CreatedAt, UpdatedAt)
-                            VALUES ($title, $content, $sourceApp, $sourceUrl, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+                            INSERT INTO Notes (Title, Content, SourceApp, SourceUrl, CreatedAt, UpdatedAt, CategoryId)
+                            VALUES ($title, $content, $sourceApp, $sourceUrl, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, $categoryId);
                             SELECT last_insert_rowid();";
                         
                         long noteId;
@@ -140,7 +177,8 @@ namespace CatchCapture.Utilities
                             command.Parameters.AddWithValue("$content", content);
                             command.Parameters.AddWithValue("$sourceApp", (object?)sourceApp ?? DBNull.Value);
                             command.Parameters.AddWithValue("$sourceUrl", (object?)sourceUrl ?? DBNull.Value);
-                            noteId = (long)command.ExecuteScalar()!;
+                            command.Parameters.AddWithValue("$categoryId", categoryId);
+                            noteId = Convert.ToInt64(command.ExecuteScalar());
                         }
 
                         // 2. Insert Image
@@ -236,6 +274,69 @@ namespace CatchCapture.Utilities
                 }
             }
             return tags;
+        }
+
+        public List<Category> GetAllCategories()
+        {
+            var categories = new List<Category>();
+            using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+            {
+                connection.Open();
+                string sql = "SELECT Id, Name, Color FROM Categories ORDER BY Id ASC";
+                using (var command = new SqliteCommand(sql, connection))
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        categories.Add(new Category
+                        {
+                            Id = reader.GetInt64(0),
+                            Name = reader.GetString(1),
+                            Color = reader.IsDBNull(2) ? "#8E2DE2" : reader.GetString(2)
+                        });
+                    }
+                }
+            }
+            return categories;
+        }
+
+        public void InsertCategory(string name, string color)
+        {
+            using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+            {
+                connection.Open();
+                string sql = "INSERT OR IGNORE INTO Categories (Name, Color) VALUES ($name, $color);";
+                using (var command = new SqliteCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("$name", name);
+                    command.Parameters.AddWithValue("$color", color);
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public void DeleteCategory(long id)
+        {
+            if (id == 1) return; // Prevent deleting default category
+
+            using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+            {
+                connection.Open();
+                // Move notes to default category (Id=1) before deleting
+                string updateSql = "UPDATE Notes SET CategoryId = 1 WHERE CategoryId = $id;";
+                using (var command = new SqliteCommand(updateSql, connection))
+                {
+                    command.Parameters.AddWithValue("$id", id);
+                    command.ExecuteNonQuery();
+                }
+
+                string deleteSql = "DELETE FROM Categories WHERE Id = $id;";
+                using (var command = new SqliteCommand(deleteSql, connection))
+                {
+                    command.Parameters.AddWithValue("$id", id);
+                    command.ExecuteNonQuery();
+                }
+            }
         }
     }
 }
