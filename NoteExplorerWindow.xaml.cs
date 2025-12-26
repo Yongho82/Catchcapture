@@ -404,8 +404,13 @@ namespace CatchCapture
             {
                 if (CatchCapture.CustomMessageBox.Show("정말로 이 노트를 삭제하시겠습니까?", "삭제 확인", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                 {
+                    // Release potential file locks by clearing preview
+                    PreviewGrid.Visibility = Visibility.Collapsed;
+                    PreviewViewer.Document = null;
+
                     DeleteNote(noteId);
                     LoadNotes(); // Refresh
+                    LoadTags();  // Refresh tags after cleanup
                 }
             }
         }
@@ -480,13 +485,22 @@ namespace CatchCapture
                             {
                                 if (File.Exists(filePath))
                                 {
+                                    // Optimization: Clear file attributes if necessary (rarely needed but good for reliability)
+                                    File.SetAttributes(filePath, FileAttributes.Normal);
                                     File.Delete(filePath);
                                 }
                             }
                             catch (Exception ex)
                             {
-                                Console.WriteLine($"파일 삭제 오류 ({filePath}): {ex.Message}");
+                                System.Diagnostics.Debug.WriteLine($"파일 삭제 오류 ({filePath}): {ex.Message}");
                             }
+                        }
+
+                        // 4. Cleanup orphaned tags (tags not used by any notes)
+                        string cleanupTagsSql = "DELETE FROM Tags WHERE Id NOT IN (SELECT DISTINCT TagId FROM NoteTags)";
+                        using (var cmd = new SqliteCommand(cleanupTagsSql, connection))
+                        {
+                            cmd.ExecuteNonQuery();
                         }
                     }
                     else
@@ -539,11 +553,16 @@ namespace CatchCapture
 
                 if (CatchCapture.CustomMessageBox.Show($"{selectedNotes.Count}개의 노트를 삭제하시겠습니까?", "삭제 확인", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                 {
+                    // Release potential file locks by clearing preview
+                    PreviewGrid.Visibility = Visibility.Collapsed;
+                    PreviewViewer.Document = null;
+
                     foreach (var note in selectedNotes)
                     {
                         DeleteNote(note.Id);
                     }
                     LoadNotes(); // Refresh
+                    LoadTags();  // Refresh tags after cleanup
                 }
             }
         }

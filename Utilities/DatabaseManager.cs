@@ -357,6 +357,7 @@ namespace CatchCapture.Utilities
                     command.Parameters.AddWithValue("$filePath", filePath);
                     command.Parameters.AddWithValue("$originalName", originalName);
                     command.Parameters.AddWithValue("$fileType", Path.GetExtension(originalName).ToLower());
+                    command.ExecuteNonQuery();
                 }
             }
         }
