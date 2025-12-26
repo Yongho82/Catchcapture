@@ -11,7 +11,7 @@
     
     <Border Background="#FDFDFD" CornerRadius="12" BorderThickness="1" BorderBrush="#E0E0E0">
         <Border.Effect>
-            <DropShadowEffect BlurRadius="25" Color="Black" Opacity="0.15" ShadowDepth="5" Direction="270"/>
+            <DropShadowEffect BlurRadius="25" Color="Black" Opacity="0.15" ShadowDepth="5" Direction="270" RenderingBias="Performance"/>
         </Border.Effect>
 
         <Grid>

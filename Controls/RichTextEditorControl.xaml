@@ -191,7 +191,7 @@
         <!-- Editor: Removed borders, just pure content area -->
         <Grid Grid.Row="1">
             <RichTextBox x:Name="RtbEditor" TextChanged="RtbEditor_TextChanged" GotFocus="RtbEditor_GotFocus" LostFocus="RtbEditor_LostFocus" Loaded="RtbEditor_Loaded" 
-                         Background="Transparent" 
+                         Background="White" 
                          Foreground="#333333" 
                          BorderThickness="0" 
                          FontSize="15" 
@@ -199,9 +199,12 @@
                          Padding="20"
                          CaretBrush="Black"
                          VerticalScrollBarVisibility="Auto"
-                         IsDocumentEnabled="True">
-                <FlowDocument>
-                    <Paragraph Margin="0" LineHeight="1.5"></Paragraph>
+                         IsDocumentEnabled="False"
+                         SpellCheck.IsEnabled="False"
+                         TextOptions.TextFormattingMode="Display"
+                         RenderOptions.ClearTypeHint="Enabled">
+                <FlowDocument IsOptimalParagraphEnabled="False" PagePadding="0">
+                    <Paragraph Margin="0" LineHeight="1.5" LineStackingStrategy="BlockLineHeight"></Paragraph>
                 </FlowDocument>
             </RichTextBox>
         </Grid>
