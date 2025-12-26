@@ -103,37 +103,36 @@ namespace CatchCapture
                                 string content = reader.IsDBNull(1) ? "" : reader.GetString(1);
                                 string contentXaml = reader.IsDBNull(5) ? "" : reader.GetString(5);
 
-                                // Try XAML first to preserve image/text order
+                                // Load all images for this note from DB (for manual fallback and image list)
+                                var imageFiles = new List<string>();
+                                string imgSql = "SELECT FilePath FROM NoteImages WHERE NoteId = $imgNoteId ORDER BY OrderIndex ASC";
+                                string imgDir = DatabaseManager.Instance.GetImageFolderPath();
+                                using (var imgCmd = new SqliteCommand(imgSql, connection))
+                                {
+                                    imgCmd.Parameters.AddWithValue("$imgNoteId", noteId);
+                                    using (var imgReader = imgCmd.ExecuteReader())
+                                    {
+                                        while (imgReader.Read())
+                                        {
+                                            string fileName = imgReader.GetString(0);
+                                            string fullPath = Path.Combine(imgDir, fileName);
+                                            if (File.Exists(fullPath))
+                                                imageFiles.Add(fullPath);
+                                        }
+                                    }
+                                }
+
+                                // Use XAML if available to preserve EXACT interleaved order
                                 if (!string.IsNullOrEmpty(contentXaml))
                                 {
-                                    // XAML preserves the exact order (image1 → text → image2)
                                     Editor.SetXaml(contentXaml);
                                 }
                                 else
                                 {
-                                    // Legacy mode: Load first image, then text, then remaining images
+                                    // Manual Fallback (Legacy)
                                     Editor.Document.Blocks.Clear();
                                     
-                                    // Get all images from DB
-                                    var imageFiles = new List<string>();
-                                    string imgSql = "SELECT FilePath FROM NoteImages WHERE NoteId = $imgNoteId ORDER BY OrderIndex ASC";
-                                    string imgDir = DatabaseManager.Instance.GetImageFolderPath();
-                                    using (var imgCmd = new SqliteCommand(imgSql, connection))
-                                    {
-                                        imgCmd.Parameters.AddWithValue("$imgNoteId", noteId);
-                                        using (var imgReader = imgCmd.ExecuteReader())
-                                        {
-                                            while (imgReader.Read())
-                                            {
-                                                string fileName = imgReader.GetString(0);
-                                                string fullPath = Path.Combine(imgDir, fileName);
-                                                if (File.Exists(fullPath))
-                                                    imageFiles.Add(fullPath);
-                                            }
-                                        }
-                                    }
-                                    
-                                    // Insert first image
+                                    // Grouping Logic (as before, since we don't know the exact order for legacy notes)
                                     if (imageFiles.Count > 0)
                                     {
                                         try
@@ -149,13 +148,11 @@ namespace CatchCapture
                                         catch { }
                                     }
                                     
-                                    // Add text content
                                     if (!string.IsNullOrEmpty(content))
                                     {
                                         Editor.Document.Blocks.Add(new Paragraph(new Run(content)));
                                     }
                                     
-                                    // Add remaining images after text
                                     for (int i = 1; i < imageFiles.Count; i++)
                                     {
                                         try

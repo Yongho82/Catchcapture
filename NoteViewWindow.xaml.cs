@@ -62,14 +62,16 @@ namespace CatchCapture
                                 }
 
                                     // Load Content
+                                    bool xamlLoaded = false;
                                     if (!string.IsNullOrEmpty(contentXaml))
                                     {
                                         // Load Rich Content (XAML)
                                         try 
                                         {
-                                            var flowDocument = (FlowDocument)XamlReader.Parse(contentXaml);
+                                            var flowDocument = (FlowDocument)System.Windows.Markup.XamlReader.Parse(contentXaml);
                                             flowDocument.PagePadding = new Thickness(0);
                                             ContentViewer.Document = flowDocument;
+                                            xamlLoaded = true;
                                         }
                                         catch
                                         {
@@ -81,8 +83,11 @@ namespace CatchCapture
                                         SetPlainTextContent(content);
                                     }
                                     
-                                    // ALWAYS load attached images from NoteImages table
-                                    LoadAttachedImages();
+                                    // Load images manually ONLY if XAML was not loaded (Fallback for legacy notes)
+                                    if (!xamlLoaded)
+                                    {
+                                        LoadAttachedImages();
+                                    }
                                 }
                         }
                     }

@@ -452,16 +452,11 @@ namespace CatchCapture.Controls
         {
             try
             {
-                var tr = new TextRange(RtbEditor.Document.ContentStart, RtbEditor.Document.ContentEnd);
-                using (var ms = new System.IO.MemoryStream())
-                {
-                    tr.Save(ms, DataFormats.Xaml);
-                    return System.Text.Encoding.UTF8.GetString(ms.ToArray());
-                }
+                // Save the whole document for full fidelity (FlowDocument root)
+                return System.Windows.Markup.XamlWriter.Save(RtbEditor.Document);
             }
             catch (Exception ex)
             {
-                // Fallback or log
                 Console.WriteLine(ex.Message);
                 return "";
             }
@@ -472,29 +467,15 @@ namespace CatchCapture.Controls
             if (string.IsNullOrEmpty(xamlString)) return;
             try
             {
-                var tr = new TextRange(RtbEditor.Document.ContentStart, RtbEditor.Document.ContentEnd);
                 using (var ms = new System.IO.MemoryStream(System.Text.Encoding.UTF8.GetBytes(xamlString)))
                 {
-                    tr.Load(ms, DataFormats.Xaml);
+                    var flowDocument = (FlowDocument)System.Windows.Markup.XamlReader.Load(ms);
+                    RtbEditor.Document = flowDocument;
                 }
-                
-                // After loading XAML, we might need to re-attach events or adjust images if they are not using correct paths,
-                // but standard XamlPackage handles images poorly. String Xaml usually handles embedded Base64 or relative paths?
-                // TextRange.Save(Xaml) usually creates a XAML string. Images might be problematic if they are local paths.
-                // WPF RichTextBox Xaml format saves images as Base64 usually if Package, but String format?
-                // Let's verify.
-                
-                // Correction: DataFormats.Xaml is just the XAML structure. Images might reference local paths.
-                // Since we save images to disk in this app, if the image source was a file path, it should be fine.
-                // If it was MemoryStream, it might be lost.
-                // In Save logic, we ensure images are saved to disk.
-                // But GetXaml() grabs current state.
-                // Our Save logic in NoteInputWindow iterates images and saves them to disk.
-                // WE SHOULD Update the Editor's image sources to the saved disk paths BEFORE calling GetXaml() to ensure persistence!
             }
             catch (Exception ex)
             {
-                MessageBox.Show("문서 로드 중 오류: " + ex.Message);
+                Console.WriteLine("SetXaml Error: " + ex.Message);
             }
         }
 
@@ -556,17 +537,24 @@ namespace CatchCapture.Controls
         public List<BitmapSource> GetAllImages()
         {
             var images = new List<BitmapSource>();
+            var imageControls = new List<System.Windows.Controls.Image>();
+            
             foreach (var block in RtbEditor.Document.Blocks)
             {
-                if (block is BlockUIContainer container && container.Child is Grid grid)
+                if (block is BlockUIContainer container)
                 {
-                    var img = grid.Children.OfType<System.Windows.Controls.Image>().FirstOrDefault();
-                    if (img?.Source is BitmapSource bs)
-                    {
-                        images.Add(bs);
-                    }
+                    FindImagesRecursive(container.Child, imageControls);
                 }
             }
+
+            foreach (var img in imageControls)
+            {
+                if (img.Source is BitmapSource bs)
+                {
+                    images.Add(bs);
+                }
+            }
+            
             return images;
         }
 
@@ -627,10 +615,9 @@ namespace CatchCapture.Controls
             var allImages = new List<System.Windows.Controls.Image>();
             foreach (var block in RtbEditor.Document.Blocks)
             {
-                if (block is BlockUIContainer container && container.Child is Grid grid)
+                if (block is BlockUIContainer container)
                 {
-                    var img = grid.Children.OfType<System.Windows.Controls.Image>().FirstOrDefault();
-                    if (img != null) allImages.Add(img);
+                    FindImagesRecursive(container.Child, allImages);
                 }
             }
 
@@ -652,6 +639,29 @@ namespace CatchCapture.Controls
                     }
                     catch { }
                 }
+            }
+        }
+
+        private void FindImagesRecursive(UIElement element, List<System.Windows.Controls.Image> result)
+        {
+            if (element is System.Windows.Controls.Image img)
+            {
+                result.Add(img);
+            }
+            else if (element is Panel panel)
+            {
+                foreach (UIElement child in panel.Children)
+                {
+                    FindImagesRecursive(child, result);
+                }
+            }
+            else if (element is Border border && border.Child != null)
+            {
+                FindImagesRecursive(border.Child, result);
+            }
+            else if (element is ContentControl cc && cc.Content is UIElement content)
+            {
+                FindImagesRecursive(content, result);
             }
         }
     }

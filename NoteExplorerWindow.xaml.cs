@@ -7,6 +7,7 @@ using System.IO;
 using CatchCapture.Utilities;
 using Microsoft.Data.Sqlite;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Linq;
 using System.ComponentModel;
 
@@ -130,9 +131,8 @@ namespace CatchCapture
                         totalCount = Convert.ToInt32(countCmd.ExecuteScalar() ?? 0);
                     }
 
-                    // 3. Load Data with Limit/Offset
                     string sql = $@"
-                        SELECT n.Id, n.Title, n.Content, n.CreatedAt, n.SourceApp, 
+                        SELECT n.Id, n.Title, n.Content, n.CreatedAt, n.SourceApp, n.ContentXaml,
                                c.Name as CategoryName, c.Color as CategoryColor
                         FROM Notes n
                         LEFT JOIN Categories c ON n.CategoryId = c.Id
@@ -160,8 +160,9 @@ namespace CatchCapture
                                     PreviewContent = reader.IsDBNull(2) ? "" : reader.GetString(2),
                                     CreatedAt = reader.GetDateTime(3),
                                     SourceApp = reader.IsDBNull(4) ? "" : reader.GetString(4),
-                                    CategoryName = reader.IsDBNull(5) ? "기본" : reader.GetString(5),
-                                    CategoryColor = reader.IsDBNull(6) ? "#8E2DE2" : reader.GetString(6)
+                                    ContentXaml = reader.IsDBNull(5) ? null : reader.GetString(5),
+                                    CategoryName = reader.IsDBNull(6) ? "기본" : reader.GetString(6),
+                                    CategoryColor = reader.IsDBNull(7) ? "#8E2DE2" : reader.GetString(7)
                                 };
 
                                 note.Images = GetNoteImages(noteId, imgDir);
@@ -305,35 +306,50 @@ namespace CatchCapture
                 TxtPreviewTitle.Text = note.Title;
                 TxtPreviewApp.Text = string.IsNullOrEmpty(note.SourceApp) ? "직접 작성" : note.SourceApp;
                 TxtPreviewDate.Text = note.CreatedAt.ToString("yyyy-MM-dd HH:mm");
-                TxtPreviewContent.Text = note.PreviewContent;
                 PreviewTags.ItemsSource = note.Tags;
                 
-                // Show first image at top, others at bottom
-                if (note.Images != null && note.Images.Count > 0)
+                // Use FlowDocument to show EXACT interleaved order (matches Viewer)
+                if (!string.IsNullOrEmpty(note.ContentXaml))
                 {
-                    ImgPreviewTop.Source = note.Images[0];
-                    BrdPreviewTopImage.Visibility = Visibility.Visible;
-                    
-                    if (note.Images.Count > 1)
+                    try
                     {
-                        PreviewImageGallery.ItemsSource = note.Images.Skip(1).ToList();
-                        PreviewImageGallery.Visibility = Visibility.Visible;
+                        var flowDocument = (FlowDocument)System.Windows.Markup.XamlReader.Parse(note.ContentXaml);
+                        flowDocument.PagePadding = new Thickness(0);
+                        
+                        // Small optimization: Images in preview should be uniformly stretched
+                        foreach (var block in flowDocument.Blocks)
+                        {
+                            if (block is BlockUIContainer container && container.Child is Grid g)
+                            {
+                                var img = g.Children.OfType<Image>().FirstOrDefault();
+                                if (img != null) img.MaxWidth = 340; // Preview width limit
+                            }
+                        }
+
+                        PreviewViewer.Document = flowDocument;
                     }
-                    else
+                    catch
                     {
-                        PreviewImageGallery.Visibility = Visibility.Collapsed;
+                        SetPlainTextPreview(note.PreviewContent);
                     }
                 }
                 else
                 {
-                    BrdPreviewTopImage.Visibility = Visibility.Collapsed;
-                    PreviewImageGallery.Visibility = Visibility.Collapsed;
+                    SetPlainTextPreview(note.PreviewContent);
                 }
             }
             else
             {
                 PreviewGrid.Visibility = Visibility.Collapsed;
             }
+        }
+
+        private void SetPlainTextPreview(string content)
+        {
+            var p = new Paragraph(new Run(content));
+            var doc = new FlowDocument(p);
+            doc.PagePadding = new Thickness(0);
+            PreviewViewer.Document = doc;
         }
 
         private void LstNotes_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -517,6 +533,9 @@ namespace CatchCapture
         private string? _sourceApp;
         public string? SourceApp { get => _sourceApp; set { _sourceApp = value; OnPropertyChanged(nameof(SourceApp)); } }
         
+        private string? _contentXaml;
+        public string? ContentXaml { get => _contentXaml; set { _contentXaml = value; OnPropertyChanged(nameof(ContentXaml)); } }
+
         private string _categoryName = "기본";
         public string CategoryName { get => _categoryName; set { _categoryName = value; OnPropertyChanged(nameof(CategoryName)); } }
 
