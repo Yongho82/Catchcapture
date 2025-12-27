@@ -2160,26 +2160,35 @@ public partial class MainWindow : Window
 
         grid.Children.Add(image);
 
-        // 이미지 크기 텍스트
+        // 하단 정보 패널 (크기 텍스트 및 노트 저장 아이콘 연계)
+        StackPanel bottomPanel = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            HorizontalAlignment = HorizontalAlignment.Right,
+            VerticalAlignment = VerticalAlignment.Bottom,
+            Margin = new Thickness(0, 0, 6, 6)
+        };
+
+        // 이미지 크기 텍스트 보더
         Border sizeBorder = new Border
         {
             Background = new SolidColorBrush(Color.FromArgb(180, 0, 0, 0)),
             CornerRadius = new CornerRadius(4),
             Padding = new Thickness(6, 3, 6, 3),
-            HorizontalAlignment = HorizontalAlignment.Right,
-            VerticalAlignment = VerticalAlignment.Bottom,
-            Margin = new Thickness(0, 0, 6, 6)
+            VerticalAlignment = VerticalAlignment.Center
         };
 
         TextBlock sizeText = new TextBlock
         {
             Text = $"{captureImage.OriginalWidth} x {captureImage.OriginalHeight}",
             Foreground = Brushes.White,
-            FontSize = 10
+            FontSize = 10,
+            VerticalAlignment = VerticalAlignment.Center
         };
 
         sizeBorder.Child = sizeText;
-        grid.Children.Add(sizeBorder);
+        bottomPanel.Children.Add(sizeBorder);
+        grid.Children.Add(bottomPanel);
 
         // --- 호버 오버레이 버튼 패널 추가 ---
         StackPanel buttonPanel = new StackPanel
@@ -2301,19 +2310,6 @@ public partial class MainWindow : Window
             }
         };
 
-        // 둥근 버튼 스타일 적용
-        var shareTemplate = new ControlTemplate(typeof(Button));
-        var shareBorderFactory = new FrameworkElementFactory(typeof(Border));
-        shareBorderFactory.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Button.BackgroundProperty));
-        shareBorderFactory.SetValue(Border.BorderBrushProperty, new TemplateBindingExtension(Button.BorderBrushProperty));
-        shareBorderFactory.SetValue(Border.BorderThicknessProperty, new TemplateBindingExtension(Button.BorderThicknessProperty));
-        shareBorderFactory.SetValue(Border.CornerRadiusProperty, new CornerRadius(14));
-        var shareContentPresenter = new FrameworkElementFactory(typeof(ContentPresenter));
-        shareContentPresenter.SetValue(ContentPresenter.HorizontalAlignmentProperty, HorizontalAlignment.Center);
-        shareContentPresenter.SetValue(ContentPresenter.VerticalAlignmentProperty, VerticalAlignment.Center);
-        shareBorderFactory.AppendChild(shareContentPresenter);
-        shareTemplate.VisualTree = shareBorderFactory;
-
         // 공유 버튼 추가
         Button shareBtn = CreateHoverButton("share_img.png", LocalizationManager.GetString("Share"));
         shareBtn.Click += (s, e) => { e.Handled = true; ShareImage(captureImage.GetOriginalImage()); };
@@ -2324,6 +2320,13 @@ public partial class MainWindow : Window
         buttonPanel.Children.Add(saveBtn);
         buttonPanel.Children.Add(deleteBtn);
         grid.Children.Add(buttonPanel);
+
+        // 내 노트 저장 버튼 추가 (하단 픽셀 정보 왼쪽에 위치하며 호버 시 표시)
+        Button noteBtn = CreateHoverButton("my_note.png", "내노트저장");
+        noteBtn.Click += (s, e) => { e.Handled = true; SaveImageToNote(captureImage); };
+        noteBtn.Visibility = Visibility.Collapsed;
+        noteBtn.Margin = new Thickness(0, 0, 5, 0);
+        bottomPanel.Children.Insert(0, noteBtn);
 
         // 메인 테두리 생성
         Border border = new Border
@@ -2340,8 +2343,14 @@ public partial class MainWindow : Window
         };
 
         // 호버 이벤트 연결 (마우스 올리면 버튼 보임)
-        border.MouseEnter += (s, e) => buttonPanel.Visibility = Visibility.Visible;
-        border.MouseLeave += (s, e) => buttonPanel.Visibility = Visibility.Collapsed;
+        border.MouseEnter += (s, e) => {
+            buttonPanel.Visibility = Visibility.Visible;
+            noteBtn.Visibility = Visibility.Visible;
+        };
+        border.MouseLeave += (s, e) => {
+            buttonPanel.Visibility = Visibility.Collapsed;
+            noteBtn.Visibility = Visibility.Collapsed;
+        };
 
         // 클릭 이벤트 (선택)
         border.MouseLeftButtonDown += (s, e) =>
@@ -2646,6 +2655,37 @@ public partial class MainWindow : Window
             }
         }
     }
+
+    private void SaveImageToNote(CaptureImage captureImage)
+    {
+        try
+        {
+            // ★ 메모리 최적화: 원본 이미지 로드
+            var image = captureImage.GetOriginalImage();
+            if (image != null)
+            {
+                // 비밀번호 잠금 확인
+                if (!string.IsNullOrEmpty(settings.NotePassword) && !App.IsNoteAuthenticated)
+                {
+                    var lockWin = new NoteLockCheckWindow(settings.NotePassword, settings.NotePasswordHint);
+                    lockWin.Owner = this;
+                    if (lockWin.ShowDialog() != true)
+                    {
+                        return;
+                    }
+                }
+
+                var noteWin = new NoteInputWindow(image, captureImage.SourceApp, captureImage.SourceTitle);
+                noteWin.Owner = this;
+                noteWin.ShowDialog();
+            }
+        }
+        catch (Exception ex)
+        {
+            CatchCapture.CustomMessageBox.Show($"노트 저장 중 오류가 발생했습니다: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
     public void SaveAllImages()
     {
         if (captures.Count == 0) return;
