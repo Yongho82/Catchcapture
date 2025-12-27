@@ -110,7 +110,7 @@ namespace CatchCapture
                                             block.Margin = new Thickness(0, 2, 0, 2);
                                         }
                                         ContentViewer.Document = flowDocument;
-                                        HookImageClicks(); // Re-hook for XAML
+                                        HookMediaClicks(); // Re-hook for XAML
                                         xamlLoaded = true;
                                     }
                                     catch
@@ -253,30 +253,62 @@ namespace CatchCapture
             catch { }
         }
 
-        private void HookImageClicks()
+        private void HookMediaClicks()
         {
             foreach (var block in ContentViewer.Document.Blocks)
             {
                 if (block is BlockUIContainer container)
                 {
-                    Image? img = null;
-                    if (container.Child is Image i) img = i;
-                    else if (container.Child is Grid g) img = g.Children.OfType<Image>().FirstOrDefault();
-
-                    if (img != null)
+                    // 미디어 파일 (Grid with Tag containing file path)
+                    if (container.Child is Border border && border.Child is Grid grid && grid.Tag != null)
                     {
-                        img.Cursor = Cursors.Hand;
-                        img.PreviewMouseLeftButtonDown += (s, ev) => 
+                        string? filePath = grid.Tag.ToString();
+                        if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
                         {
-                            string? path = null;
-                            if (img.Tag != null) path = img.Tag.ToString();
-                            else if (img.Source is BitmapImage bi && bi.UriSource != null) path = bi.UriSource.LocalPath;
-
-                            if (!string.IsNullOrEmpty(path) && File.Exists(path))
+                            grid.Cursor = Cursors.Hand;
+                            grid.MouseLeftButtonDown += (s, ev) =>
                             {
-                                try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true }); } catch { }
-                            }
-                        };
+                                if (ev.ClickCount == 2)
+                                {
+                                    try
+                                    {
+                                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                                        {
+                                            FileName = filePath,
+                                            UseShellExecute = true
+                                        });
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        CatchCapture.CustomMessageBox.Show($"파일 열기 실패: {ex.Message}", "오류");
+                                    }
+                                    ev.Handled = true;
+                                }
+                            };
+                        }
+                    }
+                    // 일반 이미지
+                    else
+                    {
+                        Image? img = null;
+                        if (container.Child is Image i) img = i;
+                        else if (container.Child is Grid g) img = g.Children.OfType<Image>().FirstOrDefault();
+
+                        if (img != null)
+                        {
+                            img.Cursor = Cursors.Hand;
+                            img.PreviewMouseLeftButtonDown += (s, ev) =>
+                            {
+                                string? path = null;
+                                if (img.Tag != null) path = img.Tag.ToString();
+                                else if (img.Source is BitmapImage bi && bi.UriSource != null) path = bi.UriSource.LocalPath;
+
+                                if (!string.IsNullOrEmpty(path) && File.Exists(path))
+                                {
+                                    try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true }); } catch { }
+                                }
+                            };
+                        }
                     }
                 }
             }
