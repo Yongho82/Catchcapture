@@ -249,7 +249,7 @@ namespace CatchCapture
             double maxWindowHeight = workAreaHeight * 0.95;
 
             // 최소 창 크기 설정
-            double minWindowWidth = 1450;
+            double minWindowWidth = 1500;
             double minWindowHeight = 800;
 
             // UI 요소 크기 예상치

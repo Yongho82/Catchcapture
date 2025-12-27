@@ -259,10 +259,18 @@ namespace CatchCapture
             {
                 if (block is BlockUIContainer container)
                 {
-                    // 미디어 파일 (Grid with Tag containing file path)
-                    if (container.Child is Border border && border.Child is Grid grid && grid.Tag != null)
+                    // 미디어 파일 (Grid with hidden path holder or Tag)
+                    if (container.Child is Border border && border.Child is Grid grid)
                     {
-                        string? filePath = grid.Tag.ToString();
+                        string? filePath = grid.Tag?.ToString();
+                        
+                        // Tag가 없으면 숨겨진 TextBlock에서 찾기
+                        if (string.IsNullOrEmpty(filePath))
+                        {
+                            var holder = grid.Children.OfType<TextBlock>().FirstOrDefault(t => t.Name == "FilePathHolder" || t.Text.Contains("\\") || t.Text.Contains("/"));
+                            if (holder != null) filePath = holder.Text;
+                        }
+
                         if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
                         {
                             grid.Cursor = Cursors.Hand;

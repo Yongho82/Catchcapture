@@ -622,8 +622,17 @@ namespace CatchCapture.Controls
                     Height = 200,
                     Background = Brushes.Black,
                     Cursor = Cursors.Hand,
-                    Tag = filePath // 파일 경로 저장
+                    Tag = filePath // 기존 Tag도 유지 (실시간 동작용)
                 };
+
+                // XAML 직렬화 시 Tag가 유실될 수 있으므로, 숨김 텍스트 블록에 경로 저장
+                var pathHolder = new TextBlock
+                {
+                    Text = filePath,
+                    Visibility = Visibility.Collapsed,
+                    Name = "FilePathHolder"
+                };
+                grid.Children.Add(pathHolder);
 
                 if (isAudio)
                 {

@@ -141,6 +141,16 @@ namespace CatchCapture.Utilities
                 }
                 catch { /* Column might already exist */ }
 
+                // Migration: Add IsPinned to Notes
+                try
+                {
+                    using (var command = new SqliteCommand("ALTER TABLE Notes ADD COLUMN IsPinned INTEGER DEFAULT 0;", connection))
+                    {
+                        command.ExecuteNonQuery();
+                    }
+                }
+                catch { /* Column might already exist */ }
+
                 // Insert Default Categories if empty
                 string checkCategories = "SELECT COUNT(*) FROM Categories;";
                 using (var command = new SqliteCommand(checkCategories, connection))

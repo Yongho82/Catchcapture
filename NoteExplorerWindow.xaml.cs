@@ -97,10 +97,6 @@ namespace CatchCapture
                     using (var cmd = new SqliteCommand("SELECT COUNT(*) FROM Notes WHERE Status = 0", connection))
                         TxtCountAll.Text = $"({cmd.ExecuteScalar()})";
                         
-                    // Default
-                    using (var cmd = new SqliteCommand("SELECT COUNT(*) FROM Notes WHERE Status = 0 AND CategoryId = 1", connection))
-                        TxtCountDefault.Text = $"({cmd.ExecuteScalar()})";
-                        
                     // Today
                     using (var cmd = new SqliteCommand("SELECT COUNT(*) FROM Notes WHERE Status = 0 AND date(CreatedAt, 'localtime') = date('now', 'localtime')", connection))
                         TxtCountToday.Text = $"({cmd.ExecuteScalar()})";
@@ -113,8 +109,8 @@ namespace CatchCapture
                     using (var cmd = new SqliteCommand("SELECT COUNT(*) FROM Notes WHERE Status = 1", connection))
                         TxtCountTrash.Text = $"({cmd.ExecuteScalar()})";
 
-                    // Dynamic Categories
-                    var categories = DatabaseManager.Instance.GetAllCategories().Where(c => c.Id != 1);
+                    // Categories (Including Default ID 1)
+                    var categories = DatabaseManager.Instance.GetAllCategories();
                     var categoryItems = new List<CategorySidebarItem>();
                     foreach (var cat in categories)
                     {
@@ -122,7 +118,7 @@ namespace CatchCapture
                         {
                             cmd.Parameters.AddWithValue("$categoryId", cat.Id);
                             int count = Convert.ToInt32(cmd.ExecuteScalar());
-                            categoryItems.Add(new CategorySidebarItem { Id = cat.Id, Name = cat.Name, Count = count });
+                            categoryItems.Add(new CategorySidebarItem { Id = cat.Id, Name = cat.Name, Color = cat.Color, Count = count });
                         }
                     }
                     ItemsCategories.ItemsSource = categoryItems;
@@ -291,12 +287,12 @@ namespace CatchCapture
 
                     string sql = $@"
                         SELECT n.Id, n.Title, n.Content, datetime(n.CreatedAt, 'localtime'), n.SourceApp, n.ContentXaml,
-                               c.Name as CategoryName, c.Color as CategoryColor, datetime(n.UpdatedAt, 'localtime'), n.Status
+                               c.Name as CategoryName, c.Color as CategoryColor, datetime(n.UpdatedAt, 'localtime'), n.Status, n.IsPinned
                         FROM Notes n
                         LEFT JOIN Categories c ON n.CategoryId = c.Id
                         {joinSql}
                         {whereClause}
-                        ORDER BY {_currentSortOrder}
+                        ORDER BY n.IsPinned DESC, {_currentSortOrder}
                         LIMIT $limit OFFSET $offset";
 
                     using (var command = new SqliteCommand(sql, connection))
@@ -322,7 +318,8 @@ namespace CatchCapture
                                     CategoryName = reader.IsDBNull(6) ? "기본" : reader.GetString(6),
                                     CategoryColor = reader.IsDBNull(7) ? "#8E2DE2" : reader.GetString(7),
                                     UpdatedAt = reader.GetDateTime(8),
-                                    Status = reader.IsDBNull(9) ? 0 : reader.GetInt32(9)
+                                    Status = reader.IsDBNull(9) ? 0 : reader.GetInt32(9),
+                                    IsPinned = reader.IsDBNull(10) ? false : reader.GetInt32(10) == 1
                                 };
 
                                 note.Images = GetNoteImages(noteId, imgDir);
@@ -520,23 +517,70 @@ namespace CatchCapture
                         {
                             block.Margin = new Thickness(0, 2, 0, 2);
                             
-                            if (block is BlockUIContainer container && container.Child is Grid g)
+                            if (block is BlockUIContainer container)
                             {
-                                var img = g.Children.OfType<Image>().FirstOrDefault();
-                                if (img != null)
+                                // Handle Media Container (Border > Grid)
+                                if (container.Child is Border border && border.Child is Grid grid)
                                 {
-                                    img.MaxWidth = 340; // Preview width limit
+                                    string? filePath = grid.Tag?.ToString();
+
+                                    // Tag가 없으면 숨겨진 TextBlock에서 찾기
+                                    if (string.IsNullOrEmpty(filePath))
+                                    {
+                                        var holder = grid.Children.OfType<TextBlock>().FirstOrDefault(t => t.Name == "FilePathHolder" || t.Text.Contains("\\") || t.Text.Contains("/"));
+                                        if (holder != null) filePath = holder.Text;
+                                    }
+
+                                    if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
+                                    {
+                                        grid.Cursor = Cursors.Hand;
+                                        grid.MouseLeftButtonDown += (s, ev) =>
+                                        {
+                                            if (ev.ClickCount == 2)
+                                            {
+                                                try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(filePath) { UseShellExecute = true }); } catch { }
+                                                ev.Handled = true;
+                                            }
+                                        };
+                                    }
+                                }
+                                // Handle Legacy Image Layout or Simple Grid Layout
+                                else if (container.Child is Grid g)
+                                {
+                                    var img = g.Children.OfType<Image>().FirstOrDefault();
+                                    if (img != null)
+                                    {
+                                        img.MaxWidth = 340; // Preview width limit
+                                        img.Cursor = Cursors.Hand;
+                                        img.PreviewMouseLeftButtonDown += (s, ev) =>
+                                        {
+                                            string? path = null;
+                                            if (img.Tag != null) path = img.Tag.ToString();
+                                            else if (img.Source is BitmapImage bi && bi.UriSource != null) path = bi.UriSource.LocalPath;
+
+                                            if (!string.IsNullOrEmpty(path) && File.Exists(path))
+                                            {
+                                                try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true }); } catch { }
+                                            }
+                                        };
+                                    }
+                                }
+                                // Handle direct Image in container
+                                else if (container.Child is Image img)
+                                {
+                                    img.MaxWidth = 340;
                                     img.Cursor = Cursors.Hand;
                                     img.PreviewMouseLeftButtonDown += (s, ev) =>
-                                   {
-                                       string? path = null;
-                                       if (img.Source is BitmapImage bi && bi.UriSource != null) path = bi.UriSource.LocalPath;
- 
-                                       if (!string.IsNullOrEmpty(path) && File.Exists(path))
-                                       {
-                                           try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true }); } catch { }
-                                       }
-                                   };
+                                    {
+                                        string? path = null;
+                                        if (img.Tag != null) path = img.Tag.ToString();
+                                        else if (img.Source is BitmapImage bi && bi.UriSource != null) path = bi.UriSource.LocalPath;
+
+                                        if (!string.IsNullOrEmpty(path) && File.Exists(path))
+                                        {
+                                            try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true }); } catch { }
+                                        }
+                                    };
                                 }
                             }
                         }
@@ -950,6 +994,37 @@ namespace CatchCapture
                 }
             }
         }
+
+        private void BtnPinItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.DataContext is NoteViewModel note)
+            {
+                try
+                {
+                    bool newPinned = !note.IsPinned;
+                    using (var connection = new SqliteConnection($"Data Source={DatabaseManager.Instance.DbFilePath}"))
+                    {
+                        connection.Open();
+                        using (var command = new SqliteCommand("UPDATE Notes SET IsPinned = $isPinned WHERE Id = $id", connection))
+                        {
+                            command.Parameters.AddWithValue("$isPinned", newPinned ? 1 : 0);
+                            command.Parameters.AddWithValue("$id", note.Id);
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                    
+                    // Update UI state
+                    note.IsPinned = newPinned;
+                    
+                    // Re-sort to bring pinned to top
+                    LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage);
+                }
+                catch (Exception ex)
+                {
+                    CatchCapture.CustomMessageBox.Show("고정 상태 변경 중 오류 발생: " + ex.Message);
+                }
+            }
+        }
     }
 
     public class NoteViewModel : System.ComponentModel.INotifyPropertyChanged
@@ -993,6 +1068,9 @@ namespace CatchCapture
         private List<string> _tags = new List<string>();
         public List<string> Tags { get => _tags; set { _tags = value; OnPropertyChanged(nameof(Tags)); } }
 
+        private bool _isPinned;
+        public bool IsPinned { get => _isPinned; set { _isPinned = value; OnPropertyChanged(nameof(IsPinned)); } }
+
         private List<NoteAttachment> _attachments = new List<NoteAttachment>();
         public List<NoteAttachment> Attachments { get => _attachments; set { _attachments = value; OnPropertyChanged(nameof(Attachments)); } }
 
@@ -1034,6 +1112,7 @@ namespace CatchCapture
     {
         public long Id { get; set; }
         public string Name { get; set; } = string.Empty;
+        public string Color { get; set; } = "#8E2DE2";
         public int Count { get; set; }
         public string CountText => $"({Count})";
     }
