@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen" ResizeMode="CanResize"
-        MinHeight="600" MinWidth="1100"
+        MinHeight="600" Height="850" MinWidth="1100"
         StateChanged="NoteExplorerWindow_StateChanged">
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="60" 
@@ -272,8 +272,9 @@
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="220"/> 
-                    <ColumnDefinition x:Name="ColNoteList" Width="2*"/>   <!-- Proportional ratio -->
-                    <ColumnDefinition x:Name="ColPreview" Width="1.2*"/> <!-- Proportional ratio -->
+                    <ColumnDefinition x:Name="ColNoteList" Width="2*" MinWidth="300"/>
+                    <ColumnDefinition Width="Auto"/> <!-- Splitter -->
+                    <ColumnDefinition x:Name="ColPreview" Width="1.2*" MinWidth="300"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- Sidebar -->
@@ -524,8 +525,20 @@
                         </StackPanel>
                     </Border>
                 </Grid>
-
-                <Border Grid.Column="2" Background="#FBFCFD" BorderThickness="1,0,0,0" BorderBrush="#F0F0F0">
+                
+                <!-- Grid Splitter -->
+                <GridSplitter Grid.Column="2" Width="6" HorizontalAlignment="Center" VerticalAlignment="Stretch" 
+                              Background="Transparent" ShowsPreview="True">
+                    <GridSplitter.Template>
+                        <ControlTemplate TargetType="GridSplitter">
+                            <Border Background="Transparent">
+                                <Border Background="#F1F3F4" Width="1" HorizontalAlignment="Center" Margin="2,0"/>
+                            </Border>
+                        </ControlTemplate>
+                    </GridSplitter.Template>
+                </GridSplitter>
+ 
+                <Border Grid.Column="3" Background="#FBFCFD" BorderThickness="1,0,0,0" BorderBrush="#F0F0F0">
                     <Grid x:Name="PreviewGrid" Margin="20,10,20,5" Visibility="Collapsed">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/> <!-- Title & App -->

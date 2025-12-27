@@ -138,9 +138,9 @@ namespace CatchCapture
         {
             if (this.WindowState == WindowState.Maximized)
             {
-                // Give more space to preview when maximized
+                // Balanced distribution (approx 850px each on 1080p)
                 if (ColNoteList != null) ColNoteList.Width = new GridLength(1, GridUnitType.Star);
-                if (ColPreview != null) ColPreview.Width = new GridLength(2, GridUnitType.Star);
+                if (ColPreview != null) ColPreview.Width = new GridLength(1, GridUnitType.Star);
                 
                 if (PathMaximize != null)
                     PathMaximize.Data = Geometry.Parse("M4,8H8V4H20V16H16V20H4V8M16,8V14H18V6H10V8H16M6,12V18H14V12H6Z");
