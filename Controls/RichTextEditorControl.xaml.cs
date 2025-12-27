@@ -196,9 +196,26 @@ namespace CatchCapture.Controls
         }
 
         // Text Formatting
-        private void BtnBold_Click(object sender, RoutedEventArgs e) => EditingCommands.ToggleBold.Execute(null, RtbEditor);
-        private void BtnItalic_Click(object sender, RoutedEventArgs e) => EditingCommands.ToggleItalic.Execute(null, RtbEditor);
-        private void BtnUnderline_Click(object sender, RoutedEventArgs e) => EditingCommands.ToggleUnderline.Execute(null, RtbEditor);
+        private void BtnBold_Click(object sender, RoutedEventArgs e) 
+        {
+            var target = IsPropertyApplied(TextElement.FontWeightProperty, FontWeights.Bold) ? FontWeights.Normal : FontWeights.Bold;
+            ApplyPropertyToSelection(TextElement.FontWeightProperty, target);
+        }
+
+        private void BtnItalic_Click(object sender, RoutedEventArgs e) 
+        {
+            var target = IsPropertyApplied(TextElement.FontStyleProperty, FontStyles.Italic) ? FontStyles.Normal : FontStyles.Italic;
+            ApplyPropertyToSelection(TextElement.FontStyleProperty, target);
+        }
+
+        private void BtnUnderline_Click(object sender, RoutedEventArgs e) 
+        {
+            var currentValue = RtbEditor.Selection.GetPropertyValue(Inline.TextDecorationsProperty);
+            bool isUnderlined = (currentValue != DependencyProperty.UnsetValue && currentValue is TextDecorationCollection tdc && tdc.Count > 0);
+            
+            var target = isUnderlined ? null : TextDecorations.Underline;
+            ApplyPropertyToSelection(Inline.TextDecorationsProperty, target);
+        }
 
         private void BtnUndo_Click(object sender, RoutedEventArgs e) => RtbEditor.Undo();
         private void BtnRedo_Click(object sender, RoutedEventArgs e) => RtbEditor.Redo();
@@ -311,9 +328,7 @@ namespace CatchCapture.Controls
                 }
                 else
                 {
-                    // Apply ONLY to selection. 
-                    // Applying to RtbEditor itself (e.g. RtbEditor.FontSize = value) 
-                    // causes the entire document to change and the UI to hang.
+                    // Normal selection application
                     if (value is SolidColorBrush b && b.Color == Colors.Black) value = Brushes.Black;
                     RtbEditor.Selection.ApplyPropertyValue(property, value);
                 }

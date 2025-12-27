@@ -212,10 +212,11 @@
                 <FlowDocument IsOptimalParagraphEnabled="False" PagePadding="0">
                     <FlowDocument.Resources>
                         <Style TargetType="{x:Type Paragraph}">
-                            <Setter Property="Margin" Value="0"/>
+                            <Setter Property="Margin" Value="0,5,0,5"/>
                             <Setter Property="FontSize" Value="14"/>
                             <Setter Property="Foreground" Value="Black"/>
-                            <Setter Property="LineHeight" Value="21"/> <!-- 14 * 1.5 -->
+                            <Setter Property="LineHeight" Value="24"/> 
+                            <Setter Property="LineStackingStrategy" Value="BlockLineHeight"/>
                         </Style>
                     </FlowDocument.Resources>
                     <Paragraph></Paragraph>
