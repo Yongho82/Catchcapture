@@ -537,13 +537,13 @@ namespace CatchCapture
 
                 // 저장 후 내 노트 탐색기 열기 (또는 활성화)
                 // 저장 후 내 노트 탐색기 열기 (또는 활성화) 및 메인 윈도우 최소화
-                // [Fix] 기존 노트 수정 시에는 메인 윈도우를 최소화하지 않음 (탐색기가 같이 최소화되는 문제 방지)
-                if (!_isEditMode)
+                // [Fix] 기존 노트 수정 시 또는 탐색기에서 새 노트를 만들 때는 메인 윈도우를 최소화하지 않음
+                if (!_isEditMode && !(this.Owner is NoteExplorerWindow))
                 {
                     var mainWindow = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
                     if (mainWindow != null && mainWindow.WindowState != WindowState.Minimized)
                     {
-                       mainWindow.WindowState = WindowState.Minimized;
+                        mainWindow.WindowState = WindowState.Minimized;
                     }
                 }
 
