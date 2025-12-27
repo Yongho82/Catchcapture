@@ -383,21 +383,26 @@ namespace CatchCapture
                     }
 
                     // Save new file
-                    string ext = "." + (settings.NoteSaveFormat ?? "PNG").ToLower();
+                    // 외부 블로그나 뉴스에서 붙여넣기 한 이미지(원격 URL)는 용량 최적화를 위해 JPG(품질 80)로 강제 변환하여 저장
+                    bool isRemote = (imgSource is BitmapImage biRemote && biRemote.UriSource != null && !biRemote.UriSource.IsFile);
+                    string saveFormat = isRemote ? "JPG" : (settings.NoteSaveFormat ?? "PNG");
+                    int saveQuality = isRemote ? 80 : settings.NoteImageQuality;
+
+                    string ext = "." + saveFormat.ToLower();
                     fileName = $"img_{DateTime.Now:yyyyMMdd_HHmmss_fff}_{Guid.NewGuid().ToString().Substring(0, 8)}{ext}";
                     string fullPath = Path.Combine(imgDir, fileName);
 
                     using (var fileStream = new FileStream(fullPath, FileMode.Create))
                     {
                         BitmapEncoder encoder;
-                        string fmt = (settings.NoteSaveFormat ?? "PNG").ToUpper();
+                        string fmt = saveFormat.ToUpper();
 
                         switch (fmt)
                         {
                             case "JPG":
                             case "JPEG":
                                 var jpgEncoder = new JpegBitmapEncoder();
-                                jpgEncoder.QualityLevel = settings.NoteImageQuality;
+                                jpgEncoder.QualityLevel = saveQuality;
                                 encoder = jpgEncoder;
                                 break;
                             case "BMP":
