@@ -474,7 +474,7 @@ private void InitLanguageComboBox()
                 else if (info == "Dark")
                 {
                     _settings.ThemeBackgroundColor = "#2D2D2D";
-                    _settings.ThemeTextColor = "#FFFFFF";
+                    _settings.ThemeTextColor = "#CCCCCC";
                 }
                 else if (info == "Light")
                 {

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen" ResizeMode="CanResize"
-        MinHeight="600" Height="850" MinWidth="1000" Width="1450"
+        MinHeight="500" Height="995" MinWidth="1000" Width="1450"
         Title="캐치캡처 노트 탐색기"
         StateChanged="NoteExplorerWindow_StateChanged">
     <WindowChrome.WindowChrome>

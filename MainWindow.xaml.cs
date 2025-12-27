@@ -3426,7 +3426,7 @@ public partial class MainWindow : Window
         else if (settings.ThemeMode == "Dark")
         {
             settings.ThemeBackgroundColor = "#1E1E1E";
-            settings.ThemeTextColor = "#FFFFFF";
+            settings.ThemeTextColor = "#CCCCCC";
         }
         else if (settings.ThemeMode == "Light")
         {

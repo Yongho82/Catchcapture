@@ -235,10 +235,10 @@ public partial class App : Application
                     glossyBrush.GradientStops.Add(new GradientStop(Color.FromRgb(10, 10, 10), 1.0)); // 하단: 딥 블랙
                     
                     Application.Current.Resources["ThemeTitleBackground"] = glossyBrush;
-                    Application.Current.Resources["ThemeTitleForeground"] = Brushes.White;
+                    Application.Current.Resources["ThemeTitleForeground"] = new SolidColorBrush(Color.FromRgb(204, 204, 204)); // #CCCCCC
                     
                     Application.Current.Resources["ThemeSimpleTitleBackground"] = glossyBrush;
-                    Application.Current.Resources["ThemeSimpleTitleForeground"] = Brushes.White;
+                    Application.Current.Resources["ThemeSimpleTitleForeground"] = new SolidColorBrush(Color.FromRgb(204, 204, 204)); // #CCCCCC
                     
                     // Sharp glossy outline (선명한 하이그로시 윤곽선)
                     Application.Current.Resources["ThemeWindowBorder"] = new SolidColorBrush(Color.FromRgb(45, 45, 45));
