@@ -57,10 +57,13 @@ namespace CatchCapture
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        public static NoteExplorerWindow? Instance { get; private set; }
+
         public NoteExplorerWindow()
         {
             try
             {
+                Instance = this;
                 InitializeComponent();
                 this.DataContext = this;
                 this.MouseDown += (s, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
@@ -73,6 +76,12 @@ namespace CatchCapture
             {
                 CatchCapture.CustomMessageBox.Show($"탐색기 초기화 중 오류: {ex.Message}\n{ex.StackTrace}");
             }
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+            Instance = null;
         }
 
         private void UpdateSidebarCounts()
@@ -188,6 +197,11 @@ namespace CatchCapture
                 // Settings might have changed (e.g. storage path), refresh if needed
                 LoadNotes();
             }
+        }
+
+        public void RefreshNotes()
+        {
+            LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage);
         }
 
         private void InitializeTipTimer()
@@ -583,12 +597,22 @@ namespace CatchCapture
             // Open note for Viewing (Post View)
             if (LstNotes.SelectedItem is NoteViewModel note)
             {
+                long currentNoteId = note.Id;
                 var viewWin = new NoteViewWindow(note.Id);
                 viewWin.Owner = this;
                 viewWin.ShowDialog();
-                // Refresh in case edit happened inside View->Edit flow
-                LoadNotes();
+                
+                // Refresh list but keep selection and current page
+                LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage);
                 LoadTags();
+
+                // Restore selection
+                var noteToSelect = LstNotes.Items.OfType<NoteViewModel>().FirstOrDefault(n => n.Id == currentNoteId);
+                if (noteToSelect != null)
+                {
+                    LstNotes.SelectedItem = noteToSelect;
+                    LstNotes.ScrollIntoView(noteToSelect);
+                }
             }
         }
 

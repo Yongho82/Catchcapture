@@ -93,6 +93,8 @@ namespace CatchCapture.Utilities
         private string? _sourceApp;
         private string? _sourceTitle;
 
+        public bool RequestMainWindowMinimize { get; private set; } = false;
+
         public SnippingWindow(bool showGuideText = false, BitmapSource? cachedScreenshot = null)
         {
             var settings = Settings.Load();
@@ -3519,6 +3521,7 @@ namespace CatchCapture.Utilities
                     if (noteWin.ShowDialog() == true)
                     {
                         // 저장 후 닫기
+                        RequestMainWindowMinimize = true;
                         DialogResult = true;
                         Close();
                     }

@@ -66,6 +66,8 @@ namespace CatchCapture
         private string? _sourceApp;
         private string? _sourceTitle;
 
+        public bool RequestMainWindowMinimize { get; private set; } = false;
+
         public PreviewWindow(BitmapSource image, int index, List<CaptureImage>? captures = null)
         {
             InitializeComponent();
@@ -911,7 +913,10 @@ namespace CatchCapture
 
                     var noteWin = new NoteInputWindow(finalImage, _sourceApp, _sourceTitle);
                     noteWin.Owner = this;
-                    noteWin.ShowDialog();
+                    if (noteWin.ShowDialog() == true)
+                    {
+                        RequestMainWindowMinimize = true;
+                    }
                 }
             }
             catch (Exception ex)

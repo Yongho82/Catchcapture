@@ -1270,7 +1270,15 @@ public partial class MainWindow : Window
                 this.Opacity = 1;
 
                 // AddCaptureToList에서 창 복원 로직을 일원화하여 처리함 (이곳의 중복 호출 제거)
-                AddCaptureToList(capturedImage);
+                bool requestMinimize = snippingWindow.RequestMainWindowMinimize;
+                
+                if (requestMinimize && !settings.IsTrayMode)
+                {
+                    this.WindowState = WindowState.Minimized;
+                    this.Show();
+                }
+
+                AddCaptureToList(capturedImage, skipPreview: requestMinimize, showMainWindow: !requestMinimize);
             }
             else
             {
@@ -1630,8 +1638,9 @@ public partial class MainWindow : Window
                         var selectedArea = snippingWindow.SelectedArea;
                         var capturedImage = snippingWindow.SelectedFrozenImage ?? ScreenCaptureUtility.CaptureArea(selectedArea);
 
+                        bool requestMinimize = snippingWindow.RequestMainWindowMinimize;
                         this.Opacity = 1;
-                        AddCaptureToList(capturedImage);
+                        AddCaptureToList(capturedImage, skipPreview: requestMinimize, showMainWindow: !requestMinimize);
 
                         // 캡처 완료 후 모드별 창 복원
                         if (isSimpleMode)
@@ -1645,8 +1654,16 @@ public partial class MainWindow : Window
                         }
                         else if (!settings.IsTrayMode)
                         {
-                            this.Show();
-                            this.Activate();
+                            if (requestMinimize)
+                            {
+                                this.WindowState = WindowState.Minimized;
+                                this.Show();
+                            }
+                            else
+                            {
+                                this.Show();
+                                this.Activate();
+                            }
                         }
                         else
                         {
@@ -1748,8 +1765,9 @@ public partial class MainWindow : Window
                         var selectedArea = snippingWindow.SelectedArea;
                         var capturedImage = snippingWindow.SelectedFrozenImage ?? ScreenCaptureUtility.CaptureArea(selectedArea);
 
+                        bool requestMinimize = snippingWindow.RequestMainWindowMinimize;
                         this.Opacity = 1;
-                        AddCaptureToList(capturedImage);
+                        AddCaptureToList(capturedImage, skipPreview: requestMinimize, showMainWindow: !requestMinimize);
 
                         // 캡처 완료 후 모드별 창 복원
                         if (isSimpleMode)
@@ -1763,8 +1781,16 @@ public partial class MainWindow : Window
                         }
                         else if (!settings.IsTrayMode)
                         {
-                            this.Show();
-                            this.Activate();
+                            if (requestMinimize)
+                            {
+                                this.WindowState = WindowState.Minimized;
+                                this.Show();
+                            }
+                            else
+                            {
+                                this.Show();
+                                this.Activate();
+                            }
                         }
                         else
                         {
@@ -2061,6 +2087,17 @@ public partial class MainWindow : Window
                         if (_autoPreviewOpenCount > 0) _autoPreviewOpenCount--;
                         if (_autoPreviewOpenCount == 0)
                         {
+                            // Check if preview requested minimize (e.g. saved to Note)
+                            if (s is PreviewWindow pw && pw.RequestMainWindowMinimize) 
+                            {
+                                if (!settings.IsTrayMode)
+                                {
+                                    this.Show();
+                                    this.WindowState = WindowState.Minimized;
+                                }
+                                return;
+                            }
+
                             try
                             {
                                 this.Show();
@@ -2443,6 +2480,14 @@ public partial class MainWindow : Window
             {
                 return;
             }
+        }
+
+        // 이미 열려있는지 확인
+        if (NoteExplorerWindow.Instance != null && NoteExplorerWindow.Instance.IsLoaded)
+        {
+            NoteExplorerWindow.Instance.WindowState = WindowState.Normal;
+            NoteExplorerWindow.Instance.Activate();
+            return;
         }
 
         // 내 노트 탐색기 열기

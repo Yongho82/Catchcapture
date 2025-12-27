@@ -535,6 +535,37 @@ namespace CatchCapture
                     }
                 }
 
+                // 저장 후 내 노트 탐색기 열기 (또는 활성화)
+                // 저장 후 내 노트 탐색기 열기 (또는 활성화) 및 메인 윈도우 최소화
+                // [Fix] 기존 노트 수정 시에는 메인 윈도우를 최소화하지 않음 (탐색기가 같이 최소화되는 문제 방지)
+                if (!_isEditMode)
+                {
+                    var mainWindow = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
+                    if (mainWindow != null && mainWindow.WindowState != WindowState.Minimized)
+                    {
+                       mainWindow.WindowState = WindowState.Minimized;
+                    }
+                }
+
+                if (CatchCapture.NoteExplorerWindow.Instance != null && CatchCapture.NoteExplorerWindow.Instance.IsLoaded)
+                {
+                    CatchCapture.NoteExplorerWindow.Instance.WindowState = WindowState.Normal;
+                    CatchCapture.NoteExplorerWindow.Instance.Activate();
+                    CatchCapture.NoteExplorerWindow.Instance.RefreshNotes(); // Force refresh if method available or needed
+                }
+                else
+                {
+                    var explorer = new CatchCapture.NoteExplorerWindow();
+                    // Since specific owner might be minimized, we might just show it independent or keep owner relationship but minimize owner.
+                    // If owner is minimized, owned window might be minimized too if they are strictly linked? 
+                    // No, usually owned windows minimize with owner.
+                    // If we minimize MainWindow (Owner), NoteExplorer (Owned) might hide.
+                    // So we should NOT set Owner if we intend to minimize the MainWindow but keep Explorer visible.
+                    // Or we just minimize MainWindow and ensure Explorer is separate.
+                    // Let's NOT set owner if we minimize Main.
+                    explorer.Show();
+                }
+
                 this.DialogResult = true;
                 this.Close();
             }
