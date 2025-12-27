@@ -1297,6 +1297,7 @@ private void InitLanguageComboBox()
             LoadHotkeysPage();
             LoadThemePage();     // 테마 페이지 UI 갱신 (캡처 라인 설정 포함)
             LoadRecordingPage(); // 녹화 페이지 UI 갱신
+            LoadNotePage();      // 노트 설정 UI 갱신
 
             // 테마 즉시 적용
             App.ApplyTheme(_settings);
