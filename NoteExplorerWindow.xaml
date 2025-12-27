@@ -216,7 +216,7 @@
             </Grid.RowDefinitions>
 
             <!-- Top Action Bar -->
-            <Grid Grid.Row="0" Margin="30,15,30,12">
+            <Grid Grid.Row="0" Margin="30,20,30,12">
                 <!-- Row 1: Title & Main Buttons -->
                 <Grid>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
@@ -332,7 +332,39 @@
                                     </StackPanel>
                                 </Button>
                                 
-                                <Separator Background="#E0E0E0" Margin="10,20"/>
+                                <Separator Background="#E0E0E0" Margin="10,15"/>
+
+                                <!-- Group Memo Section -->
+                                <Grid Margin="15,0,5,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="⌵" FontSize="16" Foreground="#5F6368" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <TextBlock Grid.Column="1" Text="그룹 메모" Foreground="#5F6368" FontSize="12" FontWeight="Bold" VerticalAlignment="Center"/>
+                                    <Button Grid.Column="2" Click="BtnAddCategory_Click" Style="{StaticResource TextButtonStyle}" Padding="4" Margin="0,0,4,0">
+                                        <TextBlock Text="+" FontSize="16" Foreground="#5F6368"/>
+                                    </Button>
+                                    <Button Grid.Column="3" Click="BtnManageCategories_Click" Style="{StaticResource TextButtonStyle}" Padding="4">
+                                        <TextBlock Text="≡↓" FontSize="12" Foreground="#5F6368" VerticalAlignment="Center"/>
+                                    </Button>
+                                </Grid>
+
+                                <ItemsControl x:Name="ItemsCategories" Margin="10,0,5,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Button Click="BtnCategory_Click" Tag="{Binding Id}" Style="{StaticResource SidebarItemStyle}" Margin="0,0,0,2">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="📂" Margin="0,0,10,0" FontSize="14" VerticalAlignment="Center" Opacity="0.6"/>
+                                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" MaxWidth="120" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Text="{Binding CountText}" Margin="5,0,0,0" Foreground="#80868B" FontSize="11" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
                                 
                                 <TextBlock Text="태그" Foreground="#9AA0A6" FontSize="11" FontWeight="Bold" Margin="15,0,0,10"/>
                                 <ItemsControl x:Name="ItemsTags" Margin="10,0">
@@ -416,7 +448,7 @@
                     </Grid>
 
                     <!-- Column Headers -->
-                    <Border Grid.Row="1" Background="#F8F9FA" Height="36" BorderThickness="0,0,0,1" BorderBrush="#E0E0E0">
+                    <Border Grid.Row="1" Background="#F8F9FA" Height="40" BorderThickness="0,0,0,1" BorderBrush="#E0E0E0">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="28"/> <!-- Optimized Checkbox Width -->
@@ -455,7 +487,7 @@
                                MouseDoubleClick="LstNotes_MouseDoubleClick">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Grid Height="38" Background="Transparent"> <!-- Further reduced height -->
+                                <Grid Height="44" Background="Transparent">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="28"/> <!-- Optimized Checkbox Width -->
                                         <ColumnDefinition Width="100"/> <!-- Group -->

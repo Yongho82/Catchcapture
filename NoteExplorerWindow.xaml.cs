@@ -21,7 +21,7 @@ namespace CatchCapture
         private string? _currentTag = null;
         private string? _currentSearch = "";
         private int _currentPage = 1;
-        private const int PAGE_SIZE = 15;
+        private const int PAGE_SIZE = 17;
 
         private System.Windows.Threading.DispatcherTimer? _tipTimer;
         private int _currentTipIndex = 0;
@@ -100,6 +100,20 @@ namespace CatchCapture
                     // Trash
                     using (var cmd = new SqliteCommand("SELECT COUNT(*) FROM Notes WHERE Status = 1", connection))
                         TxtCountTrash.Text = $"({cmd.ExecuteScalar()})";
+
+                    // Dynamic Categories
+                    var categories = DatabaseManager.Instance.GetAllCategories().Where(c => c.Id != 1);
+                    var categoryItems = new List<CategorySidebarItem>();
+                    foreach (var cat in categories)
+                    {
+                        using (var cmd = new SqliteCommand("SELECT COUNT(*) FROM Notes WHERE Status = 0 AND CategoryId = $categoryId", connection))
+                        {
+                            cmd.Parameters.AddWithValue("$categoryId", cat.Id);
+                            int count = Convert.ToInt32(cmd.ExecuteScalar());
+                            categoryItems.Add(new CategorySidebarItem { Id = cat.Id, Name = cat.Name, Count = count });
+                        }
+                    }
+                    ItemsCategories.ItemsSource = categoryItems;
                 }
             }
             catch { }
@@ -204,6 +218,12 @@ namespace CatchCapture
                 else if (filter == "Today") TxtStatusInfo.Text = "오늘의 기록 내용";
                 else if (filter == "Recent") TxtStatusInfo.Text = "최근 1주일 기록 내용";
                 else if (filter == "Trash") TxtStatusInfo.Text = "휴지통 기록 내용";
+                else if (filter.StartsWith("Category:"))
+                {
+                    long catId = long.Parse(filter.Split(':')[1]);
+                    var cat = DatabaseManager.Instance.GetCategory(catId);
+                    TxtStatusInfo.Text = $"그룹: {cat?.Name ?? "알 수 없음"}";
+                }
                 else TxtStatusInfo.Text = "전체 기록 내용";
 
                 var notes = new List<NoteViewModel>();
@@ -222,6 +242,10 @@ namespace CatchCapture
                         wheres.Add("n.Status = 0");
                         if (filter == "Today") wheres.Add("date(n.CreatedAt, 'localtime') = date('now', 'localtime')");
                         else if (filter == "Recent") wheres.Add("n.CreatedAt >= date('now', 'localtime', '-7 days')");
+                        else if (filter.StartsWith("Category:"))
+                        {
+                            wheres.Add("n.CategoryId = " + filter.Split(':')[1]);
+                        }
                         else if (filter == "Default") wheres.Add("n.CategoryId = 1");
                     }
 
@@ -781,6 +805,31 @@ namespace CatchCapture
                 LoadNotes(tag: tagName, page: 1);
             }
         }
+
+        private void BtnAddCategory_Click(object sender, RoutedEventArgs e)
+        {
+            var win = new SettingsWindow();
+            win.ShowNoteSettings();
+            win.ShowDialog();
+            UpdateSidebarCounts();
+        }
+
+        private void BtnManageCategories_Click(object sender, RoutedEventArgs e)
+        {
+            var win = new SettingsWindow();
+            win.ShowNoteSettings();
+            win.ShowDialog();
+            UpdateSidebarCounts();
+        }
+
+        private void BtnCategory_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is long id)
+            {
+                TxtSearch.Text = "";
+                LoadNotes(filter: $"Category:{id}");
+            }
+        }
     }
 
     public class NoteViewModel : System.ComponentModel.INotifyPropertyChanged
@@ -854,5 +903,13 @@ namespace CatchCapture
         }
 
         public string FormattedDate => UpdatedAt.ToString("yyyy-MM-dd HH:mm");
+    }
+
+    public class CategorySidebarItem
+    {
+        public long Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public int Count { get; set; }
+        public string CountText => $"({Count})";
     }
 }
