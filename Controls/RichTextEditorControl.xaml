@@ -95,8 +95,8 @@
                         </Style>
                     </ComboBox.Resources>
                     <ComboBoxItem Content="10"/>
-                    <ComboBoxItem Content="12"/>
-                    <ComboBoxItem Content="14" IsSelected="True"/>
+                    <ComboBoxItem Content="12" IsSelected="True"/>
+                    <ComboBoxItem Content="14"/>
                     <ComboBoxItem Content="16"/>
                     <ComboBoxItem Content="18"/>
                     <ComboBoxItem Content="24"/>
@@ -207,7 +207,7 @@
                          TextOptions.TextRenderingMode="ClearType"
                          RenderOptions.ClearTypeHint="Enabled">
                 <FlowDocument IsOptimalParagraphEnabled="False" PagePadding="0">
-                    <Paragraph Margin="0" LineHeight="1.5"></Paragraph>
+                    <Paragraph></Paragraph>
                 </FlowDocument>
             </RichTextBox>
         </Grid>

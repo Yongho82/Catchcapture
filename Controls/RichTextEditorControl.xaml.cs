@@ -24,9 +24,50 @@ namespace CatchCapture.Controls
         public RichTextEditorControl()
         {
             InitializeComponent();
-            CboFontFamily.ItemsSource = Fonts.SystemFontFamilies.OrderBy(f => f.Source);
-            CboFontFamily.SelectedIndex = 0; // Default selection
             
+            // 15 Recommended Professional Fonts
+            var recommendedFonts = new[] 
+            { 
+                "Inter", "Segoe UI", "Roboto", "Open Sans", "Noto Sans KR", 
+                "Arial", "Helvetica", "Verdana", "Tahoma", "Georgia", 
+                "Times New Roman", "Courier New", "Consolas", "Malgun Gothic", "Gulim" 
+            };
+
+            var systemFonts = Fonts.SystemFontFamilies.ToList();
+            var filteredFonts = systemFonts
+                .Where(f => recommendedFonts.Any(r => f.Source.Equals(r, StringComparison.OrdinalIgnoreCase) || 
+                                                     f.Source.StartsWith(r + " ", StringComparison.OrdinalIgnoreCase)))
+                .GroupBy(f => f.Source) // Avoid duplicates
+                .Select(g => g.First())
+                .OrderBy(f => f.Source)
+                .Take(15) // Ensure exactly 15 or less
+                .ToList();
+
+            CboFontFamily.ItemsSource = filteredFonts;
+
+            // Set Default Font: Inter or Segoe UI
+            var defaultFont = filteredFonts.FirstOrDefault(f => f.Source.Contains("Inter")) 
+                            ?? filteredFonts.FirstOrDefault(f => f.Source.Contains("Segoe UI"))
+                            ?? filteredFonts.FirstOrDefault();
+            
+            if (defaultFont != null) CboFontFamily.SelectedItem = defaultFont;
+            
+            // Set Default Size: 12 (Index 1 in 10, 12, 14, 16...)
+            CboFontSize.SelectedIndex = 1; 
+
+            // Initialize FlowDocument with defaults
+            RtbEditor.Document.FontFamily = (FontFamily)CboFontFamily.SelectedItem;
+            RtbEditor.Document.FontSize = 12;
+            
+            // Set consistent line height and paragraph spacing to prevent jumping
+            RtbEditor.Document.TextAlignment = TextAlignment.Left;
+            RtbEditor.Document.PagePadding = new Thickness(10);
+            
+            var defaultStyle = new Style(typeof(Paragraph));
+            defaultStyle.Setters.Add(new Setter(Paragraph.MarginProperty, new Thickness(0, 0, 0, 0)));
+            defaultStyle.Setters.Add(new Setter(Paragraph.LineHeightProperty, 1.5));
+            RtbEditor.Document.Resources.Add(typeof(Paragraph), defaultStyle);
+
             // Enable Undo for images and content
             RtbEditor.IsUndoEnabled = true;
             RtbEditor.UndoLimit = 100;
@@ -124,18 +165,8 @@ namespace CatchCapture.Controls
             if (RtbEditor == null || CboFontFamily.SelectedItem == null) return;
             if (CboFontFamily.SelectedItem is FontFamily fontFamily)
             {
-                if (RtbEditor.Selection.IsEmpty)
-                {
-                    // No selection - insert a zero-width space Run with the new font to set caret formatting
-                    var run = new Run("\u200B", RtbEditor.CaretPosition);
-                    run.FontFamily = fontFamily;
-                    RtbEditor.CaretPosition = run.ContentEnd;
-                }
-                else
-                {
-                    RtbEditor.Selection.ApplyPropertyValue(TextElement.FontFamilyProperty, fontFamily);
-                }
                 RtbEditor.Focus();
+                RtbEditor.Selection.ApplyPropertyValue(TextElement.FontFamilyProperty, fontFamily);
             }
         }
 
@@ -147,17 +178,8 @@ namespace CatchCapture.Controls
             {
                 if (double.TryParse(item.Content.ToString(), out double size))
                 {
-                    if (RtbEditor.Selection.IsEmpty)
-                    {
-                        var run = new Run("\u200B", RtbEditor.CaretPosition);
-                        run.FontSize = size;
-                        RtbEditor.CaretPosition = run.ContentEnd;
-                    }
-                    else
-                    {
-                        RtbEditor.Selection.ApplyPropertyValue(TextElement.FontSizeProperty, size);
-                    }
                     RtbEditor.Focus();
+                    RtbEditor.Selection.ApplyPropertyValue(TextElement.FontSizeProperty, size);
                 }
             }
         }
@@ -184,35 +206,18 @@ namespace CatchCapture.Controls
                 var color = (Color)ColorConverter.ConvertFromString(colorHex);
                 var brush = new SolidColorBrush(color);
 
+                RtbEditor.Focus(); // Ensure focus is on editor before applying
+
                 if (_isTextColorMode)
                 {
-                    if (RtbEditor.Selection.IsEmpty)
-                    {
-                        var run = new Run("\u200B", RtbEditor.CaretPosition);
-                        run.Foreground = brush;
-                        RtbEditor.CaretPosition = run.ContentEnd;
-                    }
-                    else
-                    {
-                        RtbEditor.Selection.ApplyPropertyValue(TextElement.ForegroundProperty, brush);
-                    }
+                    RtbEditor.Selection.ApplyPropertyValue(TextElement.ForegroundProperty, brush);
                 }
                 else
                 {
-                    if (RtbEditor.Selection.IsEmpty)
-                    {
-                        var run = new Run("\u200B", RtbEditor.CaretPosition);
-                        run.Background = brush;
-                        RtbEditor.CaretPosition = run.ContentEnd;
-                    }
-                    else
-                    {
-                        RtbEditor.Selection.ApplyPropertyValue(TextElement.BackgroundProperty, brush);
-                    }
+                    RtbEditor.Selection.ApplyPropertyValue(TextElement.BackgroundProperty, brush);
                 }
 
                 ColorPickerPopup.IsOpen = false;
-                RtbEditor.Focus();
             }
         }
 
