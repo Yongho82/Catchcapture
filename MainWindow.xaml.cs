@@ -1212,6 +1212,61 @@ public partial class MainWindow : Window
         return newScreenshot;
     }
 
+    /// <summary>
+    /// Special capture mode for NoteInputWindow - bypasses instant edit mode
+    /// and returns captured image via callback. Does NOT add to capture list.
+    /// </summary>
+    public async void TriggerCaptureForNote(Action<BitmapSource?> onCaptureComplete)
+    {
+        try
+        {
+            // Hide all windows
+            this.Hide();
+            if (simpleModeWindow != null) simpleModeWindow.Hide();
+            if (trayModeWindow != null) trayModeWindow.Hide();
+
+            await Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.Render);
+            FlushUIAfterHide();
+
+            // Capture screenshot
+            var screenshot = await Task.Run(() => ScreenCaptureUtility.CaptureScreen());
+
+            // Open SnippingWindow WITHOUT instant edit mode (always simple selection)
+            using (var snippingWindow = new SnippingWindow(false, screenshot))
+            {
+                // NOTE: Do NOT enable instant edit mode here - pure selection only
+                // snippingWindow.EnableInstantEditMode(); // INTENTIONALLY DISABLED
+
+                if (snippingWindow.ShowDialog() == true)
+                {
+                    var selectedArea = snippingWindow.SelectedArea;
+                    var capturedImage = snippingWindow.SelectedFrozenImage ?? ScreenCaptureUtility.CaptureArea(selectedArea);
+
+                    // Return image via callback (do not add to main capture list)
+                    onCaptureComplete?.Invoke(capturedImage);
+                }
+                else
+                {
+                    // Cancelled
+                    onCaptureComplete?.Invoke(null);
+                }
+            }
+
+            // Restore opacity but don't show main window (NoteInputWindow will handle visibility)
+            this.Opacity = 1;
+            
+            // Clean up
+            screenshot = null;
+            GC.Collect(0, GCCollectionMode.Forced);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"TriggerCaptureForNote error: {ex.Message}");
+            onCaptureComplete?.Invoke(null);
+        }
+    }
+
+
     private async Task StartAreaCaptureAsync()
     {
         // 간편모드 체크 추가 (재캡처 플래그 포함)
@@ -1269,6 +1324,22 @@ public partial class MainWindow : Window
 
                 // 4단계: Opacity 복원
                 this.Opacity = 1;
+
+                // 노트 저장 요청 확인 - 스니핑 창에서 노트저장 버튼을 눌렀을 경우
+                if (snippingWindow.RequestSaveToNote)
+                {
+                    // 메인 윈도우 최소화
+                    if (!settings.IsTrayMode)
+                    {
+                        this.WindowState = WindowState.Minimized;
+                        this.Show();
+                    }
+                    
+                    // 노트 입력창 열기 (스니핑 창이 이미 닫힌 상태)
+                    var noteWin = new NoteInputWindow(capturedImage, null, null);
+                    noteWin.ShowDialog();
+                    return;
+                }
 
                 // AddCaptureToList에서 창 복원 로직을 일원화하여 처리함 (이곳의 중복 호출 제거)
                 bool requestMinimize = snippingWindow.RequestMainWindowMinimize;

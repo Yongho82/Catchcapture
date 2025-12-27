@@ -74,6 +74,9 @@ namespace CatchCapture
             }
             
             this.MouseDown += (s, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
+            
+            // Subscribe to capture request from editor
+            Editor.CaptureRequested += OnEditorCaptureRequested;
         }
 
         // Constructor for Edit Note
@@ -87,6 +90,9 @@ namespace CatchCapture
             
             this.Loaded += (s, e) => LoadNoteData(noteId);
             this.MouseDown += (s, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
+            
+            // Subscribe to capture request from editor
+            Editor.CaptureRequested += OnEditorCaptureRequested;
         }
 
         private void UpdateUIForMode()
@@ -359,6 +365,41 @@ namespace CatchCapture
             }
         }
 
+        private void OnEditorCaptureRequested()
+        {
+            // Get MainWindow reference
+            var mainWindow = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
+            if (mainWindow == null)
+            {
+                CustomMessageBox.Show("메인 윈도우를 찾을 수 없습니다.", "오류");
+                return;
+            }
+
+            // Minimize instead of Hide to preserve dialog context
+            var previousState = this.WindowState;
+            this.WindowState = WindowState.Minimized;
+
+            // Trigger capture via MainWindow (bypasses instant edit mode)
+            mainWindow.TriggerCaptureForNote((capturedImage) =>
+            {
+                // This callback runs after capture completes (or is cancelled)
+                Dispatcher.Invoke(() =>
+                {
+                    // Restore window state
+                    this.WindowState = previousState;
+                    this.Activate();
+                    this.Focus();
+
+                    if (capturedImage != null)
+                    {
+                        // Insert captured image into editor
+                        Editor.InsertCapturedImage(capturedImage);
+                        Editor.Focus();
+                    }
+                });
+            });
+        }
+
         private void BtnClose_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
@@ -601,7 +642,15 @@ namespace CatchCapture
                     explorer.Show();
                 }
 
-                this.DialogResult = true;
+                // Set DialogResult only if opened as dialog (try-catch for safety)
+                try
+                {
+                    this.DialogResult = true;
+                }
+                catch (InvalidOperationException)
+                {
+                    // Window was not opened as dialog (e.g., after Hide/Show)
+                }
                 this.Close();
             }
             catch (Exception ex)

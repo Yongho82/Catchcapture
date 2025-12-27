@@ -644,21 +644,29 @@ namespace CatchCapture
             if (LstNotes.SelectedItem is NoteViewModel note)
             {
                 long currentNoteId = note.Id;
-                var viewWin = new NoteViewWindow(note.Id);
-                viewWin.Owner = this;
-                viewWin.ShowDialog();
                 
-                // Refresh list but keep selection and current page
-                LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage);
-                LoadTags();
-
-                // Restore selection
-                var noteToSelect = LstNotes.Items.OfType<NoteViewModel>().FirstOrDefault(n => n.Id == currentNoteId);
-                if (noteToSelect != null)
+                // Allow multiple windows (Modeless)
+                var viewWin = new NoteViewWindow(note.Id);
+                // viewWin.Owner = this; // Removed Owner to allow independent layering
+                viewWin.Show();
+                
+                viewWin.Closed += (s, args) => 
                 {
-                    LstNotes.SelectedItem = noteToSelect;
-                    LstNotes.ScrollIntoView(noteToSelect);
-                }
+                    // Refresh list when viewer closes to reflect any potential edits
+                     if (this.IsLoaded)
+                     {
+                        LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage);
+                        LoadTags();
+
+                        // Restore selection
+                        var noteToSelect = LstNotes.Items.OfType<NoteViewModel>().FirstOrDefault(n => n.Id == currentNoteId);
+                        if (noteToSelect != null)
+                        {
+                            LstNotes.SelectedItem = noteToSelect;
+                            LstNotes.ScrollIntoView(noteToSelect);
+                        }
+                     }
+                };
             }
         }
 

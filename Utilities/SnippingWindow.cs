@@ -94,6 +94,9 @@ namespace CatchCapture.Utilities
         private string? _sourceTitle;
 
         public bool RequestMainWindowMinimize { get; private set; } = false;
+        
+        // Flag to request MainWindow to open NoteInputWindow after this window closes
+        public bool RequestSaveToNote { get; private set; } = false;
 
         public SnippingWindow(bool showGuideText = false, BitmapSource? cachedScreenshot = null)
         {
@@ -3516,15 +3519,11 @@ namespace CatchCapture.Utilities
                         }
                     }
 
-                    var noteWin = new NoteInputWindow(SelectedFrozenImage, _sourceApp, _sourceTitle);
-                    noteWin.Owner = this;
-                    if (noteWin.ShowDialog() == true)
-                    {
-                        // 저장 후 닫기
-                        RequestMainWindowMinimize = true;
-                        DialogResult = true;
-                        Close();
-                    }
+                    // 스니핑 창을 먼저 닫고 MainWindow에서 노트 입력창을 열도록 플래그 설정
+                    RequestSaveToNote = true;
+                    RequestMainWindowMinimize = true;
+                    DialogResult = true;
+                    Close();
                 }
             }
             catch (Exception ex)

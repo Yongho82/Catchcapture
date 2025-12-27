@@ -343,6 +343,37 @@ namespace CatchCapture.Controls
             }
         }
 
+        // Capture Add - Event for parent window to handle
+        public event Action? CaptureRequested;
+
+        private void BtnCaptureAdd_Click(object sender, RoutedEventArgs e)
+        {
+            CaptureRequested?.Invoke();
+        }
+
+        /// <summary>
+        /// Public method to insert a captured image directly into the editor
+        /// </summary>
+        public void InsertCapturedImage(BitmapSource capturedImage)
+        {
+            if (capturedImage == null) return;
+            
+            try
+            {
+                var image = new System.Windows.Controls.Image
+                {
+                    Source = capturedImage,
+                    Stretch = Stretch.Uniform
+                };
+
+                CreateResizableImage(image);
+            }
+            catch (Exception ex)
+            {
+                CatchCapture.CustomMessageBox.Show($"캡처 이미지를 삽입할 수 없습니다: {ex.Message}", "오류");
+            }
+        }
+
         private void CreateResizableImage(System.Windows.Controls.Image image)
         {
             // Set initial width to 360px (User request)

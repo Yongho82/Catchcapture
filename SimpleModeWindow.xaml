@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CatchCapture"
         mc:Ignorable="d"
-        Title="" Height="85" Width="200"
+        Title="캐치캡처-간단모드" Height="85" Width="200"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         Topmost="True" ResizeMode="NoResize" ShowInTaskbar="False"
         MouseLeftButtonDown="Window_MouseLeftButtonDown" MouseEnter="Window_MouseEnter" MouseLeave="Window_MouseLeave"
