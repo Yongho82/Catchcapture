@@ -458,8 +458,12 @@
   <data name="PrintingError" xml:space="preserve"><value>Error occurred while printing</value></data>
   <data name="PreviewGenerationError" xml:space="preserve"><value>Error generating preview</value></data>
   <data name="PrintJobName" xml:space="preserve"><value>CatchCapture Image Print</value></data>
-  <data name="Close" xml:space="preserve"><value>Close</value></data>
+
+
+  <data name="StartAsAdmin" xml:space="preserve"><value>Run as Administrator</value></data>
+  <data name="StartAsAdminTooltip" xml:space="preserve"><value>Running as administrator may be required for global hotkeys to work properly over programs running with admin privileges (games, task manager, etc.).</value></data>
   <data name="NoteSettings" xml:space="preserve"><value>Note Settings</value></data>
+
   <data name="NoteStorage" xml:space="preserve"><value>Storage &amp; Database</value></data>
   <data name="NotePath" xml:space="preserve"><value>Note Storage Path</value></data>
   <data name="OpenFolder" xml:space="preserve"><value>Open Folder</value></data>
@@ -488,9 +492,7 @@
   <data name="PleaseEnterPasswordHint" xml:space="preserve">
     <value>Please enter a password hint.</value>
   </data>
-  <data name="Cancel" xml:space="preserve">
-    <value>Cancel</value>
-  </data>
+
   <data name="ImageQuality" xml:space="preserve"><value>Image Quality</value></data>
   <data name="OptimizeNoteImages" xml:space="preserve"><value>Optimize image size on save</value></data>
   <data name="HotkeyRegisterError" xml:space="preserve"><value>The shortcut key is already in use by another application.\nPlease change the hotkey in Settings.</value></data>
@@ -498,7 +500,7 @@
   <data name="SaveNoteTooltip" xml:space="preserve"><value>Save to My Note</value></data>
   <data name="NoteExplorerTitle" xml:space="preserve"><value>CatchCapture Note Explorer</value></data>
   <data name="MyNote" xml:space="preserve"><value>My Note</value></data>
-  <data name="OpenMyNote" xml:space="preserve"><value>Open My Note</value></data>
+  <data name="OpenMyNote" xml:space="preserve"><value>My Note</value></data>
   <data name="NewNote" xml:space="preserve"><value>New Note</value></data>
   <data name="NoteSettingsMenu" xml:space="preserve"><value>Note Settings</value></data>
   <data name="Explore" xml:space="preserve"><value>Explore</value></data>
@@ -520,7 +522,7 @@
   <data name="ColContent" xml:space="preserve"><value>Content</value></data>
   <data name="ColLastModified" xml:space="preserve"><value>Last Modified</value></data>
   <data name="PreviewLoading" xml:space="preserve"><value>Select a note.</value></data>
-  <data name="EditNote" xml:space="preserve"><value>Edit</value></data>
+
   <data name="NoteSecurityTip" xml:space="preserve"><value>Protect your notes securely with password settings.</value></data>
   <data name="NoteInputTitle" xml:space="preserve"><value>CatchCapture - Write</value></data>
   <data name="WriteNote" xml:space="preserve"><value>Write Note</value></data>
@@ -545,7 +547,7 @@
   <data name="ErrReadNote" xml:space="preserve"><value>Error reading note information:</value></data>
   <data name="SelectAttachFiles" xml:space="preserve"><value>Select Attachment Files</value></data>
   <data name="ErrMainWinNotFound" xml:space="preserve"><value>Main window not found.</value></data>
-  <data name="Error" xml:space="preserve"><value>Error</value></data>
+
   <data name="NoContentToSave" xml:space="preserve"><value>There is no content to save.</value></data>
   <data name="Untitled" xml:space="preserve"><value>Untitled</value></data>
   <data name="NoteEditSuccess" xml:space="preserve"><value>Note updated successfully.</value></data>
@@ -591,4 +593,28 @@
   <data name="Tip7" xml:space="preserve"><value>Search function allows searching text in note content as well as titles.</value></data>
   <data name="Tip8" xml:space="preserve"><value>Double-click images in posts to edit them.</value></data>
   <data name="Tip9" xml:space="preserve"><value>Click 'Save Note' during capture to create a note with a single click.</value></data>
+  <data name="ColorPickerTitle" xml:space="preserve"><value>Color Picker</value></data>
+  <data name="Transparent" xml:space="preserve"><value>Transparent</value></data>
+  <data name="TextColor" xml:space="preserve"><value>Text Color</value></data>
+  <data name="HighlightColor" xml:space="preserve"><value>Highlight Color</value></data>
+  <data name="AlignLeft" xml:space="preserve"><value>Align Left</value></data>
+  <data name="AlignCenter" xml:space="preserve"><value>Align Center</value></data>
+  <data name="AlignRight" xml:space="preserve"><value>Align Right</value></data>
+  <data name="BulletList" xml:space="preserve"><value>Bullet List</value></data>
+  <data name="NumberList" xml:space="preserve"><value>Number List</value></data>
+  <data name="InsertImage" xml:space="preserve"><value>Insert Image</value></data>
+  <data name="InsertCapture" xml:space="preserve"><value>Insert Capture</value></data>
+  <data name="InsertLink" xml:space="preserve"><value>Insert Link</value></data>
+  <data name="LineSpacing" xml:space="preserve"><value>Line Spacing</value></data>
+  <data name="FontFamily" xml:space="preserve"><value>Font Family</value></data>
+  <data name="FontSize" xml:space="preserve"><value>Font Size</value></data>
+  <data name="Password" xml:space="preserve"><value>Password</value></data>
+  <data name="RemoteRepository" xml:space="preserve"><value>Remote Repository</value></data>
+  <data name="InitializeReset" xml:space="preserve"><value>Initialize</value></data>
+
+  <data name="NoteResetConfirm1" xml:space="preserve"><value>Are you sure you want to initialize all note data?</value></data>
+  <data name="NoteResetConfirm2" xml:space="preserve"><value>Initialized data cannot be recovered.\nAre you really sure?</value></data>
+  <data name="DataLossWarning" xml:space="preserve"><value>Data Permanent Delete Warning</value></data>
+  <data name="NoteResetComplete" xml:space="preserve"><value>Note data has been initialized.</value></data>
+  <data name="NoteResetError" xml:space="preserve"><value>Error initializing: {0}</value></data>
 </root>

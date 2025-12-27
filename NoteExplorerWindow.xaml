@@ -502,10 +502,10 @@
                                     </Style>
                                 </CheckBox.Style>
                             </CheckBox>
-                            <TextBlock x:Name="ColHeaderGroup" Text="그룹" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Margin="5,0,0,0"/>
-                            <TextBlock x:Name="ColHeaderTitle" Text="제목" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0"/>
-                            <TextBlock x:Name="ColHeaderContent" Text="내용" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0"/>
-                            <TextBlock x:Name="ColHeaderModified" Text="마지막 수정일" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="ColHeaderGroup" Grid.Column="1" Text="그룹" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                            <TextBlock x:Name="ColHeaderTitle" Grid.Column="2" Text="제목" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0"/>
+                            <TextBlock x:Name="ColHeaderContent" Grid.Column="3" Text="내용" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0"/>
+                            <TextBlock x:Name="ColHeaderModified" Grid.Column="4" Text="마지막 수정일" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         </Grid>
                     </Border>
 

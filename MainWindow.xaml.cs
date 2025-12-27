@@ -4122,6 +4122,11 @@ public partial class MainWindow : Window
         if (CopyAllBottomText != null) CopyAllBottomText.Text = LocalizationManager.GetString("CopyAll");
         if (SaveAllBottomText != null) SaveAllBottomText.Text = LocalizationManager.GetString("SaveAll");
         if (DeleteAllBottomText != null) DeleteAllBottomText.Text = LocalizationManager.GetString("DeleteAll");
+        
+        // 내 노트 열기 및 저장 폴더 열기 버튼
+        if (OpenMyNoteButtonText != null) OpenMyNoteButtonText.Text = LocalizationManager.GetString("OpenMyNote");
+        if (OpenSaveFolderButtonText != null) OpenSaveFolderButtonText.Text = LocalizationManager.GetString("OpenSaveFolder");
+
 
         // 4. 리스트 아이템 툴팁 갱신
         if (CaptureListPanel != null)

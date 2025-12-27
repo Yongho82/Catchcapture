@@ -177,7 +177,8 @@ namespace CatchCapture
                         {
                             cmd.Parameters.AddWithValue("$categoryId", cat.Id);
                             int count = Convert.ToInt32(cmd.ExecuteScalar());
-                            categoryItems.Add(new CategorySidebarItem { Id = cat.Id, Name = cat.Name, Color = cat.Color, Count = count });
+                            string catName = cat.Id == 1 ? CatchCapture.Resources.LocalizationManager.GetString("DefaultCategory") : cat.Name;
+                            categoryItems.Add(new CategorySidebarItem { Id = cat.Id, Name = catName, Color = cat.Color, Count = count });
                         }
                     }
                     ItemsCategories.ItemsSource = categoryItems;
@@ -346,7 +347,7 @@ namespace CatchCapture
 
                     string sql = $@"
                         SELECT n.Id, n.Title, n.Content, datetime(n.CreatedAt, 'localtime'), n.SourceApp, n.ContentXaml,
-                               c.Name as CategoryName, c.Color as CategoryColor, datetime(n.UpdatedAt, 'localtime'), n.Status, n.IsPinned
+                               c.Name as CategoryName, c.Color as CategoryColor, datetime(n.UpdatedAt, 'localtime'), n.Status, n.IsPinned, n.CategoryId
                         FROM Notes n
                         LEFT JOIN Categories c ON n.CategoryId = c.Id
                         {joinSql}
@@ -366,6 +367,10 @@ namespace CatchCapture
                             while (reader.Read())
                             {
                                 long noteId = reader.GetInt64(0);
+                                long catId = reader.IsDBNull(11) ? 1 : reader.GetInt64(11);
+                                string catName = reader.IsDBNull(6) ? CatchCapture.Resources.LocalizationManager.GetString("DefaultCategory") : reader.GetString(6);
+                                if (catId == 1) catName = CatchCapture.Resources.LocalizationManager.GetString("DefaultCategory");
+
                                 var note = new NoteViewModel
                                 {
                                     Id = noteId,
@@ -374,7 +379,7 @@ namespace CatchCapture
                                     CreatedAt = reader.GetDateTime(3),
                                     SourceApp = reader.IsDBNull(4) ? "" : reader.GetString(4),
                                     ContentXaml = reader.IsDBNull(5) ? "" : reader.GetString(5),
-                                    CategoryName = reader.IsDBNull(6) ? CatchCapture.Resources.LocalizationManager.GetString("DefaultCategory") : reader.GetString(6),
+                                    CategoryName = catName,
                                     CategoryColor = reader.IsDBNull(7) ? "#8E2DE2" : reader.GetString(7),
                                     UpdatedAt = reader.GetDateTime(8),
                                     Status = reader.IsDBNull(9) ? 0 : reader.GetInt32(9),

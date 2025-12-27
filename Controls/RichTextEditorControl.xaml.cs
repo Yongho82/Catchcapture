@@ -103,6 +103,37 @@ namespace CatchCapture.Controls
 
             BuildColorPalette();
             UpdateColorIndicators();
+
+            UpdateUIText();
+            CatchCapture.Resources.LocalizationManager.LanguageChanged += (s, e) => UpdateUIText();
+        }
+
+        private void UpdateUIText()
+        {
+            // Color Picker
+            if (ColorPickerTitle != null) ColorPickerTitle.Text = CatchCapture.Resources.LocalizationManager.GetString("ColorPickerTitle") ?? "색상";
+            if (BtnClearColor != null) BtnClearColor.Content = CatchCapture.Resources.LocalizationManager.GetString("Transparent") ?? "투명";
+            if (BtnCustomColor != null) BtnCustomColor.Content = "+ " + (CatchCapture.Resources.LocalizationManager.GetString("Add") ?? "추가");
+
+            // Tooltips
+            if (CboFontFamily != null) CboFontFamily.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("FontFamily") ?? "글꼴";
+            if (CboFontSize != null) CboFontSize.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("FontSize") ?? "글자 크기";
+            if (BtnBold != null) BtnBold.ToolTip = (CatchCapture.Resources.LocalizationManager.GetString("Bold") ?? "굵게") + " (Ctrl+B)";
+            if (BtnItalic != null) BtnItalic.ToolTip = (CatchCapture.Resources.LocalizationManager.GetString("Italic") ?? "기울임") + " (Ctrl+I)";
+            if (BtnUnderline != null) BtnUnderline.ToolTip = (CatchCapture.Resources.LocalizationManager.GetString("Underline") ?? "밑줄") + " (Ctrl+U)";
+            if (BtnTextColor != null) BtnTextColor.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("TextColor") ?? "글자 색상";
+            if (BtnHighlight != null) BtnHighlight.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("HighlightColor") ?? "배경 색상 (형광펜)";
+            if (BtnAlignLeft != null) BtnAlignLeft.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("AlignLeft") ?? "왼쪽 정렬";
+            if (BtnAlignCenter != null) BtnAlignCenter.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("AlignCenter") ?? "가운데 정렬";
+            if (BtnAlignRight != null) BtnAlignRight.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("AlignRight") ?? "오른쪽 정렬";
+            if (BtnBulletList != null) BtnBulletList.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("BulletList") ?? "글머리 기호";
+            if (BtnNumberList != null) BtnNumberList.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("NumberList") ?? "번호 매기기";
+            if (BtnInsertImage != null) BtnInsertImage.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("InsertImage") ?? "이미지 삽입";
+            if (BtnCaptureAdd != null) BtnCaptureAdd.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("InsertCapture") ?? "캡처 추가";
+            if (BtnInsertLink != null) BtnInsertLink.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("InsertLink") ?? "링크 삽입";
+            if (BtnUndo != null) BtnUndo.ToolTip = (CatchCapture.Resources.LocalizationManager.GetString("Undo") ?? "실행 취소") + " (Ctrl+Z)";
+            if (BtnRedo != null) BtnRedo.ToolTip = (CatchCapture.Resources.LocalizationManager.GetString("Redo") ?? "다시 실행") + " (Ctrl+Y)";
+            if (BtnLineSpacing != null) BtnLineSpacing.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("LineSpacing") ?? "줄 간격";
         }
 
         private void BuildColorPalette()
@@ -465,7 +496,8 @@ namespace CatchCapture.Controls
         private void BtnTextColor_Click(object sender, RoutedEventArgs e)
         {
             _isTextColorMode = true;
-            ColorPickerTitle.Text = "글자 색상";
+            _isTextColorMode = true;
+            ColorPickerTitle.Text = CatchCapture.Resources.LocalizationManager.GetString("TextColor") ?? "글자 색상";
             BtnClearColor.Visibility = Visibility.Collapsed; // Text color doesn't usually have "transparent"
             ColorPickerPopup.PlacementTarget = BtnTextColor;
             ColorPickerPopup.IsOpen = true;
@@ -474,7 +506,8 @@ namespace CatchCapture.Controls
         private void BtnHighlight_Click(object sender, RoutedEventArgs e)
         {
             _isTextColorMode = false;
-            ColorPickerTitle.Text = "배경 색상";
+            _isTextColorMode = false;
+            ColorPickerTitle.Text = CatchCapture.Resources.LocalizationManager.GetString("HighlightColor") ?? "배경 색상";
             BtnClearColor.Visibility = Visibility.Visible; // Background can be cleared
             ColorPickerPopup.PlacementTarget = BtnHighlight;
             ColorPickerPopup.IsOpen = true;

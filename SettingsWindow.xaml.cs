@@ -196,6 +196,8 @@ private void UpdateUIText()
                 if (SystemSectionTitle != null) SystemSectionTitle.Text = LocalizationManager.GetString("SystemSettings");
                 if (StartupGroup != null) StartupGroup.Header = LocalizationManager.GetString("StartupMode");
                 if (StartWithWindowsCheckBox != null) StartWithWindowsCheckBox.Content = LocalizationManager.GetString("StartWithWindows");
+                if (RunAsAdminCheckBox != null) RunAsAdminCheckBox.Content = LocalizationManager.GetString("StartAsAdmin");
+
                 if (StartupModeText != null) StartupModeText.Text = LocalizationManager.GetString("StartupMode");
                 if (StartupModeTrayRadio != null) StartupModeTrayRadio.Content = LocalizationManager.GetString("StartInTray");
                 if (StartupModeNormalRadio != null) StartupModeNormalRadio.Content = LocalizationManager.GetString("StartInNormal");
@@ -251,9 +253,12 @@ private void UpdateUIText()
                 if (BtnBrowseNoteFolder != null) 
                 {
                     BtnBrowseNoteFolder.Content = LocalizationManager.GetString("Change");
-                    BtnBrowseNoteFolder.ToolTip = "N드라이브, 구글 드라이브 등 클라우드 폴더를 연결하시면 어느 컴퓨터에서나 노트를 공용으로 사용하실 수 있습니다.";
+                    BtnBrowseNoteFolder.ToolTip = LocalizationManager.GetString("Tip4");
                 }
                 if (BtnOpenNoteFolder != null) BtnOpenNoteFolder.Content = LocalizationManager.GetString("OpenFolder");
+                if (BtnCloudTip != null) BtnCloudTip.Content = LocalizationManager.GetString("RemoteRepository");
+                if (TxtResetNote != null) TxtResetNote.Text = LocalizationManager.GetString("InitializeReset");
+
                 
                 if (NoteBackupGroup != null) NoteBackupGroup.Header = LocalizationManager.GetString("BackupRestore");
                 if (BtnExportBackup != null) BtnExportBackup.Content = LocalizationManager.GetString("ExportBackup");
@@ -285,6 +290,11 @@ private void UpdateUIText()
                 if (ApplyButton != null) ApplyButton.Content = LocalizationManager.GetString("Apply");
                 if (SaveButton != null) SaveButton.Content = LocalizationManager.GetString("Save");
                 if (PageDefaultButton != null) PageDefaultButton.Content = LocalizationManager.GetString("Default") ?? "기본값";
+                
+                // Sidebar Bottom Links
+                if (RestoreDefaultsText != null) RestoreDefaultsText.Text = LocalizationManager.GetString("RestoreDefaults") ?? "기본설정 복원";
+                if (PrivacyPolicyText != null) PrivacyPolicyText.Text = LocalizationManager.GetString("PrivacyPolicy") ?? "개인정보 처리방침";
+                if (WebsiteIcon != null) WebsiteIcon.ToolTip = LocalizationManager.GetString("VisitHomepage") ?? "홈페이지 방문";
             }
             catch (Exception ex)
             {
@@ -879,16 +889,17 @@ private void InitLanguageComboBox()
         private void BtnResetNote_Click(object sender, RoutedEventArgs e)
         {
             // 1. First Warning
-            if (CatchCapture.CustomMessageBox.Show("전체 노트 데이터를 초기화 하시겠습니까?", "초기화 확인", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            if (CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("NoteResetConfirm1"), LocalizationManager.GetString("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
             {
                 return;
             }
 
             // 2. Second Warning (Destructive)
-            if (CatchCapture.CustomMessageBox.Show("초기화된 데이터는 복구할 수 없습니다.\n정말로 진행하시겠습니까?", "데이터 영구 삭제 경고", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
+            if (CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("NoteResetConfirm2"), LocalizationManager.GetString("DataLossWarning"), MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
             {
                 return;
             }
+
 
             // 3. Password Check (if enabled)
             if (!string.IsNullOrEmpty(_settings.NotePassword))
@@ -932,12 +943,13 @@ private void InitLanguageComboBox()
                 // Re-initialize DB
                 CatchCapture.Utilities.DatabaseManager.Instance.Reload();
 
-                CatchCapture.CustomMessageBox.Show("노트 데이터가 초기화되었습니다.", "완료", MessageBoxButton.OK, MessageBoxImage.Information);
+                CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("NoteResetComplete"), LocalizationManager.GetString("Success"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                CatchCapture.CustomMessageBox.Show($"초기화 중 오류 발생: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                CatchCapture.CustomMessageBox.Show(string.Format(LocalizationManager.GetString("NoteResetError"), ex.Message), LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
+
         }
 
         private void DeleteDirectoryContents(string path)
@@ -1420,6 +1432,11 @@ private void InitLanguageComboBox()
             LoadSystemPage();
             LoadHotkeysPage();
             LoadThemePage();     // 테마 페이지 UI 갱신 (캡처 라인 설정 포함)
+            
+            // Ensure Color Picker Preview is reset visually
+            if (PreviewLineColor != null) PreviewLineColor.Background = Brushes.Red; // Default
+            _settings.CaptureLineColor = "#FF0000"; // Ensure setting is default
+
             LoadRecordingPage(); // 녹화 페이지 UI 갱신
             LoadNotePage();      // 노트 설정 UI 갱신
 
