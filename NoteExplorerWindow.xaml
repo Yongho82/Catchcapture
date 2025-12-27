@@ -205,13 +205,17 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/> <!-- Action Bar -->
                 <RowDefinition Height="*"/>    <!-- Main Content -->
+                <RowDefinition Height="Auto"/> <!-- Tip Bar -->
             </Grid.RowDefinitions>
 
             <!-- Top Action Bar -->
             <Grid Grid.Row="0" Margin="30,25,30,15">
                 <!-- Row 1: Title & Main Buttons -->
                 <Grid>
-                    <TextBlock Text="내 노트" FontSize="28" FontWeight="Bold" Foreground="#202124" VerticalAlignment="Center"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <Image Source="icons/my_note.png" Width="22" Height="22" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="내 노트" FontSize="23" FontWeight="Bold" Foreground="#202124" VerticalAlignment="Center"/>
+                    </StackPanel>
                     
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                         <Button x:Name="BtnNewNote" Click="BtnNewNote_Click" Cursor="Hand" Margin="0,0,12,0">
@@ -257,36 +261,41 @@
                 <Border Background="#F9FAFB" BorderThickness="0,0,1,0" BorderBrush="#E0E0E0">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="15,20,5,0">
-                            <TextBlock Text="탐색" Foreground="#9AA0A6" FontSize="11" FontWeight="Bold" Margin="15,0,0,10"/>
+                            <TextBlock Text="탐색" Foreground="#9AA0A6" FontSize="12" FontWeight="Bold" Margin="15,0,0,10"/>
                             
                             <Button Click="BtnFilter_Click" Tag="All" Style="{StaticResource SidebarItemStyle}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🏠" Margin="0,0,12,0" FontSize="16"/>
-                                    <TextBlock Text="전체 노트"/>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="🏠" Margin="0,0,12,0" FontSize="16" VerticalAlignment="Center"/>
+                                    <TextBlock Text="전체 노트" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="TxtCountAll" Text="(0)" Margin="5,0,0,0" Foreground="#80868B" FontSize="12" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             <Button Click="BtnFilter_Click" Tag="Default" Style="{StaticResource SidebarItemStyle}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="📁" Margin="0,0,12,0" FontSize="16" Foreground="#E74C3C"/>
-                                    <TextBlock Text="기본 그룹" Foreground="#E74C3C" FontWeight="SemiBold"/>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="📁" Margin="0,0,12,0" FontSize="16" Foreground="#E74C3C" VerticalAlignment="Center"/>
+                                    <TextBlock Text="기본 그룹" Foreground="#E74C3C" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="TxtCountDefault" Text="(0)" Margin="5,0,0,0" Foreground="#E74C3C" Opacity="0.7" FontSize="12" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             <Button Click="BtnFilter_Click" Tag="Today" Style="{StaticResource SidebarItemStyle}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="📅" Margin="0,0,12,0" FontSize="16"/>
-                                    <TextBlock Text="오늘"/>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="📅" Margin="0,0,12,0" FontSize="16" VerticalAlignment="Center"/>
+                                    <TextBlock Text="오늘" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="TxtCountToday" Text="(0)" Margin="5,0,0,0" Foreground="#80868B" FontSize="12" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             <Button Click="BtnFilter_Click" Tag="Recent" Style="{StaticResource SidebarItemStyle}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🕒" Margin="0,0,12,0" FontSize="16"/>
-                                    <TextBlock Text="최근 7일"/>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="🕒" Margin="0,0,12,0" FontSize="16" VerticalAlignment="Center"/>
+                                    <TextBlock Text="최근 7일" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="TxtCountRecent" Text="(0)" Margin="5,0,0,0" Foreground="#80868B" FontSize="12" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             <Button Click="BtnFilter_Click" Tag="Trash" Style="{StaticResource SidebarItemStyle}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🚮" Margin="0,0,12,0" FontSize="16"/>
-                                    <TextBlock Text="휴지통"/>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="🚮" Margin="0,0,12,0" FontSize="16" VerticalAlignment="Center"/>
+                                    <TextBlock Text="휴지통" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="TxtCountTrash" Text="(0)" Margin="5,0,0,0" Foreground="#80868B" FontSize="12" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             
@@ -570,6 +579,27 @@
                     </Grid>
                 </Border>
             </Grid>
+            
+            <!-- Bottom Tip Bar -->
+            <Border Grid.Row="2" Background="#F1F3F4" BorderThickness="0,1,0,0" BorderBrush="#E0E0E0" Height="40" Padding="30,0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Background="#8E2DE2" CornerRadius="4" Padding="6,2" Margin="0,0,12,0">
+                        <TextBlock Text="TIP" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                    </Border>
+                    <TextBlock x:Name="TxtRollingTip" Text="비밀번호 설정으로 내 노트를 안전하게 보호하세요." 
+                               Foreground="#5F6368" FontSize="12" VerticalAlignment="Center">
+                        <TextBlock.Triggers>
+                            <EventTrigger RoutedEvent="TextBlock.Loaded">
+                                <BeginStoryboard>
+                                    <Storyboard x:Name="TipFadeAnimation">
+                                        <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.5"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </TextBlock.Triggers>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
         </Grid>
     </Border>
 </Window>

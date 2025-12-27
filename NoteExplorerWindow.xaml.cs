@@ -23,6 +23,19 @@ namespace CatchCapture
         private int _currentPage = 1;
         private const int PAGE_SIZE = 15;
 
+        private System.Windows.Threading.DispatcherTimer? _tipTimer;
+        private int _currentTipIndex = 0;
+        private readonly List<string> _tips = new List<string>
+        {
+            "비밀번호 설정으로 내 노트를 안전하게 보호하세요.",
+            "캡처 후 즉시 내 노트에 저장하여 소중한 아이디어를 기록하세요.",
+            "태그를 활용하면 수많은 노트 중에서도 원하는 내용을 빠르게 찾을 수 있습니다.",
+            "노트 수정창에서 드래그 앤 드롭으로 이미지를 간편하게 추가할 수 있습니다.",
+            "검색 기능을 통해 제목뿐만 아니라 노트 내용 속 텍스트도 검색이 가능합니다.",
+            "포스트중 이미지를 더블클릭하시면 이미지 편집이 가능합니다.",
+            "캡처 시 '노트 저장' 버튼을 누르면 단 한 번의 클릭으로 노트가 생성됩니다."
+        };
+
         private bool _isSelectionMode;
         public bool IsSelectionMode
         {
@@ -52,11 +65,44 @@ namespace CatchCapture
                 this.MouseDown += (s, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
                 LoadNotes(filter: "Recent");
                 LoadTags();
+                InitializeTipTimer();
             }
             catch (Exception ex)
             {
                 CatchCapture.CustomMessageBox.Show($"탐색기 초기화 중 오류: {ex.Message}\n{ex.StackTrace}");
             }
+        }
+
+        private void UpdateSidebarCounts()
+        {
+            try
+            {
+                using (var connection = new SqliteConnection($"Data Source={DatabaseManager.Instance.DbFilePath}"))
+                {
+                    connection.Open();
+                    
+                    // All
+                    using (var cmd = new SqliteCommand("SELECT COUNT(*) FROM Notes WHERE Status = 0", connection))
+                        TxtCountAll.Text = $"({cmd.ExecuteScalar()})";
+                        
+                    // Default
+                    using (var cmd = new SqliteCommand("SELECT COUNT(*) FROM Notes WHERE Status = 0 AND CategoryId = 1", connection))
+                        TxtCountDefault.Text = $"({cmd.ExecuteScalar()})";
+                        
+                    // Today
+                    using (var cmd = new SqliteCommand("SELECT COUNT(*) FROM Notes WHERE Status = 0 AND date(CreatedAt, 'localtime') = date('now', 'localtime')", connection))
+                        TxtCountToday.Text = $"({cmd.ExecuteScalar()})";
+                        
+                    // Recent
+                    using (var cmd = new SqliteCommand("SELECT COUNT(*) FROM Notes WHERE Status = 0 AND CreatedAt >= date('now', 'localtime', '-7 days')", connection))
+                        TxtCountRecent.Text = $"({cmd.ExecuteScalar()})";
+                        
+                    // Trash
+                    using (var cmd = new SqliteCommand("SELECT COUNT(*) FROM Notes WHERE Status = 1", connection))
+                        TxtCountTrash.Text = $"({cmd.ExecuteScalar()})";
+                }
+            }
+            catch { }
         }
 
         private void LoadTags()
@@ -71,7 +117,23 @@ namespace CatchCapture
 
         private void BtnClose_Click(object sender, RoutedEventArgs e)
         {
+            _tipTimer?.Stop();
             this.Close();
+        }
+
+        private void InitializeTipTimer()
+        {
+            _tipTimer = new System.Windows.Threading.DispatcherTimer();
+            _tipTimer.Interval = TimeSpan.FromSeconds(5);
+            _tipTimer.Tick += (s, e) => {
+                _currentTipIndex = (_currentTipIndex + 1) % _tips.Count;
+                TxtRollingTip.Opacity = 0;
+                TxtRollingTip.Text = _tips[_currentTipIndex];
+                
+                var anim = new System.Windows.Media.Animation.DoubleAnimation(0, 1, TimeSpan.FromSeconds(0.5));
+                TxtRollingTip.BeginAnimation(TextBlock.OpacityProperty, anim);
+            };
+            _tipTimer.Start();
         }
 
         private void LoadNotes(string filter = "Recent", string? tag = null, string? search = null, int page = 1)
@@ -185,6 +247,8 @@ namespace CatchCapture
                 {
                     LstNotes.SelectedIndex = 0;
                 }
+
+                UpdateSidebarCounts();
             }
             catch (Exception ex)
             {
