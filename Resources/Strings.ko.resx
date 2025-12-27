@@ -473,4 +473,5 @@
   <data name="ImageOptimization" xml:space="preserve"><value>이미지 최적화</value></data>
   <data name="OptimizeNoteImages" xml:space="preserve"><value>저장 시 이미지 용량 최적화</value></data>
   <data name="ImageQuality" xml:space="preserve"><value>이미지 품질</value></data>
+  <data name="HotkeyRegisterError" xml:space="preserve"><value>기존 사용하는 단축키가 있어 변경이 필요합니다.\n설정에서 단축키를 재 지정해주세요.</value></data>
 </root>

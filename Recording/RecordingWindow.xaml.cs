@@ -284,8 +284,8 @@ namespace CatchCapture.Recording
                     bool success = RegisterHotKey(_hwnd, HOTKEY_ID_REC_START_STOP, modifiers, vk);
                     if (!success)
                     {
-                        string msg = CatchCapture.Resources.LocalizationManager.GetString("HotkeyRegisterError") ?? $"녹화 단축키({hk.Key})를 등록할 수 없습니다. 다른 프로그램에서 사용 중인지 확인해 주세요.";
-                        MessageBox.Show(msg, CatchCapture.Resources.LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Warning);
+                        string msg = CatchCapture.Resources.LocalizationManager.GetString("HotkeyRegisterError") ?? "기존 사용하는 단축키가 있어 변경이 필요합니다.\n설정에서 단축키를 재 지정해주세요.";
+                        CatchCapture.CustomMessageBox.Show(msg, CatchCapture.Resources.LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                 }
             }

@@ -302,7 +302,7 @@ namespace CatchCapture.Models
                 TrayMode = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "T" },
                 OpenSettings = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "O" },
                 OpenEditor = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "E" },
-                RecordingStartStop = new ToggleHotkey { Enabled = true, Key = "F3" },
+                RecordingStartStop = new ToggleHotkey { Enabled = true, Key = "F2" },
 
                 // Legacy defaults left as disabled
                 SimpleCapture = new ToggleHotkey { Enabled = false },

@@ -475,4 +475,5 @@
   <data name="ImageOptimization" xml:space="preserve"><value>Image Optimization</value></data>
   <data name="OptimizeNoteImages" xml:space="preserve"><value>Optimize image size on save</value></data>
   <data name="ImageQuality" xml:space="preserve"><value>Image Quality</value></data>
+  <data name="HotkeyRegisterError" xml:space="preserve"><value>The shortcut key is already in use by another application.\nPlease change the hotkey in Settings.</value></data>
 </root>
