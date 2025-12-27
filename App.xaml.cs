@@ -160,36 +160,41 @@ public partial class App : Application
             {
                 Application.Current.Resources["ThemeBackground"] = new SolidColorBrush(bgColor);
                 Application.Current.Resources["ThemeForeground"] = new SolidColorBrush(fgColor);
+                
+                // Color versions for GradientStops
+                Application.Current.Resources["ThemeColorBackground"] = bgColor;
+                Application.Current.Resources["ThemeColorForeground"] = fgColor;
 
-                // Derive a border color based on brightness
+                // Derive colors based on brightness
                 double brightness = (0.299 * bgColor.R + 0.587 * bgColor.G + 0.114 * bgColor.B) / 255;
-                Color borderColor;
-                if (brightness < 0.5) // Dark background
-                {
-                    borderColor = Color.FromRgb(80, 80, 80); // Lighter border for dark bg
-                }
-                else // Light background
-                {
-                    borderColor = Color.FromRgb(220, 220, 220); // Darker border for light bg
-                }
-                Application.Current.Resources["ThemeBorder"] = new SolidColorBrush(borderColor);
-                Application.Current.Resources["ThemeWindowBorder"] = new SolidColorBrush(borderColor); // Default to standard border
+                
+                // Calculate dynamic colors
+                Color sidebarBg, sidebarBorder, sidebarHover, sidebarPressed, windowBorder;
 
-                // Sidebar Button Dynamic Colors based on brightness
                 if (brightness < 0.5) // Dark Theme
                 {
-                    Application.Current.Resources["ThemeSidebarButtonBackground"] = Brushes.Transparent;
-                    Application.Current.Resources["ThemeSidebarButtonBorder"] = new SolidColorBrush(Color.FromRgb(60, 60, 60)); // 세련된 실선
-                    Application.Current.Resources["ThemeSidebarButtonHoverBackground"] = new SolidColorBrush(Color.FromRgb(50, 50, 50));
-                    Application.Current.Resources["ThemeSidebarButtonPressedBackground"] = new SolidColorBrush(Color.FromRgb(70, 70, 70));
+                    windowBorder = AdjustColor(bgColor, 15);
+                    sidebarBg = AdjustColor(bgColor, -5); 
+                    sidebarBorder = AdjustColor(bgColor, 20);
+                    sidebarHover = AdjustColor(bgColor, 25);
+                    sidebarPressed = AdjustColor(bgColor, 35);
                 }
                 else // Light Theme
                 {
-                    Application.Current.Resources["ThemeSidebarButtonBackground"] = new SolidColorBrush(Color.FromRgb(249, 249, 249)); // #F9F9F9
-                    Application.Current.Resources["ThemeSidebarButtonBorder"] = Brushes.Transparent;
-                    Application.Current.Resources["ThemeSidebarButtonHoverBackground"] = new SolidColorBrush(Color.FromRgb(240, 247, 255)); // #F0F7FF
-                    Application.Current.Resources["ThemeSidebarButtonPressedBackground"] = new SolidColorBrush(Color.FromRgb(224, 238, 255)); // #E0EEFF
+                    windowBorder = AdjustColor(bgColor, -20);
+                    sidebarBg = AdjustColor(bgColor, -5); 
+                    sidebarBorder = Brushes.Transparent.Color; 
+                    sidebarHover = AdjustColor(bgColor, -15);
+                    sidebarPressed = AdjustColor(bgColor, -25);
                 }
+
+                Application.Current.Resources["ThemeWindowBorder"] = new SolidColorBrush(windowBorder);
+                Application.Current.Resources["ThemeBorder"] = new SolidColorBrush(windowBorder); 
+                Application.Current.Resources["ThemeSidebarButtonBackground"] = new SolidColorBrush(sidebarBg);
+                Application.Current.Resources["ThemeColorSidebarButtonBackground"] = sidebarBg;
+                Application.Current.Resources["ThemeSidebarButtonBorder"] = new SolidColorBrush(sidebarBorder);
+                Application.Current.Resources["ThemeSidebarButtonHoverBackground"] = new SolidColorBrush(sidebarHover);
+                Application.Current.Resources["ThemeSidebarButtonPressedBackground"] = new SolidColorBrush(sidebarPressed);
 
                 // Title Bar Colors (Specific colors for General mode as per user feedback)
                 if (settings.ThemeMode == "General")
@@ -236,7 +241,7 @@ public partial class App : Application
                     Application.Current.Resources["ThemeSimpleTitleForeground"] = Brushes.White;
                     
                     // Sharp glossy outline (선명한 하이그로시 윤곽선)
-                    Application.Current.Resources["ThemeWindowBorder"] = new SolidColorBrush(Color.FromRgb(60, 60, 60));
+                    Application.Current.Resources["ThemeWindowBorder"] = new SolidColorBrush(Color.FromRgb(45, 45, 45));
                 }
                 else
                 {
@@ -254,5 +259,14 @@ public partial class App : Application
         {
             System.Diagnostics.Debug.WriteLine($"Failed to apply theme: {ex.Message}");
         }
+    }
+
+    private static Color AdjustColor(Color baseColor, int amount)
+    {
+        return Color.FromRgb(
+            (byte)Math.Clamp(baseColor.R + amount, 0, 255),
+            (byte)Math.Clamp(baseColor.G + amount, 0, 255),
+            (byte)Math.Clamp(baseColor.B + amount, 0, 255)
+        );
     }
 }

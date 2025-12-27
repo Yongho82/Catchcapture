@@ -40,11 +40,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#F0F3F4"/>
+                                <Setter Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}"/>
                             </Trigger>
                             <Trigger Property="ToggleButton.IsChecked" Value="True">
-                                <Setter Property="Background" Value="#E5EAF5"/>
-                                <Setter Property="BorderBrush" Value="#3498DB"/>
+                                <Setter Property="Background" Value="{DynamicResource ThemeSidebarButtonPressedBackground}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorder}"/>
                                 <Setter Property="BorderThickness" Value="1"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -54,14 +54,14 @@
         </Style>
         
         <Style x:Key="EditorIconPath" TargetType="Path">
-            <Setter Property="Fill" Value="#5F6368"/> <!-- Material Grey -->
+            <Setter Property="Fill" Value="{DynamicResource ThemeForeground}"/> 
             <Setter Property="Stretch" Value="Uniform"/>
             <Setter Property="Height" Value="14"/>
             <Setter Property="Width" Value="14"/>
         </Style>
     </UserControl.Resources>
 
-    <Grid Background="White"> <!-- Main Background White -->
+    <Grid Background="{DynamicResource ThemeBackground}"> <!-- Main Background -->
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -69,11 +69,11 @@
 
         <!-- Toolbar -->
         <!-- Just a Bottom Border for separation -->
-        <Border Grid.Row="0" Background="White" BorderBrush="#EEEEEE" BorderThickness="0,0,0,1" Padding="4,4,4,4">
+        <Border Grid.Row="0" Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="0,0,0,1" Padding="4,4,4,4">
             <WrapPanel>
                 <!-- Font Family -->
                 <ComboBox x:Name="CboFontFamily" Width="160" Height="26" VerticalContentAlignment="Center"
-                          Background="White" Foreground="#333333" BorderBrush="#E0E0E0" Margin="0,1,6,1" 
+                          Background="{DynamicResource ThemeBackground}" Foreground="{DynamicResource ThemeForeground}" BorderBrush="{DynamicResource ThemeBorder}" Margin="0,1,6,1" 
                           SelectionChanged="CboFontFamily_SelectionChanged" ToolTip="글꼴" Focusable="False">
                      <ComboBox.Resources>
                         <Style TargetType="{x:Type Border}">
@@ -89,7 +89,7 @@
 
                 <!-- Font Size -->
                 <ComboBox x:Name="CboFontSize" Width="55" Height="26" VerticalContentAlignment="Center"
-                          Background="White" Foreground="#333333" BorderBrush="#E0E0E0" Margin="0,1,6,1" 
+                          Background="{DynamicResource ThemeBackground}" Foreground="{DynamicResource ThemeForeground}" BorderBrush="{DynamicResource ThemeBorder}" Margin="0,1,6,1" 
                           SelectionChanged="CboFontSize_SelectionChanged" ToolTip="글자 크기" Focusable="False">
                     <ComboBox.Resources>
                         <Style TargetType="{x:Type Border}">
@@ -105,7 +105,7 @@
                     <ComboBoxItem Content="36"/>
                 </ComboBox>
 
-                <Separator Width="1" Height="16" Background="#EEEEEE" Margin="4,0" VerticalAlignment="Center"/>
+                <Separator Width="1" Height="16" Background="{DynamicResource ThemeBorder}" Margin="4,0" VerticalAlignment="Center"/>
 
                 <!-- Text Formatting -->
                 <ToggleButton x:Name="BtnBold" Style="{StaticResource EditorButtonStyle}" Click="BtnBold_Click" ToolTip="굵게 (Ctrl+B)" Focusable="False">
@@ -118,23 +118,23 @@
                     <Path Data="{StaticResource IconUnderline}" Style="{StaticResource EditorIconPath}"/>
                 </ToggleButton>
 
-                <Separator Width="1" Height="16" Background="#EEEEEE" Margin="4,0" VerticalAlignment="Center"/>
+                <Separator Width="1" Height="16" Background="{DynamicResource ThemeBorder}" Margin="4,0" VerticalAlignment="Center"/>
 
                 <!-- Text Color -->
                 <Button x:Name="BtnTextColor" Style="{StaticResource EditorButtonStyle}" Click="BtnTextColor_Click" ToolTip="글자 색상" Focusable="False">
                     <StackPanel Orientation="Vertical">
-                        <Path Data="{StaticResource IconTextColor}" Style="{StaticResource EditorIconPath}" Fill="#333333"/>
+                        <Path Data="{StaticResource IconTextColor}" Style="{StaticResource EditorIconPath}"/>
                         <Border x:Name="TextColorBar" Height="3" Background="#E74C3C" Margin="2,1,2,0"/>
                     </StackPanel>
                 </Button>
                 <Button x:Name="BtnHighlight" Style="{StaticResource EditorButtonStyle}" Click="BtnHighlight_Click" ToolTip="배경 색상 (형광펜)" Focusable="False">
                     <StackPanel Orientation="Vertical">
-                        <Path Data="{StaticResource IconHighlight}" Style="{StaticResource EditorIconPath}" Fill="#333333"/>
+                        <Path Data="{StaticResource IconHighlight}" Style="{StaticResource EditorIconPath}"/>
                         <Border x:Name="HighlightColorBar" Height="3" Background="Transparent" BorderBrush="#DDDDDD" BorderThickness="1" Margin="2,1,2,0"/>
                     </StackPanel>
                 </Button>
 
-                <Separator Width="1" Height="16" Background="#EEEEEE" Margin="4,0" VerticalAlignment="Center"/>
+                <Separator Width="1" Height="16" Background="{DynamicResource ThemeBorder}" Margin="4,0" VerticalAlignment="Center"/>
 
                 <!-- Alignment -->
                 <Button x:Name="BtnAlignLeft" Style="{StaticResource EditorButtonStyle}" Click="BtnAlignLeft_Click" ToolTip="왼쪽 정렬" Focusable="False">
@@ -147,7 +147,7 @@
                     <Path Data="{StaticResource IconAlignRight}" Style="{StaticResource EditorIconPath}"/>
                 </Button>
 
-                <Separator Width="1" Height="16" Background="#EEEEEE" Margin="4,0" VerticalAlignment="Center"/>
+                <Separator Width="1" Height="16" Background="{DynamicResource ThemeBorder}" Margin="4,0" VerticalAlignment="Center"/>
 
                 <!-- Lists -->
                 <Button x:Name="BtnBulletList" Style="{StaticResource EditorButtonStyle}" Click="BtnBulletList_Click" ToolTip="글머리 기호" Focusable="False">
@@ -157,7 +157,7 @@
                     <Path Data="{StaticResource IconListNumber}" Style="{StaticResource EditorIconPath}"/>
                 </Button>
 
-                <Separator Width="1" Height="16" Background="#EEEEEE" Margin="4,0" VerticalAlignment="Center"/>
+                <Separator Width="1" Height="16" Background="{DynamicResource ThemeBorder}" Margin="4,0" VerticalAlignment="Center"/>
 
                 <!-- Insert -->
                 <Button x:Name="BtnInsertImage" Style="{StaticResource EditorButtonStyle}" Click="BtnInsertImage_Click" ToolTip="이미지 삽입" Focusable="False">
@@ -170,7 +170,7 @@
                     <Path Data="{StaticResource IconLink}" Style="{StaticResource EditorIconPath}"/>
                 </Button>
 
-                <Separator Width="1" Height="16" Background="#EEEEEE" Margin="4,0" VerticalAlignment="Center"/>
+                <Separator Width="1" Height="16" Background="{DynamicResource ThemeBorder}" Margin="4,0" VerticalAlignment="Center"/>
 
                 <!-- Undo/Redo -->
                 <Button x:Name="BtnUndo" Style="{StaticResource EditorButtonStyle}" Click="BtnUndo_Click" ToolTip="실행 취소 (Ctrl+Z)" Focusable="False">
@@ -180,7 +180,7 @@
                     <Path Data="{StaticResource IconRedo}" Style="{StaticResource EditorIconPath}"/>
                 </Button>
 
-                <Separator Width="1" Height="16" Background="#EEEEEE" Margin="4,0" VerticalAlignment="Center"/>
+                <Separator Width="1" Height="16" Background="{DynamicResource ThemeBorder}" Margin="4,0" VerticalAlignment="Center"/>
 
                 <!-- Line Spacing -->
                 <Button x:Name="BtnLineSpacing" Style="{StaticResource EditorButtonStyle}" Click="BtnLineSpacing_Click" ToolTip="줄 간격" Focusable="False">
@@ -200,11 +200,11 @@
         <!-- Editor: Removed borders, just pure content area -->
         <Grid Grid.Row="1">
             <RichTextBox x:Name="RtbEditor" TextChanged="RtbEditor_TextChanged" GotFocus="RtbEditor_GotFocus" LostFocus="RtbEditor_LostFocus" Loaded="RtbEditor_Loaded" 
-                         Background="White" 
+                         Background="{DynamicResource ThemeBackground}" 
                          BorderThickness="0" 
                          AcceptsReturn="True" 
                          Padding="20"
-                         CaretBrush="Black"
+                         CaretBrush="{DynamicResource ThemeForeground}"
                          SelectionBrush="#303498DB"
                          SelectionOpacity="0.3"
                          VerticalScrollBarVisibility="Auto"
@@ -218,7 +218,7 @@
                         <Style TargetType="{x:Type Paragraph}">
                             <Setter Property="Margin" Value="0,5,0,5"/>
                             <Setter Property="FontSize" Value="14"/>
-                            <Setter Property="Foreground" Value="Black"/>
+                            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
                             <Setter Property="LineHeight" Value="24"/> 
                             <Setter Property="LineStackingStrategy" Value="BlockLineHeight"/>
                         </Style>
@@ -230,13 +230,13 @@
 
         <!-- Color Picker Popup -->
         <Popup x:Name="ColorPickerPopup" StaysOpen="False" AllowsTransparency="True" PopupAnimation="Fade">
-            <Border Background="#F9F9F9" BorderBrush="#DDDDDD" BorderThickness="1" CornerRadius="8" Padding="12">
+            <Border Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="8" Padding="12">
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.15"/>
                 </Border.Effect>
                 <StackPanel Width="230">
                     <Grid Margin="0,0,0,10">
-                        <TextBlock x:Name="ColorPickerTitle" Text="색상" FontWeight="Bold" Foreground="#333333" FontSize="12" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="ColorPickerTitle" Text="색상" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" FontSize="12" VerticalAlignment="Center"/>
                         <Button x:Name="BtnClearColor" Content="투명" HorizontalAlignment="Right" Padding="8,3" FontSize="11" Width="Auto" Height="Auto" Click="BtnClearColor_Click" Visibility="Collapsed" Style="{StaticResource EditorButtonStyle}"/>
                     </Grid>
                     
@@ -244,7 +244,7 @@
                         <!-- Populated in Code Behind -->
                     </UniformGrid>
                     
-                    <Separator Background="#EEEEEE" Margin="0,10,0,8"/>
+                    <Separator Background="{DynamicResource ThemeBorder}" Margin="0,10,0,8"/>
                     <Button x:Name="BtnCustomColor" Content="+추가" Width="Auto" Height="Auto" Click="AddCustomColor_Click" Style="{StaticResource EditorButtonStyle}" FontSize="12" Padding="0,6"/>
                 </StackPanel>
             </Border>

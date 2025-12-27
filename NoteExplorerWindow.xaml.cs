@@ -687,28 +687,41 @@ namespace CatchCapture
 
         private void BtnNewNote_Click(object sender, RoutedEventArgs e)
         {
-            // Open NoteInputWindow in "New Note" mode (empty)
-            // Passing null image will need handling in NoteInputWindow
-            var noteInput = new NoteInputWindow(null); 
-            noteInput.Owner = this;
-            if (noteInput.ShowDialog() == true)
+            try
             {
-                LoadNotes(); // Refresh list after saving
-                LoadTags();
+                // Open NoteInputWindow in "New Note" mode (empty)
+                var noteInput = new NoteInputWindow(null); 
+                noteInput.Owner = this;
+                if (noteInput.ShowDialog() == true)
+                {
+                    LoadNotes(); // Refresh list after saving
+                    LoadTags();
+                }
+            }
+            catch (Exception ex)
+            {
+                CatchCapture.CustomMessageBox.Show($"노트 작성창을 여는 중 오류가 발생했습니다: {ex.Message}\n\n{ex.StackTrace}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void BtnEditNote_Click(object sender, RoutedEventArgs e)
         {
-            if (LstNotes.SelectedItem is NoteViewModel note)
+            try
             {
-                var inputWin = new NoteInputWindow(note.Id);
-                inputWin.Owner = this;
-                if (inputWin.ShowDialog() == true)
+                if (LstNotes.SelectedItem is NoteViewModel note)
                 {
-                    LoadNotes(); // Refresh list after edit
-                    LoadTags();
+                    var inputWin = new NoteInputWindow(note.Id);
+                    inputWin.Owner = this;
+                    if (inputWin.ShowDialog() == true)
+                    {
+                        LoadNotes(); // Refresh list after edit
+                        LoadTags();
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                CatchCapture.CustomMessageBox.Show($"노트 수정창을 여는 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

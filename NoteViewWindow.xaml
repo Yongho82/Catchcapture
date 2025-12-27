@@ -16,7 +16,7 @@
                       GlassFrameThickness="0" />
     </WindowChrome.WindowChrome>
 
-    <Border Background="White" CornerRadius="12" BorderThickness="1" BorderBrush="#E0E0E0">
+    <Border Background="{DynamicResource ThemeBackground}" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorder}">
         <Border.Effect>
             <DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.15" ShadowDepth="5" Direction="270"/>
         </Border.Effect>
@@ -29,34 +29,28 @@
 
             <!-- Header: Title Bar (Compact Gradient) -->
             <Grid Grid.Row="0">
-                <Border CornerRadius="11,11,0,0" BorderThickness="0,0,0,1" BorderBrush="#EEEEEE" Height="50">
-                    <Border.Background>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="#FDFBFD" Offset="0"/>
-                            <GradientStop Color="#EEF1FF" Offset="0.5"/>
-                            <GradientStop Color="#F9EFFF" Offset="1"/>
-                        </LinearGradientBrush>
-                    </Border.Background>
+                <Border CornerRadius="11,11,0,0" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ThemeBorder}" Height="50"
+                        Background="{DynamicResource ThemeTitleBackground}">
                 </Border>
                 <Grid Margin="25,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                          <Ellipse x:Name="CategoryCircle" Width="10" Height="10" Fill="#8E2DE2" Margin="0,0,8,0"/>
-                         <TextBlock x:Name="TxtCategory" Text="기본" Foreground="#555555" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                         <TextBlock x:Name="TxtCategory" Text="기본" Foreground="{DynamicResource ThemeTitleForeground}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                          <Button x:Name="BtnPin" Width="30" Height="30" Click="BtnPin_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="상단 고정" WindowChrome.IsHitTestVisibleInChrome="True">
                              <Path x:Name="PathPin" Data="M16,12V4H17V2H7V4H8V12L6,14V16H11.22V23L12,23.77L12.78,23V16H18V14L16,12Z" 
-                                   Fill="#95A5A6" Stretch="Uniform" Width="14" Height="14"/>
+                                   Fill="{DynamicResource ThemeTitleForeground}" Stretch="Uniform" Width="14" Height="14"/>
                          </Button>
                          <Button x:Name="BtnMinimize" Width="30" Height="30" Click="BtnMinimize_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="최소화" WindowChrome.IsHitTestVisibleInChrome="True">
-                             <Path Data="M20,14H4V10H20V14Z" Fill="#95A5A6" Stretch="Uniform" Width="12" Height="12"/>
+                             <Path Data="M20,14H4V10H20V14Z" Fill="{DynamicResource ThemeTitleForeground}" Stretch="Uniform" Width="12" Height="12"/>
                          </Button>
                          <Button x:Name="BtnMaximize" Width="30" Height="30" Click="BtnMaximize_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="최대화" WindowChrome.IsHitTestVisibleInChrome="True">
-                             <Path x:Name="PathMaximize" Data="M4,4H20V20H4V4M6,8V18H18V8H6Z" Fill="#95A5A6" Stretch="Uniform" Width="12" Height="12"/>
+                             <Path x:Name="PathMaximize" Data="M4,4H20V20H4V4M6,8V18H18V8H6Z" Fill="{DynamicResource ThemeTitleForeground}" Stretch="Uniform" Width="12" Height="12"/>
                          </Button>
                          <Button x:Name="BtnClose" Width="30" Height="30" Click="BtnClose_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="닫기" WindowChrome.IsHitTestVisibleInChrome="True">
                              <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" 
-                                   Fill="#95A5A6" Stretch="Uniform" Width="14" Height="14"/>
+                                   Fill="{DynamicResource ThemeTitleForeground}" Stretch="Uniform" Width="14" Height="14"/>
                          </Button>
                     </StackPanel>
                 </Grid>
@@ -64,12 +58,12 @@
             <!-- Content Area -->
             <ScrollViewer Grid.Row="1" Margin="25,20,25,15" VerticalScrollBarVisibility="Auto">
                  <StackPanel>
-                    <TextBlock x:Name="TxtTitle" Text="노트 제목" FontSize="26" FontWeight="Bold" Foreground="#222222" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                    <TextBlock x:Name="TxtTitle" Text="노트 제목" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" TextWrapping="Wrap" Margin="0,0,0,8"/>
                     
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
-                         <TextBlock x:Name="TxtDate" Text="2024-12-26 12:00" Foreground="#999999" FontSize="13" Margin="0,0,15,0"/>
-                         <TextBlock Text="|" Foreground="#E0E0E0" Margin="0,0,15,0"/>
-                         <TextBlock x:Name="TxtSource" Text="Source App" Foreground="#888888" FontSize="13"/>
+                         <TextBlock x:Name="TxtDate" Text="2024-12-26 12:00" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="13" Margin="0,0,15,0"/>
+                         <TextBlock Text="|" Foreground="{DynamicResource ThemeBorder}" Margin="0,0,15,0"/>
+                         <TextBlock x:Name="TxtSource" Text="Source App" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" FontSize="13"/>
                     </StackPanel>
                      <!-- Rich Content Viewer -->
                      <RichTextBox x:Name="ContentViewer" IsReadOnly="True" BorderThickness="0" Background="Transparent" 
@@ -85,10 +79,10 @@
                      <ItemsControl x:Name="ItemsTags" Margin="0,15,0,0">
                          <ItemsControl.ItemTemplate>
                              <DataTemplate>
-                                 <Border Background="#F1F3F4" CornerRadius="12" Padding="12,6" Margin="0,0,8,8">
+                                 <Border Background="{DynamicResource ThemeSidebarButtonBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="12" Padding="12,6" Margin="0,0,8,8">
                                      <StackPanel Orientation="Horizontal">
-                                         <TextBlock Text="#" Foreground="#9AA0A6" Margin="0,0,4,0"/>
-                                         <TextBlock Text="{Binding}" Foreground="#5F6368" FontSize="13"/>
+                                         <TextBlock Text="#" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" Margin="0,0,4,0"/>
+                                         <TextBlock Text="{Binding}" Foreground="{DynamicResource ThemeForeground}" FontSize="13"/>
                                      </StackPanel>
                                  </Border>
                              </DataTemplate>
@@ -102,18 +96,18 @@
 
                      <!-- Attachments -->
                      <StackPanel x:Name="PanelAttachments" Margin="0,15,0,0">
-                         <Separator Background="#F0F0F0" Margin="0,0,0,15"/>
-                         <TextBlock Text="📎 첨부 파일" FontSize="14" FontWeight="Bold" Foreground="#333333" Margin="0,0,0,10"/>
+                         <Separator Background="{DynamicResource ThemeBorder}" Margin="0,0,0,15"/>
+                         <TextBlock Text="📎 첨부 파일" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" Margin="0,0,0,10"/>
                          <ItemsControl x:Name="ItemsAttachments">
                              <ItemsControl.ItemTemplate>
                                  <DataTemplate>
-                                     <Border Background="#F8F9FA" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,0,0,5">
+                                     <Border Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,0,0,5">
                                          <Grid>
                                              <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                                                  <TextBlock Text="📄" Margin="0,0,8,0" VerticalAlignment="Center"/>
                                                  <TextBlock Text="{Binding OriginalName}" Foreground="#1A73E8" FontSize="13" VerticalAlignment="Center" Cursor="Hand" MouseLeftButtonDown="Attachment_Click" TextDecorations="Underline"/>
                                              </StackPanel>
-                                             <TextBlock Text="{Binding FileType}" Foreground="#9AA0A6" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                             <TextBlock Text="{Binding FileType}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                          </Grid>
                                      </Border>
                                  </DataTemplate>
@@ -124,7 +118,7 @@
             </ScrollViewer>
 
             <!-- Footer Action -->
-            <Border Grid.Row="2" BorderThickness="0,1,0,0" BorderBrush="#F0F0F0" Background="#FAFAFA" CornerRadius="0,0,12,12" Padding="20">
+            <Border Grid.Row="2" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ThemeBorder}" Background="{DynamicResource ThemeBackground}" CornerRadius="0,0,12,12" Padding="20">
                 <Button x:Name="BtnEdit" Content="수정하기" Click="BtnEdit_Click" Cursor="Hand" HorizontalAlignment="Right"
                         Width="120" Height="40" FontSize="14" FontWeight="Bold" Foreground="White" BorderThickness="0">
                     <Button.Template>

@@ -9,7 +9,7 @@
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen" ShowInTaskbar="True">
     
-    <Border Background="#FDFDFD" CornerRadius="12" BorderThickness="1" BorderBrush="#E0E0E0">
+    <Border Background="{DynamicResource ThemeBackground}" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorder}">
         <Border.CacheMode>
             <BitmapCache EnableClearType="True" RenderAtScale="1"/>
         </Border.CacheMode>
@@ -25,11 +25,11 @@
 
             <!-- 1. Header (Close Only) -->
             <Grid Grid.Row="0" Margin="25,20,25,0">
-                <TextBlock x:Name="TxtHeaderTitle" Text="글쓰기" FontSize="20" FontWeight="Bold" Foreground="#333333" VerticalAlignment="Center"/>
+                <TextBlock x:Name="TxtHeaderTitle" Text="글쓰기" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
                 <Button x:Name="BtnClose" Width="30" Height="30" HorizontalAlignment="Right" VerticalAlignment="Center" 
                         Click="BtnClose_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="닫기">
                     <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" 
-                          Fill="#95A5A6" Stretch="Uniform" Width="14" Height="14"/>
+                          Fill="{DynamicResource ThemeForeground}" Opacity="0.6" Stretch="Uniform" Width="14" Height="14"/>
                 </Button>
             </Grid>
 
@@ -45,7 +45,7 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Category Selector -->
-                        <Border Grid.Column="0" Background="#F8F9FA" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0">
+                        <Border Grid.Column="0" Background="{DynamicResource ThemeSidebarButtonBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0">
                             <StackPanel Orientation="Horizontal">
                                 <ComboBox x:Name="CboCategory" Width="110" BorderThickness="0" Background="Transparent" 
                                           VerticalContentAlignment="Center" Padding="10,5" FontSize="14" Cursor="Hand">
@@ -53,7 +53,7 @@
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal">
                                                 <Ellipse Width="8" Height="8" Fill="{Binding Color}" Margin="0,0,8,0"/>
-                                                <TextBlock Text="{Binding Name}" Foreground="#333333"/>
+                                                <TextBlock Text="{Binding Name}" Foreground="{DynamicResource ThemeForeground}"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
@@ -61,18 +61,18 @@
                                 <Button x:Name="BtnManageCategories" Width="28" Height="28" Click="BtnManageCategories_Click" Margin="0,0,2,0"
                                         Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="분류 관리">
                                     <Path Data="M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8M12,10A2,2 0 0,0 10,12A2,2 0 0,0 12,14A2,2 0 0,0 14,12A2,2 0 0,0 12,10M10,22C9.75,22 9.54,21.82 9.51,21.58L9.12,19.11C8.5,18.91 7.94,18.58 7.42,18.15L5.07,19.11C4.83,19.21 4.54,19.11 4.42,18.88L2.42,15.41C2.3,15.18 2.36,14.89 2.57,14.73L4.54,13.23C4.5,12.82 4.5,12.41 4.54,12C4.5,11.59 4.5,11.18 4.54,10.77L2.57,9.27C2.36,9.11 2.3,8.82 2.42,8.59L4.42,5.12C4.54,4.89 4.83,4.79 5.07,4.89L7.42,5.85C7.94,5.42 8.5,5.1 9.12,4.89L9.51,2.42C9.54,2.18 9.75,2 10,2H14C14.25,2 14.46,2.18 14.49,2.42L14.88,4.89C15.5,5.1 16.06,5.42 16.58,5.85L18.93,4.89C19.17,4.79 19.46,4.89 19.58,5.12L21.58,8.59C21.7,8.82 21.64,9.11 21.43,9.27L19.46,10.77C19.5,11.18 19.5,11.59 19.46,12C19.5,12.41 19.5,12.82 19.46,13.23L21.43,14.73C21.64,14.89 21.7,15.18 21.58,15.41L19.58,18.88C19.46,19.11 19.17,19.21 18.93,19.11L16.58,18.15C16.06,18.58 15.5,18.91 14.88,19.11L14.49,21.58C14.46,21.82 14.25,22 14,22H10Z" 
-                                          Fill="#95A5A6" Stretch="Uniform" Width="14" Height="14"/>
+                                          Fill="{DynamicResource ThemeForeground}" Opacity="0.6" Stretch="Uniform" Width="14" Height="14"/>
                                 </Button>
                             </StackPanel>
                         </Border>
 
                         <!-- Title Input -->
-                        <Border Grid.Column="1" Background="#FFFFFFFF" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="4">
+                        <Border Grid.Column="1" Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="4">
                             <Grid>
                                 <TextBox x:Name="TxtTitle" 
                                          Background="Transparent" BorderThickness="0"
-                                         Padding="15,8" FontSize="16" FontWeight="SemiBold" Foreground="#333333"
-                                         CaretBrush="#333333">
+                                         Padding="15,8" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource ThemeForeground}"
+                                         CaretBrush="{DynamicResource ThemeForeground}">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
                                             <Style.Resources>
@@ -83,7 +83,7 @@
                                         </Style>
                                     </TextBox.Style>
                                 </TextBox>
-                                <TextBlock Text="제목을 입력해주세요" IsHitTestVisible="False" Foreground="#CCCCCC" FontSize="16" 
+                                <TextBlock Text="제목을 입력해주세요" IsHitTestVisible="False" Foreground="{DynamicResource ThemeForeground}" Opacity="0.4" FontSize="16" 
                                            VerticalAlignment="Center" Margin="17,0,0,0" FontWeight="SemiBold">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
@@ -104,7 +104,7 @@
                     </Grid>
 
                     <!-- Editor -->
-                    <Border BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="4" Background="White" Margin="0,0,0,12">
+                    <Border BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="4" Background="{DynamicResource ThemeBackground}" Margin="0,0,0,12">
                         <controls:RichTextEditorControl x:Name="Editor" Height="480"/>
                     </Border>
 
@@ -114,12 +114,12 @@
                             <ColumnDefinition Width="60"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="태그" FontWeight="Bold" Foreground="#666666" VerticalAlignment="Center" FontSize="14"/>
-                        <Border Grid.Column="1" Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="4">
+                        <TextBlock Text="태그" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" VerticalAlignment="Center" FontSize="14"/>
+                        <Border Grid.Column="1" Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="4">
                             <Grid>
                                 <TextBox x:Name="TxtTags" Background="Transparent" BorderThickness="0" Padding="15,6" 
-                                         FontSize="14" Foreground="#333333" CaretBrush="#333333"/>
-                                <TextBlock Text="태그를 입력해주세요 (쉼표로 구분)" IsHitTestVisible="False" Foreground="#CCCCCC" FontSize="14" 
+                                         FontSize="14" Foreground="{DynamicResource ThemeForeground}" CaretBrush="{DynamicResource ThemeForeground}"/>
+                                <TextBlock Text="태그를 입력해주세요 (쉼표로 구분)" IsHitTestVisible="False" Foreground="{DynamicResource ThemeForeground}" Opacity="0.4" FontSize="14" 
                                            VerticalAlignment="Center" Margin="17,0,0,0">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
@@ -145,18 +145,18 @@
                             <ColumnDefinition Width="60"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="링크" FontWeight="Bold" Foreground="#666666" VerticalAlignment="Center" FontSize="14"/>
-                        <Border Grid.Column="1" Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="4">
+                        <TextBlock Text="링크" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" VerticalAlignment="Center" FontSize="14"/>
+                        <Border Grid.Column="1" Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="4">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <Path Data="M3.9,12C3.9,10.29 5.29,8.9 7,8.9H11V7H7A5,5 0 0,0 2,12A5,5 0 0,0 7,17H11V15.1H7C5.29,15.1 3.9,13.71 3.9,12M8,13H16V11H8V13M17,7H13V8.9H17C18.71,8.9 20.1,10.29 20.1,12C20.1,13.71 18.71,15.1 17,15.1H13V17H17A5,5 0 0,0 22,12A5,5 0 0,0 17,7Z" 
-                                      Fill="#999999" Width="16" Height="16" Margin="12,0,0,0" Stretch="Uniform"/>
+                                      Fill="{DynamicResource ThemeForeground}" Opacity="0.5" Width="16" Height="16" Margin="12,0,0,0" Stretch="Uniform"/>
                                 <TextBox x:Name="TxtSourceInfo" Grid.Column="1" Background="Transparent" BorderThickness="0" Padding="10,6" 
-                                         FontSize="14" Foreground="#333333" CaretBrush="#333333"/>
-                                <TextBlock Grid.Column="1" Text="관련 링크를 입력해주세요." IsHitTestVisible="False" Foreground="#CCCCCC" FontSize="14" 
+                                         FontSize="14" Foreground="{DynamicResource ThemeForeground}" CaretBrush="{DynamicResource ThemeForeground}"/>
+                                <TextBlock Grid.Column="1" Text="관련 링크를 입력해주세요." IsHitTestVisible="False" Foreground="{DynamicResource ThemeForeground}" Opacity="0.4" FontSize="14" 
                                            VerticalAlignment="Center" Margin="12,0,0,0">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
@@ -177,7 +177,7 @@
                     </Grid>
 
                     <!-- File Attachment -->
-                    <TextBlock Text="파일 첨부" FontWeight="Bold" Foreground="#666666" Margin="0,0,0,5" FontSize="14"/>
+                    <TextBlock Text="파일 첨부" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" Margin="0,0,0,5" FontSize="14"/>
                     <Button x:Name="BtnAddFile" Click="BtnAddFile_Click" AllowDrop="True" Drop="BtnAddFile_Drop" Cursor="Hand" Background="Transparent" BorderThickness="0" Margin="0,0,0,8">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
@@ -185,7 +185,7 @@
                                     <Border.BorderBrush>
                                         <VisualBrush>
                                             <VisualBrush.Visual>
-                                                <Rectangle Stroke="#B0BBC5" StrokeThickness="1.5" StrokeDashArray="4 2"
+                                                <Rectangle Stroke="{DynamicResource ThemeBorder}" StrokeThickness="1.5" StrokeDashArray="4 2"
                                                            Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Border}}"
                                                            Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Border}}"
                                                            RadiusX="8" RadiusY="8"/>
@@ -194,17 +194,17 @@
                                     </Border.BorderBrush>
                                     <Border.Background>
                                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                            <GradientStop Color="#FFFFFF" Offset="0"/>
-                                            <GradientStop Color="#F8FAFC" Offset="1"/>
+                                            <GradientStop Color="{DynamicResource ThemeColorBackground}" Offset="0"/>
+                                            <GradientStop Color="{DynamicResource ThemeColorSidebarButtonBackground}" Offset="1"/>
                                         </LinearGradientBrush>
                                     </Border.Background>
                                     <Border.Effect>
-                                        <DropShadowEffect BlurRadius="10" Color="#E2E8F0" Opacity="0.5" ShadowDepth="2" Direction="270"/>
+                                        <DropShadowEffect BlurRadius="10" Color="Black" Opacity="0.1" ShadowDepth="2" Direction="270"/>
                                     </Border.Effect>
                                     
                                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <TextBlock Text="📎" FontSize="20" HorizontalAlignment="Center" Margin="0,0,0,5"/>
-                                        <TextBlock Text="이곳에 파일을 드래그 하거나 클릭하여 첨부하세요." Foreground="#718096" FontSize="13" FontWeight="Medium" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="📎" FontSize="20" HorizontalAlignment="Center" Margin="0,0,0,5" Foreground="{DynamicResource ThemeForeground}" Opacity="0.8"/>
+                                        <TextBlock Text="이곳에 파일을 드래그 하거나 클릭하여 첨부하세요." Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" FontSize="13" FontWeight="Medium" HorizontalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
                             </ControlTemplate>
@@ -220,12 +220,12 @@
                         </ListBox.ItemsPanel>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Border Background="#F7F9FC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,0,8,8">
+                                <Border Background="{DynamicResource ThemeSidebarButtonBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,0,8,8">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="📎" Margin="0,0,5,0" Foreground="#718096" VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding DisplayName}" Foreground="#2D3748" FontSize="12" VerticalAlignment="Center"/>
+                                        <TextBlock Text="📎" Margin="0,0,5,0" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding DisplayName}" Foreground="{DynamicResource ThemeForeground}" FontSize="12" VerticalAlignment="Center"/>
                                         <Button Click="BtnRemoveAttachment_Click" Margin="8,0,0,0" Background="Transparent" BorderThickness="0" Cursor="Hand" VerticalAlignment="Center">
-                                            <TextBlock Text="✕" Foreground="#A0AEC0" FontSize="10" FontWeight="Bold"/>
+                                            <TextBlock Text="✕" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="10" FontWeight="Bold"/>
                                         </Button>
                                     </StackPanel>
                                 </Border>
@@ -237,7 +237,7 @@
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5,0,5">
                         <Button x:Name="BtnCancel" Content="취소" Width="100" Height="40" Margin="0,0,15,0"
                                 Click="BtnClose_Click" Cursor="Hand" FontSize="14" FontWeight="Bold"
-                                Background="White" Foreground="#555555" BorderBrush="#E0E0E0" BorderThickness="1">
+                                Background="{DynamicResource ThemeBackground}" Foreground="{DynamicResource ThemeForeground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1">
                              <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="20">
@@ -245,7 +245,7 @@
                                     </Border>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="#F8F8F8"/>
+                                            <Setter Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}"/>
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>

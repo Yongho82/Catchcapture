@@ -21,7 +21,7 @@
         <Style x:Key="NoteItemStyle" TargetType="ListBoxItem">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="BorderBrush" Value="#F0F0F0"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorder}"/>
             <Setter Property="Padding" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -31,11 +31,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#F5F7F9"/>
+                                <Setter Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}"/>
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="#EDF2FF"/>
-                                <Setter Property="BorderBrush" Value="#D0D7DE"/>
+                                <Setter Property="Background" Value="{DynamicResource ThemeSidebarButtonPressedBackground}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorder}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -47,7 +47,7 @@
         <Style x:Key="ListTextStyle" TargetType="TextBlock">
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Foreground" Value="#333333"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
             <Setter Property="Margin" Value="10,0"/>
             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
         </Style>
@@ -66,17 +66,17 @@
                 <!-- Group -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="15,0,0,0">
                     <Ellipse Width="8" Height="8" Fill="{Binding CategoryColor}" Margin="0,0,8,0"/>
-                    <TextBlock Text="{Binding CategoryName}" Style="{StaticResource ListTextStyle}" Margin="0" Foreground="#666666"/>
+                    <TextBlock Text="{Binding CategoryName}" Style="{StaticResource ListTextStyle}" Margin="0" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
                 </StackPanel>
                 
                 <!-- Title -->
                 <TextBlock Grid.Column="1" Text="{Binding Title}" Style="{StaticResource ListTextStyle}" FontWeight="SemiBold"/>
                 
                 <!-- Content (Truncated) -->
-                <TextBlock Grid.Column="2" Text="{Binding TruncatedContent}" Style="{StaticResource ListTextStyle}" Foreground="#888888"/>
+                <TextBlock Grid.Column="2" Text="{Binding TruncatedContent}" Style="{StaticResource ListTextStyle}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
                 
                 <!-- Date -->
-                <TextBlock Grid.Column="3" Text="{Binding CreatedAt, StringFormat=yyyy-MM-dd HH:mm}" Style="{StaticResource ListTextStyle}" Foreground="#999999" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Column="3" Text="{Binding CreatedAt, StringFormat=yyyy-MM-dd HH:mm}" Style="{StaticResource ListTextStyle}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" HorizontalAlignment="Center"/>
                 
                 <!-- Delete Button -->
                 <Button Grid.Column="4" Content="✕" Click="BtnDeleteItem_Click" Tag="{Binding Id}"
@@ -99,7 +99,7 @@
         <Style x:Key="SidebarItemStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="#5F6368"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
             <Setter Property="Padding" Value="15,8"/>
             <Setter Property="Margin" Value="0,1"/>
@@ -113,12 +113,12 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#F1F3F4"/>
-                                <Setter Property="Foreground" Value="#202124"/>
+                                <Setter Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
                             </Trigger>
                             <Trigger Property="Uid" Value="Active">
-                                <Setter Property="Background" Value="#EDF2FF"/>
-                                <Setter Property="Foreground" Value="#2563EB"/>
+                                <Setter Property="Background" Value="{DynamicResource ThemeSidebarButtonPressedBackground}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -130,7 +130,7 @@
         <Style x:Key="TextButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="#5F6368"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
             <Setter Property="Padding" Value="8,4"/>
             <Setter Property="Margin" Value="0,0,4,0"/>
             <Setter Property="FontSize" Value="12"/> <!-- Reduced -1 -->
@@ -143,8 +143,8 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Foreground" Value="#202124"/>
-                                <Setter Property="Background" Value="#F1F3F4"/>
+                                <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
+                                <Setter Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -154,9 +154,10 @@
 
         <!-- Tag Button Style -->
         <Style x:Key="TagButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#F1F3F4"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="#5F6368"/>
+            <Setter Property="Background" Value="{DynamicResource ThemeSidebarButtonBackground}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorder}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
             <Setter Property="Padding" Value="10,5"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -168,7 +169,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#E8EAED"/>
+                                <Setter Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -180,7 +181,7 @@
         <Style x:Key="PaginationButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="#5F6368"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
             <Setter Property="Width" Value="32"/>
             <Setter Property="Height" Value="32"/>
             <Setter Property="Margin" Value="2,0"/>
@@ -195,12 +196,12 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="brd" Property="Background" Value="#F1F3F4"/>
+                                <Setter TargetName="brd" Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}"/>
                             </Trigger>
-                            <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="Active">
-                                <Setter TargetName="brd" Property="Background" Value="#1A73E8"/>
+                            <Trigger Property="Tag" Value="Active">
+                                <Setter TargetName="brd" Property="Background" Value="#8E2DE2"/>
                                 <Setter Property="Foreground" Value="White"/>
-                            </DataTrigger>
+                            </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -208,7 +209,7 @@
         </Style>
     </Window.Resources>
 
-    <Border Background="#FDFDFD" CornerRadius="12" BorderThickness="1" BorderBrush="#E0E0E0">
+    <Border Background="{DynamicResource ThemeBackground}" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorder}">
         <Border.Effect>
             <DropShadowEffect BlurRadius="25" Color="Black" Opacity="0.1" ShadowDepth="5"/>
         </Border.Effect>
@@ -225,7 +226,7 @@
                 <Grid>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                         <Image Source="icons/my_note.png" Width="22" Height="22" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="마이 노트" FontSize="20" FontWeight="Bold" Foreground="#202124" VerticalAlignment="Center"/>
+                        <TextBlock Text="마이 노트" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
                     </StackPanel>
                     
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
@@ -273,7 +274,7 @@
                 </Grid>
             </Grid>
             <!-- Separator -->
-            <Border Grid.Row="0" Background="#E0E0E0" Height="1" VerticalAlignment="Bottom"/>
+            <Border Grid.Row="0" Background="{DynamicResource ThemeBorder}" Height="1" VerticalAlignment="Bottom"/>
 
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
@@ -284,7 +285,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Sidebar -->
-                <Border Background="#F9FAFB" BorderThickness="0,0,1,0" BorderBrush="#E0E0E0">
+                <Border Background="{DynamicResource ThemeBackground}" BorderThickness="0,0,1,0" BorderBrush="{DynamicResource ThemeBorder}">
                     <DockPanel>
                         <!-- Sidebar Bottom Settings -->
                         <Border DockPanel.Dock="Bottom" Margin="0,10,0,20">
@@ -292,7 +293,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Viewbox Width="18" Height="18" Margin="0,0,12,0">
                                         <Path Data="M12,15a3,3,0,1,0,0-6,3,3,0,0,0,0,6Zm0-1.5a1.5,1.5,0,1,1,0-3,1.5,1.5,0,0,1,0,3Zm7.4-2.8l1.7-1.3a1,1,0,0,0,0-1.6l-2-3.5a1,1,0,0,0-1.2-.4L16,4.7a6.9,6.9,0,0,0-3.3-1.9L12.3,1a1,1,0,0,0-1-.8H7.7a1,1,0,0,0-1,.8l-.4,1.9a7.3,7.3,0,0,0-3.3,1.9L1.1,4a1,1,0,0,0-1.2.4l-2,3.5a1,1,0,0,0,.3,1.3l1.7,1.3a7,7,0,0,0,0,2.6l-1.7,1.3a1,1,0,0,0-.3,1.3l2,3.5a1,1,0,0,0,1.2.4l1.9-.8a6.9,6.9,0,0,0,3.3,1.9l.4,1.9a1,1,0,0,0,1,.8h3.6a1,1,0,0,0,1-.8l.4-1.9a7.3,7.3,0,0,0,3.3-1.9l1.9.8a1,1,0,0,0,1.2-.4l2-3.5a1,1,0,0,0,0-1.6l-1.7-1.3C19.5,12.7,19.5,11.3,19.4,10.7Z" 
-                                              Stroke="#5F6368" StrokeThickness="1.5" Fill="Transparent"/>
+                                              Stroke="{DynamicResource ThemeForeground}" Opacity="0.7" StrokeThickness="1.5" Fill="Transparent"/>
                                     </Viewbox>
                                     <TextBlock Text="노트 설정" VerticalAlignment="Center" FontWeight="SemiBold"/>
                                 </StackPanel>
@@ -301,16 +302,16 @@
 
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <StackPanel Margin="15,20,5,0">
-                                <TextBlock Text="탐색" Foreground="#9AA0A6" FontSize="12" FontWeight="Bold" Margin="15,0,0,10"/>
+                                <TextBlock Text="탐색" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="12" FontWeight="Bold" Margin="15,0,0,10"/>
                                 
                                 <Button x:Name="BtnFilterAll" Click="BtnFilter_Click" Tag="All" Style="{StaticResource SidebarItemStyle}">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <Viewbox Width="18" Height="18" Margin="0,0,12,0">
                                             <Path Data="M2,12 L12,3 L22,12 M5,10 V20 A2,2 0 0,0 7,22 H17 A2,2 0 0,0 19,20 V10" 
-                                                  Stroke="#5F6368" StrokeThickness="1.5" Fill="Transparent"/>
+                                                  Stroke="{DynamicResource ThemeForeground}" Opacity="0.7" StrokeThickness="1.5" Fill="Transparent"/>
                                         </Viewbox>
                                         <TextBlock Text="전체 노트" VerticalAlignment="Center"/>
-                                        <TextBlock x:Name="TxtCountAll" Text="(0)" Margin="5,0,0,0" Foreground="#80868B" FontSize="12" VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="TxtCountAll" Text="(0)" Margin="5,0,0,0" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="12" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
 
@@ -321,7 +322,7 @@
                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                             <Viewbox Width="18" Height="18" Margin="0,0,12,0">
                                                 <Path x:Name="PathGroupIcon" Data="M3,6 A2,2 0 0,1 5,4 H9 L11,6 H19 A2,2 0 0,1 21,8 V18 A2,2 0 0,1 19,20 H5 A2,2 0 0,1 3,18 Z" 
-                                                      Stroke="#5F6368" StrokeThickness="1.5" Fill="Transparent"/>
+                                                      Stroke="{DynamicResource ThemeForeground}" Opacity="0.7" StrokeThickness="1.5" Fill="Transparent"/>
                                             </Viewbox>
                                             <TextBlock Text="그룹 노트" VerticalAlignment="Center"/>
                                         </StackPanel>
@@ -330,12 +331,12 @@
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,12,0">
                                         <Button Click="BtnAddCategory_Click" Style="{StaticResource TextButtonStyle}" Padding="6,4">
                                             <Viewbox Width="14" Height="14">
-                                                <Path Data="M7,2 V12 M2,7 H12" Stroke="#5F6368" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                                <Path Data="M7,2 V12 M2,7 H12" Stroke="{DynamicResource ThemeForeground}" Opacity="0.6" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                             </Viewbox>
                                         </Button>
                                         <Button x:Name="BtnSortCategories" Click="BtnSortCategories_Click" Style="{StaticResource TextButtonStyle}" Padding="6,4">
                                             <Viewbox Width="14" Height="14">
-                                                <Path Data="M3,12 H9 M3,7 H13 M3,2 H7 M11,10 L13,12 L15,10 M13,2 V12" Stroke="#5F6368" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                                <Path Data="M3,12 H9 M3,7 H13 M3,2 H7 M11,10 L13,12 L15,10 M13,2 V12" Stroke="{DynamicResource ThemeForeground}" Opacity="0.6" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                             </Viewbox>
                                             <Button.ContextMenu>
                                                 <ContextMenu>
@@ -355,7 +356,7 @@
                                                     <StackPanel Orientation="Horizontal">
                                                         <Ellipse Width="10" Height="10" Fill="{Binding Color}" Margin="4,0,12,0" VerticalAlignment="Center"/>
                                                         <TextBlock Text="{Binding Name}" VerticalAlignment="Center" MaxWidth="120" TextTrimming="CharacterEllipsis"/>
-                                                        <TextBlock Text="{Binding CountText}" Margin="5,0,0,0" Foreground="#80868B" FontSize="11" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{Binding CountText}" Margin="5,0,0,0" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="11" VerticalAlignment="Center"/>
                                                     </StackPanel>
                                                 </Button>
                                             </DataTemplate>
@@ -366,36 +367,36 @@
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <Viewbox Width="18" Height="18" Margin="0,0,12,0">
                                             <Path Data="M4,9 H20 M16,2 V6 M8,2 V6 M5,4 H19 A2,2 0 0,1 21,6 V20 A2,2 0 0,1 19,22 H5 A2,2 0 0,1 3,20 V6 A2,2 0 0,1 5,4 Z" 
-                                                  Stroke="#5F6368" StrokeThickness="1.5" Fill="Transparent"/>
+                                                  Stroke="{DynamicResource ThemeForeground}" Opacity="0.7" StrokeThickness="1.5" Fill="Transparent"/>
                                         </Viewbox>
                                         <TextBlock Text="오늘" VerticalAlignment="Center"/>
-                                        <TextBlock x:Name="TxtCountToday" Text="(0)" Margin="5,0,0,0" Foreground="#80868B" FontSize="12" VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="TxtCountToday" Text="(0)" Margin="5,0,0,0" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="12" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                                 <Button x:Name="BtnFilterRecent" Click="BtnFilter_Click" Tag="Recent" Style="{StaticResource SidebarItemStyle}">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <Viewbox Width="18" Height="18" Margin="0,0,12,0">
                                             <Path Data="M12,22 C17.5,22 22,17.5 22,12 C22,6.5 17.5,2 12,2 C6.5,2 2,6.5 2,12 C2,17.5 6.5,22 12,22 Z M12,6 V12 L16,15" 
-                                                  Stroke="#5F6368" StrokeThickness="1.5" Fill="Transparent" StrokeStartLineCap="Round" StrokeLineJoin="Round"/>
+                                                  Stroke="{DynamicResource ThemeForeground}" Opacity="0.7" StrokeThickness="1.5" Fill="Transparent" StrokeStartLineCap="Round" StrokeLineJoin="Round"/>
                                         </Viewbox>
                                         <TextBlock Text="최근 7일" VerticalAlignment="Center"/>
-                                        <TextBlock x:Name="TxtCountRecent" Text="(0)" Margin="5,0,0,0" Foreground="#80868B" FontSize="12" VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="TxtCountRecent" Text="(0)" Margin="5,0,0,0" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="12" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                                 <Button x:Name="BtnFilterTrash" Click="BtnFilter_Click" Tag="Trash" Style="{StaticResource SidebarItemStyle}">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <Viewbox Width="18" Height="18" Margin="0,0,12,0">
                                             <Path Data="M20,6 H4 M10,11 V17 M14,11 V17 M5,6 L6,19 A2,2 0 0,0 8,21 H16 A2,2 0 0,0 18,19 L19,6 M9,6 V3 A1,1 0 0,1 10,2 H14 A1,1 0 0,1 15,3 V6" 
-                                                  Stroke="#5F6368" StrokeThickness="1.5" Fill="Transparent" StrokeStartLineCap="Round" StrokeLineJoin="Round"/>
+                                                  Stroke="{DynamicResource ThemeForeground}" Opacity="0.7" StrokeThickness="1.5" Fill="Transparent" StrokeStartLineCap="Round" StrokeLineJoin="Round"/>
                                         </Viewbox>
                                         <TextBlock Text="휴지통" VerticalAlignment="Center"/>
-                                        <TextBlock x:Name="TxtCountTrash" Text="(0)" Margin="5,0,0,0" Foreground="#80868B" FontSize="12" VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="TxtCountTrash" Text="(0)" Margin="5,0,0,0" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="12" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                                 
-                                <Separator Background="#E0E0E0" Margin="10,15"/>
+                                <Separator Background="{DynamicResource ThemeBorder}" Margin="10,15"/>
                                 
-                                <TextBlock Text="태그" Foreground="#9AA0A6" FontSize="11" FontWeight="Bold" Margin="15,0,0,10"/>
+                                <TextBlock Text="태그" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="11" FontWeight="Bold" Margin="15,0,0,10"/>
                                 <ItemsControl x:Name="ItemsTags" Margin="10,0">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
@@ -406,8 +407,8 @@
                                         <DataTemplate>
                                             <Button Click="BtnTag_Click" Tag="{Binding}" Margin="0,0,6,6" Style="{StaticResource TagButtonStyle}">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="#" Foreground="#9AA0A6" Margin="0,0,4,0"/>
-                                                    <TextBlock Text="{Binding}"/>
+                                                    <TextBlock Text="#" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" Margin="0,0,4,0"/>
+                                                    <TextBlock Text="{Binding}" Foreground="{DynamicResource ThemeForeground}"/>
                                                 </StackPanel>
                                             </Button>
                                         </DataTemplate>
@@ -419,7 +420,7 @@
                 </Border>
 
                 <!-- Note List Area -->
-                <Grid Grid.Column="1" Background="White">
+                <Grid Grid.Column="1" Background="{DynamicResource ThemeBackground}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/> <!-- Top Controls (Batch & Search) -->
                         <RowDefinition Height="Auto"/> <!-- Header -->
@@ -443,18 +444,18 @@
 
                         <!-- Right: Status Text & Search Box -->
                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
-                            <TextBlock x:Name="TxtStatusInfo" Text="최근 1주일 기록 내용" VerticalAlignment="Center" Foreground="#9AA0A6" FontSize="12" Margin="0,0,15,0"/>
+                            <TextBlock x:Name="TxtStatusInfo" Text="최근 1주일 기록 내용" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" FontSize="12" Margin="0,0,15,0"/>
                             
-                            <Border Background="#F1F3F4" CornerRadius="4" Height="32" Width="220">
+                            <Border Background="{DynamicResource ThemeSidebarButtonBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="4" Height="32" Width="220">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBox x:Name="TxtSearch" Grid.Column="0" Background="Transparent" BorderThickness="0" 
-                                             VerticalContentAlignment="Center" FontSize="13" Foreground="#3C4043" Margin="10,0,0,0"
+                                             VerticalContentAlignment="Center" FontSize="13" Foreground="{DynamicResource ThemeForeground}" Margin="10,0,0,0"
                                              KeyDown="TxtSearch_KeyDown"/>
-                                    <TextBlock Grid.Column="0" Text="검색..." Foreground="#9AA0A6" IsHitTestVisible="False" 
+                                    <TextBlock Grid.Column="0" Text="검색..." Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" IsHitTestVisible="False" 
                                                VerticalAlignment="Center" Margin="12,0" FontSize="13">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
@@ -469,7 +470,7 @@
                                     </TextBlock>
                                     <Button Grid.Column="1" x:Name="BtnSearch" Click="BtnSearch_Click" 
                                             Background="Transparent" BorderThickness="0" Padding="8,0" Cursor="Hand">
-                                        <TextBlock Text="🔍" FontSize="14" Foreground="#5F6368"/>
+                                        <TextBlock Text="🔍" FontSize="14" Foreground="{DynamicResource ThemeForeground}"/>
                                     </Button>
                                 </Grid>
                             </Border>
@@ -477,7 +478,7 @@
                     </Grid>
 
                     <!-- Column Headers -->
-                    <Border Grid.Row="1" Background="#F8F9FA" Height="40" BorderThickness="0,0,0,1" BorderBrush="#E0E0E0">
+                    <Border Grid.Row="1" Background="{DynamicResource ThemeBackground}" Height="40" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ThemeBorder}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="28"/> <!-- Optimized Checkbox Width -->
@@ -500,10 +501,10 @@
                                     </Style>
                                 </CheckBox.Style>
                             </CheckBox>
-                            <TextBlock Grid.Column="1" Text="그룹" Foreground="#5F6368" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Margin="5,0,0,0"/>
-                            <TextBlock Grid.Column="2" Text="제목" Foreground="#5F6368" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0"/>
-                            <TextBlock Grid.Column="3" Text="내용" Foreground="#5F6368" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0"/>
-                            <TextBlock Grid.Column="4" Text="마지막 수정일" Foreground="#5F6368" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="그룹" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                            <TextBlock Grid.Column="2" Text="제목" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0"/>
+                            <TextBlock Grid.Column="3" Text="내용" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0"/>
+                            <TextBlock Grid.Column="4" Text="마지막 수정일" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         </Grid>
                     </Border>
 
@@ -545,19 +546,19 @@
                                     <!-- Group -->
                                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="5,0,0,0">
                                         <Ellipse Width="10" Height="10" Fill="{Binding CategoryColor}" Margin="0,0,10,0"/>
-                                        <TextBlock Text="{Binding CategoryName}" Foreground="#5F6368" FontSize="13" FontWeight="Medium"/>
+                                        <TextBlock Text="{Binding CategoryName}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" FontSize="13" FontWeight="Medium"/>
                                     </StackPanel>
 
                                     <!-- Title -->
-                                    <TextBlock Grid.Column="2" Text="{Binding Title}" FontWeight="SemiBold" Foreground="#202124" FontSize="14" 
+                                    <TextBlock Grid.Column="2" Text="{Binding Title}" FontWeight="SemiBold" Foreground="{DynamicResource ThemeForeground}" FontSize="14" 
                                                VerticalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Margin="10,0"/>
 
                                     <!-- Content -->
-                                    <TextBlock Grid.Column="3" Text="{Binding TruncatedContent}" Foreground="#5F6368" FontSize="13" 
+                                    <TextBlock Grid.Column="3" Text="{Binding TruncatedContent}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" FontSize="13" 
                                                VerticalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Margin="10,0"/>
 
                                     <!-- Date -->
-                                    <TextBlock Grid.Column="4" Text="{Binding FormattedDate}" Foreground="#80868B" FontSize="12" 
+                                    <TextBlock Grid.Column="4" Text="{Binding FormattedDate}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="12" 
                                                VerticalAlignment="Center" HorizontalAlignment="Center"/>
 
                                     <!-- Actions -->
@@ -569,7 +570,7 @@
                                                 <ControlTemplate TargetType="Button">
                                                     <Border x:Name="brd" Width="28" Height="28" Background="Transparent" CornerRadius="14">
                                                         <Path x:Name="path" Data="M16,12V4H17V2H7V4H8V12L6,14V16H11V22L12,23L13,22V16H18V14L16,12Z" 
-                                                              Fill="#95A5A6" Width="16" Height="16" Stretch="Uniform"/>
+                                                               Fill="{DynamicResource ThemeForeground}" Opacity="0.5" Width="16" Height="16" Stretch="Uniform"/>
                                                     </Border>
                                                     <ControlTemplate.Triggers>
                                                         <DataTrigger Binding="{Binding IsPinned}" Value="True">
@@ -591,7 +592,7 @@
                                                 <ControlTemplate TargetType="Button">
                                                     <Border x:Name="brd" Width="28" Height="28" Background="Transparent" CornerRadius="14">
                                                         <Path x:Name="path" Data="M13,3 A10,10 0 0,0 3,13 H0 L3.88,16.88 L4,17 L8,13 H5 A8,8 0 1,1 13,21 A1,1 0 1,0 13,23 A10,10 0 1,0 13,3 Z" 
-                                                              Fill="#95A5A6" Width="18" Height="18" Stretch="Uniform"/>
+                                                               Fill="{DynamicResource ThemeForeground}" Opacity="0.5" Width="18" Height="18" Stretch="Uniform"/>
                                                     </Border>
                                                     <ControlTemplate.Triggers>
                                                         <Trigger Property="IsMouseOver" Value="True">
@@ -610,11 +611,11 @@
                                                 <ControlTemplate TargetType="Button">
                                                     <Border x:Name="brd" Width="28" Height="28" Background="Transparent" CornerRadius="14">
                                                         <Path x:Name="path" Data="M6,19c0,1.1,0.9,2,2,2h8c1.1,0,2,-0.9,2,-2V7H6V19z M19,4h-3.5l-1,-1h-5l-1,1H5v2h14V4z" 
-                                                              Fill="#95A5A6" Width="16" Height="16" Stretch="Uniform"/>
+                                                               Fill="{DynamicResource ThemeForeground}" Opacity="0.5" Width="16" Height="16" Stretch="Uniform"/>
                                                     </Border>
                                                     <ControlTemplate.Triggers>
                                                         <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter TargetName="brd" Property="Background" Value="#FEEBEE"/>
+                                                            <Setter TargetName="brd" Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}"/>
                                                             <Setter TargetName="path" Property="Fill" Value="#D93025"/>
                                                         </Trigger>
                                                     </ControlTemplate.Triggers>
@@ -623,13 +624,13 @@
                                         </Button>
                                     </StackPanel>
 
-                                    <Border Grid.ColumnSpan="6" BorderThickness="0,0,0,1" BorderBrush="#F1F3F4" VerticalAlignment="Bottom"/>
+                                    <Border Grid.ColumnSpan="6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ThemeBorder}" VerticalAlignment="Bottom"/>
                                 </Grid>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
 
-                    <Border Grid.Row="3" Background="White" Height="40" BorderThickness="0,1,0,0" BorderBrush="#F1F3F4">
+                    <Border Grid.Row="3" Background="{DynamicResource ThemeBackground}" Height="40" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ThemeBorder}">
                         <!-- Pagination -->
                         <StackPanel x:Name="PanelPagination" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                             <!-- Populated from code-behind -->
@@ -643,13 +644,13 @@
                     <GridSplitter.Template>
                         <ControlTemplate TargetType="GridSplitter">
                             <Border Background="Transparent">
-                                <Border Background="#F1F3F4" Width="1" HorizontalAlignment="Center" Margin="2,0"/>
+                                <Border Background="{DynamicResource ThemeBorder}" Width="1" HorizontalAlignment="Center" Margin="2,0"/>
                             </Border>
                         </ControlTemplate>
                     </GridSplitter.Template>
                 </GridSplitter>
  
-                <Border Grid.Column="3" Background="#FBFCFD" BorderThickness="1,0,0,0" BorderBrush="#F0F0F0">
+                <Border Grid.Column="3" Background="{DynamicResource ThemeBackground}" BorderThickness="1,0,0,0" BorderBrush="{DynamicResource ThemeBorder}">
                     <Grid x:Name="PreviewGrid" Margin="20,10,20,5" Visibility="Collapsed">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/> <!-- Title & App -->
@@ -659,12 +660,12 @@
                         </Grid.RowDefinitions>
 
                         <StackPanel Grid.Row="0" Margin="0,0,0,10">
-                            <TextBlock x:Name="TxtPreviewTitle" Text="제목" FontSize="22" FontWeight="Bold" Foreground="#202124" TextWrapping="Wrap"/>
-                            <TextBlock x:Name="TxtPreviewApp" Text="Source App" FontSize="13" Foreground="#80868B" Margin="0,5,0,0"/>
+                            <TextBlock x:Name="TxtPreviewTitle" Text="제목" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" TextWrapping="Wrap"/>
+                            <TextBlock x:Name="TxtPreviewApp" Text="Source App" FontSize="13" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" Margin="0,5,0,0"/>
                         </StackPanel>
 
                         <StackPanel Grid.Row="1" Margin="0,0,0,15">
-                            <TextBlock x:Name="TxtPreviewDate" Text="2023-01-01 12:00" FontSize="12" Foreground="#9AA0A6"/>
+                            <TextBlock x:Name="TxtPreviewDate" Text="2023-01-01 12:00" FontSize="12" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5"/>
                             <ItemsControl x:Name="PreviewTags" Margin="0,10,0,0">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
@@ -673,10 +674,10 @@
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border Background="#F1F3F4" CornerRadius="12" Padding="10,4" Margin="0,0,8,8">
+                                        <Border Background="{DynamicResource ThemeSidebarButtonBackground}" CornerRadius="12" Padding="10,4" Margin="0,0,8,8">
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="#" Foreground="#9AA0A6" Margin="0,0,2,0" FontSize="12"/>
-                                                <TextBlock Text="{Binding}" Foreground="#5F6368" FontSize="12"/>
+                                                <TextBlock Text="#" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" Margin="0,0,2,0" FontSize="12"/>
+                                                <TextBlock Text="{Binding}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" FontSize="12"/>
                                             </StackPanel>
                                         </Border>
                                     </DataTemplate>
@@ -688,14 +689,14 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal" Margin="0,3">
-                                            <TextBlock Text="📎" Foreground="#5F6368" Margin="0,0,8,0" FontSize="12"/>
+                                            <TextBlock Text="📎" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" Margin="0,0,8,0" FontSize="12"/>
                                             <TextBlock Text="{Binding OriginalName}" Foreground="#1A73E8" FontSize="12" TextDecorations="Underline" Cursor="Hand" MouseLeftButtonDown="Attachment_Click"/>
                                         </StackPanel>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
 
-                            <Separator Background="#F0F0F0" Margin="0,5,0,0"/>
+                            <Separator Background="{DynamicResource ThemeBorder}" Margin="0,5,0,0"/>
                         </StackPanel>
 
                         <FlowDocumentScrollViewer x:Name="PreviewViewer" Grid.Row="2" 
@@ -714,10 +715,10 @@
                                      Cursor="Hand">
                                 <Button.Template>
                                     <ControlTemplate TargetType="Button">
-                                        <Border x:Name="brd" Background="#1A73E8" CornerRadius="20" Padding="25,10">
+                                        <Border x:Name="brd" Background="{DynamicResource ThemeSidebarButtonPressedBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="20" Padding="25,10">
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="✎" Foreground="White" Margin="0,0,8,0" VerticalAlignment="Center" FontSize="14"/>
-                                                <TextBlock Text="수정하기" Foreground="White" FontWeight="Bold" VerticalAlignment="Center" FontSize="14"/>
+                                                <TextBlock Text="✎" Foreground="{DynamicResource ThemeForeground}" Margin="0,0,8,0" VerticalAlignment="Center" FontSize="14"/>
+                                                <TextBlock Text="수정하기" Foreground="{DynamicResource ThemeForeground}" FontWeight="Bold" VerticalAlignment="Center" FontSize="14"/>
                                             </StackPanel>
                                         </Border>
                                         <ControlTemplate.Triggers>
@@ -734,13 +735,13 @@
             </Grid>
             
             <!-- Bottom Tip Bar -->
-            <Border Grid.Row="2" Background="#F1F3F4" BorderThickness="0,1,0,0" BorderBrush="#E0E0E0" Height="40" Padding="30,0">
+            <Border Grid.Row="2" Background="{DynamicResource ThemeSidebarButtonBackground}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ThemeBorder}" Height="40" Padding="30,0">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Border Background="#8E2DE2" CornerRadius="4" Padding="6,2" Margin="0,0,12,0">
                         <TextBlock Text="TIP" Foreground="White" FontSize="10" FontWeight="Bold"/>
                     </Border>
                     <TextBlock x:Name="TxtRollingTip" Text="비밀번호 설정으로 내 노트를 안전하게 보호하세요." 
-                               Foreground="#5F6368" FontSize="12" VerticalAlignment="Center">
+                               Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" FontSize="12" VerticalAlignment="Center">
                         <TextBlock.Triggers>
                             <EventTrigger RoutedEvent="TextBlock.Loaded">
                                 <BeginStoryboard>
