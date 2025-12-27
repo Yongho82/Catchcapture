@@ -310,6 +310,48 @@
                                         <TextBlock x:Name="TxtCountDefault" Text="(0)" Margin="5,0,0,0" Foreground="#E74C3C" Opacity="0.7" FontSize="12" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
+
+                                <!-- Group Note Section -->
+                                <Grid Margin="15,10,5,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Grid.Column="0" Click="BtnToggleCategories_Click" Style="{StaticResource TextButtonStyle}" Padding="0" Margin="0,0,8,0">
+                                        <TextBlock x:Name="TxtExpandArrow" Text=">" FontSize="14" Foreground="#5F6368" VerticalAlignment="Center"/>
+                                    </Button>
+                                    <TextBlock Grid.Column="1" Text="그룹 노트" Foreground="#5F6368" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Cursor="Hand" MouseLeftButtonDown="BtnToggleCategories_Click"/>
+                                    <Button Grid.Column="2" x:Name="BtnAddCategory" Click="BtnAddCategory_Click" Style="{StaticResource TextButtonStyle}" Padding="4" Margin="0,0,4,0">
+                                        <TextBlock Text="+" FontSize="16" Foreground="#5F6368"/>
+                                    </Button>
+                                    <Button Grid.Column="3" x:Name="BtnSortCategories" Click="BtnSortCategories_Click" Style="{StaticResource TextButtonStyle}" Padding="4">
+                                        <TextBlock Text="≡↓" FontSize="12" Foreground="#5F6368" VerticalAlignment="Center"/>
+                                        <Button.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="최신순" Click="BtnSort_Click" Tag="UpdatedAt DESC"/>
+                                                <MenuItem Header="이름순" Click="BtnSort_Click" Tag="Title ASC"/>
+                                            </ContextMenu>
+                                        </Button.ContextMenu>
+                                    </Button>
+                                </Grid>
+
+                                <Border x:Name="BrdCategories" Visibility="Collapsed">
+                                    <ItemsControl x:Name="ItemsCategories" Margin="10,0,5,0">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Button Click="BtnCategory_Click" Tag="{Binding Id}" Style="{StaticResource SidebarItemStyle}" Margin="0,0,0,2">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="�" Margin="0,0,10,0" FontSize="14" VerticalAlignment="Center" Opacity="0.6"/>
+                                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" MaxWidth="120" TextTrimming="CharacterEllipsis"/>
+                                                        <TextBlock Text="{Binding CountText}" Margin="5,0,0,0" Foreground="#80868B" FontSize="11" VerticalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Border>
                                 <Button Click="BtnFilter_Click" Tag="Today" Style="{StaticResource SidebarItemStyle}">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="📅" Margin="0,0,12,0" FontSize="16" VerticalAlignment="Center"/>
@@ -326,45 +368,13 @@
                                 </Button>
                                 <Button Click="BtnFilter_Click" Tag="Trash" Style="{StaticResource SidebarItemStyle}">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Text="🚮" Margin="0,0,12,0" FontSize="16" VerticalAlignment="Center"/>
+                                        <TextBlock Text="�" Margin="0,0,12,0" FontSize="16" VerticalAlignment="Center"/>
                                         <TextBlock Text="휴지통" VerticalAlignment="Center"/>
                                         <TextBlock x:Name="TxtCountTrash" Text="(0)" Margin="5,0,0,0" Foreground="#80868B" FontSize="12" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                                 
                                 <Separator Background="#E0E0E0" Margin="10,15"/>
-
-                                <!-- Group Memo Section -->
-                                <Grid Margin="15,0,5,10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="⌵" FontSize="16" Foreground="#5F6368" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                    <TextBlock Grid.Column="1" Text="그룹 메모" Foreground="#5F6368" FontSize="12" FontWeight="Bold" VerticalAlignment="Center"/>
-                                    <Button Grid.Column="2" Click="BtnAddCategory_Click" Style="{StaticResource TextButtonStyle}" Padding="4" Margin="0,0,4,0">
-                                        <TextBlock Text="+" FontSize="16" Foreground="#5F6368"/>
-                                    </Button>
-                                    <Button Grid.Column="3" Click="BtnManageCategories_Click" Style="{StaticResource TextButtonStyle}" Padding="4">
-                                        <TextBlock Text="≡↓" FontSize="12" Foreground="#5F6368" VerticalAlignment="Center"/>
-                                    </Button>
-                                </Grid>
-
-                                <ItemsControl x:Name="ItemsCategories" Margin="10,0,5,0">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Button Click="BtnCategory_Click" Tag="{Binding Id}" Style="{StaticResource SidebarItemStyle}" Margin="0,0,0,2">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="📂" Margin="0,0,10,0" FontSize="14" VerticalAlignment="Center" Opacity="0.6"/>
-                                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" MaxWidth="120" TextTrimming="CharacterEllipsis"/>
-                                                    <TextBlock Text="{Binding CountText}" Margin="5,0,0,0" Foreground="#80868B" FontSize="11" VerticalAlignment="Center"/>
-                                                </StackPanel>
-                                            </Button>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
                                 
                                 <TextBlock Text="태그" Foreground="#9AA0A6" FontSize="11" FontWeight="Bold" Margin="15,0,0,10"/>
                                 <ItemsControl x:Name="ItemsTags" Margin="10,0">

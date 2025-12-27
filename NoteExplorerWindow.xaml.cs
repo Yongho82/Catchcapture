@@ -22,6 +22,7 @@ namespace CatchCapture
         private string? _currentSearch = "";
         private int _currentPage = 1;
         private const int PAGE_SIZE = 17;
+        private string _currentSortOrder = "n.UpdatedAt DESC";
 
         private System.Windows.Threading.DispatcherTimer? _tipTimer;
         private int _currentTipIndex = 0;
@@ -279,7 +280,7 @@ namespace CatchCapture
                         LEFT JOIN Categories c ON n.CategoryId = c.Id
                         {joinSql}
                         {whereClause}
-                        ORDER BY n.UpdatedAt DESC
+                        ORDER BY {_currentSortOrder}
                         LIMIT $limit OFFSET $offset";
 
                     using (var command = new SqliteCommand(sql, connection))
@@ -806,20 +807,44 @@ namespace CatchCapture
             }
         }
 
+        private void BtnToggleCategories_Click(object sender, RoutedEventArgs e)
+        {
+            if (BrdCategories.Visibility == Visibility.Visible)
+            {
+                BrdCategories.Visibility = Visibility.Collapsed;
+                TxtExpandArrow.Text = ">";
+            }
+            else
+            {
+                BrdCategories.Visibility = Visibility.Visible;
+                TxtExpandArrow.Text = "⌵";
+            }
+        }
+
         private void BtnAddCategory_Click(object sender, RoutedEventArgs e)
         {
-            var win = new SettingsWindow();
-            win.ShowNoteSettings();
+            var win = new CategoryManagementWindow();
+            win.Owner = this;
             win.ShowDialog();
             UpdateSidebarCounts();
         }
 
-        private void BtnManageCategories_Click(object sender, RoutedEventArgs e)
+        private void BtnSortCategories_Click(object sender, RoutedEventArgs e)
         {
-            var win = new SettingsWindow();
-            win.ShowNoteSettings();
-            win.ShowDialog();
-            UpdateSidebarCounts();
+            if (BtnSortCategories.ContextMenu != null)
+            {
+                BtnSortCategories.ContextMenu.PlacementTarget = BtnSortCategories;
+                BtnSortCategories.ContextMenu.IsOpen = true;
+            }
+        }
+
+        private void BtnSort_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuItem item && item.Tag is string sort)
+            {
+                _currentSortOrder = sort;
+                LoadNotes(_currentFilter, _currentTag, _currentSearch, 1);
+            }
         }
 
         private void BtnCategory_Click(object sender, RoutedEventArgs e)
