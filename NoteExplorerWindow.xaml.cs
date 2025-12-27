@@ -115,10 +115,63 @@ namespace CatchCapture
             catch { }
         }
 
+        private void BtnMinimize_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
+
+        private void BtnMaximize_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.WindowState == WindowState.Maximized)
+            {
+                this.WindowState = WindowState.Normal;
+                PathMaximize.Data = Geometry.Parse("M4,4H20V20H4V4M6,8V18H18V8H6Z");
+            }
+            else
+            {
+                this.WindowState = WindowState.Maximized;
+                PathMaximize.Data = Geometry.Parse("M4,8H8V4H20V16H16V20H4V8M16,8V14H18V6H10V8H16M6,12V18H14V12H6Z");
+            }
+        }
+
+        private void NoteExplorerWindow_StateChanged(object? sender, EventArgs e)
+        {
+            if (this.WindowState == WindowState.Maximized)
+            {
+                // Give more space to preview when maximized
+                if (ColNoteList != null) ColNoteList.Width = new GridLength(1, GridUnitType.Star);
+                if (ColPreview != null) ColPreview.Width = new GridLength(2, GridUnitType.Star);
+                
+                if (PathMaximize != null)
+                    PathMaximize.Data = Geometry.Parse("M4,8H8V4H20V16H16V20H4V8M16,8V14H18V6H10V8H16M6,12V18H14V12H6Z");
+            }
+            else
+            {
+                // Default ratios for normal window
+                if (ColNoteList != null) ColNoteList.Width = new GridLength(2, GridUnitType.Star);
+                if (ColPreview != null) ColPreview.Width = new GridLength(1.2, GridUnitType.Star);
+                
+                if (PathMaximize != null)
+                    PathMaximize.Data = Geometry.Parse("M4,4H20V20H4V4M6,8V18H18V8H6Z");
+            }
+        }
+
         private void BtnClose_Click(object sender, RoutedEventArgs e)
         {
             _tipTimer?.Stop();
             this.Close();
+        }
+
+        private void BtnNoteSettings_Click(object sender, RoutedEventArgs e)
+        {
+            var settingsWin = new SettingsWindow();
+            settingsWin.Owner = this;
+            settingsWin.ShowNoteSettings();
+            if (settingsWin.ShowDialog() == true)
+            {
+                // Settings might have changed (e.g. storage path), refresh if needed
+                LoadNotes();
+            }
         }
 
         private void InitializeTipTimer()
@@ -196,13 +249,13 @@ namespace CatchCapture
                     }
 
                     string sql = $@"
-                        SELECT n.Id, n.Title, n.Content, n.CreatedAt, n.SourceApp, n.ContentXaml,
-                               c.Name as CategoryName, c.Color as CategoryColor
+                        SELECT n.Id, n.Title, n.Content, datetime(n.CreatedAt, 'localtime'), n.SourceApp, n.ContentXaml,
+                               c.Name as CategoryName, c.Color as CategoryColor, datetime(n.UpdatedAt, 'localtime')
                         FROM Notes n
                         LEFT JOIN Categories c ON n.CategoryId = c.Id
                         {joinSql}
                         {whereClause}
-                        ORDER BY n.CreatedAt DESC
+                        ORDER BY n.UpdatedAt DESC
                         LIMIT $limit OFFSET $offset";
 
                     using (var command = new SqliteCommand(sql, connection))
@@ -226,7 +279,8 @@ namespace CatchCapture
                                     SourceApp = reader.IsDBNull(4) ? "" : reader.GetString(4),
                                     ContentXaml = reader.IsDBNull(5) ? null : reader.GetString(5),
                                     CategoryName = reader.IsDBNull(6) ? "기본" : reader.GetString(6),
-                                    CategoryColor = reader.IsDBNull(7) ? "#8E2DE2" : reader.GetString(7)
+                                    CategoryColor = reader.IsDBNull(7) ? "#8E2DE2" : reader.GetString(7),
+                                    UpdatedAt = reader.GetDateTime(8)
                                 };
 
                                 note.Images = GetNoteImages(noteId, imgDir);
@@ -419,9 +473,11 @@ namespace CatchCapture
                         flowDocument.FontFamily = new FontFamily("Malgun Gothic, Segoe UI");
                         flowDocument.FontSize = 15;
                         
-                        // Small optimization: Images in preview should be uniformly stretched
+                        // Compact preview layout
                         foreach (var block in flowDocument.Blocks)
                         {
+                            block.Margin = new Thickness(0, 2, 0, 2);
+                            
                             if (block is BlockUIContainer container && container.Child is Grid g)
                             {
                                 var img = g.Children.OfType<Image>().FirstOrDefault();
@@ -433,7 +489,7 @@ namespace CatchCapture
                                    {
                                        string? path = null;
                                        if (img.Source is BitmapImage bi && bi.UriSource != null) path = bi.UriSource.LocalPath;
-
+ 
                                        if (!string.IsNullOrEmpty(path) && File.Exists(path))
                                        {
                                            try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true }); } catch { }
@@ -742,7 +798,10 @@ namespace CatchCapture
         public string? PreviewContent { get => _previewContent; set { _previewContent = value; OnPropertyChanged(nameof(PreviewContent)); OnPropertyChanged(nameof(TruncatedContent)); } }
 
         private DateTime _createdAt;
-        public DateTime CreatedAt { get => _createdAt; set { _createdAt = value; OnPropertyChanged(nameof(CreatedAt)); OnPropertyChanged(nameof(FormattedDate)); } }
+        public DateTime CreatedAt { get => _createdAt; set { _createdAt = value; OnPropertyChanged(nameof(CreatedAt)); } }
+
+        private DateTime _updatedAt;
+        public DateTime UpdatedAt { get => _updatedAt; set { _updatedAt = value; OnPropertyChanged(nameof(UpdatedAt)); OnPropertyChanged(nameof(FormattedDate)); } }
 
         private string? _sourceApp;
         public string? SourceApp { get => _sourceApp; set { _sourceApp = value; OnPropertyChanged(nameof(SourceApp)); } }
@@ -794,6 +853,6 @@ namespace CatchCapture
             }
         }
 
-        public string FormattedDate => CreatedAt.ToString("yyyy-MM-dd HH:mm");
+        public string FormattedDate => UpdatedAt.ToString("yyyy-MM-dd HH:mm");
     }
 }

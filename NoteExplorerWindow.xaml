@@ -4,9 +4,15 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="내 노트 탐색기" Height="850" Width="1400"
-        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen" ResizeMode="CanResize"
+        MinHeight="600" MinWidth="1100"
+        StateChanged="NoteExplorerWindow_StateChanged">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="60" 
+                      ResizeBorderThickness="8" 
+                      CornerRadius="12" 
+                      GlassFrameThickness="0" />
+    </WindowChrome.WindowChrome>
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         
@@ -239,8 +245,21 @@
                             </Button.Template>
                         </Button>
                         
+                        <Button x:Name="BtnMinimize" Width="36" Height="36" Click="BtnMinimize_Click" 
+                                Background="Transparent" BorderThickness="0" Cursor="Hand" Margin="0,0,4,0"
+                                WindowChrome.IsHitTestVisibleInChrome="True">
+                            <Path Data="M20,14H4V10H20V14Z" Fill="#95A5A6" Stretch="Uniform" Width="14" Height="14"/>
+                        </Button>
+
+                        <Button x:Name="BtnMaximize" Width="36" Height="36" Click="BtnMaximize_Click" 
+                                Background="Transparent" BorderThickness="0" Cursor="Hand" Margin="0,0,4,0"
+                                WindowChrome.IsHitTestVisibleInChrome="True">
+                            <Path x:Name="PathMaximize" Data="M4,4H20V20H4V4M6,8V18H18V8H6Z" Fill="#95A5A6" Stretch="Uniform" Width="14" Height="14"/>
+                        </Button>
+
                         <Button x:Name="BtnClose" Width="36" Height="36" Click="BtnClose_Click" 
-                                Background="Transparent" BorderThickness="0" Cursor="Hand">
+                                Background="Transparent" BorderThickness="0" Cursor="Hand"
+                                WindowChrome.IsHitTestVisibleInChrome="True">
                             <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" 
                                   Fill="#95A5A6" Stretch="Uniform" Width="16" Height="16"/>
                         </Button>
@@ -252,9 +271,9 @@
 
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="220"/> <!-- Reduced Sidebar Width -->
-                    <ColumnDefinition Width="*"/>   <!-- Note List -->
-                    <ColumnDefinition Width="400"/> <!-- Preview -->
+                    <ColumnDefinition Width="220"/> 
+                    <ColumnDefinition x:Name="ColNoteList" Width="2*"/>   <!-- Proportional ratio -->
+                    <ColumnDefinition x:Name="ColPreview" Width="1.2*"/> <!-- Proportional ratio -->
                 </Grid.ColumnDefinitions>
 
                 <!-- Sidebar -->
@@ -319,6 +338,16 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
+
+                            <!-- Sidebar Bottom Settings -->
+                            <Border Margin="0,30,0,20">
+                                <Button x:Name="BtnNoteSettings" Click="BtnNoteSettings_Click" Style="{StaticResource SidebarItemStyle}" Padding="15,10">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="icons/setting.png" Width="18" Height="18" Margin="0,0,12,0" VerticalAlignment="Center" Opacity="0.7"/>
+                                        <TextBlock Text="노트 설정" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                </Button>
+                            </Border>
                         </StackPanel>
                     </ScrollViewer>
                 </Border>
@@ -497,7 +526,7 @@
                 </Grid>
 
                 <Border Grid.Column="2" Background="#FBFCFD" BorderThickness="1,0,0,0" BorderBrush="#F0F0F0">
-                    <Grid x:Name="PreviewGrid" Margin="20,15" Visibility="Collapsed">
+                    <Grid x:Name="PreviewGrid" Margin="20,10,20,5" Visibility="Collapsed">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/> <!-- Title & App -->
                             <RowDefinition Height="Auto"/> <!-- Date & Tags -->

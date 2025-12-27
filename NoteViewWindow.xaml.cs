@@ -70,7 +70,7 @@ namespace CatchCapture
                     connection.Open();
                     
                     // 1. Load basic note data
-                    string sql = "SELECT Title, Content, ContentXaml, CreatedAt, SourceApp, SourceUrl, CategoryId FROM Notes WHERE Id = $id";
+                    string sql = "SELECT Title, Content, ContentXaml, datetime(UpdatedAt, 'localtime'), SourceApp, SourceUrl, CategoryId FROM Notes WHERE Id = $id";
                     using (var command = new SqliteCommand(sql, connection))
                     {
                         command.Parameters.AddWithValue("$id", _noteId);
@@ -81,8 +81,8 @@ namespace CatchCapture
                                 TxtTitle.Text = reader.IsDBNull(0) ? "" : reader.GetString(0);
                                 string content = reader.IsDBNull(1) ? "" : reader.GetString(1);
                                 string contentXaml = reader.IsDBNull(2) ? "" : reader.GetString(2); 
-                                DateTime createdAt = reader.GetDateTime(3);
-                                TxtDate.Text = createdAt.ToString("yyyy-MM-dd HH:mm");
+                                DateTime modifiedAt = reader.GetDateTime(3);
+                                TxtDate.Text = modifiedAt.ToString("yyyy-MM-dd HH:mm");
                                 
                                 string sourceApp = reader.IsDBNull(4) ? "" : reader.GetString(4);
                                 string sourceUrl = reader.IsDBNull(5) ? "" : reader.GetString(5);
@@ -104,6 +104,11 @@ namespace CatchCapture
                                     {
                                         var flowDocument = (FlowDocument)System.Windows.Markup.XamlReader.Parse(contentXaml);
                                         flowDocument.PagePadding = new Thickness(0);
+                                        // Compact layout
+                                        foreach (var block in flowDocument.Blocks)
+                                        {
+                                            block.Margin = new Thickness(0, 2, 0, 2);
+                                        }
                                         ContentViewer.Document = flowDocument;
                                         HookImageClicks(); // Re-hook for XAML
                                         xamlLoaded = true;
@@ -237,7 +242,7 @@ namespace CatchCapture
             try
             {
                 var bitmap = new BitmapImage(new Uri(path));
-                var image = new Image { Source = bitmap, MaxWidth = 800, Margin = new Thickness(0, 10, 0, 10), Cursor = Cursors.Hand, Tag = path };
+                var image = new Image { Source = bitmap, MaxWidth = 800, Margin = new Thickness(0, 2, 0, 2), Cursor = Cursors.Hand, Tag = path };
                 image.PreviewMouseLeftButtonDown += (s, e) =>
                 {
                     try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true }); } catch { }

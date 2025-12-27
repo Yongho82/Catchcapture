@@ -60,6 +60,11 @@ namespace CatchCapture
             }
         }
 
+        public void ShowNoteSettings()
+        {
+            HighlightNav(NavNote, "Note");
+        }
+
         private void OnLanguageChanged(object? sender, EventArgs e)
         {
             // 모든 텍스트 갱신
