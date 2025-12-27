@@ -49,13 +49,30 @@ namespace CatchCapture
             if (!string.IsNullOrEmpty(_sourceUrl)) sourceDisplayName += $" - {_sourceUrl}";
             TxtSourceInfo.Text = sourceDisplayName;
 
-            // If file path is provided, add as attachment
+            // If file path is provided, check if it's a media file
             if (!string.IsNullOrEmpty(attachFilePath) && File.Exists(attachFilePath))
             {
-                AddAttachment(attachFilePath);
+                string ext = Path.GetExtension(attachFilePath).ToLower();
+                if (ext == ".mp4" || ext == ".mp3" || ext == ".gif")
+                {
+                    // 미디어 파일은 에디터에 직접 삽입 (Loaded 이벤트에서 처리)
+                    this.Loaded += (s, e) =>
+                    {
+                        Editor.InsertMediaFile(attachFilePath, _capturedImage);
+                        Editor.Focus();
+                    };
+                }
+                else
+                {
+                    // 일반 파일은 첨부파일로 추가
+                    AddAttachment(attachFilePath);
+                }
+            }
+            else
+            {
+                this.Loaded += NoteInputWindow_Loaded;
             }
             
-            this.Loaded += NoteInputWindow_Loaded;
             this.MouseDown += (s, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
         }
 

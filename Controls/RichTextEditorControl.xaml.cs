@@ -12,6 +12,7 @@ using CatchCapture.Utilities;
 using System.Windows.Input;
 using System.Windows.Data;
 using System.Text.RegularExpressions;
+using System.Windows.Shapes;
 
 namespace CatchCapture.Controls
 {
@@ -600,6 +601,153 @@ namespace CatchCapture.Controls
             }
         }
 
+        public void InsertMediaFile(string filePath, BitmapSource? thumbnail = null)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath))
+                {
+                    CatchCapture.CustomMessageBox.Show("파일을 찾을 수 없습니다.", "오류");
+                    return;
+                }
+
+                // 파일 확장자 확인
+                string ext = System.IO.Path.GetExtension(filePath).ToLower();
+                bool isAudio = ext == ".mp3";
+                
+                // 컨테이너 Grid 생성
+                var grid = new Grid
+                {
+                    Width = 300,
+                    Height = 200,
+                    Background = Brushes.Black,
+                    Cursor = Cursors.Hand,
+                    Tag = filePath // 파일 경로 저장
+                };
+
+                if (isAudio)
+                {
+                    // 오디오 파일 - 스피커 아이콘 표시
+                    var speakerIcon = new TextBlock
+                    {
+                        Text = "🔊",
+                        FontSize = 60,
+                        Foreground = Brushes.White,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        VerticalAlignment = VerticalAlignment.Center
+                    };
+                    grid.Children.Add(speakerIcon);
+                }
+                else if (thumbnail != null)
+                {
+                    // 동영상 썸네일 표시
+                    var image = new System.Windows.Controls.Image
+                    {
+                        Source = thumbnail,
+                        Stretch = Stretch.UniformToFill
+                    };
+                    grid.Children.Add(image);
+
+                    // 재생 버튼 오버레이
+                    var playButtonBg = new System.Windows.Shapes.Ellipse
+                    {
+                        Width = 50,
+                        Height = 50,
+                        Fill = new SolidColorBrush(Color.FromArgb(180, 0, 0, 0)),
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        VerticalAlignment = VerticalAlignment.Center
+                    };
+                    grid.Children.Add(playButtonBg);
+
+                    var playIcon = new TextBlock
+                    {
+                        Text = "▶",
+                        FontSize = 24,
+                        Foreground = Brushes.White,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Margin = new Thickness(3, 0, 0, 0)
+                    };
+                    grid.Children.Add(playIcon);
+                }
+
+                // 포맷 레이블 (우측 상단)
+                var formatLabel = new Border
+                {
+                    Background = new SolidColorBrush(Color.FromArgb(200, 67, 97, 238)),
+                    CornerRadius = new CornerRadius(3),
+                    Padding = new Thickness(6, 2, 6, 2),
+                    HorizontalAlignment = HorizontalAlignment.Right,
+                    VerticalAlignment = VerticalAlignment.Top,
+                    Margin = new Thickness(0, 8, 8, 0)
+                };
+                var formatText = new TextBlock
+                {
+                    Text = ext.ToUpper().Replace(".", ""),
+                    FontSize = 11,
+                    FontWeight = FontWeights.Bold,
+                    Foreground = Brushes.White
+                };
+                formatLabel.Child = formatText;
+                grid.Children.Add(formatLabel);
+
+                // 더블클릭 이벤트 - 윈도우 기본 프로그램으로 열기
+                grid.MouseLeftButtonDown += (s, e) =>
+                {
+                    if (e.ClickCount == 2)
+                    {
+                        try
+                        {
+                            var path = grid.Tag as string;
+                            if (!string.IsNullOrEmpty(path) && System.IO.File.Exists(path))
+                            {
+                                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                                {
+                                    FileName = path,
+                                    UseShellExecute = true
+                                });
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            CatchCapture.CustomMessageBox.Show($"파일 열기 실패: {ex.Message}", "오류");
+                        }
+                        e.Handled = true;
+                    }
+                };
+
+                // Border로 감싸기 (테두리 제거)
+                var border = new Border
+                {
+                    Child = grid,
+                    BorderThickness = new Thickness(0),
+                    Margin = new Thickness(0, 5, 0, 5),
+                    HorizontalAlignment = HorizontalAlignment.Left
+                };
+
+                // BlockUIContainer에 추가
+                var container = new BlockUIContainer(border);
+                
+                // 현재 커서 위치에 삽입
+                var caretPosition = RtbEditor.CaretPosition;
+                
+                // BlockUIContainer를 Document에 직접 추가
+                RtbEditor.Document.Blocks.Add(container);
+                
+                // 미디어 다음에 빈 단락 추가하여 커서 위치 확보
+                var nextParagraph = new Paragraph();
+                RtbEditor.Document.Blocks.Add(nextParagraph);
+                
+                // 커서를 다음 단락의 시작으로 이동
+                RtbEditor.CaretPosition = nextParagraph.ContentStart;
+                RtbEditor.Focus();
+            }
+            catch (Exception ex)
+            {
+                CatchCapture.CustomMessageBox.Show($"미디어 파일을 삽입할 수 없습니다: {ex.Message}", "오류");
+            }
+        }
+
         public void InitializeWithImage(ImageSource imageSource)
         {
             // Clear existing content using selection (preserves Undo capability)
@@ -774,7 +922,7 @@ namespace CatchCapture.Controls
             string imgDir = DatabaseManager.Instance.GetImageFolderPath();
             for (int i = 0; i < allImages.Count && i < relativePaths.Count; i++)
             {
-                string fullPath = Path.Combine(imgDir, relativePaths[i]);
+                string fullPath = System.IO.Path.Combine(imgDir, relativePaths[i]);
                 if (File.Exists(fullPath))
                 {
                     try
