@@ -11,6 +11,7 @@ using System.IO;
 using CatchCapture.Utilities;
 using System.Windows.Input;
 using System.Windows.Data;
+using System.Text.RegularExpressions;
 
 namespace CatchCapture.Controls
 {
@@ -293,33 +294,70 @@ namespace CatchCapture.Controls
             sliderPanel.Children.Add(sliderLabel);
             sliderPanel.Children.Add(slider);
             sliderPanel.Children.Add(sizeText);
-            // sliderBorder already added to mainGrid at line 187
             
             var container = new BlockUIContainer(mainGrid);
-            
             HookImageEvents(image, sliderBorder, container);
             
-            // Wrap in Undo unit
             RtbEditor.BeginChange();
             try
             {
-                RtbEditor.Document.Blocks.Add(container);
-                
-                // Add a new empty paragraph after the image with proper spacing
-                var newPara = new Paragraph
-                {
-                    Margin = new Thickness(0),
-                    LineHeight = 1.5  // Default line height
-                };
-                RtbEditor.Document.Blocks.Add(newPara);
+                InsertBlockAtCaret(container);
             }
             finally
             {
                 RtbEditor.EndChange();
             }
 
-            RtbEditor.ScrollToEnd();
-            RtbEditor.Focus(); // Set focus back to editor
+            RtbEditor.Focus();
+        }
+
+        private void InsertBlockAtCaret(Block block)
+        {
+            var curPos = RtbEditor.CaretPosition.GetInsertionPosition(LogicalDirection.Forward);
+            var p = curPos.Paragraph;
+
+            if (p != null)
+            {
+                // 중간에 있으면 문단 나누기
+                if (curPos.CompareTo(p.ContentStart) != 0 && curPos.CompareTo(p.ContentEnd) != 0)
+                {
+                    TextPointer next = curPos.InsertParagraphBreak();
+                    if (next.Paragraph != null)
+                        RtbEditor.Document.Blocks.InsertBefore(next.Paragraph, block);
+                    else
+                        RtbEditor.Document.Blocks.Add(block);
+                    
+                    RtbEditor.CaretPosition = next;
+                }
+                else if (curPos.CompareTo(p.ContentStart) == 0)
+                {
+                    RtbEditor.Document.Blocks.InsertBefore(p, block);
+                    // 이미지가 맨 앞이면 에디터 포커싱 유지를 위해 커서 조정
+                    RtbEditor.CaretPosition = block.ElementEnd.GetNextInsertionPosition(LogicalDirection.Forward) ?? block.ElementEnd;
+                }
+                else
+                {
+                    RtbEditor.Document.Blocks.InsertAfter(p, block);
+                    // 이미지 뒤에 빈 문단이 없으면 추가
+                    if (block.NextBlock == null)
+                    {
+                        var newPara = new Paragraph { Margin = new Thickness(0), LineHeight = 1.5 };
+                        RtbEditor.Document.Blocks.InsertAfter(block, newPara);
+                        RtbEditor.CaretPosition = newPara.ContentStart;
+                    }
+                    else
+                    {
+                        RtbEditor.CaretPosition = block.ElementEnd.GetNextInsertionPosition(LogicalDirection.Forward) ?? block.ElementEnd;
+                    }
+                }
+            }
+            else
+            {
+                RtbEditor.Document.Blocks.Add(block);
+                var newPara = new Paragraph { Margin = new Thickness(0), LineHeight = 1.5 };
+                RtbEditor.Document.Blocks.Add(newPara);
+                RtbEditor.CaretPosition = newPara.ContentStart;
+            }
         }
 
         private void RtbEditor_Loaded(object sender, RoutedEventArgs e)
@@ -621,6 +659,80 @@ namespace CatchCapture.Controls
                     }
                     e.CancelCommand();
                 }
+            }
+            else if (e.DataObject.GetDataPresent(DataFormats.Html))
+            {
+                var html = e.DataObject.GetData(DataFormats.Html) as string;
+                if (!string.IsNullOrEmpty(html))
+                {
+                    // 이미지 태그가 있는지 확인
+                    var imgRegex = new Regex(@"(<img[^>]+>)", RegexOptions.IgnoreCase);
+                    if (imgRegex.IsMatch(html))
+                    {
+                        // 이미지와 텍스트가 섞여있으므로 직접 처리
+                        e.CancelCommand();
+
+                        // 1. Fragment만 추출 (선택적)
+                        int startIdx = html.IndexOf("<!--StartFragment-->");
+                        int endIdx = html.LastIndexOf("<!--EndFragment-->");
+                        string content = html;
+                        if (startIdx >= 0 && endIdx > startIdx)
+                        {
+                            content = html.Substring(startIdx + 20, endIdx - (startIdx + 20));
+                        }
+
+                        // 2. 이미지 태그를 기준으로 분할하여 순서대로 삽입
+                        var parts = imgRegex.Split(content);
+                        foreach (var part in parts)
+                        {
+                            if (string.IsNullOrEmpty(part)) continue;
+
+                            if (part.StartsWith("<img", StringComparison.OrdinalIgnoreCase))
+                            {
+                                // 이미지 주소 추출
+                                var srcMatch = Regex.Match(part, @"src=[""']([^""']+)[""']", RegexOptions.IgnoreCase);
+                                if (srcMatch.Success)
+                                {
+                                    string url = srcMatch.Groups[1].Value;
+                                    if (url.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        try
+                                        {
+                                            var bitmap = new BitmapImage();
+                                            bitmap.BeginInit();
+                                            bitmap.UriSource = new Uri(url);
+                                            bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                                            bitmap.EndInit();
+                                            InsertImage(bitmap);
+                                        }
+                                        catch { }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                // 텍스트 삽입
+                                InsertCleanText(part);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void InsertCleanText(string html)
+        {
+            if (string.IsNullOrEmpty(html)) return;
+
+            // HTML 태그 제거 및 구조 보존
+            string text = Regex.Replace(html, @"<(br|p|div|tr|h[1-6])[^>]*>", "\n", RegexOptions.IgnoreCase);
+            text = Regex.Replace(text, @"<[^>]+>", "");
+            text = System.Net.WebUtility.HtmlDecode(text).Trim('\r', '\n', ' ');
+
+            if (!string.IsNullOrEmpty(text))
+            {
+                // 현재 선택 영역에 텍스트 삽입 (RichTextBox의 Selection은 삽입 후 자동으로 뒤로 이동함)
+                RtbEditor.Selection.Text = text;
             }
         }
 
