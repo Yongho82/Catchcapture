@@ -124,7 +124,17 @@ namespace CatchCapture.Controls
             if (RtbEditor == null || CboFontFamily.SelectedItem == null) return;
             if (CboFontFamily.SelectedItem is FontFamily fontFamily)
             {
-                RtbEditor.Selection.ApplyPropertyValue(TextElement.FontFamilyProperty, fontFamily);
+                if (RtbEditor.Selection.IsEmpty)
+                {
+                    // No selection - insert a zero-width space Run with the new font to set caret formatting
+                    var run = new Run("\u200B", RtbEditor.CaretPosition);
+                    run.FontFamily = fontFamily;
+                    RtbEditor.CaretPosition = run.ContentEnd;
+                }
+                else
+                {
+                    RtbEditor.Selection.ApplyPropertyValue(TextElement.FontFamilyProperty, fontFamily);
+                }
                 RtbEditor.Focus();
             }
         }
@@ -137,7 +147,16 @@ namespace CatchCapture.Controls
             {
                 if (double.TryParse(item.Content.ToString(), out double size))
                 {
-                    RtbEditor.Selection.ApplyPropertyValue(TextElement.FontSizeProperty, size);
+                    if (RtbEditor.Selection.IsEmpty)
+                    {
+                        var run = new Run("\u200B", RtbEditor.CaretPosition);
+                        run.FontSize = size;
+                        RtbEditor.CaretPosition = run.ContentEnd;
+                    }
+                    else
+                    {
+                        RtbEditor.Selection.ApplyPropertyValue(TextElement.FontSizeProperty, size);
+                    }
                     RtbEditor.Focus();
                 }
             }
@@ -167,11 +186,29 @@ namespace CatchCapture.Controls
 
                 if (_isTextColorMode)
                 {
-                    RtbEditor.Selection.ApplyPropertyValue(TextElement.ForegroundProperty, brush);
+                    if (RtbEditor.Selection.IsEmpty)
+                    {
+                        var run = new Run("\u200B", RtbEditor.CaretPosition);
+                        run.Foreground = brush;
+                        RtbEditor.CaretPosition = run.ContentEnd;
+                    }
+                    else
+                    {
+                        RtbEditor.Selection.ApplyPropertyValue(TextElement.ForegroundProperty, brush);
+                    }
                 }
                 else
                 {
-                    RtbEditor.Selection.ApplyPropertyValue(TextElement.BackgroundProperty, brush);
+                    if (RtbEditor.Selection.IsEmpty)
+                    {
+                        var run = new Run("\u200B", RtbEditor.CaretPosition);
+                        run.Background = brush;
+                        RtbEditor.CaretPosition = run.ContentEnd;
+                    }
+                    else
+                    {
+                        RtbEditor.Selection.ApplyPropertyValue(TextElement.BackgroundProperty, brush);
+                    }
                 }
 
                 ColorPickerPopup.IsOpen = false;
