@@ -851,12 +851,12 @@ namespace CatchCapture
             if (BrdCategories.Visibility == Visibility.Visible)
             {
                 BrdCategories.Visibility = Visibility.Collapsed;
-                TxtGroupIcon.Text = "📁";
+                PathGroupIcon.Data = Geometry.Parse("M10,4H4C2.89,4,2,4.89,2,6v12c0,1.1,0.89,2,2,2h16c1.1,0,2-0.9,2-2V8c0-1.1-0.9-2-2-2h-8L10,4z");
             }
             else
             {
                 BrdCategories.Visibility = Visibility.Visible;
-                TxtGroupIcon.Text = "📂";
+                PathGroupIcon.Data = Geometry.Parse("M20,18v-8H4v8H20z M20,8h-8l-2-2H4C2.9,4,2,4.9,2,6v12c0,1.1,0.9,2,2,2h16c1.1,0,2-0.9,2-2V8z");
             }
         }
 

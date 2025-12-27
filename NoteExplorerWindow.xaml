@@ -302,15 +302,19 @@
                                 
                                 <Button x:Name="BtnFilterAll" Click="BtnFilter_Click" Tag="All" Style="{StaticResource SidebarItemStyle}">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Text="🏠" Margin="0,0,12,0" FontSize="16" VerticalAlignment="Center"/>
+                                        <Viewbox Width="18" Height="18" Margin="0,0,12,0">
+                                            <Path Data="M12,3L2,12h3v8h6v-6h2v6h6v-8h3L12,3z" Fill="#5F6368"/>
+                                        </Viewbox>
                                         <TextBlock Text="전체 노트" VerticalAlignment="Center"/>
                                         <TextBlock x:Name="TxtCountAll" Text="(0)" Margin="5,0,0,0" Foreground="#80868B" FontSize="12" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                                 <Button x:Name="BtnFilterDefault" Click="BtnFilter_Click" Tag="Default" Style="{StaticResource SidebarItemStyle}">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Text="📁" Margin="0,0,12,0" FontSize="16" VerticalAlignment="Center"/>
-                                        <TextBlock Text="기본 그룹" Foreground="#202124" VerticalAlignment="Center"/>
+                                        <Viewbox Width="18" Height="18" Margin="0,0,12,0">
+                                            <Path Data="M10,4H4C2.89,4,2,4.89,2,6v12c0,1.1,0.89,2,2,2h16c1.1,0,2-0.9,2-2V8c0-1.1-0.9-2-2-2h-8L10,4z" Fill="#5F6368"/>
+                                        </Viewbox>
+                                        <TextBlock Text="기본 그룹" VerticalAlignment="Center"/>
                                         <TextBlock x:Name="TxtCountDefault" Text="(0)" Margin="5,0,0,0" Foreground="#80868B" FontSize="12" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
@@ -319,17 +323,21 @@
                                 <Grid Margin="0,1">
                                     <Button x:Name="BtnToggleCategories" Click="BtnToggleCategories_Click" Style="{StaticResource SidebarItemStyle}" Padding="15,8">
                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                            <TextBlock x:Name="TxtGroupIcon" Text="�" Margin="0,0,12,0" FontSize="16" VerticalAlignment="Center"/>
-                                            <TextBlock Text="그룹 노트" Foreground="#202124" VerticalAlignment="Center"/>
+                                            <Viewbox Width="18" Height="18" Margin="0,0,12,0">
+                                                <Path x:Name="PathGroupIcon" Data="M10,4H4C2.89,4,2,4.89,2,6v12c0,1.1,0.89,2,2,2h16c1.1,0,2-0.9,2-2V8c0-1.1-0.9-2-2-2h-8L10,4z" Fill="#5F6368"/>
+                                            </Viewbox>
+                                            <TextBlock Text="그룹 노트" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                     
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,8,0">
-                                        <Button Click="BtnAddCategory_Click" Style="{StaticResource TextButtonStyle}" Padding="4" Margin="0,0,2,0">
-                                            <TextBlock Text="+" FontSize="16" Foreground="#5F6368"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,12,0">
+                                        <Button Click="BtnAddCategory_Click" Style="{StaticResource TextButtonStyle}" Padding="6,4">
+                                            <TextBlock Text="+" FontSize="18" Foreground="#5F6368"/>
                                         </Button>
-                                        <Button x:Name="BtnSortCategories" Click="BtnSortCategories_Click" Style="{StaticResource TextButtonStyle}" Padding="4">
-                                            <TextBlock Text="≡↓" FontSize="12" Foreground="#5F6368" VerticalAlignment="Center"/>
+                                        <Button x:Name="BtnSortCategories" Click="BtnSortCategories_Click" Style="{StaticResource TextButtonStyle}" Padding="6,4">
+                                            <Viewbox Width="12" Height="12">
+                                                <Path Data="M3,18h6v-2H3V18z M3,6v2h18V6H3z M3,13h12v-2H3V13z" Fill="#5F6368"/>
+                                            </Viewbox>
                                             <Button.ContextMenu>
                                                 <ContextMenu>
                                                     <MenuItem Header="최신순" Click="BtnSort_Click" Tag="UpdatedAt DESC"/>
@@ -346,7 +354,9 @@
                                             <DataTemplate>
                                                 <Button Click="BtnCategory_Click" Tag="{Binding Id}" Style="{StaticResource SidebarItemStyle}" Margin="0,0,0,2">
                                                     <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="📁" Margin="0,0,10,0" FontSize="14" VerticalAlignment="Center" Opacity="0.6"/>
+                                                        <Viewbox Width="16" Height="16" Margin="0,0,10,0" Opacity="0.6">
+                                                            <Path Data="M10,4H4C2.89,4,2,4.89,2,6v12c0,1.1,0.89,2,2,2h16c1.1,0,2-0.9,2-2V8c0-1.1-0.9-2-2-2h-8L10,4z" Fill="#5F6368"/>
+                                                        </Viewbox>
                                                         <TextBlock Text="{Binding Name}" VerticalAlignment="Center" MaxWidth="120" TextTrimming="CharacterEllipsis"/>
                                                         <TextBlock Text="{Binding CountText}" Margin="5,0,0,0" Foreground="#80868B" FontSize="11" VerticalAlignment="Center"/>
                                                     </StackPanel>
@@ -357,21 +367,27 @@
                                 </Border>
                                 <Button x:Name="BtnFilterToday" Click="BtnFilter_Click" Tag="Today" Style="{StaticResource SidebarItemStyle}">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Text="📅" Margin="0,0,12,0" FontSize="16" VerticalAlignment="Center"/>
+                                        <Viewbox Width="18" Height="18" Margin="0,0,12,0">
+                                            <Path Data="M19,19H5V8H19M16,1V3H8V1H6V3H5C3.89,3,3,3.89,3,5V19a2,2,0,0,0,2,2H19a2,2,0,0,0,2-2V5a2,2,0,0,0-2-2H18V1" Fill="#5F6368"/>
+                                        </Viewbox>
                                         <TextBlock Text="오늘" VerticalAlignment="Center"/>
                                         <TextBlock x:Name="TxtCountToday" Text="(0)" Margin="5,0,0,0" Foreground="#80868B" FontSize="12" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                                 <Button x:Name="BtnFilterRecent" Click="BtnFilter_Click" Tag="Recent" Style="{StaticResource SidebarItemStyle}">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Text="🕒" Margin="0,0,12,0" FontSize="16" VerticalAlignment="Center"/>
+                                        <Viewbox Width="18" Height="18" Margin="0,0,12,0">
+                                            <Path Data="M12,20c4.42,0,8-3.58,8-8s-3.58-8-8-8s-8,3.58-8,8S7.58,20,12,20z M12,2c5.52,0,10,4.48,10,10s-4.48,10-10,10S2,17.52,2,12S6.48,2,12,2L12,2z M12.5,7V12l3.5,2l-0.75,1.23l-4.25-2.5V7H12.5z" Fill="#5F6368"/>
+                                        </Viewbox>
                                         <TextBlock Text="최근 7일" VerticalAlignment="Center"/>
                                         <TextBlock x:Name="TxtCountRecent" Text="(0)" Margin="5,0,0,0" Foreground="#80868B" FontSize="12" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                                 <Button x:Name="BtnFilterTrash" Click="BtnFilter_Click" Tag="Trash" Style="{StaticResource SidebarItemStyle}">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Text="🗑️" Margin="0,0,12,0" FontSize="16" VerticalAlignment="Center"/>
+                                        <Viewbox Width="18" Height="18" Margin="0,0,12,0">
+                                            <Path Data="M16,9V19H8V9H16M14.5,3h-5l-1,1H5V6H19V4H15.5l-1-1M18,7H6v12c0,1.1,0.9,2,2,2h8c1.1,0,2-0.9,2-2V7z" Fill="#5F6368"/>
+                                        </Viewbox>
                                         <TextBlock Text="휴지통" VerticalAlignment="Center"/>
                                         <TextBlock x:Name="TxtCountTrash" Text="(0)" Margin="5,0,0,0" Foreground="#80868B" FontSize="12" VerticalAlignment="Center"/>
                                     </StackPanel>
