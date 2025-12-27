@@ -605,7 +605,10 @@
                                         </ControlTemplate>
                                     </Button.Template>
                                     <StackPanel Orientation="Horizontal">
-                                        <Image Source="/icons/my_note.png" Width="18" Height="18" Margin="0,0,5,0" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                        <Viewbox Width="18" Height="18" Margin="0,0,5,0">
+                                            <Path Data="M4.5,2C3.12,2,2,3.12,2,4.5v11C2,16.88,3.12,18,4.5,18h9c1.38,0,2.5-1.12,2.5-2.5v-11C16,3.12,14.88,2,13.5,2H4.5z M3,4.5 C3,3.67,3.67,3,4.5,3h9C14.33,3,15,3.67,15,4.5v11c0,0.83,-0.67,1.5,-1.5,1.5h-9C3.67,17,3,16.33,3,15.5V4.5z M5,6h8v1H5V6z M5,9h8v1H5V9z M5,12h5v1H5V12z" 
+                                                  Fill="{DynamicResource ThemeForeground}" Stretch="Uniform"/>
+                                        </Viewbox>
                                         <TextBlock x:Name="OpenMyNoteButtonText" Text="내 노트 열기" FontSize="12" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>

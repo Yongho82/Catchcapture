@@ -124,6 +124,67 @@ namespace CatchCapture.Controls
         // Public property to access the FlowDocument
         public FlowDocument Document => RtbEditor.Document;
 
+        private void RtbEditor_SelectionChanged(object sender, RoutedEventArgs e)
+        {
+            UpdateToolbarState();
+        }
+
+        private void UpdateToolbarState()
+        {
+            if (RtbEditor == null || BtnBold == null) return;
+
+            // Update Bold/Italic/Underline states
+            BtnBold.IsChecked = IsPropertyApplied(TextElement.FontWeightProperty, FontWeights.Bold);
+            BtnItalic.IsChecked = IsPropertyApplied(TextElement.FontStyleProperty, FontStyles.Italic);
+            BtnUnderline.IsChecked = IsPropertyApplied(Inline.TextDecorationsProperty, TextDecorations.Underline);
+
+            // Update Font Family in ComboBox
+            var fontFamily = RtbEditor.Selection.GetPropertyValue(TextElement.FontFamilyProperty);
+            if (fontFamily != DependencyProperty.UnsetValue && fontFamily is FontFamily f)
+            {
+                // Find matching font in source list
+                var fonts = CboFontFamily.ItemsSource as List<FontFamily>;
+                if (fonts != null)
+                {
+                    var match = fonts.FirstOrDefault(x => x.Source == f.Source);
+                    if (match != null && CboFontFamily.SelectedItem != match)
+                    {
+                        CboFontFamily.SelectionChanged -= CboFontFamily_SelectionChanged;
+                        CboFontFamily.SelectedItem = match;
+                        CboFontFamily.SelectionChanged += CboFontFamily_SelectionChanged;
+                    }
+                }
+            }
+
+            // Update Font Size in ComboBox
+            var fontSize = RtbEditor.Selection.GetPropertyValue(TextElement.FontSizeProperty);
+            if (fontSize != DependencyProperty.UnsetValue)
+            {
+                string sizeStr = fontSize.ToString();
+                var item = CboFontSize.Items.Cast<ComboBoxItem>().FirstOrDefault(x => x.Content.ToString() == sizeStr);
+                if (item != null && CboFontSize.SelectedItem != item)
+                {
+                    CboFontSize.SelectionChanged -= CboFontSize_SelectionChanged;
+                    CboFontSize.SelectedItem = item;
+                    CboFontSize.SelectionChanged += CboFontSize_SelectionChanged;
+                }
+            }
+        }
+
+        private bool IsPropertyApplied(DependencyProperty property, object targetValue)
+        {
+            var value = RtbEditor.Selection.GetPropertyValue(property);
+            if (value == DependencyProperty.UnsetValue) return false;
+            
+            if (property == Inline.TextDecorationsProperty)
+            {
+                var decorations = value as TextDecorationCollection;
+                return decorations != null && decorations.Count > 0;
+            }
+
+            return value != null && value.Equals(targetValue);
+        }
+
         // Text Formatting
         private void BtnBold_Click(object sender, RoutedEventArgs e) => EditingCommands.ToggleBold.Execute(null, RtbEditor);
         private void BtnItalic_Click(object sender, RoutedEventArgs e) => EditingCommands.ToggleItalic.Execute(null, RtbEditor);
@@ -165,8 +226,7 @@ namespace CatchCapture.Controls
             if (RtbEditor == null || CboFontFamily.SelectedItem == null) return;
             if (CboFontFamily.SelectedItem is FontFamily fontFamily)
             {
-                RtbEditor.Focus();
-                RtbEditor.Selection.ApplyPropertyValue(TextElement.FontFamilyProperty, fontFamily);
+                ApplyPropertyToSelection(TextElement.FontFamilyProperty, fontFamily);
             }
         }
 
@@ -178,11 +238,25 @@ namespace CatchCapture.Controls
             {
                 if (double.TryParse(item.Content.ToString(), out double size))
                 {
-                    RtbEditor.Focus();
-                    RtbEditor.Selection.ApplyPropertyValue(TextElement.FontSizeProperty, size);
+                    ApplyPropertyToSelection(TextElement.FontSizeProperty, size);
                 }
             }
         }
+
+        private void ApplyPropertyToSelection(DependencyProperty property, object value)
+        {
+            if (RtbEditor == null) return;
+
+            RtbEditor.Focus();
+            Keyboard.Focus(RtbEditor); // Stronger focus
+            
+            RtbEditor.Selection.ApplyPropertyValue(property, value);
+            
+            // If selection is empty, calling ApplyPropertyValue sets TypingAttributes.
+            // We must ensure the caret stays focused.
+        }
+
+
 
         // Text Color
         private void BtnTextColor_Click(object sender, RoutedEventArgs e)
@@ -206,15 +280,13 @@ namespace CatchCapture.Controls
                 var color = (Color)ColorConverter.ConvertFromString(colorHex);
                 var brush = new SolidColorBrush(color);
 
-                RtbEditor.Focus(); // Ensure focus is on editor before applying
-
                 if (_isTextColorMode)
                 {
-                    RtbEditor.Selection.ApplyPropertyValue(TextElement.ForegroundProperty, brush);
+                    ApplyPropertyToSelection(TextElement.ForegroundProperty, brush);
                 }
                 else
                 {
-                    RtbEditor.Selection.ApplyPropertyValue(TextElement.BackgroundProperty, brush);
+                    ApplyPropertyToSelection(TextElement.BackgroundProperty, brush);
                 }
 
                 ColorPickerPopup.IsOpen = false;
