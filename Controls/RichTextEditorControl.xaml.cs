@@ -45,19 +45,24 @@ namespace CatchCapture.Controls
 
             CboFontFamily.ItemsSource = filteredFonts;
 
-            // Set Default Font: Inter or Segoe UI
-            var defaultFont = filteredFonts.FirstOrDefault(f => f.Source.Contains("Inter")) 
-                            ?? filteredFonts.FirstOrDefault(f => f.Source.Contains("Segoe UI"))
+            // Set Default Font: Segoe UI preferred, then Inter
+            var defaultFont = filteredFonts.FirstOrDefault(f => f.Source.Contains("Segoe UI"))
+                            ?? filteredFonts.FirstOrDefault(f => f.Source.Contains("Inter")) 
                             ?? filteredFonts.FirstOrDefault();
             
             if (defaultFont != null) CboFontFamily.SelectedItem = defaultFont;
             
-            // Set Default Size: 12 (Index 1 in 10, 12, 14, 16...)
-            CboFontSize.SelectedIndex = 1; 
+            // Set Default Size: 14 (Index 2 in 10, 12, 14, 16...)
+            CboFontSize.SelectedIndex = 2; 
 
-            // Initialize FlowDocument with defaults
-            RtbEditor.Document.FontFamily = (FontFamily)CboFontFamily.SelectedItem;
-            RtbEditor.Document.FontSize = 12;
+            // Initialize Properties
+            RtbEditor.FontSize = 14;
+            RtbEditor.Document.FontSize = 14;
+            if (defaultFont != null)
+            {
+                RtbEditor.FontFamily = defaultFont;
+                RtbEditor.Document.FontFamily = defaultFont;
+            }
             
             // Set consistent line height and paragraph spacing to prevent jumping
             RtbEditor.Document.TextAlignment = TextAlignment.Left;
@@ -65,7 +70,7 @@ namespace CatchCapture.Controls
             
             var defaultStyle = new Style(typeof(Paragraph));
             defaultStyle.Setters.Add(new Setter(Paragraph.MarginProperty, new Thickness(0, 0, 0, 0)));
-            defaultStyle.Setters.Add(new Setter(Paragraph.LineHeightProperty, 1.5));
+            defaultStyle.Setters.Add(new Setter(Paragraph.LineHeightProperty, 14 * 1.5)); // 1.5x of 14pt
             RtbEditor.Document.Resources.Add(typeof(Paragraph), defaultStyle);
 
             // Enable Undo for images and content
@@ -155,12 +160,11 @@ namespace CatchCapture.Controls
                     }
                 }
             }
-
             // Update Font Size in ComboBox
             var fontSize = RtbEditor.Selection.GetPropertyValue(TextElement.FontSizeProperty);
-            if (fontSize != DependencyProperty.UnsetValue)
+            if (fontSize != DependencyProperty.UnsetValue && fontSize != null)
             {
-                string sizeStr = fontSize.ToString();
+                string sizeStr = fontSize.ToString() ?? "";
                 var item = CboFontSize.Items.Cast<ComboBoxItem>().FirstOrDefault(x => x.Content.ToString() == sizeStr);
                 if (item != null && CboFontSize.SelectedItem != item)
                 {
@@ -198,12 +202,14 @@ namespace CatchCapture.Controls
         private void BtnLineSpacing15_Click(object sender, RoutedEventArgs e) => SetLineHeight(1.5);
         private void BtnLineSpacingDouble_Click(object sender, RoutedEventArgs e) => SetLineHeight(2.0);
 
-        private void SetLineHeight(double lineHeight)
+        private void SetLineHeight(double multiplier)
         {
             var paragraph = RtbEditor.CaretPosition.Paragraph;
             if (paragraph != null)
             {
-                paragraph.LineHeight = lineHeight;
+                // In WPF, LineHeight is absolute. We calculate based on current font size.
+                double currentFontSize = (double)paragraph.GetValue(TextElement.FontSizeProperty);
+                paragraph.LineHeight = currentFontSize * multiplier;
                 paragraph.Margin = new Thickness(0, 0, 0, 4); // Small bottom margin
             }
             RtbEditor.Focus();
@@ -248,12 +254,19 @@ namespace CatchCapture.Controls
             if (RtbEditor == null) return;
 
             RtbEditor.Focus();
-            Keyboard.Focus(RtbEditor); // Stronger focus
             
+            // Apply formatting to selection (or caret if empty)
             RtbEditor.Selection.ApplyPropertyValue(property, value);
             
-            // If selection is empty, calling ApplyPropertyValue sets TypingAttributes.
-            // We must ensure the caret stays focused.
+            // Force focus back to ensure TypingAttributes are honored on next keystroke
+            Dispatcher.BeginInvoke(new Action(() => 
+            {
+                if (RtbEditor != null)
+                {
+                    RtbEditor.Focus();
+                    Keyboard.Focus(RtbEditor);
+                }
+            }), System.Windows.Threading.DispatcherPriority.Input);
         }
 
 
