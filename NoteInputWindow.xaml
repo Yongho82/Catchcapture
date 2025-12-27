@@ -45,26 +45,23 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Category Selector -->
-                        <Border Grid.Column="0" Background="{DynamicResource ThemeSidebarButtonBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0">
-                            <StackPanel Orientation="Horizontal">
-                                <ComboBox x:Name="CboCategory" Width="110" BorderThickness="0" Background="Transparent" 
-                                          VerticalContentAlignment="Center" Padding="10,5" FontSize="14" Cursor="Hand">
-                                    <ComboBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <StackPanel Orientation="Horizontal">
-                                                <Ellipse Width="8" Height="8" Fill="{Binding Color}" Margin="0,0,8,0"/>
-                                                <TextBlock Text="{Binding Name}" Foreground="{DynamicResource ThemeForeground}"/>
-                                            </StackPanel>
-                                        </DataTemplate>
-                                    </ComboBox.ItemTemplate>
-                                </ComboBox>
-                                <Button x:Name="BtnManageCategories" Width="28" Height="28" Click="BtnManageCategories_Click" Margin="0,0,2,0"
-                                        Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="분류 관리">
-                                    <Path Data="M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8M12,10A2,2 0 0,0 10,12A2,2 0 0,0 12,14A2,2 0 0,0 14,12A2,2 0 0,0 12,10M10,22C9.75,22 9.54,21.82 9.51,21.58L9.12,19.11C8.5,18.91 7.94,18.58 7.42,18.15L5.07,19.11C4.83,19.21 4.54,19.11 4.42,18.88L2.42,15.41C2.3,15.18 2.36,14.89 2.57,14.73L4.54,13.23C4.5,12.82 4.5,12.41 4.54,12C4.5,11.59 4.5,11.18 4.54,10.77L2.57,9.27C2.36,9.11 2.3,8.82 2.42,8.59L4.42,5.12C4.54,4.89 4.83,4.79 5.07,4.89L7.42,5.85C7.94,5.42 8.5,5.1 9.12,4.89L9.51,2.42C9.54,2.18 9.75,2 10,2H14C14.25,2 14.46,2.18 14.49,2.42L14.88,4.89C15.5,5.1 16.06,5.42 16.58,5.85L18.93,4.89C19.17,4.79 19.46,4.89 19.58,5.12L21.58,8.59C21.7,8.82 21.64,9.11 21.43,9.27L19.46,10.77C19.5,11.18 19.5,11.59 19.46,12C19.5,12.41 19.5,12.82 19.46,13.23L21.43,14.73C21.64,14.89 21.7,15.18 21.58,15.41L19.58,18.88C19.46,19.11 19.17,19.21 18.93,19.11L16.58,18.15C16.06,18.58 15.5,18.91 14.88,19.11L14.49,21.58C14.46,21.82 14.25,22 14,22H10Z" 
-                                          Fill="{DynamicResource ThemeForeground}" Opacity="0.6" Stretch="Uniform" Width="14" Height="14"/>
-                                </Button>
-                            </StackPanel>
-                        </Border>
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,8,0">
+                            <ComboBox x:Name="CboCategory" Width="110" Height="32" VerticalContentAlignment="Center" Cursor="Hand">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Ellipse Width="8" Height="8" Fill="{Binding Color}" Margin="0,0,8,0"/>
+                                            <TextBlock Text="{Binding Name}" Foreground="{DynamicResource ThemeForeground}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <Button x:Name="BtnManageCategories" Width="28" Height="32" Click="BtnManageCategories_Click" Margin="2,0,0,0"
+                                    Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="분류 관리">
+                                <Path Data="M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8M12,10A2,2 0 0,0 10,12A2,2 0 0,0 12,14A2,2 0 0,0 14,12A2,2 0 0,0 12,10M10,22C9.75,22 9.54,21.82 9.51,21.58L9.12,19.11C8.5,18.91 7.94,18.58 7.42,18.15L5.07,19.11C4.83,19.21 4.54,19.11 4.42,18.88L2.42,15.41C2.3,15.18 2.36,14.89 2.57,14.73L4.54,13.23C4.5,12.82 4.5,12.41 4.54,12C4.5,11.59 4.5,11.18 4.54,10.77L2.57,9.27C2.36,9.11 2.3,8.82 2.42,8.59L4.42,5.12C4.54,4.89 4.83,4.79 5.07,4.89L7.42,5.85C7.94,5.42 8.5,5.1 9.12,4.89L9.51,2.42C9.54,2.18 9.75,2 10,2H14C14.25,2 14.46,2.18 14.49,2.42L14.88,4.89C15.5,5.1 16.06,5.42 16.58,5.85L18.93,4.89C19.17,4.79 19.46,4.89 19.58,5.12L21.58,8.59C21.7,8.82 21.64,9.11 21.43,9.27L19.46,10.77C19.5,11.18 19.5,11.59 19.46,12C19.5,12.41 19.5,12.82 19.46,13.23L21.43,14.73C21.64,14.89 21.7,15.18 21.58,15.41L19.58,18.88C19.46,19.11 19.17,19.21 18.93,19.11L16.58,18.15C16.06,18.58 15.5,18.91 14.88,19.11L14.49,21.58C14.46,21.82 14.25,22 14,22H10Z" 
+                                      Fill="{DynamicResource ThemeForeground}" Opacity="0.6" Stretch="Uniform" Width="14" Height="14"/>
+                            </Button>
+                        </StackPanel>
 
                         <!-- Title Input -->
                         <Border Grid.Column="1" Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="4">
