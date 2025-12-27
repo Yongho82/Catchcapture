@@ -898,6 +898,17 @@ namespace CatchCapture
                 var finalImage = GetCombinedImage();
                 if (finalImage != null)
                 {
+                    var settings = CatchCapture.Models.Settings.Load();
+                    if (!string.IsNullOrEmpty(settings.NotePassword) && !App.IsNoteAuthenticated)
+                    {
+                        var lockWin = new NoteLockCheckWindow(settings.NotePassword, settings.NotePasswordHint);
+                        lockWin.Owner = this;
+                        if (lockWin.ShowDialog() != true)
+                        {
+                            return;
+                        }
+                    }
+
                     var noteWin = new NoteInputWindow(finalImage, _sourceApp, _sourceTitle);
                     noteWin.Owner = this;
                     noteWin.ShowDialog();

@@ -3503,6 +3503,17 @@ namespace CatchCapture.Utilities
 
                 if (SelectedFrozenImage != null)
                 {
+                    var settings = Settings.Load();
+                    if (!string.IsNullOrEmpty(settings.NotePassword) && !App.IsNoteAuthenticated)
+                    {
+                        var lockWin = new NoteLockCheckWindow(settings.NotePassword, settings.NotePasswordHint);
+                        lockWin.Owner = this;
+                        if (lockWin.ShowDialog() != true)
+                        {
+                            return;
+                        }
+                    }
+
                     var noteWin = new NoteInputWindow(SelectedFrozenImage, _sourceApp, _sourceTitle);
                     noteWin.Owner = this;
                     if (noteWin.ShowDialog() == true)

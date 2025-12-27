@@ -20,6 +20,7 @@ public partial class App : Application
     private static Mutex? _singleInstanceMutex;
     private const string PipeName = "CatchCapture_ActivationPipe";
     private CancellationTokenSource? _pipeServerCts;
+    public static bool IsNoteAuthenticated { get; set; } = false;
 
     protected override void OnStartup(StartupEventArgs e)
     {

@@ -106,12 +106,20 @@ namespace CatchCapture.Utilities
                         Color TEXT
                     );";
 
+                // Create Configuration table
+                string createConfigTable = @"
+                    CREATE TABLE IF NOT EXISTS Configuration (
+                        Key TEXT PRIMARY KEY,
+                        Value TEXT
+                    );";
+
                 using (var command = new SqliteCommand(createNotesTable, connection)) { command.ExecuteNonQuery(); }
                 using (var command = new SqliteCommand(createImagesTable, connection)) { command.ExecuteNonQuery(); }
                 using (var command = new SqliteCommand(createTagsTable, connection)) { command.ExecuteNonQuery(); }
                 using (var command = new SqliteCommand(createNoteTagsTable, connection)) { command.ExecuteNonQuery(); }
                 using (var command = new SqliteCommand(createAttachmentsTable, connection)) { command.ExecuteNonQuery(); }
                 using (var command = new SqliteCommand(createCategoriesTable, connection)) { command.ExecuteNonQuery(); }
+                using (var command = new SqliteCommand(createConfigTable, connection)) { command.ExecuteNonQuery(); }
 
                 // Migration: Add CategoryId to Notes
                 try
@@ -466,6 +474,35 @@ namespace CatchCapture.Utilities
                 }
             }
             return null;
+        }
+        public string? GetConfig(string key)
+        {
+            using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+            {
+                connection.Open();
+                using (var command = new SqliteCommand("SELECT Value FROM Configuration WHERE Key = @key", connection))
+                {
+                    command.Parameters.AddWithValue("@key", key);
+                    var value = command.ExecuteScalar();
+                    return value?.ToString();
+                }
+            }
+        }
+
+        public void SetConfig(string key, string? value)
+        {
+            using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+            {
+                connection.Open();
+                using (var command = new SqliteCommand(@"
+                    INSERT INTO Configuration (Key, Value) VALUES (@key, @value)
+                    ON CONFLICT(Key) DO UPDATE SET Value = @value", connection))
+                {
+                    command.Parameters.AddWithValue("@key", key);
+                    command.Parameters.AddWithValue("@value", (object?)value ?? DBNull.Value);
+                    command.ExecuteNonQuery();
+                }
+            }
         }
     }
 }

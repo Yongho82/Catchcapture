@@ -879,7 +879,20 @@ private void InitLanguageComboBox()
             }
             else
             {
-                // Turning OFF, confirm
+                // Turning OFF, verify current password first
+                if (!string.IsNullOrEmpty(_settings.NotePassword) && !App.IsNoteAuthenticated)
+                {
+                    var lockWin = new NoteLockCheckWindow(_settings.NotePassword, _settings.NotePasswordHint);
+                    lockWin.Owner = this;
+                    if (lockWin.ShowDialog() != true)
+                    {
+                        // Verification failed or cancelled
+                        ChkEnableNotePassword.IsChecked = true;
+                        return;
+                    }
+                }
+
+                // Confirm disable
                 if (CatchCapture.CustomMessageBox.Show("비밀번호 잠금을 해제하시겠습니까?", "확인", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
                 {
                     ChkEnableNotePassword.IsChecked = true;
@@ -888,6 +901,7 @@ private void InitLanguageComboBox()
                 {
                     _settings.NotePassword = null;
                     _settings.NotePasswordHint = null;
+                    App.IsNoteAuthenticated = false; // Reset session auth
                 }
             }
             BtnSetNotePassword.IsEnabled = ChkEnableNotePassword.IsChecked == true;
@@ -895,12 +909,24 @@ private void InitLanguageComboBox()
 
         private void BtnSetNotePassword_Click(object sender, RoutedEventArgs e)
         {
+            // Verify current password before changing
+            if (!string.IsNullOrEmpty(_settings.NotePassword) && !App.IsNoteAuthenticated)
+            {
+                var lockWin = new NoteLockCheckWindow(_settings.NotePassword, _settings.NotePasswordHint);
+                lockWin.Owner = this;
+                if (lockWin.ShowDialog() != true)
+                {
+                    return;
+                }
+            }
+
             var pwdWin = new NotePasswordWindow(_settings.NotePassword, _settings.NotePasswordHint);
             pwdWin.Owner = this;
             if (pwdWin.ShowDialog() == true)
             {
                 _settings.NotePassword = pwdWin.Password;
                 _settings.NotePasswordHint = pwdWin.Hint;
+                App.IsNoteAuthenticated = true; // Stay authenticated with new password
             }
         }
 

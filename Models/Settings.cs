@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using CatchCapture.Utilities;
 
 namespace CatchCapture.Models
 {
     public class Settings
     {
+        private static Settings? _currentLoadingSettings;
         // General
         public bool ShowSavePrompt { get; set; } = true;
         public bool ShowPreviewAfterCapture { get; set; } = false;
@@ -124,6 +126,8 @@ namespace CatchCapture.Models
 
         public static Settings Load()
         {
+            if (_currentLoadingSettings != null) return _currentLoadingSettings;
+
             string settingsPath = GetSettingsPath();
 
             if (!File.Exists(settingsPath))
@@ -155,8 +159,30 @@ namespace CatchCapture.Models
                 var settings = JsonSerializer.Deserialize<Settings>(json);
                 if (settings != null)
                 {
-                    // 마이그레이션 로직 제거됨 - 사용자가 메뉴 항목을 자유롭게 편집할 수 있도록 함
-                    return settings;
+                _currentLoadingSettings = settings;
+                try
+                {
+                    // Sync password from DB if missing in JSON
+                    if (string.IsNullOrEmpty(settings.NotePassword))
+                    {
+                        try
+                        {
+                            var dbPwd = CatchCapture.Utilities.DatabaseManager.Instance.GetConfig("NotePassword");
+                            var dbHint = CatchCapture.Utilities.DatabaseManager.Instance.GetConfig("NotePasswordHint");
+                            if (!string.IsNullOrEmpty(dbPwd))
+                            {
+                                settings.NotePassword = dbPwd;
+                                settings.NotePasswordHint = dbHint;
+                            }
+                        }
+                        catch { }
+                    }
+                }
+                finally
+                {
+                    _currentLoadingSettings = null;
+                }
+                return settings;
                 }
                 return new Settings();
             }
@@ -202,6 +228,15 @@ namespace CatchCapture.Models
                 {
                     File.Move(tmp, settingsPath);
                 }
+
+                // Sync password to DB
+                try
+                {
+                    CatchCapture.Utilities.DatabaseManager.Instance.SetConfig("NotePassword", settings.NotePassword);
+                    CatchCapture.Utilities.DatabaseManager.Instance.SetConfig("NotePasswordHint", settings.NotePasswordHint);
+                }
+                catch { /* Ignore DB errors in setting save */ }
+
                 return true;
             }
             catch (Exception ex)

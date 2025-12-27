@@ -2434,6 +2434,17 @@ public partial class MainWindow : Window
 
     private void OpenMyNoteButton_Click(object sender, RoutedEventArgs e)
     {
+        // 비밀번호 잠금 확인
+        if (!string.IsNullOrEmpty(settings.NotePassword) && !App.IsNoteAuthenticated)
+        {
+            var lockWin = new NoteLockCheckWindow(settings.NotePassword, settings.NotePasswordHint);
+            lockWin.Owner = this;
+            if (lockWin.ShowDialog() != true)
+            {
+                return;
+            }
+        }
+
         // 내 노트 탐색기 열기
         var explorer = new NoteExplorerWindow();
         explorer.Owner = this;
