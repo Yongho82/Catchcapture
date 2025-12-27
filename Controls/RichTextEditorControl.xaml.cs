@@ -402,7 +402,7 @@ namespace CatchCapture.Controls
             var slider = new Slider
             {
                 Minimum = 100,
-                Maximum = 800,
+                Maximum = 1024,
                 Value = 360,
                 Width = 140,
                 Height = 24,

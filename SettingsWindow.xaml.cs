@@ -876,6 +876,87 @@ private void InitLanguageComboBox()
             }
         }
 
+        private void BtnResetNote_Click(object sender, RoutedEventArgs e)
+        {
+            // 1. First Warning
+            if (CatchCapture.CustomMessageBox.Show("전체 노트 데이터를 초기화 하시겠습니까?", "초기화 확인", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            // 2. Second Warning (Destructive)
+            if (CatchCapture.CustomMessageBox.Show("초기화된 데이터는 복구할 수 없습니다.\n정말로 진행하시겠습니까?", "데이터 영구 삭제 경고", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            // 3. Password Check (if enabled)
+            if (!string.IsNullOrEmpty(_settings.NotePassword))
+            {
+                var lockWin = new NoteLockCheckWindow(_settings.NotePassword, _settings.NotePasswordHint);
+                lockWin.Owner = this;
+                if (lockWin.ShowDialog() != true)
+                {
+                    return;
+                }
+            }
+
+            // 4. Execution
+            try
+            {
+                string notePath = TxtNoteFolder.Text;
+                string dbPath = System.IO.Path.Combine(notePath, "notedb", "catch_notes.db");
+                string imgPath = System.IO.Path.Combine(notePath, "img");
+                string attachPath = System.IO.Path.Combine(notePath, "attachments");
+
+                // Release DB locks
+                Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+
+                if (System.IO.File.Exists(dbPath))
+                {
+                    System.IO.File.Delete(dbPath);
+                }
+
+                if (System.IO.Directory.Exists(imgPath))
+                {
+                    DeleteDirectoryContents(imgPath);
+                }
+                
+                if (System.IO.Directory.Exists(attachPath))
+                {
+                    DeleteDirectoryContents(attachPath);
+                }
+
+                // Re-initialize DB
+                CatchCapture.Utilities.DatabaseManager.Instance.Reload();
+
+                CatchCapture.CustomMessageBox.Show("노트 데이터가 초기화되었습니다.", "완료", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                CatchCapture.CustomMessageBox.Show($"초기화 중 오류 발생: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void DeleteDirectoryContents(string path)
+        {
+            try
+            {
+                System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(path);
+                foreach (System.IO.FileInfo file in di.GetFiles())
+                {
+                    try { file.Delete(); } catch { }
+                }
+                foreach (System.IO.DirectoryInfo dir in di.GetDirectories())
+                {
+                    try { dir.Delete(true); } catch { }
+                }
+            }
+            catch { }
+        }
+
         private void ChkEnableNotePassword_Click(object sender, RoutedEventArgs e)
         {
             if (ChkEnableNotePassword.IsChecked == true)

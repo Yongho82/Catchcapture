@@ -827,6 +827,13 @@
                                                    TextWrapping="NoWrap" FontSize="12" Foreground="{DynamicResource ThemeForeground}" LineHeight="18"/>
                                     </Border>
                                 </Popup>
+
+                                <Button x:Name="BtnResetNote" Click="BtnResetNote_Click" Style="{StaticResource MacButtonSecondary}" Margin="10,0,0,0" Padding="10,0" ToolTip="전체 노트 데이터 초기화">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="/icons/delete_all.png" Width="14" Height="14" Margin="0,0,5,0" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                        <TextBlock Text="초기화" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
                             </StackPanel>
                         </StackPanel>
                     </GroupBox>
