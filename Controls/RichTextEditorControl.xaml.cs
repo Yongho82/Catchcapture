@@ -21,6 +21,8 @@ namespace CatchCapture.Controls
         private bool _isTextColorMode = false;
         private bool _isApplyingProperty = false;
         private List<FrameworkElement> _sliderPanels = new List<FrameworkElement>();
+        private Color _currentTextColor = Colors.Black;
+        private Color _currentHighlightColor = Colors.Transparent;
 
         public RichTextEditorControl()
         {
@@ -96,6 +98,160 @@ namespace CatchCapture.Controls
             DataObject.AddPastingHandler(RtbEditor, OnPaste);
             RtbEditor.Drop += OnDrop;
             RtbEditor.AllowDrop = true;
+
+            RtbEditor.SelectionChanged += RtbEditor_SelectionChanged;
+
+            BuildColorPalette();
+            UpdateColorIndicators();
+        }
+
+        private void BuildColorPalette()
+        {
+            ColorGrid.Children.Clear();
+            foreach (var color in CatchCapture.Models.UIConstants.SharedColorPalette)
+            {
+                if (color == Colors.Transparent) continue;
+
+                var border = new Border
+                {
+                    Background = new SolidColorBrush(color),
+                    Width = 22,
+                    Height = 22,
+                    Margin = new Thickness(2),
+                    CornerRadius = new CornerRadius(4),
+                    BorderBrush = new SolidColorBrush(Color.FromRgb(220, 220, 220)),
+                    BorderThickness = new Thickness(1),
+                    Cursor = Cursors.Hand,
+                    Tag = color.ToString()
+                };
+
+                border.MouseLeftButtonDown += (s, e) =>
+                {
+                    ApplySelectedColor(color);
+                    ColorPickerPopup.IsOpen = false;
+                };
+
+                // Hover effect
+                border.MouseEnter += (s, e) => border.BorderBrush = Brushes.SkyBlue;
+                border.MouseLeave += (s, e) => border.BorderBrush = new SolidColorBrush(Color.FromRgb(220, 220, 220));
+
+                ColorGrid.Children.Add(border);
+            }
+        }
+
+        private void ApplySelectedColor(Color color)
+        {
+            var brush = new SolidColorBrush(color);
+            if (_isTextColorMode)
+            {
+                _currentTextColor = color;
+                ApplyPropertyToSelection(TextElement.ForegroundProperty, brush);
+            }
+            else
+            {
+                _currentHighlightColor = color;
+                ApplyPropertyToSelection(TextElement.BackgroundProperty, color == Colors.Transparent ? null : brush);
+            }
+            UpdateColorIndicators();
+        }
+
+        private void UpdateColorIndicators()
+        {
+            TextColorBar.Background = new SolidColorBrush(_currentTextColor);
+            
+            if (_currentHighlightColor == Colors.Transparent)
+            {
+                HighlightColorBar.Background = Brushes.Transparent;
+                HighlightColorBar.BorderThickness = new Thickness(1);
+            }
+            else
+            {
+                HighlightColorBar.Background = new SolidColorBrush(_currentHighlightColor);
+                HighlightColorBar.BorderThickness = new Thickness(0);
+            }
+        }
+
+        private void RtbEditor_SelectionChanged(object sender, RoutedEventArgs e)
+        {
+            if (_isApplyingProperty) return;
+
+            UpdateToolBarStates();
+        }
+
+        private void UpdateToolBarStates()
+        {
+            if (RtbEditor == null || _isApplyingProperty) return;
+
+            // During typing (caret position, no selection), 
+            // don't let the toolbar sync back from the editor.
+            // This prevents the Korean IME from overriding user-selected style with old context.
+            if (RtbEditor.IsFocused && RtbEditor.Selection.IsEmpty) return;
+
+            _isApplyingProperty = true;
+            try
+            {
+                // Update Bold/Italic/Underline
+                var fontWeight = RtbEditor.Selection.GetPropertyValue(TextElement.FontWeightProperty);
+                BtnBold.IsChecked = (fontWeight != DependencyProperty.UnsetValue && fontWeight is FontWeight fw && fw == FontWeights.Bold);
+
+                var fontStyle = RtbEditor.Selection.GetPropertyValue(TextElement.FontStyleProperty);
+                BtnItalic.IsChecked = (fontStyle != DependencyProperty.UnsetValue && fontStyle is FontStyle fs && fs == FontStyles.Italic);
+
+                var textDecorations = RtbEditor.Selection.GetPropertyValue(Inline.TextDecorationsProperty);
+                BtnUnderline.IsChecked = (textDecorations != DependencyProperty.UnsetValue && textDecorations is TextDecorationCollection tdc && tdc.Count > 0);
+
+                // Update Color indicators from selection
+                var foreground = RtbEditor.Selection.GetPropertyValue(TextElement.ForegroundProperty);
+                if (foreground is SolidColorBrush fBrush)
+                {
+                    _currentTextColor = fBrush.Color;
+                }
+
+                var background = RtbEditor.Selection.GetPropertyValue(TextElement.BackgroundProperty);
+                if (background is SolidColorBrush bBrush)
+                {
+                    _currentHighlightColor = bBrush.Color;
+                }
+                else
+                {
+                    _currentHighlightColor = Colors.Transparent;
+                }
+
+                UpdateColorIndicators();
+
+                // Update Font ComboBox
+                var fontFamily = RtbEditor.Selection.GetPropertyValue(TextElement.FontFamilyProperty);
+                if (fontFamily is FontFamily ff && CboFontFamily.ItemsSource is List<FontFamily> fonts)
+                {
+                    var match = fonts.FirstOrDefault(x => x.Source == ff.Source);
+                    if (match != null && CboFontFamily.SelectedItem != match)
+                    {
+                        CboFontFamily.SelectedItem = match;
+                    }
+                }
+
+                // Update Size ComboBox
+                var fontSize = RtbEditor.Selection.GetPropertyValue(TextElement.FontSizeProperty);
+                if (fontSize is double sz)
+                {
+                    int szInt = (int)Math.Round(sz);
+                    foreach (ComboBoxItem item in CboFontSize.Items)
+                    {
+                        if (double.TryParse(item.Content?.ToString(), out double s) && (int)Math.Round(s) == szInt)
+                        {
+                            if (CboFontSize.SelectedItem != item)
+                            {
+                                CboFontSize.SelectedItem = item;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                _isApplyingProperty = false;
+            }
         }
 
         private bool IsDescendantOrSelf(DependencyObject parent, DependencyObject node)
@@ -127,84 +283,21 @@ namespace CatchCapture.Controls
         // Public property to access the FlowDocument
         public FlowDocument Document => RtbEditor.Document;
 
-        private void RtbEditor_SelectionChanged(object sender, RoutedEventArgs e)
-        {
-            UpdateToolbarState();
-        }
-
-        private void UpdateToolbarState()
-        {
-            if (RtbEditor == null || BtnBold == null || _isApplyingProperty) return;
-
-            // During typing (caret position, no selection), 
-            // don't let the toolbar sync back from the editor.
-            // This prevents the Korean IME from overriding user-selected style with old context.
-            if (RtbEditor.IsFocused && RtbEditor.Selection.IsEmpty) return;
-
-            // Update Bold/Italic/Underline states
-            BtnBold.IsChecked = IsPropertyApplied(TextElement.FontWeightProperty, FontWeights.Bold);
-            BtnItalic.IsChecked = IsPropertyApplied(TextElement.FontStyleProperty, FontStyles.Italic);
-            BtnUnderline.IsChecked = IsPropertyApplied(Inline.TextDecorationsProperty, TextDecorations.Underline);
-
-            // Update Font Family in ComboBox
-            var fontFamily = RtbEditor.Selection.GetPropertyValue(TextElement.FontFamilyProperty);
-            if (fontFamily != DependencyProperty.UnsetValue && fontFamily is FontFamily f)
-            {
-                // Find matching font in source list
-                var fonts = CboFontFamily.ItemsSource as List<FontFamily>;
-                if (fonts != null)
-                {
-                    var match = fonts.FirstOrDefault(x => x.Source == f.Source);
-                    if (match != null && CboFontFamily.SelectedItem != match)
-                    {
-                        CboFontFamily.SelectionChanged -= CboFontFamily_SelectionChanged;
-                        CboFontFamily.SelectedItem = match;
-                        CboFontFamily.SelectionChanged += CboFontFamily_SelectionChanged;
-                    }
-                }
-            }
-            // Update Font Size in ComboBox
-            var fontSize = RtbEditor.Selection.GetPropertyValue(TextElement.FontSizeProperty);
-            if (fontSize != DependencyProperty.UnsetValue && fontSize is double sizeVal)
-            {
-                // Use numeric comparison as strings like "14.4" vs "14" can fail
-                int sizeInt = (int)Math.Round(sizeVal);
-                var item = CboFontSize.Items.Cast<ComboBoxItem>()
-                    .FirstOrDefault(x => int.TryParse(x.Content.ToString(), out int i) && i == sizeInt);
-                
-                if (item != null && CboFontSize.SelectedItem != item)
-                {
-                    CboFontSize.SelectionChanged -= CboFontSize_SelectionChanged;
-                    CboFontSize.SelectedItem = item;
-                    CboFontSize.SelectionChanged += CboFontSize_SelectionChanged;
-                }
-            }
-        }
-
-        private bool IsPropertyApplied(DependencyProperty property, object targetValue)
-        {
-            var value = RtbEditor.Selection.GetPropertyValue(property);
-            if (value == DependencyProperty.UnsetValue) return false;
-            
-            if (property == Inline.TextDecorationsProperty)
-            {
-                var decorations = value as TextDecorationCollection;
-                return decorations != null && decorations.Count > 0;
-            }
-
-            return value != null && value.Equals(targetValue);
-        }
 
         // Text Formatting
         private void BtnBold_Click(object sender, RoutedEventArgs e) 
         {
-            var target = IsPropertyApplied(TextElement.FontWeightProperty, FontWeights.Bold) ? FontWeights.Normal : FontWeights.Bold;
+            var val = RtbEditor.Selection.GetPropertyValue(TextElement.FontWeightProperty);
+            var target = (val != DependencyProperty.UnsetValue && val is FontWeight fw && fw == FontWeights.Bold) 
+                ? FontWeights.Normal : FontWeights.Bold;
             ApplyPropertyToSelection(TextElement.FontWeightProperty, target);
         }
 
         private void BtnItalic_Click(object sender, RoutedEventArgs e) 
         {
-            var target = IsPropertyApplied(TextElement.FontStyleProperty, FontStyles.Italic) ? FontStyles.Normal : FontStyles.Italic;
+            var val = RtbEditor.Selection.GetPropertyValue(TextElement.FontStyleProperty);
+            var target = (val != DependencyProperty.UnsetValue && val is FontStyle fs && fs == FontStyles.Italic) 
+                ? FontStyles.Normal : FontStyles.Italic;
             ApplyPropertyToSelection(TextElement.FontStyleProperty, target);
         }
 
@@ -296,7 +389,7 @@ namespace CatchCapture.Controls
             }
         }
 
-        private void ApplyPropertyToSelection(DependencyProperty property, object value)
+        private void ApplyPropertyToSelection(DependencyProperty property, object? value)
         {
             if (RtbEditor == null) return;
 
@@ -372,6 +465,8 @@ namespace CatchCapture.Controls
         private void BtnTextColor_Click(object sender, RoutedEventArgs e)
         {
             _isTextColorMode = true;
+            ColorPickerTitle.Text = "글자 색상";
+            BtnClearColor.Visibility = Visibility.Collapsed; // Text color doesn't usually have "transparent"
             ColorPickerPopup.PlacementTarget = BtnTextColor;
             ColorPickerPopup.IsOpen = true;
         }
@@ -379,27 +474,58 @@ namespace CatchCapture.Controls
         private void BtnHighlight_Click(object sender, RoutedEventArgs e)
         {
             _isTextColorMode = false;
+            ColorPickerTitle.Text = "배경 색상";
+            BtnClearColor.Visibility = Visibility.Visible; // Background can be cleared
             ColorPickerPopup.PlacementTarget = BtnHighlight;
             ColorPickerPopup.IsOpen = true;
         }
 
+        private void BtnClearColor_Click(object sender, RoutedEventArgs e)
+        {
+            ApplySelectedColor(Colors.Transparent);
+            ColorPickerPopup.IsOpen = false;
+        }
+
+        private void AddCustomColor_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new System.Windows.Forms.ColorDialog();
+            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                var color = Color.FromArgb(dialog.Color.A, dialog.Color.R, dialog.Color.G, dialog.Color.B);
+                
+                // Add to palette temporarily
+                var border = new Border
+                {
+                    Background = new SolidColorBrush(color),
+                    Width = 22,
+                    Height = 22,
+                    Margin = new Thickness(2),
+                    CornerRadius = new CornerRadius(4),
+                    BorderBrush = Brushes.SkyBlue,
+                    BorderThickness = new Thickness(2),
+                    Cursor = Cursors.Hand
+                };
+                border.MouseLeftButtonDown += (s, ev) => { ApplySelectedColor(color); ColorPickerPopup.IsOpen = false; };
+                ColorGrid.Children.Add(border);
+
+                ApplySelectedColor(color);
+                ColorPickerPopup.IsOpen = false;
+            }
+        }
+
         private void ColorButton_Click(object sender, RoutedEventArgs e)
         {
+            // This is matched to the old XAML buttons. 
+            // New logic uses BuildColorPalette and MouseLeftButtonDown on Borders.
             if (sender is Button btn && btn.Tag is string colorHex)
             {
-                var color = (Color)ColorConverter.ConvertFromString(colorHex);
-                var brush = new SolidColorBrush(color);
-
-                if (_isTextColorMode)
+                try
                 {
-                    ApplyPropertyToSelection(TextElement.ForegroundProperty, brush);
+                    var color = (Color)ColorConverter.ConvertFromString(colorHex);
+                    ApplySelectedColor(color);
+                    ColorPickerPopup.IsOpen = false;
                 }
-                else
-                {
-                    ApplyPropertyToSelection(TextElement.BackgroundProperty, brush);
-                }
-
-                ColorPickerPopup.IsOpen = false;
+                catch { }
             }
         }
 

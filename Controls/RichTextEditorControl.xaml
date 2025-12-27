@@ -120,14 +120,20 @@
 
                 <Separator Width="1" Height="16" Background="#EEEEEE" Margin="4,0" VerticalAlignment="Center"/>
 
+                <Separator Width="1" Height="16" Background="#EEEEEE" Margin="4,0" VerticalAlignment="Center"/>
+
                 <!-- Text Color -->
                 <Button x:Name="BtnTextColor" Style="{StaticResource EditorButtonStyle}" Click="BtnTextColor_Click" ToolTip="글자 색상" Focusable="False">
-                    <StackPanel>
-                        <Path Data="{StaticResource IconTextColor}" Style="{StaticResource EditorIconPath}" Fill="#E74C3C"/>
+                    <StackPanel Orientation="Vertical">
+                        <Path Data="{StaticResource IconTextColor}" Style="{StaticResource EditorIconPath}" Fill="#333333"/>
+                        <Border x:Name="TextColorBar" Height="3" Background="#E74C3C" Margin="2,1,2,0"/>
                     </StackPanel>
                 </Button>
                 <Button x:Name="BtnHighlight" Style="{StaticResource EditorButtonStyle}" Click="BtnHighlight_Click" ToolTip="배경 색상 (형광펜)" Focusable="False">
-                    <Path Data="{StaticResource IconHighlight}" Style="{StaticResource EditorIconPath}" Fill="#F1C40F"/>
+                    <StackPanel Orientation="Vertical">
+                        <Path Data="{StaticResource IconHighlight}" Style="{StaticResource EditorIconPath}" Fill="#333333"/>
+                        <Border x:Name="HighlightColorBar" Height="3" Background="Transparent" BorderBrush="#DDDDDD" BorderThickness="1" Margin="2,1,2,0"/>
+                    </StackPanel>
                 </Button>
 
                 <Separator Width="1" Height="16" Background="#EEEEEE" Margin="4,0" VerticalAlignment="Center"/>
@@ -225,24 +231,23 @@
         </Grid>
 
         <!-- Color Picker Popup -->
-        <Popup x:Name="ColorPickerPopup" StaysOpen="False" AllowsTransparency="True">
-            <Border Background="#FF2A2A2A" BorderBrush="#FF555555" BorderThickness="1" CornerRadius="4" Padding="10">
-                <StackPanel>
-                    <TextBlock Text="색상 선택" Foreground="White" FontSize="12" Margin="0,0,0,8"/>
-                    <UniformGrid Columns="8">
-                        <Button Background="Black" Width="24" Height="24" Margin="2" Click="ColorButton_Click" Tag="#FF000000"/>
-                        <Button Background="#FF333333" Width="24" Height="24" Margin="2" Click="ColorButton_Click" Tag="#FF333333"/>
-                        <Button Background="#FF666666" Width="24" Height="24" Margin="2" Click="ColorButton_Click" Tag="#FF666666"/>
-                        <Button Background="White" Width="24" Height="24" Margin="2" Click="ColorButton_Click" Tag="#FFFFFFFF"/>
-                        <Button Background="Red" Width="24" Height="24" Margin="2" Click="ColorButton_Click" Tag="#FFFF0000"/>
-                        <Button Background="Orange" Width="24" Height="24" Margin="2" Click="ColorButton_Click" Tag="#FFFF8800"/>
-                        <Button Background="Yellow" Width="24" Height="24" Margin="2" Click="ColorButton_Click" Tag="#FFFFFF00"/>
-                        <Button Background="Green" Width="24" Height="24" Margin="2" Click="ColorButton_Click" Tag="#FF00FF00"/>
-                        <Button Background="Blue" Width="24" Height="24" Margin="2" Click="ColorButton_Click" Tag="#FF0000FF"/>
-                        <Button Background="Purple" Width="24" Height="24" Margin="2" Click="ColorButton_Click" Tag="#FF8800FF"/>
-                        <Button Background="Pink" Width="24" Height="24" Margin="2" Click="ColorButton_Click" Tag="#FFFF00FF"/>
-                        <Button Background="Cyan" Width="24" Height="24" Margin="2" Click="ColorButton_Click" Tag="#FF00FFFF"/>
+        <Popup x:Name="ColorPickerPopup" StaysOpen="False" AllowsTransparency="True" PopupAnimation="Fade">
+            <Border Background="#F9F9F9" BorderBrush="#DDDDDD" BorderThickness="1" CornerRadius="8" Padding="12">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.15"/>
+                </Border.Effect>
+                <StackPanel Width="180">
+                    <Grid Margin="0,0,0,10">
+                        <TextBlock x:Name="ColorPickerTitle" Text="색상" FontWeight="Bold" Foreground="#333333" FontSize="12" VerticalAlignment="Center"/>
+                        <Button x:Name="BtnClearColor" Content="투명/없음" HorizontalAlignment="Right" Padding="6,2" FontSize="10" Click="BtnClearColor_Click" Visibility="Collapsed" Style="{StaticResource EditorButtonStyle}"/>
+                    </Grid>
+                    
+                    <UniformGrid x:Name="ColorGrid" Columns="6">
+                        <!-- Populated in Code Behind -->
                     </UniformGrid>
+                    
+                    <Separator Background="#EEEEEE" Margin="0,10,0,8"/>
+                    <Button x:Name="BtnCustomColor" Content="+ 사용자 색상" Click="AddCustomColor_Click" Style="{StaticResource EditorButtonStyle}" FontSize="11" Padding="0,4"/>
                 </StackPanel>
             </Border>
         </Popup>
