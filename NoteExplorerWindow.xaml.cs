@@ -67,6 +67,7 @@ namespace CatchCapture
                 LoadNotes(filter: "Recent");
                 LoadTags();
                 InitializeTipTimer();
+                HighlightSidebarButton(BtnFilterRecent);
             }
             catch (Exception ex)
             {
@@ -275,7 +276,7 @@ namespace CatchCapture
 
                     string sql = $@"
                         SELECT n.Id, n.Title, n.Content, datetime(n.CreatedAt, 'localtime'), n.SourceApp, n.ContentXaml,
-                               c.Name as CategoryName, c.Color as CategoryColor, datetime(n.UpdatedAt, 'localtime')
+                               c.Name as CategoryName, c.Color as CategoryColor, datetime(n.UpdatedAt, 'localtime'), n.Status
                         FROM Notes n
                         LEFT JOIN Categories c ON n.CategoryId = c.Id
                         {joinSql}
@@ -302,10 +303,11 @@ namespace CatchCapture
                                     PreviewContent = reader.IsDBNull(2) ? "" : reader.GetString(2),
                                     CreatedAt = reader.GetDateTime(3),
                                     SourceApp = reader.IsDBNull(4) ? "" : reader.GetString(4),
-                                    ContentXaml = reader.IsDBNull(5) ? null : reader.GetString(5),
+                                    ContentXaml = reader.IsDBNull(5) ? "" : reader.GetString(5),
                                     CategoryName = reader.IsDBNull(6) ? "기본" : reader.GetString(6),
                                     CategoryColor = reader.IsDBNull(7) ? "#8E2DE2" : reader.GetString(7),
-                                    UpdatedAt = reader.GetDateTime(8)
+                                    UpdatedAt = reader.GetDateTime(8),
+                                    Status = reader.IsDBNull(9) ? 0 : reader.GetInt32(9)
                                 };
 
                                 note.Images = GetNoteImages(noteId, imgDir);
@@ -788,13 +790,49 @@ namespace CatchCapture
 
         private void BtnFilter_Click(object sender, RoutedEventArgs e)
         {
-            // Reset Sidebar selection visually (simple loop)
-            // Since we use styles and triggers, we'd need tracking logic or MVVM. 
-            // For now just reload data.
             if (sender is Button btn && btn.Tag is string filter)
             {
                 TxtSearch.Text = "";
                 LoadNotes(filter: filter, page: 1);
+                HighlightSidebarButton(btn);
+            }
+        }
+
+        private void HighlightSidebarButton(Button activeBtn)
+        {
+            try
+            {
+                // Traverse up to find the main sidebar StackPanel
+                DependencyObject obj = activeBtn;
+                StackPanel? mainPanel = null;
+                while (obj != null)
+                {
+                    if (obj is StackPanel sp && sp.Margin.Top == 20) // The one inside ScrollViewer
+                    {
+                        mainPanel = sp;
+                        break;
+                    }
+                    obj = VisualTreeHelper.GetParent(obj);
+                }
+
+                if (mainPanel != null)
+                {
+                    ClearUidRecursive(mainPanel);
+                    activeBtn.Uid = "Active";
+                }
+            }
+            catch { }
+        }
+
+        private void ClearUidRecursive(DependencyObject parent)
+        {
+            int childrenCount = VisualTreeHelper.GetChildrenCount(parent);
+            for (int i = 0; i < childrenCount; i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is Button b) b.Uid = "";
+                
+                ClearUidRecursive(child);
             }
         }
 
@@ -804,6 +842,7 @@ namespace CatchCapture
             {
                 TxtSearch.Text = "";
                 LoadNotes(tag: tagName, page: 1);
+                HighlightSidebarButton(btn);
             }
         }
 
@@ -812,12 +851,12 @@ namespace CatchCapture
             if (BrdCategories.Visibility == Visibility.Visible)
             {
                 BrdCategories.Visibility = Visibility.Collapsed;
-                TxtExpandArrow.Text = ">";
+                TxtGroupIcon.Text = "📁";
             }
             else
             {
                 BrdCategories.Visibility = Visibility.Visible;
-                TxtExpandArrow.Text = "⌵";
+                TxtGroupIcon.Text = "📂";
             }
         }
 
@@ -853,6 +892,35 @@ namespace CatchCapture
             {
                 TxtSearch.Text = "";
                 LoadNotes(filter: $"Category:{id}");
+                HighlightSidebarButton(btn);
+            }
+        }
+
+        private void BtnRestoreItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is long noteId)
+            {
+                if (CatchCapture.CustomMessageBox.Show("이 노트를 복구하시겠습니까?", "알림", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        using (var connection = new SqliteConnection($"Data Source={DatabaseManager.Instance.DbFilePath}"))
+                        {
+                            connection.Open();
+                            using (var command = new SqliteCommand("UPDATE Notes SET Status = 0 WHERE Id = $id", connection))
+                            {
+                                command.Parameters.AddWithValue("$id", noteId);
+                                command.ExecuteNonQuery();
+                            }
+                        }
+                        LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage);
+                        UpdateSidebarCounts();
+                    }
+                    catch (Exception ex)
+                    {
+                        CatchCapture.CustomMessageBox.Show("복구 중 오류 발생: " + ex.Message);
+                    }
+                }
             }
         }
     }
@@ -900,6 +968,11 @@ namespace CatchCapture
 
         private List<NoteAttachment> _attachments = new List<NoteAttachment>();
         public List<NoteAttachment> Attachments { get => _attachments; set { _attachments = value; OnPropertyChanged(nameof(Attachments)); } }
+
+        private int _status;
+        public int Status { get => _status; set { _status = value; OnPropertyChanged(nameof(Status)); OnPropertyChanged(nameof(IsVisibleInTrash)); } }
+
+        public Visibility IsVisibleInTrash => Status == 1 ? Visibility.Visible : Visibility.Collapsed;
 
         private bool _isSelected;
         public bool IsSelected 

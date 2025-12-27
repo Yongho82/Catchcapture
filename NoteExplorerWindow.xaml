@@ -116,6 +116,10 @@
                                 <Setter Property="Background" Value="#F1F3F4"/>
                                 <Setter Property="Foreground" Value="#202124"/>
                             </Trigger>
+                            <Trigger Property="Uid" Value="Active">
+                                <Setter Property="Background" Value="#EDF2FF"/>
+                                <Setter Property="Foreground" Value="#2563EB"/>
+                            </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -296,45 +300,44 @@
                             <StackPanel Margin="15,20,5,0">
                                 <TextBlock Text="탐색" Foreground="#9AA0A6" FontSize="12" FontWeight="Bold" Margin="15,0,0,10"/>
                                 
-                                <Button Click="BtnFilter_Click" Tag="All" Style="{StaticResource SidebarItemStyle}">
+                                <Button x:Name="BtnFilterAll" Click="BtnFilter_Click" Tag="All" Style="{StaticResource SidebarItemStyle}">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="🏠" Margin="0,0,12,0" FontSize="16" VerticalAlignment="Center"/>
                                         <TextBlock Text="전체 노트" VerticalAlignment="Center"/>
                                         <TextBlock x:Name="TxtCountAll" Text="(0)" Margin="5,0,0,0" Foreground="#80868B" FontSize="12" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
-                                <Button Click="BtnFilter_Click" Tag="Default" Style="{StaticResource SidebarItemStyle}">
+                                <Button x:Name="BtnFilterDefault" Click="BtnFilter_Click" Tag="Default" Style="{StaticResource SidebarItemStyle}">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Text="📁" Margin="0,0,12,0" FontSize="16" Foreground="#E74C3C" VerticalAlignment="Center"/>
-                                        <TextBlock Text="기본 그룹" Foreground="#E74C3C" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                                        <TextBlock x:Name="TxtCountDefault" Text="(0)" Margin="5,0,0,0" Foreground="#E74C3C" Opacity="0.7" FontSize="12" VerticalAlignment="Center"/>
+                                        <TextBlock Text="📁" Margin="0,0,12,0" FontSize="16" VerticalAlignment="Center"/>
+                                        <TextBlock Text="기본 그룹" Foreground="#202124" VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="TxtCountDefault" Text="(0)" Margin="5,0,0,0" Foreground="#80868B" FontSize="12" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
 
                                 <!-- Group Note Section -->
-                                <Grid Margin="15,10,5,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Button Grid.Column="0" Click="BtnToggleCategories_Click" Style="{StaticResource TextButtonStyle}" Padding="0" Margin="0,0,8,0">
-                                        <TextBlock x:Name="TxtExpandArrow" Text=">" FontSize="14" Foreground="#5F6368" VerticalAlignment="Center"/>
+                                <Grid Margin="0,1">
+                                    <Button x:Name="BtnToggleCategories" Click="BtnToggleCategories_Click" Style="{StaticResource SidebarItemStyle}" Padding="15,8">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock x:Name="TxtGroupIcon" Text="�" Margin="0,0,12,0" FontSize="16" VerticalAlignment="Center"/>
+                                            <TextBlock Text="그룹 노트" Foreground="#202124" VerticalAlignment="Center"/>
+                                        </StackPanel>
                                     </Button>
-                                    <TextBlock Grid.Column="1" Text="그룹 노트" Foreground="#5F6368" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Cursor="Hand" MouseLeftButtonDown="BtnToggleCategories_Click"/>
-                                    <Button Grid.Column="2" x:Name="BtnAddCategory" Click="BtnAddCategory_Click" Style="{StaticResource TextButtonStyle}" Padding="4" Margin="0,0,4,0">
-                                        <TextBlock Text="+" FontSize="16" Foreground="#5F6368"/>
-                                    </Button>
-                                    <Button Grid.Column="3" x:Name="BtnSortCategories" Click="BtnSortCategories_Click" Style="{StaticResource TextButtonStyle}" Padding="4">
-                                        <TextBlock Text="≡↓" FontSize="12" Foreground="#5F6368" VerticalAlignment="Center"/>
-                                        <Button.ContextMenu>
-                                            <ContextMenu>
-                                                <MenuItem Header="최신순" Click="BtnSort_Click" Tag="UpdatedAt DESC"/>
-                                                <MenuItem Header="이름순" Click="BtnSort_Click" Tag="Title ASC"/>
-                                            </ContextMenu>
-                                        </Button.ContextMenu>
-                                    </Button>
+                                    
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,8,0">
+                                        <Button Click="BtnAddCategory_Click" Style="{StaticResource TextButtonStyle}" Padding="4" Margin="0,0,2,0">
+                                            <TextBlock Text="+" FontSize="16" Foreground="#5F6368"/>
+                                        </Button>
+                                        <Button x:Name="BtnSortCategories" Click="BtnSortCategories_Click" Style="{StaticResource TextButtonStyle}" Padding="4">
+                                            <TextBlock Text="≡↓" FontSize="12" Foreground="#5F6368" VerticalAlignment="Center"/>
+                                            <Button.ContextMenu>
+                                                <ContextMenu>
+                                                    <MenuItem Header="최신순" Click="BtnSort_Click" Tag="UpdatedAt DESC"/>
+                                                    <MenuItem Header="이름순" Click="BtnSort_Click" Tag="Title ASC"/>
+                                                </ContextMenu>
+                                            </Button.ContextMenu>
+                                        </Button>
+                                    </StackPanel>
                                 </Grid>
 
                                 <Border x:Name="BrdCategories" Visibility="Collapsed">
@@ -343,7 +346,7 @@
                                             <DataTemplate>
                                                 <Button Click="BtnCategory_Click" Tag="{Binding Id}" Style="{StaticResource SidebarItemStyle}" Margin="0,0,0,2">
                                                     <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="�" Margin="0,0,10,0" FontSize="14" VerticalAlignment="Center" Opacity="0.6"/>
+                                                        <TextBlock Text="📁" Margin="0,0,10,0" FontSize="14" VerticalAlignment="Center" Opacity="0.6"/>
                                                         <TextBlock Text="{Binding Name}" VerticalAlignment="Center" MaxWidth="120" TextTrimming="CharacterEllipsis"/>
                                                         <TextBlock Text="{Binding CountText}" Margin="5,0,0,0" Foreground="#80868B" FontSize="11" VerticalAlignment="Center"/>
                                                     </StackPanel>
@@ -352,23 +355,23 @@
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
                                 </Border>
-                                <Button Click="BtnFilter_Click" Tag="Today" Style="{StaticResource SidebarItemStyle}">
+                                <Button x:Name="BtnFilterToday" Click="BtnFilter_Click" Tag="Today" Style="{StaticResource SidebarItemStyle}">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="📅" Margin="0,0,12,0" FontSize="16" VerticalAlignment="Center"/>
                                         <TextBlock Text="오늘" VerticalAlignment="Center"/>
                                         <TextBlock x:Name="TxtCountToday" Text="(0)" Margin="5,0,0,0" Foreground="#80868B" FontSize="12" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
-                                <Button Click="BtnFilter_Click" Tag="Recent" Style="{StaticResource SidebarItemStyle}">
+                                <Button x:Name="BtnFilterRecent" Click="BtnFilter_Click" Tag="Recent" Style="{StaticResource SidebarItemStyle}">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="🕒" Margin="0,0,12,0" FontSize="16" VerticalAlignment="Center"/>
                                         <TextBlock Text="최근 7일" VerticalAlignment="Center"/>
                                         <TextBlock x:Name="TxtCountRecent" Text="(0)" Margin="5,0,0,0" Foreground="#80868B" FontSize="12" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
-                                <Button Click="BtnFilter_Click" Tag="Trash" Style="{StaticResource SidebarItemStyle}">
+                                <Button x:Name="BtnFilterTrash" Click="BtnFilter_Click" Tag="Trash" Style="{StaticResource SidebarItemStyle}">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Text="�" Margin="0,0,12,0" FontSize="16" VerticalAlignment="Center"/>
+                                        <TextBlock Text="🗑️" Margin="0,0,12,0" FontSize="16" VerticalAlignment="Center"/>
                                         <TextBlock Text="휴지통" VerticalAlignment="Center"/>
                                         <TextBlock x:Name="TxtCountTrash" Text="(0)" Margin="5,0,0,0" Foreground="#80868B" FontSize="12" VerticalAlignment="Center"/>
                                     </StackPanel>
@@ -541,24 +544,47 @@
                                     <TextBlock Grid.Column="4" Text="{Binding FormattedDate}" Foreground="#80868B" FontSize="12" 
                                                VerticalAlignment="Center" HorizontalAlignment="Center"/>
 
-                                    <!-- Delete Button -->
-                                    <Button Grid.Column="5" Click="BtnDeleteItem_Click" Tag="{Binding Id}" 
-                                            Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <Button.Template>
-                                            <ControlTemplate TargetType="Button">
-                                                <Border x:Name="brd" Width="32" Height="32" Background="Transparent" CornerRadius="16">
-                                                    <Path x:Name="path" Data="M6,19c0,1.1,0.9,2,2,2h8c1.1,0,2,-0.9,2,-2V7H6V19z M19,4h-3.5l-1,-1h-5l-1,1H5v2h14V4z" 
-                                                          Fill="#95A5A6" Width="18" Height="18" Stretch="Uniform"/>
-                                                </Border>
-                                                <ControlTemplate.Triggers>
-                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter TargetName="brd" Property="Background" Value="#FEEBEE"/>
-                                                        <Setter TargetName="path" Property="Fill" Value="#D93025"/>
-                                                    </Trigger>
-                                                </ControlTemplate.Triggers>
-                                            </ControlTemplate>
-                                        </Button.Template>
-                                    </Button>
+                                    <!-- Actions -->
+                                    <StackPanel Grid.Column="5" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,5,0">
+                                        <!-- Restore Button (Only in Trash) -->
+                                        <Button Click="BtnRestoreItem_Click" Tag="{Binding Id}" 
+                                                Visibility="{Binding IsVisibleInTrash}"
+                                                Background="Transparent" BorderThickness="0" Cursor="Hand" Margin="0,0,2,0">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border x:Name="brd" Width="28" Height="28" Background="Transparent" CornerRadius="14">
+                                                        <Path x:Name="path" Data="M13,3 A10,10 0 0,0 3,13 H0 L3.88,16.88 L4,17 L8,13 H5 A8,8 0 1,1 13,21 A1,1 0 1,0 13,23 A10,10 0 1,0 13,3 Z" 
+                                                              Fill="#95A5A6" Width="18" Height="18" Stretch="Uniform"/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="brd" Property="Background" Value="#E8F5E9"/>
+                                                            <Setter TargetName="path" Property="Fill" Value="#4CAF50"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+
+                                        <!-- Delete Button -->
+                                        <Button Click="BtnDeleteItem_Click" Tag="{Binding Id}" 
+                                                Background="Transparent" BorderThickness="0" Cursor="Hand">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border x:Name="brd" Width="28" Height="28" Background="Transparent" CornerRadius="14">
+                                                        <Path x:Name="path" Data="M6,19c0,1.1,0.9,2,2,2h8c1.1,0,2,-0.9,2,-2V7H6V19z M19,4h-3.5l-1,-1h-5l-1,1H5v2h14V4z" 
+                                                              Fill="#95A5A6" Width="16" Height="16" Stretch="Uniform"/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="brd" Property="Background" Value="#FEEBEE"/>
+                                                            <Setter TargetName="path" Property="Fill" Value="#D93025"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+                                    </StackPanel>
 
                                     <Border Grid.ColumnSpan="6" BorderThickness="0,0,0,1" BorderBrush="#F1F3F4" VerticalAlignment="Bottom"/>
                                 </Grid>
