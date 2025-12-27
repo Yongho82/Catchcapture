@@ -18,6 +18,7 @@ Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
 ArchitecturesInstallIn64BitMode=x64
+CloseApplications=force
 ; Installer icon
 SetupIconFile=..\icons\catcha.ico
 ; Uninstall icon in Control Panel
