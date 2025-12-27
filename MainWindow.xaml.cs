@@ -23,6 +23,7 @@ using CatchCapture.Resources;
 using LocalizationManager = CatchCapture.Resources.LocalizationManager;
 using CatchCapture.Recording;
 using System.Diagnostics;
+using IOPath = System.IO.Path;
 
 namespace CatchCapture;
 
@@ -4680,17 +4681,66 @@ public partial class MainWindow : Window
         contextMenu.Items.Add(deleteItem);
         border.ContextMenu = contextMenu;
 
+        // 노트 저장 버튼 추가 (우측 하단에 호버 시 표시)
+        Button noteBtn = new Button
+        {
+            Width = 28, Height = 28,
+            Background = new SolidColorBrush(Color.FromArgb(230, 255, 255, 255)),
+            BorderThickness = new Thickness(1),
+            BorderBrush = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0)),
+            Cursor = Cursors.Hand,
+            ToolTip = "내노트저장",
+            Visibility = Visibility.Collapsed,
+            HorizontalAlignment = HorizontalAlignment.Right,
+            VerticalAlignment = VerticalAlignment.Bottom,
+            Margin = new Thickness(0, 0, 6, 6)
+        };
+
+        // 둥근 버튼 스타일 적용
+        var template = new ControlTemplate(typeof(Button));
+        var borderFactory = new FrameworkElementFactory(typeof(Border));
+        borderFactory.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Button.BackgroundProperty));
+        borderFactory.SetValue(Border.BorderBrushProperty, new TemplateBindingExtension(Button.BorderBrushProperty));
+        borderFactory.SetValue(Border.BorderThicknessProperty, new TemplateBindingExtension(Button.BorderThicknessProperty));
+        borderFactory.SetValue(Border.CornerRadiusProperty, new CornerRadius(14));
+        var contentPresenter = new FrameworkElementFactory(typeof(ContentPresenter));
+        contentPresenter.SetValue(ContentPresenter.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+        contentPresenter.SetValue(ContentPresenter.VerticalAlignmentProperty, VerticalAlignment.Center);
+        borderFactory.AppendChild(contentPresenter);
+        template.VisualTree = borderFactory;
+        noteBtn.Template = template;
+
+        // 아이콘 설정
+        var icon = new Image
+        {
+            Source = new BitmapImage(new Uri("pack://application:,,,/icons/my_note.png")),
+            Width = 14, Height = 14, Stretch = Stretch.Uniform
+        };
+        RenderOptions.SetBitmapScalingMode(icon, BitmapScalingMode.HighQuality);
+        noteBtn.Content = icon;
+
+        // 클릭 이벤트 연결
+        noteBtn.Click += (s, e) =>
+        {
+            e.Handled = true;
+            SaveVideoToNote(filePath, thumbnail);
+        };
+
+        grid.Children.Add(noteBtn);
+
         // 마우스 호버 효과 (비디오만)
         if (!isAudio)
         {
             border.MouseEnter += (s, e) =>
             {
                 border.BorderBrush = new SolidColorBrush(Color.FromRgb(255, 87, 87)); // 빨간색으로 변경
+                noteBtn.Visibility = Visibility.Visible;
             };
 
             border.MouseLeave += (s, e) =>
             {
                 border.BorderBrush = new SolidColorBrush(Color.FromRgb(67, 97, 238)); // 원래 색상
+                noteBtn.Visibility = Visibility.Collapsed;
             };
         }
         else
@@ -4699,14 +4749,41 @@ public partial class MainWindow : Window
             border.MouseEnter += (s, e) =>
             {
                 border.BorderBrush = new SolidColorBrush(Color.FromRgb(100, 150, 255));
+                noteBtn.Visibility = Visibility.Visible;
             };
 
             border.MouseLeave += (s, e) =>
             {
                 border.BorderBrush = new SolidColorBrush(Color.FromRgb(67, 97, 238));
+                noteBtn.Visibility = Visibility.Collapsed;
             };
         }
 
         return (border, encodingOverlay);
+    }
+
+    private void SaveVideoToNote(string filePath, BitmapSource? thumbnail)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath)) return;
+
+            // 비밀번호 잠금 확인
+            if (!string.IsNullOrEmpty(settings.NotePassword) && !App.IsNoteAuthenticated)
+            {
+                var lockWin = new NoteLockCheckWindow(settings.NotePassword, settings.NotePasswordHint);
+                lockWin.Owner = this;
+                if (lockWin.ShowDialog() != true) return;
+            }
+
+            // Thumbnail이 있으면 image로 전달, 파일은 첨부파일로 전달
+            var noteWin = new NoteInputWindow(thumbnail, "화면 녹화", IOPath.GetFileName(filePath), filePath);
+            noteWin.Owner = this;
+            noteWin.ShowDialog();
+        }
+        catch (Exception ex)
+        {
+            CatchCapture.CustomMessageBox.Show($"노트 저장 중 오류가 발생했습니다: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 }

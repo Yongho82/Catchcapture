@@ -34,7 +34,7 @@ namespace CatchCapture
         }
 
         // Constructor for New Note (Capture or Empty)
-        public NoteInputWindow(BitmapSource? image, string? sourceApp = null, string? sourceUrl = null)
+        public NoteInputWindow(BitmapSource? image, string? sourceApp = null, string? sourceUrl = null, string? attachFilePath = null)
         {
             InitializeComponent();
             _capturedImage = image;
@@ -48,6 +48,12 @@ namespace CatchCapture
             string sourceDisplayName = _sourceApp ?? "알 수 없음";
             if (!string.IsNullOrEmpty(_sourceUrl)) sourceDisplayName += $" - {_sourceUrl}";
             TxtSourceInfo.Text = sourceDisplayName;
+
+            // If file path is provided, add as attachment
+            if (!string.IsNullOrEmpty(attachFilePath) && File.Exists(attachFilePath))
+            {
+                AddAttachment(attachFilePath);
+            }
             
             this.Loaded += NoteInputWindow_Loaded;
             this.MouseDown += (s, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
@@ -292,16 +298,23 @@ namespace CatchCapture
             {
                 foreach (string fullPath in dialog.FileNames)
                 {
-                    var item = new AttachmentItem
-                    {
-                        FullPath = fullPath,
-                        DisplayName = Path.GetFileName(fullPath),
-                        IsExisting = false
-                    };
-                    _attachments.Add(item);
+                    AddAttachment(fullPath);
                 }
-                RefreshAttachmentList();
             }
+        }
+
+        public void AddAttachment(string fullPath)
+        {
+            if (string.IsNullOrEmpty(fullPath) || !File.Exists(fullPath)) return;
+
+            var item = new AttachmentItem
+            {
+                FullPath = fullPath,
+                DisplayName = Path.GetFileName(fullPath),
+                IsExisting = false
+            };
+            _attachments.Add(item);
+            RefreshAttachmentList();
         }
 
         private void BtnAddFile_Drop(object sender, DragEventArgs e)
