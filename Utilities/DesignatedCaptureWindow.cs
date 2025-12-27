@@ -280,7 +280,7 @@ namespace CatchCapture.Utilities
             _btnClose.Click += (s, e) => 
             {
                 // X 버튼 클릭 시 메인 윈도우 표시 후 닫기
-                if (System.Windows.Application.Current.MainWindow is MainWindow mainWindow)
+                if (System.Windows.Application.Current.MainWindow is MainWindow mainWindow && !mainWindow.isExit)
                 {
                     mainWindow.Show();
                     if (mainWindow.WindowState == WindowState.Minimized)

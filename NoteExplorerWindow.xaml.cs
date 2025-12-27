@@ -85,9 +85,15 @@ namespace CatchCapture
             base.OnClosed(e);
             Instance = null;
             
-            // 노트 탐색기 닫을 때 메인 윈도우 표시
+            if (_tipTimer != null)
+            {
+                _tipTimer.Stop();
+                _tipTimer = null;
+            }
+            
+            // 노트 탐색기 닫을 때 메인 윈도우 표시 (종료 중이 아닐 때만)
             var mainWindow = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
-            if (mainWindow != null)
+            if (mainWindow != null && !mainWindow.isExit)
             {
                 mainWindow.WindowState = WindowState.Normal;
                 mainWindow.Show();

@@ -53,7 +53,7 @@ public partial class MainWindow : Window
 
     // 트레이 아이콘
     public System.Windows.Forms.NotifyIcon? notifyIcon;
-    private bool isExit = false;
+    internal bool isExit = false;
     internal TrayModeWindow? trayModeWindow;
     internal bool _wasSimpleModeVisibleBeforeRecapture = false;
     // 캡처 직후 자동으로 열린 미리보기 창 수 (메인창 숨김/복원 관리)
@@ -859,6 +859,19 @@ public partial class MainWindow : Window
             {
                 trayModeWindow.Close();
                 trayModeWindow = null;
+            }
+
+            // 노트 탐색기 닫기
+            if (NoteExplorerWindow.Instance != null)
+            {
+                NoteExplorerWindow.Instance.Close();
+            }
+
+            // 타이머 정지
+            if (tipTimer != null)
+            {
+                tipTimer.Stop();
+                tipTimer = null;
             }
 
             // 종료 시 트레이 아이콘 정리

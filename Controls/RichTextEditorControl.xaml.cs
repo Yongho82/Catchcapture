@@ -227,13 +227,37 @@ namespace CatchCapture.Controls
 
         private void SetLineHeight(double multiplier)
         {
-            var paragraph = RtbEditor.CaretPosition.Paragraph;
-            if (paragraph != null)
+            if (RtbEditor == null) return;
+
+            RtbEditor.BeginChange();
+            try
             {
-                // In WPF, LineHeight is absolute. We calculate based on current font size.
-                double currentFontSize = (double)paragraph.GetValue(TextElement.FontSizeProperty);
-                paragraph.LineHeight = currentFontSize * multiplier;
-                paragraph.Margin = new Thickness(0, 0, 0, 4); // Small bottom margin
+                var textRange = RtbEditor.Selection;
+                var currentPos = textRange.Start;
+
+                while (currentPos != null && currentPos.CompareTo(textRange.End) <= 0)
+                {
+                    var paragraph = currentPos.Paragraph;
+                    if (paragraph != null)
+                    {
+                        double currentFontSize = (double)paragraph.GetValue(TextElement.FontSizeProperty);
+                        if (currentFontSize <= 0) currentFontSize = 14; // Fallback
+
+                        paragraph.LineHeight = currentFontSize * multiplier;
+                        paragraph.LineStackingStrategy = LineStackingStrategy.BlockLineHeight;
+                        // Use slightly larger margin for better readability between paragraphs
+                        paragraph.Margin = new Thickness(0, 0, 0, currentFontSize * 0.5); 
+                    }
+                    
+                    // Move to start of next paragraph
+                    var next = currentPos.GetNextContextPosition(LogicalDirection.Forward);
+                    if (next == null || next.CompareTo(textRange.End) > 0) break;
+                    currentPos = next;
+                }
+            }
+            finally
+            {
+                RtbEditor.EndChange();
             }
             RtbEditor.Focus();
         }
