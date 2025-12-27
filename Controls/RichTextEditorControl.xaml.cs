@@ -19,6 +19,7 @@ namespace CatchCapture.Controls
     public partial class RichTextEditorControl : UserControl
     {
         private bool _isTextColorMode = false;
+        private bool _isApplyingProperty = false;
         private List<FrameworkElement> _sliderPanels = new List<FrameworkElement>();
 
         public RichTextEditorControl()
@@ -57,22 +58,19 @@ namespace CatchCapture.Controls
 
             // Initialize Properties
             RtbEditor.FontSize = 14;
+            RtbEditor.FontFamily = defaultFont ?? new FontFamily("Segoe UI");
+            RtbEditor.Foreground = Brushes.Black;
+            
+            // Document baseline properties
             RtbEditor.Document.FontSize = 14;
-            if (defaultFont != null)
-            {
-                RtbEditor.FontFamily = defaultFont;
-                RtbEditor.Document.FontFamily = defaultFont;
-            }
+            RtbEditor.Document.FontFamily = defaultFont ?? new FontFamily("Segoe UI");
             
             // Set consistent line height and paragraph spacing to prevent jumping
             RtbEditor.Document.TextAlignment = TextAlignment.Left;
             RtbEditor.Document.PagePadding = new Thickness(10);
             
-            var defaultStyle = new Style(typeof(Paragraph));
-            defaultStyle.Setters.Add(new Setter(Paragraph.MarginProperty, new Thickness(0, 0, 0, 0)));
-            defaultStyle.Setters.Add(new Setter(Paragraph.LineHeightProperty, 14 * 1.5)); // 1.5x of 14pt
-            RtbEditor.Document.Resources.Add(typeof(Paragraph), defaultStyle);
-
+            // Line height and paragraph spacing are now handled by XAML Styles in FlowDocument.Resources
+            
             // Enable Undo for images and content
             RtbEditor.IsUndoEnabled = true;
             RtbEditor.UndoLimit = 100;
@@ -136,7 +134,12 @@ namespace CatchCapture.Controls
 
         private void UpdateToolbarState()
         {
-            if (RtbEditor == null || BtnBold == null) return;
+            if (RtbEditor == null || BtnBold == null || _isApplyingProperty) return;
+
+            // During typing (caret position, no selection), 
+            // don't let the toolbar sync back from the editor.
+            // This prevents the Korean IME from overriding user-selected style with old context.
+            if (RtbEditor.IsFocused && RtbEditor.Selection.IsEmpty) return;
 
             // Update Bold/Italic/Underline states
             BtnBold.IsChecked = IsPropertyApplied(TextElement.FontWeightProperty, FontWeights.Bold);
@@ -162,10 +165,13 @@ namespace CatchCapture.Controls
             }
             // Update Font Size in ComboBox
             var fontSize = RtbEditor.Selection.GetPropertyValue(TextElement.FontSizeProperty);
-            if (fontSize != DependencyProperty.UnsetValue && fontSize != null)
+            if (fontSize != DependencyProperty.UnsetValue && fontSize is double sizeVal)
             {
-                string sizeStr = fontSize.ToString() ?? "";
-                var item = CboFontSize.Items.Cast<ComboBoxItem>().FirstOrDefault(x => x.Content.ToString() == sizeStr);
+                // Use numeric comparison as strings like "14.4" vs "14" can fail
+                int sizeInt = (int)Math.Round(sizeVal);
+                var item = CboFontSize.Items.Cast<ComboBoxItem>()
+                    .FirstOrDefault(x => int.TryParse(x.Content.ToString(), out int i) && i == sizeInt);
+                
                 if (item != null && CboFontSize.SelectedItem != item)
                 {
                     CboFontSize.SelectionChanged -= CboFontSize_SelectionChanged;
@@ -253,20 +259,72 @@ namespace CatchCapture.Controls
         {
             if (RtbEditor == null) return;
 
-            RtbEditor.Focus();
-            
-            // Apply formatting to selection (or caret if empty)
-            RtbEditor.Selection.ApplyPropertyValue(property, value);
-            
-            // Force focus back to ensure TypingAttributes are honored on next keystroke
-            Dispatcher.BeginInvoke(new Action(() => 
+            try
             {
-                if (RtbEditor != null)
+                _isApplyingProperty = true;
+                RtbEditor.Focus();
+                
+                if (RtbEditor.Selection.IsEmpty)
                 {
-                    RtbEditor.Focus();
-                    Keyboard.Focus(RtbEditor);
+                    // Use a Zero-Width Space (ZWS) as an anchor for the style.
+                    RtbEditor.BeginChange();
+                    try
+                    {
+                        // 1. Capture ALL current context properties to avoid losing them
+                        var curFont = RtbEditor.Selection.GetPropertyValue(TextElement.FontFamilyProperty);
+                        var curSize = RtbEditor.Selection.GetPropertyValue(TextElement.FontSizeProperty);
+                        var curColor = RtbEditor.Selection.GetPropertyValue(TextElement.ForegroundProperty);
+                        var curWeight = RtbEditor.Selection.GetPropertyValue(TextElement.FontWeightProperty);
+                        var curStyle = RtbEditor.Selection.GetPropertyValue(TextElement.FontStyleProperty);
+                        var curDecor = RtbEditor.Selection.GetPropertyValue(Inline.TextDecorationsProperty);
+
+                        // 2. Insert ZWS anchor
+                        RtbEditor.Selection.Text = "\u200B";
+                        
+                        // 3. Select the ZWS
+                        var end = RtbEditor.Selection.End;
+                        var start = end.GetPositionAtOffset(-1, LogicalDirection.Backward);
+                        if (start != null)
+                        {
+                            RtbEditor.Selection.Select(start, end);
+
+                            // 4. Re-apply current context to the ZWS anchor (locking it in)
+                            if (curFont != DependencyProperty.UnsetValue) RtbEditor.Selection.ApplyPropertyValue(TextElement.FontFamilyProperty, curFont);
+                            if (curSize != DependencyProperty.UnsetValue) RtbEditor.Selection.ApplyPropertyValue(TextElement.FontSizeProperty, curSize);
+                            if (curColor != DependencyProperty.UnsetValue) RtbEditor.Selection.ApplyPropertyValue(TextElement.ForegroundProperty, curColor);
+                            if (curWeight != DependencyProperty.UnsetValue) RtbEditor.Selection.ApplyPropertyValue(TextElement.FontWeightProperty, curWeight);
+                            if (curStyle != DependencyProperty.UnsetValue) RtbEditor.Selection.ApplyPropertyValue(TextElement.FontStyleProperty, curStyle);
+                            if (curDecor != DependencyProperty.UnsetValue) RtbEditor.Selection.ApplyPropertyValue(Inline.TextDecorationsProperty, curDecor);
+                            
+                            // 5. Apply the NEW property (user's selection)
+                            if (value is SolidColorBrush b && b.Color == Colors.Black) value = Brushes.Black;
+                            RtbEditor.Selection.ApplyPropertyValue(property, value);
+                            
+                            // 6. Move caret after the ZWS anchor
+                            RtbEditor.Selection.Select(RtbEditor.Selection.End, RtbEditor.Selection.End);
+                        }
+                    }
+                    finally
+                    {
+                        RtbEditor.EndChange();
+                    }
                 }
-            }), System.Windows.Threading.DispatcherPriority.Input);
+                else
+                {
+                    // Apply ONLY to selection. 
+                    // Applying to RtbEditor itself (e.g. RtbEditor.FontSize = value) 
+                    // causes the entire document to change and the UI to hang.
+                    if (value is SolidColorBrush b && b.Color == Colors.Black) value = Brushes.Black;
+                    RtbEditor.Selection.ApplyPropertyValue(property, value);
+                }
+
+                RtbEditor.Focus();
+                Keyboard.Focus(RtbEditor);
+            }
+            finally
+            {
+                _isApplyingProperty = false;
+            }
         }
 
 
@@ -917,12 +975,26 @@ namespace CatchCapture.Controls
 
         public void InitializeWithImage(ImageSource imageSource)
         {
-            // Clear existing content using selection (preserves Undo capability)
-            RtbEditor.SelectAll();
-            RtbEditor.Selection.Text = "";
-            
-            // Insert image
-            InsertImage(imageSource);
+            _isApplyingProperty = true;
+            try
+            {
+                // Clear existing content using selection (preserves Undo capability)
+                RtbEditor.SelectAll();
+                RtbEditor.Selection.Text = "";
+                
+                // Insert image
+                InsertImage(imageSource);
+
+                // Set default line height for the following text
+                if (RtbEditor.Document.Blocks.LastBlock is Paragraph p)
+                {
+                    p.LineHeight = 15 * 1.5;
+                }
+            }
+            finally
+            {
+                _isApplyingProperty = false;
+            }
         }
 
         public List<BitmapSource> GetAllImages()
