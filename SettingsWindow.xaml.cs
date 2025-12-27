@@ -248,7 +248,11 @@ private void UpdateUIText()
                 if (NoteSectionTitle != null) NoteSectionTitle.Text = LocalizationManager.GetString("NoteSettings");
                 if (NoteStorageGroup != null) NoteStorageGroup.Header = LocalizationManager.GetString("NoteStorage");
                 if (NotePathLabel != null) NotePathLabel.Text = LocalizationManager.GetString("NotePath");
-                if (BtnBrowseNoteFolder != null) BtnBrowseNoteFolder.Content = LocalizationManager.GetString("Change");
+                if (BtnBrowseNoteFolder != null) 
+                {
+                    BtnBrowseNoteFolder.Content = LocalizationManager.GetString("Change");
+                    BtnBrowseNoteFolder.ToolTip = "N드라이브, 구글 드라이브 등 클라우드 폴더를 연결하시면 어느 컴퓨터에서나 노트를 공용으로 사용하실 수 있습니다.";
+                }
                 if (BtnOpenNoteFolder != null) BtnOpenNoteFolder.Content = LocalizationManager.GetString("OpenFolder");
                 
                 if (NoteBackupGroup != null) NoteBackupGroup.Header = LocalizationManager.GetString("BackupRestore");
@@ -862,6 +866,14 @@ private void InitLanguageComboBox()
         private void BtnOpenNoteFolder_Click(object sender, RoutedEventArgs e)
         {
             try { Process.Start("explorer.exe", TxtNoteFolder.Text); } catch { }
+        }
+
+        private void BtnCloudTip_Click(object sender, RoutedEventArgs e)
+        {
+            if (CloudTipPopup != null)
+            {
+                CloudTipPopup.IsOpen = !CloudTipPopup.IsOpen;
+            }
         }
 
         private void ChkEnableNotePassword_Click(object sender, RoutedEventArgs e)

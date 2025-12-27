@@ -282,7 +282,7 @@ namespace CatchCapture.Models
             return new HotkeySettings
             {
                 // 캡처 기능: Ctrl+Shift 조합, 기본값 활성화
-                RegionCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "A" },
+                RegionCapture = new ToggleHotkey { Enabled = true, Key = "F1" },
                 DelayCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "D" },
                 RealTimeCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "R" },
                 MultiCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "M" },

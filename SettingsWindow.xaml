@@ -813,7 +813,21 @@
                             
                             <TextBlock Text="※ 폴더 구조: [노트폴더]\notedb (데이터베이스), [노트폴더]\img (이미지)" FontSize="11" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" Margin="0,0,0,10"/>
                             
-                            <Button x:Name="BtnOpenNoteFolder" Content="폴더 열기" Click="BtnOpenNoteFolder_Click" Style="{StaticResource MacButtonSecondary}" HorizontalAlignment="Left" Padding="15,5"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Button x:Name="BtnOpenNoteFolder" Content="폴더 열기" Click="BtnOpenNoteFolder_Click" Style="{StaticResource MacButtonSecondary}" HorizontalAlignment="Left" Padding="15,5" Margin="0,0,10,0"/>
+                                
+                                <Button x:Name="BtnCloudTip" Content="원격저장소" Click="BtnCloudTip_Click" Style="{StaticResource MacButtonSecondary}" HorizontalAlignment="Left" Padding="15,5"/>
+
+                                <Popup x:Name="CloudTipPopup" StaysOpen="False" PlacementTarget="{Binding ElementName=BtnCloudTip}" Placement="Right" VerticalOffset="-10" AllowsTransparency="True" PopupAnimation="Fade">
+                                    <Border Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="6" Padding="12">
+                                        <Border.Effect>
+                                            <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.15"/>
+                                        </Border.Effect>
+                                        <TextBlock Text="N드라이브, 구글 드라이브 등 클라우드 폴더를 연결하시면&#x0a;어느 컴퓨터에서나 노트를 공용으로 사용하실 수 있습니다~" 
+                                                   TextWrapping="NoWrap" FontSize="12" Foreground="{DynamicResource ThemeForeground}" LineHeight="18"/>
+                                    </Border>
+                                </Popup>
+                            </StackPanel>
                         </StackPanel>
                     </GroupBox>
 

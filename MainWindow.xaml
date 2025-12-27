@@ -513,7 +513,7 @@
 
                             <!-- 간편/트레이 모드 버튼 (초소형/심플) -->
                             <UniformGrid Columns="2" Margin="3,0,7,20">
-                                <Button x:Name="SimpleModeButton" Click="SimpleModeButton_Click" Height="26" Margin="0,0,7,0" 
+                                <Button x:Name="SimpleModeButton" Click="SimpleModeButton_Click" Height="26" Margin="5,0,7,0" 
                                         Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="간편 모드">
                                     <Button.Template>
                                         <ControlTemplate TargetType="Button">
