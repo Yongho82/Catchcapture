@@ -11,8 +11,7 @@ namespace CatchCapture
         public NotePasswordWindow(string? existingPassword = null, string? existingHint = null)
         {
             InitializeComponent();
-            PbNewPassword.Password = existingPassword;
-            PbConfirmPassword.Password = existingPassword;
+            // Do not pre-fill existing password for security
             TxtHint.Text = existingHint;
             
             this.MouseDown += (s, e) => { if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed) DragMove(); };

@@ -879,8 +879,8 @@ private void InitLanguageComboBox()
             }
             else
             {
-                // Turning OFF, verify current password first
-                if (!string.IsNullOrEmpty(_settings.NotePassword) && !App.IsNoteAuthenticated)
+                // Turning OFF, ALWAYS verify current password first for security
+                if (!string.IsNullOrEmpty(_settings.NotePassword))
                 {
                     var lockWin = new NoteLockCheckWindow(_settings.NotePassword, _settings.NotePasswordHint);
                     lockWin.Owner = this;
@@ -909,8 +909,8 @@ private void InitLanguageComboBox()
 
         private void BtnSetNotePassword_Click(object sender, RoutedEventArgs e)
         {
-            // Verify current password before changing
-            if (!string.IsNullOrEmpty(_settings.NotePassword) && !App.IsNoteAuthenticated)
+            // ALWAYS verify current password before allowing change
+            if (!string.IsNullOrEmpty(_settings.NotePassword))
             {
                 var lockWin = new NoteLockCheckWindow(_settings.NotePassword, _settings.NotePasswordHint);
                 lockWin.Owner = this;
