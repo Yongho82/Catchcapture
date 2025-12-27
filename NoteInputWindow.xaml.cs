@@ -375,6 +375,16 @@ namespace CatchCapture
                 return;
             }
 
+            // Check if NoteExplorerWindow is open and visible
+            var explorer = NoteExplorerWindow.Instance;
+            bool wasExplorerVisible = explorer != null && explorer.IsVisible;
+            var previousExplorerState = explorer?.WindowState ?? WindowState.Normal;
+
+            if (wasExplorerVisible && explorer != null)
+            {
+                explorer.Hide();
+            }
+
             // Minimize instead of Hide to preserve dialog context
             var previousState = this.WindowState;
             this.WindowState = WindowState.Minimized;
@@ -385,6 +395,13 @@ namespace CatchCapture
                 // This callback runs after capture completes (or is cancelled)
                 Dispatcher.Invoke(() =>
                 {
+                    // Restore NoteExplorerWindow if it was visible
+                    if (wasExplorerVisible && explorer != null)
+                    {
+                        explorer.Show();
+                        explorer.WindowState = previousExplorerState;
+                    }
+
                     // Restore window state
                     this.WindowState = previousState;
                     this.Activate();

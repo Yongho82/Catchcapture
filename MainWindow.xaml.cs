@@ -1238,6 +1238,16 @@ public partial class MainWindow : Window
             if (simpleModeWindow != null) simpleModeWindow.Hide();
             if (trayModeWindow != null) trayModeWindow.Hide();
 
+            // [Fix] NoteExplorerWindow might be open, hide it too
+            if (NoteExplorerWindow.Instance != null && NoteExplorerWindow.Instance.IsVisible)
+            {
+                NoteExplorerWindow.Instance.Hide();
+            }
+
+            // [Fix] Add a small delay for Note Editor capture to prevent "ghost" images.
+            // This is only called via TriggerCaptureForNote, so regular captures are unaffected.
+            await Task.Delay(200);
+
             await Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.Render);
             FlushUIAfterHide();
 
