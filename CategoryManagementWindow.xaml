@@ -19,8 +19,8 @@
             <!-- Header (Title Bar) -->
             <Border Grid.Row="0" Background="#F3E5F5" CornerRadius="14,14,0,0" Padding="20">
                 <StackPanel>
-                    <TextBlock Text="분류 관리" FontSize="20" FontWeight="Bold" Foreground="#333333"/>
-                    <TextBlock Text="메모를 분류할 그룹을 관리하세요." FontSize="13" Foreground="#777777" Margin="0,5,0,0"/>
+                    <TextBlock x:Name="TxtTitle" Text="분류 관리" FontSize="20" FontWeight="Bold" Foreground="#333333"/>
+                    <TextBlock x:Name="TxtDesc" Text="메모를 분류할 그룹을 관리하세요." FontSize="13" Foreground="#777777" Margin="0,5,0,0"/>
                 </StackPanel>
             </Border>
             
@@ -78,7 +78,7 @@
                 </Border>
                 
                 <!-- Footer -->
-                <Button Grid.Row="2" Content="닫기" Click="BtnClose_Click" Margin="0,20,0,0" Height="40" Background="#F8F9FA" 
+                <Button Grid.Row="2" x:Name="BtnClose" Content="닫기" Click="BtnClose_Click" Margin="0,20,0,0" Height="40" Background="#F8F9FA" 
                         Foreground="#555555" BorderBrush="#E0E0E0" BorderThickness="1" FontSize="14" FontWeight="Bold" Cursor="Hand">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">

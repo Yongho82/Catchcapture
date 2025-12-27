@@ -226,7 +226,7 @@
                 <Grid>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                         <Image Source="icons/my_note.png" Width="22" Height="22" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="마이 노트" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="TxtMyNoteTitle" Text="마이 노트" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
                     </StackPanel>
                     
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
@@ -238,10 +238,7 @@
                                         <Border.Effect>
                                             <DropShadowEffect BlurRadius="10" Color="#8E2DE2" Opacity="0.3" ShadowDepth="2"/>
                                         </Border.Effect>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Path Data="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" Fill="White" Width="18" Height="18" Margin="0,0,8,0" Stretch="Uniform"/>
-                                            <TextBlock Text="새 노트 작성" Foreground="White" FontWeight="Bold" VerticalAlignment="Center" FontSize="14"/>
-                                        </StackPanel>
+                                        <ContentPresenter/>
                                     </Border>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
@@ -250,6 +247,10 @@
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </Button.Template>
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" Fill="White" Width="18" Height="18" Margin="0,0,8,0" Stretch="Uniform"/>
+                                <TextBlock x:Name="TxtNewNoteLabel" Text="새 노트 작성" Foreground="White" FontWeight="Bold" VerticalAlignment="Center" FontSize="14"/>
+                            </StackPanel>
                         </Button>
                         
                         <Button x:Name="BtnMinimize" Width="36" Height="36" Click="BtnMinimize_Click" 
@@ -295,14 +296,14 @@
                                         <Path Data="M12,15a3,3,0,1,0,0-6,3,3,0,0,0,0,6Zm0-1.5a1.5,1.5,0,1,1,0-3,1.5,1.5,0,0,1,0,3Zm7.4-2.8l1.7-1.3a1,1,0,0,0,0-1.6l-2-3.5a1,1,0,0,0-1.2-.4L16,4.7a6.9,6.9,0,0,0-3.3-1.9L12.3,1a1,1,0,0,0-1-.8H7.7a1,1,0,0,0-1,.8l-.4,1.9a7.3,7.3,0,0,0-3.3,1.9L1.1,4a1,1,0,0,0-1.2.4l-2,3.5a1,1,0,0,0,.3,1.3l1.7,1.3a7,7,0,0,0,0,2.6l-1.7,1.3a1,1,0,0,0-.3,1.3l2,3.5a1,1,0,0,0,1.2.4l1.9-.8a6.9,6.9,0,0,0,3.3,1.9l.4,1.9a1,1,0,0,0,1,.8h3.6a1,1,0,0,0,1-.8l.4-1.9a7.3,7.3,0,0,0,3.3-1.9l1.9.8a1,1,0,0,0,1.2-.4l2-3.5a1,1,0,0,0,0-1.6l-1.7-1.3C19.5,12.7,19.5,11.3,19.4,10.7Z" 
                                               Stroke="{DynamicResource ThemeForeground}" Opacity="0.7" StrokeThickness="1.5" Fill="Transparent"/>
                                     </Viewbox>
-                                    <TextBlock Text="노트 설정" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                                    <TextBlock x:Name="BtnNoteSettingsText" Text="노트 설정" VerticalAlignment="Center" FontWeight="SemiBold"/>
                                 </StackPanel>
                             </Button>
                         </Border>
 
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <StackPanel Margin="15,20,5,0">
-                                <TextBlock Text="탐색" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="12" FontWeight="Bold" Margin="15,0,0,10"/>
+                                <TextBlock x:Name="TxtExploreTitle" Text="탐색" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="12" FontWeight="Bold" Margin="15,0,0,10"/>
                                 
                                 <Button x:Name="BtnFilterAll" Click="BtnFilter_Click" Tag="All" Style="{StaticResource SidebarItemStyle}">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -310,7 +311,7 @@
                                             <Path Data="M2,12 L12,3 L22,12 M5,10 V20 A2,2 0 0,0 7,22 H17 A2,2 0 0,0 19,20 V10" 
                                                   Stroke="{DynamicResource ThemeForeground}" Opacity="0.7" StrokeThickness="1.5" Fill="Transparent"/>
                                         </Viewbox>
-                                        <TextBlock Text="전체 노트" VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="TxtFilterAllText" Text="전체 노트" VerticalAlignment="Center"/>
                                         <TextBlock x:Name="TxtCountAll" Text="(0)" Margin="5,0,0,0" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="12" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
@@ -324,7 +325,7 @@
                                                 <Path x:Name="PathGroupIcon" Data="M3,6 A2,2 0 0,1 5,4 H9 L11,6 H19 A2,2 0 0,1 21,8 V18 A2,2 0 0,1 19,20 H5 A2,2 0 0,1 3,18 Z" 
                                                       Stroke="{DynamicResource ThemeForeground}" Opacity="0.7" StrokeThickness="1.5" Fill="Transparent"/>
                                             </Viewbox>
-                                            <TextBlock Text="그룹 노트" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="TxtFilterGroupText" Text="그룹 노트" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                     
@@ -369,7 +370,7 @@
                                             <Path Data="M4,9 H20 M16,2 V6 M8,2 V6 M5,4 H19 A2,2 0 0,1 21,6 V20 A2,2 0 0,1 19,22 H5 A2,2 0 0,1 3,20 V6 A2,2 0 0,1 5,4 Z" 
                                                   Stroke="{DynamicResource ThemeForeground}" Opacity="0.7" StrokeThickness="1.5" Fill="Transparent"/>
                                         </Viewbox>
-                                        <TextBlock Text="오늘" VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="TxtFilterTodayText" Text="오늘" VerticalAlignment="Center"/>
                                         <TextBlock x:Name="TxtCountToday" Text="(0)" Margin="5,0,0,0" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="12" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
@@ -379,7 +380,7 @@
                                             <Path Data="M12,22 C17.5,22 22,17.5 22,12 C22,6.5 17.5,2 12,2 C6.5,2 2,6.5 2,12 C2,17.5 6.5,22 12,22 Z M12,6 V12 L16,15" 
                                                   Stroke="{DynamicResource ThemeForeground}" Opacity="0.7" StrokeThickness="1.5" Fill="Transparent" StrokeStartLineCap="Round" StrokeLineJoin="Round"/>
                                         </Viewbox>
-                                        <TextBlock Text="최근 7일" VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="TxtFilterRecentText" Text="최근 7일" VerticalAlignment="Center"/>
                                         <TextBlock x:Name="TxtCountRecent" Text="(0)" Margin="5,0,0,0" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="12" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
@@ -389,14 +390,14 @@
                                             <Path Data="M20,6 H4 M10,11 V17 M14,11 V17 M5,6 L6,19 A2,2 0 0,0 8,21 H16 A2,2 0 0,0 18,19 L19,6 M9,6 V3 A1,1 0 0,1 10,2 H14 A1,1 0 0,1 15,3 V6" 
                                                   Stroke="{DynamicResource ThemeForeground}" Opacity="0.7" StrokeThickness="1.5" Fill="Transparent" StrokeStartLineCap="Round" StrokeLineJoin="Round"/>
                                         </Viewbox>
-                                        <TextBlock Text="휴지통" VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="TxtFilterTrashText" Text="휴지통" VerticalAlignment="Center"/>
                                         <TextBlock x:Name="TxtCountTrash" Text="(0)" Margin="5,0,0,0" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="12" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                                 
                                 <Separator Background="{DynamicResource ThemeBorder}" Margin="10,15"/>
                                 
-                                <TextBlock Text="태그" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="11" FontWeight="Bold" Margin="15,0,0,10"/>
+                                <TextBlock x:Name="TxtTagsTitle" Text="태그" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="11" FontWeight="Bold" Margin="15,0,0,10"/>
                                 <ItemsControl x:Name="ItemsTags" Margin="10,0">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
@@ -455,7 +456,7 @@
                                     <TextBox x:Name="TxtSearch" Grid.Column="0" Background="Transparent" BorderThickness="0" 
                                              VerticalContentAlignment="Center" FontSize="13" Foreground="{DynamicResource ThemeForeground}" Margin="10,0,0,0"
                                              KeyDown="TxtSearch_KeyDown"/>
-                                    <TextBlock Grid.Column="0" Text="검색..." Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" IsHitTestVisible="False" 
+                                    <TextBlock x:Name="TxtSearchPlaceholder" Grid.Column="0" Text="검색..." Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" IsHitTestVisible="False" 
                                                VerticalAlignment="Center" Margin="12,0" FontSize="13">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
@@ -501,10 +502,10 @@
                                     </Style>
                                 </CheckBox.Style>
                             </CheckBox>
-                            <TextBlock Grid.Column="1" Text="그룹" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Margin="5,0,0,0"/>
-                            <TextBlock Grid.Column="2" Text="제목" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0"/>
-                            <TextBlock Grid.Column="3" Text="내용" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0"/>
-                            <TextBlock Grid.Column="4" Text="마지막 수정일" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="ColHeaderGroup" Text="그룹" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                            <TextBlock x:Name="ColHeaderTitle" Text="제목" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0"/>
+                            <TextBlock x:Name="ColHeaderContent" Text="내용" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0"/>
+                            <TextBlock x:Name="ColHeaderModified" Text="마지막 수정일" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         </Grid>
                     </Border>
 
@@ -716,10 +717,7 @@
                                 <Button.Template>
                                     <ControlTemplate TargetType="Button">
                                         <Border x:Name="brd" Background="{DynamicResource ThemeSidebarButtonPressedBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="20" Padding="25,10">
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="✎" Foreground="{DynamicResource ThemeForeground}" Margin="0,0,8,0" VerticalAlignment="Center" FontSize="14"/>
-                                                <TextBlock Text="수정하기" Foreground="{DynamicResource ThemeForeground}" FontWeight="Bold" VerticalAlignment="Center" FontSize="14"/>
-                                            </StackPanel>
+                                            <ContentPresenter/>
                                         </Border>
                                         <ControlTemplate.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
@@ -728,6 +726,10 @@
                                         </ControlTemplate.Triggers>
                                     </ControlTemplate>
                                 </Button.Template>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="✎" Foreground="{DynamicResource ThemeForeground}" Margin="0,0,8,0" VerticalAlignment="Center" FontSize="14"/>
+                                    <TextBlock x:Name="BtnEditNoteText" Text="수정하기" Foreground="{DynamicResource ThemeForeground}" FontWeight="Bold" VerticalAlignment="Center" FontSize="14"/>
+                                </StackPanel>
                             </Button>
                         </StackPanel>
                     </Grid>

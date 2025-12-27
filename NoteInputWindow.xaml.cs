@@ -45,7 +45,7 @@ namespace CatchCapture
             UpdateUIForMode();
 
             // Display source metadata
-            string sourceDisplayName = _sourceApp ?? "알 수 없음";
+            string sourceDisplayName = _sourceApp ?? CatchCapture.Resources.LocalizationManager.GetString("Unknown");
             if (!string.IsNullOrEmpty(_sourceUrl)) sourceDisplayName += $" - {_sourceUrl}";
             TxtSourceInfo.Text = sourceDisplayName;
 
@@ -77,6 +77,8 @@ namespace CatchCapture
             
             // Subscribe to capture request from editor
             Editor.CaptureRequested += OnEditorCaptureRequested;
+            UpdateUIText();
+            CatchCapture.Resources.LocalizationManager.LanguageChanged += (s, e) => UpdateUIText();
         }
 
         // Constructor for Edit Note
@@ -93,19 +95,39 @@ namespace CatchCapture
             
             // Subscribe to capture request from editor
             Editor.CaptureRequested += OnEditorCaptureRequested;
+            UpdateUIText();
+            CatchCapture.Resources.LocalizationManager.LanguageChanged += (s, e) => UpdateUIText();
+        }
+
+        private void UpdateUIText()
+        {
+            this.Title = CatchCapture.Resources.LocalizationManager.GetString("NoteInputTitle") ?? "캐치캡처-글쓰기";
+            if (TxtHeaderTitle != null) TxtHeaderTitle.Text = CatchCapture.Resources.LocalizationManager.GetString("Write");
+            if (BtnClose != null) BtnClose.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("Close");
+            if (BtnManageCategories != null) BtnManageCategories.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("ManageCategories");
+            if (TxtTitlePlaceholder != null) TxtTitlePlaceholder.Text = CatchCapture.Resources.LocalizationManager.GetString("TitlePlaceholder");
+            if (TxtTagsLabel != null) TxtTagsLabel.Text = CatchCapture.Resources.LocalizationManager.GetString("Tags");
+            if (TxtTagsPlaceholder != null) TxtTagsPlaceholder.Text = CatchCapture.Resources.LocalizationManager.GetString("TagsPlaceholder");
+            if (TxtLinkLabel != null) TxtLinkLabel.Text = CatchCapture.Resources.LocalizationManager.GetString("Link");
+            if (TxtLinkPlaceholder != null) TxtLinkPlaceholder.Text = CatchCapture.Resources.LocalizationManager.GetString("LinkPlaceholder");
+            if (TxtFilesLabel != null) TxtFilesLabel.Text = CatchCapture.Resources.LocalizationManager.GetString("FileAttachment");
+            if (TxtFileAttachGuide != null) TxtFileAttachGuide.Text = CatchCapture.Resources.LocalizationManager.GetString("FileAttachmentGuide");
+            
+            if (BtnCancel != null) BtnCancel.Content = CatchCapture.Resources.LocalizationManager.GetString("Cancel");
+            if (BtnSave != null) BtnSave.Content = CatchCapture.Resources.LocalizationManager.GetString("NoteSave");
         }
 
         private void UpdateUIForMode()
         {
             if (_isEditMode)
             {
-                TxtHeaderTitle.Text = "노트 수정";
-                BtnSave.Content = "수정 완료";
+                if (TxtHeaderTitle != null) TxtHeaderTitle.Text = CatchCapture.Resources.LocalizationManager.GetString("EditNote");
+                if (BtnSave != null) BtnSave.Content = CatchCapture.Resources.LocalizationManager.GetString("FinishEdit");
             }
             else
             {
-                TxtHeaderTitle.Text = "노트 쓰기";
-                BtnSave.Content = "작성 완료";
+                if (TxtHeaderTitle != null) TxtHeaderTitle.Text = CatchCapture.Resources.LocalizationManager.GetString("WriteNote");
+                if (BtnSave != null) BtnSave.Content = CatchCapture.Resources.LocalizationManager.GetString("FinishWrite");
             }
         }
 
@@ -222,7 +244,7 @@ namespace CatchCapture
                                 }
                                 
                                 // Update source info UI
-                                string sourceDisplayName = _sourceApp ?? "알 수 없음";
+                                string sourceDisplayName = _sourceApp ?? CatchCapture.Resources.LocalizationManager.GetString("Unknown");
                                 if (!string.IsNullOrEmpty(_sourceUrl)) sourceDisplayName += $" - {_sourceUrl}";
                                 TxtSourceInfo.Text = _sourceUrl ?? ""; 
                             }
@@ -273,7 +295,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                CatchCapture.CustomMessageBox.Show("노트 정보를 불러오는 중 오류 발생: " + ex.Message);
+                CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ErrReadNote") + " " + ex.Message, CatchCapture.Resources.LocalizationManager.GetString("Error"));
             }
         }
 
@@ -313,7 +335,7 @@ namespace CatchCapture
         {
             var dialog = new Microsoft.Win32.OpenFileDialog
             {
-                Title = "첨부 파일 선택",
+                Title = CatchCapture.Resources.LocalizationManager.GetString("SelectAttachFiles"),
                 Multiselect = true
             };
 
@@ -371,7 +393,7 @@ namespace CatchCapture
             var mainWindow = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
             if (mainWindow == null)
             {
-                CustomMessageBox.Show("메인 윈도우를 찾을 수 없습니다.", "오류");
+                CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ErrMainWinNotFound"), CatchCapture.Resources.LocalizationManager.GetString("Error"));
                 return;
             }
 
@@ -433,14 +455,14 @@ namespace CatchCapture
             
             if (imagesInEditor.Count == 0 && _capturedImage == null && string.IsNullOrWhiteSpace(TxtTitle.Text) && string.IsNullOrWhiteSpace(Editor.GetPlainText()))
             {
-                 CatchCapture.CustomMessageBox.Show("저장할 내용이 없습니다.");
+                 CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("NoContentToSave"), CatchCapture.Resources.LocalizationManager.GetString("Notice"));
                  return;
             }
 
             try
             {
                 string title = TxtTitle.Text;
-                if (string.IsNullOrWhiteSpace(title)) title = "제목없음";
+                if (string.IsNullOrWhiteSpace(title)) title = CatchCapture.Resources.LocalizationManager.GetString("Untitled");
                 
                 string content = Editor.GetPlainText();
                 string tags = TxtTags.Text;
@@ -543,7 +565,7 @@ namespace CatchCapture
                         }
                     }
                     
-                    CatchCapture.CustomMessageBox.Show("노트가 성공적으로 수정되었습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                    CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("NoteEditSuccess"), CatchCapture.Resources.LocalizationManager.GetString("Notice"), MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
@@ -556,7 +578,7 @@ namespace CatchCapture
                         DatabaseManager.Instance.AddNoteImage(targetNoteId, savedFileNames[i], i);
                     }
                     
-                    CatchCapture.CustomMessageBox.Show("노트가 성공적으로 저장되었습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                    CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("NoteSaveSuccess"), CatchCapture.Resources.LocalizationManager.GetString("Notice"), MessageBoxButton.OK, MessageBoxImage.Information);
                 }
 
                 // Attachments
@@ -672,7 +694,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                CatchCapture.CustomMessageBox.Show($"저장 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ErrSaveNote") + " " + ex.Message, CatchCapture.Resources.LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

@@ -19,6 +19,19 @@ namespace CatchCapture
             this.MouseLeftButtonDown += (s, e) => {
                 try { if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed) this.DragMove(); } catch { }
             };
+
+            UpdateUIText();
+            CatchCapture.Resources.LocalizationManager.LanguageChanged += (s, e) => UpdateUIText();
+        }
+
+        private void UpdateUIText()
+        {
+            if (TxtHeaderTitle != null) TxtHeaderTitle.Text = CatchCapture.Resources.LocalizationManager.GetString("NoteUnlock");
+            if (TxtHeaderSub != null) TxtHeaderSub.Text = CatchCapture.Resources.LocalizationManager.GetString("ProtectedContent");
+            if (BtnHint != null) BtnHint.Content = CatchCapture.Resources.LocalizationManager.GetString("ShowHint");
+            if (TxtPasswordLabel != null) TxtPasswordLabel.Text = CatchCapture.Resources.LocalizationManager.GetString("Password");
+            if (BtnCancel != null) BtnCancel.Content = CatchCapture.Resources.LocalizationManager.GetString("Cancel");
+            if (BtnConfirm != null) BtnConfirm.Content = CatchCapture.Resources.LocalizationManager.GetString("Unlock");
         }
 
         private void BtnConfirm_Click(object sender, RoutedEventArgs e)
@@ -31,7 +44,7 @@ namespace CatchCapture
             }
             else
             {
-                CatchCapture.CustomMessageBox.Show("비밀번호가 일치하지 않습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("PasswordsDoNotMatch"), CatchCapture.Resources.LocalizationManager.GetString("Notice"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 PbPassword.Clear();
                 PbPassword.Focus();
             }
@@ -47,11 +60,11 @@ namespace CatchCapture
         {
             if (string.IsNullOrEmpty(_hint))
             {
-                CatchCapture.CustomMessageBox.Show("등록된 힌트가 없습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("NoHintRegistered"), CatchCapture.Resources.LocalizationManager.GetString("Notice"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
             else
             {
-                CatchCapture.CustomMessageBox.Show($"비밀번호 힌트: {_hint}", "힌트", MessageBoxButton.OK, MessageBoxImage.Information);
+                CatchCapture.CustomMessageBox.Show(string.Format(CatchCapture.Resources.LocalizationManager.GetString("PasswordHintMessage"), _hint), CatchCapture.Resources.LocalizationManager.GetString("Hint"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
     }

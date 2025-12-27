@@ -4165,10 +4165,10 @@ public partial class MainWindow : Window
             }
         }
 
-        // 타이틀바 및 기타 버튼 로컬라이제이션
         if (TitleSimpleModeButton != null) TitleSimpleModeButton.ToolTip = LocalizationManager.GetString("SimpleMode");
         if (TitleTrayModeButton != null) TitleTrayModeButton.ToolTip = LocalizationManager.GetString("TrayMode");
         if (OpenSaveFolderButtonText != null) OpenSaveFolderButtonText.Text = LocalizationManager.GetString("OpenSaveFolder");
+        if (OpenMyNoteButtonText != null) OpenMyNoteButtonText.Text = LocalizationManager.GetString("OpenMyNote");
     }
     private void UpdateTrayMenuTexts()
     {

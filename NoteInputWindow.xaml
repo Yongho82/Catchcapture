@@ -80,7 +80,7 @@
                                         </Style>
                                     </TextBox.Style>
                                 </TextBox>
-                                <TextBlock Text="제목을 입력해주세요" IsHitTestVisible="False" Foreground="{DynamicResource ThemeForeground}" Opacity="0.4" FontSize="16" 
+                                <TextBlock x:Name="TxtTitlePlaceholder" Text="제목을 입력해주세요" IsHitTestVisible="False" Foreground="{DynamicResource ThemeForeground}" Opacity="0.4" FontSize="16" 
                                            VerticalAlignment="Center" Margin="17,0,0,0" FontWeight="SemiBold">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
@@ -111,12 +111,12 @@
                             <ColumnDefinition Width="60"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="태그" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" VerticalAlignment="Center" FontSize="14"/>
+                        <TextBlock x:Name="TxtTagsLabel" Text="태그" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" VerticalAlignment="Center" FontSize="14"/>
                         <Border Grid.Column="1" Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="4">
                             <Grid>
                                 <TextBox x:Name="TxtTags" Background="Transparent" BorderThickness="0" Padding="15,6" 
                                          FontSize="14" Foreground="{DynamicResource ThemeForeground}" CaretBrush="{DynamicResource ThemeForeground}"/>
-                                <TextBlock Text="태그를 입력해주세요 (쉼표로 구분)" IsHitTestVisible="False" Foreground="{DynamicResource ThemeForeground}" Opacity="0.4" FontSize="14" 
+                                <TextBlock x:Name="TxtTagsPlaceholder" Text="태그를 입력해주세요 (쉼표로 구분)" IsHitTestVisible="False" Foreground="{DynamicResource ThemeForeground}" Opacity="0.4" FontSize="14" 
                                            VerticalAlignment="Center" Margin="17,0,0,0">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
@@ -142,7 +142,7 @@
                             <ColumnDefinition Width="60"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="링크" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" VerticalAlignment="Center" FontSize="14"/>
+                        <TextBlock x:Name="TxtLinkLabel" Text="링크" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" VerticalAlignment="Center" FontSize="14"/>
                         <Border Grid.Column="1" Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="4">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -153,7 +153,7 @@
                                       Fill="{DynamicResource ThemeForeground}" Opacity="0.5" Width="16" Height="16" Margin="12,0,0,0" Stretch="Uniform"/>
                                 <TextBox x:Name="TxtSourceInfo" Grid.Column="1" Background="Transparent" BorderThickness="0" Padding="10,6" 
                                          FontSize="14" Foreground="{DynamicResource ThemeForeground}" CaretBrush="{DynamicResource ThemeForeground}"/>
-                                <TextBlock Grid.Column="1" Text="관련 링크를 입력해주세요." IsHitTestVisible="False" Foreground="{DynamicResource ThemeForeground}" Opacity="0.4" FontSize="14" 
+                                <TextBlock x:Name="TxtLinkPlaceholder" Text="관련 링크를 입력해주세요." IsHitTestVisible="False" Foreground="{DynamicResource ThemeForeground}" Opacity="0.4" FontSize="14" 
                                            VerticalAlignment="Center" Margin="12,0,0,0">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
@@ -174,7 +174,7 @@
                     </Grid>
 
                     <!-- File Attachment -->
-                    <TextBlock Text="파일 첨부" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" Margin="0,0,0,5" FontSize="14"/>
+                    <TextBlock x:Name="TxtFilesLabel" Text="파일 첨부" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" Margin="0,0,0,5" FontSize="14"/>
                     <Button x:Name="BtnAddFile" Click="BtnAddFile_Click" AllowDrop="True" Drop="BtnAddFile_Drop" Cursor="Hand" Background="Transparent" BorderThickness="0" Margin="0,0,0,8">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
@@ -199,13 +199,14 @@
                                         <DropShadowEffect BlurRadius="10" Color="Black" Opacity="0.1" ShadowDepth="2" Direction="270"/>
                                     </Border.Effect>
                                     
-                                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <TextBlock Text="📎" FontSize="20" HorizontalAlignment="Center" Margin="0,0,0,5" Foreground="{DynamicResource ThemeForeground}" Opacity="0.8"/>
-                                        <TextBlock Text="이곳에 파일을 드래그 하거나 클릭하여 첨부하세요." Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" FontSize="13" FontWeight="Medium" HorizontalAlignment="Center"/>
-                                    </StackPanel>
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                             </ControlTemplate>
                         </Button.Template>
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="📎" FontSize="20" HorizontalAlignment="Center" Margin="0,0,0,5" Foreground="{DynamicResource ThemeForeground}" Opacity="0.8"/>
+                            <TextBlock x:Name="TxtFileAttachGuide" Text="이곳에 파일을 드래그 하거나 클릭하여 첨부하세요." Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" FontSize="13" FontWeight="Medium" HorizontalAlignment="Center"/>
+                        </StackPanel>
                     </Button>
 
                     <!-- Attachment List -->

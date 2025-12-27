@@ -1363,7 +1363,7 @@ namespace CatchCapture.Utilities
             };
             
             // 노트저장 버튼
-            var saveNoteButton = CreateActionButton("my_note.png", "노트저장", "내 노트에 저장");
+            var saveNoteButton = CreateActionButton("my_note.png", LocalizationManager.Get("NoteSave"), LocalizationManager.Get("SaveNoteTooltip"));
             saveNoteButton.Click += (s, e) => SaveToNote();
 
             // 복사 버튼

@@ -123,8 +123,8 @@
                           Fill="#8E2DE2" Stretch="Uniform" Margin="7"/>
                 </Grid>
                 <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="노트 잠금 해제" FontSize="16" FontWeight="Bold" Foreground="#212529"/>
-                    <TextBlock Text="보호된 콘텐츠입니다" FontSize="11" Foreground="#868E96"/>
+                    <TextBlock x:Name="TxtHeaderTitle" Text="노트 잠금 해제" FontSize="16" FontWeight="Bold" Foreground="#212529"/>
+                    <TextBlock x:Name="TxtHeaderSub" Text="보호된 콘텐츠입니다" FontSize="11" Foreground="#868E96"/>
                 </StackPanel>
             </StackPanel>
 
@@ -135,7 +135,7 @@
 
             <!-- Input Area -->
             <StackPanel Grid.Row="1" Margin="0,0,0,15">
-                <TextBlock Text="비밀번호" FontSize="11" FontWeight="SemiBold" Foreground="#495057" Margin="2,0,0,4"/>
+                <TextBlock x:Name="TxtPasswordLabel" Text="비밀번호" FontSize="11" FontWeight="SemiBold" Foreground="#495057" Margin="2,0,0,4"/>
                 <PasswordBox x:Name="PbPassword" Height="36" Style="{StaticResource ModernPasswordBox}" Background="#F8F9FA"/>
             </StackPanel>
 

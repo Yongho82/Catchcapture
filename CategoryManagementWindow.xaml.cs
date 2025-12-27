@@ -16,6 +16,18 @@ namespace CatchCapture
             InitializeComponent();
             LoadCategories();
             this.MouseDown += (s, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
+
+            UpdateUIText();
+            CatchCapture.Resources.LocalizationManager.LanguageChanged += (s, e) => UpdateUIText();
+        }
+
+        private void UpdateUIText()
+        {
+            this.Title = CatchCapture.Resources.LocalizationManager.GetString("CategoryManagementTitle");
+            if (TxtTitle != null) TxtTitle.Text = CatchCapture.Resources.LocalizationManager.GetString("CategoryManagementTitle");
+            if (TxtDesc != null) TxtDesc.Text = CatchCapture.Resources.LocalizationManager.GetString("CategoryManagementDesc");
+            if (TxtNewCategory != null) TxtNewCategory.Tag = CatchCapture.Resources.LocalizationManager.GetString("NewCategoryPlaceholder");
+            if (BtnClose != null) BtnClose.Content = CatchCapture.Resources.LocalizationManager.GetString("Close");
         }
 
         private void LoadCategories()
@@ -44,11 +56,11 @@ namespace CatchCapture
             {
                 if (id == 1)
                 {
-                    CatchCapture.CustomMessageBox.Show("기본 분류는 삭제할 수 없습니다.", "알림");
+                    CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("DefaultCategoryDeleteError"), CatchCapture.Resources.LocalizationManager.GetString("Notice"));
                     return;
                 }
 
-                if (CatchCapture.CustomMessageBox.Show("이 분류를 삭제하시겠습니까? 연결된 메모는 '기본' 분류로 이동됩니다.", "확인", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                if (CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("DeleteCategoryConfirm"), CatchCapture.Resources.LocalizationManager.GetString("ConfirmDelete"), MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                 {
                     DatabaseManager.Instance.DeleteCategory(id);
                     LoadCategories();

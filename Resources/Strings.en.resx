@@ -473,7 +473,122 @@
   <data name="PasswordHint" xml:space="preserve"><value>Password Hint</value></data>
   <data name="PasswordWarning" xml:space="preserve"><value>* Caution: Data cannot be recovered if the password is lost.</value></data>
   <data name="ImageOptimization" xml:space="preserve"><value>Image Optimization</value></data>
-  <data name="OptimizeNoteImages" xml:space="preserve"><value>Optimize image size on save</value></data>
+  <data name="Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="Notice" xml:space="preserve">
+    <value>Notice</value>
+  </data>
+  <data name="PleaseEnterPassword" xml:space="preserve">
+    <value>Please enter a password.</value>
+  </data>
+  <data name="PasswordsDoNotMatch" xml:space="preserve">
+    <value>Passwords do not match.</value>
+  </data>
+  <data name="PleaseEnterPasswordHint" xml:space="preserve">
+    <value>Please enter a password hint.</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
   <data name="ImageQuality" xml:space="preserve"><value>Image Quality</value></data>
+  <data name="OptimizeNoteImages" xml:space="preserve"><value>Optimize image size on save</value></data>
   <data name="HotkeyRegisterError" xml:space="preserve"><value>The shortcut key is already in use by another application.\nPlease change the hotkey in Settings.</value></data>
+  <data name="NoteSave" xml:space="preserve"><value>Save Note</value></data>
+  <data name="SaveNoteTooltip" xml:space="preserve"><value>Save to My Note</value></data>
+  <data name="NoteExplorerTitle" xml:space="preserve"><value>CatchCapture Note Explorer</value></data>
+  <data name="MyNote" xml:space="preserve"><value>My Note</value></data>
+  <data name="OpenMyNote" xml:space="preserve"><value>Open My Note</value></data>
+  <data name="NewNote" xml:space="preserve"><value>New Note</value></data>
+  <data name="NoteSettingsMenu" xml:space="preserve"><value>Note Settings</value></data>
+  <data name="Explore" xml:space="preserve"><value>Explore</value></data>
+  <data name="AllNotes" xml:space="preserve"><value>All Notes</value></data>
+  <data name="GroupNote" xml:space="preserve"><value>Group Note</value></data>
+  <data name="SortByLatest" xml:space="preserve"><value>Latest</value></data>
+  <data name="SortByName" xml:space="preserve"><value>Name</value></data>
+  <data name="Today" xml:space="preserve"><value>Today</value></data>
+  <data name="Recent7Days" xml:space="preserve"><value>Last 7 Days</value></data>
+  <data name="Trash" xml:space="preserve"><value>Trash</value></data>
+  <data name="Tags" xml:space="preserve"><value>Tags</value></data>
+  <data name="SelectAll" xml:space="preserve"><value>Select All</value></data>
+  <data name="UnselectAll" xml:space="preserve"><value>Unselect All</value></data>
+  <data name="DeleteSelected" xml:space="preserve"><value>Delete Selected</value></data>
+  <data name="RecentStatusInfo" xml:space="preserve"><value>Records for the last week</value></data>
+  <data name="SearchPlaceholder" xml:space="preserve"><value>Search...</value></data>
+  <data name="ColGroup" xml:space="preserve"><value>Group</value></data>
+  <data name="ColTitle" xml:space="preserve"><value>Title</value></data>
+  <data name="ColContent" xml:space="preserve"><value>Content</value></data>
+  <data name="ColLastModified" xml:space="preserve"><value>Last Modified</value></data>
+  <data name="PreviewLoading" xml:space="preserve"><value>Select a note.</value></data>
+  <data name="EditNote" xml:space="preserve"><value>Edit</value></data>
+  <data name="NoteSecurityTip" xml:space="preserve"><value>Protect your notes securely with password settings.</value></data>
+  <data name="NoteInputTitle" xml:space="preserve"><value>CatchCapture - Write</value></data>
+  <data name="WriteNote" xml:space="preserve"><value>Write Note</value></data>
+  <data name="EditNote" xml:space="preserve"><value>Edit Note</value></data>
+  <data name="ManageCategories" xml:space="preserve"><value>Manage Categories</value></data>
+  <data name="TitlePlaceholder" xml:space="preserve"><value>Please enter a title</value></data>
+  <data name="TagsPlaceholder" xml:space="preserve"><value>Please enter tags (separated by commas)</value></data>
+  <data name="Link" xml:space="preserve"><value>Link</value></data>
+  <data name="LinkPlaceholder" xml:space="preserve"><value>Please enter relevant link.</value></data>
+  <data name="FileAttachment" xml:space="preserve"><value>File Attachment</value></data>
+  <data name="FileAttachmentGuide" xml:space="preserve"><value>Drag files here or click to attach.</value></data>
+  <data name="FinishWrite" xml:space="preserve"><value>Finish Writing</value></data>
+  <data name="FinishEdit" xml:space="preserve"><value>Finish Editing</value></data>
+  <data name="NotePasswordTitle" xml:space="preserve"><value>Note Password Settings</value></data>
+  <data name="NewPassword" xml:space="preserve"><value>New Password</value></data>
+  <data name="ConfirmPassword" xml:space="preserve"><value>Confirm Password</value></data>
+  <data name="PasswordHintRequired" xml:space="preserve"><value>Password Hint (Required)</value></data>
+  <data name="PasswordLossWarning" xml:space="preserve"><value>※ Caution: Data cannot be recovered if the password is lost due to the nature of local storage.</value></data>
+  <data name="CopyColor" xml:space="preserve"><value>Copy Color</value></data>
+  <data name="SwitchColorFormat" xml:space="preserve"><value>Switch RGB/HEX</value></data>
+  <data name="SelectAreaGuide" xml:space="preserve"><value>Drag to select capture area.</value></data>
+  <data name="ErrReadNote" xml:space="preserve"><value>Error reading note information:</value></data>
+  <data name="SelectAttachFiles" xml:space="preserve"><value>Select Attachment Files</value></data>
+  <data name="ErrMainWinNotFound" xml:space="preserve"><value>Main window not found.</value></data>
+  <data name="Error" xml:space="preserve"><value>Error</value></data>
+  <data name="NoContentToSave" xml:space="preserve"><value>There is no content to save.</value></data>
+  <data name="Untitled" xml:space="preserve"><value>Untitled</value></data>
+  <data name="NoteEditSuccess" xml:space="preserve"><value>Note updated successfully.</value></data>
+  <data name="NoteSaveSuccess" xml:space="preserve"><value>Note saved successfully.</value></data>
+  <data name="ErrSaveNote" xml:space="preserve"><value>An error occurred while saving the note:</value></data>
+  <data name="SearchResults" xml:space="preserve"><value>Search Results: '{0}'</value></data>
+  <data name="TagFilter" xml:space="preserve"><value>Tag Filter: #{0}</value></data>
+  <data name="TodayRecords" xml:space="preserve"><value>Today's Records</value></data>
+  <data name="RecentWeekRecords" xml:space="preserve"><value>Records for the Last Week</value></data>
+  <data name="TrashRecords" xml:space="preserve"><value>Records in Trash</value></data>
+  <data name="GroupLabel" xml:space="preserve"><value>Group: {0}</value></data>
+  <data name="AllRecords" xml:space="preserve"><value>All Records</value></data>
+  <data name="DefaultCategory" xml:space="preserve"><value>Default</value></data>
+  <data name="ErrLoadNotes" xml:space="preserve"><value>An error occurred while loading notes:</value></data>
+  <data name="DirectWrite" xml:space="preserve"><value>Directly Written</value></data>
+  <data name="FileNotFound" xml:space="preserve"><value>File not found.</value></data>
+  <data name="ErrOpenFile" xml:space="preserve"><value>Error occurred while opening file:</value></data>
+  <data name="ErrOpenNoteInput" xml:space="preserve"><value>Error occurred while opening note entry window:</value></data>
+  <data name="ErrOpenNoteEdit" xml:space="preserve"><value>Error occurred while opening note edit window:</value></data>
+  <data name="ConfirmDeleteNote" xml:space="preserve"><value>Are you sure you want to delete this note?</value></data>
+  <data name="ConfirmDeleteSelectedNotes" xml:space="preserve"><value>Are you sure you want to delete {0} selected notes?</value></data>
+  <data name="PleaseSelectNotesToDelete" xml:space="preserve"><value>Please select notes to delete.</value></data>
+  <data name="ConfirmDelete" xml:space="preserve"><value>Confirm Delete</value></data>
+  <data name="ErrDelete" xml:space="preserve"><value>Error occurred while deleting:</value></data>
+  <data name="NoteUnlock" xml:space="preserve"><value>Unlock Note</value></data>
+  <data name="ProtectedContent" xml:space="preserve"><value>Protected content</value></data>
+  <data name="ShowHint" xml:space="preserve"><value>Show Hint</value></data>
+  <data name="Unlock" xml:space="preserve"><value>Unlock</value></data>
+  <data name="NoHintRegistered" xml:space="preserve"><value>No hint registered.</value></data>
+  <data name="PasswordHintMessage" xml:space="preserve"><value>Password Hint: {0}</value></data>
+  <data name="Hint" xml:space="preserve"><value>Hint</value></data>
+  <data name="CategoryManagementTitle" xml:space="preserve"><value>Category Management</value></data>
+  <data name="CategoryManagementDesc" xml:space="preserve"><value>Manage groups to organize your notes.</value></data>
+  <data name="NewCategoryPlaceholder" xml:space="preserve"><value>Enter new category...</value></data>
+  <data name="DefaultCategoryDeleteError" xml:space="preserve"><value>Default category cannot be deleted.</value></data>
+  <data name="DeleteCategoryConfirm" xml:space="preserve"><value>Are you sure you want to delete this category? Associated notes will be moved to 'Default'.</value></data>
+  <data name="Tip1" xml:space="preserve"><value>Protect your notes securely with password settings.</value></data>
+  <data name="Tip2" xml:space="preserve"><value>Save to your notes immediately after capture to record precious ideas.</value></data>
+  <data name="Tip3" xml:space="preserve"><value>Paste images and content from external pages to use the smart system for permanent low-storage storage.</value></data>
+  <data name="Tip4" xml:space="preserve"><value>Connect cloud folders like N-Drive or Google Drive to share My Notes on any computer.</value></data>
+  <data name="Tip5" xml:space="preserve"><value>Use tags to quickly find what you want among numerous notes.</value></data>
+  <data name="Tip6" xml:space="preserve"><value>Easily add images by drag-and-drop in the note edit window.</value></data>
+  <data name="Tip7" xml:space="preserve"><value>Search function allows searching text in note content as well as titles.</value></data>
+  <data name="Tip8" xml:space="preserve"><value>Double-click images in posts to edit them.</value></data>
+  <data name="Tip9" xml:space="preserve"><value>Click 'Save Note' during capture to create a note with a single click.</value></data>
 </root>

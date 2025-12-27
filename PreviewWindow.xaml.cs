@@ -1848,6 +1848,11 @@ namespace CatchCapture
             // Zoom Reset
             if (ZoomResetButton != null)
                 ZoomResetButton.Content = LocalizationManager.GetString("OriginalSize");
+
+            // Save to Note
+            if (SaveNoteLabelText != null) SaveNoteLabelText.Text = LocalizationManager.GetString("NoteSave");
+            if (SaveNoteButton != null) SaveNoteButton.ToolTip = LocalizationManager.GetString("SaveNoteTooltip");
+
             UpdateImageInfo();
         }
 

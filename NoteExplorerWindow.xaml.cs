@@ -26,18 +26,22 @@ namespace CatchCapture
 
         private System.Windows.Threading.DispatcherTimer? _tipTimer;
         private int _currentTipIndex = 0;
-        private readonly List<string> _tips = new List<string>
+        private List<string> _tips = new List<string>();
+
+        private void InitializeTips()
         {
-            "비밀번호 설정으로 내 노트를 안전하게 보호하세요.",
-            "캡처 후 즉시 내 노트에 저장하여 소중한 아이디어를 기록하세요.",
-            "외부 페이지 이미지 및 내용을 붙여 넣으면 스마트시스템을 활용하여 저용량으로 내 노트에 영구 기록할 수 있습니다.",
-            "N드라이브, 구글 드라이브 등 클라우드 폴더를 연결하시면 어느 컴퓨터에서나 마이노트를 공용으로 사용하실 수 있습니다.",
-            "태그를 활용하면 수많은 노트 중에서도 원하는 내용을 빠르게 찾을 수 있습니다.",
-            "노트 수정창에서 드래그 앤 드롭으로 이미지를 간편하게 추가할 수 있습니다.",
-            "검색 기능을 통해 제목뿐만 아니라 노트 내용 속 텍스트도 검색이 가능합니다.",
-            "포스트중 이미지를 더블클릭하시면 이미지 편집이 가능합니다.",
-            "캡처 시 '노트 저장' 버튼을 누르면 단 한 번의 클릭으로 노트가 생성됩니다."
-        };
+            _tips = new List<string>();
+            for (int i = 1; i <= 9; i++)
+            {
+                // Fallback for Korean if not in resx?
+                // For now, assuming standard localization, we just fetch from Manager.
+                // Note: If running in Korean environment and ko.resx is missing these keys, it might fallback to default.
+                // However, based on task, we prioritize removing hardcoded strings.
+                
+                string tip = CatchCapture.Resources.LocalizationManager.GetString($"Tip{i}");
+                _tips.Add(tip);
+            }
+        }
 
         private bool _isSelectionMode;
         public bool IsSelectionMode
@@ -69,15 +73,54 @@ namespace CatchCapture
                 InitializeComponent();
                 this.DataContext = this;
                 this.MouseDown += (s, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
+                
+                InitializeTips();
+                UpdateUIText();
+                
                 LoadNotes(filter: "Recent");
                 LoadTags();
                 InitializeTipTimer();
                 HighlightSidebarButton(BtnFilterRecent);
+                
+                CatchCapture.Resources.LocalizationManager.LanguageChanged += (s, e) => UpdateUIText();
             }
             catch (Exception ex)
             {
                 CatchCapture.CustomMessageBox.Show($"탐색기 초기화 중 오류: {ex.Message}\n{ex.StackTrace}");
             }
+        }
+
+        private void UpdateUIText()
+        {
+            this.Title = CatchCapture.Resources.LocalizationManager.GetString("NoteExplorerTitle") ?? "캐치캡처 노트 탐색기";
+            
+            if (TxtMyNoteTitle != null) TxtMyNoteTitle.Text = CatchCapture.Resources.LocalizationManager.GetString("MyNote");
+            if (TxtNewNoteLabel != null) TxtNewNoteLabel.Text = CatchCapture.Resources.LocalizationManager.GetString("NewNote");
+            if (BtnNoteSettingsText != null) BtnNoteSettingsText.Text = CatchCapture.Resources.LocalizationManager.GetString("NoteSettingsMenu");
+            if (TxtExploreTitle != null) TxtExploreTitle.Text = CatchCapture.Resources.LocalizationManager.GetString("Explore");
+            if (TxtFilterAllText != null) TxtFilterAllText.Text = CatchCapture.Resources.LocalizationManager.GetString("AllNotes");
+            if (TxtFilterGroupText != null) TxtFilterGroupText.Text = CatchCapture.Resources.LocalizationManager.GetString("GroupNote");
+            if (TxtFilterTodayText != null) TxtFilterTodayText.Text = CatchCapture.Resources.LocalizationManager.GetString("Today");
+            if (TxtFilterRecentText != null) TxtFilterRecentText.Text = CatchCapture.Resources.LocalizationManager.GetString("Recent7Days");
+            if (TxtFilterTrashText != null) TxtFilterTrashText.Text = CatchCapture.Resources.LocalizationManager.GetString("Trash");
+            if (TxtTagsTitle != null) TxtTagsTitle.Text = CatchCapture.Resources.LocalizationManager.GetString("Tags");
+            
+            if (BtnSelectAll != null) BtnSelectAll.Content = CatchCapture.Resources.LocalizationManager.GetString("SelectAll");
+            if (BtnUnselectAll != null) BtnUnselectAll.Content = CatchCapture.Resources.LocalizationManager.GetString("UnselectAll");
+            if (BtnDeleteSelected != null) BtnDeleteSelected.Content = CatchCapture.Resources.LocalizationManager.GetString("DeleteSelected");
+            if (TxtStatusInfo != null) TxtStatusInfo.Text = CatchCapture.Resources.LocalizationManager.GetString("RecentStatusInfo");
+            if (TxtSearchPlaceholder != null) TxtSearchPlaceholder.Text = CatchCapture.Resources.LocalizationManager.GetString("SearchPlaceholder");
+            
+            if (ColHeaderGroup != null) ColHeaderGroup.Text = CatchCapture.Resources.LocalizationManager.GetString("ColGroup");
+            if (ColHeaderTitle != null) ColHeaderTitle.Text = CatchCapture.Resources.LocalizationManager.GetString("ColTitle");
+            if (ColHeaderContent != null) ColHeaderContent.Text = CatchCapture.Resources.LocalizationManager.GetString("ColContent");
+            if (ColHeaderModified != null) ColHeaderModified.Text = CatchCapture.Resources.LocalizationManager.GetString("ColLastModified");
+            
+            if (ParaPreviewLoading != null) ParaPreviewLoading.Inlines.Clear();
+            if (ParaPreviewLoading != null) ParaPreviewLoading.Inlines.Add(CatchCapture.Resources.LocalizationManager.GetString("PreviewLoading"));
+            if (BtnEditNoteText != null) BtnEditNoteText.Text = CatchCapture.Resources.LocalizationManager.GetString("EditNote");
+            
+            InitializeTips(); // Reload tips for current language
         }
 
         protected override void OnClosed(EventArgs e)
@@ -242,18 +285,18 @@ namespace CatchCapture
                 _currentPage = page;
 
                 // Update Status Text
-                if (!string.IsNullOrEmpty(search)) TxtStatusInfo.Text = $"검색 결과: '{search}'";
-                else if (!string.IsNullOrEmpty(tag)) TxtStatusInfo.Text = $"태그 필터: #{tag}";
-                else if (filter == "Today") TxtStatusInfo.Text = "오늘의 기록 내용";
-                else if (filter == "Recent") TxtStatusInfo.Text = "최근 1주일 기록 내용";
-                else if (filter == "Trash") TxtStatusInfo.Text = "휴지통 기록 내용";
+                if (!string.IsNullOrEmpty(search)) TxtStatusInfo.Text = string.Format(CatchCapture.Resources.LocalizationManager.GetString("SearchResults"), search);
+                else if (!string.IsNullOrEmpty(tag)) TxtStatusInfo.Text = string.Format(CatchCapture.Resources.LocalizationManager.GetString("TagFilter"), tag);
+                else if (filter == "Today") TxtStatusInfo.Text = CatchCapture.Resources.LocalizationManager.GetString("TodayRecords");
+                else if (filter == "Recent") TxtStatusInfo.Text = CatchCapture.Resources.LocalizationManager.GetString("RecentWeekRecords");
+                else if (filter == "Trash") TxtStatusInfo.Text = CatchCapture.Resources.LocalizationManager.GetString("TrashRecords");
                 else if (filter.StartsWith("Category:"))
                 {
                     long catId = long.Parse(filter.Split(':')[1]);
                     var cat = DatabaseManager.Instance.GetCategory(catId);
-                    TxtStatusInfo.Text = $"그룹: {cat?.Name ?? "알 수 없음"}";
+                    TxtStatusInfo.Text = string.Format(CatchCapture.Resources.LocalizationManager.GetString("GroupLabel"), cat?.Name ?? CatchCapture.Resources.LocalizationManager.GetString("Unknown"));
                 }
-                else TxtStatusInfo.Text = "전체 기록 내용";
+                else TxtStatusInfo.Text = CatchCapture.Resources.LocalizationManager.GetString("AllRecords");
 
                 var notes = new List<NoteViewModel>();
                 string imgDir = DatabaseManager.Instance.GetImageFolderPath();
@@ -326,12 +369,12 @@ namespace CatchCapture
                                 var note = new NoteViewModel
                                 {
                                     Id = noteId,
-                                    Title = reader.IsDBNull(1) ? "제목 없음" : reader.GetString(1),
+                                    Title = reader.IsDBNull(1) ? CatchCapture.Resources.LocalizationManager.GetString("Untitled") : reader.GetString(1),
                                     PreviewContent = reader.IsDBNull(2) ? "" : reader.GetString(2),
                                     CreatedAt = reader.GetDateTime(3),
                                     SourceApp = reader.IsDBNull(4) ? "" : reader.GetString(4),
                                     ContentXaml = reader.IsDBNull(5) ? "" : reader.GetString(5),
-                                    CategoryName = reader.IsDBNull(6) ? "기본" : reader.GetString(6),
+                                    CategoryName = reader.IsDBNull(6) ? CatchCapture.Resources.LocalizationManager.GetString("DefaultCategory") : reader.GetString(6),
                                     CategoryColor = reader.IsDBNull(7) ? "#8E2DE2" : reader.GetString(7),
                                     UpdatedAt = reader.GetDateTime(8),
                                     Status = reader.IsDBNull(9) ? 0 : reader.GetInt32(9),
@@ -361,7 +404,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                CatchCapture.CustomMessageBox.Show($"노트를 불러오는 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ErrLoadNotes") + " " + ex.Message, CatchCapture.Resources.LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -513,7 +556,7 @@ namespace CatchCapture
             {
                 PreviewGrid.Visibility = Visibility.Visible;
                 TxtPreviewTitle.Text = note.Title;
-                TxtPreviewApp.Text = string.IsNullOrEmpty(note.SourceApp) ? "직접 작성" : note.SourceApp;
+                TxtPreviewApp.Text = string.IsNullOrEmpty(note.SourceApp) ? CatchCapture.Resources.LocalizationManager.GetString("DirectWrite") : note.SourceApp;
                 TxtPreviewDate.Text = note.CreatedAt.ToString("yyyy-MM-dd HH:mm");
                 PreviewTags.ItemsSource = note.Tags;
                 PreviewAttachments.ItemsSource = note.Attachments;
@@ -633,12 +676,12 @@ namespace CatchCapture
                     }
                     else
                     {
-                        CatchCapture.CustomMessageBox.Show("파일을 찾을 수 없습니다.");
+                        CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("FileNotFound"), CatchCapture.Resources.LocalizationManager.GetString("Notice"));
                     }
                 }
                 catch (Exception ex)
                 {
-                    CatchCapture.CustomMessageBox.Show("파일을 여는 중 오류 발생: " + ex.Message);
+                    CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ErrOpenFile") + " " + ex.Message, CatchCapture.Resources.LocalizationManager.GetString("Error"));
                 }
             }
         }
@@ -700,7 +743,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                CatchCapture.CustomMessageBox.Show($"노트 작성창을 여는 중 오류가 발생했습니다: {ex.Message}\n\n{ex.StackTrace}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ErrOpenNoteInput") + " " + ex.Message, CatchCapture.Resources.LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -721,7 +764,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                CatchCapture.CustomMessageBox.Show($"노트 수정창을 여는 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ErrOpenNoteEdit") + " " + ex.Message, CatchCapture.Resources.LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -729,7 +772,7 @@ namespace CatchCapture
         {
             if (sender is Button btn && btn.Tag is long noteId)
             {
-                if (CatchCapture.CustomMessageBox.Show("정말로 이 노트를 삭제하시겠습니까?", "삭제 확인", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                if (CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ConfirmDeleteNote"), CatchCapture.Resources.LocalizationManager.GetString("ConfirmDelete"), MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                 {
                     // Release potential file locks by clearing preview
                     PreviewGrid.Visibility = Visibility.Collapsed;
@@ -844,7 +887,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                CatchCapture.CustomMessageBox.Show("삭제 중 오류 발생: " + ex.Message);
+                CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ErrDelete") + " " + ex.Message, CatchCapture.Resources.LocalizationManager.GetString("Error"));
             }
         }
 
@@ -874,11 +917,11 @@ namespace CatchCapture
                 var selectedNotes = notes.Where(n => n.IsSelected).ToList();
                 if (selectedNotes.Count == 0)
                 {
-                    CatchCapture.CustomMessageBox.Show("삭제할 노트를 선택해주세요.");
+                    CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("PleaseSelectNotesToDelete"), CatchCapture.Resources.LocalizationManager.GetString("Notice"));
                     return;
                 }
 
-                if (CatchCapture.CustomMessageBox.Show($"{selectedNotes.Count}개의 노트를 삭제하시겠습니까?", "삭제 확인", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                if (CatchCapture.CustomMessageBox.Show(string.Format(CatchCapture.Resources.LocalizationManager.GetString("ConfirmDeleteSelectedNotes"), selectedNotes.Count), CatchCapture.Resources.LocalizationManager.GetString("ConfirmDelete"), MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                 {
                     // Release potential file locks by clearing preview
                     PreviewGrid.Visibility = Visibility.Collapsed;
