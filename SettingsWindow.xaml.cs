@@ -255,9 +255,9 @@ private void UpdateUIText()
                 if (BtnSetNotePassword != null) BtnSetNotePassword.Content = LocalizationManager.GetString("SetChangePassword") ?? "비밀번호 설정/변경";
                 if (PasswordWarningMsg != null) PasswordWarningMsg.Text = LocalizationManager.GetString("PasswordWarning") ?? "※ 비밀번호 설정 시 분실 시 복구가 불가능하니 주의하십시오.";
 
-                if (NoteOptimizeGroup != null) NoteOptimizeGroup.Header = LocalizationManager.GetString("ImageOptimization") ?? "이미지 최적화";
-                if (ChkOptimizeNoteImages != null) ChkOptimizeNoteImages.Content = LocalizationManager.GetString("OptimizeNoteImages") ?? "저장 시 이미지 용량 최적화";
-                if (NoteQualityLabel != null) NoteQualityLabel.Text = LocalizationManager.GetString("ImageQuality") ?? "이미지 품질";
+                if (NoteOptimizeGroup != null) NoteOptimizeGroup.Header = LocalizationManager.GetString("SaveSettings") ?? "저장 설정";
+                if (NoteFileFormatText != null) NoteFileFormatText.Text = LocalizationManager.GetString("FileFormat") ?? "파일 포맷";
+                if (NoteQualityLabel != null) NoteQualityLabel.Text = LocalizationManager.GetString("Quality") ?? "품질";
 
                 // 녹화 품질 콤보박스 아이템 로컬라이징
                 if (CboRecQuality != null)
@@ -815,8 +815,32 @@ private void InitLanguageComboBox()
             ChkEnableNotePassword.IsChecked = !string.IsNullOrEmpty(_settings.NotePassword);
             BtnSetNotePassword.IsEnabled = ChkEnableNotePassword.IsChecked == true;
             
-            ChkOptimizeNoteImages.IsChecked = _settings.OptimizeNoteImages;
-            SldNoteQuality.Value = _settings.NoteImageQuality;
+            if (CboNoteFormat != null)
+            {
+                string fmt = _settings.NoteSaveFormat ?? "PNG";
+                foreach (ComboBoxItem item in CboNoteFormat.Items)
+                {
+                    if (item.Content?.ToString()?.Equals(fmt, StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        CboNoteFormat.SelectedItem = item;
+                        break;
+                    }
+                }
+                if (CboNoteFormat.SelectedItem == null && CboNoteFormat.Items.Count > 0) CboNoteFormat.SelectedIndex = 0; // Default PNG
+            }
+
+            if (CboNoteQuality != null)
+            {
+                foreach (ComboBoxItem item in CboNoteQuality.Items)
+                {
+                    if (item.Tag?.ToString() == _settings.NoteImageQuality.ToString())
+                    {
+                        CboNoteQuality.SelectedItem = item;
+                        break;
+                    }
+                }
+                if (CboNoteQuality.SelectedItem == null && CboNoteQuality.Items.Count > 0) CboNoteQuality.SelectedIndex = 0; // Default 100%
+            }
         }
 
         private void BtnBrowseNoteFolder_Click(object sender, RoutedEventArgs e)
@@ -1021,6 +1045,9 @@ private void InitLanguageComboBox()
             else if (_currentPage == "Note")
             {
                 _settings.NoteStoragePath = defaults.NoteStoragePath;
+                _settings.NoteSaveFormat = defaults.NoteSaveFormat;
+                _settings.NoteImageQuality = defaults.NoteImageQuality;
+                _settings.OptimizeNoteImages = defaults.OptimizeNoteImages; // Also reset this for completeness, though deprecated
                 LoadNotePage();
             }
             else if (_currentPage == "System")
@@ -1137,8 +1164,17 @@ private void InitLanguageComboBox()
                 _settings.NotePasswordHint = null;
             }
             // Note: Password/Hint are already in _settings via modal if it was used
-            _settings.OptimizeNoteImages = ChkOptimizeNoteImages.IsChecked == true;
-            _settings.NoteImageQuality = (int)SldNoteQuality.Value;
+            
+            if (CboNoteFormat.SelectedItem is ComboBoxItem noteFmtItem)
+            {
+                _settings.NoteSaveFormat = noteFmtItem.Content?.ToString() ?? "JPG";
+            }
+            
+            if (CboNoteQuality.SelectedItem is ComboBoxItem noteQualItem)
+            {
+                if (int.TryParse(noteQualItem.Tag?.ToString(), out int q))
+                    _settings.NoteImageQuality = q;
+            }
 
             EnsureDefaultKey(_settings.Hotkeys.RegionCapture, "A");
             EnsureDefaultKey(_settings.Hotkeys.DelayCapture, "D");

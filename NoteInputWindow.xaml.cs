@@ -383,26 +383,37 @@ namespace CatchCapture
                     }
 
                     // Save new file
-                    string ext = settings.OptimizeNoteImages ? ".jpg" : ".png";
+                    string ext = "." + (settings.NoteSaveFormat ?? "PNG").ToLower();
                     fileName = $"img_{DateTime.Now:yyyyMMdd_HHmmss_fff}_{Guid.NewGuid().ToString().Substring(0, 8)}{ext}";
                     string fullPath = Path.Combine(imgDir, fileName);
 
                     using (var fileStream = new FileStream(fullPath, FileMode.Create))
                     {
-                        BitmapFrame frame = BitmapFrame.Create(imgSource);
-                        if (settings.OptimizeNoteImages)
+                        BitmapEncoder encoder;
+                        string fmt = (settings.NoteSaveFormat ?? "PNG").ToUpper();
+
+                        switch (fmt)
                         {
-                            JpegBitmapEncoder encoder = new JpegBitmapEncoder();
-                            encoder.QualityLevel = settings.NoteImageQuality;
-                            encoder.Frames.Add(frame);
-                            encoder.Save(fileStream);
+                            case "JPG":
+                            case "JPEG":
+                                var jpgEncoder = new JpegBitmapEncoder();
+                                jpgEncoder.QualityLevel = settings.NoteImageQuality;
+                                encoder = jpgEncoder;
+                                break;
+                            case "BMP":
+                                encoder = new BmpBitmapEncoder();
+                                break;
+                            case "GIF":
+                                encoder = new GifBitmapEncoder();
+                                break;
+                            case "PNG":
+                            default:
+                                encoder = new PngBitmapEncoder();
+                                break;
                         }
-                        else
-                        {
-                            PngBitmapEncoder encoder = new PngBitmapEncoder();
-                            encoder.Frames.Add(frame);
-                            encoder.Save(fileStream);
-                        }
+
+                        encoder.Frames.Add(BitmapFrame.Create(imgSource));
+                        encoder.Save(fileStream);
                     }
                     savedFileNames.Add(fileName);
                 }

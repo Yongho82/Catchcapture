@@ -843,15 +843,39 @@
                         </StackPanel>
                     </GroupBox>
 
-                    <GroupBox x:Name="NoteOptimizeGroup" Header="이미지 최적화" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
+                    <GroupBox x:Name="NoteOptimizeGroup" Header="이미지 저장 설정" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
                         <StackPanel>
-                            <CheckBox x:Name="ChkOptimizeNoteImages" Content="저장 시 이미지 용량 최적화" Foreground="{DynamicResource ThemeForeground}" Margin="0,0,0,10"/>
-                            
-                            <DockPanel LastChildFill="True">
-                                <TextBlock x:Name="NoteQualityLabel" Text="이미지 품질" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" VerticalAlignment="Center" Margin="0,0,15,0"/>
-                                <TextBlock Text="{Binding ElementName=SldNoteQuality, Path=Value, StringFormat={}{0}%}" Foreground="{DynamicResource ThemeForeground}" Width="40" VerticalAlignment="Center" TextAlignment="Right" DockPanel.Dock="Right"/>
-                                <Slider x:Name="SldNoteQuality" Minimum="10" Maximum="100" Value="80" IsSnapToTickEnabled="True" TickFrequency="5"/>
-                            </DockPanel>
+                            <Grid Margin="0,0,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="30"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="80"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <TextBlock x:Name="NoteFileFormatText" Grid.Column="0" Text="파일 포맷" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}" Margin="0,0,10,0"/>
+                                <ComboBox x:Name="CboNoteFormat" Grid.Column="1">
+                                    <ComboBoxItem Content="PNG"/>
+                                    <ComboBoxItem Content="JPG"/>
+                                    <ComboBoxItem Content="BMP"/>
+                                    <ComboBoxItem Content="GIF"/>
+                                </ComboBox>
+
+                                <TextBlock x:Name="NoteQualityLabel" Grid.Column="3" Text="품질" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}" Margin="0,0,10,0"/>
+                                <ComboBox x:Name="CboNoteQuality" Grid.Column="4" Height="26">
+                                    <ComboBoxItem Content="100%" Tag="100"/>
+                                    <ComboBoxItem Content="90%" Tag="90"/>
+                                    <ComboBoxItem Content="80%" Tag="80"/>
+                                    <ComboBoxItem Content="70%" Tag="70"/>
+                                    <ComboBoxItem Content="60%" Tag="60"/>
+                                    <ComboBoxItem Content="50%" Tag="50"/>
+                                    <ComboBoxItem Content="40%" Tag="40"/>
+                                    <ComboBoxItem Content="30%" Tag="30"/>
+                                    <ComboBoxItem Content="20%" Tag="20"/>
+                                    <ComboBoxItem Content="10%" Tag="10"/>
+                                </ComboBox>
+                            </Grid>
                         </StackPanel>
                     </GroupBox>
                     </StackPanel>

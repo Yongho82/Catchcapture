@@ -51,7 +51,8 @@ namespace CatchCapture.Models
         public string? NotePassword { get; set; }
         public string? NotePasswordHint { get; set; }
         public bool OptimizeNoteImages { get; set; } = true;
-        public int NoteImageQuality { get; set; } = 80;
+        public string NoteSaveFormat { get; set; } = "PNG"; // PNG, JPG, BMP, GIF
+        public int NoteImageQuality { get; set; } = 100;
 
         // Persisted window states
         public double LastMainLeft { get; set; } = 0;
