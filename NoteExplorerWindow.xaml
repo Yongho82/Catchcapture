@@ -20,7 +20,7 @@
         <!-- List Mode Item Container Style -->
         <Style x:Key="NoteItemStyle" TargetType="ListBoxItem">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="BorderBrush" Value="#F0F0F0"/>
             <Setter Property="Padding" Value="0"/>
             <Setter Property="Template">
@@ -216,7 +216,7 @@
             </Grid.RowDefinitions>
 
             <!-- Top Action Bar -->
-            <Grid Grid.Row="0" Margin="30,25,30,15">
+            <Grid Grid.Row="0" Margin="30,15,30,12">
                 <!-- Row 1: Title & Main Buttons -->
                 <Grid>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
@@ -416,7 +416,7 @@
                     </Grid>
 
                     <!-- Column Headers -->
-                    <Border Grid.Row="1" Background="#F8F9FA" Height="45" BorderThickness="0,0,0,1" BorderBrush="#E0E0E0">
+                    <Border Grid.Row="1" Background="#F8F9FA" Height="36" BorderThickness="0,0,0,1" BorderBrush="#E0E0E0">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="28"/> <!-- Optimized Checkbox Width -->
@@ -447,14 +447,15 @@
                     </Border>
 
                     <ListBox x:Name="LstNotes" Grid.Row="2" Background="Transparent" BorderThickness="0" 
-                              ItemContainerStyle="{StaticResource NoteItemStyle}" 
-                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                              SelectionMode="Extended"
-                              SelectionChanged="LstNotes_SelectionChanged"
-                              MouseDoubleClick="LstNotes_MouseDoubleClick">
+                               Padding="0" Margin="0"
+                               ItemContainerStyle="{StaticResource NoteItemStyle}" 
+                               ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                               SelectionMode="Extended"
+                               SelectionChanged="LstNotes_SelectionChanged"
+                               MouseDoubleClick="LstNotes_MouseDoubleClick">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Grid Height="50" Background="Transparent"> <!-- Reduced height from 65 -->
+                                <Grid Height="38" Background="Transparent"> <!-- Further reduced height -->
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="28"/> <!-- Optimized Checkbox Width -->
                                         <ColumnDefinition Width="100"/> <!-- Group -->
@@ -465,8 +466,9 @@
                                     </Grid.ColumnDefinitions>
                                     
                                     <!-- CheckBox -->
-                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                              Visibility="{Binding DataContext.IsSelectionMode, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <CheckBox x:Name="ChkSelect" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                              IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                              Visibility="{Binding DataContext.IsSelectionMode, RelativeSource={RelativeSource AncestorType=ListBox}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                         <CheckBox.Style>
                                             <Style TargetType="CheckBox">
                                                 <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
@@ -522,7 +524,7 @@
                         </ListBox.ItemTemplate>
                     </ListBox>
 
-                    <Border Grid.Row="3" Background="White" Height="50" BorderThickness="0">
+                    <Border Grid.Row="3" Background="White" Height="40" BorderThickness="0,1,0,0" BorderBrush="#F1F3F4">
                         <!-- Pagination -->
                         <StackPanel x:Name="PanelPagination" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                             <!-- Populated from code-behind -->
