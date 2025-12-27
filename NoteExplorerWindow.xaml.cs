@@ -84,6 +84,15 @@ namespace CatchCapture
         {
             base.OnClosed(e);
             Instance = null;
+            
+            // 노트 탐색기 닫을 때 메인 윈도우 표시
+            var mainWindow = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
+            if (mainWindow != null)
+            {
+                mainWindow.WindowState = WindowState.Normal;
+                mainWindow.Show();
+                mainWindow.Activate();
+            }
         }
 
         private void UpdateSidebarCounts()
