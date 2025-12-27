@@ -120,8 +120,6 @@
 
                 <Separator Width="1" Height="16" Background="#EEEEEE" Margin="4,0" VerticalAlignment="Center"/>
 
-                <Separator Width="1" Height="16" Background="#EEEEEE" Margin="4,0" VerticalAlignment="Center"/>
-
                 <!-- Text Color -->
                 <Button x:Name="BtnTextColor" Style="{StaticResource EditorButtonStyle}" Click="BtnTextColor_Click" ToolTip="글자 색상" Focusable="False">
                     <StackPanel Orientation="Vertical">
@@ -236,18 +234,18 @@
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.15"/>
                 </Border.Effect>
-                <StackPanel Width="180">
+                <StackPanel Width="230">
                     <Grid Margin="0,0,0,10">
                         <TextBlock x:Name="ColorPickerTitle" Text="색상" FontWeight="Bold" Foreground="#333333" FontSize="12" VerticalAlignment="Center"/>
-                        <Button x:Name="BtnClearColor" Content="투명/없음" HorizontalAlignment="Right" Padding="6,2" FontSize="10" Click="BtnClearColor_Click" Visibility="Collapsed" Style="{StaticResource EditorButtonStyle}"/>
+                        <Button x:Name="BtnClearColor" Content="투명" HorizontalAlignment="Right" Padding="8,3" FontSize="11" Width="Auto" Height="Auto" Click="BtnClearColor_Click" Visibility="Collapsed" Style="{StaticResource EditorButtonStyle}"/>
                     </Grid>
                     
-                    <UniformGrid x:Name="ColorGrid" Columns="6">
+                    <UniformGrid x:Name="ColorGrid" Columns="7">
                         <!-- Populated in Code Behind -->
                     </UniformGrid>
                     
                     <Separator Background="#EEEEEE" Margin="0,10,0,8"/>
-                    <Button x:Name="BtnCustomColor" Content="+ 사용자 색상" Click="AddCustomColor_Click" Style="{StaticResource EditorButtonStyle}" FontSize="11" Padding="0,4"/>
+                    <Button x:Name="BtnCustomColor" Content="+추가" Width="Auto" Height="Auto" Click="AddCustomColor_Click" Style="{StaticResource EditorButtonStyle}" FontSize="12" Padding="0,6"/>
                 </StackPanel>
             </Border>
         </Popup>
