@@ -1384,7 +1384,11 @@ public partial class MainWindow : Window
                     this.Show();
                 }
 
-                AddCaptureToList(capturedImage, skipPreview: requestMinimize, showMainWindow: !requestMinimize);
+                AddCaptureToList(capturedImage, 
+                                 skipPreview: requestMinimize, 
+                                 showMainWindow: !requestMinimize, 
+                                 sourceApp: snippingWindow.SourceApp, 
+                                 sourceTitle: snippingWindow.SourceTitle);
             }
             else
             {
@@ -2041,7 +2045,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private void AddCaptureToList(BitmapSource image, bool skipPreview = false, bool showMainWindow = true)
+    private void AddCaptureToList(BitmapSource image, bool skipPreview = false, bool showMainWindow = true, string? sourceApp = null, string? sourceTitle = null)
     {
         try
         {
@@ -2051,50 +2055,40 @@ public partial class MainWindow : Window
             // ★ 메모리 최적화: 자동저장 시 썸네일만 메모리에 저장
             if (currentSettings.AutoSaveCapture)
             {
+                // ... (생략된 기존 자동저장 로직)
                 string saveFolder = currentSettings.DefaultSaveFolder;
-                // 폴더 경로가 비어있으면 기본 경로 설정
                 if (string.IsNullOrWhiteSpace(saveFolder))
                 {
                     saveFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture");
                 }
-
-                // 폴더가 없으면 생성
                 if (!System.IO.Directory.Exists(saveFolder))
                 {
                     System.IO.Directory.CreateDirectory(saveFolder);
                 }
-
                 string timestamp = DateTime.Now.ToString("yyyy-MM-dd HHmmss");
-
-                // 설정된 포맷에 맞는 확장자 결정
                 string format = currentSettings.FileSaveFormat.ToLower();
                 string ext = $".{format}";
-
                 string filename = $"AutoSave_{timestamp}_{captures.Count + 1}{ext}";
                 string fullPath = System.IO.Path.Combine(saveFolder, filename);
 
                 try
                 {
-                    // 원본 파일로 저장
                     CatchCapture.Utilities.ScreenCaptureUtility.SaveImageToFile(image, fullPath, currentSettings.ImageQuality);
-
-                    // ★ 썸네일 생성 (200x150)
                     var thumbnail = CaptureImage.CreateThumbnail(image, 200, 150);
-
-                    // ★ 썸네일 모드로 CaptureImage 생성 (메모리 절약)
-                    captureImage = new CaptureImage(thumbnail, fullPath, image.PixelWidth, image.PixelHeight);
+                    
+                    // 메타데이터 전달하여 생성
+                    captureImage = new CaptureImage(thumbnail, fullPath, image.PixelWidth, image.PixelHeight, sourceApp, sourceTitle);
                 }
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine($"자동 저장 실패: {ex.Message}");
-                    // 저장 실패 시 원본 유지
-                    captureImage = new CaptureImage(image);
+                    captureImage = new CaptureImage(image, sourceApp, sourceTitle);
                 }
             }
             else
             {
-                // 자동저장 OFF → 기존 방식 (원본 메모리 유지)
-                captureImage = new CaptureImage(image);
+                // 자동저장 OFF → 메타데이터 전달하여 생성
+                captureImage = new CaptureImage(image, sourceApp, sourceTitle);
             }
 
             captures.Add(captureImage);

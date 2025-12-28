@@ -559,7 +559,7 @@ namespace CatchCapture
                     {
                         using (var reader = new StringReader(fullText))
                         {
-                            string line;
+                            string? line;
                             while ((line = reader.ReadLine()) != null)
                             {
                                 bool hasMedia = line.Contains("\uFFFC");

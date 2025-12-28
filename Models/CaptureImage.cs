@@ -124,7 +124,7 @@ namespace CatchCapture.Models
         /// <summary>
         /// 기존 생성자 (자동저장 OFF 시 사용 - 원본 메모리 유지)
         /// </summary>
-        public CaptureImage(BitmapSource image)
+        public CaptureImage(BitmapSource image, string? sourceApp = null, string? sourceTitle = null)
         {
             _image = image;
             _originalWidth = image.PixelWidth;
@@ -134,16 +134,24 @@ namespace CatchCapture.Models
             IsSaved = false;
             SavedPath = string.Empty;
             
-            // Capture metadata if possible
-            var meta = CatchCapture.Utilities.ScreenCaptureUtility.GetActiveWindowMetadata();
-            _sourceApp = meta.AppName;
-            _sourceTitle = meta.Title;
+            // 전달받은 메타데이터가 있으면 사용하고, 없으면 새로 캡처
+            if (sourceApp != null && sourceTitle != null)
+            {
+                _sourceApp = sourceApp;
+                _sourceTitle = sourceTitle;
+            }
+            else
+            {
+                var meta = CatchCapture.Utilities.ScreenCaptureUtility.GetActiveWindowMetadata();
+                _sourceApp = meta.AppName;
+                _sourceTitle = meta.Title;
+            }
         }
 
         /// <summary>
         /// ★ 메모리 최적화: 썸네일 모드 생성자 (자동저장 ON 시 사용)
         /// </summary>
-        public CaptureImage(BitmapSource thumbnail, string savedFilePath, int originalWidth, int originalHeight)
+        public CaptureImage(BitmapSource thumbnail, string savedFilePath, int originalWidth, int originalHeight, string? sourceApp = null, string? sourceTitle = null)
         {
             _thumbnail = thumbnail;
             _image = null; // 원본 이미지는 필요할 때 파일에서 로드
@@ -151,6 +159,8 @@ namespace CatchCapture.Models
             _originalHeight = originalHeight;
             _useThumbnailMode = true;
             _savedPath = savedFilePath;
+            _sourceApp = sourceApp ?? "Unknown";
+            _sourceTitle = sourceTitle ?? "Unknown";
             CaptureTime = DateTime.Now;
             IsSaved = true;
         }

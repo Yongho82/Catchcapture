@@ -207,7 +207,7 @@ namespace CatchCapture
                     fixedDocument.Pages.Add(pageContent);
     
                     // DocumentViewer에 표시
-                    DocumentViewer.Document = fixedDocument;
+                    if (DocumentViewer != null) DocumentViewer.Document = fixedDocument;
                 }
             }
             catch (Exception ex)
