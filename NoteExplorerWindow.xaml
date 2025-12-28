@@ -110,7 +110,7 @@
                            VerticalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Margin="10,0"/>
 
                 <!-- Content -->
-                <TextBlock Grid.Column="3" Text="{Binding TruncatedContent}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.8" FontSize="13" 
+                <TextBlock Grid.Column="3" Text="{Binding TruncatedContent}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.9" FontSize="13" 
                            VerticalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Margin="10,0"/>
 
                 <!-- Date -->
@@ -260,7 +260,7 @@
                         <!-- Title -->
                         <TextBlock Grid.Row="1" Text="{Binding Title}" FontSize="14" FontWeight="SemiBold" 
                                    Foreground="{DynamicResource ThemeForeground}" TextTrimming="CharacterEllipsis" 
-                                   TextWrapping="Wrap" Margin="0,0,0,2" MaxHeight="42"/>
+                                   TextWrapping="NoWrap" Margin="0,0,0,6"/>
 
                         <!-- Footer -->
                         <Grid Grid.Row="2">
@@ -836,11 +836,11 @@
                             
                             <!-- Empty Trash Button (Visible only in Trash mode) -->
                             <Button x:Name="BtnEmptyTrash" Click="BtnEmptyTrash_Click" HorizontalAlignment="Right" Margin="0,0,15,0" 
-                                    Visibility="Collapsed" Background="#FFEBEE" BorderBrush="#FFCDD2" BorderThickness="1" 
+                                    Visibility="Collapsed" Background="{DynamicResource ThemeSidebarButtonBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" 
                                     Cursor="Hand" Padding="10,0" Height="28">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="🗑️" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                                    <TextBlock x:Name="TxtEmptyTrash" Text="휴지통 비우기" VerticalAlignment="Center" Foreground="#D32F2F" FontWeight="Bold"/>
+                                    <TextBlock x:Name="TxtEmptyTrash" Text="휴지통 비우기" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}" FontWeight="Bold"/>
                                 </StackPanel>
                             </Button>
                         </Grid>

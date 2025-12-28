@@ -30,36 +30,37 @@
         </ControlTemplate>
     </Window.Resources>
 
-    <Border Background="White" CornerRadius="8" Margin="8">
+    <Border Background="{DynamicResource ThemeBackground}" CornerRadius="8" Margin="8">
         <Border.Effect>
             <DropShadowEffect BlurRadius="10" ShadowDepth="2" Direction="315" Color="#20000000" Opacity="0.2"/>
         </Border.Effect>
 
         <Grid Margin="0,0,0,8">
             <Grid.RowDefinitions>
-                <RowDefinition Height="36"/> <!-- Header Compact -->
+                <RowDefinition Height="40"/> <!-- Header Compact (Increased for gradient) -->
                 <RowDefinition Height="Auto" MinHeight="50"/> <!-- Content Compact -->
                 <RowDefinition Height="Auto"/> <!-- Footer -->
             </Grid.RowDefinitions>
 
             <!-- Header -->
+            <Border Grid.Row="0" CornerRadius="8,8,0,0" Background="{DynamicResource ThemeTitleBackground}" Margin="0,-1,0,0"/>
+
             <Grid Grid.Row="0">
                 <TextBlock x:Name="TitleText" Text="알림" VerticalAlignment="Center" Margin="15,0" 
-                           FontWeight="Bold" FontSize="13" Foreground="#333"/>
+                           FontWeight="Bold" FontSize="14" Foreground="{DynamicResource ThemeTitleForeground}"/>
                 <Button x:Name="CloseButton" HorizontalAlignment="Right" VerticalAlignment="Center" 
                         Width="24" Height="24" Margin="8,0" Background="Transparent" BorderThickness="0"
                         Click="CloseButton_Click" Cursor="Hand" ToolTip="닫기">
-                    <Path Data="M0,0 L8,8 M8,0 L0,8" Stroke="#999" StrokeThickness="1.2" 
-                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Path Data="M0,0 L8,8 M8,0 L0,8" Stroke="{DynamicResource ThemeTitleForeground}" StrokeThickness="1.5" 
+                          HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.8"/>
                 </Button>
-                <Separator VerticalAlignment="Bottom" Background="#F0F0F0" Margin="0"/>
             </Grid>
 
             <!-- Content -->
             <TextBlock x:Name="MessageText" Grid.Row="1" Text="메시지 내용이 여기에 표시됩니다." 
                        TextWrapping="Wrap" TextAlignment="Center"
                        HorizontalAlignment="Center" VerticalAlignment="Center"
-                       Margin="15,15,15,15" FontSize="13" Foreground="#555" LineHeight="20"/>
+                       Margin="20,20,20,20" FontSize="13" Foreground="{DynamicResource ThemeForeground}" Opacity="0.9" LineHeight="20"/>
 
             <!-- Footer -->
             <StackPanel x:Name="ButtonPanel" Grid.Row="2" Orientation="Horizontal" 
@@ -67,14 +68,14 @@
                 
                 <!-- 왼쪽 버튼 (부정/취소) -->
                 <Button x:Name="BtnLeft" Content="취소" Width="80" Height="30" Margin="0,0,8,0"
-                        Background="White" BorderBrush="#E0E0E0" BorderThickness="1"
-                        Foreground="#666" FontWeight="SemiBold" FontSize="12"
+                        Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1"
+                        Foreground="{DynamicResource ThemeForeground}" FontWeight="SemiBold" FontSize="12"
                         Template="{StaticResource RoundedButtonTemplate}"
-                        Click="BtnLeft_Click" Cursor="Hand"/>
+                        Click="BtnLeft_Click" Cursor="Hand" Opacity="0.8"/>
 
                 <!-- 오른쪽 버튼 (긍정/확인) -->
                 <Button x:Name="BtnRight" Content="확인" Width="80" Height="30"
-                        Background="#4361EE" BorderThickness="0"
+                        Background="{DynamicResource AccentColor}" BorderThickness="0"
                         Foreground="White" FontWeight="Bold" FontSize="12"
                         Template="{StaticResource RoundedButtonTemplate}"
                         Click="BtnRight_Click" Cursor="Hand"/>
