@@ -77,6 +77,7 @@ namespace CatchCapture
             
             // Subscribe to capture request from editor
             Editor.CaptureRequested += OnEditorCaptureRequested;
+            LoadWindowState();
             UpdateUIText();
             CatchCapture.Resources.LocalizationManager.LanguageChanged += (s, e) => UpdateUIText();
         }
@@ -95,8 +96,57 @@ namespace CatchCapture
             
             // Subscribe to capture request from editor
             Editor.CaptureRequested += OnEditorCaptureRequested;
+            LoadWindowState();
             UpdateUIText();
             CatchCapture.Resources.LocalizationManager.LanguageChanged += (s, e) => UpdateUIText();
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+            SaveWindowState();
+        }
+
+        private void LoadWindowState()
+        {
+            try
+            {
+                var settings = Settings.Load();
+                
+                // Restore window size
+                if (settings.NoteInputWidth > 0)
+                    this.Width = settings.NoteInputWidth;
+                if (settings.NoteInputHeight > 0)
+                    this.Height = settings.NoteInputHeight;
+                
+                // Restore window position
+                if (settings.NoteInputLeft > -9999 && settings.NoteInputTop > -9999)
+                {
+                    this.Left = settings.NoteInputLeft;
+                    this.Top = settings.NoteInputTop;
+                }
+            }
+            catch { /* Ignore errors, use defaults */ }
+        }
+
+        private void SaveWindowState()
+        {
+            try
+            {
+                var settings = Settings.Load();
+                
+                // Save window size (only if not maximized)
+                if (this.WindowState == WindowState.Normal)
+                {
+                    settings.NoteInputWidth = this.ActualWidth;
+                    settings.NoteInputHeight = this.ActualHeight;
+                    settings.NoteInputLeft = this.Left;
+                    settings.NoteInputTop = this.Top;
+                }
+                
+                settings.Save();
+            }
+            catch { /* Ignore save errors */ }
         }
 
         private void UpdateUIText()

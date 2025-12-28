@@ -29,7 +29,56 @@ namespace CatchCapture
                 else if (e.LeftButton == MouseButtonState.Pressed && e.ClickCount == 2) ToggleMaximize();
             };
             this.StateChanged += NoteViewWindow_StateChanged;
+            LoadWindowState();
             LoadNoteData();
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+            SaveWindowState();
+        }
+
+        private void LoadWindowState()
+        {
+            try
+            {
+                var settings = Settings.Load();
+                
+                // Restore window size
+                if (settings.NoteViewerWidth > 0)
+                    this.Width = settings.NoteViewerWidth;
+                if (settings.NoteViewerHeight > 0)
+                    this.Height = settings.NoteViewerHeight;
+                
+                // Restore window position
+                if (settings.NoteViewerLeft > -9999 && settings.NoteViewerTop > -9999)
+                {
+                    this.Left = settings.NoteViewerLeft;
+                    this.Top = settings.NoteViewerTop;
+                }
+            }
+            catch { /* Ignore errors, use defaults */ }
+        }
+
+        private void SaveWindowState()
+        {
+            try
+            {
+                var settings = Settings.Load();
+                
+                // Save window size (only if not maximized)
+                if (this.WindowState == WindowState.Normal)
+                {
+                    settings.NoteViewerWidth = this.ActualWidth;
+                    settings.NoteViewerHeight = this.ActualHeight;
+                    settings.NoteViewerLeft = this.Left;
+                    settings.NoteViewerTop = this.Top;
+                }
+                
+                settings.Save();
+            }
+            catch { /* Ignore save errors */ }
         }
 
         private void NoteViewWindow_StateChanged(object? sender, EventArgs e)

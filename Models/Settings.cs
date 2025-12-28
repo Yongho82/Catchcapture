@@ -67,6 +67,26 @@ namespace CatchCapture.Models
         public bool SimpleModeVertical { get; set; } = false;
         public bool IsTrayMode { get; set; } = false;
         public string LastActiveMode { get; set; } = "Normal"; // "Normal", "Simple", "Tray"
+        
+        // Note Explorer Window State
+        public double NoteExplorerWidth { get; set; } = 1450;
+        public double NoteExplorerHeight { get; set; } = 995;
+        public double NoteExplorerLeft { get; set; } = -9999;
+        public double NoteExplorerTop { get; set; } = -9999;
+        public double NoteExplorerSplitterPosition { get; set; } = -9999; // GridSplitter column width
+        
+        // Note Viewer Window State
+        public double NoteViewerWidth { get; set; } = 900;
+        public double NoteViewerHeight { get; set; } = 700;
+        public double NoteViewerLeft { get; set; } = -9999;
+        public double NoteViewerTop { get; set; } = -9999;
+        
+        // Note Input Window State
+        public double NoteInputWidth { get; set; } = 1000;
+        public double NoteInputHeight { get; set; } = 800;
+        public double NoteInputLeft { get; set; } = -9999;
+        public double NoteInputTop { get; set; } = -9999;
+        
         public static event EventHandler? SettingsChanged;
 
         // Tray mode icon customization  

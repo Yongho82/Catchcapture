@@ -76,6 +76,7 @@ namespace CatchCapture
                 
                 InitializeTips();
                 UpdateUIText();
+                LoadWindowState();
                 
                 LoadNotes(filter: "Recent");
                 LoadTags();
@@ -88,6 +89,60 @@ namespace CatchCapture
             {
                 CatchCapture.CustomMessageBox.Show($"탐색기 초기화 중 오류: {ex.Message}\n{ex.StackTrace}");
             }
+        }
+
+        private void LoadWindowState()
+        {
+            try
+            {
+                var settings = Settings.Load();
+                
+                // Restore window size
+                if (settings.NoteExplorerWidth > 0)
+                    this.Width = settings.NoteExplorerWidth;
+                if (settings.NoteExplorerHeight > 0)
+                    this.Height = settings.NoteExplorerHeight;
+                
+                // Restore window position
+                if (settings.NoteExplorerLeft > -9999 && settings.NoteExplorerTop > -9999)
+                {
+                    this.Left = settings.NoteExplorerLeft;
+                    this.Top = settings.NoteExplorerTop;
+                }
+                
+                // Restore splitter position (ColNoteList width)
+                if (settings.NoteExplorerSplitterPosition > 0)
+                {
+                    ColNoteList.Width = new GridLength(settings.NoteExplorerSplitterPosition, GridUnitType.Pixel);
+                }
+            }
+            catch { /* Ignore errors, use defaults */ }
+        }
+
+        private void SaveWindowState()
+        {
+            try
+            {
+                var settings = Settings.Load();
+                
+                // Save window size (only if not maximized)
+                if (this.WindowState == WindowState.Normal)
+                {
+                    settings.NoteExplorerWidth = this.ActualWidth;
+                    settings.NoteExplorerHeight = this.ActualHeight;
+                    settings.NoteExplorerLeft = this.Left;
+                    settings.NoteExplorerTop = this.Top;
+                }
+                
+                // Save splitter position (ColNoteList actual width)
+                if (ColNoteList != null && ColNoteList.ActualWidth > 0)
+                {
+                    settings.NoteExplorerSplitterPosition = ColNoteList.ActualWidth;
+                }
+                
+                settings.Save();
+            }
+            catch { /* Ignore save errors */ }
         }
 
         private void UpdateUIText()
@@ -126,6 +181,7 @@ namespace CatchCapture
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
+            SaveWindowState();
             Instance = null;
             
             if (_tipTimer != null)
