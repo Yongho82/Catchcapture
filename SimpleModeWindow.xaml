@@ -73,6 +73,7 @@
             <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorder}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="ItemContainerStyle" Value="{DynamicResource DarkMenuItem}"/>
         </Style>
 
         <!-- Light menu Separator -->
@@ -123,8 +124,8 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsHighlighted" Value="True">
-                                <Setter Property="Background" Value="{DynamicResource ThemeBorder}"/>
-                                <Setter Property="Opacity" Value="0.6"/>
+                                <Setter Property="Background" Value="#3F3F46"/>
+                                <Setter Property="Opacity" Value="1.0"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.5"/>

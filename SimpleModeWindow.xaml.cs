@@ -916,6 +916,7 @@ namespace CatchCapture
                 "SaveAll" => "/icons/save_all.png",
                 "Delete" => "/icons/delete_selected.png",
                 "DeleteAll" => "/icons/delete_all.png",
+                "MyNote" => "/icons/my_note.png",
                 "Settings" => "/icons/setting.png",
                 _ => null
             };
@@ -955,6 +956,7 @@ namespace CatchCapture
                 "SaveAll" => CatchCapture.Models.LocalizationManager.Get("SaveAll"),
                 "Delete" => CatchCapture.Models.LocalizationManager.Get("Delete"),
                 "DeleteAll" => CatchCapture.Models.LocalizationManager.Get("DeleteAll"),
+                "MyNote" => CatchCapture.Models.LocalizationManager.Get("OpenMyNote"),
                 "Settings" => CatchCapture.Models.LocalizationManager.Get("Settings"),
                 _ => string.Empty
             };
@@ -981,6 +983,7 @@ namespace CatchCapture
                 "SaveAll" => CatchCapture.Models.LocalizationManager.Get("SaveAll"),
                 "Delete" => CatchCapture.Models.LocalizationManager.Get("Delete"),
                 "DeleteAll" => CatchCapture.Models.LocalizationManager.Get("DeleteAll"),
+                "MyNote" => CatchCapture.Models.LocalizationManager.Get("OpenMyNote"),
                 "Settings" => CatchCapture.Models.LocalizationManager.Get("Settings"),
                 _ => iconName
             };
@@ -1043,6 +1046,9 @@ namespace CatchCapture
                     break;
                 case "DeleteAll":
                     _mainWindow?.DeleteAllImages();
+                    break;
+                case "MyNote":
+                    _mainWindow?.OpenNoteExplorer();
                     break;
                 case "Settings":
                     _mainWindow?.OpenSettingsWindow();
@@ -1109,7 +1115,7 @@ namespace CatchCapture
                 "AreaCapture", "DelayCapture", "FullScreen", "RealTimeCapture", "MultiCapture",
                 "DesignatedCapture", "WindowCapture", "UnitCapture", "ScrollCapture", "OcrCapture",
                 "ScreenRecord", "Copy", "CopyAll", "Save", "SaveAll", 
-                "Delete", "DeleteAll", "Settings"
+                "Delete", "DeleteAll", "MyNote", "Settings"
             };
 
             if (settings != null)
@@ -1139,6 +1145,7 @@ namespace CatchCapture
                             "SaveAll" => CreateMenuIcon("/icons/save_all.png"),
                             "Delete" => CreateMenuIcon("/icons/delete_selected.png"),
                             "DeleteAll" => CreateMenuIcon("/icons/delete_all.png"),
+                            "MyNote" => CreateMenuIcon("/icons/my_note.png"),
                             "Settings" => CreateMenuIcon("/icons/setting.png"),
                             _ => null
                         };

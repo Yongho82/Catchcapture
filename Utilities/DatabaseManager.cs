@@ -151,6 +151,26 @@ namespace CatchCapture.Utilities
                 }
                 catch { /* Column might already exist */ }
 
+                // Migration: Add DeletedAt to Notes
+                try
+                {
+                    using (var command = new SqliteCommand("ALTER TABLE Notes ADD COLUMN DeletedAt DATETIME;", connection))
+                    {
+                        command.ExecuteNonQuery();
+                    }
+                }
+                catch { /* Column might already exist */ }
+
+                // Migration: Add FileHash to NoteImages
+                try
+                {
+                    using (var command = new SqliteCommand("ALTER TABLE NoteImages ADD COLUMN FileHash TEXT;", connection))
+                    {
+                        command.ExecuteNonQuery();
+                    }
+                }
+                catch { /* Column might already exist */ }
+
                 // Insert Default Categories if empty
                 string checkCategories = "SELECT COUNT(*) FROM Categories;";
                 using (var command = new SqliteCommand(checkCategories, connection))
@@ -185,17 +205,116 @@ namespace CatchCapture.Utilities
             return Path.Combine(rootDir, "attachments");
         }
 
-        public void AddNoteImage(long noteId, string filePath, int orderIndex)
+        public void Vacuum()
+        {
+            try
+            {
+                using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+                {
+                    connection.Open();
+                    using (var command = new SqliteCommand("VACUUM;", connection))
+                    {
+                        command.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"DB VACUUM 오류: {ex.Message}");
+            }
+        }
+
+        public void CleanupTrash(int daysLimit = 30)
+        {
+            try
+            {
+                using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+                {
+                    connection.Open();
+                    
+                    // 1. Get notes to permanently delete
+                    var notesToDelete = new List<long>();
+                    string findSql = "SELECT Id FROM Notes WHERE Status = 1 AND DeletedAt <= datetime('now', 'localtime', '-' || $days || ' days')";
+                    using (var cmd = new SqliteCommand(findSql, connection))
+                    {
+                        cmd.Parameters.AddWithValue("$days", daysLimit);
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read()) notesToDelete.Add(reader.GetInt64(0));
+                        }
+                    }
+
+                    if (notesToDelete.Count == 0) return;
+
+                    // 2. For each note, perform hard delete (using existing logic or similar)
+                    // Since NoteExplorerWindow has the file deletion logic, maybe we should move it here or centralize it.
+                    // For now, let's implement file deletion here too for automation.
+                    
+                    string imgDir = GetImageFolderPath();
+                    string attachDir = GetAttachmentsFolderPath();
+
+                    foreach (var noteId in notesToDelete)
+                    {
+                        // Get images
+                        using (var cmd = new SqliteCommand("SELECT FilePath FROM NoteImages WHERE NoteId = $id", connection))
+                        {
+                            cmd.Parameters.AddWithValue("$id", noteId);
+                            using (var reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    try { File.Delete(Path.Combine(imgDir, reader.GetString(0))); } catch { }
+                                }
+                            }
+                        }
+
+                        // Get attachments
+                        using (var cmd = new SqliteCommand("SELECT FilePath FROM NoteAttachments WHERE NoteId = $id", connection))
+                        {
+                            cmd.Parameters.AddWithValue("$id", noteId);
+                            using (var reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    try { File.Delete(Path.Combine(attachDir, reader.GetString(0))); } catch { }
+                                }
+                            }
+                        }
+
+                        // Delete from DB (CASCADE will handle mapping tables if set up correctly, 
+                        // but let's be safe if CASCADE isn't fully trusted or for CleanupTags)
+                        using (var cmd = new SqliteCommand("DELETE FROM Notes WHERE Id = $id", connection))
+                        {
+                            cmd.Parameters.AddWithValue("$id", noteId);
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+
+                    // Cleanup orphaned tags
+                    using (var cmd = new SqliteCommand("DELETE FROM Tags WHERE Id NOT IN (SELECT DISTINCT TagId FROM NoteTags)", connection))
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"휴지통 자동 비우기 오류: {ex.Message}");
+            }
+        }
+
+        public void AddNoteImage(long noteId, string filePath, int orderIndex, string? fileHash = null)
         {
             using (var connection = new SqliteConnection($"Data Source={DbPath}"))
             {
                 connection.Open();
-                string sql = "INSERT INTO NoteImages (NoteId, FilePath, OrderIndex) VALUES ($noteId, $filePath, $orderIndex);";
+                string sql = "INSERT INTO NoteImages (NoteId, FilePath, OrderIndex, FileHash) VALUES ($noteId, $filePath, $orderIndex, $fileHash);";
                 using (var command = new SqliteCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("$noteId", noteId);
                     command.Parameters.AddWithValue("$filePath", filePath);
                     command.Parameters.AddWithValue("$orderIndex", orderIndex);
+                    command.Parameters.AddWithValue("$fileHash", (object?)fileHash ?? DBNull.Value);
                     command.ExecuteNonQuery();
                 }
             }
@@ -227,18 +346,35 @@ namespace CatchCapture.Utilities
                             command.Parameters.AddWithValue("$categoryId", categoryId);
                             noteId = Convert.ToInt64(command.ExecuteScalar());
                         }
-
+ 
                         // 2. Insert Main Image (only if provided)
                         if (!string.IsNullOrEmpty(fileName))
                         {
+                            string? hash = null;
+                            string imgDir = GetImageFolderPath();
+                            string fullPath = Path.Combine(imgDir, fileName);
+                            if (File.Exists(fullPath))
+                            {
+                                hash = ComputeHash(fullPath);
+                                // Check if this hash already exists to potentially reuse file (Duplicate Prevention)
+                                string? existingFile = GetExistingImageByHash(hash);
+                                if (existingFile != null && existingFile != fileName)
+                                {
+                                    // Reuse existing file and delete the current temporary one if it's different
+                                    try { File.Delete(fullPath); } catch { }
+                                    fileName = existingFile;
+                                }
+                            }
+
                             string insertImageSql = @"
-                                INSERT INTO NoteImages (NoteId, FilePath, OrderIndex)
-                                VALUES ($noteId, $filePath, 0);";
+                                INSERT INTO NoteImages (NoteId, FilePath, OrderIndex, FileHash)
+                                VALUES ($noteId, $filePath, 0, $hash);";
                             
                             using (var command = new SqliteCommand(insertImageSql, connection, transaction))
                             {
                                 command.Parameters.AddWithValue("$noteId", noteId);
                                 command.Parameters.AddWithValue("$filePath", fileName);
+                                command.Parameters.AddWithValue("$hash", (object?)hash ?? DBNull.Value);
                                 command.ExecuteNonQuery();
                             }
                         }
@@ -511,6 +647,42 @@ namespace CatchCapture.Utilities
                     command.Parameters.AddWithValue("@key", key);
                     command.Parameters.AddWithValue("@value", (object?)value ?? DBNull.Value);
                     command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public string? GetExistingImageByHash(string hash)
+        {
+            if (string.IsNullOrEmpty(hash)) return null;
+            using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+            {
+                connection.Open();
+                string sql = "SELECT FilePath FROM NoteImages WHERE FileHash = $hash LIMIT 1";
+                using (var command = new SqliteCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("$hash", hash);
+                    var result = command.ExecuteScalar();
+                    if (result != null)
+                    {
+                        string filePath = result.ToString()!;
+                        if (File.Exists(Path.Combine(GetImageFolderPath(), filePath)))
+                        {
+                            return filePath;
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        public string ComputeHash(string filePath)
+        {
+            using (var md5 = System.Security.Cryptography.MD5.Create())
+            {
+                using (var stream = File.OpenRead(filePath))
+                {
+                    var hash = md5.ComputeHash(stream);
+                    return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
                 }
             }
         }

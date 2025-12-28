@@ -407,6 +407,14 @@ public partial class MainWindow : Window
 
         // [열기] 추가
         trayContextMenu.Items.Add(trayOpenItem);
+
+        // [노트 열기] 추가
+        var trayNoteItem = new System.Windows.Forms.ToolStripMenuItem(
+            LocalizationManager.GetString("OpenMyNote"), 
+            LoadMenuImage("my_note.png"), 
+            (s, e) => OpenNoteExplorer());
+        trayContextMenu.Items.Add(trayNoteItem);
+
         trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
 
         // [영역 캡처]
@@ -2575,23 +2583,39 @@ public partial class MainWindow : Window
 
     private void OpenMyNoteButton_Click(object sender, RoutedEventArgs e)
     {
-        // 비밀번호 잠금 확인
-        if (!string.IsNullOrEmpty(settings.NotePassword) && !App.IsNoteAuthenticated)
-        {
-            var lockWin = new NoteLockCheckWindow(settings.NotePassword, settings.NotePasswordHint);
-            lockWin.Owner = this;
-            if (lockWin.ShowDialog() != true)
-            {
-                return;
-            }
-        }
+        OpenNoteExplorer();
+    }
 
+    public void OpenNoteExplorer()
+    {
         // 이미 열려있는지 확인
         if (NoteExplorerWindow.Instance != null && NoteExplorerWindow.Instance.IsLoaded)
         {
             NoteExplorerWindow.Instance.WindowState = WindowState.Normal;
             NoteExplorerWindow.Instance.Activate();
             return;
+        }
+
+        // 비밀번호 잠금 확인
+        if (!string.IsNullOrEmpty(settings.NotePassword) && !App.IsNoteAuthenticated)
+        {
+            var lockWin = new NoteLockCheckWindow(settings.NotePassword, settings.NotePasswordHint);
+            
+            if (this.IsVisible)
+            {
+                lockWin.Owner = this;
+                lockWin.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            }
+            else
+            {
+                lockWin.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                lockWin.Topmost = true;
+            }
+
+            if (lockWin.ShowDialog() != true)
+            {
+                return;
+            }
         }
 
         // 내 노트 탐색기 열기 (독립 창으로 생성)

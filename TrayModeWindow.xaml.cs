@@ -634,6 +634,11 @@ namespace CatchCapture
                     iconImage = CreateImage("/icons/delete_all.png");
                     labelText = LocalizationManager.Get("DeleteAll");
                     break;
+                case "MyNote":
+                    button.Click += (s, e) => mainWindow.OpenNoteExplorer(); 
+                    iconImage = CreateImage("/icons/my_note.png");
+                    labelText = LocalizationManager.Get("OpenMyNote");
+                    break;
                 case "Settings":
                     button.Click += SettingsButton_Click;
                     iconImage = CreateImage("/icons/setting.png");
@@ -1149,6 +1154,7 @@ namespace CatchCapture
                 "SaveAll" => LocalizationManager.Get("SaveAll"),
                 "Delete" => LocalizationManager.Get("Delete"),
                 "DeleteAll" => LocalizationManager.Get("DeleteAll"),
+                "MyNote" => LocalizationManager.Get("OpenMyNote"),
                 "Settings" => LocalizationManager.Get("Settings"),
                 _ => iconName
             };
@@ -1657,7 +1663,7 @@ namespace CatchCapture
                 "AreaCapture", "DelayCapture", "FullScreen", "RealTimeCapture", "MultiCapture",
                 "DesignatedCapture", "WindowCapture", "UnitCapture", "ScrollCapture", "OcrCapture",
                 "ScreenRecord", "Copy", "CopyAll", "Save", "SaveAll", 
-                "Delete", "DeleteAll", "Settings"
+                "Delete", "DeleteAll", "MyNote", "Settings"
             };
             
             if (settings != null)
@@ -1686,6 +1692,7 @@ namespace CatchCapture
                             "SaveAll" => CreateMenuIcon("/icons/save_all.png"),
                             "Delete" => CreateMenuIcon("/icons/delete_selected.png"),
                             "DeleteAll" => CreateMenuIcon("/icons/delete_all.png"),
+                            "MyNote" => CreateMenuIcon("/icons/my_note.png"),
                             "Settings" => CreateMenuIcon("/icons/setting.png"),
                             _ => null
                         };
