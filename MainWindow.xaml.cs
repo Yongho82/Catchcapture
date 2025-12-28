@@ -2594,9 +2594,8 @@ public partial class MainWindow : Window
             return;
         }
 
-        // 내 노트 탐색기 열기
+        // 내 노트 탐색기 열기 (독립 창으로 생성)
         var explorer = new NoteExplorerWindow();
-        explorer.Owner = this;
         explorer.Show();
     }
 
@@ -3632,6 +3631,7 @@ public partial class MainWindow : Window
     // 간편모드가 떠 있는 동안 본체가 활성화되면 다시 최소화하고 간편모드를 전면으로
     private void MainWindow_Activated(object? sender, EventArgs e)
     {
+        // 간편모드가 열려있으면 메인윈도우를 최소화하고 간편모드를 앞으로
         if (simpleModeWindow != null && simpleModeWindow.IsVisible)
         {
             Dispatcher.BeginInvoke(new Action(() =>
