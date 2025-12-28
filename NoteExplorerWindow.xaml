@@ -563,8 +563,8 @@
                                             </Viewbox>
                                             <Button.ContextMenu>
                                                 <ContextMenu>
-                                                    <MenuItem Header="최신순" Click="BtnSort_Click" Tag="UpdatedAt DESC"/>
-                                                    <MenuItem Header="이름순" Click="BtnSort_Click" Tag="Title ASC"/>
+                                                    <MenuItem x:Name="MenuSortLatest" Header="최신순" Click="BtnSort_Click" Tag="UpdatedAt DESC"/>
+                                                    <MenuItem x:Name="MenuSortName" Header="이름순" Click="BtnSort_Click" Tag="Title ASC"/>
                                                 </ContextMenu>
                                             </Button.ContextMenu>
                                         </Button>

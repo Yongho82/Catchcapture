@@ -4195,6 +4195,10 @@ public partial class MainWindow : Window
         if (TitleTrayModeButton != null) TitleTrayModeButton.ToolTip = LocalizationManager.GetString("TrayMode");
         if (OpenSaveFolderButtonText != null) OpenSaveFolderButtonText.Text = LocalizationManager.GetString("OpenSaveFolder");
         if (OpenMyNoteButtonText != null) OpenMyNoteButtonText.Text = LocalizationManager.GetString("OpenMyNote");
+
+        if (TitleThemeButton != null) TitleThemeButton.ToolTip = LocalizationManager.GetString("ChangeTheme");
+        if (MinimizeButton != null) MinimizeButton.ToolTip = LocalizationManager.GetString("Minimize");
+        if (CloseButton != null) CloseButton.ToolTip = LocalizationManager.GetString("Close");
     }
     private void UpdateTrayMenuTexts()
     {

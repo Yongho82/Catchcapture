@@ -648,4 +648,16 @@
   <data name="ErrPreviewFailed" xml:space="preserve">
     <value>미리보기 실행 실패: </value>
   </data>
+  <data name="Tags" xml:space="preserve">
+    <value>태그</value>
+  </data>
+  <data name="ErrInitExplorer" xml:space="preserve"><value>탐색기 초기화 중 오류: </value></data>
+  <data name="ConfirmRestoreNote" xml:space="preserve"><value>이 노트를 복구하시겠습니까?</value></data>
+  <data name="ErrRestoreNote" xml:space="preserve"><value>복구 중 오류 발생: </value></data>
+  <data name="ErrPinNote" xml:space="preserve"><value>고정 상태 변경 중 오류 발생: </value></data>
+
+
+  <data name="ChangeTheme" xml:space="preserve"><value>테마 변경</value></data>
+  <data name="SimpleMode" xml:space="preserve"><value>간편 모드</value></data>
+  <data name="TrayMode" xml:space="preserve"><value>트레이 모드</value></data>
 </root>

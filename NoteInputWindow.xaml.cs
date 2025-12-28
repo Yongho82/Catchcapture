@@ -42,7 +42,8 @@ namespace CatchCapture
             _sourceUrl = sourceUrl;
             
             LoadCategories();
-            UpdateUIForMode();
+            LoadCategories();
+            // UpdateUIForMode call removed, handled in UpdateUIText
 
             // Display source metadata
             string sourceDisplayName = _sourceApp ?? CatchCapture.Resources.LocalizationManager.GetString("Unknown");
@@ -92,7 +93,8 @@ namespace CatchCapture
             _editingNoteId = noteId;
             
             LoadCategories();
-            UpdateUIForMode();
+            LoadCategories();
+            // UpdateUIForMode call removed, handled in UpdateUIText
             
             this.Loaded += (s, e) => LoadNoteData(noteId);
             this.MouseDown += (s, e) => { 
@@ -160,12 +162,12 @@ namespace CatchCapture
             if (this.WindowState == WindowState.Maximized)
             {
                 PathMaximize.Data = System.Windows.Media.Geometry.Parse("M4,8H8V4H20V16H16V20H4V8M16,8V14H18V6H10V8H16M6,10V18H14V10H6Z");
-                BtnMaximize.ToolTip = "이전 크기로 복원";
+                BtnMaximize.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("Restore");
             }
             else
             {
                 PathMaximize.Data = System.Windows.Media.Geometry.Parse("M4,4H20V20H4V4M6,8V18H18V8H6Z");
-                BtnMaximize.ToolTip = "최대화";
+                BtnMaximize.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("Maximize");
             }
         }
 
@@ -188,24 +190,32 @@ namespace CatchCapture
 
         private void UpdateUIText()
         {
-            this.Title = CatchCapture.Resources.LocalizationManager.GetString("NoteInputTitle") ?? "캐치캡처-글쓰기";
-            if (TxtHeaderTitle != null) TxtHeaderTitle.Text = CatchCapture.Resources.LocalizationManager.GetString("Write");
+            this.Title = CatchCapture.Resources.LocalizationManager.GetString("NoteInputTitle") ?? "";
+            
+            // Common
             if (BtnClose != null) BtnClose.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("Close");
+            if (BtnMinimize != null) BtnMinimize.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("Minimize");
+            if (BtnMaximize != null) 
+            {
+               BtnMaximize.ToolTip = this.WindowState == WindowState.Maximized 
+                   ? CatchCapture.Resources.LocalizationManager.GetString("Restore") 
+                   : CatchCapture.Resources.LocalizationManager.GetString("Maximize");
+            }
             if (BtnManageCategories != null) BtnManageCategories.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("ManageCategories");
+            
             if (TxtTitlePlaceholder != null) TxtTitlePlaceholder.Text = CatchCapture.Resources.LocalizationManager.GetString("TitlePlaceholder");
             if (TxtTagsLabel != null) TxtTagsLabel.Text = CatchCapture.Resources.LocalizationManager.GetString("Tags");
             if (TxtTagsPlaceholder != null) TxtTagsPlaceholder.Text = CatchCapture.Resources.LocalizationManager.GetString("TagsPlaceholder");
+            
             if (TxtLinkLabel != null) TxtLinkLabel.Text = CatchCapture.Resources.LocalizationManager.GetString("Link");
             if (TxtLinkPlaceholder != null) TxtLinkPlaceholder.Text = CatchCapture.Resources.LocalizationManager.GetString("LinkPlaceholder");
+            
             if (TxtFilesLabel != null) TxtFilesLabel.Text = CatchCapture.Resources.LocalizationManager.GetString("FileAttachment");
             if (TxtFileAttachGuide != null) TxtFileAttachGuide.Text = CatchCapture.Resources.LocalizationManager.GetString("FileAttachmentGuide");
             
             if (BtnCancel != null) BtnCancel.Content = CatchCapture.Resources.LocalizationManager.GetString("Cancel");
-            if (BtnSave != null) BtnSave.Content = CatchCapture.Resources.LocalizationManager.GetString("NoteSave");
-        }
 
-        private void UpdateUIForMode()
-        {
+            // Mode specific
             if (_isEditMode)
             {
                 if (TxtHeaderTitle != null) TxtHeaderTitle.Text = CatchCapture.Resources.LocalizationManager.GetString("EditNote");

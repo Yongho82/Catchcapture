@@ -661,4 +661,13 @@ Are you sure you want to permanently delete all items?</value>
   <data name="ErrLoadNote" xml:space="preserve">
     <value>Failed to load note: </value>
   </data>
+  <data name="ErrInitExplorer" xml:space="preserve"><value>Error initializing explorer: </value></data>
+  <data name="ConfirmRestoreNote" xml:space="preserve"><value>Do you want to restore this note?</value></data>
+  <data name="ErrRestoreNote" xml:space="preserve"><value>Error occurred while restoring: </value></data>
+  <data name="ErrPinNote" xml:space="preserve"><value>Error occurred while changing pin state: </value></data>
+
+
+  <data name="ChangeTheme" xml:space="preserve"><value>Change Theme</value></data>
+  <data name="SimpleMode" xml:space="preserve"><value>Simple Mode</value></data>
+  <data name="TrayMode" xml:space="preserve"><value>Tray Mode</value></data>
 </root>

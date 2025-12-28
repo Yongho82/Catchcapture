@@ -113,7 +113,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                CatchCapture.CustomMessageBox.Show($"탐색기 초기화 중 오류: {ex.Message}\n{ex.StackTrace}");
+                CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ErrInitExplorer") + $"{ex.Message}\n{ex.StackTrace}", CatchCapture.Resources.LocalizationManager.GetString("Error"));
             }
         }
 
@@ -230,6 +230,9 @@ namespace CatchCapture
             }
             if (BtnClose != null) BtnClose.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("Close");
 
+            if (MenuSortLatest != null) MenuSortLatest.Header = CatchCapture.Resources.LocalizationManager.GetString("SortByLatest");
+            if (MenuSortName != null) MenuSortName.Header = CatchCapture.Resources.LocalizationManager.GetString("SortByName");
+            
             InitializeTips(); // Reload tips for current language
         }
 
@@ -1424,7 +1427,7 @@ namespace CatchCapture
         {
             if (sender is Button btn && btn.Tag is long noteId)
             {
-                if (CatchCapture.CustomMessageBox.Show("이 노트를 복구하시겠습니까?", "알림", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                if (CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ConfirmRestoreNote"), CatchCapture.Resources.LocalizationManager.GetString("Notice"), MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                 {
                     try
                     {
@@ -1442,7 +1445,7 @@ namespace CatchCapture
                     }
                     catch (Exception ex)
                     {
-                        CatchCapture.CustomMessageBox.Show("복구 중 오류 발생: " + ex.Message);
+                        CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ErrRestoreNote") + ex.Message, CatchCapture.Resources.LocalizationManager.GetString("Error"));
                     }
                 }
             }
@@ -1474,7 +1477,7 @@ namespace CatchCapture
                 }
                 catch (Exception ex)
                 {
-                    CatchCapture.CustomMessageBox.Show("고정 상태 변경 중 오류 발생: " + ex.Message);
+                    CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ErrPinNote") + ex.Message, CatchCapture.Resources.LocalizationManager.GetString("Error"));
                 }
             }
         }
