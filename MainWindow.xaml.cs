@@ -1314,11 +1314,14 @@ public partial class MainWindow : Window
         if (trayModeWindow != null) trayModeWindow.Hide();
 
         // 2단계: UI 업데이트 강제 대기 (Render 우선순위 사용)
-        // Task.Delay 대신 Dispatcher.Yield나 Render 우선순위 InvokeAsync만 사용
         await Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.Render);
 
         // UI가 완전히 사라졌는지 확인 (FlushUIAfterHide 사용)
         FlushUIAfterHide();
+
+        // ★ 창을 숨긴 후 짧은 딜레이를 주고 메타데이터 캡처 (아래 창이 활성화될 시간)
+        await Task.Delay(50);
+        var metadata = ScreenCaptureUtility.GetActiveWindowMetadata();
 
         // 3단계: 스크린샷 캡처 (프리로딩 확인)
         BitmapSource? screenshot = null;
@@ -1339,8 +1342,8 @@ public partial class MainWindow : Window
             screenshot = await Task.Run(() => ScreenCaptureUtility.CaptureScreen());
         }
 
-        // 캡처된 스크린샷을 전달하여 SnippingWindow가 즉시 표시되도록
-        using (var snippingWindow = new SnippingWindow(false, screenshot))
+        // ★ 캡처된 메타데이터를 SnippingWindow에 전달
+        using (var snippingWindow = new SnippingWindow(false, screenshot, metadata.AppName, metadata.Title))
         {
             // 즉시편집 모드 활성화
             if (instantEdit)
@@ -1366,8 +1369,8 @@ public partial class MainWindow : Window
                         this.Show();
                     }
                     
-                    // 노트 입력창 열기 (스니핑 창이 이미 닫힌 상태)
-                    var noteWin = new NoteInputWindow(capturedImage, null, null);
+                    // 노트 입력창 열기 (SnippingWindow에서 캡처한 메타데이터 전달)
+                    var noteWin = new NoteInputWindow(capturedImage, snippingWindow.SourceApp, snippingWindow.SourceTitle);
                     noteWin.ShowDialog();
                     return;
                 }

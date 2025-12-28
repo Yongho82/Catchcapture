@@ -12,6 +12,7 @@ using WinForms = System.Windows.Forms;
 using System.Windows.Input;
 using MessageBox = System.Windows.MessageBox;
 using System.Text;
+using System.ComponentModel;
 using CatchCapture.Models;
 
 namespace CatchCapture.Utilities
@@ -46,29 +47,154 @@ namespace CatchCapture.Utilities
         [DllImport("user32.dll", SetLastError = true)]
         private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
 
+        [DllImport("user32.dll", ExactSpelling = true)]
+        private static extern IntPtr GetAncestor(IntPtr hwnd, uint gaFlags);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr WindowFromPoint(POINT Point);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GetCursorPos(out POINT lpPoint);
+
+        private const uint GA_ROOT = 2;
+
         public static (string AppName, string Title) GetActiveWindowMetadata()
         {
             try
             {
-                IntPtr hWnd = GetForegroundWindow();
-                if (hWnd == IntPtr.Zero) return ("Unknown", "Unknown");
+                IntPtr hWnd = IntPtr.Zero;
+                POINT p;
 
-                // Get Title
-                StringBuilder titleBuilder = new StringBuilder(256);
-                GetWindowText(hWnd, titleBuilder, 256);
-                string title = titleBuilder.ToString();
+                // 1. 마우스 커서 위치의 창 찾기
+                if (GetCursorPos(out p))
+                {
+                    IntPtr hWndPoint = WindowFromPoint(p);
+                    if (hWndPoint != IntPtr.Zero)
+                    {
+                        hWnd = GetAncestor(hWndPoint, GA_ROOT);
+                    }
+                }
 
-                // Get Process Name
-                GetWindowThreadProcessId(hWnd, out uint processId);
-                var process = System.Diagnostics.Process.GetProcessById((int)processId);
-                string appName = process.ProcessName;
+                (string AppName, string Title) result = TryGetWindowData(hWnd);
 
-                return (appName, title);
+                // 2. 자신(CatchCapture)인 경우 ForegoundWindow로 시도
+                if (IsSelfProcess(result.AppName))
+                {
+                    hWnd = GetForegroundWindow();
+                    result = TryGetWindowData(hWnd);
+                    
+                    // Foreground도 자신이면 Unknown 반환
+                    if (IsSelfProcess(result.AppName))
+                    {
+                        return ("Unknown", "Unknown");
+                    }
+                }
+
+                // 3. 유효하지 않거나 실패한 경우 ForegoundWindow로 시도
+                if (IsInvalidMetadata(result))
+                {
+                    hWnd = GetForegroundWindow();
+                    var fallbackResult = TryGetWindowData(hWnd);
+                    
+                    if (!IsInvalidMetadata(fallbackResult) && !IsSelfProcess(fallbackResult.AppName))
+                    {
+                        result = fallbackResult;
+                    }
+                }
+
+                return result;
             }
             catch
             {
                 return ("Unknown", "Unknown");
             }
+        }
+
+        /// <summary>
+        /// 특정 화면 좌표에 있는 창의 메타데이터 가져오기
+        /// </summary>
+        public static (string AppName, string Title) GetWindowAtPoint(int screenX, int screenY)
+        {
+            try
+            {
+                POINT p = new POINT { X = screenX, Y = screenY };
+                IntPtr hWnd = WindowFromPoint(p);
+                
+                if (hWnd != IntPtr.Zero)
+                {
+                    hWnd = GetAncestor(hWnd, GA_ROOT);
+                }
+
+                var result = TryGetWindowData(hWnd);
+                
+                // 자기 자신이면 Unknown 반환
+                if (IsSelfProcess(result.AppName))
+                {
+                    return ("Unknown", "Unknown");
+                }
+
+                return result;
+            }
+            catch
+            {
+                return ("Unknown", "Unknown");
+            }
+        }
+
+        private static bool IsSelfProcess(string appName)
+        {
+            if (string.IsNullOrEmpty(appName)) return false;
+            return appName.Equals("CatchCapture", System.StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsInvalidMetadata((string AppName, string Title) data)
+        {
+            return string.IsNullOrEmpty(data.AppName) || data.AppName == "Unknown" || 
+                   string.IsNullOrEmpty(data.Title) || data.Title == "Unknown";
+        }
+
+        private static (string AppName, string Title) TryGetWindowData(IntPtr hWnd)
+        {
+            if (hWnd == IntPtr.Zero) return ("Unknown", "Unknown");
+
+            string title = "Unknown";
+            string appName = "Unknown";
+
+            try
+            {
+                // Get Title
+                StringBuilder titleBuilder = new StringBuilder(256);
+                if (GetWindowText(hWnd, titleBuilder, 256) > 0)
+                {
+                    title = titleBuilder.ToString();
+                }
+
+                // Get Process Name
+                GetWindowThreadProcessId(hWnd, out uint processId);
+                if (processId != 0)
+                {
+                    try 
+                    {
+                        var process = System.Diagnostics.Process.GetProcessById((int)processId);
+                        appName = process.ProcessName;
+                    }
+                    catch (Win32Exception) 
+                    {
+                        // 권한 문제 등으로 접근 불가 시 무시 (예: 시스템 프로세스)
+                    }
+                    catch (ArgumentException)
+                    {
+                        // 프로세스가 이미 종료됨
+                    }
+                }
+            }
+            catch
+            {
+                // 개별 단계 실패 시 무시
+            }
+            
+            return (appName, title);
         }
 
         [DllImport("user32.dll")]

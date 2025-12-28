@@ -93,20 +93,31 @@ namespace CatchCapture.Utilities
         private string? _sourceApp;
         private string? _sourceTitle;
 
+        public string? SourceApp => _sourceApp;
+        public string? SourceTitle => _sourceTitle;
+
         public bool RequestMainWindowMinimize { get; private set; } = false;
         
         // Flag to request MainWindow to open NoteInputWindow after this window closes
         public bool RequestSaveToNote { get; private set; } = false;
 
-        public SnippingWindow(bool showGuideText = false, BitmapSource? cachedScreenshot = null)
+        public SnippingWindow(bool showGuideText = false, BitmapSource? cachedScreenshot = null, string? sourceApp = null, string? sourceTitle = null)
         {
             var settings = Settings.Load();
             showMagnifier = settings.ShowMagnifier;
 
-            // Capture metadata for the active window before this window takes focus
-            var meta = ScreenCaptureUtility.GetActiveWindowMetadata();
-            _sourceApp = meta.AppName;
-            _sourceTitle = meta.Title;
+            // Use provided metadata or capture it now (fallback)
+            if (!string.IsNullOrEmpty(sourceApp) && !string.IsNullOrEmpty(sourceTitle))
+            {
+                _sourceApp = sourceApp;
+                _sourceTitle = sourceTitle;
+            }
+            else
+            {
+                var meta = ScreenCaptureUtility.GetActiveWindowMetadata();
+                _sourceApp = meta.AppName;
+                _sourceTitle = meta.Title;
+            }
 
             WindowStyle = WindowStyle.None;
             ResizeMode = ResizeMode.NoResize;
@@ -637,6 +648,20 @@ namespace CatchCapture.Utilities
                 }
             }
             catch { /* ignore crop errors */ }
+
+            // ★ 선택한 영역의 중심점에서 창 메타데이터 캡처 (실제 캡처된 창 정보)
+            try
+            {
+                int centerX = globalX + pxWidth / 2;
+                int centerY = globalY + pxHeight / 2;
+                var capturedMeta = ScreenCaptureUtility.GetWindowAtPoint(centerX, centerY);
+                if (capturedMeta.AppName != "Unknown" && capturedMeta.Title != "Unknown")
+                {
+                    _sourceApp = capturedMeta.AppName;
+                    _sourceTitle = capturedMeta.Title;
+                }
+            }
+            catch { /* fallback to initial metadata */ }
 
             if (instantEditMode)
             {
