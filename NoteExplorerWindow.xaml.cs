@@ -1533,8 +1533,20 @@ namespace CatchCapture
                 var lines = PreviewContent.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
                 foreach (var line in lines)
                 {
-                    string trimmed = line.Trim();
-                    if (!string.IsNullOrEmpty(trimmed)) return trimmed;
+                    // Remove Object Replacement Character (\uFFFC) and Zero Width Space (\u200B)
+                    // ZWS is used for styling anchors but is invisible, causing "empty" looking lines to be selected
+                    string trimmed = line.Replace("\uFFFC", "").Replace("\u200B", "").Trim();
+                    
+                    if (!string.IsNullOrEmpty(trimmed)) 
+                    {
+                        // Deduplication: If this line is essentially the same as the Title, skip it.
+                        // This achieves the "Title = Line 1, Preview = Line 2" effect for auto-generated titles.
+                        if (!string.IsNullOrEmpty(Title) && trimmed.Equals(Title.Trim(), StringComparison.OrdinalIgnoreCase))
+                        {
+                            continue;
+                        }
+                        return trimmed;
+                    }
                 }
                 return "";
             }

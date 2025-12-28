@@ -758,7 +758,21 @@ namespace CatchCapture.Controls
             RtbEditor.BeginChange();
             try
             {
-                InsertBlockAtCaret(container);
+                // 문서가 비어있으면 기존 빈 단락을 제거하고 삽입
+                if (IsDocumentEmpty())
+                {
+                    RtbEditor.Document.Blocks.Clear();
+                    RtbEditor.Document.Blocks.Add(container);
+                    
+                    // 이미지 다음에 빈 단락 추가
+                    var nextParagraph = new Paragraph { Margin = new Thickness(0), LineHeight = 1.5 };
+                    RtbEditor.Document.Blocks.Add(nextParagraph);
+                    RtbEditor.CaretPosition = nextParagraph.ContentStart;
+                }
+                else
+                {
+                    InsertBlockAtCaret(container);
+                }
             }
             finally
             {
@@ -1268,18 +1282,26 @@ namespace CatchCapture.Controls
                 // BlockUIContainer에 추가
                 var container = new BlockUIContainer(border);
                 
-                // 현재 커서 위치에 삽입
-                var caretPosition = RtbEditor.CaretPosition;
+                // 문서가 비어있거나 빈 단락 하나만 있는 경우, 기존 내용을 클리어하고 삽입
+                // 이렇게 하면 최상단에 빈 줄이 생기지 않음
+                bool isDocumentEmpty = IsDocumentEmpty();
+                if (isDocumentEmpty)
+                {
+                    RtbEditor.Document.Blocks.Clear();
+                    RtbEditor.Document.Blocks.Add(container);
+                    
+                    // 미디어 다음에 빈 단락 추가하여 커서 위치 확보
+                    var nextParagraph = new Paragraph { Margin = new Thickness(0), LineHeight = 1.5 };
+                    RtbEditor.Document.Blocks.Add(nextParagraph);
+                    RtbEditor.CaretPosition = nextParagraph.ContentStart;
+                }
+                else
+                {
+                    // 기존 내용이 있으면 커서 위치에 삽입
+                    InsertBlockAtCaret(container);
+                }
                 
-                // BlockUIContainer를 Document에 직접 추가
-                RtbEditor.Document.Blocks.Add(container);
-                
-                // 미디어 다음에 빈 단락 추가하여 커서 위치 확보
-                var nextParagraph = new Paragraph();
-                RtbEditor.Document.Blocks.Add(nextParagraph);
-                
-                // 커서를 다음 단락의 시작으로 이동
-                RtbEditor.CaretPosition = nextParagraph.ContentStart;
+                // 포커스 설정
                 RtbEditor.Focus();
             }
             catch (Exception ex)
@@ -1465,6 +1487,12 @@ namespace CatchCapture.Controls
                     e.Handled = true;
                 }
             }
+        }
+
+        private bool IsDocumentEmpty()
+        {
+            var text = new TextRange(RtbEditor.Document.ContentStart, RtbEditor.Document.ContentEnd).Text;
+            return string.IsNullOrWhiteSpace(text);
         }
 
         private bool IsImageFile(string path)

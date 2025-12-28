@@ -550,6 +550,31 @@ namespace CatchCapture
             try
             {
                 string title = TxtTitle.Text;
+                
+                // If title is empty, try to generate from content
+                if (string.IsNullOrWhiteSpace(title))
+                {
+                    string fullText = Editor.GetPlainText();
+                    if (!string.IsNullOrEmpty(fullText))
+                    {
+                        using (var reader = new StringReader(fullText))
+                        {
+                            string line;
+                            while ((line = reader.ReadLine()) != null)
+                            {
+                                // Skip lines that are just media placeholders, ZWS, or whitespace
+                                string cleaned = line.Replace("\uFFFC", "").Replace("\u200B", "").Trim();
+                                if (!string.IsNullOrEmpty(cleaned))
+                                {
+                                    title = cleaned;
+                                    if (title.Length > 50) title = title.Substring(0, 50).Trim() + "...";
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                
                 if (string.IsNullOrWhiteSpace(title)) title = CatchCapture.Resources.LocalizationManager.GetString("Untitled");
                 
                 string content = Editor.GetPlainText();
