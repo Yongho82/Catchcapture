@@ -285,38 +285,31 @@ namespace CatchCapture
 
             // --- 줌(Scale) 조정 ---
             // 창 크기가 결정되었으니, 이미지 표시 영역(Canvas)에 할당될 실제 공간 계산
-            // 창 너비 - 우측패널 - 여백
             double availableWidth = targetWindowWidth - rightPanelWidth - padding;
-            // 창 높이 - 상단툴바 - 하단패널 - 타이틀바
             double availableHeight = targetWindowHeight - toolbarHeight - bottomPanelHeight - windowChromeHeight;
 
-            // 공간이 유효한지 체크
             if (availableWidth > 0 && availableHeight > 0)
             {
                 double scaleX = availableWidth / imageWidth;
                 double scaleY = availableHeight / imageHeight;
-                
-                // 둘 중 더 작은 비율을 선택 (이미지 전체가 들어오도록)
                 double scale = Math.Min(scaleX, scaleY);
                 
-                // 이미지가 공간보다 크면 축소 (1.0보다 작을 때만 적용)
-                // 너무 작게 축소되는 것 방지 (예: 최소 10%)
-                if (scale < 1.0)
+                var scaleTransform = GetImageScaleTransform();
+                if (scaleTransform != null)
                 {
-                    scale = Math.Max(scale, 0.1); 
-                    
-                    var scaleTransform = GetImageScaleTransform();
-                    if (scaleTransform != null)
+                    if (scale < 1.0)
                     {
-                        scaleTransform.ScaleX = scale;
-                        scaleTransform.ScaleY = scale;
-                        UpdateImageInfo();
+                        // 이미지가 작업 영역보다 크면 화면에 맞게 축소
+                        scaleTransform.ScaleX = Math.Max(scale, 0.1);
+                        scaleTransform.ScaleY = Math.Max(scale, 0.1);
                     }
-                }
-                else
-                {
-                     // 공간이 충분하면 100%로 리셋
-                     ResetZoom();
+                    else
+                    {
+                        // 이미지가 작업 영역보다 작거나 같으면 원본 크기(100%) 유지
+                        scaleTransform.ScaleX = 1.0;
+                        scaleTransform.ScaleY = 1.0;
+                    }
+                    UpdateImageInfo();
                 }
             }
         }

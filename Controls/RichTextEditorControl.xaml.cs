@@ -710,8 +710,8 @@ namespace CatchCapture.Controls
 
             var slider = new Slider
             {
-                Minimum = 100,
-                Maximum = 1024,
+                Minimum = 20,
+                Maximum = 1200,
                 Value = initialWidth, // Use calculated initial width
                 Width = 140,
                 Height = 24,

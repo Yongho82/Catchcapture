@@ -451,36 +451,38 @@
         <Border Grid.Row="1" Grid.Column="0" Background="{DynamicResource ThemeBackground}" BorderThickness="0">
             <Grid>
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                    <Canvas x:Name="ImageCanvas" ClipToBounds="True">
-                        <Canvas.LayoutTransform>
-                            <ScaleTransform x:Name="CanvasScaleTransform"/>
-                        </Canvas.LayoutTransform>
-                        <!-- 투명 배경 표시를 위한 바둑판 패턴 -->
-                        <Canvas.Background>
-                            <DrawingBrush TileMode="Tile" Viewport="0,0,16,16" ViewportUnits="Absolute">
-                                <DrawingBrush.Drawing>
-                                    <DrawingGroup>
-                                        <GeometryDrawing Brush="{DynamicResource ThemeBackground}">
-                                            <GeometryDrawing.Geometry>
-                                                <RectangleGeometry Rect="0,0,16,16"/>
-                                            </GeometryDrawing.Geometry>
-                                        </GeometryDrawing>
-                                        <DrawingGroup Opacity="0.5">
-                                            <GeometryDrawing Brush="{DynamicResource ThemeBorder}">
+                    <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Margin="50">
+                        <Canvas x:Name="ImageCanvas" ClipToBounds="True">
+                            <Canvas.LayoutTransform>
+                                <ScaleTransform x:Name="CanvasScaleTransform"/>
+                            </Canvas.LayoutTransform>
+                            <!-- 투명 배경 표시를 위한 바둑판 패턴 -->
+                            <Canvas.Background>
+                                <DrawingBrush TileMode="Tile" Viewport="0,0,16,16" ViewportUnits="Absolute">
+                                    <DrawingBrush.Drawing>
+                                        <DrawingGroup>
+                                            <GeometryDrawing Brush="{DynamicResource ThemeBackground}">
                                                 <GeometryDrawing.Geometry>
-                                                    <GeometryGroup>
-                                                        <RectangleGeometry Rect="0,0,8,8"/>
-                                                        <RectangleGeometry Rect="8,8,8,8"/>
-                                                    </GeometryGroup>
+                                                    <RectangleGeometry Rect="0,0,16,16"/>
                                                 </GeometryDrawing.Geometry>
                                             </GeometryDrawing>
+                                            <DrawingGroup Opacity="0.5">
+                                                <GeometryDrawing Brush="{DynamicResource ThemeBorder}">
+                                                    <GeometryDrawing.Geometry>
+                                                        <GeometryGroup>
+                                                            <RectangleGeometry Rect="0,0,8,8"/>
+                                                            <RectangleGeometry Rect="8,8,8,8"/>
+                                                        </GeometryGroup>
+                                                    </GeometryDrawing.Geometry>
+                                                </GeometryDrawing>
+                                            </DrawingGroup>
                                         </DrawingGroup>
-                                    </DrawingGroup>
-                                </DrawingBrush.Drawing>
-                            </DrawingBrush>
-                        </Canvas.Background>
-                        <Image x:Name="PreviewImage" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
-                    </Canvas>
+                                    </DrawingBrush.Drawing>
+                                </DrawingBrush>
+                            </Canvas.Background>
+                            <Image x:Name="PreviewImage" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+                        </Canvas>
+                    </Grid>
                 </ScrollViewer>
                 
                 <!-- 토글 버튼 (오른쪽 끝에 고정) -->

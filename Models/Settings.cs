@@ -76,8 +76,8 @@ namespace CatchCapture.Models
         public double NoteExplorerSplitterPosition { get; set; } = -9999; // GridSplitter column width
         
         // Note Viewer Window State
-        public double NoteViewerWidth { get; set; } = 900;
-        public double NoteViewerHeight { get; set; } = 700;
+        public double NoteViewerWidth { get; set; } = 1200;
+        public double NoteViewerHeight { get; set; } = 920;
         public double NoteViewerLeft { get; set; } = -9999;
         public double NoteViewerTop { get; set; } = -9999;
         
