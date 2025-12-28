@@ -100,12 +100,6 @@
   <data name="NormalMode" xml:space="preserve">
     <value>Normal</value>
   </data>
-  <data name="SimpleMode" xml:space="preserve">
-    <value>Simple</value>
-  </data>
-  <data name="TrayMode" xml:space="preserve">
-    <value>Tray</value>
-  </data>
   
   <!-- Menu Items -->
   <data name="Settings" xml:space="preserve">
@@ -672,4 +666,5 @@ Are you sure you want to permanently delete all items?</value>
   <data name="TrayMode" xml:space="preserve"><value>Tray Mode</value></data>
   <data name="SaveToMyNote" xml:space="preserve"><value>Save to My Note</value></data>
   <data name="ConfirmDisableNotePassword" xml:space="preserve"><value>Do you want to disable the password lock?&#x0a;(The set password will be kept)</value></data>
+  <data name="PasswordsDoNotMatch" xml:space="preserve"><value>Passwords do not match.</value></data>
 </root>
