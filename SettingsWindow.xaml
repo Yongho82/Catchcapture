@@ -727,6 +727,31 @@
                         </StackPanel>
                     </GroupBox>
 
+                    <GroupBox x:Name="NoteTrashGroup" Header="휴지통 설정" Margin="0,0,0,20" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
+                        <StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="20"/>
+                                    <ColumnDefinition Width="150"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="TrashRetentionLabel" Text="휴지통 보관 기간" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                                <ComboBox x:Name="CboTrashRetention" Grid.Column="2" Height="26">
+                                    <ComboBoxItem Content="1일" Tag="1"/>
+                                    <ComboBoxItem Content="3일" Tag="3"/>
+                                    <ComboBoxItem Content="7일" Tag="7"/>
+                                    <ComboBoxItem Content="15일" Tag="15"/>
+                                    <ComboBoxItem Content="30일" Tag="30"/>
+                                    <ComboBoxItem Content="60일" Tag="60"/>
+                                    <ComboBoxItem Content="90일" Tag="90"/>
+                                    <ComboBoxItem Content="영구 보관" Tag="0"/>
+                                </ComboBox>
+                                <TextBlock x:Name="TrashRetentionNotice" Grid.Column="3" Text=" (설정된 기간이 지나면 자동 영구 삭제)" Margin="10,0,0,0" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
+                            </Grid>
+                        </StackPanel>
+                    </GroupBox>
+
                     <GroupBox x:Name="NoteOptimizeGroup" Header="이미지 저장 설정" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
                         <StackPanel>
                             <Grid Margin="0,0,0,0">

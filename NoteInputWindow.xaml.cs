@@ -562,65 +562,72 @@ namespace CatchCapture
                 string imgDir = DatabaseManager.Instance.GetImageFolderPath();
                 if (!Directory.Exists(imgDir)) Directory.CreateDirectory(imgDir);
 
-                List<string> savedFileNames = new List<string>();
+                List<(string FileName, string Hash)> savedImages = new List<(string FileName, string Hash)>();
                 
                 foreach (var imgSource in imagesInEditor)
                 {
-                    string fileName;
-                    
                     if (imgSource is BitmapImage bi && bi.UriSource != null && bi.UriSource.IsFile)
                     {
-                        // Existing file check
+                        // Existing file check (already in our storage)
                         string filePath = bi.UriSource.LocalPath;
                         if (Path.GetDirectoryName(filePath)?.Equals(imgDir, StringComparison.OrdinalIgnoreCase) == true)
                         {
-                            savedFileNames.Add(Path.GetFileName(filePath));
+                            string fn = Path.GetFileName(filePath);
+                            string h = DatabaseManager.Instance.ComputeHash(filePath);
+                            savedImages.Add((fn, h));
                             continue;
                         }
                     }
 
-                    // Save new file
-                    // 외부 블로그나 뉴스에서 붙여넣기 한 이미지(원격 URL)는 용량 최적화를 위해 JPG(품질 80)로 강제 변환하여 저장
+                    // Save to memory first to compute hash and check for duplicates
                     bool isRemote = (imgSource is BitmapImage biRemote && biRemote.UriSource != null && !biRemote.UriSource.IsFile);
                     string saveFormat = isRemote ? "JPG" : (settings.NoteSaveFormat ?? "PNG");
                     int saveQuality = isRemote ? 80 : settings.NoteImageQuality;
 
-                    string ext = "." + saveFormat.ToLower();
-                    fileName = $"img_{DateTime.Now:yyyyMMdd_HHmmss_fff}_{Guid.NewGuid().ToString().Substring(0, 8)}{ext}";
-                    string fullPath = Path.Combine(imgDir, fileName);
-
-                    using (var fileStream = new FileStream(fullPath, FileMode.Create))
+                    using (var ms = new MemoryStream())
                     {
                         BitmapEncoder encoder;
                         string fmt = saveFormat.ToUpper();
 
+                        // ... (same encoder selection logic) ...
                         switch (fmt)
                         {
-                            case "JPG":
-                            case "JPEG":
-                                var jpgEncoder = new JpegBitmapEncoder();
-                                jpgEncoder.QualityLevel = saveQuality;
-                                encoder = jpgEncoder;
-                                break;
-                            case "BMP":
-                                encoder = new BmpBitmapEncoder();
-                                break;
-                            case "GIF":
-                                encoder = new GifBitmapEncoder();
-                                break;
-                            case "PNG":
-                            default:
-                                encoder = new PngBitmapEncoder();
-                                break;
+                            case "JPG": case "JPEG":
+                                var jpgEncoder = new JpegBitmapEncoder(); jpgEncoder.QualityLevel = saveQuality; encoder = jpgEncoder; break;
+                            case "BMP": encoder = new BmpBitmapEncoder(); break;
+                            case "GIF": encoder = new GifBitmapEncoder(); break;
+                            case "PNG": default: encoder = new PngBitmapEncoder(); break;
                         }
 
                         encoder.Frames.Add(BitmapFrame.Create(imgSource));
-                        encoder.Save(fileStream);
+                        encoder.Save(ms);
+                        
+                        ms.Position = 0;
+                        string hash;
+                        using (var md5 = System.Security.Cryptography.MD5.Create())
+                        {
+                            var hashBytes = md5.ComputeHash(ms);
+                            hash = BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+                        }
+
+                        string? existingFileName = DatabaseManager.Instance.GetExistingImageByHash(hash);
+                        if (existingFileName != null)
+                        {
+                            savedImages.Add((existingFileName, hash));
+                            continue; 
+                        }
+
+                        string ext = "." + saveFormat.ToLower();
+                        string fileName = $"img_{DateTime.Now:yyyyMMdd_HHmmss_fff}_{Guid.NewGuid().ToString().Substring(0, 8)}{ext}";
+                        string fullPath = Path.Combine(imgDir, fileName);
+                        
+                        ms.Position = 0;
+                        using (var fileStream = new FileStream(fullPath, FileMode.Create)) { ms.CopyTo(fileStream); }
+                        savedImages.Add((fileName, hash));
                     }
-                    savedFileNames.Add(fileName);
                 }
 
-                // CRITICAL: We need to update the editor's image sources to point to the saved files BEFORE getting XAML!
+                var savedFileNames = savedImages.Select(x => x.FileName).ToList();
                 Editor.UpdateImageSources(savedFileNames);
                 string contentXaml = Editor.GetXaml();
 
@@ -629,7 +636,6 @@ namespace CatchCapture
                 if (_isEditMode)
                 {
                     targetNoteId = _editingNoteId!.Value;
-                    // UPDATE
                     DatabaseManager.Instance.UpdateNote(targetNoteId, title, content, contentXaml, tags, categoryId);
                     
                     using (var connection = new SqliteConnection($"Data Source={DatabaseManager.Instance.DbFilePath}"))
@@ -640,13 +646,14 @@ namespace CatchCapture
                             cmd.Parameters.AddWithValue("$id", targetNoteId);
                             cmd.ExecuteNonQuery();
                         }
-                        for (int i = 0; i < savedFileNames.Count; i++)
+                        for (int i = 0; i < savedImages.Count; i++)
                         {
-                            using (var cmd = new SqliteCommand("INSERT INTO NoteImages (NoteId, FilePath, OrderIndex) VALUES ($nid, $path, $idx)", connection))
+                            using (var cmd = new SqliteCommand("INSERT INTO NoteImages (NoteId, FilePath, OrderIndex, FileHash) VALUES ($nid, $path, $idx, $hash)", connection))
                             {
                                 cmd.Parameters.AddWithValue("$nid", targetNoteId);
-                                cmd.Parameters.AddWithValue("$path", savedFileNames[i]);
+                                cmd.Parameters.AddWithValue("$path", savedImages[i].FileName);
                                 cmd.Parameters.AddWithValue("$idx", i);
+                                cmd.Parameters.AddWithValue("$hash", savedImages[i].Hash);
                                 cmd.ExecuteNonQuery();
                             }
                         }
@@ -656,13 +663,11 @@ namespace CatchCapture
                 }
                 else
                 {
-                    // INSERT - Don't pass mainImage to avoid duplication, we'll add all images via AddNoteImage
                     targetNoteId = DatabaseManager.Instance.InsertNote(title, content, contentXaml, tags, "", _sourceApp, _sourceUrl, categoryId);
 
-                    // Add all images to NoteImages table
-                    for (int i = 0; i < savedFileNames.Count; i++)
+                    for (int i = 0; i < savedImages.Count; i++)
                     {
-                        DatabaseManager.Instance.AddNoteImage(targetNoteId, savedFileNames[i], i);
+                        DatabaseManager.Instance.AddNoteImage(targetNoteId, savedImages[i].FileName, i, savedImages[i].Hash);
                     }
                     
                     CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("NoteSaveSuccess"), CatchCapture.Resources.LocalizationManager.GetString("Notice"), MessageBoxButton.OK, MessageBoxImage.Information);

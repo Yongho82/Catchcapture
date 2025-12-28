@@ -617,4 +617,13 @@
   <data name="DataLossWarning" xml:space="preserve"><value>Data Permanent Delete Warning</value></data>
   <data name="NoteResetComplete" xml:space="preserve"><value>Note data has been initialized.</value></data>
   <data name="NoteResetError" xml:space="preserve"><value>Error initializing: {0}</value></data>
+  <data name="TrashSettings" xml:space="preserve"><value>Trash Settings</value></data>
+  <data name="TrashRetentionPeriod" xml:space="preserve"><value>Trash Retention Period</value></data>
+  <data name="TrashRetentionNotice" xml:space="preserve"><value> (Auto-delete after set period)</value></data>
+  <data name="RetentionPermanent" xml:space="preserve"><value>Permanent</value></data>
+  <data name="Days" xml:space="preserve"><value>Days</value></data>
+  <data name="EmptyTrash" xml:space="preserve"><value>Empty Trash</value></data>
+  <data name="Notice" xml:space="preserve"><value>Notice</value></data>
+  <data name="TrashRetentionInfo" xml:space="preserve"><value>Important: Trash retention period is currently set to {0} days. You can change this in Note Settings.</value></data>
+  <data name="TrashRetentionPermanentInfo" xml:space="preserve"><value>Important: Trash is set to be kept permanently. You can change this in Note Settings.</value></data>
 </root>

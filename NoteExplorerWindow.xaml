@@ -545,7 +545,12 @@
                                SelectionMode="Extended"
                                SelectionChanged="LstNotes_SelectionChanged"
                                MouseDoubleClick="LstNotes_MouseDoubleClick"
-                               KeyDown="LstNotes_KeyDown">
+                               KeyDown="LstNotes_KeyDown"
+                               VirtualizingPanel.IsVirtualizing="True"
+                               VirtualizingPanel.VirtualizationMode="Recycling"
+                               VirtualizingPanel.ScrollUnit="Pixel"
+                               VirtualizingPanel.CacheLengthUnit="Item"
+                               VirtualizingPanel.CacheLength="10,10">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Grid Height="44" Background="Transparent">
@@ -663,6 +668,12 @@
 
                     <Border Grid.Row="3" Background="{DynamicResource ThemeBackground}" Height="40" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ThemeBorder}">
                         <Grid>
+                            <!-- Left: Trash Info (Icon + Text) -->
+                            <StackPanel x:Name="PanelTrashInfo" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="15,0,0,0" Visibility="Collapsed">
+                                <TextBlock Text="💡" Margin="0,0,8,0" VerticalAlignment="Center" FontSize="14"/>
+                                <TextBlock x:Name="TxtTrashInfo" Text="휴지통 보관 안내" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12"/>
+                            </StackPanel>
+
                             <!-- Pagination -->
                             <StackPanel x:Name="PanelPagination" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             

@@ -263,7 +263,12 @@ namespace CatchCapture.Utilities
                             {
                                 while (reader.Read())
                                 {
-                                    try { File.Delete(Path.Combine(imgDir, reader.GetString(0))); } catch { }
+                                    string fileName = reader.GetString(0);
+                                    // Delete only if no other note references this file
+                                    if (!IsImageReferenced(fileName, noteId))
+                                    {
+                                        try { File.Delete(Path.Combine(imgDir, fileName)); } catch { }
+                                    }
                                 }
                             }
                         }
@@ -276,13 +281,16 @@ namespace CatchCapture.Utilities
                             {
                                 while (reader.Read())
                                 {
-                                    try { File.Delete(Path.Combine(attachDir, reader.GetString(0))); } catch { }
+                                    string fileName = reader.GetString(0);
+                                    if (!IsAttachmentReferenced(fileName, noteId))
+                                    {
+                                        try { File.Delete(Path.Combine(attachDir, fileName)); } catch { }
+                                    }
                                 }
                             }
                         }
 
-                        // Delete from DB (CASCADE will handle mapping tables if set up correctly, 
-                        // but let's be safe if CASCADE isn't fully trusted or for CleanupTags)
+                        // Delete from DB
                         using (var cmd = new SqliteCommand("DELETE FROM Notes WHERE Id = $id", connection))
                         {
                             cmd.Parameters.AddWithValue("$id", noteId);
@@ -683,6 +691,36 @@ namespace CatchCapture.Utilities
                 {
                     var hash = md5.ComputeHash(stream);
                     return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                }
+            }
+        }
+
+        public bool IsImageReferenced(string fileName, long excludeNoteId = -1)
+        {
+            using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+            {
+                connection.Open();
+                string sql = "SELECT COUNT(*) FROM NoteImages WHERE FilePath = $path AND NoteId != $excludeId";
+                using (var cmd = new SqliteCommand(sql, connection))
+                {
+                    cmd.Parameters.AddWithValue("$path", fileName);
+                    cmd.Parameters.AddWithValue("$excludeId", excludeNoteId);
+                    return (long)cmd.ExecuteScalar()! > 0;
+                }
+            }
+        }
+
+        public bool IsAttachmentReferenced(string fileName, long excludeNoteId = -1)
+        {
+            using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+            {
+                connection.Open();
+                string sql = "SELECT COUNT(*) FROM NoteAttachments WHERE FilePath = $path AND NoteId != $excludeId";
+                using (var cmd = new SqliteCommand(sql, connection))
+                {
+                    cmd.Parameters.AddWithValue("$path", fileName);
+                    cmd.Parameters.AddWithValue("$excludeId", excludeNoteId);
+                    return (long)cmd.ExecuteScalar()! > 0;
                 }
             }
         }

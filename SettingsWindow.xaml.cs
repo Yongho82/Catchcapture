@@ -273,6 +273,26 @@ private void UpdateUIText()
                 if (NoteFileFormatText != null) NoteFileFormatText.Text = LocalizationManager.GetString("FileFormat") ?? "파일 포맷";
                 if (NoteQualityLabel != null) NoteQualityLabel.Text = LocalizationManager.GetString("Quality") ?? "품질";
 
+                if (NoteTrashGroup != null) NoteTrashGroup.Header = LocalizationManager.GetString("TrashSettings") ?? "휴지통 설정";
+                if (TrashRetentionLabel != null) TrashRetentionLabel.Text = LocalizationManager.GetString("TrashRetentionPeriod") ?? "휴지통 보관 기간";
+                if (TrashRetentionNotice != null) TrashRetentionNotice.Text = LocalizationManager.GetString("TrashRetentionNotice") ?? " (설정된 기간이 지나면 자동 영구 삭제)";
+
+                if (CboTrashRetention != null)
+                {
+                    foreach (ComboBoxItem item in CboTrashRetention.Items)
+                    {
+                        string? tag = item.Tag as string;
+                        if (tag == "0") item.Content = LocalizationManager.GetString("RetentionPermanent") ?? "영구 보관";
+                        else if (tag == "1") item.Content = "1" + (LocalizationManager.GetString("Days") ?? "일");
+                        else if (tag == "3") item.Content = "3" + (LocalizationManager.GetString("Days") ?? "일");
+                        else if (tag == "7") item.Content = "7" + (LocalizationManager.GetString("Days") ?? "일");
+                        else if (tag == "15") item.Content = "15" + (LocalizationManager.GetString("Days") ?? "일");
+                        else if (tag == "30") item.Content = "30" + (LocalizationManager.GetString("Days") ?? "일");
+                        else if (tag == "60") item.Content = "60" + (LocalizationManager.GetString("Days") ?? "일");
+                        else if (tag == "90") item.Content = "90" + (LocalizationManager.GetString("Days") ?? "일");
+                    }
+                }
+
                 // 녹화 품질 콤보박스 아이템 로컬라이징
                 if (CboRecQuality != null)
                 {
@@ -860,6 +880,19 @@ private void InitLanguageComboBox()
                 }
                 if (CboNoteQuality.SelectedItem == null && CboNoteQuality.Items.Count > 0) CboNoteQuality.SelectedIndex = 0; // Default 100%
             }
+
+            if (CboTrashRetention != null)
+            {
+                foreach (ComboBoxItem item in CboTrashRetention.Items)
+                {
+                    if (item.Tag?.ToString() == _settings.TrashRetentionDays.ToString())
+                    {
+                        CboTrashRetention.SelectedItem = item;
+                        break;
+                    }
+                }
+                if (CboTrashRetention.SelectedItem == null && CboTrashRetention.Items.Count > 0) CboTrashRetention.SelectedIndex = 4; // Default 30 days
+            }
         }
 
         private void BtnBrowseNoteFolder_Click(object sender, RoutedEventArgs e)
@@ -1184,6 +1217,7 @@ private void InitLanguageComboBox()
                 _settings.NoteSaveFormat = defaults.NoteSaveFormat;
                 _settings.NoteImageQuality = defaults.NoteImageQuality;
                 _settings.OptimizeNoteImages = defaults.OptimizeNoteImages; // Also reset this for completeness, though deprecated
+                _settings.TrashRetentionDays = defaults.TrashRetentionDays;
                 LoadNotePage();
             }
             else if (_currentPage == "System")
@@ -1310,6 +1344,12 @@ private void InitLanguageComboBox()
             {
                 if (int.TryParse(noteQualItem.Tag?.ToString(), out int q))
                     _settings.NoteImageQuality = q;
+            }
+
+            if (CboTrashRetention != null && CboTrashRetention.SelectedItem is ComboBoxItem trashItem)
+            {
+                if (int.TryParse(trashItem.Tag?.ToString(), out int d))
+                    _settings.TrashRetentionDays = d;
             }
 
             EnsureDefaultKey(_settings.Hotkeys.RegionCapture, "A");

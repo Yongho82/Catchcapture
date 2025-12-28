@@ -83,6 +83,13 @@ namespace CatchCapture
                 InitializeTipTimer();
                 HighlightSidebarButton(BtnFilterRecent);
                 
+                // 휴지통 자동 비우기 (설정된 기간 경과 항목)
+                int retentionDays = Settings.Load().TrashRetentionDays;
+                if (retentionDays > 0)
+                {
+                    DatabaseManager.Instance.CleanupTrash(retentionDays);
+                }
+                
                 CatchCapture.Resources.LocalizationManager.LanguageChanged += (s, e) => UpdateUIText();
             }
             catch (Exception ex)
@@ -165,7 +172,20 @@ namespace CatchCapture
             if (BtnDeleteSelected != null) BtnDeleteSelected.Content = CatchCapture.Resources.LocalizationManager.GetString("DeleteSelected");
             if (TxtStatusInfo != null) TxtStatusInfo.Text = CatchCapture.Resources.LocalizationManager.GetString("RecentStatusInfo");
             if (TxtSearchPlaceholder != null) TxtSearchPlaceholder.Text = CatchCapture.Resources.LocalizationManager.GetString("SearchPlaceholder");
-            if (TxtEmptyTrash != null) TxtEmptyTrash.Text = "휴지통 비우기"; // 추후 Localize 필요
+            if (TxtEmptyTrash != null) TxtEmptyTrash.Text = CatchCapture.Resources.LocalizationManager.GetString("EmptyTrash") ?? "휴지통 비우기";
+            
+            if (PanelTrashInfo != null && PanelTrashInfo.Visibility == Visibility.Visible)
+            {
+                int days = Settings.Load().TrashRetentionDays;
+                if (days > 0)
+                {
+                    TxtTrashInfo.Text = string.Format(CatchCapture.Resources.LocalizationManager.GetString("TrashRetentionInfo") ?? "중요사항: 현재 휴지통 보관기간이 {0}일로 설정되었습니다. 설정을 변경하려면 노트 설정에서 수정할 수 있습니다.", days);
+                }
+                else
+                {
+                    TxtTrashInfo.Text = CatchCapture.Resources.LocalizationManager.GetString("TrashRetentionPermanentInfo") ?? "중요사항: 현재 휴지통이 영구 보관되도록 설정되었습니다. 설정을 변경하려면 노트 설정에서 수정할 수 있습니다.";
+                }
+            }
             
             if (ColHeaderGroup != null) ColHeaderGroup.Text = CatchCapture.Resources.LocalizationManager.GetString("ColGroup");
             if (ColHeaderTitle != null) ColHeaderTitle.Text = CatchCapture.Resources.LocalizationManager.GetString("ColTitle");
@@ -366,6 +386,27 @@ namespace CatchCapture
                 if (BtnEmptyTrash != null)
                 {
                     BtnEmptyTrash.Visibility = (filter == "Trash") ? Visibility.Visible : Visibility.Collapsed;
+                }
+
+                if (PanelTrashInfo != null)
+                {
+                    if (filter == "Trash")
+                    {
+                        PanelTrashInfo.Visibility = Visibility.Visible;
+                        int days = Settings.Load().TrashRetentionDays;
+                        if (days > 0)
+                        {
+                            TxtTrashInfo.Text = string.Format(CatchCapture.Resources.LocalizationManager.GetString("TrashRetentionInfo") ?? "중요사항: 현재 휴지통 보관기간이 {0}일로 설정되었습니다. 설정을 변경하려면 노트 설정에서 수정할 수 있습니다.", days);
+                        }
+                        else
+                        {
+                            TxtTrashInfo.Text = CatchCapture.Resources.LocalizationManager.GetString("TrashRetentionPermanentInfo") ?? "중요사항: 현재 휴지통이 영구 보관되도록 설정되었습니다. 설정을 변경하려면 노트 설정에서 수정할 수 있습니다.";
+                        }
+                    }
+                    else
+                    {
+                        PanelTrashInfo.Visibility = Visibility.Collapsed;
+                    }
                 }
 
                 var notes = new List<NoteViewModel>();
@@ -930,9 +971,14 @@ namespace CatchCapture
                         {
                             try
                             {
-                                if (File.Exists(filePath))
+                                string fileName = Path.GetFileName(filePath);
+                                bool isImage = filePath.Contains("\\img\\");
+                                bool isReferenced = isImage 
+                                    ? DatabaseManager.Instance.IsImageReferenced(fileName, noteId)
+                                    : DatabaseManager.Instance.IsAttachmentReferenced(fileName, noteId);
+
+                                if (!isReferenced && File.Exists(filePath))
                                 {
-                                    // Optimization: Clear file attributes if necessary (rarely needed but good for reliability)
                                     File.SetAttributes(filePath, FileAttributes.Normal);
                                     File.Delete(filePath);
                                 }
@@ -953,7 +999,7 @@ namespace CatchCapture
                     else
                     {
                         // Move to trash
-                        string softDeleteSql = "UPDATE Notes SET Status = 1 WHERE Id = $id";
+                        string softDeleteSql = "UPDATE Notes SET Status = 1, DeletedAt = datetime('now', 'localtime') WHERE Id = $id";
                         using (var cmd = new SqliteCommand(softDeleteSql, connection))
                         {
                             cmd.Parameters.AddWithValue("$id", noteId);

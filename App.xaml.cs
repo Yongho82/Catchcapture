@@ -125,6 +125,9 @@ public partial class App : Application
     {
         try
         {
+            // DB 최적화 (VACUUM) 실행
+            CatchCapture.Utilities.DatabaseManager.Instance.Vacuum();
+
             _pipeServerCts?.Cancel();
             _singleInstanceMutex?.ReleaseMutex();
             _singleInstanceMutex?.Dispose();
