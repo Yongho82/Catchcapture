@@ -593,4 +593,15 @@
   <data name="TrashRetentionPermanentInfo" xml:space="preserve"><value>휴지통이 영구 보관되도록 설정되었습니다. 노트 설정에서 변경할 수 있습니다.</value></data>
   <data name="NoNotes" xml:space="preserve"><value>노트가 없습니다</value></data>
   <data name="TrashEmpty" xml:space="preserve"><value>휴지통이 비어 있습니다</value></data>
+  <data name="NoteSave" xml:space="preserve"><value>노트 저장</value></data>
+  <data name="NotePathDesc" xml:space="preserve"><value>노트 데이터베이스와 첨부파일이 저장되는 경로입니다.</value></data>
+  <data name="Recent30Days" xml:space="preserve"><value>최근 30일</value></data>
+  <data name="Recent3Months" xml:space="preserve"><value>최근 3개월</value></data>
+  <data name="Recent6Months" xml:space="preserve"><value>최근 6개월</value></data>
+  <data name="ListView" xml:space="preserve"><value>리스트형 보기</value></data>
+  <data name="CardView" xml:space="preserve"><value>카드형 보기</value></data>
+  <data name="TrashEmptyComplete" xml:space="preserve"><value>휴지통을 비웠습니다.</value></data>
+  <data name="Minimize" xml:space="preserve"><value>최소화</value></data>
+  <data name="Maximize" xml:space="preserve"><value>최대화</value></data>
+  <data name="Restore" xml:space="preserve"><value>이전 크기로 복원</value></data>
 </root>
