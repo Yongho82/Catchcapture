@@ -674,7 +674,7 @@
                                 <Button x:Name="BtnBrowseNoteFolder" Grid.Column="1" Content="변경" Margin="10,0,0,0" Padding="10,0" Click="BtnBrowseNoteFolder_Click" Style="{StaticResource MacButtonSecondary}" Height="30"/>
                             </Grid>
                             
-                            <TextBlock Text="※ 폴더 구조: [노트폴더]\notedb (데이터베이스), [노트폴더]\img (이미지)" FontSize="11" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" Margin="0,0,0,10"/>
+                            <TextBlock x:Name="NotePathDesc" Text="※ 폴더 구조: [노트폴더]\notedb (데이터베이스), [노트폴더]\img (이미지)" FontSize="11" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" Margin="0,0,0,10"/>
                             
                             <StackPanel Orientation="Horizontal">
                                 <Button x:Name="BtnOpenNoteFolder" Content="폴더 열기" Click="BtnOpenNoteFolder_Click" Style="{StaticResource MacButtonSecondary}" HorizontalAlignment="Left" Padding="15,5" Margin="0,0,10,0"/>

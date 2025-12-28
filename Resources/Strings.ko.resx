@@ -595,13 +595,57 @@
   <data name="TrashEmpty" xml:space="preserve"><value>휴지통이 비어 있습니다</value></data>
   <data name="NoteSave" xml:space="preserve"><value>노트 저장</value></data>
   <data name="NotePathDesc" xml:space="preserve"><value>노트 데이터베이스와 첨부파일이 저장되는 경로입니다.</value></data>
-  <data name="Recent30Days" xml:space="preserve"><value>최근 30일</value></data>
-  <data name="Recent3Months" xml:space="preserve"><value>최근 3개월</value></data>
-  <data name="Recent6Months" xml:space="preserve"><value>최근 6개월</value></data>
-  <data name="ListView" xml:space="preserve"><value>리스트형 보기</value></data>
-  <data name="CardView" xml:space="preserve"><value>카드형 보기</value></data>
-  <data name="TrashEmptyComplete" xml:space="preserve"><value>휴지통을 비웠습니다.</value></data>
-  <data name="Minimize" xml:space="preserve"><value>최소화</value></data>
-  <data name="Maximize" xml:space="preserve"><value>최대화</value></data>
-  <data name="Restore" xml:space="preserve"><value>이전 크기로 복원</value></data>
+
+  <data name="RecentRecordsFormat" xml:space="preserve">
+    <value>{0} 기록</value>
+  </data>
+  <data name="Recent30Days" xml:space="preserve">
+    <value>최근 30일</value>
+  </data>
+  <data name="Recent3Months" xml:space="preserve">
+    <value>최근 3개월</value>
+  </data>
+  <data name="Recent6Months" xml:space="preserve">
+    <value>최근 6개월</value>
+  </data>
+  <data name="ListView" xml:space="preserve">
+    <value>리스트형</value>
+  </data>
+  <data name="CardView" xml:space="preserve">
+    <value>카드형</value>
+  </data>
+  <data name="TrashEmptyWarning" xml:space="preserve">
+    <value>휴지통을 비우면 복구할 수 없습니다.
+정말 모든 항목을 영구 삭제하시겠습니까?</value>
+  </data>
+  <data name="TrashEmptyComplete" xml:space="preserve">
+    <value>휴지통을 비웠습니다.</value>
+  </data>
+  <data name="TrashEmptyFailed" xml:space="preserve">
+    <value>휴지통 비우기 실패: </value>
+  </data>
+  <data name="Minimize" xml:space="preserve">
+    <value>최소화</value>
+  </data>
+  <data name="Maximize" xml:space="preserve">
+    <value>최대화</value>
+  </data>
+  <data name="Restore" xml:space="preserve">
+    <value>이전 크기로 복원</value>
+  </data>
+  <data name="AlwaysOnTop" xml:space="preserve">
+    <value>상단 고정</value>
+  </data>
+  <data name="UnpinAlwaysOnTop" xml:space="preserve">
+    <value>상단 고정 해제</value>
+  </data>
+  <data name="PrintOrSavePDF" xml:space="preserve">
+    <value>인쇄 / PDF 저장</value>
+  </data>
+  <data name="ErrLoadNote" xml:space="preserve">
+    <value>노트 로드 실패: </value>
+  </data>
+  <data name="ErrPreviewFailed" xml:space="preserve">
+    <value>미리보기 실행 실패: </value>
+  </data>
 </root>

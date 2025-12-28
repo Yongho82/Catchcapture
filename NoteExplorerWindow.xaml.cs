@@ -214,6 +214,22 @@ namespace CatchCapture
             if (ParaPreviewLoading != null) ParaPreviewLoading.Inlines.Add(CatchCapture.Resources.LocalizationManager.GetString("PreviewLoading"));
             if (BtnEditNoteText != null) BtnEditNoteText.Text = CatchCapture.Resources.LocalizationManager.GetString("EditNote");
             
+            if (BtnViewList != null) BtnViewList.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("ListView");
+            if (BtnViewCard != null) BtnViewCard.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("CardView");
+
+            if (TxtRecent30Days != null) TxtRecent30Days.Text = CatchCapture.Resources.LocalizationManager.GetString("Recent30Days");
+            if (TxtRecent3Months != null) TxtRecent3Months.Text = CatchCapture.Resources.LocalizationManager.GetString("Recent3Months");
+            if (TxtRecent6Months != null) TxtRecent6Months.Text = CatchCapture.Resources.LocalizationManager.GetString("Recent6Months");
+
+            if (BtnMinimize != null) BtnMinimize.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("Minimize");
+            if (BtnMaximize != null)
+            {
+                BtnMaximize.ToolTip = this.WindowState == WindowState.Maximized 
+                    ? CatchCapture.Resources.LocalizationManager.GetString("Restore") 
+                    : CatchCapture.Resources.LocalizationManager.GetString("Maximize");
+            }
+            if (BtnClose != null) BtnClose.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("Close");
+
             InitializeTips(); // Reload tips for current language
         }
 
@@ -303,11 +319,13 @@ namespace CatchCapture
             {
                 this.WindowState = WindowState.Normal;
                 PathMaximize.Data = Geometry.Parse("M4,4H20V20H4V4M6,8V18H18V8H6Z");
+                BtnMaximize.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("Maximize");
             }
             else
             {
                 this.WindowState = WindowState.Maximized;
                 PathMaximize.Data = Geometry.Parse("M4,8H8V4H20V16H16V20H4V8M16,8V14H18V6H10V8H16M6,12V18H14V12H6Z");
+                BtnMaximize.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("Restore");
             }
         }
 
@@ -385,12 +403,9 @@ namespace CatchCapture
                 else if (!string.IsNullOrEmpty(tag)) TxtStatusInfo.Text = string.Format(CatchCapture.Resources.LocalizationManager.GetString("TagFilter"), tag);
                 else if (filter == "Today") TxtStatusInfo.Text = CatchCapture.Resources.LocalizationManager.GetString("TodayRecords");
                 else if (filter == "Recent") TxtStatusInfo.Text = CatchCapture.Resources.LocalizationManager.GetString("RecentWeekRecords");
-                else if (filter == "Recent30Days") TxtStatusInfo.Text = "최근 30일 기록";
-                else if (filter == "Today") TxtStatusInfo.Text = CatchCapture.Resources.LocalizationManager.GetString("TodayRecords");
-                else if (filter == "Recent") TxtStatusInfo.Text = CatchCapture.Resources.LocalizationManager.GetString("RecentWeekRecords");
-                else if (filter == "Recent30Days") TxtStatusInfo.Text = "최근 30일 기록";
-                else if (filter == "Recent3Months") TxtStatusInfo.Text = "최근 3개월 기록";
-                else if (filter == "Recent6Months") TxtStatusInfo.Text = "최근 6개월 기록";
+                else if (filter == "Recent30Days") TxtStatusInfo.Text = string.Format(CatchCapture.Resources.LocalizationManager.GetString("RecentRecordsFormat"), CatchCapture.Resources.LocalizationManager.GetString("Recent30Days"));
+                else if (filter == "Recent3Months") TxtStatusInfo.Text = string.Format(CatchCapture.Resources.LocalizationManager.GetString("RecentRecordsFormat"), CatchCapture.Resources.LocalizationManager.GetString("Recent3Months"));
+                else if (filter == "Recent6Months") TxtStatusInfo.Text = string.Format(CatchCapture.Resources.LocalizationManager.GetString("RecentRecordsFormat"), CatchCapture.Resources.LocalizationManager.GetString("Recent6Months"));
                 else if (filter == "Trash") TxtStatusInfo.Text = CatchCapture.Resources.LocalizationManager.GetString("TrashRecords");
                 else if (filter.StartsWith("Category:"))
                 {
@@ -1228,7 +1243,7 @@ namespace CatchCapture
         
         private void BtnEmptyTrash_Click(object sender, RoutedEventArgs e)
         {
-            if (CatchCapture.CustomMessageBox.Show("휴지통을 비우면 복구할 수 없습니다.\n정말 모든 항목을 영구 삭제하시겠습니까?", 
+            if (CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("TrashEmptyWarning"), 
                 CatchCapture.Resources.LocalizationManager.GetString("ConfirmDelete"), 
                 MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
             {
@@ -1295,11 +1310,11 @@ namespace CatchCapture
                     
                     LoadNotes("Trash"); // Refresh current view
                     UpdateSidebarCounts(); // Refresh counts
-                    CatchCapture.CustomMessageBox.Show("휴지통을 비웠습니다.", CatchCapture.Resources.LocalizationManager.GetString("Notice"));
+                    CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("TrashEmptyComplete"), CatchCapture.Resources.LocalizationManager.GetString("Notice"));
                 }
                 catch (Exception ex)
                 {
-                    CatchCapture.CustomMessageBox.Show("휴지통 비우기 실패: " + ex.Message, CatchCapture.Resources.LocalizationManager.GetString("Error"));
+                    CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("TrashEmptyFailed") + ex.Message, CatchCapture.Resources.LocalizationManager.GetString("Error"));
                 }
             }
         }

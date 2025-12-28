@@ -480,9 +480,7 @@
   <data name="Unknown" xml:space="preserve">
     <value>Unknown</value>
   </data>
-  <data name="Notice" xml:space="preserve">
-    <value>Notice</value>
-  </data>
+
   <data name="PleaseEnterPassword" xml:space="preserve">
     <value>Please enter a password.</value>
   </data>
@@ -628,4 +626,39 @@
   <data name="TrashRetentionPermanentInfo" xml:space="preserve"><value>Important: Trash is set to be kept permanently. You can change this in Note Settings.</value></data>
   <data name="NoNotes" xml:space="preserve"><value>No notes found</value></data>
   <data name="TrashEmpty" xml:space="preserve"><value>Trash is empty</value></data>
+  <data name="NotePathDesc" xml:space="preserve"><value>Path where note database and attachments are saved.</value></data>
+  <data name="Recent30Days" xml:space="preserve"><value>Last 30 Days</value></data>
+  <data name="Recent3Months" xml:space="preserve"><value>Last 3 Months</value></data>
+  <data name="Recent6Months" xml:space="preserve"><value>Last 6 Months</value></data>
+  <data name="ListView" xml:space="preserve"><value>List View</value></data>
+  <data name="CardView" xml:space="preserve"><value>Card View</value></data>
+  <data name="TrashEmptyComplete" xml:space="preserve"><value>Trash emptied.</value></data>
+  <data name="Minimize" xml:space="preserve"><value>Minimize</value></data>
+  <data name="Maximize" xml:space="preserve"><value>Maximize</value></data>
+  <data name="Restore" xml:space="preserve"><value>Restore</value></data>
+  <data name="RecentRecordsFormat" xml:space="preserve">
+    <value>{0} Records</value>
+  </data>
+  <data name="TrashEmptyWarning" xml:space="preserve">
+    <value>Deleted items cannot be recovered.
+Are you sure you want to permanently delete all items?</value>
+  </data>
+  <data name="TrashEmptyFailed" xml:space="preserve">
+    <value>Failed to empty trash: </value>
+  </data>
+  <data name="ErrPreviewFailed" xml:space="preserve">
+    <value>Failed to open preview: </value>
+  </data>
+  <data name="AlwaysOnTop" xml:space="preserve">
+    <value>Always on Top</value>
+  </data>
+  <data name="UnpinAlwaysOnTop" xml:space="preserve">
+    <value>Unpin from Top</value>
+  </data>
+  <data name="PrintOrSavePDF" xml:space="preserve">
+    <value>Print / Save as PDF</value>
+  </data>
+  <data name="ErrLoadNote" xml:space="preserve">
+    <value>Failed to load note: </value>
+  </data>
 </root>

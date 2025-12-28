@@ -250,6 +250,7 @@ private void UpdateUIText()
                 if (NoteSectionTitle != null) NoteSectionTitle.Text = LocalizationManager.GetString("NoteSettings");
                 if (NoteStorageGroup != null) NoteStorageGroup.Header = LocalizationManager.GetString("NoteStorage");
                 if (NotePathLabel != null) NotePathLabel.Text = LocalizationManager.GetString("NotePath");
+                if (NotePathDesc != null) NotePathDesc.Text = LocalizationManager.GetString("NotePathDesc");
                 if (BtnBrowseNoteFolder != null) 
                 {
                     BtnBrowseNoteFolder.Content = LocalizationManager.GetString("Change");

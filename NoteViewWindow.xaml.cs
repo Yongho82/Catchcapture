@@ -59,7 +59,18 @@ namespace CatchCapture
 
             this.StateChanged += NoteViewWindow_StateChanged;
             LoadWindowState();
+            UpdateUIText(); // Initialize localized text
             LoadNoteData();
+        }
+
+        private void UpdateUIText()
+        {
+            if (BtnPin != null) BtnPin.ToolTip = this.Topmost ? CatchCapture.Resources.LocalizationManager.GetString("UnpinAlwaysOnTop") : CatchCapture.Resources.LocalizationManager.GetString("AlwaysOnTop");
+            if (BtnMinimize != null) BtnMinimize.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("Minimize");
+            if (BtnMaximize != null) BtnMaximize.ToolTip = this.WindowState == WindowState.Maximized ? CatchCapture.Resources.LocalizationManager.GetString("Restore") : CatchCapture.Resources.LocalizationManager.GetString("Maximize");
+            if (BtnClose != null) BtnClose.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("Close");
+            if (BtnPrint != null) BtnPrint.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("PrintOrSavePDF");
+            if (BtnEdit != null) BtnEdit.Content = CatchCapture.Resources.LocalizationManager.GetString("EditNote");
         }
 
         private void ResetHideTimer()
@@ -124,12 +135,12 @@ namespace CatchCapture
             if (this.WindowState == WindowState.Maximized)
             {
                 PathMaximize.Data = System.Windows.Media.Geometry.Parse("M4,8H8V4H20V16H16V20H4V8M16,8V14H18V6H10V8H16M6,10V18H14V10H6Z");
-                BtnMaximize.ToolTip = "이전 크기로 복원";
+                BtnMaximize.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("Restore");
             }
             else
             {
                 PathMaximize.Data = System.Windows.Media.Geometry.Parse("M4,4H20V20H4V4M6,8V18H18V8H6Z");
-                BtnMaximize.ToolTip = "최대화";
+                BtnMaximize.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("Maximize");
             }
         }
 
@@ -179,7 +190,8 @@ namespace CatchCapture
                                 var category = DatabaseManager.Instance.GetCategory(catId);
                                 if (category != null)
                                 {
-                                    TxtCategory.Text = category.Name;
+                                    if (category.Id == 1) TxtCategory.Text = CatchCapture.Resources.LocalizationManager.GetString("DefaultCategory");
+                                    else TxtCategory.Text = category.Name;
                                     var brush = new System.Windows.Media.BrushConverter().ConvertFromString(category.Color) as System.Windows.Media.Brush;
                                     CategoryCircle.Fill = brush ?? System.Windows.Media.Brushes.Gray;
                                 }
@@ -258,7 +270,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                CatchCapture.CustomMessageBox.Show("노트 로드 실패: " + ex.Message);
+                CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ErrLoadNote") + ex.Message);
             }
         }
 
@@ -276,12 +288,12 @@ namespace CatchCapture
                     }
                     else
                     {
-                        CatchCapture.CustomMessageBox.Show("파일을 찾을 수 없습니다.");
+                        CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("FileNotFound"));
                     }
                 }
                 catch (Exception ex)
                 {
-                    CatchCapture.CustomMessageBox.Show("파일을 여는 중 오류 발생: " + ex.Message);
+                    CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ErrOpenFile") + " " + ex.Message, CatchCapture.Resources.LocalizationManager.GetString("Error"));
                 }
             }
         }
@@ -375,7 +387,7 @@ namespace CatchCapture
                                     }
                                     catch (Exception ex)
                                     {
-                                        CatchCapture.CustomMessageBox.Show($"파일 열기 실패: {ex.Message}", "오류");
+                                        CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ErrOpenFile") + " " + ex.Message, CatchCapture.Resources.LocalizationManager.GetString("Error"));
                                     }
                                     ev.Handled = true;
                                 }
@@ -424,7 +436,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                CatchCapture.CustomMessageBox.Show("미리보기 실행 실패: " + ex.Message);
+                CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ErrPreviewFailed") + ex.Message);
             }
         }
 
@@ -442,7 +454,7 @@ namespace CatchCapture
         {
             this.Topmost = !this.Topmost;
             PathPin.Fill = this.Topmost ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(26, 115, 232)) : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(149, 165, 166));
-            BtnPin.ToolTip = this.Topmost ? "상단 고정 해제" : "상단 고정";
+            BtnPin.ToolTip = this.Topmost ? CatchCapture.Resources.LocalizationManager.GetString("UnpinAlwaysOnTop") : CatchCapture.Resources.LocalizationManager.GetString("AlwaysOnTop");
 
             if (this.Topmost)
             {
