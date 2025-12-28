@@ -910,6 +910,14 @@ namespace CatchCapture.Controls
             }
         }
 
+        public void HideAllSliders()
+        {
+            foreach (var panel in _sliderPanels)
+            {
+                panel.Visibility = Visibility.Collapsed;
+            }
+        }
+
         public void SetXaml(string xamlString)
         {
             if (string.IsNullOrEmpty(xamlString)) return;

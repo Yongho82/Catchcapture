@@ -538,6 +538,7 @@ namespace CatchCapture
 
         private void BtnSave_Click(object sender, RoutedEventArgs e)
         {
+            Editor.HideAllSliders();
             var imagesInEditor = Editor.GetAllImages();
             
             if (imagesInEditor.Count == 0 && _capturedImage == null && string.IsNullOrWhiteSpace(TxtTitle.Text) && string.IsNullOrWhiteSpace(Editor.GetPlainText()))

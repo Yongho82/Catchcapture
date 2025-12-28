@@ -110,11 +110,11 @@
                            VerticalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Margin="10,0"/>
 
                 <!-- Content -->
-                <TextBlock Grid.Column="3" Text="{Binding TruncatedContent}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" FontSize="13" 
+                <TextBlock Grid.Column="3" Text="{Binding TruncatedContent}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.8" FontSize="13" 
                            VerticalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Margin="10,0"/>
 
                 <!-- Date -->
-                <TextBlock Grid.Column="4" Text="{Binding FormattedDate}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="12" 
+                <TextBlock Grid.Column="4" Text="{Binding FormattedDate}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12" 
                            VerticalAlignment="Center" HorizontalAlignment="Center"/>
 
                 <!-- Actions -->
@@ -246,7 +246,7 @@
 
                         <!-- Footer -->
                         <Grid Grid.Row="2">
-                            <TextBlock Text="{Binding FormattedDate}" FontSize="11" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding FormattedDate}" FontSize="11" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" VerticalAlignment="Center"/>
                             
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                 <Button Click="BtnPinItem_Click" Tag="{Binding Id}"

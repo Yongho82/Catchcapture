@@ -1514,15 +1514,12 @@ namespace CatchCapture
             get 
             {
                 if (string.IsNullOrEmpty(PreviewContent)) return "";
-                // Skip empty lines and find first non-empty line
+                // Return first non-empty line, let XAML handles trimming via TextTrimming="CharacterEllipsis"
                 var lines = PreviewContent.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
                 foreach (var line in lines)
                 {
                     string trimmed = line.Trim();
-                    if (!string.IsNullOrEmpty(trimmed))
-                    {
-                        return trimmed.Length > 25 ? trimmed.Substring(0, 25) + "..." : trimmed;
-                    }
+                    if (!string.IsNullOrEmpty(trimmed)) return trimmed;
                 }
                 return "";
             }
