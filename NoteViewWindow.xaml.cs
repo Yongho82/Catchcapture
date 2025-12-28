@@ -26,13 +26,14 @@ namespace CatchCapture
             InitializeComponent();
             _noteId = noteId;
 
-            // Timer for auto-hiding header
+            // Timer for auto-hiding header and footer
             _hideHeaderTimer = new DispatcherTimer();
             _hideHeaderTimer.Interval = TimeSpan.FromSeconds(3);
             _hideHeaderTimer.Tick += (s, e) => {
-                if (this.Topmost && !HeaderGrid.IsMouseOver)
+                if (this.Topmost && !HeaderGrid.IsMouseOver && !FooterBorder.IsMouseOver)
                 {
                     HeaderGrid.Visibility = Visibility.Collapsed;
+                    FooterBorder.Visibility = Visibility.Collapsed;
                 }
                 _hideHeaderTimer.Stop();
             };
@@ -42,11 +43,12 @@ namespace CatchCapture
                 else if (e.LeftButton == MouseButtonState.Pressed && e.ClickCount == 2) ToggleMaximize();
             };
             
-            // Re-show header on any click inside window
+            // Re-show header and footer on any click inside window
             this.PreviewMouseDown += (s, e) => {
                 if (HeaderGrid.Visibility != Visibility.Visible)
                 {
                     HeaderGrid.Visibility = Visibility.Visible;
+                    FooterBorder.Visibility = Visibility.Visible;
                     ResetHideTimer();
                 }
                 else if (this.Topmost)
@@ -431,6 +433,7 @@ namespace CatchCapture
             {
                 _hideHeaderTimer.Stop();
                 HeaderGrid.Visibility = Visibility.Visible;
+                FooterBorder.Visibility = Visibility.Visible;
             }
         }
 

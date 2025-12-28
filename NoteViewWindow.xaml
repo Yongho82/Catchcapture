@@ -118,7 +118,7 @@
             </ScrollViewer>
 
             <!-- Footer Action -->
-            <Border Grid.Row="2" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ThemeBorder}" Background="{DynamicResource ThemeBackground}" CornerRadius="0,0,12,12" Padding="20">
+            <Border x:Name="FooterBorder" Grid.Row="2" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ThemeBorder}" Background="{DynamicResource ThemeBackground}" CornerRadius="0,0,12,12" Padding="20">
                 <Button x:Name="BtnEdit" Content="수정하기" Click="BtnEdit_Click" Cursor="Hand" HorizontalAlignment="Right"
                         Width="120" Height="40" FontSize="14" FontWeight="Bold" Foreground="White" BorderThickness="0">
                     <Button.Template>
