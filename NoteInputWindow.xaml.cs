@@ -562,13 +562,25 @@ namespace CatchCapture
                             string line;
                             while ((line = reader.ReadLine()) != null)
                             {
-                                // Skip lines that are just media placeholders, ZWS, or whitespace
+                                bool hasMedia = line.Contains("\uFFFC");
                                 string cleaned = line.Replace("\uFFFC", "").Replace("\u200B", "").Trim();
+                                
                                 if (!string.IsNullOrEmpty(cleaned))
                                 {
                                     title = cleaned;
                                     if (title.Length > 50) title = title.Substring(0, 50).Trim() + "...";
                                     break;
+                                }
+                                else
+                                {
+                                    // If line is empty and DOES NOT have media, it's an explicit blank line.
+                                    // Stop searching and fallback to "Untitled". 
+                                    // This handles the case: Line 1 Empty, Line 2 Text -> Title: Untitled, Preview: Text
+                                    if (!hasMedia)
+                                    {
+                                        break;
+                                    }
+                                    // If it HAS media, continue to next line to see if there is text for title.
                                 }
                             }
                         }
