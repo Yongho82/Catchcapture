@@ -80,7 +80,7 @@
                     <ColumnDefinition Width="2*"/>  <!-- Title -->
                     <ColumnDefinition Width="3*"/>  <!-- Content -->
                     <ColumnDefinition Width="150"/> <!-- Date -->
-                    <ColumnDefinition Width="60"/>  <!-- Actions -->
+                    <ColumnDefinition Width="100"/>  <!-- Actions -->
                 </Grid.ColumnDefinitions>
                 
                 <!-- CheckBox -->
@@ -119,8 +119,26 @@
 
                 <!-- Actions -->
                 <StackPanel Grid.Column="5" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Button Click="BtnRestoreItem_Click" Tag="{Binding Id}" ToolTip="복원"
+                            Visibility="{Binding IsVisibleInTrash}"
+                            Background="Transparent" BorderThickness="0" Cursor="Hand" Margin="0,0,8,0">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="brd" Width="24" Height="24" Background="Transparent" CornerRadius="12">
+                                    <Path Data="M12,5V1L7,6L12,11V7C15.31,7 18,9.69 18,13C18,16.31 15.31,19 12,19C8.69,19 6,16.31 6,13H4C4,17.42 7.58,21 12,21C16.42,21 20,17.42 20,13C20,8.58 16.42,5 12,5Z" 
+                                           Fill="{DynamicResource ThemeForeground}" Opacity="0.5" Width="14" Height="14" Stretch="Uniform"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="brd" Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
                     <Button Click="BtnPinItem_Click" Tag="{Binding Id}" 
-                            Background="Transparent" BorderThickness="0" Cursor="Hand" Margin="0,0,4,0">
+                            Background="Transparent" BorderThickness="0" Cursor="Hand" Margin="0,0,8,0">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="brd" Width="24" Height="24" Background="Transparent" CornerRadius="12">
@@ -142,7 +160,7 @@
 
                     <Button Content="✕" Click="BtnDeleteItem_Click" Tag="{Binding Id}"
                             Background="Transparent" BorderThickness="0" Foreground="#CCCCCC" Cursor="Hand" 
-                            FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center">
+                            FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,5,0">
                         <Button.Style>
                             <Style TargetType="Button">
                                 <Style.Triggers>
@@ -249,6 +267,24 @@
                             <TextBlock Text="{Binding FormattedDate}" FontSize="11" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" VerticalAlignment="Center"/>
                             
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Click="BtnRestoreItem_Click" Tag="{Binding Id}" ToolTip="복원"
+                                        Visibility="{Binding IsVisibleInTrash}"
+                                        Background="Transparent" BorderThickness="0" Cursor="Hand" Margin="0,0,4,0">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="brd" Width="24" Height="24" Background="Transparent" CornerRadius="12">
+                                                <Path Data="M12,5V1L7,6L12,11V7C15.31,7 18,9.69 18,13C18,16.31 15.31,19 12,19C8.69,19 6,16.31 6,13H4C4,17.42 7.58,21 12,21C16.42,21 20,17.42 20,13C20,8.58 16.42,5 12,5Z" 
+                                                       Fill="{DynamicResource ThemeForeground}" Opacity="0.5" Width="14" Height="14" Stretch="Uniform"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="brd" Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+
                                 <Button Click="BtnPinItem_Click" Tag="{Binding Id}"
                                         Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="고정" Margin="0,0,4,0">
                                     <Button.Template>
@@ -741,7 +777,7 @@
                                 <ColumnDefinition Width="2*"/>  <!-- Title -->
                                 <ColumnDefinition Width="3*"/>  <!-- Content -->
                                 <ColumnDefinition Width="150"/> <!-- Date -->
-                                <ColumnDefinition Width="60"/>  <!-- Actions -->
+                                <ColumnDefinition Width="100"/>  <!-- Actions -->
                             </Grid.ColumnDefinitions>
                             <CheckBox x:Name="ChkSelectAllHeader" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" Click="BtnToggleSelectAll_Click"
                                       Visibility="{Binding IsSelectionMode, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -763,20 +799,29 @@
                         </Grid>
                     </Border>
 
-                    <ListBox x:Name="LstNotes" Grid.Row="2" Background="Transparent" BorderThickness="0" 
-                                Padding="5" Margin="0"
-                                ItemContainerStyle="{StaticResource NoteItemStyle}" 
-                                ItemTemplate="{StaticResource ListTemplate}"
-                                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                SelectionMode="Extended"
-                                SelectionChanged="LstNotes_SelectionChanged"
-                                MouseDoubleClick="LstNotes_MouseDoubleClick"
-                                KeyDown="LstNotes_KeyDown"
-                                VirtualizingPanel.IsVirtualizing="True"
-                                VirtualizingPanel.VirtualizationMode="Recycling"
-                                VirtualizingPanel.ScrollUnit="Pixel"
-                                VirtualizingPanel.CacheLengthUnit="Item"
-                                VirtualizingPanel.CacheLength="10,10"/>
+                    <Grid Grid.Row="2">
+                        <ListBox x:Name="LstNotes" Background="Transparent" BorderThickness="0" 
+                                    Padding="5" Margin="0"
+                                    ItemContainerStyle="{StaticResource NoteItemStyle}" 
+                                    ItemTemplate="{StaticResource ListTemplate}"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    SelectionMode="Extended"
+                                    SelectionChanged="LstNotes_SelectionChanged"
+                                    MouseDoubleClick="LstNotes_MouseDoubleClick"
+                                    KeyDown="LstNotes_KeyDown"
+                                    VirtualizingPanel.IsVirtualizing="True"
+                                    VirtualizingPanel.VirtualizationMode="Recycling"
+                                    VirtualizingPanel.ScrollUnit="Pixel"
+                                    VirtualizingPanel.CacheLengthUnit="Item"
+                                    VirtualizingPanel.CacheLength="10,10"/>
+
+                        <!-- Empty State UI -->
+                        <StackPanel x:Name="PanelEmptyState" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed">
+                            <Image Source="icons/icon_main.png" Width="230" Opacity="0.4" RenderOptions.BitmapScalingMode="HighQuality" />
+                            <TextBlock x:Name="TxtEmptyState" Text="노트가 없습니다" HorizontalAlignment="Center" Margin="0,20,0,0" 
+                                       Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="16" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Grid>
 
                     <Border Grid.Row="3" Background="{DynamicResource ThemeBackground}" Height="40" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ThemeBorder}">
                         <Grid>

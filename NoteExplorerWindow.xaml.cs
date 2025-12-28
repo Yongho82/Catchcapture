@@ -528,6 +528,21 @@ namespace CatchCapture
                 }
 
                 LstNotes.ItemsSource = notes;
+                
+                // Toggle Empty State UI
+                if (notes.Count == 0)
+                {
+                    PanelEmptyState.Visibility = Visibility.Visible;
+                    if (_currentFilter == "Trash")
+                        TxtEmptyState.Text = CatchCapture.Resources.LocalizationManager.GetString("TrashEmpty") ?? "휴지통이 비어 있습니다";
+                    else
+                        TxtEmptyState.Text = CatchCapture.Resources.LocalizationManager.GetString("NoNotes") ?? "노트가 없습니다";
+                }
+                else
+                {
+                    PanelEmptyState.Visibility = Visibility.Collapsed;
+                }
+
                 UpdatePaginationButtons(totalCount);
                 
                 // Auto-select first item if exists

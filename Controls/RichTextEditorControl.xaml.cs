@@ -912,9 +912,43 @@ namespace CatchCapture.Controls
 
         public void HideAllSliders()
         {
-            foreach (var panel in _sliderPanels)
+            foreach (var p in _sliderPanels)
             {
-                panel.Visibility = Visibility.Collapsed;
+                p.Visibility = Visibility.Collapsed;
+            }
+        }
+        
+        private IEnumerable<Block> GetAllBlocks(FlowDocument doc)
+        {
+            foreach (var block in doc.Blocks)
+            {
+                foreach (var b in GetAllBlocksRecursive(block))
+                    yield return b;
+            }
+        }
+
+        private IEnumerable<Block> GetAllBlocksRecursive(Block block)
+        {
+            yield return block;
+
+            if (block is Section section)
+            {
+                foreach (var b in section.Blocks)
+                {
+                    foreach (var sub in GetAllBlocksRecursive(b))
+                        yield return sub;
+                }
+            }
+            else if (block is List list)
+            {
+                foreach (var item in list.ListItems)
+                {
+                    foreach (var b in item.Blocks)
+                    {
+                        foreach (var sub in GetAllBlocksRecursive(b))
+                            yield return sub;
+                    }
+                }
             }
         }
 
@@ -939,14 +973,16 @@ namespace CatchCapture.Controls
         private void RestoreImageBehaviors()
         {
             _sliderPanels.Clear();
-            foreach (var block in RtbEditor.Document.Blocks)
+            var allBlocks = GetAllBlocks(RtbEditor.Document).ToList();
+            foreach (var block in allBlocks)
             {
                 if (block is BlockUIContainer container && container.Child is Grid mainGrid)
                 {
-                    // Check if it's our resizable image structure
-                    if (mainGrid.Children.Count >= 2 && 
-                        mainGrid.Children[0] is System.Windows.Controls.Image image && 
-                        mainGrid.Children[1] is Border sliderBorder)
+                    // More flexible search for children (OfType is safer than hardcoded indices)
+                    var image = mainGrid.Children.OfType<System.Windows.Controls.Image>().FirstOrDefault();
+                    var sliderBorder = mainGrid.Children.OfType<Border>().FirstOrDefault(b => b.Child is StackPanel);
+                    
+                    if (image != null && sliderBorder != null)
                     {
                         HookImageEvents(image, sliderBorder, container);
                     }
@@ -956,8 +992,10 @@ namespace CatchCapture.Controls
 
         private void HookImageEvents(System.Windows.Controls.Image image, Border sliderBorder, BlockUIContainer container)
         {
-            // Use Tag to prevent duplicate hooking
-            if (sliderBorder.Tag?.ToString() == "Hooked") return;
+            // IMPORTANT: Don't use Tag for "Hooked" check here as Tag is serialized into XAML.
+            // When re-loading XAML, the Tag will be "Hooked" but event handlers are NOT preserved.
+            // Instead, use our in-memory _sliderPanels list which is cleared on each reload.
+            if (_sliderPanels.Contains(sliderBorder)) return;
             sliderBorder.Tag = "Hooked";
 
             if (!_sliderPanels.Contains(sliderBorder))

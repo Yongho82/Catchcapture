@@ -12,25 +12,61 @@ using System.Xml;
 using System.Windows.Media.Imaging;
 using CatchCapture.Models;
 using System.Linq;
+using System.Windows.Threading;
 
 namespace CatchCapture
 {
     public partial class NoteViewWindow : Window
     {
         private long _noteId;
+        private DispatcherTimer _hideHeaderTimer;
 
         public NoteViewWindow(long noteId)
         {
             InitializeComponent();
             _noteId = noteId;
 
+            // Timer for auto-hiding header
+            _hideHeaderTimer = new DispatcherTimer();
+            _hideHeaderTimer.Interval = TimeSpan.FromSeconds(3);
+            _hideHeaderTimer.Tick += (s, e) => {
+                if (this.Topmost && !HeaderGrid.IsMouseOver)
+                {
+                    HeaderGrid.Visibility = Visibility.Collapsed;
+                }
+                _hideHeaderTimer.Stop();
+            };
+
             this.MouseDown += (s, e) => { 
                 if (e.LeftButton == MouseButtonState.Pressed && e.ClickCount == 1) DragMove(); 
                 else if (e.LeftButton == MouseButtonState.Pressed && e.ClickCount == 2) ToggleMaximize();
             };
+            
+            // Re-show header on any click inside window
+            this.PreviewMouseDown += (s, e) => {
+                if (HeaderGrid.Visibility != Visibility.Visible)
+                {
+                    HeaderGrid.Visibility = Visibility.Visible;
+                    ResetHideTimer();
+                }
+                else if (this.Topmost)
+                {
+                    ResetHideTimer();
+                }
+            };
+
             this.StateChanged += NoteViewWindow_StateChanged;
             LoadWindowState();
             LoadNoteData();
+        }
+
+        private void ResetHideTimer()
+        {
+            _hideHeaderTimer.Stop();
+            if (this.Topmost)
+            {
+                _hideHeaderTimer.Start();
+            }
         }
 
         protected override void OnClosed(EventArgs e)
@@ -386,6 +422,16 @@ namespace CatchCapture
             this.Topmost = !this.Topmost;
             PathPin.Fill = this.Topmost ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(26, 115, 232)) : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(149, 165, 166));
             BtnPin.ToolTip = this.Topmost ? "상단 고정 해제" : "상단 고정";
+
+            if (this.Topmost)
+            {
+                ResetHideTimer();
+            }
+            else
+            {
+                _hideHeaderTimer.Stop();
+                HeaderGrid.Visibility = Visibility.Visible;
+            }
         }
 
         private void BtnClose_Click(object sender, RoutedEventArgs e)

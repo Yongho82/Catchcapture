@@ -16,7 +16,7 @@
                       GlassFrameThickness="0" />
     </WindowChrome.WindowChrome>
 
-    <Border Background="{DynamicResource ThemeBackground}" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorder}">
+    <Border x:Name="WindowBorder" Background="{DynamicResource ThemeBackground}" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorder}">
         <Border.Effect>
             <DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.15" ShadowDepth="5" Direction="270"/>
         </Border.Effect>
@@ -28,7 +28,7 @@
             </Grid.RowDefinitions>
 
             <!-- Header: Title Bar (Compact Gradient) -->
-            <Grid Grid.Row="0">
+            <Grid x:Name="HeaderGrid" Grid.Row="0">
                 <Border CornerRadius="11,11,0,0" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ThemeBorder}" Height="50"
                         Background="{DynamicResource ThemeTitleBackground}">
                 </Border>

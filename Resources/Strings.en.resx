@@ -626,4 +626,6 @@
   <data name="Notice" xml:space="preserve"><value>Notice</value></data>
   <data name="TrashRetentionInfo" xml:space="preserve"><value>Important: Trash retention period is currently set to {0} days. You can change this in Note Settings.</value></data>
   <data name="TrashRetentionPermanentInfo" xml:space="preserve"><value>Important: Trash is set to be kept permanently. You can change this in Note Settings.</value></data>
+  <data name="NoNotes" xml:space="preserve"><value>No notes found</value></data>
+  <data name="TrashEmpty" xml:space="preserve"><value>Trash is empty</value></data>
 </root>
