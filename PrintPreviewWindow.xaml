@@ -92,5 +92,6 @@
         
         <!-- 문서 뷰어 -->
         <DocumentViewer x:Name="DocumentViewer" Grid.Row="1"/>
+        <FlowDocumentPageViewer x:Name="NoteViewer" Grid.Row="1" Visibility="Collapsed"/>
     </Grid>
 </Window>

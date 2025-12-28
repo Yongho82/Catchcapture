@@ -409,6 +409,25 @@ namespace CatchCapture
             }
         }
 
+        private void BtnPrint_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Clone the document to handle paging without affecting the view
+                string xaml = XamlWriter.Save(ContentViewer.Document);
+                FlowDocument copy = (FlowDocument)XamlReader.Parse(xaml);
+                
+                // Open Print Preview Window
+                var previewWin = new PrintPreviewWindow(copy);
+                previewWin.Owner = this;
+                previewWin.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                CatchCapture.CustomMessageBox.Show("미리보기 실행 실패: " + ex.Message);
+            }
+        }
+
         private void BtnEdit_Click(object sender, RoutedEventArgs e)
         {
             var inputWin = new NoteInputWindow(_noteId);

@@ -12,12 +12,30 @@ namespace CatchCapture
 {
     public partial class PrintPreviewWindow : Window
     {
-        private BitmapSource imageSource;
+        private BitmapSource? imageSource;
+        private FlowDocument? noteDocument;
+        private bool isNoteMode = false;
         
         public PrintPreviewWindow(BitmapSource image)
         {
             InitializeComponent();
             imageSource = image;
+            isNoteMode = false;
+            UpdateUIText();
+            LocalizationManager.LanguageChanged += LocalizationManager_LanguageChanged;
+            GeneratePreview();
+        }
+
+        public PrintPreviewWindow(FlowDocument document)
+        {
+            InitializeComponent();
+            noteDocument = document;
+            isNoteMode = true;
+            
+            // Hide image-specific options
+            if (PrintOptionsComboBox != null) PrintOptionsComboBox.Visibility = Visibility.Collapsed;
+            if (PrintOptionsLabelText != null) PrintOptionsLabelText.Visibility = Visibility.Collapsed;
+            
             UpdateUIText();
             LocalizationManager.LanguageChanged += LocalizationManager_LanguageChanged;
             GeneratePreview();
@@ -69,104 +87,128 @@ namespace CatchCapture
                 // 방향에 따라 크기 조정
                 double pageWidth = isLandscape ? baseHeight : baseWidth;
                 double pageHeight = isLandscape ? baseWidth : baseHeight;
-                
-                // 선택된 옵션 가져오기
-                int selectedIndex = PrintOptionsComboBox?.SelectedIndex ?? 0;
-                
-                double imageWidth = imageSource.PixelWidth;
-                double imageHeight = imageSource.PixelHeight;
-                double scaledWidth, scaledHeight, x, y;
-                
-                switch (selectedIndex)
+
+                if (isNoteMode && noteDocument != null)
                 {
-                    case 0: // 페이지에 맞춤 (여백 포함)
-                        {
-                            double margin = 50;
-                            double printableWidth = pageWidth - (margin * 2);
-                            double printableHeight = pageHeight - (margin * 2);
-                            double scale = Math.Min(printableWidth / imageWidth, printableHeight / imageHeight);
-                            
-                            scaledWidth = imageWidth * scale;
-                            scaledHeight = imageHeight * scale;
-                            
-                            // 중앙 정렬
-                            x = (pageWidth - scaledWidth) / 2;
-                            y = (pageHeight - scaledHeight) / 2;
-                        }
-                        break;
+                    // 노트 모드 (FlowDocument) -> NoteViewer 사용
+                    if (DocumentViewer != null) DocumentViewer.Visibility = Visibility.Collapsed;
+                    if (NoteViewer != null) 
+                    {
+                        NoteViewer.Visibility = Visibility.Visible;
                         
-                    case 1: // 실제 크기 (100%)
-                        {
-                            // 96 DPI 기준으로 픽셀을 포인트로 변환
-                            scaledWidth = imageWidth * 96.0 / 96.0;
-                            scaledHeight = imageHeight * 96.0 / 96.0;
-                            
-                            // 페이지보다 크면 잘림 - 중앙 정렬
-                            x = (pageWidth - scaledWidth) / 2;
-                            y = (pageHeight - scaledHeight) / 2;
-                        }
-                        break;
+                        noteDocument.PageWidth = pageWidth;
+                        noteDocument.PageHeight = pageHeight;
+                        noteDocument.PagePadding = new Thickness(48); // 0.5 inch margin
+                        noteDocument.ColumnWidth = pageWidth;
+                        noteDocument.ColumnGap = 0;
                         
-                    case 2: // 페이지 채우기 (여백 없음)
-                        {
-                            double scale = Math.Min(pageWidth / imageWidth, pageHeight / imageHeight);
-                            
-                            scaledWidth = imageWidth * scale;
-                            scaledHeight = imageHeight * scale;
-                            
-                            // 중앙 정렬
-                            x = (pageWidth - scaledWidth) / 2;
-                            y = (pageHeight - scaledHeight) / 2;
-                        }
-                        break;
-                        
-                    default:
-                        {
-                            // 기본값: 페이지에 맞춤
-                            double margin = 50;
-                            double printableWidth = pageWidth - (margin * 2);
-                            double printableHeight = pageHeight - (margin * 2);
-                            double scale = Math.Min(printableWidth / imageWidth, printableHeight / imageHeight);
-                            
-                            scaledWidth = imageWidth * scale;
-                            scaledHeight = imageHeight * scale;
-                            
-                            x = (pageWidth - scaledWidth) / 2;
-                            y = (pageHeight - scaledHeight) / 2;
-                        }
-                        break;
+                        NoteViewer.Document = noteDocument;
+                    }
                 }
-
-                // 고정 문서 생성
-                FixedDocument fixedDocument = new FixedDocument();
-                fixedDocument.DocumentPaginator.PageSize = new Size(pageWidth, pageHeight);
-
-                // 페이지 추가
-                PageContent pageContent = new PageContent();
-                FixedPage fixedPage = new FixedPage
+                else if (imageSource != null)
                 {
-                    Width = pageWidth,
-                    Height = pageHeight,
-                    Background = Brushes.White
-                };
-
-                Image image = new Image
-                {
-                    Source = imageSource,
-                    Width = scaledWidth,
-                    Height = scaledHeight,
-                    Stretch = System.Windows.Media.Stretch.Uniform
-                };
-                
-                Canvas.SetLeft(image, x);
-                Canvas.SetTop(image, y);
-                
-                fixedPage.Children.Add(image);
-                ((IAddChild)pageContent).AddChild(fixedPage);
-                fixedDocument.Pages.Add(pageContent);
-
-                // DocumentViewer에 표시
-                DocumentViewer.Document = fixedDocument;
+                    // 이미지 모드 (FixedDocument) -> DocumentViewer 사용
+                    if (NoteViewer != null) NoteViewer.Visibility = Visibility.Collapsed;
+                    if (DocumentViewer != null) DocumentViewer.Visibility = Visibility.Visible;
+                    
+                    // 선택된 옵션 가져오기
+                    int selectedIndex = PrintOptionsComboBox?.SelectedIndex ?? 0;
+                    
+                    double imageWidth = imageSource.PixelWidth;
+                    double imageHeight = imageSource.PixelHeight;
+                    double scaledWidth, scaledHeight, x, y;
+                    
+                    switch (selectedIndex)
+                    {
+                        case 0: // 페이지에 맞춤 (여백 포함)
+                            {
+                                double margin = 50;
+                                double printableWidth = pageWidth - (margin * 2);
+                                double printableHeight = pageHeight - (margin * 2);
+                                double scale = Math.Min(printableWidth / imageWidth, printableHeight / imageHeight);
+                                
+                                scaledWidth = imageWidth * scale;
+                                scaledHeight = imageHeight * scale;
+                                
+                                // 중앙 정렬
+                                x = (pageWidth - scaledWidth) / 2;
+                                y = (pageHeight - scaledHeight) / 2;
+                            }
+                            break;
+                            
+                        case 1: // 실제 크기 (100%)
+                            {
+                                // 96 DPI 기준으로 픽셀을 포인트로 변환
+                                scaledWidth = imageWidth * 96.0 / 96.0;
+                                scaledHeight = imageHeight * 96.0 / 96.0;
+                                
+                                // 페이지보다 크면 잘림 - 중앙 정렬
+                                x = (pageWidth - scaledWidth) / 2;
+                                y = (pageHeight - scaledHeight) / 2;
+                            }
+                            break;
+                            
+                        case 2: // 페이지 채우기 (여백 없음)
+                            {
+                                double scale = Math.Min(pageWidth / imageWidth, pageHeight / imageHeight);
+                                
+                                scaledWidth = imageWidth * scale;
+                                scaledHeight = imageHeight * scale;
+                                
+                                // 중앙 정렬
+                                x = (pageWidth - scaledWidth) / 2;
+                                y = (pageHeight - scaledHeight) / 2;
+                            }
+                            break;
+                            
+                        default:
+                            {
+                                // 기본값: 페이지에 맞춤
+                                double margin = 50;
+                                double printableWidth = pageWidth - (margin * 2);
+                                double printableHeight = pageHeight - (margin * 2);
+                                double scale = Math.Min(printableWidth / imageWidth, printableHeight / imageHeight);
+                                
+                                scaledWidth = imageWidth * scale;
+                                scaledHeight = imageHeight * scale;
+                                
+                                x = (pageWidth - scaledWidth) / 2;
+                                y = (pageHeight - scaledHeight) / 2;
+                            }
+                            break;
+                    }
+    
+                    // 고정 문서 생성
+                    FixedDocument fixedDocument = new FixedDocument();
+                    fixedDocument.DocumentPaginator.PageSize = new Size(pageWidth, pageHeight);
+    
+                    // 페이지 추가
+                    PageContent pageContent = new PageContent();
+                    FixedPage fixedPage = new FixedPage
+                    {
+                        Width = pageWidth,
+                        Height = pageHeight,
+                        Background = Brushes.White
+                    };
+    
+                    Image image = new Image
+                    {
+                        Source = imageSource,
+                        Width = scaledWidth,
+                        Height = scaledHeight,
+                        Stretch = System.Windows.Media.Stretch.Uniform
+                    };
+                    
+                    Canvas.SetLeft(image, x);
+                    Canvas.SetTop(image, y);
+                    
+                    fixedPage.Children.Add(image);
+                    ((IAddChild)pageContent).AddChild(fixedPage);
+                    fixedDocument.Pages.Add(pageContent);
+    
+                    // DocumentViewer에 표시
+                    DocumentViewer.Document = fixedDocument;
+                }
             }
             catch (Exception ex)
             {
@@ -177,7 +219,7 @@ namespace CatchCapture
         private void OrientationComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // 방향 변경 시 미리보기 갱신
-            if (imageSource != null && DocumentViewer != null)
+            if ((imageSource != null || noteDocument != null))
             {
                 GeneratePreview();
             }
@@ -186,7 +228,7 @@ namespace CatchCapture
         private void PrintOptionsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // 옵션 변경 시 미리보기 갱신
-            if (imageSource != null && DocumentViewer != null)
+            if (imageSource != null && (DocumentViewer != null || NoteViewer != null))
             {
                 GeneratePreview();
             }
@@ -204,7 +246,18 @@ namespace CatchCapture
                 
                 if (printDialog.ShowDialog() == true)
                 {
-                    if (DocumentViewer.Document != null)
+                    IDocumentPaginatorSource? documentToPrint = null;
+
+                    if (isNoteMode && NoteViewer != null)
+                    {
+                        documentToPrint = NoteViewer.Document;
+                    }
+                    else if (DocumentViewer != null)
+                    {
+                        documentToPrint = DocumentViewer.Document;
+                    }
+
+                    if (documentToPrint != null)
                     {
                         // PrintTicket에 페이지 방향 설정
                         if (printDialog.PrintTicket != null)
@@ -219,8 +272,9 @@ namespace CatchCapture
                             }
                         }
                         
-                        printDialog.PrintDocument(DocumentViewer.Document.DocumentPaginator, LocalizationManager.Get("PrintJobName"));
+                        printDialog.PrintDocument(documentToPrint.DocumentPaginator, LocalizationManager.Get("PrintJobName"));
                         MessageBox.Show(LocalizationManager.Get("PrintingStarted"), LocalizationManager.Get("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
+                        this.Close();
                     }
                 }
             }
