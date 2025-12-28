@@ -2422,7 +2422,7 @@ public partial class MainWindow : Window
         grid.Children.Add(buttonPanel);
 
         // 내 노트 저장 버튼 추가 (하단 픽셀 정보 왼쪽에 위치하며 호버 시 표시)
-        Button noteBtn = CreateHoverButton("my_note.png", "내노트저장");
+        Button noteBtn = CreateHoverButton("my_note.png", LocalizationManager.GetString("SaveToMyNote"));
         noteBtn.Click += (s, e) => { e.Handled = true; SaveImageToNote(captureImage); };
         noteBtn.Visibility = Visibility.Collapsed;
         noteBtn.Margin = new Thickness(0, 0, 5, 0);
@@ -4161,28 +4161,41 @@ public partial class MainWindow : Window
                     {
                         if (gridChild is StackPanel panel && panel.Orientation == Orientation.Horizontal)
                         {
-                            // 버튼 순서: 구글, 공유, 저장, 삭제
-                            int btnIndex = 0;
-                            foreach (UIElement panelChild in panel.Children)
+                            if (panel.VerticalAlignment == VerticalAlignment.Top)
                             {
-                                if (panelChild is Button btn)
+                                // 버튼 순서: 구글, 공유, 저장, 삭제
+                                int btnIndex = 0;
+                                foreach (UIElement panelChild in panel.Children)
                                 {
-                                    switch (btnIndex)
+                                    if (panelChild is Button btn)
                                     {
-                                        case 0: // Google
-                                            btn.ToolTip = LocalizationManager.GetString("GoogleSearch");
-                                            break;
-                                        case 1: // Share (Step 2에서 추가됨)
-                                            btn.ToolTip = LocalizationManager.GetString("Share");
-                                            break;
-                                        case 2: // Save
-                                            btn.ToolTip = LocalizationManager.GetString("Save");
-                                            break;
-                                        case 3: // Delete
-                                            btn.ToolTip = LocalizationManager.GetString("Delete");
-                                            break;
+                                        switch (btnIndex)
+                                        {
+                                            case 0: // Google
+                                                btn.ToolTip = LocalizationManager.GetString("GoogleSearch");
+                                                break;
+                                            case 1: // Share (Step 2에서 추가됨)
+                                                btn.ToolTip = LocalizationManager.GetString("Share");
+                                                break;
+                                            case 2: // Save
+                                                btn.ToolTip = LocalizationManager.GetString("Save");
+                                                break;
+                                            case 3: // Delete
+                                                btn.ToolTip = LocalizationManager.GetString("Delete");
+                                                break;
+                                        }
+                                        btnIndex++;
                                     }
-                                    btnIndex++;
+                                }
+                            }
+                            else if (panel.VerticalAlignment == VerticalAlignment.Bottom)
+                            {
+                                foreach (UIElement panelChild in panel.Children)
+                                {
+                                    if (panelChild is Button btn)
+                                    {
+                                        btn.ToolTip = LocalizationManager.GetString("SaveToMyNote");
+                                    }
                                 }
                             }
                         }

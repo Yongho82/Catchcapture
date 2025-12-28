@@ -670,4 +670,5 @@ Are you sure you want to permanently delete all items?</value>
   <data name="ChangeTheme" xml:space="preserve"><value>Change Theme</value></data>
   <data name="SimpleMode" xml:space="preserve"><value>Simple Mode</value></data>
   <data name="TrayMode" xml:space="preserve"><value>Tray Mode</value></data>
+  <data name="SaveToMyNote" xml:space="preserve"><value>Save to My Note</value></data>
 </root>

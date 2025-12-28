@@ -660,4 +660,5 @@
   <data name="ChangeTheme" xml:space="preserve"><value>테마 변경</value></data>
   <data name="SimpleMode" xml:space="preserve"><value>간편 모드</value></data>
   <data name="TrayMode" xml:space="preserve"><value>트레이 모드</value></data>
+  <data name="SaveToMyNote" xml:space="preserve"><value>내 노트 저장</value></data>
 </root>
