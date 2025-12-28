@@ -63,6 +63,21 @@ namespace CatchCapture
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        private int _currentViewMode = 0; // 0: List, 1: Card
+        public int CurrentViewMode
+        {
+            get => _currentViewMode;
+            set
+            {
+                if (_currentViewMode != value)
+                {
+                    _currentViewMode = value;
+                    OnPropertyChanged(nameof(CurrentViewMode));
+                    ApplyViewMode();
+                }
+            }
+        }
+
         public static NoteExplorerWindow? Instance { get; private set; }
 
         public NoteExplorerWindow()
@@ -82,6 +97,10 @@ namespace CatchCapture
                 LoadTags();
                 InitializeTipTimer();
                 HighlightSidebarButton(BtnFilterRecent);
+
+                // Load saved view mode
+                _currentViewMode = Settings.Load().NoteExplorerViewMode;
+                ApplyViewMode();
                 
                 // 휴지통 자동 비우기 (설정된 기간 경과 항목)
                 int retentionDays = Settings.Load().TrashRetentionDays;
@@ -168,7 +187,6 @@ namespace CatchCapture
             if (TxtTagsTitle != null) TxtTagsTitle.Text = CatchCapture.Resources.LocalizationManager.GetString("Tags");
             
             if (BtnSelectAll != null) BtnSelectAll.Content = CatchCapture.Resources.LocalizationManager.GetString("SelectAll");
-            if (BtnUnselectAll != null) BtnUnselectAll.Content = CatchCapture.Resources.LocalizationManager.GetString("UnselectAll");
             if (BtnDeleteSelected != null) BtnDeleteSelected.Content = CatchCapture.Resources.LocalizationManager.GetString("DeleteSelected");
             if (TxtStatusInfo != null) TxtStatusInfo.Text = CatchCapture.Resources.LocalizationManager.GetString("RecentStatusInfo");
             if (TxtSearchPlaceholder != null) TxtSearchPlaceholder.Text = CatchCapture.Resources.LocalizationManager.GetString("SearchPlaceholder");
@@ -1018,22 +1036,96 @@ namespace CatchCapture
             }
         }
 
-        private void BtnSelectAll_Click(object sender, RoutedEventArgs e)
+        private void BtnToggleSelectAll_Click(object sender, RoutedEventArgs e)
         {
-            IsSelectionMode = true;
             if (LstNotes.ItemsSource is IEnumerable<NoteViewModel> notes)
             {
-                foreach (var note in notes) note.IsSelected = true;
+                // Check current state (if sender is checkbox, use its IsChecked, otherwise check if all are selected)
+                bool newValue;
+                if (sender is CheckBox chk)
+                {
+                    newValue = chk.IsChecked ?? false;
+                }
+                else
+                {
+                    bool allSelected = notes.Count() > 0 && notes.All(n => n.IsSelected);
+                    newValue = !allSelected;
+                }
+
+                foreach (var note in notes) note.IsSelected = newValue;
+                
+                // Update selection mode visibility
+                IsSelectionMode = newValue;
+                
+                UpdateSelectionUI(newValue);
+            }
+        }
+
+        private void UpdateSelectionUI(bool allSelected)
+        {
+            if (BtnSelectAll != null)
+            {
+                BtnSelectAll.Content = allSelected
+                    ? CatchCapture.Resources.LocalizationManager.GetString("UnselectAll") ?? "전체 해제"
+                    : CatchCapture.Resources.LocalizationManager.GetString("SelectAll") ?? "전체 선택";
+            }
+            if (ChkSelectAllHeader != null)
+            {
+                // Unsubscribe temporarily to avoid recursion if we want, but since we are just setting state it's fine
+                ChkSelectAllHeader.IsChecked = allSelected;
             }
         }
 
         private void BtnUnselectAll_Click(object sender, RoutedEventArgs e)
         {
             IsSelectionMode = false;
-            if (ChkSelectAllHeader != null) ChkSelectAllHeader.IsChecked = false;
+            UpdateSelectionUI(false);
             if (LstNotes.ItemsSource is IEnumerable<NoteViewModel> notes)
             {
                 foreach (var note in notes) note.IsSelected = false;
+            }
+        }
+
+        private void ApplyViewMode()
+        {
+            if (LstNotes == null) return;
+
+            // Save to settings
+            var settings = Settings.Load();
+            settings.NoteExplorerViewMode = _currentViewMode;
+            settings.Save();
+
+            if (_currentViewMode == 0) // List
+            {
+                LstNotes.ItemContainerStyle = (Style)FindResource("NoteItemStyle");
+                LstNotes.ItemTemplate = (DataTemplate)FindResource("ListTemplate");
+                
+                // Set ItemsPanel to VirtualizingStackPanel (default)
+                var template = new ItemsPanelTemplate(new FrameworkElementFactory(typeof(VirtualizingStackPanel)));
+                LstNotes.ItemsPanel = template;
+                
+                if (ColHeaderBorder != null) ColHeaderBorder.Visibility = Visibility.Visible;
+            }
+            else // Card
+            {
+                LstNotes.ItemContainerStyle = (Style)FindResource("NoteCardStyle");
+                LstNotes.ItemTemplate = (DataTemplate)FindResource("CardTemplate");
+                
+                // Set ItemsPanel to WrapPanel
+                var factory = new FrameworkElementFactory(typeof(WrapPanel));
+                // factory.SetValue(WrapPanel.ItemWidthProperty, 260.0); // Can add this if we want fixed wrapping
+                var template = new ItemsPanelTemplate(factory);
+                LstNotes.ItemsPanel = template;
+                
+                if (ColHeaderBorder != null) ColHeaderBorder.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void BtnViewMode_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is string mode)
+            {
+                CurrentViewMode = (mode == "Card") ? 1 : 0;
             }
         }
 
