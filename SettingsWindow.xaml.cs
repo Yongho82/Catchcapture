@@ -852,7 +852,7 @@ private void InitLanguageComboBox()
         {
             TxtNoteFolder.Text = _settings.NoteStoragePath;
             
-            ChkEnableNotePassword.IsChecked = !string.IsNullOrEmpty(_settings.NotePassword);
+            ChkEnableNotePassword.IsChecked = _settings.IsNoteLockEnabled;
             BtnSetNotePassword.IsEnabled = ChkEnableNotePassword.IsChecked == true;
             
             if (CboNoteFormat != null)
@@ -1007,18 +1007,30 @@ private void InitLanguageComboBox()
         {
             if (ChkEnableNotePassword.IsChecked == true)
             {
-                // If turning ON, open setup window
-                var pwdWin = new NotePasswordWindow(_settings.NotePassword, _settings.NotePasswordHint);
-                pwdWin.Owner = this;
-                if (pwdWin.ShowDialog() == true)
+                // If turning ON, check if password already exists
+                if (string.IsNullOrEmpty(_settings.NotePassword))
                 {
-                    _settings.NotePassword = pwdWin.Password;
-                    _settings.NotePasswordHint = pwdWin.Hint;
+                    // No password set yet, open setup window
+                    var pwdWin = new NotePasswordWindow(null, null);
+                    pwdWin.Owner = this;
+                    if (pwdWin.ShowDialog() == true)
+                    {
+                        _settings.NotePassword = pwdWin.Password;
+                        _settings.NotePasswordHint = pwdWin.Hint;
+                        _settings.IsNoteLockEnabled = true;
+                        App.IsNoteAuthenticated = true;
+                    }
+                    else
+                    {
+                        // User cancelled, revert checkbox
+                        ChkEnableNotePassword.IsChecked = false;
+                        _settings.IsNoteLockEnabled = false;
+                    }
                 }
                 else
                 {
-                    // User cancelled, revert checkbox
-                    ChkEnableNotePassword.IsChecked = false;
+                    // Existing password found, just enable lock
+                    _settings.IsNoteLockEnabled = true;
                 }
             }
             else
@@ -1037,14 +1049,13 @@ private void InitLanguageComboBox()
                 }
 
                 // Confirm disable
-                if (CatchCapture.CustomMessageBox.Show("비밀번호 잠금을 해제하시겠습니까?", "확인", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
+                if (CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("ConfirmDisableNotePassword"), LocalizationManager.GetString("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
                 {
                     ChkEnableNotePassword.IsChecked = true;
                 }
                 else
                 {
-                    _settings.NotePassword = null;
-                    _settings.NotePasswordHint = null;
+                    _settings.IsNoteLockEnabled = false;
                     App.IsNoteAuthenticated = false; // Reset session auth
                 }
             }
@@ -1136,8 +1147,18 @@ private void InitLanguageComboBox()
                 if (string.IsNullOrWhiteSpace(_settings.NotePassword))
                 {
                     CatchCapture.CustomMessageBox.Show("비밀번호가 설정되지 않았습니다. 비밀번호를 설정해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    HighlightNav(NavNote, "Note");
-                    return false;
+                    var pwdWin = new NotePasswordWindow(null, null);
+                    pwdWin.Owner = this;
+                    if (pwdWin.ShowDialog() == true)
+                    {
+                        _settings.NotePassword = pwdWin.Password;
+                        _settings.NotePasswordHint = pwdWin.Hint;
+                    }
+                    else
+                    {
+                        HighlightNav(NavNote, "Note");
+                        return false;
+                    }
                 }
                 if (string.IsNullOrWhiteSpace(_settings.NotePasswordHint))
                 {
@@ -1329,11 +1350,7 @@ private void InitLanguageComboBox()
 
             // Note settings
             _settings.NoteStoragePath = TxtNoteFolder.Text;
-            if (ChkEnableNotePassword.IsChecked != true)
-            {
-                _settings.NotePassword = null;
-                _settings.NotePasswordHint = null;
-            }
+            _settings.IsNoteLockEnabled = ChkEnableNotePassword.IsChecked == true;
             // Note: Password/Hint are already in _settings via modal if it was used
             
             if (CboNoteFormat.SelectedItem is ComboBoxItem noteFmtItem)

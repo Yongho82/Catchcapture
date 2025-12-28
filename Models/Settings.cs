@@ -52,6 +52,7 @@ namespace CatchCapture.Models
         public string NoteStoragePath { get; set; } = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "CatchCapture"), "notedata");
         public string? NotePassword { get; set; }
         public string? NotePasswordHint { get; set; }
+        public bool IsNoteLockEnabled { get; set; } = false;
         public bool OptimizeNoteImages { get; set; } = true;
         public string NoteSaveFormat { get; set; } = "PNG"; // PNG, JPG, BMP, GIF
         public int NoteImageQuality { get; set; } = 100;
@@ -195,6 +196,8 @@ namespace CatchCapture.Models
                             {
                                 settings.NotePassword = dbPwd;
                                 settings.NotePasswordHint = dbHint;
+                                var dbLock = CatchCapture.Utilities.DatabaseManager.Instance.GetConfig("IsNoteLockEnabled");
+                                settings.IsNoteLockEnabled = dbLock == "1";
                             }
                         }
                         catch { }
@@ -256,6 +259,7 @@ namespace CatchCapture.Models
                 {
                     CatchCapture.Utilities.DatabaseManager.Instance.SetConfig("NotePassword", settings.NotePassword);
                     CatchCapture.Utilities.DatabaseManager.Instance.SetConfig("NotePasswordHint", settings.NotePasswordHint);
+                    CatchCapture.Utilities.DatabaseManager.Instance.SetConfig("IsNoteLockEnabled", settings.IsNoteLockEnabled ? "1" : "0");
                 }
                 catch { /* Ignore DB errors in setting save */ }
 

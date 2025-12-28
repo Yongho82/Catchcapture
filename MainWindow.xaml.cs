@@ -2594,9 +2594,9 @@ public partial class MainWindow : Window
         }
 
         // 비밀번호 잠금 확인
-        if (!string.IsNullOrEmpty(settings.NotePassword) && !App.IsNoteAuthenticated)
-        {
-            var lockWin = new NoteLockCheckWindow(settings.NotePassword, settings.NotePasswordHint);
+    if (settings.IsNoteLockEnabled && !App.IsNoteAuthenticated && !string.IsNullOrEmpty(settings.NotePassword))
+    {
+        var lockWin = new NoteLockCheckWindow(settings.NotePassword, settings.NotePasswordHint);
             
             if (this.IsVisible)
             {
