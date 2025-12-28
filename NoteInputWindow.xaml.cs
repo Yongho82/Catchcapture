@@ -73,7 +73,10 @@ namespace CatchCapture
                 this.Loaded += NoteInputWindow_Loaded;
             }
             
-            this.MouseDown += (s, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
+            this.MouseDown += (s, e) => { 
+                if (e.LeftButton == MouseButtonState.Pressed && e.ClickCount == 1) DragMove(); 
+                else if (e.LeftButton == MouseButtonState.Pressed && e.ClickCount == 2) ToggleMaximize();
+            };
             
             // Subscribe to capture request from editor
             Editor.CaptureRequested += OnEditorCaptureRequested;
@@ -92,7 +95,10 @@ namespace CatchCapture
             UpdateUIForMode();
             
             this.Loaded += (s, e) => LoadNoteData(noteId);
-            this.MouseDown += (s, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
+            this.MouseDown += (s, e) => { 
+                if (e.LeftButton == MouseButtonState.Pressed && e.ClickCount == 1) DragMove(); 
+                else if (e.LeftButton == MouseButtonState.Pressed && e.ClickCount == 2) ToggleMaximize();
+            };
             
             // Subscribe to capture request from editor
             Editor.CaptureRequested += OnEditorCaptureRequested;
@@ -148,6 +154,37 @@ namespace CatchCapture
             }
             catch { /* Ignore save errors */ }
         }
+
+        private void NoteInputWindow_StateChanged(object? sender, EventArgs e)
+        {
+            if (this.WindowState == WindowState.Maximized)
+            {
+                PathMaximize.Data = System.Windows.Media.Geometry.Parse("M4,8H8V4H20V16H16V20H4V8M16,8V14H18V6H10V8H16M6,10V18H14V10H6Z");
+                BtnMaximize.ToolTip = "이전 크기로 복원";
+            }
+            else
+            {
+                PathMaximize.Data = System.Windows.Media.Geometry.Parse("M4,4H20V20H4V4M6,8V18H18V8H6Z");
+                BtnMaximize.ToolTip = "최대화";
+            }
+        }
+
+        private void ToggleMaximize()
+        {
+            this.WindowState = (this.WindowState == WindowState.Maximized) ? WindowState.Normal : WindowState.Maximized;
+        }
+
+        private void BtnMinimize_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
+
+        private void BtnMaximize_Click(object sender, RoutedEventArgs e)
+        {
+            ToggleMaximize();
+        }
+
+
 
         private void UpdateUIText()
         {

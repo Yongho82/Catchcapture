@@ -901,18 +901,7 @@ namespace CatchCapture.Controls
             try
             {
                 // Save the whole document for full fidelity (FlowDocument root)
-                string xaml = System.Windows.Markup.XamlWriter.Save(RtbEditor.Document);
-                
-                // Log XAML content (truncated for readability)
-                string logPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "image_debug.txt");
-                System.IO.File.AppendAllText(logPath, $"[{DateTime.Now}] GetXaml: XAML length = {xaml.Length}\\n");
-                System.IO.File.AppendAllText(logPath, $"[{DateTime.Now}] GetXaml: Contains 'img_' = {xaml.Contains("img_")}\\n");
-                System.IO.File.AppendAllText(logPath, $"[{DateTime.Now}] GetXaml: Contains 'Image' = {xaml.Contains("<Image")}\\n");
-                
-                // Save full XAML to separate file for inspection
-                System.IO.File.WriteAllText(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "saved_xaml.txt"), xaml);
-                
-                return xaml;
+                return System.Windows.Markup.XamlWriter.Save(RtbEditor.Document);
             }
             catch (Exception ex)
             {
@@ -1300,7 +1289,6 @@ namespace CatchCapture.Controls
                     }
                 }
             }
-
             foreach (var img in imageControls)
             {
                 if (img.Source is BitmapSource bs)
@@ -1309,7 +1297,6 @@ namespace CatchCapture.Controls
                 }
             }
             
-            System.IO.File.AppendAllText(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "image_debug.txt"), $"[{DateTime.Now}] GetAllImages: Found {imageControls.Count} Image controls, {images.Count} BitmapSources\n");
             return images;
         }
 
@@ -1461,13 +1448,10 @@ namespace CatchCapture.Controls
                 }
             }
 
-            System.IO.File.AppendAllText(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "image_debug.txt"), $"[{DateTime.Now}] UpdateImageSources: Found {allImages.Count} images to update, {relativePaths.Count} paths provided\n");
-
             string imgDir = DatabaseManager.Instance.GetImageFolderPath();
             for (int i = 0; i < allImages.Count && i < relativePaths.Count; i++)
             {
                 string fullPath = System.IO.Path.Combine(imgDir, relativePaths[i]);
-                System.IO.File.AppendAllText(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "image_debug.txt"), $"[{DateTime.Now}] UpdateImageSources: Updating image {i}: {fullPath}, Exists: {File.Exists(fullPath)}\n");
                 if (File.Exists(fullPath))
                 {
                     try

@@ -82,8 +82,8 @@ namespace CatchCapture.Models
         public double NoteViewerTop { get; set; } = -9999;
         
         // Note Input Window State
-        public double NoteInputWidth { get; set; } = 1000;
-        public double NoteInputHeight { get; set; } = 800;
+        public double NoteInputWidth { get; set; } = 1200;
+        public double NoteInputHeight { get; set; } = 920;
         public double NoteInputLeft { get; set; } = -9999;
         public double NoteInputTop { get; set; } = -9999;
         

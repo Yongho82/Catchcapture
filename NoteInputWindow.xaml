@@ -5,9 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:controls="clr-namespace:CatchCapture.Controls"
         mc:Ignorable="d"
-        Title="캐치캡처-글쓰기" Height="920" Width="1200"
+        Title="캐치캡처-글쓰기" Height="980" Width="1200"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
-        WindowStartupLocation="CenterScreen" ShowInTaskbar="True">
+        WindowStartupLocation="CenterScreen" ShowInTaskbar="True" ResizeMode="CanResize"
+        MinHeight="500" MinWidth="600"
+        StateChanged="NoteInputWindow_StateChanged">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="50" 
+                      ResizeBorderThickness="8" 
+                      CornerRadius="12" 
+                      GlassFrameThickness="0" />
+    </WindowChrome.WindowChrome>
     
     <Border Background="{DynamicResource ThemeBackground}" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorder}">
         <Border.CacheMode>
@@ -23,14 +32,27 @@
                 <RowDefinition Height="*"/>    <!-- Main Scrollable Content -->
             </Grid.RowDefinitions>
 
-            <!-- 1. Header (Close Only) -->
-            <Grid Grid.Row="0" Margin="25,20,25,0">
-                <TextBlock x:Name="TxtHeaderTitle" Text="글쓰기" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
-                <Button x:Name="BtnClose" Width="30" Height="30" HorizontalAlignment="Right" VerticalAlignment="Center" 
-                        Click="BtnClose_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="닫기">
-                    <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" 
-                          Fill="{DynamicResource ThemeForeground}" Opacity="0.6" Stretch="Uniform" Width="14" Height="14"/>
-                </Button>
+            <!-- 1. Header (Title Bar with Gradient & Controls) -->
+            <Grid Grid.Row="0">
+                <Border CornerRadius="11,11,0,0" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ThemeBorder}" Height="50"
+                        Background="{DynamicResource ThemeTitleBackground}">
+                </Border>
+                <Grid Margin="25,0">
+                    <TextBlock x:Name="TxtHeaderTitle" Text="글쓰기" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource ThemeTitleForeground}" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <Button x:Name="BtnMinimize" Width="30" Height="30" Click="BtnMinimize_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="최소화" WindowChrome.IsHitTestVisibleInChrome="True">
+                             <Path Data="M20,14H4V10H20V14Z" Fill="{DynamicResource ThemeTitleForeground}" Stretch="Uniform" Width="12" Height="12"/>
+                        </Button>
+                        <Button x:Name="BtnMaximize" Width="30" Height="30" Click="BtnMaximize_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="최대화" WindowChrome.IsHitTestVisibleInChrome="True">
+                             <Path x:Name="PathMaximize" Data="M4,4H20V20H4V4M6,8V18H18V8H6Z" Fill="{DynamicResource ThemeTitleForeground}" Stretch="Uniform" Width="12" Height="12"/>
+                        </Button>
+                        <Button x:Name="BtnClose" Width="30" Height="30" Click="BtnClose_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="닫기" WindowChrome.IsHitTestVisibleInChrome="True">
+                             <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" 
+                                   Fill="{DynamicResource ThemeTitleForeground}" Stretch="Uniform" Width="14" Height="14"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
             </Grid>
 
             <!-- 2. Main Content -->
