@@ -54,10 +54,21 @@ namespace CatchCapture.Utilities
         private static extern IntPtr WindowFromPoint(POINT Point);
 
         [DllImport("user32.dll")]
+        private static extern IntPtr GetShellWindow();
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern IntPtr GetWindow(IntPtr hWnd, uint uCmd);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool IsWindowVisible(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool GetCursorPos(out POINT lpPoint);
 
         private const uint GA_ROOT = 2;
+        private const uint GW_HWNDNEXT = 2;
 
         public static (string AppName, string Title) GetActiveWindowMetadata()
         {
@@ -120,21 +131,52 @@ namespace CatchCapture.Utilities
             {
                 POINT p = new POINT { X = screenX, Y = screenY };
                 IntPtr hWnd = WindowFromPoint(p);
-                
-                if (hWnd != IntPtr.Zero)
+                IntPtr shellWindow = GetShellWindow();
+
+                // 바탕화면이나 시스템 유령 레이어(IME 등)를 건너뛰고 실제 앱 창 찾기
+                while (hWnd != IntPtr.Zero)
                 {
-                    hWnd = GetAncestor(hWnd, GA_ROOT);
+                    // 해당 윈도우가 실제로 마우스 포인트를 포함하고 있는지 확인
+                    RECT rect;
+                    if (GetWindowRect(hWnd, out rect))
+                    {
+                        if (p.X >= rect.Left && p.X <= rect.Right && p.Y >= rect.Top && p.Y <= rect.Bottom)
+                        {
+                            IntPtr rootHwnd = GetAncestor(hWnd, GA_ROOT);
+                            var data = TryGetWindowData(rootHwnd);
+
+                            // 제외할 시스템 창 제목 리스트
+                            bool isSystemGhost = data.Title == "Program Manager" || 
+                                               data.Title == "MSCTFIME UI" || 
+                                               data.Title == "Default IME" ||
+                                               data.Title == "DummyWindow" ||
+                                               data.Title.Contains("시스템 트레이 오버플로") ||
+                                               data.Title.Contains("Notification Area") ||
+                                               string.IsNullOrEmpty(data.Title);
+
+                            // explorer 프로세스인데 실제 폴더 창이나 바탕화면이 아닌 각종 시스템 UI 레이어 필터링
+                            bool isExplorerGhost = data.AppName.Equals("explorer", StringComparison.OrdinalIgnoreCase) && 
+                                                 (isSystemGhost || 
+                                                  data.Title == "Execute" || 
+                                                  data.Title == "작업 표시줄" ||
+                                                  data.Title == "Taskbar");
+
+                            // 1. 자기 자신이 아니고 2. 시스템 유령창이 아니며 3. 쉘 윈도우가 아닌 경우 인정
+                            if (!IsSelfProcess(data.AppName) && 
+                                !isSystemGhost && 
+                                !isExplorerGhost &&
+                                rootHwnd != shellWindow)
+                            {
+                                return data;
+                            }
+                        }
+                    }
+
+                    // 현재 좌표와 상관없는 윈도우도 Z-Order상에는 있을 수 있으므로 계속 다음을 찾음
+                    hWnd = GetWindow(hWnd, GW_HWNDNEXT);
                 }
 
-                var result = TryGetWindowData(hWnd);
-                
-                // 자기 자신이면 Unknown 반환
-                if (IsSelfProcess(result.AppName))
-                {
-                    return ("Unknown", "Unknown");
-                }
-
-                return result;
+                return ("Unknown", "Unknown");
             }
             catch
             {
