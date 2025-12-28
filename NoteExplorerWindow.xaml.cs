@@ -165,6 +165,7 @@ namespace CatchCapture
             if (BtnDeleteSelected != null) BtnDeleteSelected.Content = CatchCapture.Resources.LocalizationManager.GetString("DeleteSelected");
             if (TxtStatusInfo != null) TxtStatusInfo.Text = CatchCapture.Resources.LocalizationManager.GetString("RecentStatusInfo");
             if (TxtSearchPlaceholder != null) TxtSearchPlaceholder.Text = CatchCapture.Resources.LocalizationManager.GetString("SearchPlaceholder");
+            if (TxtEmptyTrash != null) TxtEmptyTrash.Text = "휴지통 비우기"; // 추후 Localize 필요
             
             if (ColHeaderGroup != null) ColHeaderGroup.Text = CatchCapture.Resources.LocalizationManager.GetString("ColGroup");
             if (ColHeaderTitle != null) ColHeaderTitle.Text = CatchCapture.Resources.LocalizationManager.GetString("ColTitle");
@@ -346,6 +347,12 @@ namespace CatchCapture
                 else if (!string.IsNullOrEmpty(tag)) TxtStatusInfo.Text = string.Format(CatchCapture.Resources.LocalizationManager.GetString("TagFilter"), tag);
                 else if (filter == "Today") TxtStatusInfo.Text = CatchCapture.Resources.LocalizationManager.GetString("TodayRecords");
                 else if (filter == "Recent") TxtStatusInfo.Text = CatchCapture.Resources.LocalizationManager.GetString("RecentWeekRecords");
+                else if (filter == "Recent30Days") TxtStatusInfo.Text = "최근 30일 기록";
+                else if (filter == "Today") TxtStatusInfo.Text = CatchCapture.Resources.LocalizationManager.GetString("TodayRecords");
+                else if (filter == "Recent") TxtStatusInfo.Text = CatchCapture.Resources.LocalizationManager.GetString("RecentWeekRecords");
+                else if (filter == "Recent30Days") TxtStatusInfo.Text = "최근 30일 기록";
+                else if (filter == "Recent3Months") TxtStatusInfo.Text = "최근 3개월 기록";
+                else if (filter == "Recent6Months") TxtStatusInfo.Text = "최근 6개월 기록";
                 else if (filter == "Trash") TxtStatusInfo.Text = CatchCapture.Resources.LocalizationManager.GetString("TrashRecords");
                 else if (filter.StartsWith("Category:"))
                 {
@@ -354,6 +361,12 @@ namespace CatchCapture
                     TxtStatusInfo.Text = string.Format(CatchCapture.Resources.LocalizationManager.GetString("GroupLabel"), cat?.Name ?? CatchCapture.Resources.LocalizationManager.GetString("Unknown"));
                 }
                 else TxtStatusInfo.Text = CatchCapture.Resources.LocalizationManager.GetString("AllRecords");
+                
+                // Show/Hide Empty Trash Button
+                if (BtnEmptyTrash != null)
+                {
+                    BtnEmptyTrash.Visibility = (filter == "Trash") ? Visibility.Visible : Visibility.Collapsed;
+                }
 
                 var notes = new List<NoteViewModel>();
                 string imgDir = DatabaseManager.Instance.GetImageFolderPath();
@@ -371,6 +384,9 @@ namespace CatchCapture
                         wheres.Add("n.Status = 0");
                         if (filter == "Today") wheres.Add("date(n.CreatedAt, 'localtime') = date('now', 'localtime')");
                         else if (filter == "Recent") wheres.Add("n.CreatedAt >= date('now', 'localtime', '-7 days')");
+                        else if (filter == "Recent30Days") wheres.Add("n.CreatedAt >= date('now', 'localtime', '-30 days')");
+                        else if (filter == "Recent3Months") wheres.Add("n.CreatedAt >= date('now', 'localtime', '-3 months')");
+                        else if (filter == "Recent6Months") wheres.Add("n.CreatedAt >= date('now', 'localtime', '-6 months')");
                         else if (filter.StartsWith("Category:"))
                         {
                             wheres.Add("n.CategoryId = " + filter.Split(':')[1]);
@@ -973,28 +989,48 @@ namespace CatchCapture
 
         private void BtnDeleteSelected_Click(object sender, RoutedEventArgs e)
         {
+            // 1. Check for checked items (CheckBox)
+            var checkedNotes = new List<NoteViewModel>();
             if (LstNotes.ItemsSource is IEnumerable<NoteViewModel> notes)
             {
-                var selectedNotes = notes.Where(n => n.IsSelected).ToList();
-                if (selectedNotes.Count == 0)
-                {
-                    CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("PleaseSelectNotesToDelete"), CatchCapture.Resources.LocalizationManager.GetString("Notice"));
-                    return;
-                }
+                checkedNotes = notes.Where(n => n.IsSelected).ToList();
+            }
 
-                if (CatchCapture.CustomMessageBox.Show(string.Format(CatchCapture.Resources.LocalizationManager.GetString("ConfirmDeleteSelectedNotes"), selectedNotes.Count), CatchCapture.Resources.LocalizationManager.GetString("ConfirmDelete"), MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            // 2. Check for highlighted items (ListBox selection)
+            var highlightedNotes = new List<NoteViewModel>();
+            if (LstNotes.SelectedItems.Count > 0)
+            {
+                foreach (var item in LstNotes.SelectedItems)
                 {
-                    // Release potential file locks by clearing preview
-                    PreviewGrid.Visibility = Visibility.Collapsed;
-                    PreviewViewer.Document = null;
-
-                    foreach (var note in selectedNotes)
+                    if (item is NoteViewModel note && !checkedNotes.Any(n => n.Id == note.Id))
                     {
-                        DeleteNote(note.Id);
+                        highlightedNotes.Add(note);
                     }
-                    LoadNotes(); // Refresh
-                    LoadTags();  // Refresh tags after cleanup
                 }
+            }
+
+            // Combine both
+            var notesToDelete = new List<NoteViewModel>(checkedNotes);
+            notesToDelete.AddRange(highlightedNotes);
+
+            if (notesToDelete.Count == 0)
+            {
+                CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("PleaseSelectNotesToDelete"), CatchCapture.Resources.LocalizationManager.GetString("Notice"));
+                return;
+            }
+
+            if (CatchCapture.CustomMessageBox.Show(string.Format(CatchCapture.Resources.LocalizationManager.GetString("ConfirmDeleteSelectedNotes"), notesToDelete.Count), CatchCapture.Resources.LocalizationManager.GetString("ConfirmDelete"), MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            {
+                // Release potential file locks by clearing preview
+                PreviewGrid.Visibility = Visibility.Collapsed;
+                PreviewViewer.Document = null;
+
+                foreach (var note in notesToDelete)
+                {
+                    DeleteNote(note.Id);
+                }
+                LoadNotes(); // Refresh
+                LoadTags();  // Refresh tags after cleanup
             }
         }
 
@@ -1005,8 +1041,98 @@ namespace CatchCapture
                 TxtSearch.Text = "";
                 LoadNotes(filter: filter, page: 1);
                 HighlightSidebarButton(btn);
+                
+                // Toggle Recent Sub-filters
+                if (filter == "Recent")
+                {
+                     if (PanelRecentSubFilters.Visibility == Visibility.Visible)
+                     {
+                         PanelRecentSubFilters.Visibility = Visibility.Collapsed;
+                     }
+                     else
+                     {
+                         PanelRecentSubFilters.Visibility = Visibility.Visible;
+                     }
+                }
+                else if (!filter.StartsWith("Recent")) // Hide if other main filters clicked
+                {
+                    PanelRecentSubFilters.Visibility = Visibility.Collapsed;
+                }
             }
         }
+
+        private void LstNotes_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Delete)
+            {
+                BtnDeleteSelected_Click(sender, e);
+            }
+        }
+        
+        private void BtnEmptyTrash_Click(object sender, RoutedEventArgs e)
+        {
+            if (CatchCapture.CustomMessageBox.Show("휴지통을 비우면 복구할 수 없습니다.\n정말 모든 항목을 영구 삭제하시겠습니까?", 
+                CatchCapture.Resources.LocalizationManager.GetString("ConfirmDelete"), 
+                MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    // Release potential file locks
+                    PreviewGrid.Visibility = Visibility.Collapsed;
+                    PreviewViewer.Document = null;
+
+                    using (var connection = new SqliteConnection($"Data Source={DatabaseManager.Instance.DbFilePath}"))
+                    {
+                        connection.Open();
+                        
+                        // 1. Get images to delete
+                        var imagesToDelete = new List<string>();
+                        string imgSql = "SELECT FilePath FROM NoteImages WHERE NoteId IN (SELECT Id FROM Notes WHERE Status = 1)";
+                        using (var cmd = new SqliteCommand(imgSql, connection))
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read()) imagesToDelete.Add(reader.GetString(0));
+                        }
+                        
+                        // 2. Get attachments to delete
+                        var attachToDelete = new List<string>();
+                        string attachSql = "SELECT FilePath FROM NoteAttachments WHERE NoteId IN (SELECT Id FROM Notes WHERE Status = 1)";
+                        using (var cmd = new SqliteCommand(attachSql, connection))
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read()) attachToDelete.Add(reader.GetString(0));
+                        }
+
+                        // 3. Delete from DB
+                        using (var cmd = new SqliteCommand("DELETE FROM Notes WHERE Status = 1", connection))
+                        {
+                            cmd.ExecuteNonQuery();
+                        }
+                        
+                        // 4. Delete physical files (Optional: implement if needed, usually good practice)
+                         string imgDir = DatabaseManager.Instance.GetImageFolderPath();
+                        foreach (var file in imagesToDelete)
+                        {
+                            try { File.Delete(Path.Combine(imgDir, file)); } catch { }
+                        }
+                         string attachDir = DatabaseManager.Instance.GetAttachmentsFolderPath();
+                        foreach (var file in attachToDelete)
+                        {
+                            try { File.Delete(Path.Combine(attachDir, file)); } catch { }
+                        }
+                    }
+                    
+                    LoadNotes("Trash"); // Refresh current view
+                    UpdateSidebarCounts(); // Refresh counts
+                    CatchCapture.CustomMessageBox.Show("휴지통을 비웠습니다.", CatchCapture.Resources.LocalizationManager.GetString("Notice"));
+                }
+                catch (Exception ex)
+                {
+                    CatchCapture.CustomMessageBox.Show("휴지통 비우기 실패: " + ex.Message, CatchCapture.Resources.LocalizationManager.GetString("Error"));
+                }
+            }
+        }
+
 
         private void HighlightSidebarButton(Button activeBtn)
         {
