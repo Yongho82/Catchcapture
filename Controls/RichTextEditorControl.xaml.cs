@@ -632,11 +632,34 @@ namespace CatchCapture.Controls
 
         private void CreateResizableImage(System.Windows.Controls.Image image)
         {
-            // Set initial width to 360px (User request)
-            image.Width = 360;
+            // Set initial width (Use actual size if smaller than 360, otherwise default to 360)
+            double initialWidth = 360;
+            try
+            {
+                if (image.Source is BitmapSource bs)
+                {
+                    // Use PixelWidth (actual pixels)
+                    double w = bs.PixelWidth;
+                    if (w > 0 && w < 360)
+                    {
+                        initialWidth = w;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error getting image width: {ex.Message}");
+            }
+
+            if (initialWidth < 50) initialWidth = 50;
+            
+            // Round to integer to avoid XAML serialization issues with long decimals
+            initialWidth = Math.Round(initialWidth);
+
+            image.Width = initialWidth;
             image.Stretch = Stretch.Uniform;
 
-            var mainGrid = new Grid { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 5, 0, 5) };
+            var mainGrid = new Grid { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 5, 0, 5), VerticalAlignment = VerticalAlignment.Top };
 
             // Image
             image.Margin = new Thickness(0);
@@ -674,8 +697,7 @@ namespace CatchCapture.Controls
             // Handle bubbled event to prevent RichTextBox from interfering with slider drag
             sliderBorder.MouseLeftButtonDown += (s, e) => e.Handled = true;
             
-            mainGrid.Children.Add(sliderBorder);
-            _sliderPanels.Add(sliderBorder);
+            mainGrid.Children.Add(sliderBorder); // [Fix] Add sliderBorder to Grid
 
             var sliderLabel = new TextBlock
             {
@@ -690,15 +712,19 @@ namespace CatchCapture.Controls
             {
                 Minimum = 100,
                 Maximum = 1024,
-                Value = 360,
+                Value = initialWidth, // Use calculated initial width
                 Width = 140,
                 Height = 24,
-                VerticalAlignment = VerticalAlignment.Center
+                VerticalAlignment = VerticalAlignment.Center,
+                IsSnapToTickEnabled = true,
+                TickFrequency = 1,
+                SmallChange = 1,
+                LargeChange = 10
             };
 
             var sizeText = new TextBlock
             {
-                Text = "360px",
+                Text = $"{(int)initialWidth}px",
                 FontSize = 11,
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(8, 0, 0, 0),
@@ -706,9 +732,25 @@ namespace CatchCapture.Controls
                 MinWidth = 40
             };
 
+            var separator = new Border 
+            { 
+                Width = 1, Height = 12, Background = new SolidColorBrush(Color.FromArgb(80, 255, 255, 255)), 
+                Margin = new Thickness(10, 0, 10, 0), VerticalAlignment = VerticalAlignment.Center
+            };
+
+            var btnEdit = new Button
+            {
+                Content = "수정", FontSize = 11,
+                Background = Brushes.Transparent, Foreground = Brushes.White,
+                BorderThickness = new Thickness(0), Cursor = Cursors.Hand,
+                VerticalAlignment = VerticalAlignment.Center, Padding = new Thickness(4, 0, 4, 0)
+            };
+
             sliderPanel.Children.Add(sliderLabel);
             sliderPanel.Children.Add(slider);
             sliderPanel.Children.Add(sizeText);
+            sliderPanel.Children.Add(separator);
+            sliderPanel.Children.Add(btnEdit);
             
             var container = new BlockUIContainer(mainGrid);
             HookImageEvents(image, sliderBorder, container);
@@ -859,7 +901,18 @@ namespace CatchCapture.Controls
             try
             {
                 // Save the whole document for full fidelity (FlowDocument root)
-                return System.Windows.Markup.XamlWriter.Save(RtbEditor.Document);
+                string xaml = System.Windows.Markup.XamlWriter.Save(RtbEditor.Document);
+                
+                // Log XAML content (truncated for readability)
+                string logPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "image_debug.txt");
+                System.IO.File.AppendAllText(logPath, $"[{DateTime.Now}] GetXaml: XAML length = {xaml.Length}\\n");
+                System.IO.File.AppendAllText(logPath, $"[{DateTime.Now}] GetXaml: Contains 'img_' = {xaml.Contains("img_")}\\n");
+                System.IO.File.AppendAllText(logPath, $"[{DateTime.Now}] GetXaml: Contains 'Image' = {xaml.Contains("<Image")}\\n");
+                
+                // Save full XAML to separate file for inspection
+                System.IO.File.WriteAllText(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "saved_xaml.txt"), xaml);
+                
+                return xaml;
             }
             catch (Exception ex)
             {
@@ -906,6 +959,10 @@ namespace CatchCapture.Controls
 
         private void HookImageEvents(System.Windows.Controls.Image image, Border sliderBorder, BlockUIContainer container)
         {
+            // Use Tag to prevent duplicate hooking
+            if (sliderBorder.Tag?.ToString() == "Hooked") return;
+            sliderBorder.Tag = "Hooked";
+
             if (!_sliderPanels.Contains(sliderBorder))
                 _sliderPanels.Add(sliderBorder);
             
@@ -915,15 +972,29 @@ namespace CatchCapture.Controls
             if (sliderBorder.Child is StackPanel sp)
             {
                 slider = sp.Children.OfType<Slider>().FirstOrDefault();
-                sizeText = sp.Children.OfType<TextBlock>().LastOrDefault();
+                sizeText = sp.Children.OfType<TextBlock>().FirstOrDefault(t => t.Text.EndsWith("px"));
+
+                // Hook Edit Button (find by Content since Name causes XAML collision)
+                var btnEdit = sp.Children.OfType<Button>().FirstOrDefault(b => b.Content?.ToString() == "수정");
+                if (btnEdit != null)
+                {
+                    btnEdit.Click += (s, e) => EditImage(image);
+                }
             }
 
             if (slider != null && sizeText != null)
             {
                 slider.ValueChanged += (s, e) =>
                 {
-                    image.Width = slider.Value;
-                    sizeText.Text = $"{(int)slider.Value}px";
+                    // Round to integer to avoid XAML serialization issues
+                    double v = Math.Round(slider.Value);
+                    image.Width = v;
+                    sizeText.Text = $"{(int)v}px";
+                    // Force slider value to be exact integer (avoid floating point in XAML)
+                    if (Math.Abs(slider.Value - v) > 0.001)
+                    {
+                        slider.Value = v;
+                    }
                 };
             }
 
@@ -933,18 +1004,7 @@ namespace CatchCapture.Controls
             {
                 if (e.ClickCount == 2)
                 {
-                    // Double click: Edit image
-                    var bitmap = image.Source as BitmapSource;
-                    if (bitmap != null)
-                    {
-                        var previewWin = new PreviewWindow(bitmap, 0);
-                        previewWin.Owner = Window.GetWindow(this);
-                        previewWin.ImageUpdated += (sw, args) =>
-                        {
-                            image.Source = args.NewImage;
-                        };
-                        previewWin.ShowDialog();
-                    }
+                    EditImage(image);
                     e.Handled = true;
                     return;
                 }
@@ -968,6 +1028,28 @@ namespace CatchCapture.Controls
                 
                 e.Handled = true;
             };
+        }
+
+        private void EditImage(System.Windows.Controls.Image image)
+        {
+            var bitmap = image.Source as BitmapSource;
+            if (bitmap != null)
+            {
+                try
+                {
+                    var previewWin = new PreviewWindow(bitmap, 0);
+                    previewWin.Owner = Window.GetWindow(this);
+                    previewWin.ImageUpdated += (sw, args) =>
+                    {
+                        image.Source = args.NewImage;
+                    };
+                    previewWin.ShowDialog();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error opening preview window: {ex.Message}");
+                }
+            }
         }
 
         public void InsertImage(ImageSource imageSource)
@@ -1204,7 +1286,18 @@ namespace CatchCapture.Controls
             {
                 if (block is BlockUIContainer container)
                 {
-                    FindImagesRecursive(container.Child, imageControls);
+                    // Explicitly handle Grid which is our standard container
+                    if (container.Child is Grid grid)
+                    {
+                        foreach (var child in grid.Children)
+                        {
+                            if (child is System.Windows.Controls.Image img) imageControls.Add(img);
+                        }
+                    }
+                    else
+                    {
+                        FindImagesRecursive(container.Child, imageControls);
+                    }
                 }
             }
 
@@ -1216,6 +1309,7 @@ namespace CatchCapture.Controls
                 }
             }
             
+            System.IO.File.AppendAllText(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "image_debug.txt"), $"[{DateTime.Now}] GetAllImages: Found {imageControls.Count} Image controls, {images.Count} BitmapSources\n");
             return images;
         }
 
@@ -1352,14 +1446,28 @@ namespace CatchCapture.Controls
             {
                 if (block is BlockUIContainer container)
                 {
-                    FindImagesRecursive(container.Child, allImages);
+                    // Explicitly handle Grid which is our standard container
+                    if (container.Child is Grid grid)
+                    {
+                        foreach (var child in grid.Children)
+                        {
+                            if (child is System.Windows.Controls.Image img) allImages.Add(img);
+                        }
+                    }
+                    else
+                    {
+                        FindImagesRecursive(container.Child, allImages);
+                    }
                 }
             }
+
+            System.IO.File.AppendAllText(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "image_debug.txt"), $"[{DateTime.Now}] UpdateImageSources: Found {allImages.Count} images to update, {relativePaths.Count} paths provided\n");
 
             string imgDir = DatabaseManager.Instance.GetImageFolderPath();
             for (int i = 0; i < allImages.Count && i < relativePaths.Count; i++)
             {
                 string fullPath = System.IO.Path.Combine(imgDir, relativePaths[i]);
+                System.IO.File.AppendAllText(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "image_debug.txt"), $"[{DateTime.Now}] UpdateImageSources: Updating image {i}: {fullPath}, Exists: {File.Exists(fullPath)}\n");
                 if (File.Exists(fullPath))
                 {
                     try
