@@ -155,8 +155,8 @@
                     </Button>
                 </StackPanel>
 
-                <!-- Separator Line -->
-                <Border Grid.ColumnSpan="6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ThemeBorder}" VerticalAlignment="Bottom" Opacity="0.5"/>
+                <!-- Board-style separator line -->
+                <Border Grid.ColumnSpan="6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ThemeBorder}" VerticalAlignment="Bottom"/>
             </Grid>
         </DataTemplate>
 
@@ -242,7 +242,7 @@
                         <!-- Title -->
                         <TextBlock Grid.Row="1" Text="{Binding Title}" FontSize="14" FontWeight="SemiBold" 
                                    Foreground="{DynamicResource ThemeForeground}" TextTrimming="CharacterEllipsis" 
-                                   TextWrapping="Wrap" Margin="0,0,0,4" MaxHeight="42"/>
+                                   TextWrapping="Wrap" Margin="0,0,0,2" MaxHeight="42"/>
 
                         <!-- Footer -->
                         <Grid Grid.Row="2">
