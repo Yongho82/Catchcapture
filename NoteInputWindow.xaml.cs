@@ -568,13 +568,13 @@ namespace CatchCapture
                 {
                     if (imgSource is BitmapImage bi && bi.UriSource != null && bi.UriSource.IsFile)
                     {
-                        // Existing file check (already in our storage)
+                        // Existing file check (already in our storage - subfolders included)
                         string filePath = bi.UriSource.LocalPath;
-                        if (Path.GetDirectoryName(filePath)?.Equals(imgDir, StringComparison.OrdinalIgnoreCase) == true)
+                        if (filePath.StartsWith(imgDir, StringComparison.OrdinalIgnoreCase))
                         {
-                            string fn = Path.GetFileName(filePath);
+                            string relativePath = filePath.Substring(imgDir.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
                             string h = DatabaseManager.Instance.ComputeHash(filePath);
-                            savedImages.Add((fn, h));
+                            savedImages.Add((relativePath, h));
                             continue;
                         }
                     }
@@ -618,7 +618,10 @@ namespace CatchCapture
                         }
 
                         string ext = "." + saveFormat.ToLower();
-                        string fileName = $"img_{DateTime.Now:yyyyMMdd_HHmmss_fff}_{Guid.NewGuid().ToString().Substring(0, 8)}{ext}";
+                        string fileNameOnly = $"img_{DateTime.Now:yyyyMMdd_HHmmss_fff}_{Guid.NewGuid().ToString().Substring(0, 8)}{ext}";
+                        
+                        string yearSub = DatabaseManager.Instance.EnsureYearFolderExists(imgDir);
+                        string fileName = Path.Combine(yearSub, fileNameOnly);
                         string fullPath = Path.Combine(imgDir, fileName);
                         
                         ms.Position = 0;
@@ -734,7 +737,9 @@ namespace CatchCapture
                     if (File.Exists(item.FullPath))
                     {
                         string originalName = item.DisplayName;
-                        string newFileName = $"{Guid.NewGuid()}_{originalName}";
+                        string yearSub = DatabaseManager.Instance.EnsureYearFolderExists(attachDir);
+                        string newFileNameOnly = $"{Guid.NewGuid()}_{originalName}";
+                        string newFileName = Path.Combine(yearSub, newFileNameOnly);
                         string newFullPath = Path.Combine(attachDir, newFileName);
                         
                         File.Copy(item.FullPath, newFullPath);

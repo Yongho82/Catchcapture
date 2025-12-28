@@ -205,6 +205,19 @@ namespace CatchCapture.Utilities
             return Path.Combine(rootDir, "attachments");
         }
 
+        public string GetYearSubFolder()
+        {
+            return DateTime.Now.Year.ToString();
+        }
+
+        public string EnsureYearFolderExists(string rootPath)
+        {
+            string yearFolder = GetYearSubFolder();
+            string fullPath = Path.Combine(rootPath, yearFolder);
+            if (!Directory.Exists(fullPath)) Directory.CreateDirectory(fullPath);
+            return yearFolder;
+        }
+
         public void Vacuum()
         {
             try

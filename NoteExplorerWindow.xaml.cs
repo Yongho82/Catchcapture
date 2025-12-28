@@ -971,11 +971,15 @@ namespace CatchCapture
                         {
                             try
                             {
-                                string fileName = Path.GetFileName(filePath);
-                                bool isImage = filePath.Contains("\\img\\");
+                                bool isImage = filePath.Contains(Path.DirectorySeparatorChar + "img" + Path.DirectorySeparatorChar);
+                                string rootDir = isImage ? imgDir : attachDir;
+                                
+                                // Get relative path from rootDir for DB lookup
+                                string relativePath = filePath.Substring(rootDir.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                                
                                 bool isReferenced = isImage 
-                                    ? DatabaseManager.Instance.IsImageReferenced(fileName, noteId)
-                                    : DatabaseManager.Instance.IsAttachmentReferenced(fileName, noteId);
+                                    ? DatabaseManager.Instance.IsImageReferenced(relativePath, noteId)
+                                    : DatabaseManager.Instance.IsAttachmentReferenced(relativePath, noteId);
 
                                 if (!isReferenced && File.Exists(filePath))
                                 {
@@ -1155,16 +1159,30 @@ namespace CatchCapture
                             cmd.ExecuteNonQuery();
                         }
                         
-                        // 4. Delete physical files (Optional: implement if needed, usually good practice)
+                        // 4. Delete physical files (Only if NOT referenced by other active notes)
                          string imgDir = DatabaseManager.Instance.GetImageFolderPath();
                         foreach (var file in imagesToDelete)
                         {
-                            try { File.Delete(Path.Combine(imgDir, file)); } catch { }
+                            try 
+                            { 
+                                if (!DatabaseManager.Instance.IsImageReferenced(file))
+                                {
+                                    string fullPath = Path.Combine(imgDir, file);
+                                    if(File.Exists(fullPath)) File.Delete(fullPath); 
+                                }
+                            } catch { }
                         }
                          string attachDir = DatabaseManager.Instance.GetAttachmentsFolderPath();
                         foreach (var file in attachToDelete)
                         {
-                            try { File.Delete(Path.Combine(attachDir, file)); } catch { }
+                            try 
+                            { 
+                                if (!DatabaseManager.Instance.IsAttachmentReferenced(file))
+                                {
+                                    string fullPath = Path.Combine(attachDir, file);
+                                    if(File.Exists(fullPath)) File.Delete(fullPath); 
+                                }
+                            } catch { }
                         }
                     }
                     
