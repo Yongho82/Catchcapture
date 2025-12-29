@@ -136,6 +136,64 @@ namespace CatchCapture.Models
         // Hotkeys
         public HotkeySettings Hotkeys { get; set; } = HotkeySettings.CreateDefaults();
 
+        /// <summary>
+        /// Ensures all required settings, menu items, and hotkeys exist. 
+        /// Adds missing items that might be absent in older settings.json files.
+        /// </summary>
+        public void SyncDefaults()
+        {
+            // 1. Sync Main Menu Items
+            var defaultMainMenu = new List<string>
+            {
+                "AreaCapture", "DelayCapture", "RealTimeCapture", "MultiCapture",
+                "FullScreen", "DesignatedCapture", "WindowCapture", "ElementCapture", "ScrollCapture", "OcrCapture", "ScreenRecord"
+            };
+            if (MainMenuItems == null) MainMenuItems = defaultMainMenu;
+            else
+            {
+                foreach (var item in defaultMainMenu)
+                {
+                    if (!MainMenuItems.Contains(item)) MainMenuItems.Add(item);
+                }
+            }
+
+            // 2. Sync Tray Mode Icons
+            var defaultTrayIcons = new List<string>
+            {
+                "AreaCapture", "DelayCapture", "FullScreen", 
+                "DesignatedCapture", "WindowCapture", "UnitCapture"
+            };
+            if (TrayModeIcons == null) TrayModeIcons = defaultTrayIcons;
+            else
+            {
+                foreach (var icon in defaultTrayIcons)
+                {
+                    if (!TrayModeIcons.Contains(icon)) TrayModeIcons.Add(icon);
+                }
+            }
+
+            // 3. Sync Simple Mode Icons
+            var defaultSimpleIcons = new List<string>
+            {
+                "AreaCapture", "DelayCapture", "FullScreen", "DesignatedCapture"
+            };
+            if (SimpleModeIcons == null) SimpleModeIcons = defaultSimpleIcons;
+            else
+            {
+                foreach (var icon in defaultSimpleIcons)
+                {
+                    if (!SimpleModeIcons.Contains(icon)) SimpleModeIcons.Add(icon);
+                }
+            }
+
+            // 4. Sync Hotkeys
+            if (Hotkeys == null) Hotkeys = HotkeySettings.CreateDefaults();
+            else Hotkeys.SyncDefaults();
+
+            // 5. Ensure internal objects are not null
+            if (Recording == null) Recording = new RecordingSettings();
+        }
+
         private static string GetSettingsPath()
         {
             string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -189,6 +247,8 @@ namespace CatchCapture.Models
                 var settings = JsonSerializer.Deserialize<Settings>(json);
                 if (settings != null)
                 {
+                // Sync missing defaults for existing users (updates)
+                settings.SyncDefaults();
                 _currentLoadingSettings = settings;
                 try
                 {
@@ -343,6 +403,43 @@ namespace CatchCapture.Models
                 SimpleCapture = new ToggleHotkey { Enabled = false },
                 SizeCapture = new ToggleHotkey { Enabled = false }
             };
+        }
+
+        /// <summary>
+        /// Checks each hotkey and populates missing ones with defaults.
+        /// </summary>
+        public void SyncDefaults()
+        {
+            var defaults = CreateDefaults();
+            
+            // Ensure each hotkey property is not null and has a valid key if it's a new feature
+            if (RegionCapture == null) RegionCapture = defaults.RegionCapture;
+            if (DelayCapture == null) DelayCapture = defaults.DelayCapture;
+            if (RealTimeCapture == null) RealTimeCapture = defaults.RealTimeCapture;
+            if (MultiCapture == null) MultiCapture = defaults.MultiCapture;
+            if (FullScreen == null) FullScreen = defaults.FullScreen;
+            if (DesignatedCapture == null) DesignatedCapture = defaults.DesignatedCapture;
+            if (WindowCapture == null) WindowCapture = defaults.WindowCapture;
+            if (ElementCapture == null) ElementCapture = defaults.ElementCapture;
+            if (ScrollCapture == null) ScrollCapture = defaults.ScrollCapture;
+            if (OcrCapture == null) OcrCapture = defaults.OcrCapture;
+            
+            // Critical check for new/recently added features
+            if (ScreenRecord == null || (string.IsNullOrEmpty(ScreenRecord.Key) && ScreenRecord.Enabled == false)) 
+                ScreenRecord = defaults.ScreenRecord;
+            
+            if (SaveAll == null) SaveAll = defaults.SaveAll;
+            if (DeleteAll == null) DeleteAll = defaults.DeleteAll;
+            if (SimpleMode == null) SimpleMode = defaults.SimpleMode;
+            if (TrayMode == null) TrayMode = defaults.TrayMode;
+            if (OpenSettings == null) OpenSettings = defaults.OpenSettings;
+            if (OpenEditor == null) OpenEditor = defaults.OpenEditor;
+            
+            if (OpenNote == null || (string.IsNullOrEmpty(OpenNote.Key) && OpenNote.Enabled == false)) 
+                OpenNote = defaults.OpenNote;
+            
+            if (RecordingStartStop == null || (string.IsNullOrEmpty(RecordingStartStop.Key) && RecordingStartStop.Enabled == false)) 
+                RecordingStartStop = defaults.RecordingStartStop;
         }
     }
 
