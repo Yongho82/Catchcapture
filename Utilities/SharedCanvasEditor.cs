@@ -278,13 +278,13 @@ namespace CatchCapture.Utilities
             Canvas.SetTop(badge, 0);
             
             var note = new TextBox {
-                Width = 120, MinHeight = bSize,
+                MinHeight = bSize, MinWidth = 50,
                 Background = new SolidColorBrush(Color.FromArgb(100, 0, 0, 0)),
                 BorderBrush = Brushes.White, BorderThickness = new Thickness(1),
                 Foreground = Brushes.White, 
                 FontSize = NumberingTextSize,
                 Text = "", VerticalContentAlignment = VerticalAlignment.Center,
-                Padding = new Thickness(3), TextWrapping = TextWrapping.Wrap,
+                Padding = new Thickness(3), TextWrapping = TextWrapping.NoWrap,
                 AcceptsReturn = true
             };
             ApplyTextStyleToTextBox(note);
@@ -310,8 +310,16 @@ namespace CatchCapture.Utilities
             btnPanel.Children.Add(confirmBtn);
             btnPanel.Children.Add(deleteBtn);
             group.Children.Add(btnPanel);
-            Canvas.SetLeft(btnPanel, bSize + 130);
-            Canvas.SetTop(btnPanel, 2);
+
+            // 버튼 위치 동기화 로직
+            void UpdateBtnPos() {
+                double bWidth = badge.ActualWidth > 0 ? badge.ActualWidth : bSize;
+                double nWidth = note.ActualWidth > 0 ? note.ActualWidth : 0;
+                Canvas.SetLeft(btnPanel, bWidth + nWidth + 10);
+                Canvas.SetTop(btnPanel, 2);
+            }
+            note.SizeChanged += (s, e) => UpdateBtnPos();
+            badge.SizeChanged += (s, e) => UpdateBtnPos();
 
             _canvas.Children.Add(group);
             Canvas.SetLeft(group, p.X - bSize / 2);
@@ -319,6 +327,7 @@ namespace CatchCapture.Utilities
             
             _drawnElements.Add(group);
             _undoStack?.Push(group);
+            SelectedObject = group; // [추가] 생성 즉시 선택 상태로 설정
             NextNumber++;
 
             // 상호작용 로직
@@ -443,6 +452,7 @@ namespace CatchCapture.Utilities
 
             _drawnElements.Add(group);
             _undoStack?.Push(group);
+            SelectedObject = group; // [추가] 생성 즉시 선택 상태로 설정
 
             confirmBtn.Click += (s, e) => {
                 textBox.IsReadOnly = true;
@@ -548,9 +558,16 @@ namespace CatchCapture.Utilities
                 // If Numbering, also maybe resize badge
                 if (group.Children.Count >= 1 && group.Children[0] is Border badge)
                 {
-                    badge.Width = badge.Height = NumberingBadgeSize;
-                    badge.CornerRadius = new CornerRadius(NumberingBadgeSize / 2);
-                    if (badge.Child is TextBlock btb) { btb.FontSize = NumberingBadgeSize * 0.5; }
+                    double bSize = NumberingBadgeSize;
+                    badge.Width = badge.Height = bSize;
+                    badge.CornerRadius = new CornerRadius(bSize / 2);
+                    if (badge.Child is TextBlock btb) { btb.FontSize = bSize * 0.5; }
+                    
+                    // 배지 크기 변경에 맞춰 노트 위치도 조정
+                    if (tb != null) 
+                    {
+                        Canvas.SetLeft(tb, bSize + 5);
+                    }
                 }
             }
 
@@ -558,8 +575,10 @@ namespace CatchCapture.Utilities
             {
                 ApplyTextStyleToTextBox(tb);
                 tb.FontSize = (CurrentTool == "넘버링") ? NumberingTextSize : TextFontSize;
-                // If text color should also be updated:
                 tb.Foreground = new SolidColorBrush(SelectedColor);
+                
+                // [추가] 포커스 복원하여 즉시 편집 가능하게 함
+                if (!tb.IsReadOnly) tb.Focus();
             }
         }
 
