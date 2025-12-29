@@ -751,15 +751,17 @@ namespace CatchCapture
                                     if (container.Child is Border border && border.Child is Grid g1) grid = g1;
                                     else if (container.Child is Grid g2) grid = g2;
 
+                                    bool handled = false;
+
                                     if (grid != null)
                                     {
                                         string? filePath = grid.Tag?.ToString();
 
                                         // Tag가 없거나 유튜브 주소가 아니면 FilePathHolder에서 찾기
-                                        var pathHolder = grid.Children.OfType<TextBlock>().FirstOrDefault(t => t.Name == "FilePathHolder" || t.Text.StartsWith("http") || t.Text.Contains("\\") || t.Text.Contains("/"));
+                                        var pathHolder = grid.Children.OfType<TextBlock>().FirstOrDefault(t => t.Tag?.ToString() == "FilePathHolder" || t.Name == "FilePathHolder" || t.Text.StartsWith("http") || t.Text.Contains("\\") || t.Text.Contains("/"));
                                         if (pathHolder != null) filePath = pathHolder.Text;
 
-                                        // 유튜브 링크 체크 (URL인 경우)
+                                        // 1. 유튜브/웹 링크 처리 - 브라우저로 열기
                                         if (!string.IsNullOrEmpty(filePath) && (filePath.StartsWith("http://") || filePath.StartsWith("https://")))
                                         {
                                             grid.Cursor = Cursors.Hand;
@@ -768,7 +770,9 @@ namespace CatchCapture
                                                 try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(filePath) { UseShellExecute = true }); } catch { }
                                                 ev.Handled = true;
                                             };
+                                            handled = true;
                                         }
+                                        // 2. 로컬 미디어 파일 처리 - 더블클릭으로 기본 프로그램 열기
                                         else if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
                                         {
                                             grid.Cursor = Cursors.Hand;
@@ -780,46 +784,35 @@ namespace CatchCapture
                                                     ev.Handled = true;
                                                 }
                                             };
+                                            handled = true;
                                         }
                                     }
-                                // Handle Legacy Image Layout or Simple Grid Layout
-                                else if (container.Child is Grid g)
-                                {
-                                    var img = g.Children.OfType<Image>().FirstOrDefault();
-                                    if (img != null)
-                                    {
-                                        img.MaxWidth = 340; // Preview width limit
-                                        img.Cursor = Cursors.Hand;
-                                        img.PreviewMouseLeftButtonDown += (s, ev) =>
-                                        {
-                                            string? path = null;
-                                            if (img.Tag != null) path = img.Tag.ToString();
-                                            else if (img.Source is BitmapImage bi && bi.UriSource != null) path = bi.UriSource.LocalPath;
 
-                                            if (!string.IsNullOrEmpty(path) && File.Exists(path))
+                                    // 3. 일반 이미지 처리 - PreviewWindow 팝업
+                                    if (!handled)
+                                    {
+                                        Image? img = null;
+                                        if (container.Child is Image i) img = i;
+                                        else if (grid != null) img = grid.Children.OfType<Image>().FirstOrDefault();
+                                        else if (container.Child is Grid g) img = g.Children.OfType<Image>().FirstOrDefault();
+
+                                        if (img != null && img.Source is BitmapSource bitmap)
+                                        {
+                                            img.MaxWidth = 340;
+                                            img.Cursor = Cursors.Hand;
+                                            img.PreviewMouseLeftButtonDown += (s, ev) =>
                                             {
-                                                try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true }); } catch { }
-                                            }
-                                        };
-                                    }
-                                }
-                                // Handle direct Image in container
-                                else if (container.Child is Image img)
-                                {
-                                    img.MaxWidth = 340;
-                                    img.Cursor = Cursors.Hand;
-                                    img.PreviewMouseLeftButtonDown += (s, ev) =>
-                                    {
-                                        string? path = null;
-                                        if (img.Tag != null) path = img.Tag.ToString();
-                                        else if (img.Source is BitmapImage bi && bi.UriSource != null) path = bi.UriSource.LocalPath;
+                                                string? path = null;
+                                                if (img.Tag != null) path = img.Tag.ToString();
+                                                else if (img.Source is BitmapImage bi && bi.UriSource != null) path = bi.UriSource.LocalPath;
 
-                                        if (!string.IsNullOrEmpty(path) && File.Exists(path))
-                                        {
-                                            try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true }); } catch { }
+                                                if (!string.IsNullOrEmpty(path) && File.Exists(path))
+                                                {
+                                                    try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true }); } catch { }
+                                                }
+                                            };
                                         }
-                                    };
-                                }
+                                    }
                             }
                         }
 

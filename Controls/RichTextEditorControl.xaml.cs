@@ -1008,7 +1008,7 @@ namespace CatchCapture.Controls
                         }
                         
                         // 2. 동영상/유튜브 개체 (FilePathHolder가 있는 경우)
-                        var pathHolder = mainGrid.Children.OfType<TextBlock>().FirstOrDefault(t => t.Name == "FilePathHolder" || t.Text.StartsWith("http") || t.Text.Contains("\\") || t.Text.Contains("/"));
+                        var pathHolder = mainGrid.Children.OfType<TextBlock>().FirstOrDefault(t => t.Tag?.ToString() == "FilePathHolder" || t.Name == "FilePathHolder" || t.Text.StartsWith("http") || t.Text.Contains("\\") || t.Text.Contains("/"));
                         if (pathHolder != null)
                         {
                             string videoUrl = pathHolder.Text;
@@ -1198,7 +1198,7 @@ namespace CatchCapture.Controls
                 {
                     Text = filePath,
                     Visibility = Visibility.Collapsed,
-                    Name = "FilePathHolder"
+                    Tag = "FilePathHolder"
                 };
                 grid.Children.Add(pathHolder);
 
@@ -1369,9 +1369,14 @@ namespace CatchCapture.Controls
                     // Explicitly handle Grid which is our standard container
                     if (container.Child is Grid grid)
                     {
-                        foreach (var child in grid.Children)
+                        // Skip video/media thumbnails
+                        bool isMediaGrid = grid.Children.OfType<TextBlock>().Any(t => t.Tag?.ToString() == "FilePathHolder" || t.Name == "FilePathHolder");
+                        if (!isMediaGrid)
                         {
-                            if (child is System.Windows.Controls.Image img) imageControls.Add(img);
+                            foreach (var child in grid.Children)
+                            {
+                                if (child is System.Windows.Controls.Image img) imageControls.Add(img);
+                            }
                         }
                     }
                     else
@@ -1596,15 +1601,20 @@ namespace CatchCapture.Controls
                 bitmap.CacheOption = BitmapCacheOption.OnLoad;
                 bitmap.EndInit();
 
-                // 썸네일 다운로드 실패 시 대비 (hqdefault 시도)
+                // Create the UI block first and get the image control reference
+                var videoImage = RenderVideoThumbnail(bitmap, videoUrl, videoId);
+
+                // If high-res thumbnail fails, update the EXISTING image source with fallback
                 bitmap.DownloadFailed += (s, e) => {
                    try {
-                       var fallback = new BitmapImage(new Uri($"https://img.youtube.com/vi/{videoId}/hqdefault.jpg"));
-                       RenderVideoThumbnail(fallback, videoUrl, videoId);
+                       var fallback = new BitmapImage();
+                       fallback.BeginInit();
+                       fallback.UriSource = new Uri($"https://img.youtube.com/vi/{videoId}/hqdefault.jpg");
+                       fallback.CacheOption = BitmapCacheOption.OnLoad;
+                       fallback.EndInit();
+                       videoImage.Source = fallback;
                    } catch {}
                 };
-
-                RenderVideoThumbnail(bitmap, videoUrl, videoId);
             }
             catch (Exception ex)
             {
@@ -1625,7 +1635,7 @@ namespace CatchCapture.Controls
             return "";
         }
 
-        private void RenderVideoThumbnail(BitmapSource thumbnail, string videoUrl, string title = "YouTube")
+        private System.Windows.Controls.Image RenderVideoThumbnail(BitmapSource thumbnail, string videoUrl, string title = "YouTube")
         {
             var grid = new Grid { 
                 Width = 480, Height = 270, 
@@ -1641,7 +1651,7 @@ namespace CatchCapture.Controls
             {
                 Text = videoUrl,
                 Visibility = Visibility.Collapsed,
-                Name = "FilePathHolder"
+                Tag = "FilePathHolder"
             };
             grid.Children.Add(pathHolder);
             
@@ -1679,6 +1689,8 @@ namespace CatchCapture.Controls
 
             var container = new BlockUIContainer(border);
             InsertBlockAtCaret(container);
+
+            return img;
         }
         public void UpdateImageSources(List<string> relativePaths)
         {
@@ -1690,9 +1702,14 @@ namespace CatchCapture.Controls
                     // Explicitly handle Grid which is our standard container
                     if (container.Child is Grid grid)
                     {
-                        foreach (var child in grid.Children)
+                        // Skip video/media thumbnails
+                        bool isMediaGrid = grid.Children.OfType<TextBlock>().Any(t => t.Tag?.ToString() == "FilePathHolder" || t.Name == "FilePathHolder");
+                        if (!isMediaGrid)
                         {
-                            if (child is System.Windows.Controls.Image img) allImages.Add(img);
+                            foreach (var child in grid.Children)
+                            {
+                                if (child is System.Windows.Controls.Image img) allImages.Add(img);
+                            }
                         }
                     }
                     else
@@ -1717,6 +1734,7 @@ namespace CatchCapture.Controls
                         bitmap.EndInit();
                         bitmap.Freeze();
                         allImages[i].Source = bitmap;
+                        allImages[i].Tag = fullPath; // Set Tag for click event handlers
                     }
                     catch { }
                 }
