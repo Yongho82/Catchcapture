@@ -1284,6 +1284,7 @@ private void InitLanguageComboBox()
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             if (!ValidateNoteSettings()) return;
+            if (!ValidateHotkeys()) return;
             HarvestSettings();
             Settings.Save(_settings);
             
@@ -1371,6 +1372,7 @@ private void InitLanguageComboBox()
         private void Apply_Click(object sender, RoutedEventArgs e)
         {
             if (!ValidateNoteSettings()) return;
+            if (!ValidateHotkeys()) return;
             HarvestSettings();
             Settings.Save(_settings);
 
@@ -1384,6 +1386,62 @@ private void InitLanguageComboBox()
             
             // Feedback for Apply
             // CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("SettingsSaved"), LocalizationManager.GetString("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private bool ValidateHotkeys()
+        {
+            var hotkeys = new System.Collections.Generic.List<(string Name, string Shortcut)>();
+
+            void AddIfEnabled(System.Windows.Controls.CheckBox en, System.Windows.Controls.CheckBox ctrl, System.Windows.Controls.CheckBox shift, System.Windows.Controls.CheckBox alt, System.Windows.Controls.CheckBox win, System.Windows.Controls.ComboBox key, string nameKey)
+            {
+                if (en != null && en.IsChecked == true)
+                {
+                    string k = (key.SelectedItem as string ?? key.Text ?? "").Trim().ToUpperInvariant();
+                    if (string.IsNullOrEmpty(k)) return;
+
+                    string shortcut = (ctrl.IsChecked == true ? "Ctrl+" : "") +
+                                     (shift.IsChecked == true ? "Shift+" : "") +
+                                     (alt.IsChecked == true ? "Alt+" : "") +
+                                     (win.IsChecked == true ? "Win+" : "") +
+                                     k;
+                    hotkeys.Add((LocalizationManager.GetString(nameKey), shortcut));
+                }
+            }
+
+            AddIfEnabled(HkRegionEnabled, HkRegionCtrl, HkRegionShift, HkRegionAlt, HkRegionWin, HkRegionKey, "AreaCapture");
+            AddIfEnabled(HkDelayEnabled, HkDelayCtrl, HkDelayShift, HkDelayAlt, HkDelayWin, HkDelayKey, "DelayCapture");
+            AddIfEnabled(HkRealTimeEnabled, HkRealTimeCtrl, HkRealTimeShift, HkRealTimeAlt, HkRealTimeWin, HkRealTimeKey, "RealTimeCapture");
+            AddIfEnabled(HkMultiEnabled, HkMultiCtrl, HkMultiShift, HkMultiAlt, HkMultiWin, HkMultiKey, "MultiCapture");
+            AddIfEnabled(HkFullEnabled, HkFullCtrl, HkFullShift, HkFullAlt, HkFullWin, HkFullKey, "FullScreen");
+            AddIfEnabled(HkDesignatedEnabled, HkDesignatedCtrl, HkDesignatedShift, HkDesignatedAlt, HkDesignatedWin, HkDesignatedKey, "DesignatedCapture");
+            AddIfEnabled(HkWindowCaptureEnabled, HkWindowCaptureCtrl, HkWindowCaptureShift, HkWindowCaptureAlt, HkWindowCaptureWin, HkWindowCaptureKey, "WindowCapture");
+            AddIfEnabled(HkElementCaptureEnabled, HkElementCaptureCtrl, HkElementCaptureShift, HkElementCaptureAlt, HkElementCaptureWin, HkElementCaptureKey, "ElementCapture");
+            AddIfEnabled(HkScrollCaptureEnabled, HkScrollCaptureCtrl, HkScrollCaptureShift, HkScrollCaptureAlt, HkScrollCaptureWin, HkScrollCaptureKey, "ScrollCapture");
+            AddIfEnabled(HkOcrCaptureEnabled, HkOcrCaptureCtrl, HkOcrCaptureShift, HkOcrCaptureAlt, HkOcrCaptureWin, HkOcrCaptureKey, "OcrCapture");
+            AddIfEnabled(HkScreenRecordEnabled, HkScreenRecordCtrl, HkScreenRecordShift, HkScreenRecordAlt, HkScreenRecordWin, HkScreenRecordKey, "ScreenRecording");
+            AddIfEnabled(HkSimpleModeEnabled, HkSimpleModeCtrl, HkSimpleModeShift, HkSimpleModeAlt, HkSimpleModeWin, HkSimpleModeKey, "SimpleMode");
+            AddIfEnabled(HkTrayModeEnabled, HkTrayModeCtrl, HkTrayModeShift, HkTrayModeAlt, HkTrayModeWin, HkTrayModeKey, "TrayMode");
+            AddIfEnabled(HkSaveAllEnabled, HkSaveAllCtrl, HkSaveAllShift, HkSaveAllAlt, HkSaveAllWin, HkSaveAllKey, "SaveAll");
+            AddIfEnabled(HkDeleteAllEnabled, HkDeleteAllCtrl, HkDeleteAllShift, HkDeleteAllAlt, HkDeleteAllWin, HkDeleteAllKey, "DeleteAll");
+            AddIfEnabled(HkOpenSettingsEnabled, HkOpenSettingsCtrl, HkOpenSettingsShift, HkOpenSettingsAlt, HkOpenSettingsWin, HkOpenSettingsKey, "OpenSettings");
+            AddIfEnabled(HkOpenEditorEnabled, HkOpenEditorCtrl, HkOpenEditorShift, HkOpenEditorAlt, HkOpenEditorWin, HkOpenEditorKey, "OpenEditor");
+            AddIfEnabled(HkOpenNoteEnabled, HkOpenNoteCtrl, HkOpenNoteShift, HkOpenNoteAlt, HkOpenNoteWin, HkOpenNoteKey, "OpenMyNote");
+            AddIfEnabled(HkRecStartStopEnabled, HkRecStartStopCtrl, HkRecStartStopShift, HkRecStartStopAlt, HkRecStartStopWin, HkRecStartStopKey, "RecordingStartStop");
+
+            var duplicates = hotkeys.GroupBy(h => h.Shortcut)
+                                    .Where(g => g.Count() > 1)
+                                    .ToList();
+
+            if (duplicates.Any())
+            {
+                var dup = duplicates[0];
+                string names = string.Join(", ", dup.Select(h => h.Name));
+                string msg = string.Format(LocalizationManager.GetString("HotkeyConflictMsg"), dup.Key, names);
+                CustomMessageBox.Show(msg, LocalizationManager.GetString("HotkeyConflictTitle"), MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            return true;
         }
 
         private void HarvestSettings()

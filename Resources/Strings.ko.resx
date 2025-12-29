@@ -744,4 +744,6 @@
   <data name="AddVideoGuidance" xml:space="preserve"><value>유튜브 주소 또는 소스코드(iframe)를 입력하세요:</value></data>
   <data name="SearchLocalFile" xml:space="preserve"><value>로컬 파일 찾기...</value></data>
   <data name="BtnAdd" xml:space="preserve"><value>추가</value></data>
+  <data name="HotkeyConflictTitle" xml:space="preserve"><value>단축키 중복</value></data>
+  <data name="HotkeyConflictMsg" xml:space="preserve"><value>단축키 '{0}'이(가) 다음 기능에서 이미 사용 중입니다: {1}</value></data>
 </root>

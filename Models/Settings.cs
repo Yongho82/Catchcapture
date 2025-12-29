@@ -330,7 +330,7 @@ namespace CatchCapture.Models
                 ScreenRecord = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "V" },
 
                 // 편집/기타 기능: 활성화
-                SaveAll = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "S" },
+                SaveAll = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "A" },
                 DeleteAll = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "Delete" },
                 SimpleMode = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "Q" },
                 TrayMode = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "T" },
