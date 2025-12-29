@@ -744,4 +744,10 @@ Are you sure you want to permanently delete all items?</value>
   <data name="BtnAdd" xml:space="preserve"><value>Add</value></data>
   <data name="HotkeyConflictTitle" xml:space="preserve"><value>Hotkey Conflict</value></data>
   <data name="HotkeyConflictMsg" xml:space="preserve"><value>The shortcut '{0}' is already used by: {1}</value></data>
+  <data name="ImportConfirmMsg" xml:space="preserve"><value>All existing note data will be overwritten by this backup file. Do you want to continue?</value></data>
+  <data name="ImportSuccessMsg" xml:space="preserve"><value>Recovery completed. It is recommended to restart the program to apply changes.</value></data>
+  <data name="ErrorImport" xml:space="preserve"><value>Error during recovery</value></data>
+  <data name="ErrorBackup" xml:space="preserve"><value>Error during backup</value></data>
+  <data name="ErrorNoFolder" xml:space="preserve"><value>Source folder for backup does not exist.</value></data>
+  <data name="BackupSuccess" xml:space="preserve"><value>Backup completed successfully.</value></data>
 </root>

@@ -8,7 +8,7 @@ echo ==========================================
 :: Set paths
 set PROJECT_DIR=%~dp0
 set ISS_FILE=%PROJECT_DIR%installer\CatchCapture.iss
-set OUTPUT_DIR=%PROJECT_DIR%bin\Release\net8.0-windows10.0.19041.0\win-x64\publish
+set OUTPUT_DIR=%PROJECT_DIR%publish_folder
 
 :: 1. Clean and Build
 echo [1/3] Building project (Release)...

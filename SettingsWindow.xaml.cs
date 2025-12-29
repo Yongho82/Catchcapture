@@ -1279,7 +1279,7 @@ private void InitLanguageComboBox()
                 ofd.Filter = "Zip Files (*.zip)|*.zip";
                 if (ofd.ShowDialog() == true)
                 {
-                    if (CatchCapture.CustomMessageBox.Show("기존의 모든 노트 데이터가 이 백업 파일로 덮어씌워집니다. 계속하시겠습니까?", "확인", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                    if (CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("ImportConfirmMsg"), LocalizationManager.GetString("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                     {
                         string targetDir = TxtNoteFolder.Text;
                         if (!Directory.Exists(targetDir)) Directory.CreateDirectory(targetDir);
@@ -1289,13 +1289,13 @@ private void InitLanguageComboBox()
                         // We should probably just extract and overwrite.
                         System.IO.Compression.ZipFile.ExtractToDirectory(ofd.FileName, targetDir, true);
                         
-                        CatchCapture.CustomMessageBox.Show("복구가 완료되었습니다. 변경 사항을 적용하려면 프로그램을 다시 시작하는 것이 좋습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
+                        CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("ImportSuccessMsg"), LocalizationManager.GetString("Success"), MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                 }
             }
             catch (Exception ex)
             {
-                CatchCapture.CustomMessageBox.Show($"복구 중 오류 발생: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                CatchCapture.CustomMessageBox.Show($"{LocalizationManager.GetString("ErrorImport")}: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

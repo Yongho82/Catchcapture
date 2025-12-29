@@ -75,7 +75,7 @@ Name: "startmenu"; Description: "Créer un raccourci dans le menu Démarrer"; Gr
 
 [Files]
 ; dotnet build/publish output - Use the relative path from the script
-Source: "..\bin\Release\net8.0-windows10.0.19041.0\win-x64\publish\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
+Source: "..\publish_folder\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
 ; Include icons if needed at runtime
 Source: "..\icons\*"; DestDir: "{app}\icons"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
 
