@@ -1011,6 +1011,84 @@ namespace CatchCapture.Utilities
             }
         }
 
+        public static void SaveImageToStream(BitmapSource bitmapSource, Stream outputStream, string format, int quality)
+        {
+            string fmt = format?.ToUpper() ?? "PNG";
+
+            if (fmt == "WEBP")
+            {
+                try
+                {
+                    // 1. BitmapSource를 BGRA8 바이트 배열로 변환
+                    BitmapSource bgra32Source = bitmapSource;
+                    if (bitmapSource.Format != System.Windows.Media.PixelFormats.Bgra32 && 
+                        bitmapSource.Format != System.Windows.Media.PixelFormats.Pbgra32)
+                    {
+                        bgra32Source = new FormatConvertedBitmap(bitmapSource, System.Windows.Media.PixelFormats.Bgra32, null, 0);
+                    }
+
+                    int width = bgra32Source.PixelWidth;
+                    int height = bgra32Source.PixelHeight;
+                    int stride = width * 4;
+                    byte[] pixels = new byte[height * stride];
+                    bgra32Source.CopyPixels(pixels, stride, 0);
+
+                    // 2. ImageSharp Image 생성
+                    using (var image = new SixLabors.ImageSharp.Image<Bgra32>(width, height))
+                    {
+                        image.ProcessPixelRows(accessor =>
+                        {
+                            for (int y = 0; y < height; y++)
+                            {
+                                var row = accessor.GetRowSpan(y);
+                                int rowOffset = y * stride;
+                                for (int x = 0; x < width; x++)
+                                {
+                                    int pixelOffset = rowOffset + x * 4;
+                                    row[x] = new Bgra32(
+                                        pixels[pixelOffset + 2], // R
+                                        pixels[pixelOffset + 1], // G
+                                        pixels[pixelOffset],     // B
+                                        pixels[pixelOffset + 3]  // A
+                                    );
+                                }
+                            }
+                        });
+
+                        // 3. WebP로 저장
+                        var encoder = new WebpEncoder
+                        {
+                            Quality = quality,
+                            FileFormat = quality >= 100 ? WebpFileFormatType.Lossless : WebpFileFormatType.Lossy
+                        };
+
+                        image.SaveAsWebp(outputStream, encoder);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"WebP Stream Saving Failed: {ex.Message} - Falling back to PNG");
+                    var pngEncoder = new PngBitmapEncoder();
+                    pngEncoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+                    pngEncoder.Save(outputStream);
+                }
+            }
+            else
+            {
+                BitmapEncoder encoder;
+                switch (fmt)
+                {
+                    case "JPG": case "JPEG":
+                        var jpgEncoder = new JpegBitmapEncoder(); jpgEncoder.QualityLevel = quality; encoder = jpgEncoder; break;
+                    case "BMP": encoder = new BmpBitmapEncoder(); break;
+                    case "GIF": encoder = new GifBitmapEncoder(); break;
+                    case "PNG": default: encoder = new PngBitmapEncoder(); break;
+                }
+                encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+                encoder.Save(outputStream);
+            }
+        }
+
         public static void CopyImageToClipboard(BitmapSource bitmapSource)
         {
             System.Windows.Clipboard.SetImage(bitmapSource);

@@ -634,21 +634,8 @@ namespace CatchCapture
 
                     using (var ms = new MemoryStream())
                     {
-                        BitmapEncoder encoder;
-                        string fmt = saveFormat.ToUpper();
-
-                        // ... (same encoder selection logic) ...
-                        switch (fmt)
-                        {
-                            case "JPG": case "JPEG":
-                                var jpgEncoder = new JpegBitmapEncoder(); jpgEncoder.QualityLevel = saveQuality; encoder = jpgEncoder; break;
-                            case "BMP": encoder = new BmpBitmapEncoder(); break;
-                            case "GIF": encoder = new GifBitmapEncoder(); break;
-                            case "PNG": default: encoder = new PngBitmapEncoder(); break;
-                        }
-
-                        encoder.Frames.Add(BitmapFrame.Create(imgSource));
-                        encoder.Save(ms);
+                        // Use the utility method to handle all formats including WebP via ImageSharp
+                        ScreenCaptureUtility.SaveImageToStream((BitmapSource)imgSource, ms, saveFormat, saveQuality);
                         
                         ms.Position = 0;
                         string hash;
