@@ -668,16 +668,16 @@
     <value>폴더 분류 설정</value>
   </data>
   <data name="GroupingNone" xml:space="preserve">
-    <value>기본 저장 (분류 안 함)</value>
+    <value>기본 저장</value>
   </data>
   <data name="GroupingMonthly" xml:space="preserve">
-    <value>월별 (2025-01)</value>
+    <value>월별</value>
   </data>
   <data name="GroupingQuarterly" xml:space="preserve">
-    <value>분기별 (2025_1Q)</value>
+    <value>분기별</value>
   </data>
   <data name="GroupingYearly" xml:space="preserve">
-    <value>연도별 (2025)</value>
+    <value>연도별</value>
   </data>
   <data name="FileNamePreset_Default" xml:space="preserve">
     <value>기본값 (Catch_날짜_시간)</value>

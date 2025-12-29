@@ -2090,12 +2090,32 @@ public partial class MainWindow : Window
                 // 파일명 템플릿 적용
                 string template = currentSettings.FileNameTemplate ?? "Catch_$yyyy-MM-dd_HH-mm-ss$";
                 string filenameTemplate = template;
+                
+                // Sanitize helper
+                string Sanitize(string s) {
+                    if (string.IsNullOrEmpty(s)) return "Unknown";
+                    foreach (char c in System.IO.Path.GetInvalidFileNameChars()) s = s.Replace(c, '_');
+                    return s.Trim();
+                }
+
                 try 
                 {
                     var matches = System.Text.RegularExpressions.Regex.Matches(template, @"\$(.*?)\$");
                     foreach (System.Text.RegularExpressions.Match match in matches)
                     {
                         string fmt = match.Groups[1].Value;
+                        
+                        if (fmt.Equals("App", StringComparison.OrdinalIgnoreCase)) {
+                             filenameTemplate = filenameTemplate.Replace(match.Value, Sanitize(sourceApp ?? ""));
+                             continue;
+                        }
+                        if (fmt.Equals("Title", StringComparison.OrdinalIgnoreCase)) {
+                             string t = sourceTitle ?? "";
+                             if (t.Length > 50) t = t.Substring(0, 50); // 길이는 적당히 제한
+                             filenameTemplate = filenameTemplate.Replace(match.Value, Sanitize(t));
+                             continue;
+                        }
+
                         try { filenameTemplate = filenameTemplate.Replace(match.Value, now.ToString(fmt)); } catch { }
                     }
                 } 
@@ -2842,12 +2862,31 @@ public partial class MainWindow : Window
         string defaultFileName = template;
         DateTime now = DateTime.Now;
 
+        // Sanitize helper
+        string Sanitize(string s) {
+            if (string.IsNullOrEmpty(s)) return "Unknown";
+            foreach (char c in System.IO.Path.GetInvalidFileNameChars()) s = s.Replace(c, '_');
+            return s.Trim();
+        }
+
         try 
         {
             var matches = System.Text.RegularExpressions.Regex.Matches(template, @"\$(.*?)\$");
             foreach (System.Text.RegularExpressions.Match match in matches)
             {
                 string fmt = match.Groups[1].Value;
+                
+                if (fmt.Equals("App", StringComparison.OrdinalIgnoreCase)) {
+                        defaultFileName = defaultFileName.Replace(match.Value, Sanitize(captureImage.SourceApp ?? ""));
+                        continue;
+                }
+                if (fmt.Equals("Title", StringComparison.OrdinalIgnoreCase)) {
+                        string t = captureImage.SourceTitle ?? "";
+                        if (t.Length > 50) t = t.Substring(0, 50);
+                        defaultFileName = defaultFileName.Replace(match.Value, Sanitize(t));
+                        continue;
+                }
+
                 try { defaultFileName = defaultFileName.Replace(match.Value, now.ToString(fmt)); } catch { }
             }
         } 

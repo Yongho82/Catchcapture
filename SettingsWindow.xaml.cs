@@ -133,24 +133,38 @@ private void UpdateUIText()
                 
                 // 파일명 설정 & 폴더 분류 설정 UI
                 if (FileNameSettingsGroup != null) FileNameSettingsGroup.Header = GetLoc("FileNameSettings", "파일명 설정");
-                if (FileNameTemplateLabel != null) FileNameTemplateLabel.Text = GetLoc("FileNameTemplate", "파일명 템플릿");
+                // Label removed
                 if (PreviewLabel != null) PreviewLabel.Text = GetLoc("FileNamePreview", "미리보기") + " : ";
                 if (FolderGroupingGroup != null) FolderGroupingGroup.Header = GetLoc("FolderGrouping", "폴더 분류 설정");
-                if (RbGroupNone != null) RbGroupNone.Content = GetLoc("GroupingNone", "기본 저장 (분류 안 함)");
-                if (RbGroupMonthly != null) RbGroupMonthly.Content = GetLoc("GroupingMonthly", "월별 (2025-01)");
-                if (RbGroupQuarterly != null) RbGroupQuarterly.Content = GetLoc("GroupingQuarterly", "분기별 (2025_1Q)");
-                if (RbGroupYearly != null) RbGroupYearly.Content = GetLoc("GroupingYearly", "연도별 (2025)");
+                if (RbGroupNone != null) RbGroupNone.Content = GetLoc("GroupingNone", "분류 안 함");
+                if (RbGroupMonthly != null) RbGroupMonthly.Content = GetLoc("GroupingMonthly", "월별");
+                if (RbGroupQuarterly != null) RbGroupQuarterly.Content = GetLoc("GroupingQuarterly", "분기별");
+                if (RbGroupYearly != null) RbGroupYearly.Content = GetLoc("GroupingYearly", "연도별");
                 
-                // 콤보박스 아이템
+                // 콤보박스 아이템 (동적 생성)
                 if (CboFileNamePresets != null)
                 {
-                     foreach (ComboBoxItem item in CboFileNamePresets.Items)
+                     string currentTag = "Default";
+                     if (CboFileNamePresets.SelectedItem is ComboBoxItem sell && sell.Tag is string t) currentTag = t;
+                     
+                     CboFileNamePresets.Items.Clear();
+
+                     void AddItem(string content, string tag)
                      {
-                         string? tag = item.Tag as string;
-                         if (tag == "Default") item.Content = GetLoc("FileNamePreset_Default", "기본값 (Catch_날짜_시간)");
-                         else if (tag == "Simple") item.Content = GetLoc("FileNamePreset_Simple", "단순 (Image_날짜)");
-                         else if (tag == "Timestamp") item.Content = GetLoc("FileNamePreset_Timestamp", "타임스탬프만 (20250101_120000)");
+                         var item = new ComboBoxItem { Content = content, Tag = tag };
+                         CboFileNamePresets.Items.Add(item);
+                         if (tag == currentTag) CboFileNamePresets.SelectedItem = item;
                      }
+
+                     string nowStr = DateTime.Now.ToString("yyyy-MM-dd");
+                     AddItem(GetLoc("FileNamePreset_Default", $"기본값 (Catch_{nowStr}...)"), "Default");
+                     AddItem(GetLoc("FileNamePreset_Simple", $"단순 (Image_{nowStr})"), "Simple");
+                     AddItem(GetLoc("FileNamePreset_Timestamp", "타임스탬프 (20250101_120000)"), "Timestamp");
+                     AddItem(GetLoc("FileNamePreset_App", $"앱 이름 (Chrome_{nowStr})"), "AppDate");
+                     AddItem(GetLoc("FileNamePreset_Title", $"창 제목 (Google_{nowStr})"), "TitleDate");
+                     
+                     if (CboFileNamePresets.SelectedIndex == -1 && CboFileNamePresets.Items.Count > 0)
+                          CboFileNamePresets.SelectedIndex = 0;
                 }
                 
                 UpdateFileNamePreview();
@@ -1947,10 +1961,14 @@ private void InitLanguageComboBox()
         {
             if (CboFileNamePresets.SelectedItem is ComboBoxItem item && TxtFileNameTemplate != null)
             {
-                string tag = item.Tag as string;
-                if (tag == "Default") TxtFileNameTemplate.Text = "Catch_$yyyy-MM-dd_HH-mm-ss$";
-                else if (tag == "Simple") TxtFileNameTemplate.Text = "Image_$yyyy-MM-dd$";
-                else if (tag == "Timestamp") TxtFileNameTemplate.Text = "$yyyyMMdd_HHmmss$";
+                if (item.Tag is string tag)
+                {
+                    if (tag == "Default") TxtFileNameTemplate.Text = "Catch_$yyyy-MM-dd_HH-mm-ss$";
+                    else if (tag == "Simple") TxtFileNameTemplate.Text = "Image_$yyyy-MM-dd$";
+                    else if (tag == "Timestamp") TxtFileNameTemplate.Text = "$yyyyMMdd_HHmmss$";
+                    else if (tag == "AppDate") TxtFileNameTemplate.Text = "$App$_$yyyy-MM-dd_HH-mm-ss$";
+                    else if (tag == "TitleDate") TxtFileNameTemplate.Text = "$Title$_$yyyy-MM-dd_HH-mm-ss$";
+                }
             }
         }
 
@@ -1973,6 +1991,18 @@ private void InitLanguageComboBox()
                 foreach (System.Text.RegularExpressions.Match match in matches)
                 {
                     string format = match.Groups[1].Value;
+                    
+                    if (format.Equals("App", StringComparison.OrdinalIgnoreCase)) 
+                    {
+                        preview = preview.Replace(match.Value, "MyBrowser");
+                        continue;
+                    }
+                    if (format.Equals("Title", StringComparison.OrdinalIgnoreCase)) 
+                    {
+                        preview = preview.Replace(match.Value, "WebPageTitle");
+                        continue;
+                    }
+
                     try 
                     {
                         preview = preview.Replace(match.Value, now.ToString(format));

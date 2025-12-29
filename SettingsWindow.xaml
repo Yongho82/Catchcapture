@@ -289,11 +289,11 @@
             </Grid.RowDefinitions>
 
             <!-- Capture Page -->
-            <Border x:Name="PageCapture" Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8" Padding="20">
+            <Border x:Name="PageCapture" Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8" Padding="0">
                 <Border.Effect>
                     <DropShadowEffect Color="Black" Direction="270" ShadowDepth="1" Opacity="0.05" BlurRadius="10"/>
                 </Border.Effect>
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,10,0">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
                 <StackPanel>
                     <TextBlock x:Name="CaptureSectionTitle" Text="캡처 설정" Style="{StaticResource SectionTitle}"/>
                     
@@ -355,7 +355,7 @@
                     <!-- 파일명 설정 -->
                     <GroupBox x:Name="FileNameSettingsGroup" Header="파일명 설정" BorderBrush="{DynamicResource ThemeBorder}" Padding="10" Margin="0,10,0,0">
                         <StackPanel>
-                            <TextBlock x:Name="FileNameTemplateLabel" Text="파일명 템플릿" Foreground="{DynamicResource ThemeForeground}" Margin="0,0,0,5" Opacity="0.8"/>
+                            <!-- Label removed as requested -->
                             <Grid Margin="0,0,0,10">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -380,11 +380,11 @@
 
                     <!-- 폴더 분류 설정 -->
                     <GroupBox x:Name="FolderGroupingGroup" Header="폴더 분류 설정" BorderBrush="{DynamicResource ThemeBorder}" Padding="10" Margin="0,10,0,0">
-                        <StackPanel>
-                            <RadioButton x:Name="RbGroupMonthly" Content="월별 (2025-01)" GroupName="FolderGrouping" Margin="0,4" Tag="Monthly" Checked="FolderGrouping_Checked" IsChecked="True"/>
-                            <RadioButton x:Name="RbGroupQuarterly" Content="분기별 (2025_1Q)" GroupName="FolderGrouping" Margin="0,4" Tag="Quarterly" Checked="FolderGrouping_Checked"/>
-                            <RadioButton x:Name="RbGroupYearly" Content="연도별 (2025)" GroupName="FolderGrouping" Margin="0,4" Tag="Yearly" Checked="FolderGrouping_Checked"/>
-                            <RadioButton x:Name="RbGroupNone" Content="기본 저장 (분류 안 함)" GroupName="FolderGrouping" Margin="0,4" Tag="None" Checked="FolderGrouping_Checked"/>
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton x:Name="RbGroupNone" Content="분류 안 함" GroupName="FolderGrouping" Margin="0,0,15,0" Tag="None" Checked="FolderGrouping_Checked" IsChecked="True"/>
+                            <RadioButton x:Name="RbGroupMonthly" Content="월별" GroupName="FolderGrouping" Margin="0,0,15,0" Tag="Monthly" Checked="FolderGrouping_Checked"/>
+                            <RadioButton x:Name="RbGroupQuarterly" Content="분기별" GroupName="FolderGrouping" Margin="0,0,15,0" Tag="Quarterly" Checked="FolderGrouping_Checked"/>
+                            <RadioButton x:Name="RbGroupYearly" Content="연도별" GroupName="FolderGrouping" Margin="0,0,0,0" Tag="Yearly" Checked="FolderGrouping_Checked"/>
                         </StackPanel>
                     </GroupBox>
                 </StackPanel>
