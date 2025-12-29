@@ -323,6 +323,7 @@
                                     <ComboBoxItem Content="JPG"/>
                                     <ComboBoxItem Content="BMP"/>
                                     <ComboBoxItem Content="GIF"/>
+                                    <ComboBoxItem Content="WEBP"/>
                                 </ComboBox>
 
                                 <TextBlock x:Name="QualityText" Grid.Column="3" Text="품질" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}" Margin="0,0,10,0"/>
@@ -769,6 +770,7 @@
                                     <ComboBoxItem Content="JPG"/>
                                     <ComboBoxItem Content="BMP"/>
                                     <ComboBoxItem Content="GIF"/>
+                                    <ComboBoxItem Content="WEBP"/>
                                 </ComboBox>
 
                                 <TextBlock x:Name="NoteQualityLabel" Grid.Column="3" Text="품질" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}" Margin="0,0,10,0"/>

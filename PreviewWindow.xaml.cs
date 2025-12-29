@@ -830,18 +830,23 @@ namespace CatchCapture
             // 자동 파일 이름 생성
             string timestamp = DateTime.Now.ToString("yyyy-MM-dd HHmmss");
 
-            // 설정 불러오기
             var settings = CatchCapture.Models.Settings.Load();
-            bool isPng = settings.FileSaveFormat.Equals("PNG", StringComparison.OrdinalIgnoreCase);
+            string format = settings.FileSaveFormat.ToUpper();
             
             // 확장자 설정
-            string ext = isPng ? ".png" : ".jpg";
+            string ext = $".{format.ToLower()}";
+            if (format == "JPG") ext = ".jpg";
+            
             string defaultFileName = $"{LocalizationManager.GetString("AreaCapture")} {timestamp}{ext}";
 
-            // 필터 순서 변경 (설정된 포맷을 무조건 첫 번째로 배치)
-            string filter = isPng 
-                ? "PNG|*.png|JPEG|*.jpg|*.*|*.*" 
-                : "JPEG|*.jpg|PNG|*.png|*.*|*.*";
+            // 필터 설정 (설정된 포맷을 첫 번째로)
+            string filter = "";
+            if (format == "WEBP") filter = "WEBP|*.webp|PNG|*.png|JPEG|*.jpg|BMP|*.bmp|GIF|*.gif|*.*|*.*";
+            else if (format == "PNG") filter = "PNG|*.png|JPEG|*.jpg|WEBP|*.webp|BMP|*.bmp|GIF|*.gif|*.*|*.*";
+            else if (format == "JPG") filter = "JPEG|*.jpg|PNG|*.png|WEBP|*.webp|BMP|*.bmp|GIF|*.gif|*.*|*.*";
+            else if (format == "BMP") filter = "BMP|*.bmp|PNG|*.png|JPEG|*.jpg|WEBP|*.webp|GIF|*.gif|*.*|*.*";
+            else if (format == "GIF") filter = "GIF|*.gif|PNG|*.png|JPEG|*.jpg|WEBP|*.webp|BMP|*.bmp|*.*|*.*";
+            else filter = "PNG|*.png|JPEG|*.jpg|WEBP|*.webp|BMP|*.bmp|GIF|*.gif|*.*|*.*";
 
             // 저장 대화 상자 표시
             var dialog = new SaveFileDialog
@@ -850,7 +855,7 @@ namespace CatchCapture
                 Filter = filter,
                 DefaultExt = ext,
                 FileName = defaultFileName,
-                FilterIndex = 1 // 항상 첫 번째 항목(설정된 포맷)이 선택됨
+                FilterIndex = 1
             };
 
             if (dialog.ShowDialog() == true)

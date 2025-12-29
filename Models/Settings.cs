@@ -43,7 +43,7 @@ namespace CatchCapture.Models
         public string PrintScreenAction { get; set; } = "영역 캡처";
 
         // Capture save options
-        public string FileSaveFormat { get; set; } = "PNG"; // PNG, JPG, BMP, GIF
+        public string FileSaveFormat { get; set; } = "PNG"; // PNG, JPG, BMP, GIF, WEBP
         public int ImageQuality { get; set; } = 100;
         public string DefaultSaveFolder { get; set; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "CatchCapture");
         public bool AutoSaveCapture { get; set; } = true; // ★ 메모리 최적화: 기본값 true
@@ -54,7 +54,7 @@ namespace CatchCapture.Models
         public string? NotePasswordHint { get; set; }
         public bool IsNoteLockEnabled { get; set; } = false;
         public bool OptimizeNoteImages { get; set; } = true;
-        public string NoteSaveFormat { get; set; } = "PNG"; // PNG, JPG, BMP, GIF
+        public string NoteSaveFormat { get; set; } = "PNG"; // PNG, JPG, BMP, GIF, WEBP
         public int NoteImageQuality { get; set; } = 100;
         public int TrashRetentionDays { get; set; } = 30;
 

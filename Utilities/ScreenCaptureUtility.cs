@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -14,6 +14,9 @@ using MessageBox = System.Windows.MessageBox;
 using System.Text;
 using System.ComponentModel;
 using CatchCapture.Models;
+using Windows.Storage.Streams;
+using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 
 namespace CatchCapture.Utilities
 {
@@ -886,12 +889,19 @@ namespace CatchCapture.Utilities
 
         public static void SaveImageToFile(BitmapSource bitmapSource, string filePath, int quality = 100)
         {
+            // 파일 확장자에 따라 인코더 선택
+            string extension = System.IO.Path.GetExtension(filePath).ToLower();
+
+            if (extension == ".webp")
+            {
+                // WebP는 별도 처리 (파일 락 문제 방지)
+                SaveAsWebpNative(bitmapSource, filePath, quality);
+                return;
+            }
+
             using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
             {
                 BitmapEncoder encoder;
-                
-                // 파일 확장자에 따라 인코더 선택
-                string extension = System.IO.Path.GetExtension(filePath).ToLower();
                 
                 switch (extension)
                 {
@@ -907,11 +917,6 @@ namespace CatchCapture.Utilities
                     case ".gif":
                         encoder = new GifBitmapEncoder();
                         break;
-                    case ".webp":
-                        // WPF는 기본적으로 WebP 저장을 지원하지 않으므로 PNG로 대체하거나 외부 라이브러리가 필요합니다.
-                        // 현재는 오류 방지를 위해 PNG 인코더를 사용합니다.
-                        encoder = new PngBitmapEncoder(); 
-                        break;
                     case ".png":
                     default:
                         encoder = new PngBitmapEncoder();
@@ -920,6 +925,114 @@ namespace CatchCapture.Utilities
                 
                 encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
                 encoder.Save(fileStream);
+            }
+        }
+
+        private static void SaveAsWebpNative(BitmapSource bitmapSource, string filePath, int quality)
+        {
+            // 1. BitmapSource를 BGRA8 바이트 배열로 변환
+            // 포맷 호환성을 위해 변환
+            BitmapSource bgra32Source = bitmapSource;
+            if (bitmapSource.Format != System.Windows.Media.PixelFormats.Bgra32 && 
+                bitmapSource.Format != System.Windows.Media.PixelFormats.Pbgra32)
+            {
+                bgra32Source = new FormatConvertedBitmap(bitmapSource, System.Windows.Media.PixelFormats.Bgra32, null, 0);
+            }
+
+            int stride = bgra32Source.PixelWidth * 4;
+            byte[] pixels = new byte[bgra32Source.PixelHeight * stride];
+            bgra32Source.CopyPixels(pixels, stride, 0);
+
+            int width = bgra32Source.PixelWidth;
+            int height = bgra32Source.PixelHeight;
+            double dpiX = bgra32Source.DpiX > 0 ? bgra32Source.DpiX : 96;
+            double dpiY = bgra32Source.DpiY > 0 ? bgra32Source.DpiY : 96;
+
+            byte[]? webpData = null;
+
+            try
+            {
+                var task = Task.Run(async () =>
+                {
+                    using (var memStream = new Windows.Storage.Streams.InMemoryRandomAccessStream())
+                    {
+                        // WebP 인코더 생성 (Standard WIC WebP Encoder GUID)
+                        // GUID: 2757196b-19a6-4f21-4327-4d1d33176e41
+                        var encoder = await Windows.Graphics.Imaging.BitmapEncoder.CreateAsync(
+                            new Guid("2757196b-19a6-4f21-4327-4d1d33176e41"),
+                            memStream);
+
+                        encoder.SetPixelData(
+                            Windows.Graphics.Imaging.BitmapPixelFormat.Bgra8,
+                            Windows.Graphics.Imaging.BitmapAlphaMode.Premultiplied,
+                            (uint)width,
+                            (uint)height,
+                            dpiX,
+                            dpiY,
+                            pixels);
+                        
+                        // 품질 설정
+                        var propertySet = new Windows.Graphics.Imaging.BitmapPropertySet();
+                        var qualityValue = new Windows.Graphics.Imaging.BitmapTypedValue(
+                            quality / 100.0f, // 0.0 ~ 1.0
+                            Windows.Foundation.PropertyType.Single
+                        );
+                        propertySet.Add("ImageQuality", qualityValue);
+                        
+                        try {
+                            await encoder.BitmapProperties.SetPropertiesAsync(propertySet);
+                        } catch { /* 품질 속성 설정 실패는 무시 */ }
+
+                        await encoder.FlushAsync();
+
+                        if (memStream.Size == 0) throw new Exception("Encoded stream is empty");
+
+                        memStream.Seek(0);
+                        using (var netStream = memStream.AsStreamForRead())
+                        using (var outMs = new MemoryStream())
+                        {
+                            netStream.CopyTo(outMs);
+                            return outMs.ToArray();
+                        }
+                    }
+                });
+
+                webpData = task.GetAwaiter().GetResult();
+
+                if (webpData != null && webpData.Length > 0)
+                {
+                    File.WriteAllBytes(filePath, webpData);
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"WebP Native Encoding Failed: {ex.Message} (HResult: {ex.HResult:X})");
+                // Fallback will happen below
+            }
+
+            // Fallback to PNG if WebP fails
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("Falling back to PNG format...");
+                
+                // 파일이 이미 존재하거나 잠겨있을 수 있으므로 정리 시도
+                if (File.Exists(filePath))
+                {
+                    try { File.Delete(filePath); } catch { }
+                }
+
+                using (var fallbackStream = new FileStream(filePath, FileMode.Create))
+                {
+                    var pngEncoder = new PngBitmapEncoder();
+                    pngEncoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+                    pngEncoder.Save(fallbackStream);
+                }
+            }
+            catch(Exception fbEx)
+            {
+                System.Diagnostics.Debug.WriteLine($"PNG Fallback Failed: {fbEx.Message}");
+                MessageBox.Show($"이미지 저장에 실패했습니다.\n\nWebP 오류: WebP 코덱을 찾을 수 없거나 지원되지 않습니다.\nPNG 백업 오류: {fbEx.Message}", "저장 오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
