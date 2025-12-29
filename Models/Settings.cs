@@ -167,7 +167,7 @@ namespace CatchCapture.Models
                 "AreaCapture", "DelayCapture", "RealTimeCapture", "MultiCapture",
                 "FullScreen", "DesignatedCapture", "WindowCapture", "ElementCapture", "ScrollCapture", "OcrCapture", "ScreenRecord"
             };
-            if (MainMenuItems == null) { MainMenuItems = defaultMainMenu; changed = true; }
+            if (MainMenuItems == null) { MainMenuItems = new List<string>(defaultMainMenu); changed = true; }
             else
             {
                 foreach (var item in defaultMainMenu)
@@ -176,10 +176,34 @@ namespace CatchCapture.Models
                 }
             }
 
-            // 3. Sync Tray & Simple Icons
-            // ... (Add if missing logic) ...
-            if (TrayModeIcons == null) { TrayModeIcons = new List<string> { "AreaCapture", "DelayCapture", "FullScreen", "DesignatedCapture", "WindowCapture", "UnitCapture" }; changed = true; }
-            if (SimpleModeIcons == null) { SimpleModeIcons = new List<string> { "AreaCapture", "DelayCapture", "FullScreen", "DesignatedCapture" }; changed = true; }
+            // 3. Sync Tray Mode Icons
+            var defaultTrayIcons = new List<string>
+            {
+                "AreaCapture", "DelayCapture", "FullScreen", 
+                "DesignatedCapture", "WindowCapture", "UnitCapture"
+            };
+            if (TrayModeIcons == null) { TrayModeIcons = new List<string>(defaultTrayIcons); changed = true; }
+            else
+            {
+                foreach (var icon in defaultTrayIcons)
+                {
+                    if (!TrayModeIcons.Contains(icon)) { TrayModeIcons.Add(icon); changed = true; }
+                }
+            }
+
+            // 4. Sync Simple Mode Icons
+            var defaultSimpleIcons = new List<string>
+            {
+                "AreaCapture", "DelayCapture", "FullScreen", "DesignatedCapture"
+            };
+            if (SimpleModeIcons == null) { SimpleModeIcons = new List<string>(defaultSimpleIcons); changed = true; }
+            else
+            {
+                foreach (var icon in defaultSimpleIcons)
+                {
+                    if (!SimpleModeIcons.Contains(icon)) { SimpleModeIcons.Add(icon); changed = true; }
+                }
+            }
 
             // 4. Ensure internal objects are not null
             if (Recording == null) { Recording = new RecordingSettings(); changed = true; }

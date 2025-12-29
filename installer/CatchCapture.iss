@@ -2,7 +2,7 @@
 #define MyAppVersion "1.0.0"
 #define MyAppPublisher "Yongho"
 #define MyAppExeName "CatchCapture.exe"
-#define IsBeta "true"
+#define IsBeta "false"
 
 ; Inno Setup script for CatchCapture
 ; NOTE: Inno Setup uses .ico for icons. Convert icons\catcha.icns to .ico (e.g., icons\catcha.ico).
