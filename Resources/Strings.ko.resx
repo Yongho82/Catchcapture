@@ -581,7 +581,7 @@
   <data name="NoteResetError" xml:space="preserve"><value>초기화 중 오류 발생: {0}</value></data>
   <data name="TrashSettings" xml:space="preserve"><value>휴지통 설정</value></data>
   <data name="TrashRetentionPeriod" xml:space="preserve"><value>휴지통 보관 기간</value></data>
-  <data name="TrashRetentionNotice" xml:space="preserve"><value> (설정된 기간이 지나면 자동 영구 삭제)</value></data>
+  <data name="TrashRetentionNotice" xml:space="preserve"><value>(설정된 기간이 지나면 자동 영구 삭제)</value></data>
   <data name="RetentionPermanent" xml:space="preserve"><value>영구 보관</value></data>
   <data name="Days" xml:space="preserve"><value>일</value></data>
   <data name="EmptyTrash" xml:space="preserve"><value>휴지통 비우기</value></data>
@@ -651,7 +651,6 @@
   <data name="ErrPinNote" xml:space="preserve"><value>고정 상태 변경 중 오류 발생: </value></data>
   <data name="ChangeTheme" xml:space="preserve"><value>테마 변경</value></data>
   <data name="SimpleMode" xml:space="preserve"><value>간편</value></data>
-  <data name="TrayMode" xml:space="preserve"><value>트레이</value></data>
   <data name="SaveToMyNote" xml:space="preserve"><value>내 노트 저장</value></data>
   <data name="ConfirmDisableNotePassword" xml:space="preserve"><value>비밀번호 잠금을 해제하시겠습니까?&#x0a;(설정된 비밀번호는 유지됩니다)</value></data>
   <data name="PasswordsDoNotMatch" xml:space="preserve"><value>비밀번호가 일치하지 않습니다.</value></data>
@@ -688,4 +687,48 @@
   <data name="FileNamePreset_Timestamp" xml:space="preserve">
     <value>타임스탬프만 (20250101_120000)</value>
   </data>
+    <data name="SettingsWindowTitle" xml:space="preserve"><value>캐치캡처-설정</value></data>
+  <data name="SettingsFormatFeatures" xml:space="preserve"><value>포멧특징</value></data>
+  <data name="SettingsFormatGuide" xml:space="preserve"><value>파일 포맷 가이드</value></data>
+  <data name="SettingsColFormat" xml:space="preserve"><value>포맷</value></data>
+  <data name="SettingsColTransparent" xml:space="preserve"><value>투명 배경</value></data>
+  <data name="SettingsColAnimation" xml:space="preserve"><value>애니메이션</value></data>
+  <data name="SettingsColQuality" xml:space="preserve"><value>화질</value></data>
+  <data name="SettingsColCompression" xml:space="preserve"><value>압축효율</value></data>
+  <data name="SettingsColUsage" xml:space="preserve"><value>주 용도</value></data>
+  <data name="SettingsValHigh" xml:space="preserve"><value>상</value></data>
+  <data name="SettingsValMidHigh" xml:space="preserve"><value>중/상</value></data>
+  <data name="SettingsValLow" xml:space="preserve"><value>하</value></data>
+  <data name="SettingsValUltra" xml:space="preserve"><value>최상</value></data>
+  <data name="SettingsPnGEfficiency" xml:space="preserve"><value>낮음 (무손실 압축)</value></data>
+  <data name="SettingsPnGUsage" xml:space="preserve"><value>로고, 아이콘, 스크린샷</value></data>
+  <data name="SettingsJpgEfficiency" xml:space="preserve"><value>높음 (손실 압축)</value></data>
+  <data name="SettingsJpgUsage" xml:space="preserve"><value>일반 사진, 웹 이미지</value></data>
+  <data name="SettingsBmpEfficiency" xml:space="preserve"><value>없음 (원본 그대로)</value></data>
+  <data name="SettingsBmpUsage" xml:space="preserve"><value>단순 윈도우 그래픽</value></data>
+  <data name="SettingsGifEfficiency" xml:space="preserve"><value>높음 (색상 제한)</value></data>
+  <data name="SettingsGifUsage" xml:space="preserve"><value>짧은 애니메이션</value></data>
+  <data name="SettingsWebpEfficiency" xml:space="preserve"><value>매우 높음 (차세대 압축)</value></data>
+  <data name="SettingsWebpUsage" xml:space="preserve"><value>웹사이트 최적화 이미지</value></data>
+  <data name="SettingsShowMagnifierDesc" xml:space="preserve"><value>영역 캡처 시 돋보기 표시</value></data>
+  <data name="SettingsShowPreviewDesc" xml:space="preserve"><value>캡처 후 미리보기/편집 창 표시</value></data>
+  <data name="SettingsAutoSaveDesc" xml:space="preserve"><value>캡처 시 자동으로 파일 저장</value></data>
+  <data name="RecQualityMP4" xml:space="preserve"><value>화질 (MP4)</value></data>
+  <data name="RecFpsMP4" xml:space="preserve"><value>프레임 레이트 (MP4)</value></data>
+  <data name="RecHotkeyTitle" xml:space="preserve"><value>녹화 시작/중지 단축키</value></data>
+  <data name="NoteStorageDatabase" xml:space="preserve"><value>저장 및 데이터베이스</value></data>
+  <data name="NoteStorageLocation" xml:space="preserve"><value>노트 저장 위치</value></data>
+  <data name="NotePathStructure" xml:space="preserve"><value>※ 폴더 구조: [노트폴더]\notedb (DB), [노트폴더]\img (이미지)</value></data>
+  <data name="RemoteStorageTooltip" xml:space="preserve"><value>구글 드라이브 등 클라우드 폴더를 연결하여 기기 간 노트를 공유할 수 있습니다.</value></data>
+  <data name="ResetNoteDataTooltip" xml:space="preserve"><value>모든 노트 데이터 초기화</value></data>
+  <data name="NoteSecurityLock" xml:space="preserve"><value>노트 보안 및 장치 잠금</value></data>
+  <data name="Val1Day" xml:space="preserve"><value>1일</value></data>
+  <data name="Val3Days" xml:space="preserve"><value>3일</value></data>
+  <data name="Val7Days" xml:space="preserve"><value>7일</value></data>
+  <data name="Val15Days" xml:space="preserve"><value>15일</value></data>
+  <data name="Val30Days" xml:space="preserve"><value>30일</value></data>
+  <data name="Val60Days" xml:space="preserve"><value>60일</value></data>
+  <data name="Val90Days" xml:space="preserve"><value>90일</value></data>
+  <data name="ValPermanent" xml:space="preserve"><value>영구 보관</value></data>
+  <data name="Wait" xml:space="preserve"><value>잠시만 기다려주세요...</value></data>
 </root>

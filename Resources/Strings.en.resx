@@ -611,7 +611,7 @@
   <data name="NoteResetError" xml:space="preserve"><value>Error initializing: {0}</value></data>
   <data name="TrashSettings" xml:space="preserve"><value>Trash Settings</value></data>
   <data name="TrashRetentionPeriod" xml:space="preserve"><value>Trash Retention Period</value></data>
-  <data name="TrashRetentionNotice" xml:space="preserve"><value> (Auto-delete after set period)</value></data>
+  <data name="TrashRetentionNotice" xml:space="preserve"><value>(Auto-delete after set period)</value></data>
   <data name="RetentionPermanent" xml:space="preserve"><value>Permanent</value></data>
   <data name="Days" xml:space="preserve"><value>Days</value></data>
   <data name="EmptyTrash" xml:space="preserve"><value>Empty Trash</value></data>
@@ -666,5 +666,67 @@ Are you sure you want to permanently delete all items?</value>
   <data name="TrayMode" xml:space="preserve"><value>Tray Mode</value></data>
   <data name="SaveToMyNote" xml:space="preserve"><value>Save to My Note</value></data>
   <data name="ConfirmDisableNotePassword" xml:space="preserve"><value>Do you want to disable the password lock?&#x0a;(The set password will be kept)</value></data>
-  <data name="PasswordsDoNotMatch" xml:space="preserve"><value>Passwords do not match.</value></data>
+  
+  <data name="SettingsWindowTitle" xml:space="preserve"><value>CatchCapture - Settings</value></data>
+  <data name="SettingsFormatFeatures" xml:space="preserve"><value>Format Features</value></data>
+  <data name="SettingsFormatGuide" xml:space="preserve"><value>File Format Guide</value></data>
+  <data name="SettingsColFormat" xml:space="preserve"><value>Format</value></data>
+  <data name="SettingsColTransparent" xml:space="preserve"><value>Transparent Background</value></data>
+  <data name="SettingsColAnimation" xml:space="preserve"><value>Animation</value></data>
+  <data name="SettingsColQuality" xml:space="preserve"><value>Quality</value></data>
+  <data name="SettingsColCompression" xml:space="preserve"><value>Compression Efficiency</value></data>
+  <data name="SettingsColUsage" xml:space="preserve"><value>Primary Usage</value></data>
+  <data name="SettingsValHigh" xml:space="preserve"><value>High</value></data>
+  <data name="SettingsValMidHigh" xml:space="preserve"><value>Medium/High</value></data>
+  <data name="SettingsValLow" xml:space="preserve"><value>Low</value></data>
+  <data name="SettingsValUltra" xml:space="preserve"><value>Ultra</value></data>
+  <data name="SettingsPnGEfficiency" xml:space="preserve"><value>Low (Lossless Compression)</value></data>
+  <data name="SettingsPnGUsage" xml:space="preserve"><value>Logos, Icons, Screenshots</value></data>
+  <data name="SettingsJpgEfficiency" xml:space="preserve"><value>High (Lossy Compression)</value></data>
+  <data name="SettingsJpgUsage" xml:space="preserve"><value>Photos, Web Images</value></data>
+  <data name="SettingsBmpEfficiency" xml:space="preserve"><value>None (Original)</value></data>
+  <data name="SettingsBmpUsage" xml:space="preserve"><value>Simple Windows Graphics</value></data>
+  <data name="SettingsGifEfficiency" xml:space="preserve"><value>High (Color Limitation)</value></data>
+  <data name="SettingsGifUsage" xml:space="preserve"><value>Short Animations (GIFs)</value></data>
+  <data name="SettingsWebpEfficiency" xml:space="preserve"><value>Very High (Next-gen Compression)</value></data>
+  <data name="SettingsWebpUsage" xml:space="preserve"><value>Website Optimized Images</value></data>
+  <data name="SettingsShowMagnifierDesc" xml:space="preserve"><value>Show magnifier during area capture</value></data>
+  <data name="SettingsShowPreviewDesc" xml:space="preserve"><value>Show preview/editor after capture</value></data>
+  <data name="SettingsAutoSaveDesc" xml:space="preserve"><value>Auto-save file after capture</value></data>
+  <data name="RecQualityMP4" xml:space="preserve"><value>Quality (MP4)</value></data>
+  <data name="RecFpsMP4" xml:space="preserve"><value>Frame Rate (MP4)</value></data>
+  <data name="RecHotkeyTitle" xml:space="preserve"><value>Record/Stop Hotkey</value></data>
+  <data name="RecordStop" xml:space="preserve"><value>Record/Stop</value></data>
+  <data name="NoteStorageDatabase" xml:space="preserve"><value>Storage &amp; Database</value></data>
+  <data name="NoteStorageLocation" xml:space="preserve"><value>Note Storage Location</value></data>
+  <data name="NotePathStructure" xml:space="preserve"><value>※ Folder Structure: [NoteFolder]\notedb (DB), [NoteFolder]\img (Images)</value></data>
+  <data name="RemoteStorage" xml:space="preserve"><value>Remote Storage</value></data>
+  <data name="RemoteStorageTooltip" xml:space="preserve"><value>Connect cloud folders (Google Drive, etc.) to share notes across devices.</value></data>
+  <data name="ResetNoteDataTooltip" xml:space="preserve"><value>Reset all note data</value></data>
+  <data name="NoteFileNameSettings" xml:space="preserve"><value>Filename Settings</value></data>
+  <data name="NoteFolderGrouping" xml:space="preserve"><value>Folder Grouping Settings</value></data>
+  <data name="NoteSecurityLock" xml:space="preserve"><value>Note Security &amp; Lock</value></data>
+  <data name="ImageSaveSettings" xml:space="preserve"><value>Image Save Settings</value></data>
+  <data name="StartupSettings" xml:space="preserve"><value>Startup Settings</value></data>
+  <data name="Val1Day" xml:space="preserve"><value>1 Day</value></data>
+  <data name="Val3Days" xml:space="preserve"><value>3 Days</value></data>
+  <data name="Val7Days" xml:space="preserve"><value>7 Days</value></data>
+  <data name="Val15Days" xml:space="preserve"><value>15 Days</value></data>
+  <data name="Val30Days" xml:space="preserve"><value>30 Days</value></data>
+  <data name="Val60Days" xml:space="preserve"><value>60 Days</value></data>
+  <data name="Val90Days" xml:space="preserve"><value>90 Days</value></data>
+  <data name="ValPermanent" xml:space="preserve"><value>Keep Forever</value></data>
+  <data name="Wait" xml:space="preserve"><value>Wait...</value></data>
+  <data name="FileNameSettings" xml:space="preserve"><value>Filename Settings</value></data>
+  <data name="FolderGrouping" xml:space="preserve"><value>Folder Grouping Settings</value></data>
+  <data name="GroupingNone" xml:space="preserve"><value>No Grouping</value></data>
+  <data name="GroupingMonthly" xml:space="preserve"><value>Monthly</value></data>
+  <data name="GroupingQuarterly" xml:space="preserve"><value>Quarterly</value></data>
+  <data name="GroupingYearly" xml:space="preserve"><value>Yearly</value></data>
+  <data name="FileNamePreset_Default" xml:space="preserve"><value>Default (Catch_Date_Time)</value></data>
+  <data name="FileNamePreset_Simple" xml:space="preserve"><value>Simple (Image_Date)</value></data>
+  <data name="FileNamePreset_Timestamp" xml:space="preserve"><value>Timestamp Only (20250101_120000)</value></data>
+  <data name="FileNamePreset_App" xml:space="preserve"><value>App Name (Chrome_Date)</value></data>
+  <data name="FileNamePreset_Title" xml:space="preserve"><value>Window Title (Google_Date)</value></data>
+  <data name="FileNamePreview" xml:space="preserve"><value>Preview</value></data>
 </root>

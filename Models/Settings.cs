@@ -54,11 +54,13 @@ namespace CatchCapture.Models
         
         // Note Settings
         public string NoteStoragePath { get; set; } = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "CatchCapture"), "notedata");
+        public string NoteFileNameTemplate { get; set; } = "Catch_$yyyy-MM-dd_HH-mm-ss$";
+        public string NoteFolderGroupingMode { get; set; } = "None";
         public string? NotePassword { get; set; }
         public string? NotePasswordHint { get; set; }
         public bool IsNoteLockEnabled { get; set; } = false;
         public bool OptimizeNoteImages { get; set; } = true;
-        public string NoteSaveFormat { get; set; } = "PNG"; // PNG, JPG, BMP, GIF, WEBP
+        public string NoteSaveFormat { get; set; } = "WEBP"; // PNG, JPG, BMP, GIF, WEBP
         public int NoteImageQuality { get; set; } = 100;
         public int TrashRetentionDays { get; set; } = 30;
 

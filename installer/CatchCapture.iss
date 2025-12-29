@@ -54,8 +54,8 @@ Name: "startmenu"; Description: "Startmenü-Verknüpfung erstellen"; GroupDescri
 Name: "startmenu"; Description: "Créer un raccourci dans le menu Démarrer"; GroupDescription: "Tâches supplémentaires:"; Flags: checkedonce; Languages: french
 
 [Files]
-; Publish output (Framework-dependent)
-Source: "..\bin\Release\net8.0-windows10.0.19041.0\win-x64\publish\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
+; Publish output
+Source: "..\publish_folder\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
 ; Include icons if needed at runtime
 Source: "..\icons\*"; DestDir: "{app}\icons"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
 

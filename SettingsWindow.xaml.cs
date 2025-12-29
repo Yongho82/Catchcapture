@@ -103,7 +103,7 @@ private void UpdateUIText()
                 // 메뉴 편집 페이지
                 if (MenuEditSectionTitle != null) MenuEditSectionTitle.Text = LocalizationManager.GetString("MenuEdit");
                 if (MenuEditGuideText != null) MenuEditGuideText.Text = LocalizationManager.GetString("MenuEditGuide");
-                if (AddMenuButton != null) AddMenuButton.Content = "+ " + (LocalizationManager.GetString("Add") ?? "추가"); 
+                if (AddMenuButton != null) AddMenuButton.Content = "+ " + LocalizationManager.GetString("Add"); 
                 
                 // 앱 이름과 하단 정보
                 if (SidebarAppNameText != null) SidebarAppNameText.Text = LocalizationManager.GetString("AppTitle");
@@ -122,24 +122,17 @@ private void UpdateUIText()
                 if (OptionsGroup != null) OptionsGroup.Header = LocalizationManager.GetString("Options");
                 if (ChkAutoSave != null) ChkAutoSave.Content = LocalizationManager.GetString("AutoSaveCapture");
                 if (ChkShowPreview != null) ChkShowPreview.Content = LocalizationManager.GetString("ShowPreviewAfterCapture");
-                // Helper to fallback if key not found
-                string GetLoc(string key, string def) 
-                {
-                    string val = LocalizationManager.GetString(key);
-                    return (val == key) ? def : val;
-                }
-
-                if (ChkShowMagnifier != null) ChkShowMagnifier.Content = GetLoc("ShowMagnifier", "영역 캡처 시 돋보기 표시");
+                if (ChkShowMagnifier != null) ChkShowMagnifier.Content = LocalizationManager.GetString("ShowMagnifier");
                 
                 // 파일명 설정 & 폴더 분류 설정 UI
-                if (FileNameSettingsGroup != null) FileNameSettingsGroup.Header = GetLoc("FileNameSettings", "파일명 설정");
-                // Label removed
-                if (PreviewLabel != null) PreviewLabel.Text = GetLoc("FileNamePreview", "미리보기") + " : ";
-                if (FolderGroupingGroup != null) FolderGroupingGroup.Header = GetLoc("FolderGrouping", "폴더 분류 설정");
-                if (RbGroupNone != null) RbGroupNone.Content = GetLoc("GroupingNone", "분류 안 함");
-                if (RbGroupMonthly != null) RbGroupMonthly.Content = GetLoc("GroupingMonthly", "월별");
-                if (RbGroupQuarterly != null) RbGroupQuarterly.Content = GetLoc("GroupingQuarterly", "분기별");
-                if (RbGroupYearly != null) RbGroupYearly.Content = GetLoc("GroupingYearly", "연도별");
+                if (FileNameSettingsGroup != null) FileNameSettingsGroup.Header = LocalizationManager.GetString("FileNameSettings");
+                if (PreviewLabel != null) PreviewLabel.Text = LocalizationManager.GetString("FileNamePreview") + " : ";
+                if (FolderGroupingGroup != null) FolderGroupingGroup.Header = LocalizationManager.GetString("FolderGrouping");
+                
+                if (RbGroupNone != null) RbGroupNone.Content = LocalizationManager.GetString("GroupingNone");
+                if (RbGroupMonthly != null) RbGroupMonthly.Content = LocalizationManager.GetString("GroupingMonthly");
+                if (RbGroupQuarterly != null) RbGroupQuarterly.Content = LocalizationManager.GetString("GroupingQuarterly");
+                if (RbGroupYearly != null) RbGroupYearly.Content = LocalizationManager.GetString("GroupingYearly");
                 
                 // 콤보박스 아이템 (동적 생성)
                 if (CboFileNamePresets != null)
@@ -156,12 +149,11 @@ private void UpdateUIText()
                          if (tag == currentTag) CboFileNamePresets.SelectedItem = item;
                      }
 
-                     string nowStr = DateTime.Now.ToString("yyyy-MM-dd");
-                     AddItem(GetLoc("FileNamePreset_Default", $"기본값 (Catch_{nowStr}...)"), "Default");
-                     AddItem(GetLoc("FileNamePreset_Simple", $"단순 (Image_{nowStr})"), "Simple");
-                     AddItem(GetLoc("FileNamePreset_Timestamp", "타임스탬프 (20250101_120000)"), "Timestamp");
-                     AddItem(GetLoc("FileNamePreset_App", $"앱 이름 (Chrome_{nowStr})"), "AppDate");
-                     AddItem(GetLoc("FileNamePreset_Title", $"창 제목 (Google_{nowStr})"), "TitleDate");
+                     AddItem(LocalizationManager.GetString("FileNamePreset_Default"), "Default");
+                     AddItem(LocalizationManager.GetString("FileNamePreset_Simple"), "Simple");
+                     AddItem(LocalizationManager.GetString("FileNamePreset_Timestamp"), "Timestamp");
+                     AddItem(LocalizationManager.GetString("FileNamePreset_App"), "AppDate");
+                     AddItem(LocalizationManager.GetString("FileNamePreset_Title"), "TitleDate");
                      
                      if (CboFileNamePresets.SelectedIndex == -1 && CboFileNamePresets.Items.Count > 0)
                           CboFileNamePresets.SelectedIndex = 0;
@@ -263,22 +255,22 @@ private void UpdateUIText()
                 if (ThemeLight != null) ThemeLight.Content = LocalizationManager.GetString("ThemeLight");
                 if (ThemeBlue != null) ThemeBlue.Content = LocalizationManager.GetString("ThemeBlue");
                 if (ThemeCustom != null) ThemeCustom.Content = LocalizationManager.GetString("ThemeCustom");
-                if (ThemeBgLabel != null) ThemeBgLabel.Text = LocalizationManager.GetString("ThemeBgColor") ?? "배경";
-                if (ThemeTextLabel != null) ThemeTextLabel.Text = LocalizationManager.GetString("ThemeTextColor") ?? "텍스트";
+                if (ThemeBgLabel != null) ThemeBgLabel.Text = LocalizationManager.GetString("ThemeBgColor");
+                if (ThemeTextLabel != null) ThemeTextLabel.Text = LocalizationManager.GetString("ThemeTextColor");
 
                 // 캡처 라인 설정 (Theme 페이지 하단)
-                if (CaptureLineSettingsGroup != null) CaptureLineSettingsGroup.Header = LocalizationManager.GetString("CaptureLineSettings") ?? "캡처 라인 설정";
-                if (OverlayBgLabel != null) OverlayBgLabel.Text = LocalizationManager.GetString("OverlayBgColor") ?? "오버레이 배경색";
-                if (LineStyleLabel != null) LineStyleLabel.Text = LocalizationManager.GetString("LineStyle") ?? "라인 스타일";
-                if (LineThicknessLabel != null) LineThicknessLabel.Text = LocalizationManager.GetString("LineThickness") ?? "라인 두께";
-                if (LineColorLabel != null) LineColorLabel.Text = LocalizationManager.GetString("LineColor") ?? "라인 색상";
-                if (CaptureSettingsGuide != null) CaptureSettingsGuide.Text = LocalizationManager.GetString("CaptureSettingsGuide") ?? "※ 색상 상자를 클릭하여 캡처 가이드 색상을 선택하세요.";
+                if (CaptureLineSettingsGroup != null) CaptureLineSettingsGroup.Header = LocalizationManager.GetString("CaptureLineSettings");
+                if (OverlayBgLabel != null) OverlayBgLabel.Text = LocalizationManager.GetString("OverlayBgColor");
+                if (LineStyleLabel != null) LineStyleLabel.Text = LocalizationManager.GetString("LineStyle");
+                if (LineThicknessLabel != null) LineThicknessLabel.Text = LocalizationManager.GetString("LineThickness");
+                if (LineColorLabel != null) LineColorLabel.Text = LocalizationManager.GetString("LineColor");
+                if (CaptureSettingsGuide != null) CaptureSettingsGuide.Text = LocalizationManager.GetString("CaptureSettingsGuide");
 
                 // 라인 스타일 개별 텍스트
-                if (TxtSolid != null) TxtSolid.Text = LocalizationManager.GetString("SolidLine") ?? "단선 (Solid)";
-                if (TxtDash != null) TxtDash.Text = LocalizationManager.GetString("DashLine") ?? "파선 (Dash)";
-                if (TxtDot != null) TxtDot.Text = LocalizationManager.GetString("DotLine") ?? "점선 (Dot)";
-                if (TxtDashDot != null) TxtDashDot.Text = LocalizationManager.GetString("DashDotLine") ?? "쇄선 (DashDot)";
+                if (TxtSolid != null) TxtSolid.Text = LocalizationManager.GetString("SolidLine");
+                if (TxtDash != null) TxtDash.Text = LocalizationManager.GetString("DashLine");
+                if (TxtDot != null) TxtDot.Text = LocalizationManager.GetString("DotLine");
+                if (TxtDashDot != null) TxtDashDot.Text = LocalizationManager.GetString("DashDotLine");
 
                 // 녹화 페이지
                 if (RecordingSectionTitle != null) RecordingSectionTitle.Text = LocalizationManager.GetString("RecordingSettings");
@@ -286,9 +278,9 @@ private void UpdateUIText()
                 if (RecFormatLabel != null) RecFormatLabel.Text = LocalizationManager.GetString("FileFormat");
                 if (RecQualityLabel != null) RecQualityLabel.Text = LocalizationManager.GetString("Quality") + "(MP4)";
                 if (RecFpsLabel != null) RecFpsLabel.Text = LocalizationManager.GetString("FrameRate") + "(MP4)";
-                if (ChkRecMouse != null) ChkRecMouse.Content = LocalizationManager.GetString("ShowMouseCursor") ?? "마우스 표시";
-                if (RecHotkeyGroup != null) RecHotkeyGroup.Header = LocalizationManager.GetString("RecordingStartStopHotkey") ?? "녹화/중지 단축키";
-                if (HkRecStartStopEnabled != null) HkRecStartStopEnabled.Content = LocalizationManager.GetString("RecordStartStop") ?? "녹화/중지";
+                if (ChkRecMouse != null) ChkRecMouse.Content = LocalizationManager.GetString("ShowMouseCursor");
+                if (RecHotkeyGroup != null) RecHotkeyGroup.Header = LocalizationManager.GetString("RecordingStartStopHotkey");
+                if (HkRecStartStopEnabled != null) HkRecStartStopEnabled.Content = LocalizationManager.GetString("RecordStartStop");
                 
                 // 노트 페이지
                 if (NavNote != null) NavNote.Content = LocalizationManager.GetString("NoteSettings");
@@ -310,32 +302,64 @@ private void UpdateUIText()
                 if (BtnExportBackup != null) BtnExportBackup.Content = LocalizationManager.GetString("ExportBackup");
                 if (BtnImportBackup != null) BtnImportBackup.Content = LocalizationManager.GetString("ImportBackup");
 
-                if (NoteSecurityGroup != null) NoteSecurityGroup.Header = LocalizationManager.GetString("NoteSecurity") ?? "노트 보안 및 잠금";
-                if (ChkEnableNotePassword != null) ChkEnableNotePassword.Content = LocalizationManager.GetString("EnableNotePassword") ?? "비밀번호 잠금 사용";
-                if (BtnSetNotePassword != null) BtnSetNotePassword.Content = LocalizationManager.GetString("SetChangePassword") ?? "비밀번호 설정/변경";
-                if (PasswordWarningMsg != null) PasswordWarningMsg.Text = LocalizationManager.GetString("PasswordWarning") ?? "※ 비밀번호 설정 시 분실 시 복구가 불가능하니 주의하십시오.";
+                // 노트 파일명 설정 로컬라이징 추가
+                if (NoteFileNameSettingsGroup != null) NoteFileNameSettingsGroup.Header = LocalizationManager.GetString("FileNameSettings");
+                if (NotePreviewLabel != null) NotePreviewLabel.Text = LocalizationManager.GetString("FileNamePreview") + " : ";
+                
+                if (CboNoteFileNamePresets != null)
+                {
+                    string currentTag = "Default";
+                    if (CboNoteFileNamePresets.SelectedItem is ComboBoxItem sell && sell.Tag is string t) currentTag = t;
+                    
+                    CboNoteFileNamePresets.Items.Clear();
+                    void AddItemNote(string content, string tag)
+                    {
+                        var item = new ComboBoxItem { Content = content, Tag = tag };
+                        CboNoteFileNamePresets.Items.Add(item);
+                        if (tag == currentTag) CboNoteFileNamePresets.SelectedItem = item;
+                    }
 
-                if (NoteOptimizeGroup != null) NoteOptimizeGroup.Header = LocalizationManager.GetString("SaveSettings") ?? "저장 설정";
-                if (NoteFileFormatText != null) NoteFileFormatText.Text = LocalizationManager.GetString("FileFormat") ?? "파일 포맷";
-                if (NoteQualityLabel != null) NoteQualityLabel.Text = LocalizationManager.GetString("Quality") ?? "품질";
+                    AddItemNote(LocalizationManager.GetString("FileNamePreset_Default"), "Default");
+                    AddItemNote(LocalizationManager.GetString("FileNamePreset_Simple"), "Simple");
+                    AddItemNote(LocalizationManager.GetString("FileNamePreset_Timestamp"), "Timestamp");
 
-                if (NoteTrashGroup != null) NoteTrashGroup.Header = LocalizationManager.GetString("TrashSettings") ?? "휴지통 설정";
-                if (TrashRetentionLabel != null) TrashRetentionLabel.Text = LocalizationManager.GetString("TrashRetentionPeriod") ?? "휴지통 보관 기간";
-                if (TrashRetentionNotice != null) TrashRetentionNotice.Text = LocalizationManager.GetString("TrashRetentionNotice") ?? " (설정된 기간이 지나면 자동 영구 삭제)";
+                    if (CboNoteFileNamePresets.SelectedIndex == -1 && CboNoteFileNamePresets.Items.Count > 0)
+                        CboNoteFileNamePresets.SelectedIndex = 0;
+                }
+
+                // 노트 폴더 분류 설정 로컬라이징 추가
+                if (NoteFolderGroupingGroup != null) NoteFolderGroupingGroup.Header = LocalizationManager.GetString("FolderGrouping");
+                if (RbNoteGroupNone != null) RbNoteGroupNone.Content = LocalizationManager.GetString("GroupingNone");
+                if (RbNoteGroupMonthly != null) RbNoteGroupMonthly.Content = LocalizationManager.GetString("GroupingMonthly");
+                if (RbNoteGroupQuarterly != null) RbNoteGroupQuarterly.Content = LocalizationManager.GetString("GroupingQuarterly");
+                if (RbNoteGroupYearly != null) RbNoteGroupYearly.Content = LocalizationManager.GetString("GroupingYearly");
+
+                if (NoteSecurityGroup != null) NoteSecurityGroup.Header = LocalizationManager.GetString("NoteSecurity");
+                if (ChkEnableNotePassword != null) ChkEnableNotePassword.Content = LocalizationManager.GetString("EnableNotePassword");
+                if (BtnSetNotePassword != null) BtnSetNotePassword.Content = LocalizationManager.GetString("SetChangePassword");
+                if (PasswordWarningMsg != null) PasswordWarningMsg.Text = LocalizationManager.GetString("PasswordWarning");
+
+                if (NoteOptimizeGroup != null) NoteOptimizeGroup.Header = LocalizationManager.GetString("SaveSettings");
+                if (NoteFileFormatText != null) NoteFileFormatText.Text = LocalizationManager.GetString("FileFormat");
+                if (NoteQualityLabel != null) NoteQualityLabel.Text = LocalizationManager.GetString("Quality");
+
+                if (NoteTrashGroup != null) NoteTrashGroup.Header = LocalizationManager.GetString("TrashSettings");
+                if (TrashRetentionLabel != null) TrashRetentionLabel.Text = LocalizationManager.GetString("TrashRetentionPeriod");
+                if (TrashRetentionNotice != null) TrashRetentionNotice.Text = LocalizationManager.GetString("TrashRetentionNotice");
 
                 if (CboTrashRetention != null)
                 {
                     foreach (ComboBoxItem item in CboTrashRetention.Items)
                     {
                         string? tag = item.Tag as string;
-                        if (tag == "0") item.Content = LocalizationManager.GetString("RetentionPermanent") ?? "영구 보관";
-                        else if (tag == "1") item.Content = "1" + (LocalizationManager.GetString("Days") ?? "일");
-                        else if (tag == "3") item.Content = "3" + (LocalizationManager.GetString("Days") ?? "일");
-                        else if (tag == "7") item.Content = "7" + (LocalizationManager.GetString("Days") ?? "일");
-                        else if (tag == "15") item.Content = "15" + (LocalizationManager.GetString("Days") ?? "일");
-                        else if (tag == "30") item.Content = "30" + (LocalizationManager.GetString("Days") ?? "일");
-                        else if (tag == "60") item.Content = "60" + (LocalizationManager.GetString("Days") ?? "일");
-                        else if (tag == "90") item.Content = "90" + (LocalizationManager.GetString("Days") ?? "일");
+                        if (tag == "0") item.Content = LocalizationManager.GetString("RetentionPermanent");
+                        else if (tag == "1") item.Content = "1" + LocalizationManager.GetString("Days");
+                        else if (tag == "3") item.Content = "3" + LocalizationManager.GetString("Days");
+                        else if (tag == "7") item.Content = "7" + LocalizationManager.GetString("Days");
+                        else if (tag == "15") item.Content = "15" + LocalizationManager.GetString("Days");
+                        else if (tag == "30") item.Content = "30" + LocalizationManager.GetString("Days");
+                        else if (tag == "60") item.Content = "60" + LocalizationManager.GetString("Days");
+                        else if (tag == "90") item.Content = "90" + LocalizationManager.GetString("Days");
                     }
                 }
 
@@ -355,12 +379,12 @@ private void UpdateUIText()
                 if (CancelButton != null) CancelButton.Content = LocalizationManager.GetString("Cancel");
                 if (ApplyButton != null) ApplyButton.Content = LocalizationManager.GetString("Apply");
                 if (SaveButton != null) SaveButton.Content = LocalizationManager.GetString("Save");
-                if (PageDefaultButton != null) PageDefaultButton.Content = LocalizationManager.GetString("Default") ?? "기본값";
+                if (PageDefaultButton != null) PageDefaultButton.Content = LocalizationManager.GetString("Default");
                 
                 // Sidebar Bottom Links
-                if (RestoreDefaultsText != null) RestoreDefaultsText.Text = LocalizationManager.GetString("RestoreDefaults") ?? "기본설정 복원";
-                if (PrivacyPolicyText != null) PrivacyPolicyText.Text = LocalizationManager.GetString("PrivacyPolicy") ?? "개인정보 처리방침";
-                if (WebsiteIcon != null) WebsiteIcon.ToolTip = LocalizationManager.GetString("VisitHomepage") ?? "홈페이지 방문";
+                if (RestoreDefaultsText != null) RestoreDefaultsText.Text = LocalizationManager.GetString("RestoreDefaults");
+                if (PrivacyPolicyText != null) PrivacyPolicyText.Text = LocalizationManager.GetString("PrivacyPolicy");
+                if (WebsiteIcon != null) WebsiteIcon.ToolTip = LocalizationManager.GetString("VisitHomepage");
             }
             catch (Exception ex)
             {
@@ -909,6 +933,21 @@ private void InitLanguageComboBox()
         private void LoadNotePage()
         {
             TxtNoteFolder.Text = _settings.NoteStoragePath;
+
+            if (CboNoteFileNamePresets != null)
+            {
+                // Note: Population is now handled in UpdateUIText for dynamic localization.
+                // We just need to ensure the correct item is selected if it's not already.
+                if (CboNoteFileNamePresets.SelectedIndex == -1 && CboNoteFileNamePresets.Items.Count > 0)
+                    CboNoteFileNamePresets.SelectedIndex = 0;
+            }
+            if (TxtNoteFileNameTemplate != null) TxtNoteFileNameTemplate.Text = _settings.NoteFileNameTemplate ?? "Catch_$yyyy-MM-dd_HH-mm-ss$";
+
+            string nGrp = _settings.NoteFolderGroupingMode ?? "None";
+            if (RbNoteGroupNone != null && nGrp == "None") RbNoteGroupNone.IsChecked = true;
+            else if (RbNoteGroupMonthly != null && nGrp == "Monthly") RbNoteGroupMonthly.IsChecked = true;
+            else if (RbNoteGroupQuarterly != null && nGrp == "Quarterly") RbNoteGroupQuarterly.IsChecked = true;
+            else if (RbNoteGroupYearly != null && nGrp == "Yearly") RbNoteGroupYearly.IsChecked = true;
             
             ChkEnableNotePassword.IsChecked = _settings.IsNoteLockEnabled;
             BtnSetNotePassword.IsEnabled = ChkEnableNotePassword.IsChecked == true;
@@ -1418,6 +1457,14 @@ private void InitLanguageComboBox()
 
             // Note settings
             _settings.NoteStoragePath = TxtNoteFolder.Text;
+
+             if (TxtNoteFileNameTemplate != null) _settings.NoteFileNameTemplate = TxtNoteFileNameTemplate.Text;
+             
+             if (RbNoteGroupNone != null && RbNoteGroupNone.IsChecked == true) _settings.NoteFolderGroupingMode = "None";
+             else if (RbNoteGroupMonthly != null && RbNoteGroupMonthly.IsChecked == true) _settings.NoteFolderGroupingMode = "Monthly";
+             else if (RbNoteGroupQuarterly != null && RbNoteGroupQuarterly.IsChecked == true) _settings.NoteFolderGroupingMode = "Quarterly";
+             else if (RbNoteGroupYearly != null && RbNoteGroupYearly.IsChecked == true) _settings.NoteFolderGroupingMode = "Yearly";
+
             _settings.IsNoteLockEnabled = ChkEnableNotePassword.IsChecked == true;
             // Note: Password/Hint are already in _settings via modal if it was used
             
@@ -2029,6 +2076,80 @@ private void InitLanguageComboBox()
             else if (RbGroupYearly != null && RbGroupYearly.IsChecked == true) folderPart = now.ToString("yyyy") + "\\";
 
             TxtFileNamePreview.Text = folderPart + preview + ext;
+        }
+        private void BtnFormatInfo_Click(object sender, RoutedEventArgs e)
+        {
+            if (FormatInfoPopup != null) FormatInfoPopup.IsOpen = !FormatInfoPopup.IsOpen;
+        }
+
+        private void BtnNoteFormatInfo_Click(object sender, RoutedEventArgs e)
+        {
+            if (NoteFormatInfoPopup != null) NoteFormatInfoPopup.IsOpen = !NoteFormatInfoPopup.IsOpen;
+        }
+
+        private void TxtNoteFileNameTemplate_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            UpdateNoteFileNamePreview();
+        }
+
+        private void CboNoteFileNamePresets_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (CboNoteFileNamePresets.SelectedItem is ComboBoxItem item && TxtNoteFileNameTemplate != null)
+            {
+                if (item.Tag is string tag)
+                {
+                    if (tag == "Default") TxtNoteFileNameTemplate.Text = "Catch_$yyyy-MM-dd_HH-mm-ss$";
+                    else if (tag == "Simple") TxtNoteFileNameTemplate.Text = "Image_$yyyy-MM-dd$";
+                    else if (tag == "Timestamp") TxtNoteFileNameTemplate.Text = "$yyyyMMdd_HHmmss$";
+                }
+            }
+        }
+
+        private void NoteFolderGrouping_Checked(object sender, RoutedEventArgs e)
+        {
+            UpdateNoteFileNamePreview();
+        }
+
+        private void UpdateNoteFileNamePreview()
+        {
+            if (TxtNoteFileNamePreview == null || TxtNoteFileNameTemplate == null) return;
+
+            string template = TxtNoteFileNameTemplate.Text;
+            string preview = template;
+            DateTime now = DateTime.Now;
+
+            try 
+            {
+                var matches = System.Text.RegularExpressions.Regex.Matches(template, @"\$(.*?)\$");
+                foreach (System.Text.RegularExpressions.Match match in matches)
+                {
+                    string format = match.Groups[1].Value;
+                    try 
+                    {
+                        preview = preview.Replace(match.Value, now.ToString(format));
+                    }
+                    catch { }
+                }
+            } 
+            catch { }
+
+            string ext = ".webp"; // Default
+            if (CboNoteFormat != null && CboNoteFormat.SelectedItem is ComboBoxItem item)
+            {
+                ext = "." + (item.Content?.ToString() ?? "webp").ToLower();
+            }
+
+            // Folder Preview
+            string folderPart = "";
+            if (RbNoteGroupMonthly != null && RbNoteGroupMonthly.IsChecked == true) folderPart = now.ToString("yyyy-MM") + "\\";
+            else if (RbNoteGroupQuarterly != null && RbNoteGroupQuarterly.IsChecked == true) 
+            {
+                int q = (now.Month + 2) / 3;
+                folderPart = $"{now.Year}_{q}Q\\";
+            }
+            else if (RbNoteGroupYearly != null && RbNoteGroupYearly.IsChecked == true) folderPart = now.ToString("yyyy") + "\\";
+
+            TxtNoteFileNamePreview.Text = folderPart + preview + ext;
         }
     }
 

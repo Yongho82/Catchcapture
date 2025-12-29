@@ -559,7 +559,7 @@ namespace CatchCapture
 
             try
             {
-                string title = TxtTitle.Text;
+                string title = TxtTitle.Text ?? "";
                 
                 // If title is empty, try to generate from content
                 if (string.IsNullOrWhiteSpace(title))
@@ -599,8 +599,8 @@ namespace CatchCapture
                 
                 if (string.IsNullOrWhiteSpace(title)) title = CatchCapture.Resources.LocalizationManager.GetString("Untitled");
                 
-                string content = Editor.GetPlainText();
-                string tags = TxtTags.Text;
+                string content = Editor.GetPlainText() ?? "";
+                string tags = TxtTags.Text ?? "";
 
                 long categoryId = 1;
                 if (CboCategory.SelectedItem is Category cat) categoryId = cat.Id;
@@ -653,11 +653,51 @@ namespace CatchCapture
                         }
 
                         string ext = "." + saveFormat.ToLower();
-                        string fileNameOnly = $"img_{DateTime.Now:yyyyMMdd_HHmmss_fff}_{Guid.NewGuid().ToString().Substring(0, 8)}{ext}";
+
+                        // [Updated] Folder Grouping
+                        string subFolder = "";
+                        string grpMode = settings.NoteFolderGroupingMode ?? "None";
+                        DateTime now = DateTime.Now;
                         
-                        string yearSub = DatabaseManager.Instance.EnsureYearFolderExists(imgDir);
-                        string fileName = Path.Combine(yearSub, fileNameOnly);
-                        string fullPath = Path.Combine(imgDir, fileName);
+                        if (grpMode == "Yearly") subFolder = now.ToString("yyyy");
+                        else if (grpMode == "Monthly") subFolder = now.ToString("yyyy-MM");
+                        else if (grpMode == "Quarterly") subFolder = $"{now.Year}_{(now.Month + 2) / 3}Q";
+                        
+                        string targetDir = string.IsNullOrEmpty(subFolder) ? imgDir : Path.Combine(imgDir, subFolder);
+                        if (!Directory.Exists(targetDir)) Directory.CreateDirectory(targetDir);
+
+                        // [Updated] File Naming from Template
+                        string tmpl = settings.NoteFileNameTemplate ?? "Catch_$yyyy-MM-dd_HH-mm-ss$";
+                        string fName = tmpl;
+                        
+                        try {
+                            var matches = System.Text.RegularExpressions.Regex.Matches(tmpl, @"\$(.*?)\$");
+                            foreach (System.Text.RegularExpressions.Match match in matches) {
+                                string k = match.Groups[1].Value;
+                                if (k.Equals("App", StringComparison.OrdinalIgnoreCase)) fName = fName.Replace(match.Value, _sourceApp ?? "CatchC");
+                                else if (k.Equals("Title", StringComparison.OrdinalIgnoreCase)) {
+                                    string safeTitle = title ?? "Untitled"; 
+                                    if (safeTitle.Length > 20) safeTitle = safeTitle.Substring(0, 20); // Truncate title in filename
+                                    fName = fName.Replace(match.Value, safeTitle);
+                                }
+                                else try { fName = fName.Replace(match.Value, now.ToString(k)); } catch {}
+                            }
+                        } catch {}
+                        
+                        foreach (char c in Path.GetInvalidFileNameChars()) fName = fName.Replace(c, '_');
+                        if (string.IsNullOrWhiteSpace(fName)) fName = "Image";
+
+                        string fileNameOnly = fName + ext;
+                        string fullPath = Path.Combine(targetDir, fileNameOnly);
+                        
+                        // Collision handling
+                        int dupCounter = 1;
+                        while (File.Exists(fullPath)) {
+                            fileNameOnly = $"{fName}_{dupCounter++}{ext}";
+                            fullPath = Path.Combine(targetDir, fileNameOnly);
+                        }
+                        
+                        string fileName = string.IsNullOrEmpty(subFolder) ? fileNameOnly : Path.Combine(subFolder, fileNameOnly);
                         
                         ms.Position = 0;
                         using (var fileStream = new FileStream(fullPath, FileMode.Create)) { ms.CopyTo(fileStream); }
@@ -674,7 +714,7 @@ namespace CatchCapture
                 if (_isEditMode)
                 {
                     targetNoteId = _editingNoteId!.Value;
-                    DatabaseManager.Instance.UpdateNote(targetNoteId, title, content, contentXaml, tags, categoryId);
+                    DatabaseManager.Instance.UpdateNote(targetNoteId, title ?? "", content ?? "", contentXaml ?? "", tags ?? "", categoryId);
                     
                     using (var connection = new SqliteConnection($"Data Source={DatabaseManager.Instance.DbFilePath}"))
                     {
@@ -701,7 +741,7 @@ namespace CatchCapture
                 }
                 else
                 {
-                    targetNoteId = DatabaseManager.Instance.InsertNote(title, content, contentXaml, tags, "", _sourceApp, _sourceUrl, categoryId);
+                    targetNoteId = DatabaseManager.Instance.InsertNote(title ?? "", content ?? "", contentXaml ?? "", tags ?? "", "", _sourceApp, _sourceUrl, categoryId);
 
                     for (int i = 0; i < savedImages.Count; i++)
                     {
