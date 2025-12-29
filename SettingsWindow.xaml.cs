@@ -1188,6 +1188,7 @@ private void InitLanguageComboBox()
 
         private void BtnExportBackup_Click(object sender, RoutedEventArgs e)
         {
+            string? tempPath = null;
             try
             {
                 var sfd = new Microsoft.Win32.SaveFileDialog();
@@ -1198,18 +1199,75 @@ private void InitLanguageComboBox()
                     string sourceDir = TxtNoteFolder.Text;
                     if (!Directory.Exists(sourceDir))
                     {
-                        CatchCapture.CustomMessageBox.Show("백업할 폴더가 존재하지 않습니다.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                        CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("ErrorNoFolder"), "오류", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
 
-                    // ZipFile requires System.IO.Compression.FileSystem
-                    System.IO.Compression.ZipFile.CreateFromDirectory(sourceDir, sfd.FileName);
-                    CatchCapture.CustomMessageBox.Show("백업이 완료되었습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
+                    // 1. Destination already exists fix
+                    if (File.Exists(sfd.FileName))
+                    {
+                        try { File.Delete(sfd.FileName); } catch { }
+                    }
+
+                    // 2. Temp copy logic
+                    tempPath = Path.Combine(Path.GetTempPath(), "CatchCapture_Backup_Temp_" + Guid.NewGuid().ToString("N"));
+                    Directory.CreateDirectory(tempPath);
+
+                    // A. Copy folders (img, attachments, etc.) - Skip notedb as we use VACUUM for it
+                    CopyDirectory(sourceDir, tempPath, "notedb");
+
+                    // B. Safely backup the database using VACUUM INTO
+                    string tempDbPath = Path.Combine(tempPath, "notedb", "catch_notes.db");
+                    CatchCapture.Utilities.DatabaseManager.Instance.BackupDatabase(tempDbPath);
+
+                    // 3. Zip from temp
+                    System.IO.Compression.ZipFile.CreateFromDirectory(tempPath, sfd.FileName);
+                    
+                    CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("BackupSuccess"), "성공", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
             {
-                CatchCapture.CustomMessageBox.Show($"백업 중 오류 발생: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                CatchCapture.CustomMessageBox.Show($"{LocalizationManager.GetString("ErrorBackup")}: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                if (tempPath != null && Directory.Exists(tempPath))
+                {
+                    try { Directory.Delete(tempPath, true); } catch { }
+                }
+            }
+        }
+
+        private void CopyDirectory(string sourceDir, string targetDir, string? excludeDirName = null)
+        {
+            Directory.CreateDirectory(targetDir);
+            foreach (string file in Directory.GetFiles(sourceDir))
+            {
+                string dest = Path.Combine(targetDir, Path.GetFileName(file));
+                try
+                {
+                    // Use FileStream with FileShare.ReadWrite to copy even if the file is locked
+                    using (var sourceStream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    using (var destStream = new FileStream(dest, FileMode.Create, FileAccess.Write))
+                    {
+                        sourceStream.CopyTo(destStream);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Failed to copy {file}: {ex.Message}");
+                    try { File.Copy(file, dest, true); } catch { }
+                }
+            }
+            foreach (string subDir in Directory.GetDirectories(sourceDir))
+            {
+                string dirName = Path.GetFileName(subDir);
+                if (excludeDirName != null && string.Equals(dirName, excludeDirName, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                string dest = Path.Combine(targetDir, dirName);
+                CopyDirectory(subDir, dest, null); // Only top level exclude for now
             }
         }
 

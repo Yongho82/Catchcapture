@@ -191,6 +191,42 @@ namespace CatchCapture.Utilities
             }
         }
 
+        public void BackupDatabase(string destinationPath)
+        {
+            try
+            {
+                string? dir = Path.GetDirectoryName(destinationPath);
+                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
+
+                // If destination exists, Delete it first (VACUUM INTO requires the target to NOT exist)
+                if (File.Exists(destinationPath)) File.Delete(destinationPath);
+
+                using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+                {
+                    connection.Open();
+                    // 'VACUUM INTO' is the safest way to backup a live SQLite database
+                    using (var command = new SqliteCommand($"VACUUM INTO '{destinationPath.Replace("'", "''")}';", connection))
+                    {
+                        command.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"DB 백업 중 오류: {ex.Message}");
+                // Fallback: if VACUUM INTO fails, try standard copy with sharing
+                try
+                {
+                    using (var sourceStream = new FileStream(DbPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    using (var destStream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write))
+                    {
+                        sourceStream.CopyTo(destStream);
+                    }
+                }
+                catch { throw; } // Re-throw if both fail
+            }
+        }
+
         public string GetImageFolderPath()
         {
             string dbDir = Path.GetDirectoryName(DbPath)!;
