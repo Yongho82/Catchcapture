@@ -28,7 +28,7 @@ namespace CatchCapture
             if (TxtHintLabel != null) TxtHintLabel.Text = CatchCapture.Resources.LocalizationManager.GetString("PasswordHintRequired");
             if (TxtWarning != null) TxtWarning.Text = CatchCapture.Resources.LocalizationManager.GetString("PasswordLossWarning");
             
-            if (BtnCancel != null) BtnCancel.Content = CatchCapture.Resources.LocalizationManager.GetString("Cancel");
+            if (BtnCancel != null) BtnCancel.Content = CatchCapture.Resources.LocalizationManager.GetString("BtnCancel");
             if (BtnSave != null) BtnSave.Content = CatchCapture.Resources.LocalizationManager.GetString("Save");
         }
 

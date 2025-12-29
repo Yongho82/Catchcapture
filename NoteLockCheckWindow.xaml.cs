@@ -33,7 +33,7 @@ namespace CatchCapture
             if (TxtHeaderSub != null) TxtHeaderSub.Text = CatchCapture.Resources.LocalizationManager.GetString("ProtectedContent");
             if (BtnHint != null) BtnHint.Content = CatchCapture.Resources.LocalizationManager.GetString("ShowHint");
             if (TxtPasswordLabel != null) TxtPasswordLabel.Text = CatchCapture.Resources.LocalizationManager.GetString("Password");
-            if (BtnCancel != null) BtnCancel.Content = CatchCapture.Resources.LocalizationManager.GetString("Cancel");
+            if (BtnCancel != null) BtnCancel.Content = CatchCapture.Resources.LocalizationManager.GetString("BtnCancel");
             if (BtnConfirm != null) BtnConfirm.Content = CatchCapture.Resources.LocalizationManager.GetString("Unlock");
         }
 

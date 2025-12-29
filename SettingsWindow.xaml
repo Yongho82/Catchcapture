@@ -426,6 +426,7 @@
                     <GroupBox x:Name="OptionsGroup" Header="{DynamicResource Options}" BorderBrush="{DynamicResource ThemeBorder}" Padding="10">
                         <StackPanel>
                             <CheckBox x:Name="ChkAutoSave" Content="{DynamicResource SettingsAutoSaveDesc}" Margin="0,5"/>
+                            <CheckBox x:Name="ChkAutoCopy" Content="{DynamicResource SettingsAutoCopyDesc}" Margin="0,5"/>
                             <CheckBox x:Name="ChkShowPreview" Content="{DynamicResource SettingsShowPreviewDesc}" Margin="0,5"/>
                             <CheckBox x:Name="ChkShowMagnifier" Content="{DynamicResource SettingsShowMagnifierDesc}" Margin="0,5"/>
                         </StackPanel>
@@ -1017,6 +1018,7 @@
                                 <RowDefinition Height="32"/> <!-- Delete -->
                                 <RowDefinition Height="32"/> <!-- Settings -->
                                 <RowDefinition Height="32"/> <!-- Open Editor -->
+                                <RowDefinition Height="32"/> <!-- Open Note -->
                             </Grid.RowDefinitions>
 
                             <!-- Header -->
@@ -1161,6 +1163,14 @@
                             <CheckBox x:Name="HkOpenEditorAlt" Grid.Row="17" Grid.Column="3" HorizontalAlignment="Center"/>
                             <CheckBox x:Name="HkOpenEditorWin" Grid.Row="17" Grid.Column="4" HorizontalAlignment="Center"/>
                             <ComboBox x:Name="HkOpenEditorKey" Grid.Row="17" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
+
+                            <!-- Open Note -->
+                            <CheckBox x:Name="HkOpenNoteEnabled" Grid.Row="18" Grid.Column="0" Content="{DynamicResource OpenMyNote}" FontWeight="SemiBold"/>
+                            <CheckBox x:Name="HkOpenNoteCtrl" Grid.Row="18" Grid.Column="1" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkOpenNoteShift" Grid.Row="18" Grid.Column="2" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkOpenNoteAlt" Grid.Row="18" Grid.Column="3" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkOpenNoteWin" Grid.Row="18" Grid.Column="4" HorizontalAlignment="Center"/>
+                            <ComboBox x:Name="HkOpenNoteKey" Grid.Row="18" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
                         </Grid>
                     </ScrollViewer>
                 </Grid>

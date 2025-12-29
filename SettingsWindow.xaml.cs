@@ -103,7 +103,7 @@ private void UpdateUIText()
                 // 메뉴 편집 페이지
                 if (MenuEditSectionTitle != null) MenuEditSectionTitle.Text = LocalizationManager.GetString("MenuEdit");
                 if (MenuEditGuideText != null) MenuEditGuideText.Text = LocalizationManager.GetString("MenuEditGuide");
-                if (AddMenuButton != null) AddMenuButton.Content = "+ " + LocalizationManager.GetString("Add"); 
+                if (AddMenuButton != null) AddMenuButton.Content = "+ " + LocalizationManager.GetString("BtnAdd"); 
                 
                 // 앱 이름과 하단 정보
                 if (SidebarAppNameText != null) SidebarAppNameText.Text = LocalizationManager.GetString("AppTitle");
@@ -120,9 +120,10 @@ private void UpdateUIText()
                 if (FileFormatText != null) FileFormatText.Text = LocalizationManager.GetString("FileFormat");
                 if (QualityText != null) QualityText.Text = LocalizationManager.GetString("Quality");
                 if (OptionsGroup != null) OptionsGroup.Header = LocalizationManager.GetString("Options");
-                if (ChkAutoSave != null) ChkAutoSave.Content = LocalizationManager.GetString("AutoSaveCapture");
-                if (ChkShowPreview != null) ChkShowPreview.Content = LocalizationManager.GetString("ShowPreviewAfterCapture");
-                if (ChkShowMagnifier != null) ChkShowMagnifier.Content = LocalizationManager.GetString("ShowMagnifier");
+                if (ChkAutoSave != null) ChkAutoSave.Content = LocalizationManager.GetString("SettingsAutoSaveDesc");
+                if (ChkAutoCopy != null) ChkAutoCopy.Content = LocalizationManager.GetString("SettingsAutoCopyDesc");
+                if (ChkShowPreview != null) ChkShowPreview.Content = LocalizationManager.GetString("SettingsShowPreviewDesc");
+                if (ChkShowMagnifier != null) ChkShowMagnifier.Content = LocalizationManager.GetString("SettingsShowMagnifierDesc");
                 
                 // 파일명 설정 & 폴더 분류 설정 UI
                 if (FileNameSettingsGroup != null) FileNameSettingsGroup.Header = LocalizationManager.GetString("FileNameSettings");
@@ -376,7 +377,7 @@ private void UpdateUIText()
                 }
 
                 // 하단 버튼
-                if (CancelButton != null) CancelButton.Content = LocalizationManager.GetString("Cancel");
+                if (CancelButton != null) CancelButton.Content = LocalizationManager.GetString("BtnCancel");
                 if (ApplyButton != null) ApplyButton.Content = LocalizationManager.GetString("Apply");
                 if (SaveButton != null) SaveButton.Content = LocalizationManager.GetString("Save");
                 if (PageDefaultButton != null) PageDefaultButton.Content = LocalizationManager.GetString("Default");
@@ -410,7 +411,7 @@ private void UpdateUIText()
                 HkOcrCaptureKey, HkScreenRecordKey,
                 HkSimpleModeKey, HkTrayModeKey,
                 HkSaveAllKey, HkDeleteAllKey, HkOpenSettingsKey, HkOpenEditorKey,
-                HkRecStartStopKey
+                HkOpenNoteKey, HkRecStartStopKey
             };
 
             foreach (var box in boxes)
@@ -787,6 +788,7 @@ private void InitLanguageComboBox()
                 ? defaultInstallFolder
                 : _settings.DefaultSaveFolder;
             if (ChkAutoSave != null) ChkAutoSave.IsChecked = _settings.AutoSaveCapture;
+            if (ChkAutoCopy != null) ChkAutoCopy.IsChecked = _settings.AutoCopyToClipboard;
             if (ChkShowPreview != null) ChkShowPreview.IsChecked = _settings.ShowPreviewAfterCapture;
             if (ChkShowMagnifier != null) ChkShowMagnifier.IsChecked = _settings.ShowMagnifier;
             
@@ -871,6 +873,7 @@ private void InitLanguageComboBox()
             EnsureDefaultKey(hk.DeleteAll, "X");
             EnsureDefaultKey(hk.OpenSettings, "O");
             EnsureDefaultKey(hk.OpenEditor, "E");
+            EnsureDefaultKey(hk.OpenNote, "N");
             EnsureDefaultKey(hk.RecordingStartStop, "F3");
 
             // Bind to UI
@@ -891,6 +894,7 @@ private void InitLanguageComboBox()
             BindHotkey(hk.DeleteAll, HkDeleteAllEnabled, HkDeleteAllCtrl, HkDeleteAllShift, HkDeleteAllAlt, HkDeleteAllWin, HkDeleteAllKey);
             BindHotkey(hk.OpenSettings, HkOpenSettingsEnabled, HkOpenSettingsCtrl, HkOpenSettingsShift, HkOpenSettingsAlt, HkOpenSettingsWin, HkOpenSettingsKey);
             BindHotkey(hk.OpenEditor, HkOpenEditorEnabled, HkOpenEditorCtrl, HkOpenEditorShift, HkOpenEditorAlt, HkOpenEditorWin, HkOpenEditorKey);
+            BindHotkey(hk.OpenNote, HkOpenNoteEnabled, HkOpenNoteCtrl, HkOpenNoteShift, HkOpenNoteAlt, HkOpenNoteWin, HkOpenNoteKey);
             BindHotkey(hk.RecordingStartStop, HkRecStartStopEnabled, HkRecStartStopCtrl, HkRecStartStopShift, HkRecStartStopAlt, HkRecStartStopWin, HkRecStartStopKey);
         }
 
@@ -1318,6 +1322,7 @@ private void InitLanguageComboBox()
                 _settings.ImageQuality = defaults.ImageQuality;
                 _settings.DefaultSaveFolder = defaults.DefaultSaveFolder;
                 _settings.AutoSaveCapture = defaults.AutoSaveCapture;
+                _settings.AutoCopyToClipboard = defaults.AutoCopyToClipboard;
                 _settings.ShowPreviewAfterCapture = defaults.ShowPreviewAfterCapture;
                 _settings.ShowMagnifier = defaults.ShowMagnifier;
                 _settings.FileNameTemplate = defaults.FileNameTemplate;
@@ -1420,6 +1425,7 @@ private void InitLanguageComboBox()
             else if (RbGroupQuarterly != null && RbGroupQuarterly.IsChecked == true) _settings.FolderGroupingMode = "Quarterly";
             else if (RbGroupYearly != null && RbGroupYearly.IsChecked == true) _settings.FolderGroupingMode = "Yearly";
             _settings.AutoSaveCapture = ChkAutoSave.IsChecked == true;
+            _settings.AutoCopyToClipboard = ChkAutoCopy.IsChecked == true;
             _settings.ShowPreviewAfterCapture = ChkShowPreview.IsChecked == true;
             _settings.ShowMagnifier = ChkShowMagnifier.IsChecked == true;
             
@@ -1453,6 +1459,7 @@ private void InitLanguageComboBox()
             ReadHotkey(_settings.Hotkeys.DeleteAll, HkDeleteAllEnabled, HkDeleteAllCtrl, HkDeleteAllShift, HkDeleteAllAlt, HkDeleteAllWin, HkDeleteAllKey);
             ReadHotkey(_settings.Hotkeys.OpenSettings, HkOpenSettingsEnabled, HkOpenSettingsCtrl, HkOpenSettingsShift, HkOpenSettingsAlt, HkOpenSettingsWin, HkOpenSettingsKey);
             ReadHotkey(_settings.Hotkeys.OpenEditor, HkOpenEditorEnabled, HkOpenEditorCtrl, HkOpenEditorShift, HkOpenEditorAlt, HkOpenEditorWin, HkOpenEditorKey);
+            ReadHotkey(_settings.Hotkeys.OpenNote, HkOpenNoteEnabled, HkOpenNoteCtrl, HkOpenNoteShift, HkOpenNoteAlt, HkOpenNoteWin, HkOpenNoteKey);
             ReadHotkey(_settings.Hotkeys.RecordingStartStop, HkRecStartStopEnabled, HkRecStartStopCtrl, HkRecStartStopShift, HkRecStartStopAlt, HkRecStartStopWin, HkRecStartStopKey);
 
             // Note settings
@@ -1502,6 +1509,7 @@ private void InitLanguageComboBox()
             EnsureDefaultKey(_settings.Hotkeys.DeleteAll, "X");
             EnsureDefaultKey(_settings.Hotkeys.OpenSettings, "O");
             EnsureDefaultKey(_settings.Hotkeys.OpenEditor, "E");
+            EnsureDefaultKey(_settings.Hotkeys.OpenNote, "N");
             EnsureDefaultKey(_settings.Hotkeys.RecordingStartStop, "F3");
 
             // Recording Page Harvest
@@ -2075,7 +2083,7 @@ private void InitLanguageComboBox()
             }
             else if (RbGroupYearly != null && RbGroupYearly.IsChecked == true) folderPart = now.ToString("yyyy") + "\\";
 
-            TxtFileNamePreview.Text = folderPart + preview + ext;
+            TxtFileNamePreview.Text = preview + ext;
         }
         private void BtnFormatInfo_Click(object sender, RoutedEventArgs e)
         {
@@ -2149,7 +2157,7 @@ private void InitLanguageComboBox()
             }
             else if (RbNoteGroupYearly != null && RbNoteGroupYearly.IsChecked == true) folderPart = now.ToString("yyyy") + "\\";
 
-            TxtNoteFileNamePreview.Text = folderPart + preview + ext;
+            TxtNoteFileNamePreview.Text = preview + ext;
         }
     }
 

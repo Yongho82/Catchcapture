@@ -2103,44 +2103,10 @@ namespace CatchCapture.Utilities
         }
 
         // 복사 완료 스티커 표시 메서드
+        // 복사 완료 스티커 표시 메서드
         private void ShowCopyCompleteSticker()
         {
-            var sticker = new Window
-            {
-                WindowStyle = WindowStyle.None,
-                AllowsTransparency = true,
-                Background = Brushes.Transparent,
-                Topmost = true,
-                ShowInTaskbar = false,
-                Width = 170,  // 너비 줄임 (200 -> 140)
-                Height = 36,  // 높이 줄임 (50 -> 36)
-                WindowStartupLocation = WindowStartupLocation.CenterScreen
-            };
-
-            var border = new Border
-            {
-                Background = new SolidColorBrush(Color.FromArgb(180, 0, 0, 0)), // 투명도 약간 더 줌
-                CornerRadius = new CornerRadius(18), // 둥근 알약 모양
-                Child = new TextBlock
-                {
-                    Text = LocalizationManager.Get("CopiedToClipboard"), // 느낌표 제거하고 심플하게
-                    Foreground = Brushes.White,
-                    FontSize = 12, // 폰트 크기 줄임 (16 -> 12)
-                    FontWeight = FontWeights.Normal, // 볼드 제거
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center,
-                    Margin = new Thickness(0, 0, 0, 1) // 텍스트 시각적 중앙 보정
-                }
-            };
-
-            sticker.Content = border;
-            sticker.Show();
-
-            // 1초 후 자동으로 사라짐
-            Task.Delay(1000).ContinueWith(_ => 
-            {
-                Dispatcher.Invoke(() => sticker.Close());
-            });
+            CatchCapture.Utilities.StickerWindow.Show(ResLoc.GetString("CopiedToClipboard"));
         }
 
         private void SaveToFile()

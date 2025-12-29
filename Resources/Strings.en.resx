@@ -733,4 +733,13 @@ Are you sure you want to permanently delete all items?</value>
   <data name="TextNote" xml:space="preserve"><value>Text</value></data>
   <data name="BadgeSize" xml:space="preserve"><value>Badge Size</value></data>
   <data name="TextSize" xml:space="preserve"><value>Text Size</value></data>
+  <data name="SettingsAutoCopyDesc" xml:space="preserve"><value>Auto-copy to clipboard after capture</value></data>
+  <data name="AddVideo" xml:space="preserve"><value>Add Video</value></data>
+  <data name="BtnYes" xml:space="preserve"><value>Yes</value></data>
+  <data name="BtnNo" xml:space="preserve"><value>No</value></data>
+  <data name="BtnOK" xml:space="preserve"><value>OK</value></data>
+  <data name="BtnCancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="AddVideoGuidance" xml:space="preserve"><value>Please enter YouTube URL or source code (iframe):</value></data>
+  <data name="SearchLocalFile" xml:space="preserve"><value>Find Local File...</value></data>
+  <data name="BtnAdd" xml:space="preserve"><value>Add</value></data>
 </root>

@@ -13,6 +13,7 @@ using System.Windows.Input;
 using System.Windows.Data;
 using System.Text.RegularExpressions;
 using System.Windows.Shapes;
+using LocalizationManager = CatchCapture.Resources.LocalizationManager;
 
 namespace CatchCapture.Controls
 {
@@ -113,7 +114,7 @@ namespace CatchCapture.Controls
             // Color Picker
             if (ColorPickerTitle != null) ColorPickerTitle.Text = CatchCapture.Resources.LocalizationManager.GetString("ColorPickerTitle") ?? "색상";
             if (BtnClearColor != null) BtnClearColor.Content = CatchCapture.Resources.LocalizationManager.GetString("Transparent") ?? "투명";
-            if (BtnCustomColor != null) BtnCustomColor.Content = "+ " + (CatchCapture.Resources.LocalizationManager.GetString("Add") ?? "추가");
+            if (BtnCustomColor != null) BtnCustomColor.Content = "+ " + (CatchCapture.Resources.LocalizationManager.GetString("BtnAdd") ?? "추가");
 
             // Tooltips
             if (CboFontFamily != null) CboFontFamily.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("FontFamily") ?? "글꼴";
@@ -131,6 +132,7 @@ namespace CatchCapture.Controls
             if (BtnInsertImage != null) BtnInsertImage.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("InsertImage") ?? "이미지 삽입";
             if (BtnCaptureAdd != null) BtnCaptureAdd.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("InsertCapture") ?? "캡처 추가";
             if (BtnInsertLink != null) BtnInsertLink.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("InsertLink") ?? "링크 삽입";
+            if (BtnInsertVideo != null) BtnInsertVideo.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("AddVideo") ?? "동영상/유튜브 삽입";
             if (BtnUndo != null) BtnUndo.ToolTip = (CatchCapture.Resources.LocalizationManager.GetString("Undo") ?? "실행 취소") + " (Ctrl+Z)";
             if (BtnRedo != null) BtnRedo.ToolTip = (CatchCapture.Resources.LocalizationManager.GetString("Redo") ?? "다시 실행") + " (Ctrl+Y)";
             if (BtnLineSpacing != null) BtnLineSpacing.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("LineSpacing") ?? "줄 간격";
@@ -1540,7 +1542,7 @@ namespace CatchCapture.Controls
             // 간단한 입력 다이얼로그 (커스텀 팝업이 좋으나 일단 표준 입력창 방식 제안)
             var inputWin = new Window
             {
-                Title = "동영상/유튜브 추가",
+                Title = LocalizationManager.GetString("AddVideo"),
                 Width = 450, Height = 250,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 Owner = Window.GetWindow(this),
@@ -1550,13 +1552,13 @@ namespace CatchCapture.Controls
             };
 
             var stack = new StackPanel { Margin = new Thickness(20) };
-            stack.Children.Add(new TextBlock { Text = "유튜브 주소 또는 소스코드(iframe)를 입력하세요:", Margin = new Thickness(0,0,0,10), FontWeight = FontWeights.Bold });
+            stack.Children.Add(new TextBlock { Text = LocalizationManager.GetString("AddVideoGuidance"), Margin = new Thickness(0,0,0,10), FontWeight = FontWeights.Bold });
             var txtInput = new TextBox { Height = 80, TextWrapping = TextWrapping.Wrap, AcceptsReturn = true, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
             stack.Children.Add(txtInput);
             
             var btnStack = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0,15,0,0) };
-            var btnFile = new Button { Content = "로컬 파일 찾기...", Padding = new Thickness(10,5,10,5), Margin = new Thickness(0,0,10,0) };
-            var btnOk = new Button { Content = "추가", Width = 80, Padding = new Thickness(0,5,0,5) };
+            var btnFile = new Button { Content = LocalizationManager.GetString("SearchLocalFile"), Padding = new Thickness(10,5,10,5), Margin = new Thickness(0,0,10,0) };
+            var btnOk = new Button { Content = LocalizationManager.GetString("BtnAdd"), Width = 80, Padding = new Thickness(0,5,0,5) };
             btnStack.Children.Add(btnFile);
             btnStack.Children.Add(btnOk);
             stack.Children.Add(btnStack);

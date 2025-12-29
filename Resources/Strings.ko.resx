@@ -735,4 +735,13 @@
   <data name="TextNote" xml:space="preserve"><value>텍스트</value></data>
   <data name="BadgeSize" xml:space="preserve"><value>배지 크기</value></data>
   <data name="TextSize" xml:space="preserve"><value>텍스트 크기</value></data>
+  <data name="SettingsAutoCopyDesc" xml:space="preserve"><value>캡처 시 클립보드에 자동 복사</value></data>
+  <data name="AddVideo" xml:space="preserve"><value>비디오 추가</value></data>
+  <data name="BtnYes" xml:space="preserve"><value>예</value></data>
+  <data name="BtnNo" xml:space="preserve"><value>아니오</value></data>
+  <data name="BtnOK" xml:space="preserve"><value>확인</value></data>
+  <data name="BtnCancel" xml:space="preserve"><value>취소</value></data>
+  <data name="AddVideoGuidance" xml:space="preserve"><value>유튜브 주소 또는 소스코드(iframe)를 입력하세요:</value></data>
+  <data name="SearchLocalFile" xml:space="preserve"><value>로컬 파일 찾기...</value></data>
+  <data name="BtnAdd" xml:space="preserve"><value>추가</value></data>
 </root>

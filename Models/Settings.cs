@@ -14,7 +14,8 @@ namespace CatchCapture.Models
         public bool ShowSavePrompt { get; set; } = true;
         public bool ShowPreviewAfterCapture { get; set; } = false;
         public bool OpenEditorAfterCapture { get; set; } = false; // 캡처 후 편집창 자동 열기
-        public bool ShowMagnifier { get; set; } = false; // 영역 캡처 시 돋보기 표시
+        public bool AutoCopyToClipboard { get; set; } = true;
+        public bool ShowMagnifier { get; set; } = true; // 영역 캡처 시 돋보기 표시
 
         // Theme Settings
         public string ThemeMode { get; set; } = "General"; // "General", "Dark", "Light", "Blue"
@@ -301,6 +302,7 @@ namespace CatchCapture.Models
         public ToggleHotkey TrayMode { get; set; } = new ToggleHotkey();             // 트레이모드
         public ToggleHotkey OpenSettings { get; set; } = new ToggleHotkey();         // 설정
         public ToggleHotkey OpenEditor { get; set; } = new ToggleHotkey();           // 에디터
+        public ToggleHotkey OpenNote { get; set; } = new ToggleHotkey();             // 내 노트
 
         // 녹화 시 시작/중지 단축키 (RecordingWindow 전용)
         public ToggleHotkey RecordingStartStop { get; set; } = new ToggleHotkey();
@@ -334,6 +336,7 @@ namespace CatchCapture.Models
                 TrayMode = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "T" },
                 OpenSettings = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "O" },
                 OpenEditor = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "E" },
+                OpenNote = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "N" },
                 RecordingStartStop = new ToggleHotkey { Enabled = true, Key = "F2" },
 
                 // Legacy defaults left as disabled

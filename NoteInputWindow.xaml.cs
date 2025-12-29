@@ -213,7 +213,7 @@ namespace CatchCapture
             if (TxtFilesLabel != null) TxtFilesLabel.Text = CatchCapture.Resources.LocalizationManager.GetString("FileAttachment");
             if (TxtFileAttachGuide != null) TxtFileAttachGuide.Text = CatchCapture.Resources.LocalizationManager.GetString("FileAttachmentGuide");
             
-            if (BtnCancel != null) BtnCancel.Content = CatchCapture.Resources.LocalizationManager.GetString("Cancel");
+            if (BtnCancel != null) BtnCancel.Content = CatchCapture.Resources.LocalizationManager.GetString("BtnCancel");
 
             // Mode specific
             if (_isEditMode)

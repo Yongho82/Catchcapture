@@ -437,7 +437,7 @@ namespace CatchCapture
                 Foreground = Brushes.White,
                 BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
-                ToolTip = CatchCapture.Resources.LocalizationManager.GetString("Cancel") + " (Esc)"
+                ToolTip = CatchCapture.Resources.LocalizationManager.GetString("BtnCancel") + " (Esc)"
             };
 
             // 이벤트 연결

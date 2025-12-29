@@ -85,6 +85,7 @@ public partial class MainWindow : Window
     private const int HOTKEY_ID_SIMPLE = 9012;
     private const int HOTKEY_ID_TRAY = 9013;
     private const int HOTKEY_ID_OPENEDITOR = 9014;
+    private const int HOTKEY_ID_OPENNOTE = 9015;
 
     [DllImport("user32.dll")]
     private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
@@ -2159,6 +2160,23 @@ public partial class MainWindow : Window
             var border = CreateCaptureItem(captureImage, captures.Count - 1);
             CaptureListPanel.Children.Insert(0, border);
 
+            // [추가] 클립보드 자동 복사 설정 확인
+            if (currentSettings.AutoCopyToClipboard)
+            {
+                try
+                {
+                    // 원본 이미지(image)를 클립보드에 복사
+                    System.Windows.Clipboard.SetImage(image);
+                    
+                    // 알림 표시 - StickerWindow 사용 (MainWindow context이므로 직접 호출 가능하거나 SnippingWindow가 열려있지 않을 때 사용)
+                    CatchCapture.Utilities.StickerWindow.Show(LocalizationManager.GetString("CopiedToClipboard"));
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"클립보드 자동 복사 실패: {ex.Message}");
+                }
+            }
+
             // 추가된 이미지 선택
             SelectCapture(border, captures.Count - 1);
 
@@ -3277,6 +3295,7 @@ public partial class MainWindow : Window
             UnregisterHotKey(hwnd, HOTKEY_ID_AREA);
             UnregisterHotKey(hwnd, HOTKEY_ID_FULLSCREEN);
             UnregisterHotKey(hwnd, HOTKEY_ID_WINDOW);
+            UnregisterHotKey(hwnd, HOTKEY_ID_OPENNOTE);
 
             // 설정에서 단축키 가져오기
             if (settings.Hotkeys.RegionCapture.Enabled)
@@ -3326,6 +3345,12 @@ public partial class MainWindow : Window
                 var (modifiers, key) = ConvertToggleHotkey(settings.Hotkeys.OpenEditor);
                 RegisterHotKey(hwnd, HOTKEY_ID_OPENEDITOR, modifiers, key);
             }
+
+            if (settings.Hotkeys.OpenNote.Enabled)
+            {
+                var (modifiers, key) = ConvertToggleHotkey(settings.Hotkeys.OpenNote);
+                RegisterHotKey(hwnd, HOTKEY_ID_OPENNOTE, modifiers, key);
+            }
         }
         catch (Exception ex)
         {
@@ -3348,6 +3373,7 @@ public partial class MainWindow : Window
             UnregisterHotKey(hwnd, HOTKEY_ID_SIMPLE);
             UnregisterHotKey(hwnd, HOTKEY_ID_TRAY);
             UnregisterHotKey(hwnd, HOTKEY_ID_OPENEDITOR);
+            UnregisterHotKey(hwnd, HOTKEY_ID_OPENNOTE);
 
             hwndSource?.RemoveHook(HwndHook);
         }
@@ -3532,6 +3558,11 @@ public partial class MainWindow : Window
 
                 case HOTKEY_ID_OPENEDITOR:
                     Dispatcher.Invoke(() => SwitchToNormalMode());
+                    handled = true;
+                    break;
+
+                case HOTKEY_ID_OPENNOTE:
+                    Dispatcher.Invoke(() => OpenNoteExplorer());
                     handled = true;
                     break;
             }
@@ -3998,6 +4029,13 @@ public partial class MainWindow : Window
             win.ShowDialog();
             // Reload settings after potential changes
             settings = Settings.Load();
+            RegisterGlobalHotkeys();
+            return true;
+        }
+        // 노트 열기
+        if (MatchHotkey(hk.OpenNote, e))
+        {
+            OpenNoteExplorer();
             return true;
         }
         // 녹화 시작/정지 (F3)
