@@ -655,4 +655,37 @@
   <data name="SaveToMyNote" xml:space="preserve"><value>내 노트 저장</value></data>
   <data name="ConfirmDisableNotePassword" xml:space="preserve"><value>비밀번호 잠금을 해제하시겠습니까?&#x0a;(설정된 비밀번호는 유지됩니다)</value></data>
   <data name="PasswordsDoNotMatch" xml:space="preserve"><value>비밀번호가 일치하지 않습니다.</value></data>
+  <data name="FileNameSettings" xml:space="preserve">
+    <value>파일명 설정</value>
+  </data>
+  <data name="FileNameTemplate" xml:space="preserve">
+    <value>파일명 템플릿</value>
+  </data>
+  <data name="FileNamePreview" xml:space="preserve">
+    <value>미리보기</value>
+  </data>
+  <data name="FolderGrouping" xml:space="preserve">
+    <value>폴더 분류 설정</value>
+  </data>
+  <data name="GroupingNone" xml:space="preserve">
+    <value>기본 저장 (분류 안 함)</value>
+  </data>
+  <data name="GroupingMonthly" xml:space="preserve">
+    <value>월별 (2025-01)</value>
+  </data>
+  <data name="GroupingQuarterly" xml:space="preserve">
+    <value>분기별 (2025_1Q)</value>
+  </data>
+  <data name="GroupingYearly" xml:space="preserve">
+    <value>연도별 (2025)</value>
+  </data>
+  <data name="FileNamePreset_Default" xml:space="preserve">
+    <value>기본값 (Catch_날짜_시간)</value>
+  </data>
+  <data name="FileNamePreset_Simple" xml:space="preserve">
+    <value>단순 (Image_날짜)</value>
+  </data>
+  <data name="FileNamePreset_Timestamp" xml:space="preserve">
+    <value>타임스탬프만 (20250101_120000)</value>
+  </data>
 </root>

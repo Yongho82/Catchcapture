@@ -2063,15 +2063,55 @@ public partial class MainWindow : Window
                 {
                     saveFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture");
                 }
+                
+                // 폴더 분류 적용
+                string groupMode = currentSettings.FolderGroupingMode ?? "None";
+                DateTime now = DateTime.Now;
+                string subFolder = "";
+                
+                if (groupMode == "Monthly") subFolder = now.ToString("yyyy-MM");
+                else if (groupMode == "Quarterly") 
+                {
+                    int q = (now.Month + 2) / 3;
+                    subFolder = $"{now.Year}_{q}Q";
+                }
+                else if (groupMode == "Yearly") subFolder = now.ToString("yyyy");
+                
+                if (!string.IsNullOrEmpty(subFolder) && groupMode != "None")
+                {
+                    saveFolder = System.IO.Path.Combine(saveFolder, subFolder);
+                }
+
                 if (!System.IO.Directory.Exists(saveFolder))
                 {
                     System.IO.Directory.CreateDirectory(saveFolder);
                 }
-                string timestamp = DateTime.Now.ToString("yyyy-MM-dd HHmmss");
+
+                // 파일명 템플릿 적용
+                string template = currentSettings.FileNameTemplate ?? "Catch_$yyyy-MM-dd_HH-mm-ss$";
+                string filenameTemplate = template;
+                try 
+                {
+                    var matches = System.Text.RegularExpressions.Regex.Matches(template, @"\$(.*?)\$");
+                    foreach (System.Text.RegularExpressions.Match match in matches)
+                    {
+                        string fmt = match.Groups[1].Value;
+                        try { filenameTemplate = filenameTemplate.Replace(match.Value, now.ToString(fmt)); } catch { }
+                    }
+                } 
+                catch { }
+
                 string format = currentSettings.FileSaveFormat.ToLower();
                 string ext = $".{format}";
-                string filename = $"AutoSave_{timestamp}_{captures.Count + 1}{ext}";
-                string fullPath = System.IO.Path.Combine(saveFolder, filename);
+                string fullPath = System.IO.Path.Combine(saveFolder, filenameTemplate + ext);
+                
+                // 중복 방지
+                int dupIndex = 1;
+                while (System.IO.File.Exists(fullPath))
+                {
+                     fullPath = System.IO.Path.Combine(saveFolder, $"{filenameTemplate} ({dupIndex}){ext}");
+                     dupIndex++;
+                }
 
                 try
                 {
@@ -2797,14 +2837,27 @@ public partial class MainWindow : Window
 
     private void SaveImageToFile(CaptureImage captureImage)
     {
-        // 자동 파일 이름 생성
-        string timestamp = DateTime.Now.ToString("yyyy-MM-dd HHmmss");
+        // 파일명 템플릿 적용 (기본 이름 제안)
+        string template = settings.FileNameTemplate ?? "Catch_$yyyy-MM-dd_HH-mm-ss$";
+        string defaultFileName = template;
+        DateTime now = DateTime.Now;
+
+        try 
+        {
+            var matches = System.Text.RegularExpressions.Regex.Matches(template, @"\$(.*?)\$");
+            foreach (System.Text.RegularExpressions.Match match in matches)
+            {
+                string fmt = match.Groups[1].Value;
+                try { defaultFileName = defaultFileName.Replace(match.Value, now.ToString(fmt)); } catch { }
+            }
+        } 
+        catch { }
 
         // 설정에서 포맷 가져오기
         string format = settings.FileSaveFormat; // PNG, JPG, BMP, GIF, WEBP
         string ext = $".{format}";
 
-        string defaultFileName = $"캡처 {timestamp}{ext}";
+        defaultFileName += ext;
 
         // 필터 생성 (설정된 포맷을 최우선으로)
         string filter = "모든 파일|*.*";

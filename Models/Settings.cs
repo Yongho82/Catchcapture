@@ -48,6 +48,10 @@ namespace CatchCapture.Models
         public string DefaultSaveFolder { get; set; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "CatchCapture");
         public bool AutoSaveCapture { get; set; } = true; // ★ 메모리 최적화: 기본값 true
         
+        // Auto Save File Name & Folder Settings
+        public string FileNameTemplate { get; set; } = "Catch_$yyyy-MM-dd_HH-mm-ss$";
+        public string FolderGroupingMode { get; set; } = "Monthly"; // "None", "Monthly", "Quarterly", "Yearly"
+        
         // Note Settings
         public string NoteStoragePath { get; set; } = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "CatchCapture"), "notedata");
         public string? NotePassword { get; set; }

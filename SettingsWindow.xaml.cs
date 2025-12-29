@@ -122,7 +122,38 @@ private void UpdateUIText()
                 if (OptionsGroup != null) OptionsGroup.Header = LocalizationManager.GetString("Options");
                 if (ChkAutoSave != null) ChkAutoSave.Content = LocalizationManager.GetString("AutoSaveCapture");
                 if (ChkShowPreview != null) ChkShowPreview.Content = LocalizationManager.GetString("ShowPreviewAfterCapture");
-                if (ChkShowMagnifier != null) ChkShowMagnifier.Content = LocalizationManager.GetString("ShowMagnifier") ?? "영역 캡처 시 돋보기 표시";
+                // Helper to fallback if key not found
+                string GetLoc(string key, string def) 
+                {
+                    string val = LocalizationManager.GetString(key);
+                    return (val == key) ? def : val;
+                }
+
+                if (ChkShowMagnifier != null) ChkShowMagnifier.Content = GetLoc("ShowMagnifier", "영역 캡처 시 돋보기 표시");
+                
+                // 파일명 설정 & 폴더 분류 설정 UI
+                if (FileNameSettingsGroup != null) FileNameSettingsGroup.Header = GetLoc("FileNameSettings", "파일명 설정");
+                if (FileNameTemplateLabel != null) FileNameTemplateLabel.Text = GetLoc("FileNameTemplate", "파일명 템플릿");
+                if (PreviewLabel != null) PreviewLabel.Text = GetLoc("FileNamePreview", "미리보기") + " : ";
+                if (FolderGroupingGroup != null) FolderGroupingGroup.Header = GetLoc("FolderGrouping", "폴더 분류 설정");
+                if (RbGroupNone != null) RbGroupNone.Content = GetLoc("GroupingNone", "기본 저장 (분류 안 함)");
+                if (RbGroupMonthly != null) RbGroupMonthly.Content = GetLoc("GroupingMonthly", "월별 (2025-01)");
+                if (RbGroupQuarterly != null) RbGroupQuarterly.Content = GetLoc("GroupingQuarterly", "분기별 (2025_1Q)");
+                if (RbGroupYearly != null) RbGroupYearly.Content = GetLoc("GroupingYearly", "연도별 (2025)");
+                
+                // 콤보박스 아이템
+                if (CboFileNamePresets != null)
+                {
+                     foreach (ComboBoxItem item in CboFileNamePresets.Items)
+                     {
+                         string? tag = item.Tag as string;
+                         if (tag == "Default") item.Content = GetLoc("FileNamePreset_Default", "기본값 (Catch_날짜_시간)");
+                         else if (tag == "Simple") item.Content = GetLoc("FileNamePreset_Simple", "단순 (Image_날짜)");
+                         else if (tag == "Timestamp") item.Content = GetLoc("FileNamePreset_Timestamp", "타임스탬프만 (20250101_120000)");
+                     }
+                }
+                
+                UpdateFileNamePreview();
                 
                 // 단축키 페이지
                 if (HotkeySectionTitle != null) HotkeySectionTitle.Text = LocalizationManager.GetString("HotkeySettings");
@@ -721,6 +752,19 @@ private void InitLanguageComboBox()
             if (ChkShowPreview != null) ChkShowPreview.IsChecked = _settings.ShowPreviewAfterCapture;
             if (ChkShowMagnifier != null) ChkShowMagnifier.IsChecked = _settings.ShowMagnifier;
             
+            // 파일명 & 폴더 분류 설정 로드
+            if (TxtFileNameTemplate != null) TxtFileNameTemplate.Text = _settings.FileNameTemplate ?? "Catch_$yyyy-MM-dd_HH-mm-ss$";
+            
+            if (RbGroupNone != null && RbGroupMonthly != null && RbGroupQuarterly != null && RbGroupYearly != null)
+            {
+                string mode = _settings.FolderGroupingMode ?? "Monthly";
+                if (mode == "None") RbGroupNone.IsChecked = true;
+                else if (mode == "Monthly") RbGroupMonthly.IsChecked = true;
+                else if (mode == "Quarterly") RbGroupQuarterly.IsChecked = true;
+                else if (mode == "Yearly") RbGroupYearly.IsChecked = true;
+                else RbGroupMonthly.IsChecked = true; // Default is Monthly
+            }
+            
             // Print Screen key
             ChkUsePrintScreen.IsChecked = _settings.UsePrintScreenKey;
             foreach (ComboBoxItem item in CboPrintScreenAction.Items)
@@ -1223,6 +1267,8 @@ private void InitLanguageComboBox()
                 _settings.AutoSaveCapture = defaults.AutoSaveCapture;
                 _settings.ShowPreviewAfterCapture = defaults.ShowPreviewAfterCapture;
                 _settings.ShowMagnifier = defaults.ShowMagnifier;
+                _settings.FileNameTemplate = defaults.FileNameTemplate;
+                _settings.FolderGroupingMode = defaults.FolderGroupingMode;
                 _settings.UsePrintScreenKey = defaults.UsePrintScreenKey;
                 _settings.PrintScreenAction = defaults.PrintScreenAction;
                 
@@ -1312,6 +1358,14 @@ private void InitLanguageComboBox()
                 desiredFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture");
             }
             _settings.DefaultSaveFolder = desiredFolder;
+            
+            // 파일명 & 폴더 분류 설정 저장
+            if (TxtFileNameTemplate != null) _settings.FileNameTemplate = TxtFileNameTemplate.Text;
+            
+            if (RbGroupNone != null && RbGroupNone.IsChecked == true) _settings.FolderGroupingMode = "None";
+            else if (RbGroupMonthly != null && RbGroupMonthly.IsChecked == true) _settings.FolderGroupingMode = "Monthly";
+            else if (RbGroupQuarterly != null && RbGroupQuarterly.IsChecked == true) _settings.FolderGroupingMode = "Quarterly";
+            else if (RbGroupYearly != null && RbGroupYearly.IsChecked == true) _settings.FolderGroupingMode = "Yearly";
             _settings.AutoSaveCapture = ChkAutoSave.IsChecked == true;
             _settings.ShowPreviewAfterCapture = ChkShowPreview.IsChecked == true;
             _settings.ShowMagnifier = ChkShowMagnifier.IsChecked == true;
@@ -1881,6 +1935,70 @@ private void InitLanguageComboBox()
         {
             try { CatchCapture.Models.LocalizationManager.LanguageChanged -= OnLanguageChanged; } catch { }
             base.OnClosed(e);
+        }
+
+        // FileName & Folder Grouping Handlers
+        private void TxtFileNameTemplate_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            UpdateFileNamePreview();
+        }
+
+        private void CboFileNamePresets_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (CboFileNamePresets.SelectedItem is ComboBoxItem item && TxtFileNameTemplate != null)
+            {
+                string tag = item.Tag as string;
+                if (tag == "Default") TxtFileNameTemplate.Text = "Catch_$yyyy-MM-dd_HH-mm-ss$";
+                else if (tag == "Simple") TxtFileNameTemplate.Text = "Image_$yyyy-MM-dd$";
+                else if (tag == "Timestamp") TxtFileNameTemplate.Text = "$yyyyMMdd_HHmmss$";
+            }
+        }
+
+        private void FolderGrouping_Checked(object sender, RoutedEventArgs e)
+        {
+            UpdateFileNamePreview();
+        }
+
+        private void UpdateFileNamePreview()
+        {
+            if (TxtFileNamePreview == null || TxtFileNameTemplate == null) return;
+
+            string template = TxtFileNameTemplate.Text;
+            string preview = template;
+            DateTime now = DateTime.Now;
+
+            try 
+            {
+                var matches = System.Text.RegularExpressions.Regex.Matches(template, @"\$(.*?)\$");
+                foreach (System.Text.RegularExpressions.Match match in matches)
+                {
+                    string format = match.Groups[1].Value;
+                    try 
+                    {
+                        preview = preview.Replace(match.Value, now.ToString(format));
+                    }
+                    catch { }
+                }
+            } 
+            catch { }
+
+            string ext = ".png"; // Default
+            if (CboFormat != null && CboFormat.SelectedItem is ComboBoxItem item)
+            {
+                ext = "." + (item.Content?.ToString() ?? "png").ToLower();
+            }
+
+            // Folder Preview
+            string folderPart = "";
+            if (RbGroupMonthly != null && RbGroupMonthly.IsChecked == true) folderPart = now.ToString("yyyy-MM") + "\\";
+            else if (RbGroupQuarterly != null && RbGroupQuarterly.IsChecked == true) 
+            {
+                int q = (now.Month + 2) / 3;
+                folderPart = $"{now.Year}_{q}Q\\";
+            }
+            else if (RbGroupYearly != null && RbGroupYearly.IsChecked == true) folderPart = now.ToString("yyyy") + "\\";
+
+            TxtFileNamePreview.Text = folderPart + preview + ext;
         }
     }
 
