@@ -12,23 +12,59 @@ namespace CatchCapture.Utilities
         private static DatabaseManager? _instance;
         public static DatabaseManager Instance => _instance ??= new DatabaseManager();
 
-        private string DefaultDbPath => Path.Combine(Settings.Load().NoteStoragePath, "notedb", "catch_notes.db");
-        private string DbPath => DefaultDbPath;
-        public string DbFilePath => DbPath;
+        private string _dbPath;
+        private string DbPath => _dbPath;
+        private static readonly object _dbLock = new object();
+        private SqliteConnection? _activeConnection;
+
+        public string DbFilePath => _dbPath;
 
         private DatabaseManager()
         {
+            var settings = Settings.Load();
+            string storagePath = settings.NoteStoragePath;
+            if (string.IsNullOrEmpty(storagePath))
+            {
+                storagePath = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "CatchCapture"), "notedata");
+            }
+            _dbPath = Path.Combine(storagePath, "notedb", "catch_notes.db");
             InitializeDatabase();
             Settings.SettingsChanged += (s, e) => {
-                InitializeDatabase();
+                Reinitialize();
             };
+        }
+
+        public void CloseConnection()
+        {
+            lock (_dbLock)
+            {
+                if (_activeConnection != null)
+                {
+                    _activeConnection.Close();
+                    SqliteConnection.ClearAllPools(); // IMPORTANT: Release all file handles
+                    _activeConnection = null;
+                }
+            }
+        }
+
+        public void Reinitialize()
+        {
+            CloseConnection();
+            var settings = Settings.Load();
+            string storagePath = settings.NoteStoragePath;
+            if (string.IsNullOrEmpty(storagePath))
+            {
+                storagePath = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "CatchCapture"), "notedata");
+            }
+            _dbPath = Path.Combine(storagePath, "notedb", "catch_notes.db");
+            InitializeDatabase();
         }
 
         public void Reload() => InitializeDatabase();
 
         private void InitializeDatabase()
         {
-            string dbDir = Path.GetDirectoryName(DbPath)!;
+            string dbDir = Path.GetDirectoryName(_dbPath)!;
             string rootDir = Path.GetDirectoryName(dbDir)!; // One level up from notedb
 
             if (!Directory.Exists(dbDir)) Directory.CreateDirectory(dbDir);

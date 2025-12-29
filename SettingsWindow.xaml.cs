@@ -1284,10 +1284,18 @@ private void InitLanguageComboBox()
                         string targetDir = TxtNoteFolder.Text;
                         if (!Directory.Exists(targetDir)) Directory.CreateDirectory(targetDir);
 
-                        // Clear target directory safely
-                        // Be CAREFUL: This is destructive.
-                        // We should probably just extract and overwrite.
+                        // 1. Aggressively release all SQLite file handles
+                        CatchCapture.Utilities.DatabaseManager.Instance.CloseConnection();
+                        Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
+                        GC.Collect();
+                        GC.WaitForPendingFinalizers();
+                        System.Threading.Thread.Sleep(200); // Give Windows time to release handles
+
+                        // 2. Extract and overwrite
                         System.IO.Compression.ZipFile.ExtractToDirectory(ofd.FileName, targetDir, true);
+                        
+                        // 3. Re-initialize DB Manager with the new data
+                        CatchCapture.Utilities.DatabaseManager.Instance.Reinitialize();
                         
                         CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("ImportSuccessMsg"), LocalizationManager.GetString("Success"), MessageBoxButton.OK, MessageBoxImage.Information);
                     }
