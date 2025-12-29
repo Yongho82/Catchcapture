@@ -990,15 +990,38 @@ namespace CatchCapture.Controls
             var allBlocks = GetAllBlocks(RtbEditor.Document).ToList();
             foreach (var block in allBlocks)
             {
-                if (block is BlockUIContainer container && container.Child is Grid mainGrid)
+                if (block is BlockUIContainer container)
                 {
-                    // More flexible search for children (OfType is safer than hardcoded indices)
-                    var image = mainGrid.Children.OfType<System.Windows.Controls.Image>().FirstOrDefault();
-                    var sliderBorder = mainGrid.Children.OfType<Border>().FirstOrDefault(b => b.Child is StackPanel);
-                    
-                    if (image != null && sliderBorder != null)
+                    Grid? mainGrid = null;
+                    if (container.Child is Grid g) mainGrid = g;
+                    else if (container.Child is Border b && b.Child is Grid innerG) mainGrid = innerG;
+
+                    if (mainGrid != null)
                     {
-                        HookImageEvents(image, sliderBorder, container);
+                        // 1. 일반 이미지 (리사이즈 슬라이더가 있는 경우)
+                        var image = mainGrid.Children.OfType<System.Windows.Controls.Image>().FirstOrDefault();
+                        var sliderBorder = mainGrid.Children.OfType<Border>().FirstOrDefault(border => border.Child is StackPanel);
+                        
+                        if (image != null && sliderBorder != null)
+                        {
+                             HookImageEvents(image, sliderBorder, container);
+                        }
+                        
+                        // 2. 동영상/유튜브 개체 (FilePathHolder가 있는 경우)
+                        var pathHolder = mainGrid.Children.OfType<TextBlock>().FirstOrDefault(t => t.Name == "FilePathHolder" || t.Text.StartsWith("http") || t.Text.Contains("\\") || t.Text.Contains("/"));
+                        if (pathHolder != null)
+                        {
+                            string videoUrl = pathHolder.Text;
+                            if (!string.IsNullOrEmpty(videoUrl) && (videoUrl.StartsWith("http") || File.Exists(videoUrl)))
+                            {
+                                mainGrid.Cursor = Cursors.Hand;
+                                mainGrid.PreviewMouseLeftButtonDown += (s, e) =>
+                                {
+                                    try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(videoUrl) { UseShellExecute = true }); } catch { }
+                                    e.Handled = true;
+                                };
+                            }
+                        }
                     }
                 }
             }
@@ -1498,7 +1521,164 @@ namespace CatchCapture.Controls
         private bool IsImageFile(string path)
         {
             string ext = System.IO.Path.GetExtension(path).ToLower();
-            return new[] { ".jpg", ".jpeg", ".png", ".bmp", ".gif" }.Contains(ext);
+            return new[] { ".jpg", ".jpeg", ".png", ".bmp", ".gif", ".webp" }.Contains(ext);
+        }
+
+        private bool IsVideoFile(string path)
+        {
+            string ext = System.IO.Path.GetExtension(path).ToLower();
+            return new[] { ".mp4", ".mov", ".avi", ".wmv", ".mkv" }.Contains(ext);
+        }
+
+        private void BtnInsertVideo_Click(object sender, RoutedEventArgs e)
+        {
+            // 간단한 입력 다이얼로그 (커스텀 팝업이 좋으나 일단 표준 입력창 방식 제안)
+            var inputWin = new Window
+            {
+                Title = "동영상/유튜브 추가",
+                Width = 450, Height = 250,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                Owner = Window.GetWindow(this),
+                ResizeMode = ResizeMode.NoResize,
+                WindowStyle = WindowStyle.ToolWindow,
+                Background = Brushes.White
+            };
+
+            var stack = new StackPanel { Margin = new Thickness(20) };
+            stack.Children.Add(new TextBlock { Text = "유튜브 주소 또는 소스코드(iframe)를 입력하세요:", Margin = new Thickness(0,0,0,10), FontWeight = FontWeights.Bold });
+            var txtInput = new TextBox { Height = 80, TextWrapping = TextWrapping.Wrap, AcceptsReturn = true, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
+            stack.Children.Add(txtInput);
+            
+            var btnStack = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0,15,0,0) };
+            var btnFile = new Button { Content = "로컬 파일 찾기...", Padding = new Thickness(10,5,10,5), Margin = new Thickness(0,0,10,0) };
+            var btnOk = new Button { Content = "추가", Width = 80, Padding = new Thickness(0,5,0,5) };
+            btnStack.Children.Add(btnFile);
+            btnStack.Children.Add(btnOk);
+            stack.Children.Add(btnStack);
+            inputWin.Content = stack;
+
+            btnFile.Click += (s2, e2) => {
+                var dialog = new Microsoft.Win32.OpenFileDialog { Filter = "Video Files|*.mp4;*.mov;*.avi;*.wmv;*.mkv" };
+                if (dialog.ShowDialog() == true) {
+                    InsertMediaFile(dialog.FileName);
+                    inputWin.Close();
+                }
+            };
+
+            btnOk.Click += (s2, e2) => {
+                string input = txtInput.Text.Trim();
+                if (!string.IsNullOrEmpty(input)) {
+                    InsertYouTubeVideo(input);
+                    inputWin.Close();
+                }
+            };
+
+            inputWin.ShowDialog();
+        }
+
+        private void InsertYouTubeVideo(string input)
+        {
+            string videoId = ExtractYouTubeId(input);
+            if (string.IsNullOrEmpty(videoId))
+            {
+                CatchCapture.CustomMessageBox.Show("유효한 유튜브 주소나 소스코드가 아닙니다.", "알림");
+                return;
+            }
+
+            string videoUrl = $"https://www.youtube.com/watch?v={videoId}";
+            string thumbUrl = $"https://img.youtube.com/vi/{videoId}/maxresdefault.jpg";
+
+            try
+            {
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(thumbUrl);
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.EndInit();
+
+                // 썸네일 다운로드 실패 시 대비 (hqdefault 시도)
+                bitmap.DownloadFailed += (s, e) => {
+                   try {
+                       var fallback = new BitmapImage(new Uri($"https://img.youtube.com/vi/{videoId}/hqdefault.jpg"));
+                       RenderVideoThumbnail(fallback, videoUrl, videoId);
+                   } catch {}
+                };
+
+                RenderVideoThumbnail(bitmap, videoUrl, videoId);
+            }
+            catch (Exception ex)
+            {
+                CatchCapture.CustomMessageBox.Show($"유튜브 정보를 가져올 수 없습니다: {ex.Message}", "오류");
+            }
+        }
+
+        private string ExtractYouTubeId(string input)
+        {
+            // 1. iframe 소스에서 추출
+            var match = Regex.Match(input, @"embed/([^""?/\s]+)");
+            if (match.Success) return match.Groups[1].Value;
+
+            // 2. 일반 URL에서 추출 (youtu.be 또는 youtube.com)
+            match = Regex.Match(input, @"(?:v=|youtu\.be/|embed/|watch\?v=)([^""?&\s]+)");
+            if (match.Success) return match.Groups[1].Value;
+
+            return "";
+        }
+
+        private void RenderVideoThumbnail(BitmapSource thumbnail, string videoUrl, string title = "YouTube")
+        {
+            var grid = new Grid { 
+                Width = 480, Height = 270, 
+                Cursor = Cursors.Hand, 
+                Background = Brushes.Black, 
+                Margin = new Thickness(0, 5, 0, 5),
+                Tag = videoUrl, // XAML 직렬화 시에도 링크가 유지되도록 Tag에 저장
+                ToolTip = "클릭하여 비디오 재생"
+            };
+
+            // [추가] XAML 직렬화 시 정보를 확실히 보존하기 위해 숨겨진 텍스트블록 추가
+            var pathHolder = new TextBlock
+            {
+                Text = videoUrl,
+                Visibility = Visibility.Collapsed,
+                Name = "FilePathHolder"
+            };
+            grid.Children.Add(pathHolder);
+            
+            // 썸네일 이미지
+            var img = new System.Windows.Controls.Image { Source = thumbnail, Stretch = Stretch.UniformToFill };
+            grid.Children.Add(img);
+
+            // 재생 버튼 오버레이
+            var playBg = new Ellipse { Width = 60, Height = 60, Fill = new SolidColorBrush(Color.FromArgb(180, 200, 0, 0)), HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+            grid.Children.Add(playBg);
+            var playIcon = new TextBlock { Text = "▶", FontSize = 28, Foreground = Brushes.White, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(4,0,0,0) };
+            grid.Children.Add(playIcon);
+
+            // 유튜브 라벨
+            var label = new Border { Background = Brushes.Red, CornerRadius = new CornerRadius(3), Padding = new Thickness(5,2,5,2), HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(10) };
+            label.Child = new TextBlock { Text = "YouTube", Foreground = Brushes.White, FontWeight = FontWeights.Bold, FontSize = 10 };
+            grid.Children.Add(label);
+
+            grid.PreviewMouseLeftButtonDown += (s, e) => {
+                // 클릭 시 브라우저로 영상 열기
+                try { 
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(videoUrl) { UseShellExecute = true }); 
+                } catch { }
+                e.Handled = true;
+            };
+
+            // Border로 감싸기 (다른 미디어 개체와 구조 통일 및 레이아웃 유지)
+            var border = new Border
+            {
+                Child = grid,
+                BorderThickness = new Thickness(0),
+                Margin = new Thickness(0, 5, 0, 5),
+                HorizontalAlignment = HorizontalAlignment.Left
+            };
+
+            var container = new BlockUIContainer(border);
+            InsertBlockAtCaret(container);
         }
         public void UpdateImageSources(List<string> relativePaths)
         {

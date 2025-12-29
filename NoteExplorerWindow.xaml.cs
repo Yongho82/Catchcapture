@@ -747,31 +747,41 @@ namespace CatchCapture
                             
                             if (block is BlockUIContainer container)
                             {
-                                // Handle Media Container (Border > Grid)
-                                if (container.Child is Border border && border.Child is Grid grid)
-                                {
-                                    string? filePath = grid.Tag?.ToString();
+                                    Grid? grid = null;
+                                    if (container.Child is Border border && border.Child is Grid g1) grid = g1;
+                                    else if (container.Child is Grid g2) grid = g2;
 
-                                    // Tag가 없으면 숨겨진 TextBlock에서 찾기
-                                    if (string.IsNullOrEmpty(filePath))
+                                    if (grid != null)
                                     {
-                                        var holder = grid.Children.OfType<TextBlock>().FirstOrDefault(t => t.Name == "FilePathHolder" || t.Text.Contains("\\") || t.Text.Contains("/"));
-                                        if (holder != null) filePath = holder.Text;
-                                    }
+                                        string? filePath = grid.Tag?.ToString();
 
-                                    if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
-                                    {
-                                        grid.Cursor = Cursors.Hand;
-                                        grid.MouseLeftButtonDown += (s, ev) =>
+                                        // Tag가 없거나 유튜브 주소가 아니면 FilePathHolder에서 찾기
+                                        var pathHolder = grid.Children.OfType<TextBlock>().FirstOrDefault(t => t.Name == "FilePathHolder" || t.Text.StartsWith("http") || t.Text.Contains("\\") || t.Text.Contains("/"));
+                                        if (pathHolder != null) filePath = pathHolder.Text;
+
+                                        // 유튜브 링크 체크 (URL인 경우)
+                                        if (!string.IsNullOrEmpty(filePath) && (filePath.StartsWith("http://") || filePath.StartsWith("https://")))
                                         {
-                                            if (ev.ClickCount == 2)
+                                            grid.Cursor = Cursors.Hand;
+                                            grid.PreviewMouseLeftButtonDown += (s, ev) =>
                                             {
                                                 try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(filePath) { UseShellExecute = true }); } catch { }
                                                 ev.Handled = true;
-                                            }
-                                        };
+                                            };
+                                        }
+                                        else if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
+                                        {
+                                            grid.Cursor = Cursors.Hand;
+                                            grid.MouseLeftButtonDown += (s, ev) =>
+                                            {
+                                                if (ev.ClickCount == 2)
+                                                {
+                                                    try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(filePath) { UseShellExecute = true }); } catch { }
+                                                    ev.Handled = true;
+                                                }
+                                            };
+                                        }
                                     }
-                                }
                                 // Handle Legacy Image Layout or Simple Grid Layout
                                 else if (container.Child is Grid g)
                                 {
