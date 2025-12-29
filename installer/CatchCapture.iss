@@ -1,18 +1,38 @@
+#define MyAppName "CatchCapture"
+#define MyAppVersion "1.0.0"
+#define MyAppPublisher "Yongho"
+#define MyAppExeName "CatchCapture.exe"
+#define IsBeta "true"
+
 ; Inno Setup script for CatchCapture
 ; NOTE: Inno Setup uses .ico for icons. Convert icons\catcha.icns to .ico (e.g., icons\catcha.ico).
 
 [Setup]
 AppId={{A5A0FAF0-6D1F-4F4E-B2A6-9B8F0F5D2E31}}
-AppName=CatchCapture
-AppVersion=1.0.0
-AppVerName=CatchCapture 1.0.0
-AppPublisher=Yongho
-DefaultDirName={localappdata}\CatchCapture
+#if IsBeta == "true"
+  AppName={#MyAppName} Beta
+  AppVersion={#MyAppVersion}-beta
+  AppVerName={#MyAppName} {#MyAppVersion} Beta
+#else
+  AppName={#MyAppName}
+  AppVersion={#MyAppVersion}
+  AppVerName={#MyAppName} {#MyAppVersion}
+#endif
+AppPublisher={#MyAppPublisher}
+DefaultDirName={localappdata}\{#MyAppName}
 PrivilegesRequired=lowest
-DefaultGroupName=CatchCapture
+#if IsBeta == "true"
+  DefaultGroupName={#MyAppName} Beta
+#else
+  DefaultGroupName={#MyAppName}
+#endif
 DisableDirPage=no
 DisableProgramGroupPage=no
-OutputBaseFilename=CatchCapture-Setup
+#if IsBeta == "true"
+  OutputBaseFilename=CatchCapture-Beta-Setup
+#else
+  OutputBaseFilename=CatchCapture-Setup
+#endif
 OutputDir=dist
 Compression=lzma2
 SolidCompression=yes
@@ -54,29 +74,49 @@ Name: "startmenu"; Description: "Startmenü-Verknüpfung erstellen"; GroupDescri
 Name: "startmenu"; Description: "Créer un raccourci dans le menu Démarrer"; GroupDescription: "Tâches supplémentaires:"; Flags: checkedonce; Languages: french
 
 [Files]
-; Publish output
-Source: "..\publish_folder\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
+; dotnet build/publish output - Use the relative path from the script
+Source: "..\bin\Release\net8.0-windows10.0.19041.0\win-x64\publish\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
 ; Include icons if needed at runtime
 Source: "..\icons\*"; DestDir: "{app}\icons"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
 
 [Icons]
 ; Start Menu shortcuts - 각 언어별 적절한 이름
-Name: "{group}\캐치캡처"; Filename: "{app}\CatchCapture.exe"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: korean; Tasks: startmenu
-Name: "{group}\CatchCapture"; Filename: "{app}\CatchCapture.exe"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: english; Tasks: startmenu
-Name: "{group}\キャッチキャプチャ"; Filename: "{app}\CatchCapture.exe"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: japanese; Tasks: startmenu
-Name: "{group}\捕捉截图"; Filename: "{app}\CatchCapture.exe"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: schinese; Tasks: startmenu
-Name: "{group}\CatchCapture"; Filename: "{app}\CatchCapture.exe"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: spanish; Tasks: startmenu
-Name: "{group}\CatchCapture"; Filename: "{app}\CatchCapture.exe"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: german; Tasks: startmenu
-Name: "{group}\CatchCapture"; Filename: "{app}\CatchCapture.exe"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: french; Tasks: startmenu
+#if IsBeta == "true"
+  Name: "{group}\캐치캡처 Beta"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: korean; Tasks: startmenu
+  Name: "{group}\{#MyAppName} Beta"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: english; Tasks: startmenu
+  Name: "{group}\キャッチキャプチャ Beta"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: japanese; Tasks: startmenu
+  Name: "{group}\捕捉截图 Beta"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: schinese; Tasks: startmenu
+  Name: "{group}\{#MyAppName} Beta"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: spanish; Tasks: startmenu
+  Name: "{group}\{#MyAppName} Beta"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: german; Tasks: startmenu
+  Name: "{group}\{#MyAppName} Beta"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: french; Tasks: startmenu
+#else
+  Name: "{group}\캐치캡처"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: korean; Tasks: startmenu
+  Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: english; Tasks: startmenu
+  Name: "{group}\キャッチキャプチャ"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: japanese; Tasks: startmenu
+  Name: "{group}\捕捉截图"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: schinese; Tasks: startmenu
+  Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: spanish; Tasks: startmenu
+  Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: german; Tasks: startmenu
+  Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: french; Tasks: startmenu
+#endif
 
 ; Desktop shortcuts - 각 언어별 적절한 이름
-Name: "{userdesktop}\캐치캡처"; Filename: "{app}\CatchCapture.exe"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: korean; Tasks: desktopicon
-Name: "{userdesktop}\CatchCapture"; Filename: "{app}\CatchCapture.exe"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: english; Tasks: desktopicon
-Name: "{userdesktop}\CatchCapture"; Filename: "{app}\CatchCapture.exe"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: japanese; Tasks: desktopicon
-Name: "{userdesktop}\捕捉截图"; Filename: "{app}\CatchCapture.exe"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: schinese; Tasks: desktopicon
-Name: "{userdesktop}\CatchCapture"; Filename: "{app}\CatchCapture.exe"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: spanish; Tasks: desktopicon
-Name: "{userdesktop}\CatchCapture"; Filename: "{app}\CatchCapture.exe"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: german; Tasks: desktopicon
-Name: "{userdesktop}\CatchCapture"; Filename: "{app}\CatchCapture.exe"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: french; Tasks: desktopicon
+#if IsBeta == "true"
+  Name: "{userdesktop}\캐치캡처 Beta"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: korean; Tasks: desktopicon
+  Name: "{userdesktop}\{#MyAppName} Beta"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: english; Tasks: desktopicon
+  Name: "{userdesktop}\キャッチキャプチャ Beta"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: japanese; Tasks: desktopicon
+  Name: "{userdesktop}\捕捉截图 Beta"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: schinese; Tasks: desktopicon
+  Name: "{userdesktop}\{#MyAppName} Beta"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: spanish; Tasks: desktopicon
+  Name: "{userdesktop}\{#MyAppName} Beta"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: german; Tasks: desktopicon
+  Name: "{userdesktop}\{#MyAppName} Beta"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: french; Tasks: desktopicon
+#else
+  Name: "{userdesktop}\캐치캡처"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: korean; Tasks: desktopicon
+  Name: "{userdesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: english; Tasks: desktopicon
+  Name: "{userdesktop}\キャッチキャプチャ"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: japanese; Tasks: desktopicon
+  Name: "{userdesktop}\捕捉截图"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: schinese; Tasks: desktopicon
+  Name: "{userdesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: spanish; Tasks: desktopicon
+  Name: "{userdesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: german; Tasks: desktopicon
+  Name: "{userdesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: french; Tasks: desktopicon
+#endif
 
 [Run]
 ; 설치 완료 후 실행 옵션 - 각 언어별 메시지
