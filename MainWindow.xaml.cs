@@ -58,6 +58,8 @@ public partial class MainWindow : Window
     internal bool _wasSimpleModeVisibleBeforeRecapture = false;
     // 캡처 직후 자동으로 열린 미리보기 창 수 (메인창 숨김/복원 관리)
     private int _autoPreviewOpenCount = 0;
+    private Point _dragStartPoint;
+    private bool _isReadyToDrag = false;
     // 트레이 컨텍스트 메뉴 및 항목 참조 (언어 변경 시 즉시 갱신용)
     private System.Windows.Forms.ContextMenuStrip? trayContextMenu;
     private System.Windows.Forms.ToolStripMenuItem? trayOpenItem;
@@ -2452,9 +2454,29 @@ public partial class MainWindow : Window
             noteBtn.Visibility = Visibility.Collapsed;
         };
 
+        // 드래그 시작점 추적을 위해 Preview이벤트 사용
+        border.PreviewMouseLeftButtonDown += (s, e) =>
+        {
+            _dragStartPoint = e.GetPosition(null);
+            _isReadyToDrag = true;
+
+            // 버튼 위에서 눌린 것이 아니면 드래그 준비
+            DependencyObject? parent = e.OriginalSource as DependencyObject;
+            while (parent != null && parent != border)
+            {
+                if (parent is Button)
+                {
+                    _isReadyToDrag = false;
+                    break;
+                }
+                parent = VisualTreeHelper.GetParent(parent);
+            }
+        };
+
         // 클릭 이벤트 (선택)
         border.MouseLeftButtonDown += (s, e) =>
         {
+
             // 더블클릭 시 미리보기 창 열기
             if (e.ClickCount == 2)
             {
@@ -2471,7 +2493,60 @@ public partial class MainWindow : Window
             }
         };
 
+        // 드래그 앤 드롭 이벤트 추가
+        border.MouseMove += (s, e) =>
+        {
+            if (e.LeftButton == MouseButtonState.Pressed && _isReadyToDrag)
+            {
+                Point currentPosition = e.GetPosition(null);
+                if (Math.Abs(currentPosition.X - _dragStartPoint.X) > SystemParameters.MinimumHorizontalDragDistance ||
+                    Math.Abs(currentPosition.Y - _dragStartPoint.Y) > SystemParameters.MinimumVerticalDragDistance)
+                {
+                    _isReadyToDrag = false; // 드래그 시작 후 플래그 해제
+                    StartCaptureItemDrag(border, captureImage);
+                }
+            }
+        };
+
         return border;
+    }
+
+    private void StartCaptureItemDrag(Border border, CaptureImage captureImage)
+    {
+        try
+        {
+            // 1. 파일 경로 준비
+            string filePath = captureImage.SavedPath;
+
+            // 아직 저장되지 않았거나 파일이 없는 경우 임시 파일로 저장
+            if (!captureImage.IsSaved || string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
+            {
+                string tempFolder = IOPath.Combine(IOPath.GetTempPath(), "CatchCapture", "DragTemp");
+                if (!Directory.Exists(tempFolder)) Directory.CreateDirectory(tempFolder);
+
+                string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss_fff");
+                filePath = IOPath.Combine(tempFolder, $"Capture_{timestamp}.png");
+
+                // PNG로 저장
+                var originalImage = captureImage.GetOriginalImage();
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    var encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(originalImage));
+                    encoder.Save(stream);
+                }
+            }
+
+            // 2. DataObject 생성 (FileDrop 형식)
+            var data = new DataObject(DataFormats.FileDrop, new string[] { filePath });
+
+            // 3. 드래그 시작
+            DragDrop.DoDragDrop(border, data, DragDropEffects.Copy);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Drag and drop start failed: {ex.Message}");
+        }
     }
 
 

@@ -650,8 +650,8 @@
   <data name="ErrRestoreNote" xml:space="preserve"><value>복구 중 오류 발생: </value></data>
   <data name="ErrPinNote" xml:space="preserve"><value>고정 상태 변경 중 오류 발생: </value></data>
   <data name="ChangeTheme" xml:space="preserve"><value>테마 변경</value></data>
-  <data name="SimpleMode" xml:space="preserve"><value>간편 모드</value></data>
-  <data name="TrayMode" xml:space="preserve"><value>트레이 모드</value></data>
+  <data name="SimpleMode" xml:space="preserve"><value>간편</value></data>
+  <data name="TrayMode" xml:space="preserve"><value>트레이</value></data>
   <data name="SaveToMyNote" xml:space="preserve"><value>내 노트 저장</value></data>
   <data name="ConfirmDisableNotePassword" xml:space="preserve"><value>비밀번호 잠금을 해제하시겠습니까?&#x0a;(설정된 비밀번호는 유지됩니다)</value></data>
   <data name="PasswordsDoNotMatch" xml:space="preserve"><value>비밀번호가 일치하지 않습니다.</value></data>

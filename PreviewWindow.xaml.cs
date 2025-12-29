@@ -67,6 +67,8 @@ namespace CatchCapture
         private string? _sourceTitle;
 
         public bool RequestMainWindowMinimize { get; private set; } = false;
+        private Point _dragStartPoint;
+        private bool _isReadyToDrag = false;
 
         public PreviewWindow(BitmapSource image, int index, List<CaptureImage>? captures = null)
         {

@@ -1,5 +1,6 @@
-using System;
 using System.Collections.Generic;
+using System.IO;
+using IOPath = System.IO.Path;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -107,6 +108,25 @@ namespace CatchCapture
                 Cursor = Cursors.Hand
             };
 
+            // 드래그 시작점 추적을 위해 Preview이벤트 사용
+            border.PreviewMouseLeftButtonDown += (s, e) =>
+            {
+                _dragStartPoint = e.GetPosition(null);
+                _isReadyToDrag = true;
+
+                // 버튼 위에서 눌린 것이 아니면 드래그 준비
+                DependencyObject? parent = e.OriginalSource as DependencyObject;
+                while (parent != null && parent != border)
+                {
+                    if (parent is Button)
+                    {
+                        _isReadyToDrag = false;
+                        break;
+                    }
+                    parent = VisualTreeHelper.GetParent(parent);
+                }
+            };
+
             // 클릭 이벤트
             border.MouseLeftButtonDown += (s, e) =>
             {
@@ -116,6 +136,21 @@ namespace CatchCapture
                     if (clickedIndex != imageIndex && allCaptures != null)
                     {
                         SwitchToCapture(clickedIndex);
+                    }
+                }
+            };
+
+            // 드래그 앤 드롭 이벤트 추가
+            border.MouseMove += (s, e) =>
+            {
+                if (e.LeftButton == MouseButtonState.Pressed && _isReadyToDrag)
+                {
+                    Point currentPosition = e.GetPosition(null);
+                    if (Math.Abs(currentPosition.X - _dragStartPoint.X) > SystemParameters.MinimumHorizontalDragDistance ||
+                        Math.Abs(currentPosition.Y - _dragStartPoint.Y) > SystemParameters.MinimumVerticalDragDistance)
+                    {
+                        _isReadyToDrag = false; // 드래그 시작 후 플래그 해제
+                        StartCaptureItemDrag(border, captureImage);
                     }
                 }
             };
@@ -211,6 +246,44 @@ namespace CatchCapture
                         border.BorderThickness = new Thickness(2);
                     }
                 }
+            }
+        }
+
+        private void StartCaptureItemDrag(Border border, CaptureImage captureImage)
+        {
+            try
+            {
+                // 1. 파일 경로 준비
+                string filePath = captureImage.SavedPath;
+
+                // 아직 저장되지 않았거나 파일이 없는 경우 임시 파일로 저장
+                if (!captureImage.IsSaved || string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
+                {
+                    string tempFolder = IOPath.Combine(IOPath.GetTempPath(), "CatchCapture", "DragTemp");
+                    if (!Directory.Exists(tempFolder)) Directory.CreateDirectory(tempFolder);
+
+                    string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss_fff");
+                    filePath = IOPath.Combine(tempFolder, $"Capture_{timestamp}.png");
+
+                    // PNG로 저장
+                    var originalImage = captureImage.GetOriginalImage();
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        var encoder = new PngBitmapEncoder();
+                        encoder.Frames.Add(BitmapFrame.Create(originalImage));
+                        encoder.Save(stream);
+                    }
+                }
+
+                // 2. DataObject 생성 (FileDrop 형식)
+                var data = new DataObject(DataFormats.FileDrop, new string[] { filePath });
+
+                // 3. 드래그 시작
+                DragDrop.DoDragDrop(border, data, DragDropEffects.Copy);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Drag and drop start failed: {ex.Message}");
             }
         }
 
