@@ -1321,7 +1321,7 @@ private void InitLanguageComboBox()
             {
                 _settings.FileSaveFormat = defaults.FileSaveFormat;
                 _settings.ImageQuality = defaults.ImageQuality;
-                _settings.DefaultSaveFolder = defaults.DefaultSaveFolder;
+                // Preserve DefaultSaveFolder
                 _settings.AutoSaveCapture = defaults.AutoSaveCapture;
                 _settings.AutoCopyToClipboard = defaults.AutoCopyToClipboard;
                 _settings.ShowPreviewAfterCapture = defaults.ShowPreviewAfterCapture;
@@ -1340,7 +1340,7 @@ private void InitLanguageComboBox()
             }
             else if (_currentPage == "Note")
             {
-                _settings.NoteStoragePath = defaults.NoteStoragePath;
+                // Preserve NoteStoragePath
                 _settings.NoteSaveFormat = defaults.NoteSaveFormat;
                 _settings.NoteImageQuality = defaults.NoteImageQuality;
                 _settings.OptimizeNoteImages = defaults.OptimizeNoteImages; // Also reset this for completeness, though deprecated
@@ -1657,13 +1657,17 @@ private void InitLanguageComboBox()
         // Added: Sidebar bottom links
         private void RestoreDefaults_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            // 현재 언어 설정 보존
+            // 현재 중요 설정 보존 (언어, 저장 경로 등)
             string currentLanguage = _settings.Language;
+            string currentSaveFolder = _settings.DefaultSaveFolder;
+            string currentNotePath = _settings.NoteStoragePath;
 
             _settings = new Settings();
             
-            // 언어 설정 복원
+            // 보존된 설정 복원
             _settings.Language = currentLanguage;
+            _settings.DefaultSaveFolder = currentSaveFolder;
+            _settings.NoteStoragePath = currentNotePath;
 
             Settings.Save(_settings);
             LoadCapturePage();
