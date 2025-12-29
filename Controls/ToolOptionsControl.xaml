@@ -54,6 +54,27 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style x:Key="TabButtonStyle" TargetType="RadioButton">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="border" BorderBrush="#CCCCCC" BorderThickness="0,0,0,2" Background="Transparent" Padding="10,5">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="#1890FF"/>
+                                <Setter Property="Foreground" Value="#1890FF"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#F5F5F5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
     
     <Border Background="White" BorderBrush="#DDDDDD" BorderThickness="1" CornerRadius="8" Padding="12">
@@ -62,9 +83,15 @@
         </Border.Effect>
 
         <StackPanel x:Name="MainPanel" Orientation="Horizontal" VerticalAlignment="Center">
-            <!-- 1. 색상 섹션 (대부분의 도구에서 사용) -->
+            <!-- 1. 색상 및 탭 섹션 -->
             <StackPanel x:Name="ColorSection" Margin="0,0,15,0">
-                <TextBlock Text="색상" FontWeight="SemiBold" Margin="0,0,0,8" x:Name="ColorLabel"/>
+                <Grid>
+                    <TextBlock Text="색상" FontWeight="SemiBold" Margin="0,0,0,8" x:Name="ColorLabel"/>
+                    <StackPanel x:Name="NumberingTabs" Margin="0,0,0,8" Orientation="Horizontal" Visibility="Collapsed">
+                        <RadioButton x:Name="NumBadgeTab" Content="배지" Style="{StaticResource TabButtonStyle}" IsChecked="True" GroupName="NumTabs"/>
+                        <RadioButton x:Name="NumTextTab" Content="텍스트" Style="{StaticResource TabButtonStyle}" GroupName="NumTabs" Margin="5,0,0,0"/>
+                    </StackPanel>
+                </Grid>
                 <WrapPanel x:Name="ColorGrid" Width="150"/>
             </StackPanel>
 
@@ -152,12 +179,12 @@
                     </StackPanel>
                 </StackPanel>
                 
-                <!-- 넘버링 옵션 -->
-                <StackPanel x:Name="NumberingOptions" Visibility="Collapsed">
-                    <TextBlock Text="크기" FontWeight="SemiBold" Margin="0,0,0,8" x:Name="NumSizeLabel"/>
+                <!-- 넘버링 배지 전용 옵션 (텍스트 옵션과 별개로 관리) -->
+                <StackPanel x:Name="NumberingBadgeOptions" Visibility="Collapsed">
+                    <TextBlock Text="배지 크기" FontWeight="SemiBold" Margin="0,0,0,8" x:Name="NumBadgeLabel"/>
                     <StackPanel Orientation="Horizontal">
-                        <Slider x:Name="NumSizeSlider" Minimum="15" Maximum="60" Width="120"/>
-                        <TextBlock x:Name="NumSizeValue" Margin="8,0,0,0" VerticalAlignment="Center" Foreground="Gray" FontSize="11"/>
+                        <Slider x:Name="NumBadgeSlider" Minimum="10" Maximum="100" Width="120" SmallChange="1"/>
+                        <TextBlock x:Name="NumBadgeValue" Margin="8,0,0,0" VerticalAlignment="Center" Foreground="Gray" FontSize="11"/>
                     </StackPanel>
                 </StackPanel>
                 

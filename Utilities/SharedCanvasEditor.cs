@@ -36,6 +36,8 @@ namespace CatchCapture.Utilities
         public int NextNumber { get; set; } = 1;
         public double NumberingBadgeSize { get; set; } = 24;
         public double NumberingTextSize { get; set; } = 12;
+        public Color NumberingBadgeColor { get; set; } = Colors.Red;
+        public Color NumberingNoteColor { get; set; } = Colors.White;
         
         // 텍스트 관련
         public string TextFontFamily { get; set; } = "Arial";
@@ -261,14 +263,14 @@ namespace CatchCapture.Utilities
             var badge = new Border {
                 Width = bSize, Height = bSize, 
                 CornerRadius = new CornerRadius(bSize/2),
-                Background = new SolidColorBrush(SelectedColor),
+                Background = new SolidColorBrush(NumberingBadgeColor),
                 BorderBrush = Brushes.White, BorderThickness = new Thickness(2),
                 Cursor = Cursors.Hand
             };
             
             var txt = new TextBlock {
                 Text = myNumber.ToString(),
-                Foreground = GetContrastBrush(SelectedColor),
+                Foreground = GetContrastBrush(NumberingBadgeColor),
                 FontWeight = FontWeights.Bold, FontSize = bSize * 0.5,
                 HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center
             };
@@ -281,7 +283,7 @@ namespace CatchCapture.Utilities
                 MinHeight = bSize, MinWidth = 50,
                 Background = new SolidColorBrush(Color.FromArgb(100, 0, 0, 0)),
                 BorderBrush = Brushes.White, BorderThickness = new Thickness(1),
-                Foreground = Brushes.White, 
+                Foreground = new SolidColorBrush(NumberingNoteColor), 
                 FontSize = NumberingTextSize,
                 Text = "", VerticalContentAlignment = VerticalAlignment.Center,
                 Padding = new Thickness(3), TextWrapping = TextWrapping.NoWrap,
@@ -561,7 +563,12 @@ namespace CatchCapture.Utilities
                     double bSize = NumberingBadgeSize;
                     badge.Width = badge.Height = bSize;
                     badge.CornerRadius = new CornerRadius(bSize / 2);
-                    if (badge.Child is TextBlock btb) { btb.FontSize = bSize * 0.5; }
+                    badge.Background = new SolidColorBrush(NumberingBadgeColor);
+                    if (badge.Child is TextBlock btb) 
+                    { 
+                        btb.FontSize = bSize * 0.5;
+                        btb.Foreground = GetContrastBrush(NumberingBadgeColor);
+                    }
                     
                     // 배지 크기 변경에 맞춰 노트 위치도 조정
                     if (tb != null) 
@@ -575,7 +582,7 @@ namespace CatchCapture.Utilities
             {
                 ApplyTextStyleToTextBox(tb);
                 tb.FontSize = (CurrentTool == "넘버링") ? NumberingTextSize : TextFontSize;
-                tb.Foreground = new SolidColorBrush(SelectedColor);
+                tb.Foreground = new SolidColorBrush((CurrentTool == "넘버링") ? NumberingNoteColor : SelectedColor);
                 
                 // [추가] 포커스 복원하여 즉시 편집 가능하게 함
                 if (!tb.IsReadOnly) tb.Focus();

@@ -729,4 +729,8 @@ Are you sure you want to permanently delete all items?</value>
   <data name="FileNamePreset_App" xml:space="preserve"><value>App Name (Chrome_Date)</value></data>
   <data name="FileNamePreset_Title" xml:space="preserve"><value>Window Title (Google_Date)</value></data>
   <data name="FileNamePreview" xml:space="preserve"><value>Preview</value></data>
+  <data name="Badge" xml:space="preserve"><value>Badge</value></data>
+  <data name="TextNote" xml:space="preserve"><value>Text</value></data>
+  <data name="BadgeSize" xml:space="preserve"><value>Badge Size</value></data>
+  <data name="TextSize" xml:space="preserve"><value>Text Size</value></data>
 </root>

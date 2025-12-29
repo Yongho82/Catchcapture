@@ -731,4 +731,8 @@
   <data name="Val90Days" xml:space="preserve"><value>90일</value></data>
   <data name="ValPermanent" xml:space="preserve"><value>영구 보관</value></data>
   <data name="Wait" xml:space="preserve"><value>잠시만 기다려주세요...</value></data>
+  <data name="Badge" xml:space="preserve"><value>배지</value></data>
+  <data name="TextNote" xml:space="preserve"><value>텍스트</value></data>
+  <data name="BadgeSize" xml:space="preserve"><value>배지 크기</value></data>
+  <data name="TextSize" xml:space="preserve"><value>텍스트 크기</value></data>
 </root>

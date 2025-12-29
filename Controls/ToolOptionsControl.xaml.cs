@@ -49,7 +49,8 @@ namespace CatchCapture.Controls
             PenOpacityPanel.Visibility = Visibility.Collapsed; // 형광펜만 켬
             TextOptions.Visibility = Visibility.Collapsed;
             ShapeOptions.Visibility = Visibility.Collapsed;
-            NumberingOptions.Visibility = Visibility.Collapsed;
+            NumberingTabs.Visibility = Visibility.Collapsed;
+            NumberingBadgeOptions.Visibility = Visibility.Collapsed;
             MosaicOptions.Visibility = Visibility.Collapsed;
             EraserOptions.Visibility = Visibility.Collapsed;
             MagicWandOptions.Visibility = Visibility.Collapsed; // [추가] 마법봉 옵션 숨기기
@@ -86,11 +87,19 @@ namespace CatchCapture.Controls
                     LoadShapeState();
                     break;
                 case "넘버링":
-                    TextOptions.Visibility = Visibility.Visible; 
+                    ColorLabel.Visibility = Visibility.Collapsed;
+                    NumberingTabs.Visibility = Visibility.Visible;
                     if (_editor != null)
                     {
                         FontSizeComboBox.SelectedItem = (int)_editor.NumberingTextSize;
                         FontComboBox.SelectedItem = _editor.TextFontFamily;
+                        NumBadgeSlider.Value = _editor.NumberingBadgeSize;
+                        UpdateNumberingTabSelection();
+                    }
+                    else
+                    {
+                        // 에디터가 없어도 기본 탭 선택 로직은 실행
+                        UpdateNumberingTabSelection();
                     }
                     break;
                 case "모자이크":
@@ -167,15 +176,29 @@ namespace CatchCapture.Controls
 
             ShapeThicknessSlider.Value = _editor.ShapeBorderThickness;
 
-            // 모자이크
-            MosaicSlider.Value = _editor.MosaicIntensity;
-            
-            // 지우개
-            EraserSlider.Value = _editor.EraserSize;
-            
+            // 넘버링
+            if (_currentMode == "넘버링")
+            {
+                NumBadgeSlider.Value = _editor.NumberingBadgeSize;
+                UpdateNumberingTabSelection();
+            }
+
             // 마법봉
             MagicWandToleranceSlider.Value = _editor.MagicWandTolerance;
             MagicWandContiguousCheck.IsChecked = _editor.MagicWandContiguous;
+        }
+
+        private void UpdateNumberingTabSelection()
+        {
+            if (_editor == null) return;
+            bool isBadge = (NumBadgeTab.IsChecked == true);
+            
+            // 배지/텍스트 옵션 패널 노출 제어
+            NumberingBadgeOptions.Visibility = isBadge ? Visibility.Visible : Visibility.Collapsed;
+            TextOptions.Visibility = isBadge ? Visibility.Collapsed : Visibility.Visible;
+            
+            // 탭에 맞는 현재 색상을 팔레트에서 하이라이트
+            UpdateColorSelection(isBadge ? _editor.NumberingBadgeColor : _editor.NumberingNoteColor);
         }
 
         private void InitializeEvents()
@@ -207,7 +230,6 @@ namespace CatchCapture.Controls
                     if (_currentMode == "넘버링") 
                     {
                         _editor.NumberingTextSize = sz;
-                        _editor.NumberingBadgeSize = sz * 2.0; // 배지 크기를 폰트 크기의 2배로 연동
                     }
                     else _editor.TextFontSize = sz;
 
@@ -288,11 +310,14 @@ namespace CatchCapture.Controls
             };
 
             // Numbering
-            NumSizeSlider.ValueChanged += (s,e) => {
+            NumBadgeTab.Checked += (s, e) => UpdateNumberingTabSelection();
+            NumTextTab.Checked += (s, e) => UpdateNumberingTabSelection();
+
+            NumBadgeSlider.ValueChanged += (s, e) => {
                 if (_editor == null) return;
                 _editor.NumberingBadgeSize = e.NewValue;
-                _editor.NumberingTextSize = e.NewValue * 0.5;
-                NumSizeValue.Text = $"{(int)e.NewValue}px";
+                NumBadgeValue.Text = $"{(int)e.NewValue}px";
+                _editor.ApplyCurrentTextSettingsToSelectedObject();
             };
 
             // Mosaic
@@ -372,7 +397,15 @@ namespace CatchCapture.Controls
             border.MouseLeftButtonDown += (s, e) =>
             {
                 if (_editor != null) {
-                    _editor.SelectedColor = c;
+                    if (_currentMode == "넘버링")
+                    {
+                        if (NumBadgeTab.IsChecked == true) _editor.NumberingBadgeColor = c;
+                        else _editor.NumberingNoteColor = c;
+                    }
+                    else
+                    {
+                        _editor.SelectedColor = c;
+                    }
                     // [추가] 선택된 객체가 있으면 즉시 적용
                     _editor.ApplyCurrentTextSettingsToSelectedObject();
                 }
@@ -472,7 +505,10 @@ namespace CatchCapture.Controls
             ShapeFill.Content = ResLoc.GetString("Fill");
             ShapeThicknessLabel.Text = ResLoc.GetString("Thickness");
             ShapeOpacityLabel.Text = ResLoc.GetString("FillOpacity");
-            NumSizeLabel.Text = ResLoc.GetString("Size");
+            NumBadgeTab.Content = ResLoc.GetString("Badge");
+            NumTextTab.Content = ResLoc.GetString("TextNote");
+            NumBadgeLabel.Text = ResLoc.GetString("BadgeSize");
+
             MosaicLabel.Text = ResLoc.GetString("Intensity");
             EraserLabel.Text = ResLoc.GetString("Size");
             MagicWandLabel.Text = ResLoc.GetString("MagicWandToleranceLabel");
