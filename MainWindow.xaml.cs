@@ -2048,6 +2048,85 @@ public partial class MainWindow : Window
         }
     }
 
+    private string GetAutoSaveFilePath(string extension, string? sourceApp = null, string? sourceTitle = null)
+    {
+        var currentSettings = Models.Settings.Load();
+        string saveFolder = currentSettings.DefaultSaveFolder;
+        if (string.IsNullOrWhiteSpace(saveFolder))
+        {
+            saveFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture");
+        }
+        
+        // 폴더 분류 적용
+        string groupMode = currentSettings.FolderGroupingMode ?? "None";
+        DateTime now = DateTime.Now;
+        string subFolder = "";
+        
+        if (groupMode == "Monthly") subFolder = now.ToString("yyyy-MM");
+        else if (groupMode == "Quarterly") 
+        {
+            int q = (now.Month + 2) / 3;
+            subFolder = $"{now.Year}_{q}Q";
+        }
+        else if (groupMode == "Yearly") subFolder = now.ToString("yyyy");
+        
+        if (!string.IsNullOrEmpty(subFolder) && groupMode != "None")
+        {
+            saveFolder = System.IO.Path.Combine(saveFolder, subFolder);
+        }
+
+        if (!System.IO.Directory.Exists(saveFolder))
+        {
+            System.IO.Directory.CreateDirectory(saveFolder);
+        }
+
+        // 파일명 템플릿 적용
+        string template = currentSettings.FileNameTemplate ?? "Catch_$yyyy-MM-dd_HH-mm-ss$";
+        string filenameTemplate = template;
+        
+        // Sanitize helper
+        string Sanitize(string s) {
+            if (string.IsNullOrEmpty(s)) return "Unknown";
+            foreach (char c in System.IO.Path.GetInvalidFileNameChars()) s = s.Replace(c, '_');
+            return s.Trim();
+        }
+
+        try 
+        {
+            var matches = System.Text.RegularExpressions.Regex.Matches(template, @"\$(.*?)\$");
+            foreach (System.Text.RegularExpressions.Match match in matches)
+            {
+                string fmt = match.Groups[1].Value;
+                
+                if (fmt.Equals("App", StringComparison.OrdinalIgnoreCase)) {
+                     filenameTemplate = filenameTemplate.Replace(match.Value, Sanitize(sourceApp ?? ""));
+                     continue;
+                }
+                if (fmt.Equals("Title", StringComparison.OrdinalIgnoreCase)) {
+                     string t = sourceTitle ?? "";
+                     if (t.Length > 50) t = t.Substring(0, 50); // 길이는 적당히 제한
+                     filenameTemplate = filenameTemplate.Replace(match.Value, Sanitize(t));
+                     continue;
+                }
+
+                try { filenameTemplate = filenameTemplate.Replace(match.Value, now.ToString(fmt)); } catch { }
+            }
+        } 
+        catch { }
+
+        string ext = extension.StartsWith(".") ? extension : "." + extension;
+        string fullPath = System.IO.Path.Combine(saveFolder, filenameTemplate + ext);
+        
+        // 중복 방지
+        int dupIndex = 1;
+        while (System.IO.File.Exists(fullPath))
+        {
+             fullPath = System.IO.Path.Combine(saveFolder, $"{filenameTemplate} ({dupIndex}){ext}");
+             dupIndex++;
+        }
+        return fullPath;
+    }
+
     private void AddCaptureToList(BitmapSource image, bool skipPreview = false, bool showMainWindow = true, string? sourceApp = null, string? sourceTitle = null)
     {
         try
@@ -2058,81 +2137,7 @@ public partial class MainWindow : Window
             // ★ 메모리 최적화: 자동저장 시 썸네일만 메모리에 저장
             if (currentSettings.AutoSaveCapture)
             {
-                // ... (생략된 기존 자동저장 로직)
-                string saveFolder = currentSettings.DefaultSaveFolder;
-                if (string.IsNullOrWhiteSpace(saveFolder))
-                {
-                    saveFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture");
-                }
-                
-                // 폴더 분류 적용
-                string groupMode = currentSettings.FolderGroupingMode ?? "None";
-                DateTime now = DateTime.Now;
-                string subFolder = "";
-                
-                if (groupMode == "Monthly") subFolder = now.ToString("yyyy-MM");
-                else if (groupMode == "Quarterly") 
-                {
-                    int q = (now.Month + 2) / 3;
-                    subFolder = $"{now.Year}_{q}Q";
-                }
-                else if (groupMode == "Yearly") subFolder = now.ToString("yyyy");
-                
-                if (!string.IsNullOrEmpty(subFolder) && groupMode != "None")
-                {
-                    saveFolder = System.IO.Path.Combine(saveFolder, subFolder);
-                }
-
-                if (!System.IO.Directory.Exists(saveFolder))
-                {
-                    System.IO.Directory.CreateDirectory(saveFolder);
-                }
-
-                // 파일명 템플릿 적용
-                string template = currentSettings.FileNameTemplate ?? "Catch_$yyyy-MM-dd_HH-mm-ss$";
-                string filenameTemplate = template;
-                
-                // Sanitize helper
-                string Sanitize(string s) {
-                    if (string.IsNullOrEmpty(s)) return "Unknown";
-                    foreach (char c in System.IO.Path.GetInvalidFileNameChars()) s = s.Replace(c, '_');
-                    return s.Trim();
-                }
-
-                try 
-                {
-                    var matches = System.Text.RegularExpressions.Regex.Matches(template, @"\$(.*?)\$");
-                    foreach (System.Text.RegularExpressions.Match match in matches)
-                    {
-                        string fmt = match.Groups[1].Value;
-                        
-                        if (fmt.Equals("App", StringComparison.OrdinalIgnoreCase)) {
-                             filenameTemplate = filenameTemplate.Replace(match.Value, Sanitize(sourceApp ?? ""));
-                             continue;
-                        }
-                        if (fmt.Equals("Title", StringComparison.OrdinalIgnoreCase)) {
-                             string t = sourceTitle ?? "";
-                             if (t.Length > 50) t = t.Substring(0, 50); // 길이는 적당히 제한
-                             filenameTemplate = filenameTemplate.Replace(match.Value, Sanitize(t));
-                             continue;
-                        }
-
-                        try { filenameTemplate = filenameTemplate.Replace(match.Value, now.ToString(fmt)); } catch { }
-                    }
-                } 
-                catch { }
-
-                string format = currentSettings.FileSaveFormat.ToLower();
-                string ext = $".{format}";
-                string fullPath = System.IO.Path.Combine(saveFolder, filenameTemplate + ext);
-                
-                // 중복 방지
-                int dupIndex = 1;
-                while (System.IO.File.Exists(fullPath))
-                {
-                     fullPath = System.IO.Path.Combine(saveFolder, $"{filenameTemplate} ({dupIndex}){ext}");
-                     dupIndex++;
-                }
+                string fullPath = GetAutoSaveFilePath(currentSettings.FileSaveFormat.ToLower(), sourceApp, sourceTitle);
 
                 try
                 {
@@ -4721,23 +4726,7 @@ public partial class MainWindow : Window
                     if (thumbnail == null) return;
                 }
 
-                // 저장 경로 미리 계산
-                var currentSettings = Models.Settings.Load();
-                string saveFolder = currentSettings.DefaultSaveFolder;
-
-                if (string.IsNullOrWhiteSpace(saveFolder))
-                {
-                    saveFolder = System.IO.Path.Combine(
-                        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                        "CatchCapture");
-                }
-
-                if (!Directory.Exists(saveFolder))
-                {
-                    Directory.CreateDirectory(saveFolder);
-                }
-
-                string timestamp = DateTime.Now.ToString("yyyy-MM-dd HHmmss");
+                // 저장 경로 미리 계산 (이미지 저장 로직과 동일하게 적용)
                 string ext;
                 switch (settings.Format)
                 {
@@ -4746,8 +4735,8 @@ public partial class MainWindow : Window
                     default: ext = ".mp4"; break;
                 }
 
-                string filename = $"Recording_{timestamp}{ext}";
-                string fullPath = System.IO.Path.Combine(saveFolder, filename);
+                string fullPath = GetAutoSaveFilePath(ext);
+                string filename = System.IO.Path.GetFileName(fullPath);
 
                 // 동영상 썸네일 아이템 생성 (재생 버튼 포함)
                 // thumbnail이 null이어도 MP3면 내부에서 처리됨 (스피커 아이콘)
