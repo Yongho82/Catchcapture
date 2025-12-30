@@ -19,6 +19,7 @@ namespace CatchCapture
         private string _originalThemeFg = string.Empty;
         private string _currentPage = "Capture";
         private int[] _customColors = new int[16]; // 색상 대화상자의 사용자 지정 색상 저장
+        private bool _isLoaded = false;
 
         public SettingsWindow()
         {
@@ -51,6 +52,7 @@ namespace CatchCapture
                 
                 LoadThemePage();
                 HighlightNav(NavCapture, "Capture");
+                _isLoaded = true;
             }
             catch (Exception ex)
             {
@@ -568,31 +570,36 @@ private void InitLanguageComboBox()
             if (sender is RadioButton rb && rb.IsChecked == true && rb.Tag is string info)
             {
                 _settings.ThemeMode = info;
-                if (info == "General")
+                
+                // Only update default colors if explicitly checked by user (not during initialization)
+                if (_isLoaded)
                 {
-                    _settings.ThemeBackgroundColor = "#FFFFFF";
-                    _settings.ThemeTextColor = "#333333";
-                }
-                else if (info == "Dark")
-                {
-                    _settings.ThemeBackgroundColor = "#2D2D2D";
-                    _settings.ThemeTextColor = "#CCCCCC";
-                }
-                else if (info == "Light")
-                {
-                    _settings.ThemeBackgroundColor = "#F5F5F7";
-                    _settings.ThemeTextColor = "#333333";
-                }
-                else if (info == "Blue")
-                {
-                    _settings.ThemeBackgroundColor = "#E3F2FD";
-                    _settings.ThemeTextColor = "#0d47a1";
-                }
-                else if (info == "Custom")
-                {
-                    // Restore saved custom colors
-                    _settings.ThemeBackgroundColor = _settings.CustomThemeBackgroundColor ?? "#FFFFFF";
-                    _settings.ThemeTextColor = _settings.CustomThemeTextColor ?? "#333333";
+                    if (info == "General")
+                    {
+                        _settings.ThemeBackgroundColor = "#FFFFFF";
+                        _settings.ThemeTextColor = "#333333";
+                    }
+                    else if (info == "Dark")
+                    {
+                        _settings.ThemeBackgroundColor = "#1E1E1E"; // More intense dark
+                        _settings.ThemeTextColor = "#CCCCCC";
+                    }
+                    else if (info == "Light")
+                    {
+                        _settings.ThemeBackgroundColor = "#F5F5F7";
+                        _settings.ThemeTextColor = "#333333";
+                    }
+                    else if (info == "Blue")
+                    {
+                        _settings.ThemeBackgroundColor = "#E3F2FD";
+                        _settings.ThemeTextColor = "#0d47a1";
+                    }
+                    else if (info == "Custom")
+                    {
+                        // Restore saved custom colors
+                        _settings.ThemeBackgroundColor = _settings.CustomThemeBackgroundColor ?? "#FFFFFF";
+                        _settings.ThemeTextColor = _settings.CustomThemeTextColor ?? "#333333";
+                    }
                 }
                 
                 UpdateColorPreviews();
