@@ -674,6 +674,21 @@ namespace CatchCapture
                 GridLoading.Visibility = Visibility.Visible;
                 BtnSave.IsEnabled = false;
 
+                // [Fix] Hide all image sliders before serializing XAML
+                Editor.HideAllSliders();
+
+                // [Fix] Save all in-memory images to files and replace Source with file Uri
+                // This ensures XAML contains valid file paths instead of unloadable RenderTargetBitmap
+                try
+                {
+                    string imgDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images");
+                    Editor.PrepareImagesForSave(imgDir);
+                }
+                catch (Exception ex)
+                {
+                     Console.WriteLine($"PrepareImagesForSave Error: {ex.Message}");
+                }
+
                 var request = new SaveNoteRequest
                 {
                     Id = _editingNoteId,

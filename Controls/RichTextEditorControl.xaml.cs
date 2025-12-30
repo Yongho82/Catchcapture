@@ -1136,6 +1136,8 @@ namespace CatchCapture.Controls
         {
             try
             {
+                File.AppendAllText(@"C:\Yonghoprogram\Catchcapture\debug_save_log.txt", $"\n[{DateTime.Now}] GetXaml Called\n");
+
                 // [Fix] Force sync all image widths from sliders before saving
                 // This ensures that what the user sees (slider value) is exactly what gets serialized
                 foreach (var panel in _sliderPanels)
@@ -1149,17 +1151,35 @@ namespace CatchCapture.Controls
                             var img = grid.Children.OfType<System.Windows.Controls.Image>().FirstOrDefault();
                             if (img != null)
                             {
+                                double oldW = img.Width;
                                 img.Width = Math.Round(slider.Value);
+                                File.AppendAllText(@"C:\Yonghoprogram\Catchcapture\debug_save_log.txt", $" Syncing Image: OldWidth={oldW}, SliderValue={slider.Value}, NewWidth={img.Width}\n");
                             }
                         }
                     }
                 }
 
                 // Save the whole document for full fidelity (FlowDocument root)
-                return System.Windows.Markup.XamlWriter.Save(RtbEditor.Document);
+                var xaml = System.Windows.Markup.XamlWriter.Save(RtbEditor.Document);
+                File.AppendAllText(@"C:\Yonghoprogram\Catchcapture\debug_save_log.txt", $" Generated XAML Length: {xaml.Length}\n");
+                // Log partial XAML to check image tags
+                if (xaml.Length > 0) 
+                {
+                     // Simple check for Image Width
+                     var split = xaml.Split(new[]{"<Image "}, StringSplitOptions.RemoveEmptyEntries);
+                     foreach(var s in split.Skip(1)) 
+                     {
+                         var tagEnd = s.IndexOf("/>");
+                         if(tagEnd == -1) tagEnd = s.IndexOf(">");
+                         string tagContent = (tagEnd > 0) ? s.Substring(0, tagEnd) : s.Substring(0, Math.Min(s.Length, 100));
+                         File.AppendAllText(@"C:\Yonghoprogram\Catchcapture\debug_save_log.txt", $" XAML Image Tag Content: {tagContent}\n");
+                     }
+                }
+                return xaml;
             }
             catch (Exception ex)
             {
+                File.AppendAllText(@"C:\Yonghoprogram\Catchcapture\debug_save_log.txt", $" GetXaml Error: {ex.Message}\n");
                 Console.WriteLine(ex.Message);
                 return "";
             }
@@ -1619,16 +1639,27 @@ namespace CatchCapture.Controls
         public List<BitmapSource> GetAllImages()
         {
             var images = new List<BitmapSource>();
-            var imageControls = new List<System.Windows.Controls.Image>();
+            var imageControls = GetAllImageControls();
             
+            foreach (var img in imageControls)
+            {
+                if (img.Source is BitmapSource bs)
+                {
+                    images.Add(bs);
+                }
+            }
+            return images;
+        }
+
+        private List<System.Windows.Controls.Image> GetAllImageControls()
+        {
+            var imageControls = new List<System.Windows.Controls.Image>();
             foreach (var block in RtbEditor.Document.Blocks)
             {
                 if (block is BlockUIContainer container)
                 {
-                    // Explicitly handle Grid which is our standard container
                     if (container.Child is Grid grid)
                     {
-                        // Skip video/media thumbnails
                         bool isMediaGrid = grid.Children.OfType<TextBlock>().Any(t => t.Tag?.ToString() == "FilePathHolder" || t.Name == "FilePathHolder");
                         if (!isMediaGrid)
                         {
@@ -1644,16 +1675,67 @@ namespace CatchCapture.Controls
                     }
                 }
             }
+            return imageControls;
+        }
+
+        public void PrepareImagesForSave(string imageSaveDir)
+        {
+            if (!Directory.Exists(imageSaveDir)) Directory.CreateDirectory(imageSaveDir);
+
+            var imageControls = GetAllImageControls();
             foreach (var img in imageControls)
             {
+                // Check if it is a memory bitmap (RenderTargetBitmap or BitmapImage with no Uri)
+                bool needsSave = false;
                 if (img.Source is BitmapSource bs)
                 {
-                    images.Add(bs);
+                     if (bs is BitmapImage bi)
+                     {
+                         if (bi.UriSource == null || !bi.UriSource.IsFile) needsSave = true;
+                     }
+                     else
+                     {
+                         // RenderTargetBitmap, etc.
+                         needsSave = true;
+                     }
+
+                     if (needsSave)
+                     {
+                         try 
+                         {
+                             // Generate filename
+                             string fileName = $"img_{DateTime.Now:yyyyMMddHHmmss}_{Guid.NewGuid().ToString().Substring(0, 8)}.png";
+                             string fullPath = System.IO.Path.Combine(imageSaveDir, fileName);
+                             
+                             // Save to file
+                             using (var fileStream = new FileStream(fullPath, FileMode.Create))
+                             {
+                                 BitmapEncoder encoder = new PngBitmapEncoder();
+                                 encoder.Frames.Add(BitmapFrame.Create(bs));
+                                 encoder.Save(fileStream);
+                             }
+                             
+                             // Replace Image Source with new file-based BitmapImage
+                             var newBitmap = new BitmapImage();
+                             newBitmap.BeginInit();
+                             newBitmap.UriSource = new Uri(fullPath);
+                             newBitmap.CacheOption = BitmapCacheOption.OnLoad;
+                             newBitmap.EndInit();
+                             newBitmap.Freeze();
+                             
+                             img.Source = newBitmap;
+                             // Width is preserved automatically as it's a property of Image control
+                         }
+                         catch (Exception ex)
+                         {
+                             Console.WriteLine($"Failed to save memory image: {ex.Message}");
+                             File.AppendAllText(@"C:\Yonghoprogram\Catchcapture\debug_save_log.txt", $"Failed to save memory image: {ex.Message}\n");
+                         }
+                     }
                 }
             }
-            
-            return images;
         }
+            
         private void OnPaste(object sender, DataObjectPastingEventArgs e)
         {
             if (e.DataObject.GetDataPresent(DataFormats.Bitmap))

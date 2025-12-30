@@ -563,8 +563,9 @@ namespace CatchCapture
                             var noteIds = notesList.Select(n => n.Id).ToList();
                             string idList = string.Join(",", noteIds);
 
-                            // Images
+                            // Images (also store paths)
                             var imagesDict = new Dictionary<long, List<BitmapSource>>();
+                            var imagePathsDict = new Dictionary<long, List<string>>();
                             string imgSql = $"SELECT NoteId, FilePath FROM NoteImages WHERE NoteId IN ({idList}) ORDER BY OrderIndex ASC";
                             using (var cmd = new SqliteCommand(imgSql, connection))
                             using (var reader = cmd.ExecuteReader())
@@ -582,6 +583,9 @@ namespace CatchCapture
                                             if (!imagesDict.ContainsKey(nid)) imagesDict[nid] = new List<BitmapSource>();
                                             imagesDict[nid].Add(bmp);
                                         }
+                                        // Always store path even if thumbnail failed
+                                        if (!imagePathsDict.ContainsKey(nid)) imagePathsDict[nid] = new List<string>();
+                                        imagePathsDict[nid].Add(full);
                                     }
                                 }
                             }
@@ -630,6 +634,7 @@ namespace CatchCapture
                             foreach (var n in notesList)
                             {
                                 if (imagesDict.ContainsKey(n.Id)) n.Images = imagesDict[n.Id];
+                                if (imagePathsDict.ContainsKey(n.Id)) n.ImageFilePaths = imagePathsDict[n.Id];
                                 n.Thumbnail = n.Images?.FirstOrDefault();
                                 if (tagsDict.ContainsKey(n.Id)) n.Tags = tagsDict[n.Id];
                                 if (attachDict.ContainsKey(n.Id)) n.Attachments = attachDict[n.Id];
@@ -832,6 +837,70 @@ namespace CatchCapture
                                             };
                                         }
                                     }
+                            }
+                        }
+
+                        // [Fix] Restore image sources from stored file paths
+                        // XamlWriter cannot serialize in-memory BitmapSource, so we need to reload from files
+                        if (note.ImageFilePaths != null && note.ImageFilePaths.Count > 0)
+                        {
+                            int imageIndex = 0;
+                            foreach (var block in flowDocument.Blocks.ToList())
+                            {
+                                if (block is BlockUIContainer container)
+                                {
+                                    Image? img = null;
+                                    Grid? grid = null;
+                                    
+                                    if (container.Child is Grid g)
+                                    {
+                                        grid = g;
+                                        img = g.Children.OfType<Image>().FirstOrDefault();
+                                    }
+                                    else if (container.Child is Border border && border.Child is Grid g2)
+                                    {
+                                        grid = g2;
+                                        img = g2.Children.OfType<Image>().FirstOrDefault();
+                                    }
+                                    else if (container.Child is Image i)
+                                    {
+                                        img = i;
+                                    }
+                                    
+                                    // Skip video/media placeholders (they have FilePathHolder)
+                                    if (grid != null)
+                                    {
+                                        var pathHolder = grid.Children.OfType<TextBlock>().FirstOrDefault(t => t.Tag?.ToString() == "FilePathHolder");
+                                        if (pathHolder != null) continue;
+                                    }
+                                    
+                                    // Restore image source if missing
+                                    if (img != null && img.Source == null && imageIndex < note.ImageFilePaths.Count)
+                                    {
+                                        string fullPath = note.ImageFilePaths[imageIndex];
+                                        if (File.Exists(fullPath))
+                                        {
+                                            try
+                                            {
+                                                var bitmap = new BitmapImage();
+                                                bitmap.BeginInit();
+                                                bitmap.UriSource = new Uri(fullPath);
+                                                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                                                bitmap.EndInit();
+                                                bitmap.Freeze();
+                                                img.Source = bitmap;
+                                                img.Tag = fullPath;
+                                            }
+                                            catch { }
+                                        }
+                                        imageIndex++;
+                                    }
+                                    else if (img != null && img.Source != null)
+                                    {
+                                        // Image already has source, just increment index
+                                        imageIndex++;
+                                    }
+                                }
                             }
                         }
 
@@ -1543,6 +1612,9 @@ namespace CatchCapture
 
         private List<BitmapSource> _images = new List<BitmapSource>();
         public List<BitmapSource> Images { get => _images; set { _images = value; OnPropertyChanged(nameof(Images)); } }
+
+        private List<string> _imageFilePaths = new List<string>();
+        public List<string> ImageFilePaths { get => _imageFilePaths; set { _imageFilePaths = value; OnPropertyChanged(nameof(ImageFilePaths)); } }
 
         private List<string> _tags = new List<string>();
         public List<string> Tags { get => _tags; set { _tags = value; OnPropertyChanged(nameof(Tags)); } }
