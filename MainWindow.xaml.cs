@@ -40,6 +40,7 @@ public partial class MainWindow : Window
     private Point lastPosition;
     private int captureDelaySeconds = 0;
     private Recording.RecordingWindow? activeRecordingWindow = null; // Track active recording window
+    private Utilities.SnippingWindow? _activeSnippingWindow = null; // Track active snipping window
 
 
     // ★ 메모리 최적화: 스크린샷 캐시를 WeakReference로 변경 (메모리 압박 시 자동 해제)
@@ -1306,6 +1307,14 @@ public partial class MainWindow : Window
 
     private async Task StartAreaCaptureAsync()
     {
+        // ★ 기존 캡처창이 열려있다면 닫기 (재캡처 연타 시 중복 실행 방지)
+        if (_activeSnippingWindow != null)
+        {
+            var oldWindow = _activeSnippingWindow;
+            _activeSnippingWindow = null; // 새 세션을 위해 필드를 미리 비움 (기존 세션이 창을 복원하지 않도록 신호)
+            try { oldWindow.Close(); } catch { }
+        }
+
         // 간편모드 체크 추가 (재캡처 플래그 포함)
         bool isSimpleMode = (simpleModeWindow != null && simpleModeWindow.IsVisible) || _wasSimpleModeVisibleBeforeRecapture;
         _wasSimpleModeVisibleBeforeRecapture = false; // 플래그 사용 후 리셋
@@ -1349,7 +1358,10 @@ public partial class MainWindow : Window
         }
 
         // ★ 캡처된 메타데이터를 SnippingWindow에 전달
-        using (var snippingWindow = new SnippingWindow(false, screenshot, metadata.AppName, metadata.Title))
+        var snippingWindow = new SnippingWindow(false, screenshot, metadata.AppName, metadata.Title);
+        _activeSnippingWindow = snippingWindow;
+        
+        try
         {
             // 즉시편집 모드 활성화
             if (instantEdit)
@@ -1380,7 +1392,7 @@ public partial class MainWindow : Window
                     noteWin.ShowDialog();
                     return;
                 }
-
+                
                 // AddCaptureToList에서 창 복원 로직을 일원화하여 처리함 (이곳의 중복 호출 제거)
                 bool requestMinimize = snippingWindow.RequestMainWindowMinimize;
                 
@@ -1398,42 +1410,55 @@ public partial class MainWindow : Window
             }
             else
             {
-                // 4단계: Opacity 복원
-                this.Opacity = 1;
+                // ★ 중요: 현재 세션이 여전히 활성 세션인 경우에만 창 복원 수행
+                // 재캡처(F1 연타) 시 이전 세션이 창을 다시 띄우는 것 방지
+                if (_activeSnippingWindow == snippingWindow)
+                {
+                    // 4단계: Opacity 복원
+                    this.Opacity = 1;
 
-                // 캡처 취소 시에만 명시적으로 복원 (AddCaptureToList가 호출되지 않으므로)
-                if (isSimpleMode)
-                {
-                    // 간편 모드: 간편모드 창만 다시 표시
-                    if (simpleModeWindow != null)
+                    // 캡처 취소 시에만 명시적으로 복원 (AddCaptureToList가 호출되지 않으므로)
+                    if (isSimpleMode)
                     {
-                        simpleModeWindow._suppressActivatedExpand = true;
-                        simpleModeWindow.Show();
-                        simpleModeWindow.Activate();
+                        // 간편 모드: 간편모드 창만 다시 표시
+                        if (simpleModeWindow != null)
+                        {
+                            simpleModeWindow._suppressActivatedExpand = true;
+                            simpleModeWindow.Show();
+                            simpleModeWindow.Activate();
+                        }
                     }
-                }
-                else if (!settings.IsTrayMode)
-                {
-                    // 일반 모드: 메인 창 표시
-                    this.Show();
-                    this.Activate();
-                }
-                else
-                {
-                    // 트레이 모드: 트레이 모드 창 다시 표시
-                    if (trayModeWindow != null)
+                    else if (!settings.IsTrayMode)
                     {
-                        trayModeWindow.Show();
-                        trayModeWindow.Activate();
+                        // 일반 모드: 메인 창 표시
+                        this.Show();
+                        this.Activate();
+                    }
+                    else
+                    {
+                        // 트레이 모드: 트레이 모드 창 다시 표시
+                        if (trayModeWindow != null)
+                        {
+                            trayModeWindow.Show();
+                            trayModeWindow.Activate();
+                        }
                     }
                 }
             }
-        } // using block ends here, disposing snippingWindow
+        }
+        finally
+        {
+            // 이 세션이 여전히 활성 세션인 경우에만 참조 해제
+            if (_activeSnippingWindow == snippingWindow)
+            {
+                _activeSnippingWindow = null;
+            }
+            snippingWindow.Dispose();
 
-        // ★ [메모리 최적화 핵심] 대용량 스크린샷 참조 해제 및 즉시 GC 수행
-        // async 메서드 내 지역 변수는 오랫동안 살아남을 수 있으므로 여기서 명시적으로 죽여야 함
-        screenshot = null;
-        GC.Collect(0, GCCollectionMode.Forced);
+            // ★ [메모리 최적화 핵심] 대용량 스크린샷 참조 해제 및 즉시 GC 수행
+            screenshot = null;
+            GC.Collect(0, GCCollectionMode.Forced);
+        }
     }
 
     public void StartAreaCapture()
