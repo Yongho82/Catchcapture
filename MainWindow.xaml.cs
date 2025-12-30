@@ -2255,7 +2255,7 @@ public partial class MainWindow : Window
                 try
                 {
                     // 원본 이미지(image)를 클립보드에 복사
-                    System.Windows.Clipboard.SetImage(image);
+                    CatchCapture.Utilities.ScreenCaptureUtility.CopyImageToClipboard(image);
                     
                     // 알림 표시 - StickerWindow 사용 (MainWindow context이므로 직접 호출 가능하거나 SnippingWindow가 열려있지 않을 때 사용)
                     CatchCapture.Utilities.StickerWindow.Show(LocalizationManager.GetString("CopiedToClipboard"));

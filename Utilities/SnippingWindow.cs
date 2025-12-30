@@ -299,11 +299,12 @@ namespace CatchCapture.Utilities
                 e.Handled = true;
             }
 
-            // C for Copy Color
-            if (e.Key == Key.C)
+            // C for Copy Color (Only without modifiers to avoid conflict with Ctrl+C)
+            if (e.Key == Key.C && Keyboard.Modifiers == ModifierKeys.None)
             {
                 CopyColorToClipboard(closeWindow: true);
                 e.Handled = true;
+                return; // Added return to be explicit
             }
             
             // 즉시편집 모드일 때만 나머지 단축키 활성화
@@ -842,11 +843,10 @@ namespace CatchCapture.Utilities
                 else
                     textToCopy = $"{lastHoverColor.R}, {lastHoverColor.G}, {lastHoverColor.B}";
                 
-                Clipboard.SetText(textToCopy);
+                ScreenCaptureUtility.CopyTextToClipboard(textToCopy);
                 
-                // Show Sticker (Toast)
-                string msg = "클립보드에 복사되었습니다.";
-                
+                // Show Sticker (Toast) 
+                string msg = ResLoc.GetString("CopiedToClipboard");
                 StickerWindow.Show(msg);
 
                 if (closeWindow)
@@ -2090,7 +2090,7 @@ namespace CatchCapture.Utilities
                 
                 if (SelectedFrozenImage != null)
                 {
-                    Clipboard.SetImage(SelectedFrozenImage);
+                    ScreenCaptureUtility.CopyImageToClipboard(SelectedFrozenImage);
                     
                     // "복사되었습니다" 스티커(토스트) 표시
                     ShowCopyCompleteSticker();

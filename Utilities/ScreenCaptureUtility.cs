@@ -1094,6 +1094,12 @@ namespace CatchCapture.Utilities
             System.Windows.Clipboard.SetImage(bitmapSource);
         }
 
+        public static void CopyTextToClipboard(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return;
+            System.Windows.Clipboard.SetText(text);
+        }
+
         // 두 이미지가 거의 완전히 동일한지 비교 (스크롤 감지용)
         private static bool AreImagesAlmostIdentical(Bitmap img1, Bitmap img2)
         {

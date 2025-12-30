@@ -46,8 +46,8 @@ namespace CatchCapture
         {
             if (!string.IsNullOrEmpty(ResultTextBox.Text))
             {
-                Clipboard.SetText(ResultTextBox.Text);
-                MessageBox.Show(LocalizationManager.Get("CopyToClipboard"), LocalizationManager.Get("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
+                ScreenCaptureUtility.CopyTextToClipboard(ResultTextBox.Text);
+                CatchCapture.Utilities.StickerWindow.Show(LocalizationManager.Get("CopiedToClipboard"));
             }
         }
         

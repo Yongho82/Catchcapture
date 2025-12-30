@@ -757,7 +757,7 @@ namespace CatchCapture
                     ? $"#{lastHoverColor.R:X2}{lastHoverColor.G:X2}{lastHoverColor.B:X2}"
                     : $"{lastHoverColor.R}, {lastHoverColor.G}, {lastHoverColor.B}";
                 
-                Clipboard.SetText(textToCopy);
+                Utilities.ScreenCaptureUtility.CopyTextToClipboard(textToCopy);
                 
                 string msg = "클립보드에 복사되었습니다.";
                 Utilities.StickerWindow.Show(msg);

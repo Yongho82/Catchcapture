@@ -19,6 +19,7 @@ namespace CatchCapture.Utilities
             ShowInTaskbar = false;
             SizeToContent = SizeToContent.WidthAndHeight;
             ResizeMode = ResizeMode.NoResize;
+            ShowActivated = false;
 
             var border = new Border
             {

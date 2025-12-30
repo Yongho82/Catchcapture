@@ -66,7 +66,7 @@ namespace CatchCapture.Utilities
                 if (string.IsNullOrEmpty(text)) return;
 
                 // 1. 텍스트 클립보드 복사
-                Clipboard.SetText(text);
+                ScreenCaptureUtility.CopyTextToClipboard(text);
 
                 // 2. 번역 URL 생성
                 string translateUrl = $"https://translate.google.com/?sl=auto&tl={targetLang}&op=translate";
