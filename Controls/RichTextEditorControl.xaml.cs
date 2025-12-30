@@ -939,7 +939,25 @@ namespace CatchCapture.Controls
         {
             try
             {
-                // Simple text-only link design
+                // StackPanel to hold emoji + link + title
+                var stack = new StackPanel
+                {
+                    Orientation = Orientation.Horizontal,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Background = Brushes.Transparent // Ensure hit-testing works
+                };
+
+                // 🔗 Emoji icon
+                var emoji = new TextBlock
+                {
+                    Text = "🔗 ",
+                    FontSize = 13,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Margin = new Thickness(0, 0, 2, 0)
+                };
+                stack.Children.Add(emoji);
+
+                // URL text (clickable)
                 var linkText = new TextBlock
                 {
                     Text = url,
@@ -949,9 +967,22 @@ namespace CatchCapture.Controls
                     FontSize = 13,
                     VerticalAlignment = VerticalAlignment.Center
                 };
+                stack.Children.Add(linkText);
+
+                // Meta title (will be fetched async)
+                var titleText = new TextBlock
+                {
+                    Text = "",
+                    Foreground = new SolidColorBrush(Color.FromRgb(128, 128, 128)), // Gray
+                    FontSize = 12,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Margin = new Thickness(8, 0, 0, 0),
+                    FontStyle = FontStyles.Italic
+                };
+                stack.Children.Add(titleText);
 
                 // Click event to open URL
-                linkText.MouseLeftButtonDown += (s, e) =>
+                stack.MouseLeftButtonDown += (s, e) =>
                 {
                     try
                     {
@@ -961,15 +992,68 @@ namespace CatchCapture.Controls
                     catch { }
                 };
 
-                // Use InlineUIContainer to keep it in text flow (not BlockUIContainer)
-                var container = new InlineUIContainer(linkText, insertionPos);
+                // Right-click context menu for copying URL
+                var contextMenu = new ContextMenu();
+                var copyMenuItem = new MenuItem { Header = "URL 복사" };
+                copyMenuItem.Click += (s, e) =>
+                {
+                    try
+                    {
+                        Clipboard.SetText(url);
+                    }
+                    catch { }
+                };
+                contextMenu.Items.Add(copyMenuItem);
+                stack.ContextMenu = contextMenu;
+
+                // Use InlineUIContainer to keep it in text flow
+                var container = new InlineUIContainer(stack, insertionPos);
                 
                 // Move caret after the link
                 RtbEditor.CaretPosition = container.ElementEnd;
+
+                // Fetch meta title asynchronously
+                FetchMetaTitle(url, titleText);
             }
             catch
             {
                 // Silently fail
+            }
+        }
+
+        private async void FetchMetaTitle(string url, TextBlock titleTextBlock)
+        {
+            try
+            {
+                using (var client = new System.Net.Http.HttpClient())
+                {
+                    client.Timeout = TimeSpan.FromSeconds(3);
+                    var html = await client.GetStringAsync(url);
+                    
+                    // Extract title from HTML
+                    var titleMatch = Regex.Match(html, @"<title[^>]*>(.*?)</title>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                    if (titleMatch.Success)
+                    {
+                        string title = titleMatch.Groups[1].Value.Trim();
+                        title = System.Net.WebUtility.HtmlDecode(title);
+                        
+                        // Limit length
+                        if (title.Length > 50)
+                        {
+                            title = title.Substring(0, 50) + "...";
+                        }
+
+                        // Update UI on dispatcher thread
+                        Dispatcher.Invoke(() =>
+                        {
+                            titleTextBlock.Text = title;
+                        });
+                    }
+                }
+            }
+            catch
+            {
+                // Silently fail if can't fetch title
             }
         }
 
@@ -1527,7 +1611,6 @@ namespace CatchCapture.Controls
             
             return images;
         }
-
         private void OnPaste(object sender, DataObjectPastingEventArgs e)
         {
             if (e.DataObject.GetDataPresent(DataFormats.Bitmap))
@@ -1559,14 +1642,11 @@ namespace CatchCapture.Controls
                 var html = e.DataObject.GetData(DataFormats.Html) as string;
                 if (!string.IsNullOrEmpty(html))
                 {
-                    // 이미지 태그가 있는지 확인
                     var imgRegex = new Regex(@"(<img[^>]+>)", RegexOptions.IgnoreCase);
                     if (imgRegex.IsMatch(html))
                     {
-                        // 이미지와 텍스트가 섞여있으므로 직접 처리
                         e.CancelCommand();
 
-                        // 1. Fragment만 추출 (선택적)
                         int startIdx = html.IndexOf("<!--StartFragment-->");
                         int endIdx = html.LastIndexOf("<!--EndFragment-->");
                         string content = html;
@@ -1575,7 +1655,6 @@ namespace CatchCapture.Controls
                             content = html.Substring(startIdx + 20, endIdx - (startIdx + 20));
                         }
 
-                        // 2. 이미지 태그를 기준으로 분할하여 순서대로 삽입
                         var parts = imgRegex.Split(content);
                         foreach (var part in parts)
                         {
@@ -1583,7 +1662,6 @@ namespace CatchCapture.Controls
 
                             if (part.StartsWith("<img", StringComparison.OrdinalIgnoreCase))
                             {
-                                // 이미지 주소 추출
                                 var srcMatch = Regex.Match(part, @"src=[""']([^""']+)[""']", RegexOptions.IgnoreCase);
                                 if (srcMatch.Success)
                                 {
@@ -1605,10 +1683,22 @@ namespace CatchCapture.Controls
                             }
                             else
                             {
-                                // 텍스트 삽입
                                 InsertCleanText(part);
                             }
                         }
+                    }
+                }
+            }
+            else if (e.DataObject.GetDataPresent(DataFormats.Text))
+            {
+                var text = e.DataObject.GetData(DataFormats.Text) as string;
+                if (!string.IsNullOrEmpty(text))
+                {
+                    string trimmedText = text.Trim();
+                    if (Regex.IsMatch(trimmedText, @"^https?://[^\s]+$"))
+                    {
+                        e.CancelCommand();
+                        CreateSimpleLinkPreview(trimmedText, RtbEditor.CaretPosition);
                     }
                 }
             }
