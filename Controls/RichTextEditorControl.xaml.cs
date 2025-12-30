@@ -132,6 +132,7 @@ namespace CatchCapture.Controls
             if (BtnNumberList != null) BtnNumberList.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("NumberList") ?? "번호 매기기";
             if (BtnInsertImage != null) BtnInsertImage.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("InsertImage") ?? "이미지 삽입";
             if (BtnCaptureAdd != null) BtnCaptureAdd.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("InsertCapture") ?? "캡처 추가";
+            if (BtnOcrAdd != null) BtnOcrAdd.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("OcrCaptureTooltip") ?? "OCR 캡처";
             if (BtnInsertLink != null) BtnInsertLink.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("InsertLink") ?? "링크 삽입";
             if (BtnInsertVideo != null) BtnInsertVideo.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("AddVideo") ?? "동영상/유튜브 삽입";
             if (BtnUndo != null) BtnUndo.ToolTip = (CatchCapture.Resources.LocalizationManager.GetString("Undo") ?? "실행 취소") + " (Ctrl+Z)";
@@ -618,6 +619,13 @@ namespace CatchCapture.Controls
         private void BtnCaptureAdd_Click(object sender, RoutedEventArgs e)
         {
             CaptureRequested?.Invoke();
+        }
+
+        public event Action? OcrRequested;
+
+        private void BtnOcrAdd_Click(object sender, RoutedEventArgs e)
+        {
+            OcrRequested?.Invoke();
         }
 
         /// <summary>

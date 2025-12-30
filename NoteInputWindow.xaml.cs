@@ -81,6 +81,7 @@ namespace CatchCapture
             
             // Subscribe to capture request from editor
             Editor.CaptureRequested += OnEditorCaptureRequested;
+            Editor.OcrRequested += OnEditorOcrRequested;
             LoadWindowState();
             UpdateUIText();
             CatchCapture.Resources.LocalizationManager.LanguageChanged += (s, e) => UpdateUIText();
@@ -104,6 +105,7 @@ namespace CatchCapture
             
             // Subscribe to capture request from editor
             Editor.CaptureRequested += OnEditorCaptureRequested;
+            Editor.OcrRequested += OnEditorOcrRequested;
             LoadWindowState();
             UpdateUIText();
             CatchCapture.Resources.LocalizationManager.LanguageChanged += (s, e) => UpdateUIText();
@@ -559,6 +561,51 @@ namespace CatchCapture
                         Editor.InsertCapturedImage(capturedImage);
                         Editor.Focus();
                     }
+                });
+            });
+        }
+
+        private void OnEditorOcrRequested()
+        {
+            // Get MainWindow reference
+            var mainWindow = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
+            if (mainWindow == null)
+            {
+                CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ErrMainWinNotFound"), CatchCapture.Resources.LocalizationManager.GetString("Error"));
+                return;
+            }
+
+            // Check if NoteExplorerWindow is open and visible
+            var explorer = NoteExplorerWindow.Instance;
+            bool wasExplorerVisible = explorer != null && explorer.IsVisible;
+            var previousExplorerState = explorer?.WindowState ?? WindowState.Normal;
+
+            if (wasExplorerVisible && explorer != null)
+            {
+                explorer.Hide();
+            }
+
+            // Minimize instead of Hide to preserve dialog context
+            var previousState = this.WindowState;
+            this.WindowState = WindowState.Minimized;
+
+            // Trigger OCR via MainWindow (bypasses instant edit mode, shows result window)
+            mainWindow.TriggerOcrForNote(() =>
+            {
+                // This callback runs after OCR result window closes (or is cancelled)
+                Dispatcher.Invoke(() =>
+                {
+                    // Restore NoteExplorerWindow if it was visible
+                    if (wasExplorerVisible && explorer != null)
+                    {
+                        explorer.Show();
+                        explorer.WindowState = previousExplorerState;
+                    }
+
+                    // Restore window state
+                    this.WindowState = previousState;
+                    this.Activate();
+                    this.Focus();
                 });
             });
         }

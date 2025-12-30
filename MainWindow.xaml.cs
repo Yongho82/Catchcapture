@@ -1304,6 +1304,62 @@ public partial class MainWindow : Window
         }
     }
 
+    public async void TriggerOcrForNote(Action onComplete)
+    {
+        try
+        {
+            // 1. Hide Main Window and others
+            if (this.IsVisible) this.Hide();
+            if (simpleModeWindow != null && simpleModeWindow.IsVisible) simpleModeWindow.Hide();
+            if (trayModeWindow != null && trayModeWindow.IsVisible) trayModeWindow.Hide();
+
+            // 2. Clear UI
+            await Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.Render);
+            FlushUIAfterHide();
+
+            // 3. Capture Screen
+            await Task.Delay(50); // Ensure UI fade matches
+            var screenshot = await Task.Run(() => ScreenCaptureUtility.CaptureScreen());
+
+            // 4. Show Snipping Window (false = No Instant Edit Toolbar)
+            using (var snippingWindow = new SnippingWindow(false, screenshot))
+            {
+                if (snippingWindow.ShowDialog() == true)
+                {
+                     var capturedImage = snippingWindow.SelectedFrozenImage ?? ScreenCaptureUtility.CaptureArea(snippingWindow.SelectedArea);
+                     
+                     // Add to list but skip preview, AND do not show main window
+                     AddCaptureToList(capturedImage, skipPreview: true, showMainWindow: false);
+
+                     // OCR Execution
+                     try
+                     {
+                         var ocrResult = await OcrUtility.ExtractTextFromImageAsync(capturedImage);
+                         var resultWindow = new OcrResultWindow(ocrResult.Text, ocrResult.ShowWarning);
+                         resultWindow.Owner = this; 
+                         resultWindow.ShowDialog(); // Wait for user to copy and close
+                     }
+                     catch (Exception ex)
+                     {
+                         MessageBox.Show($"OCR 처리 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                     }
+                }
+            }
+
+            // 5. Cleanup
+            this.Opacity = 1;
+            screenshot = null;
+            GC.Collect(0, GCCollectionMode.Forced);
+            
+            onComplete?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"TriggerOcrForNote error: {ex.Message}");
+            onComplete?.Invoke();
+        }
+    }
+
 
     private async Task StartAreaCaptureAsync()
     {

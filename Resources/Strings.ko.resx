@@ -95,6 +95,9 @@
   <data name="OcrCapture" xml:space="preserve">
     <value>OCR 캡처</value>
   </data>
+  <data name="OcrCaptureTooltip" xml:space="preserve">
+    <value>OCR 캡처</value>
+  </data>
   
   <!-- Window Modes -->
   <data name="NormalMode" xml:space="preserve">
