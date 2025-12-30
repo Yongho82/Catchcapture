@@ -177,7 +177,7 @@ public partial class App : Application
                 if (brightness < 0.5) // Dark Theme
                 {
                     windowBorder = AdjustColor(bgColor, 15);
-                    sidebarBg = AdjustColor(bgColor, -5); 
+                    sidebarBg = AdjustColor(bgColor, -15); // Increased contrast for dark mode
                     sidebarBorder = AdjustColor(bgColor, 20);
                     sidebarHover = AdjustColor(bgColor, 25);
                     sidebarPressed = AdjustColor(bgColor, 35);
@@ -185,7 +185,7 @@ public partial class App : Application
                 else // Light Theme
                 {
                     windowBorder = AdjustColor(bgColor, -20);
-                    sidebarBg = AdjustColor(bgColor, -5); 
+                    sidebarBg = AdjustColor(bgColor, -8); // Slight contrast for light mode
                     sidebarBorder = Brushes.Transparent.Color; 
                     sidebarHover = AdjustColor(bgColor, -15);
                     sidebarPressed = AdjustColor(bgColor, -25);
