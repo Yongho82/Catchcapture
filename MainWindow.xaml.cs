@@ -2603,13 +2603,15 @@ public partial class MainWindow : Window
             Child = grid,
             Margin = new Thickness(0, 6, 0, 6),
             BorderThickness = new Thickness(1),
-            BorderBrush = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0)),
-            Background = Brushes.White,
             CornerRadius = new CornerRadius(6),
             Effect = new DropShadowEffect { ShadowDepth = 1, BlurRadius = 5, Opacity = 0.2, Direction = 270 },
             Tag = index,
             Width = thumbWidth, Height = thumbHeight
         };
+        
+        // 테마에 맞는 색상 적용
+        border.SetResourceReference(Border.BackgroundProperty, "ThemeBackground");
+        border.SetResourceReference(Border.BorderBrushProperty, "ThemeBorder");
 
         // 호버 이벤트 연결 (마우스 올리면 버튼 보임)
         border.MouseEnter += (s, e) => {
@@ -2779,7 +2781,7 @@ public partial class MainWindow : Window
         // 이전 선택 해제
         if (selectedBorder != null)
         {
-            selectedBorder.BorderBrush = Brushes.Transparent;
+            selectedBorder.SetResourceReference(Border.BorderBrushProperty, "ThemeBorder");
         }
 
         // 새 선택 적용

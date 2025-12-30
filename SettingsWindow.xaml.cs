@@ -2295,6 +2295,10 @@ private void InitLanguageComboBox()
 
             TxtNoteFileNamePreview.Text = preview + ext;
         }
+        private void BtnMinimize_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
     }
 
     // Helper class for menu item editing
