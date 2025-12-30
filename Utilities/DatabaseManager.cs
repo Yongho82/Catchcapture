@@ -5,8 +5,35 @@ using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using CatchCapture.Models;
 
+using System.Linq;
+using System.Diagnostics;
+using System.Windows.Media.Imaging;
+
 namespace CatchCapture.Utilities
 {
+    public class SaveNoteRequest
+    {
+        public long? Id { get; set; }
+        public string Title { get; set; } = "";
+        public string Content { get; set; } = "";
+        public string ContentXaml { get; set; } = "";
+        public string Tags { get; set; } = "";
+        public long CategoryId { get; set; } = 1;
+        public string? SourceApp { get; set; }
+        public string? SourceUrl { get; set; }
+        public List<BitmapSource> Images { get; set; } = new List<BitmapSource>();
+        public List<NoteAttachmentRequest> Attachments { get; set; } = new List<NoteAttachmentRequest>();
+    }
+
+    public class NoteAttachmentRequest
+    {
+        public long? Id { get; set; }
+        public string? FullPath { get; set; }
+        public string DisplayName { get; set; } = "";
+        public bool IsDeleted { get; set; }
+        public bool IsExisting { get; set; }
+    }
+
     public class DatabaseManager
     {
         private static DatabaseManager? _instance;
@@ -808,6 +835,261 @@ namespace CatchCapture.Utilities
                     return (long)cmd.ExecuteScalar()! > 0;
                 }
             }
+        }
+        public async Task<long> SaveNoteAsync(SaveNoteRequest request)
+        {
+            return await Task.Run(() =>
+            {
+                using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            long noteId;
+                            bool isEdit = request.Id.HasValue;
+
+                            if (isEdit)
+                            {
+                                noteId = request.Id!.Value;
+                                string updateSql = @"
+                                    UPDATE Notes 
+                                    SET Title = $title, Content = $content, ContentXaml = $contentXaml, CategoryId = $categoryId, UpdatedAt = CURRENT_TIMESTAMP
+                                    WHERE Id = $id";
+                                using (var cmd = new SqliteCommand(updateSql, connection, transaction))
+                                {
+                                    cmd.Parameters.AddWithValue("$title", request.Title);
+                                    cmd.Parameters.AddWithValue("$content", request.Content);
+                                    cmd.Parameters.AddWithValue("$contentXaml", request.ContentXaml);
+                                    cmd.Parameters.AddWithValue("$categoryId", request.CategoryId);
+                                    cmd.Parameters.AddWithValue("$id", noteId);
+                                    cmd.ExecuteNonQuery();
+                                }
+                            }
+                            else
+                            {
+                                string insertSql = @"
+                                    INSERT INTO Notes (Title, Content, ContentXaml, SourceApp, SourceUrl, UpdatedAt, CategoryId)
+                                    VALUES ($title, $content, $contentXaml, $sourceApp, $sourceUrl, CURRENT_TIMESTAMP, $categoryId);
+                                    SELECT last_insert_rowid();";
+                                using (var cmd = new SqliteCommand(insertSql, connection, transaction))
+                                {
+                                    cmd.Parameters.AddWithValue("$title", request.Title);
+                                    cmd.Parameters.AddWithValue("$content", request.Content);
+                                    cmd.Parameters.AddWithValue("$contentXaml", request.ContentXaml);
+                                    cmd.Parameters.AddWithValue("$sourceApp", (object?)request.SourceApp ?? DBNull.Value);
+                                    cmd.Parameters.AddWithValue("$sourceUrl", (object?)request.SourceUrl ?? DBNull.Value);
+                                    cmd.Parameters.AddWithValue("$categoryId", request.CategoryId);
+                                    noteId = Convert.ToInt64(cmd.ExecuteScalar());
+                                }
+                            }
+
+                            // 1. Manage Images
+                            string imgDir = GetImageFolderPath();
+                            var savedImages = new List<(string FileName, string Hash)>();
+                            var settings = Settings.Load();
+
+                            foreach (var imgSource in request.Images)
+                            {
+                                string? hash = null;
+                                string? fileName = null;
+
+                                if (imgSource is BitmapImage bi && bi.UriSource != null && bi.UriSource.IsFile)
+                                {
+                                    string localPath = bi.UriSource.LocalPath;
+                                    if (localPath.StartsWith(imgDir, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        fileName = localPath.Substring(imgDir.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                                        hash = ComputeHash(localPath);
+                                        savedImages.Add((fileName, hash));
+                                        continue;
+                                    }
+                                }
+
+                                // New image processing
+                                bool isRemote = (imgSource is BitmapImage bir && bir.UriSource != null && !bir.UriSource.IsFile);
+                                string format = isRemote ? "JPG" : (settings.NoteSaveFormat ?? "PNG");
+                                int quality = isRemote ? 80 : settings.NoteImageQuality;
+
+                                using (var ms = new MemoryStream())
+                                {
+                                    ScreenCaptureUtility.SaveImageToStream(imgSource, ms, format, quality);
+                                    ms.Position = 0;
+                                    using (var md5 = System.Security.Cryptography.MD5.Create())
+                                    {
+                                        hash = BitConverter.ToString(md5.ComputeHash(ms)).Replace("-", "").ToLowerInvariant();
+                                    }
+
+                                    string? existing = GetExistingImageByHash(hash);
+                                    if (existing != null)
+                                    {
+                                        savedImages.Add((existing, hash));
+                                        continue;
+                                    }
+
+                                    string subFolder = "";
+                                    string grpMode = settings.NoteFolderGroupingMode ?? "None";
+                                    DateTime now = DateTime.Now;
+                                    if (grpMode == "Yearly") subFolder = now.ToString("yyyy");
+                                    else if (grpMode == "Monthly") subFolder = now.ToString("yyyy-MM");
+                                    else if (grpMode == "Quarterly") subFolder = $"{now.Year}_{(now.Month + 2) / 3}Q";
+
+                                    string targetDir = string.IsNullOrEmpty(subFolder) ? imgDir : Path.Combine(imgDir, subFolder);
+                                    if (!Directory.Exists(targetDir)) Directory.CreateDirectory(targetDir);
+
+                                    string fName = settings.NoteFileNameTemplate ?? "Catch_$yyyy-MM-dd_HH-mm-ss$";
+                                    foreach (System.Text.RegularExpressions.Match match in System.Text.RegularExpressions.Regex.Matches(fName, @"\$(.*?)\$"))
+                                    {
+                                        string k = match.Groups[1].Value;
+                                        if (k.Equals("App", StringComparison.OrdinalIgnoreCase)) fName = fName.Replace(match.Value, request.SourceApp ?? "CatchC");
+                                        else if (k.Equals("Title", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            string st = request.Title;
+                                            if (st.Length > 20) st = st.Substring(0, 20);
+                                            fName = fName.Replace(match.Value, st);
+                                        }
+                                        else try { fName = fName.Replace(match.Value, now.ToString(k)); } catch { }
+                                    }
+                                    foreach (char c in Path.GetInvalidFileNameChars()) fName = fName.Replace(c, '_');
+                                    
+                                    string fileNameOnly = fName + "." + format.ToLower();
+                                    string fullPath = Path.Combine(targetDir, fileNameOnly);
+                                    int counter = 1;
+                                    while (File.Exists(fullPath))
+                                    {
+                                        fileNameOnly = $"{fName}_{counter++}.{format.ToLower()}";
+                                        fullPath = Path.Combine(targetDir, fileNameOnly);
+                                    }
+
+                                    fileName = string.IsNullOrEmpty(subFolder) ? fileNameOnly : Path.Combine(subFolder, fileNameOnly);
+                                    ms.Position = 0;
+                                    using (var fs = new FileStream(fullPath, FileMode.Create)) { ms.CopyTo(fs); }
+                                    savedImages.Add((fileName, hash));
+                                }
+                            }
+
+                            // Update NoteImages in DB
+                            using (var cmd = new SqliteCommand("DELETE FROM NoteImages WHERE NoteId = $id", connection, transaction))
+                            {
+                                cmd.Parameters.AddWithValue("$id", noteId);
+                                cmd.ExecuteNonQuery();
+                            }
+                            for (int i = 0; i < savedImages.Count; i++)
+                            {
+                                using (var cmd = new SqliteCommand("INSERT INTO NoteImages (NoteId, FilePath, OrderIndex, FileHash) VALUES ($nid, $path, $idx, $hash)", connection, transaction))
+                                {
+                                    cmd.Parameters.AddWithValue("$nid", noteId);
+                                    cmd.Parameters.AddWithValue("$path", savedImages[i].FileName);
+                                    cmd.Parameters.AddWithValue("$idx", i);
+                                    cmd.Parameters.AddWithValue("$hash", savedImages[i].Hash);
+                                    cmd.ExecuteNonQuery();
+                                }
+                            }
+
+                            // 2. Manage Tags
+                            using (var cmd = new SqliteCommand("DELETE FROM NoteTags WHERE NoteId = $id", connection, transaction))
+                            {
+                                cmd.Parameters.AddWithValue("$id", noteId);
+                                cmd.ExecuteNonQuery();
+                            }
+
+                            if (!string.IsNullOrWhiteSpace(request.Tags))
+                            {
+                                foreach (var tag in request.Tags.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(t => t.Trim().ToLower()).Distinct())
+                                {
+                                    if (string.IsNullOrEmpty(tag)) continue;
+                                    using (var cmd = new SqliteCommand("INSERT OR IGNORE INTO Tags (Name) VALUES ($name); SELECT Id FROM Tags WHERE Name = $name;", connection, transaction))
+                                    {
+                                        cmd.Parameters.AddWithValue("$name", tag);
+                                        long tagId = (long)cmd.ExecuteScalar()!;
+                                        using (var linkCmd = new SqliteCommand("INSERT OR IGNORE INTO NoteTags (NoteId, TagId) VALUES ($nid, $tid)", connection, transaction))
+                                        {
+                                            linkCmd.Parameters.AddWithValue("$nid", noteId);
+                                            linkCmd.Parameters.AddWithValue("$tid", tagId);
+                                            linkCmd.ExecuteNonQuery();
+                                        }
+                                    }
+                                }
+                            }
+
+                            // 3. Manage Attachments
+                            string attachDir = GetAttachmentsFolderPath();
+                            foreach (var att in request.Attachments)
+                            {
+                                if (att.IsDeleted && att.Id.HasValue)
+                                {
+                                    string? path = null;
+                                    using (var cmd = new SqliteCommand("SELECT FilePath FROM NoteAttachments WHERE Id = $id", connection, transaction))
+                                    {
+                                        cmd.Parameters.AddWithValue("$id", att.Id.Value);
+                                        path = cmd.ExecuteScalar()?.ToString();
+                                    }
+                                    using (var cmd = new SqliteCommand("DELETE FROM NoteAttachments WHERE Id = $id", connection, transaction))
+                                    {
+                                        cmd.Parameters.AddWithValue("$id", att.Id.Value);
+                                        cmd.ExecuteNonQuery();
+                                    }
+                                    if (!string.IsNullOrEmpty(path))
+                                    {
+                                        try { File.Delete(Path.Combine(attachDir, path)); } catch { }
+                                    }
+                                }
+                                else if (!att.IsExisting && att.FullPath != null && File.Exists(att.FullPath))
+                                {
+                                    string yearSub = EnsureYearFolderExists(attachDir);
+                                    string newFileNameOnly = $"{Guid.NewGuid()}_{att.DisplayName}";
+                                    string relPath = Path.Combine(yearSub, newFileNameOnly);
+                                    string fullPath = Path.Combine(attachDir, relPath);
+                                    File.Copy(att.FullPath, fullPath);
+
+                                    using (var cmd = new SqliteCommand("INSERT INTO NoteAttachments (NoteId, FilePath, OriginalName, FileType) VALUES ($nid, $path, $name, $type)", connection, transaction))
+                                    {
+                                        cmd.Parameters.AddWithValue("$nid", noteId);
+                                        cmd.Parameters.AddWithValue("$path", relPath);
+                                        cmd.Parameters.AddWithValue("$name", att.DisplayName);
+                                        cmd.Parameters.AddWithValue("$type", Path.GetExtension(att.DisplayName).ToLower());
+                                        cmd.ExecuteNonQuery();
+                                    }
+                                }
+                            }
+
+                            transaction.Commit();
+                            return noteId;
+                        }
+                        catch
+                        {
+                            transaction.Rollback();
+                            throw;
+                        }
+                    }
+                }
+            });
+        }
+
+        public void CleanupTempFiles()
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    string tempDir = Path.GetTempPath();
+                    var files = Directory.GetFiles(tempDir, "catchcapture_temp_*");
+                    foreach (var file in files)
+                    {
+                        try
+                        {
+                            // Delete files older than 1 hour
+                            if (File.GetCreationTime(file) < DateTime.Now.AddHours(-1))
+                            {
+                                File.Delete(file);
+                            }
+                        }
+                        catch { }
+                    }
+                }
+                catch { }
+            });
         }
     }
 }

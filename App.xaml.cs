@@ -125,6 +125,8 @@ public partial class App : Application
     {
         try
         {
+            CatchCapture.Utilities.DatabaseManager.Instance.CleanupTempFiles();
+            CatchCapture.Utilities.DatabaseManager.Instance.CloseConnection();
             // DB 최적화 (VACUUM) 실행
             CatchCapture.Utilities.DatabaseManager.Instance.Vacuum();
 

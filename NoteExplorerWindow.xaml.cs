@@ -261,45 +261,58 @@ namespace CatchCapture
             }
         }
 
-        private void UpdateSidebarCounts()
+        private async void UpdateSidebarCounts()
         {
             try
             {
-                using (var connection = new SqliteConnection($"Data Source={DatabaseManager.Instance.DbFilePath}"))
+                var result = await Task.Run(() =>
                 {
-                    connection.Open();
-                    
-                    // All
-                    using (var cmd = new SqliteCommand("SELECT COUNT(*) FROM Notes WHERE Status = 0", connection))
-                        TxtCountAll.Text = $"({cmd.ExecuteScalar()})";
-                        
-                    // Today
-                    using (var cmd = new SqliteCommand("SELECT COUNT(*) FROM Notes WHERE Status = 0 AND date(CreatedAt, 'localtime') = date('now', 'localtime')", connection))
-                        TxtCountToday.Text = $"({cmd.ExecuteScalar()})";
-                        
-                    // Recent
-                    using (var cmd = new SqliteCommand("SELECT COUNT(*) FROM Notes WHERE Status = 0 AND CreatedAt >= date('now', 'localtime', '-7 days')", connection))
-                        TxtCountRecent.Text = $"({cmd.ExecuteScalar()})";
-                        
-                    // Trash
-                    using (var cmd = new SqliteCommand("SELECT COUNT(*) FROM Notes WHERE Status = 1", connection))
-                        TxtCountTrash.Text = $"({cmd.ExecuteScalar()})";
+                    int all = 0, today = 0, recent = 0, trash = 0;
+                    var catCounts = new Dictionary<long, int>();
 
-                    // Categories (Including Default ID 1)
-                    var categories = DatabaseManager.Instance.GetAllCategories();
-                    var categoryItems = new List<CategorySidebarItem>();
-                    foreach (var cat in categories)
+                    using (var connection = new SqliteConnection($"Data Source={DatabaseManager.Instance.DbFilePath}"))
                     {
-                        using (var cmd = new SqliteCommand("SELECT COUNT(*) FROM Notes WHERE Status = 0 AND CategoryId = $categoryId", connection))
+                        connection.Open();
+                        
+                        using (var cmd = new SqliteCommand("SELECT COUNT(*) FROM Notes WHERE Status = 0", connection))
+                            all = Convert.ToInt32(cmd.ExecuteScalar());
+
+                        using (var cmd = new SqliteCommand("SELECT COUNT(*) FROM Notes WHERE Status = 0 AND date(CreatedAt, 'localtime') = date('now', 'localtime')", connection))
+                            today = Convert.ToInt32(cmd.ExecuteScalar());
+
+                        using (var cmd = new SqliteCommand("SELECT COUNT(*) FROM Notes WHERE Status = 0 AND CreatedAt >= date('now', 'localtime', '-7 days')", connection))
+                            recent = Convert.ToInt32(cmd.ExecuteScalar());
+
+                        using (var cmd = new SqliteCommand("SELECT COUNT(*) FROM Notes WHERE Status = 1", connection))
+                            trash = Convert.ToInt32(cmd.ExecuteScalar());
+
+                        using (var cmd = new SqliteCommand("SELECT CategoryId, COUNT(*) FROM Notes WHERE Status = 0 GROUP BY CategoryId", connection))
+                        using (var reader = cmd.ExecuteReader())
                         {
-                            cmd.Parameters.AddWithValue("$categoryId", cat.Id);
-                            int count = Convert.ToInt32(cmd.ExecuteScalar());
-                            string catName = cat.Id == 1 ? CatchCapture.Resources.LocalizationManager.GetString("DefaultCategory") : cat.Name;
-                            categoryItems.Add(new CategorySidebarItem { Id = cat.Id, Name = catName, Color = cat.Color, Count = count });
+                            while (reader.Read())
+                            {
+                                if (!reader.IsDBNull(0)) catCounts[reader.GetInt64(0)] = reader.GetInt32(1);
+                            }
                         }
                     }
-                    ItemsCategories.ItemsSource = categoryItems;
-                }
+
+                    var categories = DatabaseManager.Instance.GetAllCategories();
+                    var categoryItems = categories.Select(cat => new CategorySidebarItem
+                    {
+                        Id = cat.Id,
+                        Name = cat.Id == 1 ? CatchCapture.Resources.LocalizationManager.GetString("DefaultCategory") : cat.Name,
+                        Color = cat.Color,
+                        Count = catCounts.ContainsKey(cat.Id) ? catCounts[cat.Id] : 0
+                    }).ToList();
+
+                    return (all, today, recent, trash, categoryItems);
+                });
+
+                TxtCountAll.Text = $"({result.all})";
+                TxtCountToday.Text = $"({result.today})";
+                TxtCountRecent.Text = $"({result.recent})";
+                TxtCountTrash.Text = $"({result.trash})";
+                ItemsCategories.ItemsSource = result.categoryItems;
             }
             catch { }
         }
@@ -395,7 +408,35 @@ namespace CatchCapture
             _tipTimer.Start();
         }
 
-        private void LoadNotes(string filter = "Recent", string? tag = null, string? search = null, int page = 1)
+        private string BuildWhereClause(string filter, string? tag, string? search, out string joinSql)
+        {
+            List<string> wheres = new List<string>();
+            if (filter == "Trash") wheres.Add("n.Status = 1");
+            else
+            {
+                wheres.Add("n.Status = 0");
+                if (filter == "Today") wheres.Add("date(n.CreatedAt, 'localtime') = date('now', 'localtime')");
+                else if (filter == "Recent") wheres.Add("n.CreatedAt >= date('now', 'localtime', '-7 days')");
+                else if (filter == "Recent30Days") wheres.Add("n.CreatedAt >= date('now', 'localtime', '-30 days')");
+                else if (filter == "Recent3Months") wheres.Add("n.CreatedAt >= date('now', 'localtime', '-3 months')");
+                else if (filter == "Recent6Months") wheres.Add("n.CreatedAt >= date('now', 'localtime', '-6 months')");
+                else if (filter.StartsWith("Category:")) wheres.Add("n.CategoryId = " + filter.Split(':')[1]);
+                else if (filter == "Default") wheres.Add("n.CategoryId = 1");
+            }
+
+            if (!string.IsNullOrEmpty(search)) wheres.Add("(n.Title LIKE $search OR n.Content LIKE $search)");
+
+            joinSql = "";
+            if (!string.IsNullOrEmpty(tag))
+            {
+                joinSql = " JOIN NoteTags nt ON n.Id = nt.NoteId JOIN Tags t ON nt.TagId = t.Id";
+                wheres.Add("t.Name = $tag");
+            }
+
+            return wheres.Count > 0 ? " WHERE " + string.Join(" AND ", wheres) : "";
+        }
+
+        public async void LoadNotes(string filter = "All", string? tag = null, string? search = null, int page = 1)
         {
             try
             {
@@ -448,126 +489,175 @@ namespace CatchCapture
                     }
                 }
 
-                var notes = new List<NoteViewModel>();
-                string imgDir = DatabaseManager.Instance.GetImageFolderPath();
-                int totalCount = 0;
-
-                using (var connection = new SqliteConnection($"Data Source={DatabaseManager.Instance.DbFilePath}"))
+                var result = await Task.Run(() =>
                 {
-                    connection.Open();
-                    
-                    // 1. Build Base WHERE clause for reuse
-                    List<string> wheres = new List<string>();
-                    if (filter == "Trash") wheres.Add("n.Status = 1");
-                    else
+                    var notesList = new List<NoteViewModel>();
+                    int total = 0;
+                    string imgDir = DatabaseManager.Instance.GetImageFolderPath();
+
+                    using (var connection = new SqliteConnection($"Data Source={DatabaseManager.Instance.DbFilePath}"))
                     {
-                        wheres.Add("n.Status = 0");
-                        if (filter == "Today") wheres.Add("date(n.CreatedAt, 'localtime') = date('now', 'localtime')");
-                        else if (filter == "Recent") wheres.Add("n.CreatedAt >= date('now', 'localtime', '-7 days')");
-                        else if (filter == "Recent30Days") wheres.Add("n.CreatedAt >= date('now', 'localtime', '-30 days')");
-                        else if (filter == "Recent3Months") wheres.Add("n.CreatedAt >= date('now', 'localtime', '-3 months')");
-                        else if (filter == "Recent6Months") wheres.Add("n.CreatedAt >= date('now', 'localtime', '-6 months')");
-                        else if (filter.StartsWith("Category:"))
+                        connection.Open();
+
+                        string whereClause = BuildWhereClause(filter, tag, search, out string joinSql);
+                        
+                        // 1. Get Total Count
+                        string countSql = $@"SELECT COUNT(DISTINCT n.Id) FROM Notes n {joinSql} {whereClause}";
+                        using (var command = new SqliteCommand(countSql, connection))
                         {
-                            wheres.Add("n.CategoryId = " + filter.Split(':')[1]);
+                            if (!string.IsNullOrEmpty(tag)) command.Parameters.AddWithValue("$tag", tag);
+                            if (!string.IsNullOrEmpty(search)) command.Parameters.AddWithValue("$search", $"%{search}%");
+                            total = Convert.ToInt32(command.ExecuteScalar());
                         }
-                        else if (filter == "Default") wheres.Add("n.CategoryId = 1");
-                    }
 
-                    if (!string.IsNullOrEmpty(search))
-                    {
-                        wheres.Add("(n.Title LIKE $search OR n.Content LIKE $search)");
-                    }
+                        if (total == 0) return (notesList: notesList, total: 0);
 
-                    string joinSql = "";
-                    if (!string.IsNullOrEmpty(tag))
-                    {
-                        joinSql = " JOIN NoteTags nt ON n.Id = nt.NoteId JOIN Tags t ON nt.TagId = t.Id";
-                        wheres.Add("t.Name = $tag");
-                    }
+                        // 2. Load Page of Notes
+                        string sql = $@"
+                            SELECT n.Id, n.Title, n.Content, datetime(n.CreatedAt, 'localtime'), n.SourceApp, n.ContentXaml,
+                                   c.Name as CategoryName, c.Color as CategoryColor, datetime(n.UpdatedAt, 'localtime'), n.Status, n.IsPinned, n.CategoryId
+                            FROM Notes n
+                            LEFT JOIN Categories c ON n.CategoryId = c.Id
+                            {joinSql}
+                            {whereClause}
+                            ORDER BY n.IsPinned DESC, {_currentSortOrder}
+                            LIMIT $limit OFFSET $offset";
 
-                    string whereClause = wheres.Count > 0 ? " WHERE " + string.Join(" AND ", wheres) : "";
-
-                    // 2. Count Total for Pagination
-                    string countSql = $"SELECT COUNT(DISTINCT n.Id) FROM Notes n {joinSql} {whereClause}";
-                    using (var countCmd = new SqliteCommand(countSql, connection))
-                    {
-                        if (!string.IsNullOrEmpty(tag)) countCmd.Parameters.AddWithValue("$tag", tag);
-                        if (!string.IsNullOrEmpty(search)) countCmd.Parameters.AddWithValue("$search", $"%{search}%");
-                        totalCount = Convert.ToInt32(countCmd.ExecuteScalar() ?? 0);
-                    }
-
-                    string sql = $@"
-                        SELECT n.Id, n.Title, n.Content, datetime(n.CreatedAt, 'localtime'), n.SourceApp, n.ContentXaml,
-                               c.Name as CategoryName, c.Color as CategoryColor, datetime(n.UpdatedAt, 'localtime'), n.Status, n.IsPinned, n.CategoryId
-                        FROM Notes n
-                        LEFT JOIN Categories c ON n.CategoryId = c.Id
-                        {joinSql}
-                        {whereClause}
-                        ORDER BY n.IsPinned DESC, {_currentSortOrder}
-                        LIMIT $limit OFFSET $offset";
-
-                    using (var command = new SqliteCommand(sql, connection))
-                    {
-                        if (!string.IsNullOrEmpty(tag)) command.Parameters.AddWithValue("$tag", tag);
-                        if (!string.IsNullOrEmpty(search)) command.Parameters.AddWithValue("$search", $"%{search}%");
-                        command.Parameters.AddWithValue("$limit", PAGE_SIZE);
-                        command.Parameters.AddWithValue("$offset", (page - 1) * PAGE_SIZE);
-
-                        using (var reader = command.ExecuteReader())
+                        using (var command = new SqliteCommand(sql, connection))
                         {
-                            while (reader.Read())
+                            if (!string.IsNullOrEmpty(tag)) command.Parameters.AddWithValue("$tag", tag);
+                            if (!string.IsNullOrEmpty(search)) command.Parameters.AddWithValue("$search", $"%{search}%");
+                            command.Parameters.AddWithValue("$limit", PAGE_SIZE);
+                            command.Parameters.AddWithValue("$offset", (page - 1) * PAGE_SIZE);
+
+                            using (var reader = command.ExecuteReader())
                             {
-                                long noteId = reader.GetInt64(0);
-                                long catId = reader.IsDBNull(11) ? 1 : reader.GetInt64(11);
-                                string catName = reader.IsDBNull(6) ? CatchCapture.Resources.LocalizationManager.GetString("DefaultCategory") : reader.GetString(6);
-                                if (catId == 1) catName = CatchCapture.Resources.LocalizationManager.GetString("DefaultCategory");
-
-                                var note = new NoteViewModel
+                                while (reader.Read())
                                 {
-                                    Id = noteId,
-                                    Title = reader.IsDBNull(1) ? CatchCapture.Resources.LocalizationManager.GetString("Untitled") : reader.GetString(1),
-                                    PreviewContent = reader.IsDBNull(2) ? "" : reader.GetString(2),
-                                    CreatedAt = reader.GetDateTime(3),
-                                    SourceApp = reader.IsDBNull(4) ? "" : reader.GetString(4),
-                                    ContentXaml = reader.IsDBNull(5) ? "" : reader.GetString(5),
-                                    CategoryName = catName,
-                                    CategoryColor = reader.IsDBNull(7) ? "#8E2DE2" : reader.GetString(7),
-                                    UpdatedAt = reader.GetDateTime(8),
-                                    Status = reader.IsDBNull(9) ? 0 : reader.GetInt32(9),
-                                    IsPinned = reader.IsDBNull(10) ? false : reader.GetInt32(10) == 1
-                                };
+                                    long noteId = reader.GetInt64(0);
+                                    long catId = reader.IsDBNull(11) ? 1 : reader.GetInt64(11);
+                                    string catName = reader.IsDBNull(6) ? CatchCapture.Resources.LocalizationManager.GetString("DefaultCategory") : reader.GetString(6);
+                                    if (catId == 1) catName = CatchCapture.Resources.LocalizationManager.GetString("DefaultCategory");
 
-                                note.Images = GetNoteImages(noteId, imgDir);
-                                note.Thumbnail = note.Images.FirstOrDefault();
-                                note.Tags = GetNoteTags(noteId);
-                                note.Attachments = GetNoteAttachments(noteId);
-                                notes.Add(note);
+                                    notesList.Add(new NoteViewModel
+                                    {
+                                        Id = noteId,
+                                        Title = reader.IsDBNull(1) ? CatchCapture.Resources.LocalizationManager.GetString("Untitled") : reader.GetString(1),
+                                        PreviewContent = reader.IsDBNull(2) ? "" : reader.GetString(2),
+                                        CreatedAt = reader.GetDateTime(3),
+                                        SourceApp = reader.IsDBNull(4) ? "" : reader.GetString(4),
+                                        ContentXaml = reader.IsDBNull(5) ? "" : reader.GetString(5),
+                                        CategoryName = catName,
+                                        CategoryColor = reader.IsDBNull(7) ? "#8E2DE2" : reader.GetString(7),
+                                        UpdatedAt = reader.GetDateTime(8),
+                                        Status = reader.IsDBNull(9) ? 0 : reader.GetInt32(9),
+                                        IsPinned = reader.IsDBNull(10) ? false : reader.GetInt32(10) == 1
+                                    });
+                                }
+                            }
+                        }
+
+                        // 3. Batch Load Details
+                        if (notesList.Count > 0)
+                        {
+                            var noteIds = notesList.Select(n => n.Id).ToList();
+                            string idList = string.Join(",", noteIds);
+
+                            // Images
+                            var imagesDict = new Dictionary<long, List<BitmapSource>>();
+                            string imgSql = $"SELECT NoteId, FilePath FROM NoteImages WHERE NoteId IN ({idList}) ORDER BY OrderIndex ASC";
+                            using (var cmd = new SqliteCommand(imgSql, connection))
+                            using (var reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    long nid = reader.GetInt64(0);
+                                    string fileName = reader.GetString(1);
+                                    string full = Path.Combine(imgDir, fileName);
+                                    if (File.Exists(full))
+                                    {
+                                        var bmp = LoadBitmapOptimized(full);
+                                        if (bmp != null)
+                                        {
+                                            if (!imagesDict.ContainsKey(nid)) imagesDict[nid] = new List<BitmapSource>();
+                                            imagesDict[nid].Add(bmp);
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Tags
+                            var tagsDict = new Dictionary<long, List<string>>();
+                            string tagBatchSql = $@"SELECT nt.NoteId, t.Name FROM NoteTags nt JOIN Tags t ON nt.TagId = t.Id WHERE nt.NoteId IN ({idList})";
+                            using (var cmd = new SqliteCommand(tagBatchSql, connection))
+                            using (var reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    long nid = reader.GetInt64(0);
+                                    string tname = reader.GetString(1);
+                                    if (!tagsDict.ContainsKey(nid)) tagsDict[nid] = new List<string>();
+                                    tagsDict[nid].Add(tname);
+                                }
+                            }
+
+                            // Attachments
+                            var attachDict = new Dictionary<long, List<NoteAttachment>>();
+                            string attBatchSql = $"SELECT Id, NoteId, FilePath, OriginalName, FileType FROM NoteAttachments WHERE NoteId IN ({idList})";
+                            using (var cmd = new SqliteCommand(attBatchSql, connection))
+                            using (var reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    long attId = reader.GetInt64(0);
+                                    long nid = reader.GetInt64(1);
+                                    string filePath = reader.GetString(2);
+                                    string originalName = reader.GetString(3);
+                                    string fileType = reader.IsDBNull(4) ? "" : reader.GetString(4);
+
+                                    if (!attachDict.ContainsKey(nid)) attachDict[nid] = new List<NoteAttachment>();
+                                    attachDict[nid].Add(new NoteAttachment
+                                    {
+                                        Id = attId,
+                                        NoteId = nid,
+                                        FilePath = filePath,
+                                        OriginalName = originalName,
+                                        FileType = fileType
+                                    });
+                                }
+                            }
+
+                            foreach (var n in notesList)
+                            {
+                                if (imagesDict.ContainsKey(n.Id)) n.Images = imagesDict[n.Id];
+                                n.Thumbnail = n.Images?.FirstOrDefault();
+                                if (tagsDict.ContainsKey(n.Id)) n.Tags = tagsDict[n.Id];
+                                if (attachDict.ContainsKey(n.Id)) n.Attachments = attachDict[n.Id];
                             }
                         }
                     }
-                }
+                    return (notesList: notesList, total: total);
+                });
 
-                LstNotes.ItemsSource = notes;
+                LstNotes.ItemsSource = result.notesList;
                 
                 // Toggle Empty State UI
-                if (notes.Count == 0)
+                if (result.notesList.Count == 0)
                 {
                     PanelEmptyState.Visibility = Visibility.Visible;
-                    if (_currentFilter == "Trash")
-                        TxtEmptyState.Text = CatchCapture.Resources.LocalizationManager.GetString("TrashEmpty") ?? "휴지통이 비어 있습니다";
-                    else
-                        TxtEmptyState.Text = CatchCapture.Resources.LocalizationManager.GetString("NoNotes") ?? "노트가 없습니다";
+                    TxtEmptyState.Text = (_currentFilter == "Trash") 
+                        ? CatchCapture.Resources.LocalizationManager.GetString("TrashEmpty") ?? "휴지통이 비어 있습니다"
+                        : CatchCapture.Resources.LocalizationManager.GetString("NoNotes") ?? "노트가 없습니다";
                 }
                 else
                 {
                     PanelEmptyState.Visibility = Visibility.Collapsed;
                 }
 
-                UpdatePaginationButtons(totalCount);
+                UpdatePaginationButtons(result.total);
                 
                 // Auto-select first item if exists
-                if (notes.Count > 0)
+                if (result.notesList.Count > 0)
                 {
                     LstNotes.SelectedIndex = 0;
                 }
@@ -576,8 +666,31 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ErrLoadNotes") + " " + ex.Message, CatchCapture.Resources.LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+                CatchCapture.CustomMessageBox.Show($"{CatchCapture.Resources.LocalizationManager.GetString("ErrLoadNotes")} {ex.Message}", CatchCapture.Resources.LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            finally
+            {
+                if (PanelLoading != null) PanelLoading.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private BitmapSource? LoadBitmapOptimized(string path)
+        {
+            try
+            {
+                using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    var bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.StreamSource = stream;
+                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmap.DecodePixelWidth = 400;
+                    bitmap.EndInit();
+                    bitmap.Freeze();
+                    return bitmap;
+                }
+            }
+            catch { return null; }
         }
 
         private void UpdatePaginationButtons(int totalCount)
@@ -614,113 +727,6 @@ namespace CatchCapture
             LoadNotes(_currentFilter, _currentTag, TxtSearch.Text, 1);
         }
 
-        private List<BitmapSource> GetNoteImages(long noteId, string imgDir)
-        {
-            var images = new List<BitmapSource>();
-            try
-            {
-                using (var connection = new SqliteConnection($"Data Source={DatabaseManager.Instance.DbFilePath}"))
-                {
-                    connection.Open();
-                    string sql = "SELECT FilePath FROM NoteImages WHERE NoteId = $noteId ORDER BY OrderIndex ASC";
-                    using (var command = new SqliteCommand(sql, connection))
-                    {
-                        command.Parameters.AddWithValue("$noteId", noteId);
-                        using (var reader = command.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                string fileName = reader.GetString(0);
-                                string fullPath = Path.Combine(imgDir, fileName);
-                                if (File.Exists(fullPath))
-                                {
-                                    try
-                                    {
-                                        using (var stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read))
-                                        {
-                                            var bitmap = new BitmapImage();
-                                            bitmap.BeginInit();
-                                            bitmap.StreamSource = stream;
-                                            bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                                            bitmap.DecodePixelWidth = 400; // Optimize for preview
-                                            bitmap.EndInit();
-                                            bitmap.Freeze();
-                                            images.Add(bitmap);
-                                        }
-                                    }
-                                    catch { }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            catch { }
-            return images;
-        }
-
-        private List<string> GetNoteTags(long noteId)
-        {
-            var tags = new List<string>();
-            try
-            {
-                using (var connection = new SqliteConnection($"Data Source={DatabaseManager.Instance.DbFilePath}"))
-                {
-                    connection.Open();
-                    string sql = @"
-                        SELECT t.Name 
-                        FROM Tags t
-                        JOIN NoteTags nt ON t.Id = nt.TagId
-                        WHERE nt.NoteId = $noteId";
-                    using (var command = new SqliteCommand(sql, connection))
-                    {
-                        command.Parameters.AddWithValue("$noteId", noteId);
-                        using (var reader = command.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                tags.Add(reader.GetString(0));
-                            }
-                        }
-                    }
-                }
-            }
-            catch { }
-            return tags;
-        }
-
-        private List<NoteAttachment> GetNoteAttachments(long noteId)
-        {
-            var attachments = new List<NoteAttachment>();
-            try
-            {
-                using (var connection = new SqliteConnection($"Data Source={DatabaseManager.Instance.DbFilePath}"))
-                {
-                    connection.Open();
-                    string sql = "SELECT Id, FilePath, OriginalName, FileType FROM NoteAttachments WHERE NoteId = $noteId";
-                    using (var command = new SqliteCommand(sql, connection))
-                    {
-                        command.Parameters.AddWithValue("$noteId", noteId);
-                        using (var reader = command.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                attachments.Add(new NoteAttachment
-                                {
-                                    Id = reader.GetInt64(0),
-                                    NoteId = noteId,
-                                    FilePath = reader.GetString(1),
-                                    OriginalName = reader.GetString(2),
-                                    FileType = reader.IsDBNull(3) ? "" : reader.GetString(3)
-                                });
-                            }
-                        }
-                    }
-                }
-            }
-            catch { }
-            return attachments;
-        }
 
         private void LstNotes_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -740,6 +746,7 @@ namespace CatchCapture
                     {
                         var flowDocument = (FlowDocument)System.Windows.Markup.XamlReader.Parse(note.ContentXaml);
                         flowDocument.PagePadding = new Thickness(0, 0, 10, 0); // Add slight right padding for scrollbar
+                        flowDocument.PageWidth = double.NaN; // Allow auto-width
                         flowDocument.FontFamily = new FontFamily("Malgun Gothic, Segoe UI");
                         flowDocument.FontSize = 15;
                         
@@ -801,7 +808,16 @@ namespace CatchCapture
 
                                         if (img != null && img.Source is BitmapSource bitmap)
                                         {
-                                            img.MaxWidth = 340;
+                                            // Handle Image Size: If Width is NaN (Original) or weird, clamp it.
+                                            // If user set a specific width (e.g. via slider), it will be preserved.
+                                            if (double.IsNaN(img.Width) || img.Width == 0 || img.Width > 1200)
+                                            {
+                                                img.Width = (bitmap.PixelWidth < 360) ? bitmap.PixelWidth : 360;
+                                            }
+                                            
+                                            // Ensure Image fits in container but allows resizing up to page width
+                                            img.Stretch = Stretch.Uniform;
+                                            
                                             img.Cursor = Cursors.Hand;
                                             img.PreviewMouseLeftButtonDown += (s, ev) =>
                                             {

@@ -242,6 +242,7 @@
                     </Grid>
                 </Border>
 
+
                 <!-- Info -->
                 <Border Grid.Row="1" Background="{DynamicResource ThemeSidebarButtonPressedBackground}" CornerRadius="0,0,8,8" Padding="12,6">
                     <Grid>
@@ -821,6 +822,13 @@
                             <TextBlock x:Name="TxtEmptyState" Text="노트가 없습니다" HorizontalAlignment="Center" Margin="0,20,0,0" 
                                        Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="16" FontWeight="SemiBold"/>
                         </StackPanel>
+
+                        <!-- Loading Indicator -->
+                        <Grid x:Name="PanelLoading" Visibility="Collapsed" Background="{DynamicResource ThemeBackground}" Opacity="0.5">
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <TextBlock Text="로딩 중..." FontSize="16" Foreground="{DynamicResource ThemeForeground}" Opacity="0.8"/>
+                            </StackPanel>
+                        </Grid>
                     </Grid>
 
                     <Border Grid.Row="3" Background="{DynamicResource ThemeBackground}" Height="40" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ThemeBorder}">
@@ -910,7 +918,7 @@
 
                         <FlowDocumentScrollViewer x:Name="PreviewViewer" Grid.Row="2" 
                                                   VerticalScrollBarVisibility="Auto" 
-                                                  HorizontalScrollBarVisibility="Disabled"
+                                                  HorizontalScrollBarVisibility="Auto"
                                                   IsToolBarVisible="False"
                                                   Background="Transparent">
                             <FlowDocument FontFamily="Malgun Gothic, Segoe UI" FontSize="15" PagePadding="0">

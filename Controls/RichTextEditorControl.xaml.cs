@@ -659,13 +659,11 @@ namespace CatchCapture.Controls
             {
                 if (image.Source is BitmapSource bs)
                 {
-                    // Use PixelWidth (actual pixels)
-                    double w = bs.PixelWidth;
-                    if (w > 0 && w < 360)
-                    {
-                        initialWidth = w;
-                    }
+                    if (bs.PixelWidth > 0 && bs.PixelWidth < 360) initialWidth = bs.PixelWidth;
                 }
+                
+                // [Fix] Explicitly set Image.Width to ensure it is serialized
+                image.Width = initialWidth;
             }
             catch (Exception ex)
             {
@@ -1138,6 +1136,25 @@ namespace CatchCapture.Controls
         {
             try
             {
+                // [Fix] Force sync all image widths from sliders before saving
+                // This ensures that what the user sees (slider value) is exactly what gets serialized
+                foreach (var panel in _sliderPanels)
+                {
+                    if (panel is Border border && border.Child is StackPanel sp)
+                    {
+                        var slider = sp.Children.OfType<Slider>().FirstOrDefault();
+                        // Find parent Grid/Image
+                        if (slider != null && panel.Parent is Grid grid)
+                        {
+                            var img = grid.Children.OfType<System.Windows.Controls.Image>().FirstOrDefault();
+                            if (img != null)
+                            {
+                                img.Width = Math.Round(slider.Value);
+                            }
+                        }
+                    }
+                }
+
                 // Save the whole document for full fidelity (FlowDocument root)
                 return System.Windows.Markup.XamlWriter.Save(RtbEditor.Document);
             }
@@ -1281,6 +1298,23 @@ namespace CatchCapture.Controls
 
             if (slider != null && sizeText != null)
             {
+                // [Fix] Initial Sync on Hook
+                if (!double.IsNaN(image.Width) && image.Width > 0)
+                {
+                    // If Image has width (loaded from XAML), sync Slider
+                    slider.Value = image.Width;
+                    sizeText.Text = $"{(int)image.Width}px";
+                }
+                else
+                {
+                    // If Image has no width (legacy or reset), sync Image to Slider (default 360 or saved slider val)
+                    // If slider value is effectively 0/default, force 360
+                     if (slider.Value < 10) slider.Value = 360;
+                     
+                    image.Width = slider.Value;
+                    sizeText.Text = $"{(int)slider.Value}px";
+                }
+                
                 slider.ValueChanged += (s, e) =>
                 {
                     // Round to integer to avoid XAML serialization issues

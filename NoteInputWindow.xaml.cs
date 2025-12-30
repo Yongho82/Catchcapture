@@ -19,6 +19,7 @@ namespace CatchCapture
         private string? _sourceApp;
         private string? _sourceUrl;
         private List<AttachmentItem> _attachments = new List<AttachmentItem>();
+        private List<AttachmentItem> _deletedAttachments = new List<AttachmentItem>();
         
         // For Edit Mode
         private long? _editingNoteId = null;
@@ -435,6 +436,7 @@ namespace CatchCapture
         {
             if (sender is Button btn && btn.DataContext is AttachmentItem item)
             {
+                if (item.IsExisting) _deletedAttachments.Add(item);
                 _attachments.Remove(item);
                 RefreshAttachmentList();
             }
@@ -587,27 +589,33 @@ namespace CatchCapture
 
             // Minimize instead of Hide to preserve dialog context
             var previousState = this.WindowState;
-            this.WindowState = WindowState.Minimized;
+            // Hide immediately
+            this.Hide(); 
 
             // Trigger OCR via MainWindow (bypasses instant edit mode, shows result window)
-            mainWindow.TriggerOcrForNote(() =>
+            // Add slight delay to ensure window is fully hidden (preventing ghosting in capture)
+            Task.Delay(300).ContinueWith(_ => Dispatcher.Invoke(() => 
             {
-                // This callback runs after OCR result window closes (or is cancelled)
-                Dispatcher.Invoke(() =>
+                mainWindow.TriggerOcrForNote(() =>
                 {
-                    // Restore NoteExplorerWindow if it was visible
-                    if (wasExplorerVisible && explorer != null)
+                    // This callback runs after OCR result window closes (or is cancelled)
+                    Dispatcher.Invoke(() =>
                     {
-                        explorer.Show();
-                        explorer.WindowState = previousExplorerState;
-                    }
+                        // Restore NoteExplorerWindow if it was visible
+                        if (wasExplorerVisible && explorer != null)
+                        {
+                            explorer.Show();
+                            explorer.WindowState = previousExplorerState;
+                        }
 
-                    // Restore window state
-                    this.WindowState = previousState;
-                    this.Activate();
-                    this.Focus();
+                        // Restore self
+                        this.Show();
+                        this.WindowState = previousState;
+                        this.Activate();
+                        this.Focus();
+                    });
                 });
-            });
+            }));
         }
 
         private void BtnClose_Click(object sender, RoutedEventArgs e)
@@ -620,7 +628,7 @@ namespace CatchCapture
             // Preview logic 
         }
 
-        private void BtnSave_Click(object sender, RoutedEventArgs e)
+        private async void BtnSave_Click(object sender, RoutedEventArgs e)
         {
             Editor.HideAllSliders();
             var imagesInEditor = Editor.GetAllImages();
@@ -655,291 +663,88 @@ namespace CatchCapture
                                     if (title.Length > 50) title = title.Substring(0, 50).Trim() + "...";
                                     break;
                                 }
-                                else
-                                {
-                                    // If line is empty and DOES NOT have media, it's an explicit blank line.
-                                    // Stop searching and fallback to "Untitled". 
-                                    // This handles the case: Line 1 Empty, Line 2 Text -> Title: Untitled, Preview: Text
-                                    if (!hasMedia)
-                                    {
-                                        break;
-                                    }
-                                    // If it HAS media, continue to next line to see if there is text for title.
-                                }
+                                else if (!hasMedia) break;
                             }
                         }
                     }
                 }
                 
                 if (string.IsNullOrWhiteSpace(title)) title = CatchCapture.Resources.LocalizationManager.GetString("Untitled");
-                
-                string content = Editor.GetPlainText() ?? "";
-                string tags = TxtTags.Text ?? "";
 
-                long categoryId = 1;
-                if (CboCategory.SelectedItem is Category cat) categoryId = cat.Id;
+                GridLoading.Visibility = Visibility.Visible;
+                BtnSave.IsEnabled = false;
 
-                // Prepare Save Folders
-                var settings = Settings.Load();
-                string imgDir = DatabaseManager.Instance.GetImageFolderPath();
-                if (!Directory.Exists(imgDir)) Directory.CreateDirectory(imgDir);
-
-                List<(string FileName, string Hash)> savedImages = new List<(string FileName, string Hash)>();
-                
-                foreach (var imgSource in imagesInEditor)
+                var request = new SaveNoteRequest
                 {
-                    if (imgSource is BitmapImage bi && bi.UriSource != null && bi.UriSource.IsFile)
+                    Id = _editingNoteId,
+                    Title = title,
+                    Content = Editor.GetPlainText() ?? "",
+                    ContentXaml = Editor.GetXaml() ?? "",
+                    Tags = TxtTags.Text ?? "",
+                    CategoryId = (CboCategory.SelectedItem is Category cat) ? cat.Id : 1,
+                    SourceApp = _sourceApp,
+                    SourceUrl = _sourceUrl,
+                    Images = imagesInEditor.Select(img => { if (img.IsFrozen == false) img.Freeze(); return img; }).ToList()
+                };
+
+                // Add existing, new, and deleted attachments
+                foreach (var att in _attachments)
+                {
+                    request.Attachments.Add(new NoteAttachmentRequest
                     {
-                        // Existing file check (already in our storage - subfolders included)
-                        string filePath = bi.UriSource.LocalPath;
-                        if (filePath.StartsWith(imgDir, StringComparison.OrdinalIgnoreCase))
-                        {
-                            string relativePath = filePath.Substring(imgDir.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-                            string h = DatabaseManager.Instance.ComputeHash(filePath);
-                            savedImages.Add((relativePath, h));
-                            continue;
-                        }
-                    }
-
-                    // Save to memory first to compute hash and check for duplicates
-                    bool isRemote = (imgSource is BitmapImage biRemote && biRemote.UriSource != null && !biRemote.UriSource.IsFile);
-                    string saveFormat = isRemote ? "JPG" : (settings.NoteSaveFormat ?? "PNG");
-                    int saveQuality = isRemote ? 80 : settings.NoteImageQuality;
-
-                    using (var ms = new MemoryStream())
+                        Id = att.AttachmentId,
+                        FullPath = att.FullPath,
+                        DisplayName = att.DisplayName,
+                        IsExisting = att.IsExisting,
+                        IsDeleted = false
+                    });
+                }
+                foreach (var att in _deletedAttachments)
+                {
+                    request.Attachments.Add(new NoteAttachmentRequest
                     {
-                        // Use the utility method to handle all formats including WebP via ImageSharp
-                        ScreenCaptureUtility.SaveImageToStream((BitmapSource)imgSource, ms, saveFormat, saveQuality);
-                        
-                        ms.Position = 0;
-                        string hash;
-                        using (var md5 = System.Security.Cryptography.MD5.Create())
-                        {
-                            var hashBytes = md5.ComputeHash(ms);
-                            hash = BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
-                        }
-
-                        string? existingFileName = DatabaseManager.Instance.GetExistingImageByHash(hash);
-                        if (existingFileName != null)
-                        {
-                            savedImages.Add((existingFileName, hash));
-                            continue; 
-                        }
-
-                        string ext = "." + saveFormat.ToLower();
-
-                        // [Updated] Folder Grouping
-                        string subFolder = "";
-                        string grpMode = settings.NoteFolderGroupingMode ?? "None";
-                        DateTime now = DateTime.Now;
-                        
-                        if (grpMode == "Yearly") subFolder = now.ToString("yyyy");
-                        else if (grpMode == "Monthly") subFolder = now.ToString("yyyy-MM");
-                        else if (grpMode == "Quarterly") subFolder = $"{now.Year}_{(now.Month + 2) / 3}Q";
-                        
-                        string targetDir = string.IsNullOrEmpty(subFolder) ? imgDir : Path.Combine(imgDir, subFolder);
-                        if (!Directory.Exists(targetDir)) Directory.CreateDirectory(targetDir);
-
-                        // [Updated] File Naming from Template
-                        string tmpl = settings.NoteFileNameTemplate ?? "Catch_$yyyy-MM-dd_HH-mm-ss$";
-                        string fName = tmpl;
-                        
-                        try {
-                            var matches = System.Text.RegularExpressions.Regex.Matches(tmpl, @"\$(.*?)\$");
-                            foreach (System.Text.RegularExpressions.Match match in matches) {
-                                string k = match.Groups[1].Value;
-                                if (k.Equals("App", StringComparison.OrdinalIgnoreCase)) fName = fName.Replace(match.Value, _sourceApp ?? "CatchC");
-                                else if (k.Equals("Title", StringComparison.OrdinalIgnoreCase)) {
-                                    string safeTitle = title ?? "Untitled"; 
-                                    if (safeTitle.Length > 20) safeTitle = safeTitle.Substring(0, 20); // Truncate title in filename
-                                    fName = fName.Replace(match.Value, safeTitle);
-                                }
-                                else try { fName = fName.Replace(match.Value, now.ToString(k)); } catch {}
-                            }
-                        } catch {}
-                        
-                        foreach (char c in Path.GetInvalidFileNameChars()) fName = fName.Replace(c, '_');
-                        if (string.IsNullOrWhiteSpace(fName)) fName = "Image";
-
-                        string fileNameOnly = fName + ext;
-                        string fullPath = Path.Combine(targetDir, fileNameOnly);
-                        
-                        // Collision handling
-                        int dupCounter = 1;
-                        while (File.Exists(fullPath)) {
-                            fileNameOnly = $"{fName}_{dupCounter++}{ext}";
-                            fullPath = Path.Combine(targetDir, fileNameOnly);
-                        }
-                        
-                        string fileName = string.IsNullOrEmpty(subFolder) ? fileNameOnly : Path.Combine(subFolder, fileNameOnly);
-                        
-                        ms.Position = 0;
-                        using (var fileStream = new FileStream(fullPath, FileMode.Create)) { ms.CopyTo(fileStream); }
-                        savedImages.Add((fileName, hash));
-                    }
+                        Id = att.AttachmentId,
+                        DisplayName = att.DisplayName,
+                        IsExisting = true,
+                        IsDeleted = true
+                    });
                 }
 
-                var savedFileNames = savedImages.Select(x => x.FileName).ToList();
-                Editor.UpdateImageSources(savedFileNames);
-                string contentXaml = Editor.GetXaml();
+                long targetNoteId = await DatabaseManager.Instance.SaveNoteAsync(request);
 
-                long targetNoteId;
+                // UI Cleanup after save
+                GridLoading.Visibility = Visibility.Collapsed;
 
                 if (_isEditMode)
-                {
-                    targetNoteId = _editingNoteId!.Value;
-                    DatabaseManager.Instance.UpdateNote(targetNoteId, title ?? "", content ?? "", contentXaml ?? "", tags ?? "", categoryId);
-                    
-                    using (var connection = new SqliteConnection($"Data Source={DatabaseManager.Instance.DbFilePath}"))
-                    {
-                        connection.Open();
-                        using (var cmd = new SqliteCommand("DELETE FROM NoteImages WHERE NoteId = $id", connection))
-                        {
-                            cmd.Parameters.AddWithValue("$id", targetNoteId);
-                            cmd.ExecuteNonQuery();
-                        }
-                        for (int i = 0; i < savedImages.Count; i++)
-                        {
-                            using (var cmd = new SqliteCommand("INSERT INTO NoteImages (NoteId, FilePath, OrderIndex, FileHash) VALUES ($nid, $path, $idx, $hash)", connection))
-                            {
-                                cmd.Parameters.AddWithValue("$nid", targetNoteId);
-                                cmd.Parameters.AddWithValue("$path", savedImages[i].FileName);
-                                cmd.Parameters.AddWithValue("$idx", i);
-                                cmd.Parameters.AddWithValue("$hash", savedImages[i].Hash);
-                                cmd.ExecuteNonQuery();
-                            }
-                        }
-                    }
-                    
                     CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("NoteEditSuccess"), CatchCapture.Resources.LocalizationManager.GetString("Notice"), MessageBoxButton.OK, MessageBoxImage.Information);
-                }
                 else
-                {
-                    targetNoteId = DatabaseManager.Instance.InsertNote(title ?? "", content ?? "", contentXaml ?? "", tags ?? "", "", _sourceApp, _sourceUrl, categoryId);
-
-                    for (int i = 0; i < savedImages.Count; i++)
-                    {
-                        DatabaseManager.Instance.AddNoteImage(targetNoteId, savedImages[i].FileName, i, savedImages[i].Hash);
-                    }
-                    
                     CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("NoteSaveSuccess"), CatchCapture.Resources.LocalizationManager.GetString("Notice"), MessageBoxButton.OK, MessageBoxImage.Information);
-                }
 
-                // Attachments
-                string attachDir = DatabaseManager.Instance.GetAttachmentsFolderPath();
-                
-                // If editing, we might need to delete old ones from DB that were removed from list
-                if (_isEditMode)
-                {
-                    using (var connection = new SqliteConnection($"Data Source={DatabaseManager.Instance.DbFilePath}"))
-                    {
-                        connection.Open();
-                        // Get current attachment IDs for this note from DB
-                        var dbIds = new List<long>();
-                        string getIdsSql = "SELECT Id FROM NoteAttachments WHERE NoteId = $id";
-                        using(var cmd = new SqliteCommand(getIdsSql, connection))
-                        {
-                            cmd.Parameters.AddWithValue("$id", targetNoteId);
-                            using(var reader = cmd.ExecuteReader())
-                            {
-                                while(reader.Read()) dbIds.Add(reader.GetInt64(0));
-                            }
-                        }
-
-                        // IDs that are in DB but NOT in our current _attachments list should be deleted
-                        var remainingIds = _attachments.Where(a => a.IsExisting).Select(a => a.AttachmentId!.Value).ToList();
-                        foreach(var idToDelete in dbIds.Except(remainingIds))
-                        {
-                            // Optional: Delete physical file too? 
-                            // For simplicity, let's just delete from DB for now, 
-                            // or fetch path and delete if we want to be thorough.
-                            string getFilePathSql = "SELECT FilePath FROM NoteAttachments WHERE Id = $id";
-                            string? filePathToDelete = null;
-                            using(var cmd = new SqliteCommand(getFilePathSql, connection))
-                            {
-                                cmd.Parameters.AddWithValue("$id", idToDelete);
-                                filePathToDelete = cmd.ExecuteScalar()?.ToString();
-                            }
-
-                            string deleteAttachSql = "DELETE FROM NoteAttachments WHERE Id = $id";
-                            using(var cmd = new SqliteCommand(deleteAttachSql, connection))
-                            {
-                                cmd.Parameters.AddWithValue("$id", idToDelete);
-                                cmd.ExecuteNonQuery();
-                            }
-
-                            if(!string.IsNullOrEmpty(filePathToDelete))
-                            {
-                                try
-                                {
-                                    string fullPath = Path.Combine(attachDir, filePathToDelete);
-                                    if(File.Exists(fullPath)) File.Delete(fullPath);
-                                }
-                                catch { }
-                            }
-                        }
-                    }
-                }
-
-                foreach (var item in _attachments.Where(a => !a.IsExisting))
-                {
-                    if (File.Exists(item.FullPath))
-                    {
-                        string originalName = item.DisplayName;
-                        string yearSub = DatabaseManager.Instance.EnsureYearFolderExists(attachDir);
-                        string newFileNameOnly = $"{Guid.NewGuid()}_{originalName}";
-                        string newFileName = Path.Combine(yearSub, newFileNameOnly);
-                        string newFullPath = Path.Combine(attachDir, newFileName);
-                        
-                        File.Copy(item.FullPath, newFullPath);
-                        DatabaseManager.Instance.InsertAttachment(targetNoteId, newFileName, originalName);
-                    }
-                }
-
-                // 저장 후 내 노트 탐색기 열기 (또는 활성화)
-                // 저장 후 내 노트 탐색기 열기 (또는 활성화) 및 메인 윈도우 최소화
-                // [Fix] 기존 노트 수정 시 또는 탐색기에서 새 노트를 만들 때는 메인 윈도우를 최소화하지 않음
+                // Navigation Logic
                 if (!_isEditMode && !(this.Owner is NoteExplorerWindow))
                 {
                     var mainWindow = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
-                    if (mainWindow != null && mainWindow.WindowState != WindowState.Minimized)
-                    {
-                        mainWindow.WindowState = WindowState.Minimized;
-                    }
+                    if (mainWindow != null) mainWindow.WindowState = WindowState.Minimized;
                 }
 
                 if (CatchCapture.NoteExplorerWindow.Instance != null && CatchCapture.NoteExplorerWindow.Instance.IsLoaded)
                 {
                     CatchCapture.NoteExplorerWindow.Instance.WindowState = WindowState.Normal;
                     CatchCapture.NoteExplorerWindow.Instance.Activate();
-                    CatchCapture.NoteExplorerWindow.Instance.RefreshNotes(); // Force refresh if method available or needed
+                    CatchCapture.NoteExplorerWindow.Instance.RefreshNotes();
                 }
                 else
                 {
-                    var explorer = new CatchCapture.NoteExplorerWindow();
-                    // Since specific owner might be minimized, we might just show it independent or keep owner relationship but minimize owner.
-                    // If owner is minimized, owned window might be minimized too if they are strictly linked? 
-                    // No, usually owned windows minimize with owner.
-                    // If we minimize MainWindow (Owner), NoteExplorer (Owned) might hide.
-                    // So we should NOT set Owner if we intend to minimize the MainWindow but keep Explorer visible.
-                    // Or we just minimize MainWindow and ensure Explorer is separate.
-                    // Let's NOT set owner if we minimize Main.
-                    explorer.Show();
+                    new CatchCapture.NoteExplorerWindow().Show();
                 }
 
-                // Set DialogResult only if opened as dialog (try-catch for safety)
-                try
-                {
-                    this.DialogResult = true;
-                }
-                catch (InvalidOperationException)
-                {
-                    // Window was not opened as dialog (e.g., after Hide/Show)
-                }
+                try { this.DialogResult = true; } catch { }
                 this.Close();
             }
             catch (Exception ex)
             {
+                GridLoading.Visibility = Visibility.Collapsed;
+                BtnSave.IsEnabled = true;
                 CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ErrSaveNote") + " " + ex.Message, CatchCapture.Resources.LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
