@@ -497,6 +497,29 @@ namespace CatchCapture
                 // Attach RequestNavigate event to make hyperlink clickable
                 link.RequestNavigate += Hyperlink_RequestNavigate;
             }
+            else if (obj is InlineUIContainer container)
+            {
+                if (container.Child is FrameworkElement fe && fe.Tag is string url && url.StartsWith("http"))
+                {
+                    fe.Cursor = Cursors.Hand;
+                    fe.MouseLeftButtonDown += (s, e) =>
+                    {
+                        try
+                        {
+                            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });
+                            e.Handled = true;
+                        }
+                        catch { }
+                    };
+
+                    // Context Menu
+                    var contextMenu = new ContextMenu();
+                    var copyMenuItem = new MenuItem { Header = "URL 복사" };
+                    copyMenuItem.Click += (s, e) => { try { Clipboard.SetText(url); } catch { } };
+                    contextMenu.Items.Add(copyMenuItem);
+                    fe.ContextMenu = contextMenu;
+                }
+            }
             
             foreach (var child in LogicalTreeHelper.GetChildren(obj))
             {

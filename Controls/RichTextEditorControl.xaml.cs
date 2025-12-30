@@ -944,7 +944,8 @@ namespace CatchCapture.Controls
                 {
                     Orientation = Orientation.Horizontal,
                     VerticalAlignment = VerticalAlignment.Center,
-                    Background = Brushes.Transparent // Ensure hit-testing works
+                    Background = Brushes.Transparent, // Ensure hit-testing works
+                    Tag = url // Store URL for restoration
                 };
 
                 // 🔗 Emoji icon
@@ -1694,11 +1695,38 @@ namespace CatchCapture.Controls
                 var text = e.DataObject.GetData(DataFormats.Text) as string;
                 if (!string.IsNullOrEmpty(text))
                 {
-                    string trimmedText = text.Trim();
-                    if (Regex.IsMatch(trimmedText, @"^https?://[^\s]+$"))
+                    // Find all URLs in the pasted text
+                    var urlMatches = Regex.Matches(text, @"https?://[^\s]+");
+                    
+                    if (urlMatches.Count > 0)
                     {
+                        // Handle manual insertion of mixed text and link previews
                         e.CancelCommand();
-                        CreateSimpleLinkPreview(trimmedText, RtbEditor.CaretPosition);
+                        int lastIndex = 0;
+                        
+                        foreach (Match match in urlMatches)
+                        {
+                            // Insert plain text before the URL
+                            if (match.Index > lastIndex)
+                            {
+                                string textBefore = text.Substring(lastIndex, match.Index - lastIndex);
+                                RtbEditor.Selection.Text = textBefore;
+                                RtbEditor.CaretPosition = RtbEditor.Selection.End;
+                            }
+                            
+                            // Create and insert the link preview
+                            CreateSimpleLinkPreview(match.Value, RtbEditor.CaretPosition);
+                            
+                            lastIndex = match.Index + match.Length;
+                        }
+                        
+                        // Insert any remaining plain text after the last URL
+                        if (lastIndex < text.Length)
+                        {
+                            string textAfter = text.Substring(lastIndex);
+                            RtbEditor.Selection.Text = textAfter;
+                            RtbEditor.CaretPosition = RtbEditor.Selection.End;
+                        }
                     }
                 }
             }
@@ -1880,6 +1908,36 @@ namespace CatchCapture.Controls
                 hyperlink.MouseLeftButtonDown -= Hyperlink_MouseLeftButtonDown;
                 hyperlink.MouseLeftButtonDown += Hyperlink_MouseLeftButtonDown;
                 hyperlink.Cursor = Cursors.Hand;
+            }
+            else if (inline is InlineUIContainer container)
+            {
+                if (container.Child is FrameworkElement fe && fe.Tag is string url && url.StartsWith("http"))
+                {
+                    fe.Cursor = Cursors.Hand;
+                    fe.MouseLeftButtonDown -= (s, e) => { }; // Dummy to clear if needed, but we use -= on named methods usually.
+                    // Since it's an anonymous handler in CreateSimpleLinkPreview, we should be careful.
+                    // But here we are RE-HOOKING a loaded XAML.
+                    
+                    fe.MouseLeftButtonDown += (s, e) =>
+                    {
+                        try
+                        {
+                            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });
+                            e.Handled = true;
+                        }
+                        catch { }
+                    };
+
+                    // Also restore context menu
+                    var contextMenu = new ContextMenu();
+                    var copyMenuItem = new MenuItem { Header = "URL 복사" };
+                    copyMenuItem.Click += (s, e) =>
+                    {
+                        try { Clipboard.SetText(url); } catch { }
+                    };
+                    contextMenu.Items.Add(copyMenuItem);
+                    fe.ContextMenu = contextMenu;
+                }
             }
             else if (inline is Span span)
             {
