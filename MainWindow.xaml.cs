@@ -1403,12 +1403,23 @@ public partial class MainWindow : Window
         }
         else
         {
-            // ★ 프리로딩이 없으면 병렬로 빠르게 캡처
-            var screenshotTask = Task.Run(() => ScreenCaptureUtility.CaptureScreen());
-            var metadataTask = Task.Run(() => ScreenCaptureUtility.GetActiveWindowMetadata());
-            
-            screenshot = await screenshotTask;
-            metadata = await metadataTask;
+            // 설정 확인: 빠른 캡처(오버레이) vs 정지 캡처
+            if (settings.UseOverlayCaptureMode)
+            {
+                // ★ 빠른 캡처: 처음에 캡처하지 않음 (로딩 시간 0초, 동영상 계속 재생)
+                screenshot = null;
+                // 메타데이터 비동기 로드
+                metadata = await Task.Run(() => ScreenCaptureUtility.GetActiveWindowMetadata());
+            }
+            else
+            {
+                // ★ 정지 캡처: 스크린샷 먼저 찍음 (화면 정지)
+                var screenshotTask = Task.Run(() => ScreenCaptureUtility.CaptureScreen());
+                var metadataTask = Task.Run(() => ScreenCaptureUtility.GetActiveWindowMetadata());
+                
+                screenshot = await screenshotTask;
+                metadata = await metadataTask;
+            }
         }
 
         // SnippingWindow 생성 및 표시

@@ -30,6 +30,7 @@ namespace CatchCapture.Models
         public string CaptureLineColor { get; set; } = "#FF0000";       // Default: Red
         public double CaptureLineThickness { get; set; } = 1.0;
         public string CaptureLineStyle { get; set; } = "Dash";          // "Solid", "Dash", "Dot", "DashDot"
+        public bool UseOverlayCaptureMode { get; set; } = true;         // ★ true: 오버레이 캡처 (동영상 안멈춤), false: 정지 캡처
         
         // Recording Settings
         public RecordingSettings Recording { get; set; } = new RecordingSettings();

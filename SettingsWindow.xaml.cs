@@ -127,6 +127,12 @@ private void UpdateUIText()
                 if (ChkShowPreview != null) ChkShowPreview.Content = LocalizationManager.GetString("SettingsShowPreviewDesc");
                 if (ChkShowMagnifier != null) ChkShowMagnifier.Content = LocalizationManager.GetString("SettingsShowMagnifierDesc");
                 
+                // 캡처 방식
+                if (CaptureModeGroup != null) CaptureModeGroup.Header = LocalizationManager.GetString("CaptureModeTitle");
+                if (RbCaptureOverlay != null) RbCaptureOverlay.Content = LocalizationManager.GetString("CaptureModeOverlay");
+                if (RbCaptureStatic != null) RbCaptureStatic.Content = LocalizationManager.GetString("CaptureModeStatic");
+                if (TxtCaptureModeDesc != null) TxtCaptureModeDesc.Text = LocalizationManager.GetString("CaptureModeDesc");
+                
                 // 파일명 설정 & 폴더 분류 설정 UI
                 if (FileNameSettingsGroup != null) FileNameSettingsGroup.Header = LocalizationManager.GetString("FileNameSettings");
                 if (PreviewLabel != null) PreviewLabel.Text = LocalizationManager.GetString("FileNamePreview") + " : ";
@@ -799,6 +805,15 @@ private void InitLanguageComboBox()
             if (ChkAutoCopy != null) ChkAutoCopy.IsChecked = _settings.AutoCopyToClipboard;
             if (ChkShowPreview != null) ChkShowPreview.IsChecked = _settings.ShowPreviewAfterCapture;
             if (ChkShowMagnifier != null) ChkShowMagnifier.IsChecked = _settings.ShowMagnifier;
+
+            // 캡처 모드 설정 로드
+            if (RbCaptureOverlay != null && RbCaptureStatic != null)
+            {
+                if (_settings.UseOverlayCaptureMode)
+                    RbCaptureOverlay.IsChecked = true;
+                else
+                    RbCaptureStatic.IsChecked = true;
+            }
             
             // 파일명 & 폴더 분류 설정 로드
             if (TxtFileNameTemplate != null) TxtFileNameTemplate.Text = _settings.FileNameTemplate ?? "Catch_$yyyy-MM-dd_HH-mm-ss$";
@@ -812,6 +827,7 @@ private void InitLanguageComboBox()
                 else if (mode == "Yearly") RbGroupYearly.IsChecked = true;
                 else RbGroupMonthly.IsChecked = true; // Default is Monthly
             }
+
             
             // Print Screen key
             ChkUsePrintScreen.IsChecked = _settings.UsePrintScreenKey;
@@ -825,6 +841,12 @@ private void InitLanguageComboBox()
             }
             if (CboPrintScreenAction.SelectedItem == null)
                 CboPrintScreenAction.SelectedIndex = 0;
+        }
+
+        private void CaptureMode_Checked(object sender, RoutedEventArgs e)
+        {
+            if (_settings == null || RbCaptureOverlay == null) return;
+            _settings.UseOverlayCaptureMode = RbCaptureOverlay.IsChecked == true;
         }
 
         private void LoadSystemPage()

@@ -58,6 +58,7 @@ namespace CatchCapture.Utilities
         private TextBlock? colorValueTextBlock;
         private bool isColorHexFormat = true;
         private Color lastHoverColor = Colors.Transparent;
+        private bool isOverlayMode = false; // [추가] 오버레이 모드(투명창) 여부 확인
 
         // 언어 변경 시 런타임 갱신을 위해 툴바 참조 저장
         private Border? toolbarContainer;
@@ -106,6 +107,7 @@ namespace CatchCapture.Utilities
         {
             var settings = Settings.Load();
             showMagnifier = settings.ShowMagnifier;
+            if (cachedScreenshot == null) isOverlayMode = true; // [추가] 초기 스크린샷이 없으면 오버레이 모드로 간주
 
             // Use provided metadata or capture it now (fallback)
             if (!string.IsNullOrEmpty(sourceApp) && !string.IsNullOrEmpty(sourceTitle))
@@ -123,8 +125,12 @@ namespace CatchCapture.Utilities
             WindowStyle = WindowStyle.None;
             ResizeMode = ResizeMode.NoResize;
             Topmost = true;
-            AllowsTransparency = false; // 투명창 비활성화: GPU 가속 유지로 드래그 끊김 감소
-            Background = Brushes.Black;
+            
+            // ★ 오버레이 모드: 투명 창 활성화
+            AllowsTransparency = true; 
+            // 뒤에 동영상이 보이도록 반투명 검정 배경 사용 (값 조절 가능)
+            Background = new SolidColorBrush(Color.FromArgb(1, 0, 0, 0)); // 거의 투명하게 시작 (깜빡임 방지)
+            
             Cursor = Cursors.Cross;
             ShowInTaskbar = false;
             WindowStartupLocation = WindowStartupLocation.Manual;
@@ -140,22 +146,21 @@ namespace CatchCapture.Utilities
             Top = vTop;
             Width = vWidth;
             Height = vHeight;
-            WindowState = WindowState.Normal; // Important: Normal to respect manual Left/Top/Size across monitors
+            WindowState = WindowState.Normal; 
 
-            // 캔버스 설정 (virtual desktop size)
+            // 캔버스 설정
             canvas = new Canvas();
             canvas.Width = vWidth;
             canvas.Height = vHeight;
             canvas.SnapsToDevicePixels = true;
-            // Always hit-testable even with transparent content
-            canvas.Background = Brushes.Transparent;
+            canvas.Background = new SolidColorBrush(Color.FromArgb(50, 0, 0, 0)); // 딤드 효과 (여기서 조절)
             Content = canvas;
 
             screenImage = new Image();
             Panel.SetZIndex(screenImage, -1);
             canvas.Children.Add(screenImage);
 
-            // [추가] 드로잉 전용 캔버스 (영역 제한용 Clip 적용)
+            // [추가] 드로잉 전용 캔버스
             _drawingCanvas = new Canvas();
             _drawingCanvas.Width = vWidth;
             _drawingCanvas.Height = vHeight;
@@ -166,15 +171,14 @@ namespace CatchCapture.Utilities
             {
                 screenCapture = cachedScreenshot;
                 screenImage.Source = screenCapture;
+                canvas.Background = Brushes.Transparent; // 이미지가 있으면 배경 투명 필요 없음
+                AllowsTransparency = false; // 이미지가 있으면 성능을 위해 투명 끄기 (선택사항)
             }
-            // 없으면 Loaded 이벤트에서 비동기 캡처 (아래 Loaded 핸들러에서 처리)
             else
             {
-                // 기존 방식: 동기 캡처
-                screenCapture = ScreenCaptureUtility.CaptureScreen();
-                screenImage = new Image { Source = screenCapture };
-                Panel.SetZIndex(screenImage, -1);
-                canvas.Children.Add(screenImage);
+                // ★ 오버레이 모드: 이미지가 없어도 그냥 둠 (투명 상태)
+                // screenCapture = null 상태 유지
+                screenImage.Visibility = Visibility.Collapsed;
             }
 
             // 통합 오버레이 클래스 초기화 (기존 직접 생성하던 Geometry/Path/Rectangle 대체)
@@ -617,6 +621,28 @@ namespace CatchCapture.Utilities
 
             SelectedArea = new Int32Rect(globalX, globalY, pxWidth, pxHeight);
 
+            // [추가] 오버레이 모드일 경우: 선택 완료 시점에 화면을 캡처해야 함
+            if (screenCapture == null)
+            {
+                // 내 창을 숨기고
+                this.Visibility = Visibility.Hidden;
+                
+                // UI 갱신 대기 (동기적으로 처리하여 확실히 숨김)
+                System.Windows.Forms.Application.DoEvents(); 
+
+                // 화면 캡처
+                var fullScreen = ScreenCaptureUtility.CaptureScreen();
+                if (fullScreen != null)
+                {
+                    screenCapture = fullScreen;
+                    // 이미지 컨트롤에도 설정 (편집 모드 진입 시 필요)
+                    screenImage.Source = screenCapture;
+                }
+                
+                // 다시 보이기 (편집 모드 등을 위해)
+                this.Visibility = Visibility.Visible;
+            }
+
             // 동결된 배경(screenCapture)에서 선택 영역만 잘라 저장 (가능할 때)
             try
             {
@@ -687,6 +713,7 @@ namespace CatchCapture.Utilities
         private readonly System.Diagnostics.Stopwatch magnifierStopwatch = new();
         private const int MinMagnifierIntervalMs = 16; 
         private const int MinMagnifierIntervalMsDragging = 33; 
+        private const int MinMagnifierIntervalMsOverlay = 50; // [추가] 오버레이 모드용 (더 느리게, 20fps)
         private const double MinMagnifierMoveDeltaDragging = 5.0; 
 
         // MouseMove Handler
@@ -694,13 +721,30 @@ namespace CatchCapture.Utilities
         {
             Point currentPoint = e.GetPosition(canvas);
             
-            // 드래그 중 돋보기 처리
             int magnifierInterval = isSelecting ? MinMagnifierIntervalMsDragging : MinMagnifierIntervalMs;
             double magnifierDelta = isSelecting ? MinMagnifierMoveDeltaDragging : MinMagnifierMoveDelta;
-            
-            if (magnifierStopwatch.ElapsedMilliseconds >= magnifierInterval ||
-                Math.Abs(currentPoint.X - lastMagnifierPoint.X) >= magnifierDelta ||
-                Math.Abs(currentPoint.Y - lastMagnifierPoint.Y) >= magnifierDelta)
+
+            // 오버레이 모드(투명창)일 때는 렌더링 부하를 줄이기 위해 인터벌을 늘림
+            if (isOverlayMode) magnifierInterval = MinMagnifierIntervalMsOverlay;
+
+            bool isTimeElapse = magnifierStopwatch.ElapsedMilliseconds >= magnifierInterval;
+            bool isDistanceMoved = Math.Abs(currentPoint.X - lastMagnifierPoint.X) >= magnifierDelta ||
+                                   Math.Abs(currentPoint.Y - lastMagnifierPoint.Y) >= magnifierDelta;
+
+            bool shouldUpdate = false;
+
+            if (isOverlayMode)
+            {
+                // 오버레이 모드: 시간 경과 AND 이동 거리 모두 만족해야 업데이트 (성능 최우선 - 뚝뚝 끊김 방지)
+                shouldUpdate = isTimeElapse && isDistanceMoved;
+            }
+            else
+            {
+                // 일반 모드: 시간 경과 OR 이동 거리 만족 시 업데이트 (반응성 최우선 - 부드러움 복구)
+                shouldUpdate = isTimeElapse || isDistanceMoved;
+            }
+
+            if (shouldUpdate)
             {
                 UpdateMagnifier(currentPoint);
                 lastMagnifierPoint = currentPoint;
@@ -709,7 +753,7 @@ namespace CatchCapture.Utilities
             
             if (!isSelecting) return;
 
-            // 오버레이 업데이트 위임 (내부적으로 스로틀링 처리됨)
+            // 오버레이 업데이트
             selectionOverlay?.UpdateSelection(currentPoint);
         }
 

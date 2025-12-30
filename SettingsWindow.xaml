@@ -460,6 +460,14 @@
                         </StackPanel>
                     </GroupBox>
 
+                    <GroupBox x:Name="CaptureModeGroup" Header="캡처 방식 (Capture Method)" BorderBrush="{DynamicResource ThemeBorder}" Padding="10" Margin="0,0,0,10">
+                        <StackPanel>
+                            <RadioButton x:Name="RbCaptureOverlay" Content="빠른 캡처 (Fast Capture) - 동영상/애니메이션 연속 재생 (기본)" GroupName="CaptureMode" Margin="0,5" Checked="CaptureMode_Checked"/>
+                            <RadioButton x:Name="RbCaptureStatic" Content="정지 캡처 (Freeze Capture) - 캡처 순간 화면 정지" GroupName="CaptureMode" Margin="0,5" Checked="CaptureMode_Checked"/>
+                            <TextBlock x:Name="TxtCaptureModeDesc" Text="※ 빠른 캡처를 사용하면 클릭 즉시 캡처 영역이 나타나며, 동영상이 멈추지 않습니다." FontSize="10" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" Margin="20,2,0,0"/>
+                        </StackPanel>
+                    </GroupBox>
+
                     <GroupBox x:Name="OptionsGroup" Header="{DynamicResource Options}" BorderBrush="{DynamicResource ThemeBorder}" Padding="10">
                         <StackPanel>
                             <CheckBox x:Name="ChkAutoSave" Content="{DynamicResource SettingsAutoSaveDesc}" Margin="0,5"/>
