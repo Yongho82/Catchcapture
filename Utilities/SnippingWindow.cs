@@ -522,7 +522,8 @@ namespace CatchCapture.Utilities
                 Background = Brushes.Black,
                 Child = containerStack,
                 Visibility = Visibility.Collapsed,
-                CornerRadius = new CornerRadius(cornerRad) // Rounded total
+                CornerRadius = new CornerRadius(cornerRad), // Rounded total
+                RenderTransform = new TranslateTransform()
             };
 
             // Shadow
@@ -844,8 +845,17 @@ namespace CatchCapture.Utilities
                 if (magnifierY + totalHeight > vHeight)
                     magnifierY = mousePos.Y - totalHeight - offsetY;
 
-                Canvas.SetLeft(magnifierBorder, magnifierX);
-                Canvas.SetTop(magnifierBorder, magnifierY);
+                if (magnifierBorder.RenderTransform is TranslateTransform tt)
+                {
+                    tt.X = magnifierX;
+                    tt.Y = magnifierY;
+                }
+                else
+                {
+                    // Fallback
+                    Canvas.SetLeft(magnifierBorder, magnifierX);
+                    Canvas.SetTop(magnifierBorder, magnifierY);
+                }
 
                 // 5. Update Fullscreen Crosshairs
                 if (crosshairHorizontal != null && crosshairVertical != null)

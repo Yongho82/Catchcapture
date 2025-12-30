@@ -401,8 +401,8 @@
                 <Border.Effect>
                     <DropShadowEffect Color="Black" Direction="270" ShadowDepth="1" Opacity="0.05" BlurRadius="10"/>
                 </Border.Effect>
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
-                <StackPanel>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0">
+                <StackPanel Margin="20,0,20,20">
                     <TextBlock x:Name="CaptureSectionTitle" Text="{DynamicResource CaptureSettings}" Style="{StaticResource SectionTitle}"/>
                     
                     <GroupBox x:Name="SaveSettingsGroup" Header="{DynamicResource SaveSettings}" Margin="0,0,0,10" BorderBrush="{DynamicResource ThemeBorder}" Padding="10">
@@ -462,9 +462,9 @@
 
                     <GroupBox x:Name="CaptureModeGroup" Header="캡처 방식 (Capture Method)" BorderBrush="{DynamicResource ThemeBorder}" Padding="10" Margin="0,0,0,10">
                         <StackPanel>
-                            <RadioButton x:Name="RbCaptureOverlay" Content="빠른 캡처 (Fast Capture) - 동영상/애니메이션 연속 재생 (기본)" GroupName="CaptureMode" Margin="0,5" Checked="CaptureMode_Checked"/>
-                            <RadioButton x:Name="RbCaptureStatic" Content="정지 캡처 (Freeze Capture) - 캡처 순간 화면 정지" GroupName="CaptureMode" Margin="0,5" Checked="CaptureMode_Checked"/>
-                            <TextBlock x:Name="TxtCaptureModeDesc" Text="※ 빠른 캡처를 사용하면 클릭 즉시 캡처 영역이 나타나며, 동영상이 멈추지 않습니다." FontSize="10" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" Margin="20,2,0,0"/>
+                            <RadioButton x:Name="RbCaptureOverlay" Content="빠른 캡처 (Fast Capture) - 동영상/애니메이션 연속 재생 (기본)" GroupName="CaptureMode" Margin="0,3" Checked="CaptureMode_Checked"/>
+                            <RadioButton x:Name="RbCaptureStatic" Content="정지 캡처 (Freeze Capture) - 캡처 순간 화면 정지" GroupName="CaptureMode" Margin="0,3" Checked="CaptureMode_Checked"/>
+                            <TextBlock x:Name="TxtCaptureModeDesc" Text="※ 빠른 캡처를 사용하면 클릭 즉시 캡처 영역이 나타나며, 동영상이 멈추지 않습니다." FontSize="10" Foreground="#FF6B6B" Opacity="0.9" Margin="20,2,0,0"/>
                         </StackPanel>
                     </GroupBox>
 
@@ -518,11 +518,11 @@
             </Border>
 
             <!-- Theme Page -->
-            <Border x:Name="PageTheme" Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8" Padding="15,10,15,10" Visibility="Collapsed">
+            <Border x:Name="PageTheme" Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8" Padding="0" Visibility="Collapsed">
                 <Border.Effect>
                     <DropShadowEffect Color="Black" Direction="270" ShadowDepth="1" Opacity="0.05" BlurRadius="10"/>
                 </Border.Effect>
-                <StackPanel>
+                <StackPanel Margin="20,0,20,20">
                     <TextBlock x:Name="ThemeSectionTitle" Text="{DynamicResource ThemeSettings}" Style="{StaticResource SectionTitle}" Margin="0,0,0,8"/>
 
                     <GroupBox x:Name="ThemePresetGroup" Header="{DynamicResource ThemePreset}" Margin="0,0,0,8" BorderBrush="{DynamicResource ThemeBorder}" Padding="10,5">
@@ -634,15 +634,21 @@
             </Border>
 
             <!-- Menu Edit Page -->
-            <Border x:Name="PageMenuEdit" Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8" Padding="30" Visibility="Collapsed">
+            <Border x:Name="PageMenuEdit" Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8" Padding="0" Visibility="Collapsed">
                 <Border.Effect>
                     <DropShadowEffect Color="Black" Direction="270" ShadowDepth="1" Opacity="0.05" BlurRadius="10"/>
                 </Border.Effect>
-                <StackPanel>
-                    <TextBlock x:Name="MenuEditSectionTitle" Text="{DynamicResource MenuEdit}" Style="{StaticResource SectionTitle}"/>
+                <Grid Margin="20,0,20,20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock x:Name="MenuEditSectionTitle" Text="{DynamicResource MenuEdit}" Style="{StaticResource SectionTitle}" Grid.Row="0"/>
                     
                     <!-- Header with Add Button -->
-                    <Grid Margin="0,0,0,15">
+                    <Grid Margin="0,0,0,15" Grid.Row="1">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
@@ -673,7 +679,7 @@
                     
                     <!-- Menu Items ListBox with Drag-Drop -->
                     <ListBox x:Name="MenuItemsListBox" 
-                             Height="320" 
+                             Grid.Row="2"
                              BorderBrush="{DynamicResource ThemeBorder}"
                              BorderThickness="1"
                              Background="Transparent"
@@ -748,15 +754,15 @@
                         </ListBox.ItemTemplate>
                     </ListBox>
                     
-                </StackPanel>
+                </Grid>
             </Border>
 
             <!-- Recording Page -->
-            <Border x:Name="PageRecording" Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8" Padding="30" Visibility="Collapsed">
+            <Border x:Name="PageRecording" Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8" Padding="0" Visibility="Collapsed">
                 <Border.Effect>
                     <DropShadowEffect Color="Black" Direction="270" ShadowDepth="1" Opacity="0.05" BlurRadius="10"/>
                 </Border.Effect>
-                <StackPanel>
+                <StackPanel Margin="20,0,20,20">
                     <TextBlock x:Name="RecordingSectionTitle" Text="{DynamicResource RecordingSettings}" Style="{StaticResource SectionTitle}"/>
                     
                     <GroupBox x:Name="RecBasicGroup" Header="{DynamicResource BasicSettings}" Margin="0,0,0,20" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
@@ -823,8 +829,8 @@
                 <Border.Effect>
                     <DropShadowEffect Color="Black" Direction="270" ShadowDepth="1" Opacity="0.05" BlurRadius="10"/>
                 </Border.Effect>
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="30">
-                    <StackPanel>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0">
+                    <StackPanel Margin="20,0,20,20">
                     <TextBlock x:Name="NoteSectionTitle" Text="{DynamicResource NoteSettings}" Style="{StaticResource SectionTitle}"/>
                     
                     <GroupBox x:Name="NoteStorageGroup" Header="{DynamicResource NoteStorageDatabase}" Margin="0,0,0,20" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
@@ -999,7 +1005,7 @@
             </Border>
 
             <!-- Hotkey Page -->
-            <Border x:Name="PageHotkey" Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8" Padding="20" Visibility="Collapsed">
+            <Border x:Name="PageHotkey" Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8" Padding="0" Visibility="Collapsed">
                  <Border.Effect>
                     <DropShadowEffect Color="Black" Direction="270" ShadowDepth="1" Opacity="0.05" BlurRadius="10"/>
                 </Border.Effect>
@@ -1009,10 +1015,10 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     
-                    <TextBlock x:Name="HotkeySectionTitle" Text="{DynamicResource Hotkeys}" Style="{StaticResource SectionTitle}" Grid.Row="0"/>
+                    <TextBlock x:Name="HotkeySectionTitle" Text="{DynamicResource Hotkeys}" Style="{StaticResource SectionTitle}" Grid.Row="0" Margin="20,0,0,10"/>
                     
                     <!-- Print Screen 키 설정 -->
-                    <StackPanel Grid.Row="0" Margin="0,40,0,20">
+                    <StackPanel Grid.Row="0" Margin="20,40,20,20">
                         <GroupBox x:Name="PrintScreenGroup" Header="{DynamicResource UsePrintScreenKey}" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -1035,7 +1041,7 @@
                     </StackPanel>
 
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0">
-                        <Grid>
+                        <Grid Margin="20,0,20,20">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="140"/> <!-- Label -->
                                 <ColumnDefinition Width="60"/>  <!-- Ctrl -->
@@ -1223,11 +1229,11 @@
             </Border>
 
             <!-- System Page -->
-            <Border x:Name="PageSystem" Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8" Padding="30" Visibility="Collapsed">
+            <Border x:Name="PageSystem" Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8" Padding="0" Visibility="Collapsed">
                 <Border.Effect>
                     <DropShadowEffect Color="Black" Direction="270" ShadowDepth="1" Opacity="0.05" BlurRadius="10"/>
                 </Border.Effect>
-                <StackPanel>
+                <StackPanel Margin="20,0,20,20">
                     <TextBlock x:Name="SystemSectionTitle" Text="{DynamicResource SystemSettings}" Style="{StaticResource SectionTitle}"/>
                     
                     <GroupBox x:Name="StartupGroup" Header="{DynamicResource StartupSettings}" Margin="0,0,0,20" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">

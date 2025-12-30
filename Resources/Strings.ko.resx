@@ -770,7 +770,7 @@
   <data name="EnterURL" xml:space="preserve"><value>URL을 입력하세요:</value></data>
   <data name="ErrInsertLink" xml:space="preserve"><value>링크를 삽입할 수 없습니다:</value></data>
   <data name="CaptureModeTitle" xml:space="preserve"><value>캡처 방식 (Capture Method)</value></data>
-  <data name="CaptureModeOverlay" xml:space="preserve"><value>빠른 캡처 (Fast Capture) - 동영상/애니메이션 연속 재생 (기본)</value></data>
-  <data name="CaptureModeStatic" xml:space="preserve"><value>정지 캡처 (Freeze Capture) - 캡처 순간 화면 정지</value></data>
-  <data name="CaptureModeDesc" xml:space="preserve"><value>※ 빠른 캡처를 사용하면 클릭 즉시 캡처 영역이 나타나며, 동영상이 멈추지 않습니다.</value></data>
+  <data name="CaptureModeOverlay" xml:space="preserve"><value>빠른 캡처 (Fast Capture) - 동영상/애니메이션 연속 재생</value></data>
+  <data name="CaptureModeStatic" xml:space="preserve"><value>정지 캡처 (Freeze Capture) - 캡처 순간 화면 정지 (기본)</value></data>
+  <data name="CaptureModeDesc" xml:space="preserve"><value>※ 빠른 캡처 모드 사용 시 돋보기를 켜면 드래그가 느려질 수 있습니다.</value></data>
 </root>

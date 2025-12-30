@@ -759,6 +759,6 @@ Are you sure you want to permanently delete all items?</value>
   <data name="ErrInsertLink" xml:space="preserve"><value>Cannot insert link:</value></data>
   <data name="CaptureModeTitle" xml:space="preserve"><value>Capture Method</value></data>
   <data name="CaptureModeOverlay" xml:space="preserve"><value>Fast Capture (Overlay) - Keeps animations playing</value></data>
-  <data name="CaptureModeStatic" xml:space="preserve"><value>Freeze Capture - Freezes screen instantly</value></data>
-  <data name="CaptureModeDesc" xml:space="preserve"><value>※ Fast Capture allows immediate selection without freezing the screen background.</value></data>
+  <data name="CaptureModeStatic" xml:space="preserve"><value>Freeze Capture - Freezes screen instantly (Default)</value></data>
+  <data name="CaptureModeDesc" xml:space="preserve"><value>※ Using Magnifier in Fast Capture mode may cause lag when dragging.</value></data>
 </root>
