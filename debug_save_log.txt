@@ -1,0 +1,15 @@
+
+[2025. 12. 30. 오후 10:04:39] GetXaml Called
+ Syncing Image: OldWidth=360, SliderValue=360, NewWidth=360
+ Syncing Image: OldWidth=360, SliderValue=360, NewWidth=360
+ Generated XAML Length: 4443
+ XAML Image Tag Content: Stretch="Uniform" Width="360" Margin="0,0,0,0" Cursor="Hand" IsHitTestVisible="True" Panel.ZIndex="1"><Image.Source><BitmapImage BaseUri="{x:Null}" UriSource="C:\yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\Images\img_20251230220439_9887aea2.png" CacheOption="OnLoad" 
+ XAML Image Tag Content: Stretch="Uniform" Width="360" Margin="0,0,0,0" Cursor="Hand" IsHitTestVisible="True" Panel.ZIndex="1"><Image.Source><BitmapImage BaseUri="{x:Null}" UriSource="C:\yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\Images\img_20251230220439_fb5735bb.png" CacheOption="OnLoad" 
+
+[2025. 12. 30. 오후 10:08:04] GetXaml Called
+ Syncing Image: OldWidth=580, SliderValue=580, NewWidth=580
+ Syncing Image: OldWidth=360, SliderValue=360, NewWidth=360
+ Generated XAML Length: 5781
+ XAML Image Tag Content: Stretch="Uniform" Width="580" Margin="0,0,0,0" Cursor="Hand" IsHitTestVisible="True" Panel.ZIndex="1"><Image.Source><BitmapImage BaseUri="{x:Null}" UriSource="C:\yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\Images\img_20251230220804_9a5f4e45.png" CacheOption="OnLoad" 
+ XAML Image Tag Content: Source="file:///C:/Users/엄용호/Desktop/1234.jpg" Stretch="Uniform" Width="360" Margin="0,0,0,0" Cursor="Hand" IsHitTestVisible="True" Panel.ZIndex="1" 
+ XAML Image Tag Content: Stretch="UniformToFill"><Image.Source><BitmapImage BaseUri="{x:Null}" UriSource="C:\yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\Images\img_20251230220804_9a4ee3f2.png" CacheOption="OnLoad" 

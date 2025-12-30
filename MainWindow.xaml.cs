@@ -1142,7 +1142,8 @@ public partial class MainWindow : Window
     private async void AreaCaptureButton_MouseEnter(object sender, MouseEventArgs e)
     {
         // 이미 로딩 중이거나, 최근 1초 이내에 프리로딩한 게 있으면 스킵
-        if (isPreloading || (DateTime.Now - preloadedTime).TotalSeconds < 1.0) return;
+        // ★ 속도 최적화: 캐시 유효 시간 3초로 연장
+        if (isPreloading || (DateTime.Now - preloadedTime).TotalSeconds < 3.0) return;
 
         isPreloading = true;
         try
@@ -1375,51 +1376,47 @@ public partial class MainWindow : Window
         bool isSimpleMode = (simpleModeWindow != null && simpleModeWindow.IsVisible) || _wasSimpleModeVisibleBeforeRecapture;
         _wasSimpleModeVisibleBeforeRecapture = false; // 플래그 사용 후 리셋
 
-        // 즉시편집 설정 확인
-        var currentSettings = Settings.Load();
-        bool instantEdit = currentSettings.SimpleModeInstantEdit;
+        // ★ 속도 최적화: settings는 이미 로드되어 있으므로 캐시 사용
+        bool instantEdit = settings.SimpleModeInstantEdit;
 
         // 1단계: 즉시 숨기기 (Opacity 조정보다 Hide가 더 빠르고 확실함)
         this.Hide();
         if (simpleModeWindow != null) simpleModeWindow.Hide();
         if (trayModeWindow != null) trayModeWindow.Hide();
 
-        // 2단계: UI 업데이트 강제 대기 (Render 우선순위 사용)
-        await Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.Render);
+        // ★ 속도 최적화: DwmFlush만 호출하여 즉시 화면 갱신
+        try { DwmFlush(); } catch { }
 
-        // UI가 완전히 사라졌는지 확인 (FlushUIAfterHide 사용)
-        FlushUIAfterHide();
-
-        // ★ 창을 숨긴 후 짧은 딜레이를 주고 메타데이터 캡처 (아래 창이 활성화될 시간)
-        await Task.Delay(50);
-        var metadata = ScreenCaptureUtility.GetActiveWindowMetadata();
-
-        // 3단계: 스크린샷 캡처 (프리로딩 확인)
+        // ★ 속도 최적화: 프리로딩된 스크린샷 확인
         BitmapSource? screenshot = null;
-
-        // ★ 메모리 최적화: WeakReference에서 프리로드 스크린샷 가져오기
         BitmapSource? preloadedShot = null;
         preloadedScreenshotRef?.TryGetTarget(out preloadedShot);
+        
+        (string AppName, string Title) metadata;
 
-        // 프리로딩된 이미지가 있고, 2초 이내의 것이라면 사용
-        if (preloadedShot != null && (DateTime.Now - preloadedTime).TotalSeconds < 2.0)
+        // 프리로딩된 이미지가 있고, 3초 이내의 것이라면 즉시 사용
+        if (preloadedShot != null && (DateTime.Now - preloadedTime).TotalSeconds < 3.0)
         {
             screenshot = preloadedShot;
-            preloadedScreenshotRef = null; // 사용 후 초기화
+            preloadedScreenshotRef = null;
+            metadata = ScreenCaptureUtility.GetActiveWindowMetadata();
         }
         else
         {
-            // 없으면 새로 캡처
-            screenshot = await Task.Run(() => ScreenCaptureUtility.CaptureScreen());
+            // ★ 프리로딩이 없으면 병렬로 빠르게 캡처
+            var screenshotTask = Task.Run(() => ScreenCaptureUtility.CaptureScreen());
+            var metadataTask = Task.Run(() => ScreenCaptureUtility.GetActiveWindowMetadata());
+            
+            screenshot = await screenshotTask;
+            metadata = await metadataTask;
         }
 
-        // ★ 캡처된 메타데이터를 SnippingWindow에 전달
+        // SnippingWindow 생성 및 표시
         var snippingWindow = new SnippingWindow(false, screenshot, metadata.AppName, metadata.Title);
         _activeSnippingWindow = snippingWindow;
         
         try
         {
-            // 즉시편집 모드 활성화
             if (instantEdit)
             {
                 snippingWindow.EnableInstantEditMode();
@@ -1430,26 +1427,23 @@ public partial class MainWindow : Window
                 var selectedArea = snippingWindow.SelectedArea;
                 var capturedImage = snippingWindow.SelectedFrozenImage ?? ScreenCaptureUtility.CaptureArea(selectedArea);
 
-                // 4단계: Opacity 복원
+                // Opacity 복원
                 this.Opacity = 1;
 
-                // 노트 저장 요청 확인 - 스니핑 창에서 노트저장 버튼을 눌렀을 경우
+                // 노트 저장 요청 확인
                 if (snippingWindow.RequestSaveToNote)
                 {
-                    // 메인 윈도우 최소화
                     if (!settings.IsTrayMode)
                     {
                         this.WindowState = WindowState.Minimized;
                         this.Show();
                     }
                     
-                    // 노트 입력창 열기 (SnippingWindow에서 캡처한 메타데이터 전달)
                     var noteWin = new NoteInputWindow(capturedImage, snippingWindow.SourceApp, snippingWindow.SourceTitle);
                     noteWin.ShowDialog();
                     return;
                 }
                 
-                // AddCaptureToList에서 창 복원 로직을 일원화하여 처리함 (이곳의 중복 호출 제거)
                 bool requestMinimize = snippingWindow.RequestMainWindowMinimize;
                 
                 if (requestMinimize && !settings.IsTrayMode)
@@ -1466,17 +1460,13 @@ public partial class MainWindow : Window
             }
             else
             {
-                // ★ 중요: 현재 세션이 여전히 활성 세션인 경우에만 창 복원 수행
-                // 재캡처(F1 연타) 시 이전 세션이 창을 다시 띄우는 것 방지
+                // 취소 시 창 복원
                 if (_activeSnippingWindow == snippingWindow)
                 {
-                    // 4단계: Opacity 복원
                     this.Opacity = 1;
 
-                    // 캡처 취소 시에만 명시적으로 복원 (AddCaptureToList가 호출되지 않으므로)
                     if (isSimpleMode)
                     {
-                        // 간편 모드: 간편모드 창만 다시 표시
                         if (simpleModeWindow != null)
                         {
                             simpleModeWindow._suppressActivatedExpand = true;
@@ -1486,13 +1476,11 @@ public partial class MainWindow : Window
                     }
                     else if (!settings.IsTrayMode)
                     {
-                        // 일반 모드: 메인 창 표시
                         this.Show();
                         this.Activate();
                     }
                     else
                     {
-                        // 트레이 모드: 트레이 모드 창 다시 표시
                         if (trayModeWindow != null)
                         {
                             trayModeWindow.Show();
@@ -1504,14 +1492,13 @@ public partial class MainWindow : Window
         }
         finally
         {
-            // 이 세션이 여전히 활성 세션인 경우에만 참조 해제
             if (_activeSnippingWindow == snippingWindow)
             {
                 _activeSnippingWindow = null;
             }
             snippingWindow.Dispose();
 
-            // ★ [메모리 최적화 핵심] 대용량 스크린샷 참조 해제 및 즉시 GC 수행
+            // 메모리 정리
             screenshot = null;
             GC.Collect(0, GCCollectionMode.Forced);
         }
@@ -3674,8 +3661,8 @@ public partial class MainWindow : Window
     {
         var now = DateTime.Now;
 
-        // 마지막 캡처로부터 2초 이상 지났을 때만 다시 프리로딩 (과도한 캡처 방지)
-        if ((now - lastScreenshotTime).TotalSeconds < 2) return;
+        // ★ 속도 최적화: 프리로딩 간격 단축 (2초 → 1초)
+        if ((now - lastScreenshotTime).TotalSeconds < 1) return;
 
         // 이미 진행 중인 백그라운드 작업이 있다면 스킵
         if (isPreloading) return;

@@ -202,8 +202,8 @@ namespace CatchCapture.Utilities
 
             // (sizeTextBlock 및 selectionRectangle 생성 코드 제거됨)
 
-            // 돋보기 생성
-            CreateMagnifier();
+            // ★ 속도 최적화: 돋보기 생성을 Loaded 이벤트로 지연 (창이 먼저 표시됨)
+            // CreateMagnifier(); // -> Loaded 이벤트에서 비동기 호출
 
             // 이벤트 핸들러 등록
             MouseLeftButtonDown += SnippingWindow_MouseLeftButtonDown;
@@ -219,6 +219,9 @@ namespace CatchCapture.Utilities
                 { 
                     Activate(); 
                     Focus(); 
+                    
+                    // ★ 속도 최적화: 돋보기를 비동기로 생성 (창 표시 후)
+                    await Dispatcher.InvokeAsync(() => CreateMagnifier(), System.Windows.Threading.DispatcherPriority.Background);
                     
                     // [수정] 캐시된 스크린샷이 없으면 비동기로 캡처
                     if (screenCapture == null)
@@ -240,16 +243,9 @@ namespace CatchCapture.Utilities
             // moveStopwatch.Start(); // Removed
             magnifierStopwatch.Start();
 
-            // 메모리 모니터링 타이머 설정 (5분마다 실행)
-            memoryCleanupTimer = new System.Windows.Threading.DispatcherTimer
-            {
-                Interval = TimeSpan.FromMinutes(5) // 30초 → 5분으로 변경
-            };
-            memoryCleanupTimer.Tick += (s, e) => 
-            {
-                // Debug logging disabled
-            };
-            memoryCleanupTimer.Start();
+            // ★ 속도 최적화: 불필요한 메모리 타이머 제거
+            // memoryCleanupTimer = ... (디버그용으로만 사용되던 코드 제거)
+            
             this.PreviewKeyDown += SnippingWindow_PreviewKeyDown;
 
             _editorManager = new SharedCanvasEditor(_drawingCanvas ?? canvas, drawnElements, undoStack);
