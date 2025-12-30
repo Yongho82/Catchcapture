@@ -98,6 +98,9 @@ public partial class MainWindow : Window
     [DllImport("dwmapi.dll")]
     private static extern int DwmFlush();
 
+    [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
+    private static extern short GetKeyState(int keyCode);
+
     // ★ Low-Level Keyboard Hook (Print Screen 키 전역 후킹용)
     private const int WH_KEYBOARD_LL = 13;
     private const int WM_KEYDOWN = 0x0100;
@@ -4513,6 +4516,25 @@ public partial class MainWindow : Window
 
                 // ★ 이벤트를 삼켜서 윈도우 기본 캡처 방지
                 return (IntPtr)1;
+            }
+
+            // ★ F1 키 감지 (글로벌 핫키가 다른 창에서 안먹는 문제 해결)
+            if (vkCode == VK_F1)
+            {
+                 // 현재 조합키 상태 확인 (비동기 상태 체크)
+                 bool isCtrl = (GetKeyState(0x11) & 0x8000) != 0;  // VK_CONTROL
+                 bool isShift = (GetKeyState(0x10) & 0x8000) != 0; // VK_SHIFT
+                 bool isAlt = (GetKeyState(0x12) & 0x8000) != 0;   // VK_MENU
+                 bool isWin = (GetKeyState(0x5B) & 0x8000) != 0 || (GetKeyState(0x5C) & 0x8000) != 0; // VK_LWIN, VK_RWIN
+                 
+                 // 영역 캡처 핫키가 F1이고 조합키가 없는 경우
+                 if (settings.Hotkeys.RegionCapture.Enabled && 
+                     settings.Hotkeys.RegionCapture.Key == "F1" && 
+                     !isCtrl && !isShift && !isAlt && !isWin)
+                 {
+                     Dispatcher.BeginInvoke(new Action(() => StartAreaCapture()));
+                     return (IntPtr)1; // 키 가로채기 (다른 앱에 전달 안 함)
+                 }
             }
         }
 
