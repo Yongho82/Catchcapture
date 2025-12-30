@@ -101,6 +101,7 @@ namespace CatchCapture.Controls
             RtbEditor.AllowDrop = true;
 
             RtbEditor.SelectionChanged += RtbEditor_SelectionChanged;
+            RtbEditor.PreviewKeyDown += RtbEditor_PreviewKeyDown; // Auto-detect URLs
 
             BuildColorPalette();
             UpdateColorIndicators();
@@ -860,6 +861,148 @@ namespace CatchCapture.Controls
         }
 
 
+        private void RtbEditor_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            // Auto-detect URLs when user presses Space or Enter
+            if (e.Key == Key.Space || e.Key == Key.Enter)
+            {
+                DetectAndConvertUrlToPreview();
+            }
+        }
+
+        private void DetectAndConvertUrlToPreview()
+        {
+            try
+            {
+                // Get the current paragraph
+                var caret = RtbEditor.CaretPosition;
+                var paragraph = caret.Paragraph;
+                if (paragraph == null) return;
+
+                // Get text before caret in this paragraph
+                var textBefore = new TextRange(paragraph.ContentStart, caret).Text;
+                
+                // URL regex pattern
+                var urlPattern = @"(https?://[^\s]+)";
+                var match = Regex.Match(textBefore, urlPattern);
+                
+                if (match.Success)
+                {
+                    string url = match.Value;
+                    
+                    // Remove the URL text from paragraph
+                    var start = paragraph.ContentStart.GetPositionAtOffset(match.Index);
+                    var end = paragraph.ContentStart.GetPositionAtOffset(match.Index + match.Length);
+                    
+                    if (start != null && end != null)
+                    {
+                        var range = new TextRange(start, end);
+                        range.Text = ""; // Remove URL text
+                        
+                        // Create clickable link preview
+                        CreateLinkPreview(url);
+                    }
+                }
+            }
+            catch
+            {
+                // Silently ignore errors
+            }
+        }
+
+        private void CreateLinkPreview(string url)
+        {
+            try
+            {
+                // Create a clickable link card
+                var grid = new Grid
+                {
+                    MaxWidth = 500,
+                    Background = new SolidColorBrush(Color.FromRgb(240, 245, 250)),
+                    Cursor = Cursors.Hand,
+                    Margin = new Thickness(0, 5, 0, 5),
+                    Tag = url
+                };
+
+                grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+                grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+                // URL icon and link
+                var linkPanel = new StackPanel
+                {
+                    Orientation = Orientation.Horizontal,
+                    Margin = new Thickness(12, 10, 12, 8)
+                };
+
+                var linkIcon = new TextBlock
+                {
+                    Text = "🔗",
+                    FontSize = 16,
+                    Margin = new Thickness(0, 0, 8, 0),
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                linkPanel.Children.Add(linkIcon);
+
+                var linkText = new TextBlock
+                {
+                    Text = url,
+                    Foreground = new SolidColorBrush(Color.FromRgb(26, 115, 232)),
+                    FontSize = 13,
+                    TextTrimming = TextTrimming.CharacterEllipsis,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    TextDecorations = TextDecorations.Underline
+                };
+                linkPanel.Children.Add(linkText);
+
+                Grid.SetRow(linkPanel, 0);
+                grid.Children.Add(linkPanel);
+
+                // Open button
+                var openButton = new TextBlock
+                {
+                    Text = "클릭하여 열기",
+                    Foreground = new SolidColorBrush(Color.FromRgb(100, 100, 100)),
+                    FontSize = 11,
+                    Margin = new Thickness(12, 0, 12, 10),
+                    Opacity = 0.7
+                };
+                Grid.SetRow(openButton, 1);
+                grid.Children.Add(openButton);
+
+                // Border
+                var border = new Border
+                {
+                    Child = grid,
+                    BorderBrush = new SolidColorBrush(Color.FromRgb(200, 220, 240)),
+                    BorderThickness = new Thickness(1),
+                    CornerRadius = new CornerRadius(6),
+                    Margin = new Thickness(0, 5, 0, 5)
+                };
+
+                // Click event to open URL
+                grid.MouseLeftButtonDown += (s, e) =>
+                {
+                    try
+                    {
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });
+                        e.Handled = true;
+                    }
+                    catch { }
+                };
+
+                // Insert into document
+                var container = new BlockUIContainer(border);
+                InsertBlockAtCaret(container);
+                
+                // Move caret after the inserted block
+                RtbEditor.CaretPosition = container.ElementEnd;
+            }
+            catch
+            {
+                // Silently fail
+            }
+        }
+
 
         private Cursor GetCursorForPosition(string pos)
         {
@@ -994,6 +1137,7 @@ namespace CatchCapture.Controls
                     var flowDocument = (FlowDocument)System.Windows.Markup.XamlReader.Load(ms);
                     RtbEditor.Document = flowDocument;
                     RestoreImageBehaviors();
+                    HookHyperlinks(flowDocument); // Ensure hyperlinks are clickable
                 }
             }
             catch (Exception ex)
@@ -1652,6 +1796,67 @@ namespace CatchCapture.Controls
 
             return "";
         }
+
+        private void HookHyperlinks(FlowDocument doc)
+        {
+            foreach (var block in doc.Blocks)
+            {
+                if (block is Paragraph paragraph)
+                {
+                    foreach (var inline in paragraph.Inlines)
+                    {
+                        HookInline(inline);
+                    }
+                }
+            }
+        }
+
+        private void HookInline(Inline inline)
+        {
+            if (inline is Hyperlink hyperlink)
+            {
+                hyperlink.RequestNavigate -= Hyperlink_RequestNavigate;
+                hyperlink.RequestNavigate += Hyperlink_RequestNavigate;
+                hyperlink.MouseLeftButtonDown -= Hyperlink_MouseLeftButtonDown;
+                hyperlink.MouseLeftButtonDown += Hyperlink_MouseLeftButtonDown;
+                hyperlink.Cursor = Cursors.Hand;
+            }
+            else if (inline is Span span)
+            {
+                foreach (var child in span.Inlines)
+                {
+                    HookInline(child);
+                }
+            }
+        }
+
+        private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+        {
+            try
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+                e.Handled = true;
+            }
+            catch { }
+        }
+
+        private void Hyperlink_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control))
+            {
+                if (sender is Hyperlink h)
+                {
+                    try
+                    {
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(h.NavigateUri.AbsoluteUri) { UseShellExecute = true });
+                        e.Handled = true;
+                    } 
+                    catch { }
+                }
+            }
+        }
+
+
 
         private System.Windows.Controls.Image RenderVideoThumbnail(BitmapSource thumbnail, string videoUrl, string title = "YouTube")
         {

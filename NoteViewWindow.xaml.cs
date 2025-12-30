@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using CatchCapture.Models;
 using System.Linq;
 using System.Windows.Threading;
+using System.Windows.Media;
 
 namespace CatchCapture
 {
@@ -60,6 +61,10 @@ namespace CatchCapture
             this.StateChanged += NoteViewWindow_StateChanged;
             LoadWindowState();
             UpdateUIText(); // Initialize localized text
+
+            // Centralized Hyperlink Click Handler
+            ContentViewer.PreviewMouseLeftButtonDown += ContentViewer_PreviewMouseLeftButtonDown;
+
             LoadNoteData();
         }
 
@@ -210,6 +215,7 @@ namespace CatchCapture
                                         }
                                         ContentViewer.Document = flowDocument;
                                         HookMediaClicks(); // Re-hook for XAML
+                                        HookHyperlinks(ContentViewer.Document); // Set Hand cursors and attach events
                                         xamlLoaded = true;
                                     }
                                     catch
@@ -424,6 +430,90 @@ namespace CatchCapture
                         }
                     }
                 }
+            }
+        }
+
+        private void ContentViewer_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is RichTextBox rtb)
+            {
+                var position = e.GetPosition(rtb);
+                // 정확한 클릭 지점의 TextPointer 가져오기
+                var textPointer = rtb.GetPositionFromPoint(position, true);
+
+                if (textPointer != null)
+                {
+                    // 클릭된 텍스트 요소가 Hyperlink인지 또는 부모 중에 Hyperlink가 있는지 확인
+                    DependencyObject element = textPointer.Parent;
+                    
+                    // LogicalTree를 타고 올라가며 Hyperlink 찾기
+                    while (element != null && !(element is RichTextBox))
+                    {
+                        if (element is Hyperlink link)
+                        {
+                            if (link.NavigateUri != null)
+                            {
+                                try
+                                {
+                                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(link.NavigateUri.AbsoluteUri) { UseShellExecute = true });
+                                    e.Handled = true; // 이벤트 소비
+                                }
+                                catch (Exception ex)
+                                {
+                                    CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ErrOpenFile") + " " + ex.Message);
+                                }
+                            }
+                            return;
+                        }
+                        element = LogicalTreeHelper.GetParent(element);
+                    }
+                }
+            }
+        }
+
+        // Keep HookHyperlinks to set Hand cursor (Visual feedback)
+        private void HookHyperlinks(FlowDocument doc)
+        {
+            // Recursive search for all hyperlinks to set cursor
+            var enumerator = doc.Blocks.GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                SetCursorOnHyperlinks(enumerator.Current);
+            }
+        }
+
+        private void SetCursorOnHyperlinks(DependencyObject obj)
+        {
+            if (obj is Hyperlink link)
+            {
+                link.Cursor = Cursors.Hand;
+                // Force a recognizable color if not set
+                if (link.Foreground == null || (link.Foreground is SolidColorBrush b && b.Color == Colors.Black))
+                {
+                    link.Foreground = new SolidColorBrush(Color.FromRgb(0, 102, 204));
+                }
+                // Remove existing handler first (prevents duplicate subscriptions)
+                link.RequestNavigate -= Hyperlink_RequestNavigate;
+                // Attach RequestNavigate event to make hyperlink clickable
+                link.RequestNavigate += Hyperlink_RequestNavigate;
+            }
+            
+            foreach (var child in LogicalTreeHelper.GetChildren(obj))
+            {
+                if (child is DependencyObject d) SetCursorOnHyperlinks(d);
+            }
+        }
+
+        private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+        {
+            try
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+                e.Handled = true;
+            }
+            catch (Exception ex)
+            {
+                CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ErrOpenFile") + " " + ex.Message);
             }
         }
 

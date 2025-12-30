@@ -92,6 +92,9 @@ namespace CatchCapture
                 InitializeTips();
                 UpdateUIText();
                 LoadWindowState();
+
+                // Centralized Hyperlink Click Handler for Preview Area
+                PreviewViewer.PreviewMouseLeftButtonDown += PreviewViewer_PreviewMouseLeftButtonDown;
                 
                 LoadNotes(filter: "Recent");
                 LoadTags();
@@ -817,6 +820,7 @@ namespace CatchCapture
                         }
 
                         PreviewViewer.Document = flowDocument;
+                        HookHyperlinks(flowDocument); // Set hand cursors
                     }
                     catch
                     {
@@ -1574,6 +1578,88 @@ namespace CatchCapture
         }
 
         public string FormattedDate => UpdatedAt.ToString("yyyy-MM-dd HH:mm");
+    }
+
+    public partial class NoteExplorerWindow
+    {
+        private void PreviewViewer_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is FlowDocumentScrollViewer viewer)
+            {
+                var position = e.GetPosition(viewer);
+                // Hit test to find the element under the mouse
+                IInputElement inputElement = viewer.InputHitTest(position);
+                
+                if (inputElement is DependencyObject obj)
+                {
+                    DependencyObject? parent = obj;
+                    // Walk up the tree to find a Hyperlink
+                    while (parent != null && !(parent is Hyperlink) && !(parent is FlowDocumentScrollViewer))
+                    {
+                        var next = LogicalTreeHelper.GetParent(parent);
+                        if (next == null && parent is FrameworkElement fe) next = fe.Parent ?? fe.TemplatedParent;
+                        parent = next;
+                    }
+
+                    if (parent is Hyperlink link && link.NavigateUri != null)
+                    {
+                        try
+                        {
+                            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(link.NavigateUri.AbsoluteUri) { UseShellExecute = true });
+                            e.Handled = true; // Consume event
+                        }
+                        catch (Exception ex)
+                        {
+                            CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ErrOpenFile") + " " + ex.Message);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void HookHyperlinks(FlowDocument doc)
+        {
+            // Set Hand cursor for all hyperlinks in the document
+            var enumerator = doc.Blocks.GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                SetCursorOnHyperlinks(enumerator.Current);
+            }
+        }
+
+        private void SetCursorOnHyperlinks(DependencyObject obj)
+        {
+            if (obj is Hyperlink link)
+            {
+                link.Cursor = Cursors.Hand;
+                if (link.Foreground == null || (link.Foreground is SolidColorBrush b && b.Color == Colors.Black))
+                {
+                    link.Foreground = new SolidColorBrush(Color.FromRgb(0, 102, 204));
+                }
+                // Remove existing handler first (prevents duplicate subscriptions)
+                link.RequestNavigate -= Hyperlink_RequestNavigate;
+                // Attach RequestNavigate event to make hyperlink clickable
+                link.RequestNavigate += Hyperlink_RequestNavigate;
+            }
+
+            foreach (var child in LogicalTreeHelper.GetChildren(obj))
+            {
+                if (child is DependencyObject d) SetCursorOnHyperlinks(d);
+            }
+        }
+
+        private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+        {
+            try
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+                e.Handled = true;
+            }
+            catch (Exception ex)
+            {
+                CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ErrOpenFile") + " " + ex.Message);
+            }
+        }
     }
 
     public class CategorySidebarItem
