@@ -137,7 +137,13 @@ namespace CatchCapture
             LocalizationManager.LanguageChanged += PreviewWindow_LanguageChanged;
 
             _editorManager = new SharedCanvasEditor(ImageCanvas, drawnElements, _editorUndoStack);
-            _editorManager.ActionOccurred += () => { SyncEditorToLayers(); UpdateUndoRedoButtons(); };
+            _editorManager.ActionOccurred += () => { 
+                SyncEditorToLayers(); 
+                redoStack.Clear(); 
+                redoOriginalStack.Clear(); 
+                redoLayersStack.Clear();
+                UpdateUndoRedoButtons(); 
+            };
             _editorManager.ElementAdded += (element) => {
                 SaveForUndo();
                 if (element is FrameworkElement fe) CreateLayerForElement(fe);

@@ -38,6 +38,7 @@ namespace CatchCapture.Utilities
         private string currentTool = ""; 
         private List<UIElement> drawnElements = new List<UIElement>();
         private Stack<UIElement> undoStack = new Stack<UIElement>();
+        private Stack<UIElement> redoStack = new Stack<UIElement>();
  
         private Button? activeToolButton; 
         private Border? magnifierBorder;
@@ -254,6 +255,7 @@ namespace CatchCapture.Utilities
             _editorManager = new SharedCanvasEditor(_drawingCanvas ?? canvas, drawnElements, undoStack);
             _editorManager.MosaicRequired += (rect) => ApplyMosaic(rect);
             _editorManager.ElementAdded += OnElementAdded;
+            _editorManager.ActionOccurred += () => redoStack.Clear();
 
             // 언어 변경 이벤트 구독: 즉시편집 UI 텍스트 런타임 갱신
             try { LocalizationManager.LanguageChanged += OnLanguageChanged; } catch { }
@@ -314,6 +316,12 @@ namespace CatchCapture.Utilities
             if (e.Key == Key.Z && Keyboard.Modifiers == ModifierKeys.Control)
             {
                 UndoLastAction();
+                e.Handled = true;
+            }
+            // Ctrl + Y: 다시 실행
+            else if (e.Key == Key.Y && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                RedoLastAction();
                 e.Handled = true;
             }
             // Ctrl + R: 초기화
@@ -1372,6 +1380,10 @@ namespace CatchCapture.Utilities
             // 실행 취소 버튼
             var undoButton = CreateActionButton("undo.png", LocalizationManager.Get("UndoLbl"), $"{LocalizationManager.Get("UndoLbl")} (Ctrl+Z)");
             undoButton.Click += (s, e) => UndoLastAction();
+
+            // 다시 실행 버튼
+            var redoButton = CreateActionButton("redo.png", LocalizationManager.Get("RedoLbl"), $"{LocalizationManager.Get("RedoLbl")} (Ctrl+Y)");
+            redoButton.Click += (s, e) => RedoLastAction();
             
             // 초기화 버튼
             var resetButton = CreateActionButton("reset.png", LocalizationManager.Get("ResetLbl"), $"{LocalizationManager.Get("ResetLbl")} (Ctrl+R)");
@@ -1416,6 +1428,7 @@ namespace CatchCapture.Utilities
             toolbarPanel.Children.Add(doneButton);
             toolbarPanel.Children.Add(separator2);
             toolbarPanel.Children.Add(undoButton);
+            toolbarPanel.Children.Add(redoButton);
             toolbarPanel.Children.Add(resetButton);
             toolbarPanel.Children.Add(separator3);
             toolbarPanel.Children.Add(saveNoteButton);
@@ -1699,6 +1712,7 @@ namespace CatchCapture.Utilities
         private void OnElementAdded(UIElement element)
         {
             // [제거] 개별 요소 Clip 대신 _drawingCanvas Clip 사용
+            redoStack.Clear();
         }
 
         private void SetupEditorEvents()
@@ -2041,10 +2055,27 @@ namespace CatchCapture.Utilities
             drawnElements.RemoveAt(drawnElements.Count - 1);
             (_drawingCanvas ?? canvas).Children.Remove(lastElement);
             
+            // Redo 스택에 저장
+            redoStack.Push(lastElement);
+
             // [수정] InteractiveEditor를 통해 관련 부속 요소들도 함께 제거
             InteractiveEditor.RemoveInteractiveElement(_drawingCanvas ?? canvas, lastElement);
 
             // [추가] 번호 도구의 경우 다음 번호를 다시 계산
+            _editorManager?.RecalculateNextNumber();
+        }
+
+        private void RedoLastAction()
+        {
+            if (redoStack.Count == 0) return;
+
+            var element = redoStack.Pop();
+            
+            // 다시 추가
+            (_drawingCanvas ?? canvas).Children.Add(element);
+            drawnElements.Add(element);
+
+            // 번호 도구의 경우 다음 번호 재계산
             _editorManager?.RecalculateNextNumber();
         }
         
