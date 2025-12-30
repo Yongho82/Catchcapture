@@ -137,6 +137,18 @@
                     <Path Data="{StaticResource IconAlignRight}" Style="{StaticResource EditorIconPath}"/>
                 </Button>
 
+                <!-- Line Spacing -->
+                <Button x:Name="BtnLineSpacing" Style="{StaticResource EditorButtonStyle}" Click="BtnLineSpacing_Click" ToolTip="줄 간격" Focusable="False" Margin="4,1,1,1">
+                    <Path Data="{StaticResource IconLineSpacing}" Style="{StaticResource EditorIconPath}"/>
+                    <Button.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem x:Name="MenuLineSpacing10" Header="1.0 (좁게)" Click="BtnLineSpacingSingle_Click"/>
+                            <MenuItem x:Name="MenuLineSpacing15" Header="1.5 (기본)" Click="BtnLineSpacing15_Click"/>
+                            <MenuItem x:Name="MenuLineSpacing20" Header="2.0 (넓게)" Click="BtnLineSpacingDouble_Click"/>
+                        </ContextMenu>
+                    </Button.ContextMenu>
+                </Button>
+
                 <Separator Width="1" Height="16" Background="{DynamicResource ThemeBorder}" Margin="4,0" VerticalAlignment="Center"/>
 
                 <!-- Lists -->
@@ -173,19 +185,6 @@
                     <Path Data="{StaticResource IconRedo}" Style="{StaticResource EditorIconPath}"/>
                 </Button>
 
-                <Separator Width="1" Height="16" Background="{DynamicResource ThemeBorder}" Margin="4,0" VerticalAlignment="Center"/>
-
-                <!-- Line Spacing -->
-                <Button x:Name="BtnLineSpacing" Style="{StaticResource EditorButtonStyle}" Click="BtnLineSpacing_Click" ToolTip="줄 간격" Focusable="False">
-                    <Path Data="{StaticResource IconLineSpacing}" Style="{StaticResource EditorIconPath}"/>
-                    <Button.ContextMenu>
-                        <ContextMenu>
-                            <MenuItem Header="1.0 (좁게)" Click="BtnLineSpacingSingle_Click"/>
-                            <MenuItem Header="1.5 (기본)" Click="BtnLineSpacing15_Click"/>
-                            <MenuItem Header="2.0 (넓게)" Click="BtnLineSpacingDouble_Click"/>
-                        </ContextMenu>
-                    </Button.ContextMenu>
-                </Button>
 
             </WrapPanel>
         </Border>

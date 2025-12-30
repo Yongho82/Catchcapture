@@ -295,7 +295,8 @@ private void UpdateUIText()
                     BtnBrowseNoteFolder.ToolTip = LocalizationManager.GetString("Tip4");
                 }
                 if (BtnOpenNoteFolder != null) BtnOpenNoteFolder.Content = LocalizationManager.GetString("OpenFolder");
-                if (BtnCloudTip != null) BtnCloudTip.Content = LocalizationManager.GetString("RemoteRepository");
+                if (BtnCloudTip != null) BtnCloudTip.Content = LocalizationManager.GetString("RemoteStorage");
+                if (TxtRemoteStorageWarning != null) TxtRemoteStorageWarning.Text = LocalizationManager.GetString("RemoteStorageWarning");
                 if (TxtResetNote != null) TxtResetNote.Text = LocalizationManager.GetString("InitializeReset");
 
                 

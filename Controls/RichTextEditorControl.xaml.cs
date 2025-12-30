@@ -136,6 +136,11 @@ namespace CatchCapture.Controls
             if (BtnUndo != null) BtnUndo.ToolTip = (CatchCapture.Resources.LocalizationManager.GetString("Undo") ?? "실행 취소") + " (Ctrl+Z)";
             if (BtnRedo != null) BtnRedo.ToolTip = (CatchCapture.Resources.LocalizationManager.GetString("Redo") ?? "다시 실행") + " (Ctrl+Y)";
             if (BtnLineSpacing != null) BtnLineSpacing.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("LineSpacing") ?? "줄 간격";
+
+            // Line Spacing Context Menu
+            if (MenuLineSpacing10 != null) MenuLineSpacing10.Header = CatchCapture.Resources.LocalizationManager.GetString("LineSpacing10") ?? "1.0 (좁게)";
+            if (MenuLineSpacing15 != null) MenuLineSpacing15.Header = CatchCapture.Resources.LocalizationManager.GetString("LineSpacing15") ?? "1.5 (기본)";
+            if (MenuLineSpacing20 != null) MenuLineSpacing20.Header = CatchCapture.Resources.LocalizationManager.GetString("LineSpacing20") ?? "2.0 (넓게)";
         }
 
         private void BuildColorPalette()
@@ -578,25 +583,30 @@ namespace CatchCapture.Controls
         {
             var dialog = new Microsoft.Win32.OpenFileDialog
             {
-                Title = "이미지 선택",
-                Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp;*.gif"
+                Title = CatchCapture.Resources.LocalizationManager.GetString("InsertImage") ?? "이미지 삽입",
+                Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.webp",
+                Multiselect = true
             };
 
             if (dialog.ShowDialog() == true)
             {
-                try
+                foreach (var fileName in dialog.FileNames)
                 {
-                    var image = new System.Windows.Controls.Image
+                    try
                     {
-                        Source = new System.Windows.Media.Imaging.BitmapImage(new Uri(dialog.FileName)),
-                        Stretch = Stretch.Uniform
-                    };
+                        var image = new System.Windows.Controls.Image
+                        {
+                            Source = new System.Windows.Media.Imaging.BitmapImage(new Uri(fileName)),
+                            Stretch = Stretch.Uniform
+                        };
 
-                    CreateResizableImage(image);
-                }
-                catch (Exception ex)
-                {
-                    CatchCapture.CustomMessageBox.Show($"이미지를 삽입할 수 없습니다: {ex.Message}", "오류");
+                        CreateResizableImage(image);
+                    }
+                    catch (Exception ex)
+                    {
+                        CatchCapture.CustomMessageBox.Show((CatchCapture.Resources.LocalizationManager.GetString("ErrInsertImage") ?? "이미지를 삽입할 수 없습니다:") + $" {ex.Message}", 
+                            CatchCapture.Resources.LocalizationManager.GetString("Error") ?? "오류");
+                    }
                 }
             }
         }
@@ -869,11 +879,16 @@ namespace CatchCapture.Controls
             var linkText = RtbEditor.Selection.Text;
             if (string.IsNullOrEmpty(linkText))
             {
-                CatchCapture.CustomMessageBox.Show("링크로 만들 텍스트를 먼저 선택하세요.", "안내");
+                CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("SelectTextForLink") ?? "링크로 만들 텍스트를 먼저 선택하세요.", 
+                    CatchCapture.Resources.LocalizationManager.GetString("Notice") ?? "안내");
                 return;
             }
 
-            var url = Microsoft.VisualBasic.Interaction.InputBox("URL을 입력하세요:", "링크 삽입", "https://");
+            var url = Microsoft.VisualBasic.Interaction.InputBox(
+                CatchCapture.Resources.LocalizationManager.GetString("EnterURL") ?? "URL을 입력하세요:", 
+                CatchCapture.Resources.LocalizationManager.GetString("InsertLink") ?? "링크 삽입", 
+                "https://");
+
             if (!string.IsNullOrEmpty(url))
             {
                 try
@@ -887,7 +902,8 @@ namespace CatchCapture.Controls
                 }
                 catch (Exception ex)
                 {
-                    CatchCapture.CustomMessageBox.Show($"링크를 삽입할 수 없습니다: {ex.Message}", "오류");
+                    CatchCapture.CustomMessageBox.Show((CatchCapture.Resources.LocalizationManager.GetString("ErrInsertLink") ?? "링크를 삽입할 수 없습니다:") + $" {ex.Message}", 
+                        CatchCapture.Resources.LocalizationManager.GetString("Error") ?? "오류");
                 }
             }
         }

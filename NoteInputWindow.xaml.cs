@@ -226,13 +226,40 @@ namespace CatchCapture
                 if (TxtHeaderTitle != null) TxtHeaderTitle.Text = CatchCapture.Resources.LocalizationManager.GetString("WriteNote");
                 if (BtnSave != null) BtnSave.Content = CatchCapture.Resources.LocalizationManager.GetString("FinishWrite");
             }
+
+            LoadCategories();
         }
 
         private void LoadCategories()
         {
+            var selectedId = (CboCategory.SelectedItem as Category)?.Id;
             var categories = DatabaseManager.Instance.GetAllCategories();
+            
+            // Localize Default Category Name (ID=1)
+            foreach (var cat in categories)
+            {
+                if (cat.Id == 1)
+                {
+                    cat.Name = CatchCapture.Resources.LocalizationManager.GetString("DefaultCategory") ?? "기본";
+                }
+            }
+
             CboCategory.ItemsSource = categories;
-            if (CboCategory.Items.Count > 0)
+
+            // Restore selection
+            if (selectedId.HasValue)
+            {
+                foreach (Category cat in CboCategory.Items)
+                {
+                    if (cat.Id == selectedId.Value)
+                    {
+                        CboCategory.SelectedItem = cat;
+                        break;
+                    }
+                }
+            }
+            
+            if (CboCategory.SelectedIndex == -1 && CboCategory.Items.Count > 0)
             {
                 CboCategory.SelectedIndex = 0;
             }
@@ -440,14 +467,18 @@ namespace CatchCapture
             {
                 foreach (string fullPath in dialog.FileNames)
                 {
-                    AddAttachment(fullPath);
+                    AddAttachment(fullPath, false);
                 }
+                RefreshAttachmentList();
             }
         }
 
-        public void AddAttachment(string fullPath)
+        public void AddAttachment(string fullPath, bool refresh = true)
         {
             if (string.IsNullOrEmpty(fullPath) || !File.Exists(fullPath)) return;
+
+            // Check if already added
+            if (_attachments.Any(a => a.FullPath == fullPath)) return;
 
             var item = new AttachmentItem
             {
@@ -456,7 +487,7 @@ namespace CatchCapture
                 IsExisting = false
             };
             _attachments.Add(item);
-            RefreshAttachmentList();
+            if (refresh) RefreshAttachmentList();
         }
 
         private void BtnAddFile_Drop(object sender, DragEventArgs e)
@@ -466,20 +497,16 @@ namespace CatchCapture
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
                 if (files != null)
                 {
+                    bool added = false;
                     foreach (string fullPath in files)
                     {
                         if (File.Exists(fullPath))
                         {
-                            var item = new AttachmentItem
-                            {
-                                FullPath = fullPath,
-                                DisplayName = Path.GetFileName(fullPath),
-                                IsExisting = false
-                            };
-                            _attachments.Add(item);
+                            AddAttachment(fullPath, false);
+                            added = true;
                         }
                     }
-                    RefreshAttachmentList();
+                    if (added) RefreshAttachmentList();
                 }
             }
         }

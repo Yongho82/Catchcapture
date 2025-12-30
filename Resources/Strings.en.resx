@@ -702,6 +702,7 @@ Are you sure you want to permanently delete all items?</value>
   <data name="NotePathStructure" xml:space="preserve"><value>※ Folder Structure: [NoteFolder]\notedb (DB), [NoteFolder]\img (Images)</value></data>
   <data name="RemoteStorage" xml:space="preserve"><value>Remote Storage</value></data>
   <data name="RemoteStorageTooltip" xml:space="preserve"><value>Connect cloud folders (Google Drive, etc.) to share notes across devices.</value></data>
+  <data name="RemoteStorageWarning" xml:space="preserve"><value>When connected, the speed may slow down significantly during the server upload/download process, which is not a program issue.</value></data>
   <data name="ResetNoteDataTooltip" xml:space="preserve"><value>Reset all note data</value></data>
   <data name="NoteFileNameSettings" xml:space="preserve"><value>Filename Settings</value></data>
   <data name="NoteFolderGrouping" xml:space="preserve"><value>Folder Grouping Settings</value></data>
@@ -750,4 +751,10 @@ Are you sure you want to permanently delete all items?</value>
   <data name="ErrorBackup" xml:space="preserve"><value>Error during backup</value></data>
   <data name="ErrorNoFolder" xml:space="preserve"><value>Source folder for backup does not exist.</value></data>
   <data name="BackupSuccess" xml:space="preserve"><value>Backup completed successfully.</value></data>
+  <data name="LineSpacing10" xml:space="preserve"><value>1.0 (Narrow)</value></data>
+  <data name="LineSpacing15" xml:space="preserve"><value>1.5 (Default)</value></data>
+  <data name="LineSpacing20" xml:space="preserve"><value>2.0 (Wide)</value></data>
+  <data name="SelectTextForLink" xml:space="preserve"><value>Please select text for the link first.</value></data>
+  <data name="EnterURL" xml:space="preserve"><value>Please enter URL:</value></data>
+  <data name="ErrInsertLink" xml:space="preserve"><value>Cannot insert link:</value></data>
 </root>

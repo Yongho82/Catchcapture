@@ -818,6 +818,7 @@
                                     </StackPanel>
                                 </Button>
                             </StackPanel>
+                            <TextBlock x:Name="TxtRemoteStorageWarning" Text="{DynamicResource RemoteStorageWarning}" Foreground="#FF4444" FontSize="11" Margin="2,10,0,0" TextWrapping="Wrap" Opacity="0.8"/>
                         </StackPanel>
                     </GroupBox>
 
