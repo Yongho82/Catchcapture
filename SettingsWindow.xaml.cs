@@ -1034,7 +1034,8 @@ private void InitLanguageComboBox()
             var result = dlg.ShowDialog();
             if (result == System.Windows.Forms.DialogResult.OK)
             {
-                TxtNoteFolder.Text = dlg.SelectedPath;
+                // Resolve the path immediately to show the user where the data will actually go
+                TxtNoteFolder.Text = CatchCapture.Utilities.DatabaseManager.ResolveStoragePath(dlg.SelectedPath);
             }
         }
 
@@ -1617,7 +1618,7 @@ private void InitLanguageComboBox()
             ReadHotkey(_settings.Hotkeys.RecordingStartStop, HkRecStartStopEnabled, HkRecStartStopCtrl, HkRecStartStopShift, HkRecStartStopAlt, HkRecStartStopWin, HkRecStartStopKey);
 
             // Note settings
-            _settings.NoteStoragePath = TxtNoteFolder.Text;
+            _settings.NoteStoragePath = CatchCapture.Utilities.DatabaseManager.ResolveStoragePath(TxtNoteFolder.Text);
 
              if (TxtNoteFileNameTemplate != null) _settings.NoteFileNameTemplate = TxtNoteFileNameTemplate.Text;
              

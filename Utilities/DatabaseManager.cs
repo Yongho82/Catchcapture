@@ -54,6 +54,11 @@ namespace CatchCapture.Utilities
             {
                 storagePath = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "CatchCapture"), "notedata");
             }
+            else
+            {
+                storagePath = ResolveStoragePath(storagePath);
+            }
+            
             _dbPath = Path.Combine(storagePath, "notedb", "catch_notes.db");
             InitializeDatabase();
             Settings.SettingsChanged += (s, e) => {
@@ -83,11 +88,52 @@ namespace CatchCapture.Utilities
             {
                 storagePath = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "CatchCapture"), "notedata");
             }
+            else
+            {
+                storagePath = ResolveStoragePath(storagePath);
+            }
+            
             _dbPath = Path.Combine(storagePath, "notedb", "catch_notes.db");
             InitializeDatabase();
         }
 
         public void Reload() => InitializeDatabase();
+
+        public static string ResolveStoragePath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path)) return path;
+
+            try
+            {
+                // 1. 이미 'notedata' 폴더를 가리키고 있으면 그대로 사용
+                if (Path.GetFileName(path).Equals("notedata", StringComparison.OrdinalIgnoreCase))
+                {
+                    return path;
+                }
+
+                // 2. 지정된 폴더 직하에 이미 3개 필수 폴더가 있는 경우 그대로 사용
+                if (Directory.Exists(Path.Combine(path, "notedb")) &&
+                    Directory.Exists(Path.Combine(path, "img")) &&
+                    Directory.Exists(Path.Combine(path, "attachments")))
+                {
+                    return path;
+                }
+
+                // 3. 하위에 'notedata' 폴더가 존재하는지 확인
+                string subPath = Path.Combine(path, "notedata");
+                if (Directory.Exists(subPath))
+                {
+                    return subPath;
+                }
+
+                // 4. 그 외의 경우 'notedata'를 붙여서 관리 (InitializeDatabase에서 생성됨)
+                return subPath;
+            }
+            catch
+            {
+                return path;
+            }
+        }
 
         private void InitializeDatabase()
         {

@@ -34,3 +34,8 @@
  Syncing Image: OldWidth=360, SliderValue=360, NewWidth=360
  Generated XAML Length: 4307
  XAML Image Tag Content: Stretch="Uniform" Width="360" Margin="0,0,0,0" Cursor="Hand" IsHitTestVisible="True" Panel.ZIndex="1"><Image.Source><BitmapImage BaseUri="{x:Null}" UriSource="C:\Yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\Images\img_20251231162554_218c7e8e.png" CacheOption="OnLoad" 
+
+[2025. 12. 31. 오후 10:25:55] GetXaml Called
+ Syncing Image: OldWidth=378, SliderValue=378, NewWidth=378
+ Generated XAML Length: 2567
+ XAML Image Tag Content: Stretch="Uniform" Width="378" Margin="0,0,0,0" Cursor="Hand" IsHitTestVisible="True" Panel.ZIndex="1"><Image.Source><BitmapImage BaseUri="{x:Null}" UriSource="N:\개인\테스트\2025-12\Catch_2025-12-31_22-25-39.png" CacheOption="OnLoad" 
