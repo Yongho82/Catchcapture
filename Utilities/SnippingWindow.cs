@@ -2273,12 +2273,19 @@ namespace CatchCapture.Utilities
                     SaveDrawingsToImage();
                 }
                 
+                if (SelectedFrozenImage == null)
+                {
+                    // 아직 이미지가 생성되지 않은 경우 (오버레이 모드 비동기 캡처 중 등)
+                    // 현재 그린 요소가 없더라도 강제로 이미지 생성을 시도
+                    SaveDrawingsToImage();
+                }
+
                 if (SelectedFrozenImage != null)
                 {
                     ScreenCaptureUtility.CopyImageToClipboard(SelectedFrozenImage);
                     
-                    // "복사되었습니다" 스티커(토스트) 표시 제거 (사용자 요청)
-                    // ShowCopyCompleteSticker();
+                    // "복사되었습니다" 스티커(토스트) 표시
+                    ShowCopyCompleteSticker();
                 }
             }
             catch (Exception ex)
