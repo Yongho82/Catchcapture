@@ -227,17 +227,7 @@ namespace CatchCapture.Utilities
                     // ★ 속도 최적화: 돋보기를 비동기로 생성 (창 표시 후)
                     await Dispatcher.InvokeAsync(() => CreateMagnifier(), System.Windows.Threading.DispatcherPriority.Background);
                     
-                    // [수정] 캐시된 스크린샷이 없으면 비동기로 캡처
-                    if (screenCapture == null)
-                    {
-                        // 백그라운드에서 캡처 (UI 스레드 블로킹 방지)
-                        var captured = await Task.Run(() => ScreenCaptureUtility.CaptureScreen());
-                        if (captured != null)
-                        {
-                            screenCapture = captured;
-                            screenImage.Source = screenCapture;
-                        }
-                    }
+                    // 참고: MainWindow에서 항상 스크린샷을 전달하므로 여기서 캡처할 필요 없음
                 } 
                 catch { } 
             };
@@ -629,7 +619,8 @@ namespace CatchCapture.Utilities
                 this.Visibility = Visibility.Hidden;
                 
                 // UI 갱신 대기 (동기적으로 처리하여 확실히 숨김)
-                System.Windows.Forms.Application.DoEvents(); 
+                System.Windows.Forms.Application.DoEvents();
+                System.Threading.Thread.Sleep(50); // DWM이 창을 제거할 시간 확보
 
                 // 화면 캡처
                 var fullScreen = ScreenCaptureUtility.CaptureScreen();
