@@ -566,29 +566,44 @@ namespace CatchCapture
                             // Images (also store paths)
                             var imagesDict = new Dictionary<long, List<BitmapSource>>();
                             var imagePathsDict = new Dictionary<long, List<string>>();
+                            
+                            // [최적화 1] DB에서 메타데이터만 먼저 빠르게 로드
+                            var pendingImages = new List<(long NoteId, string FileName)>();
                             string imgSql = $"SELECT NoteId, FilePath FROM NoteImages WHERE NoteId IN ({idList}) ORDER BY OrderIndex ASC";
                             using (var cmd = new SqliteCommand(imgSql, connection))
                             using (var reader = cmd.ExecuteReader())
                             {
                                 while (reader.Read())
                                 {
-                                    long nid = reader.GetInt64(0);
-                                    string fileName = reader.GetString(1);
-                                    string full = Path.Combine(imgDir, fileName);
-                                    if (File.Exists(full))
-                                    {
-                                        var bmp = LoadBitmapOptimized(full);
-                                        if (bmp != null)
-                                        {
-                                            if (!imagesDict.ContainsKey(nid)) imagesDict[nid] = new List<BitmapSource>();
-                                            imagesDict[nid].Add(bmp);
-                                        }
-                                        // Always store path even if thumbnail failed
-                                        if (!imagePathsDict.ContainsKey(nid)) imagePathsDict[nid] = new List<string>();
-                                        imagePathsDict[nid].Add(full);
-                                    }
+                                    pendingImages.Add((reader.GetInt64(0), reader.GetString(1)));
                                 }
                             }
+
+                            // [최적화 2] 이미지 파일 로딩을 병렬 처리 (클라우드 환경에서 매우 효과적)
+                            // 동시성 제어를 위해 lock 사용
+                            object dictLock = new object();
+                            
+                            System.Threading.Tasks.Parallel.ForEach(pendingImages, new ParallelOptions { MaxDegreeOfParallelism = 8 }, item =>
+                            {
+                                string full = Path.Combine(imgDir, item.FileName);
+                                if (File.Exists(full))
+                                {
+                                    // [최적화 3] 썸네일 크기 축소 (150px)
+                                    var bmp = LoadBitmapOptimized(full);
+                                    
+                                    lock (dictLock)
+                                    {
+                                        if (bmp != null)
+                                        {
+                                            if (!imagesDict.ContainsKey(item.NoteId)) imagesDict[item.NoteId] = new List<BitmapSource>();
+                                            imagesDict[item.NoteId].Add(bmp);
+                                        }
+                                        // Always store path
+                                        if (!imagePathsDict.ContainsKey(item.NoteId)) imagePathsDict[item.NoteId] = new List<string>();
+                                        imagePathsDict[item.NoteId].Add(full);
+                                    }
+                                }
+                            });
 
                             // Tags
                             var tagsDict = new Dictionary<long, List<string>>();
@@ -689,7 +704,8 @@ namespace CatchCapture
                     bitmap.BeginInit();
                     bitmap.StreamSource = stream;
                     bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmap.DecodePixelWidth = 400;
+                    // [최적화] 썸네일 크기 축소 400 -> 150 (리스트 뷰에 충분)
+                    bitmap.DecodePixelWidth = 150; 
                     bitmap.EndInit();
                     bitmap.Freeze();
                     return bitmap;

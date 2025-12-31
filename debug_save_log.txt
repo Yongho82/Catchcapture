@@ -24,3 +24,13 @@
  Syncing Image: OldWidth=460, SliderValue=460, NewWidth=460
  Generated XAML Length: 4050
  XAML Image Tag Content: Stretch="Uniform" Width="460" Margin="0,0,0,0" Cursor="Hand" IsHitTestVisible="True" Panel.ZIndex="1"><Image.Source><BitmapImage BaseUri="{x:Null}" UriSource="C:\Yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\Images\img_20251231112849_ea6e6f3c.png" CacheOption="OnLoad" 
+
+[2025. 12. 31. 오후 4:25:30] GetXaml Called
+ Syncing Image: OldWidth=360, SliderValue=360, NewWidth=360
+ Generated XAML Length: 2638
+ XAML Image Tag Content: Stretch="Uniform" Width="360" Margin="0,0,0,0" Cursor="Hand" IsHitTestVisible="True" Panel.ZIndex="1"><Image.Source><BitmapImage BaseUri="{x:Null}" UriSource="C:\Users\엄용호 회사\Pictures\CatchCapture\2025-12\Catch_2025-12-31_16-25-06.png" CacheOption="OnLoad" 
+
+[2025. 12. 31. 오후 4:25:54] GetXaml Called
+ Syncing Image: OldWidth=360, SliderValue=360, NewWidth=360
+ Generated XAML Length: 4307
+ XAML Image Tag Content: Stretch="Uniform" Width="360" Margin="0,0,0,0" Cursor="Hand" IsHitTestVisible="True" Panel.ZIndex="1"><Image.Source><BitmapImage BaseUri="{x:Null}" UriSource="C:\Yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\Images\img_20251231162554_218c7e8e.png" CacheOption="OnLoad" 
