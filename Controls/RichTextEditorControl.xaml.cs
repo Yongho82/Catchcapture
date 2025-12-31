@@ -653,15 +653,10 @@ namespace CatchCapture.Controls
 
         private void CreateResizableImage(System.Windows.Controls.Image image)
         {
-            // Set initial width (Use actual size if smaller than 360, otherwise default to 360)
+            // Set initial width (Default to 360 as requested by user)
             double initialWidth = 360;
             try
             {
-                if (image.Source is BitmapSource bs)
-                {
-                    if (bs.PixelWidth > 0 && bs.PixelWidth < 360) initialWidth = bs.PixelWidth;
-                }
-                
                 // [Fix] Explicitly set Image.Width to ensure it is serialized
                 image.Width = initialWidth;
             }
@@ -1465,8 +1460,8 @@ namespace CatchCapture.Controls
                 // 컨테이너 Grid 생성
                 var grid = new Grid
                 {
-                    Width = 300,
-                    Height = 200,
+                    Width = 360,
+                    Height = 240,
                     Background = Brushes.Black,
                     Cursor = Cursors.Hand,
                     Tag = filePath // 기존 Tag도 유지 (실시간 동작용)
