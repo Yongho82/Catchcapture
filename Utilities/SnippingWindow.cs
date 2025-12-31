@@ -2277,8 +2277,8 @@ namespace CatchCapture.Utilities
                 {
                     ScreenCaptureUtility.CopyImageToClipboard(SelectedFrozenImage);
                     
-                    // "복사되었습니다" 스티커(토스트) 표시
-                    ShowCopyCompleteSticker();
+                    // "복사되었습니다" 스티커(토스트) 표시 제거 (사용자 요청)
+                    // ShowCopyCompleteSticker();
                 }
             }
             catch (Exception ex)

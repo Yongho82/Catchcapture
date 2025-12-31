@@ -1737,7 +1737,7 @@ public partial class MainWindow : Window
 
                 // 캡처된 이미지 클립보드에 복사
                 ScreenCaptureUtility.CopyImageToClipboard(capturedImage);
-                ShowGuideMessage(LocalizationManager.GetString("CopiedToClipboard"), TimeSpan.FromSeconds(1.5));
+                // ShowGuideMessage(LocalizationManager.GetString("CopiedToClipboard"), TimeSpan.FromSeconds(1.5));
             }
         }
         catch (Exception ex)
@@ -2256,8 +2256,8 @@ public partial class MainWindow : Window
                     // 원본 이미지(image)를 클립보드에 복사
                     CatchCapture.Utilities.ScreenCaptureUtility.CopyImageToClipboard(image);
                     
-                    // 알림 표시 - StickerWindow 사용 (MainWindow context이므로 직접 호출 가능하거나 SnippingWindow가 열려있지 않을 때 사용)
-                    CatchCapture.Utilities.StickerWindow.Show(LocalizationManager.GetString("CopiedToClipboard"));
+                    // 알림 표시 제거 (사용자 요청)
+                    // CatchCapture.Utilities.StickerWindow.Show(LocalizationManager.GetString("CopiedToClipboard"));
                 }
                 catch (Exception ex)
                 {
@@ -2318,7 +2318,7 @@ public partial class MainWindow : Window
                 try
                 {
                     ScreenCaptureUtility.CopyImageToClipboard(image);
-                    ShowGuideMessage(LocalizationManager.GetString("CopiedToClipboard"), TimeSpan.FromSeconds(1));
+                    // ShowGuideMessage(LocalizationManager.GetString("CopiedToClipboard"), TimeSpan.FromSeconds(1));
                 }
                 catch
                 {
@@ -2764,7 +2764,7 @@ public partial class MainWindow : Window
                 try
                 {
                     ScreenCaptureUtility.CopyImageToClipboard(image);
-                    ShowGuideMessage(LocalizationManager.GetString("CopiedToClipboard"), TimeSpan.FromSeconds(2));
+                    // ShowGuideMessage(LocalizationManager.GetString("CopiedToClipboard"), TimeSpan.FromSeconds(2));
                 }
                 catch
                 {
@@ -2897,7 +2897,7 @@ public partial class MainWindow : Window
             // ★ 메모리 최적화: 원본 이미지 로드 (썸네일 모드에서도 파일에서 원본 로드)
             var image = captures[selectedIndex].GetOriginalImage();
             ScreenCaptureUtility.CopyImageToClipboard(image);
-            ShowGuideMessage(LocalizationManager.GetString("CopiedToClipboard"), TimeSpan.FromSeconds(1));
+            // ShowGuideMessage(LocalizationManager.GetString("CopiedToClipboard"), TimeSpan.FromSeconds(1));
         }
     }
 
@@ -2938,7 +2938,7 @@ public partial class MainWindow : Window
         combinedImage.Render(drawingVisual);
 
         ScreenCaptureUtility.CopyImageToClipboard(combinedImage);
-        ShowGuideMessage(LocalizationManager.GetString("AllCopiedToClipboard"), TimeSpan.FromSeconds(1));
+        // ShowGuideMessage(LocalizationManager.GetString("AllCopiedToClipboard"), TimeSpan.FromSeconds(1));
     }
 
     #endregion
@@ -3822,9 +3822,7 @@ public partial class MainWindow : Window
                     {
                         simpleModeWindow.Topmost = true;
                         // 여기서 알림 표시
-                        var notification = new GuideWindow(LocalizationManager.GetString("CopiedToClipboard"), TimeSpan.FromSeconds(0.4));
-                        notification.Owner = simpleModeWindow;
-                        notification.Show();
+                        // notification.Show(); // 알림 제거
                     }
                 }
                 else
