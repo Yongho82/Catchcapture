@@ -129,7 +129,12 @@ namespace CatchCapture.Utilities
             // ★ 오버레이 모드: 투명 창 활성화
             AllowsTransparency = true; 
             // 뒤에 동영상이 보이도록 반투명 검정 배경 사용 (값 조절 가능)
-            Background = new SolidColorBrush(Color.FromArgb(1, 0, 0, 0)); // 거의 투명하게 시작 (깜빡임 방지)
+            Background = new SolidColorBrush(Color.FromArgb(1, 0, 0, 0)); // 거의 투명하게 시작
+            
+            // [수정] 오버레이 모드일 때만 처음부터 투명하게 시작 (Loaded에서 1로 복구)
+            // 일반 모드는 이미지가 있으므로 즉시 보여야 함
+            if (isOverlayMode) this.Opacity = 0; 
+            else this.Opacity = 1;
             
             Cursor = Cursors.Cross;
             ShowInTaskbar = false;
@@ -224,28 +229,30 @@ namespace CatchCapture.Utilities
                     Activate(); 
                     Focus(); 
                     
+                    // 일반 모드(이미지가 이미 있음)이면 즉시 표시하여 검은 화면 방지
+                    if (screenCapture != null) this.Opacity = 1;
+
                     // ★ 속도 최적화: 돋보기를 비동기로 생성 (창 표시 후)
                     await Dispatcher.InvokeAsync(() => CreateMagnifier(), System.Windows.Threading.DispatcherPriority.Background);
                     
                     // [수정] 돋보기 기능을 위해 배경 이미지가 필요함 (오버레이 모드)
                     if (screenCapture == null)
                     {
-                        // 창을 잠시 투명하게 하여 오버레이가 찍히지 않게 함
-                        this.Opacity = 0;
-                        await Task.Delay(65); // 사용자가 설정한 값과 동기화
+                        // 이미 생성자에서 Opacity=0으로 설정됨
+                        await Task.Delay(65); 
                         
                         var captured = await Task.Run(() => ScreenCaptureUtility.CaptureScreen());
-                        
-                        this.Opacity = 1;
                         
                         if (captured != null)
                         {
                             screenCapture = captured;
-                            // screenImage.Source는 설정하지 않음 (드래그 시 실시간 화면을 보기 위함)
                         }
                     }
+
+                    // 모든 준비 완료 후 오버레이 표시 (깜빡임 방지)
+                    this.Opacity = 1;
                 } 
-                catch { } 
+                catch { this.Opacity = 1; } 
             };
 
             // 비동기 캡처 제거: 어둡게 되는 시점과 즉시 상호작용 가능 상태를 일치시킴
