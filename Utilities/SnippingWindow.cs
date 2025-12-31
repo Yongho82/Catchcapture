@@ -158,7 +158,12 @@ namespace CatchCapture.Utilities
             canvas.Width = vWidth;
             canvas.Height = vHeight;
             canvas.SnapsToDevicePixels = true;
-            canvas.Background = new SolidColorBrush(Color.FromArgb(50, 0, 0, 0)); // 딤드 효과 (여기서 조절)
+            // 오버레이 모드는 투명 (CaptureSelectionOverlay가 딤 처리), 정지 캡처는 딤 효과
+            if (isOverlayMode)
+                canvas.Background = Brushes.Transparent;
+            else
+                canvas.Background = new SolidColorBrush(Color.FromArgb(50, 0, 0, 0));
+            
             Content = canvas;
 
             screenImage = new Image();
