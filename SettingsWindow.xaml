@@ -857,8 +857,12 @@
                                         <Border.Effect>
                                             <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.15"/>
                                         </Border.Effect>
-                                        <TextBlock Text="{DynamicResource RemoteStorageTooltip}" 
-                                                   TextWrapping="NoWrap" FontSize="12" Foreground="{DynamicResource ThemeForeground}" LineHeight="18"/>
+                                        <StackPanel>
+                                            <TextBlock Text="{DynamicResource RemoteStorageTooltip}" 
+                                                       TextWrapping="NoWrap" FontSize="12" Foreground="{DynamicResource ThemeForeground}" LineHeight="18"/>
+                                            <TextBlock x:Name="TxtRemoteStorageWarning" Text="{DynamicResource RemoteStorageWarning}" 
+                                                       Foreground="{DynamicResource ThemeForeground}" Margin="0,10,0,0" FontSize="11" TextWrapping="Wrap" Opacity="0.8"/>
+                                        </StackPanel>
                                     </Border>
                                 </Popup>
 
@@ -869,7 +873,6 @@
                                     </StackPanel>
                                 </Button>
                             </StackPanel>
-                            <TextBlock x:Name="TxtRemoteStorageWarning" Text="{DynamicResource RemoteStorageWarning}" Foreground="#FF4444" FontSize="11" Margin="2,10,0,0" TextWrapping="Wrap" Opacity="0.8"/>
                         </StackPanel>
                     </GroupBox>
 
@@ -1309,11 +1312,7 @@
                         </Grid>
                     </GroupBox>
                     
-                    <TextBlock x:Name="StartupModeNotice"
-                               Text="{DynamicResource StartupModeNotice}"
-                               FontSize="11"
-                               Foreground="{DynamicResource ThemeForeground}"
-                               Margin="5,10,0,0"/>
+
                 </StackPanel>
             </Border>
 

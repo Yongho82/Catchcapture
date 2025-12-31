@@ -248,7 +248,7 @@ private void UpdateUIText()
                 if (StartupModeTrayRadio != null) StartupModeTrayRadio.Content = LocalizationManager.GetString("StartInTray");
                 if (StartupModeNormalRadio != null) StartupModeNormalRadio.Content = LocalizationManager.GetString("StartInNormal");
                 if (StartupModeSimpleRadio != null) StartupModeSimpleRadio.Content = LocalizationManager.GetString("StartInSimple");
-                if (StartupModeNotice != null) StartupModeNotice.Text = LocalizationManager.GetString("StartupModeNotice");
+
                 
                 // 언어 페이지
                 if (LanguageGroup != null) LanguageGroup.Header = LocalizationManager.GetString("LanguageSettings");
