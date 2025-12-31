@@ -8,7 +8,16 @@
         mc:Ignorable="d"
         Title="캐치캡처-이미지 편집" Height="800" Width="1500" MinWidth="1200"
         WindowStartupLocation="CenterOwner"
-        Background="{DynamicResource ThemeBackground}">
+        WindowStyle="None" AllowsTransparency="True"
+        Background="Transparent">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="40" 
+                      ResizeBorderThickness="8" 
+                      GlassFrameThickness="0" 
+                      CornerRadius="0" 
+                      UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
     
     <Window.Resources>
         <!-- 툴바 버튼 스타일 -->
@@ -115,30 +124,71 @@
         <DropShadowEffect x:Key="MaterialShadow" ShadowDepth="1" BlurRadius="5" Opacity="0.2" Direction="270"/>
     </Window.Resources>
     
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition x:Name="RightPanelColumn" Width="Auto"/>
-        </Grid.ColumnDefinitions>
+    <Border CornerRadius="0" Background="{DynamicResource ThemeBackground}" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorder}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"/> <!-- Title Bar -->
+                <RowDefinition Height="Auto"/> <!-- 도구 모음 -->
+                <RowDefinition Height="*"/> <!-- 이미지 영역 -->
+                <RowDefinition Height="Auto"/> <!-- Status Bar -->
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition x:Name="RightPanelColumn" Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-        <!-- 도구 모음 -->
-        <Border Grid.Row="0" Grid.ColumnSpan="2" Background="{DynamicResource ThemePanelBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="0,0,0,1" Effect="{StaticResource MaterialShadow}">
-            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
-                <StackPanel Orientation="Horizontal" Margin="10,8" TextElement.Foreground="{DynamicResource ThemeForeground}">
+            <!-- Title Bar -->
+            <Border Grid.Row="0" Grid.ColumnSpan="2" Background="{DynamicResource ThemeTitleBackground}" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ThemeBorder}">
+                <Grid>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="15,0,0,0">
+                        <Image Source="icons/camera.png" Width="18" Height="18" Margin="0,0,10,0" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        <TextBlock Text="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}" Foreground="{DynamicResource ThemeTitleForeground}" FontWeight="SemiBold" FontSize="13"/>
+                    </StackPanel>
+                    
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0">
+                        <Button x:Name="BtnMinimize" Click="BtnMinimize_Click" Width="40" Height="40" Background="Transparent" BorderThickness="0" Cursor="Hand" WindowChrome.IsHitTestVisibleInChrome="True">
+                            <TextBlock Text="-" FontSize="24" Foreground="{DynamicResource ThemeTitleForeground}" Margin="0,-5,0,0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Button>
+                        <Button x:Name="BtnMaximize" Click="BtnMaximize_Click" Width="40" Height="40" Background="Transparent" BorderThickness="0" Cursor="Hand" WindowChrome.IsHitTestVisibleInChrome="True">
+                            <TextBlock Text="▢" FontSize="16" Foreground="{DynamicResource ThemeTitleForeground}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Button>
+                        <Button x:Name="BtnClose" Click="BtnClose_Click" Width="40" Height="40" Background="Transparent" BorderThickness="0" Cursor="Hand" WindowChrome.IsHitTestVisibleInChrome="True">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border x:Name="BtnBorder" Background="Transparent">
+                                                    <ContentPresenter/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="BtnBorder" Property="Background" Value="#E81123"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                            <TextBlock Text="✕" FontSize="14" Foreground="{DynamicResource ThemeTitleForeground}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
 
-                    <Button x:Name="RecaptureButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="RecaptureButton_Click" ToolTip="영역캡처">
-                        <StackPanel VerticalAlignment="Top">
-                            <Image Source="icons/area_capture.png" Width="28" Height="20" Margin="0,2,0,7"/>
-                            <Viewbox Width="54" Stretch="Uniform" StretchDirection="DownOnly">
-                                <TextBlock x:Name="RecaptureLabelText" Text="재캡처" Foreground="{DynamicResource ThemeForeground}" FontSize="12" HorizontalAlignment="Center"/>
-                            </Viewbox>
-                        </StackPanel>
-                    </Button>
+            <!-- 도구 모음 -->
+            <Border Grid.Row="1" Grid.ColumnSpan="2" Background="{DynamicResource ThemePanelBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="0,0,0,1" Effect="{StaticResource MaterialShadow}">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                    <StackPanel Orientation="Horizontal" Margin="10,8" TextElement.Foreground="{DynamicResource ThemeForeground}">
+                        <Button x:Name="RecaptureButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="RecaptureButton_Click" ToolTip="영역캡처">
+                            <StackPanel VerticalAlignment="Top">
+                                <Image Source="icons/area_capture.png" Width="28" Height="20" Margin="0,2,0,7"/>
+                                <Viewbox Width="54" Stretch="Uniform" StretchDirection="DownOnly">
+                                    <TextBlock x:Name="RecaptureLabelText" Text="재캡처" Foreground="{DynamicResource ThemeForeground}" FontSize="12" HorizontalAlignment="Center"/>
+                                </Viewbox>
+                            </StackPanel>
+                        </Button>
                     
                     <Separator Style="{StaticResource ToolbarSeparatorStyle}"/> 
  
@@ -201,7 +251,7 @@
                     
                     <Button x:Name="ResetButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="ResetButton_Click" ToolTip="원본으로 되돌리기">
                         <StackPanel VerticalAlignment="Top">
-                            <Image Source="icons/reset.png" Width="20" Height="20" Margin="0,2,0,7"/>
+                            <Image Source="icons/reset.png" Width="30" Height="20" Margin="0,2,0,7"/>
                             <Viewbox Width="54" Stretch="Uniform" StretchDirection="DownOnly">
                                 <TextBlock x:Name="ResetLabelText" Text="초기화" Foreground="{DynamicResource ThemeForeground}" FontSize="12" HorizontalAlignment="Center"/>
                             </Viewbox>
@@ -212,7 +262,7 @@
                     
                     <Button x:Name="CropButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="CropButton_Click" ToolTip="자르기">
                         <StackPanel VerticalAlignment="Top">
-                            <Image Source="icons/crop.png" Width="20" Height="20" Margin="0,2,0,7"/>
+                            <Image Source="icons/crop.png" Width="30" Height="20" Margin="0,2,0,7"/>
                             <Viewbox Width="54" Stretch="Uniform" StretchDirection="DownOnly">
                                 <TextBlock x:Name="CropLabelText" Text="자르기" Foreground="{DynamicResource ThemeForeground}" FontSize="12" HorizontalAlignment="Center"/>
                             </Viewbox>
@@ -221,7 +271,7 @@
                     
                     <Button x:Name="RotateButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="RotateButton_Click" ToolTip="회전">
                         <StackPanel VerticalAlignment="Top">
-                            <Image Source="icons/rotate.png" Width="20" Height="20" Margin="0,2,0,7"/>
+                            <Image Source="icons/rotate.png" Width="30" Height="20" Margin="0,2,0,7"/>
                             <Viewbox Width="54" Stretch="Uniform" StretchDirection="DownOnly">
                                 <TextBlock x:Name="RotateLabelText" Text="회전" Foreground="{DynamicResource ThemeForeground}" FontSize="12" HorizontalAlignment="Center"/>
                             </Viewbox>
@@ -230,7 +280,7 @@
                     
                     <Button x:Name="FlipHorizontalButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="FlipHorizontalButton_Click" ToolTip="좌우 반전">
                         <StackPanel VerticalAlignment="Top">
-                            <Image Source="icons/flip_horizontal.png" Width="20" Height="20" Margin="0,2,0,7"/>
+                            <Image Source="icons/flip_horizontal.png" Width="30" Height="20" Margin="0,2,0,7"/>
                             <Viewbox Width="54" Stretch="Uniform" StretchDirection="DownOnly">
                                 <TextBlock x:Name="FlipHorizontalLabelText" Text="좌우반전" Foreground="{DynamicResource ThemeForeground}" FontSize="12" HorizontalAlignment="Center"/>
                             </Viewbox>
@@ -239,7 +289,7 @@
                     
                     <Button x:Name="FlipVerticalButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="FlipVerticalButton_Click" ToolTip="상하 반전">
                         <StackPanel VerticalAlignment="Top">
-                            <Image Source="icons/flip_vertical.png" Width="20" Height="20" Margin="0,2,0,7"/>
+                            <Image Source="icons/flip_vertical.png" Width="30" Height="20" Margin="0,2,0,7"/>
                             <Viewbox Width="54" Stretch="Uniform" StretchDirection="DownOnly">
                                 <TextBlock x:Name="FlipVerticalLabelText" Text="상하반전" Foreground="{DynamicResource ThemeForeground}" FontSize="12" HorizontalAlignment="Center"/>
                             </Viewbox>
@@ -442,7 +492,7 @@
         </Popup>
 
         <!-- 이미지 표시 영역 -->
-        <Border Grid.Row="1" Grid.Column="0" Background="{DynamicResource ThemeBackground}" BorderThickness="0">
+        <Border Grid.Row="2" Grid.Column="0" Background="{DynamicResource ThemeBackground}" BorderThickness="0">
             <Grid>
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                     <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Margin="50">
@@ -546,7 +596,7 @@
         </Border>
 
         <!-- 하단 옵션 패널 (편집 도구 옵션) - 이미지 위에 오버레이 -->
-        <Border x:Name="EditToolPanel" Grid.Row="1" Grid.ColumnSpan="2" Background="{DynamicResource ThemePanelBackground}" BorderBrush="{DynamicResource ThemeBorder}" 
+        <Border x:Name="EditToolPanel" Grid.Row="2" Grid.ColumnSpan="2" Background="{DynamicResource ThemePanelBackground}" BorderBrush="{DynamicResource ThemeBorder}" 
                 BorderThickness="0,1,0,0" Visibility="Collapsed" Effect="{StaticResource MaterialShadow}"
                 VerticalAlignment="Bottom">
             <Grid Margin="0">
@@ -600,7 +650,7 @@
         
         <!-- 우측 캡처 리스트 패널 -->
         <Border x:Name="CaptureListBorder" 
-                Grid.Row="1" Grid.Column="1"
+                Grid.Row="2" Grid.Column="1"
                 Background="{DynamicResource ThemePanelBackground}" 
                 BorderBrush="{DynamicResource ThemeBorder}" 
                 BorderThickness="1,0,0,0">
@@ -663,8 +713,9 @@
         <!-- 토스트 메시지 -->
         <Border x:Name="ToastBorder" Background="#333333" CornerRadius="4" Padding="15,10" 
                 HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,100"
-                Opacity="0" IsHitTestVisible="False" Grid.Row="1" Grid.ColumnSpan="2">
+                Opacity="0" IsHitTestVisible="False" Grid.Row="2" Grid.ColumnSpan="2">
             <TextBlock x:Name="ToastText" Text="메시지" Foreground="White" FontSize="14"/>
         </Border>
     </Grid>
+</Border>
 </Window>
