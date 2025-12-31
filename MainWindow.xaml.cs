@@ -1384,8 +1384,8 @@ public partial class MainWindow : Window
         if (simpleModeWindow != null) simpleModeWindow.Hide();
         if (trayModeWindow != null) trayModeWindow.Hide();
 
-        // ★ 속도 최적화: DwmFlush만 호출하여 즉시 화면 갱신
-        try { DwmFlush(); } catch { }
+        // ★ 속도 최적화: DwmFlush 제거하여 즉시 실행 (창 숨김 애니메이션보다 반응성 우선)
+        // try { DwmFlush(); } catch { }
 
         // ★ 속도 최적화: 프리로딩된 스크린샷 확인
         BitmapSource? screenshot = null;
@@ -1395,7 +1395,8 @@ public partial class MainWindow : Window
         (string AppName, string Title) metadata;
 
         // 프리로딩된 이미지가 있고, 3초 이내의 것이라면 즉시 사용
-        if (preloadedShot != null && (DateTime.Now - preloadedTime).TotalSeconds < 3.0)
+        // ★ 수정: 오버레이 모드(CaptureOverlay)일 때는 프리로딩 무시 (동영상이 멈추면 안되므로)
+        if (!settings.UseOverlayCaptureMode && preloadedShot != null && (DateTime.Now - preloadedTime).TotalSeconds < 3.0)
         {
             screenshot = preloadedShot;
             preloadedScreenshotRef = null;

@@ -235,19 +235,15 @@ namespace CatchCapture.Utilities
                     // ★ 속도 최적화: 돋보기를 비동기로 생성 (창 표시 후)
                     await Dispatcher.InvokeAsync(() => CreateMagnifier(), System.Windows.Threading.DispatcherPriority.Background);
                     
-                    // [수정] 돋보기 기능을 위해 배경 이미지가 필요함 (오버레이 모드)
+                    // [수정] 오버레이 모드에서는 자동 캡처를 하지 않음 (동영상 재생 유지)
+                    // 사용자가 드래그를 완료할 때 캡처가 수행됨 (MouseLeftButtonUp 참조)
+                    
+                    /* 자동 캡처 제거
                     if (screenCapture == null)
                     {
-                        // 이미 생성자에서 Opacity=0으로 설정됨
-                        await Task.Delay(65); 
-                        
-                        var captured = await Task.Run(() => ScreenCaptureUtility.CaptureScreen());
-                        
-                        if (captured != null)
-                        {
-                            screenCapture = captured;
-                        }
+                        // ...
                     }
+                    */
 
                     // 모든 준비 완료 후 오버레이 표시 (깜빡임 방지)
                     this.Opacity = 1;
@@ -591,7 +587,7 @@ namespace CatchCapture.Utilities
             // 크기 표시 숨기기 (오버레이가 처리하지만 혹시 모르니 제거)
             // sizeTextBlock.Visibility = Visibility.Collapsed;
         }
-        private void SnippingWindow_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private async void SnippingWindow_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             try
             {
@@ -637,28 +633,40 @@ namespace CatchCapture.Utilities
 
                 SelectedArea = new Int32Rect(globalX, globalY, pxWidth, pxHeight);
 
-                // [추가] 오버레이 모드일 경우: 선택 완료 시점에 화면을 캡처해야 함
+                // [수정] 오버레이 모드일 경우: 선택 완료 시점에 화면을 캡처해야 함
                 if (screenCapture == null)
                 {
-                    // 투명창(AllowsTransparency)에서는 Opacity=0이 더 안정적
-                    double oldOpacity = this.Opacity;
-                    this.Opacity = 0;
+                    // [최적화] SetWindowDisplayAffinity를 사용하여 창을 숨기지 않고 캡처에서 제외 (깜빡임 제거)
+                    var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+                    ScreenCaptureUtility.SetWindowDisplayAffinity(hwnd, ScreenCaptureUtility.WDA_EXCLUDEFROMCAPTURE);
                     
-                    // UI 갱신 대기
-                    System.Windows.Forms.Application.DoEvents();
-                    System.Threading.Thread.Sleep(65); // DWM이 창을 제거할 시간 확보
-
-                    // 화면 캡처
-                    var fullScreen = ScreenCaptureUtility.CaptureScreen();
-                    if (fullScreen != null)
+                    try
                     {
-                        screenCapture = fullScreen;
-                        // 이미지 컨트롤에도 설정 (편집 모드 진입 시 필요)
-                        screenImage.Source = screenCapture;
+                        // 렌더링 한 프레임 대기 (설정이 반영되도록)
+                        await Task.Delay(1);
+                        
+                        // 화면 캡처 (전체 화면)
+                        var fullScreen = ScreenCaptureUtility.CaptureScreen();
+                        
+                        if (fullScreen != null)
+                        {
+                            screenCapture = fullScreen;
+                            screenImage.Source = screenCapture;
+                            screenImage.Visibility = Visibility.Visible;
+                            canvas.Background = Brushes.Transparent;
+                        }
                     }
-                    
-                    // 다시 보이기
-                    this.Opacity = oldOpacity;
+                    finally
+                    {
+                        // 캡처 후 제외 설정 해제
+                        ScreenCaptureUtility.SetWindowDisplayAffinity(hwnd, ScreenCaptureUtility.WDA_NONE);
+                    }
+                }
+                else
+                {
+                    // 정지 캡처 모드에서도 이미지가 보이도록 설정
+                    screenImage.Visibility = Visibility.Visible;
+                    canvas.Background = Brushes.Transparent;
                 }
 
                 // 동결된 배경(screenCapture)에서 선택 영역만 잘라 저장 (가능할 때)
@@ -801,92 +809,95 @@ namespace CatchCapture.Utilities
         private void UpdateMagnifier(Point mousePos)
         {
             if (!showMagnifier) return;
-            if (magnifierBorder == null || magnifierImage == null || screenCapture == null)
+            // screenCapture 체크 제거: 이미지가 없어도 십자선은 그려야 함
+            if (magnifierBorder == null || magnifierImage == null)
                 return;
 
             try
             {
-                // 돋보기 표시
-                magnifierBorder.Visibility = Visibility.Visible;
-
-                var dpi = VisualTreeHelper.GetDpi(this);
-                int centerX = (int)(mousePos.X * dpi.DpiScaleX);
-                int centerY = (int)(mousePos.Y * dpi.DpiScaleY);
-
-                // 1. Update Zoomed Image
-                int cropSize = (int)(MagnifierSize / MagnificationFactor);
-                int halfCrop = cropSize / 2;
-
-                int cropX = Math.Max(0, Math.Min(centerX - halfCrop, screenCapture.PixelWidth - cropSize));
-                int cropY = Math.Max(0, Math.Min(centerY - halfCrop, screenCapture.PixelHeight - cropSize));
-                int cropW = Math.Min(cropSize, screenCapture.PixelWidth - cropX);
-                int cropH = Math.Min(cropSize, screenCapture.PixelHeight - cropY);
-
-                if (cropW > 0 && cropH > 0)
+                // 배경 이미지가 있을 때만 돋보기 표시
+                if (screenCapture != null)
                 {
-                    var croppedBitmap = new CroppedBitmap(screenCapture, new Int32Rect(cropX, cropY, cropW, cropH));
-                    magnifierImage.Source = croppedBitmap;
-                }
+                    // 돋보기 표시
+                    magnifierBorder.Visibility = Visibility.Visible;
 
-                // 2. Extract Color at Cursor
-                if (centerX >= 0 && centerY >= 0 && centerX < screenCapture.PixelWidth && centerY < screenCapture.PixelHeight)
-                {
-                    // For efficiency, maybe we could read from 'croppedBitmap' center, but it might be slightly offset due to clamping.
-                    // Reading from main bitmap:
-                    byte[] pixels = new byte[4]; 
-                    // Create a 1x1 crop to read pixel? OR CopyPixels from large image.
-                    // CopyPixels from large image is efficient enough for single pixel.
-                    var rect = new Int32Rect(centerX, centerY, 1, 1);
-                    try 
+                    var dpi = VisualTreeHelper.GetDpi(this);
+                    int centerX = (int)(mousePos.X * dpi.DpiScaleX);
+                    int centerY = (int)(mousePos.Y * dpi.DpiScaleY);
+
+                    // 1. Update Zoomed Image
+                    int cropSize = (int)(MagnifierSize / MagnificationFactor);
+                    int halfCrop = cropSize / 2;
+
+                    int cropX = Math.Max(0, Math.Min(centerX - halfCrop, screenCapture.PixelWidth - cropSize));
+                    int cropY = Math.Max(0, Math.Min(centerY - halfCrop, screenCapture.PixelHeight - cropSize));
+                    int cropW = Math.Min(cropSize, screenCapture.PixelWidth - cropX);
+                    int cropH = Math.Min(cropSize, screenCapture.PixelHeight - cropY);
+
+                    if (cropW > 0 && cropH > 0)
                     {
-                        // Note: Stride calculation. 4 bytes per pixel.
-                        screenCapture.CopyPixels(rect, pixels, 4, 0);
-                        // BGRA assumption
-                        lastHoverColor = Color.FromRgb(pixels[2], pixels[1], pixels[0]);
-                        
-                        if (colorPreviewRect != null) 
-                            colorPreviewRect.Fill = new SolidColorBrush(lastHoverColor);
-                        
-                        UpdateColorInfoText();
+                        var croppedBitmap = new CroppedBitmap(screenCapture, new Int32Rect(cropX, cropY, cropW, cropH));
+                        magnifierImage.Source = croppedBitmap;
                     }
-                    catch { }
-                }
 
-                // 3. Update Coords Text
-                if (coordsTextBlock != null)
-                {
-                    coordsTextBlock.Text = $"({centerX}, {centerY})";
-                }
+                    // 2. Extract Color at Cursor
+                    if (centerX >= 0 && centerY >= 0 && centerX < screenCapture.PixelWidth && centerY < screenCapture.PixelHeight)
+                    {
+                        byte[] pixels = new byte[4]; 
+                        var rect = new Int32Rect(centerX, centerY, 1, 1);
+                        try 
+                        {
+                            screenCapture.CopyPixels(rect, pixels, 4, 0);
+                            lastHoverColor = Color.FromRgb(pixels[2], pixels[1], pixels[0]);
+                            
+                            if (colorPreviewRect != null) 
+                                colorPreviewRect.Fill = new SolidColorBrush(lastHoverColor);
+                            
+                            UpdateColorInfoText();
+                        }
+                        catch { }
+                    }
 
-                // 4. Update Position
-                double offsetX = 20; 
-                double offsetY = 20; 
-                
-                double magnifierX = mousePos.X + offsetX;
-                double magnifierY = mousePos.Y + offsetY;
-                
-                // Get actual height including the new info panel
-                double totalHeight = magnifierBorder.ActualHeight;
-                if (double.IsNaN(totalHeight) || totalHeight == 0) totalHeight = MagnifierSize + 100; // Estimate
+                    // 3. Update Coords Text
+                    if (coordsTextBlock != null)
+                    {
+                        coordsTextBlock.Text = $"({centerX}, {centerY})";
+                    }
 
-                if (magnifierX + MagnifierSize > vWidth)
-                    magnifierX = mousePos.X - MagnifierSize - offsetX;
-                if (magnifierY + totalHeight > vHeight)
-                    magnifierY = mousePos.Y - totalHeight - offsetY;
+                    // 4. Update Position
+                    double offsetX = 20; 
+                    double offsetY = 20; 
+                    
+                    double magnifierX = mousePos.X + offsetX;
+                    double magnifierY = mousePos.Y + offsetY;
+                    
+                    // Get actual height including the new info panel
+                    double totalHeight = magnifierBorder.ActualHeight;
+                    if (double.IsNaN(totalHeight) || totalHeight == 0) totalHeight = MagnifierSize + 100; // Estimate
 
-                if (magnifierBorder.RenderTransform is TranslateTransform tt)
-                {
-                    tt.X = magnifierX;
-                    tt.Y = magnifierY;
+                    if (magnifierX + MagnifierSize > vWidth)
+                        magnifierX = mousePos.X - MagnifierSize - offsetX;
+                    if (magnifierY + totalHeight > vHeight)
+                        magnifierY = mousePos.Y - totalHeight - offsetY;
+
+                    if (magnifierBorder.RenderTransform is TranslateTransform tt)
+                    {
+                        tt.X = magnifierX;
+                        tt.Y = magnifierY;
+                    }
+                    else
+                    {
+                        Canvas.SetLeft(magnifierBorder, magnifierX);
+                        Canvas.SetTop(magnifierBorder, magnifierY);
+                    }
                 }
                 else
                 {
-                    // Fallback
-                    Canvas.SetLeft(magnifierBorder, magnifierX);
-                    Canvas.SetTop(magnifierBorder, magnifierY);
+                    // 이미지가 없으면 돋보기 숨김 (오버레이 모드)
+                    magnifierBorder.Visibility = Visibility.Collapsed;
                 }
 
-                // 5. Update Fullscreen Crosshairs
+                // 5. Update Fullscreen Crosshairs (이미지 유무와 상관없이 표시)
                 if (crosshairHorizontal != null && crosshairVertical != null)
                 {
                     crosshairHorizontal.Visibility = Visibility.Visible;
