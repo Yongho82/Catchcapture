@@ -192,8 +192,8 @@ public partial class App : Application
                     {
                         bgColor = Color.FromRgb(255, 255, 255); // 전체 배경 255
                         sidebarBg = Color.FromRgb(249, 249, 249); // 버튼 249
-                        windowBorder = Colors.Transparent; // 라인 없애
-                        sidebarBorder = Colors.Transparent;
+                        windowBorder = Color.FromRgb(224, 224, 224); // #E0E0E0 라인 살림
+                        sidebarBorder = windowBorder;
                     }
                     else if (settings.ThemeMode == "Light")
                     {
