@@ -227,7 +227,23 @@ namespace CatchCapture.Utilities
                     // ★ 속도 최적화: 돋보기를 비동기로 생성 (창 표시 후)
                     await Dispatcher.InvokeAsync(() => CreateMagnifier(), System.Windows.Threading.DispatcherPriority.Background);
                     
-                    // 참고: MainWindow에서 항상 스크린샷을 전달하므로 여기서 캡처할 필요 없음
+                    // [수정] 돋보기 기능을 위해 배경 이미지가 필요함 (오버레이 모드)
+                    if (screenCapture == null)
+                    {
+                        // 창을 잠시 투명하게 하여 오버레이가 찍히지 않게 함
+                        this.Opacity = 0;
+                        await Task.Delay(65); // 사용자가 설정한 값과 동기화
+                        
+                        var captured = await Task.Run(() => ScreenCaptureUtility.CaptureScreen());
+                        
+                        this.Opacity = 1;
+                        
+                        if (captured != null)
+                        {
+                            screenCapture = captured;
+                            // screenImage.Source는 설정하지 않음 (드래그 시 실시간 화면을 보기 위함)
+                        }
+                    }
                 } 
                 catch { } 
             };
