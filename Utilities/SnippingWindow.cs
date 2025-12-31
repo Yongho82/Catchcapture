@@ -592,7 +592,7 @@ namespace CatchCapture.Utilities
             // 크기 표시 숨기기 (오버레이가 처리하지만 혹시 모르니 제거)
             // sizeTextBlock.Visibility = Visibility.Collapsed;
         }
-        private async void SnippingWindow_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private void SnippingWindow_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             try
             {

@@ -900,7 +900,7 @@
                     </GroupBox>
 
                     <!-- 노트 폴더 분류 설정 -->
-                    <GroupBox x:Name="NoteFolderGroupingGroup" Header="{DynamicResource FolderGrouping}" BorderBrush="{DynamicResource ThemeBorder}" Padding="10" Margin="0,10,0,0">
+                    <GroupBox x:Name="NoteFolderGroupingGroup" Header="{DynamicResource FolderGrouping}" BorderBrush="{DynamicResource ThemeBorder}" Padding="10" Margin="0,10,0,15">
                         <StackPanel Orientation="Horizontal">
                             <RadioButton x:Name="RbNoteGroupNone" Content="{DynamicResource GroupingNone}" GroupName="NoteFolderGrouping" Margin="0,0,15,0" Tag="None" Checked="NoteFolderGrouping_Checked" IsChecked="True"/>
                             <RadioButton x:Name="RbNoteGroupMonthly" Content="{DynamicResource GroupingMonthly}" GroupName="NoteFolderGrouping" Margin="0,0,15,0" Tag="Monthly" Checked="NoteFolderGrouping_Checked"/>

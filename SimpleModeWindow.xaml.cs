@@ -522,6 +522,12 @@ namespace CatchCapture
                 ExitSimpleModeButton_Click(sender, e);
                 e.Handled = true;
             }
+            else if (e.Key == Key.C && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                // 선택된(가장 최근) 이미지 복사
+                _mainWindow?.CopySelectedImage();
+                e.Handled = true;
+            }
         }
         private void InstantEditToggle_Changed(object sender, RoutedEventArgs e)
         {

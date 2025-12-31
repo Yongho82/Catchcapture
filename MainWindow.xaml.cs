@@ -2897,7 +2897,9 @@ public partial class MainWindow : Window
             // ★ 메모리 최적화: 원본 이미지 로드 (썸네일 모드에서도 파일에서 원본 로드)
             var image = captures[selectedIndex].GetOriginalImage();
             ScreenCaptureUtility.CopyImageToClipboard(image);
-            // ShowGuideMessage(LocalizationManager.GetString("CopiedToClipboard"), TimeSpan.FromSeconds(1));
+            
+            // 스티커 알림 표시
+            StickerWindow.Show(LocalizationManager.GetString("CopiedToClipboard"));
         }
     }
 
@@ -2938,7 +2940,9 @@ public partial class MainWindow : Window
         combinedImage.Render(drawingVisual);
 
         ScreenCaptureUtility.CopyImageToClipboard(combinedImage);
-        // ShowGuideMessage(LocalizationManager.GetString("AllCopiedToClipboard"), TimeSpan.FromSeconds(1));
+        
+        // 스티커 알림 표시
+        StickerWindow.Show(LocalizationManager.GetString("CopiedToClipboard"));
     }
 
     #endregion
