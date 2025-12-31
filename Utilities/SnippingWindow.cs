@@ -158,7 +158,7 @@ namespace CatchCapture.Utilities
             canvas.Width = vWidth;
             canvas.Height = vHeight;
             canvas.SnapsToDevicePixels = true;
-            canvas.Background = new SolidColorBrush(Color.FromArgb(50, 0, 0, 0)); // 딤드 효과 (여기서 조절)
+            canvas.Background = Brushes.Transparent; // 딤 효과는 CaptureSelectionOverlay가 담당
             Content = canvas;
 
             screenImage = new Image();
@@ -176,8 +176,7 @@ namespace CatchCapture.Utilities
             {
                 screenCapture = cachedScreenshot;
                 screenImage.Source = screenCapture;
-                canvas.Background = Brushes.Transparent; // 이미지가 있으면 배경 투명 필요 없음
-                AllowsTransparency = false; // 이미지가 있으면 성능을 위해 투명 끄기 (선택사항)
+                // canvas.Background와 AllowsTransparency는 변경하지 않음
             }
             else
             {
@@ -633,101 +632,106 @@ namespace CatchCapture.Utilities
 
                 SelectedArea = new Int32Rect(globalX, globalY, pxWidth, pxHeight);
 
-                // [수정] 오버레이 모드일 경우: 선택 완료 시점에 화면을 캡처해야 함
-                if (screenCapture == null)
-                {
-                    // [최적화] SetWindowDisplayAffinity를 사용하여 창을 숨기지 않고 캡처에서 제외 (깜빡임 제거)
-                    var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
-                    ScreenCaptureUtility.SetWindowDisplayAffinity(hwnd, ScreenCaptureUtility.WDA_EXCLUDEFROMCAPTURE);
-                    
-                    try
-                    {
-                        // 렌더링 한 프레임 대기 (설정이 반영되도록)
-                        await Task.Delay(1);
-                        
-                        // 화면 캡처 (전체 화면)
-                        var fullScreen = ScreenCaptureUtility.CaptureScreen();
-                        
-                        if (fullScreen != null)
-                        {
-                            screenCapture = fullScreen;
-                            screenImage.Source = screenCapture;
-                            screenImage.Visibility = Visibility.Visible;
-                            canvas.Background = Brushes.Transparent;
-                        }
-                    }
-                    finally
-                    {
-                        // 캡처 후 제외 설정 해제
-                        ScreenCaptureUtility.SetWindowDisplayAffinity(hwnd, ScreenCaptureUtility.WDA_NONE);
-                    }
-                }
-                else
-                {
-                    // 정지 캡처 모드에서도 이미지가 보이도록 설정
-                    screenImage.Visibility = Visibility.Visible;
-                    canvas.Background = Brushes.Transparent;
-                }
-
-                // 동결된 배경(screenCapture)에서 선택 영역만 잘라 저장 (가능할 때)
-                try
-                {
-                    if (screenCapture != null && pxWidth > 0 && pxHeight > 0)
-                    {
-                        int relX = globalX - (int)Math.Round(vLeft);
-                        int relY = globalY - (int)Math.Round(vTop);
-
-                        // 경계 체크
-                        relX = Math.Max(0, Math.Min(relX, screenCapture.PixelWidth - 1));
-                        relY = Math.Max(0, Math.Min(relY, screenCapture.PixelHeight - 1));
-                        int cw = Math.Max(0, Math.Min(pxWidth, screenCapture.PixelWidth - relX));
-                        int ch = Math.Max(0, Math.Min(pxHeight, screenCapture.PixelHeight - relY));
-
-                        if (cw > 0 && ch > 0)
-                        {
-                            var cropRect = new Int32Rect(relX, relY, cw, ch);
-                            // [메모리 최적화] CroppedBitmap은 원본(3모니터 전체)을 참조하므로, 
-                            // 작은 영역을 잘라도 35MB+가 메모리에 남음. "Deep Copy"를 수행하여 연결 고리 끊기.
-                            var tempCrop = new CroppedBitmap(screenCapture, cropRect);
-                            
-                            var visual = new DrawingVisual();
-                            using (var ctx = visual.RenderOpen())
-                            {
-                                ctx.DrawImage(tempCrop, new Rect(0, 0, cw, ch));
-                            }
-                            
-                            var rtb = new RenderTargetBitmap(cw, ch, 96, 96, PixelFormats.Pbgra32);
-                            rtb.Render(visual);
-                            rtb.Freeze(); // 불변 객체로 만들어 성능 향상 및 스레드 공유 가능
-
-                            SelectedFrozenImage = rtb;
-                        }
-                    }
-                }
-                catch { /* ignore crop errors */ }
-
-                // ★ 선택한 영역의 중심점에서 창 메타데이터 캡처 (실제 캡처된 창 정보)
-                try
-                {
-                    int centerX = globalX + pxWidth / 2;
-                    int centerY = globalY + pxHeight / 2;
-                    var capturedMeta = ScreenCaptureUtility.GetWindowAtPoint(centerX, centerY);
-                    if (capturedMeta.AppName != "Unknown" && capturedMeta.Title != "Unknown")
-                    {
-                        _sourceApp = capturedMeta.AppName;
-                        _sourceTitle = capturedMeta.Title;
-                    }
-                }
-                catch { /* fallback to initial metadata */ }
-
+                // [최적화] 비동기 캡처로 UI 반응 속도 향상
                 if (instantEditMode)
                 {
+                    // 1. 툴바 즉시 표시 (캡처 전에 UI 반응)
                     ShowEditToolbar();
+                    
+                    // 2. 캡처와 이미지 처리는 백그라운드에서 수행
+                    if (screenCapture == null)
+                    {
+                        // 오버레이 모드: 백그라운드 캡처
+                        _ = Task.Run(() =>
+                        {
+                            var hwnd = IntPtr.Zero;
+                            Dispatcher.Invoke(() => hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle);
+                            
+                            ScreenCaptureUtility.SetWindowDisplayAffinity(hwnd, ScreenCaptureUtility.WDA_EXCLUDEFROMCAPTURE);
+                            
+                            try
+                            {
+                                System.Threading.Thread.Sleep(1);
+                                var fullScreen = ScreenCaptureUtility.CaptureScreen();
+                                
+                                if (fullScreen != null)
+                                {
+                                    fullScreen.Freeze();
+                                    
+                                    Dispatcher.Invoke(() =>
+                                    {
+                                        screenCapture = fullScreen;
+                                        screenImage.Source = screenCapture;
+                                        screenImage.Visibility = Visibility.Visible;
+                                        // canvas.Background는 변경하지 않음 (밝아짐 방지)
+                                        
+                                        CreateFrozenImage(pxWidth, pxHeight, globalX, globalY);
+                                    });
+                                }
+                            }
+                            finally
+                            {
+                                ScreenCaptureUtility.SetWindowDisplayAffinity(hwnd, ScreenCaptureUtility.WDA_NONE);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        // 정지 캡처 모드: 이미 이미지가 있음
+                        screenImage.Visibility = Visibility.Visible;
+                        CreateFrozenImage(pxWidth, pxHeight, globalX, globalY);
+                    }
                 }
                 else
                 {
-                    DialogResult = true;
-                    Close();
+                    // 즉시편집 모드가 아닐 때도 비동기 처리 (부드러운 전환)
+                    if (screenCapture == null)
+                    {
+                        var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+                        
+                        // 백그라운드에서 캡처 후 창 닫기
+                        _ = Task.Run(() =>
+                        {
+                            ScreenCaptureUtility.SetWindowDisplayAffinity(hwnd, ScreenCaptureUtility.WDA_EXCLUDEFROMCAPTURE);
+                            
+                            try
+                            {
+                                System.Threading.Thread.Sleep(1);
+                                var fullScreen = ScreenCaptureUtility.CaptureScreen();
+                                
+                                if (fullScreen != null)
+                                {
+                                    fullScreen.Freeze();
+                                    
+                                    Dispatcher.Invoke(() =>
+                                    {
+                                        screenCapture = fullScreen;
+                                        CreateFrozenImage(pxWidth, pxHeight, globalX, globalY);
+                                        DialogResult = true;
+                                        Close();
+                                    });
+                                }
+                                else
+                                {
+                                    Dispatcher.Invoke(() =>
+                                    {
+                                        DialogResult = false;
+                                        Close();
+                                    });
+                                }
+                            }
+                            finally
+                            {
+                                ScreenCaptureUtility.SetWindowDisplayAffinity(hwnd, ScreenCaptureUtility.WDA_NONE);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        CreateFrozenImage(pxWidth, pxHeight, globalX, globalY);
+                        DialogResult = true;
+                        Close();
+                    }
                 }
             }
             catch (Exception ex)
@@ -742,6 +746,60 @@ namespace CatchCapture.Utilities
                 catch { }
             }
         }
+        
+        // [추가] 선택 영역 이미지 생성 헬퍼 메서드
+        private void CreateFrozenImage(int pxWidth, int pxHeight, int globalX, int globalY)
+        {
+            // 동결된 배경(screenCapture)에서 선택 영역만 잘라 저장 (가능할 때)
+            try
+            {
+                if (screenCapture != null && pxWidth > 0 && pxHeight > 0)
+                {
+                    int relX = globalX - (int)Math.Round(vLeft);
+                    int relY = globalY - (int)Math.Round(vTop);
+
+                    // 경계 체크
+                    relX = Math.Max(0, Math.Min(relX, screenCapture.PixelWidth - 1));
+                    relY = Math.Max(0, Math.Min(relY, screenCapture.PixelHeight - 1));
+                    int cw = Math.Max(0, Math.Min(pxWidth, screenCapture.PixelWidth - relX));
+                    int ch = Math.Max(0, Math.Min(pxHeight, screenCapture.PixelHeight - relY));
+
+                    if (cw > 0 && ch > 0)
+                    {
+                        var cropRect = new Int32Rect(relX, relY, cw, ch);
+                        var tempCrop = new CroppedBitmap(screenCapture, cropRect);
+                        
+                        var visual = new DrawingVisual();
+                        using (var ctx = visual.RenderOpen())
+                        {
+                            ctx.DrawImage(tempCrop, new Rect(0, 0, cw, ch));
+                        }
+                        
+                        var rtb = new RenderTargetBitmap(cw, ch, 96, 96, PixelFormats.Pbgra32);
+                        rtb.Render(visual);
+                        rtb.Freeze();
+
+                        SelectedFrozenImage = rtb;
+                    }
+                }
+            }
+            catch { /* ignore crop errors */ }
+
+            // 선택한 영역의 중심점에서 창 메타데이터 캡처
+            try
+            {
+                int centerX = globalX + pxWidth / 2;
+                int centerY = globalY + pxHeight / 2;
+                var capturedMeta = ScreenCaptureUtility.GetWindowAtPoint(centerX, centerY);
+                if (capturedMeta.AppName != "Unknown" && capturedMeta.Title != "Unknown")
+                {
+                    _sourceApp = capturedMeta.AppName;
+                    _sourceTitle = capturedMeta.Title;
+                }
+            }
+            catch { /* fallback to initial metadata */ }
+        }
+        
         // 리팩토링된 오버레이 클래스 사용
         private CaptureSelectionOverlay? selectionOverlay;
         
