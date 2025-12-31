@@ -183,6 +183,8 @@ public partial class App : Application
                     sidebarBorder = AdjustColor(bgColor, 20);
                     sidebarHover = AdjustColor(bgColor, 25);
                     sidebarPressed = AdjustColor(bgColor, 35);
+                    
+                    Application.Current.Resources["ThemePanelBackground"] = new SolidColorBrush(sidebarBg);
                 }
                 else // Light Theme
                 {
@@ -191,6 +193,8 @@ public partial class App : Application
                     sidebarBorder = Brushes.Transparent.Color; 
                     sidebarHover = AdjustColor(bgColor, -15);
                     sidebarPressed = AdjustColor(bgColor, -25);
+                    
+                    Application.Current.Resources["ThemePanelBackground"] = new SolidColorBrush(bgColor);
                 }
 
                 Application.Current.Resources["ThemeWindowBorder"] = new SolidColorBrush(windowBorder);

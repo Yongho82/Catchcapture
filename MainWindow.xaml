@@ -567,7 +567,7 @@
                     </Border>
 
                     <!-- 오른쪽 캡처 표시 영역 -->
-                    <Border Grid.Column="1" Grid.Row="0" Background="{DynamicResource ThemeBackground}" Margin="0,0,0,0">
+                    <Border Grid.Column="1" Grid.Row="0" Background="{DynamicResource ThemePanelBackground}" Margin="0,0,0,0">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"/>

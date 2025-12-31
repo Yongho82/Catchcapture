@@ -1126,7 +1126,7 @@ namespace CatchCapture.Utilities
                     Opacity = 0.15
                 }
             };
-            toolbarContainer.SetResourceReference(Border.BackgroundProperty, "ThemeBackground");
+            toolbarContainer.SetResourceReference(Border.BackgroundProperty, "ThemePanelBackground");
             toolbarContainer.SetResourceReference(TextElement.ForegroundProperty, "ThemeForeground");
 
             if (isVerticalToolbarLayout)

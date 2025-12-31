@@ -127,7 +127,7 @@
         </Grid.ColumnDefinitions>
 
         <!-- 도구 모음 -->
-        <Border Grid.Row="0" Grid.ColumnSpan="2" Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="0,0,0,1" Effect="{StaticResource MaterialShadow}">
+        <Border Grid.Row="0" Grid.ColumnSpan="2" Background="{DynamicResource ThemePanelBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="0,0,0,1" Effect="{StaticResource MaterialShadow}">
             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
                 <StackPanel Orientation="Horizontal" Margin="10,8" TextElement.Foreground="{DynamicResource ThemeForeground}">
 
@@ -326,17 +326,11 @@
                     <controls:TwoTierToolButton 
                         x:Name="PenToolButton"
                         Label="펜" 
-                        ToolTipText="펜 (기본: 검정, 3px)"
+                        ToolTipText="펜"
                         MainButtonClick="PenButton_Click"
                         OptionsButtonClick="PenOptionsButton_Click">
                         <controls:TwoTierToolButton.IconContent>
-                            <Canvas Width="20" Height="20">
-                                <Canvas.LayoutTransform>
-                                    <ScaleTransform ScaleX="1.2" ScaleY="1.2"/>
-                                </Canvas.LayoutTransform>
-                                <Path Stroke="#333" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Data="M2,14 L15,3"/>
-                                <Ellipse Stroke="#333" StrokeThickness="2" Width="3" Height="3" Canvas.Left="13" Canvas.Top="1"/>
-                            </Canvas>
+                            <Image Source="icons/pen.png" Width="20" Height="20"/>
                         </controls:TwoTierToolButton.IconContent>
                     </controls:TwoTierToolButton>
                     
@@ -552,7 +546,7 @@
         </Border>
 
         <!-- 하단 옵션 패널 (편집 도구 옵션) - 이미지 위에 오버레이 -->
-        <Border x:Name="EditToolPanel" Grid.Row="1" Grid.ColumnSpan="2" Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" 
+        <Border x:Name="EditToolPanel" Grid.Row="1" Grid.ColumnSpan="2" Background="{DynamicResource ThemePanelBackground}" BorderBrush="{DynamicResource ThemeBorder}" 
                 BorderThickness="0,1,0,0" Visibility="Collapsed" Effect="{StaticResource MaterialShadow}"
                 VerticalAlignment="Bottom">
             <Grid Margin="0">
@@ -607,7 +601,7 @@
         <!-- 우측 캡처 리스트 패널 -->
         <Border x:Name="CaptureListBorder" 
                 Grid.Row="1" Grid.Column="1"
-                Background="{DynamicResource ThemeBackground}" 
+                Background="{DynamicResource ThemePanelBackground}" 
                 BorderBrush="{DynamicResource ThemeBorder}" 
                 BorderThickness="1,0,0,0">
             <Border.Effect>
@@ -624,7 +618,7 @@
                 </Grid.RowDefinitions>
                                 
                 <!-- 헤더 영역 -->
-                <Border Grid.Row="0" Background="{DynamicResource ThemeBackground}" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ThemeBorder}" Padding="12,10">
+                <Border Grid.Row="0" Background="{DynamicResource ThemePanelBackground}" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ThemeBorder}" Padding="12,10">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
