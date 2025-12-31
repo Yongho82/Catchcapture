@@ -570,130 +570,145 @@ namespace CatchCapture.Utilities
         }
         private void SnippingWindow_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (!isSelecting) return;
-            isSelecting = false;
-            // CompositionTarget.Rendering -= CompositionTarget_Rendering; // 제거됨
-            if (Mouse.Captured == this) Mouse.Capture(null);
-            
-            // 돋보기 숨기기
-            if (magnifierBorder != null)
-                magnifierBorder.Visibility = Visibility.Collapsed;
-            
-            // 오버레이 종료 및 최종 사각형 획득
-            Rect finalRect = selectionOverlay?.EndSelection(hideVisuals: !instantEditMode) ?? new Rect(0,0,0,0);
-            
-            // 선택 영역 저장 (다른 메서드에서 사용)
-            currentSelectionRect = finalRect;
-
-            // 선택된 영역 계산 (Start/End Point 대신 최종 Rect 사용)
-            double width = finalRect.Width;
-            double height = finalRect.Height;
-
-            // 최소 크기 확인
-            if (width < 5 || height < 5)
-            {
-                // Just Clicked (very small movement) -> Copy Color with Sticker
-                CopyColorToClipboard(closeWindow: false); 
-                
-                // Reset selection (오버레이 리셋)
-                selectionOverlay?.Reset();
-                return;
-            }
-
-            // Convert from WPF DIPs to device pixels and offset by virtual screen origin
-            var dpi = VisualTreeHelper.GetDpi(this);
-            int pxLeft = (int)Math.Round(finalRect.Left * dpi.DpiScaleX);
-            int pxTop = (int)Math.Round(finalRect.Top * dpi.DpiScaleY);
-            int pxWidth = (int)Math.Round(width * dpi.DpiScaleX);
-            int pxHeight = (int)Math.Round(height * dpi.DpiScaleY);
-
-            int globalX = (int)Math.Round(vLeft) + pxLeft;
-            int globalY = (int)Math.Round(vTop) + pxTop;
-
-            SelectedArea = new Int32Rect(globalX, globalY, pxWidth, pxHeight);
-
-            // [추가] 오버레이 모드일 경우: 선택 완료 시점에 화면을 캡처해야 함
-            if (screenCapture == null)
-            {
-                // 내 창을 숨기고
-                this.Visibility = Visibility.Hidden;
-                
-                // UI 갱신 대기 (동기적으로 처리하여 확실히 숨김)
-                System.Windows.Forms.Application.DoEvents();
-                System.Threading.Thread.Sleep(50); // DWM이 창을 제거할 시간 확보
-
-                // 화면 캡처
-                var fullScreen = ScreenCaptureUtility.CaptureScreen();
-                if (fullScreen != null)
-                {
-                    screenCapture = fullScreen;
-                    // 이미지 컨트롤에도 설정 (편집 모드 진입 시 필요)
-                    screenImage.Source = screenCapture;
-                }
-                
-                // 다시 보이기 (편집 모드 등을 위해)
-                this.Visibility = Visibility.Visible;
-            }
-
-            // 동결된 배경(screenCapture)에서 선택 영역만 잘라 저장 (가능할 때)
             try
             {
-                if (screenCapture != null && pxWidth > 0 && pxHeight > 0)
+                if (!isSelecting) return;
+                isSelecting = false;
+                // CompositionTarget.Rendering -= CompositionTarget_Rendering; // 제거됨
+                if (Mouse.Captured == this) Mouse.Capture(null);
+                
+                // 돋보기 숨기기
+                if (magnifierBorder != null)
+                    magnifierBorder.Visibility = Visibility.Collapsed;
+                
+                // 오버레이 종료 및 최종 사각형 획득
+                Rect finalRect = selectionOverlay?.EndSelection(hideVisuals: !instantEditMode) ?? new Rect(0,0,0,0);
+                
+                // 선택 영역 저장 (다른 메서드에서 사용)
+                currentSelectionRect = finalRect;
+
+                // 선택된 영역 계산 (Start/End Point 대신 최종 Rect 사용)
+                double width = finalRect.Width;
+                double height = finalRect.Height;
+
+                // 최소 크기 확인
+                if (width < 5 || height < 5)
                 {
-                    int relX = globalX - (int)Math.Round(vLeft);
-                    int relY = globalY - (int)Math.Round(vTop);
+                    // Just Clicked (very small movement) -> Copy Color with Sticker
+                    CopyColorToClipboard(closeWindow: false); 
+                    
+                    // Reset selection (오버레이 리셋)
+                    selectionOverlay?.Reset();
+                    return;
+                }
 
-                    // 경계 체크
-                    relX = Math.Max(0, Math.Min(relX, screenCapture.PixelWidth - 1));
-                    relY = Math.Max(0, Math.Min(relY, screenCapture.PixelHeight - 1));
-                    int cw = Math.Max(0, Math.Min(pxWidth, screenCapture.PixelWidth - relX));
-                    int ch = Math.Max(0, Math.Min(pxHeight, screenCapture.PixelHeight - relY));
+                // Convert from WPF DIPs to device pixels and offset by virtual screen origin
+                var dpi = VisualTreeHelper.GetDpi(this);
+                int pxLeft = (int)Math.Round(finalRect.Left * dpi.DpiScaleX);
+                int pxTop = (int)Math.Round(finalRect.Top * dpi.DpiScaleY);
+                int pxWidth = (int)Math.Round(width * dpi.DpiScaleX);
+                int pxHeight = (int)Math.Round(height * dpi.DpiScaleY);
 
-                    if (cw > 0 && ch > 0)
+                int globalX = (int)Math.Round(vLeft) + pxLeft;
+                int globalY = (int)Math.Round(vTop) + pxTop;
+
+                SelectedArea = new Int32Rect(globalX, globalY, pxWidth, pxHeight);
+
+                // [추가] 오버레이 모드일 경우: 선택 완료 시점에 화면을 캡처해야 함
+                if (screenCapture == null)
+                {
+                    // 투명창(AllowsTransparency)에서는 Opacity=0이 더 안정적
+                    double oldOpacity = this.Opacity;
+                    this.Opacity = 0;
+                    
+                    // UI 갱신 대기
+                    System.Windows.Forms.Application.DoEvents();
+                    System.Threading.Thread.Sleep(100); // DWM이 창을 제거할 시간 확보
+
+                    // 화면 캡처
+                    var fullScreen = ScreenCaptureUtility.CaptureScreen();
+                    if (fullScreen != null)
                     {
-                        var cropRect = new Int32Rect(relX, relY, cw, ch);
-                        // [메모리 최적화] CroppedBitmap은 원본(3모니터 전체)을 참조하므로, 
-                        // 작은 영역을 잘라도 35MB+가 메모리에 남음. "Deep Copy"를 수행하여 연결 고리 끊기.
-                        var tempCrop = new CroppedBitmap(screenCapture, cropRect);
-                        
-                        var visual = new DrawingVisual();
-                        using (var ctx = visual.RenderOpen())
-                        {
-                            ctx.DrawImage(tempCrop, new Rect(0, 0, cw, ch));
-                        }
-                        
-                        var rtb = new RenderTargetBitmap(cw, ch, 96, 96, PixelFormats.Pbgra32);
-                        rtb.Render(visual);
-                        rtb.Freeze(); // 불변 객체로 만들어 성능 향상 및 스레드 공유 가능
+                        screenCapture = fullScreen;
+                        // 이미지 컨트롤에도 설정 (편집 모드 진입 시 필요)
+                        screenImage.Source = screenCapture;
+                    }
+                    
+                    // 다시 보이기
+                    this.Opacity = oldOpacity;
+                }
 
-                        SelectedFrozenImage = rtb;
+                // 동결된 배경(screenCapture)에서 선택 영역만 잘라 저장 (가능할 때)
+                try
+                {
+                    if (screenCapture != null && pxWidth > 0 && pxHeight > 0)
+                    {
+                        int relX = globalX - (int)Math.Round(vLeft);
+                        int relY = globalY - (int)Math.Round(vTop);
+
+                        // 경계 체크
+                        relX = Math.Max(0, Math.Min(relX, screenCapture.PixelWidth - 1));
+                        relY = Math.Max(0, Math.Min(relY, screenCapture.PixelHeight - 1));
+                        int cw = Math.Max(0, Math.Min(pxWidth, screenCapture.PixelWidth - relX));
+                        int ch = Math.Max(0, Math.Min(pxHeight, screenCapture.PixelHeight - relY));
+
+                        if (cw > 0 && ch > 0)
+                        {
+                            var cropRect = new Int32Rect(relX, relY, cw, ch);
+                            // [메모리 최적화] CroppedBitmap은 원본(3모니터 전체)을 참조하므로, 
+                            // 작은 영역을 잘라도 35MB+가 메모리에 남음. "Deep Copy"를 수행하여 연결 고리 끊기.
+                            var tempCrop = new CroppedBitmap(screenCapture, cropRect);
+                            
+                            var visual = new DrawingVisual();
+                            using (var ctx = visual.RenderOpen())
+                            {
+                                ctx.DrawImage(tempCrop, new Rect(0, 0, cw, ch));
+                            }
+                            
+                            var rtb = new RenderTargetBitmap(cw, ch, 96, 96, PixelFormats.Pbgra32);
+                            rtb.Render(visual);
+                            rtb.Freeze(); // 불변 객체로 만들어 성능 향상 및 스레드 공유 가능
+
+                            SelectedFrozenImage = rtb;
+                        }
                     }
                 }
-            }
-            catch { /* ignore crop errors */ }
+                catch { /* ignore crop errors */ }
 
-            // ★ 선택한 영역의 중심점에서 창 메타데이터 캡처 (실제 캡처된 창 정보)
-            try
-            {
-                int centerX = globalX + pxWidth / 2;
-                int centerY = globalY + pxHeight / 2;
-                var capturedMeta = ScreenCaptureUtility.GetWindowAtPoint(centerX, centerY);
-                if (capturedMeta.AppName != "Unknown" && capturedMeta.Title != "Unknown")
+                // ★ 선택한 영역의 중심점에서 창 메타데이터 캡처 (실제 캡처된 창 정보)
+                try
                 {
-                    _sourceApp = capturedMeta.AppName;
-                    _sourceTitle = capturedMeta.Title;
+                    int centerX = globalX + pxWidth / 2;
+                    int centerY = globalY + pxHeight / 2;
+                    var capturedMeta = ScreenCaptureUtility.GetWindowAtPoint(centerX, centerY);
+                    if (capturedMeta.AppName != "Unknown" && capturedMeta.Title != "Unknown")
+                    {
+                        _sourceApp = capturedMeta.AppName;
+                        _sourceTitle = capturedMeta.Title;
+                    }
+                }
+                catch { /* fallback to initial metadata */ }
+
+                if (instantEditMode)
+                {
+                    ShowEditToolbar();
+                }
+                else
+                {
+                    DialogResult = true;
+                    Close();
                 }
             }
-            catch { /* fallback to initial metadata */ }
-
-            if (instantEditMode)
+            catch (Exception ex)
             {
-                ShowEditToolbar();
-            }
-            else
-            {
-                DialogResult = true;
-                Close();
+                // 예외 발생 시 안전하게 처리
+                System.Diagnostics.Debug.WriteLine($"SnippingWindow MouseUp Error: {ex.Message}");
+                try
+                {
+                    DialogResult = false;
+                    Close();
+                }
+                catch { }
             }
         }
         // 리팩토링된 오버레이 클래스 사용
