@@ -805,12 +805,12 @@ namespace CatchCapture.Utilities
         
         // 돋보기 업데이트용 throttling
         private Point lastMagnifierPoint;
-        private const double MinMagnifierMoveDelta = 3.0; 
+        private const double MinMagnifierMoveDelta = 2.0; // 더 부드러운 반응
         private readonly System.Diagnostics.Stopwatch magnifierStopwatch = new();
-        private const int MinMagnifierIntervalMs = 16; 
-        private const int MinMagnifierIntervalMsDragging = 33; 
-        private const int MinMagnifierIntervalMsOverlay = 50; // [추가] 오버레이 모드용 (더 느리게, 20fps)
-        private const double MinMagnifierMoveDeltaDragging = 5.0; 
+        private const int MinMagnifierIntervalMs = 12; // 약 83fps
+        private const int MinMagnifierIntervalMsDragging = 20; // 드래그 중 50fps
+        private const int MinMagnifierIntervalMsOverlay = 33; // 오버레이 모드 30fps
+        private const double MinMagnifierMoveDeltaDragging = 3.0; // 드래그 중 이동 임계값 
 
         // MouseMove Handler
         private void SnippingWindow_MouseMove(object sender, MouseEventArgs e)

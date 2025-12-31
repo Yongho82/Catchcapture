@@ -29,9 +29,9 @@ namespace CatchCapture.Utilities
         private bool _hasPendingUpdate;
         private bool _isSelecting;
         private Stopwatch _moveStopwatch = new Stopwatch();
-        private const int MinMoveIntervalMs = 4;
+        private const int MinMoveIntervalMs = 4; // 렌더링 과부하 방지
         private Point _lastUpdatePoint;
-        private const double MinMoveDelta = 1.0;
+        private const double MinMoveDelta = 0.5; // 부드러움과 성능의 균형
         private string? _lastSizeText;
 
         public bool IsSelecting => _isSelecting;
