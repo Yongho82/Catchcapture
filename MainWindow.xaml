@@ -282,7 +282,7 @@
                     </Grid.RowDefinitions>
 
                     <!-- 왼쪽 버튼 영역 (전체 높이) -->
-                    <Border Grid.Column="0" Grid.RowSpan="2" Background="{DynamicResource ThemeSidebarButtonBackground}" BorderThickness="0,0,1,0" BorderBrush="{DynamicResource ThemeBorder}" SnapsToDevicePixels="True">
+                    <Border Grid.Column="0" Grid.RowSpan="2" Background="{DynamicResource ThemePanelBackground}" BorderThickness="0,0,1,0" BorderBrush="{DynamicResource ThemeBorder}" SnapsToDevicePixels="True">
                         <StackPanel x:Name="CaptureButtonsPanel" Margin="0,12,0,12">
                             <Button x:Name="AreaCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="AreaCaptureButton_Click">
                                 <StackPanel Orientation="Horizontal">
@@ -640,7 +640,7 @@
                     </Border>
 
                     <!-- 하단 고정 아이콘 바 (라인 두께 및 색상 조정) -->
-                    <Border Grid.Column="1" Grid.Row="1" Background="{DynamicResource ThemeSidebarButtonBackground}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ThemeBorder}" Height="50" SnapsToDevicePixels="True">
+                    <Border Grid.Column="1" Grid.Row="1" Background="{DynamicResource ThemePanelBackground}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ThemeBorder}" Height="50" SnapsToDevicePixels="True">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                             <!-- 복사 버튼 -->
                             <Button x:Name="CopySelectedButton" Click="CopySelectedButton_Click" IsEnabled="False"
@@ -697,7 +697,7 @@
                 </Grid>     
                 <!-- 하단 팁 영역 -->
                 <Border Grid.Row="2" 
-                        Background="{DynamicResource ThemeSidebarButtonBackground}" 
+                        Background="{DynamicResource ThemePanelBackground}" 
                         BorderBrush="{DynamicResource ThemeBorder}" 
                         BorderThickness="0,1,0,0"
                         Height="28"

@@ -163,13 +163,6 @@ public partial class App : Application
 
             if (Application.Current != null && Application.Current.Resources != null)
             {
-                Application.Current.Resources["ThemeBackground"] = new SolidColorBrush(bgColor);
-                Application.Current.Resources["ThemeForeground"] = new SolidColorBrush(fgColor);
-                
-                // Color versions for GradientStops
-                Application.Current.Resources["ThemeColorBackground"] = bgColor;
-                Application.Current.Resources["ThemeColorForeground"] = fgColor;
-
                 // Derive colors based on brightness
                 double brightness = (0.299 * bgColor.R + 0.587 * bgColor.G + 0.114 * bgColor.B) / 255;
                 
@@ -189,13 +182,50 @@ public partial class App : Application
                 else // Light Theme
                 {
                     windowBorder = AdjustColor(bgColor, -20);
-                    sidebarBg = AdjustColor(bgColor, -8); // Slight contrast for light mode
-                    sidebarBorder = Brushes.Transparent.Color; 
+                    sidebarBg = AdjustColor(bgColor, -6); // #F9F9F9 for white background
+                    sidebarBorder = windowBorder; 
                     sidebarHover = AdjustColor(bgColor, -15);
                     sidebarPressed = AdjustColor(bgColor, -25);
-                    
-                    Application.Current.Resources["ThemePanelBackground"] = new SolidColorBrush(bgColor);
+
+                    // User requirements overrides
+                    if (settings.ThemeMode == "General")
+                    {
+                        bgColor = Color.FromRgb(255, 255, 255); // 전체 배경 255
+                        sidebarBg = Color.FromRgb(249, 249, 249); // 버튼 249
+                        windowBorder = Colors.Transparent; // 라인 없애
+                        sidebarBorder = Colors.Transparent;
+                    }
+                    else if (settings.ThemeMode == "Light")
+                    {
+                        bgColor = Color.FromRgb(255, 255, 255); // 전체 흰색
+                        sidebarBg = Color.FromRgb(249, 249, 249); // 버튼 249
+                        windowBorder = AdjustColor(bgColor, -20); // 라인 살리고
+                        sidebarBorder = windowBorder;
+                    }
+                    else if (settings.ThemeMode == "Blue")
+                    {
+                        // bgColor remains blue
+                        sidebarBg = Color.FromRgb(249, 249, 249); // 버튼 249
+                        windowBorder = AdjustColor(bgColor, -20); // 라인 살리고
+                        sidebarBorder = windowBorder;
+                    }
+
+                    // For these modes, clarify panel background is white (behind gray buttons)
+                    if (settings.ThemeMode == "General" || settings.ThemeMode == "Light" || settings.ThemeMode == "Blue")
+                    {
+                        Application.Current.Resources["ThemePanelBackground"] = new SolidColorBrush(Color.FromRgb(255, 255, 255));
+                    }
+                    else
+                    {
+                        Application.Current.Resources["ThemePanelBackground"] = new SolidColorBrush(bgColor);
+                    }
                 }
+
+                // Apply resources
+                Application.Current.Resources["ThemeBackground"] = new SolidColorBrush(bgColor);
+                Application.Current.Resources["ThemeColorBackground"] = bgColor;
+                Application.Current.Resources["ThemeForeground"] = new SolidColorBrush(fgColor);
+                Application.Current.Resources["ThemeColorForeground"] = fgColor;
 
                 Application.Current.Resources["ThemeWindowBorder"] = new SolidColorBrush(windowBorder);
                 Application.Current.Resources["ThemeBorder"] = new SolidColorBrush(windowBorder); 
