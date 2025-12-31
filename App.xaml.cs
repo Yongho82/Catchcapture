@@ -193,7 +193,7 @@ public partial class App : Application
                         bgColor = Color.FromRgb(255, 255, 255); // 전체 배경 255
                         sidebarBg = Color.FromRgb(249, 249, 249); // 버튼 249
                         windowBorder = Color.FromRgb(224, 224, 224); // #E0E0E0 라인 살림
-                        sidebarBorder = windowBorder;
+                        sidebarBorder = Colors.Transparent; // 버튼 외곽 라인만 제거
                     }
                     else if (settings.ThemeMode == "Light")
                     {
