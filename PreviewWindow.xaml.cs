@@ -935,12 +935,21 @@ namespace CatchCapture
                         }
                     }
 
-                    var noteWin = new NoteInputWindow(finalImage, _sourceApp, _sourceTitle);
-                    noteWin.Owner = this;
-                    if (noteWin.ShowDialog() == true)
+                    // [Fix] 기존에 열린 노트 입력창이 있는지 확인 (새 노트 작성 중인 창 우선)
+                    var openWin = Application.Current.Windows.OfType<NoteInputWindow>().FirstOrDefault(w => !w.IsEditMode);
+                    if (openWin != null)
                     {
-                        RequestMainWindowMinimize = true;
+                        openWin.AppendImage(finalImage);
+                        openWin.Activate();
+                        openWin.Focus();
                     }
+                    else
+                    {
+                        var noteWin = new NoteInputWindow(finalImage, _sourceApp, _sourceTitle);
+                        // noteWin.Owner = this; // Owner 설정을 제거하여 메인창이 앞으로 올 수 있게 함
+                        noteWin.Show();
+                    }
+                    RequestMainWindowMinimize = true;
                 }
             }
             catch (Exception ex)

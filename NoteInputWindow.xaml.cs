@@ -23,6 +23,7 @@ namespace CatchCapture
         
         // For Edit Mode
         private long? _editingNoteId = null;
+        public bool IsEditMode => _isEditMode;
         private bool _isEditMode => _editingNoteId.HasValue;
 
         public class AttachmentItem
@@ -513,6 +514,30 @@ namespace CatchCapture
                     if (added) RefreshAttachmentList();
                 }
             }
+        }
+
+        public void AppendImage(BitmapSource image)
+        {
+            if (image == null) return;
+            Editor.InsertCapturedImageAtEnd(image);
+            Editor.Focus();
+        }
+
+        public void AppendMediaFile(string filePath, BitmapSource? thumbnail = null)
+        {
+            if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath)) return;
+            
+            string ext = Path.GetExtension(filePath).ToLower();
+            if (ext == ".mp4" || ext == ".mp3" || ext == ".gif")
+            {
+                Editor.MoveCaretToEnd();
+                Editor.InsertMediaFile(filePath, thumbnail);
+            }
+            else
+            {
+                AddAttachment(filePath);
+            }
+            Editor.Focus();
         }
 
         private void OnEditorCaptureRequested()

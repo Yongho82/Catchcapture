@@ -1451,8 +1451,20 @@ public partial class MainWindow : Window
                         this.Show();
                     }
                     
-                    var noteWin = new NoteInputWindow(capturedImage, snippingWindow.SourceApp, snippingWindow.SourceTitle);
-                    noteWin.ShowDialog();
+                    // [Fix] 기존에 열린 노트 입력창이 있는지 확인 (새 노트 작성 중인 창 우선)
+                    var openWin = Application.Current.Windows.OfType<NoteInputWindow>().FirstOrDefault(w => !w.IsEditMode);
+                    if (openWin != null)
+                    {
+                        openWin.AppendImage(capturedImage);
+                        openWin.Activate();
+                        openWin.Focus();
+                    }
+                    else
+                    {
+                        var noteWin = new NoteInputWindow(capturedImage, snippingWindow.SourceApp, snippingWindow.SourceTitle);
+                        // noteWin.Owner = this; // Owner 설정을 제거하여 메인창이 앞으로 올 수 있게 함
+                        noteWin.Show();
+                    }
                     return;
                 }
                 
@@ -3069,9 +3081,20 @@ public partial class MainWindow : Window
                     }
                 }
 
-                var noteWin = new NoteInputWindow(image, captureImage.SourceApp, captureImage.SourceTitle);
-                noteWin.Owner = this;
-                noteWin.ShowDialog();
+                // [Fix] 기존에 열린 노트 입력창이 있는지 확인 (새 노트 작성 중인 창 우선)
+                var openNoteWin = Application.Current.Windows.OfType<NoteInputWindow>().FirstOrDefault(w => !w.IsEditMode);
+                if (openNoteWin != null)
+                {
+                    openNoteWin.AppendImage(image);
+                    openNoteWin.Activate();
+                    openNoteWin.Focus();
+                }
+                else
+                {
+                    var noteWin = new NoteInputWindow(image, captureImage.SourceApp, captureImage.SourceTitle);
+                    // noteWin.Owner = this; // Owner 제거
+                    noteWin.Show();
+                }
             }
         }
         catch (Exception ex)
@@ -5213,10 +5236,20 @@ public partial class MainWindow : Window
                 if (lockWin.ShowDialog() != true) return;
             }
 
-            // Thumbnail이 있으면 image로 전달, 파일은 첨부파일로 전달
-            var noteWin = new NoteInputWindow(thumbnail, "화면 녹화", IOPath.GetFileName(filePath), filePath);
-            noteWin.Owner = this;
-            noteWin.ShowDialog();
+            // [Fix] 기존에 열린 노트 입력창이 있는지 확인 (새 노트 작성 중인 창 우선)
+            var openNoteWin = Application.Current.Windows.OfType<NoteInputWindow>().FirstOrDefault(w => !w.IsEditMode);
+            if (openNoteWin != null)
+            {
+                openNoteWin.AppendMediaFile(filePath, thumbnail);
+                openNoteWin.Activate();
+                openNoteWin.Focus();
+            }
+            else
+            {
+                var noteWin = new NoteInputWindow(thumbnail, "화면 녹화", System.IO.Path.GetFileName(filePath), filePath);
+                // noteWin.Owner = this; // Owner 제거
+                noteWin.Show();
+            }
         }
         catch (Exception ex)
         {

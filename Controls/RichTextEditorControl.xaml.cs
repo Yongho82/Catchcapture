@@ -1888,8 +1888,21 @@ namespace CatchCapture.Controls
 
         private bool IsDocumentEmpty()
         {
-            var text = new TextRange(RtbEditor.Document.ContentStart, RtbEditor.Document.ContentEnd).Text;
-            return string.IsNullOrWhiteSpace(text);
+            // 블록이 하나도 없으면 비어있음
+            if (RtbEditor.Document.Blocks.Count == 0) return true;
+
+            // 블록이 여러 개면(이미지 등이 들어있으면) 비어있지 않음
+            if (RtbEditor.Document.Blocks.Count > 1) return false;
+
+            // 블록이 하나뿐일 때, 그것이 문단이고 텍스트가 없으면 비어있음
+            if (RtbEditor.Document.Blocks.FirstBlock is Paragraph p)
+            {
+                var text = new TextRange(p.ContentStart, p.ContentEnd).Text;
+                return string.IsNullOrWhiteSpace(text);
+            }
+
+            // 그 외(하나뿐인 블록이 이미지 등일 때)는 비어있지 않음
+            return false;
         }
 
         private bool IsImageFile(string path)
@@ -2222,6 +2235,20 @@ namespace CatchCapture.Controls
             {
                 FindImagesRecursive(content, result);
             }
+        }
+
+        public void MoveCaretToEnd()
+        {
+            RtbEditor.Selection.Select(RtbEditor.Document.ContentEnd, RtbEditor.Document.ContentEnd);
+            RtbEditor.CaretPosition = RtbEditor.Document.ContentEnd;
+            RtbEditor.ScrollToEnd();
+        }
+
+        public void InsertCapturedImageAtEnd(BitmapSource capturedImage)
+        {
+            if (capturedImage == null) return;
+            MoveCaretToEnd();
+            InsertCapturedImage(capturedImage);
         }
     }
 }
