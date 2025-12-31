@@ -623,7 +623,7 @@ namespace CatchCapture.Utilities
                     
                     // UI 갱신 대기
                     System.Windows.Forms.Application.DoEvents();
-                    System.Threading.Thread.Sleep(100); // DWM이 창을 제거할 시간 확보
+                    System.Threading.Thread.Sleep(65); // DWM이 창을 제거할 시간 확보
 
                     // 화면 캡처
                     var fullScreen = ScreenCaptureUtility.CaptureScreen();
