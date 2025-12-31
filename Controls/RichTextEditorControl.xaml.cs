@@ -1131,7 +1131,7 @@ namespace CatchCapture.Controls
         {
             try
             {
-                File.AppendAllText(@"C:\Yonghoprogram\Catchcapture\debug_save_log.txt", $"\n[{DateTime.Now}] GetXaml Called\n");
+
 
                 // [Fix] Force sync all image widths from sliders before saving
                 // This ensures that what the user sees (slider value) is exactly what gets serialized
@@ -1148,7 +1148,7 @@ namespace CatchCapture.Controls
                             {
                                 double oldW = img.Width;
                                 img.Width = Math.Round(slider.Value);
-                                File.AppendAllText(@"C:\Yonghoprogram\Catchcapture\debug_save_log.txt", $" Syncing Image: OldWidth={oldW}, SliderValue={slider.Value}, NewWidth={img.Width}\n");
+
                             }
                         }
                     }
@@ -1156,25 +1156,25 @@ namespace CatchCapture.Controls
 
                 // Save the whole document for full fidelity (FlowDocument root)
                 var xaml = System.Windows.Markup.XamlWriter.Save(RtbEditor.Document);
-                File.AppendAllText(@"C:\Yonghoprogram\Catchcapture\debug_save_log.txt", $" Generated XAML Length: {xaml.Length}\n");
+
                 // Log partial XAML to check image tags
                 if (xaml.Length > 0) 
                 {
                      // Simple check for Image Width
                      var split = xaml.Split(new[]{"<Image "}, StringSplitOptions.RemoveEmptyEntries);
-                     foreach(var s in split.Skip(1)) 
+                    foreach(var s in split.Skip(1)) 
                      {
                          var tagEnd = s.IndexOf("/>");
                          if(tagEnd == -1) tagEnd = s.IndexOf(">");
                          string tagContent = (tagEnd > 0) ? s.Substring(0, tagEnd) : s.Substring(0, Math.Min(s.Length, 100));
-                         File.AppendAllText(@"C:\Yonghoprogram\Catchcapture\debug_save_log.txt", $" XAML Image Tag Content: {tagContent}\n");
+
                      }
                 }
                 return xaml;
             }
             catch (Exception ex)
             {
-                File.AppendAllText(@"C:\Yonghoprogram\Catchcapture\debug_save_log.txt", $" GetXaml Error: {ex.Message}\n");
+
                 Console.WriteLine(ex.Message);
                 return "";
             }
@@ -1724,7 +1724,7 @@ namespace CatchCapture.Controls
                          catch (Exception ex)
                          {
                              Console.WriteLine($"Failed to save memory image: {ex.Message}");
-                             File.AppendAllText(@"C:\Yonghoprogram\Catchcapture\debug_save_log.txt", $"Failed to save memory image: {ex.Message}\n");
+
                          }
                      }
                 }
