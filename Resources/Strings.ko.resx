@@ -463,8 +463,14 @@
   <data name="OpenFolder" xml:space="preserve"><value>폴더 열기</value></data>
   <data name="ExtraOptions" xml:space="preserve"><value>추가 옵션</value></data>
   <data name="BackupRestore" xml:space="preserve"><value>데이터 백업 및 복구</value></data>
-  <data name="ExportBackup" xml:space="preserve"><value>백업 내보내기 (.zip)</value></data>
-  <data name="ImportBackup" xml:space="preserve"><value>백업 가져오기 (.zip)</value></data>
+  <data name="ExportBackup" xml:space="preserve"><value>내보내기 (.zip)</value></data>
+  <data name="ImportBackup" xml:space="preserve"><value>가져오기 (.zip)</value></data>
+  <data name="MergeBackup" xml:space="preserve"><value>병합하기 (.zip)</value></data>
+  <data name="MergeConfirmMsg" xml:space="preserve"><value>선택한 백업 파일을 현재 데이터에 병합하시겠습니까?
+(날짜 순으로 추가됩니다)</value></data>
+  <data name="MergingMsg" xml:space="preserve"><value>데이터 병합 중입니다... 잠시만 기다려 주세요.</value></data>
+  <data name="MergeSuccessMsg" xml:space="preserve"><value>데이터 병합이 완료되었습니다.</value></data>
+  <data name="ErrorMerge" xml:space="preserve"><value>데이터 병합 중 오류 발생</value></data>
   <data name="NoteSecurity" xml:space="preserve"><value>노트 보안 및 잠금</value></data>
   <data name="EnableNotePassword" xml:space="preserve"><value>비밀번호 잠금 사용</value></data>
   <data name="SetChangePassword" xml:space="preserve"><value>비밀번호 설정/변경</value></data>

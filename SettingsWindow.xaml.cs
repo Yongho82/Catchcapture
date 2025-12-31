@@ -1338,6 +1338,62 @@ private void InitLanguageComboBox()
             }
         }
 
+        private async void BtnMergeBackup_Click(object sender, RoutedEventArgs e)
+        {
+            string? tempDir = null;
+            try
+            {
+                var ofd = new Microsoft.Win32.OpenFileDialog();
+                ofd.Filter = "Zip Files (*.zip)|*.zip";
+                if (ofd.ShowDialog() != true) return;
+
+                if (CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("MergeConfirmMsg"), LocalizationManager.GetString("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                {
+                    return;
+                }
+
+                // Show Loading Overlay
+                LoadingOverlay.Visibility = Visibility.Visible;
+                TxtWorkStatus.Text = LocalizationManager.GetString("MergingMsg");
+
+                string zipPath = ofd.FileName;
+                tempDir = Path.Combine(Path.GetTempPath(), "CatchCapture_Merge_Temp_" + Guid.NewGuid().ToString("N"));
+                Directory.CreateDirectory(tempDir);
+
+                await Task.Run(() =>
+                {
+                    // 1. Extract ZIP
+                    System.IO.Compression.ZipFile.ExtractToDirectory(zipPath, tempDir);
+
+                    string sourceDbPath = Path.Combine(tempDir, "notedb", "catch_notes.db");
+                    string sourceImgDir = Path.Combine(tempDir, "img");
+                    string sourceAttachDir = Path.Combine(tempDir, "attachments");
+
+                    if (!File.Exists(sourceDbPath))
+                        throw new FileNotFoundException("Invalid backup file: catch_notes.db not found.");
+
+                    // 2. Perform Merge
+                    CatchCapture.Utilities.DatabaseManager.Instance.MergeNotesFromBackup(sourceDbPath, sourceImgDir, sourceAttachDir, (msg) => {
+                        Dispatcher.Invoke(() => TxtWorkStatus.Text = msg);
+                    });
+                });
+
+                CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("MergeSuccessMsg"), LocalizationManager.GetString("Success"), MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                CatchCapture.CustomMessageBox.Show($"{LocalizationManager.GetString("ErrorMerge")}: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                LoadingOverlay.Visibility = Visibility.Collapsed;
+                if (tempDir != null && Directory.Exists(tempDir))
+                {
+                    try { Directory.Delete(tempDir, true); } catch { }
+                }
+            }
+        }
+
         private bool ValidateNoteSettings()
         {
             if (ChkEnableNotePassword.IsChecked == true)

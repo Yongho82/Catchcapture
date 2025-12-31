@@ -914,11 +914,14 @@
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="8"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Button x:Name="BtnExportBackup" Content="{DynamicResource ExportBackup}" Click="BtnExportBackup_Click" Style="{StaticResource MacButtonSecondary}" Height="35"/>
-                                <Button x:Name="BtnImportBackup" Grid.Column="2" Content="{DynamicResource ImportBackup}" Click="BtnImportBackup_Click" Style="{StaticResource MacButtonSecondary}" Height="35"/>
+                                <Button x:Name="BtnExportBackup" Content="{DynamicResource ExportBackup}" Click="BtnExportBackup_Click" Style="{StaticResource MacButtonSecondary}" Height="35" ToolTip="Export (.zip)"/>
+                                <Button x:Name="BtnImportBackup" Grid.Column="2" Content="{DynamicResource ImportBackup}" Click="BtnImportBackup_Click" Style="{StaticResource MacButtonSecondary}" Height="35" ToolTip="Import (.zip)"/>
+                                <Button x:Name="BtnMergeBackup" Grid.Column="4" Content="{DynamicResource MergeBackup}" Click="BtnMergeBackup_Click" Style="{StaticResource MacButtonSecondary}" Height="35" ToolTip="Merge (.zip)"/>
                             </Grid>
                         </StackPanel>
                     </GroupBox>
@@ -1325,6 +1328,35 @@
             </StackPanel>
             </Grid>
         </Grid>
-    </Grid>
+
+        <!-- Loading/Progress Overlay -->
+        <Grid x:Name="LoadingOverlay" Grid.Row="0" Grid.RowSpan="2" Background="#90000000" Visibility="Collapsed" Panel.ZIndex="9999">
+            <Border Background="{DynamicResource ThemeBackground}" CornerRadius="12" Padding="40,30" VerticalAlignment="Center" HorizontalAlignment="Center" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="20" ShadowDepth="0" Opacity="0.4"/>
+                </Border.Effect>
+                <StackPanel HorizontalAlignment="Center">
+                    <Grid Width="40" Height="40" Margin="0,0,0,20">
+                        <Ellipse Stroke="{DynamicResource AccentColor}" StrokeThickness="3" Opacity="0.2"/>
+                        <Path Data="M20,2 A18,18 0 0,1 38,20" Stroke="{DynamicResource AccentColor}" StrokeThickness="3" StrokeStartLineCap="Round">
+                            <Path.RenderTransform>
+                                <RotateTransform x:Name="LoadingRotate" CenterX="20" CenterY="20"/>
+                            </Path.RenderTransform>
+                            <Path.Triggers>
+                                <EventTrigger RoutedEvent="Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="LoadingRotate" Storyboard.TargetProperty="Angle" From="0" To="360" Duration="0:0:1" RepeatBehavior="Forever"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Path.Triggers>
+                        </Path>
+                    </Grid>
+                    <TextBlock x:Name="TxtWorkStatus" Text="{DynamicResource MergingMsg}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource ThemeForeground}" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+        </Grid>
     </Border>
 </Window>

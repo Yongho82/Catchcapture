@@ -1113,6 +1113,277 @@ namespace CatchCapture.Utilities
             });
         }
 
+        public void MergeNotesFromBackup(string sourceDbPath, string sourceImgDir, string sourceAttachDir, Action<string>? onProgress = null)
+        {
+            using (var targetConn = new SqliteConnection($"Data Source={DbPath}"))
+            {
+                targetConn.Open();
+                using (var transaction = targetConn.BeginTransaction())
+                {
+                    try
+                    {
+                        using (var sourceConn = new SqliteConnection($"Data Source={sourceDbPath}"))
+                        {
+                            sourceConn.Open();
+
+                            // 1. 카테고리 매핑 (이름 기준)
+                            var categoryMap = new Dictionary<long, long>(); // SourceId -> TargetId
+                            string sourceCatSql = "SELECT Id, Name, Color FROM Categories";
+                            using (var cmd = new SqliteCommand(sourceCatSql, sourceConn))
+                            using (var reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    long sId = reader.GetInt64(0);
+                                    string name = reader.GetString(1);
+                                    string? color = reader.IsDBNull(2) ? null : reader.GetString(2);
+
+                                    // 현재 DB에서 동일 이름 찾기
+                                    long tId = 1; // 기본값
+                                    using (var checkCmd = new SqliteCommand("SELECT Id FROM Categories WHERE Name = $name", targetConn, transaction))
+                                    {
+                                        checkCmd.Parameters.AddWithValue("$name", name);
+                                        var result = checkCmd.ExecuteScalar();
+                                        if (result != null)
+                                        {
+                                            tId = Convert.ToInt64(result);
+                                        }
+                                        else
+                                        {
+                                            // 없으면 생성
+                                            using (var insertCmd = new SqliteCommand("INSERT INTO Categories (Name, Color) VALUES ($name, $color); SELECT last_insert_rowid();", targetConn, transaction))
+                                            {
+                                                insertCmd.Parameters.AddWithValue("$name", name);
+                                                insertCmd.Parameters.AddWithValue("$color", (object?)color ?? DBNull.Value);
+                                                tId = Convert.ToInt64(insertCmd.ExecuteScalar());
+                                            }
+                                        }
+                                    }
+                                    categoryMap[sId] = tId;
+                                }
+                            }
+
+                            // 2. 태그 매핑
+                            var tagMap = new Dictionary<long, long>(); // SourceId -> TargetId
+                            using (var cmd = new SqliteCommand("SELECT Id, Name FROM Tags", sourceConn))
+                            using (var reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    long sId = reader.GetInt64(0);
+                                    string name = reader.GetString(1);
+                                    
+                                    long tId;
+                                    using (var checkCmd = new SqliteCommand("INSERT OR IGNORE INTO Tags (Name) VALUES ($name); SELECT Id FROM Tags WHERE Name = $name;", targetConn, transaction))
+                                    {
+                                        checkCmd.Parameters.AddWithValue("$name", name);
+                                        tId = Convert.ToInt64(checkCmd.ExecuteScalar());
+                                    }
+                                    tagMap[sId] = tId;
+                                }
+                            }
+
+                            // 3. 노트 병합 (날짜 순 정렬)
+                            string noteSql = "SELECT * FROM Notes ORDER BY CreatedAt ASC";
+                            var sourceNotes = new List<Dictionary<string, object>>();
+                            using (var cmd = new SqliteCommand(noteSql, sourceConn))
+                            using (var reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    var row = new Dictionary<string, object>();
+                                    for (int i = 0; i < reader.FieldCount; i++) row[reader.GetName(i)] = reader.GetValue(i);
+                                    sourceNotes.Add(row);
+                                }
+                            }
+
+                            int count = 0;
+                            string targetImgDir = GetImageFolderPath();
+                            string targetAttachDir = GetAttachmentsFolderPath();
+
+                            foreach (var note in sourceNotes)
+                            {
+                                long sourceNoteId = (long)note["Id"];
+                                onProgress?.Invoke($"Merging: {note["Title"] ?? "Untitled"} ({++count}/{sourceNotes.Count})");
+
+                                // A. 노트 삽입
+                                string insertNoteSql = @"
+                                    INSERT INTO Notes (Title, Content, ContentXaml, SourceApp, SourceUrl, CreatedAt, UpdatedAt, IsFavorite, Status, PasswordHash, CategoryId, IsPinned, DeletedAt)
+                                    VALUES ($title, $content, $contentXaml, $sourceApp, $sourceUrl, $createdAt, $updatedAt, $isFav, $status, $pHash, $catId, $isPinned, $delAt);
+                                    SELECT last_insert_rowid();";
+                                
+                                long newNoteId;
+                                using (var cmd = new SqliteCommand(insertNoteSql, targetConn, transaction))
+                                {
+                                    cmd.Parameters.AddWithValue("$title", note["Title"]);
+                                    cmd.Parameters.AddWithValue("$content", note["Content"]);
+                                    cmd.Parameters.AddWithValue("$contentXaml", note["ContentXaml"]);
+                                    cmd.Parameters.AddWithValue("$sourceApp", note["SourceApp"]);
+                                    cmd.Parameters.AddWithValue("$sourceUrl", note["SourceUrl"]);
+                                    cmd.Parameters.AddWithValue("$createdAt", note["CreatedAt"]);
+                                    cmd.Parameters.AddWithValue("$updatedAt", note["UpdatedAt"]);
+                                    cmd.Parameters.AddWithValue("$isFav", note["IsFavorite"]);
+                                    cmd.Parameters.AddWithValue("$status", note["Status"]);
+                                    cmd.Parameters.AddWithValue("$pHash", note["PasswordHash"]);
+                                    cmd.Parameters.AddWithValue("$catId", categoryMap.ContainsKey(Convert.ToInt64(note["CategoryId"])) ? categoryMap[Convert.ToInt64(note["CategoryId"])] : 1);
+                                    cmd.Parameters.AddWithValue("$isPinned", note.ContainsKey("IsPinned") ? note["IsPinned"] : 0);
+                                    cmd.Parameters.AddWithValue("$delAt", note.ContainsKey("DeletedAt") ? note["DeletedAt"] : DBNull.Value);
+                                    newNoteId = Convert.ToInt64(cmd.ExecuteScalar());
+                                }
+
+                                // B. 이미지 복사 및 삽입
+                                using (var imgCmd = new SqliteCommand("SELECT FilePath, OrderIndex, FileHash FROM NoteImages WHERE NoteId = $nid", sourceConn))
+                                {
+                                    imgCmd.Parameters.AddWithValue("$nid", sourceNoteId);
+                                    using (var reader = imgCmd.ExecuteReader())
+                                    {
+                                        while (reader.Read())
+                                        {
+                                            string relPath = reader.GetString(0);
+                                            string sourceFullPath = Path.Combine(sourceImgDir, relPath);
+                                            
+                                            if (File.Exists(sourceFullPath))
+                                            {
+                                                string hash = reader.IsDBNull(2) ? ComputeHash(sourceFullPath) : reader.GetString(2);
+                                                
+                                                // 동일 Hash가 이미 있으면 재사용
+                                                string? existing = GetExistingImageByHashInTransaction(hash, targetConn, transaction);
+                                                string finalRelPath;
+
+                                                if (existing != null)
+                                                {
+                                                    finalRelPath = existing;
+                                                }
+                                                else
+                                                {
+                                                    string destRelPath = GetUniqueRelativePath(targetImgDir, relPath);
+                                                    string destFullPath = Path.Combine(targetImgDir, destRelPath);
+                                                    
+                                                    string? destDir = Path.GetDirectoryName(destFullPath);
+                                                    if (!string.IsNullOrEmpty(destDir) && !Directory.Exists(destDir)) Directory.CreateDirectory(destDir);
+                                                    
+                                                    File.Copy(sourceFullPath, destFullPath, true);
+                                                    finalRelPath = destRelPath;
+                                                }
+
+                                                using (var insImg = new SqliteCommand("INSERT INTO NoteImages (NoteId, FilePath, OrderIndex, FileHash) VALUES ($nid, $path, $idx, $hash)", targetConn, transaction))
+                                                {
+                                                    insImg.Parameters.AddWithValue("$nid", newNoteId);
+                                                    insImg.Parameters.AddWithValue("$path", finalRelPath);
+                                                    insImg.Parameters.AddWithValue("$idx", reader.GetInt32(1));
+                                                    insImg.Parameters.AddWithValue("$hash", hash);
+                                                    insImg.ExecuteNonQuery();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // C. 태그 연결
+                                using (var tagCmd = new SqliteCommand("SELECT TagId FROM NoteTags WHERE NoteId = $nid", sourceConn))
+                                {
+                                    tagCmd.Parameters.AddWithValue("$nid", sourceNoteId);
+                                    using (var reader = tagCmd.ExecuteReader())
+                                    {
+                                        while (reader.Read())
+                                        {
+                                            long sTagId = reader.GetInt64(0);
+                                            if (tagMap.TryGetValue(sTagId, out long tTagId))
+                                            {
+                                                using (var insTag = new SqliteCommand("INSERT OR IGNORE INTO NoteTags (NoteId, TagId) VALUES ($nid, $tid)", targetConn, transaction))
+                                                {
+                                                    insTag.Parameters.AddWithValue("$nid", newNoteId);
+                                                    insTag.Parameters.AddWithValue("$tid", tTagId);
+                                                    insTag.ExecuteNonQuery();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // D. 첨부파일 복사 및 삽입
+                                using (var attCmd = new SqliteCommand("SELECT FilePath, OriginalName, FileType FROM NoteAttachments WHERE NoteId = $nid", sourceConn))
+                                {
+                                    attCmd.Parameters.AddWithValue("$nid", sourceNoteId);
+                                    using (var reader = attCmd.ExecuteReader())
+                                    {
+                                        while (reader.Read())
+                                        {
+                                            string relPath = reader.GetString(0);
+                                            string sourceFullPath = Path.Combine(sourceAttachDir, relPath);
+
+                                            if (File.Exists(sourceFullPath))
+                                            {
+                                                string destRelPath = GetUniqueRelativePath(targetAttachDir, relPath);
+                                                string destFullPath = Path.Combine(targetAttachDir, destRelPath);
+
+                                                string? destDir = Path.GetDirectoryName(destFullPath);
+                                                if (!string.IsNullOrEmpty(destDir) && !Directory.Exists(destDir)) Directory.CreateDirectory(destDir);
+
+                                                File.Copy(sourceFullPath, destFullPath, true);
+
+                                                using (var insAtt = new SqliteCommand("INSERT INTO NoteAttachments (NoteId, FilePath, OriginalName, FileType) VALUES ($nid, $path, $oname, $type)", targetConn, transaction))
+                                                {
+                                                    insAtt.Parameters.AddWithValue("$nid", newNoteId);
+                                                    insAtt.Parameters.AddWithValue("$path", destRelPath);
+                                                    insAtt.Parameters.AddWithValue("$oname", reader.GetString(1));
+                                                    insAtt.Parameters.AddWithValue("$type", reader.GetString(2));
+                                                    insAtt.ExecuteNonQuery();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        transaction.Commit();
+                    }
+                    catch (Exception)
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
+
+        private string? GetExistingImageByHashInTransaction(string hash, SqliteConnection conn, SqliteTransaction trans)
+        {
+            if (string.IsNullOrEmpty(hash)) return null;
+            string sql = "SELECT FilePath FROM NoteImages WHERE FileHash = $hash LIMIT 1";
+            using (var command = new SqliteCommand(sql, conn, trans))
+            {
+                command.Parameters.AddWithValue("$hash", hash);
+                var result = command.ExecuteScalar();
+                if (result != null)
+                {
+                    string filePath = result.ToString()!;
+                    if (File.Exists(Path.Combine(GetImageFolderPath(), filePath))) return filePath;
+                }
+            }
+            return null;
+        }
+
+        private string GetUniqueRelativePath(string baseFolder, string relativePath)
+        {
+            string fullPath = Path.Combine(baseFolder, relativePath);
+            if (!File.Exists(fullPath)) return relativePath;
+
+            string directory = Path.GetDirectoryName(relativePath) ?? "";
+            string fileName = Path.GetFileNameWithoutExtension(relativePath);
+            string extension = Path.GetExtension(relativePath);
+            
+            int counter = 1;
+            string newRelativePath;
+            do
+            {
+                string newFileName = $"{fileName}_{counter++}{extension}";
+                newRelativePath = Path.Combine(directory, newFileName);
+            } while (File.Exists(Path.Combine(baseFolder, newRelativePath)));
+
+            return newRelativePath;
+        }
+
         public void CleanupTempFiles()
         {
             Task.Run(() =>
@@ -1125,11 +1396,7 @@ namespace CatchCapture.Utilities
                     {
                         try
                         {
-                            // Delete files older than 1 hour
-                            if (File.GetCreationTime(file) < DateTime.Now.AddHours(-1))
-                            {
-                                File.Delete(file);
-                            }
+                            if (File.GetCreationTime(file) < DateTime.Now.AddHours(-1)) File.Delete(file);
                         }
                         catch { }
                     }
