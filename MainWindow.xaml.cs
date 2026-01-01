@@ -1278,21 +1278,6 @@ public partial class MainWindow : Window
         }
     }
 
-    private void EdgeRadiusSelector_MouseEnter(object sender, MouseEventArgs e)
-    {
-        if (sender is Border border)
-        {
-            border.Background = (Brush)FindResource("ThemeSidebarButtonHoverBackground");
-        }
-    }
-
-    private void EdgeRadiusSelector_MouseLeave(object sender, MouseEventArgs e)
-    {
-        if (sender is Border border)
-        {
-            border.Background = (Brush)FindResource("ThemeSidebarButtonBackground");
-        }
-    }
 
     private void UpdateEdgeRadiusEmoji()
     {
@@ -4937,7 +4922,7 @@ public partial class MainWindow : Window
     }
 
     // Height auto-adjustment for menu count
-    private double _baseMainWindowHeight = 740.0; // Increased baseline to compensate for static footer elements
+    private double _baseMainWindowHeight = 780.0; // Increased baseline to compensate for static footer elements
     private const double ButtonVerticalStep = 41.0;
     private int _baselineMenuCount = 13; // Fixed baseline count (11 menu + 2 fixed)
 

@@ -1975,8 +1975,8 @@ private void InitLanguageComboBox()
             // Load menu items from settings
             var menuKeys = _settings.MainMenuItems ?? new System.Collections.Generic.List<string>
             {
-                "AreaCapture", "DelayCapture", "RealTimeCapture", "MultiCapture",
-                "FullScreen", "DesignatedCapture", "WindowCapture", "ElementCapture", "ScrollCapture", "SimpleMode"
+                "AreaCapture", "EdgeCapture", "DelayCapture", "RealTimeCapture", "MultiCapture",
+                "FullScreen", "DesignatedCapture", "WindowCapture", "ElementCapture", "ScrollCapture", "OcrCapture", "ScreenRecord"
             };
 
             foreach (var key in menuKeys)
@@ -1997,8 +1997,8 @@ private void InitLanguageComboBox()
             // All possible menu items
             var allMenuKeys = new[]
             {
-                "AreaCapture", "DelayCapture", "RealTimeCapture", "MultiCapture",
-                "FullScreen", "DesignatedCapture", "WindowCapture", "ElementCapture", "ScrollCapture", "OcrCapture", "ScreenRecord", "SimpleMode", "TrayMode"
+                "AreaCapture", "EdgeCapture", "DelayCapture", "RealTimeCapture", "MultiCapture",
+                "FullScreen", "DesignatedCapture", "WindowCapture", "ElementCapture", "ScrollCapture", "OcrCapture", "ScreenRecord"
             };
 
             // Get currently used keys

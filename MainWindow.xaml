@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CatchCapture"
         mc:Ignorable="d"
-        Title="캐치 캡처" Height="698" Width="400" 
-        MinWidth="400" MinHeight="400"
+        Title="캐치 캡처" Height="780" Width="385" 
+        MinWidth="385" MinHeight="650"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None" AllowsTransparency="True" 
         Background="Transparent"
@@ -340,14 +340,21 @@
                                 <!-- 이모지 선택 버튼 (오른쪽 끝) -->
                                 <Border x:Name="EdgeRadiusSelectorBorder" Grid.Column="1" 
                                         Width="28" Height="35"
-                                        Background="{DynamicResource ThemeSidebarButtonBackground}"
                                         BorderBrush="{DynamicResource ThemeSidebarButtonBorder}"
                                         BorderThickness="0,1,1,1"
                                         CornerRadius="0,6,6,0"
                                         Cursor="Hand"
-                                        MouseLeftButtonDown="EdgeRadiusSelector_Click"
-                                        MouseEnter="EdgeRadiusSelector_MouseEnter"
-                                        MouseLeave="EdgeRadiusSelector_MouseLeave">
+                                        MouseLeftButtonDown="EdgeRadiusSelector_Click">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="{DynamicResource ThemeSidebarButtonBackground}"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
                                     <Border.ContextMenu>
                                         <ContextMenu x:Name="EdgeRadiusContextMenu" Style="{StaticResource ModernContextMenu}" Placement="Right">
                                             <MenuItem Header="1. 소프트 엣지" Tag="12" Style="{StaticResource ModernMenuItem}" Click="EdgeMenuItem_Click">
