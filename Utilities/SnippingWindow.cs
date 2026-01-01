@@ -112,6 +112,9 @@ namespace CatchCapture.Utilities
             _cornerRadius = cornerRadius;
             var settings = Settings.Load();
             showMagnifier = settings.ShowMagnifier;
+            
+            // [Fix] 엣지 캡처 시에는 돋보기를 표시하지 않음 (사용자 요청)
+            if (_cornerRadius > 0) showMagnifier = false;
             if (cachedScreenshot == null) isOverlayMode = true; // [추가] 초기 스크린샷이 없으면 오버레이 모드로 간주
 
             // Use provided metadata or capture it now (fallback)
