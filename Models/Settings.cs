@@ -170,13 +170,6 @@ namespace CatchCapture.Models
                 "FullScreen", "DesignatedCapture", "WindowCapture", "ElementCapture", "ScrollCapture", "OcrCapture", "ScreenRecord"
             };
             if (MainMenuItems == null) { MainMenuItems = new List<string>(defaultMainMenu); changed = true; }
-            else
-            {
-                foreach (var item in defaultMainMenu)
-                {
-                    if (!MainMenuItems.Contains(item)) { MainMenuItems.Add(item); changed = true; }
-                }
-            }
 
             // 3. Sync Tray Mode Icons
             var defaultTrayIcons = new List<string>
@@ -185,13 +178,6 @@ namespace CatchCapture.Models
                 "DesignatedCapture", "WindowCapture", "UnitCapture"
             };
             if (TrayModeIcons == null) { TrayModeIcons = new List<string>(defaultTrayIcons); changed = true; }
-            else
-            {
-                foreach (var icon in defaultTrayIcons)
-                {
-                    if (!TrayModeIcons.Contains(icon)) { TrayModeIcons.Add(icon); changed = true; }
-                }
-            }
 
             // 4. Sync Simple Mode Icons
             var defaultSimpleIcons = new List<string>
@@ -199,13 +185,6 @@ namespace CatchCapture.Models
                 "AreaCapture", "DelayCapture", "FullScreen", "DesignatedCapture"
             };
             if (SimpleModeIcons == null) { SimpleModeIcons = new List<string>(defaultSimpleIcons); changed = true; }
-            else
-            {
-                foreach (var icon in defaultSimpleIcons)
-                {
-                    if (!SimpleModeIcons.Contains(icon)) { SimpleModeIcons.Add(icon); changed = true; }
-                }
-            }
 
             // 4. Ensure internal objects are not null
             if (Recording == null) { Recording = new RecordingSettings(); changed = true; }
