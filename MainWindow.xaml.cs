@@ -217,7 +217,9 @@ public partial class MainWindow : Window
                 }
                 else
                 {
-                    // Normal 모드: 창을 활성화 (이미 App.xaml.cs에서 Show() 호출됨)
+                    // Normal 모드: 상태 초기화 및 창 활성화
+                    SwitchToNormalMode();
+                    
                     this.WindowState = WindowState.Normal;
                     this.Activate();
                     this.Topmost = true;
@@ -806,9 +808,9 @@ public partial class MainWindow : Window
         this.ResizeMode = ResizeMode.CanResize;
         this.Topmost = false;
 
-        // 기본 크기로 복원 (XAML의 기본값에 맞춤)
-        this.Width = 400;
-        this.Height = 652;
+        // 기본 크기로 복원 (XAML의 기본값에 맞춤: 385, 692)
+        this.Width = 385;
+        this.Height = 692;
 
         // 저장된 위치로 복원 (0,0은 초기값일 수 있으므로 제외하고 우측 하단으로)
         if (!double.IsNaN(settings.LastMainLeft) && !double.IsNaN(settings.LastMainTop) &&
@@ -4922,9 +4924,9 @@ public partial class MainWindow : Window
     }
 
     // Height auto-adjustment for menu count
-    private double _baseMainWindowHeight = 780.0; // Increased baseline to compensate for static footer elements
+    private double _baseMainWindowHeight = 692.0; // Increased to 692 to ensure visible area is 670px (10px margins + 1px borders)
     private const double ButtonVerticalStep = 41.0;
-    private int _baselineMenuCount = 13; // Fixed baseline count (11 menu + 2 fixed)
+    private int _baselineMenuCount = 12; // Fixed baseline count (12 default menu items)
 
     private void AdjustMainWindowHeightForMenuCount()
     {
@@ -4937,16 +4939,17 @@ public partial class MainWindow : Window
             {
                 if (CaptureButtonsPanel != null)
                 {
-                    foreach (var child in CaptureButtonsPanel.Children)
+                    foreach (UIElement child in CaptureButtonsPanel.Children)
                     {
                         if (child is Separator) break;
-                        if (child is Button) currentCount++;
+                        // Button 또는 EdgeCaptureGrid(Grid)를 포함하여 카운트
+                        if (child is Button || child is Grid) currentCount++;
                     }
                 }
             }
             catch { }
 
-            if (currentCount <= 0) currentCount = 11; // Fallback to safe default
+            if (currentCount <= 0) currentCount = _baselineMenuCount; // Fallback to baseline
 
             // Calculate diff from baseline (13)
             int diff = _baselineMenuCount - currentCount;
