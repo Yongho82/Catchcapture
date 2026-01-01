@@ -639,6 +639,19 @@ namespace CatchCapture
                     iconImage = CreateImage("/icons/my_note.png");
                     labelText = LocalizationManager.Get("OpenMyNote");
                     break;
+                case "EdgeCapture":
+                    button.Click += (s, e) => {
+                        if (button.ContextMenu != null) {
+                            button.ContextMenu.PlacementTarget = button;
+                            button.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Left;
+                            button.ContextMenu.IsOpen = true;
+                        }
+                    };
+                    iconImage = CreateImage("/icons/edge_capture.png");
+                    labelText = LocalizationManager.Get("EdgeCapture");
+                    // ContextMenu 추가
+                    button.ContextMenu = CreateEdgeContextMenu();
+                    break;
                 case "Settings":
                     button.Click += SettingsButton_Click;
                     iconImage = CreateImage("/icons/setting.png");
@@ -726,6 +739,46 @@ namespace CatchCapture
                 item.Click += DelayMenuItem_Click;
             }
             
+            return menu;
+        }
+
+        private ContextMenu CreateEdgeContextMenu()
+        {
+            var menu = new ContextMenu();
+            if (this.TryFindResource("DarkContextMenu") is Style darkMenu)
+                menu.Style = darkMenu;
+
+            var items = new (string HeaderKey, int Radius, string Emoji)[]
+            {
+                ("EdgeSoft", 12, "🫧"),
+                ("EdgeSmooth", 25, "📱"),
+                ("EdgeClassic", 50, "🍪"),
+                ("EdgeCapsule", 100, "💊"),
+                ("EdgeCircle", 999, "🌕")
+            };
+
+            foreach (var t in items)
+            {
+                var mi = new MenuItem { 
+                    Header = $"{t.Emoji} {LocalizationManager.Get(t.HeaderKey)}",
+                    Tag = t.Radius.ToString()
+                };
+                if (this.TryFindResource("DarkMenuItem") is Style darkItem)
+                    mi.Style = darkItem;
+                
+                mi.Click += async (s, e) =>
+                {
+                    if (settings != null)
+                    {
+                        settings.EdgeCaptureRadius = t.Radius;
+                        Settings.Save(settings);
+                    }
+                    this.Hide();
+                    await mainWindow.StartAreaCaptureAsync(t.Radius);
+                };
+                menu.Items.Add(mi);
+            }
+
             return menu;
         }
 
@@ -1156,6 +1209,7 @@ namespace CatchCapture
                 "DeleteAll" => LocalizationManager.Get("DeleteAll"),
                 "MyNote" => LocalizationManager.Get("OpenMyNote"),
                 "Settings" => LocalizationManager.Get("Settings"),
+                "EdgeCapture" => LocalizationManager.Get("EdgeCapture"),
                 _ => iconName
             };
         }
@@ -1659,8 +1713,8 @@ namespace CatchCapture
             if (this.TryFindResource("DarkContextMenu") is Style darkMenu)
                 menu.Style = darkMenu;
             
-            var allIcons = new[] { 
-                "AreaCapture", "DelayCapture", "FullScreen", "RealTimeCapture", "MultiCapture",
+            string[] allIcons = {
+                "AreaCapture", "EdgeCapture", "DelayCapture", "FullScreen", "RealTimeCapture", "MultiCapture",
                 "DesignatedCapture", "WindowCapture", "UnitCapture", "ScrollCapture", "OcrCapture",
                 "ScreenRecord", "Copy", "CopyAll", "Save", "SaveAll", 
                 "Delete", "DeleteAll", "MyNote", "Settings"
@@ -1694,6 +1748,7 @@ namespace CatchCapture
                             "DeleteAll" => CreateMenuIcon("/icons/delete_all.png"),
                             "MyNote" => CreateMenuIcon("/icons/my_note.png"),
                             "Settings" => CreateMenuIcon("/icons/setting.png"),
+                            "EdgeCapture" => CreateMenuIcon("/icons/edge_capture.png"),
                             _ => null
                         };
                         if (this.TryFindResource("DarkMenuItem") is Style darkItem)

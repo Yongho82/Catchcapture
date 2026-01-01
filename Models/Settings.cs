@@ -31,6 +31,7 @@ namespace CatchCapture.Models
         public double CaptureLineThickness { get; set; } = 1.0;
         public string CaptureLineStyle { get; set; } = "Dash";          // "Solid", "Dash", "Dot", "DashDot"
         public bool UseOverlayCaptureMode { get; set; } = false;         // ★ true: 오버레이 캡처 (동영상 안멈춤), false: 정지 캡처
+        public int EdgeCaptureRadius { get; set; } = 12;                 // 엣지 캡처 둥글기 강도 (기본: 12px)
         
         // Recording Settings
         public RecordingSettings Recording { get; set; } = new RecordingSettings();
@@ -125,7 +126,7 @@ namespace CatchCapture.Models
         // Main window menu items order (for customizable main menu)
         public List<string> MainMenuItems { get; set; } = new List<string>
         {
-            "AreaCapture", "DelayCapture", "RealTimeCapture", "MultiCapture",
+            "AreaCapture", "EdgeCapture", "DelayCapture", "RealTimeCapture", "MultiCapture",
             "FullScreen", "DesignatedCapture", "WindowCapture", "ElementCapture", "ScrollCapture", "OcrCapture", "ScreenRecord"
         };              
 
@@ -165,7 +166,7 @@ namespace CatchCapture.Models
             // 2. Sync Main Menu Items (Add missing, don't reorder)
             var defaultMainMenu = new List<string>
             {
-                "AreaCapture", "DelayCapture", "RealTimeCapture", "MultiCapture",
+                "AreaCapture", "EdgeCapture", "DelayCapture", "RealTimeCapture", "MultiCapture",
                 "FullScreen", "DesignatedCapture", "WindowCapture", "ElementCapture", "ScrollCapture", "OcrCapture", "ScreenRecord"
             };
             if (MainMenuItems == null) { MainMenuItems = new List<string>(defaultMainMenu); changed = true; }
@@ -375,6 +376,7 @@ namespace CatchCapture.Models
         public ToggleHotkey ScrollCapture { get; set; } = new ToggleHotkey();        // 스크롤캡처
         public ToggleHotkey OcrCapture { get; set; } = new ToggleHotkey();           // OCR 캡처
         public ToggleHotkey ScreenRecord { get; set; } = new ToggleHotkey();         // 화면 녹화
+        public ToggleHotkey EdgeCapture { get; set; } = new ToggleHotkey();          // 엣지 캡처
         
         // 기타 기능들
         public ToggleHotkey SaveAll { get; set; } = new ToggleHotkey();              // 전체저장
@@ -409,6 +411,7 @@ namespace CatchCapture.Models
 
                 OcrCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "O" },
                 ScreenRecord = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "V" },
+                EdgeCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "X" },
 
                 // 편집/기타 기능: 활성화
                 SaveAll = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "A" },
@@ -457,6 +460,7 @@ namespace CatchCapture.Models
             ScrollCapture = SafeSync(ScrollCapture, defaults.ScrollCapture);
             OcrCapture = SafeSync(OcrCapture, defaults.OcrCapture);
             ScreenRecord = SafeSync(ScreenRecord, defaults.ScreenRecord);
+            EdgeCapture = SafeSync(EdgeCapture, defaults.EdgeCapture);
             SaveAll = SafeSync(SaveAll, defaults.SaveAll);
             DeleteAll = SafeSync(DeleteAll, defaults.DeleteAll);
             SimpleMode = SafeSync(SimpleMode, defaults.SimpleMode);

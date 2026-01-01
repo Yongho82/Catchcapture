@@ -33,9 +33,15 @@ namespace CatchCapture.Utilities
         private Point _lastUpdatePoint;
         private const double MinMoveDelta = 1.0; 
         private string? _lastSizeText;
+        private double _cornerRadius = 0;
 
         public bool IsSelecting => _isSelecting;
         public Rect CurrentRect => _pendingRect;
+        public double CornerRadius 
+        { 
+            get => _cornerRadius; 
+            set { _cornerRadius = value; UpdateVisuals(_pendingRect); } 
+        }
 
         /// <summary>
         /// 생성자
@@ -288,11 +294,27 @@ namespace CatchCapture.Utilities
                 Canvas.SetTop(_selectionRectangle, rect.Top);
                 _selectionRectangle.Width = rect.Width;
                 _selectionRectangle.Height = rect.Height;
+
+                // 엣지 캡처를 위한 둥근 모서리 적용
+                double actualRadius = _cornerRadius;
+                if (_cornerRadius >= 999) 
+                    actualRadius = Math.Min(rect.Width, rect.Height) / 2;
+
+                _selectionRectangle.RadiusX = actualRadius;
+                _selectionRectangle.RadiusY = actualRadius;
             }
 
             if (_selectionGeometry != null)
             {
                 _selectionGeometry.Rect = rect;
+                
+                // 오버레이 구멍(Geometry)도 똑같이 둥글게 처리
+                double actualRadius = _cornerRadius;
+                if (_cornerRadius >= 999) 
+                    actualRadius = Math.Min(rect.Width, rect.Height) / 2;
+
+                _selectionGeometry.RadiusX = actualRadius;
+                _selectionGeometry.RadiusY = actualRadius;
             }
 
             if (_sizeTextBlock != null)

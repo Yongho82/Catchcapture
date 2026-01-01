@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using CatchCapture.Models;
+using Drawing = System.Drawing;
+using System.Drawing.Imaging;
 
 using ResLoc = CatchCapture.Resources.LocalizationManager;
 
@@ -59,6 +61,7 @@ namespace CatchCapture.Utilities
         private bool isColorHexFormat = true;
         private Color lastHoverColor = Colors.Transparent;
         private bool isOverlayMode = false; // [추가] 오버레이 모드(투명창) 여부 확인
+        private int _cornerRadius = 0;      // [추가] 엣지 캡처를 위한 반지름
 
         // 언어 변경 시 런타임 갱신을 위해 툴바 참조 저장
         private Border? toolbarContainer;
@@ -102,9 +105,11 @@ namespace CatchCapture.Utilities
         
         // Flag to request MainWindow to open NoteInputWindow after this window closes
         public bool RequestSaveToNote { get; private set; } = false;
+        private CaptureSelectionOverlay? selectionOverlay; // [추가] 오버레이 관리를 위한 필드
 
-        public SnippingWindow(bool showGuideText = false, BitmapSource? cachedScreenshot = null, string? sourceApp = null, string? sourceTitle = null)
+        public SnippingWindow(bool showGuideText = false, BitmapSource? cachedScreenshot = null, string? sourceApp = null, string? sourceTitle = null, int cornerRadius = 0)
         {
+            _cornerRadius = cornerRadius;
             var settings = Settings.Load();
             showMagnifier = settings.ShowMagnifier;
             if (cachedScreenshot == null) isOverlayMode = true; // [추가] 초기 스크린샷이 없으면 오버레이 모드로 간주
@@ -193,6 +198,7 @@ namespace CatchCapture.Utilities
 
             // 통합 오버레이 클래스 초기화 (기존 직접 생성하던 Geometry/Path/Rectangle 대체)
             selectionOverlay = new CaptureSelectionOverlay(canvas);
+            if (selectionOverlay != null) selectionOverlay.CornerRadius = _cornerRadius;
             
             // 가이드 텍스트 (옵션)
             if (showGuideText)
@@ -781,11 +787,31 @@ namespace CatchCapture.Utilities
                             ctx.DrawImage(tempCrop, new Rect(0, 0, cw, ch));
                         }
                         
-                        var rtb = new RenderTargetBitmap(cw, ch, 96, 96, PixelFormats.Pbgra32);
+                        var dpi = VisualTreeHelper.GetDpi(this);
+                        var rtb = new RenderTargetBitmap(cw, ch, dpi.PixelsPerDip * 96, dpi.PixelsPerDip * 96, PixelFormats.Pbgra32);
                         rtb.Render(visual);
                         rtb.Freeze();
 
-                        SelectedFrozenImage = rtb;
+                        // 엣지 캡처 적용: 반지름이 0보다 크면 이미지를 둥글게 깎음
+                        if (_cornerRadius > 0)
+                        {
+                            var bitmap = BitmapSourceToBitmap(rtb);
+                            var rounded = EdgeCaptureHelper.GetRoundedBitmap(bitmap, _cornerRadius);
+                            if (rounded != null)
+                            {
+                                SelectedFrozenImage = BitmapToBitmapSource(rounded);
+                                rounded.Dispose();
+                            }
+                            else
+                            {
+                                SelectedFrozenImage = rtb;
+                            }
+                            bitmap.Dispose();
+                        }
+                        else
+                        {
+                            SelectedFrozenImage = rtb;
+                        }
                     }
                 }
             }
@@ -806,8 +832,7 @@ namespace CatchCapture.Utilities
             catch { /* fallback to initial metadata */ }
         }
         
-        // 리팩토링된 오버레이 클래스 사용
-        private CaptureSelectionOverlay? selectionOverlay;
+        // 리팩토링된 오버레이 클래스 사용 (필드 중복 정의 제거)
         
         // 돋보기 업데이트용 throttling
         private Point lastMagnifierPoint;
@@ -3713,6 +3738,36 @@ namespace CatchCapture.Utilities
             {
                 CatchCapture.CustomMessageBox.Show($"노트 저장 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private Drawing.Bitmap BitmapSourceToBitmap(BitmapSource bitmapsource)
+        {
+            Drawing.Bitmap bitmap;
+            using (var outStream = new MemoryStream())
+            {
+                // 투명도 유지를 위해 PNG 인코더 사용
+                BitmapEncoder enc = new PngBitmapEncoder();
+                enc.Frames.Add(BitmapFrame.Create(bitmapsource));
+                enc.Save(outStream);
+                bitmap = new Drawing.Bitmap(outStream);
+            }
+            return new Drawing.Bitmap(bitmap);
+        }
+
+        private BitmapSource BitmapToBitmapSource(Drawing.Bitmap bitmap)
+        {
+            var bitmapData = bitmap.LockBits(
+                new Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height),
+                ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+            var bitmapSource = BitmapSource.Create(
+                bitmapData.Width, bitmapData.Height,
+                96, 96,
+                PixelFormats.Pbgra32, null,
+                bitmapData.Scan0, bitmapData.Stride * bitmapData.Height, bitmapData.Stride);
+
+            bitmap.UnlockBits(bitmapData);
+            return bitmapSource;
         }
     }
 }

@@ -1,17 +1,9 @@
   蹂듭썝???꾨줈?앺듃瑜??뺤씤?섎뒗 以?..
   蹂듭썝??紐⑤뱺 ?꾨줈?앺듃媛 理쒖떊 ?곹깭?낅땲??
-C:\yonghoprogram\Catchcapture\Controls\RichTextEditorControl.xaml.cs(153,74): warning CS8604: 'void RichTextEditorControl.ApplyPropertyToSelection(DependencyProperty property, object value)'??留ㅺ컻 蹂??'value'?????媛?ν븳 null 李몄“ ?몄닔?낅땲?? [C:\yonghoprogram\Catchcapture\CatchCapture_edwmzrhq_wpftmp.csproj]
-C:\yonghoprogram\Catchcapture\Controls\RichTextEditorControl.xaml.cs(290,26): error CS0103: 'IsPropertyApplied' ?대쫫???꾩옱 而⑦뀓?ㅽ듃???놁뒿?덈떎. [C:\yonghoprogram\Catchcapture\CatchCapture_edwmzrhq_wpftmp.csproj]
-C:\yonghoprogram\Catchcapture\Controls\RichTextEditorControl.xaml.cs(296,26): error CS0103: 'IsPropertyApplied' ?대쫫???꾩옱 而⑦뀓?ㅽ듃???놁뒿?덈떎. [C:\yonghoprogram\Catchcapture\CatchCapture_edwmzrhq_wpftmp.csproj]
-C:\yonghoprogram\Catchcapture\Controls\RichTextEditorControl.xaml.cs(306,70): warning CS8604: 'void RichTextEditorControl.ApplyPropertyToSelection(DependencyProperty property, object value)'??留ㅺ컻 蹂??'value'?????媛?ν븳 null 李몄“ ?몄닔?낅땲?? [C:\yonghoprogram\Catchcapture\CatchCapture_edwmzrhq_wpftmp.csproj]
+  CatchCapture -> C:\yonghoprogram\Catchcapture\bin\Debug\net8.0-windows10.0.19041.0\CatchCapture.dll
 
-鍮뚮뱶?섏? 紐삵뻽?듬땲??
+鍮뚮뱶?덉뒿?덈떎.
+    寃쎄퀬 0媛?
+    ?ㅻ쪟 0媛?
 
-C:\yonghoprogram\Catchcapture\Controls\RichTextEditorControl.xaml.cs(153,74): warning CS8604: 'void RichTextEditorControl.ApplyPropertyToSelection(DependencyProperty property, object value)'??留ㅺ컻 蹂??'value'?????媛?ν븳 null 李몄“ ?몄닔?낅땲?? [C:\yonghoprogram\Catchcapture\CatchCapture_edwmzrhq_wpftmp.csproj]
-C:\yonghoprogram\Catchcapture\Controls\RichTextEditorControl.xaml.cs(306,70): warning CS8604: 'void RichTextEditorControl.ApplyPropertyToSelection(DependencyProperty property, object value)'??留ㅺ컻 蹂??'value'?????媛?ν븳 null 李몄“ ?몄닔?낅땲?? [C:\yonghoprogram\Catchcapture\CatchCapture_edwmzrhq_wpftmp.csproj]
-C:\yonghoprogram\Catchcapture\Controls\RichTextEditorControl.xaml.cs(290,26): error CS0103: 'IsPropertyApplied' ?대쫫???꾩옱 而⑦뀓?ㅽ듃???놁뒿?덈떎. [C:\yonghoprogram\Catchcapture\CatchCapture_edwmzrhq_wpftmp.csproj]
-C:\yonghoprogram\Catchcapture\Controls\RichTextEditorControl.xaml.cs(296,26): error CS0103: 'IsPropertyApplied' ?대쫫???꾩옱 而⑦뀓?ㅽ듃???놁뒿?덈떎. [C:\yonghoprogram\Catchcapture\CatchCapture_edwmzrhq_wpftmp.csproj]
-    寃쎄퀬 2媛?
-    ?ㅻ쪟 2媛?
-
-寃쎄낵 ?쒓컙: 00:00:02.11
+寃쎄낵 ?쒓컙: 00:00:01.43

@@ -1069,7 +1069,7 @@
                                 <RowDefinition Height="32"/> <!-- Scroll -->
                                 <RowDefinition Height="32"/> <!-- OCR 추가 -->
                                 <RowDefinition Height="32"/> <!-- ScreenRecord 추가 -->
-                                <RowDefinition Height="32"/> <!-- ScreenRecord 추가 -->
+                                <RowDefinition Height="32"/> <!-- Edge Capture 추가 -->
                                 <RowDefinition Height="32"/> <!-- Simple -->
                                 <RowDefinition Height="32"/> <!-- Tray -->
                                 <RowDefinition Height="32"/> <!-- Save -->
@@ -1077,6 +1077,7 @@
                                 <RowDefinition Height="32"/> <!-- Settings -->
                                 <RowDefinition Height="32"/> <!-- Open Editor -->
                                 <RowDefinition Height="32"/> <!-- Open Note -->
+                                <RowDefinition Height="32"/> <!-- (Reserved) -->
                             </Grid.RowDefinitions>
 
                             <!-- Header -->
@@ -1174,61 +1175,69 @@
                             <CheckBox x:Name="HkScreenRecordWin" Grid.Row="11" Grid.Column="4" HorizontalAlignment="Center"/>
                             <ComboBox x:Name="HkScreenRecordKey" Grid.Row="11" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
 
+                            <!-- Edge Capture -->
+                            <CheckBox x:Name="HkEdgeEnabled" Grid.Row="12" Grid.Column="0" Content="{DynamicResource EdgeCapture}" FontWeight="SemiBold"/>
+                            <CheckBox x:Name="HkEdgeCtrl" Grid.Row="12" Grid.Column="1" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkEdgeShift" Grid.Row="12" Grid.Column="2" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkEdgeAlt" Grid.Row="12" Grid.Column="3" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkEdgeWin" Grid.Row="12" Grid.Column="4" HorizontalAlignment="Center"/>
+                            <ComboBox x:Name="HkEdgeKey" Grid.Row="12" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
+
                             <!-- Simple Mode -->
-                            <CheckBox x:Name="HkSimpleModeEnabled" Grid.Row="12" Grid.Column="0" Content="{DynamicResource SimpleMode}" FontWeight="SemiBold"/>
-                            <CheckBox x:Name="HkSimpleModeCtrl" Grid.Row="12" Grid.Column="1" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkSimpleModeShift" Grid.Row="12" Grid.Column="2" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkSimpleModeAlt" Grid.Row="12" Grid.Column="3" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkSimpleModeWin" Grid.Row="12" Grid.Column="4" HorizontalAlignment="Center"/>
-                            <ComboBox x:Name="HkSimpleModeKey" Grid.Row="12" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
+                            <CheckBox x:Name="HkSimpleModeEnabled" Grid.Row="13" Grid.Column="0" Content="{DynamicResource SimpleMode}" FontWeight="SemiBold"/>
+                            <CheckBox x:Name="HkSimpleModeCtrl" Grid.Row="13" Grid.Column="1" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkSimpleModeShift" Grid.Row="13" Grid.Column="2" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkSimpleModeAlt" Grid.Row="13" Grid.Column="3" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkSimpleModeWin" Grid.Row="13" Grid.Column="4" HorizontalAlignment="Center"/>
+                            <ComboBox x:Name="HkSimpleModeKey" Grid.Row="13" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
 
                             <!-- Tray Mode -->
-                            <CheckBox x:Name="HkTrayModeEnabled" Grid.Row="13" Grid.Column="0" Content="{DynamicResource TrayMode}" FontWeight="SemiBold"/>
-                            <CheckBox x:Name="HkTrayModeCtrl" Grid.Row="13" Grid.Column="1" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkTrayModeShift" Grid.Row="13" Grid.Column="2" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkTrayModeAlt" Grid.Row="13" Grid.Column="3" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkTrayModeWin" Grid.Row="13" Grid.Column="4" HorizontalAlignment="Center"/>
-                            <ComboBox x:Name="HkTrayModeKey" Grid.Row="13" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
+                            <CheckBox x:Name="HkTrayModeEnabled" Grid.Row="14" Grid.Column="0" Content="{DynamicResource TrayMode}" FontWeight="SemiBold"/>
+                            <CheckBox x:Name="HkTrayModeCtrl" Grid.Row="14" Grid.Column="1" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkTrayModeShift" Grid.Row="14" Grid.Column="2" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkTrayModeAlt" Grid.Row="14" Grid.Column="3" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkTrayModeWin" Grid.Row="14" Grid.Column="4" HorizontalAlignment="Center"/>
+                            <ComboBox x:Name="HkTrayModeKey" Grid.Row="14" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
 
                             <!-- Save All -->
-                            <CheckBox x:Name="HkSaveAllEnabled" Grid.Row="14" Grid.Column="0" Content="{DynamicResource SaveAll}" FontWeight="SemiBold"/>
-                            <CheckBox x:Name="HkSaveAllCtrl" Grid.Row="14" Grid.Column="1" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkSaveAllShift" Grid.Row="14" Grid.Column="2" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkSaveAllAlt" Grid.Row="14" Grid.Column="3" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkSaveAllWin" Grid.Row="14" Grid.Column="4" HorizontalAlignment="Center"/>
-                            <ComboBox x:Name="HkSaveAllKey" Grid.Row="14" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
+                            <CheckBox x:Name="HkSaveAllEnabled" Grid.Row="15" Grid.Column="0" Content="{DynamicResource SaveAll}" FontWeight="SemiBold"/>
+                            <CheckBox x:Name="HkSaveAllCtrl" Grid.Row="15" Grid.Column="1" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkSaveAllShift" Grid.Row="15" Grid.Column="2" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkSaveAllAlt" Grid.Row="15" Grid.Column="3" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkSaveAllWin" Grid.Row="15" Grid.Column="4" HorizontalAlignment="Center"/>
+                            <ComboBox x:Name="HkSaveAllKey" Grid.Row="15" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
 
                             <!-- Delete All -->
-                            <CheckBox x:Name="HkDeleteAllEnabled" Grid.Row="15" Grid.Column="0" Content="{DynamicResource DeleteAll}" FontWeight="SemiBold"/>
-                            <CheckBox x:Name="HkDeleteAllCtrl" Grid.Row="15" Grid.Column="1" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkDeleteAllShift" Grid.Row="15" Grid.Column="2" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkDeleteAllAlt" Grid.Row="15" Grid.Column="3" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkDeleteAllWin" Grid.Row="15" Grid.Column="4" HorizontalAlignment="Center"/>
-                            <ComboBox x:Name="HkDeleteAllKey" Grid.Row="15" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
+                            <CheckBox x:Name="HkDeleteAllEnabled" Grid.Row="16" Grid.Column="0" Content="{DynamicResource DeleteAll}" FontWeight="SemiBold"/>
+                            <CheckBox x:Name="HkDeleteAllCtrl" Grid.Row="16" Grid.Column="1" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkDeleteAllShift" Grid.Row="16" Grid.Column="2" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkDeleteAllAlt" Grid.Row="16" Grid.Column="3" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkDeleteAllWin" Grid.Row="16" Grid.Column="4" HorizontalAlignment="Center"/>
+                            <ComboBox x:Name="HkDeleteAllKey" Grid.Row="16" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
 
                             <!-- Open Settings -->
-                            <CheckBox x:Name="HkOpenSettingsEnabled" Grid.Row="16" Grid.Column="0" Content="{DynamicResource OpenSettings}" FontWeight="SemiBold"/>
-                            <CheckBox x:Name="HkOpenSettingsCtrl" Grid.Row="16" Grid.Column="1" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkOpenSettingsShift" Grid.Row="16" Grid.Column="2" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkOpenSettingsAlt" Grid.Row="16" Grid.Column="3" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkOpenSettingsWin" Grid.Row="16" Grid.Column="4" HorizontalAlignment="Center"/>
-                            <ComboBox x:Name="HkOpenSettingsKey" Grid.Row="16" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
+                            <CheckBox x:Name="HkOpenSettingsEnabled" Grid.Row="17" Grid.Column="0" Content="{DynamicResource OpenSettings}" FontWeight="SemiBold"/>
+                            <CheckBox x:Name="HkOpenSettingsCtrl" Grid.Row="17" Grid.Column="1" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkOpenSettingsShift" Grid.Row="17" Grid.Column="2" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkOpenSettingsAlt" Grid.Row="17" Grid.Column="3" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkOpenSettingsWin" Grid.Row="17" Grid.Column="4" HorizontalAlignment="Center"/>
+                            <ComboBox x:Name="HkOpenSettingsKey" Grid.Row="17" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
 
                             <!-- Open Editor -->
-                            <CheckBox x:Name="HkOpenEditorEnabled" Grid.Row="17" Grid.Column="0" Content="{DynamicResource OpenEditor}" FontWeight="SemiBold"/>
-                            <CheckBox x:Name="HkOpenEditorCtrl" Grid.Row="17" Grid.Column="1" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkOpenEditorShift" Grid.Row="17" Grid.Column="2" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkOpenEditorAlt" Grid.Row="17" Grid.Column="3" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkOpenEditorWin" Grid.Row="17" Grid.Column="4" HorizontalAlignment="Center"/>
-                            <ComboBox x:Name="HkOpenEditorKey" Grid.Row="17" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
+                            <CheckBox x:Name="HkOpenEditorEnabled" Grid.Row="18" Grid.Column="0" Content="{DynamicResource OpenEditor}" FontWeight="SemiBold"/>
+                            <CheckBox x:Name="HkOpenEditorCtrl" Grid.Row="18" Grid.Column="1" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkOpenEditorShift" Grid.Row="18" Grid.Column="2" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkOpenEditorAlt" Grid.Row="18" Grid.Column="3" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkOpenEditorWin" Grid.Row="18" Grid.Column="4" HorizontalAlignment="Center"/>
+                            <ComboBox x:Name="HkOpenEditorKey" Grid.Row="18" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
 
                             <!-- Open Note -->
-                            <CheckBox x:Name="HkOpenNoteEnabled" Grid.Row="18" Grid.Column="0" Content="{DynamicResource OpenMyNote}" FontWeight="SemiBold"/>
-                            <CheckBox x:Name="HkOpenNoteCtrl" Grid.Row="18" Grid.Column="1" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkOpenNoteShift" Grid.Row="18" Grid.Column="2" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkOpenNoteAlt" Grid.Row="18" Grid.Column="3" HorizontalAlignment="Center"/>
-                            <CheckBox x:Name="HkOpenNoteWin" Grid.Row="18" Grid.Column="4" HorizontalAlignment="Center"/>
-                            <ComboBox x:Name="HkOpenNoteKey" Grid.Row="18" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
+                            <CheckBox x:Name="HkOpenNoteEnabled" Grid.Row="19" Grid.Column="0" Content="{DynamicResource OpenMyNote}" FontWeight="SemiBold"/>
+                            <CheckBox x:Name="HkOpenNoteCtrl" Grid.Row="19" Grid.Column="1" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkOpenNoteShift" Grid.Row="19" Grid.Column="2" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkOpenNoteAlt" Grid.Row="19" Grid.Column="3" HorizontalAlignment="Center"/>
+                            <CheckBox x:Name="HkOpenNoteWin" Grid.Row="19" Grid.Column="4" HorizontalAlignment="Center"/>
+                            <ComboBox x:Name="HkOpenNoteKey" Grid.Row="19" Grid.Column="5" Width="80" HorizontalAlignment="Left" Margin="10,0,0,0"/>
                         </Grid>
                     </ScrollViewer>
                 </Grid>

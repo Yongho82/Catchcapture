@@ -924,6 +924,7 @@ namespace CatchCapture
                 "DeleteAll" => "/icons/delete_all.png",
                 "MyNote" => "/icons/my_note.png",
                 "Settings" => "/icons/setting.png",
+                "EdgeCapture" => "/icons/edge_capture.png",
                 _ => null
             };
             
@@ -964,6 +965,7 @@ namespace CatchCapture
                 "DeleteAll" => CatchCapture.Models.LocalizationManager.Get("DeleteAll"),
                 "MyNote" => CatchCapture.Models.LocalizationManager.Get("OpenMyNote"),
                 "Settings" => CatchCapture.Models.LocalizationManager.Get("Settings"),
+                "EdgeCapture" => CatchCapture.Models.LocalizationManager.Get("EdgeCapture") ?? "엣지 캡처",
                 _ => string.Empty
             };
         }
@@ -991,6 +993,7 @@ namespace CatchCapture
                 "DeleteAll" => CatchCapture.Models.LocalizationManager.Get("DeleteAll"),
                 "MyNote" => CatchCapture.Models.LocalizationManager.Get("OpenMyNote"),
                 "Settings" => CatchCapture.Models.LocalizationManager.Get("Settings"),
+                "EdgeCapture" => CatchCapture.Models.LocalizationManager.Get("EdgeCapture") ?? "엣지 캡처",
                 _ => iconName
             };
         }
@@ -1033,6 +1036,9 @@ namespace CatchCapture
                     // 화면 녹화는 녹화 창이 열리므로 간편모드를 다시 보여주지 않음
                     this.Hide();
                     _mainWindow?.TriggerScreenRecord();
+                    break;
+                case "EdgeCapture":
+                    ShowEdgeCaptureMenu();
                     break;
                 // ★ 새로 추가
                 case "Copy":
@@ -1109,6 +1115,52 @@ namespace CatchCapture
             return button;
         }
 
+        private void ShowEdgeCaptureMenu()
+        {
+            var menu = new ContextMenu();
+            if (this.TryFindResource("DarkContextMenu") is Style darkMenu)
+                menu.Style = darkMenu;
+
+            var items = new (string Header, int Radius, string Emoji)[]
+            {
+                ("소프트 엣지", 12, "🫧"),
+                ("매끄러운 둥근 모서리", 25, "📱"),
+                ("클래식 라운드", 50, "🍪"),
+                ("알약 스타일", 100, "💊"),
+                ("퍼펙트 서클", 999, "🌕")
+            };
+
+            foreach (var t in items)
+            {
+                var mi = new MenuItem { Header = $"{t.Emoji} {t.Header}" };
+                if (this.TryFindResource("DarkMenuItem") is Style darkItem)
+                    mi.Style = darkItem;
+                
+                mi.Click += (s, e) =>
+                {
+                    if (settings != null)
+                    {
+                        settings.EdgeCaptureRadius = t.Radius;
+                        Settings.Save(settings);
+                    }
+                    PerformCapture(async (s2, e2) => {
+                        if (_mainWindow != null) await _mainWindow.StartAreaCaptureAsync(t.Radius);
+                    });
+                };
+                menu.Items.Add(mi);
+            }
+
+            // 현재 버튼 위치에 메뉴 표시
+            var activePanel = (settings?.SimpleModeVertical == true) ? ButtonsPanelV : ButtonsPanelH;
+            var edgeBtn = activePanel.Children.OfType<Grid>()
+                .SelectMany(g => g.Children.OfType<Button>())
+                .FirstOrDefault(b => b.ToolTip?.ToString() == GetIconDisplayName("EdgeCapture"));
+
+            menu.PlacementTarget = edgeBtn;
+            menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+            menu.IsOpen = true;
+        }
+
         private void ShowAddIconMenu(object sender, RoutedEventArgs e)
         {
             var menu = new ContextMenu();
@@ -1116,9 +1168,8 @@ namespace CatchCapture
             if (this.TryFindResource("DarkContextMenu") is Style darkMenu)
                 menu.Style = darkMenu;
 
-            // ★ 수정됨: 트레이 모드와 동일하게 모든 아이콘 포함
-            var allIcons = new[] {
-                "AreaCapture", "DelayCapture", "FullScreen", "RealTimeCapture", "MultiCapture",
+            string[] allIcons = {
+                "AreaCapture", "EdgeCapture", "DelayCapture", "FullScreen", "RealTimeCapture", "MultiCapture",
                 "DesignatedCapture", "WindowCapture", "UnitCapture", "ScrollCapture", "OcrCapture",
                 "ScreenRecord", "Copy", "CopyAll", "Save", "SaveAll", 
                 "Delete", "DeleteAll", "MyNote", "Settings"
@@ -1153,6 +1204,7 @@ namespace CatchCapture
                             "DeleteAll" => CreateMenuIcon("/icons/delete_all.png"),
                             "MyNote" => CreateMenuIcon("/icons/my_note.png"),
                             "Settings" => CreateMenuIcon("/icons/setting.png"),
+                            "EdgeCapture" => CreateMenuIcon("/icons/edge_capture.png"),
                             _ => null
                         };
                         if (this.TryFindResource("DarkMenuItem") is Style darkItem)

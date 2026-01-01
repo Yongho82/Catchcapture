@@ -65,6 +65,7 @@ public partial class MainWindow : Window
     private System.Windows.Forms.ContextMenuStrip? trayContextMenu;
     private System.Windows.Forms.ToolStripMenuItem? trayOpenItem;
     private System.Windows.Forms.ToolStripMenuItem? trayAreaItem;
+    private System.Windows.Forms.ToolStripMenuItem? trayEdgeItem;
     private System.Windows.Forms.ToolStripMenuItem? trayNormalItem;
     private System.Windows.Forms.ToolStripMenuItem? traySimpleItem;
     private System.Windows.Forms.ToolStripMenuItem? trayTrayItem;
@@ -87,6 +88,7 @@ public partial class MainWindow : Window
     private const int HOTKEY_ID_TRAY = 9013;
     private const int HOTKEY_ID_OPENEDITOR = 9014;
     private const int HOTKEY_ID_OPENNOTE = 9015;
+    private const int HOTKEY_ID_EDGECAPTURE = 9016;
 
     [DllImport("user32.dll")]
     private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
@@ -261,7 +263,8 @@ public partial class MainWindow : Window
             { "ElementCapture", ElementCaptureButton },
             { "ScrollCapture", ScrollCaptureButton },
             { "OcrCapture", OcrCaptureButton },
-            { "ScreenRecord", ScreenRecordButton }
+            { "ScreenRecord", ScreenRecordButton },
+            { "EdgeCapture", EdgeCaptureButton }
         };
 
         // Separator와 하단 버튼들 저장
@@ -424,8 +427,34 @@ public partial class MainWindow : Window
 
         trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
 
-        // [영역 캡처]
+        // [영역 캡처] & [엣지 캡처]
         trayContextMenu.Items.Add(trayAreaItem);
+        
+        trayEdgeItem = new System.Windows.Forms.ToolStripMenuItem(
+            LocalizationManager.GetString("EdgeCapture"),
+            LoadMenuImage("edge_capture.png"));
+        
+        var edgeItems = new (string Key, int Radius, string Emoji)[]
+        {
+            ("EdgeSoft", 12, "🫧"),
+            ("EdgeSmooth", 25, "📱"),
+            ("EdgeClassic", 50, "🍪"),
+            ("EdgeCapsule", 100, "💊"),
+            ("EdgeCircle", 999, "🌕")
+        };
+
+        foreach (var t in edgeItems)
+        {
+            var subItem = new System.Windows.Forms.ToolStripMenuItem($"{t.Emoji} {LocalizationManager.GetString(t.Key)}");
+            subItem.Click += async (s, e) => {
+                settings.EdgeCaptureRadius = t.Radius;
+                Settings.Save(settings);
+                await StartAreaCaptureAsync(t.Radius);
+            };
+            trayEdgeItem.DropDownItems.Add(subItem);
+        }
+        trayContextMenu.Items.Add(trayEdgeItem);
+
         trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
 
         // [모드 전환]
@@ -1219,6 +1248,31 @@ public partial class MainWindow : Window
         });
     }
 
+    private void EdgeCaptureButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement fe)
+        {
+            if (fe.ContextMenu != null)
+            {
+                fe.ContextMenu.PlacementTarget = fe;
+                fe.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Right;
+                fe.ContextMenu.IsOpen = true;
+            }
+        }
+    }
+
+    private void EdgeMenuItem_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is MenuItem mi && mi.Tag is string tagStr && int.TryParse(tagStr, out int radius))
+        {
+            settings.EdgeCaptureRadius = radius;
+            Settings.Save(settings);
+            
+            // 엣지 캡처 시작
+            _ = StartAreaCaptureAsync(radius);
+        }
+    }
+
     private BitmapSource GetCachedOrFreshScreenshot()
     {
         var now = DateTime.Now;
@@ -1362,7 +1416,7 @@ public partial class MainWindow : Window
     }
 
 
-    private async Task StartAreaCaptureAsync()
+    public async Task StartAreaCaptureAsync(int cornerRadius = 0)
     {
         // ★ 기존 캡처창이 열려있다면 닫기 (재캡처 연타 시 중복 실행 방지)
         if (_activeSnippingWindow != null)
@@ -1423,8 +1477,8 @@ public partial class MainWindow : Window
             }
         }
 
-        // SnippingWindow 생성 및 표시
-        var snippingWindow = new SnippingWindow(false, screenshot, metadata.AppName, metadata.Title);
+        // SnippingWindow 생성 및 표시 (cornerRadius 전달)
+        var snippingWindow = new SnippingWindow(false, screenshot, metadata.AppName, metadata.Title, cornerRadius);
         _activeSnippingWindow = snippingWindow;
         
         try
@@ -1530,7 +1584,7 @@ public partial class MainWindow : Window
 
     public void StartAreaCapture()
     {
-        _ = StartAreaCaptureAsync();  // Fire and forget
+        _ = StartAreaCaptureAsync(0);  // 일반 모드는 항상 직각(0)
     }
 
     private void FullScreenCaptureButton_Click(object sender, RoutedEventArgs e)
@@ -3468,6 +3522,12 @@ public partial class MainWindow : Window
                 var (modifiers, key) = ConvertToggleHotkey(settings.Hotkeys.OpenNote);
                 RegisterHotKey(hwnd, HOTKEY_ID_OPENNOTE, modifiers, key);
             }
+
+            if (settings.Hotkeys.EdgeCapture.Enabled)
+            {
+                var (modifiers, key) = ConvertToggleHotkey(settings.Hotkeys.EdgeCapture);
+                RegisterHotKey(hwnd, HOTKEY_ID_EDGECAPTURE, modifiers, key);
+            }
         }
         catch (Exception ex)
         {
@@ -3680,6 +3740,11 @@ public partial class MainWindow : Window
 
                 case HOTKEY_ID_OPENNOTE:
                     Dispatcher.Invoke(() => OpenNoteExplorer());
+                    handled = true;
+                    break;
+
+                case HOTKEY_ID_EDGECAPTURE:
+                    Dispatcher.Invoke(() => StartAreaCaptureAsync(settings.EdgeCaptureRadius));
                     handled = true;
                     break;
             }
@@ -4418,6 +4483,15 @@ public partial class MainWindow : Window
         if (DelayCaptureButtonText != null) DelayCaptureButtonText.Text = LocalizationManager.GetString("DelayCapture");
         if (DelayCaptureButton != null) DelayCaptureButton.ToolTip = GetLocalizedTooltip("DelayCapture");
 
+        if (EdgeCaptureButtonText != null) EdgeCaptureButtonText.Text = LocalizationManager.GetString("EdgeCapture");
+        if (EdgeCaptureButton != null) EdgeCaptureButton.ToolTip = GetLocalizedTooltip("EdgeCapture");
+
+        if (EdgeSoftMenu != null) EdgeSoftMenu.Header = "🫧 " + LocalizationManager.GetString("EdgeSoft");
+        if (EdgeSmoothMenu != null) EdgeSmoothMenu.Header = "📱 " + LocalizationManager.GetString("EdgeSmooth");
+        if (EdgeClassicMenu != null) EdgeClassicMenu.Header = "🍪 " + LocalizationManager.GetString("EdgeClassic");
+        if (EdgeCapsuleMenu != null) EdgeCapsuleMenu.Header = "💊 " + LocalizationManager.GetString("EdgeCapsule");
+        if (EdgeCircleMenu != null) EdgeCircleMenu.Header = "🌕 " + LocalizationManager.GetString("EdgeCircle");
+
         if (DelayNoneMenu != null) DelayNoneMenu.Header = LocalizationManager.GetString("DelayNone");
         if (Delay3Menu != null) Delay3Menu.Header = LocalizationManager.GetString("Delay3Sec");
         if (Delay5Menu != null) Delay5Menu.Header = LocalizationManager.GetString("Delay5Sec");
@@ -4543,6 +4617,26 @@ public partial class MainWindow : Window
         // 트레이 우클릭 메뉴
         if (trayOpenItem != null) trayOpenItem.Text = LocalizationManager.GetString("Open");
         if (trayAreaItem != null) trayAreaItem.Text = LocalizationManager.GetString("AreaCapture");
+        
+        if (trayEdgeItem != null)
+        {
+            trayEdgeItem.Text = LocalizationManager.GetString("EdgeCapture");
+            
+            var edgeItems = new (string Key, string Emoji)[]
+            {
+                ("EdgeSoft", "🫧"),
+                ("EdgeSmooth", "📱"),
+                ("EdgeClassic", "🍪"),
+                ("EdgeCapsule", "💊"),
+                ("EdgeCircle", "🌕")
+            };
+
+            for (int i = 0; i < edgeItems.Length && i < trayEdgeItem.DropDownItems.Count; i++)
+            {
+                trayEdgeItem.DropDownItems[i].Text = $"{edgeItems[i].Emoji} {LocalizationManager.GetString(edgeItems[i].Key)}";
+            }
+        }
+
         if (trayNormalItem != null) trayNormalItem.Text = LocalizationManager.GetString("NormalMode");
         if (traySimpleItem != null) traySimpleItem.Text = LocalizationManager.GetString("SimpleMode");
         if (trayTrayItem != null) trayTrayItem.Text = LocalizationManager.GetString("TrayMode");

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
@@ -779,4 +779,22 @@
   <data name="CaptureModeOverlay" xml:space="preserve"><value>빠른 캡처 (Fast Capture) - 동영상/애니메이션 연속 재생</value></data>
   <data name="CaptureModeStatic" xml:space="preserve"><value>정지 캡처 (Freeze Capture) - 캡처 순간 화면 정지 (기본)</value></data>
   <data name="CaptureModeDesc" xml:space="preserve"><value>※ 빠른 캡처 모드 사용 시 돋보기를 켜면 드래그가 느려질 수 있습니다.</value></data>
+  <data name="EdgeCapture" xml:space="preserve">
+    <value>엣지 캡처</value>
+  </data>
+  <data name="EdgeSoft" xml:space="preserve">
+    <value>소프트 엣지</value>
+  </data>
+  <data name="EdgeSmooth" xml:space="preserve">
+    <value>매끄러운 둥근 모서리</value>
+  </data>
+  <data name="EdgeClassic" xml:space="preserve">
+    <value>클래식 라운드</value>
+  </data>
+  <data name="EdgeCapsule" xml:space="preserve">
+    <value>알약 스타일</value>
+  </data>
+  <data name="EdgeCircle" xml:space="preserve">
+    <value>퍼펙트 서클</value>
+  </data>
 </root>

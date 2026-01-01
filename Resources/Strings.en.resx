@@ -767,4 +767,22 @@ Are you sure you want to permanently delete all items?</value>
   <data name="CaptureModeOverlay" xml:space="preserve"><value>Fast Capture (Overlay) - Keeps animations playing</value></data>
   <data name="CaptureModeStatic" xml:space="preserve"><value>Freeze Capture - Freezes screen instantly (Default)</value></data>
   <data name="CaptureModeDesc" xml:space="preserve"><value>※ Using Magnifier in Fast Capture mode may cause lag when dragging.</value></data>
+  <data name="EdgeCapture" xml:space="preserve">
+    <value>Edge Capture</value>
+  </data>
+  <data name="EdgeSoft" xml:space="preserve">
+    <value>Soft Edge</value>
+  </data>
+  <data name="EdgeSmooth" xml:space="preserve">
+    <value>Smooth Edge</value>
+  </data>
+  <data name="EdgeClassic" xml:space="preserve">
+    <value>Classic Round</value>
+  </data>
+  <data name="EdgeCapsule" xml:space="preserve">
+    <value>Capsule Style</value>
+  </data>
+  <data name="EdgeCircle" xml:space="preserve">
+    <value>Perfect Circle</value>
+  </data>
 </root>

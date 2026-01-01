@@ -196,6 +196,7 @@ private void UpdateUIText()
                         (key: "ScrollCapture", tag: "스크롤 캡처"),
                         (key: "OcrCapture", tag: "OCR 캡처"),
                         (key: "ScreenRecording", tag: "동영상 녹화"),
+                        (key: "EdgeCapture", tag: "엣지 캡처"),
                     };
                     
                     CboPrintScreenAction.Items.Clear();
@@ -237,6 +238,8 @@ private void UpdateUIText()
                 if (HkDeleteAllEnabled != null) HkDeleteAllEnabled.Content = LocalizationManager.GetString("DeleteAll");
                 if (HkOpenSettingsEnabled != null) HkOpenSettingsEnabled.Content = LocalizationManager.GetString("OpenSettings");
                 if (HkOpenEditorEnabled != null) HkOpenEditorEnabled.Content = LocalizationManager.GetString("OpenEditor");
+                if (HkOpenNoteEnabled != null) HkOpenNoteEnabled.Content = LocalizationManager.GetString("OpenMyNote");
+                if (HkEdgeEnabled != null) HkEdgeEnabled.Content = LocalizationManager.GetString("EdgeCapture");
                 
                 // 시스템 페이지
                 if (SystemSectionTitle != null) SystemSectionTitle.Text = LocalizationManager.GetString("SystemSettings");
@@ -904,6 +907,7 @@ private void InitLanguageComboBox()
             EnsureDefaultKey(hk.OpenSettings, "O");
             EnsureDefaultKey(hk.OpenEditor, "E");
             EnsureDefaultKey(hk.OpenNote, "N");
+            EnsureDefaultKey(hk.EdgeCapture, "X");
             EnsureDefaultKey(hk.RecordingStartStop, "F3");
 
             // Bind to UI
@@ -925,6 +929,7 @@ private void InitLanguageComboBox()
             BindHotkey(hk.OpenSettings, HkOpenSettingsEnabled, HkOpenSettingsCtrl, HkOpenSettingsShift, HkOpenSettingsAlt, HkOpenSettingsWin, HkOpenSettingsKey);
             BindHotkey(hk.OpenEditor, HkOpenEditorEnabled, HkOpenEditorCtrl, HkOpenEditorShift, HkOpenEditorAlt, HkOpenEditorWin, HkOpenEditorKey);
             BindHotkey(hk.OpenNote, HkOpenNoteEnabled, HkOpenNoteCtrl, HkOpenNoteShift, HkOpenNoteAlt, HkOpenNoteWin, HkOpenNoteKey);
+            BindHotkey(hk.EdgeCapture, HkEdgeEnabled, HkEdgeCtrl, HkEdgeShift, HkEdgeAlt, HkEdgeWin, HkEdgeKey);
             BindHotkey(hk.RecordingStartStop, HkRecStartStopEnabled, HkRecStartStopCtrl, HkRecStartStopShift, HkRecStartStopAlt, HkRecStartStopWin, HkRecStartStopKey);
         }
 
@@ -1671,6 +1676,7 @@ private void InitLanguageComboBox()
             ReadHotkey(_settings.Hotkeys.OpenSettings, HkOpenSettingsEnabled, HkOpenSettingsCtrl, HkOpenSettingsShift, HkOpenSettingsAlt, HkOpenSettingsWin, HkOpenSettingsKey);
             ReadHotkey(_settings.Hotkeys.OpenEditor, HkOpenEditorEnabled, HkOpenEditorCtrl, HkOpenEditorShift, HkOpenEditorAlt, HkOpenEditorWin, HkOpenEditorKey);
             ReadHotkey(_settings.Hotkeys.OpenNote, HkOpenNoteEnabled, HkOpenNoteCtrl, HkOpenNoteShift, HkOpenNoteAlt, HkOpenNoteWin, HkOpenNoteKey);
+            ReadHotkey(_settings.Hotkeys.EdgeCapture, HkEdgeEnabled, HkEdgeCtrl, HkEdgeShift, HkEdgeAlt, HkEdgeWin, HkEdgeKey);
             ReadHotkey(_settings.Hotkeys.RecordingStartStop, HkRecStartStopEnabled, HkRecStartStopCtrl, HkRecStartStopShift, HkRecStartStopAlt, HkRecStartStopWin, HkRecStartStopKey);
 
             // Note settings
@@ -1721,6 +1727,7 @@ private void InitLanguageComboBox()
             EnsureDefaultKey(_settings.Hotkeys.OpenSettings, "O");
             EnsureDefaultKey(_settings.Hotkeys.OpenEditor, "E");
             EnsureDefaultKey(_settings.Hotkeys.OpenNote, "N");
+            EnsureDefaultKey(_settings.Hotkeys.EdgeCapture, "X");
             EnsureDefaultKey(_settings.Hotkeys.RecordingStartStop, "F3");
 
             // Recording Page Harvest
@@ -2031,6 +2038,7 @@ private void InitLanguageComboBox()
                 "ScrollCapture"     => LocalizationManager.GetString("ScrollCapture"),
                 "OcrCapture"        => LocalizationManager.GetString("OcrCapture"),
                 "ScreenRecord"      => LocalizationManager.GetString("ScreenRecording"),
+                "EdgeCapture"       => LocalizationManager.GetString("EdgeCapture"),
                 "SimpleMode"        => LocalizationManager.GetString("SimpleMode"),
                 "TrayMode"          => LocalizationManager.GetString("TrayMode"),
                 _ => key
