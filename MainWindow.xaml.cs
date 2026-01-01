@@ -812,21 +812,11 @@ public partial class MainWindow : Window
         this.Width = 385;
         this.Height = 692;
 
-        // 저장된 위치로 복원 (0,0은 초기값일 수 있으므로 제외하고 우측 하단으로)
-        if (!double.IsNaN(settings.LastMainLeft) && !double.IsNaN(settings.LastMainTop) &&
-            !(settings.LastMainLeft == 0 && settings.LastMainTop == 0))
-        {
-            this.Left = settings.LastMainLeft;
-            this.Top = settings.LastMainTop;
-        }
-        else
-        {
-            // 기본 위치: 화면 우측 하단 (트레이 아이콘 근처)
-            var workArea = SystemParameters.WorkArea;
-            this.Left = workArea.Right - this.Width - 10;
-            this.Top = workArea.Bottom - this.Height - 10;
-            this.WindowStartupLocation = WindowStartupLocation.Manual;
-        }
+        // 사용자 요청: 모드 전환 시 또는 시작 시 항상 화면 정중앙에 배치
+        var workArea = SystemParameters.WorkArea;
+        this.Left = (workArea.Width - this.Width) / 2 + workArea.Left;
+        this.Top = (workArea.Height - this.Height) / 2 + workArea.Top;
+        this.WindowStartupLocation = WindowStartupLocation.Manual;
 
         // 창 표시
         this.Show();
@@ -4003,10 +3993,10 @@ public partial class MainWindow : Window
             };
         }
 
-        // 메인 창 위치를 기준으로 간편모드 위치 지정
-        // 메인창 좌표 기준 좌측 상단에 살짝 여백을 두고 표시
-        simpleModeWindow.Left = this.Left + 10;
-        simpleModeWindow.Top = this.Top + 10;
+        // 사용자 요청: 화면 정중앙에 표시
+        var workArea = SystemParameters.WorkArea;
+        simpleModeWindow.Left = (workArea.Width - simpleModeWindow.Width) / 2 + workArea.Left;
+        simpleModeWindow.Top = (workArea.Height - simpleModeWindow.Height) / 2 + workArea.Top;
 
         // 작업표시줄 대표를 간편모드로 전환
         this.ShowInTaskbar = false;   // 본체는 작업표시줄에서 숨김

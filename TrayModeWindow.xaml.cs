@@ -72,9 +72,9 @@ namespace CatchCapture
             // 주 모니터의 작업 영역 가져오기
             var workArea = SystemParameters.WorkArea;
             
-            // 우측 하단에 위치 (화면 끝에 딱 붙임)
-            this.Left = workArea.Right - this.Width;
-            this.Top = workArea.Bottom - this.Height;
+            // 트레이 모드는 기존처럼 우측 하단 (트레이 아이콘 근처)에 배치
+            this.Left = workArea.Right - this.Width - 5;
+            this.Top = workArea.Bottom - this.Height - 5;
         }
 
         private void Window_Deactivated(object sender, EventArgs e)
