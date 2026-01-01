@@ -46,60 +46,179 @@
       </xsd:complexType>
     </xsd:element>
   </xsd:schema>
-  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
-  <resheader name="version"><value>2.0</value></resheader>
-  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
-  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
-  <data name="AppTitle" xml:space="preserve"><value>CatchCapture</value></data>
-  <data name="AreaCapture" xml:space="preserve"><value>Alan Yakalama</value></data>
-  <data name="DelayCapture" xml:space="preserve"><value>Gecikmeli Yakalama</value></data>
-  <data name="RealTimeCapture" xml:space="preserve"><value>Anında Yakalama</value></data>
-  <data name="MultiCapture" xml:space="preserve"><value>Çoklu Yakalama</value></data>
-  <data name="FullScreen" xml:space="preserve"><value>Tam Ekran</value></data>
-  <data name="DesignatedCapture" xml:space="preserve"><value>Sabit Alan</value></data>
-  <data name="WindowCapture" xml:space="preserve"><value>Pencere Yakalama</value></data>
-  <data name="ElementCapture" xml:space="preserve"><value>Öğe Yakalama</value></data>
-  <data name="ScrollCapture" xml:space="preserve"><value>Kaydırmalı Yakalama</value></data>
-  <data name="OcrCapture" xml:space="preserve"><value>OCR Yakalama</value></data>
-  <data name="NormalMode" xml:space="preserve"><value>Normal Mod</value></data>
-  <data name="SimpleMode" xml:space="preserve"><value>Basit Mod</value></data>
-  <data name="TrayMode" xml:space="preserve"><value>Tepsi Modu</value></data>
-  <data name="Settings" xml:space="preserve"><value>Ayarlar</value></data>
-  <data name="Exit" xml:space="preserve"><value>Çıkış</value></data>
-  <data name="Save" xml:space="preserve"><value>Kaydet</value></data>
-  <data name="SaveAll" xml:space="preserve"><value>Tümünü Kaydet</value></data>
-  <data name="Delete" xml:space="preserve"><value>Sil</value></data>
-  <data name="DeleteAll" xml:space="preserve"><value>Tümünü Sil</value></data>
-  <data name="Copy" xml:space="preserve"><value>Kopyala</value></data>
-  <data name="Print" xml:space="preserve"><value>Yazdır</value></data>
-  <data name="Pen" xml:space="preserve"><value>Kalem</value></data>
-  <data name="Highlighter" xml:space="preserve"><value>Vurgulayıcı</value></data>
-  <data name="Text" xml:space="preserve"><value>Metin</value></data>
-  <data name="Shape" xml:space="preserve"><value>Şekil</value></data>
-  <data name="Eraser" xml:space="preserve"><value>Silgi</value></data>
-  <data name="Mosaic" xml:space="preserve"><value>Mozaik</value></data>
-  <data name="Numbering" xml:space="preserve"><value>Numaralandırma</value></data>
-  <data name="NumberingMode" xml:space="preserve"><value>Numaralandırma Modu</value></data>
-  <data name="Crop" xml:space="preserve"><value>Kırp</value></data>
-  <data name="Rotate" xml:space="preserve"><value>Döndür</value></data>
-  <data name="Undo" xml:space="preserve"><value>Geri Al</value></data>
-  <data name="Redo" xml:space="preserve"><value>Yinele</value></data>
-  <data name="General" xml:space="preserve"><value>Genel</value></data>
-  <data name="Language" xml:space="preserve"><value>Dil</value></data>
-  <data name="Hotkeys" xml:space="preserve"><value>Kısayol Tuşları</value></data>
-  <data name="StartWithWindows" xml:space="preserve"><value>Windows ile Başlat</value></data>
-  <data name="StartInTrayMode" xml:space="preserve"><value>Tepsi Modunda Başlat</value></data>
-  <data name="SettingsSaved" xml:space="preserve"><value>Ayarlar başarıyla kaydedildi</value></data>
-  <data name="Version" xml:space="preserve"><value>Sürüm</value></data>
-  <data name="Default" xml:space="preserve"><value>Varsayılan</value></data>
-  <data name="Select" xml:space="preserve"><value>Seç</value></data>
-  <data name="SelectTooltip" xml:space="preserve"><value>Öğeleri seçin ve ayarlayın</value></data>
-  <data name="Confirm" xml:space="preserve"><value>Onayla</value></data>
-  <data name="Cancel" xml:space="preserve"><value>İptal</value></data>
-  <data name="Yes" xml:space="preserve"><value>Evet</value></data>
-  <data name="No" xml:space="preserve"><value>Hayır</value></data>
-  <data name="Error" xml:space="preserve"><value>Hata</value></data>
-  <data name="Success" xml:space="preserve"><value>Başarılı</value></data>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <!-- Application Title -->
+  <data name="AppTitle" xml:space="preserve">
+    <value>CatchCapture</value>
+  </data>
+  
+  <!-- Capture Types -->
+  <data name="AreaCapture" xml:space="preserve">
+    <value>Alan Yakalama</value>
+  </data>
+  <data name="DelayCapture" xml:space="preserve">
+    <value>Gecikmeli Yakalama</value>
+  </data>
+  <data name="RealTimeCapture" xml:space="preserve">
+    <value>Anlık Yakalama</value>
+  </data>
+  <data name="MultiCapture" xml:space="preserve">
+    <value>Çoklu Yakalama</value>
+  </data>
+  <data name="FullScreen" xml:space="preserve">
+    <value>Tam Ekran</value>
+  </data>
+  <data name="DesignatedCapture" xml:space="preserve">
+    <value>Sabit Alan</value>
+  </data>
+  <data name="WindowCapture" xml:space="preserve">
+    <value>Pencere Yakalama</value>
+  </data>
+  <data name="ElementCapture" xml:space="preserve">
+    <value>Öğe Yakalama</value>
+  </data>
+  <data name="ScrollCapture" xml:space="preserve">
+    <value>Kaydırmalı Yakalama</value>
+  </data>
+  <data name="OcrCapture" xml:space="preserve">
+    <value>OCR Yakalama</value>
+  </data>
+  
+  <!-- Window Modes -->
+  <data name="NormalMode" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  
+  <!-- Menu Items -->
+  <data name="Settings" xml:space="preserve">
+    <value>Ayarlar</value>
+  </data>
+  <data name="Exit" xml:space="preserve">
+    <value>Çıkış</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Kaydet</value>
+  </data>
+  <data name="SaveAll" xml:space="preserve">
+    <value>Tümünü Kaydet</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Sil</value>
+  </data>
+  <data name="DeleteAll" xml:space="preserve">
+    <value>Tümünü Sil</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Kopyala</value>
+  </data>
+  <data name="Print" xml:space="preserve">
+    <value>Yazdır</value>
+  </data>
+  
+  <!-- Editor Tools -->
+  <data name="Pen" xml:space="preserve">
+    <value>Kalem</value>
+  </data>
+  <data name="Highlighter" xml:space="preserve">
+    <value>İşaretleyici</value>
+  </data>
+  <data name="Text" xml:space="preserve">
+    <value>Metin</value>
+  </data>
+  <data name="Shape" xml:space="preserve">
+    <value>Şekil</value>
+  </data>
+  <data name="Eraser" xml:space="preserve">
+    <value>Silgi</value>
+  </data>
+  <data name="Mosaic" xml:space="preserve">
+    <value>Mozaik</value>
+  </data>
+  <data name="Numbering" xml:space="preserve">
+    <value>Numaralandırma</value>
+  </data>
+  <data name="NumberingMode" xml:space="preserve">
+    <value>Numaralandırma Modu</value>
+  </data>
+  <data name="Crop" xml:space="preserve">
+    <value>Kırp</value>
+  </data>
+  <data name="Rotate" xml:space="preserve">
+    <value>Döndür</value>
+  </data>
+  <data name="Undo" xml:space="preserve">
+    <value>Geri Al</value>
+  </data>
+  <data name="Redo" xml:space="preserve">
+    <value>Yinele</value>
+  </data>
+  
+  <!-- Settings -->
+  <data name="General" xml:space="preserve">
+    <value>Genel</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Dil</value>
+  </data>
+  <data name="Hotkeys" xml:space="preserve">
+    <value>Kısayollar</value>
+  </data>
+  <data name="StartWithWindows" xml:space="preserve">
+    <value>Windows ile Başlat</value>
+  </data>
+  <data name="StartInTrayMode" xml:space="preserve">
+    <value>Simge Durumunda Başlat</value>
+  </data>
+  <data name="SettingsSaved" xml:space="preserve">
+    <value>Ayarlar başarıyla kaydedildi</value>
+  </data>
+
+  <data name="Version" xml:space="preserve">
+    <value>Sürüm</value>
+  </data>
+  <data name="Default" xml:space="preserve">
+    <value>Varsayılan</value>
+  </data>
+  <data name="Select" xml:space="preserve">
+    <value>Seç</value>
+  </data>
+  <data name="SelectTooltip" xml:space="preserve">
+    <value>Öğeleri seçin ve ayarlayın</value>
+  </data>
+
+  
+  <!-- Messages -->
+  <data name="Confirm" xml:space="preserve">
+    <value>Onayla</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>İptal</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Evet</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>Hayır</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Hata</value>
+  </data>
+  <data name="Success" xml:space="preserve">
+    <value>Başarılı</value>
+  </data>
+  <!-- Added Keys -->
   <data name="Capture" xml:space="preserve"><value>Yakala</value></data>
   <data name="Captured" xml:space="preserve"><value>Yakalandı</value></data>
   <data name="Recapture" xml:space="preserve"><value>Yeniden Yakala</value></data>
@@ -107,21 +226,21 @@
   <data name="Reset" xml:space="preserve"><value>Sıfırla</value></data>
   <data name="FlipHorizontal" xml:space="preserve"><value>Yatay Çevir</value></data>
   <data name="FlipVertical" xml:space="preserve"><value>Dikey Çevir</value></data>
-  <data name="ImageSearch" xml:space="preserve"><value>Resim Arama</value></data>
+  <data name="ImageSearch" xml:space="preserve"><value>Görsel Ara</value></data>
   <data name="Share" xml:space="preserve"><value>Paylaş</value></data>
-  <data name="Extract" xml:space="preserve"><value>Ayıkla</value></data>
-  <data name="ToolOptions" xml:space="preserve"><value>Alet Seçenekleri</value></data>
+  <data name="Extract" xml:space="preserve"><value>Ayıklama</value></data>
+  <data name="ToolOptions" xml:space="preserve"><value>Araç Seçenekleri</value></data>
   <data name="RecentCaptures" xml:space="preserve"><value>Son Yakalamalar</value></data>
   <data name="Size" xml:space="preserve"><value>Boyut</value></data>
   <data name="OriginalSize" xml:space="preserve"><value>Orijinal</value></data>
-  <data name="ResetToOriginal" xml:space="preserve"><value>Orijinale Sıfırla</value></data>
+  <data name="ResetToOriginal" xml:space="preserve"><value>Orijinale Dön</value></data>
   <data name="AddText" xml:space="preserve"><value>Metin Ekle</value></data>
   <data name="DrawShapeTooltip" xml:space="preserve"><value>Şekil Çiz (Varsayılan: Dikdörtgen)</value></data>
   <data name="ShapeOptions" xml:space="preserve"><value>Şekil Seçenekleri</value></data>
-  <data name="ImageSizePrefix" xml:space="preserve"><value>Resim Boyutu: </value></data>
-  <data name="RestartRequired" xml:space="preserve"><value>Dil değişikliklerini uygulamak için yeniden başlatma gereklidir.</value></data>
+  <data name="ImageSizePrefix" xml:space="preserve"><value>Görsel Boyutu: </value></data>
+  <data name="RestartRequired" xml:space="preserve"><value>Dil değişikliği için yeniden başlatma gerekiyor.</value></data>
   <data name="MenuEdit" xml:space="preserve"><value>Menüyü Düzenle</value></data>
-  <data name="MenuEditGuide" xml:space="preserve"><value>Menü öğelerini yeniden sıralamak veya silmek için sürükleyip bırakın.</value></data>
+  <data name="MenuEditGuide" xml:space="preserve"><value>Sıralamak veya silmek için sürükleyip bırakın.</value></data>
   <data name="Add" xml:space="preserve"><value>Ekle</value></data>
   <data name="RestoreDefaultMenus" xml:space="preserve"><value>Varsayılan Menüleri Geri Yükle</value></data>
   <data name="VisitHomepage" xml:space="preserve"><value>Ana Sayfayı Ziyaret Et</value></data>
@@ -129,45 +248,45 @@
   <data name="PrivacyPolicy" xml:space="preserve"><value>Gizlilik Politikası</value></data>
   <data name="CaptureSettings" xml:space="preserve"><value>Yakalama Ayarları</value></data>
   <data name="SaveSettings" xml:space="preserve"><value>Kaydetme Ayarları</value></data>
-  <data name="SavePath" xml:space="preserve"><value>Kayıt Yolu</value></data>
+  <data name="SavePath" xml:space="preserve"><value>Kaydetme Yolu</value></data>
   <data name="Change" xml:space="preserve"><value>Değiştir</value></data>
-  <data name="FileFormat" xml:space="preserve"><value>Dosya Formatı</value></data>
+  <data name="FileFormat" xml:space="preserve"><value>Dosya Biçimi</value></data>
   <data name="Quality" xml:space="preserve"><value>Kalite</value></data>
   <data name="Options" xml:space="preserve"><value>Seçenekler</value></data>
-  <data name="AutoSaveCapture" xml:space="preserve"><value>Yakalamadan Sonra Otomatik Kaydet</value></data>
-  <data name="ShowPreviewAfterCapture" xml:space="preserve"><value>Yakalamadan Sonra Önizlemeyi Göster</value></data>
+  <data name="AutoSaveCapture" xml:space="preserve"><value>Yakalama Sonrası Otomatik Kaydet</value></data>
+  <data name="ShowPreviewAfterCapture" xml:space="preserve"><value>Yakalama Sonrası Önizleme Göster</value></data>
   <data name="HotkeySettings" xml:space="preserve"><value>Kısayol Ayarları</value></data>
   <data name="UsePrintScreen" xml:space="preserve"><value>Print Screen Tuşunu Kullan</value></data>
   <data name="SystemSettings" xml:space="preserve"><value>Sistem Ayarları</value></data>
   <data name="StartupMode" xml:space="preserve"><value>Başlangıç Modu</value></data>
   <data name="StartInNormal" xml:space="preserve"><value>Normal Modda Başlat</value></data>
   <data name="StartInSimple" xml:space="preserve"><value>Basit Modda Başlat</value></data>
-  <data name="StartInTray" xml:space="preserve"><value>Tepsi Modunda Başlat</value></data>
-  <data name="StartupModeNotice" xml:space="preserve"><value>※ Tepsi Modu yalnızca tepsi simgesini gösterir.</value></data>
+  <data name="StartInTray" xml:space="preserve"><value>Simge Durumunda Başlat</value></data>
+  <data name="StartupModeNotice" xml:space="preserve"><value>※ Simge modu yalnızca sistem tepsisi simgesini gösterir.</value></data>
   <data name="LanguageSettings" xml:space="preserve"><value>Dil Ayarları</value></data>
-  <data name="LanguageLabel" xml:space="preserve"><value>Dil Seçin</value></data>
-  <data name="NoExtractedText" xml:space="preserve"><value>Metin ayıklanamadı.</value></data>
+  <data name="LanguageLabel" xml:space="preserve"><value>Dil Seç</value></data>
+  <data name="NoExtractedText" xml:space="preserve"><value>Çıkarılan metin yok.</value></data>
   <data name="Info" xml:space="preserve"><value>Bilgi</value></data>
-  <data name="ImageSaveTitle" xml:space="preserve"><value>Resmi Kaydet</value></data>
-  <data name="ImageSaved" xml:space="preserve"><value>Resim başarıyla kaydedildi.</value></data>
-  <data name="NoImageToPrint" xml:space="preserve"><value>Yazdırılacak resim yok.</value></data>
+  <data name="ImageSaveTitle" xml:space="preserve"><value>Görsel Kaydet</value></data>
+  <data name="ImageSaved" xml:space="preserve"><value>Görsel başarıyla kaydedildi.</value></data>
+  <data name="NoImageToPrint" xml:space="preserve"><value>Yazdırılacak görsel yok.</value></data>
   <data name="PrintPreviewError" xml:space="preserve"><value>Yazdırma önizleme hatası</value></data>
   <data name="RecaptureError" xml:space="preserve"><value>Yeniden yakalama hatası</value></data>
-  <data name="ConfirmReset" xml:space="preserve"><value>Orijinale sıfırlansın mı? Tüm değişiklikler kaybolacak.</value></data>
-  <data name="EditImage" xml:space="preserve"><value>Resmi Düzenle</value></data>
+  <data name="ConfirmReset" xml:space="preserve"><value>Orijinale dön? Tüm değişiklikler kaybolacak.</value></data>
+  <data name="EditImage" xml:space="preserve"><value>Görseli Düzenle</value></data>
   <data name="PenTooltip" xml:space="preserve"><value>Kalem (Varsayılan: Siyah, 3px)</value></data>
-  <data name="BackgroundRemoval" xml:space="preserve"><value>Ark. Planı Kaldır</value></data>
-  <data name="BackgroundRemovalTooltip" xml:space="preserve"><value>Otomatik Arka Plan Kaldırma</value></data>
-  <data name="ImageSearchTooltip" xml:space="preserve"><value>Google Resim Arama</value></data>
-  <data name="ExtractText" xml:space="preserve"><value>Metni Ayıkla (OCR)</value></data>
-  <data name="ZoomReset" xml:space="preserve"><value>Orijinal (100%)</value></data>
+  <data name="BackgroundRemoval" xml:space="preserve"><value>Arka Plan Kaldır</value></data>
+  <data name="BackgroundRemovalTooltip" xml:space="preserve"><value>Arka Planı Otomatik Kaldır</value></data>
+  <data name="ImageSearchTooltip" xml:space="preserve"><value>Google Görsel Arama</value></data>
+  <data name="ExtractText" xml:space="preserve"><value>Metin Çıkar (OCR)</value></data>
+  <data name="ZoomReset" xml:space="preserve"><value>Orijinal (%100)</value></data>
   <data name="ZoomResetTooltip" xml:space="preserve"><value>Gerçek Boyutu Görüntüle</value></data>
   <data name="ZoomOut" xml:space="preserve"><value>Uzaklaştır</value></data>
   <data name="ZoomIn" xml:space="preserve"><value>Yakınlaştır</value></data>
   <data name="SizeLabel" xml:space="preserve"><value>Boyut</value></data>
   <data name="ShapeLbl" xml:space="preserve"><value>Şekil</value></data>
   <data name="PenLbl" xml:space="preserve"><value>Kalem</value></data>
-  <data name="HighlighterLbl" xml:space="preserve"><value>Vurgulayıcı</value></data>
+  <data name="HighlighterLbl" xml:space="preserve"><value>İşaretleyici</value></data>
   <data name="TextAdd" xml:space="preserve"><value>Metin Ekle</value></data>
   <data name="UndoLbl" xml:space="preserve"><value>Geri Al</value></data>
   <data name="ScreenRecording" xml:space="preserve"><value>Kaydet</value></data>
@@ -177,7 +296,7 @@
   <data name="FlipH" xml:space="preserve"><value>Yatay Çevir</value></data>
   <data name="FlipV" xml:space="preserve"><value>Dikey Çevir</value></data>
   <data name="CopySelected" xml:space="preserve"><value>Kopyala</value></data>
-  <data name="InstantEdit" xml:space="preserve"><value>Anında Düzenle</value></data>
+  <data name="InstantEdit" xml:space="preserve"><value>Anlık Düzenleme</value></data>
   <data name="OpenEditor" xml:space="preserve"><value>Düzenleyiciyi Aç</value></data>
   <data name="OpenSettings" xml:space="preserve"><value>Ayarları Aç</value></data>
   <data name="RealTimeF1Guide" xml:space="preserve"><value>Yakalamaya hazır olduğunuzda F1'e basın.</value></data>
@@ -185,16 +304,16 @@
   <data name="Delay3Sec" xml:space="preserve"><value>3 sn</value></data>
   <data name="Delay5Sec" xml:space="preserve"><value>5 sn</value></data>
   <data name="Delay10Sec" xml:space="preserve"><value>10 sn</value></data>
-  <data name="MultiCaptureGuide" xml:space="preserve"><value>ENTER: Birleşik&#xA;F1: Bireysel&#xA;ESC: Çıkış</value></data>
-  <data name="MultiCaptureMinReq" xml:space="preserve"><value>Lütfen en az bir bölge yakalayın.</value></data>
-  <data name="InvalidCompositeSize" xml:space="preserve"><value>Geçersiz birleşik resim boyutu.</value></data>
-  <data name="CompositeTooLarge" xml:space="preserve"><value>Birleşik resim çok büyük ({0}x{1}). Maksimum boyut 32000x32000'dir.</value></data>
-  <data name="CompositeError" xml:space="preserve"><value>Resim birleştirme hatası: {0}</value></data>
+  <data name="MultiCaptureGuide" xml:space="preserve"><value>ENTER: Birleştir&#xA;F1: Ayrı ayrı&#xA;ESC: Çık</value></data>
+  <data name="MultiCaptureMinReq" xml:space="preserve"><value>Lütfen en az bir alan yakalayın.</value></data>
+  <data name="InvalidCompositeSize" xml:space="preserve"><value>Birleştirilmiş görsel boyutu geçersiz.</value></data>
+  <data name="CompositeTooLarge" xml:space="preserve"><value>Birleştirilmiş görsel çok büyük ({0}x{1}). Maksimum boyut 32000x32000.</value></data>
+  <data name="CompositeError" xml:space="preserve"><value>Görselleri birleştirme hatası: {0}</value></data>
   <data name="CaptureError" xml:space="preserve"><value>Yakalama hatası: {0}</value></data>
   <data name="NumberingOptions" xml:space="preserve"><value>Boyut Ayarları</value></data>
   <data name="NumberingBadge" xml:space="preserve"><value>Rozet</value></data>
   <data name="NumberingText" xml:space="preserve"><value>Metin</value></data>
-  <data name="EditConfirmGuide" xml:space="preserve"><value>Devam etmeden önce lütfen düzenlemeleri onaylayın(✓).</value></data>
+  <data name="EditConfirmGuide" xml:space="preserve"><value>Lütfen devam etmeden önce düzenlemeleri onaylayın(✓).</value></data>
   <data name="Color" xml:space="preserve"><value>Renk</value></data>
   <data name="TextOptions" xml:space="preserve"><value>Metin Seçenekleri</value></data>
   <data name="Font" xml:space="preserve"><value>Yazı Tipi</value></data>
@@ -203,24 +322,24 @@
   <data name="FillOpacity" xml:space="preserve"><value>Opaklık</value></data>
   <data name="Intensity" xml:space="preserve"><value>Yoğunluk</value></data>
   <data name="ComputerApp" xml:space="preserve"><value>Bilgisayar Uygulaması...</value></data>
-  <data name="SelectApplication" xml:space="preserve"><value>Uygulama Seçin</value></data>
-  <data name="SortNameAsc" xml:space="preserve"><value>İsim ▲</value></data>
-  <data name="SortNameDesc" xml:space="preserve"><value>İsim ▼</value></data>
+  <data name="SelectApplication" xml:space="preserve"><value>Uygulama Seç</value></data>
+  <data name="SortNameAsc" xml:space="preserve"><value>Ad ▲</value></data>
+  <data name="SortNameDesc" xml:space="preserve"><value>Ad ▼</value></data>
   <data name="Browse" xml:space="preserve"><value>Gözat...</value></data>
-  <data name="SelectExecutable" xml:space="preserve"><value>Yürütülebilir Dosya Seçin</value></data>
-  <data name="ConfirmDeleteShortcut" xml:space="preserve"><value>'{0}' kısayolu silinsin mi?</value></data>
+  <data name="SelectExecutable" xml:space="preserve"><value>Çalıştırılabilir Dosya Seç</value></data>
+  <data name="ConfirmDeleteShortcut" xml:space="preserve"><value>'{0}' kısayolunu sil?</value></data>
   <data name="DeleteShortcut" xml:space="preserve"><value>Kısayolu Sil</value></data>
   <data name="AppLaunchFailed" xml:space="preserve"><value>Uygulama başlatılamadı: {0}</value></data>
-  <data name="GoogleSearch" xml:space="preserve"><value>Google Resim Ara</value></data>
+  <data name="GoogleSearch" xml:space="preserve"><value>Google Görsel Ara</value></data>
   <data name="CopiedToClipboard" xml:space="preserve"><value>Panoya kopyalandı.</value></data>
-  <data name="AllCopiedToClipboard" xml:space="preserve"><value>Tüm resimler panoya kopyalandı.</value></data>
-  <data name="SelectSaveFolder" xml:space="preserve"><value>Kayıt Klasörünü Seçin</value></data>
-  <data name="UnsavedImagesDeleteConfirm" xml:space="preserve"><value>Kaydedilmemiş resimler var. Tümünü silmek istediğinizden emin misiniz?</value></data>
-  <data name="UnsavedImageDeleteConfirm" xml:space="preserve"><value>Bu resim kaydedilmedi. Silmek istediğinizden emin misiniz?</value></data>
-  <data name="ShareImageTitle" xml:space="preserve"><value>Resmi Paylaş</value></data>
-  <data name="ShareImageDesc" xml:space="preserve"><value>Yakalanan resmi paylaşın</value></data>
-  <data name="ShareError" xml:space="preserve"><value>Paylaşım Hatası</value></data>
-  <data name="AllImagesSaved" xml:space="preserve"><value>Tüm resimler kaydedildi.</value></data>
+  <data name="AllCopiedToClipboard" xml:space="preserve"><value>Tüm görseller panoya kopyalandı.</value></data>
+  <data name="SelectSaveFolder" xml:space="preserve"><value>Kaydetme Klasörünü Seç</value></data>
+  <data name="UnsavedImagesDeleteConfirm" xml:space="preserve"><value>Kaydedilmemiş görseller var. Tümünü silmek istediğinizden emin misiniz?</value></data>
+  <data name="UnsavedImageDeleteConfirm" xml:space="preserve"><value>Bu görsel kaydedilmedi. Silmek istediğinizden emin misiniz?</value></data>
+  <data name="ShareImageTitle" xml:space="preserve"><value>Görsel Paylaş</value></data>
+  <data name="ShareImageDesc" xml:space="preserve"><value>Yakalanan görseli paylaş</value></data>
+  <data name="ShareError" xml:space="preserve"><value>Paylaşma Hatası</value></data>
+  <data name="AllImagesSaved" xml:space="preserve"><value>Tüm görseller kaydedildi.</value></data>
   <data name="CopyAll" xml:space="preserve"><value>Tümünü Kopyala</value></data>
   <data name="PixelSizeLabel" xml:space="preserve"><value>Piksel Boyutu</value></data>
   <data name="MagicWandToleranceLabel" xml:space="preserve"><value>Tolerans</value></data>
@@ -233,33 +352,33 @@
   <data name="Italic" xml:space="preserve"><value>İtalik</value></data>
   <data name="Underline" xml:space="preserve"><value>Altı Çizili</value></data>
   <data name="Shadow" xml:space="preserve"><value>Gölge</value></data>
-  <data name="OcrResultTitle" xml:space="preserve"><value>Metin Ayıklama Sonucu</value></data>
-  <data name="ExtractedText" xml:space="preserve"><value>Ayıklanan Metin</value></data>
+  <data name="OcrResultTitle" xml:space="preserve"><value>Metin Çıkarma Sonucu</value></data>
+  <data name="ExtractedText" xml:space="preserve"><value>Çıkarılan Metin</value></data>
   <data name="GoogleTranslate" xml:space="preserve"><value>Google Çeviri</value></data>
   <data name="Close" xml:space="preserve"><value>Kapat</value></data>
-  <data name="NoExtractedTextOcr" xml:space="preserve"><value>Ayıklanan metin yok.</value></data>
+  <data name="NoExtractedTextOcr" xml:space="preserve"><value>Çıkarılan metin yok.</value></data>
   <data name="OpeningGoogleTranslate" xml:space="preserve"><value>Google Çeviri açılıyor...\nMetin panoya kopyalandı.</value></data>
   <data name="GoogleTranslateFailed" xml:space="preserve"><value>Google Çeviri açılamadı: {0}</value></data>
   <data name="RedirectingToTranslate" xml:space="preserve"><value>Google Çeviri'ye yönlendiriliyor...</value></data>
-  <data name="OcrLanguagePackWarning" xml:space="preserve"><value>※ Japonca/Çince tanıma doğru değilse, Windows Ayarları > Zaman ve Dil > Dil bölümünden dil paketini yüklemeyi deneyin.</value></data>
-  <data name="SimpleModeDockinGuide" xml:space="preserve"><value>💡 İpucu: Kenara yerleştirmek için ekranın üst, sol veya sağ kenarına sürükleyin!</value></data>
+  <data name="OcrLanguagePackWarning" xml:space="preserve"><value>※ Japonca/Çince tanıma doğru değilse, Windows Ayarları > Saat &amp; Dil > Dil bölümünden dil paketi yüklemeyi deneyin.</value></data>
+  <data name="SimpleModeDockinGuide" xml:space="preserve"><value>💡 İpucu: Ekranın üst, sol veya sağ kenarına sürükleyerek sabitleyin!</value></data>
   <data name="ExitSimpleMode" xml:space="preserve"><value>Basit Moddan Çık</value></data>
-  <data name="MinimizeToTray" xml:space="preserve"><value>Tepsiye Küçült</value></data>
+  <data name="MinimizeToTray" xml:space="preserve"><value>Simge Durumuna Küçült</value></data>
   <data name="Enlarge" xml:space="preserve"><value>Arayüzü Büyüt</value></data>
   <data name="SwitchToNormalMode" xml:space="preserve"><value>Normal Moda Geç</value></data>
   <data name="SwitchToSimpleMode" xml:space="preserve"><value>Basit Moda Geç</value></data>
   <data name="Pin" xml:space="preserve"><value>Sabitle</value></data>
   <data name="Unpin" xml:space="preserve"><value>Sabitlemeyi Kaldır</value></data>
-  <data name="ViewCaptureList" xml:space="preserve"><value>Yakalama Listesini Gör</value></data>
+  <data name="ViewCaptureList" xml:space="preserve"><value>Yakalama Listesini Görüntüle</value></data>
   <data name="AddIcon" xml:space="preserve"><value>Simge Ekle</value></data>
-  <data name="HideToTray" xml:space="preserve"><value>Tepsiye Gizle</value></data>
+  <data name="HideToTray" xml:space="preserve"><value>Simge Durumuna Gizle</value></data>
   <data name="Fold" xml:space="preserve"><value>Katla</value></data>
-  <data name="UnitCapture" xml:space="preserve"><value>Birim Yakalama</value></data>
+  <data name="UnitCapture" xml:space="preserve"><value>Tekli Yakalama</value></data>
   <data name="ComputerApps" xml:space="preserve"><value>Bilgisayar Uygulamaları</value></data>
   <data name="Open" xml:space="preserve"><value>Aç</value></data>
   <data name="ShowMagnifier" xml:space="preserve"><value>Alan Yakalama Sırasında Büyüteç Göster</value></data>
   <data name="RecordingTool" xml:space="preserve"><value>Kayıt</value></data>
-  <data name="StartStopRecording" xml:space="preserve"><value>Kaydı Başlat/Durdur</value></data>
+  <data name="StartStopRecording" xml:space="preserve"><value>Kayıt Başlat/Durdur</value></data>
   <data name="Pause" xml:space="preserve"><value>Duraklat</value></data>
   <data name="Resume" xml:space="preserve"><value>Devam Et</value></data>
   <data name="SystemAudioOff" xml:space="preserve"><value>Sistem Sesi (KAPALI)</value></data>
@@ -273,10 +392,11 @@
   <data name="HideToolbar" xml:space="preserve"><value>Araç Çubuğunu Gizle</value></data>
   <data name="ShowToolbar" xml:space="preserve"><value>Araç Çubuğunu Göster</value></data>
   <data name="AutoSnap" xml:space="preserve"><value>Mıknatıs</value></data>
-  <data name="AreaSelection" xml:space="preserve"><value>Alan Seçimi</value></data>
+  <data name="AreaSelection" xml:space="preserve"><value>Alan Seç</value></data>
+
   <data name="DrawingTools" xml:space="preserve"><value>Çizim Araçları</value></data>
   <data name="ToolPen" xml:space="preserve"><value>Kalem</value></data>
-  <data name="ToolHighlighter" xml:space="preserve"><value>Vurgulayıcı</value></data>
+  <data name="ToolHighlighter" xml:space="preserve"><value>İşaretleyici</value></data>
   <data name="ToolEraser" xml:space="preserve"><value>Silgi</value></data>
   <data name="ToolLine" xml:space="preserve"><value>Çizgi</value></data>
   <data name="ToolArrow" xml:space="preserve"><value>Ok</value></data>
@@ -284,28 +404,28 @@
   <data name="ToolEllipse" xml:space="preserve"><value>Elips</value></data>
   <data name="ToolNumbering" xml:space="preserve"><value>Numaralandırma</value></data>
   <data name="ToolClearAll" xml:space="preserve"><value>Tümünü Temizle</value></data>
-  <data name="OpenSaveFolder" xml:space="preserve"><value>Kayıt Klasörünü Aç</value></data>
+  <data name="OpenSaveFolder" xml:space="preserve"><value>Klasörü Aç</value></data>
   <data name="ModeSelect" xml:space="preserve"><value>Mod Seçimi</value></data>
   <data name="ThemeSettings" xml:space="preserve"><value>Tema Ayarları</value></data>
   <data name="ThemePreset" xml:space="preserve"><value>Tema Hazır Ayarları</value></data>
   <data name="ThemeGeneral" xml:space="preserve"><value>Genel (Varsayılan)</value></data>
-  <data name="ThemeDark" xml:space="preserve"><value>Karanlık Mod</value></data>
-  <data name="ThemeLight" xml:space="preserve"><value>Aydınlık Mod</value></data>
+  <data name="ThemeDark" xml:space="preserve"><value>Koyu Mod</value></data>
+  <data name="ThemeLight" xml:space="preserve"><value>Açık Mod</value></data>
   <data name="ThemeBlue" xml:space="preserve"><value>Mavi Mod</value></data>
   <data name="ThemeCustom" xml:space="preserve"><value>Özel</value></data>
   <data name="ThemeBgColor" xml:space="preserve"><value>Arka Plan Rengi</value></data>
   <data name="ThemeTextColor" xml:space="preserve"><value>Metin Rengi</value></data>
-  <data name="ThemeColorGuide" xml:space="preserve"><value>※ Renkleri seçmek için renk kutularına tıklayın.</value></data>
+  <data name="ThemeColorGuide" xml:space="preserve"><value>※ Renk kutularına tıklayarak renk seçin.</value></data>
   <data name="Apply" xml:space="preserve"><value>Uygula</value></data>
   <data name="Preview" xml:space="preserve"><value>Önizleme</value></data>
   <data name="ThemeSampleLabel" xml:space="preserve"><value>Önizleme Örneği</value></data>
   <data name="ThemeSampleText" xml:space="preserve"><value>Bu bir tema önizleme örnek metnidir. (ABCabc 123)</value></data>
   <data name="RecordingSettings" xml:space="preserve"><value>Kayıt Ayarları</value></data>
   <data name="BasicSettings" xml:space="preserve"><value>Temel Ayarlar</value></data>
-  <data name="RecordingStartStopHotkey" xml:space="preserve"><value>Kayıt Başlat/Durdur Kısayolu</value></data>
+  <data name="RecordingStartStopHotkey" xml:space="preserve"><value>Kayıt/Bitir Kısayolu</value></data>
   <data name="RecordStartStop" xml:space="preserve"><value>Kayıt/Durdur</value></data>
   <data name="CaptureLineSettings" xml:space="preserve"><value>Yakalama Çizgisi Ayarları</value></data>
-  <data name="OverlayBgColor" xml:space="preserve"><value>Katman Arka Plan Rengi</value></data>
+  <data name="OverlayBgColor" xml:space="preserve"><value>Kaplama Arka Plan Rengi</value></data>
   <data name="LineStyle" xml:space="preserve"><value>Çizgi Stili</value></data>
   <data name="LineThickness" xml:space="preserve"><value>Çizgi Kalınlığı</value></data>
   <data name="LineColor" xml:space="preserve"><value>Çizgi Rengi</value></data>
@@ -313,21 +433,335 @@
   <data name="SolidLine" xml:space="preserve"><value>Düz</value></data>
   <data name="DashLine" xml:space="preserve"><value>Kesikli</value></data>
   <data name="DotLine" xml:space="preserve"><value>Noktalı</value></data>
-  <data name="DashDotLine" xml:space="preserve"><value>Çizgi Nokta</value></data>
+  <data name="DashDotLine" xml:space="preserve"><value>Kesik-Noktalı</value></data>
   <data name="Outline" xml:space="preserve"><value>Anahat</value></data>
   <data name="QualityHigh" xml:space="preserve"><value>Yüksek Kalite</value></data>
   <data name="QualityMedium" xml:space="preserve"><value>Orta</value></data>
   <data name="QualityLow" xml:space="preserve"><value>Düşük Kalite</value></data>
-  <data name="PrintPreviewTitle" xml:space="preserve"><value>Yazdırma Önizleme</value></data>
-  <data name="OrientationLabel" xml:space="preserve"><value>Yönlendirme:</value></data>
+  
+  <!-- Print Preview -->
+  <data name="PrintPreviewTitle" xml:space="preserve"><value>Yazdırma Önizlemesi</value></data>
+  <data name="OrientationLabel" xml:space="preserve"><value>Yön:</value></data>
   <data name="Portrait" xml:space="preserve"><value>Dikey</value></data>
   <data name="Landscape" xml:space="preserve"><value>Yatay</value></data>
   <data name="PrintOptionsLabel" xml:space="preserve"><value>Yazdırma Seçenekleri:</value></data>
   <data name="FitToPage" xml:space="preserve"><value>Sayfaya Sığdır</value></data>
   <data name="ActualSize" xml:space="preserve"><value>Gerçek Boyut</value></data>
   <data name="FillPage" xml:space="preserve"><value>Sayfayı Doldur</value></data>
-  <data name="PrintingStarted" xml:space="preserve"><value>Yazdırma başlatıldı.</value></data>
-  <data name="PrintingError" xml:space="preserve"><value>Yazdırılırken hata oluştu</value></data>
+  <data name="PrintingStarted" xml:space="preserve"><value>Yazdırma başladı.</value></data>
+  <data name="PrintingError" xml:space="preserve"><value>Yazdırma sırasında hata oluştu</value></data>
   <data name="PreviewGenerationError" xml:space="preserve"><value>Önizleme oluşturma hatası</value></data>
-  <data name="PrintJobName" xml:space="preserve"><value>CatchCapture Resim Yazdırma</value></data>
+  <data name="PrintJobName" xml:space="preserve"><value>CatchCapture Görsel Yazdırma</value></data>
+
+
+  <data name="StartAsAdmin" xml:space="preserve"><value>Yönetici Olarak Çalıştır</value></data>
+  <data name="StartAsAdminTooltip" xml:space="preserve"><value>Yönetici olarak çalıştırmak, yönetici haklarıyla çalışan programlarda (oyunlar, görev yöneticisi vb.) küresel kısayolların düzgün çalışması için gerekebilir.</value></data>
+  <data name="NoteSettings" xml:space="preserve"><value>Not Ayarları</value></data>
+
+  <data name="NoteStorage" xml:space="preserve"><value>Depolama &amp; Veritabanı</value></data>
+  <data name="NotePath" xml:space="preserve"><value>Not Depolama Yolu</value></data>
+  <data name="OpenFolder" xml:space="preserve"><value>Klasörü Aç</value></data>
+  <data name="ExtraOptions" xml:space="preserve"><value>Ek Seçenekler</value></data>
+  <data name="BackupRestore" xml:space="preserve"><value>Yedekleme &amp; Geri Yükleme</value></data>
+  <data name="ExportBackup" xml:space="preserve"><value>Dışa Aktar (.zip)</value></data>
+  <data name="ImportBackup" xml:space="preserve"><value>İçe Aktar (.zip)</value></data>
+  <data name="MergeBackup" xml:space="preserve"><value>Birleştir (.zip)</value></data>
+  <data name="MergeConfirmMsg" xml:space="preserve"><value>Seçilen yedeği mevcut verilerle birleştirmek istiyor musunuz?\n(Öğeler kronolojik sırayla eklenecek)</value></data>
+  <data name="MergingMsg" xml:space="preserve"><value>Veriler birleştiriliyor... Lütfen bekleyin.</value></data>
+  <data name="MergeSuccessMsg" xml:space="preserve"><value>Veri birleştirme tamamlandı.</value></data>
+  <data name="ErrorMerge" xml:space="preserve"><value>Veri birleştirme hatası</value></data>
+  <data name="NoteSecurity" xml:space="preserve"><value>Not Güvenliği &amp; Kilidi</value></data>
+  <data name="EnableNotePassword" xml:space="preserve"><value>Parola Kilidi Kullan</value></data>
+  <data name="SetChangePassword" xml:space="preserve"><value>Parola Ayarla/Değiştir</value></data>
+  <data name="PasswordHint" xml:space="preserve"><value>Parola İpucu</value></data>
+  <data name="PasswordWarning" xml:space="preserve"><value>* Uyarı: Parola kaybolursa veriler geri alınamaz.</value></data>
+  <data name="ImageOptimization" xml:space="preserve"><value>Görsel Optimizasyonu</value></data>
+  <data name="Unknown" xml:space="preserve">
+    <value>Bilinmiyor</value>
+  </data>
+
+  <data name="PleaseEnterPassword" xml:space="preserve">
+    <value>Lütfen parola girin.</value>
+  </data>
+  <data name="PasswordsDoNotMatch" xml:space="preserve">
+    <value>Parolalar eşleşmiyor.</value>
+  </data>
+  <data name="PleaseEnterPasswordHint" xml:space="preserve">
+    <value>Lütfen parola ipucu girin.</value>
+  </data>
+
+  <data name="ImageQuality" xml:space="preserve"><value>Görsel Kalitesi</value></data>
+  <data name="OptimizeNoteImages" xml:space="preserve"><value>Kaydetmede görsel boyutunu optimize et</value></data>
+  <data name="HotkeyRegisterError" xml:space="preserve"><value>Kısayol başka bir uygulama tarafından kullanılıyor.\nLütfen Ayarlar'dan değiştirin.</value></data>
+  <data name="NoteSave" xml:space="preserve"><value>Not Kaydet</value></data>
+  <data name="SaveNoteTooltip" xml:space="preserve"><value>Notlarıma Kaydet</value></data>
+  <data name="NoteExplorerTitle" xml:space="preserve"><value>CatchCapture Not Gezgini</value></data>
+  <data name="MyNote" xml:space="preserve"><value>Notlarım</value></data>
+  <data name="OpenMyNote" xml:space="preserve"><value>Notlarım</value></data>
+  <data name="NewNote" xml:space="preserve"><value>Yeni Not</value></data>
+  <data name="NoteSettingsMenu" xml:space="preserve"><value>Not Ayarları</value></data>
+  <data name="Explore" xml:space="preserve"><value>Keşfet</value></data>
+  <data name="AllNotes" xml:space="preserve"><value>Tüm Notlar</value></data>
+  <data name="GroupNote" xml:space="preserve"><value>Not Grubu</value></data>
+  <data name="SortByLatest" xml:space="preserve"><value>En Yeni</value></data>
+  <data name="SortByName" xml:space="preserve"><value>Ad</value></data>
+  <data name="Today" xml:space="preserve"><value>Bugün</value></data>
+  <data name="Recent7Days" xml:space="preserve"><value>Son 7 Gün</value></data>
+  <data name="Trash" xml:space="preserve"><value>Çöp Kutusu</value></data>
+  <data name="Tags" xml:space="preserve"><value>Etiketler</value></data>
+  <data name="SelectAll" xml:space="preserve"><value>Tümünü Seç</value></data>
+  <data name="UnselectAll" xml:space="preserve"><value>Seçimi Kaldır</value></data>
+  <data name="DeleteSelected" xml:space="preserve"><value>Seçilenleri Sil</value></data>
+  <data name="RecentStatusInfo" xml:space="preserve"><value>Son haftanın kayıtları</value></data>
+  <data name="SearchPlaceholder" xml:space="preserve"><value>Ara...</value></data>
+  <data name="ColGroup" xml:space="preserve"><value>Grup</value></data>
+  <data name="ColTitle" xml:space="preserve"><value>Başlık</value></data>
+  <data name="ColContent" xml:space="preserve"><value>İçerik</value></data>
+  <data name="ColLastModified" xml:space="preserve"><value>Son Değiştirme</value></data>
+  <data name="PreviewLoading" xml:space="preserve"><value>Bir not seçin.</value></data>
+
+  <data name="NoteSecurityTip" xml:space="preserve"><value>Notlarınızı parola ayarlarıyla güvenli koruyun.</value></data>
+  <data name="NoteInputTitle" xml:space="preserve"><value>CatchCapture - Yaz</value></data>
+  <data name="WriteNote" xml:space="preserve"><value>Not Yaz</value></data>
+  <data name="EditNote" xml:space="preserve"><value>Not Düzenle</value></data>
+  <data name="ManageCategories" xml:space="preserve"><value>Kategorileri Yönet</value></data>
+  <data name="TitlePlaceholder" xml:space="preserve"><value>Lütfen başlık girin</value></data>
+  <data name="TagsPlaceholder" xml:space="preserve"><value>Lütfen etiketleri girin (virgülle ayrılmış)</value></data>
+  <data name="Link" xml:space="preserve"><value>Bağlantı</value></data>
+  <data name="LinkPlaceholder" xml:space="preserve"><value>Lütfen ilgili bağlantıyı girin.</value></data>
+  <data name="FileAttachment" xml:space="preserve"><value>Dosya Eki</value></data>
+  <data name="FileAttachmentGuide" xml:space="preserve"><value>Dosyaları buraya sürükleyin veya tıklayarak ekleyin.</value></data>
+  <data name="FinishWrite" xml:space="preserve"><value>Yazmayı Bitir</value></data>
+  <data name="FinishEdit" xml:space="preserve"><value>Düzenlemeyi Bitir</value></data>
+  <data name="NotePasswordTitle" xml:space="preserve"><value>Not Parola Ayarları</value></data>
+  <data name="NewPassword" xml:space="preserve"><value>Yeni Parola</value></data>
+  <data name="ConfirmPassword" xml:space="preserve"><value>Parolayı Onayla</value></data>
+  <data name="PasswordHintRequired" xml:space="preserve"><value>Parola İpucu (Zorunlu)</value></data>
+  <data name="PasswordLossWarning" xml:space="preserve"><value>※ Uyarı: Yerel depolama nedeniyle parola kaybolursa veriler geri alınamaz.</value></data>
+  <data name="CopyColor" xml:space="preserve"><value>Renk Kopyala</value></data>
+  <data name="SwitchColorFormat" xml:space="preserve"><value>RGB/HEX Değiştir</value></data>
+  <data name="SelectAreaGuide" xml:space="preserve"><value>Yakalama alanı seçmek için sürükleyin.</value></data>
+  <data name="ErrReadNote" xml:space="preserve"><value>Not bilgisi okuma hatası:</value></data>
+  <data name="SelectAttachFiles" xml:space="preserve"><value>Ek Dosyaları Seç</value></data>
+  <data name="ErrMainWinNotFound" xml:space="preserve"><value>Ana pencere bulunamadı.</value></data>
+
+  <data name="NoContentToSave" xml:space="preserve"><value>Kaydedilecek içerik yok.</value></data>
+  <data name="Untitled" xml:space="preserve"><value>Başlıksız</value></data>
+  <data name="NoteEditSuccess" xml:space="preserve"><value>Not başarıyla güncellendi.</value></data>
+  <data name="NoteSaveSuccess" xml:space="preserve"><value>Not başarıyla kaydedildi.</value></data>
+  <data name="ErrSaveNote" xml:space="preserve"><value>Not kaydetme hatası:</value></data>
+  <data name="SearchResults" xml:space="preserve"><value>Arama Sonuçları: '{0}'</value></data>
+  <data name="TagFilter" xml:space="preserve"><value>Etiket Filtresi: #{0}</value></data>
+  <data name="TodayRecords" xml:space="preserve"><value>Bugünün Kayıtları</value></data>
+  <data name="RecentWeekRecords" xml:space="preserve"><value>Son Haftanın Kayıtları</value></data>
+  <data name="TrashRecords" xml:space="preserve"><value>Çöp Kutusundaki Kayıtlar</value></data>
+  <data name="GroupLabel" xml:space="preserve"><value>Grup: {0}</value></data>
+  <data name="AllRecords" xml:space="preserve"><value>Tüm Kayıtlar</value></data>
+  <data name="DefaultCategory" xml:space="preserve"><value>Varsayılan</value></data>
+  <data name="ErrLoadNotes" xml:space="preserve"><value>Notlar yüklenirken hata oluştu:</value></data>
+  <data name="DirectWrite" xml:space="preserve"><value>Doğrudan Yazıldı</value></data>
+  <data name="FileNotFound" xml:space="preserve"><value>Dosya bulunamadı.</value></data>
+  <data name="ErrOpenFile" xml:space="preserve"><value>Dosya açılırken hata oluştu:</value></data>
+  <data name="ErrOpenNoteInput" xml:space="preserve"><value>Not yazma penceresi açılırken hata oluştu:</value></data>
+  <data name="ErrOpenNoteEdit" xml:space="preserve"><value>Not düzenleme penceresi açılırken hata oluştu:</value></data>
+  <data name="ConfirmDeleteNote" xml:space="preserve"><value>Bu notu silmek istediğinizden emin misiniz?</value></data>
+  <data name="ConfirmDeleteSelectedNotes" xml:space="preserve"><value>Seçilen {0} notu silmek istediğinizden emin misiniz?</value></data>
+  <data name="PleaseSelectNotesToDelete" xml:space="preserve"><value>Lütfen silmek için not seçin.</value></data>
+  <data name="ConfirmDelete" xml:space="preserve"><value>Silmeyi Onayla</value></data>
+  <data name="ErrDelete" xml:space="preserve"><value>Silme sırasında hata oluştu:</value></data>
+  <data name="NoteUnlock" xml:space="preserve"><value>Not Kilidini Aç</value></data>
+  <data name="ProtectedContent" xml:space="preserve"><value>Korunan İçerik</value></data>
+  <data name="ShowHint" xml:space="preserve"><value>İpucunu Göster</value></data>
+  <data name="Unlock" xml:space="preserve"><value>Kilidi Aç</value></data>
+  <data name="NoHintRegistered" xml:space="preserve"><value>Kayıtlı ipucu yok.</value></data>
+  <data name="PasswordHintMessage" xml:space="preserve"><value>Parola İpucu: {0}</value></data>
+  <data name="Hint" xml:space="preserve"><value>İpucu</value></data>
+  <data name="CategoryManagementTitle" xml:space="preserve"><value>Kategori Yönetimi</value></data>
+  <data name="CategoryManagementDesc" xml:space="preserve"><value>Notlarınızı düzenlemek için grupları yönetin.</value></data>
+  <data name="NewCategoryPlaceholder" xml:space="preserve"><value>Yeni kategori girin...</value></data>
+  <data name="DefaultCategoryDeleteError" xml:space="preserve"><value>Varsayılan kategori silinemez.</value></data>
+  <data name="DeleteCategoryConfirm" xml:space="preserve"><value>Bu kategoriyi silmek istediğinizden emin misiniz? İlgili notlar 'Varsayılan'a taşınacak.</value></data>
+  <data name="Tip1" xml:space="preserve"><value>Notlarınızı parola ayarlarıyla güvenli koruyun.</value></data>
+  <data name="Tip2" xml:space="preserve"><value>Değerli fikirleri kaydetmek için yakalama sonrası hemen notlara kaydedin.</value></data>
+  <data name="Tip3" xml:space="preserve"><value>Düşük depolama ile kalıcı saklama için dış sayfalardan görsel ve içerik yapıştırın.</value></data>
+  <data name="Tip4" xml:space="preserve"><value>Her bilgisayarda Notlarımı paylaşmak için N-Drive veya Google Drive gibi bulut klasörlerini bağlayın.</value></data>
+  <data name="Tip5" xml:space="preserve"><value>Çok sayıda not arasında istediğinizi hızlı bulmak için etiket kullanın.</value></data>
+  <data name="Tip6" xml:space="preserve"><value>Not düzenleme penceresinde sürükle-bırak ile kolayca görsel ekleyin.</value></data>
+  <data name="Tip7" xml:space="preserve"><value>Arama işlevi başlıkların yanı sıra not içeriğindeki metni de arar.</value></data>
+  <data name="Tip8" xml:space="preserve"><value>Notlardaki görsellere çift tıklayarak düzenleyin.</value></data>
+  <data name="Tip9" xml:space="preserve"><value>Yakalama sırasında 'Not Kaydet'e tıklayarak tek tıkla not oluşturun.</value></data>
+  <data name="ColorPickerTitle" xml:space="preserve"><value>Renk Seçici</value></data>
+  <data name="Transparent" xml:space="preserve"><value>Şeffaf</value></data>
+  <data name="TextColor" xml:space="preserve"><value>Metin Rengi</value></data>
+  <data name="HighlightColor" xml:space="preserve"><value>Vurgu Rengi</value></data>
+  <data name="AlignLeft" xml:space="preserve"><value>Sola Hizala</value></data>
+  <data name="AlignCenter" xml:space="preserve"><value>Ortala</value></data>
+  <data name="AlignRight" xml:space="preserve"><value>Sağa Hizala</value></data>
+  <data name="BulletList" xml:space="preserve"><value>Madde İşaretli Liste</value></data>
+  <data name="NumberList" xml:space="preserve"><value>Numaralı Liste</value></data>
+  <data name="InsertImage" xml:space="preserve"><value>Görsel Ekle</value></data>
+  <data name="InsertCapture" xml:space="preserve"><value>Yakalama Ekle</value></data>
+  <data name="InsertLink" xml:space="preserve"><value>Bağlantı Ekle</value></data>
+  <data name="LineSpacing" xml:space="preserve"><value>Satır Aralığı</value></data>
+  <data name="FontFamily" xml:space="preserve"><value>Yazı Tipi Ailesi</value></data>
+  <data name="FontSize" xml:space="preserve"><value>Yazı Tipi Boyutu</value></data>
+  <data name="Password" xml:space="preserve"><value>Parola</value></data>
+  <data name="RemoteRepository" xml:space="preserve"><value>Uzak Depo</value></data>
+  <data name="InitializeReset" xml:space="preserve"><value>Başlat</value></data>
+
+  <data name="NoteResetConfirm1" xml:space="preserve"><value>Tüm not verilerini başlatmak istediğinizden emin misiniz?</value></data>
+  <data name="NoteResetConfirm2" xml:space="preserve"><value>Başlatılan veriler geri alınamaz.\nGerçekten emin misiniz?</value></data>
+  <data name="DataLossWarning" xml:space="preserve"><value>Veri Kalıcı Silme Uyarısı</value></data>
+  <data name="NoteResetComplete" xml:space="preserve"><value>Not verileri başlatıldı.</value></data>
+  <data name="NoteResetError" xml:space="preserve"><value>Başlatma hatası: {0}</value></data>
+  <data name="TrashSettings" xml:space="preserve"><value>Çöp Kutusu Ayarları</value></data>
+  <data name="TrashRetentionPeriod" xml:space="preserve"><value>Çöp Kutusu Saklama Süresi</value></data>
+  <data name="TrashRetentionNotice" xml:space="preserve"><value>(Belirlenen süre sonunda otomatik sil)</value></data>
+  <data name="RetentionPermanent" xml:space="preserve"><value>Kalıcı</value></data>
+  <data name="Days" xml:space="preserve"><value>Gün</value></data>
+  <data name="EmptyTrash" xml:space="preserve"><value>Çöp Kutusunu Boşalt</value></data>
+  <data name="Notice" xml:space="preserve"><value>Bildirim</value></data>
+  <data name="TrashRetentionInfo" xml:space="preserve"><value>Önemli: Çöp kutusu saklama süresi şu anda {0} gün. Not Ayarları'ndan değiştirebilirsiniz.</value></data>
+  <data name="TrashRetentionPermanentInfo" xml:space="preserve"><value>Önemli: Çöp kutusu kalıcı saklama olarak ayarlı. Not Ayarları'ndan değiştirebilirsiniz.</value></data>
+  <data name="NoNotes" xml:space="preserve"><value>Not bulunamadı</value></data>
+  <data name="TrashEmpty" xml:space="preserve"><value>Çöp kutusu boş</value></data>
+  <data name="NotePathDesc" xml:space="preserve"><value>Not veritabanı ve eklerin kaydedildiği yol.</value></data>
+  <data name="Recent30Days" xml:space="preserve"><value>Son 30 Gün</value></data>
+  <data name="Recent3Months" xml:space="preserve"><value>Son 3 Ay</value></data>
+  <data name="Recent6Months" xml:space="preserve"><value>Son 6 Ay</value></data>
+  <data name="ListView" xml:space="preserve"><value>Liste Görünümü</value></data>
+  <data name="CardView" xml:space="preserve"><value>Kart Görünümü</value></data>
+  <data name="TrashEmptyComplete" xml:space="preserve"><value>Çöp kutusu boşaltıldı.</value></data>
+  <data name="Minimize" xml:space="preserve"><value>Küçült</value></data>
+  <data name="Maximize" xml:space="preserve"><value>Büyüt</value></data>
+  <data name="Restore" xml:space="preserve"><value>Geri Yükle</value></data>
+  <data name="RecentRecordsFormat" xml:space="preserve">
+    <value>{0} Kayıt</value>
+  </data>
+  <data name="TrashEmptyWarning" xml:space="preserve">
+    <value>Silinen öğeler geri alınamaz.
+Tüm öğeleri kalıcı olarak silmek istediğinizden emin misiniz?</value>
+  </data>
+  <data name="TrashEmptyFailed" xml:space="preserve">
+    <value>Çöp kutusu boşaltılamadı: </value>
+  </data>
+  <data name="ErrPreviewFailed" xml:space="preserve">
+    <value>Önizleme açılamadı: </value>
+  </data>
+  <data name="AlwaysOnTop" xml:space="preserve">
+    <value>Her Zaman Üstte</value>
+  </data>
+  <data name="UnpinAlwaysOnTop" xml:space="preserve"><value>Üstten Çıkar</value></data>
+  <data name="PrintOrSavePDF" xml:space="preserve">
+    <value>Yazdır / PDF Olarak Kaydet</value>
+  </data>
+  <data name="ErrLoadNote" xml:space="preserve">
+    <value>Not yüklenemedi: </value>
+  </data>
+  <data name="ErrInitExplorer" xml:space="preserve"><value>Gezgin başlatma hatası: </value></data>
+  <data name="ConfirmRestoreNote" xml:space="preserve"><value>Bu notu geri yüklemek istiyor musunuz?</value></data>
+  <data name="ErrRestoreNote" xml:space="preserve"><value>Geri yükleme sırasında hata oluştu: </value></data>
+  <data name="ErrPinNote" xml:space="preserve"><value>Sabitleme durumu değiştirilirken hata oluştu: </value></data>
+
+
+  <data name="ChangeTheme" xml:space="preserve"><value>Tema Değiştir</value></data>
+  <data name="SimpleMode" xml:space="preserve"><value>Basit</value></data>
+  <data name="TrayMode" xml:space="preserve"><value>Tepsi</value></data>
+  <data name="SaveToMyNote" xml:space="preserve"><value>Notlarıma Kaydet</value></data>
+  <data name="ConfirmDisableNotePassword" xml:space="preserve"><value>Parola kilidini devre dışı bırakmak istiyor musunuz?&#x0a;(Ayarlanan parola saklanacak)</value></data>
+  
+  <data name="SettingsWindowTitle" xml:space="preserve"><value>CatchCapture - Ayarlar</value></data>
+  <data name="SettingsFormatFeatures" xml:space="preserve"><value>Biçim Özellikleri</value></data>
+  <data name="SettingsFormatGuide" xml:space="preserve"><value>Dosya Biçimi Kılavuzu</value></data>
+  <data name="SettingsColFormat" xml:space="preserve"><value>Biçim</value></data>
+  <data name="SettingsColTransparent" xml:space="preserve"><value>Şeffaf Arka Plan</value></data>
+  <data name="SettingsColAnimation" xml:space="preserve"><value>Animasyon</value></data>
+  <data name="SettingsColQuality" xml:space="preserve"><value>Kalite</value></data>
+  <data name="SettingsColCompression" xml:space="preserve"><value>Sıkıştırma Verimliliği</value></data>
+  <data name="SettingsColUsage" xml:space="preserve"><value>Birincil Kullanım</value></data>
+  <data name="SettingsValHigh" xml:space="preserve"><value>Yüksek</value></data>
+  <data name="SettingsValMidHigh" xml:space="preserve"><value>Orta/Yüksek</value></data>
+  <data name="SettingsValLow" xml:space="preserve"><value>Düşük</value></data>
+  <data name="SettingsValUltra" xml:space="preserve"><value>Ultra</value></data>
+  <data name="SettingsPnGEfficiency" xml:space="preserve"><value>Düşük (Kayıpsız Sıkıştırma)</value></data>
+  <data name="SettingsPnGUsage" xml:space="preserve"><value>Logolar, İkonlar, Ekran Görüntüleri</value></data>
+  <data name="SettingsJpgEfficiency" xml:space="preserve"><value>Yüksek (Kayıplı Sıkıştırma)</value></data>
+  <data name="SettingsJpgUsage" xml:space="preserve"><value>Fotoğraflar, Web Görselleri</value></data>
+  <data name="SettingsBmpEfficiency" xml:space="preserve"><value>Yok (Orijinal)</value></data>
+  <data name="SettingsBmpUsage" xml:space="preserve"><value>Basit Windows Grafikleri</value></data>
+  <data name="SettingsGifEfficiency" xml:space="preserve"><value>Yüksek (Renk Sınırlaması)</value></data>
+  <data name="SettingsGifUsage" xml:space="preserve"><value>Kısa Animasyonlar (GIF)</value></data>
+  <data name="SettingsWebpEfficiency" xml:space="preserve"><value>Çok Yüksek (Yeni Nesil Sıkıştırma)</value></data>
+  <data name="SettingsWebpUsage" xml:space="preserve"><value>Web İçin Optimize Görseller</value></data>
+  <data name="SettingsShowMagnifierDesc" xml:space="preserve"><value>Alan yakalama sırasında büyüteç göster</value></data>
+  <data name="SettingsShowPreviewDesc" xml:space="preserve"><value>Yakalama sonrası önizleme/düzenleyici göster</value></data>
+  <data name="SettingsAutoSaveDesc" xml:space="preserve"><value>Yakalama sonrası dosyayı otomatik kaydet</value></data>
+  <data name="RecQualityMP4" xml:space="preserve"><value>Kalite (MP4)</value></data>
+  <data name="RecFpsMP4" xml:space="preserve"><value>Kare Hızı (MP4)</value></data>
+  <data name="RecHotkeyTitle" xml:space="preserve"><value>Kayıt/Durdur Kısayolu</value></data>
+  <data name="RecordStop" xml:space="preserve"><value>Kayıt/Durdur</value></data>
+  <data name="NoteStorageDatabase" xml:space="preserve"><value>Depolama &amp; Veritabanı</value></data>
+  <data name="NoteStorageLocation" xml:space="preserve"><value>Not Depolama Konumu</value></data>
+  <data name="NotePathStructure" xml:space="preserve"><value>※ Klasör Yapısı: [NotKlasörü]\notedb (VT), [NotKlasörü]\img (Görseller)</value></data>
+  <data name="RemoteStorage" xml:space="preserve"><value>Uzak Depolama</value></data>
+  <data name="RemoteStorageTooltip" xml:space="preserve"><value>Notları cihazlar arası paylaşmak için bulut klasörleri (Google Drive vb.) bağlayın.</value></data>
+  <data name="RemoteStorageWarning" xml:space="preserve"><value>Bağlandığında sunucu yükleme/indirme sırasında hız önemli ölçüde yavaşlayabilir, bu program hatası değildir.</value></data>
+  <data name="ResetNoteDataTooltip" xml:space="preserve"><value>Tüm not verilerini sıfırla</value></data>
+  <data name="NoteFileNameSettings" xml:space="preserve"><value>Dosya Adı Ayarları</value></data>
+  <data name="NoteFolderGrouping" xml:space="preserve"><value>Klasör Gruplama Ayarları</value></data>
+  <data name="NoteSecurityLock" xml:space="preserve"><value>Not Güvenliği &amp; Kilidi</value></data>
+  <data name="ImageSaveSettings" xml:space="preserve"><value>Görsel Kaydetme Ayarları</value></data>
+  <data name="StartupSettings" xml:space="preserve"><value>Başlangıç Ayarları</value></data>
+  <data name="Val1Day" xml:space="preserve"><value>1 Gün</value></data>
+  <data name="Val3Days" xml:space="preserve"><value>3 Gün</value></data>
+  <data name="Val7Days" xml:space="preserve"><value>7 Gün</value></data>
+  <data name="Val15Days" xml:space="preserve"><value>15 Gün</value></data>
+  <data name="Val30Days" xml:space="preserve"><value>30 Gün</value></data>
+  <data name="Val60Days" xml:space="preserve"><value>60 Gün</value></data>
+  <data name="Val90Days" xml:space="preserve"><value>90 Gün</value></data>
+  <data name="ValPermanent" xml:space="preserve"><value>Sonsuza Kadar Sakla</value></data>
+  <data name="Wait" xml:space="preserve"><value>Bekleyin...</value></data>
+  <data name="FileNameSettings" xml:space="preserve"><value>Dosya Adı Ayarları</value></data>
+  <data name="FolderGrouping" xml:space="preserve"><value>Klasör Gruplama Ayarları</value></data>
+  <data name="GroupingNone" xml:space="preserve"><value>Gruplama Yok</value></data>
+  <data name="GroupingMonthly" xml:space="preserve"><value>Aylık</value></data>
+  <data name="GroupingQuarterly" xml:space="preserve"><value>Üç Aylık</value></data>
+  <data name="GroupingYearly" xml:space="preserve"><value>Yıllık</value></data>
+  <data name="FileNamePreset_Default" xml:space="preserve"><value>Varsayılan (Catch_Tarih_Saat)</value></data>
+  <data name="FileNamePreset_Simple" xml:space="preserve"><value>Basit (Görsel_Tarih)</value></data>
+  <data name="FileNamePreset_Timestamp" xml:space="preserve"><value>Sadece Zaman Damgası (20250101_120000)</value></data>
+  <data name="FileNamePreset_App" xml:space="preserve"><value>Uygulama Adı (Chrome_Tarih)</value></data>
+  <data name="FileNamePreset_Title" xml:space="preserve"><value>Pencere Başlığı (Google_Tarih)</value></data>
+  <data name="FileNamePreview" xml:space="preserve"><value>Önizleme</value></data>
+  <data name="Badge" xml:space="preserve"><value>Rozet</value></data>
+  <data name="TextNote" xml:space="preserve"><value>Metin</value></data>
+  <data name="BadgeSize" xml:space="preserve"><value>Rozet Boyutu</value></data>
+  <data name="TextSize" xml:space="preserve"><value>Metin Boyutu</value></data>
+  <data name="SettingsAutoCopyDesc" xml:space="preserve"><value>Yakalama sonrası otomatik panoya kopyala</value></data>
+  <data name="AddVideo" xml:space="preserve"><value>Video Ekle</value></data>
+  <data name="BtnYes" xml:space="preserve"><value>Evet</value></data>
+  <data name="BtnNo" xml:space="preserve"><value>Hayır</value></data>
+  <data name="BtnOK" xml:space="preserve"><value>Tamam</value></data>
+  <data name="BtnCancel" xml:space="preserve"><value>İptal</value></data>
+  <data name="AddVideoGuidance" xml:space="preserve"><value>Lütfen YouTube URL'si veya kaynak kodu (iframe) girin:</value></data>
+  <data name="SearchLocalFile" xml:space="preserve"><value>Yerel Dosya Ara...</value></data>
+  <data name="BtnAdd" xml:space="preserve"><value>Ekle</value></data>
+  <data name="HotkeyConflictTitle" xml:space="preserve"><value>Kısayol Çakışması</value></data>
+  <data name="HotkeyConflictMsg" xml:space="preserve"><value>'{0}' kısayolu zaten kullanılıyor: {1}</value></data>
+  <data name="ImportConfirmMsg" xml:space="preserve"><value>Mevcut tüm not verileri bu yedek dosyayla değiştirilecek. Devam etmek istiyor musunuz?</value></data>
+  <data name="ImportSuccessMsg" xml:space="preserve"><value>Geri yükleme tamamlandı. Değişiklikleri uygulamak için programı yeniden başlatmanız önerilir.</value></data>
+  <data name="ErrorImport" xml:space="preserve"><value>Geri yükleme hatası</value></data>
+  <data name="ErrorBackup" xml:space="preserve"><value>Yedekleme hatası</value></data>
+  <data name="ErrorNoFolder" xml:space="preserve"><value>Yedekleme için kaynak klasör mevcut değil.</value></data>
+  <data name="BackupSuccess" xml:space="preserve"><value>Yedekleme başarıyla tamamlandı.</value></data>
+  <data name="LineSpacing10" xml:space="preserve"><value>1.0 (Dar)</value></data>
+  <data name="LineSpacing15" xml:space="preserve"><value>1.5 (Varsayılan)</value></data>
+  <data name="LineSpacing20" xml:space="preserve"><value>2.0 (Geniş)</value></data>
+  <data name="SelectTextForLink" xml:space="preserve"><value>Lütfen önce bağlantı için metin seçin.</value></data>
+  <data name="EnterURL" xml:space="preserve"><value>Lütfen URL girin:</value></data>
+  <data name="ErrInsertLink" xml:space="preserve"><value>Bağlantı eklenemiyor:</value></data>
+  <data name="CaptureModeTitle" xml:space="preserve"><value>Yakalama Yöntemi</value></data>
+  <data name="CaptureModeOverlay" xml:space="preserve"><value>Hızlı Yakalama (Kaplama) - Animasyonlar çalışmaya devam eder</value></data>
+  <data name="CaptureModeStatic" xml:space="preserve"><value>Ekran Dondurma - Ekranı anında dondurur (Varsayılan)</value></data>
+  <data name="CaptureModeDesc" xml:space="preserve"><value>※ Hızlı Yakalama modunda büyüteç kullanmak sürükleme sırasında gecikmeye neden olabilir.</value></data>
 </root>

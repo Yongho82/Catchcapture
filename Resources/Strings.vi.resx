@@ -46,288 +46,724 @@
       </xsd:complexType>
     </xsd:element>
   </xsd:schema>
-  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
-  <resheader name="version"><value>2.0</value></resheader>
-  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
-  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
-  <data name="AppTitle" xml:space="preserve"><value>CatchCapture</value></data>
-  <data name="AreaCapture" xml:space="preserve"><value>Chụp vùng</value></data>
-  <data name="DelayCapture" xml:space="preserve"><value>Chụp hẹn giờ</value></data>
-  <data name="RealTimeCapture" xml:space="preserve"><value>Chụp tức thì</value></data>
-  <data name="MultiCapture" xml:space="preserve"><value>Chụp nhiều vùng</value></data>
-  <data name="FullScreen" xml:space="preserve"><value>Toàn màn hình</value></data>
-  <data name="DesignatedCapture" xml:space="preserve"><value>Vùng cố định</value></data>
-  <data name="WindowCapture" xml:space="preserve"><value>Chụp cửa sổ</value></data>
-  <data name="ElementCapture" xml:space="preserve"><value>Chụp thành phần</value></data>
-  <data name="ScrollCapture" xml:space="preserve"><value>Chụp cuộn</value></data>
-  <data name="OcrCapture" xml:space="preserve"><value>Trích xuất chữ (OCR)</value></data>
-  <data name="NormalMode" xml:space="preserve"><value>Chế độ thường</value></data>
-  <data name="SimpleMode" xml:space="preserve"><value>Chế độ đơn giản</value></data>
-  <data name="TrayMode" xml:space="preserve"><value>Chế độ khay</value></data>
-  <data name="Settings" xml:space="preserve"><value>Cài đặt</value></data>
-  <data name="Exit" xml:space="preserve"><value>Thoát</value></data>
-  <data name="Save" xml:space="preserve"><value>Lưu</value></data>
-  <data name="SaveAll" xml:space="preserve"><value>Lưu tất cả</value></data>
-  <data name="Delete" xml:space="preserve"><value>Xóa</value></data>
-  <data name="DeleteAll" xml:space="preserve"><value>Xóa tất cả</value></data>
-  <data name="Copy" xml:space="preserve"><value>Sao chép</value></data>
-  <data name="Print" xml:space="preserve"><value>In</value></data>
-  <data name="Pen" xml:space="preserve"><value>Bút</value></data>
-  <data name="Highlighter" xml:space="preserve"><value>Bút dạ quang</value></data>
-  <data name="Text" xml:space="preserve"><value>Văn bản</value></data>
-  <data name="Shape" xml:space="preserve"><value>Hình dạng</value></data>
-  <data name="Eraser" xml:space="preserve"><value>Gôm xóa</value></data>
-  <data name="Mosaic" xml:space="preserve"><value>Làm mờ</value></data>
-  <data name="Numbering" xml:space="preserve"><value>Đánh số</value></data>
-  <data name="NumberingMode" xml:space="preserve"><value>Chế độ đánh số</value></data>
-  <data name="Crop" xml:space="preserve"><value>Cắt</value></data>
-  <data name="Rotate" xml:space="preserve"><value>Xoay</value></data>
-  <data name="Undo" xml:space="preserve"><value>Hoàn tác</value></data>
-  <data name="Redo" xml:space="preserve"><value>Làm lại</value></data>
-  <data name="General" xml:space="preserve"><value>Chung</value></data>
-  <data name="Language" xml:space="preserve"><value>Ngôn ngữ</value></data>
-  <data name="Hotkeys" xml:space="preserve"><value>Phím tắt</value></data>
-  <data name="StartWithWindows" xml:space="preserve"><value>Khởi động cùng Windows</value></data>
-  <data name="StartInTrayMode" xml:space="preserve"><value>Khởi động ở khay hệ thống</value></data>
-  <data name="SettingsSaved" xml:space="preserve"><value>Đã lưu cài đặt thành công</value></data>
-  <data name="Version" xml:space="preserve"><value>Phiên bản</value></data>
-  <data name="Default" xml:space="preserve"><value>Mặc định</value></data>
-  <data name="Select" xml:space="preserve"><value>Chọn</value></data>
-  <data name="SelectTooltip" xml:space="preserve"><value>Chọn và điều chỉnh các thành phần</value></data>
-  <data name="Confirm" xml:space="preserve"><value>Xác nhận</value></data>
-  <data name="Cancel" xml:space="preserve"><value>Hủy</value></data>
-  <data name="Yes" xml:space="preserve"><value>Có</value></data>
-  <data name="No" xml:space="preserve"><value>Không</value></data>
-  <data name="Error" xml:space="preserve"><value>Lỗi</value></data>
-  <data name="Success" xml:space="preserve"><value>Thành công</value></data>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <!-- Application Title -->
+  <data name="AppTitle" xml:space="preserve">
+    <value>CatchCapture</value>
+  </data>
+  
+  <!-- Capture Types -->
+  <data name="AreaCapture" xml:space="preserve">
+    <value>Chụp vùng</value>
+  </data>
+  <data name="DelayCapture" xml:space="preserve">
+    <value>Chụp hẹn giờ</value>
+  </data>
+  <data name="RealTimeCapture" xml:space="preserve">
+    <value>Chụp tức thì</value>
+  </data>
+  <data name="MultiCapture" xml:space="preserve">
+    <value>Chụp nhiều</value>
+  </data>
+  <data name="FullScreen" xml:space="preserve">
+    <value>Toàn màn hình</value>
+  </data>
+  <data name="DesignatedCapture" xml:space="preserve">
+    <value>Vùng cố định</value>
+  </data>
+  <data name="WindowCapture" xml:space="preserve">
+    <value>Chụp cửa sổ</value>
+  </data>
+  <data name="ElementCapture" xml:space="preserve">
+    <value>Chụp phần tử</value>
+  </data>
+  <data name="ScrollCapture" xml:space="preserve">
+    <value>Chụp cuộn</value>
+  </data>
+  <data name="OcrCapture" xml:space="preserve">
+    <value>Chụp OCR</value>
+  </data>
+  
+  <!-- Window Modes -->
+  <data name="NormalMode" xml:space="preserve">
+    <value>Bình thường</value>
+  </data>
+  
+  <!-- Menu Items -->
+  <data name="Settings" xml:space="preserve">
+    <value>Cài đặt</value>
+  </data>
+  <data name="Exit" xml:space="preserve">
+    <value>Thoát</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Lưu</value>
+  </data>
+  <data name="SaveAll" xml:space="preserve">
+    <value>Lưu tất cả</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Xóa</value>
+  </data>
+  <data name="DeleteAll" xml:space="preserve">
+    <value>Xóa tất cả</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Sao chép</value>
+  </data>
+  <data name="Print" xml:space="preserve">
+    <value>In</value>
+  </data>
+  
+  <!-- Editor Tools -->
+  <data name="Pen" xml:space="preserve">
+    <value>Bút</value>
+  </data>
+  <data name="Highlighter" xml:space="preserve">
+    <value>Bút đánh dấu</value>
+  </data>
+  <data name="Text" xml:space="preserve">
+    <value>Chữ</value>
+  </data>
+  <data name="Shape" xml:space="preserve">
+    <value>Hình dạng</value>
+  </data>
+  <data name="Eraser" xml:space="preserve">
+    <value>Tẩy</value>
+  </data>
+  <data name="Mosaic" xml:space="preserve">
+    <value>Khảm</value>
+  </data>
+  <data name="Numbering" xml:space="preserve">
+    <value>Đánh số</value>
+  </data>
+  <data name="NumberingMode" xml:space="preserve">
+    <value>Chế độ đánh số</value>
+  </data>
+  <data name="Crop" xml:space="preserve">
+    <value>Cắt</value>
+  </data>
+  <data name="Rotate" xml:space="preserve">
+    <value>Xoay</value>
+  </data>
+  <data name="Undo" xml:space="preserve">
+    <value>Hoàn tác</value>
+  </data>
+  <data name="Redo" xml:space="preserve">
+    <value>Làm lại</value>
+  </data>
+  
+  <!-- Settings -->
+  <data name="General" xml:space="preserve">
+    <value>Chung</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Ngôn ngữ</value>
+  </data>
+  <data name="Hotkeys" xml:space="preserve">
+    <value>Phím tắt</value>
+  </data>
+  <data name="StartWithWindows" xml:space="preserve">
+    <value>Khởi động cùng Windows</value>
+  </data>
+  <data name="StartInTrayMode" xml:space="preserve">
+    <value>Khởi động ở khay hệ thống</value>
+  </data>
+  <data name="SettingsSaved" xml:space="preserve">
+    <value>Cài đặt đã được lưu thành công</value>
+  </data>
+
+  <data name="Version" xml:space="preserve">
+    <value>Phiên bản</value>
+  </data>
+  <data name="Default" xml:space="preserve">
+    <value>Mặc định</value>
+  </data>
+  <data name="Select" xml:space="preserve">
+    <value>Chọn</value>
+  </data>
+  <data name="SelectTooltip" xml:space="preserve">
+    <value>Chọn và điều chỉnh các phần tử</value>
+  </data>
+
+  
+  <!-- Messages -->
+  <data name="Confirm" xml:space="preserve">
+    <value>Xác nhận</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Hủy</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Có</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>Không</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Lỗi</value>
+  </data>
+  <data name="Success" xml:space="preserve">
+    <value>Thành công</value>
+  </data>
+  <!-- Added Keys -->
   <data name="Capture" xml:space="preserve"><value>Chụp</value></data>
   <data name="Captured" xml:space="preserve"><value>Đã chụp</value></data>
   <data name="Recapture" xml:space="preserve"><value>Chụp lại</value></data>
-  <data name="CopyToClipboard" xml:space="preserve"><value>Chép vào bộ nhớ tạm</value></data>
+  <data name="CopyToClipboard" xml:space="preserve"><value>Sao chép vào clipboard</value></data>
   <data name="Reset" xml:space="preserve"><value>Đặt lại</value></data>
   <data name="FlipHorizontal" xml:space="preserve"><value>Lật ngang</value></data>
   <data name="FlipVertical" xml:space="preserve"><value>Lật dọc</value></data>
-  <data name="ImageSearch" xml:space="preserve"><value>Tìm bằng hình ảnh</value></data>
+  <data name="ImageSearch" xml:space="preserve"><value>Tìm hình</value></data>
   <data name="Share" xml:space="preserve"><value>Chia sẻ</value></data>
   <data name="Extract" xml:space="preserve"><value>Trích xuất</value></data>
   <data name="ToolOptions" xml:space="preserve"><value>Tùy chọn công cụ</value></data>
   <data name="RecentCaptures" xml:space="preserve"><value>Ảnh chụp gần đây</value></data>
   <data name="Size" xml:space="preserve"><value>Kích thước</value></data>
   <data name="OriginalSize" xml:space="preserve"><value>Gốc</value></data>
-  <data name="ResetToOriginal" xml:space="preserve"><value>Đặt lại kích thước gốc</value></data>
+  <data name="ResetToOriginal" xml:space="preserve"><value>Khôi phục gốc</value></data>
   <data name="AddText" xml:space="preserve"><value>Thêm chữ</value></data>
   <data name="DrawShapeTooltip" xml:space="preserve"><value>Vẽ hình (Mặc định: Hình chữ nhật)</value></data>
   <data name="ShapeOptions" xml:space="preserve"><value>Tùy chọn hình dạng</value></data>
   <data name="ImageSizePrefix" xml:space="preserve"><value>Kích thước ảnh: </value></data>
   <data name="RestartRequired" xml:space="preserve"><value>Cần khởi động lại để áp dụng thay đổi ngôn ngữ.</value></data>
-  <data name="MenuEdit" xml:space="preserve"><value>Sửa menu</value></data>
-  <data name="MenuEditGuide" xml:space="preserve"><value>Kéo thả để sắp xếp lại hoặc xóa các mục menu.</value></data>
+  <data name="MenuEdit" xml:space="preserve"><value>Chỉnh sửa menu</value></data>
+  <data name="MenuEditGuide" xml:space="preserve"><value>Kéo thả để sắp xếp lại hoặc xóa mục menu.</value></data>
   <data name="Add" xml:space="preserve"><value>Thêm</value></data>
   <data name="RestoreDefaultMenus" xml:space="preserve"><value>Khôi phục menu mặc định</value></data>
   <data name="VisitHomepage" xml:space="preserve"><value>Truy cập trang chủ</value></data>
   <data name="RestoreDefaults" xml:space="preserve"><value>Khôi phục mặc định</value></data>
   <data name="PrivacyPolicy" xml:space="preserve"><value>Chính sách bảo mật</value></data>
-  <data name="CaptureSettings" xml:space="preserve"><value>Cài đặt chụp</value></data>
+  <data name="CaptureSettings" xml:space="preserve"><value>Cài đặt chụp ảnh</value></data>
   <data name="SaveSettings" xml:space="preserve"><value>Cài đặt lưu</value></data>
   <data name="SavePath" xml:space="preserve"><value>Đường dẫn lưu</value></data>
   <data name="Change" xml:space="preserve"><value>Thay đổi</value></data>
-  <data name="FileFormat" xml:space="preserve"><value>Định dạng tệp</value></data>
+  <data name="FileFormat" xml:space="preserve"><value>Định dạng file</value></data>
   <data name="Quality" xml:space="preserve"><value>Chất lượng</value></data>
   <data name="Options" xml:space="preserve"><value>Tùy chọn</value></data>
   <data name="AutoSaveCapture" xml:space="preserve"><value>Tự động lưu sau khi chụp</value></data>
-  <data name="ShowPreviewAfterCapture" xml:space="preserve"><value>Hiện xem trước sau khi chụp</value></data>
+  <data name="ShowPreviewAfterCapture" xml:space="preserve"><value>Hiển thị xem trước sau khi chụp</value></data>
   <data name="HotkeySettings" xml:space="preserve"><value>Cài đặt phím tắt</value></data>
-  <data name="UsePrintScreen" xml:space="preserve"><value>Dùng phím Print Screen</value></data>
+  <data name="UsePrintScreen" xml:space="preserve"><value>Sử dụng phím Print Screen</value></data>
   <data name="SystemSettings" xml:space="preserve"><value>Cài đặt hệ thống</value></data>
   <data name="StartupMode" xml:space="preserve"><value>Chế độ khởi động</value></data>
-  <data name="StartInNormal" xml:space="preserve"><value>Khởi động ở chế độ thường</value></data>
-  <data name="StartInSimple" xml:space="preserve"><value>Khởi động ở chế độ đơn giản</value></data>
+  <data name="StartInNormal" xml:space="preserve"><value>Khởi động chế độ bình thường</value></data>
+  <data name="StartInSimple" xml:space="preserve"><value>Khởi động chế độ đơn giản</value></data>
   <data name="StartInTray" xml:space="preserve"><value>Khởi động ở khay hệ thống</value></data>
-  <data name="StartupModeNotice" xml:space="preserve"><value>※ Chế độ khay sẽ chỉ hiện biểu tượng ở góc phải.</value></data>
+  <data name="StartupModeNotice" xml:space="preserve"><value>※ Chế độ khay chỉ hiển thị biểu tượng khay.</value></data>
   <data name="LanguageSettings" xml:space="preserve"><value>Cài đặt ngôn ngữ</value></data>
   <data name="LanguageLabel" xml:space="preserve"><value>Chọn ngôn ngữ</value></data>
-  <data name="NoExtractedText" xml:space="preserve"><value>Không trích xuất được chữ.</value></data>
+  <data name="NoExtractedText" xml:space="preserve"><value>Không có văn bản được trích xuất.</value></data>
   <data name="Info" xml:space="preserve"><value>Thông tin</value></data>
   <data name="ImageSaveTitle" xml:space="preserve"><value>Lưu ảnh</value></data>
-  <data name="ImageSaved" xml:space="preserve"><value>Đã lưu ảnh thành công.</value></data>
+  <data name="ImageSaved" xml:space="preserve"><value>Ảnh đã lưu thành công.</value></data>
   <data name="NoImageToPrint" xml:space="preserve"><value>Không có ảnh để in.</value></data>
-  <data name="PrintPreviewError" xml:space="preserve"><value>Lỗi xem trước bản in</value></data>
+  <data name="PrintPreviewError" xml:space="preserve"><value>Lỗi xem trước in</value></data>
   <data name="RecaptureError" xml:space="preserve"><value>Lỗi chụp lại</value></data>
-  <data name="ConfirmReset" xml:space="preserve"><value>Đặt lại như ban đầu? Mọi thay đổi sẽ mất.</value></data>
-  <data name="EditImage" xml:space="preserve"><value>Sửa ảnh</value></data>
+  <data name="ConfirmReset" xml:space="preserve"><value>Khôi phục gốc? Tất cả thay đổi sẽ mất.</value></data>
+  <data name="EditImage" xml:space="preserve"><value>Chỉnh sửa ảnh</value></data>
   <data name="PenTooltip" xml:space="preserve"><value>Bút (Mặc định: Đen, 3px)</value></data>
   <data name="BackgroundRemoval" xml:space="preserve"><value>Xóa nền</value></data>
-  <data name="BackgroundRemovalTooltip" xml:space="preserve"><value>Tự động xóa nền</value></data>
-  <data name="ImageSearchTooltip" xml:space="preserve"><value>Tìm bằng Google Hình ảnh</value></data>
-  <data name="ExtractText" xml:space="preserve"><value>Trích xuất văn bản (OCR)</value></data>
+  <data name="BackgroundRemovalTooltip" xml:space="preserve"><value>Xóa nền tự động</value></data>
+  <data name="ImageSearchTooltip" xml:space="preserve"><value>Tìm kiếm hình ảnh Google</value></data>
+  <data name="ExtractText" xml:space="preserve"><value>Trích xuất chữ (OCR)</value></data>
   <data name="ZoomReset" xml:space="preserve"><value>Gốc (100%)</value></data>
-  <data name="ZoomResetTooltip" xml:space="preserve"><value>Xem kích thước thật</value></data>
+  <data name="ZoomResetTooltip" xml:space="preserve"><value>Xem kích thước thực</value></data>
   <data name="ZoomOut" xml:space="preserve"><value>Thu nhỏ</value></data>
   <data name="ZoomIn" xml:space="preserve"><value>Phóng to</value></data>
-  <data name="SizeLabel" xml:space="preserve"><value>Cỡ</value></data>
-  <data name="ShapeLbl" xml:space="preserve"><value>Hình</value></data>
+  <data name="SizeLabel" xml:space="preserve"><value>Kích thước</value></data>
+  <data name="ShapeLbl" xml:space="preserve"><value>Hình dạng</value></data>
   <data name="PenLbl" xml:space="preserve"><value>Bút</value></data>
-  <data name="HighlighterLbl" xml:space="preserve"><value>Dạ quang</value></data>
+  <data name="HighlighterLbl" xml:space="preserve"><value>Bút đánh dấu</value></data>
   <data name="TextAdd" xml:space="preserve"><value>Thêm chữ</value></data>
   <data name="UndoLbl" xml:space="preserve"><value>Hoàn tác</value></data>
   <data name="ScreenRecording" xml:space="preserve"><value>Quay màn hình</value></data>
-  <data name="Record" xml:space="preserve"><value>Ghi</value></data>
+  <data name="Record" xml:space="preserve"><value>Quay</value></data>
   <data name="RedoLbl" xml:space="preserve"><value>Làm lại</value></data>
   <data name="ResetLbl" xml:space="preserve"><value>Đặt lại</value></data>
   <data name="FlipH" xml:space="preserve"><value>Lật ngang</value></data>
   <data name="FlipV" xml:space="preserve"><value>Lật dọc</value></data>
   <data name="CopySelected" xml:space="preserve"><value>Sao chép</value></data>
-  <data name="InstantEdit" xml:space="preserve"><value>Sửa nhanh</value></data>
+  <data name="InstantEdit" xml:space="preserve"><value>Chỉnh sửa tức thì</value></data>
   <data name="OpenEditor" xml:space="preserve"><value>Mở trình chỉnh sửa</value></data>
   <data name="OpenSettings" xml:space="preserve"><value>Mở cài đặt</value></data>
-  <data name="RealTimeF1Guide" xml:space="preserve"><value>Nhấn F1 khi sẵn sàng để chụp.</value></data>
-  <data name="DelayNone" xml:space="preserve"><value>Không trễ</value></data>
+  <data name="RealTimeF1Guide" xml:space="preserve"><value>Nhấn F1 khi sẵn sàng chụp.</value></data>
+  <data name="DelayNone" xml:space="preserve"><value>Không hẹn giờ</value></data>
   <data name="Delay3Sec" xml:space="preserve"><value>3 giây</value></data>
   <data name="Delay5Sec" xml:space="preserve"><value>5 giây</value></data>
   <data name="Delay10Sec" xml:space="preserve"><value>10 giây</value></data>
-  <data name="MultiCaptureGuide" xml:space="preserve"><value>ENTER: Ghép ảnh&#xA;F1: Lưu riêng&#xA;ESC: Thoát</value></data>
+  <data name="MultiCaptureGuide" xml:space="preserve"><value>ENTER: Ghép&#xA;F1: Riêng lẻ&#xA;ESC: Thoát</value></data>
   <data name="MultiCaptureMinReq" xml:space="preserve"><value>Vui lòng chụp ít nhất một vùng.</value></data>
   <data name="InvalidCompositeSize" xml:space="preserve"><value>Kích thước ảnh ghép không hợp lệ.</value></data>
-  <data name="CompositeTooLarge" xml:space="preserve"><value>Ảnh ghép quá lớn ({0}x{1}). Kích thước tối đa là 32000x32000.</value></data>
-  <data name="CompositeError" xml:space="preserve"><value>Lỗi khi ghép ảnh: {0}</value></data>
-  <data name="CaptureError" xml:space="preserve"><value>Lỗi chụp ảnh: {0}</value></data>
+  <data name="CompositeTooLarge" xml:space="preserve"><value>Ảnh ghép quá lớn ({0}x{1}). Kích thước tối đa 32000x32000.</value></data>
+  <data name="CompositeError" xml:space="preserve"><value>Lỗi ghép ảnh: {0}</value></data>
+  <data name="CaptureError" xml:space="preserve"><value>Lỗi chụp: {0}</value></data>
   <data name="NumberingOptions" xml:space="preserve"><value>Cài đặt kích thước</value></data>
-  <data name="NumberingBadge" xml:space="preserve"><value>Số hiệu</value></data>
+  <data name="NumberingBadge" xml:space="preserve"><value>Huy hiệu</value></data>
   <data name="NumberingText" xml:space="preserve"><value>Chữ</value></data>
-  <data name="EditConfirmGuide" xml:space="preserve"><value>Vui lòng xác nhận(✓) các thay đổi trước khi tiếp tục.</value></data>
-  <data name="Color" xml:space="preserve"><value>Màu sắc</value></data>
-  <data name="TextOptions" xml:space="preserve"><value>Tùy chọn văn bản</value></data>
+  <data name="EditConfirmGuide" xml:space="preserve"><value>Vui lòng xác nhận(✓) chỉnh sửa trước khi tiếp tục.</value></data>
+  <data name="Color" xml:space="preserve"><value>Màu</value></data>
+  <data name="TextOptions" xml:space="preserve"><value>Tùy chọn chữ</value></data>
   <data name="Font" xml:space="preserve"><value>Phông chữ</value></data>
   <data name="Thickness" xml:space="preserve"><value>Độ dày</value></data>
   <data name="Fill" xml:space="preserve"><value>Tô màu</value></data>
   <data name="FillOpacity" xml:space="preserve"><value>Độ trong suốt</value></data>
-  <data name="Intensity" xml:space="preserve"><value>Cường độ</value></data>
+  <data name="Intensity" xml:space="preserve"><value>Độ mạnh</value></data>
   <data name="ComputerApp" xml:space="preserve"><value>Ứng dụng máy tính...</value></data>
   <data name="SelectApplication" xml:space="preserve"><value>Chọn ứng dụng</value></data>
   <data name="SortNameAsc" xml:space="preserve"><value>Tên ▲</value></data>
   <data name="SortNameDesc" xml:space="preserve"><value>Tên ▼</value></data>
   <data name="Browse" xml:space="preserve"><value>Duyệt...</value></data>
-  <data name="SelectExecutable" xml:space="preserve"><value>Chọn tệp thực thi</value></data>
-  <data name="ConfirmDeleteShortcut" xml:space="preserve"><value>Xóa phím tắt '{0}'?</value></data>
-  <data name="DeleteShortcut" xml:space="preserve"><value>Xóa phím tắt</value></data>
-  <data name="AppLaunchFailed" xml:space="preserve"><value>Lỗi khởi động ứng dụng: {0}</value></data>
-  <data name="GoogleSearch" xml:space="preserve"><value>Tìm bằng Google Hình ảnh</value></data>
-  <data name="CopiedToClipboard" xml:space="preserve"><value>Đã sao chép vào bộ nhớ tạm.</value></data>
-  <data name="AllCopiedToClipboard" xml:space="preserve"><value>Đã sao chép tất cả ảnh vào bộ nhớ tạm.</value></data>
+  <data name="SelectExecutable" xml:space="preserve"><value>Chọn file thực thi</value></data>
+  <data name="ConfirmDeleteShortcut" xml:space="preserve"><value>Xóa lối tắt '{0}'?</value></data>
+  <data name="DeleteShortcut" xml:space="preserve"><value>Xóa lối tắt</value></data>
+  <data name="AppLaunchFailed" xml:space="preserve"><value>Khởi chạy ứng dụng thất bại: {0}</value></data>
+  <data name="GoogleSearch" xml:space="preserve"><value>Tìm hình ảnh Google</value></data>
+  <data name="CopiedToClipboard" xml:space="preserve"><value>Đã sao chép vào clipboard.</value></data>
+  <data name="AllCopiedToClipboard" xml:space="preserve"><value>Tất cả ảnh đã sao chép vào clipboard.</value></data>
   <data name="SelectSaveFolder" xml:space="preserve"><value>Chọn thư mục lưu</value></data>
-  <data name="UnsavedImagesDeleteConfirm" xml:space="preserve"><value>Có ảnh chưa lưu. Bạn có chắc muốn xóa tất cả?</value></data>
-  <data name="UnsavedImageDeleteConfirm" xml:space="preserve"><value>Ảnh này chưa được lưu. Bạn có chắc muốn xóa?</value></data>
+  <data name="UnsavedImagesDeleteConfirm" xml:space="preserve"><value>Có ảnh chưa lưu. Chắc chắn xóa tất cả?</value></data>
+  <data name="UnsavedImageDeleteConfirm" xml:space="preserve"><value>Ảnh này chưa lưu. Chắc chắn xóa?</value></data>
   <data name="ShareImageTitle" xml:space="preserve"><value>Chia sẻ ảnh</value></data>
   <data name="ShareImageDesc" xml:space="preserve"><value>Chia sẻ ảnh đã chụp</value></data>
   <data name="ShareError" xml:space="preserve"><value>Lỗi chia sẻ</value></data>
   <data name="AllImagesSaved" xml:space="preserve"><value>Tất cả ảnh đã được lưu.</value></data>
   <data name="CopyAll" xml:space="preserve"><value>Sao chép tất cả</value></data>
-  <data name="PixelSizeLabel" xml:space="preserve"><value>Cỡ điểm ảnh</value></data>
-  <data name="MagicWandToleranceLabel" xml:space="preserve"><value>Độ sai số (Tolerance)</value></data>
-  <data name="MagicWandContiguousOnly" xml:space="preserve"><value>Chỉ các vùng liền kề</value></data>
-  <data name="MagicWandDesc" xml:space="preserve"><value>Nhấn để xóa nền, hoặc kéo để chọn vùng</value></data>
-  <data name="MagicWandTip" xml:space="preserve"><value>Nhấn hoặc kéo để xóa nền</value></data>
-  <data name="Opacity" xml:space="preserve"><value>Độ mờ</value></data>
+  <data name="PixelSizeLabel" xml:space="preserve"><value>Kích thước pixel</value></data>
+  <data name="MagicWandToleranceLabel" xml:space="preserve"><value>Độ dung sai</value></data>
+  <data name="MagicWandContiguousOnly" xml:space="preserve"><value>Chỉ vùng liền kề</value></data>
+  <data name="MagicWandDesc" xml:space="preserve"><value>Nhấp để xóa nền, hoặc kéo để chọn vùng</value></data>
+  <data name="MagicWandTip" xml:space="preserve"><value>Nhấp hoặc kéo để xóa nền</value></data>
+  <data name="Opacity" xml:space="preserve"><value>Độ trong suốt</value></data>
   <data name="Style" xml:space="preserve"><value>Kiểu</value></data>
   <data name="Bold" xml:space="preserve"><value>Đậm</value></data>
   <data name="Italic" xml:space="preserve"><value>Nghiêng</value></data>
   <data name="Underline" xml:space="preserve"><value>Gạch chân</value></data>
-  <data name="Shadow" xml:space="preserve"><value>Đổ bóng</value></data>
+  <data name="Shadow" xml:space="preserve"><value>Bóng</value></data>
   <data name="OcrResultTitle" xml:space="preserve"><value>Kết quả trích xuất chữ</value></data>
   <data name="ExtractedText" xml:space="preserve"><value>Chữ đã trích xuất</value></data>
   <data name="GoogleTranslate" xml:space="preserve"><value>Google Dịch</value></data>
   <data name="Close" xml:space="preserve"><value>Đóng</value></data>
-  <data name="NoExtractedTextOcr" xml:space="preserve"><value>Không tìm thấy văn bản.</value></data>
-  <data name="OpeningGoogleTranslate" xml:space="preserve"><value>Đang mở Google Dịch...\nVăn bản đã được sao chép.</value></data>
-  <data name="GoogleTranslateFailed" xml:space="preserve"><value>Lỗi mở Google Dịch: {0}</value></data>
-  <data name="RedirectingToTranslate" xml:space="preserve"><value>Đang chuyển đến Google Dịch...</value></data>
-  <data name="OcrLanguagePackWarning" xml:space="preserve"><value>※ Nếu nhận diện tiếng Nhật/Trung không chính xác, hãy thử cài đặt gói ngôn ngữ trong Cài đặt Windows > Thời gian &amp; Ngôn ngữ > Ngôn ngữ.</value></data>
-  <data name="SimpleModeDockinGuide" xml:space="preserve"><value>💡 Mẹo: Kéo vào mép trên, trái hoặc phải màn hình để cố định!</value></data>
+  <data name="NoExtractedTextOcr" xml:space="preserve"><value>Không có chữ được trích xuất.</value></data>
+  <data name="OpeningGoogleTranslate" xml:space="preserve"><value>Đang mở Google Dịch...\nĐã sao chép chữ vào clipboard.</value></data>
+  <data name="GoogleTranslateFailed" xml:space="preserve"><value>Mở Google Dịch thất bại: {0}</value></data>
+  <data name="RedirectingToTranslate" xml:space="preserve"><value>Đang chuyển hướng đến Google Dịch...</value></data>
+  <data name="OcrLanguagePackWarning" xml:space="preserve"><value>※ Nếu nhận dạng tiếng Nhật/Trung không chính xác, thử cài gói ngôn ngữ trong Cài đặt Windows > Thời gian &amp; Ngôn ngữ > Ngôn ngữ.</value></data>
+  <data name="SimpleModeDockinGuide" xml:space="preserve"><value>💡 Mẹo: Kéo đến cạnh trên, trái hoặc phải màn hình để neo!</value></data>
   <data name="ExitSimpleMode" xml:space="preserve"><value>Thoát chế độ đơn giản</value></data>
   <data name="MinimizeToTray" xml:space="preserve"><value>Thu nhỏ xuống khay</value></data>
   <data name="Enlarge" xml:space="preserve"><value>Phóng to giao diện</value></data>
-  <data name="SwitchToNormalMode" xml:space="preserve"><value>Chuyển sang chế độ thường</value></data>
+  <data name="SwitchToNormalMode" xml:space="preserve"><value>Chuyển sang chế độ bình thường</value></data>
   <data name="SwitchToSimpleMode" xml:space="preserve"><value>Chuyển sang chế độ đơn giản</value></data>
   <data name="Pin" xml:space="preserve"><value>Ghim</value></data>
   <data name="Unpin" xml:space="preserve"><value>Bỏ ghim</value></data>
-  <data name="ViewCaptureList" xml:space="preserve"><value>Xem danh sách đã chụp</value></data>
+  <data name="ViewCaptureList" xml:space="preserve"><value>Xem danh sách chụp</value></data>
   <data name="AddIcon" xml:space="preserve"><value>Thêm biểu tượng</value></data>
-  <data name="HideToTray" xml:space="preserve"><value>Ẩn vào khay hệ thống</value></data>
-  <data name="Fold" xml:space="preserve"><value>Gấp gọn</value></data>
-  <data name="UnitCapture" xml:space="preserve"><value>Chụp theo đơn vị</value></data>
+  <data name="HideToTray" xml:space="preserve"><value>Ẩn xuống khay</value></data>
+  <data name="Fold" xml:space="preserve"><value>Gấp</value></data>
+  <data name="UnitCapture" xml:space="preserve"><value>Chụp đơn vị</value></data>
   <data name="ComputerApps" xml:space="preserve"><value>Ứng dụng máy tính</value></data>
   <data name="Open" xml:space="preserve"><value>Mở</value></data>
-  <data name="ShowMagnifier" xml:space="preserve"><value>Hiện kính lúp khi chụp vùng</value></data>
-  <data name="RecordingTool" xml:space="preserve"><value>Ghi hình</value></data>
-  <data name="StartStopRecording" xml:space="preserve"><value>Bắt đầu/Dừng ghi hình</value></data>
+  <data name="ShowMagnifier" xml:space="preserve"><value>Hiển thị kính lúp khi chụp vùng</value></data>
+  <data name="RecordingTool" xml:space="preserve"><value>Quay</value></data>
+  <data name="StartStopRecording" xml:space="preserve"><value>Bắt đầu/Dừng quay</value></data>
   <data name="Pause" xml:space="preserve"><value>Tạm dừng</value></data>
   <data name="Resume" xml:space="preserve"><value>Tiếp tục</value></data>
-  <data name="SystemAudioOff" xml:space="preserve"><value>Âm thanh hệ thống (Tắt)</value></data>
-  <data name="SystemAudioOn" xml:space="preserve"><value>Âm thanh hệ thống (Bật)</value></data>
-  <data name="MicrophoneOff" xml:space="preserve"><value>Micro (Tắt)</value></data>
-  <data name="MicrophoneOn" xml:space="preserve"><value>Micro (Bật)</value></data>
+  <data name="SystemAudioOff" xml:space="preserve"><value>Âm thanh hệ thống (TẮT)</value></data>
+  <data name="SystemAudioOn" xml:space="preserve"><value>Âm thanh hệ thống (BẬT)</value></data>
+  <data name="MicrophoneOff" xml:space="preserve"><value>Micro (TẮT)</value></data>
+  <data name="MicrophoneOn" xml:space="preserve"><value>Micro (BẬT)</value></data>
   <data name="VideoQuality" xml:space="preserve"><value>Chất lượng (HD/SD/LD)</value></data>
   <data name="FrameRate" xml:space="preserve"><value>Tốc độ khung hình</value></data>
-  <data name="ShowMouseCursor" xml:space="preserve"><value>Hiện con trỏ chuột</value></data>
+  <data name="ShowMouseCursor" xml:space="preserve"><value>Hiển thị con trỏ chuột</value></data>
   <data name="Countdown" xml:space="preserve"><value>Đếm ngược</value></data>
   <data name="HideToolbar" xml:space="preserve"><value>Ẩn thanh công cụ</value></data>
-  <data name="ShowToolbar" xml:space="preserve"><value>Hiện thanh công cụ</value></data>
+  <data name="ShowToolbar" xml:space="preserve"><value>Hiển thị thanh công cụ</value></data>
   <data name="AutoSnap" xml:space="preserve"><value>Nam châm</value></data>
   <data name="AreaSelection" xml:space="preserve"><value>Chọn vùng</value></data>
+
   <data name="DrawingTools" xml:space="preserve"><value>Công cụ vẽ</value></data>
   <data name="ToolPen" xml:space="preserve"><value>Bút</value></data>
-  <data name="ToolHighlighter" xml:space="preserve"><value>Dạ quang</value></data>
-  <data name="ToolEraser" xml:space="preserve"><value>Gôm xóa</value></data>
+  <data name="ToolHighlighter" xml:space="preserve"><value>Bút đánh dấu</value></data>
+  <data name="ToolEraser" xml:space="preserve"><value>Tẩy</value></data>
   <data name="ToolLine" xml:space="preserve"><value>Đường thẳng</value></data>
   <data name="ToolArrow" xml:space="preserve"><value>Mũi tên</value></data>
   <data name="ToolRectangle" xml:space="preserve"><value>Hình chữ nhật</value></data>
-  <data name="ToolEllipse" xml:space="preserve"><value>Hình bầu dục</value></data>
+  <data name="ToolEllipse" xml:space="preserve"><value>Elip</value></data>
   <data name="ToolNumbering" xml:space="preserve"><value>Đánh số</value></data>
-  <data name="ToolClearAll" xml:space="preserve"><value>Xóa sạch</value></data>
-  <data name="OpenSaveFolder" xml:space="preserve"><value>Mở thư mục lưu</value></data>
+  <data name="ToolClearAll" xml:space="preserve"><value>Xóa hết</value></data>
+  <data name="OpenSaveFolder" xml:space="preserve"><value>Mở thư mục</value></data>
   <data name="ModeSelect" xml:space="preserve"><value>Chọn chế độ</value></data>
-  <data name="ThemeSettings" xml:space="preserve"><value>Cài đặt chủ đề</value></data>
-  <data name="ThemePreset" xml:space="preserve"><value>Chủ đề có sẵn</value></data>
+  <data name="ThemeSettings" xml:space="preserve"><value>Cài đặt giao diện</value></data>
+  <data name="ThemePreset" xml:space="preserve"><value>Giao diện mẫu</value></data>
   <data name="ThemeGeneral" xml:space="preserve"><value>Chung (Mặc định)</value></data>
   <data name="ThemeDark" xml:space="preserve"><value>Chế độ tối</value></data>
   <data name="ThemeLight" xml:space="preserve"><value>Chế độ sáng</value></data>
-  <data name="ThemeBlue" xml:space="preserve"><value>Chủ đề xanh</value></data>
+  <data name="ThemeBlue" xml:space="preserve"><value>Chế độ xanh</value></data>
   <data name="ThemeCustom" xml:space="preserve"><value>Tùy chỉnh</value></data>
   <data name="ThemeBgColor" xml:space="preserve"><value>Màu nền</value></data>
   <data name="ThemeTextColor" xml:space="preserve"><value>Màu chữ</value></data>
-  <data name="ThemeColorGuide" xml:space="preserve"><value>※ Nhấn vào các ô màu để chọn.</value></data>
+  <data name="ThemeColorGuide" xml:space="preserve"><value>※ Nhấp vào ô màu để chọn màu.</value></data>
   <data name="Apply" xml:space="preserve"><value>Áp dụng</value></data>
   <data name="Preview" xml:space="preserve"><value>Xem trước</value></data>
-  <data name="ThemeSampleLabel" xml:space="preserve"><value>Mẫu xem trước</value></data>
-  <data name="ThemeSampleText" xml:space="preserve"><value>Đây là văn bản xem trước chủ đề. (ABCabc 123)</value></data>
-  <data name="RecordingSettings" xml:space="preserve"><value>Cài đặt ghi hình</value></data>
+  <data name="ThemeSampleLabel" xml:space="preserve"><value>Ví dụ xem trước</value></data>
+  <data name="ThemeSampleText" xml:space="preserve"><value>Đây là ví dụ chữ xem trước giao diện. (ABCabc 123)</value></data>
+  <data name="RecordingSettings" xml:space="preserve"><value>Cài đặt quay</value></data>
   <data name="BasicSettings" xml:space="preserve"><value>Cài đặt cơ bản</value></data>
-  <data name="RecordingStartStopHotkey" xml:space="preserve"><value>Phím tắt Ghi/Dừng</value></data>
-  <data name="RecordStartStop" xml:space="preserve"><value>Ghi/Dừng</value></data>
-  <data name="CaptureLineSettings" xml:space="preserve"><value>Cài đặt đường hướng dẫn</value></data>
+  <data name="RecordingStartStopHotkey" xml:space="preserve"><value>Phím tắt quay/dừng</value></data>
+  <data name="RecordStartStop" xml:space="preserve"><value>Quay/Dừng</value></data>
+  <data name="CaptureLineSettings" xml:space="preserve"><value>Cài đặt đường viền chụp</value></data>
   <data name="OverlayBgColor" xml:space="preserve"><value>Màu nền lớp phủ</value></data>
   <data name="LineStyle" xml:space="preserve"><value>Kiểu đường</value></data>
   <data name="LineThickness" xml:space="preserve"><value>Độ dày đường</value></data>
   <data name="LineColor" xml:space="preserve"><value>Màu đường</value></data>
-  <data name="CaptureSettingsGuide" xml:space="preserve"><value>* Nhấn vào các ô màu để chọn màu hướng dẫn chụp.</value></data>
-  <data name="SolidLine" xml:space="preserve"><value>Liền mạch</value></data>
-  <data name="DashLine" xml:space="preserve"><value>Nét đứt</value></data>
+  <data name="CaptureSettingsGuide" xml:space="preserve"><value>* Nhấp vào ô màu để chọn màu hướng dẫn chụp.</value></data>
+  <data name="SolidLine" xml:space="preserve"><value>Đặc</value></data>
+  <data name="DashLine" xml:space="preserve"><value>Đứt nét</value></data>
   <data name="DotLine" xml:space="preserve"><value>Chấm</value></data>
-  <data name="DashDotLine" xml:space="preserve"><value>Chấm gạch</value></data>
-  <data name="Outline" xml:space="preserve"><value>Đường viền</value></data>
+  <data name="DashDotLine" xml:space="preserve"><value>Đứt nét-chấm</value></data>
+  <data name="Outline" xml:space="preserve"><value>Viền</value></data>
   <data name="QualityHigh" xml:space="preserve"><value>Chất lượng cao</value></data>
   <data name="QualityMedium" xml:space="preserve"><value>Trung bình</value></data>
   <data name="QualityLow" xml:space="preserve"><value>Chất lượng thấp</value></data>
-  <data name="PrintPreviewTitle" xml:space="preserve"><value>Xem trước bản in</value></data>
+  
+  <!-- Print Preview -->
+  <data name="PrintPreviewTitle" xml:space="preserve"><value>Xem trước in</value></data>
   <data name="OrientationLabel" xml:space="preserve"><value>Hướng:</value></data>
-  <data name="Portrait" xml:space="preserve"><value>Khổ dọc</value></data>
-  <data name="Landscape" xml:space="preserve"><value>Khổ ngang</value></data>
+  <data name="Portrait" xml:space="preserve"><value>Dọc</value></data>
+  <data name="Landscape" xml:space="preserve"><value>Ngang</value></data>
   <data name="PrintOptionsLabel" xml:space="preserve"><value>Tùy chọn in:</value></data>
-  <data name="FitToPage" xml:space="preserve"><value>Vừa trang</value></data>
-  <data name="ActualSize" xml:space="preserve"><value>Kích thước thật</value></data>
-  <data name="FillPage" xml:space="preserve"><value>Lấp đầy trang</value></data>
+  <data name="FitToPage" xml:space="preserve"><value>Khít trang</value></data>
+  <data name="ActualSize" xml:space="preserve"><value>Kích thước thực</value></data>
+  <data name="FillPage" xml:space="preserve"><value>Đầy trang</value></data>
   <data name="PrintingStarted" xml:space="preserve"><value>Đã bắt đầu in.</value></data>
-  <data name="PrintingError" xml:space="preserve"><value>Lỗi xảy ra khi in</value></data>
-  <data name="PreviewGenerationError" xml:space="preserve"><value>Lỗi khi tạo xem trước</value></data>
+  <data name="PrintingError" xml:space="preserve"><value>Lỗi khi in</value></data>
+  <data name="PreviewGenerationError" xml:space="preserve"><value>Lỗi tạo xem trước</value></data>
   <data name="PrintJobName" xml:space="preserve"><value>In ảnh CatchCapture</value></data>
+
+
+  <data name="StartAsAdmin" xml:space="preserve"><value>Chạy với quyền quản trị</value></data>
+  <data name="StartAsAdminTooltip" xml:space="preserve"><value>Chạy với quyền quản trị có thể cần để phím tắt toàn cục hoạt động đúng trên các chương trình có quyền admin (game, trình quản lý tác vụ, v.v.).</value></data>
+  <data name="NoteSettings" xml:space="preserve"><value>Cài đặt ghi chú</value></data>
+
+  <data name="NoteStorage" xml:space="preserve"><value>Lưu trữ &amp; Cơ sở dữ liệu</value></data>
+  <data name="NotePath" xml:space="preserve"><value>Đường dẫn lưu ghi chú</value></data>
+  <data name="OpenFolder" xml:space="preserve"><value>Mở thư mục</value></data>
+  <data name="ExtraOptions" xml:space="preserve"><value>Tùy chọn bổ sung</value></data>
+  <data name="BackupRestore" xml:space="preserve"><value>Sao lưu &amp; Khôi phục</value></data>
+  <data name="ExportBackup" xml:space="preserve"><value>Xuất (.zip)</value></data>
+  <data name="ImportBackup" xml:space="preserve"><value>Nhập (.zip)</value></data>
+  <data name="MergeBackup" xml:space="preserve"><value>Gộp (.zip)</value></data>
+  <data name="MergeConfirmMsg" xml:space="preserve"><value>Bạn có muốn gộp bản sao lưu đã chọn với dữ liệu hiện tại không?\n(Mục sẽ được thêm theo thứ tự thời gian)</value></data>
+  <data name="MergingMsg" xml:space="preserve"><value>Đang gộp dữ liệu... Vui lòng chờ.</value></data>
+  <data name="MergeSuccessMsg" xml:space="preserve"><value>Gộp dữ liệu hoàn tất.</value></data>
+  <data name="ErrorMerge" xml:space="preserve"><value>Lỗi khi gộp dữ liệu</value></data>
+  <data name="NoteSecurity" xml:space="preserve"><value>Bảo mật &amp; Khóa ghi chú</value></data>
+  <data name="EnableNotePassword" xml:space="preserve"><value>Sử dụng khóa mật khẩu</value></data>
+  <data name="SetChangePassword" xml:space="preserve"><value>Đặt/Đổi mật khẩu</value></data>
+  <data name="PasswordHint" xml:space="preserve"><value>Gợi ý mật khẩu</value></data>
+  <data name="PasswordWarning" xml:space="preserve"><value>* Cảnh báo: Dữ liệu không thể khôi phục nếu mất mật khẩu.</value></data>
+  <data name="ImageOptimization" xml:space="preserve"><value>Tối ưu ảnh</value></data>
+  <data name="Unknown" xml:space="preserve">
+    <value>Không rõ</value>
+  </data>
+
+  <data name="PleaseEnterPassword" xml:space="preserve">
+    <value>Vui lòng nhập mật khẩu.</value>
+  </data>
+  <data name="PasswordsDoNotMatch" xml:space="preserve">
+    <value>Mật khẩu không khớp.</value>
+  </data>
+  <data name="PleaseEnterPasswordHint" xml:space="preserve">
+    <value>Vui lòng nhập gợi ý mật khẩu.</value>
+  </data>
+
+  <data name="ImageQuality" xml:space="preserve"><value>Chất lượng ảnh</value></data>
+  <data name="OptimizeNoteImages" xml:space="preserve"><value>Tối ưu kích thước ảnh khi lưu</value></data>
+  <data name="HotkeyRegisterError" xml:space="preserve"><value>Phím tắt đã được sử dụng bởi ứng dụng khác.\nVui lòng thay đổi trong Cài đặt.</value></data>
+  <data name="NoteSave" xml:space="preserve"><value>Lưu ghi chú</value></data>
+  <data name="SaveNoteTooltip" xml:space="preserve"><value>Lưu vào Ghi chú của tôi</value></data>
+  <data name="NoteExplorerTitle" xml:space="preserve"><value>Trình duyệt ghi chú CatchCapture</value></data>
+  <data name="MyNote" xml:space="preserve"><value>Ghi chú của tôi</value></data>
+  <data name="OpenMyNote" xml:space="preserve"><value>Ghi chú của tôi</value></data>
+  <data name="NewNote" xml:space="preserve"><value>Ghi chú mới</value></data>
+  <data name="NoteSettingsMenu" xml:space="preserve"><value>Cài đặt ghi chú</value></data>
+  <data name="Explore" xml:space="preserve"><value>Khám phá</value></data>
+  <data name="AllNotes" xml:space="preserve"><value>Tất cả ghi chú</value></data>
+  <data name="GroupNote" xml:space="preserve"><value>Nhóm ghi chú</value></data>
+  <data name="SortByLatest" xml:space="preserve"><value>Mới nhất</value></data>
+  <data name="SortByName" xml:space="preserve"><value>Tên</value></data>
+  <data name="Today" xml:space="preserve"><value>Hôm nay</value></data>
+  <data name="Recent7Days" xml:space="preserve"><value>7 ngày gần đây</value></data>
+  <data name="Trash" xml:space="preserve"><value>Thùng rác</value></data>
+  <data name="Tags" xml:space="preserve"><value>Thẻ</value></data>
+  <data name="SelectAll" xml:space="preserve"><value>Chọn tất cả</value></data>
+  <data name="UnselectAll" xml:space="preserve"><value>Bỏ chọn tất cả</value></data>
+  <data name="DeleteSelected" xml:space="preserve"><value>Xóa đã chọn</value></data>
+  <data name="RecentStatusInfo" xml:space="preserve"><value>Bản ghi tuần trước</value></data>
+  <data name="SearchPlaceholder" xml:space="preserve"><value>Tìm kiếm...</value></data>
+  <data name="ColGroup" xml:space="preserve"><value>Nhóm</value></data>
+  <data name="ColTitle" xml:space="preserve"><value>Tiêu đề</value></data>
+  <data name="ColContent" xml:space="preserve"><value>Nội dung</value></data>
+  <data name="ColLastModified" xml:space="preserve"><value>Sửa lần cuối</value></data>
+  <data name="PreviewLoading" xml:space="preserve"><value>Chọn một ghi chú.</value></data>
+
+  <data name="NoteSecurityTip" xml:space="preserve"><value>Bảo vệ ghi chú của bạn an toàn với cài đặt mật khẩu.</value></data>
+  <data name="NoteInputTitle" xml:space="preserve"><value>CatchCapture - Viết</value></data>
+  <data name="WriteNote" xml:space="preserve"><value>Viết ghi chú</value></data>
+  <data name="EditNote" xml:space="preserve"><value>Chỉnh sửa ghi chú</value></data>
+  <data name="ManageCategories" xml:space="preserve"><value>Quản lý danh mục</value></data>
+  <data name="TitlePlaceholder" xml:space="preserve"><value>Vui lòng nhập tiêu đề</value></data>
+  <data name="TagsPlaceholder" xml:space="preserve"><value>Vui lòng nhập thẻ (cách nhau bằng dấu phẩy)</value></data>
+  <data name="Link" xml:space="preserve"><value>Liên kết</value></data>
+  <data name="LinkPlaceholder" xml:space="preserve"><value>Vui lòng nhập liên kết liên quan.</value></data>
+  <data name="FileAttachment" xml:space="preserve"><value>Đính kèm file</value></data>
+  <data name="FileAttachmentGuide" xml:space="preserve"><value>Kéo file vào đây hoặc nhấp để đính kèm.</value></data>
+  <data name="FinishWrite" xml:space="preserve"><value>Hoàn tất viết</value></data>
+  <data name="FinishEdit" xml:space="preserve"><value>Hoàn tất chỉnh sửa</value></data>
+  <data name="NotePasswordTitle" xml:space="preserve"><value>Cài đặt mật khẩu ghi chú</value></data>
+  <data name="NewPassword" xml:space="preserve"><value>Mật khẩu mới</value></data>
+  <data name="ConfirmPassword" xml:space="preserve"><value>Xác nhận mật khẩu</value></data>
+  <data name="PasswordHintRequired" xml:space="preserve"><value>Gợi ý mật khẩu (bắt buộc)</value></data>
+  <data name="PasswordLossWarning" xml:space="preserve"><value>※ Cảnh báo: Dữ liệu không thể khôi phục nếu mất mật khẩu do lưu trữ cục bộ.</value></data>
+  <data name="CopyColor" xml:space="preserve"><value>Sao chép màu</value></data>
+  <data name="SwitchColorFormat" xml:space="preserve"><value>Chuyển RGB/HEX</value></data>
+  <data name="SelectAreaGuide" xml:space="preserve"><value>Kéo để chọn vùng chụp.</value></data>
+  <data name="ErrReadNote" xml:space="preserve"><value>Lỗi đọc thông tin ghi chú:</value></data>
+  <data name="SelectAttachFiles" xml:space="preserve"><value>Chọn file đính kèm</value></data>
+  <data name="ErrMainWinNotFound" xml:space="preserve"><value>Không tìm thấy cửa sổ chính.</value></data>
+
+  <data name="NoContentToSave" xml:space="preserve"><value>Không có nội dung để lưu.</value></data>
+  <data name="Untitled" xml:space="preserve"><value>Không có tiêu đề</value></data>
+  <data name="NoteEditSuccess" xml:space="preserve"><value>Ghi chú đã cập nhật thành công.</value></data>
+  <data name="NoteSaveSuccess" xml:space="preserve"><value>Ghi chú đã lưu thành công.</value></data>
+  <data name="ErrSaveNote" xml:space="preserve"><value>Lỗi khi lưu ghi chú:</value></data>
+  <data name="SearchResults" xml:space="preserve"><value>Kết quả tìm kiếm: '{0}'</value></data>
+  <data name="TagFilter" xml:space="preserve"><value>Bộ lọc thẻ: #{0}</value></data>
+  <data name="TodayRecords" xml:space="preserve"><value>Bản ghi hôm nay</value></data>
+  <data name="RecentWeekRecords" xml:space="preserve"><value>Bản ghi tuần trước</value></data>
+  <data name="TrashRecords" xml:space="preserve"><value>Bản ghi trong thùng rác</value></data>
+  <data name="GroupLabel" xml:space="preserve"><value>Nhóm: {0}</value></data>
+  <data name="AllRecords" xml:space="preserve"><value>Tất cả bản ghi</value></data>
+  <data name="DefaultCategory" xml:space="preserve"><value>Mặc định</value></data>
+  <data name="ErrLoadNotes" xml:space="preserve"><value>Lỗi khi tải ghi chú:</value></data>
+  <data name="DirectWrite" xml:space="preserve"><value>Viết trực tiếp</value></data>
+  <data name="FileNotFound" xml:space="preserve"><value>Không tìm thấy file.</value></data>
+  <data name="ErrOpenFile" xml:space="preserve"><value>Lỗi khi mở file:</value></data>
+  <data name="ErrOpenNoteInput" xml:space="preserve"><value>Lỗi khi mở cửa sổ viết ghi chú:</value></data>
+  <data name="ErrOpenNoteEdit" xml:space="preserve"><value>Lỗi khi mở cửa sổ chỉnh sửa ghi chú:</value></data>
+  <data name="ConfirmDeleteNote" xml:space="preserve"><value>Chắc chắn xóa ghi chú này?</value></data>
+  <data name="ConfirmDeleteSelectedNotes" xml:space="preserve"><value>Chắc chắn xóa {0} ghi chú đã chọn?</value></data>
+  <data name="PleaseSelectNotesToDelete" xml:space="preserve"><value>Vui lòng chọn ghi chú để xóa.</value></data>
+  <data name="ConfirmDelete" xml:space="preserve"><value>Xác nhận xóa</value></data>
+  <data name="ErrDelete" xml:space="preserve"><value>Lỗi khi xóa:</value></data>
+  <data name="NoteUnlock" xml:space="preserve"><value>Mở khóa ghi chú</value></data>
+  <data name="ProtectedContent" xml:space="preserve"><value>Nội dung được bảo vệ</value></data>
+  <data name="ShowHint" xml:space="preserve"><value>Hiển thị gợi ý</value></data>
+  <data name="Unlock" xml:space="preserve"><value>Mở khóa</value></data>
+  <data name="NoHintRegistered" xml:space="preserve"><value>Không có gợi ý được đăng ký.</value></data>
+  <data name="PasswordHintMessage" xml:space="preserve"><value>Gợi ý mật khẩu: {0}</value></data>
+  <data name="Hint" xml:space="preserve"><value>Gợi ý</value></data>
+  <data name="CategoryManagementTitle" xml:space="preserve"><value>Quản lý danh mục</value></data>
+  <data name="CategoryManagementDesc" xml:space="preserve"><value>Quản lý nhóm để sắp xếp ghi chú của bạn.</value></data>
+  <data name="NewCategoryPlaceholder" xml:space="preserve"><value>Nhập danh mục mới...</value></data>
+  <data name="DefaultCategoryDeleteError" xml:space="preserve"><value>Không thể xóa danh mục mặc định.</value></data>
+  <data name="DeleteCategoryConfirm" xml:space="preserve"><value>Chắc chắn xóa danh mục này? Ghi chú liên quan sẽ chuyển sang 'Mặc định'.</value></data>
+  <data name="Tip1" xml:space="preserve"><value>Bảo vệ ghi chú của bạn an toàn với cài đặt mật khẩu.</value></data>
+  <data name="Tip2" xml:space="preserve"><value>Lưu vào ghi chú ngay sau khi chụp để ghi lại ý tưởng quý giá.</value></data>
+  <data name="Tip3" xml:space="preserve"><value>Dán ảnh và nội dung từ trang ngoài để lưu trữ vĩnh viễn tiết kiệm dung lượng.</value></data>
+  <data name="Tip4" xml:space="preserve"><value>Kết nối thư mục đám mây như N-Drive hoặc Google Drive để chia sẻ Ghi chú của tôi trên mọi máy.</value></data>
+  <data name="Tip5" xml:space="preserve"><value>Sử dụng thẻ để tìm nhanh điều bạn muốn trong nhiều ghi chú.</value></data>
+  <data name="Tip6" xml:space="preserve"><value>Thêm ảnh dễ dàng bằng kéo thả trong cửa sổ chỉnh sửa ghi chú.</value></data>
+  <data name="Tip7" xml:space="preserve"><value>Chức năng tìm kiếm cho phép tìm chữ trong nội dung cũng như tiêu đề ghi chú.</value></data>
+  <data name="Tip8" xml:space="preserve"><value>Nhấp đúp vào ảnh trong ghi chú để chỉnh sửa.</value></data>
+  <data name="Tip9" xml:space="preserve"><value>Nhấp 'Lưu ghi chú' khi chụp để tạo ghi chú chỉ một nhấp.</value></data>
+  <data name="ColorPickerTitle" xml:space="preserve"><value>Chọn màu</value></data>
+  <data name="Transparent" xml:space="preserve"><value>Trong suốt</value></data>
+  <data name="TextColor" xml:space="preserve"><value>Màu chữ</value></data>
+  <data name="HighlightColor" xml:space="preserve"><value>Màu đánh dấu</value></data>
+  <data name="AlignLeft" xml:space="preserve"><value>Căn trái</value></data>
+  <data name="AlignCenter" xml:space="preserve"><value>Căn giữa</value></data>
+  <data name="AlignRight" xml:space="preserve"><value>Căn phải</value></data>
+  <data name="BulletList" xml:space="preserve"><value>Danh sách gạch đầu dòng</value></data>
+  <data name="NumberList" xml:space="preserve"><value>Danh sách đánh số</value></data>
+  <data name="InsertImage" xml:space="preserve"><value>Chèn ảnh</value></data>
+  <data name="InsertCapture" xml:space="preserve"><value>Chèn ảnh chụp</value></data>
+  <data name="InsertLink" xml:space="preserve"><value>Chèn liên kết</value></data>
+  <data name="LineSpacing" xml:space="preserve"><value>Khoảng cách dòng</value></data>
+  <data name="FontFamily" xml:space="preserve"><value>Họ phông chữ</value></data>
+  <data name="FontSize" xml:space="preserve"><value>Cỡ chữ</value></data>
+  <data name="Password" xml:space="preserve"><value>Mật khẩu</value></data>
+  <data name="RemoteRepository" xml:space="preserve"><value>Kho lưu trữ từ xa</value></data>
+  <data name="InitializeReset" xml:space="preserve"><value>Khởi tạo lại</value></data>
+
+  <data name="NoteResetConfirm1" xml:space="preserve"><value>Chắc chắn khởi tạo lại tất cả dữ liệu ghi chú?</value></data>
+  <data name="NoteResetConfirm2" xml:space="preserve"><value>Dữ liệu đã khởi tạo lại không thể khôi phục.\nBạn thực sự chắc chắn?</value></data>
+  <data name="DataLossWarning" xml:space="preserve"><value>Cảnh báo xóa dữ liệu vĩnh viễn</value></data>
+  <data name="NoteResetComplete" xml:space="preserve"><value>Dữ liệu ghi chú đã được khởi tạo lại.</value></data>
+  <data name="NoteResetError" xml:space="preserve"><value>Lỗi khởi tạo lại: {0}</value></data>
+  <data name="TrashSettings" xml:space="preserve"><value>Cài đặt thùng rác</value></data>
+  <data name="TrashRetentionPeriod" xml:space="preserve"><value>Thời gian giữ thùng rác</value></data>
+  <data name="TrashRetentionNotice" xml:space="preserve"><value>(Tự động xóa sau thời gian đã đặt)</value></data>
+  <data name="RetentionPermanent" xml:space="preserve"><value>Vĩnh viễn</value></data>
+  <data name="Days" xml:space="preserve"><value>Ngày</value></data>
+  <data name="EmptyTrash" xml:space="preserve"><value>Dọn thùng rác</value></data>
+  <data name="Notice" xml:space="preserve"><value>Thông báo</value></data>
+  <data name="TrashRetentionInfo" xml:space="preserve"><value>Quan trọng: Thời gian giữ thùng rác hiện tại là {0} ngày. Có thể thay đổi trong Cài đặt ghi chú.</value></data>
+  <data name="TrashRetentionPermanentInfo" xml:space="preserve"><value>Quan trọng: Thùng rác được đặt giữ vĩnh viễn. Có thể thay đổi trong Cài đặt ghi chú.</value></data>
+  <data name="NoNotes" xml:space="preserve"><value>Không tìm thấy ghi chú</value></data>
+  <data name="TrashEmpty" xml:space="preserve"><value>Thùng rác trống</value></data>
+  <data name="NotePathDesc" xml:space="preserve"><value>Đường dẫn lưu cơ sở dữ liệu ghi chú và đính kèm.</value></data>
+  <data name="Recent30Days" xml:space="preserve"><value>30 ngày gần đây</value></data>
+  <data name="Recent3Months" xml:space="preserve"><value>3 tháng gần đây</value></data>
+  <data name="Recent6Months" xml:space="preserve"><value>6 tháng gần đây</value></data>
+  <data name="ListView" xml:space="preserve"><value>Chế độ danh sách</value></data>
+  <data name="CardView" xml:space="preserve"><value>Chế độ thẻ</value></data>
+  <data name="TrashEmptyComplete" xml:space="preserve"><value>Đã dọn thùng rác.</value></data>
+  <data name="Minimize" xml:space="preserve"><value>Thu nhỏ</value></data>
+  <data name="Maximize" xml:space="preserve"><value>Phóng to</value></data>
+  <data name="Restore" xml:space="preserve"><value>Khôi phục</value></data>
+  <data name="RecentRecordsFormat" xml:space="preserve">
+    <value>{0} bản ghi</value>
+  </data>
+  <data name="TrashEmptyWarning" xml:space="preserve">
+    <value>Mục đã xóa không thể khôi phục.
+Chắc chắn xóa vĩnh viễn toàn bộ thùng rác?</value>
+  </data>
+  <data name="TrashEmptyFailed" xml:space="preserve">
+    <value>Dọn thùng rác thất bại: </value>
+  </data>
+  <data name="ErrPreviewFailed" xml:space="preserve">
+    <value>Mở xem trước thất bại: </value>
+  </data>
+  <data name="AlwaysOnTop" xml:space="preserve">
+    <value>Luôn ở trên cùng</value>
+  </data>
+  <data name="UnpinAlwaysOnTop" xml:space="preserve">
+    <value>Bỏ luôn ở trên</value>
+  </data>
+  <data name="PrintOrSavePDF" xml:space="preserve">
+    <value>In / Lưu thành PDF</value>
+  </data>
+  <data name="ErrLoadNote" xml:space="preserve">
+    <value>Tải ghi chú thất bại: </value>
+  </data>
+  <data name="ErrInitExplorer" xml:space="preserve"><value>Lỗi khởi tạo trình duyệt: </value></data>
+  <data name="ConfirmRestoreNote" xml:space="preserve"><value>Bạn có muốn khôi phục ghi chú này?</value></data>
+  <data name="ErrRestoreNote" xml:space="preserve"><value>Lỗi khi khôi phục: </value></data>
+  <data name="ErrPinNote" xml:space="preserve"><value>Lỗi khi thay đổi trạng thái ghim: </value></data>
+
+
+  <data name="ChangeTheme" xml:space="preserve"><value>Thay đổi giao diện</value></data>
+  <data name="SimpleMode" xml:space="preserve"><value>Đơn giản</value></data>
+  <data name="TrayMode" xml:space="preserve"><value>Khay</value></data>
+  <data name="SaveToMyNote" xml:space="preserve"><value>Lưu vào Ghi chú của tôi</value></data>
+  <data name="ConfirmDisableNotePassword" xml:space="preserve"><value>Bạn có muốn tắt khóa mật khẩu?&#x0a;(Mật khẩu đã đặt sẽ được giữ lại)</value></data>
+  
+  <data name="SettingsWindowTitle" xml:space="preserve"><value>CatchCapture - Cài đặt</value></data>
+  <data name="SettingsFormatFeatures" xml:space="preserve"><value>Tính năng định dạng</value></data>
+  <data name="SettingsFormatGuide" xml:space="preserve"><value>Hướng dẫn định dạng file</value></data>
+  <data name="SettingsColFormat" xml:space="preserve"><value>Định dạng</value></data>
+  <data name="SettingsColTransparent" xml:space="preserve"><value>Nền trong suốt</value></data>
+  <data name="SettingsColAnimation" xml:space="preserve"><value>Hoạt hình</value></data>
+  <data name="SettingsColQuality" xml:space="preserve"><value>Chất lượng</value></data>
+  <data name="SettingsColCompression" xml:space="preserve"><value>Hiệu suất nén</value></data>
+  <data name="SettingsColUsage" xml:space="preserve"><value>Sử dụng chính</value></data>
+  <data name="SettingsValHigh" xml:space="preserve"><value>Cao</value></data>
+  <data name="SettingsValMidHigh" xml:space="preserve"><value>Trung bình/Cao</value></data>
+  <data name="SettingsValLow" xml:space="preserve"><value>Thấp</value></data>
+  <data name="SettingsValUltra" xml:space="preserve"><value>Ultra</value></data>
+  <data name="SettingsPnGEfficiency" xml:space="preserve"><value>Thấp (Không mất dữ liệu)</value></data>
+  <data name="SettingsPnGUsage" xml:space="preserve"><value>Logo, biểu tượng, ảnh chụp màn hình</value></data>
+  <data name="SettingsJpgEfficiency" xml:space="preserve"><value>Cao (Mất dữ liệu)</value></data>
+  <data name="SettingsJpgUsage" xml:space="preserve"><value>Ảnh chụp, ảnh web</value></data>
+  <data name="SettingsBmpEfficiency" xml:space="preserve"><value>Không (Gốc)</value></data>
+  <data name="SettingsBmpUsage" xml:space="preserve"><value>Đồ họa Windows đơn giản</value></data>
+  <data name="SettingsGifEfficiency" xml:space="preserve"><value>Cao (Giới hạn màu)</value></data>
+  <data name="SettingsGifUsage" xml:space="preserve"><value>Hoạt hình ngắn (GIF)</value></data>
+  <data name="SettingsWebpEfficiency" xml:space="preserve"><value>Rất cao (Thế hệ mới)</value></data>
+  <data name="SettingsWebpUsage" xml:space="preserve"><value>Ảnh tối ưu web</value></data>
+  <data name="SettingsShowMagnifierDesc" xml:space="preserve"><value>Hiển thị kính lúp khi chụp vùng</value></data>
+  <data name="SettingsShowPreviewDesc" xml:space="preserve"><value>Hiển thị xem trước/trình chỉnh sửa sau chụp</value></data>
+  <data name="SettingsAutoSaveDesc" xml:space="preserve"><value>Tự động lưu file sau chụp</value></data>
+  <data name="RecQualityMP4" xml:space="preserve"><value>Chất lượng (MP4)</value></data>
+  <data name="RecFpsMP4" xml:space="preserve"><value>Tốc độ khung hình (MP4)</value></data>
+  <data name="RecHotkeyTitle" xml:space="preserve"><value>Phím tắt quay/dừng</value></data>
+  <data name="RecordStop" xml:space="preserve"><value>Quay/Dừng</value></data>
+  <data name="NoteStorageDatabase" xml:space="preserve"><value>Lưu trữ &amp; Cơ sở dữ liệu</value></data>
+  <data name="NoteStorageLocation" xml:space="preserve"><value>Vị trí lưu ghi chú</value></data>
+  <data name="NotePathStructure" xml:space="preserve"><value>※ Cấu trúc thư mục: [ThưMụcGhiChú]\notedb (CSDL), [ThưMụcGhiChú]\img (Ảnh)</value></data>
+  <data name="RemoteStorage" xml:space="preserve"><value>Lưu trữ từ xa</value></data>
+  <data name="RemoteStorageTooltip" xml:space="preserve"><value>Kết nối thư mục đám mây (Google Drive v.v.) để chia sẻ ghi chú giữa các thiết bị.</value></data>
+  <data name="RemoteStorageWarning" xml:space="preserve"><value>Khi kết nối, tốc độ có thể chậm đáng kể trong quá trình tải lên/tải xuống máy chủ, đây không phải lỗi chương trình.</value></data>
+  <data name="ResetNoteDataTooltip" xml:space="preserve"><value>Đặt lại tất cả dữ liệu ghi chú</value></data>
+  <data name="NoteFileNameSettings" xml:space="preserve"><value>Cài đặt tên file</value></data>
+  <data name="NoteFolderGrouping" xml:space="preserve"><value>Cài đặt nhóm thư mục</value></data>
+  <data name="NoteSecurityLock" xml:space="preserve"><value>Bảo mật &amp; Khóa ghi chú</value></data>
+  <data name="ImageSaveSettings" xml:space="preserve"><value>Cài đặt lưu ảnh</value></data>
+  <data name="StartupSettings" xml:space="preserve"><value>Cài đặt khởi động</value></data>
+  <data name="Val1Day" xml:space="preserve"><value>1 ngày</value></data>
+  <data name="Val3Days" xml:space="preserve"><value>3 ngày</value></data>
+  <data name="Val7Days" xml:space="preserve"><value>7 ngày</value></data>
+  <data name="Val15Days" xml:space="preserve"><value>15 ngày</value></data>
+  <data name="Val30Days" xml:space="preserve"><value>30 ngày</value></data>
+  <data name="Val60Days" xml:space="preserve"><value>60 ngày</value></data>
+  <data name="Val90Days" xml:space="preserve"><value>90 ngày</value></data>
+  <data name="ValPermanent" xml:space="preserve"><value>Giữ mãi mãi</value></data>
+  <data name="Wait" xml:space="preserve"><value>Đang chờ...</value></data>
+  <data name="FileNameSettings" xml:space="preserve"><value>Cài đặt tên file</value></data>
+  <data name="FolderGrouping" xml:space="preserve"><value>Cài đặt nhóm thư mục</value></data>
+  <data name="GroupingNone" xml:space="preserve"><value>Không nhóm</value></data>
+  <data name="GroupingMonthly" xml:space="preserve"><value>Theo tháng</value></data>
+  <data name="GroupingQuarterly" xml:space="preserve"><value>Theo quý</value></data>
+  <data name="GroupingYearly" xml:space="preserve"><value>Theo năm</value></data>
+  <data name="FileNamePreset_Default" xml:space="preserve"><value>Mặc định (Catch_Ngày_Giờ)</value></data>
+  <data name="FileNamePreset_Simple" xml:space="preserve"><value>Đơn giản (Ảnh_Ngày)</value></data>
+  <data name="FileNamePreset_Timestamp" xml:space="preserve"><value>Chỉ thời gian (20250101_120000)</value></data>
+  <data name="FileNamePreset_App" xml:space="preserve"><value>Tên ứng dụng (Chrome_Ngày)</value></data>
+  <data name="FileNamePreset_Title" xml:space="preserve"><value>Tiêu đề cửa sổ (Google_Ngày)</value></data>
+  <data name="FileNamePreview" xml:space="preserve"><value>Xem trước</value></data>
+  <data name="Badge" xml:space="preserve"><value>Huy hiệu</value></data>
+  <data name="TextNote" xml:space="preserve"><value>Chữ</value></data>
+  <data name="BadgeSize" xml:space="preserve"><value>Kích thước huy hiệu</value></data>
+  <data name="TextSize" xml:space="preserve"><value>Kích thước chữ</value></data>
+  <data name="SettingsAutoCopyDesc" xml:space="preserve"><value>Tự động sao chép sau khi chụp</value></data>
+  <data name="AddVideo" xml:space="preserve"><value>Thêm video</value></data>
+  <data name="BtnYes" xml:space="preserve"><value>Có</value></data>
+  <data name="BtnNo" xml:space="preserve"><value>Không</value></data>
+  <data name="BtnOK" xml:space="preserve"><value>OK</value></data>
+  <data name="BtnCancel" xml:space="preserve"><value>Hủy</value></data>
+  <data name="AddVideoGuidance" xml:space="preserve"><value>Vui lòng nhập URL YouTube hoặc mã nguồn (iframe):</value></data>
+  <data name="SearchLocalFile" xml:space="preserve"><value>Tìm file cục bộ...</value></data>
+  <data name="BtnAdd" xml:space="preserve"><value>Thêm</value></data>
+  <data name="HotkeyConflictTitle" xml:space="preserve"><value>Xung đột phím tắt</value></data>
+  <data name="HotkeyConflictMsg" xml:space="preserve"><value>Phím tắt '{0}' đã được sử dụng bởi: {1}</value></data>
+  <data name="ImportConfirmMsg" xml:space="preserve"><value>Tất cả dữ liệu ghi chú hiện tại sẽ bị thay thế bởi file sao lưu này. Tiếp tục?</value></data>
+  <data name="ImportSuccessMsg" xml:space="preserve"><value>Khôi phục hoàn tất. Khuyến nghị khởi động lại chương trình để áp dụng thay đổi.</value></data>
+  <data name="ErrorImport" xml:space="preserve"><value>Lỗi khi khôi phục</value></data>
+  <data name="ErrorBackup" xml:space="preserve"><value>Lỗi khi sao lưu</value></data>
+  <data name="ErrorNoFolder" xml:space="preserve"><value>Thư mục nguồn sao lưu không tồn tại.</value></data>
+  <data name="BackupSuccess" xml:space="preserve"><value>Sao lưu thành công.</value></data>
+  <data name="LineSpacing10" xml:space="preserve"><value>1.0 (Hẹp)</value></data>
+  <data name="LineSpacing15" xml:space="preserve"><value>1.5 (Mặc định)</value></data>
+  <data name="LineSpacing20" xml:space="preserve"><value>2.0 (Rộng)</value></data>
+  <data name="SelectTextForLink" xml:space="preserve"><value>Vui lòng chọn chữ cho liên kết trước.</value></data>
+  <data name="EnterURL" xml:space="preserve"><value>Vui lòng nhập URL:</value></data>
+  <data name="ErrInsertLink" xml:space="preserve"><value>Không thể chèn liên kết:</value></data>
+  <data name="CaptureModeTitle" xml:space="preserve"><value>Phương thức chụp</value></data>
+  <data name="CaptureModeOverlay" xml:space="preserve"><value>Chụp nhanh (Lớp phủ) - Hoạt hình vẫn chạy</value></data>
+  <data name="CaptureModeStatic" xml:space="preserve"><value>Chụp đông cứng - Đông cứng màn hình tức thì (Mặc định)</value></data>
+  <data name="CaptureModeDesc" xml:space="preserve"><value>※ Sử dụng kính lúp ở chế độ chụp nhanh có thể gây lag khi kéo.</value></data>
 </root>

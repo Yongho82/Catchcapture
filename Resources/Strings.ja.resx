@@ -66,22 +66,22 @@
   
   <!-- Capture Types -->
   <data name="AreaCapture" xml:space="preserve">
-    <value>範囲キャプチャ</value>
+    <value>エリアキャプチャ</value>
   </data>
   <data name="DelayCapture" xml:space="preserve">
     <value>遅延キャプチャ</value>
   </data>
   <data name="RealTimeCapture" xml:space="preserve">
-    <value>瞬間キャプチャ</value>
+    <value>即時キャプチャ</value>
   </data>
   <data name="MultiCapture" xml:space="preserve">
-    <value>マルチキャプチャ</value>
+    <value>複数キャプチャ</value>
   </data>
   <data name="FullScreen" xml:space="preserve">
-    <value>フルスクリーン</value>
+    <value>全画面</value>
   </data>
   <data name="DesignatedCapture" xml:space="preserve">
-    <value>指定キャプチャ</value>
+    <value>固定エリア</value>
   </data>
   <data name="WindowCapture" xml:space="preserve">
     <value>ウィンドウキャプチャ</value>
@@ -98,13 +98,7 @@
   
   <!-- Window Modes -->
   <data name="NormalMode" xml:space="preserve">
-    <value>通常モード</value>
-  </data>
-  <data name="SimpleMode" xml:space="preserve">
-    <value>簡易モード</value>
-  </data>
-  <data name="TrayMode" xml:space="preserve">
-    <value>トレイモード</value>
+    <value>通常</value>
   </data>
   
   <!-- Menu Items -->
@@ -138,7 +132,7 @@
     <value>ペン</value>
   </data>
   <data name="Highlighter" xml:space="preserve">
-    <value>蛍光ペン</value>
+    <value>ハイライト</value>
   </data>
   <data name="Text" xml:space="preserve">
     <value>テキスト</value>
@@ -155,8 +149,11 @@
   <data name="Numbering" xml:space="preserve">
     <value>番号付け</value>
   </data>
+  <data name="NumberingMode" xml:space="preserve">
+    <value>番号付けモード</value>
+  </data>
   <data name="Crop" xml:space="preserve">
-    <value>切り抜き</value>
+    <value>トリミング</value>
   </data>
   <data name="Rotate" xml:space="preserve">
     <value>回転</value>
@@ -165,7 +162,7 @@
     <value>元に戻す</value>
   </data>
   <data name="Redo" xml:space="preserve">
-    <value>やり直す</value>
+    <value>やり直し</value>
   </data>
   
   <!-- Settings -->
@@ -179,21 +176,28 @@
     <value>ホットキー</value>
   </data>
   <data name="StartWithWindows" xml:space="preserve">
-    <value>Windowsと同時に起動</value>
+    <value>Windows起動時に開始</value>
   </data>
   <data name="StartInTrayMode" xml:space="preserve">
-    <value>トレイモードで起動</value>
+    <value>トレイモードで開始</value>
   </data>
   <data name="SettingsSaved" xml:space="preserve">
-    <value>設定が保存されました</value>
+    <value>設定を保存しました</value>
   </data>
-  
+
   <data name="Version" xml:space="preserve">
     <value>バージョン</value>
   </data>
   <data name="Default" xml:space="preserve">
     <value>デフォルト</value>
   </data>
+  <data name="Select" xml:space="preserve">
+    <value>選択</value>
+  </data>
+  <data name="SelectTooltip" xml:space="preserve">
+    <value>要素を選択して調整</value>
+  </data>
+
   
   <!-- Messages -->
   <data name="Confirm" xml:space="preserve">
@@ -216,12 +220,12 @@
   </data>
   <!-- Added Keys -->
   <data name="Capture" xml:space="preserve"><value>キャプチャ</value></data>
-  <data name="Captured" xml:space="preserve"><value>キャプチャ完了</value></data>
+  <data name="Captured" xml:space="preserve"><value>キャプチャ済み</value></data>
   <data name="Recapture" xml:space="preserve"><value>再キャプチャ</value></data>
   <data name="CopyToClipboard" xml:space="preserve"><value>クリップボードにコピー</value></data>
   <data name="Reset" xml:space="preserve"><value>リセット</value></data>
-  <data name="FlipHorizontal" xml:space="preserve"><value>左右反転</value></data>
-  <data name="FlipVertical" xml:space="preserve"><value>上下反転</value></data>
+  <data name="FlipHorizontal" xml:space="preserve"><value>横反転</value></data>
+  <data name="FlipVertical" xml:space="preserve"><value>縦反転</value></data>
   <data name="ImageSearch" xml:space="preserve"><value>画像検索</value></data>
   <data name="Share" xml:space="preserve"><value>共有</value></data>
   <data name="Extract" xml:space="preserve"><value>抽出</value></data>
@@ -229,84 +233,87 @@
   <data name="RecentCaptures" xml:space="preserve"><value>最近のキャプチャ</value></data>
   <data name="Size" xml:space="preserve"><value>サイズ</value></data>
   <data name="OriginalSize" xml:space="preserve"><value>オリジナル</value></data>
-  <data name="ResetToOriginal" xml:space="preserve"><value>元に戻す</value></data>
+  <data name="ResetToOriginal" xml:space="preserve"><value>オリジナルに戻す</value></data>
   <data name="AddText" xml:space="preserve"><value>テキスト追加</value></data>
-  <data name="DrawShapeTooltip" xml:space="preserve"><value>図形描画 (デフォルト: 四角形)</value></data>
+  <data name="DrawShapeTooltip" xml:space="preserve"><value>図形を描画（デフォルト：長方形）</value></data>
   <data name="ShapeOptions" xml:space="preserve"><value>図形オプション</value></data>
   <data name="ImageSizePrefix" xml:space="preserve"><value>画像サイズ: </value></data>
-  <data name="RestartRequired" xml:space="preserve"><value>再起動が必要です。</value></data>
+  <data name="RestartRequired" xml:space="preserve"><value>言語変更を適用するには再起動が必要です。</value></data>
   <data name="MenuEdit" xml:space="preserve"><value>メニュー編集</value></data>
-  <data name="MenuEditGuide" xml:space="preserve"><value>ドラッグ＆ドロップでメニューを並べ替え・削除できます。</value></data>
+  <data name="MenuEditGuide" xml:space="preserve"><value>ドラッグ＆ドロップでメニュー項目の並び替えや削除ができます。</value></data>
   <data name="Add" xml:space="preserve"><value>追加</value></data>
-  <data name="RestoreDefaultMenus" xml:space="preserve"><value>デフォルトに戻す</value></data>
+  <data name="RestoreDefaultMenus" xml:space="preserve"><value>デフォルトメニューを復元</value></data>
   <data name="VisitHomepage" xml:space="preserve"><value>ホームページへ</value></data>
-  <data name="RestoreDefaults" xml:space="preserve"><value>初期化</value></data>
-  <data name="PrivacyPolicy" xml:space="preserve"><value>プライバシー</value></data>
+  <data name="RestoreDefaults" xml:space="preserve"><value>デフォルトに戻す</value></data>
+  <data name="PrivacyPolicy" xml:space="preserve"><value>プライバシーポリシー</value></data>
   <data name="CaptureSettings" xml:space="preserve"><value>キャプチャ設定</value></data>
   <data name="SaveSettings" xml:space="preserve"><value>保存設定</value></data>
-  <data name="SavePath" xml:space="preserve"><value>保存パス</value></data>
+  <data name="SavePath" xml:space="preserve"><value>保存先</value></data>
   <data name="Change" xml:space="preserve"><value>変更</value></data>
   <data name="FileFormat" xml:space="preserve"><value>ファイル形式</value></data>
-  <data name="Quality" xml:space="preserve"><value>品質</value></data>
+  <data name="Quality" xml:space="preserve"><value>画質</value></data>
   <data name="Options" xml:space="preserve"><value>オプション</value></data>
   <data name="AutoSaveCapture" xml:space="preserve"><value>キャプチャ後に自動保存</value></data>
   <data name="ShowPreviewAfterCapture" xml:space="preserve"><value>キャプチャ後にプレビューを表示</value></data>
   <data name="HotkeySettings" xml:space="preserve"><value>ホットキー設定</value></data>
-  <data name="UsePrintScreen" xml:space="preserve"><value>PrintScreenキーを使用</value></data>
+  <data name="UsePrintScreen" xml:space="preserve"><value>Print Screenキー使用</value></data>
   <data name="SystemSettings" xml:space="preserve"><value>システム設定</value></data>
   <data name="StartupMode" xml:space="preserve"><value>起動モード</value></data>
   <data name="StartInNormal" xml:space="preserve"><value>通常モードで起動</value></data>
-  <data name="StartInSimple" xml:space="preserve"><value>簡易モードで起動</value></data>
+  <data name="StartInSimple" xml:space="preserve"><value>シンプルモードで起動</value></data>
   <data name="StartInTray" xml:space="preserve"><value>トレイモードで起動</value></data>
-  <data name="StartupModeNotice" xml:space="preserve"><value>※ トレイモードはトレイアイコンのみ表示します。</value></data>
+  <data name="StartupModeNotice" xml:space="preserve"><value>※ トレイモードはトレイアイコンのみ表示されます。</value></data>
   <data name="LanguageSettings" xml:space="preserve"><value>言語設定</value></data>
-  <data name="LanguageLabel" xml:space="preserve"><value>言語選択</value></data>
-  <data name="NoExtractedText" xml:space="preserve"><value>抽出されたテキストがありません。</value></data>
+  <data name="LanguageLabel" xml:space="preserve"><value>言語を選択</value></data>
+  <data name="NoExtractedText" xml:space="preserve"><value>テキストが抽出されませんでした。</value></data>
   <data name="Info" xml:space="preserve"><value>情報</value></data>
-  <data name="ImageSaveTitle" xml:space="preserve"><value>画像保存</value></data>
+  <data name="ImageSaveTitle" xml:space="preserve"><value>画像を保存</value></data>
   <data name="ImageSaved" xml:space="preserve"><value>画像を保存しました。</value></data>
   <data name="NoImageToPrint" xml:space="preserve"><value>印刷する画像がありません。</value></data>
-  <data name="PrintPreviewError" xml:space="preserve"><value>印刷プレビューエラー</value></data>
+  <data name="PrintPreviewError" xml:space="preserve"><value>印刷プレビューのエラー</value></data>
   <data name="RecaptureError" xml:space="preserve"><value>再キャプチャエラー</value></data>
-  <data name="ConfirmReset" xml:space="preserve"><value>元に戻しますか？すべての変更が失われます。</value></data>
-  <data name="EditImage" xml:space="preserve"><value>画像の編集</value></data>
-  <data name="PenTooltip" xml:space="preserve"><value>ペン (黒, 3px)</value></data>
-  <data name="BackgroundRemoval" xml:space="preserve"><value>背景削除</value></data>
-  <data name="BackgroundRemovalTooltip" xml:space="preserve"><value>背景を自動削除</value></data>
+  <data name="ConfirmReset" xml:space="preserve"><value>オリジナルに戻しますか？すべての変更が失われます。</value></data>
+  <data name="EditImage" xml:space="preserve"><value>画像編集</value></data>
+  <data name="PenTooltip" xml:space="preserve"><value>ペン（デフォルト：黒、3px）</value></data>
+  <data name="BackgroundRemoval" xml:space="preserve"><value>背景除去</value></data>
+  <data name="BackgroundRemovalTooltip" xml:space="preserve"><value>背景を自動除去</value></data>
   <data name="ImageSearchTooltip" xml:space="preserve"><value>Google画像検索</value></data>
-  <data name="ExtractText" xml:space="preserve"><value>テキスト抽出 (OCR)</value></data>
-  <data name="ZoomReset" xml:space="preserve"><value>100%</value></data>
+  <data name="ExtractText" xml:space="preserve"><value>テキスト抽出（OCR）</value></data>
+  <data name="ZoomReset" xml:space="preserve"><value>原寸（100%）</value></data>
   <data name="ZoomResetTooltip" xml:space="preserve"><value>実際のサイズで表示</value></data>
   <data name="ZoomOut" xml:space="preserve"><value>縮小</value></data>
   <data name="ZoomIn" xml:space="preserve"><value>拡大</value></data>
   <data name="SizeLabel" xml:space="preserve"><value>サイズ</value></data>
   <data name="ShapeLbl" xml:space="preserve"><value>図形</value></data>
   <data name="PenLbl" xml:space="preserve"><value>ペン</value></data>
-  <data name="HighlighterLbl" xml:space="preserve"><value>蛍光ペン</value></data>
+  <data name="HighlighterLbl" xml:space="preserve"><value>ハイライト</value></data>
   <data name="TextAdd" xml:space="preserve"><value>テキスト追加</value></data>
   <data name="UndoLbl" xml:space="preserve"><value>元に戻す</value></data>
-  <data name="RedoLbl" xml:space="preserve"><value>やり直す</value></data>
+  <data name="ScreenRecording" xml:space="preserve"><value>録画</value></data>
+  <data name="Record" xml:space="preserve"><value>録画</value></data>
+  <data name="RedoLbl" xml:space="preserve"><value>やり直し</value></data>
   <data name="ResetLbl" xml:space="preserve"><value>リセット</value></data>
-  <data name="FlipH" xml:space="preserve"><value>左右反転</value></data>
-  <data name="FlipV" xml:space="preserve"><value>上下反転</value></data>
+  <data name="FlipH" xml:space="preserve"><value>横反転</value></data>
+  <data name="FlipV" xml:space="preserve"><value>縦反転</value></data>
   <data name="CopySelected" xml:space="preserve"><value>コピー</value></data>
   <data name="InstantEdit" xml:space="preserve"><value>即時編集</value></data>
-  <data name="OpenEditor" xml:space="preserve"><value>エディターを開く</value></data>
-  <data name="RealTimeF1Guide" xml:space="preserve"><value>準備ができたらF1を押してキャプチャします。</value></data>
+  <data name="OpenEditor" xml:space="preserve"><value>エディタを開く</value></data>
+  <data name="OpenSettings" xml:space="preserve"><value>設定を開く</value></data>
+  <data name="RealTimeF1Guide" xml:space="preserve"><value>準備ができたらF1キーを押してください。</value></data>
   <data name="DelayNone" xml:space="preserve"><value>遅延なし</value></data>
   <data name="Delay3Sec" xml:space="preserve"><value>3秒</value></data>
   <data name="Delay5Sec" xml:space="preserve"><value>5秒</value></data>
   <data name="Delay10Sec" xml:space="preserve"><value>10秒</value></data>
-  <data name="MultiCaptureGuide" xml:space="preserve"><value>ENTER : 合成&#xA;F1 : 個別保存&#xA;ESC : 終了</value></data>
-  <data name="MultiCaptureMinReq" xml:space="preserve"><value>最低1つ以上の領域をキャプチャしてください。</value></data>
-  <data name="InvalidCompositeSize" xml:space="preserve"><value>無効な合成画像サイズです。</value></data>
-  <data name="CompositeTooLarge" xml:space="preserve"><value>合成画像が大きすぎます ({0}x{1})。最大サイズは32000x32000です。</value></data>
-  <data name="CompositeError" xml:space="preserve"><value>画像合成中にエラーが発生しました: {0}</value></data>
+  <data name="MultiCaptureGuide" xml:space="preserve"><value>ENTER: 合成&#xA;F1: 個別&#xA;ESC: 終了</value></data>
+  <data name="MultiCaptureMinReq" xml:space="preserve"><value>少なくとも1つの領域をキャプチャしてください。</value></data>
+  <data name="InvalidCompositeSize" xml:space="preserve"><value>合成画像のサイズが無効です。</value></data>
+  <data name="CompositeTooLarge" xml:space="preserve"><value>合成画像が大きすぎます（{0}x{1}）。最大サイズは32000x32000です。</value></data>
+  <data name="CompositeError" xml:space="preserve"><value>画像合成エラー: {0}</value></data>
   <data name="CaptureError" xml:space="preserve"><value>キャプチャエラー: {0}</value></data>
   <data name="NumberingOptions" xml:space="preserve"><value>サイズ設定</value></data>
   <data name="NumberingBadge" xml:space="preserve"><value>バッジ</value></data>
   <data name="NumberingText" xml:space="preserve"><value>テキスト</value></data>
-  <data name="EditConfirmGuide" xml:space="preserve"><value>編集内容を確定(✓)してからご利用ください。</value></data>
+  <data name="EditConfirmGuide" xml:space="preserve"><value>次に進む前に編集を確定（✓）してください。</value></data>
   <data name="Color" xml:space="preserve"><value>色</value></data>
   <data name="TextOptions" xml:space="preserve"><value>テキストオプション</value></data>
   <data name="Font" xml:space="preserve"><value>フォント</value></data>
@@ -314,31 +321,31 @@
   <data name="Fill" xml:space="preserve"><value>塗りつぶし</value></data>
   <data name="FillOpacity" xml:space="preserve"><value>不透明度</value></data>
   <data name="Intensity" xml:space="preserve"><value>強度</value></data>
-  <data name="ComputerApp" xml:space="preserve"><value>コンピュータアプリ…</value></data>
+  <data name="ComputerApp" xml:space="preserve"><value>パソコンアプリ...</value></data>
   <data name="SelectApplication" xml:space="preserve"><value>アプリケーションを選択</value></data>
   <data name="SortNameAsc" xml:space="preserve"><value>名前 ▲</value></data>
   <data name="SortNameDesc" xml:space="preserve"><value>名前 ▼</value></data>
-  <data name="Browse" xml:space="preserve"><value>参照…</value></data>
+  <data name="Browse" xml:space="preserve"><value>参照...</value></data>
   <data name="SelectExecutable" xml:space="preserve"><value>実行ファイルを選択</value></data>
-  <data name="ConfirmDeleteShortcut" xml:space="preserve"><value>ショートカット '{0}' を削除しますか？</value></data>
-  <data name="DeleteShortcut" xml:space="preserve"><value>ショートカットを削除</value></data>
-  <data name="AppLaunchFailed" xml:space="preserve"><value>アプリの起動に失敗しました：{0}</value></data>
-  <data name="GoogleSearch" xml:space="preserve"><value>Google 画像検索</value></data>
+  <data name="ConfirmDeleteShortcut" xml:space="preserve"><value>ショートカット「{0}」を削除しますか？</value></data>
+  <data name="DeleteShortcut" xml:space="preserve"><value>ショートカット削除</value></data>
+  <data name="AppLaunchFailed" xml:space="preserve"><value>アプリ起動に失敗: {0}</value></data>
+  <data name="GoogleSearch" xml:space="preserve"><value>Google画像検索</value></data>
   <data name="CopiedToClipboard" xml:space="preserve"><value>クリップボードにコピーしました。</value></data>
   <data name="AllCopiedToClipboard" xml:space="preserve"><value>すべての画像をクリップボードにコピーしました。</value></data>
   <data name="SelectSaveFolder" xml:space="preserve"><value>保存フォルダを選択</value></data>
-  <data name="UnsavedImagesDeleteConfirm" xml:space="preserve"><value>保存されていない画像があります。本当にすべて削除しますか？</value></data>
-  <data name="UnsavedImageDeleteConfirm" xml:space="preserve"><value>この画像は保存されていません。本当に削除しますか？</value></data>
+  <data name="UnsavedImagesDeleteConfirm" xml:space="preserve"><value>保存されていない画像があります。すべて削除してもよろしいですか？</value></data>
+  <data name="UnsavedImageDeleteConfirm" xml:space="preserve"><value>この画像は保存されていません。削除してもよろしいですか？</value></data>
   <data name="ShareImageTitle" xml:space="preserve"><value>画像を共有</value></data>
   <data name="ShareImageDesc" xml:space="preserve"><value>キャプチャした画像を共有</value></data>
   <data name="ShareError" xml:space="preserve"><value>共有エラー</value></data>
-  <data name="AllImagesSaved" xml:space="preserve"><value>すべての画像が保存されました。</value></data>
+  <data name="AllImagesSaved" xml:space="preserve"><value>すべての画像を保存しました。</value></data>
   <data name="CopyAll" xml:space="preserve"><value>すべてコピー</value></data>
   <data name="PixelSizeLabel" xml:space="preserve"><value>ピクセルサイズ</value></data>
   <data name="MagicWandToleranceLabel" xml:space="preserve"><value>許容値</value></data>
   <data name="MagicWandContiguousOnly" xml:space="preserve"><value>連続領域のみ</value></data>
-  <data name="MagicWandDesc" xml:space="preserve"><value>クリックで背景を削除、ドラッグで領域を選択</value></data>
-  <data name="MagicWandTip" xml:space="preserve"><value>クリックまたはドラッグで背景を削除</value></data>
+  <data name="MagicWandDesc" xml:space="preserve"><value>クリックで背景除去、またはドラッグで領域選択</value></data>
+  <data name="MagicWandTip" xml:space="preserve"><value>クリックまたはドラッグで背景除去</value></data>
   <data name="Opacity" xml:space="preserve"><value>不透明度</value></data>
   <data name="Style" xml:space="preserve"><value>スタイル</value></data>
   <data name="Bold" xml:space="preserve"><value>太字</value></data>
@@ -347,108 +354,416 @@
   <data name="Shadow" xml:space="preserve"><value>影</value></data>
   <data name="OcrResultTitle" xml:space="preserve"><value>テキスト抽出結果</value></data>
   <data name="ExtractedText" xml:space="preserve"><value>抽出されたテキスト</value></data>
-  <data name="GoogleTranslate" xml:space="preserve"><value>Google 翻訳</value></data>
+  <data name="GoogleTranslate" xml:space="preserve"><value>Google翻訳</value></data>
   <data name="Close" xml:space="preserve"><value>閉じる</value></data>
   <data name="NoExtractedTextOcr" xml:space="preserve"><value>抽出されたテキストがありません。</value></data>
-  <data name="OpeningGoogleTranslate" xml:space="preserve"><value>Google 翻訳を開いています...\nテキストをクリップボードにコピーしました。</value></data>
-  <data name="GoogleTranslateFailed" xml:space="preserve"><value>Google 翻訳を開けませんでした：{0}</value></data>
-  <data name="RedirectingToTranslate" xml:space="preserve"><value>Google 翻訳にリダイレクトしています...</value></data>
-  <data name="LineStyle" xml:space="preserve"><value>線のスタイル</value></data>
-  <data name="Outline" xml:space="preserve"><value>アウトライン</value></data>
-  <data name="OcrLanguagePackWarning" xml:space="preserve"><value>※ 日本語/中国語の認識が正確でない場合は、Windows 設定 &gt; 時刻と言語 &gt; 言語で言語パックをインストールしてください。</value></data>
-  <data name="SimpleModeDockinGuide" xml:space="preserve"><value>💡 ヒント：画面の上部、左端、右端にドラッグするとドッキングします！</value></data>
+  <data name="OpeningGoogleTranslate" xml:space="preserve"><value>Google翻訳を開いています...\nテキストをクリップボードにコピーしました。</value></data>
+  <data name="GoogleTranslateFailed" xml:space="preserve"><value>Google翻訳の起動に失敗: {0}</value></data>
+  <data name="RedirectingToTranslate" xml:space="preserve"><value>Google翻訳にリダイレクトしています...</value></data>
+  <data name="OcrLanguagePackWarning" xml:space="preserve"><value>※ 日本語・中国語の認識精度が低い場合は、Windows設定 > 時刻と言語 > 言語で言語パックをインストールしてみてください。</value></data>
+  <data name="SimpleModeDockinGuide" xml:space="preserve"><value>💡 ヒント: 画面の上・左・右端にドラッグするとドックできます！</value></data>
   <data name="ExitSimpleMode" xml:space="preserve"><value>シンプルモードを終了</value></data>
   <data name="MinimizeToTray" xml:space="preserve"><value>トレイに最小化</value></data>
-  <data name="Enlarge" xml:space="preserve"><value>UI拡大</value></data>
+  <data name="Enlarge" xml:space="preserve"><value>UIを拡大</value></data>
   <data name="SwitchToNormalMode" xml:space="preserve"><value>通常モードに切り替え</value></data>
   <data name="SwitchToSimpleMode" xml:space="preserve"><value>シンプルモードに切り替え</value></data>
-  <data name="Pin" xml:space="preserve"><value>固定</value></data>
-  <data name="Unpin" xml:space="preserve"><value>固定解除</value></data>
-  <data name="ViewCaptureList" xml:space="preserve"><value>キャプチャリストを表示</value></data>
-  <data name="AddIcon" xml:space="preserve"><value>アイコンを追加</value></data>
+  <data name="Pin" xml:space="preserve"><value>ピン留め</value></data>
+  <data name="Unpin" xml:space="preserve"><value>ピン留め解除</value></data>
+  <data name="ViewCaptureList" xml:space="preserve"><value>キャプチャ一覧を表示</value></data>
+  <data name="AddIcon" xml:space="preserve"><value>アイコン追加</value></data>
   <data name="HideToTray" xml:space="preserve"><value>トレイに隠す</value></data>
   <data name="Fold" xml:space="preserve"><value>折りたたむ</value></data>
-  <data name="UnitCapture" xml:space="preserve"><value>ユニットキャプチャ</value></data>
-  <data name="ComputerApps" xml:space="preserve"><value>コンピューターアプリ</value></data>
+  <data name="UnitCapture" xml:space="preserve"><value>単体キャプチャ</value></data>
+  <data name="ComputerApps" xml:space="preserve"><value>パソコンアプリ</value></data>
   <data name="Open" xml:space="preserve"><value>開く</value></data>
   <data name="ShowMagnifier" xml:space="preserve"><value>エリアキャプチャ時に拡大鏡を表示</value></data>
-  <data name="ScreenRecording" xml:space="preserve"><value>画面録画</value></data>
-  <data name="Record" xml:space="preserve"><value>録画</value></data>
-  <data name="RecordingTool" xml:space="preserve"><value>録画ツール</value></data>
+  <data name="RecordingTool" xml:space="preserve"><value>録画</value></data>
   <data name="StartStopRecording" xml:space="preserve"><value>録画開始/停止</value></data>
   <data name="Pause" xml:space="preserve"><value>一時停止</value></data>
   <data name="Resume" xml:space="preserve"><value>再開</value></data>
-  <data name="SystemAudioOff" xml:space="preserve"><value>システム音声録音 (OFF)</value></data>
-  <data name="SystemAudioOn" xml:space="preserve"><value>システム音声録音 (ON)</value></data>
-  <data name="MicrophoneOff" xml:space="preserve"><value>マイク録音 (OFF)</value></data>
-  <data name="MicrophoneOn" xml:space="preserve"><value>マイク録音 (ON)</value></data>
-  <data name="VideoQuality" xml:space="preserve"><value>画質 (HD/SD/LD)</value></data>
+  <data name="SystemAudioOff" xml:space="preserve"><value>システム音声（OFF）</value></data>
+  <data name="SystemAudioOn" xml:space="preserve"><value>システム音声（ON）</value></data>
+  <data name="MicrophoneOff" xml:space="preserve"><value>マイク（OFF）</value></data>
+  <data name="MicrophoneOn" xml:space="preserve"><value>マイク（ON）</value></data>
+  <data name="VideoQuality" xml:space="preserve"><value>画質（HD/SD/LD）</value></data>
   <data name="FrameRate" xml:space="preserve"><value>フレームレート</value></data>
   <data name="ShowMouseCursor" xml:space="preserve"><value>マウスカーソルを表示</value></data>
-  <data name="Countdown" xml:space="preserve"><value>開始前のカウントダウン</value></data>
+  <data name="Countdown" xml:space="preserve"><value>カウントダウン</value></data>
   <data name="HideToolbar" xml:space="preserve"><value>ツールバーを隠す</value></data>
   <data name="ShowToolbar" xml:space="preserve"><value>ツールバーを表示</value></data>
   <data name="AutoSnap" xml:space="preserve"><value>マグネット</value></data>
-  <data name="AreaSelection" xml:space="preserve"><value>領域選択</value></data>
+  <data name="AreaSelection" xml:space="preserve"><value>エリア選択</value></data>
 
   <data name="DrawingTools" xml:space="preserve"><value>描画ツール</value></data>
   <data name="ToolPen" xml:space="preserve"><value>ペン</value></data>
-  <data name="ToolHighlighter" xml:space="preserve"><value>蛍光ペン</value></data>
+  <data name="ToolHighlighter" xml:space="preserve"><value>ハイライト</value></data>
   <data name="ToolEraser" xml:space="preserve"><value>消しゴム</value></data>
-  <data name="ToolLine" xml:space="preserve"><value>直線</value></data>
+  <data name="ToolLine" xml:space="preserve"><value>線</value></data>
   <data name="ToolArrow" xml:space="preserve"><value>矢印</value></data>
   <data name="ToolRectangle" xml:space="preserve"><value>長方形</value></data>
-  <data name="ToolEllipse" xml:space="preserve"><value>円</value></data>
+  <data name="ToolEllipse" xml:space="preserve"><value>楕円</value></data>
   <data name="ToolNumbering" xml:space="preserve"><value>番号付け</value></data>
-  <data name="ToolClearAll" xml:space="preserve"><value>すべて消去</value></data>
-  <data name="OpenSaveFolder" xml:space="preserve"><value>保存フォルダを開く</value></data>
+  <data name="ToolClearAll" xml:space="preserve"><value>すべてクリア</value></data>
+  <data name="OpenSaveFolder" xml:space="preserve"><value>フォルダを開く</value></data>
   <data name="ModeSelect" xml:space="preserve"><value>モード選択</value></data>
   <data name="ThemeSettings" xml:space="preserve"><value>テーマ設定</value></data>
   <data name="ThemePreset" xml:space="preserve"><value>テーマプリセット</value></data>
-  <data name="ThemeGeneral" xml:space="preserve"><value>一般 (デフォルト)</value></data>
+  <data name="ThemeGeneral" xml:space="preserve"><value>一般（デフォルト）</value></data>
   <data name="ThemeDark" xml:space="preserve"><value>ダークモード</value></data>
   <data name="ThemeLight" xml:space="preserve"><value>ライトモード</value></data>
   <data name="ThemeBlue" xml:space="preserve"><value>ブルーモード</value></data>
-  <data name="ThemeCustom" xml:space="preserve"><value>ユーザー指定</value></data>
+  <data name="ThemeCustom" xml:space="preserve"><value>カスタム</value></data>
   <data name="ThemeBgColor" xml:space="preserve"><value>背景色</value></data>
-  <data name="ThemeTextColor" xml:space="preserve"><value>テキスト色</value></data>
-  <data name="ThemeColorGuide" xml:space="preserve"><value>※ カラーボックスをクリックしてテーマの色を選択してください。</value></data>
+  <data name="ThemeTextColor" xml:space="preserve"><value>文字色</value></data>
+  <data name="ThemeColorGuide" xml:space="preserve"><value>※ 色枠をクリックして色を選択してください。</value></data>
   <data name="Apply" xml:space="preserve"><value>適用</value></data>
   <data name="Preview" xml:space="preserve"><value>プレビュー</value></data>
   <data name="ThemeSampleLabel" xml:space="preserve"><value>プレビューサンプル</value></data>
-  <data name="ThemeSampleText" xml:space="preserve"><value>テーマプレビューのサンプルテキストです。(ABCabc 123)</value></data>
+  <data name="ThemeSampleText" xml:space="preserve"><value>これはテーマプレビューのサンプルテキストです。（ABCabc 123）</value></data>
   <data name="RecordingSettings" xml:space="preserve"><value>録画設定</value></data>
   <data name="BasicSettings" xml:space="preserve"><value>基本設定</value></data>
-  <data name="RecordingStartStopHotkey" xml:space="preserve"><value>録画開始/停止ショートカット</value></data>
-  <data name="RecordStartStop" xml:space="preserve"><value>録画開始/停止</value></data>
+  <data name="RecordingStartStopHotkey" xml:space="preserve"><value>録画/停止ホットキー</value></data>
+  <data name="RecordStartStop" xml:space="preserve"><value>録画/停止</value></data>
   <data name="CaptureLineSettings" xml:space="preserve"><value>キャプチャライン設定</value></data>
   <data name="OverlayBgColor" xml:space="preserve"><value>オーバーレイ背景色</value></data>
-  <data name="LineThickness" xml:space="preserve"><value>ラインの太さ</value></data>
-  <data name="LineColor" xml:space="preserve"><value>ラインの色</value></data>
-  <data name="CaptureSettingsGuide" xml:space="preserve"><value>※ カラーボックスをクリックしてキャプチャガイドの色を選択してください。</value></data>
-  <data name="SolidLine" xml:space="preserve"><value>実線 (Solid)</value></data>
-  <data name="DashLine" xml:space="preserve"><value>破線 (Dash)</value></data>
-  <data name="DotLine" xml:space="preserve"><value>点線 (Dot)</value></data>
-  <data name="DashDotLine" xml:space="preserve"><value>一点鎖線 (DashDot)</value></data>
+  <data name="LineStyle" xml:space="preserve"><value>線スタイル</value></data>
+  <data name="LineThickness" xml:space="preserve"><value>線幅</value></data>
+  <data name="LineColor" xml:space="preserve"><value>線色</value></data>
+  <data name="CaptureSettingsGuide" xml:space="preserve"><value>* 色枠をクリックしてキャプチャガイドの色を選択してください。</value></data>
+  <data name="SolidLine" xml:space="preserve"><value>実線</value></data>
+  <data name="DashLine" xml:space="preserve"><value>破線</value></data>
+  <data name="DotLine" xml:space="preserve"><value>点線</value></data>
+  <data name="DashDotLine" xml:space="preserve"><value>一点鎖線</value></data>
+  <data name="Outline" xml:space="preserve"><value>外枠</value></data>
   <data name="QualityHigh" xml:space="preserve"><value>高画質</value></data>
-  <data name="QualityMedium" xml:space="preserve"><value>普通</value></data>
+  <data name="QualityMedium" xml:space="preserve"><value>中画質</value></data>
   <data name="QualityLow" xml:space="preserve"><value>低画質</value></data>
-  <data name="Select" xml:space="preserve"><value>選択</value></data>
-  <data name="SelectTooltip" xml:space="preserve"><value>要素の選択と調整</value></data>
-  <data name="NumberingMode" xml:space="preserve"><value>番号付けモード</value></data>
-  <data name="OpenSettings" xml:space="preserve"><value>設定を開く</value></data>
-
+  
   <!-- Print Preview -->
   <data name="PrintPreviewTitle" xml:space="preserve"><value>印刷プレビュー</value></data>
-  <data name="OrientationLabel" xml:space="preserve"><value>方向:</value></data>
+  <data name="OrientationLabel" xml:space="preserve"><value>向き:</value></data>
   <data name="Portrait" xml:space="preserve"><value>縦</value></data>
   <data name="Landscape" xml:space="preserve"><value>横</value></data>
   <data name="PrintOptionsLabel" xml:space="preserve"><value>印刷オプション:</value></data>
   <data name="FitToPage" xml:space="preserve"><value>ページに合わせる</value></data>
   <data name="ActualSize" xml:space="preserve"><value>実際のサイズ</value></data>
   <data name="FillPage" xml:space="preserve"><value>ページを埋める</value></data>
-  <data name="PrintingStarted" xml:space="preserve"><value>印刷を開始します。</value></data>
+  <data name="PrintingStarted" xml:space="preserve"><value>印刷を開始しました。</value></data>
   <data name="PrintingError" xml:space="preserve"><value>印刷中にエラーが発生しました</value></data>
-  <data name="PreviewGenerationError" xml:space="preserve"><value>プレビュー生成エラー</value></data>
-  <data name="PrintJobName" xml:space="preserve"><value>CatchCapture 印刷</value></data>
+  <data name="PreviewGenerationError" xml:space="preserve"><value>プレビューの生成エラー</value></data>
+  <data name="PrintJobName" xml:space="preserve"><value>CatchCapture 画像印刷</value></data>
+
+
+  <data name="StartAsAdmin" xml:space="preserve"><value>管理者として実行</value></data>
+  <data name="StartAsAdminTooltip" xml:space="preserve"><value>管理者権限で実行中のプログラム（ゲーム、タスクマネージャーなど）上でグローバルホットキーが正常に動作するためには管理者として実行が必要な場合があります。</value></data>
+  <data name="NoteSettings" xml:space="preserve"><value>ノート設定</value></data>
+
+  <data name="NoteStorage" xml:space="preserve"><value>ストレージ＆データベース</value></data>
+  <data name="NotePath" xml:space="preserve"><value>ノート保存パス</value></data>
+  <data name="OpenFolder" xml:space="preserve"><value>フォルダを開く</value></data>
+  <data name="ExtraOptions" xml:space="preserve"><value>追加オプション</value></data>
+  <data name="BackupRestore" xml:space="preserve"><value>バックアップ＆復元</value></data>
+  <data name="ExportBackup" xml:space="preserve"><value>エクスポート（.zip）</value></data>
+  <data name="ImportBackup" xml:space="preserve"><value>インポート（.zip）</value></data>
+  <data name="MergeBackup" xml:space="preserve"><value>マージ（.zip）</value></data>
+  <data name="MergeConfirmMsg" xml:space="preserve"><value>選択したバックアップを現在のデータとマージしますか？\n（項目は時系列順に追加されます）</value></data>
+  <data name="MergingMsg" xml:space="preserve"><value>データをマージ中... しばらくお待ちください。</value></data>
+  <data name="MergeSuccessMsg" xml:space="preserve"><value>データマージが完了しました。</value></data>
+  <data name="ErrorMerge" xml:space="preserve"><value>データマージ中にエラーが発生しました</value></data>
+  <data name="NoteSecurity" xml:space="preserve"><value>ノートセキュリティ＆ロック</value></data>
+  <data name="EnableNotePassword" xml:space="preserve"><value>パスワードロックを使用</value></data>
+  <data name="SetChangePassword" xml:space="preserve"><value>パスワード設定/変更</value></data>
+  <data name="PasswordHint" xml:space="preserve"><value>パスワードヒント</value></data>
+  <data name="PasswordWarning" xml:space="preserve"><value>* 注意: パスワードを紛失するとデータは復旧できません。</value></data>
+  <data name="ImageOptimization" xml:space="preserve"><value>画像最適化</value></data>
+  <data name="Unknown" xml:space="preserve">
+    <value>不明</value>
+  </data>
+
+  <data name="PleaseEnterPassword" xml:space="preserve">
+    <value>パスワードを入力してください。</value>
+  </data>
+  <data name="PasswordsDoNotMatch" xml:space="preserve">
+    <value>パスワードが一致しません。</value>
+  </data>
+  <data name="PleaseEnterPasswordHint" xml:space="preserve">
+    <value>パスワードヒントを入力してください。</value>
+  </data>
+
+  <data name="ImageQuality" xml:space="preserve"><value>画像品質</value></data>
+  <data name="OptimizeNoteImages" xml:space="preserve"><value>保存時に画像サイズを最適化</value></data>
+  <data name="HotkeyRegisterError" xml:space="preserve"><value>ショートカットキーは他のアプリケーションで使用されています。\n設定でホットキーを変更してください。</value></data>
+  <data name="NoteSave" xml:space="preserve"><value>ノート保存</value></data>
+  <data name="SaveNoteTooltip" xml:space="preserve"><value>マイノートに保存</value></data>
+  <data name="NoteExplorerTitle" xml:space="preserve"><value>CatchCapture ノートエクスプローラー</value></data>
+  <data name="MyNote" xml:space="preserve"><value>マイノート</value></data>
+  <data name="OpenMyNote" xml:space="preserve"><value>マイノート</value></data>
+  <data name="NewNote" xml:space="preserve"><value>新規ノート</value></data>
+  <data name="NoteSettingsMenu" xml:space="preserve"><value>ノート設定</value></data>
+  <data name="Explore" xml:space="preserve"><value>エクスプローラー</value></data>
+  <data name="AllNotes" xml:space="preserve"><value>すべてのノート</value></data>
+  <data name="GroupNote" xml:space="preserve"><value>グループノート</value></data>
+  <data name="SortByLatest" xml:space="preserve"><value>最新順</value></data>
+  <data name="SortByName" xml:space="preserve"><value>名前順</value></data>
+  <data name="Today" xml:space="preserve"><value>今日</value></data>
+  <data name="Recent7Days" xml:space="preserve"><value>最近7日間</value></data>
+  <data name="Trash" xml:space="preserve"><value>ゴミ箱</value></data>
+  <data name="Tags" xml:space="preserve"><value>タグ</value></data>
+  <data name="SelectAll" xml:space="preserve"><value>すべて選択</value></data>
+  <data name="UnselectAll" xml:space="preserve"><value>選択解除</value></data>
+  <data name="DeleteSelected" xml:space="preserve"><value>選択項目を削除</value></data>
+  <data name="RecentStatusInfo" xml:space="preserve"><value>過去1週間の記録</value></data>
+  <data name="SearchPlaceholder" xml:space="preserve"><value>検索...</value></data>
+  <data name="ColGroup" xml:space="preserve"><value>グループ</value></data>
+  <data name="ColTitle" xml:space="preserve"><value>タイトル</value></data>
+  <data name="ColContent" xml:space="preserve"><value>内容</value></data>
+  <data name="ColLastModified" xml:space="preserve"><value>最終更新日</value></data>
+  <data name="PreviewLoading" xml:space="preserve"><value>ノートを選択してください。</value></data>
+
+  <data name="NoteSecurityTip" xml:space="preserve"><value>パスワード設定でノートを安全に保護できます。</value></data>
+  <data name="NoteInputTitle" xml:space="preserve"><value>CatchCapture - 書き込み</value></data>
+  <data name="WriteNote" xml:space="preserve"><value>ノートを書く</value></data>
+  <data name="EditNote" xml:space="preserve"><value>ノートを編集</value></data>
+  <data name="ManageCategories" xml:space="preserve"><value>カテゴリ管理</value></data>
+  <data name="TitlePlaceholder" xml:space="preserve"><value>タイトルを入力してください</value></data>
+  <data name="TagsPlaceholder" xml:space="preserve"><value>タグを入力（カンマ区切り）</value></data>
+  <data name="Link" xml:space="preserve"><value>リンク</value></data>
+  <data name="LinkPlaceholder" xml:space="preserve"><value>関連リンクを入力してください。</value></data>
+  <data name="FileAttachment" xml:space="preserve"><value>ファイル添付</value></data>
+  <data name="FileAttachmentGuide" xml:space="preserve"><value>ここにファイルをドラッグするかクリックして添付。</value></data>
+  <data name="FinishWrite" xml:space="preserve"><value>書き込み終了</value></data>
+  <data name="FinishEdit" xml:space="preserve"><value>編集終了</value></data>
+  <data name="NotePasswordTitle" xml:space="preserve"><value>ノートパスワード設定</value></data>
+  <data name="NewPassword" xml:space="preserve"><value>新しいパスワード</value></data>
+  <data name="ConfirmPassword" xml:space="preserve"><value>パスワード確認</value></data>
+  <data name="PasswordHintRequired" xml:space="preserve"><value>パスワードヒント（必須）</value></data>
+  <data name="PasswordLossWarning" xml:space="preserve"><value>※ 注意: ローカルストレージの性質上、パスワード紛失時はデータ復旧できません。</value></data>
+  <data name="CopyColor" xml:space="preserve"><value>色をコピー</value></data>
+  <data name="SwitchColorFormat" xml:space="preserve"><value>RGB/HEX切り替え</value></data>
+  <data name="SelectAreaGuide" xml:space="preserve"><value>ドラッグしてキャプチャ領域を選択してください。</value></data>
+  <data name="ErrReadNote" xml:space="preserve"><value>ノート情報の読み込みエラー:</value></data>
+  <data name="SelectAttachFiles" xml:space="preserve"><value>添付ファイルを選択</value></data>
+  <data name="ErrMainWinNotFound" xml:space="preserve"><value>メインウィンドウが見つかりません。</value></data>
+
+  <data name="NoContentToSave" xml:space="preserve"><value>保存する内容がありません。</value></data>
+  <data name="Untitled" xml:space="preserve"><value>無題</value></data>
+  <data name="NoteEditSuccess" xml:space="preserve"><value>ノートを更新しました。</value></data>
+  <data name="NoteSaveSuccess" xml:space="preserve"><value>ノートを保存しました。</value></data>
+  <data name="ErrSaveNote" xml:space="preserve"><value>ノートの保存中にエラーが発生しました:</value></data>
+  <data name="SearchResults" xml:space="preserve"><value>検索結果: '{0}'</value></data>
+  <data name="TagFilter" xml:space="preserve"><value>タグフィルタ: #{0}</value></data>
+  <data name="TodayRecords" xml:space="preserve"><value>今日の記録</value></data>
+  <data name="RecentWeekRecords" xml:space="preserve"><value>最近1週間の記録</value></data>
+  <data name="TrashRecords" xml:space="preserve"><value>ゴミ箱の記録</value></data>
+  <data name="GroupLabel" xml:space="preserve"><value>グループ: {0}</value></data>
+  <data name="AllRecords" xml:space="preserve"><value>すべての記録</value></data>
+  <data name="DefaultCategory" xml:space="preserve"><value>デフォルト</value></data>
+  <data name="ErrLoadNotes" xml:space="preserve"><value>ノートの読み込み中にエラーが発生しました:</value></data>
+  <data name="DirectWrite" xml:space="preserve"><value>直接書き込み</value></data>
+  <data name="FileNotFound" xml:space="preserve"><value>ファイルが見つかりません。</value></data>
+  <data name="ErrOpenFile" xml:space="preserve"><value>ファイルのオープン中にエラーが発生しました:</value></data>
+  <data name="ErrOpenNoteInput" xml:space="preserve"><value>ノート入力ウィンドウのオープン中にエラーが発生しました:</value></data>
+  <data name="ErrOpenNoteEdit" xml:space="preserve"><value>ノート編集ウィンドウのオープン中にエラーが発生しました:</value></data>
+  <data name="ConfirmDeleteNote" xml:space="preserve"><value>このノートを削除してもよろしいですか？</value></data>
+  <data name="ConfirmDeleteSelectedNotes" xml:space="preserve"><value>選択した{0}件のノートを削除してもよろしいですか？</value></data>
+  <data name="PleaseSelectNotesToDelete" xml:space="preserve"><value>削除するノートを選択してください。</value></data>
+  <data name="ConfirmDelete" xml:space="preserve"><value>削除確認</value></data>
+  <data name="ErrDelete" xml:space="preserve"><value>削除中にエラーが発生しました:</value></data>
+  <data name="NoteUnlock" xml:space="preserve"><value>ノートロック解除</value></data>
+  <data name="ProtectedContent" xml:space="preserve"><value>保護された内容</value></data>
+  <data name="ShowHint" xml:space="preserve"><value>ヒントを表示</value></data>
+  <data name="Unlock" xml:space="preserve"><value>解除</value></data>
+  <data name="NoHintRegistered" xml:space="preserve"><value>ヒントが登録されていません。</value></data>
+  <data name="PasswordHintMessage" xml:space="preserve"><value>パスワードヒント: {0}</value></data>
+  <data name="Hint" xml:space="preserve"><value>ヒント</value></data>
+  <data name="CategoryManagementTitle" xml:space="preserve"><value>カテゴリ管理</value></data>
+  <data name="CategoryManagementDesc" xml:space="preserve"><value>ノートを整理するためのグループを管理します。</value></data>
+  <data name="NewCategoryPlaceholder" xml:space="preserve"><value>新しいカテゴリを入力...</value></data>
+  <data name="DefaultCategoryDeleteError" xml:space="preserve"><value>デフォルトカテゴリは削除できません。</value></data>
+  <data name="DeleteCategoryConfirm" xml:space="preserve"><value>このカテゴリを削除しますか？関連するノートは「デフォルト」に移動されます。</value></data>
+  <data name="Tip1" xml:space="preserve"><value>パスワード設定でノートを安全に保護できます。</value></data>
+  <data name="Tip2" xml:space="preserve"><value>キャプチャ後すぐにノートに保存して大切なアイデアを記録しましょう。</value></data>
+  <data name="Tip3" xml:space="preserve"><value>外部ページから画像や内容を貼り付けてスマートシステムで低容量永久保存。</value></data>
+  <data name="Tip4" xml:space="preserve"><value>NドライブやGoogleドライブなどのクラウドフォルダに接続すればどのPCでもマイノートを共有できます。</value></data>
+  <data name="Tip5" xml:space="preserve"><value>タグを使って多数のノートの中から素早く目的のものを探せます。</value></data>
+  <data name="Tip6" xml:space="preserve"><value>ノート編集ウィンドウではドラッグ＆ドロップで簡単に画像を追加できます。</value></data>
+  <data name="Tip7" xml:space="preserve"><value>検索機能はタイトルだけでなくノート内容内のテキストも検索できます。</value></data>
+  <data name="Tip8" xml:space="preserve"><value>投稿内の画像をダブルクリックすると編集できます。</value></data>
+  <data name="Tip9" xml:space="preserve"><value>キャプチャ中に「ノート保存」をクリックすればワンクリックでノート作成。</value></data>
+  <data name="ColorPickerTitle" xml:space="preserve"><value>カラーピッカー</value></data>
+  <data name="Transparent" xml:space="preserve"><value>透明</value></data>
+  <data name="TextColor" xml:space="preserve"><value>文字色</value></data>
+  <data name="HighlightColor" xml:space="preserve"><value>ハイライト色</value></data>
+  <data name="AlignLeft" xml:space="preserve"><value>左揃え</value></data>
+  <data name="AlignCenter" xml:space="preserve"><value>中央揃え</value></data>
+  <data name="AlignRight" xml:space="preserve"><value>右揃え</value></data>
+  <data name="BulletList" xml:space="preserve"><value>箇条書き</value></data>
+  <data name="NumberList" xml:space="preserve"><value>番号付きリスト</value></data>
+  <data name="InsertImage" xml:space="preserve"><value>画像挿入</value></data>
+  <data name="InsertCapture" xml:space="preserve"><value>キャプチャ挿入</value></data>
+  <data name="InsertLink" xml:space="preserve"><value>リンク挿入</value></data>
+  <data name="LineSpacing" xml:space="preserve"><value>行間</value></data>
+  <data name="FontFamily" xml:space="preserve"><value>フォントファミリー</value></data>
+  <data name="FontSize" xml:space="preserve"><value>フォントサイズ</value></data>
+  <data name="Password" xml:space="preserve"><value>パスワード</value></data>
+  <data name="RemoteRepository" xml:space="preserve"><value>リモートリポジトリ</value></data>
+  <data name="InitializeReset" xml:space="preserve"><value>初期化</value></data>
+
+  <data name="NoteResetConfirm1" xml:space="preserve"><value>すべてのノートデータを初期化しますか？</value></data>
+  <data name="NoteResetConfirm2" xml:space="preserve"><value>初期化したデータは復旧できません。\n本当によろしいですか？</value></data>
+  <data name="DataLossWarning" xml:space="preserve"><value>データ永久削除警告</value></data>
+  <data name="NoteResetComplete" xml:space="preserve"><value>ノートデータが初期化されました。</value></data>
+  <data name="NoteResetError" xml:space="preserve"><value>初期化エラー: {0}</value></data>
+  <data name="TrashSettings" xml:space="preserve"><value>ゴミ箱設定</value></data>
+  <data name="TrashRetentionPeriod" xml:space="preserve"><value>ゴミ箱保持期間</value></data>
+  <data name="TrashRetentionNotice" xml:space="preserve"><value>（設定期間後に自動削除）</value></data>
+  <data name="RetentionPermanent" xml:space="preserve"><value>永久保持</value></data>
+  <data name="Days" xml:space="preserve"><value>日間</value></data>
+  <data name="EmptyTrash" xml:space="preserve"><value>ゴミ箱を空にする</value></data>
+  <data name="Notice" xml:space="preserve"><value>お知らせ</value></data>
+  <data name="TrashRetentionInfo" xml:space="preserve"><value>重要: 現在ゴミ箱保持期間は{0}日に設定されています。ノート設定で変更可能です。</value></data>
+  <data name="TrashRetentionPermanentInfo" xml:space="preserve"><value>重要: ゴミ箱は永久保持に設定されています。ノート設定で変更可能です。</value></data>
+  <data name="NoNotes" xml:space="preserve"><value>ノートが見つかりません</value></data>
+  <data name="TrashEmpty" xml:space="preserve"><value>ゴミ箱は空です</value></data>
+  <data name="NotePathDesc" xml:space="preserve"><value>ノートデータベースと添付ファイルが保存されるパス。</value></data>
+  <data name="Recent30Days" xml:space="preserve"><value>最近30日間</value></data>
+  <data name="Recent3Months" xml:space="preserve"><value>最近3ヶ月</value></data>
+  <data name="Recent6Months" xml:space="preserve"><value>最近6ヶ月</value></data>
+  <data name="ListView" xml:space="preserve"><value>リスト表示</value></data>
+  <data name="CardView" xml:space="preserve"><value>カード表示</value></data>
+  <data name="TrashEmptyComplete" xml:space="preserve"><value>ゴミ箱を空にしました。</value></data>
+  <data name="Minimize" xml:space="preserve"><value>最小化</value></data>
+  <data name="Maximize" xml:space="preserve"><value>最大化</value></data>
+  <data name="Restore" xml:space="preserve"><value>元に戻す</value></data>
+  <data name="RecentRecordsFormat" xml:space="preserve">
+    <value>{0}件</value>
+  </data>
+  <data name="TrashEmptyWarning" xml:space="preserve">
+    <value>削除された項目は復旧できません。
+すべての項目を完全に削除してもよろしいですか？</value>
+  </data>
+  <data name="TrashEmptyFailed" xml:space="preserve">
+    <value>ゴミ箱の空処理に失敗: </value>
+  </data>
+  <data name="ErrPreviewFailed" xml:space="preserve">
+    <value>プレビューのオープンに失敗: </value>
+  </data>
+  <data name="AlwaysOnTop" xml:space="preserve">
+    <value>常に最前面</value>
+  </data>
+  <data name="UnpinAlwaysOnTop" xml:space="preserve">
+    <value>最前面から解除</value>
+  </data>
+  <data name="PrintOrSavePDF" xml:space="preserve">
+    <value>印刷 / PDFとして保存</value>
+  </data>
+  <data name="ErrLoadNote" xml:space="preserve">
+    <value>ノートの読み込みに失敗: </value>
+  </data>
+  <data name="ErrInitExplorer" xml:space="preserve"><value>エクスプローラーの初期化エラー: </value></data>
+  <data name="ConfirmRestoreNote" xml:space="preserve"><value>このノートを復元しますか？</value></data>
+  <data name="ErrRestoreNote" xml:space="preserve"><value>復元中にエラーが発生しました: </value></data>
+  <data name="ErrPinNote" xml:space="preserve"><value>ピン留め状態変更中にエラーが発生しました: </value></data>
+
+
+  <data name="ChangeTheme" xml:space="preserve"><value>テーマ変更</value></data>
+  <data name="SimpleMode" xml:space="preserve"><value>シンプル</value></data>
+  <data name="TrayMode" xml:space="preserve"><value>トレイ</value></data>
+  <data name="SaveToMyNote" xml:space="preserve"><value>マイノートに保存</value></data>
+  <data name="ConfirmDisableNotePassword" xml:space="preserve"><value>パスワードロックを無効にしますか？&#x0a;（設定済みのパスワードは保持されます）</value></data>
+  
+  <data name="SettingsWindowTitle" xml:space="preserve"><value>CatchCapture - 設定</value></data>
+  <data name="SettingsFormatFeatures" xml:space="preserve"><value>フォーマット特徴</value></data>
+  <data name="SettingsFormatGuide" xml:space="preserve"><value>ファイル形式ガイド</value></data>
+  <data name="SettingsColFormat" xml:space="preserve"><value>形式</value></data>
+  <data name="SettingsColTransparent" xml:space="preserve"><value>透明背景</value></data>
+  <data name="SettingsColAnimation" xml:space="preserve"><value>アニメーション</value></data>
+  <data name="SettingsColQuality" xml:space="preserve"><value>画質</value></data>
+  <data name="SettingsColCompression" xml:space="preserve"><value>圧縮効率</value></data>
+  <data name="SettingsColUsage" xml:space="preserve"><value>主な用途</value></data>
+  <data name="SettingsValHigh" xml:space="preserve"><value>高</value></data>
+  <data name="SettingsValMidHigh" xml:space="preserve"><value>中/高</value></data>
+  <data name="SettingsValLow" xml:space="preserve"><value>低</value></data>
+  <data name="SettingsValUltra" xml:space="preserve"><value>超高</value></data>
+  <data name="SettingsPnGEfficiency" xml:space="preserve"><value>低（無損失圧縮）</value></data>
+  <data name="SettingsPnGUsage" xml:space="preserve"><value>ロゴ、アイコン、スクリーンショット</value></data>
+  <data name="SettingsJpgEfficiency" xml:space="preserve"><value>高（有損失圧縮）</value></data>
+  <data name="SettingsJpgUsage" xml:space="preserve"><value>写真、Web画像</value></data>
+  <data name="SettingsBmpEfficiency" xml:space="preserve"><value>なし（オリジナル）</value></data>
+  <data name="SettingsBmpUsage" xml:space="preserve"><value>シンプルなWindowsグラフィック</value></data>
+  <data name="SettingsGifEfficiency" xml:space="preserve"><value>高（色数制限）</value></data>
+  <data name="SettingsGifUsage" xml:space="preserve"><value>短いアニメーション（GIF）</value></data>
+  <data name="SettingsWebpEfficiency" xml:space="preserve"><value>非常に高い（次世代圧縮）</value></data>
+  <data name="SettingsWebpUsage" xml:space="preserve"><value>Web最適化画像</value></data>
+  <data name="SettingsShowMagnifierDesc" xml:space="preserve"><value>エリアキャプチャ時に拡大鏡を表示</value></data>
+  <data name="SettingsShowPreviewDesc" xml:space="preserve"><value>キャプチャ後にプレビュー/エディタを表示</value></data>
+  <data name="SettingsAutoSaveDesc" xml:space="preserve"><value>キャプチャ後に自動保存</value></data>
+  <data name="RecQualityMP4" xml:space="preserve"><value>画質（MP4）</value></data>
+  <data name="RecFpsMP4" xml:space="preserve"><value>フレームレート（MP4）</value></data>
+  <data name="RecHotkeyTitle" xml:space="preserve"><value>録画/停止ホットキー</value></data>
+  <data name="RecordStop" xml:space="preserve"><value>録画/停止</value></data>
+  <data name="NoteStorageDatabase" xml:space="preserve"><value>ストレージ＆データベース</value></data>
+  <data name="NoteStorageLocation" xml:space="preserve"><value>ノート保存場所</value></data>
+  <data name="NotePathStructure" xml:space="preserve"><value>※ フォルダ構成: [ノートフォルダ]\notedb (DB)、[ノートフォルダ]\img (画像)</value></data>
+  <data name="RemoteStorage" xml:space="preserve"><value>リモートストレージ</value></data>
+  <data name="RemoteStorageTooltip" xml:space="preserve"><value>クラウドフォルダ（Googleドライブなど）に接続してデバイス間でノートを共有。</value></data>
+  <data name="RemoteStorageWarning" xml:space="preserve"><value>接続時、サーバーアップロード/ダウンロード処理により速度が大幅に低下する場合があります（プログラムの問題ではありません）。</value></data>
+  <data name="ResetNoteDataTooltip" xml:space="preserve"><value>すべてのノートデータをリセット</value></data>
+  <data name="NoteFileNameSettings" xml:space="preserve"><value>ファイル名設定</value></data>
+  <data name="NoteFolderGrouping" xml:space="preserve"><value>フォルダグループ設定</value></data>
+  <data name="NoteSecurityLock" xml:space="preserve"><value>ノートセキュリティ＆ロック</value></data>
+  <data name="ImageSaveSettings" xml:space="preserve"><value>画像保存設定</value></data>
+  <data name="StartupSettings" xml:space="preserve"><value>起動設定</value></data>
+  <data name="Val1Day" xml:space="preserve"><value>1日</value></data>
+  <data name="Val3Days" xml:space="preserve"><value>3日</value></data>
+  <data name="Val7Days" xml:space="preserve"><value>7日</value></data>
+  <data name="Val15Days" xml:space="preserve"><value>15日</value></data>
+  <data name="Val30Days" xml:space="preserve"><value>30日</value></data>
+  <data name="Val60Days" xml:space="preserve"><value>60日</value></data>
+  <data name="Val90Days" xml:space="preserve"><value>90日</value></data>
+  <data name="ValPermanent" xml:space="preserve"><value>永久保持</value></data>
+  <data name="Wait" xml:space="preserve"><value>お待ちください...</value></data>
+  <data name="FileNameSettings" xml:space="preserve"><value>ファイル名設定</value></data>
+  <data name="FolderGrouping" xml:space="preserve"><value>フォルダグループ設定</value></data>
+  <data name="GroupingNone" xml:space="preserve"><value>グループなし</value></data>
+  <data name="GroupingMonthly" xml:space="preserve"><value>月別</value></data>
+  <data name="GroupingQuarterly" xml:space="preserve"><value>四半期別</value></data>
+  <data name="GroupingYearly" xml:space="preserve"><value>年別</value></data>
+  <data name="FileNamePreset_Default" xml:space="preserve"><value>デフォルト (Catch_日付_時間)</value></data>
+  <data name="FileNamePreset_Simple" xml:space="preserve"><value>シンプル (Image_日付)</value></data>
+  <data name="FileNamePreset_Timestamp" xml:space="preserve"><value>タイムスタンプのみ (20250101_120000)</value></data>
+  <data name="FileNamePreset_App" xml:space="preserve"><value>アプリ名 (Chrome_日付)</value></data>
+  <data name="FileNamePreset_Title" xml:space="preserve"><value>ウィンドウタイトル (Google_日付)</value></data>
+  <data name="FileNamePreview" xml:space="preserve"><value>プレビュー</value></data>
+  <data name="Badge" xml:space="preserve"><value>バッジ</value></data>
+  <data name="TextNote" xml:space="preserve"><value>テキスト</value></data>
+  <data name="BadgeSize" xml:space="preserve"><value>バッジサイズ</value></data>
+  <data name="TextSize" xml:space="preserve"><value>テキストサイズ</value></data>
+  <data name="SettingsAutoCopyDesc" xml:space="preserve"><value>キャプチャ後に自動でクリップボードにコピー</value></data>
+  <data name="AddVideo" xml:space="preserve"><value>動画追加</value></data>
+  <data name="BtnYes" xml:space="preserve"><value>はい</value></data>
+  <data name="BtnNo" xml:space="preserve"><value>いいえ</value></data>
+  <data name="BtnOK" xml:space="preserve"><value>OK</value></data>
+  <data name="BtnCancel" xml:space="preserve"><value>キャンセル</value></data>
+  <data name="AddVideoGuidance" xml:space="preserve"><value>YouTube URLまたはソースコード（iframe）を入力してください:</value></data>
+  <data name="SearchLocalFile" xml:space="preserve"><value>ローカルファイルを探す...</value></data>
+  <data name="BtnAdd" xml:space="preserve"><value>追加</value></data>
+  <data name="HotkeyConflictTitle" xml:space="preserve"><value>ホットキー競合</value></data>
+  <data name="HotkeyConflictMsg" xml:space="preserve"><value>ショートカット「{0}」は既に{1}で使用されています</value></data>
+  <data name="ImportConfirmMsg" xml:space="preserve"><value>既存のすべてのノートデータがこのバックアップファイルで上書きされます。続行しますか？</value></data>
+  <data name="ImportSuccessMsg" xml:space="preserve"><value>復元が完了しました。変更を適用するにはプログラムの再起動をお勧めします。</value></data>
+  <data name="ErrorImport" xml:space="preserve"><value>復元中にエラー</value></data>
+  <data name="ErrorBackup" xml:space="preserve"><value>バックアップ中にエラー</value></data>
+  <data name="ErrorNoFolder" xml:space="preserve"><value>バックアップの元フォルダが存在しません。</value></data>
+  <data name="BackupSuccess" xml:space="preserve"><value>バックアップが正常に完了しました。</value></data>
+  <data name="LineSpacing10" xml:space="preserve"><value>1.0（狭い）</value></data>
+  <data name="LineSpacing15" xml:space="preserve"><value>1.5（デフォルト）</value></data>
+  <data name="LineSpacing20" xml:space="preserve"><value>2.0（広い）</value></data>
+  <data name="SelectTextForLink" xml:space="preserve"><value>リンクを設定するテキストを先に選択してください。</value></data>
+  <data name="EnterURL" xml:space="preserve"><value>URLを入力してください:</value></data>
+  <data name="ErrInsertLink" xml:space="preserve"><value>リンクを挿入できません:</value></data>
+  <data name="CaptureModeTitle" xml:space="preserve"><value>キャプチャ方式</value></data>
+  <data name="CaptureModeOverlay" xml:space="preserve"><value>高速キャプチャ（オーバーレイ） - アニメーションが再生されたまま</value></data>
+  <data name="CaptureModeStatic" xml:space="preserve"><value>画面固定キャプチャ - 画面を即座に固定（デフォルト）</value></data>
+  <data name="CaptureModeDesc" xml:space="preserve"><value>※ 高速キャプチャモードで拡大鏡を使用するとドラッグ時にラグが発生する場合があります。</value></data>
 </root>

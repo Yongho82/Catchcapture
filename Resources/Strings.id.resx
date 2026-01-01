@@ -46,67 +46,186 @@
       </xsd:complexType>
     </xsd:element>
   </xsd:schema>
-  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
-  <resheader name="version"><value>2.0</value></resheader>
-  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
-  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
-  <data name="AppTitle" xml:space="preserve"><value>CatchCapture</value></data>
-  <data name="AreaCapture" xml:space="preserve"><value>Tangkapan Area</value></data>
-  <data name="DelayCapture" xml:space="preserve"><value>Tangkapan Jeda</value></data>
-  <data name="RealTimeCapture" xml:space="preserve"><value>Tangkapan Instan</value></data>
-  <data name="MultiCapture" xml:space="preserve"><value>Multi Tangkapan</value></data>
-  <data name="FullScreen" xml:space="preserve"><value>Layar Penuh</value></data>
-  <data name="DesignatedCapture" xml:space="preserve"><value>Area Tetap</value></data>
-  <data name="WindowCapture" xml:space="preserve"><value>Tangkapan Jendela</value></data>
-  <data name="ElementCapture" xml:space="preserve"><value>Tangkapan Elemen</value></data>
-  <data name="ScrollCapture" xml:space="preserve"><value>Tangkapan Guling</value></data>
-  <data name="OcrCapture" xml:space="preserve"><value>Tangkapan OCR</value></data>
-  <data name="NormalMode" xml:space="preserve"><value>Mode Normal</value></data>
-  <data name="SimpleMode" xml:space="preserve"><value>Mode Sederhana</value></data>
-  <data name="TrayMode" xml:space="preserve"><value>Mode Tray</value></data>
-  <data name="Settings" xml:space="preserve"><value>Pengaturan</value></data>
-  <data name="Exit" xml:space="preserve"><value>Keluar</value></data>
-  <data name="Save" xml:space="preserve"><value>Simpan</value></data>
-  <data name="SaveAll" xml:space="preserve"><value>Simpan Semua</value></data>
-  <data name="Delete" xml:space="preserve"><value>Hapus</value></data>
-  <data name="DeleteAll" xml:space="preserve"><value>Hapus Semua</value></data>
-  <data name="Copy" xml:space="preserve"><value>Salin</value></data>
-  <data name="Print" xml:space="preserve"><value>Cetak</value></data>
-  <data name="Pen" xml:space="preserve"><value>Pena</value></data>
-  <data name="Highlighter" xml:space="preserve"><value>Stabilo</value></data>
-  <data name="Text" xml:space="preserve"><value>Teks</value></data>
-  <data name="Shape" xml:space="preserve"><value>Bentuk</value></data>
-  <data name="Eraser" xml:space="preserve"><value>Penghapus</value></data>
-  <data name="Mosaic" xml:space="preserve"><value>Mosaik</value></data>
-  <data name="Numbering" xml:space="preserve"><value>Penomoran</value></data>
-  <data name="NumberingMode" xml:space="preserve"><value>Mode Penomoran</value></data>
-  <data name="Crop" xml:space="preserve"><value>Potong</value></data>
-  <data name="Rotate" xml:space="preserve"><value>Putar</value></data>
-  <data name="Undo" xml:space="preserve"><value>Urungkan</value></data>
-  <data name="Redo" xml:space="preserve"><value>Ulangi</value></data>
-  <data name="General" xml:space="preserve"><value>Umum</value></data>
-  <data name="Language" xml:space="preserve"><value>Bahasa</value></data>
-  <data name="Hotkeys" xml:space="preserve"><value>Tombol Pintas</value></data>
-  <data name="StartWithWindows" xml:space="preserve"><value>Mulai dengan Windows</value></data>
-  <data name="StartInTrayMode" xml:space="preserve"><value>Mulai dalam Mode Tray</value></data>
-  <data name="SettingsSaved" xml:space="preserve"><value>Pengaturan berhasil disimpan</value></data>
-  <data name="Version" xml:space="preserve"><value>Versi</value></data>
-  <data name="Default" xml:space="preserve"><value>Default</value></data>
-  <data name="Select" xml:space="preserve"><value>Pilih</value></data>
-  <data name="SelectTooltip" xml:space="preserve"><value>Pilih dan sesuaikan elemen</value></data>
-  <data name="Confirm" xml:space="preserve"><value>Konfirmasi</value></data>
-  <data name="Cancel" xml:space="preserve"><value>Batal</value></data>
-  <data name="Yes" xml:space="preserve"><value>Ya</value></data>
-  <data name="No" xml:space="preserve"><value>Tidak</value></data>
-  <data name="Error" xml:space="preserve"><value>Kesalahan</value></data>
-  <data name="Success" xml:space="preserve"><value>Berhasil</value></data>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <!-- Application Title -->
+  <data name="AppTitle" xml:space="preserve">
+    <value>CatchCapture</value>
+  </data>
+  
+  <!-- Capture Types -->
+  <data name="AreaCapture" xml:space="preserve">
+    <value>Tangkap Area</value>
+  </data>
+  <data name="DelayCapture" xml:space="preserve">
+    <value>Tangkap dengan Penundaan</value>
+  </data>
+  <data name="RealTimeCapture" xml:space="preserve">
+    <value>Tangkap Instan</value>
+  </data>
+  <data name="MultiCapture" xml:space="preserve">
+    <value>Tangkap Multi</value>
+  </data>
+  <data name="FullScreen" xml:space="preserve">
+    <value>Layar Penuh</value>
+  </data>
+  <data name="DesignatedCapture" xml:space="preserve">
+    <value>Area Tetap</value>
+  </data>
+  <data name="WindowCapture" xml:space="preserve">
+    <value>Tangkap Jendela</value>
+  </data>
+  <data name="ElementCapture" xml:space="preserve">
+    <value>Tangkap Elemen</value>
+  </data>
+  <data name="ScrollCapture" xml:space="preserve">
+    <value>Tangkap Gulir</value>
+  </data>
+  <data name="OcrCapture" xml:space="preserve">
+    <value>Tangkap OCR</value>
+  </data>
+  
+  <!-- Window Modes -->
+  <data name="NormalMode" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  
+  <!-- Menu Items -->
+  <data name="Settings" xml:space="preserve">
+    <value>Pengaturan</value>
+  </data>
+  <data name="Exit" xml:space="preserve">
+    <value>Keluar</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Simpan</value>
+  </data>
+  <data name="SaveAll" xml:space="preserve">
+    <value>Simpan Semua</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Hapus</value>
+  </data>
+  <data name="DeleteAll" xml:space="preserve">
+    <value>Hapus Semua</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Salin</value>
+  </data>
+  <data name="Print" xml:space="preserve">
+    <value>Cetak</value>
+  </data>
+  
+  <!-- Editor Tools -->
+  <data name="Pen" xml:space="preserve">
+    <value>Pena</value>
+  </data>
+  <data name="Highlighter" xml:space="preserve">
+    <value>Penyorot</value>
+  </data>
+  <data name="Text" xml:space="preserve">
+    <value>Teks</value>
+  </data>
+  <data name="Shape" xml:space="preserve">
+    <value>Bentuk</value>
+  </data>
+  <data name="Eraser" xml:space="preserve">
+    <value>Penghapus</value>
+  </data>
+  <data name="Mosaic" xml:space="preserve">
+    <value>Mosaik</value>
+  </data>
+  <data name="Numbering" xml:space="preserve">
+    <value>Penomoran</value>
+  </data>
+  <data name="NumberingMode" xml:space="preserve">
+    <value>Mode Penomoran</value>
+  </data>
+  <data name="Crop" xml:space="preserve">
+    <value>Potong</value>
+  </data>
+  <data name="Rotate" xml:space="preserve">
+    <value>Putar</value>
+  </data>
+  <data name="Undo" xml:space="preserve">
+    <value>Batalkan</value>
+  </data>
+  <data name="Redo" xml:space="preserve">
+    <value>Ulangi</value>
+  </data>
+  
+  <!-- Settings -->
+  <data name="General" xml:space="preserve">
+    <value>Umum</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Bahasa</value>
+  </data>
+  <data name="Hotkeys" xml:space="preserve">
+    <value>Tombol Pintas</value>
+  </data>
+  <data name="StartWithWindows" xml:space="preserve">
+    <value>Jalankan Saat Windows Mulai</value>
+  </data>
+  <data name="StartInTrayMode" xml:space="preserve">
+    <value>Mulai dalam Mode Tray</value>
+  </data>
+  <data name="SettingsSaved" xml:space="preserve">
+    <value>Pengaturan berhasil disimpan</value>
+  </data>
+
+  <data name="Version" xml:space="preserve">
+    <value>Versi</value>
+  </data>
+  <data name="Default" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="Select" xml:space="preserve">
+    <value>Pilih</value>
+  </data>
+  <data name="SelectTooltip" xml:space="preserve">
+    <value>Pilih dan sesuaikan elemen</value>
+  </data>
+
+  
+  <!-- Messages -->
+  <data name="Confirm" xml:space="preserve">
+    <value>Konfirmasi</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Batal</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Ya</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>Tidak</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Kesalahan</value>
+  </data>
+  <data name="Success" xml:space="preserve">
+    <value>Berhasil</value>
+  </data>
+  <!-- Added Keys -->
   <data name="Capture" xml:space="preserve"><value>Tangkap</value></data>
   <data name="Captured" xml:space="preserve"><value>Tertangkap</value></data>
   <data name="Recapture" xml:space="preserve"><value>Tangkap Ulang</value></data>
-  <data name="CopyToClipboard" xml:space="preserve"><value>Salin ke Papan Klip</value></data>
-  <data name="Reset" xml:space="preserve"><value>Reset</value></data>
-  <data name="FlipHorizontal" xml:space="preserve"><value>Balik H</value></data>
-  <data name="FlipVertical" xml:space="preserve"><value>Balik V</value></data>
+  <data name="CopyToClipboard" xml:space="preserve"><value>Salin ke Clipboard</value></data>
+  <data name="Reset" xml:space="preserve"><value>Setel Ulang</value></data>
+  <data name="FlipHorizontal" xml:space="preserve"><value>Balik Horizontal</value></data>
+  <data name="FlipVertical" xml:space="preserve"><value>Balik Vertikal</value></data>
   <data name="ImageSearch" xml:space="preserve"><value>Cari Gambar</value></data>
   <data name="Share" xml:space="preserve"><value>Bagikan</value></data>
   <data name="Extract" xml:space="preserve"><value>Ekstrak</value></data>
@@ -114,22 +233,22 @@
   <data name="RecentCaptures" xml:space="preserve"><value>Tangkapan Terbaru</value></data>
   <data name="Size" xml:space="preserve"><value>Ukuran</value></data>
   <data name="OriginalSize" xml:space="preserve"><value>Asli</value></data>
-  <data name="ResetToOriginal" xml:space="preserve"><value>Reset ke Asli</value></data>
+  <data name="ResetToOriginal" xml:space="preserve"><value>Kembalikan ke Asli</value></data>
   <data name="AddText" xml:space="preserve"><value>Tambah Teks</value></data>
-  <data name="DrawShapeTooltip" xml:space="preserve"><value>Gambar Bentuk (Default: Persegi)</value></data>
+  <data name="DrawShapeTooltip" xml:space="preserve"><value>Gambar Bentuk (Default: Persegi Panjang)</value></data>
   <data name="ShapeOptions" xml:space="preserve"><value>Opsi Bentuk</value></data>
   <data name="ImageSizePrefix" xml:space="preserve"><value>Ukuran Gambar: </value></data>
-  <data name="RestartRequired" xml:space="preserve"><value>Mulai ulang diperlukan untuk menerapkan perubahan bahasa.</value></data>
+  <data name="RestartRequired" xml:space="preserve"><value>Perlu restart untuk menerapkan perubahan bahasa.</value></data>
   <data name="MenuEdit" xml:space="preserve"><value>Edit Menu</value></data>
-  <data name="MenuEditGuide" xml:space="preserve"><value>Seret dan lepas untuk mengatur ulang atau menghapus item menu.</value></data>
+  <data name="MenuEditGuide" xml:space="preserve"><value>Seret dan lepas untuk mengurutkan ulang atau menghapus item menu.</value></data>
   <data name="Add" xml:space="preserve"><value>Tambah</value></data>
-  <data name="RestoreDefaultMenus" xml:space="preserve"><value>Pulihkan Menu Default</value></data>
+  <data name="RestoreDefaultMenus" xml:space="preserve"><value>Kembalikan Menu Default</value></data>
   <data name="VisitHomepage" xml:space="preserve"><value>Kunjungi Beranda</value></data>
-  <data name="RestoreDefaults" xml:space="preserve"><value>Pulihkan Default</value></data>
+  <data name="RestoreDefaults" xml:space="preserve"><value>Kembalikan ke Default</value></data>
   <data name="PrivacyPolicy" xml:space="preserve"><value>Kebijakan Privasi</value></data>
   <data name="CaptureSettings" xml:space="preserve"><value>Pengaturan Tangkapan</value></data>
-  <data name="SaveSettings" xml:space="preserve"><value>Pengaturan Simpan</value></data>
-  <data name="SavePath" xml:space="preserve"><value>Jalur Simpan</value></data>
+  <data name="SaveSettings" xml:space="preserve"><value>Pengaturan Penyimpanan</value></data>
+  <data name="SavePath" xml:space="preserve"><value>Lokasi Penyimpanan</value></data>
   <data name="Change" xml:space="preserve"><value>Ubah</value></data>
   <data name="FileFormat" xml:space="preserve"><value>Format File</value></data>
   <data name="Quality" xml:space="preserve"><value>Kualitas</value></data>
@@ -139,11 +258,11 @@
   <data name="HotkeySettings" xml:space="preserve"><value>Pengaturan Tombol Pintas</value></data>
   <data name="UsePrintScreen" xml:space="preserve"><value>Gunakan Tombol Print Screen</value></data>
   <data name="SystemSettings" xml:space="preserve"><value>Pengaturan Sistem</value></data>
-  <data name="StartupMode" xml:space="preserve"><value>Mode Mulai</value></data>
+  <data name="StartupMode" xml:space="preserve"><value>Mode Startup</value></data>
   <data name="StartInNormal" xml:space="preserve"><value>Mulai dalam Mode Normal</value></data>
   <data name="StartInSimple" xml:space="preserve"><value>Mulai dalam Mode Sederhana</value></data>
   <data name="StartInTray" xml:space="preserve"><value>Mulai dalam Mode Tray</value></data>
-  <data name="StartupModeNotice" xml:space="preserve"><value>※ Mode Tray hanya menampilkan ikon di sistem tray.</value></data>
+  <data name="StartupModeNotice" xml:space="preserve"><value>※ Mode Tray hanya menampilkan ikon tray.</value></data>
   <data name="LanguageSettings" xml:space="preserve"><value>Pengaturan Bahasa</value></data>
   <data name="LanguageLabel" xml:space="preserve"><value>Pilih Bahasa</value></data>
   <data name="NoExtractedText" xml:space="preserve"><value>Tidak ada teks yang diekstrak.</value></data>
@@ -153,48 +272,48 @@
   <data name="NoImageToPrint" xml:space="preserve"><value>Tidak ada gambar untuk dicetak.</value></data>
   <data name="PrintPreviewError" xml:space="preserve"><value>Kesalahan pratinjau cetak</value></data>
   <data name="RecaptureError" xml:space="preserve"><value>Kesalahan tangkap ulang</value></data>
-  <data name="ConfirmReset" xml:space="preserve"><value>Reset ke awal? Semua perubahan akan hilang.</value></data>
+  <data name="ConfirmReset" xml:space="preserve"><value>Kembalikan ke asli? Semua perubahan akan hilang.</value></data>
   <data name="EditImage" xml:space="preserve"><value>Edit Gambar</value></data>
   <data name="PenTooltip" xml:space="preserve"><value>Pena (Default: Hitam, 3px)</value></data>
-  <data name="BackgroundRemoval" xml:space="preserve"><value>Hapus Latar</value></data>
-  <data name="BackgroundRemovalTooltip" xml:space="preserve"><value>Hapus Latar Belakang Otomatis</value></data>
-  <data name="ImageSearchTooltip" xml:space="preserve"><value>Cari Gambar Google</value></data>
+  <data name="BackgroundRemoval" xml:space="preserve"><value>Hapus BG</value></data>
+  <data name="BackgroundRemovalTooltip" xml:space="preserve"><value>Hapus Latar Otomatis</value></data>
+  <data name="ImageSearchTooltip" xml:space="preserve"><value>Pencarian Gambar Google</value></data>
   <data name="ExtractText" xml:space="preserve"><value>Ekstrak Teks (OCR)</value></data>
   <data name="ZoomReset" xml:space="preserve"><value>Asli (100%)</value></data>
-  <data name="ZoomResetTooltip" xml:space="preserve"><value>Lihat Ukuran Sebenarnya</value></data>
+  <data name="ZoomResetTooltip" xml:space="preserve"><value>Lihat Ukuran Asli</value></data>
   <data name="ZoomOut" xml:space="preserve"><value>Perkecil</value></data>
   <data name="ZoomIn" xml:space="preserve"><value>Perbesar</value></data>
   <data name="SizeLabel" xml:space="preserve"><value>Ukuran</value></data>
   <data name="ShapeLbl" xml:space="preserve"><value>Bentuk</value></data>
   <data name="PenLbl" xml:space="preserve"><value>Pena</value></data>
-  <data name="HighlighterLbl" xml:space="preserve"><value>Stabilo</value></data>
+  <data name="HighlighterLbl" xml:space="preserve"><value>Penyorot</value></data>
   <data name="TextAdd" xml:space="preserve"><value>Tambah Teks</value></data>
-  <data name="UndoLbl" xml:space="preserve"><value>Urungkan</value></data>
+  <data name="UndoLbl" xml:space="preserve"><value>Batalkan</value></data>
   <data name="ScreenRecording" xml:space="preserve"><value>Rekam</value></data>
   <data name="Record" xml:space="preserve"><value>Rekam</value></data>
   <data name="RedoLbl" xml:space="preserve"><value>Ulangi</value></data>
-  <data name="ResetLbl" xml:space="preserve"><value>Reset</value></data>
+  <data name="ResetLbl" xml:space="preserve"><value>Setel Ulang</value></data>
   <data name="FlipH" xml:space="preserve"><value>Balik H</value></data>
   <data name="FlipV" xml:space="preserve"><value>Balik V</value></data>
   <data name="CopySelected" xml:space="preserve"><value>Salin</value></data>
   <data name="InstantEdit" xml:space="preserve"><value>Edit Instan</value></data>
   <data name="OpenEditor" xml:space="preserve"><value>Buka Editor</value></data>
   <data name="OpenSettings" xml:space="preserve"><value>Buka Pengaturan</value></data>
-  <data name="RealTimeF1Guide" xml:space="preserve"><value>Tekan F1 jika sudah siap untuk menangkap.</value></data>
-  <data name="DelayNone" xml:space="preserve"><value>Tanpa Jeda</value></data>
+  <data name="RealTimeF1Guide" xml:space="preserve"><value>Tekan F1 saat siap menangkap.</value></data>
+  <data name="DelayNone" xml:space="preserve"><value>Tanpa Penundaan</value></data>
   <data name="Delay3Sec" xml:space="preserve"><value>3 detik</value></data>
   <data name="Delay5Sec" xml:space="preserve"><value>5 detik</value></data>
   <data name="Delay10Sec" xml:space="preserve"><value>10 detik</value></data>
-  <data name="MultiCaptureGuide" xml:space="preserve"><value>ENTER: Komposit&#xA;F1: Individual&#xA;ESC: Keluar</value></data>
-  <data name="MultiCaptureMinReq" xml:space="preserve"><value>Silakan tangkap setidaknya satu area.</value></data>
-  <data name="InvalidCompositeSize" xml:space="preserve"><value>Ukuran gambar komposit tidak valid.</value></data>
-  <data name="CompositeTooLarge" xml:space="preserve"><value>Gambar komposit terlalu besar ({0}x{1}). Ukuran maks adalah 32000x32000.</value></data>
-  <data name="CompositeError" xml:space="preserve"><value>Kesalahan saat komposit gambar: {0}</value></data>
-  <data name="CaptureError" xml:space="preserve"><value>Kesalahan tangkap: {0}</value></data>
+  <data name="MultiCaptureGuide" xml:space="preserve"><value>ENTER: Gabung&#xA;F1: Individu&#xA;ESC: Keluar</value></data>
+  <data name="MultiCaptureMinReq" xml:space="preserve"><value>Harap tangkap setidaknya satu area.</value></data>
+  <data name="InvalidCompositeSize" xml:space="preserve"><value>Ukuran gambar gabungan tidak valid.</value></data>
+  <data name="CompositeTooLarge" xml:space="preserve"><value>Gambar gabungan terlalu besar ({0}x{1}). Ukuran maksimal 32000x32000.</value></data>
+  <data name="CompositeError" xml:space="preserve"><value>Kesalahan menggabungkan gambar: {0}</value></data>
+  <data name="CaptureError" xml:space="preserve"><value>Kesalahan tangkapan: {0}</value></data>
   <data name="NumberingOptions" xml:space="preserve"><value>Pengaturan Ukuran</value></data>
   <data name="NumberingBadge" xml:space="preserve"><value>Lencana</value></data>
   <data name="NumberingText" xml:space="preserve"><value>Teks</value></data>
-  <data name="EditConfirmGuide" xml:space="preserve"><value>Silakan konfirmasi(✓) edit sebelum melanjutkan.</value></data>
+  <data name="EditConfirmGuide" xml:space="preserve"><value>Harap konfirmasi(✓) edit sebelum melanjutkan.</value></data>
   <data name="Color" xml:space="preserve"><value>Warna</value></data>
   <data name="TextOptions" xml:space="preserve"><value>Opsi Teks</value></data>
   <data name="Font" xml:space="preserve"><value>Font</value></data>
@@ -206,17 +325,17 @@
   <data name="SelectApplication" xml:space="preserve"><value>Pilih Aplikasi</value></data>
   <data name="SortNameAsc" xml:space="preserve"><value>Nama ▲</value></data>
   <data name="SortNameDesc" xml:space="preserve"><value>Nama ▼</value></data>
-  <data name="Browse" xml:space="preserve"><value>Telusuri...</value></data>
-  <data name="SelectExecutable" xml:space="preserve"><value>Pilih File Eksekusi</value></data>
+  <data name="Browse" xml:space="preserve"><value>Jelajahi...</value></data>
+  <data name="SelectExecutable" xml:space="preserve"><value>Pilih Eksekutable</value></data>
   <data name="ConfirmDeleteShortcut" xml:space="preserve"><value>Hapus pintasan '{0}'?</value></data>
   <data name="DeleteShortcut" xml:space="preserve"><value>Hapus Pintasan</value></data>
-  <data name="AppLaunchFailed" xml:space="preserve"><value>Gagal menjalankan aplikasi: {0}</value></data>
+  <data name="AppLaunchFailed" xml:space="preserve"><value>Gagal meluncurkan aplikasi: {0}</value></data>
   <data name="GoogleSearch" xml:space="preserve"><value>Cari Gambar Google</value></data>
-  <data name="CopiedToClipboard" xml:space="preserve"><value>Disalin ke papan klip.</value></data>
-  <data name="AllCopiedToClipboard" xml:space="preserve"><value>Semua gambar disalin ke papan klip.</value></data>
-  <data name="SelectSaveFolder" xml:space="preserve"><value>Pilih Folder Simpan</value></data>
-  <data name="UnsavedImagesDeleteConfirm" xml:space="preserve"><value>Ada gambar yang belum disimpan. Apakah Anda yakin ingin menghapus semua?</value></data>
-  <data name="UnsavedImageDeleteConfirm" xml:space="preserve"><value>Gambar ini belum disimpan. Apakah Anda yakin ingin menghapusnya?</value></data>
+  <data name="CopiedToClipboard" xml:space="preserve"><value>Disalin ke clipboard.</value></data>
+  <data name="AllCopiedToClipboard" xml:space="preserve"><value>Semua gambar disalin ke clipboard.</value></data>
+  <data name="SelectSaveFolder" xml:space="preserve"><value>Pilih Folder Penyimpanan</value></data>
+  <data name="UnsavedImagesDeleteConfirm" xml:space="preserve"><value>Ada gambar yang belum disimpan. Yakin ingin menghapus semua?</value></data>
+  <data name="UnsavedImageDeleteConfirm" xml:space="preserve"><value>Gambar ini belum disimpan. Yakin ingin menghapusnya?</value></data>
   <data name="ShareImageTitle" xml:space="preserve"><value>Bagikan Gambar</value></data>
   <data name="ShareImageDesc" xml:space="preserve"><value>Bagikan gambar yang ditangkap</value></data>
   <data name="ShareError" xml:space="preserve"><value>Kesalahan Berbagi</value></data>
@@ -224,9 +343,9 @@
   <data name="CopyAll" xml:space="preserve"><value>Salin Semua</value></data>
   <data name="PixelSizeLabel" xml:space="preserve"><value>Ukuran Piksel</value></data>
   <data name="MagicWandToleranceLabel" xml:space="preserve"><value>Toleransi</value></data>
-  <data name="MagicWandContiguousOnly" xml:space="preserve"><value>Hanya area yang bersambutan</value></data>
-  <data name="MagicWandDesc" xml:space="preserve"><value>Klik untuk hapus latar, atau seret untuk pilih area</value></data>
-  <data name="MagicWandTip" xml:space="preserve"><value>Klik atau seret untuk hapus latar</value></data>
+  <data name="MagicWandContiguousOnly" xml:space="preserve"><value>Hanya area berdekatan</value></data>
+  <data name="MagicWandDesc" xml:space="preserve"><value>Klik untuk menghapus latar, atau seret untuk memilih area</value></data>
+  <data name="MagicWandTip" xml:space="preserve"><value>Klik atau seret untuk menghapus latar</value></data>
   <data name="Opacity" xml:space="preserve"><value>Opasitas</value></data>
   <data name="Style" xml:space="preserve"><value>Gaya</value></data>
   <data name="Bold" xml:space="preserve"><value>Tebal</value></data>
@@ -238,12 +357,12 @@
   <data name="GoogleTranslate" xml:space="preserve"><value>Google Terjemahan</value></data>
   <data name="Close" xml:space="preserve"><value>Tutup</value></data>
   <data name="NoExtractedTextOcr" xml:space="preserve"><value>Tidak ada teks yang diekstrak.</value></data>
-  <data name="OpeningGoogleTranslate" xml:space="preserve"><value>Membuka Google Terjemahan...\nTeks disalin ke papan klip.</value></data>
+  <data name="OpeningGoogleTranslate" xml:space="preserve"><value>Membuka Google Terjemahan...\nTeks disalin ke clipboard.</value></data>
   <data name="GoogleTranslateFailed" xml:space="preserve"><value>Gagal membuka Google Terjemahan: {0}</value></data>
-  <data name="RedirectingToTranslate" xml:space="preserve"><value>Mengarahkan ke Google Terjemahan...</value></data>
-  <data name="OcrLanguagePackWarning" xml:space="preserve"><value>※ Jika pengenalan bahasa Jepang/Mandarin tidak akurat, coba instal paket bahasa di Pengaturan Windows > Waktu &amp; Bahasa > Bahasa.</value></data>
-  <data name="SimpleModeDockinGuide" xml:space="preserve"><value>💡 Tips: Seret ke tepi atas, kiri, atau kanan layar untuk dok!</value></data>
-  <data name="ExitSimpleMode" xml:space="preserve"><value>Keluar Mode Sederhana</value></data>
+  <data name="RedirectingToTranslate" xml:space="preserve"><value>Mengalihkan ke Google Terjemahan...</value></data>
+  <data name="OcrLanguagePackWarning" xml:space="preserve"><value>※ Jika pengenalan bahasa Jepang/Cina kurang akurat, coba instal paket bahasa di Pengaturan Windows > Waktu &amp; Bahasa > Bahasa.</value></data>
+  <data name="SimpleModeDockinGuide" xml:space="preserve"><value>💡 Tips: Seret ke tepi atas, kiri, atau kanan layar untuk dock!</value></data>
+  <data name="ExitSimpleMode" xml:space="preserve"><value>Keluar dari Mode Sederhana</value></data>
   <data name="MinimizeToTray" xml:space="preserve"><value>Minimalkan ke Tray</value></data>
   <data name="Enlarge" xml:space="preserve"><value>Perbesar UI</value></data>
   <data name="SwitchToNormalMode" xml:space="preserve"><value>Beralih ke Mode Normal</value></data>
@@ -254,18 +373,18 @@
   <data name="AddIcon" xml:space="preserve"><value>Tambah Ikon</value></data>
   <data name="HideToTray" xml:space="preserve"><value>Sembunyikan ke Tray</value></data>
   <data name="Fold" xml:space="preserve"><value>Lipat</value></data>
-  <data name="UnitCapture" xml:space="preserve"><value>Tangkapan Unit</value></data>
+  <data name="UnitCapture" xml:space="preserve"><value>Tangkap Satuan</value></data>
   <data name="ComputerApps" xml:space="preserve"><value>Aplikasi Komputer</value></data>
   <data name="Open" xml:space="preserve"><value>Buka</value></data>
-  <data name="ShowMagnifier" xml:space="preserve"><value>Tampilkan Kaca Pembesar Saat Tangkap Area</value></data>
+  <data name="ShowMagnifier" xml:space="preserve"><value>Tampilkan Pembesar Saat Tangkap Area</value></data>
   <data name="RecordingTool" xml:space="preserve"><value>Rekaman</value></data>
   <data name="StartStopRecording" xml:space="preserve"><value>Mulai/Hentikan Rekaman</value></data>
   <data name="Pause" xml:space="preserve"><value>Jeda</value></data>
   <data name="Resume" xml:space="preserve"><value>Lanjutkan</value></data>
-  <data name="SystemAudioOff" xml:space="preserve"><value>Audio Sistem (OFF)</value></data>
-  <data name="SystemAudioOn" xml:space="preserve"><value>Audio Sistem (ON)</value></data>
-  <data name="MicrophoneOff" xml:space="preserve"><value>Mikrofon (OFF)</value></data>
-  <data name="MicrophoneOn" xml:space="preserve"><value>Mikrofon (ON)</value></data>
+  <data name="SystemAudioOff" xml:space="preserve"><value>Audio Sistem (MATI)</value></data>
+  <data name="SystemAudioOn" xml:space="preserve"><value>Audio Sistem (HIDUP)</value></data>
+  <data name="MicrophoneOff" xml:space="preserve"><value>Mikrofon (MATI)</value></data>
+  <data name="MicrophoneOn" xml:space="preserve"><value>Mikrofon (HIDUP)</value></data>
   <data name="VideoQuality" xml:space="preserve"><value>Kualitas (HD/SD/LD)</value></data>
   <data name="FrameRate" xml:space="preserve"><value>Frame Rate</value></data>
   <data name="ShowMouseCursor" xml:space="preserve"><value>Tampilkan Kursor Mouse</value></data>
@@ -274,20 +393,21 @@
   <data name="ShowToolbar" xml:space="preserve"><value>Tampilkan Toolbar</value></data>
   <data name="AutoSnap" xml:space="preserve"><value>Magnet</value></data>
   <data name="AreaSelection" xml:space="preserve"><value>Pilih Area</value></data>
+
   <data name="DrawingTools" xml:space="preserve"><value>Alat Gambar</value></data>
   <data name="ToolPen" xml:space="preserve"><value>Pena</value></data>
-  <data name="ToolHighlighter" xml:space="preserve"><value>Stabilo</value></data>
+  <data name="ToolHighlighter" xml:space="preserve"><value>Penyorot</value></data>
   <data name="ToolEraser" xml:space="preserve"><value>Penghapus</value></data>
   <data name="ToolLine" xml:space="preserve"><value>Garis</value></data>
   <data name="ToolArrow" xml:space="preserve"><value>Panah</value></data>
-  <data name="ToolRectangle" xml:space="preserve"><value>Persegi</value></data>
+  <data name="ToolRectangle" xml:space="preserve"><value>Persegi Panjang</value></data>
   <data name="ToolEllipse" xml:space="preserve"><value>Elips</value></data>
   <data name="ToolNumbering" xml:space="preserve"><value>Penomoran</value></data>
   <data name="ToolClearAll" xml:space="preserve"><value>Hapus Semua</value></data>
-  <data name="OpenSaveFolder" xml:space="preserve"><value>Buka Folder Simpan</value></data>
+  <data name="OpenSaveFolder" xml:space="preserve"><value>Buka Folder</value></data>
   <data name="ModeSelect" xml:space="preserve"><value>Pemilihan Mode</value></data>
   <data name="ThemeSettings" xml:space="preserve"><value>Pengaturan Tema</value></data>
-  <data name="ThemePreset" xml:space="preserve"><value>Prasetel Tema</value></data>
+  <data name="ThemePreset" xml:space="preserve"><value>Preset Tema</value></data>
   <data name="ThemeGeneral" xml:space="preserve"><value>Umum (Default)</value></data>
   <data name="ThemeDark" xml:space="preserve"><value>Mode Gelap</value></data>
   <data name="ThemeLight" xml:space="preserve"><value>Mode Terang</value></data>
@@ -298,36 +418,352 @@
   <data name="ThemeColorGuide" xml:space="preserve"><value>※ Klik kotak warna untuk memilih warna.</value></data>
   <data name="Apply" xml:space="preserve"><value>Terapkan</value></data>
   <data name="Preview" xml:space="preserve"><value>Pratinjau</value></data>
-  <data name="ThemeSampleLabel" xml:space="preserve"><value>Sampel Pratinjau</value></data>
+  <data name="ThemeSampleLabel" xml:space="preserve"><value>Contoh Pratinjau</value></data>
   <data name="ThemeSampleText" xml:space="preserve"><value>Ini adalah contoh teks pratinjau tema. (ABCabc 123)</value></data>
   <data name="RecordingSettings" xml:space="preserve"><value>Pengaturan Rekaman</value></data>
   <data name="BasicSettings" xml:space="preserve"><value>Pengaturan Dasar</value></data>
-  <data name="RecordingStartStopHotkey" xml:space="preserve"><value>Tombol Pintas Rekam/Henti</value></data>
-  <data name="RecordStartStop" xml:space="preserve"><value>Rekam/Henti</value></data>
-  <data name="CaptureLineSettings" xml:space="preserve"><value>Pengaturan Garis Pandu</value></data>
+  <data name="RecordingStartStopHotkey" xml:space="preserve"><value>Tombol Pintas Rekam/Hentikan</value></data>
+  <data name="RecordStartStop" xml:space="preserve"><value>Rekam/Hentikan</value></data>
+  <data name="CaptureLineSettings" xml:space="preserve"><value>Pengaturan Garis Tangkapan</value></data>
   <data name="OverlayBgColor" xml:space="preserve"><value>Warna Latar Overlay</value></data>
   <data name="LineStyle" xml:space="preserve"><value>Gaya Garis</value></data>
   <data name="LineThickness" xml:space="preserve"><value>Ketebalan Garis</value></data>
   <data name="LineColor" xml:space="preserve"><value>Warna Garis</value></data>
-  <data name="CaptureSettingsGuide" xml:space="preserve"><value>* Klik kotak warna untuk memilih warna panduan tangkap.</value></data>
-  <data name="SolidLine" xml:space="preserve"><value>Solid</value></data>
-  <data name="DashLine" xml:space="preserve"><value>Dash</value></data>
-  <data name="DotLine" xml:space="preserve"><value>Dot</value></data>
-  <data name="DashDotLine" xml:space="preserve"><value>DashDot</value></data>
+  <data name="CaptureSettingsGuide" xml:space="preserve"><value>* Klik kotak warna untuk memilih warna panduan tangkapan.</value></data>
+  <data name="SolidLine" xml:space="preserve"><value>Garis Penuh</value></data>
+  <data name="DashLine" xml:space="preserve"><value>Garis Putus</value></data>
+  <data name="DotLine" xml:space="preserve"><value>Garis Titik</value></data>
+  <data name="DashDotLine" xml:space="preserve"><value>Garis Putus-Titik</value></data>
   <data name="Outline" xml:space="preserve"><value>Garis Luar</value></data>
   <data name="QualityHigh" xml:space="preserve"><value>Kualitas Tinggi</value></data>
-  <data name="QualityMedium" xml:space="preserve"><value>Menengah</value></data>
+  <data name="QualityMedium" xml:space="preserve"><value>Kualitas Sedang</value></data>
   <data name="QualityLow" xml:space="preserve"><value>Kualitas Rendah</value></data>
+  
+  <!-- Print Preview -->
   <data name="PrintPreviewTitle" xml:space="preserve"><value>Pratinjau Cetak</value></data>
   <data name="OrientationLabel" xml:space="preserve"><value>Orientasi:</value></data>
   <data name="Portrait" xml:space="preserve"><value>Potret</value></data>
   <data name="Landscape" xml:space="preserve"><value>Lanskap</value></data>
   <data name="PrintOptionsLabel" xml:space="preserve"><value>Opsi Cetak:</value></data>
-  <data name="FitToPage" xml:space="preserve"><value>Sesuaikan Halaman</value></data>
-  <data name="ActualSize" xml:space="preserve"><value>Ukuran Sebenarnya</value></data>
+  <data name="FitToPage" xml:space="preserve"><value>Sesuaikan dengan Halaman</value></data>
+  <data name="ActualSize" xml:space="preserve"><value>Ukuran Asli</value></data>
   <data name="FillPage" xml:space="preserve"><value>Isi Halaman</value></data>
   <data name="PrintingStarted" xml:space="preserve"><value>Pencetakan dimulai.</value></data>
   <data name="PrintingError" xml:space="preserve"><value>Terjadi kesalahan saat mencetak</value></data>
-  <data name="PreviewGenerationError" xml:space="preserve"><value>Kesalahan menghasilkan pratinjau</value></data>
+  <data name="PreviewGenerationError" xml:space="preserve"><value>Kesalahan membuat pratinjau</value></data>
   <data name="PrintJobName" xml:space="preserve"><value>Cetak Gambar CatchCapture</value></data>
+
+
+  <data name="StartAsAdmin" xml:space="preserve"><value>Jalankan sebagai Administrator</value></data>
+  <data name="StartAsAdminTooltip" xml:space="preserve"><value>Menjalankan sebagai administrator mungkin diperlukan agar tombol pintas global berfungsi dengan baik pada program yang dijalankan dengan hak admin (game, task manager, dll.).</value></data>
+  <data name="NoteSettings" xml:space="preserve"><value>Pengaturan Catatan</value></data>
+
+  <data name="NoteStorage" xml:space="preserve"><value>Penyimpanan &amp; Database</value></data>
+  <data name="NotePath" xml:space="preserve"><value>Lokasi Penyimpanan Catatan</value></data>
+  <data name="OpenFolder" xml:space="preserve"><value>Buka Folder</value></data>
+  <data name="ExtraOptions" xml:space="preserve"><value>Opsi Tambahan</value></data>
+  <data name="BackupRestore" xml:space="preserve"><value>Backup &amp; Pulihkan</value></data>
+  <data name="ExportBackup" xml:space="preserve"><value>Ekspor (.zip)</value></data>
+  <data name="ImportBackup" xml:space="preserve"><value>Impor (.zip)</value></data>
+  <data name="MergeBackup" xml:space="preserve"><value>Gabung (.zip)</value></data>
+  <data name="MergeConfirmMsg" xml:space="preserve"><value>Apakah Anda ingin menggabungkan backup yang dipilih dengan data saat ini?\n(Item akan ditambahkan sesuai urutan kronologis)</value></data>
+  <data name="MergingMsg" xml:space="preserve"><value>Menggabungkan data... Mohon tunggu.</value></data>
+  <data name="MergeSuccessMsg" xml:space="preserve"><value>Penggabungan data selesai.</value></data>
+  <data name="ErrorMerge" xml:space="preserve"><value>Kesalahan saat menggabungkan data</value></data>
+  <data name="NoteSecurity" xml:space="preserve"><value>Keamanan &amp; Kunci Catatan</value></data>
+  <data name="EnableNotePassword" xml:space="preserve"><value>Gunakan Kunci Kata Sandi</value></data>
+  <data name="SetChangePassword" xml:space="preserve"><value>Atur/Ubah Kata Sandi</value></data>
+  <data name="PasswordHint" xml:space="preserve"><value>Petunjuk Kata Sandi</value></data>
+  <data name="PasswordWarning" xml:space="preserve"><value>* Peringatan: Data tidak dapat dipulihkan jika kata sandi hilang.</value></data>
+  <data name="ImageOptimization" xml:space="preserve"><value>Optimasi Gambar</value></data>
+  <data name="Unknown" xml:space="preserve">
+    <value>Tidak Diketahui</value>
+  </data>
+
+  <data name="PleaseEnterPassword" xml:space="preserve">
+    <value>Mohon masukkan kata sandi.</value>
+  </data>
+  <data name="PasswordsDoNotMatch" xml:space="preserve">
+    <value>Kata sandi tidak cocok.</value>
+  </data>
+  <data name="PleaseEnterPasswordHint" xml:space="preserve">
+    <value>Mohon masukkan petunjuk kata sandi.</value>
+  </data>
+
+  <data name="ImageQuality" xml:space="preserve"><value>Kualitas Gambar</value></data>
+  <data name="OptimizeNoteImages" xml:space="preserve"><value>Optimasi ukuran gambar saat menyimpan</value></data>
+  <data name="HotkeyRegisterError" xml:space="preserve"><value>Tombol pintas sudah digunakan oleh aplikasi lain.\nSilakan ubah tombol pintas di Pengaturan.</value></data>
+  <data name="NoteSave" xml:space="preserve"><value>Simpan Catatan</value></data>
+  <data name="SaveNoteTooltip" xml:space="preserve"><value>Simpan ke Catatan Saya</value></data>
+  <data name="NoteExplorerTitle" xml:space="preserve"><value>Penjelajah Catatan CatchCapture</value></data>
+  <data name="MyNote" xml:space="preserve"><value>Catatan Saya</value></data>
+  <data name="OpenMyNote" xml:space="preserve"><value>Catatan Saya</value></data>
+  <data name="NewNote" xml:space="preserve"><value>Catatan Baru</value></data>
+  <data name="NoteSettingsMenu" xml:space="preserve"><value>Pengaturan Catatan</value></data>
+  <data name="Explore" xml:space="preserve"><value>Jelajahi</value></data>
+  <data name="AllNotes" xml:space="preserve"><value>Semua Catatan</value></data>
+  <data name="GroupNote" xml:space="preserve"><value>Kelompok Catatan</value></data>
+  <data name="SortByLatest" xml:space="preserve"><value>Terbaru</value></data>
+  <data name="SortByName" xml:space="preserve"><value>Nama</value></data>
+  <data name="Today" xml:space="preserve"><value>Hari Ini</value></data>
+  <data name="Recent7Days" xml:space="preserve"><value>7 Hari Terakhir</value></data>
+  <data name="Trash" xml:space="preserve"><value>Sampah</value></data>
+  <data name="Tags" xml:space="preserve"><value>Tag</value></data>
+  <data name="SelectAll" xml:space="preserve"><value>Pilih Semua</value></data>
+  <data name="UnselectAll" xml:space="preserve"><value>Batalkan Pilih Semua</value></data>
+  <data name="DeleteSelected" xml:space="preserve"><value>Hapus yang Dipilih</value></data>
+  <data name="RecentStatusInfo" xml:space="preserve"><value>Rekaman minggu terakhir</value></data>
+  <data name="SearchPlaceholder" xml:space="preserve"><value>Cari...</value></data>
+  <data name="ColGroup" xml:space="preserve"><value>Kelompok</value></data>
+  <data name="ColTitle" xml:space="preserve"><value>Judul</value></data>
+  <data name="ColContent" xml:space="preserve"><value>Konten</value></data>
+  <data name="ColLastModified" xml:space="preserve"><value>Terakhir Diubah</value></data>
+  <data name="PreviewLoading" xml:space="preserve"><value>Pilih catatan.</value></data>
+
+  <data name="NoteSecurityTip" xml:space="preserve"><value>Lindungi catatan Anda dengan aman menggunakan pengaturan kata sandi.</value></data>
+  <data name="NoteInputTitle" xml:space="preserve"><value>CatchCapture - Tulis</value></data>
+  <data name="WriteNote" xml:space="preserve"><value>Tulis Catatan</value></data>
+  <data name="EditNote" xml:space="preserve"><value>Edit Catatan</value></data>
+  <data name="ManageCategories" xml:space="preserve"><value>Kelola Kategori</value></data>
+  <data name="TitlePlaceholder" xml:space="preserve"><value>Mohon masukkan judul</value></data>
+  <data name="TagsPlaceholder" xml:space="preserve"><value>Mohon masukkan tag (dipisah koma)</value></data>
+  <data name="Link" xml:space="preserve"><value>Tautan</value></data>
+  <data name="LinkPlaceholder" xml:space="preserve"><value>Mohon masukkan tautan terkait.</value></data>
+  <data name="FileAttachment" xml:space="preserve"><value>Lampiran File</value></data>
+  <data name="FileAttachmentGuide" xml:space="preserve"><value>Seret file ke sini atau klik untuk melampirkan.</value></data>
+  <data name="FinishWrite" xml:space="preserve"><value>Selesai Menulis</value></data>
+  <data name="FinishEdit" xml:space="preserve"><value>Selesai Mengedit</value></data>
+  <data name="NotePasswordTitle" xml:space="preserve"><value>Pengaturan Kata Sandi Catatan</value></data>
+  <data name="NewPassword" xml:space="preserve"><value>Kata Sandi Baru</value></data>
+  <data name="ConfirmPassword" xml:space="preserve"><value>Konfirmasi Kata Sandi</value></data>
+  <data name="PasswordHintRequired" xml:space="preserve"><value>Petunjuk Kata Sandi (Wajib)</value></data>
+  <data name="PasswordLossWarning" xml:space="preserve"><value>※ Peringatan: Data tidak dapat dipulihkan jika kata sandi hilang karena sifat penyimpanan lokal.</value></data>
+  <data name="CopyColor" xml:space="preserve"><value>Salin Warna</value></data>
+  <data name="SwitchColorFormat" xml:space="preserve"><value>Ganti RGB/HEX</value></data>
+  <data name="SelectAreaGuide" xml:space="preserve"><value>Seret untuk memilih area tangkapan.</value></data>
+  <data name="ErrReadNote" xml:space="preserve"><value>Kesalahan membaca informasi catatan:</value></data>
+  <data name="SelectAttachFiles" xml:space="preserve"><value>Pilih File Lampiran</value></data>
+  <data name="ErrMainWinNotFound" xml:space="preserve"><value>Jendela utama tidak ditemukan.</value></data>
+
+  <data name="NoContentToSave" xml:space="preserve"><value>Tidak ada konten untuk disimpan.</value></data>
+  <data name="Untitled" xml:space="preserve"><value>Tanpa Judul</value></data>
+  <data name="NoteEditSuccess" xml:space="preserve"><value>Catatan berhasil diperbarui.</value></data>
+  <data name="NoteSaveSuccess" xml:space="preserve"><value>Catatan berhasil disimpan.</value></data>
+  <data name="ErrSaveNote" xml:space="preserve"><value>Terjadi kesalahan saat menyimpan catatan:</value></data>
+  <data name="SearchResults" xml:space="preserve"><value>Hasil Pencarian: '{0}'</value></data>
+  <data name="TagFilter" xml:space="preserve"><value>Filter Tag: #{0}</value></data>
+  <data name="TodayRecords" xml:space="preserve"><value>Rekaman Hari Ini</value></data>
+  <data name="RecentWeekRecords" xml:space="preserve"><value>Rekaman Minggu Terakhir</value></data>
+  <data name="TrashRecords" xml:space="preserve"><value>Rekaman di Sampah</value></data>
+  <data name="GroupLabel" xml:space="preserve"><value>Kelompok: {0}</value></data>
+  <data name="AllRecords" xml:space="preserve"><value>Semua Rekaman</value></data>
+  <data name="DefaultCategory" xml:space="preserve"><value>Default</value></data>
+  <data name="ErrLoadNotes" xml:space="preserve"><value>Terjadi kesalahan saat memuat catatan:</value></data>
+  <data name="DirectWrite" xml:space="preserve"><value>Ditulis Langsung</value></data>
+  <data name="FileNotFound" xml:space="preserve"><value>File tidak ditemukan.</value></data>
+  <data name="ErrOpenFile" xml:space="preserve"><value>Terjadi kesalahan saat membuka file:</value></data>
+  <data name="ErrOpenNoteInput" xml:space="preserve"><value>Terjadi kesalahan saat membuka jendela penulisan catatan:</value></data>
+  <data name="ErrOpenNoteEdit" xml:space="preserve"><value>Terjadi kesalahan saat membuka jendela edit catatan:</value></data>
+  <data name="ConfirmDeleteNote" xml:space="preserve"><value>Yakin ingin menghapus catatan ini?</value></data>
+  <data name="ConfirmDeleteSelectedNotes" xml:space="preserve"><value>Yakin ingin menghapus {0} catatan yang dipilih?</value></data>
+  <data name="PleaseSelectNotesToDelete" xml:space="preserve"><value>Harap pilih catatan untuk dihapus.</value></data>
+  <data name="ConfirmDelete" xml:space="preserve"><value>Konfirmasi Hapus</value></data>
+  <data name="ErrDelete" xml:space="preserve"><value>Terjadi kesalahan saat menghapus:</value></data>
+  <data name="NoteUnlock" xml:space="preserve"><value>Buka Kunci Catatan</value></data>
+  <data name="ProtectedContent" xml:space="preserve"><value>Konten Terlindungi</value></data>
+  <data name="ShowHint" xml:space="preserve"><value>Tampilkan Petunjuk</value></data>
+  <data name="Unlock" xml:space="preserve"><value>Buka Kunci</value></data>
+  <data name="NoHintRegistered" xml:space="preserve"><value>Tidak ada petunjuk yang terdaftar.</value></data>
+  <data name="PasswordHintMessage" xml:space="preserve"><value>Petunjuk Kata Sandi: {0}</value></data>
+  <data name="Hint" xml:space="preserve"><value>Petunjuk</value></data>
+  <data name="CategoryManagementTitle" xml:space="preserve"><value>Manajemen Kategori</value></data>
+  <data name="CategoryManagementDesc" xml:space="preserve"><value>Kelola kelompok untuk mengatur catatan Anda.</value></data>
+  <data name="NewCategoryPlaceholder" xml:space="preserve"><value>Masukkan kategori baru...</value></data>
+  <data name="DefaultCategoryDeleteError" xml:space="preserve"><value>Kategori default tidak dapat dihapus.</value></data>
+  <data name="DeleteCategoryConfirm" xml:space="preserve"><value>Yakin ingin menghapus kategori ini? Catatan terkait akan dipindah ke 'Default'.</value></data>
+  <data name="Tip1" xml:space="preserve"><value>Lindungi catatan Anda dengan aman menggunakan pengaturan kata sandi.</value></data>
+  <data name="Tip2" xml:space="preserve"><value>Simpan ke catatan segera setelah tangkap untuk merekam ide berharga.</value></data>
+  <data name="Tip3" xml:space="preserve"><value>Tempel gambar dan konten dari halaman eksternal untuk penyimpanan permanen dengan kapasitas rendah.</value></data>
+  <data name="Tip4" xml:space="preserve"><value>Hubungkan folder cloud seperti N-Drive atau Google Drive untuk berbagi Catatan Saya di komputer mana saja.</value></data>
+  <data name="Tip5" xml:space="preserve"><value>Gunakan tag untuk menemukan dengan cepat apa yang Anda inginkan di antara banyak catatan.</value></data>
+  <data name="Tip6" xml:space="preserve"><value>Tambahkan gambar dengan mudah melalui drag-and-drop di jendela edit catatan.</value></data>
+  <data name="Tip7" xml:space="preserve"><value>Fungsi pencarian memungkinkan pencarian teks di konten catatan serta judul.</value></data>
+  <data name="Tip8" xml:space="preserve"><value>Klik dua kali gambar di catatan untuk mengeditnya.</value></data>
+  <data name="Tip9" xml:space="preserve"><value>Klik 'Simpan Catatan' saat menangkap untuk membuat catatan dengan satu klik.</value></data>
+  <data name="ColorPickerTitle" xml:space="preserve"><value>Pemilih Warna</value></data>
+  <data name="Transparent" xml:space="preserve"><value>Transparan</value></data>
+  <data name="TextColor" xml:space="preserve"><value>Warna Teks</value></data>
+  <data name="HighlightColor" xml:space="preserve"><value>Warna Sorot</value></data>
+  <data name="AlignLeft" xml:space="preserve"><value>Rata Kiri</value></data>
+  <data name="AlignCenter" xml:space="preserve"><value>Rata Tengah</value></data>
+  <data name="AlignRight" xml:space="preserve"><value>Rata Kanan</value></data>
+  <data name="BulletList" xml:space="preserve"><value>Daftar Bullet</value></data>
+  <data name="NumberList" xml:space="preserve"><value>Daftar Nomor</value></data>
+  <data name="InsertImage" xml:space="preserve"><value>Sisipkan Gambar</value></data>
+  <data name="InsertCapture" xml:space="preserve"><value>Sisipkan Tangkapan</value></data>
+  <data name="InsertLink" xml:space="preserve"><value>Sisipkan Tautan</value></data>
+  <data name="LineSpacing" xml:space="preserve"><value>Jarak Baris</value></data>
+  <data name="FontFamily" xml:space="preserve"><value>Keluarga Font</value></data>
+  <data name="FontSize" xml:space="preserve"><value>Ukuran Font</value></data>
+  <data name="Password" xml:space="preserve"><value>Kata Sandi</value></data>
+  <data name="RemoteRepository" xml:space="preserve"><value>Repositori Jarak Jauh</value></data>
+  <data name="InitializeReset" xml:space="preserve"><value>Inisialisasi</value></data>
+
+  <data name="NoteResetConfirm1" xml:space="preserve"><value>Yakin ingin menginisialisasi semua data catatan?</value></data>
+  <data name="NoteResetConfirm2" xml:space="preserve"><value>Data yang diinisialisasi tidak dapat dipulihkan.\nBenarkah Anda yakin?</value></data>
+  <data name="DataLossWarning" xml:space="preserve"><value>Peringatan Penghapusan Data Permanen</value></data>
+  <data name="NoteResetComplete" xml:space="preserve"><value>Data catatan telah diinisialisasi.</value></data>
+  <data name="NoteResetError" xml:space="preserve"><value>Kesalahan inisialisasi: {0}</value></data>
+  <data name="TrashSettings" xml:space="preserve"><value>Pengaturan Sampah</value></data>
+  <data name="TrashRetentionPeriod" xml:space="preserve"><value>Periode Penyimpanan Sampah</value></data>
+  <data name="TrashRetentionNotice" xml:space="preserve"><value>(Hapus otomatis setelah periode yang ditentukan)</value></data>
+  <data name="RetentionPermanent" xml:space="preserve"><value>Permanen</value></data>
+  <data name="Days" xml:space="preserve"><value>Hari</value></data>
+  <data name="EmptyTrash" xml:space="preserve"><value>Kosongkan Sampah</value></data>
+  <data name="Notice" xml:space="preserve"><value>Pemberitahuan</value></data>
+  <data name="TrashRetentionInfo" xml:space="preserve"><value>Penting: Periode penyimpanan sampah saat ini {0} hari. Anda dapat mengubahnya di Pengaturan Catatan.</value></data>
+  <data name="TrashRetentionPermanentInfo" xml:space="preserve"><value>Penting: Sampah disetel untuk disimpan permanen. Anda dapat mengubahnya di Pengaturan Catatan.</value></data>
+  <data name="NoNotes" xml:space="preserve"><value>Tidak ada catatan ditemukan</value></data>
+  <data name="TrashEmpty" xml:space="preserve"><value>Sampah kosong</value></data>
+  <data name="NotePathDesc" xml:space="preserve"><value>Lokasi penyimpanan database catatan dan lampiran.</value></data>
+  <data name="Recent30Days" xml:space="preserve"><value>30 Hari Terakhir</value></data>
+  <data name="Recent3Months" xml:space="preserve"><value>3 Bulan Terakhir</value></data>
+  <data name="Recent6Months" xml:space="preserve"><value>6 Bulan Terakhir</value></data>
+  <data name="ListView" xml:space="preserve"><value>Tampilan Daftar</value></data>
+  <data name="CardView" xml:space="preserve"><value>Tampilan Kartu</value></data>
+  <data name="TrashEmptyComplete" xml:space="preserve"><value>Sampah telah dikosongkan.</value></data>
+  <data name="Minimize" xml:space="preserve"><value>Minimalkan</value></data>
+  <data name="Maximize" xml:space="preserve"><value>Maksimalkan</value></data>
+  <data name="Restore" xml:space="preserve"><value>Pulihkan</value></data>
+  <data name="RecentRecordsFormat" xml:space="preserve">
+    <value>{0} Rekaman</value>
+  </data>
+  <data name="TrashEmptyWarning" xml:space="preserve">
+    <value>Item yang dihapus tidak dapat dipulihkan.
+Yakin ingin menghapus permanen semua item?</value>
+  </data>
+  <data name="TrashEmptyFailed" xml:space="preserve">
+    <value>Gagal mengosongkan sampah: </value>
+  </data>
+  <data name="ErrPreviewFailed" xml:space="preserve">
+    <value>Gagal membuka pratinjau: </value>
+  </data>
+  <data name="AlwaysOnTop" xml:space="preserve">
+    <value>Selalu di Atas</value>
+  </data>
+  <data name="UnpinAlwaysOnTop" xml:space="preserve">
+    <value>Lepas dari Atas</value>
+  </data>
+  <data name="PrintOrSavePDF" xml:space="preserve">
+    <value>Cetak / Simpan sebagai PDF</value>
+  </data>
+  <data name="ErrLoadNote" xml:space="preserve">
+    <value>Gagal memuat catatan: </value>
+  </data>
+  <data name="ErrInitExplorer" xml:space="preserve"><value>Kesalahan inisialisasi penjelajah: </value></data>
+  <data name="ConfirmRestoreNote" xml:space="preserve"><value>Apakah Anda ingin memulihkan catatan ini?</value></data>
+  <data name="ErrRestoreNote" xml:space="preserve"><value>Terjadi kesalahan saat memulihkan: </value></data>
+  <data name="ErrPinNote" xml:space="preserve"><value>Terjadi kesalahan saat mengubah status semat: </value></data>
+
+
+  <data name="ChangeTheme" xml:space="preserve"><value>Ubah Tema</value></data>
+  <data name="SimpleMode" xml:space="preserve"><value>Sederhana</value></data>
+  <data name="TrayMode" xml:space="preserve"><value>Tray</value></data>
+  <data name="SaveToMyNote" xml:space="preserve"><value>Simpan ke Catatan Saya</value></data>
+  <data name="ConfirmDisableNotePassword" xml:space="preserve"><value>Apakah Anda ingin menonaktifkan kunci kata sandi?&#x0a;(Kata sandi yang disetel akan tetap disimpan)</value></data>
+  
+  <data name="SettingsWindowTitle" xml:space="preserve"><value>CatchCapture - Pengaturan</value></data>
+  <data name="SettingsFormatFeatures" xml:space="preserve"><value>Fitur Format</value></data>
+  <data name="SettingsFormatGuide" xml:space="preserve"><value>Panduan Format File</value></data>
+  <data name="SettingsColFormat" xml:space="preserve"><value>Format</value></data>
+  <data name="SettingsColTransparent" xml:space="preserve"><value>Latar Transparan</value></data>
+  <data name="SettingsColAnimation" xml:space="preserve"><value>Animasi</value></data>
+  <data name="SettingsColQuality" xml:space="preserve"><value>Kualitas</value></data>
+  <data name="SettingsColCompression" xml:space="preserve"><value>Efisiensi Kompresi</value></data>
+  <data name="SettingsColUsage" xml:space="preserve"><value>Penggunaan Utama</value></data>
+  <data name="SettingsValHigh" xml:space="preserve"><value>Tinggi</value></data>
+  <data name="SettingsValMidHigh" xml:space="preserve"><value>Sedang/Tinggi</value></data>
+  <data name="SettingsValLow" xml:space="preserve"><value>Rendah</value></data>
+  <data name="SettingsValUltra" xml:space="preserve"><value>Ultra</value></data>
+  <data name="SettingsPnGEfficiency" xml:space="preserve"><value>Rendah (Kompresi Tanpa Kehilangan)</value></data>
+  <data name="SettingsPnGUsage" xml:space="preserve"><value>Logo, Ikon, Tangkapan Layar</value></data>
+  <data name="SettingsJpgEfficiency" xml:space="preserve"><value>Tinggi (Kompresi dengan Kehilangan)</value></data>
+  <data name="SettingsJpgUsage" xml:space="preserve"><value>Foto, Gambar Web</value></data>
+  <data name="SettingsBmpEfficiency" xml:space="preserve"><value>Tanpa (Asli)</value></data>
+  <data name="SettingsBmpUsage" xml:space="preserve"><value>Grafis Windows Sederhana</value></data>
+  <data name="SettingsGifEfficiency" xml:space="preserve"><value>Tinggi (Batasan Warna)</value></data>
+  <data name="SettingsGifUsage" xml:space="preserve"><value>Animasi Pendek (GIF)</value></data>
+  <data name="SettingsWebpEfficiency" xml:space="preserve"><value>Sangat Tinggi (Kompresi Generasi Baru)</value></data>
+  <data name="SettingsWebpUsage" xml:space="preserve"><value>Gambar Dioptimasi Website</value></data>
+  <data name="SettingsShowMagnifierDesc" xml:space="preserve"><value>Tampilkan pembesar saat tangkap area</value></data>
+  <data name="SettingsShowPreviewDesc" xml:space="preserve"><value>Tampilkan pratinjau/editor setelah tangkap</value></data>
+  <data name="SettingsAutoSaveDesc" xml:space="preserve"><value>Simpan file otomatis setelah tangkap</value></data>
+  <data name="RecQualityMP4" xml:space="preserve"><value>Kualitas (MP4)</value></data>
+  <data name="RecFpsMP4" xml:space="preserve"><value>Frame Rate (MP4)</value></data>
+  <data name="RecHotkeyTitle" xml:space="preserve"><value>Tombol Pintas Rekam/Hentikan</value></data>
+  <data name="RecordStop" xml:space="preserve"><value>Rekam/Hentikan</value></data>
+  <data name="NoteStorageDatabase" xml:space="preserve"><value>Penyimpanan &amp; Database</value></data>
+  <data name="NoteStorageLocation" xml:space="preserve"><value>Lokasi Penyimpanan Catatan</value></data>
+  <data name="NotePathStructure" xml:space="preserve"><value>※ Struktur Folder: [FolderCatatan]\notedb (DB), [FolderCatatan]\img (Gambar)</value></data>
+  <data name="RemoteStorage" xml:space="preserve"><value>Penyimpanan Jarak Jauh</value></data>
+  <data name="RemoteStorageTooltip" xml:space="preserve"><value>Hubungkan folder cloud (Google Drive, dll.) untuk berbagi catatan antar perangkat.</value></data>
+  <data name="RemoteStorageWarning" xml:space="preserve"><value>Saat terhubung, kecepatan mungkin melambat signifikan selama proses upload/download server, ini bukan masalah program.</value></data>
+  <data name="ResetNoteDataTooltip" xml:space="preserve"><value>Setel ulang semua data catatan</value></data>
+  <data name="NoteFileNameSettings" xml:space="preserve"><value>Pengaturan Nama File</value></data>
+  <data name="NoteFolderGrouping" xml:space="preserve"><value>Pengaturan Pengelompokan Folder</value></data>
+  <data name="NoteSecurityLock" xml:space="preserve"><value>Keamanan &amp; Kunci Catatan</value></data>
+  <data name="ImageSaveSettings" xml:space="preserve"><value>Pengaturan Penyimpanan Gambar</value></data>
+  <data name="StartupSettings" xml:space="preserve"><value>Pengaturan Startup</value></data>
+  <data name="Val1Day" xml:space="preserve"><value>1 Hari</value></data>
+  <data name="Val3Days" xml:space="preserve"><value>3 Hari</value></data>
+  <data name="Val7Days" xml:space="preserve"><value>7 Hari</value></data>
+  <data name="Val15Days" xml:space="preserve"><value>15 Hari</value></data>
+  <data name="Val30Days" xml:space="preserve"><value>30 Hari</value></data>
+  <data name="Val60Days" xml:space="preserve"><value>60 Hari</value></data>
+  <data name="Val90Days" xml:space="preserve"><value>90 Hari</value></data>
+  <data name="ValPermanent" xml:space="preserve"><value>Simpan Selamanya</value></data>
+  <data name="Wait" xml:space="preserve"><value>Tunggu...</value></data>
+  <data name="FileNameSettings" xml:space="preserve"><value>Pengaturan Nama File</value></data>
+  <data name="FolderGrouping" xml:space="preserve"><value>Pengaturan Pengelompokan Folder</value></data>
+  <data name="GroupingNone" xml:space="preserve"><value>Tanpa Pengelompokan</value></data>
+  <data name="GroupingMonthly" xml:space="preserve"><value>Bulanan</value></data>
+  <data name="GroupingQuarterly" xml:space="preserve"><value>Kuartalan</value></data>
+  <data name="GroupingYearly" xml:space="preserve"><value>Tahunan</value></data>
+  <data name="FileNamePreset_Default" xml:space="preserve"><value>Default (Catch_Tanggal_Waktu)</value></data>
+  <data name="FileNamePreset_Simple" xml:space="preserve"><value>Sederhana (Gambar_Tanggal)</value></data>
+  <data name="FileNamePreset_Timestamp" xml:space="preserve"><value>Hanya Timestamp (20250101_120000)</value></data>
+  <data name="FileNamePreset_App" xml:space="preserve"><value>Nama Aplikasi (Chrome_Tanggal)</value></data>
+  <data name="FileNamePreset_Title" xml:space="preserve"><value>Judul Jendela (Google_Tanggal)</value></data>
+  <data name="FileNamePreview" xml:space="preserve"><value>Pratinjau</value></data>
+  <data name="Badge" xml:space="preserve"><value>Lencana</value></data>
+  <data name="TextNote" xml:space="preserve"><value>Teks</value></data>
+  <data name="BadgeSize" xml:space="preserve"><value>Ukuran Lencana</value></data>
+  <data name="TextSize" xml:space="preserve"><value>Ukuran Teks</value></data>
+  <data name="SettingsAutoCopyDesc" xml:space="preserve"><value>Salin otomatis ke clipboard setelah tangkap</value></data>
+  <data name="AddVideo" xml:space="preserve"><value>Tambah Video</value></data>
+  <data name="BtnYes" xml:space="preserve"><value>Ya</value></data>
+  <data name="BtnNo" xml:space="preserve"><value>Tidak</value></data>
+  <data name="BtnOK" xml:space="preserve"><value>OK</value></data>
+  <data name="BtnCancel" xml:space="preserve"><value>Batal</value></data>
+  <data name="AddVideoGuidance" xml:space="preserve"><value>Mohon masukkan URL YouTube atau kode sumber (iframe):</value></data>
+  <data name="SearchLocalFile" xml:space="preserve"><value>Cari File Lokal...</value></data>
+  <data name="BtnAdd" xml:space="preserve"><value>Tambah</value></data>
+  <data name="HotkeyConflictTitle" xml:space="preserve"><value>Konflik Tombol Pintas</value></data>
+  <data name="HotkeyConflictMsg" xml:space="preserve"><value>Tombol pintas '{0}' sudah digunakan oleh: {1}</value></data>
+  <data name="ImportConfirmMsg" xml:space="preserve"><value>Semua data catatan yang ada akan ditimpa oleh file backup ini. Lanjutkan?</value></data>
+  <data name="ImportSuccessMsg" xml:space="preserve"><value>Pemulihan selesai. Disarankan restart program untuk menerapkan perubahan.</value></data>
+  <data name="ErrorImport" xml:space="preserve"><value>Kesalahan saat pemulihan</value></data>
+  <data name="ErrorBackup" xml:space="preserve"><value>Kesalahan saat backup</value></data>
+  <data name="ErrorNoFolder" xml:space="preserve"><value>Folder sumber untuk backup tidak ada.</value></data>
+  <data name="BackupSuccess" xml:space="preserve"><value>Backup berhasil diselesaikan.</value></data>
+  <data name="LineSpacing10" xml:space="preserve"><value>1.0 (Sempit)</value></data>
+  <data name="LineSpacing15" xml:space="preserve"><value>1.5 (Default)</value></data>
+  <data name="LineSpacing20" xml:space="preserve"><value>2.0 (Lebar)</value></data>
+  <data name="SelectTextForLink" xml:space="preserve"><value>Harap pilih teks untuk tautan terlebih dahulu.</value></data>
+  <data name="EnterURL" xml:space="preserve"><value>Mohon masukkan URL:</value></data>
+  <data name="ErrInsertLink" xml:space="preserve"><value>Tidak dapat menyisipkan tautan:</value></data>
+  <data name="CaptureModeTitle" xml:space="preserve"><value>Metode Tangkapan</value></data>
+  <data name="CaptureModeOverlay" xml:space="preserve"><value>Tangkap Cepat (Overlay) - Animasi tetap berjalan</value></data>
+  <data name="CaptureModeStatic" xml:space="preserve"><value>Tangkap Beku - Membekukan layar secara instan (Default)</value></data>
+  <data name="CaptureModeDesc" xml:space="preserve"><value>※ Menggunakan Pembesar di mode Tangkap Cepat dapat menyebabkan lag saat menyeret.</value></data>
 </root>
