@@ -88,6 +88,7 @@ namespace CatchCapture
             PreviewImage.Source = currentImage;
             PreviewImage.Width = currentImage.PixelWidth;
             PreviewImage.Height = currentImage.PixelHeight;
+            RenderOptions.SetBitmapScalingMode(PreviewImage, BitmapScalingMode.HighQuality);
 
             // 캔버스 크기 설정
             ImageCanvas.Width = currentImage.PixelWidth;
