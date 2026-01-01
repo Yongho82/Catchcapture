@@ -191,6 +191,9 @@ public partial class MainWindow : Window
             // 다국어 UI 텍스트 적용
             UpdateUIText();
 
+            // 엣지 캡처 반경 이모지 초기화
+            UpdateEdgeRadiusEmoji();
+
             // 언어 변경 즉시 반영
             LocalizationManager.LanguageChanged += MainWindow_LanguageChanged;
 
@@ -250,8 +253,8 @@ public partial class MainWindow : Window
     {
         if (CaptureButtonsPanel == null || settings.MainMenuItems == null) return;
 
-        // 캡처 버튼들의 맵핑
-        var buttonMap = new Dictionary<string, Button>
+        // 캡처 버튼들의 맵핑 (UIElement로 변경하여 Grid도 처리 가능)
+        var buttonMap = new Dictionary<string, UIElement>
         {
             { "AreaCapture", AreaCaptureButton },
             { "DelayCapture", DelayCaptureButton },
@@ -264,7 +267,7 @@ public partial class MainWindow : Window
             { "ScrollCapture", ScrollCaptureButton },
             { "OcrCapture", OcrCaptureButton },
             { "ScreenRecord", ScreenRecordButton },
-            { "EdgeCapture", EdgeCaptureButton }
+            { "EdgeCapture", EdgeCaptureGrid }  // Grid로 변경
         };
 
         // Separator와 하단 버튼들 저장
@@ -290,9 +293,9 @@ public partial class MainWindow : Window
         // 설정에 따라 버튼 순서대로 추가
         foreach (var key in settings.MainMenuItems)
         {
-            if (buttonMap.TryGetValue(key, out var button))
+            if (buttonMap.TryGetValue(key, out var element))
             {
-                CaptureButtonsPanel.Children.Add(button);
+                CaptureButtonsPanel.Children.Add(element);
             }
         }
 
@@ -1250,13 +1253,73 @@ public partial class MainWindow : Window
 
     private void EdgeCaptureButton_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is FrameworkElement fe)
+        // 저장된 반경으로 바로 캡처 시작 (컨텍스트 메뉴 없음)
+        _ = StartAreaCaptureAsync(settings.EdgeCaptureRadius);
+    }
+
+    // 엣지 반경 옵션 배열 (반경, 이모지)
+    private static readonly (int Radius, string Emoji)[] EdgeRadiusOptions = new[]
+    {
+        (12, "🫧"),   // 소프트 엣지
+        (25, "📱"),   // 매끄러운 둥근 모서리
+        (50, "🍪"),   // 클래식 라운드
+        (100, "💊"),  // 알약 스타일
+        (999, "🌕")   // 퍼펙트 서클
+    };
+
+    private void EdgeRadiusSelector_Click(object sender, MouseButtonEventArgs e)
+    {
+        // 현재 반경의 인덱스 찾기
+        int currentIndex = Array.FindIndex(EdgeRadiusOptions, x => x.Radius == settings.EdgeCaptureRadius);
+        if (currentIndex < 0) currentIndex = 0;
+
+        // 다음 인덱스로 순환
+        int nextIndex = (currentIndex + 1) % EdgeRadiusOptions.Length;
+        var next = EdgeRadiusOptions[nextIndex];
+
+        // 설정 업데이트
+        settings.EdgeCaptureRadius = next.Radius;
+        Settings.Save(settings);
+
+        // UI 업데이트
+        UpdateEdgeRadiusEmoji();
+        
+        e.Handled = true;
+    }
+
+    private void EdgeRadiusSelector_MouseEnter(object sender, MouseEventArgs e)
+    {
+        if (sender is Border border)
         {
-            if (fe.ContextMenu != null)
+            border.Background = (Brush)FindResource("ThemeSidebarButtonHoverBackground");
+        }
+    }
+
+    private void EdgeRadiusSelector_MouseLeave(object sender, MouseEventArgs e)
+    {
+        if (sender is Border border)
+        {
+            border.Background = (Brush)FindResource("ThemeSidebarButtonBackground");
+        }
+    }
+
+    private void UpdateEdgeRadiusEmoji()
+    {
+        // FindName으로 요소 찾기 (중첩된 그리드 안에 있으므로)
+        var emojiTextBlock = this.FindName("EdgeRadiusEmoji") as System.Windows.Controls.TextBlock;
+        if (emojiTextBlock == null) return;
+
+        var option = Array.Find(EdgeRadiusOptions, x => x.Radius == settings.EdgeCaptureRadius);
+        if (option.Emoji != null)
+        {
+            emojiTextBlock.Text = option.Emoji;
+            
+            // 툴팁 업데이트
+            string[] names = { "소프트 엣지", "매끄러운 둥근 모서리", "클래식 라운드", "알약 스타일", "퍼펙트 서클" };
+            int index = Array.FindIndex(EdgeRadiusOptions, x => x.Radius == settings.EdgeCaptureRadius);
+            if (index >= 0 && index < names.Length)
             {
-                fe.ContextMenu.PlacementTarget = fe;
-                fe.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Right;
-                fe.ContextMenu.IsOpen = true;
+                emojiTextBlock.ToolTip = $"현재: {names[index]}\n클릭하여 변경";
             }
         }
     }
@@ -1268,10 +1331,14 @@ public partial class MainWindow : Window
             settings.EdgeCaptureRadius = radius;
             Settings.Save(settings);
             
+            // UI 업데이트
+            UpdateEdgeRadiusEmoji();
+            
             // 엣지 캡처 시작
             _ = StartAreaCaptureAsync(radius);
         }
     }
+
 
     private BitmapSource GetCachedOrFreshScreenshot()
     {
@@ -4485,12 +4552,6 @@ public partial class MainWindow : Window
 
         if (EdgeCaptureButtonText != null) EdgeCaptureButtonText.Text = LocalizationManager.GetString("EdgeCapture");
         if (EdgeCaptureButton != null) EdgeCaptureButton.ToolTip = GetLocalizedTooltip("EdgeCapture");
-
-        if (EdgeSoftMenu != null) EdgeSoftMenu.Header = "🫧 " + LocalizationManager.GetString("EdgeSoft");
-        if (EdgeSmoothMenu != null) EdgeSmoothMenu.Header = "📱 " + LocalizationManager.GetString("EdgeSmooth");
-        if (EdgeClassicMenu != null) EdgeClassicMenu.Header = "🍪 " + LocalizationManager.GetString("EdgeClassic");
-        if (EdgeCapsuleMenu != null) EdgeCapsuleMenu.Header = "💊 " + LocalizationManager.GetString("EdgeCapsule");
-        if (EdgeCircleMenu != null) EdgeCircleMenu.Header = "🌕 " + LocalizationManager.GetString("EdgeCircle");
 
         if (DelayNoneMenu != null) DelayNoneMenu.Header = LocalizationManager.GetString("DelayNone");
         if (Delay3Menu != null) Delay3Menu.Header = LocalizationManager.GetString("Delay3Sec");

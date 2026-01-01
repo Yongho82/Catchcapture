@@ -1038,7 +1038,11 @@ namespace CatchCapture
                     _mainWindow?.TriggerScreenRecord();
                     break;
                 case "EdgeCapture":
-                    ShowEdgeCaptureMenu();
+                    // 저장된 반경으로 바로 캡처 (컨텍스트 메뉴 없음)
+                    PerformCapture(async (s, e) => {
+                        if (_mainWindow != null && settings != null) 
+                            await _mainWindow.StartAreaCaptureAsync(settings.EdgeCaptureRadius);
+                    });
                     break;
                 // ★ 새로 추가
                 case "Copy":

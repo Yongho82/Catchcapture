@@ -640,17 +640,13 @@ namespace CatchCapture
                     labelText = LocalizationManager.Get("OpenMyNote");
                     break;
                 case "EdgeCapture":
-                    button.Click += (s, e) => {
-                        if (button.ContextMenu != null) {
-                            button.ContextMenu.PlacementTarget = button;
-                            button.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Left;
-                            button.ContextMenu.IsOpen = true;
-                        }
+                    // 저장된 반경으로 바로 캡처 (컨텍스트 메뉴 없음)
+                    button.Click += async (s, e) => {
+                        this.Hide();
+                        await mainWindow.StartAreaCaptureAsync(settings?.EdgeCaptureRadius ?? 12);
                     };
                     iconImage = CreateImage("/icons/edge_capture.png");
                     labelText = LocalizationManager.Get("EdgeCapture");
-                    // ContextMenu 추가
-                    button.ContextMenu = CreateEdgeContextMenu();
                     break;
                 case "Settings":
                     button.Click += SettingsButton_Click;

@@ -294,45 +294,68 @@
                                 </StackPanel>
                             </Button>
 
-                            <!-- 엣지 캡처 버튼 -->
-                            <Button x:Name="EdgeCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="EdgeCaptureButton_Click">
-                                <Button.ContextMenu>
-                                    <ContextMenu Style="{StaticResource ModernContextMenu}" Placement="Right" PlacementTarget="{Binding ElementName=EdgeCaptureButton}">
-                                        <MenuItem x:Name="EdgeSoftMenu" Style="{StaticResource ModernMenuItem}" Header="🫧 소프트 엣지" Tag="12" Click="EdgeMenuItem_Click">
-                                            <MenuItem.Icon>
-                                                <TextBlock Text="1" FontWeight="Bold" Foreground="#007AFF" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <MenuItem x:Name="EdgeSmoothMenu" Style="{StaticResource ModernMenuItem}" Header="📱 매끄러운 둥근 모서리" Tag="25" Click="EdgeMenuItem_Click">
-                                            <MenuItem.Icon>
-                                                <TextBlock Text="2" FontWeight="Bold" Foreground="#007AFF" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <MenuItem x:Name="EdgeClassicMenu" Style="{StaticResource ModernMenuItem}" Header="🍪 클래식 라운드" Tag="50" Click="EdgeMenuItem_Click">
-                                            <MenuItem.Icon>
-                                                <TextBlock Text="3" FontWeight="Bold" Foreground="#007AFF" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <MenuItem x:Name="EdgeCapsuleMenu" Style="{StaticResource ModernMenuItem}" Header="💊 알약 스타일" Tag="100" Click="EdgeMenuItem_Click">
-                                            <MenuItem.Icon>
-                                                <TextBlock Text="4" FontWeight="Bold" Foreground="#34C759" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <MenuItem x:Name="EdgeCircleMenu" Style="{StaticResource ModernMenuItem}" Header="🌕 퍼펙트 서클" Tag="999" Click="EdgeMenuItem_Click">
-                                            <MenuItem.Icon>
-                                                <TextBlock Text="5" FontWeight="Bold" Foreground="#34C759" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                    </ContextMenu>
-                                </Button.ContextMenu>
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="/icons/edge_capture.png" Width="16" Height="16" Margin="0,0,5,0" 
-                                           RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <Viewbox Width="100" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left">
-                                        <TextBlock x:Name="EdgeCaptureButtonText" Text="엣지 캡처" FontSize="12"/>
-                                    </Viewbox>
-                                </StackPanel>
-                            </Button>
+                            <!-- 엣지 캡처 버튼 (이모지 선택 버튼 포함) -->
+                            <Grid x:Name="EdgeCaptureGrid" Margin="5,3,5,3">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <!-- 메인 캡처 버튼 -->
+                                <Button x:Name="EdgeCaptureButton" Grid.Column="0" Height="35"
+                                        Background="{DynamicResource ThemeSidebarButtonBackground}"
+                                        Foreground="{DynamicResource ThemeForeground}"
+                                        BorderThickness="1,1,0,1"
+                                        BorderBrush="{DynamicResource ThemeSidebarButtonBorder}"
+                                        Cursor="Hand" Focusable="False"
+                                        Click="EdgeCaptureButton_Click">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                                    BorderBrush="{TemplateBinding BorderBrush}" 
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    CornerRadius="6,0,0,6">
+                                                <ContentPresenter HorizontalAlignment="Left" Margin="10,0,0,0"
+                                                                  VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}" TargetName="border"/>
+                                                </Trigger>
+                                                <Trigger Property="IsPressed" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource ThemeSidebarButtonPressedBackground}" TargetName="border"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="/icons/edge_capture.png" Width="16" Height="16" Margin="0,0,5,0" 
+                                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                                        <Viewbox Width="70" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left">
+                                            <TextBlock x:Name="EdgeCaptureButtonText" Text="엣지 캡처" FontSize="12"/>
+                                        </Viewbox>
+                                    </StackPanel>
+                                </Button>
+                                
+                                <!-- 이모지 선택 버튼 (오른쪽 끝) -->
+                                <Border x:Name="EdgeRadiusSelectorBorder" Grid.Column="1" 
+                                        Width="28" Height="35"
+                                        Background="{DynamicResource ThemeSidebarButtonBackground}"
+                                        BorderBrush="{DynamicResource ThemeSidebarButtonBorder}"
+                                        BorderThickness="0,1,1,1"
+                                        CornerRadius="0,6,6,0"
+                                        Cursor="Hand"
+                                        MouseLeftButtonDown="EdgeRadiusSelector_Click"
+                                        MouseEnter="EdgeRadiusSelector_MouseEnter"
+                                        MouseLeave="EdgeRadiusSelector_MouseLeave">
+                                    <TextBlock x:Name="EdgeRadiusEmoji" 
+                                               Text="🫧" 
+                                               FontSize="14" 
+                                               HorizontalAlignment="Center" 
+                                               VerticalAlignment="Center"
+                                               ToolTip="클릭하여 엣지 스타일 변경"/>
+                                </Border>
+                            </Grid>
 
                             <!-- 지연 캡처 버튼 (우측 서브메뉴) -->
                             <Button x:Name="DelayCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="DelayCaptureButton_Click">
