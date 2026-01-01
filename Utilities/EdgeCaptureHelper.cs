@@ -21,42 +21,57 @@ namespace CatchCapture.Utilities
         {
             if (source == null) return null;
 
-            // 투명도를 지원하는 32비트 ARGB 비트맵 생성
-            Bitmap target = new Bitmap(source.Width, source.Height, PixelFormat.Format32bppArgb);
-            
-            using (Graphics g = Graphics.FromImage(target))
+            int width = source.Width;
+            int height = source.Height;
+
+            // 999는 퍼펙트 서클(최대 곡률)로 처리
+            int actualRadius = radius;
+            if (radius >= 999)
             {
-                // 최고 품질의 렌더링 설정
-                g.Clear(Color.Transparent);
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                
-                // [추가] 합성 품질 설정 - 안티앨리어싱 품질 향상의 핵심
-                g.CompositingQuality = CompositingQuality.HighQuality;
-                g.CompositingMode = CompositingMode.SourceOver;
+                actualRadius = Math.Min(width, height) / 2;
+            }
 
-                // 999는 퍼펙트 서클(최대 곡률)로 처리
-                int actualRadius = radius;
-                if (radius >= 999)
-                {
-                    actualRadius = Math.Min(source.Width, source.Height) / 2;
-                }
+            // 2x 슈퍼샘플링: 2배 크기로 렌더링 후 축소
+            int scale = 2;
+            int scaledWidth = width * scale;
+            int scaledHeight = height * scale;
+            int scaledRadius = actualRadius * scale;
 
-                // 둥근 사각형 경로 생성
-                using (GraphicsPath path = GetRoundedRectanglePath(new Rectangle(0, 0, source.Width, source.Height), actualRadius))
+            using (Bitmap scaledTarget = new Bitmap(scaledWidth, scaledHeight, PixelFormat.Format32bppArgb))
+            {
+                using (Graphics g = Graphics.FromImage(scaledTarget))
                 {
-                    // [개선] SetClip 방식은 경계면이 거칠어지므로 TextureBrush + FillPath 방식을 사용합니다.
-                    using (TextureBrush brush = new TextureBrush(source))
+                    g.Clear(Color.Transparent);
+                    g.SmoothingMode = SmoothingMode.HighQuality;
+                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                    g.CompositingQuality = CompositingQuality.HighQuality;
+                    g.CompositingMode = CompositingMode.SourceOver;
+
+                    // 원본 이미지를 2배로 확대
+                    using (Bitmap scaledSource = new Bitmap(source, scaledWidth, scaledHeight))
+                    using (GraphicsPath path = GetRoundedRectanglePath(new Rectangle(0, 0, scaledWidth, scaledHeight), scaledRadius))
+                    using (TextureBrush brush = new TextureBrush(scaledSource))
                     {
-                        // [추가] Wrap 모드 설정으로 경계 아티팩트 방지
-                        brush.WrapMode = System.Drawing.Drawing2D.WrapMode.TileFlipXY;
+                        brush.WrapMode = System.Drawing.Drawing2D.WrapMode.Clamp;
                         g.FillPath(brush, path);
                     }
                 }
+
+                // 원본 크기로 축소 (이 과정에서 부드러운 경계 생성)
+                Bitmap target = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+                using (Graphics g = Graphics.FromImage(target))
+                {
+                    g.Clear(Color.Transparent);
+                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    g.SmoothingMode = SmoothingMode.HighQuality;
+                    g.CompositingQuality = CompositingQuality.HighQuality;
+                    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                    g.DrawImage(scaledTarget, 0, 0, width, height);
+                }
+
+                return target;
             }
-            
-            return target;
         }
 
         /// <summary>
