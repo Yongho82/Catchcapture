@@ -1257,34 +1257,25 @@ public partial class MainWindow : Window
         _ = StartAreaCaptureAsync(settings.EdgeCaptureRadius);
     }
 
-    // 엣지 반경 옵션 배열 (반경, 이모지)
-    private static readonly (int Radius, string Emoji)[] EdgeRadiusOptions = new[]
+    // 엣지 반경 옵션 배열 (반경, 아이콘 경로)
+    private static readonly (int Radius, string IconPath)[] EdgeRadiusOptions = new[]
     {
-        (12, "🫧"),   // 소프트 엣지
-        (25, "📱"),   // 매끄러운 둥근 모서리
-        (50, "🍪"),   // 클래식 라운드
-        (100, "💊"),  // 알약 스타일
-        (999, "🌕")   // 퍼펙트 서클
+        (12, "/icons/edge_1.png"),
+        (25, "/icons/edge_2.png"),
+        (50, "/icons/edge_3.png"),
+        (100, "/icons/edge_4.png"),
+        (999, "/icons/edge_5.png")
     };
 
     private void EdgeRadiusSelector_Click(object sender, MouseButtonEventArgs e)
     {
-        // 현재 반경의 인덱스 찾기
-        int currentIndex = Array.FindIndex(EdgeRadiusOptions, x => x.Radius == settings.EdgeCaptureRadius);
-        if (currentIndex < 0) currentIndex = 0;
-
-        // 다음 인덱스로 순환
-        int nextIndex = (currentIndex + 1) % EdgeRadiusOptions.Length;
-        var next = EdgeRadiusOptions[nextIndex];
-
-        // 설정 업데이트
-        settings.EdgeCaptureRadius = next.Radius;
-        Settings.Save(settings);
-
-        // UI 업데이트
-        UpdateEdgeRadiusEmoji();
-        
-        e.Handled = true;
+        if (sender is FrameworkElement fe && fe.ContextMenu != null)
+        {
+            fe.ContextMenu.PlacementTarget = fe;
+            fe.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Right;
+            fe.ContextMenu.IsOpen = true;
+            e.Handled = true;
+        }
     }
 
     private void EdgeRadiusSelector_MouseEnter(object sender, MouseEventArgs e)
@@ -1306,20 +1297,24 @@ public partial class MainWindow : Window
     private void UpdateEdgeRadiusEmoji()
     {
         // FindName으로 요소 찾기 (중첩된 그리드 안에 있으므로)
-        var emojiTextBlock = this.FindName("EdgeRadiusEmoji") as System.Windows.Controls.TextBlock;
-        if (emojiTextBlock == null) return;
+        var iconImage = this.FindName("EdgeRadiusImage") as System.Windows.Controls.Image;
+        if (iconImage == null) return;
 
         var option = Array.Find(EdgeRadiusOptions, x => x.Radius == settings.EdgeCaptureRadius);
-        if (option.Emoji != null)
+        if (option.IconPath != null)
         {
-            emojiTextBlock.Text = option.Emoji;
+            try
+            {
+                iconImage.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri(option.IconPath, UriKind.Relative));
+            }
+            catch { }
             
             // 툴팁 업데이트
             string[] names = { "소프트 엣지", "매끄러운 둥근 모서리", "클래식 라운드", "알약 스타일", "퍼펙트 서클" };
             int index = Array.FindIndex(EdgeRadiusOptions, x => x.Radius == settings.EdgeCaptureRadius);
             if (index >= 0 && index < names.Length)
             {
-                emojiTextBlock.ToolTip = $"현재: {names[index]}\n클릭하여 변경";
+                iconImage.ToolTip = $"현재: {names[index]}\n(우클릭/좌클릭하여 변경)";
             }
         }
     }
@@ -1331,11 +1326,8 @@ public partial class MainWindow : Window
             settings.EdgeCaptureRadius = radius;
             Settings.Save(settings);
             
-            // UI 업데이트
+            // UI 업데이트 (이모지 변경)
             UpdateEdgeRadiusEmoji();
-            
-            // 엣지 캡처 시작
-            _ = StartAreaCaptureAsync(radius);
         }
     }
 

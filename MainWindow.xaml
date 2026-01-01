@@ -348,12 +348,42 @@
                                         MouseLeftButtonDown="EdgeRadiusSelector_Click"
                                         MouseEnter="EdgeRadiusSelector_MouseEnter"
                                         MouseLeave="EdgeRadiusSelector_MouseLeave">
-                                    <TextBlock x:Name="EdgeRadiusEmoji" 
-                                               Text="🫧" 
-                                               FontSize="14" 
-                                               HorizontalAlignment="Center" 
-                                               VerticalAlignment="Center"
-                                               ToolTip="클릭하여 엣지 스타일 변경"/>
+                                    <Border.ContextMenu>
+                                        <ContextMenu x:Name="EdgeRadiusContextMenu" Style="{StaticResource ModernContextMenu}" Placement="Right">
+                                            <MenuItem Header="1. 소프트 엣지" Tag="12" Style="{StaticResource ModernMenuItem}" Click="EdgeMenuItem_Click">
+                                                <MenuItem.Icon>
+                                                    <Image Source="/icons/edge_1.png" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="2. 매끄러운 둥근 모서리" Tag="25" Style="{StaticResource ModernMenuItem}" Click="EdgeMenuItem_Click">
+                                                <MenuItem.Icon>
+                                                    <Image Source="/icons/edge_2.png" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="3. 클래식 라운드" Tag="50" Style="{StaticResource ModernMenuItem}" Click="EdgeMenuItem_Click">
+                                                <MenuItem.Icon>
+                                                    <Image Source="/icons/edge_3.png" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="4. 알약 스타일" Tag="100" Style="{StaticResource ModernMenuItem}" Click="EdgeMenuItem_Click">
+                                                <MenuItem.Icon>
+                                                    <Image Source="/icons/edge_4.png" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="5. 퍼펙트 서클" Tag="999" Style="{StaticResource ModernMenuItem}" Click="EdgeMenuItem_Click">
+                                                <MenuItem.Icon>
+                                                    <Image Source="/icons/edge_5.png" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                        </ContextMenu>
+                                    </Border.ContextMenu>
+                                    <Image x:Name="EdgeRadiusImage" 
+                                           Source="/icons/edge_1.png" 
+                                           Width="16" Height="16" 
+                                           HorizontalAlignment="Center" 
+                                           VerticalAlignment="Center"
+                                           RenderOptions.BitmapScalingMode="HighQuality"
+                                           ToolTip="클릭하여 엣지 스타일 변경"/>
                                 </Border>
                             </Grid>
 
