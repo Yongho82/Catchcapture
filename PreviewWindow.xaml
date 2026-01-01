@@ -9,7 +9,9 @@
         Title="캐치캡처-이미지 편집" Height="800" Width="1500" MinWidth="1200"
         WindowStartupLocation="CenterOwner"
         WindowStyle="None" AllowsTransparency="True"
-        Background="Transparent">
+        Background="Transparent"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True">
 
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="40" 
@@ -524,7 +526,7 @@
                                     </DrawingBrush.Drawing>
                                 </DrawingBrush>
                             </Canvas.Background>
-                            <Image x:Name="PreviewImage" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"/>
+                            <Image x:Name="PreviewImage" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
                         </Canvas>
                     </Grid>
                 </ScrollViewer>

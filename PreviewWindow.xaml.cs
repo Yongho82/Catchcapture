@@ -86,13 +86,13 @@ namespace CatchCapture
 
             // 이미지 표시
             PreviewImage.Source = currentImage;
-            PreviewImage.Width = currentImage.PixelWidth;
-            PreviewImage.Height = currentImage.PixelHeight;
-            RenderOptions.SetBitmapScalingMode(PreviewImage, BitmapScalingMode.HighQuality);
+            PreviewImage.Width = currentImage.Width;
+            PreviewImage.Height = currentImage.Height;
+            // RenderOptions.SetBitmapScalingMode(PreviewImage, BitmapScalingMode.HighQuality); // UpdateImageInfo에서 관리하므로 제거
 
             // 캔버스 크기 설정
-            ImageCanvas.Width = currentImage.PixelWidth;
-            ImageCanvas.Height = currentImage.PixelHeight;
+            ImageCanvas.Width = currentImage.Width;
+            ImageCanvas.Height = currentImage.Height;
 
             // 이미지 크기에 맞게 창 크기 조정 (최대 크기 제한 적용)
             AdjustWindowSizeToFitImage();
@@ -1335,8 +1335,23 @@ namespace CatchCapture
                 var scaleTransform = GetImageScaleTransform();
                 if (scaleTransform != null)
                 {
-                    int zoomPercent = (int)(scaleTransform.ScaleX * 100);
+                    double scale = scaleTransform.ScaleX;
+                    int zoomPercent = (int)(scale * 100);
                     ZoomLevelText.Text = $"{zoomPercent} %";
+
+                    // 100% 이하에서는 NearestNeighbor를 사용하여 원본 픽셀의 선명도를 유지 (뿌연 느낌 제거)
+                    // 100% 초과(확대) 시에는 HighQuality를 사용하여 부드럽게 표시
+                    if (PreviewImage != null)
+                    {
+                        if (zoomPercent <= 100)
+                        {
+                            RenderOptions.SetBitmapScalingMode(PreviewImage, BitmapScalingMode.NearestNeighbor);
+                        }
+                        else
+                        {
+                            RenderOptions.SetBitmapScalingMode(PreviewImage, BitmapScalingMode.HighQuality);
+                        }
+                    }
                 }
             }
         }
@@ -1546,11 +1561,11 @@ namespace CatchCapture
 
             WriteLog($"이미지 소스 업데이트: {currentImage.PixelWidth}x{currentImage.PixelHeight}");
             PreviewImage.Source = currentImage;
-            PreviewImage.Width = currentImage.PixelWidth;
-            PreviewImage.Height = currentImage.PixelHeight;
+            PreviewImage.Width = currentImage.Width;
+            PreviewImage.Height = currentImage.Height;
 
-            ImageCanvas.Width = currentImage.PixelWidth;
-            ImageCanvas.Height = currentImage.PixelHeight;
+            ImageCanvas.Width = currentImage.Width;
+            ImageCanvas.Height = currentImage.Height;
 
             // 이미지 업데이트 이벤트 발생
             ImageUpdated?.Invoke(this, new ImageUpdatedEventArgs(imageIndex, currentImage));

@@ -11,12 +11,6 @@ namespace CatchCapture.Utilities
     /// </summary>
     public static class EdgeCaptureHelper
     {
-        /// <summary>
-        /// 원본 비트맵을 지정된 반지름만큼 둥글게 깎아서 새로운 비트맵으로 반환합니다.
-        /// </summary>
-        /// <param name="source">원본 이미지</param>
-        /// <param name="radius">모서리 반지름 (px)</param>
-        /// <returns>둥근 모서리가 적용된 투명 배경 비트맵</returns>
         public static Bitmap? GetRoundedBitmap(Bitmap source, int radius)
         {
             if (source == null) return null;
@@ -31,47 +25,31 @@ namespace CatchCapture.Utilities
                 actualRadius = Math.Min(width, height) / 2;
             }
 
-            // 2x 슈퍼샘플링: 2배 크기로 렌더링 후 축소
-            int scale = 2;
-            int scaledWidth = width * scale;
-            int scaledHeight = height * scale;
-            int scaledRadius = actualRadius * scale;
+            // 원본 크기에서 투명 배경을 가진 출력용 비트맵 생성
+            Bitmap target = new Bitmap(width, height, PixelFormat.Format32bppArgb);
 
-            using (Bitmap scaledTarget = new Bitmap(scaledWidth, scaledHeight, PixelFormat.Format32bppArgb))
+            using (Graphics g = Graphics.FromImage(target))
             {
-                using (Graphics g = Graphics.FromImage(scaledTarget))
-                {
-                    g.Clear(Color.Transparent);
-                    g.SmoothingMode = SmoothingMode.HighQuality;
-                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                    g.CompositingQuality = CompositingQuality.HighQuality;
-                    g.CompositingMode = CompositingMode.SourceOver;
+                g.Clear(Color.Transparent);
+                
+                // 외곽선 품질 설정: AntiAlias를 사용하여 부드러운 경계 구현 (전체 스케일링을 배제하여 선명도 유지)
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                g.CompositingQuality = CompositingQuality.HighQuality;
 
-                    // 원본 이미지를 2배로 확대
-                    using (Bitmap scaledSource = new Bitmap(source, scaledWidth, scaledHeight))
-                    using (GraphicsPath path = GetRoundedRectanglePath(new Rectangle(0, 0, scaledWidth, scaledHeight), scaledRadius))
-                    using (TextureBrush brush = new TextureBrush(scaledSource))
+                using (GraphicsPath path = GetRoundedRectanglePath(new Rectangle(0, 0, width, height), actualRadius))
+                {
+                    // 원본 이미지를 텍스처 브러시로 사용하여 경로 내부를 채움 (1:1 매핑)
+                    using (TextureBrush brush = new TextureBrush(source))
                     {
                         brush.WrapMode = System.Drawing.Drawing2D.WrapMode.Clamp;
                         g.FillPath(brush, path);
                     }
                 }
-
-                // 원본 크기로 축소 (이 과정에서 부드러운 경계 생성)
-                Bitmap target = new Bitmap(width, height, PixelFormat.Format32bppArgb);
-                using (Graphics g = Graphics.FromImage(target))
-                {
-                    g.Clear(Color.Transparent);
-                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                    g.SmoothingMode = SmoothingMode.HighQuality;
-                    g.CompositingQuality = CompositingQuality.HighQuality;
-                    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                    g.DrawImage(scaledTarget, 0, 0, width, height);
-                }
-
-                return target;
             }
+
+            return target;
         }
 
         /// <summary>
