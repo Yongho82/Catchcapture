@@ -311,8 +311,9 @@
                             <Button Style="{StaticResource SidebarItemStyle}" Tag="Favorite" Click="BtnFilter_Click">
                                 <Grid Width="140">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="⭐" Margin="0,0,12,0" Foreground="Gold"/>
-                                        <TextBlock Text="즐겨찾기" Foreground="{DynamicResource ThemeForeground}"/>
+                                        <Path Data="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z" 
+                                              Fill="#FFD700" Width="18" Height="18" Stretch="Uniform" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="즐겨찾기" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                     <TextBlock x:Name="TxtCountFavorite" Text="0" HorizontalAlignment="Right" Opacity="0.7" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
                                 </Grid>
@@ -532,7 +533,29 @@
 
                         <!-- Image Display -->
                         <Border Grid.Row="0" Margin="15" Background="#08000000" CornerRadius="8">
-                            <Image x:Name="ImgPreview" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                            <Grid>
+                                <Image x:Name="ImgPreview" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" Cursor="Hand" MouseUp="ImgPreview_MouseUp" ToolTip="윈도우 기본 뷰어로 열기"/>
+                                
+                                <!-- Interactive Buttons Overlay -->
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,10,10">
+                                    <Button x:Name="BtnPreviewEdit" Click="BtnPreviewEdit_Click" Width="36" Height="36" Margin="0,0,8,0" Background="#CC2D2D30" BorderThickness="0" Cursor="Hand" ToolTip="이미지 편집">
+                                        <Button.Resources>
+                                            <Style TargetType="Border">
+                                                <Setter Property="CornerRadius" Value="18"/>
+                                            </Style>
+                                        </Button.Resources>
+                                        <Image Source="pack://application:,,,/icons/img_editor.png" Width="18" Height="18" Stretch="Uniform"/>
+                                    </Button>
+                                    <Button x:Name="BtnPreviewNote" Click="BtnPreviewNote_Click" Width="36" Height="36" Background="#CC2D2D30" BorderThickness="0" Cursor="Hand" ToolTip="내 노트로 저장">
+                                        <Button.Resources>
+                                            <Style TargetType="Border">
+                                                <Setter Property="CornerRadius" Value="18"/>
+                                            </Style>
+                                        </Button.Resources>
+                                        <Image Source="pack://application:,,,/icons/my_note.png" Width="18" Height="18" Stretch="Uniform"/>
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
                         </Border>
 
                         <!-- Simple Memo (Above Details) -->

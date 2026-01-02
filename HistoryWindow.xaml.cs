@@ -497,6 +497,71 @@ namespace CatchCapture
             }
         }
 
+        private void ImgPreview_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (LstHistory.SelectedItem is HistoryItem item && System.IO.File.Exists(item.FilePath))
+            {
+                try
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(item.FilePath) { UseShellExecute = true });
+                }
+                catch (Exception ex)
+                {
+                    CustomMessageBox.Show($"이미지를 열 수 없습니다: {ex.Message}", "오류");
+                }
+            }
+        }
+
+        private void BtnPreviewEdit_Click(object sender, RoutedEventArgs e)
+        {
+            if (LstHistory.SelectedItem is HistoryItem item && System.IO.File.Exists(item.FilePath))
+            {
+                try
+                {
+                    var bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.UriSource = new Uri(item.FilePath);
+                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmap.EndInit();
+                    
+                    var previewWin = new PreviewWindow(bitmap, 0);
+                    previewWin.Owner = this;
+                    previewWin.Show();
+                }
+                catch (Exception ex)
+                {
+                    CustomMessageBox.Show($"편집창을 열 수 없습니다: {ex.Message}", "오류");
+                }
+            }
+        }
+
+        private void BtnPreviewNote_Click(object sender, RoutedEventArgs e)
+        {
+            if (LstHistory.SelectedItem is HistoryItem item && System.IO.File.Exists(item.FilePath))
+            {
+                try
+                {
+                    BitmapSource? image = ImgPreview.Source as BitmapSource;
+                    if (image == null)
+                    {
+                        var bitmap = new BitmapImage();
+                        bitmap.BeginInit();
+                        bitmap.UriSource = new Uri(item.FilePath);
+                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                        bitmap.EndInit();
+                        image = bitmap;
+                    }
+                    
+                    var noteWin = new NoteInputWindow(image, item.SourceApp, item.SourceTitle);
+                    noteWin.Show();
+                }
+                catch (Exception ex)
+                {
+                    CustomMessageBox.Show($"노트 입력창을 열 수 없습니다: {ex.Message}", "오류");
+                }
+            }
+        }
+
         private string GetFileSizeString(long bytes)
         {
             string[] sizes = { "B", "KB", "MB", "GB", "TB" };
