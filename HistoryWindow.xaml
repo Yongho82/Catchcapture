@@ -550,7 +550,9 @@
                                 </Grid>
                                 
                                 <Grid x:Name="MemoEditArea">
-                                    <TextBlock x:Name="TxtMemoDisplay" Text="메모가 없습니다." TextWrapping="Wrap" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" MinHeight="40" Margin="0,0,0,10"/>
+                                    <ScrollViewer x:Name="ScrollMemoDisplay" MaxHeight="150" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,0,0,10">
+                                        <TextBlock x:Name="TxtMemoDisplay" Text="메모가 없습니다." TextWrapping="Wrap" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" MinHeight="40"/>
+                                    </ScrollViewer>
                                     <TextBox x:Name="EditMemoBox" Visibility="Collapsed" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="60" MaxHeight="120" VerticalScrollBarVisibility="Auto" Margin="0,0,0,10" Background="{DynamicResource ThemeSidebarButtonBackground}" BorderBrush="{DynamicResource ThemeBorder}" Foreground="{DynamicResource ThemeForeground}"/>
                                 </Grid>
                             </StackPanel>

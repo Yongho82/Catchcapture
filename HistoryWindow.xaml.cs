@@ -517,17 +517,21 @@ namespace CatchCapture
                 }
                 else
                 {
-                    // Save and switch back
+                    // Save
                     string newMemo = EditMemoBox.Text.Trim();
                     DatabaseManager.Instance.UpdateCaptureMemo(item.Id, newMemo);
-                    item.Memo = newMemo;
                     
-                    TxtMemoDisplay.Text = string.IsNullOrEmpty(newMemo) ? "메모가 없습니다." : newMemo;
-                    TxtMemoDisplay.Opacity = string.IsNullOrEmpty(newMemo) ? 0.4 : 0.8;
+                    // Reload list to refresh view (e.g. apply FirstLineConverter)
+                    long selectedId = item.Id;
+                    LoadHistory(_currentFilter, _currentSearch, _currentDateFrom, _currentDateTo, _currentFileType, false);
                     
-                    EditMemoBox.Visibility = Visibility.Collapsed;
-                    TxtMemoDisplay.Visibility = Visibility.Visible;
-                    BtnEditMemo.Content = "수정";
+                    // Restore Selection
+                    var reloadedItem = HistoryItems.FirstOrDefault(i => i.Id == selectedId);
+                    if (reloadedItem != null)
+                    {
+                        LstHistory.SelectedItem = reloadedItem;
+                        LstHistory.ScrollIntoView(reloadedItem);
+                    }
                 }
             }
         }

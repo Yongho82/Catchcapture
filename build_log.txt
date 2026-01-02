@@ -1,0 +1,13 @@
+  복원할 프로젝트를 확인하는 중...
+  복원할 모든 프로젝트가 최신 상태입니다.
+c:\yonghoprogram\Catchcapture\HistoryWindow.xaml.cs(525,38): error CS0266: 암시적으로 'long' 형식을 'int' 형식으로 변환할 수 없습니다. 명시적 변환이 있습니다. 캐스트가 있는지 확인하세요. [c:\yonghoprogram\Catchcapture\CatchCapture_q1ey2ll0_wpftmp.csproj]
+c:\yonghoprogram\Catchcapture\MainWindow.xaml.cs(3498,56): warning CS8629: Nullable 값 형식이 null일 수 있습니다. [c:\yonghoprogram\Catchcapture\CatchCapture_q1ey2ll0_wpftmp.csproj]
+
+빌드하지 못했습니다.
+
+c:\yonghoprogram\Catchcapture\MainWindow.xaml.cs(3498,56): warning CS8629: Nullable 값 형식이 null일 수 있습니다. [c:\yonghoprogram\Catchcapture\CatchCapture_q1ey2ll0_wpftmp.csproj]
+c:\yonghoprogram\Catchcapture\HistoryWindow.xaml.cs(525,38): error CS0266: 암시적으로 'long' 형식을 'int' 형식으로 변환할 수 없습니다. 명시적 변환이 있습니다. 캐스트가 있는지 확인하세요. [c:\yonghoprogram\Catchcapture\CatchCapture_q1ey2ll0_wpftmp.csproj]
+    경고 1개
+    오류 1개
+
+경과 시간: 00:00:04.95
