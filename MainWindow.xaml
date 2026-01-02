@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CatchCapture"
         mc:Ignorable="d"
-        Title="캐치 캡처" Height="692" Width="385" 
-        MinWidth="385" MinHeight="692"
+        Title="캐치 캡처" Height="692" Width="400" 
+        MinWidth="400" MinHeight="692"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None" AllowsTransparency="True" 
         Background="Transparent"
@@ -670,14 +670,22 @@
                     <Border Grid.Column="1" Grid.Row="0" Background="{DynamicResource ThemePanelBackground}" Margin="0,0,0,0">
                         <Grid>
                             <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/> <!-- View Mode Controls -->
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
+
+                            <!-- View Mode Button -->
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,1,10,0">
+                                <Button x:Name="ViewModeButton" Click="ViewModeToggle_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="카드형 보기" Padding="0">
+                                    <TextBlock x:Name="ViewModeIcon" Text="📋" FontSize="11" Foreground="{DynamicResource ThemeForeground}"/>
+                                </Button>
+                            </StackPanel>
                             
                             <!-- 로고 (캡처 목록이 비어있을 때만 표시) -->
                             <Image x:Name="EmptyStateLogo"
-                                   Grid.Row="0" Grid.RowSpan="2" 
-                                   Width="180" Height="180"
+                                   Grid.Row="1" 
+                                   Width="160" Height="160"
                                    Source="/icons/icon_main.png"
                                    HorizontalAlignment="Center" 
                                    VerticalAlignment="Center"
@@ -685,12 +693,13 @@
                                    Visibility="Visible"/>
                             
                             <!-- 캡처 리스트 -->
-                            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" FocusVisualStyle="{x:Null}">
-                                <!-- 단일 세로 열로 표시 -->
-                                <StackPanel x:Name="CaptureListPanel" Margin="10"/>
+                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" FocusVisualStyle="{x:Null}">
+                                <!-- 기본형은 가로 전체 너비 사용, 카드형은 가로로 나열 -->
+                                <WrapPanel x:Name="CaptureListPanel" Margin="10,0,10,0" HorizontalAlignment="Left"/>
                             </ScrollViewer>
 
-                            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,5,10,5">
+                            <!-- 하단 버튼 영역 -->
+                            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,2,10,5">
                                 <!-- 내 노트 열기 버튼 -->
                                 <Button x:Name="OpenMyNoteButton" 
                                         Click="OpenMyNoteButton_Click"

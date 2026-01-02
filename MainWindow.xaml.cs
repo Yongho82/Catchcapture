@@ -41,6 +41,13 @@ public partial class MainWindow : Window
     private int captureDelaySeconds = 0;
     private Recording.RecordingWindow? activeRecordingWindow = null; // Track active recording window
     private Utilities.SnippingWindow? _activeSnippingWindow = null; // Track active snipping window
+    
+    public enum CaptureViewMode
+    {
+        List,
+        Card
+    }
+    private CaptureViewMode currentViewMode = CaptureViewMode.List;
 
 
     // ★ 메모리 최적화: 스크린샷 캐시를 WeakReference로 변경 (메모리 압박 시 자동 해제)
@@ -227,6 +234,9 @@ public partial class MainWindow : Window
                 }
             }
             UpdateEmptyStateLogo();
+            // 초기 보기 모드 설정 (리스트형, 200x150 기준)
+            CaptureListPanel.ItemWidth = 210;
+            CaptureListPanel.HorizontalAlignment = HorizontalAlignment.Center;
 
             // 초기 UI 텍스트 설정
             ScreenRecordButtonText.Text = LocalizationManager.GetString("ScreenRecording");
@@ -808,8 +818,8 @@ public partial class MainWindow : Window
         this.ResizeMode = ResizeMode.CanResize;
         this.Topmost = false;
 
-        // 기본 크기로 복원 (XAML의 기본값에 맞춤: 385, 692)
-        this.Width = 385;
+        // 기본 크기로 복원
+        this.Width = currentViewMode == CaptureViewMode.Card ? 830 : 400;
         this.Height = 692;
 
         // 사용자 요청: 모드 전환 시 또는 시작 시 항상 화면 정중앙에 배치
@@ -941,6 +951,54 @@ public partial class MainWindow : Window
     {
         // 창 최소화
         this.WindowState = WindowState.Minimized;
+    }
+
+    private void ViewModeToggle_Click(object sender, RoutedEventArgs e)
+    {
+        if (currentViewMode == CaptureViewMode.List)
+        {
+            currentViewMode = CaptureViewMode.Card;
+            ViewModeIcon.Text = "🖼";
+            ViewModeButton.ToolTip = "리스트형 보기";
+            
+            this.Width = 830;
+            CaptureListPanel.ItemWidth = 210;
+            CaptureListPanel.HorizontalAlignment = HorizontalAlignment.Left;
+        }
+        else
+        {
+            currentViewMode = CaptureViewMode.List;
+            ViewModeIcon.Text = "📋";
+            ViewModeButton.ToolTip = "카드형 보기";
+            
+            this.Width = 400;
+            CaptureListPanel.ItemWidth = 210; 
+            CaptureListPanel.HorizontalAlignment = HorizontalAlignment.Center;
+        }
+        
+        // 화면 중앙 재배치
+        var workArea = SystemParameters.WorkArea;
+        this.Left = (workArea.Width - this.Width) / 2 + workArea.Left;
+        this.Top = (workArea.Height - this.Height) / 2 + workArea.Top;
+
+        RebuildCaptureList();
+    }
+
+    private void RebuildCaptureList()
+    {
+        CaptureListPanel.Children.Clear();
+        selectedBorder = null;
+        selectedIndex = -1;
+
+        // 최신 캡처가 위(앞)에 오도록 역순으로 추가 (List.Children.Insert(0,...) 방식과 동일하게)
+        for (int i = 0; i < captures.Count; i++)
+        {
+            var border = CreateCaptureItem(captures[i], i);
+            CaptureListPanel.Children.Insert(0, border);
+        }
+        
+        UpdateButtonStates();
+        UpdateEmptyStateLogo();
     }
 
     private void CloseButton_Click(object sender, RoutedEventArgs e)
@@ -2494,21 +2552,29 @@ public partial class MainWindow : Window
     }
     private Border CreateCaptureItem(CaptureImage captureImage, int index)
     {
-        // 썸네일 크기 고정
+        // 썸네일 크기 고정 (사용자 요청: 200x150)
         double thumbWidth = 200;
-        double thumbHeight = 120;
+        double thumbHeight = 150;
+        double imgHeight = currentViewMode == CaptureViewMode.Card ? 115 : 140;
 
-        // 그리드 생성
+        // 그리드 생성 (카드형의 경우 텍스트를 위해 행 분리)
         Grid grid = new Grid();
+        if (currentViewMode == CaptureViewMode.Card)
+        {
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        }
 
         // 이미지 컨트롤 생성
         Image image = new Image
         {
             Source = captureImage.Image,
-            Width = thumbWidth,
-            Height = thumbHeight,
+            Width = thumbWidth - 10,
+            Height = imgHeight,
             Stretch = Stretch.Uniform,
-            HorizontalAlignment = HorizontalAlignment.Center
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+            Margin = new Thickness(5, 5, 5, 2)
         };
 
         RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.NearestNeighbor);
@@ -2529,6 +2595,44 @@ public partial class MainWindow : Window
         };
 
         grid.Children.Add(image);
+        if (currentViewMode == CaptureViewMode.Card) Grid.SetRow(image, 0);
+
+        // 카드형인 경우 파일명 추가
+        if (currentViewMode == CaptureViewMode.Card)
+        {
+            string fileName = "Unknown";
+            if (!string.IsNullOrEmpty(captureImage.SavedPath))
+            {
+                fileName = IOPath.GetFileName(captureImage.SavedPath);
+            }
+            else if (!string.IsNullOrEmpty(captureImage.SourceTitle))
+            {
+                fileName = captureImage.SourceTitle;
+            }
+
+            Viewbox vb = new Viewbox
+            {
+                Stretch = Stretch.Uniform,
+                StretchDirection = StretchDirection.DownOnly,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Margin = new Thickness(10, 0, 10, 4),
+                MaxWidth = thumbWidth - 20,
+                MaxHeight = 24
+            };
+
+            TextBlock fileNameText = new TextBlock
+            {
+                Text = fileName,
+                FontSize = 11,
+                Foreground = (Brush)FindResource("ThemeForeground"),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                TextTrimming = TextTrimming.None, 
+                Opacity = 0.8
+            };
+            vb.Child = fileNameText;
+            grid.Children.Add(vb);
+            Grid.SetRow(vb, 1);
+        }
 
         // 하단 정보 패널 (크기 텍스트 및 노트 저장 아이콘 연계)
         StackPanel bottomPanel = new StackPanel
@@ -2559,6 +2663,7 @@ public partial class MainWindow : Window
         sizeBorder.Child = sizeText;
         bottomPanel.Children.Add(sizeBorder);
         grid.Children.Add(bottomPanel);
+        if (currentViewMode == CaptureViewMode.Card) Grid.SetRow(bottomPanel, 0);
 
         // --- 호버 오버레이 버튼 패널 추가 ---
         StackPanel buttonPanel = new StackPanel
@@ -2690,6 +2795,7 @@ public partial class MainWindow : Window
         buttonPanel.Children.Add(saveBtn);
         buttonPanel.Children.Add(deleteBtn);
         grid.Children.Add(buttonPanel);
+        if (currentViewMode == CaptureViewMode.Card) Grid.SetRow(buttonPanel, 0);
 
         // 내 노트 저장 버튼 추가 (하단 픽셀 정보 왼쪽에 위치하며 호버 시 표시)
         Button noteBtn = CreateHoverButton("my_note.png", LocalizationManager.GetString("SaveToMyNote"));
@@ -2702,7 +2808,7 @@ public partial class MainWindow : Window
         Border border = new Border
         {
             Child = grid,
-            Margin = new Thickness(0, 6, 0, 6),
+            Margin = new Thickness(0, 3, 0, 3),
             BorderThickness = new Thickness(1),
             CornerRadius = new CornerRadius(6),
             Effect = new DropShadowEffect { ShadowDepth = 1, BlurRadius = 5, Opacity = 0.2, Direction = 270 },
