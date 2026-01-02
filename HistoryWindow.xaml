@@ -74,7 +74,7 @@
                     <StackPanel Grid.Column="1" WindowChrome.IsHitTestVisibleInChrome="True" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <Border Background="#20000000" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="18" Height="36" Width="450">
                             <Grid>
-                                <TextBox x:Name="TxtSearch" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" FontSize="13" Foreground="{DynamicResource ThemeTitleForeground}" Margin="15,0,35,0" Padding="0"/>
+                                <TextBox x:Name="TxtSearch" KeyDown="TxtSearch_KeyDown" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" FontSize="13" Foreground="{DynamicResource ThemeTitleForeground}" Margin="15,0,35,0" Padding="0"/>
                                 <TextBlock Text="파일명, 파일내용, 앱 이름 등 검색..." IsHitTestVisible="False" Foreground="{DynamicResource ThemeTitleForeground}" Opacity="0.4" VerticalAlignment="Center" Margin="17,0" FontSize="13">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
@@ -114,8 +114,8 @@
                                     <TextBlock Text="파일 종류" FontSize="11" Opacity="0.7" Margin="0,0,0,5"/>
                                     <ComboBox x:Name="CmbFileType" Height="28" Margin="0,0,0,15">
                                         <ComboBoxItem Content="전체" IsSelected="True"/>
-                                        <ComboBoxItem Content="이미지 (PNG, JPG, WebP)"/>
-                                        <ComboBoxItem Content="동영상 (MP4)"/>
+                                        <ComboBoxItem Content="이미지 (JPG, PNG, BMP, GIF, WEBP)"/>
+                                        <ComboBoxItem Content="미디어 (MP4, MP3)"/>
                                     </ComboBox>
                                     <Button x:Name="BtnApplyAdvancedFilter" Click="BtnApplyAdvancedFilter_Click" Content="필터 적용" Height="32" Background="#1A73E8" Foreground="White" BorderThickness="0">
                                         <Button.Resources>
@@ -148,7 +148,7 @@
                     <ColumnDefinition Width="220"/> <!-- Sidebar -->
                     <ColumnDefinition Width="*"/>   <!-- List -->
                     <ColumnDefinition Width="Auto"/> <!-- Splitter -->
-                    <ColumnDefinition Width="320" MinWidth="250" MaxWidth="500"/> <!-- Preview Pane -->
+                    <ColumnDefinition Width="320" MinWidth="250" MaxWidth="800"/> <!-- Preview Pane -->
                 </Grid.ColumnDefinitions>
 
                 <!-- Sidebar (1st Column) -->
@@ -157,7 +157,7 @@
                         <StackPanel Margin="15,20,5,0">
                             <TextBlock Text="전체 리스트" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="11" FontWeight="Bold" Margin="15,0,0,10"/>
                             <Button Style="{StaticResource SidebarItemStyle}" Tag="All" Click="BtnFilter_Click">
-                                <Grid Width="170">
+                                <Grid Width="140">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="📋" Margin="0,0,12,0"/>
                                         <TextBlock Text="전체 기록"/>
@@ -170,7 +170,7 @@
                             
                             <TextBlock Text="기간별" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="11" FontWeight="Bold" Margin="15,0,0,10"/>
                             <Button Style="{StaticResource SidebarItemStyle}" Tag="Recent7" Click="BtnFilter_Click">
-                                <Grid Width="170">
+                                <Grid Width="140">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="🕐" Margin="0,0,12,0" Opacity="0.7"/>
                                         <TextBlock Text="최근 7일"/>
@@ -179,7 +179,7 @@
                                 </Grid>
                             </Button>
                             <Button Style="{StaticResource SidebarItemStyle}" Tag="Recent30" Click="BtnFilter_Click">
-                                <Grid Width="170">
+                                <Grid Width="140">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="🕒" Margin="0,0,12,0" Opacity="0.7"/>
                                         <TextBlock Text="최근 30일"/>
@@ -188,7 +188,7 @@
                                 </Grid>
                             </Button>
                             <Button Style="{StaticResource SidebarItemStyle}" Tag="Recent3Months" Click="BtnFilter_Click">
-                                <Grid Width="170">
+                                <Grid Width="140">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="🗓️" Margin="0,0,12,0" Opacity="0.7"/>
                                         <TextBlock Text="최근 3개월"/>
@@ -197,7 +197,7 @@
                                 </Grid>
                             </Button>
                             <Button Style="{StaticResource SidebarItemStyle}" Tag="Recent6Months" Click="BtnFilter_Click">
-                                <Grid Width="170">
+                                <Grid Width="140">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="🗓️" Margin="0,0,12,0" Opacity="0.7"/>
                                         <TextBlock Text="최근 6개월"/>
@@ -209,7 +209,7 @@
                             <Separator Background="{DynamicResource ThemeBorder}" Margin="10,15"/>
 
                             <Button Style="{StaticResource SidebarItemStyle}" Tag="Favorite" Click="BtnFilter_Click">
-                                <Grid Width="170">
+                                <Grid Width="140">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="⭐" Margin="0,0,12,0" Foreground="Gold"/>
                                         <TextBlock Text="즐겨찾기"/>
@@ -218,7 +218,7 @@
                                 </Grid>
                             </Button>
                             <Button Style="{StaticResource SidebarItemStyle}" Tag="Trash" Click="BtnFilter_Click">
-                                <Grid Width="170">
+                                <Grid Width="140">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="🗑️" Margin="0,0,12,0" Opacity="0.7"/>
                                         <TextBlock Text="휴지통"/>

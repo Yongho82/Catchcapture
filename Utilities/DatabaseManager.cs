@@ -60,11 +60,18 @@ namespace CatchCapture.Utilities
             }
             
             _dbPath = Path.Combine(storagePath, "notedb", "catch_notes.db");
+            _historyDbPath = Path.Combine(storagePath, "history", "history.db");
+
             InitializeDatabase();
+            InitializeHistoryDatabase(); // Separate DB initialization
+
             Settings.SettingsChanged += (s, e) => {
                 Reinitialize();
             };
         }
+
+        private string _historyDbPath;
+        private string HistoryDbPath => _historyDbPath;
 
         public void CloseConnection()
         {
@@ -94,7 +101,9 @@ namespace CatchCapture.Utilities
             }
             
             _dbPath = Path.Combine(storagePath, "notedb", "catch_notes.db");
+            _historyDbPath = Path.Combine(storagePath, "history", "history.db");
             InitializeDatabase();
+            InitializeHistoryDatabase();
         }
 
         public void Reload() => InitializeDatabase();
@@ -223,19 +232,7 @@ namespace CatchCapture.Utilities
                     );";
 
                 // Create Captures (History) table
-                string createCapturesTable = @"
-                    CREATE TABLE IF NOT EXISTS Captures (
-                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        FileName TEXT,
-                        FilePath TEXT,
-                        SourceApp TEXT,
-                        SourceTitle TEXT,
-                        IsFavorite INTEGER DEFAULT 0,
-                        Status INTEGER DEFAULT 0, -- 0: Active, 1: Trash
-                        FileSize INTEGER,
-                        Resolution TEXT,
-                        CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
-                    );";
+
 
                 using (var command = new SqliteCommand(createNotesTable, connection)) { command.ExecuteNonQuery(); }
                 using (var command = new SqliteCommand(createImagesTable, connection)) { command.ExecuteNonQuery(); }
@@ -244,7 +241,7 @@ namespace CatchCapture.Utilities
                 using (var command = new SqliteCommand(createAttachmentsTable, connection)) { command.ExecuteNonQuery(); }
                 using (var command = new SqliteCommand(createCategoriesTable, connection)) { command.ExecuteNonQuery(); }
                 using (var command = new SqliteCommand(createConfigTable, connection)) { command.ExecuteNonQuery(); }
-                using (var command = new SqliteCommand(createCapturesTable, connection)) { command.ExecuteNonQuery(); }
+                // Captures table is now handled in InitializeHistoryDatabase
 
                 // Migration: Add CategoryId to Notes
                 try
@@ -313,6 +310,34 @@ namespace CatchCapture.Utilities
                         }
                     }
                 }
+            }
+        }
+
+        private void InitializeHistoryDatabase()
+        {
+            string dbDir = Path.GetDirectoryName(_historyDbPath)!;
+            if (!Directory.Exists(dbDir)) Directory.CreateDirectory(dbDir);
+
+            using (var connection = new SqliteConnection($"Data Source={HistoryDbPath}"))
+            {
+                connection.Open();
+
+                // Create Captures (History) table
+                string createCapturesTable = @"
+                    CREATE TABLE IF NOT EXISTS Captures (
+                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        FileName TEXT,
+                        FilePath TEXT,
+                        SourceApp TEXT,
+                        SourceTitle TEXT,
+                        IsFavorite INTEGER DEFAULT 0,
+                        Status INTEGER DEFAULT 0, -- 0: Active, 1: Trash
+                        FileSize INTEGER,
+                        Resolution TEXT,
+                        CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+                    );";
+
+                using (var command = new SqliteCommand(createCapturesTable, connection)) { command.ExecuteNonQuery(); }
             }
         }
 
@@ -1425,7 +1450,7 @@ namespace CatchCapture.Utilities
 
         public long InsertCapture(HistoryItem item)
         {
-            using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+            using (var connection = new SqliteConnection($"Data Source={HistoryDbPath}"))
             {
                 connection.Open();
                 string sql = @"
@@ -1451,7 +1476,7 @@ namespace CatchCapture.Utilities
         public List<HistoryItem> GetHistory(string filter = "All", string search = "", DateTime? dateFrom = null, DateTime? dateTo = null, string? fileType = null)
         {
             var items = new List<HistoryItem>();
-            using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+            using (var connection = new SqliteConnection($"Data Source={HistoryDbPath}"))
             {
                 connection.Open();
                 
@@ -1483,9 +1508,9 @@ namespace CatchCapture.Utilities
                 if (!string.IsNullOrEmpty(fileType) && fileType != "전체")
                 {
                     if (fileType.Contains("이미지"))
-                        wheres.Add("(FileName LIKE '%.png' OR FileName LIKE '%.jpg' OR FileName LIKE '%.jpeg' OR FileName LIKE '%.webp')");
-                    else if (fileType.Contains("동영상"))
-                        wheres.Add("FileName LIKE '%.mp4'");
+                        wheres.Add("(FileName LIKE '%.png' OR FileName LIKE '%.jpg' OR FileName LIKE '%.jpeg' OR FileName LIKE '%.webp' OR FileName LIKE '%.bmp' OR FileName LIKE '%.gif')");
+                    else if (fileType.Contains("미디어"))
+                        wheres.Add("(FileName LIKE '%.mp4' OR FileName LIKE '%.mp3')");
                 }
 
                 string whereClause = wheres.Count > 0 ? " WHERE " + string.Join(" AND ", wheres) : "";
@@ -1523,7 +1548,7 @@ namespace CatchCapture.Utilities
 
         public int GetHistoryCount(string filter = "All")
         {
-            using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+            using (var connection = new SqliteConnection($"Data Source={HistoryDbPath}"))
             {
                 connection.Open();
                 List<string> wheres = new List<string>();
@@ -1548,7 +1573,7 @@ namespace CatchCapture.Utilities
 
         public void DeleteCapture(long id, bool permanent = false)
         {
-            using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+            using (var connection = new SqliteConnection($"Data Source={HistoryDbPath}"))
             {
                 connection.Open();
                 if (permanent)
@@ -1585,7 +1610,7 @@ namespace CatchCapture.Utilities
 
         public void RestoreCapture(long id)
         {
-            using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+            using (var connection = new SqliteConnection($"Data Source={HistoryDbPath}"))
             {
                 connection.Open();
                 using (var cmd = new SqliteCommand("UPDATE Captures SET Status = 0 WHERE Id = $id", connection))
@@ -1598,7 +1623,7 @@ namespace CatchCapture.Utilities
 
         public void ToggleFavoriteCapture(long id)
         {
-            using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+            using (var connection = new SqliteConnection($"Data Source={HistoryDbPath}"))
             {
                 connection.Open();
                 using (var cmd = new SqliteCommand("UPDATE Captures SET IsFavorite = 1 - IsFavorite WHERE Id = $id", connection))
