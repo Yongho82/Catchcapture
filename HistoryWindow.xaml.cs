@@ -8,6 +8,7 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using CatchCapture.Models;
 using CatchCapture.Utilities;
+using System.Windows.Media;
 
 namespace CatchCapture
 {
@@ -24,14 +25,63 @@ namespace CatchCapture
                 
                 // Allow window dragging
                 this.MouseDown += (s, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
+
+                this.Loaded += HistoryWindow_Loaded;
+                this.Closing += HistoryWindow_Closing;
                 
-                LoadHistory();
+                // 2. 날짜 시작, 끝은 today로 기본 설정
+                DateFrom.SelectedDate = DateTime.Today;
+                DateTo.SelectedDate = DateTime.Today;
+                
+                // Load cached history first (will be refreshed)
+                LoadHistory(); 
                 RefreshCounts();
+
+                // Set default sidebar selection
+                foreach (var btn in FindVisualChildren<Button>(MainGrid.Children[0]))
+                {
+                    if (btn.Tag?.ToString() == "All")
+                    {
+                        UpdateSidebarSelection(btn);
+                        break;
+                    }
+                }
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"히스토리 창 초기화 중 오류: {ex.Message}\n{ex.StackTrace}", "오류");
             }
+        }
+
+        private void HistoryWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            var settings = Settings.Load();
+            if (settings.HistoryWindowWidth > 0) this.Width = settings.HistoryWindowWidth;
+            if (settings.HistoryWindowHeight > 0) this.Height = settings.HistoryWindowHeight;
+            if (settings.HistoryWindowLeft != -9999) this.Left = settings.HistoryWindowLeft;
+            if (settings.HistoryWindowTop != -9999) this.Top = settings.HistoryWindowTop;
+            
+            // Restore Preview Pane Width (Col 3)
+            if (MainGrid.ColumnDefinitions.Count >= 4)
+            {
+                MainGrid.ColumnDefinitions[3].Width = new GridLength(settings.HistoryPreviewPaneWidth);
+            }
+        }
+
+        private void HistoryWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+        {
+            var settings = Settings.Load();
+            settings.HistoryWindowWidth = this.Width;
+            settings.HistoryWindowHeight = this.Height;
+            settings.HistoryWindowLeft = this.Left;
+            settings.HistoryWindowTop = this.Top;
+            
+            if (MainGrid.ColumnDefinitions.Count >= 4)
+            {
+                settings.HistoryPreviewPaneWidth = MainGrid.ColumnDefinitions[3].Width.Value;
+            }
+            
+            settings.Save();
         }
 
         private void RefreshCounts()
@@ -69,6 +119,7 @@ namespace CatchCapture
                 LstHistory.ItemsSource = HistoryItems;
                 UpdateEmptyState();
                 RefreshCounts();
+                UpdateSelectAllButtonText();
             }
             catch (Exception ex)
             {
@@ -103,14 +154,32 @@ namespace CatchCapture
             PopupFilter.IsOpen = !PopupFilter.IsOpen;
         }
 
+        private void UpdateSelectAllButtonText()
+        {
+            bool allSelected = HistoryItems.Count > 0 && HistoryItems.All(i => i.IsSelected);
+            BtnSelectAll.Content = allSelected ? "전체 해제" : "전체 선택";
+            ChkHeaderAll.IsChecked = allSelected;
+        }
+
         private void BtnSelectAll_Click(object sender, RoutedEventArgs e)
         {
-            bool allSelected = HistoryItems.All(i => i.IsSelected);
+            if (ColCheckBox.Width == 0)
+            {
+                ColCheckBox.Width = 45;
+            }
+
+            bool allSelected = HistoryItems.Count > 0 && HistoryItems.All(i => i.IsSelected);
             foreach (var item in HistoryItems)
             {
                 item.IsSelected = !allSelected;
             }
-            ChkHeaderAll.IsChecked = !allSelected;
+            
+            UpdateSelectAllButtonText();
+        }
+
+        private void ChkItem_Click(object sender, RoutedEventArgs e)
+        {
+            UpdateSelectAllButtonText();
         }
 
         private void BtnDeleteSelected_Click(object sender, RoutedEventArgs e)
@@ -146,9 +215,52 @@ namespace CatchCapture
         {
             if (sender is Button btn && btn.Tag != null)
             {
-                LoadHistory(btn.Tag?.ToString() ?? "All");
+                string filter = btn.Tag?.ToString() ?? "All";
+                LoadHistory(filter);
+                UpdateSidebarSelection(btn);
             }
         }
+
+        private void UpdateSidebarSelection(Button activeBtn)
+        {
+            // Find all buttons in the sidebar
+            var buttons = FindVisualChildren<Button>(MainGrid.Children[0]); 
+            foreach (var btn in buttons)
+            {
+                if (btn.Style == FindResource("SidebarItemStyle"))
+                {
+                    // Use hover background for active, transparent for others
+                    btn.Background = (btn == activeBtn) ? (SolidColorBrush)FindResource("ThemeSidebarButtonHoverBackground") : System.Windows.Media.Brushes.Transparent;
+                    // Slightly increase opacity for active text
+                    if (btn.Content is Grid g && g.Children[0] is StackPanel sp)
+                    {
+                        sp.Opacity = (btn == activeBtn) ? 1.0 : 0.8;
+                    }
+                }
+            }
+        }
+
+#pragma warning disable CS8604
+        private IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
+        {
+            if (depObj != null)
+            {
+                for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(depObj); i++)
+                {
+                    DependencyObject child = System.Windows.Media.VisualTreeHelper.GetChild(depObj, i);
+                    if (child != null && child is T)
+                    {
+                        yield return (T)child;
+                    }
+
+                    foreach (T childOfChild in FindVisualChildren<T>(child))
+                    {
+                        yield return childOfChild;
+                    }
+                }
+            }
+        }
+#pragma warning restore CS8604
 
         private void BtnFavorite_Click(object sender, RoutedEventArgs e)
         {
@@ -162,14 +274,14 @@ namespace CatchCapture
 
         private void BtnDeleteItem_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button btn && btn.DataContext is HistoryItem item)
+            HistoryItem? item = (sender as Button)?.DataContext as HistoryItem ?? LstHistory.SelectedItem as HistoryItem;
+            if (item == null) return;
+
+            string msg = _currentFilter == "Trash" ? "이 항목을 영구 삭제하시겠습니까? (파일도 삭제됩니다)" : "이 항목을 휴지통으로 보내시겠습니까?";
+            if (CustomMessageBox.Show(msg, "삭제 확인", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
-                string msg = _currentFilter == "Trash" ? "이 항목을 영구 삭제하시겠습니까? (파일도 삭제됩니다)" : "이 항목을 휴지통으로 보내시겠습니까?";
-                if (CustomMessageBox.Show(msg, "삭제 확인", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                {
-                    DatabaseManager.Instance.DeleteCapture(item.Id, _currentFilter == "Trash");
-                    LoadHistory(_currentFilter, _currentSearch);
-                }
+                DatabaseManager.Instance.DeleteCapture(item.Id, _currentFilter == "Trash");
+                LoadHistory(_currentFilter, _currentSearch);
             }
         }
 
@@ -183,6 +295,24 @@ namespace CatchCapture
             else
             {
                 PreviewEmptyState.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void LstHistory_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Delete)
+            {
+                // If there are checked items, delete them instead of just the selected one
+                var checkedItems = HistoryItems.Where(i => i.IsSelected).ToList();
+                if (checkedItems.Count > 0)
+                {
+                    BtnDeleteSelected_Click(this, new RoutedEventArgs());
+                }
+                else if (LstHistory.SelectedItem is HistoryItem selectedItem)
+                {
+                    // If no items checked, delete the focused item
+                    BtnDeleteItem_Click(this, new RoutedEventArgs());
+                }
             }
         }
 

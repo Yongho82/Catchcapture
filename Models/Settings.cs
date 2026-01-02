@@ -99,6 +99,13 @@ namespace CatchCapture.Models
         public double NoteInputLeft { get; set; } = -9999;
         public double NoteInputTop { get; set; } = -9999;
         
+        // History Window State
+        public double HistoryWindowWidth { get; set; } = 1300;
+        public double HistoryWindowHeight { get; set; } = 850;
+        public double HistoryWindowLeft { get; set; } = -9999;
+        public double HistoryWindowTop { get; set; } = -9999;
+        public double HistoryPreviewPaneWidth { get; set; } = 320;
+
         public static event EventHandler? SettingsChanged;
 
         // Tray mode icon customization  
