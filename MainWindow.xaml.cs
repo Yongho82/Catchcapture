@@ -1816,17 +1816,67 @@ public partial class MainWindow : Window
             AddCaptureToList(capturedImage, skipPreview: true);
 
             // OCR 실행
-            try
+        System.Windows.Window? loadingWindow = null;
+        try
+        {
+            // 로딩 창 동적 생성 (심플하고 깔끔한 디자인)
+            loadingWindow = new System.Windows.Window
             {
-                var ocrResult = await OcrUtility.ExtractTextFromImageAsync(capturedImage);
-                var resultWindow = new OcrResultWindow(ocrResult.Text, ocrResult.ShowWarning);
-                resultWindow.Owner = this;
-                resultWindow.ShowDialog();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"OCR 처리 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+                WindowStyle = WindowStyle.None,
+                AllowsTransparency = true,
+                Background = System.Windows.Media.Brushes.Transparent,
+                Width = 250,
+                Height = 80,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                Topmost = true,
+                ShowInTaskbar = false,
+                Content = new System.Windows.Controls.Border 
+                { 
+                    Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(30, 30, 30)), 
+                    CornerRadius = new System.Windows.CornerRadius(12),
+                    BorderBrush = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(100, 100, 100)),
+                    BorderThickness = new System.Windows.Thickness(1),
+                    Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 10, ShadowDepth = 2, Opacity = 0.5 },
+                    Child = new System.Windows.Controls.StackPanel
+                    {
+                        VerticalAlignment = VerticalAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        Orientation = Orientation.Horizontal,
+                        Children = 
+                        {
+                            // 텍스트
+                            new System.Windows.Controls.TextBlock 
+                            { 
+                                Text = "OCR 추출 중입니다...", 
+                                Foreground = System.Windows.Media.Brushes.White,
+                                FontSize = 14,
+                                FontWeight = FontWeights.SemiBold,
+                                VerticalAlignment = VerticalAlignment.Center,
+                                Margin = new System.Windows.Thickness(10, 0, 0, 0)
+                            }
+                        }
+                    }
+                }
+            };
+            loadingWindow.Show();
+
+            // UI 렌더링을 위해 잠시 대기
+            await Task.Delay(100);
+
+            var ocrResult = await OcrUtility.ExtractTextFromImageAsync(capturedImage);
+            
+            loadingWindow.Close();
+            loadingWindow = null;
+
+            var resultWindow = new OcrResultWindow(ocrResult.Text, ocrResult.ShowWarning);
+            resultWindow.Owner = this;
+            resultWindow.ShowDialog();
+        }
+        catch (Exception ex)
+        {
+            loadingWindow?.Close();
+            MessageBox.Show($"OCR 처리 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
         }
         else
         {
