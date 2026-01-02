@@ -107,6 +107,13 @@ namespace CatchCapture.Models
         public double HistoryPreviewPaneWidth { get; set; } = 320;
         public double HistoryListPaneWidth { get; set; } = 840;
 
+        // Preview Window State (Added)
+        public double PreviewWindowWidth { get; set; } = 0;
+        public double PreviewWindowHeight { get; set; } = 0;
+        public double PreviewWindowLeft { get; set; } = -9999;
+        public double PreviewWindowTop { get; set; } = -9999;
+        public string PreviewWindowState { get; set; } = "Normal"; // "Normal", "Maximized"
+
         // History Column Widths
         public double HistoryColDate { get; set; } = 132;
         public double HistoryColFileName { get; set; } = 205;

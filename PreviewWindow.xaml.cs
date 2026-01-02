@@ -274,6 +274,9 @@ namespace CatchCapture
         {
             if (currentImage == null) return;
 
+            // 저장된 설정 로드
+            var settings = CatchCapture.Models.Settings.Load();
+
             // 이미지 원래 크기
             double imageWidth = currentImage.PixelWidth;
             double imageHeight = currentImage.PixelHeight;
@@ -282,49 +285,77 @@ namespace CatchCapture
             double workAreaWidth = SystemParameters.WorkArea.Width;
             double workAreaHeight = SystemParameters.WorkArea.Height;
 
-            // 최대 창 크기 제한 (화면의 90%)
+            // 최대 창 크기 제한 (화면의 95%)
             double maxWindowWidth = workAreaWidth * 0.95;
             double maxWindowHeight = workAreaHeight * 0.95;
 
             // 최소 창 크기 설정
-            double minWindowWidth = 1500;
-            double minWindowHeight = 800;
+            double minWindowWidth = 1520; // 사용자가 원했던 기본 가로 사이즈로 복원 (기존 1200 -> 1520)
+            double minWindowHeight = 800; // XAML Height 기본값
 
             // UI 요소 크기 예상치
-            double toolbarHeight = 80; // 상단 툴바
-            double bottomPanelHeight = 30; // 하단 상태바 등
-            double windowChromeHeight = 40; // 타이틀바
-            double rightPanelWidth = 320; // 우측 캡처 리스트 패널 예상 너비
-            double padding = 40; // 여백
+            double toolbarHeight = 100; // 상단 툴바 + 타이틀바
+            double bottomPanelHeight = 40; // 하단 상태바
+            double rightPanelWidth = 320; // 우측 캡처 리스트 패널
+            double padding = 60; // 여백
 
-            // 이미지를 100%로 보여줄 때 필요한 창 크기 
-            // (이미지 너비 + 우측 패널 + 여백)
-            double requiredContentWidth = imageWidth + rightPanelWidth + padding;
-            double requiredContentHeight = imageHeight + toolbarHeight + bottomPanelHeight + windowChromeHeight;
-
-            // 창 크기 결정 (최소/최대 범위 내)
-            double targetWindowWidth = Math.Min(maxWindowWidth, Math.Max(minWindowWidth, requiredContentWidth));
-            double targetWindowHeight = Math.Min(maxWindowHeight, Math.Max(minWindowHeight, requiredContentHeight));
-
-            // 창 크기 설정
-            this.Width = targetWindowWidth;
-            this.Height = targetWindowHeight;
-
-            // 창 위치 설정 (중앙)
-            if (this.Owner != null)
+            // 1. 높이 결정 (저장된 값이 있으면 우선 사용)
+            double targetWindowHeight;
+            if (settings.PreviewWindowHeight > 0)
             {
-                this.Left = this.Owner.Left + (this.Owner.Width - this.Width) / 2;
-                this.Top = this.Owner.Top + (this.Owner.Height - this.Height) / 2;
+                // 저장된 높이 사용 (최소/최대 제한 적용)
+                targetWindowHeight = Math.Min(maxWindowHeight, Math.Max(minWindowHeight, settings.PreviewWindowHeight));
             }
             else
             {
-                this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                // 자동 계산 (이미지 높이 + UI 높이)
+                double requiredHeight = imageHeight + toolbarHeight + bottomPanelHeight;
+                targetWindowHeight = Math.Min(maxWindowHeight, Math.Max(minWindowHeight, requiredHeight));
+            }
+
+            // 2. 너비 결정 (가로는 이미지에 따라 가변, 높이에 맞춰 비율 유지 아님 - 컨텐츠 다 보여주기 위함)
+            // 이미지를 다 보여주기 위한 이상적인 너비
+            double requiredWidth = imageWidth + rightPanelWidth + padding;
+            
+            // 저장된 높이에 맞췄을 때의 줌 비율을 고려할 수도 있지만, 
+            // 여기서는 단순히 컨텐츠를 다 담을 수 있는 너비를 목표로 하되 최대폭 제한
+            double targetWindowWidth = Math.Min(maxWindowWidth, Math.Max(minWindowWidth, requiredWidth));
+
+            // 창 크기 적용
+            this.Width = targetWindowWidth;
+            this.Height = targetWindowHeight;
+
+            // 3. 위치 복원 (저장된 위치가 유효하면 사용)
+            if (settings.PreviewWindowLeft != -9999 && settings.PreviewWindowTop != -9999)
+            {
+                // 화면 밖으로 나갔는지 체크
+                if (settings.PreviewWindowLeft + 100 < SystemParameters.VirtualScreenLeft + SystemParameters.VirtualScreenWidth &&
+                    settings.PreviewWindowTop + 100 < SystemParameters.VirtualScreenTop + SystemParameters.VirtualScreenHeight)
+                {
+                    this.Left = settings.PreviewWindowLeft;
+                    this.Top = settings.PreviewWindowTop;
+                }
+                else
+                {
+                    CenterWindow();
+                }
+            }
+            else
+            {
+                CenterWindow();
+            }
+
+            // 4. 최대화 상태 복원
+            if (settings.PreviewWindowState == "Maximized")
+            {
+                this.WindowState = WindowState.Maximized;
             }
 
             // --- 줌(Scale) 조정 ---
-            // 창 크기가 결정되었으니, 이미지 표시 영역(Canvas)에 할당될 실제 공간 계산
-            double availableWidth = targetWindowWidth - rightPanelWidth - padding;
-            double availableHeight = targetWindowHeight - toolbarHeight - bottomPanelHeight - windowChromeHeight;
+            // 실제 할당된 이미지 영역 크기 계산 (Resize 이벤트 전이라 현재 Width/Height 사용)
+            // 창 크기가 설정된 직후이므로 이 값을 기준으로 계산
+            double availableWidth = ((this.WindowState == WindowState.Maximized) ? workAreaWidth : this.Width) - rightPanelWidth - padding;
+            double availableHeight = ((this.WindowState == WindowState.Maximized) ? workAreaHeight : this.Height) - toolbarHeight - bottomPanelHeight;
 
             if (availableWidth > 0 && availableHeight > 0)
             {
@@ -337,18 +368,31 @@ namespace CatchCapture
                 {
                     if (scale < 1.0)
                     {
-                        // 이미지가 작업 영역보다 크면 화면에 맞게 축소
+                        // 이미지가 작업 영역보다 크면 축소 (Fit)
                         scaleTransform.ScaleX = Math.Max(scale, 0.1);
                         scaleTransform.ScaleY = Math.Max(scale, 0.1);
                     }
                     else
                     {
-                        // 이미지가 작업 영역보다 작거나 같으면 원본 크기(100%) 유지
+                        // 공간이 충분하면 100% (확대하지 않음)
                         scaleTransform.ScaleX = 1.0;
                         scaleTransform.ScaleY = 1.0;
                     }
                     UpdateImageInfo();
                 }
+            }
+        }
+
+        private void CenterWindow()
+        {
+            if (this.Owner != null)
+            {
+                this.Left = this.Owner.Left + (this.Owner.Width - this.Width) / 2;
+                this.Top = this.Owner.Top + (this.Owner.Height - this.Height) / 2;
+            }
+            else
+            {
+                this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             }
         }
 
@@ -1942,6 +1986,25 @@ namespace CatchCapture
         {
             try 
             { 
+                // 윈도우 상태 저장 (사이즈, 위치)
+                var settings = CatchCapture.Models.Settings.Load();
+                
+                // 최소화 상태가 아닐 때만 저장
+                if (this.WindowState != WindowState.Minimized)
+                {
+                    settings.PreviewWindowState = (this.WindowState == WindowState.Maximized) ? "Maximized" : "Normal";
+
+                    // 최대화 상태가 아닐 때만 크기/위치 저장 (최대화상태에서 저장하면 복구시 문제됨)
+                    if (this.WindowState == WindowState.Normal)
+                    {
+                        // Width는 이미지에 따라 자동 조절되므로 저장하지 않음 (요구사항)
+                        if (this.Height > 100) settings.PreviewWindowHeight = this.Height;
+                        if (this.Left != -9999) settings.PreviewWindowLeft = this.Left;
+                        if (this.Top != -9999) settings.PreviewWindowTop = this.Top;
+                    }
+                    settings.Save();
+                }
+
                 // [메모리 최적화] 정적 이벤트 핸들러 해제
                 LocalizationManager.LanguageChanged -= PreviewWindow_LanguageChanged; 
                 

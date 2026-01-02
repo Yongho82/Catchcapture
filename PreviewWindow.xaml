@@ -493,39 +493,41 @@
             </Border>
         </Popup>
 
-        <!-- 이미지 표시 영역 -->
-        <Border Grid.Row="2" Grid.Column="0" Background="{DynamicResource ThemeBackground}" BorderThickness="0">
+        <!-- 이미지 표시 영역 (전체 바둑판 배경) -->
+        <Border Grid.Row="2" Grid.Column="0" BorderThickness="0">
+            <Border.Background>
+                <DrawingBrush TileMode="Tile" Viewport="0,0,20,20" ViewportUnits="Absolute">
+                    <DrawingBrush.Drawing>
+                        <DrawingGroup>
+                            <!-- 배경색 (테마 배경) -->
+                            <GeometryDrawing Brush="{DynamicResource ThemeBackground}">
+                                <GeometryDrawing.Geometry>
+                                    <RectangleGeometry Rect="0,0,20,20"/>
+                                </GeometryDrawing.Geometry>
+                            </GeometryDrawing>
+                            <!-- 체크무늬 (테마 글자색의 10% 투명도) -->
+                            <DrawingGroup Opacity="0.1">
+                                <GeometryDrawing Brush="{DynamicResource ThemeForeground}">
+                                    <GeometryDrawing.Geometry>
+                                        <GeometryGroup>
+                                            <RectangleGeometry Rect="0,0,10,10"/>
+                                            <RectangleGeometry Rect="10,10,10,10"/>
+                                        </GeometryGroup>
+                                    </GeometryDrawing.Geometry>
+                                </GeometryDrawing>
+                            </DrawingGroup>
+                        </DrawingGroup>
+                    </DrawingBrush.Drawing>
+                </DrawingBrush>
+            </Border.Background>
             <Grid>
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                     <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Margin="50">
-                        <Canvas x:Name="ImageCanvas" ClipToBounds="True">
+                        <!-- Canvas 배경을 투명하게 해서 뒤쪽(Border)의 바둑판 무늬가 보이도록 함 -->
+                        <Canvas x:Name="ImageCanvas" ClipToBounds="True" Background="Transparent">
                             <Canvas.LayoutTransform>
                                 <ScaleTransform x:Name="CanvasScaleTransform"/>
                             </Canvas.LayoutTransform>
-                            <!-- 투명 배경 표시를 위한 바둑판 패턴 -->
-                            <Canvas.Background>
-                                <DrawingBrush TileMode="Tile" Viewport="0,0,16,16" ViewportUnits="Absolute">
-                                    <DrawingBrush.Drawing>
-                                        <DrawingGroup>
-                                            <GeometryDrawing Brush="{DynamicResource ThemeBackground}">
-                                                <GeometryDrawing.Geometry>
-                                                    <RectangleGeometry Rect="0,0,16,16"/>
-                                                </GeometryDrawing.Geometry>
-                                            </GeometryDrawing>
-                                            <DrawingGroup Opacity="0.5">
-                                                <GeometryDrawing Brush="{DynamicResource ThemeBorder}">
-                                                    <GeometryDrawing.Geometry>
-                                                        <GeometryGroup>
-                                                            <RectangleGeometry Rect="0,0,8,8"/>
-                                                            <RectangleGeometry Rect="8,8,8,8"/>
-                                                        </GeometryGroup>
-                                                    </GeometryDrawing.Geometry>
-                                                </GeometryDrawing>
-                                            </DrawingGroup>
-                                        </DrawingGroup>
-                                    </DrawingBrush.Drawing>
-                                </DrawingBrush>
-                            </Canvas.Background>
                             <Image x:Name="PreviewImage" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
                         </Canvas>
                     </Grid>
