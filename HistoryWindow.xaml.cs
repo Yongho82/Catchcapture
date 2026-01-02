@@ -61,11 +61,25 @@ namespace CatchCapture
             if (settings.HistoryWindowLeft != -9999) this.Left = settings.HistoryWindowLeft;
             if (settings.HistoryWindowTop != -9999) this.Top = settings.HistoryWindowTop;
             
+            // Ensure List Pane is flexible (Col 1)
+            if (MainGrid.ColumnDefinitions.Count >= 2)
+            {
+                MainGrid.ColumnDefinitions[1].Width = new GridLength(1, GridUnitType.Star);
+            }
+
             // Restore Preview Pane Width (Col 3)
             if (MainGrid.ColumnDefinitions.Count >= 4)
             {
                 MainGrid.ColumnDefinitions[3].Width = new GridLength(settings.HistoryPreviewPaneWidth);
             }
+
+            // Restore GridView Column Widths
+            ColDate.Width = settings.HistoryColDate;
+            ColFileName.Width = settings.HistoryColFileName;
+            ColMeta.Width = settings.HistoryColMeta;
+            ColPin.Width = settings.HistoryColPin;
+            ColFavorite.Width = settings.HistoryColFavorite;
+            ColActions.Width = settings.HistoryColActions;
         }
 
         private void HistoryWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
@@ -76,10 +90,19 @@ namespace CatchCapture
             settings.HistoryWindowLeft = this.Left;
             settings.HistoryWindowTop = this.Top;
             
+            
             if (MainGrid.ColumnDefinitions.Count >= 4)
             {
                 settings.HistoryPreviewPaneWidth = MainGrid.ColumnDefinitions[3].Width.Value;
             }
+
+            // Save GridView Column Widths
+            settings.HistoryColDate = ColDate.Width;
+            settings.HistoryColFileName = ColFileName.Width;
+            settings.HistoryColMeta = ColMeta.Width;
+            settings.HistoryColPin = ColPin.Width;
+            settings.HistoryColFavorite = ColFavorite.Width;
+            settings.HistoryColActions = ColActions.Width;
             
             settings.Save();
         }

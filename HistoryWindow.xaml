@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen" ResizeMode="CanResize"
-        MinHeight="600" Height="850" MinWidth="1100" Width="1300"
+        MinHeight="300" Height="380" MinWidth="1100" Width="1380"
         Title="히스토리 - 캐치캡처"
         Background="Transparent" WindowStyle="None" AllowsTransparency="True">
     
@@ -404,28 +404,28 @@
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Header="날짜 및 시각" Width="170">
+                                <GridViewColumn x:Name="ColDate" Header="날짜 및 시각" Width="132">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock Text="{Binding FormattedDate}" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Header="파일명" Width="250">
+                                <GridViewColumn x:Name="ColFileName" Header="파일명" Width="205">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <TextBlock Text="{Binding FileName}" Foreground="{DynamicResource ThemeForeground}" TextTrimming="CharacterEllipsis" MaxWidth="240" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding FileName}" Foreground="{DynamicResource ThemeForeground}" TextTrimming="CharacterEllipsis" MaxWidth="195" VerticalAlignment="Center"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Header="메타정보" Width="200">
+                                <GridViewColumn x:Name="ColMeta" Header="메타정보" Width="205">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock Text="{Binding MetaInfo}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Width="45">
+                                <GridViewColumn x:Name="ColPin" Width="53">
                                     <GridViewColumn.Header>
                                         <Path Data="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12Z" 
                                               Fill="{DynamicResource ThemeForeground}" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.5"/>
@@ -449,7 +449,7 @@
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Width="50">
+                                <GridViewColumn x:Name="ColFavorite" Width="53">
                                     <GridViewColumn.Header>
                                         <Path Data="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z" 
                                               Fill="{DynamicResource ThemeForeground}" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -473,15 +473,17 @@
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Header="작업" Width="90">
+                                <GridViewColumn x:Name="ColActions" Header="작업" Width="53">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                                 <Button Click="BtnRestore_Click" Visibility="{Binding IsInTrash, Converter={StaticResource BoolToVis}}" Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="4" ToolTip="복원">
-                                                    <TextBlock Text="🔄" FontSize="14" Opacity="0.8" Foreground="{DynamicResource ThemeForeground}"/>
+                                                    <Path Data="M12,5V1L7,6L12,11V7A6,6 0 0,1 18,13A6,6 0 0,1 12,19A6,6 0 0,1 6,13H4A8,8 0 0,0 12,21A8,8 0 0,0 20,13A8,8 0 0,0 12,5Z" 
+                                                          Fill="{DynamicResource ThemeForeground}" Opacity="0.8" Width="14" Height="14" Stretch="Uniform"/>
                                                 </Button>
                                                 <Button Click="BtnDeleteItem_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="4" ToolTip="삭제">
-                                                    <TextBlock Text="🗑️" FontSize="14" Opacity="0.8" Foreground="{DynamicResource ThemeForeground}"/>
+                                                    <Path Data="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z" 
+                                                          Fill="{DynamicResource ThemeForeground}" Opacity="0.4" Width="14" Height="14" Stretch="Uniform"/>
                                                 </Button>
                                             </StackPanel>
                                         </DataTemplate>
