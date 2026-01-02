@@ -3493,9 +3493,9 @@ public partial class MainWindow : Window
             captures[selectedIndex].Dispose();
 
             // 히스토리 연동 삭제 (휴지통으로 이동)
-            if (captures[selectedIndex].HistoryId.HasValue)
+            if (captures[selectedIndex].HistoryId is long historyId)
             {
-                DatabaseManager.Instance.DeleteCapture(captures[selectedIndex].HistoryId.Value, false);
+                DatabaseManager.Instance.DeleteCapture(historyId, false);
             }
 
             captures.RemoveAt(selectedIndex);

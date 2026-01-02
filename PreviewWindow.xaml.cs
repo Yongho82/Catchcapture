@@ -21,8 +21,8 @@ namespace CatchCapture
     public partial class PreviewWindow : Window
     {
         // 도형 관련 변수 정리
-        private BitmapSource originalImage;
-        private BitmapSource currentImage;
+        private BitmapSource? originalImage;
+        private BitmapSource? currentImage;
         private int imageIndex;
         private Stack<BitmapSource> undoStack = new Stack<BitmapSource>();
         private Stack<BitmapSource> redoStack = new Stack<BitmapSource>();
@@ -70,7 +70,7 @@ namespace CatchCapture
         private Point _dragStartPoint;
         private bool _isReadyToDrag = false;
 
-        public PreviewWindow(BitmapSource image, int index, List<CaptureImage>? captures = null)
+        public PreviewWindow(BitmapSource? image, int index, List<CaptureImage>? captures = null)
         {
             InitializeComponent();
             WindowHelper.FixMaximizedWindow(this);
@@ -80,23 +80,32 @@ namespace CatchCapture
 
             WriteLog("PreviewWindow 생성됨");
 
+            // ★ WebP 72dpi 문제 해결: 낮은 DPI 이미지는 96으로 보정하여 '실제 크기'가 너무 커 보이지 않게 함
+            // 단, HiDPI 스크린샷은 유지 (DPI >= 90)
+            if (image != null && image.DpiX < 90)
+            {
+                image = ImageEditUtility.ConvertTo96Dpi(image);
+            }
+
             originalImage = image;
             currentImage = image;
             imageIndex = index;
             allCaptures = captures;
 
             // 이미지 표시
-            PreviewImage.Source = currentImage;
-            PreviewImage.Width = currentImage.Width;
-            PreviewImage.Height = currentImage.Height;
-            // RenderOptions.SetBitmapScalingMode(PreviewImage, BitmapScalingMode.HighQuality); // UpdateImageInfo에서 관리하므로 제거
+            if (currentImage != null)
+            {
+                PreviewImage.Source = currentImage;
+                PreviewImage.Width = currentImage.Width;
+                PreviewImage.Height = currentImage.Height;
+                
+                // 캔버스 크기 설정
+                ImageCanvas.Width = currentImage.Width;
+                ImageCanvas.Height = currentImage.Height;
 
-            // 캔버스 크기 설정
-            ImageCanvas.Width = currentImage.Width;
-            ImageCanvas.Height = currentImage.Height;
-
-            // 이미지 크기에 맞게 창 크기 조정 (최대 크기 제한 적용)
-            AdjustWindowSizeToFitImage();
+                // 이미지 크기에 맞게 창 크기 조정 (최대 크기 제한 적용)
+                AdjustWindowSizeToFitImage();
+            }
 
             // Store metadata from the current capture if available
             if (allCaptures != null && index >= 0 && index < allCaptures.Count)
@@ -179,6 +188,7 @@ namespace CatchCapture
 
         private void ApplyMosaic(Rect rect)
         {
+            if (currentImage == null) return;
             SaveForUndo();
             int intensity = (int)(_editorManager?.MosaicIntensity ?? 15);
             currentImage = ImageEditUtility.ApplyMosaic(currentImage, new Int32Rect((int)rect.X, (int)rect.Y, (int)rect.Width, (int)rect.Height), intensity);
@@ -370,8 +380,11 @@ namespace CatchCapture
             else if (e.Key == Key.C && Keyboard.Modifiers == ModifierKeys.Control)
             {
                 // Ctrl+C: 현재 이미지 복사
-                ScreenCaptureUtility.CopyImageToClipboard(currentImage);
-                ShowToastMessage(LocalizationManager.GetString("CopyToClipboard"));
+                if (currentImage != null)
+                {
+                    ScreenCaptureUtility.CopyImageToClipboard(currentImage);
+                    ShowToastMessage(LocalizationManager.GetString("CopyToClipboard"));
+                }
                 e.Handled = true;
             }
             else if (e.Key == Key.Z && Keyboard.Modifiers == ModifierKeys.Control)
@@ -574,10 +587,12 @@ namespace CatchCapture
         /// drawnElements를 직접 렌더링하여 합성 이미지 생성 (SnippingWindow 방식)
         /// DPI 스케일링을 고려하여 정확하게 렌더링
         /// </summary>
-        private BitmapSource GetCombinedImage()
+        private BitmapSource? GetCombinedImage()
         {
             try
             {
+                if (currentImage == null) return null;
+
                 // DPI 정보 획득
                 double dpiX = currentImage.DpiX;
                 double dpiY = currentImage.DpiY;
@@ -768,8 +783,11 @@ namespace CatchCapture
         private void CopyButton_Click(object sender, RoutedEventArgs e)
         {
             var finalImage = GetCombinedImage();
-            ScreenCaptureUtility.CopyImageToClipboard(finalImage);
-            ShowToastMessage(LocalizationManager.GetString("CopyToClipboard"));
+            if (finalImage != null)
+            {
+                ScreenCaptureUtility.CopyImageToClipboard(finalImage);
+                ShowToastMessage(LocalizationManager.GetString("CopyToClipboard"));
+            }
         }
 
         private async void OcrButton_Click(object sender, RoutedEventArgs e)
@@ -846,8 +864,11 @@ namespace CatchCapture
             DeselectObject();
 
             // 전체 레이어 재렌더링
-            currentImage = CatchCapture.Utilities.LayerRenderer.RenderLayers(originalImage, drawingLayers);
-            UpdatePreviewImage();
+            if (originalImage != null)
+            {
+                currentImage = CatchCapture.Utilities.LayerRenderer.RenderLayers(originalImage, drawingLayers);
+                UpdatePreviewImage();
+            }
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
@@ -888,8 +909,11 @@ namespace CatchCapture
             {
                 try
                 {
-                    ScreenCaptureUtility.SaveImageToFile(finalImage, dialog.FileName);
-                    CustomMessageBox.Show(LocalizationManager.GetString("ImageSaved"), LocalizationManager.GetString("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
+                    if (finalImage != null)
+                    {
+                        ScreenCaptureUtility.SaveImageToFile(finalImage, dialog.FileName);
+                        CustomMessageBox.Show(LocalizationManager.GetString("ImageSaved"), LocalizationManager.GetString("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -1001,8 +1025,8 @@ namespace CatchCapture
             if (undoStack.Count > 0)
             {
                 // 현재 상태를 Redo 스택에 저장
-                redoStack.Push(currentImage);
-                redoOriginalStack.Push(originalImage);
+                if (currentImage != null) redoStack.Push(currentImage);
+                if (originalImage != null) redoOriginalStack.Push(originalImage);
                 redoLayersStack.Push(drawingLayers.Select(layer => new CatchCapture.Models.DrawingLayer
                 {
                     LayerId = layer.LayerId,
@@ -1029,7 +1053,8 @@ namespace CatchCapture
                 
                 // Undo 스택에서 이전 상태 복원
                 currentImage = undoStack.Pop();
-                originalImage = undoOriginalStack.Pop();
+                if (undoOriginalStack.Count > 0)
+                    originalImage = undoOriginalStack.Pop();
                 drawingLayers = undoLayersStack.Pop();
                 
                 SyncDrawnElementsFromLayers(); // ← 인터랙티브 요소 동기화
@@ -1044,15 +1069,8 @@ namespace CatchCapture
             if (redoStack.Count > 0)
             {
                 // 현재 상태를 Undo 스택에 저장
-                undoStack.Push(currentImage);
-                if (undoOriginalStack.Count > 0) 
-                     undoOriginalStack.Push(originalImage);
-                else 
-                     // 만약 스택이 비어있으면 현재 originalImage가 계속 유효했음. 
-                     // 하지만 undoOriginalStack과 짝을 맞추기 위해, Redo 시 복원할 Undo 스택에는 
-                     // Redo 전의 state(현재 state)를 넣어야 함. 
-                     // 여기 로직은 약간 복잡하므로 단순화:
-                     undoOriginalStack.Push(originalImage);
+                if (currentImage != null) undoStack.Push(currentImage);
+                if (originalImage != null) undoOriginalStack.Push(originalImage);
 
                 undoLayersStack.Push(drawingLayers.Select(layer => new CatchCapture.Models.DrawingLayer
                 {
@@ -1096,8 +1114,8 @@ namespace CatchCapture
             if (CustomMessageBox.Show(LocalizationManager.GetString("ConfirmReset"), LocalizationManager.GetString("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
                 // 현재 상태를 Undo 스택에 저장
-                undoStack.Push(currentImage);
-                undoOriginalStack.Push(originalImage);
+                if (currentImage != null) undoStack.Push(currentImage);
+                if (originalImage != null) undoOriginalStack.Push(originalImage);
                 
                 var layersCopy = drawingLayers.Select(layer => new CatchCapture.Models.DrawingLayer
                 {
@@ -1151,6 +1169,7 @@ namespace CatchCapture
 
         private void RotateButton_Click(object sender, RoutedEventArgs e)
         {
+            if (currentImage == null) return;
             SaveForUndo();
             currentImage = ImageEditUtility.RotateImage(currentImage);
             UpdatePreviewImage();
@@ -1158,6 +1177,7 @@ namespace CatchCapture
 
         private void FlipHorizontalButton_Click(object sender, RoutedEventArgs e)
         {
+            if (currentImage == null) return;
             SaveForUndo();
             currentImage = ImageEditUtility.FlipImage(currentImage, true);
             UpdatePreviewImage();
@@ -1165,6 +1185,7 @@ namespace CatchCapture
 
         private void FlipVerticalButton_Click(object sender, RoutedEventArgs e)
         {
+            if (currentImage == null) return;
             SaveForUndo();
             currentImage = ImageEditUtility.FlipImage(currentImage, false);
             UpdatePreviewImage();
@@ -1364,10 +1385,10 @@ namespace CatchCapture
 
         private void SaveForUndo()
         {
-            undoStack.Push(currentImage);
+            if (currentImage != null) undoStack.Push(currentImage);
             redoStack.Clear();
 
-            undoOriginalStack.Push(originalImage);
+            if (originalImage != null) undoOriginalStack.Push(originalImage);
             redoOriginalStack.Clear();
             
             // ★ 메모리 최적화: 스택 크기 제한
@@ -1553,9 +1574,9 @@ namespace CatchCapture
         private void UpdatePreviewImage()
         {
             WriteLog("UpdatePreviewImage 시작");
-            if (PreviewImage == null || ImageCanvas == null)
+            if (PreviewImage == null || ImageCanvas == null || currentImage == null)
             {
-                WriteLog("UpdatePreviewImage 중단: PreviewImage 또는 ImageCanvas가 null임");
+                WriteLog("UpdatePreviewImage 중단: PreviewImage, ImageCanvas 또는 currentImage가 null임");
                 return;
             }
 

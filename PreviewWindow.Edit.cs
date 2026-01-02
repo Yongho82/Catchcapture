@@ -265,7 +265,7 @@ namespace CatchCapture
                     Int32Rect cropRect = new Int32Rect((int)_cropArea.X, (int)_cropArea.Y, (int)_cropArea.Width, (int)_cropArea.Height);
                     // Ensure within bounds
                     cropRect.X = Math.Max(0, cropRect.X);
-                    cropRect.Y = Math.Max(0, cropRect.Y);
+                    if (currentImage == null) return;
                     cropRect.Width = Math.Min(cropRect.Width, currentImage.PixelWidth - cropRect.X);
                     cropRect.Height = Math.Min(cropRect.Height, currentImage.PixelHeight - cropRect.Y);
                     
@@ -347,8 +347,14 @@ namespace CatchCapture
             InputMethod.SetPreferredImeState(textBox, InputMethodState.On);
 
             // 이미지 경계 내로 제한
-            double textBoxLeft = Math.Max(0, Math.Min(startPoint.X, currentImage.PixelWidth - textBox.MinWidth));
-            double textBoxTop = Math.Max(0, Math.Min(startPoint.Y, currentImage.PixelHeight - textBox.MinHeight));
+            double textBoxLeft = startPoint.X;
+            double textBoxTop = startPoint.Y;
+
+            if (currentImage != null)
+            {
+                textBoxLeft = Math.Max(0, Math.Min(startPoint.X, currentImage.PixelWidth - textBox.MinWidth));
+                textBoxTop = Math.Max(0, Math.Min(startPoint.Y, currentImage.PixelHeight - textBox.MinHeight));
+            }
 
             Canvas.SetLeft(textBox, textBoxLeft);
             Canvas.SetTop(textBox, textBoxTop);

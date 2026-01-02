@@ -420,6 +420,30 @@ namespace CatchCapture.Utilities
             drawingContext.DrawGeometry(pen.Brush, new Pen(pen.Brush, 1), streamGeometry);
         }
 
+        public static BitmapSource ConvertTo96Dpi(BitmapSource source)
+        {
+            double sourceDpiX = source.DpiX;
+            double sourceDpiY = source.DpiY;
+
+            // 이미 96dpi 근처라면 그대로 반환
+            if (Math.Abs(sourceDpiX - 96.0) < 1.0 && Math.Abs(sourceDpiY - 96.0) < 1.0)
+            {
+                return source;
+            }
+
+            int width = source.PixelWidth;
+            int height = source.PixelHeight;
+
+            int stride = width * ((source.Format.BitsPerPixel + 7) / 8);
+            byte[] pixelData = new byte[height * stride];
+
+            source.CopyPixels(pixelData, stride, 0);
+
+            // 동일한 픽셀 데이터를 사용하되 DPI만 96으로 설정하여 새 BitmapSource 생성
+            // 72dpi 등 낮은 dpi 이미지가 화면에서 너무 크게 보이는 현상 방지
+            return BitmapSource.Create(width, height, 96, 96, source.Format, source.Palette, pixelData, stride);
+        }
+
         private static void DrawTextWithShadow(DrawingContext ctx, FormattedText text, System.Windows.Point position, System.Windows.Media.Color shadowColor, System.Windows.Vector shadowOffset)
         {
             // 이 메서드는 사용하지 않음 
