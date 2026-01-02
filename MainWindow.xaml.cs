@@ -2418,26 +2418,24 @@ public partial class MainWindow : Window
             // 1. 이미 자동 저장된 파일이 있는지 확인
             if (captureInfo.IsSaved && !string.IsNullOrEmpty(captureInfo.SavedPath) && File.Exists(captureInfo.SavedPath))
             {
-                // 사용자 지정 캡처 폴더에 이미 저장되어 있다면 해당 경로 사용 (2중 저장 방지)
+                // 사용자 지정 캡처 폴더에 이미 저장되어 있다면 해당 경로 사용
                 fullPath = captureInfo.SavedPath;
             }
             else
             {
-                // 2. 저장되지 않은 경우 (자동저장 OFF 등) 히스토리 전용 폴더에 저장
-                string historyImgDir = DatabaseManager.Instance.GetHistoryImageFolderPath();
-                if (!Directory.Exists(historyImgDir)) Directory.CreateDirectory(historyImgDir);
-
-                string yearFolder = DatabaseManager.Instance.EnsureYearFolderExists(historyImgDir);
-                
-                // 설정된 포맷 및 품질 적용
+                // 2. 저장되지 않은 경우 (자동저장 OFF 등)라도 사용자가 설정한 표준 폴더 구조(년/월 등)에 저장
+                // GetAutoSaveFilePath가 폴더 생성 및 그룹화(월별/년별 등)를 모두 처리함
                 string ext = settings.FileSaveFormat.ToLower();
                 if (!ext.StartsWith(".")) ext = "." + ext;
                 
-                string fileName = IOPath.GetFileName(GetAutoSaveFilePath(ext, captureInfo.SourceApp, captureInfo.SourceTitle));
-                fullPath = IOPath.Combine(yearFolder, fileName);
+                fullPath = GetAutoSaveFilePath(ext, captureInfo.SourceApp, captureInfo.SourceTitle);
 
                 // 파일 저장
                 ScreenCaptureUtility.SaveImageToFile(image, fullPath, settings.ImageQuality);
+                
+                // 정보 업데이트
+                captureInfo.SavedPath = fullPath;
+                captureInfo.IsSaved = true;
             }
 
             if (string.IsNullOrEmpty(fullPath)) return;
@@ -2447,7 +2445,7 @@ public partial class MainWindow : Window
             {
                 FileName = IOPath.GetFileName(fullPath),
                 FilePath = fullPath,
-                OriginalFilePath = fullPath, // 2중 저장을 안 하므로 FilePath와 동일하게 설정 (삭제 시 연동)
+                OriginalFilePath = fullPath, // 2중 저장을 안 하므로 FilePath와 동일하게 설정
                 SourceApp = captureInfo.SourceApp ?? "Unknown",
                 SourceTitle = captureInfo.SourceTitle ?? "Unknown",
                 FileSize = File.Exists(fullPath) ? new FileInfo(fullPath).Length : 0,

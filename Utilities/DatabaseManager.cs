@@ -395,12 +395,6 @@ namespace CatchCapture.Utilities
             return Path.Combine(rootDir, "img");
         }
 
-        public string GetHistoryImageFolderPath()
-        {
-            string dbDir = Path.GetDirectoryName(_historyDbPath)!;
-            return Path.Combine(dbDir, "img");
-        }
-        
         public string GetAttachmentsFolderPath()
         {
             string dbDir = Path.GetDirectoryName(DbPath)!;
