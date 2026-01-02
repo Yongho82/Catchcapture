@@ -3,9 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:utils="clr-namespace:CatchCapture.Utilities"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen" ResizeMode="CanResize"
-        MinHeight="300" Height="380" MinWidth="1100" Width="1380"
+        MinHeight="300" Height="850" MinWidth="1100" Width="1380"
         Title="히스토리 - 캐치캡처"
         Background="Transparent" WindowStyle="None" AllowsTransparency="True">
     
@@ -81,6 +82,7 @@
         </Style>
 
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <utils:FirstLineConverter x:Key="FirstLineConverter"/>
 
         <!-- Dark Mode Support for Filters -->
         <Style TargetType="TextBox">
@@ -492,7 +494,7 @@
                                 <GridViewColumn x:Name="ColMemo" Header="메모" Width="150">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <TextBlock Text="{Binding Memo}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding Memo, Converter={StaticResource FirstLineConverter}}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
