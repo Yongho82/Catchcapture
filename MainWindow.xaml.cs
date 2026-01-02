@@ -2574,10 +2574,11 @@ public partial class MainWindow : Window
             Stretch = Stretch.Uniform,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
-            Margin = new Thickness(5, 5, 5, 2)
+            Margin = new Thickness(5, 5, 5, 2),
+            SnapsToDevicePixels = true
         };
 
-        RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.NearestNeighbor);
+        RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
 
         // 인덱스를 태그로 저장
         image.Tag = index;
@@ -2808,7 +2809,7 @@ public partial class MainWindow : Window
         Border border = new Border
         {
             Child = grid,
-            Margin = new Thickness(0, 3, 0, 3),
+            Margin = new Thickness(0, 8, 0, 8),
             BorderThickness = new Thickness(1),
             CornerRadius = new CornerRadius(6),
             Effect = new DropShadowEffect { ShadowDepth = 1, BlurRadius = 5, Opacity = 0.2, Direction = 270 },
