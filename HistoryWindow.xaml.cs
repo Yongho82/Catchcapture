@@ -76,7 +76,7 @@ namespace CatchCapture
             // Restore GridView Column Widths
             ColDate.Width = settings.HistoryColDate;
             ColFileName.Width = settings.HistoryColFileName;
-            ColMeta.Width = settings.HistoryColMeta;
+            // ColMeta Removed
             ColPin.Width = settings.HistoryColPin;
             ColFavorite.Width = settings.HistoryColFavorite;
             ColActions.Width = settings.HistoryColActions;
@@ -100,7 +100,7 @@ namespace CatchCapture
             // Save GridView Column Widths
             settings.HistoryColDate = ColDate.Width;
             settings.HistoryColFileName = ColFileName.Width;
-            settings.HistoryColMeta = ColMeta.Width;
+            // ColMeta Removed
             settings.HistoryColPin = ColPin.Width;
             settings.HistoryColFavorite = ColFavorite.Width;
             settings.HistoryColActions = ColActions.Width;

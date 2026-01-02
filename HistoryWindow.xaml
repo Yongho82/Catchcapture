@@ -420,10 +420,10 @@
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn x:Name="ColMeta" Header="메타정보" Width="205">
+                                <GridViewColumn x:Name="ColMemo" Header="메모" Width="205">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <TextBlock Text="{Binding MetaInfo}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding Memo, Converter={StaticResource FirstLineConverter}}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.9" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
@@ -488,13 +488,6 @@
                                                           Fill="{DynamicResource ThemeForeground}" Opacity="0.4" Width="14" Height="14" Stretch="Uniform"/>
                                                 </Button>
                                             </StackPanel>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn x:Name="ColMemo" Header="메모" Width="150">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding Memo, Converter={StaticResource FirstLineConverter}}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
