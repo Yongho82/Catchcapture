@@ -73,6 +73,7 @@ namespace CatchCapture
         public PreviewWindow(BitmapSource image, int index, List<CaptureImage>? captures = null)
         {
             InitializeComponent();
+            WindowHelper.FixMaximizedWindow(this);
 
             // Debug logging disabled
             // (no file writes)

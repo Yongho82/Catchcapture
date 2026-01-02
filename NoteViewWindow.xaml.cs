@@ -25,6 +25,7 @@ namespace CatchCapture
         public NoteViewWindow(long noteId)
         {
             InitializeComponent();
+            WindowHelper.FixMaximizedWindow(this);
             _noteId = noteId;
 
             // Timer for auto-hiding header and footer

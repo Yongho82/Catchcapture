@@ -39,6 +39,7 @@ namespace CatchCapture
         public NoteInputWindow(BitmapSource? image, string? sourceApp = null, string? sourceUrl = null, string? attachFilePath = null)
         {
             InitializeComponent();
+            WindowHelper.FixMaximizedWindow(this);
             _capturedImage = image;
             _sourceApp = sourceApp;
             _sourceUrl = sourceUrl;
@@ -93,6 +94,7 @@ namespace CatchCapture
         public NoteInputWindow(long noteId)
         {
             InitializeComponent();
+            WindowHelper.FixMaximizedWindow(this);
             _editingNoteId = noteId;
             
             LoadCategories();

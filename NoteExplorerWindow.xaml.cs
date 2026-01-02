@@ -86,6 +86,7 @@ namespace CatchCapture
             {
                 Instance = this;
                 InitializeComponent();
+                WindowHelper.FixMaximizedWindow(this);
                 this.DataContext = this;
                 this.MouseDown += (s, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
                 
