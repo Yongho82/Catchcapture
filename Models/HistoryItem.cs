@@ -11,6 +11,7 @@ namespace CatchCapture.Models
         public DateTime CreatedAt { get; set; }
         public string SourceApp { get; set; } = string.Empty;
         public string SourceTitle { get; set; } = string.Empty;
+        public string OriginalFilePath { get; set; } = string.Empty;
         
         private bool _isFavorite;
         public bool IsFavorite

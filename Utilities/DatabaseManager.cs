@@ -330,6 +330,7 @@ namespace CatchCapture.Utilities
                         FilePath TEXT,
                         SourceApp TEXT,
                         SourceTitle TEXT,
+                        OriginalFilePath TEXT,
                         IsFavorite INTEGER DEFAULT 0,
                         Status INTEGER DEFAULT 0, -- 0: Active, 1: Trash
                         FileSize INTEGER,
@@ -338,6 +339,16 @@ namespace CatchCapture.Utilities
                     );";
 
                 using (var command = new SqliteCommand(createCapturesTable, connection)) { command.ExecuteNonQuery(); }
+
+                // Migration: Add OriginalFilePath if it doesn't exist
+                try
+                {
+                    using (var command = new SqliteCommand("ALTER TABLE Captures ADD COLUMN OriginalFilePath TEXT;", connection))
+                    {
+                        command.ExecuteNonQuery();
+                    }
+                }
+                catch { /* Column might already exist */ }
             }
         }
 
@@ -1454,8 +1465,8 @@ namespace CatchCapture.Utilities
             {
                 connection.Open();
                 string sql = @"
-                    INSERT INTO Captures (FileName, FilePath, SourceApp, SourceTitle, IsFavorite, Status, FileSize, Resolution)
-                    VALUES ($fileName, $filePath, $sourceApp, $sourceTitle, $isFavorite, $status, $fileSize, $resolution);
+                    INSERT INTO Captures (FileName, FilePath, SourceApp, SourceTitle, OriginalFilePath, IsFavorite, Status, FileSize, Resolution)
+                    VALUES ($fileName, $filePath, $sourceApp, $sourceTitle, $originalPath, $isFavorite, $status, $fileSize, $resolution);
                     SELECT last_insert_rowid();";
                 
                 using (var command = new SqliteCommand(sql, connection))
@@ -1464,6 +1475,7 @@ namespace CatchCapture.Utilities
                     command.Parameters.AddWithValue("$filePath", item.FilePath);
                     command.Parameters.AddWithValue("$sourceApp", (object?)item.SourceApp ?? DBNull.Value);
                     command.Parameters.AddWithValue("$sourceTitle", (object?)item.SourceTitle ?? DBNull.Value);
+                    command.Parameters.AddWithValue("$originalPath", (object?)item.OriginalFilePath ?? DBNull.Value);
                     command.Parameters.AddWithValue("$isFavorite", item.IsFavorite ? 1 : 0);
                     command.Parameters.AddWithValue("$status", item.Status);
                     command.Parameters.AddWithValue("$fileSize", item.FileSize);
@@ -1515,7 +1527,7 @@ namespace CatchCapture.Utilities
 
                 string whereClause = wheres.Count > 0 ? " WHERE " + string.Join(" AND ", wheres) : "";
                 string pagination = limit > 0 ? $" LIMIT {limit} OFFSET {offset}" : "";
-                string sql = $"SELECT Id, FileName, FilePath, SourceApp, SourceTitle, IsFavorite, Status, FileSize, Resolution, CreatedAt FROM Captures {whereClause} ORDER BY CreatedAt DESC{pagination}";
+                string sql = $"SELECT Id, FileName, FilePath, SourceApp, SourceTitle, IsFavorite, Status, FileSize, Resolution, CreatedAt, OriginalFilePath FROM Captures {whereClause} ORDER BY CreatedAt DESC{pagination}";
 
                 using (var command = new SqliteCommand(sql, connection))
                 {
@@ -1538,7 +1550,8 @@ namespace CatchCapture.Utilities
                                 Status = reader.GetInt32(6),
                                 FileSize = reader.GetInt64(7),
                                 Resolution = reader.IsDBNull(8) ? "" : reader.GetString(8),
-                                CreatedAt = reader.GetDateTime(9)
+                                CreatedAt = reader.GetDateTime(9),
+                                OriginalFilePath = reader.IsDBNull(10) ? "" : reader.GetString(10)
                             });
                         }
                     }
@@ -1594,17 +1607,32 @@ namespace CatchCapture.Utilities
                 connection.Open();
                 if (permanent)
                 {
-                    // Get file path first to delete file
+                    // Get file paths first to delete files
                     string? path = null;
-                    using (var cmd = new SqliteCommand("SELECT FilePath FROM Captures WHERE Id = $id", connection))
+                    string? originalPath = null;
+                    using (var cmd = new SqliteCommand("SELECT FilePath, OriginalFilePath FROM Captures WHERE Id = $id", connection))
                     {
                         cmd.Parameters.AddWithValue("$id", id);
-                        path = cmd.ExecuteScalar()?.ToString();
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                path = reader.IsDBNull(0) ? null : reader.GetString(0);
+                                originalPath = reader.IsDBNull(1) ? null : reader.GetString(1);
+                            }
+                        }
                     }
-                    
+
+                    // Delete managed copy
                     if (!string.IsNullOrEmpty(path) && File.Exists(path))
                     {
                         try { File.Delete(path); } catch { }
+                    }
+
+                    // Delete user's original copy
+                    if (!string.IsNullOrEmpty(originalPath) && File.Exists(originalPath))
+                    {
+                        try { File.Delete(originalPath); } catch { }
                     }
 
                     using (var cmd = new SqliteCommand("DELETE FROM Captures WHERE Id = $id", connection))

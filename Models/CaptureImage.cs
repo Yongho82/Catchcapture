@@ -22,6 +22,20 @@ namespace CatchCapture.Models
         private int _originalHeight;
         private string? _sourceApp;
         private string? _sourceTitle;
+        private long? _historyId;
+
+        public long? HistoryId
+        {
+            get => _historyId;
+            set
+            {
+                if (_historyId != value)
+                {
+                    _historyId = value;
+                    OnPropertyChanged(nameof(HistoryId));
+                }
+            }
+        }
 
         /// <summary>
         /// 표시용 이미지 (썸네일 모드면 썸네일, 아니면 원본)
