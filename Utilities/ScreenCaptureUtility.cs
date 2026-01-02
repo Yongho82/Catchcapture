@@ -921,7 +921,8 @@ namespace CatchCapture.Utilities
                     case ".jpg":
                     case ".jpeg":
                         var jpegEncoder = new JpegBitmapEncoder();
-                        jpegEncoder.QualityLevel = quality;
+                        // [Smart Optimization] 사용자가 100%를 선택해도 내부적으로 95%로 저장하여 용량 최적화 (시각적 차이 없음)
+                        jpegEncoder.QualityLevel = (quality >= 100) ? 95 : quality;
                         encoder = jpegEncoder;
                         break;
                     case ".bmp":
