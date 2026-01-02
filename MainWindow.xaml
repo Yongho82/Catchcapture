@@ -689,6 +689,10 @@
                                                 <Path x:Name="PathViewCard" Data="M3,3H11V11H3V3M13,3H21V11H13V3M3,13H11V21H3V13M13,13H21V21H13V13Z" Fill="{DynamicResource ThemeForeground}" Opacity="0.4"/>
                                             </Viewbox>
                                         </Button>
+                                        <Rectangle Width="1" Height="14" Fill="{DynamicResource ThemeBorder}" Margin="2,0" VerticalAlignment="Center"/>
+                                        <Button x:Name="BtnHistory" Click="BtnHistory_Click" Width="22" Height="22" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="히스토리">
+                                            <TextBlock Text="🕒" FontSize="11" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                        </Button>
                                     </StackPanel>
                                 </Border>
                             </StackPanel>

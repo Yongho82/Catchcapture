@@ -222,6 +222,21 @@ namespace CatchCapture.Utilities
                         Value TEXT
                     );";
 
+                // Create Captures (History) table
+                string createCapturesTable = @"
+                    CREATE TABLE IF NOT EXISTS Captures (
+                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        FileName TEXT,
+                        FilePath TEXT,
+                        SourceApp TEXT,
+                        SourceTitle TEXT,
+                        IsFavorite INTEGER DEFAULT 0,
+                        Status INTEGER DEFAULT 0, -- 0: Active, 1: Trash
+                        FileSize INTEGER,
+                        Resolution TEXT,
+                        CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+                    );";
+
                 using (var command = new SqliteCommand(createNotesTable, connection)) { command.ExecuteNonQuery(); }
                 using (var command = new SqliteCommand(createImagesTable, connection)) { command.ExecuteNonQuery(); }
                 using (var command = new SqliteCommand(createTagsTable, connection)) { command.ExecuteNonQuery(); }
@@ -229,6 +244,7 @@ namespace CatchCapture.Utilities
                 using (var command = new SqliteCommand(createAttachmentsTable, connection)) { command.ExecuteNonQuery(); }
                 using (var command = new SqliteCommand(createCategoriesTable, connection)) { command.ExecuteNonQuery(); }
                 using (var command = new SqliteCommand(createConfigTable, connection)) { command.ExecuteNonQuery(); }
+                using (var command = new SqliteCommand(createCapturesTable, connection)) { command.ExecuteNonQuery(); }
 
                 // Migration: Add CategoryId to Notes
                 try
@@ -1404,5 +1420,170 @@ namespace CatchCapture.Utilities
                 catch { }
             });
         }
+
+        #region History (Captures) Management
+
+        public long InsertCapture(HistoryItem item)
+        {
+            using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+            {
+                connection.Open();
+                string sql = @"
+                    INSERT INTO Captures (FileName, FilePath, SourceApp, SourceTitle, IsFavorite, Status, FileSize, Resolution)
+                    VALUES ($fileName, $filePath, $sourceApp, $sourceTitle, $isFavorite, $status, $fileSize, $resolution);
+                    SELECT last_insert_rowid();";
+                
+                using (var command = new SqliteCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("$fileName", item.FileName);
+                    command.Parameters.AddWithValue("$filePath", item.FilePath);
+                    command.Parameters.AddWithValue("$sourceApp", (object?)item.SourceApp ?? DBNull.Value);
+                    command.Parameters.AddWithValue("$sourceTitle", (object?)item.SourceTitle ?? DBNull.Value);
+                    command.Parameters.AddWithValue("$isFavorite", item.IsFavorite ? 1 : 0);
+                    command.Parameters.AddWithValue("$status", item.Status);
+                    command.Parameters.AddWithValue("$fileSize", item.FileSize);
+                    command.Parameters.AddWithValue("$resolution", item.Resolution);
+                    return Convert.ToInt64(command.ExecuteScalar());
+                }
+            }
+        }
+
+        public List<HistoryItem> GetHistory(string filter = "All", string search = "", DateTime? dateFrom = null, DateTime? dateTo = null, string? fileType = null)
+        {
+            var items = new List<HistoryItem>();
+            using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+            {
+                connection.Open();
+                
+                List<string> wheres = new List<string>();
+                if (filter == "Trash") wheres.Add("Status = 1");
+                else
+                {
+                    wheres.Add("Status = 0");
+                    if (filter == "Favorite") wheres.Add("IsFavorite = 1");
+                    else if (filter == "Recent7") wheres.Add("CreatedAt >= date('now', 'localtime', '-7 days')");
+                    else if (filter == "Recent30") wheres.Add("CreatedAt >= date('now', 'localtime', '-30 days')");
+                    else if (filter == "Recent3Months") wheres.Add("CreatedAt >= date('now', 'localtime', '-3 months')");
+                    else if (filter == "Recent6Months") wheres.Add("CreatedAt >= date('now', 'localtime', '-6 months')");
+                }
+
+                if (!string.IsNullOrEmpty(search))
+                {
+                    wheres.Add("(FileName LIKE $search OR SourceApp LIKE $search OR SourceTitle LIKE $search)");
+                }
+
+                if (dateFrom.HasValue)
+                {
+                    wheres.Add("CreatedAt >= $dateFrom");
+                }
+                if (dateTo.HasValue)
+                {
+                    wheres.Add("CreatedAt <= $dateTo");
+                }
+                if (!string.IsNullOrEmpty(fileType) && fileType != "전체")
+                {
+                    if (fileType.Contains("이미지"))
+                        wheres.Add("(FileName LIKE '%.png' OR FileName LIKE '%.jpg' OR FileName LIKE '%.jpeg' OR FileName LIKE '%.webp')");
+                    else if (fileType.Contains("동영상"))
+                        wheres.Add("FileName LIKE '%.mp4'");
+                }
+
+                string whereClause = wheres.Count > 0 ? " WHERE " + string.Join(" AND ", wheres) : "";
+                string sql = $"SELECT Id, FileName, FilePath, SourceApp, SourceTitle, IsFavorite, Status, FileSize, Resolution, CreatedAt FROM Captures {whereClause} ORDER BY CreatedAt DESC";
+
+                using (var command = new SqliteCommand(sql, connection))
+                {
+                    if (!string.IsNullOrEmpty(search)) command.Parameters.AddWithValue("$search", $"%{search}%");
+                    if (dateFrom.HasValue) command.Parameters.AddWithValue("$dateFrom", dateFrom.Value.ToString("yyyy-MM-dd 00:00:00"));
+                    if (dateTo.HasValue) command.Parameters.AddWithValue("$dateTo", dateTo.Value.ToString("yyyy-MM-dd 23:59:59"));
+                    
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            items.Add(new HistoryItem
+                            {
+                                Id = reader.GetInt64(0),
+                                FileName = reader.GetString(1),
+                                FilePath = reader.GetString(2),
+                                SourceApp = reader.IsDBNull(3) ? "" : reader.GetString(3),
+                                SourceTitle = reader.IsDBNull(4) ? "" : reader.GetString(4),
+                                IsFavorite = reader.GetInt32(5) == 1,
+                                Status = reader.GetInt32(6),
+                                FileSize = reader.GetInt64(7),
+                                Resolution = reader.IsDBNull(8) ? "" : reader.GetString(8),
+                                CreatedAt = reader.GetDateTime(9)
+                            });
+                        }
+                    }
+                }
+            }
+            return items;
+        }
+
+        public void DeleteCapture(long id, bool permanent = false)
+        {
+            using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+            {
+                connection.Open();
+                if (permanent)
+                {
+                    // Get file path first to delete file
+                    string? path = null;
+                    using (var cmd = new SqliteCommand("SELECT FilePath FROM Captures WHERE Id = $id", connection))
+                    {
+                        cmd.Parameters.AddWithValue("$id", id);
+                        path = cmd.ExecuteScalar()?.ToString();
+                    }
+                    
+                    if (!string.IsNullOrEmpty(path) && File.Exists(path))
+                    {
+                        try { File.Delete(path); } catch { }
+                    }
+
+                    using (var cmd = new SqliteCommand("DELETE FROM Captures WHERE Id = $id", connection))
+                    {
+                        cmd.Parameters.AddWithValue("$id", id);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+                else
+                {
+                    using (var cmd = new SqliteCommand("UPDATE Captures SET Status = 1 WHERE Id = $id", connection))
+                    {
+                        cmd.Parameters.AddWithValue("$id", id);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+        }
+
+        public void RestoreCapture(long id)
+        {
+            using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+            {
+                connection.Open();
+                using (var cmd = new SqliteCommand("UPDATE Captures SET Status = 0 WHERE Id = $id", connection))
+                {
+                    cmd.Parameters.AddWithValue("$id", id);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public void ToggleFavoriteCapture(long id)
+        {
+            using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+            {
+                connection.Open();
+                using (var cmd = new SqliteCommand("UPDATE Captures SET IsFavorite = 1 - IsFavorite WHERE Id = $id", connection))
+                {
+                    cmd.Parameters.AddWithValue("$id", id);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        #endregion
     }
 }

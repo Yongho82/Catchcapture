@@ -941,7 +941,7 @@ namespace CatchCapture.Utilities
             }
         }
 
-        private static void SaveAsWebpNative(BitmapSource bitmapSource, string filePath, int quality)
+        public static void SaveAsWebpNative(BitmapSource bitmapSource, string filePath, int quality)
         {
             try
             {
@@ -1018,7 +1018,7 @@ namespace CatchCapture.Utilities
             }
         }
 
-        public static void SaveImageToStream(BitmapSource bitmapSource, Stream outputStream, string format, int quality)
+        public static void SaveImageToStream(BitmapSource bitmapSource, Stream outputStream, string? format, int quality)
         {
             string fmt = format?.ToUpper() ?? "PNG";
 

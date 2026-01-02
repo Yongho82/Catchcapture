@@ -961,7 +961,7 @@ public partial class MainWindow : Window
         var btn = sender as Button;
         if (btn == null) return;
 
-        string mode = btn.Tag.ToString();
+        string mode = btn.Tag?.ToString() ?? "";
         if (mode == "Card")
         {
             if (currentViewMode == CaptureViewMode.Card) return;
@@ -988,6 +988,22 @@ public partial class MainWindow : Window
 
         RebuildCaptureList();
         UpdateViewModeUI();
+    }
+
+    private void BtnHistory_Click(object sender, RoutedEventArgs e)
+    {
+        var historyWindow = Application.Current.Windows.OfType<HistoryWindow>().FirstOrDefault();
+        if (historyWindow == null)
+        {
+            historyWindow = new HistoryWindow();
+            historyWindow.Show();
+        }
+        else
+        {
+            historyWindow.Activate();
+            if (historyWindow.WindowState == WindowState.Minimized)
+                historyWindow.WindowState = WindowState.Normal;
+        }
     }
 
     private void UpdateViewModeUI()
@@ -2392,6 +2408,54 @@ public partial class MainWindow : Window
         return fullPath;
     }
 
+    private void SaveToHistory(BitmapSource image, string? sourceApp, string? sourceTitle)
+    {
+        try
+        {
+            string imgDir = DatabaseManager.Instance.GetImageFolderPath();
+            if (!Directory.Exists(imgDir)) Directory.CreateDirectory(imgDir);
+
+            // 연도별 서브폴더 생성
+            string yearFolder = DatabaseManager.Instance.EnsureYearFolderExists(imgDir);
+            string fileName = $"history_{DateTime.Now:yyyyMMdd_HHmmss_fff}.webp";
+            string relativePath = IOPath.Combine(yearFolder, fileName);
+            string fullPath = IOPath.Combine(imgDir, relativePath);
+
+            // 이미지 파일 저장 (WebP)
+            ScreenCaptureUtility.SaveAsWebpNative(image, fullPath, 85); // 품질 85%로 저장
+
+            // DB 저장
+            var historyItem = new HistoryItem
+            {
+                FileName = fileName,
+                FilePath = fullPath,
+                SourceApp = sourceApp ?? "Unknown",
+                SourceTitle = sourceTitle ?? "Unknown",
+                FileSize = File.Exists(fullPath) ? new FileInfo(fullPath).Length : 0,
+                Resolution = $"{image.PixelWidth}x{image.PixelHeight}",
+                IsFavorite = false,
+                Status = 0,
+                CreatedAt = DateTime.Now
+            };
+
+            DatabaseManager.Instance.InsertCapture(historyItem);
+
+            // 열려있는 히스토리 창이 있으면 갱신
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var historyWindow = Application.Current.Windows.OfType<HistoryWindow>().FirstOrDefault();
+                if (historyWindow != null)
+                {
+                    historyWindow.LoadHistory();
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"히스토리 저장 실패: {ex.Message}");
+        }
+    }
+
     private void AddCaptureToList(BitmapSource image, bool skipPreview = false, bool showMainWindow = true, string? sourceApp = null, string? sourceTitle = null)
     {
         try
@@ -2561,16 +2625,17 @@ public partial class MainWindow : Window
                     try { this.Hide(); } catch { }
                 }
 
-            // 로고 표시 상태 업데이트
+            // 히스토리 DB 저장 (비동기)
+            Task.Run(() => SaveToHistory(image, sourceApp, sourceTitle));
+
             UpdateEmptyStateLogo();
             }
         }
         catch (Exception ex)
         {
-            // 바탕화면 오류 파일 저장 제거: 사용자 알림만 표시
             MessageBox.Show($"캡처 중 오류가 발생했습니다.\n\n{ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
         }
-       UpdateEmptyStateLogo();
+        UpdateEmptyStateLogo();
     }
     private Border CreateCaptureItem(CaptureImage captureImage, int index)
     {
