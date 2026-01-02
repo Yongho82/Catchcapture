@@ -17,13 +17,36 @@ namespace CatchCapture
 
         public HistoryWindow()
         {
-            InitializeComponent();
-            this.DataContext = this;
-            
-            // Allow window dragging
-            this.MouseDown += (s, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
-            
-            LoadHistory();
+            try
+            {
+                InitializeComponent();
+                this.DataContext = this;
+                
+                // Allow window dragging
+                this.MouseDown += (s, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
+                
+                LoadHistory();
+                RefreshCounts();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"히스토리 창 초기화 중 오류: {ex.Message}\n{ex.StackTrace}", "오류");
+            }
+        }
+
+        private void RefreshCounts()
+        {
+            try
+            {
+                TxtCountAll.Text = DatabaseManager.Instance.GetHistoryCount("All").ToString();
+                TxtCountRecent7.Text = DatabaseManager.Instance.GetHistoryCount("Recent7").ToString();
+                TxtCountRecent30.Text = DatabaseManager.Instance.GetHistoryCount("Recent30").ToString();
+                TxtCountRecent3Months.Text = DatabaseManager.Instance.GetHistoryCount("Recent3Months").ToString();
+                TxtCountRecent6Months.Text = DatabaseManager.Instance.GetHistoryCount("Recent6Months").ToString();
+                TxtCountFavorite.Text = DatabaseManager.Instance.GetHistoryCount("Favorite").ToString();
+                TxtCountTrash.Text = DatabaseManager.Instance.GetHistoryCount("Trash").ToString();
+            }
+            catch { }
         }
 
         private string _currentFilter = "All";
@@ -45,6 +68,7 @@ namespace CatchCapture
                 
                 LstHistory.ItemsSource = HistoryItems;
                 UpdateEmptyState();
+                RefreshCounts();
             }
             catch (Exception ex)
             {

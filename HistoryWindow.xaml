@@ -71,11 +71,11 @@
                     </StackPanel>
 
                     <!-- Search & Advanced Filter -->
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Border Background="#20000000" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="8" Height="36" Width="400">
+                    <StackPanel Grid.Column="1" WindowChrome.IsHitTestVisibleInChrome="True" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Border Background="#20000000" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="18" Height="36" Width="450">
                             <Grid>
-                                <TextBox x:Name="TxtSearch" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" FontSize="13" Foreground="{DynamicResource ThemeTitleForeground}" Margin="10,0,35,0" Padding="0"/>
-                                <TextBlock Text="파일명, 파일내용, 앱 이름 등 검색..." IsHitTestVisible="False" Foreground="{DynamicResource ThemeTitleForeground}" Opacity="0.4" VerticalAlignment="Center" Margin="12,0" FontSize="13">
+                                <TextBox x:Name="TxtSearch" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" FontSize="13" Foreground="{DynamicResource ThemeTitleForeground}" Margin="15,0,35,0" Padding="0"/>
+                                <TextBlock Text="파일명, 파일내용, 앱 이름 등 검색..." IsHitTestVisible="False" Foreground="{DynamicResource ThemeTitleForeground}" Opacity="0.4" VerticalAlignment="Center" Margin="17,0" FontSize="13">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -87,7 +87,7 @@
                                         </Style>
                                     </TextBlock.Style>
                                 </TextBlock>
-                                <Button x:Name="BtnSearch" Click="BtnSearch_Click" HorizontalAlignment="Right" Width="32" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                                <Button x:Name="BtnSearch" Click="BtnSearch_Click" HorizontalAlignment="Right" Width="36" Background="Transparent" BorderThickness="0" Cursor="Hand">
                                     <TextBlock Text="🔍" FontSize="14" Foreground="{DynamicResource ThemeTitleForeground}"/>
                                 </Button>
                             </Grid>
@@ -99,7 +99,6 @@
                                   Fill="{DynamicResource ThemeTitleForeground}" Stretch="Uniform" Width="18" Height="18" Opacity="0.8"/>
                         </Button>
 
-                        <!-- Advanced Filter Popup (Simple structure for now) -->
                         <Popup x:Name="PopupFilter" PlacementTarget="{Binding ElementName=BtnAdvancedFilter}" StaysOpen="False" AllowsTransparency="True">
                             <Border Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="8" Padding="15" Width="300">
                                 <StackPanel>
@@ -146,75 +145,96 @@
             <!-- Main Content Grid (3 Columns) -->
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="220"/> <!-- Side Sidebar -->
-                    <ColumnDefinition Width="*"/>   <!-- Main List & Preview Area -->
+                    <ColumnDefinition Width="220"/> <!-- Sidebar -->
+                    <ColumnDefinition Width="*"/>   <!-- List -->
+                    <ColumnDefinition Width="Auto"/> <!-- Splitter -->
+                    <ColumnDefinition Width="320" MinWidth="250" MaxWidth="500"/> <!-- Preview Pane -->
                 </Grid.ColumnDefinitions>
 
                 <!-- Sidebar (1st Column) -->
-                <Border Background="{DynamicResource ThemeSidebarButtonBackground}" BorderThickness="0,0,1,0" BorderBrush="{DynamicResource ThemeBorder}">
+                <Border Grid.Column="0" Background="{DynamicResource ThemeSidebarButtonBackground}" BorderThickness="0,0,1,0" BorderBrush="{DynamicResource ThemeBorder}">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="15,20,5,0">
                             <TextBlock Text="전체 리스트" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="11" FontWeight="Bold" Margin="15,0,0,10"/>
                             <Button Style="{StaticResource SidebarItemStyle}" Tag="All" Click="BtnFilter_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="📋" Margin="0,0,12,0"/>
-                                    <TextBlock Text="전체 기록"/>
-                                </StackPanel>
+                                <Grid Width="170">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="📋" Margin="0,0,12,0"/>
+                                        <TextBlock Text="전체 기록"/>
+                                    </StackPanel>
+                                    <TextBlock x:Name="TxtCountAll" Text="0" HorizontalAlignment="Right" Opacity="0.5" FontSize="11" VerticalAlignment="Center"/>
+                                </Grid>
                             </Button>
                             
                             <Separator Background="{DynamicResource ThemeBorder}" Margin="10,15"/>
                             
                             <TextBlock Text="기간별" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="11" FontWeight="Bold" Margin="15,0,0,10"/>
                             <Button Style="{StaticResource SidebarItemStyle}" Tag="Recent7" Click="BtnFilter_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🕐" Margin="0,0,12,0" Opacity="0.7"/>
-                                    <TextBlock Text="최근 7일"/>
-                                </StackPanel>
+                                <Grid Width="170">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🕐" Margin="0,0,12,0" Opacity="0.7"/>
+                                        <TextBlock Text="최근 7일"/>
+                                    </StackPanel>
+                                    <TextBlock x:Name="TxtCountRecent7" Text="0" HorizontalAlignment="Right" Opacity="0.5" FontSize="11" VerticalAlignment="Center"/>
+                                </Grid>
                             </Button>
                             <Button Style="{StaticResource SidebarItemStyle}" Tag="Recent30" Click="BtnFilter_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🕒" Margin="0,0,12,0" Opacity="0.7"/>
-                                    <TextBlock Text="최근 30일"/>
-                                </StackPanel>
+                                <Grid Width="170">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🕒" Margin="0,0,12,0" Opacity="0.7"/>
+                                        <TextBlock Text="최근 30일"/>
+                                    </StackPanel>
+                                    <TextBlock x:Name="TxtCountRecent30" Text="0" HorizontalAlignment="Right" Opacity="0.5" FontSize="11" VerticalAlignment="Center"/>
+                                </Grid>
                             </Button>
                             <Button Style="{StaticResource SidebarItemStyle}" Tag="Recent3Months" Click="BtnFilter_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🕒" Margin="0,0,12,0" Opacity="0.7"/>
-                                    <TextBlock Text="최근 3개월"/>
-                                </StackPanel>
+                                <Grid Width="170">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🗓️" Margin="0,0,12,0" Opacity="0.7"/>
+                                        <TextBlock Text="최근 3개월"/>
+                                    </StackPanel>
+                                    <TextBlock x:Name="TxtCountRecent3Months" Text="0" HorizontalAlignment="Right" Opacity="0.5" FontSize="11" VerticalAlignment="Center"/>
+                                </Grid>
                             </Button>
                             <Button Style="{StaticResource SidebarItemStyle}" Tag="Recent6Months" Click="BtnFilter_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🕕" Margin="0,0,12,0" Opacity="0.7"/>
-                                    <TextBlock Text="최근 6개월"/>
-                                </StackPanel>
+                                <Grid Width="170">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🗓️" Margin="0,0,12,0" Opacity="0.7"/>
+                                        <TextBlock Text="최근 6개월"/>
+                                    </StackPanel>
+                                    <TextBlock x:Name="TxtCountRecent6Months" Text="0" HorizontalAlignment="Right" Opacity="0.5" FontSize="11" VerticalAlignment="Center"/>
+                                </Grid>
                             </Button>
 
                             <Separator Background="{DynamicResource ThemeBorder}" Margin="10,15"/>
 
                             <Button Style="{StaticResource SidebarItemStyle}" Tag="Favorite" Click="BtnFilter_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="⭐" Margin="0,0,12,0" Foreground="Gold"/>
-                                    <TextBlock Text="즐겨찾기"/>
-                                </StackPanel>
+                                <Grid Width="170">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="⭐" Margin="0,0,12,0" Foreground="Gold"/>
+                                        <TextBlock Text="즐겨찾기"/>
+                                    </StackPanel>
+                                    <TextBlock x:Name="TxtCountFavorite" Text="0" HorizontalAlignment="Right" Opacity="0.5" FontSize="11" VerticalAlignment="Center"/>
+                                </Grid>
                             </Button>
                             <Button Style="{StaticResource SidebarItemStyle}" Tag="Trash" Click="BtnFilter_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🗑️" Margin="0,0,12,0" Opacity="0.7"/>
-                                    <TextBlock Text="휴지통"/>
-                                </StackPanel>
+                                <Grid Width="170">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🗑️" Margin="0,0,12,0" Opacity="0.7"/>
+                                        <TextBlock Text="휴지통"/>
+                                    </StackPanel>
+                                    <TextBlock x:Name="TxtCountTrash" Text="0" HorizontalAlignment="Right" Opacity="0.5" FontSize="11" VerticalAlignment="Center"/>
+                                </Grid>
                             </Button>
                         </StackPanel>
                     </ScrollViewer>
                 </Border>
 
-                <!-- 중앙/프리뷰 영역 (2nd Column with 3 Rows) -->
+                <!-- 중앙 리스트 영역 (2nd Column) -->
                 <Grid Grid.Column="1">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/> <!-- Row 1: Action Buttons -->
-                        <RowDefinition Height="2*" MinHeight="200"/>   <!-- Row 2: Grid List -->
-                        <RowDefinition Height="Auto"/> <!-- Splitter -->
-                        <RowDefinition x:Name="RowPreview" Height="*" MinHeight="100"/>    <!-- Row 3: Preview Area -->
+                        <RowDefinition Height="*"/>    <!-- Row 2: Grid List -->
                     </Grid.RowDefinitions>
 
                     <!-- Row 1: Batch Actions -->
@@ -241,36 +261,54 @@
                     <ListView Grid.Row="1" x:Name="LstHistory" BorderThickness="0" Background="Transparent" SelectionChanged="LstHistory_SelectionChanged">
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Width="40">
+                                <GridViewColumn Width="45">
                                     <GridViewColumn.Header>
-                                        <CheckBox x:Name="ChkHeaderAll" Click="BtnSelectAll_Click"/>
+                                        <CheckBox x:Name="ChkHeaderAll" Click="BtnSelectAll_Click" HorizontalAlignment="Center"/>
                                     </GridViewColumn.Header>
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox IsChecked="{Binding IsSelected}" VerticalAlignment="Center"/>
+                                            <CheckBox IsChecked="{Binding IsSelected}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Header="날짜 및 시각" Width="180" DisplayMemberBinding="{Binding FormattedDate}"/>
-                                <GridViewColumn Header="파일명" Width="250" DisplayMemberBinding="{Binding FileName}"/>
-                                <GridViewColumn Header="메타정보" Width="300" DisplayMemberBinding="{Binding MetaInfo}"/>
-                                <GridViewColumn Header="즐겨찾기" Width="80">
+                                <GridViewColumn Header="날짜 및 시각" Width="170">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <Button Click="BtnFavorite_Click" Background="Transparent" BorderThickness="0" Cursor="Hand">
-                                                <TextBlock Text="{Binding FavoriteEmoji}" FontSize="14"/>
+                                            <TextBlock Text="{Binding FormattedDate}" VerticalAlignment="Center"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="파일명">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding FileName}" TextTrimming="CharacterEllipsis" MaxWidth="250" VerticalAlignment="Center"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="메타정보" Width="300">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding MetaInfo}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="⭐" Width="50">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Click="BtnFavorite_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalAlignment="Center">
+                                                <TextBlock Text="{Binding FavoriteEmoji}" FontSize="14" HorizontalAlignment="Center"/>
                                             </Button>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Header="삭제/복원" Width="100">
+                                <GridViewColumn Header="작업" Width="90">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <StackPanel Orientation="Horizontal">
-                                                <Button Click="BtnRestore_Click" Visibility="{Binding IsInTrash, Converter={StaticResource BoolToVis}}" Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="5" ToolTip="복원">
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                <Button Click="BtnRestore_Click" Visibility="{Binding IsInTrash, Converter={StaticResource BoolToVis}}" Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="4" ToolTip="복원">
                                                     <TextBlock Text="🔄" Opacity="0.7"/>
                                                 </Button>
-                                                <Button Click="BtnDeleteItem_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="5">
+                                                <Button Click="BtnDeleteItem_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="4" ToolTip="삭제">
                                                     <TextBlock Text="🗑️" Opacity="0.5"/>
                                                 </Button>
                                             </StackPanel>
@@ -280,54 +318,54 @@
                             </GridView>
                         </ListView.View>
                     </ListView>
-
-                    <!-- Splitter between List and Preview -->
-                    <GridSplitter Grid.Row="2" Height="6" HorizontalAlignment="Stretch" Background="{DynamicResource ThemeBorder}" Cursor="SizeNS"/>
-
-                    <!-- Row 3: Preview Area -->
-                    <Border Grid.Row="3" Background="#10000000" Margin="0" BorderThickness="0">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="300"/>
-                            </Grid.ColumnDefinitions>
-                            
-                            <!-- Image Display -->
-                            <Border x:Name="PreviewImageContainer" Grid.Column="0" Margin="20">
-                                <Image x:Name="ImgPreview" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
-                            </Border>
-                            
-                            <!-- Details -->
-                            <Border Grid.Column="1" Background="{DynamicResource ThemeSidebarButtonBackground}" BorderThickness="1,0,0,0" BorderBrush="{DynamicResource ThemeBorder}" Padding="20">
-                                <StackPanel>
-                                    <TextBlock Text="상세 정보" FontSize="14" FontWeight="Bold" Margin="0,0,0,15"/>
-                                    <Grid Margin="0,0,0,8">
-                                        <TextBlock Text="크기:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
-                                        <TextBlock x:Name="TxtPreviewSize" Text="1920 x 1080" HorizontalAlignment="Right"/>
-                                    </Grid>
-                                    <Grid Margin="0,0,0,8">
-                                        <TextBlock Text="용량:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
-                                        <TextBlock x:Name="TxtPreviewWeight" Text="1.2 MB" HorizontalAlignment="Right"/>
-                                    </Grid>
-                                    <Grid Margin="0,0,0,8">
-                                        <TextBlock Text="앱:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
-                                        <TextBlock x:Name="TxtPreviewApp" Text="Chrome" HorizontalAlignment="Right"/>
-                                    </Grid>
-                                    <TextBlock Text="전체 제목:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" Margin="0,15,0,5"/>
-                                    <TextBlock x:Name="TxtPreviewTitle" Text="네이버 뉴스 - 세상의 모든 소식" TextWrapping="Wrap" FontWeight="SemiBold"/>
-                                </StackPanel>
-                            </Border>
-                            
-                            <!-- Nothing Selected Empty State -->
-                            <Grid x:Name="PreviewEmptyState" Grid.ColumnSpan="2" Background="{DynamicResource ThemeBackground}">
-                                <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Text="🖼️" FontSize="48" HorizontalAlignment="Center" Opacity="0.2"/>
-                                    <TextBlock Text="기록을 선택하면 미리보기가 표시됩니다." HorizontalAlignment="Center" Opacity="0.4" Margin="0,10,0,0"/>
-                                </StackPanel>
-                            </Grid>
-                        </Grid>
-                    </Border>
                 </Grid>
+
+                <!-- Column Splitter -->
+                <GridSplitter Grid.Column="2" Width="4" HorizontalAlignment="Stretch" Background="{DynamicResource ThemeBorder}" Cursor="SizeWE"/>
+
+                <!-- Preview Pane (3rd Column: Image Top, Details Bottom) -->
+                <Border Grid.Column="3" Background="{DynamicResource ThemeSidebarButtonBackground}" BorderThickness="1,0,0,0" BorderBrush="{DynamicResource ThemeBorder}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>   <!-- Image -->
+                            <RowDefinition Height="Auto"/> <!-- Details -->
+                        </Grid.RowDefinitions>
+
+                        <!-- Image Display -->
+                        <Border Grid.Row="0" Margin="15" Background="#08000000" CornerRadius="8">
+                            <Image x:Name="ImgPreview" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </Border>
+
+                        <!-- Details (Bottom) -->
+                        <Border Grid.Row="1" Padding="20" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ThemeBorder}">
+                            <StackPanel>
+                                <TextBlock Text="상세 정보" FontSize="14" FontWeight="Bold" Margin="0,0,0,15"/>
+                                <Grid Margin="0,0,0,8">
+                                    <TextBlock Text="크기:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
+                                    <TextBlock x:Name="TxtPreviewSize" Text="-" HorizontalAlignment="Right"/>
+                                </Grid>
+                                <Grid Margin="0,0,0,8">
+                                    <TextBlock Text="용량:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
+                                    <TextBlock x:Name="TxtPreviewWeight" Text="-" HorizontalAlignment="Right"/>
+                                </Grid>
+                                <Grid Margin="0,0,0,8">
+                                    <TextBlock Text="앱:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
+                                    <TextBlock x:Name="TxtPreviewApp" Text="-" HorizontalAlignment="Right"/>
+                                </Grid>
+                                <TextBlock Text="전체 제목:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" Margin="0,15,0,5"/>
+                                <TextBlock x:Name="TxtPreviewTitle" Text="-" TextWrapping="Wrap" FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Nothing Selected Empty State -->
+                        <Grid x:Name="PreviewEmptyState" Grid.RowSpan="2" Background="{DynamicResource ThemeBackground}">
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="🖼️" FontSize="48" HorizontalAlignment="Center" Opacity="0.2"/>
+                                <TextBlock Text="기록을 선택하면 미리보기가 표시됩니다." HorizontalAlignment="Center" Opacity="0.4" Margin="15,10,15,0" TextAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </Border>
             </Grid>
         </Grid>
     </Border>

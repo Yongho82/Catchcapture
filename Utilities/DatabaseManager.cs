@@ -1521,6 +1521,31 @@ namespace CatchCapture.Utilities
             return items;
         }
 
+        public int GetHistoryCount(string filter = "All")
+        {
+            using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+            {
+                connection.Open();
+                List<string> wheres = new List<string>();
+                if (filter == "Trash") wheres.Add("Status = 1");
+                else
+                {
+                    wheres.Add("Status = 0");
+                    if (filter == "Favorite") wheres.Add("IsFavorite = 1");
+                    else if (filter == "Recent7") wheres.Add("CreatedAt >= date('now', 'localtime', '-7 days')");
+                    else if (filter == "Recent30") wheres.Add("CreatedAt >= date('now', 'localtime', '-30 days')");
+                    else if (filter == "Recent3Months") wheres.Add("CreatedAt >= date('now', 'localtime', '-3 months')");
+                    else if (filter == "Recent6Months") wheres.Add("CreatedAt >= date('now', 'localtime', '-6 months')");
+                }
+                string whereClause = wheres.Count > 0 ? " WHERE " + string.Join(" AND ", wheres) : "";
+                string sql = $"SELECT COUNT(*) FROM Captures {whereClause}";
+                using (var command = new SqliteCommand(sql, connection))
+                {
+                    return Convert.ToInt32(command.ExecuteScalar());
+                }
+            }
+        }
+
         public void DeleteCapture(long id, bool permanent = false)
         {
             using (var connection = new SqliteConnection($"Data Source={DbPath}"))

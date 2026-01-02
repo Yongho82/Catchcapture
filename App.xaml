@@ -9,6 +9,13 @@
         <SolidColorBrush x:Key="ThemeForeground" Color="#333333"/>
         <SolidColorBrush x:Key="ThemeBorder" Color="#E0E0E0"/>
         <SolidColorBrush x:Key="AccentColor" Color="#007AFF"/>
+        
+        <!-- Missing Resources causing crash -->
+        <SolidColorBrush x:Key="ThemeWindowBorder" Color="#E0E0E0"/>
+        <SolidColorBrush x:Key="ThemeTitleBackground" Color="#F5F5F5"/>
+        <SolidColorBrush x:Key="ThemeTitleForeground" Color="#333333"/>
+        <SolidColorBrush x:Key="ThemeSidebarButtonBackground" Color="Transparent"/>
+        <SolidColorBrush x:Key="ThemeSidebarButtonHoverBackground" Color="#10000000"/>
 
         <!-- ComboBox ToggleButton Template -->
         <ControlTemplate x:Key="ComboBoxToggleButton" TargetType="ToggleButton">
