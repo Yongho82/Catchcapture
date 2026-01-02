@@ -544,7 +544,7 @@
                                                 <Setter Property="CornerRadius" Value="18"/>
                                             </Style>
                                         </Button.Resources>
-                                        <Image Source="pack://application:,,,/icons/img_editor.png" Width="18" Height="18" Stretch="Uniform"/>
+                                        <Image Source="icons/img_editor.png" Width="18" Height="18" Stretch="Uniform"/>
                                     </Button>
                                     <Button x:Name="BtnPreviewNote" Click="BtnPreviewNote_Click" Width="36" Height="36" Background="#CC2D2D30" BorderThickness="0" Cursor="Hand" ToolTip="내 노트로 저장">
                                         <Button.Resources>
@@ -552,7 +552,7 @@
                                                 <Setter Property="CornerRadius" Value="18"/>
                                             </Style>
                                         </Button.Resources>
-                                        <Image Source="pack://application:,,,/icons/my_note.png" Width="18" Height="18" Stretch="Uniform"/>
+                                        <Image Source="icons/my_note.png" Width="18" Height="18" Stretch="Uniform"/>
                                     </Button>
                                 </StackPanel>
                             </Grid>

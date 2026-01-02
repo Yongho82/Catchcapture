@@ -526,8 +526,11 @@ namespace CatchCapture
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
-            // 그려진 요소(Visible)가 하나라도 있다면 닫을 때 합성하여 부모 리스트 업데이트 (자동 저장)
-            if (drawnElements != null && drawnElements.Any(el => el.Visibility == Visibility.Visible))
+            // 그려진 요소(Visible)가 있거나 배경 이미지 자체가 변경된 경우(모자이크 등) 닫을 때 합성하여 부모 리스트 업데이트 (자동 저장)
+            bool isModified = (drawnElements != null && drawnElements.Any(el => el.Visibility == Visibility.Visible)) ||
+                              (currentImage != originalImage);
+
+            if (isModified)
             {
                 var finalImage = GetCombinedImage();
                 if (finalImage != null)

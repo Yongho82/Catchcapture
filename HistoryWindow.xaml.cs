@@ -481,12 +481,14 @@ namespace CatchCapture
                     var bitmap = new BitmapImage();
                     bitmap.BeginInit();
                     bitmap.UriSource = new Uri(item.FilePath);
+                    // ★ 캐시를 무시하고 항상 디스크에서 새로 읽어오도록 설정 (편집 후 즉시 반영을 위해)
+                    bitmap.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
                     bitmap.CacheOption = BitmapCacheOption.OnLoad;
                     bitmap.EndInit();
                     ImgPreview.Source = bitmap;
                     
                     TxtPreviewSize.Text = $"{bitmap.PixelWidth} x {bitmap.PixelHeight}";
-                    TxtPreviewWeight.Text = GetFileSizeString(item.FileSize);
+                    TxtPreviewWeight.Text = GetFileSizeString(new System.IO.FileInfo(item.FilePath).Length);
                     TxtPreviewApp.Text = item.SourceApp;
                     TxtPreviewTitle.Text = item.SourceTitle;
                 }
@@ -516,17 +518,48 @@ namespace CatchCapture
         {
             if (LstHistory.SelectedItem is HistoryItem item && System.IO.File.Exists(item.FilePath))
             {
+                long selectedId = item.Id; // 현재 ID 저장
                 try
                 {
                     var bitmap = new BitmapImage();
                     bitmap.BeginInit();
                     bitmap.UriSource = new Uri(item.FilePath);
+                    bitmap.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
                     bitmap.CacheOption = BitmapCacheOption.OnLoad;
                     bitmap.EndInit();
                     
                     var previewWin = new PreviewWindow(bitmap, 0);
                     previewWin.Owner = this;
-                    previewWin.Show();
+                    
+                    // Subscribe to image update event to save changes back to file
+                    previewWin.ImageUpdated += (s, ev) =>
+                    {
+                        try
+                        {
+                            // Save the edited image back to the original file
+                            ScreenCaptureUtility.SaveImageToFile(ev.NewImage, item.FilePath);
+                            
+                            // Update the UI preview
+                            Dispatcher.Invoke(() => {
+                                // 리스트를 다시 로드하여 데이터 동기화
+                                LoadHistory(_currentFilter, _currentSearch, _currentDateFrom, _currentDateTo, _currentFileType, false);
+                                
+                                // ID로 다시 항목을 찾아 선택 상태 복구
+                                var newItem = HistoryItems.FirstOrDefault(i => i.Id == selectedId);
+                                if (newItem != null)
+                                {
+                                    LstHistory.SelectedItem = newItem;
+                                    UpdatePreview(newItem);
+                                }
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+                            CustomMessageBox.Show($"이미지 저장 중 오류가 발생했습니다: {ex.Message}", "오류");
+                        }
+                    };
+                    
+                    previewWin.ShowDialog(); // ShowDialog로 창을 닫을 때까지 대기하도록 하여 포커스 흐트러짐 방지
                 }
                 catch (Exception ex)
                 {
