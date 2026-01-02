@@ -675,11 +675,22 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <!-- View Mode Button -->
+                            <!-- View Mode Buttons -->
                             <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,1,10,0">
-                                <Button x:Name="ViewModeButton" Click="ViewModeToggle_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="카드형 보기" Padding="0">
-                                    <TextBlock x:Name="ViewModeIcon" Text="📋" FontSize="11" Foreground="{DynamicResource ThemeForeground}"/>
-                                </Button>
+                                <Border Background="{DynamicResource ThemeSidebarButtonBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="3" Padding="1" Height="24" VerticalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button x:Name="BtnViewList" Click="BtnViewMode_Click" Tag="List" Width="22" Height="22" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="리스트형 보기">
+                                            <Viewbox Width="11" Height="11">
+                                                <Path x:Name="PathViewList" Data="M3,5H21V7H3V5M3,11H21V13H3V11M3,17H21V19H3V17Z" Fill="{DynamicResource ThemeForeground}" Opacity="1.0"/>
+                                            </Viewbox>
+                                        </Button>
+                                        <Button x:Name="BtnViewCard" Click="BtnViewMode_Click" Tag="Card" Width="22" Height="22" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="카드형 보기">
+                                            <Viewbox Width="11" Height="11">
+                                                <Path x:Name="PathViewCard" Data="M3,3H11V11H3V3M13,3H21V11H13V3M3,13H11V21H3V13M13,13H21V21H13V13Z" Fill="{DynamicResource ThemeForeground}" Opacity="0.4"/>
+                                            </Viewbox>
+                                        </Button>
+                                    </StackPanel>
+                                </Border>
                             </StackPanel>
                             
                             <!-- 로고 (캡처 목록이 비어있을 때만 표시) -->

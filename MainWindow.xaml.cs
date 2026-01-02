@@ -234,6 +234,8 @@ public partial class MainWindow : Window
                 }
             }
             UpdateEmptyStateLogo();
+            UpdateViewModeUI();
+
             // 초기 보기 모드 설정 (리스트형, 200x150 기준)
             CaptureListPanel.ItemWidth = 210;
             CaptureListPanel.HorizontalAlignment = HorizontalAlignment.Center;
@@ -832,6 +834,7 @@ public partial class MainWindow : Window
         this.Show();
         this.WindowState = WindowState.Normal;
         this.Activate();
+        UpdateViewModeUI();
         Settings.Save(settings);
 
         // 설정을 다시 로드하여 메모리와 파일 동기화
@@ -953,13 +956,16 @@ public partial class MainWindow : Window
         this.WindowState = WindowState.Minimized;
     }
 
-    private void ViewModeToggle_Click(object sender, RoutedEventArgs e)
+    private void BtnViewMode_Click(object sender, RoutedEventArgs e)
     {
-        if (currentViewMode == CaptureViewMode.List)
+        var btn = sender as Button;
+        if (btn == null) return;
+
+        string mode = btn.Tag.ToString();
+        if (mode == "Card")
         {
+            if (currentViewMode == CaptureViewMode.Card) return;
             currentViewMode = CaptureViewMode.Card;
-            ViewModeIcon.Text = "🖼";
-            ViewModeButton.ToolTip = "리스트형 보기";
             
             this.Width = 830;
             CaptureListPanel.ItemWidth = 210;
@@ -967,9 +973,8 @@ public partial class MainWindow : Window
         }
         else
         {
+            if (currentViewMode == CaptureViewMode.List) return;
             currentViewMode = CaptureViewMode.List;
-            ViewModeIcon.Text = "📋";
-            ViewModeButton.ToolTip = "카드형 보기";
             
             this.Width = 400;
             CaptureListPanel.ItemWidth = 210; 
@@ -982,6 +987,23 @@ public partial class MainWindow : Window
         this.Top = (workArea.Height - this.Height) / 2 + workArea.Top;
 
         RebuildCaptureList();
+        UpdateViewModeUI();
+    }
+
+    private void UpdateViewModeUI()
+    {
+        if (PathViewList == null || PathViewCard == null) return;
+
+        if (currentViewMode == CaptureViewMode.Card)
+        {
+            PathViewList.Opacity = 0.4;
+            PathViewCard.Opacity = 1.0;
+        }
+        else
+        {
+            PathViewList.Opacity = 1.0;
+            PathViewCard.Opacity = 0.4;
+        }
     }
 
     private void RebuildCaptureList()
@@ -2624,12 +2646,13 @@ public partial class MainWindow : Window
             TextBlock fileNameText = new TextBlock
             {
                 Text = fileName,
-                FontSize = 11,
-                Foreground = (Brush)FindResource("ThemeForeground"),
+                FontSize = 12,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 TextTrimming = TextTrimming.None, 
-                Opacity = 0.8
+                Opacity = 1.0
             };
+            fileNameText.SetResourceReference(TextBlock.ForegroundProperty, "ThemeForeground");
+            RenderOptions.SetClearTypeHint(fileNameText, ClearTypeHint.Enabled);
             vb.Child = fileNameText;
             grid.Children.Add(vb);
             Grid.SetRow(vb, 1);
