@@ -533,8 +533,8 @@
 
                         <!-- Image Display -->
                         <Border Grid.Row="0" Margin="15" Background="#08000000" CornerRadius="8">
-                            <Grid>
-                                <Image x:Name="ImgPreview" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" Cursor="Hand" MouseUp="ImgPreview_MouseUp" ToolTip="윈도우 기본 뷰어로 열기"/>
+                            <Grid Background="Transparent" Cursor="Hand" MouseLeftButtonDown="ImgPreview_MouseDown" ToolTip="윈도우 기본 뷰어로 열기">
+                                <Image x:Name="ImgPreview" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" IsHitTestVisible="False"/>
                                 
                                 <!-- Interactive Buttons Overlay -->
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,10,10">

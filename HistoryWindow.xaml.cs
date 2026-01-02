@@ -499,17 +499,20 @@ namespace CatchCapture
             }
         }
 
-        private void ImgPreview_MouseUp(object sender, MouseButtonEventArgs e)
+        private void ImgPreview_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (LstHistory.SelectedItem is HistoryItem item && System.IO.File.Exists(item.FilePath))
+            if (e.ChangedButton == MouseButton.Left)
             {
-                try
+                if (LstHistory.SelectedItem is HistoryItem item && System.IO.File.Exists(item.FilePath))
                 {
-                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(item.FilePath) { UseShellExecute = true });
-                }
-                catch (Exception ex)
-                {
-                    CustomMessageBox.Show($"이미지를 열 수 없습니다: {ex.Message}", "오류");
+                    try
+                    {
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(item.FilePath) { UseShellExecute = true });
+                    }
+                    catch (Exception ex)
+                    {
+                        CustomMessageBox.Show($"이미지를 열 수 없습니다: {ex.Message}", "오류");
+                    }
                 }
             }
         }
