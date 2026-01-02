@@ -691,7 +691,9 @@
                                         </Button>
                                         <Rectangle Width="1" Height="14" Fill="{DynamicResource ThemeBorder}" Margin="2,0" VerticalAlignment="Center"/>
                                         <Button x:Name="BtnHistory" Click="BtnHistory_Click" Width="22" Height="22" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="히스토리">
-                                            <TextBlock Text="🕒" FontSize="11" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            <Viewbox Width="11" Height="11">
+                                                <TextBlock Text="🕒" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </Viewbox>
                                         </Button>
                                     </StackPanel>
                                 </Border>

@@ -332,6 +332,7 @@ namespace CatchCapture.Utilities
                         SourceTitle TEXT,
                         OriginalFilePath TEXT,
                         IsFavorite INTEGER DEFAULT 0,
+                        IsPinned INTEGER DEFAULT 0,
                         Status INTEGER DEFAULT 0, -- 0: Active, 1: Trash
                         FileSize INTEGER,
                         Resolution TEXT,
@@ -344,6 +345,15 @@ namespace CatchCapture.Utilities
                 try
                 {
                     using (var command = new SqliteCommand("ALTER TABLE Captures ADD COLUMN OriginalFilePath TEXT;", connection))
+                    {
+                        command.ExecuteNonQuery();
+                    }
+                }
+                catch { /* Column might already exist */ }
+
+                try
+                {
+                    using (var command = new SqliteCommand("ALTER TABLE Captures ADD COLUMN IsPinned INTEGER DEFAULT 0;", connection))
                     {
                         command.ExecuteNonQuery();
                     }
@@ -1527,7 +1537,7 @@ namespace CatchCapture.Utilities
 
                 string whereClause = wheres.Count > 0 ? " WHERE " + string.Join(" AND ", wheres) : "";
                 string pagination = limit > 0 ? $" LIMIT {limit} OFFSET {offset}" : "";
-                string sql = $"SELECT Id, FileName, FilePath, SourceApp, SourceTitle, IsFavorite, Status, FileSize, Resolution, CreatedAt, OriginalFilePath FROM Captures {whereClause} ORDER BY CreatedAt DESC{pagination}";
+                string sql = $"SELECT Id, FileName, FilePath, SourceApp, SourceTitle, IsFavorite, Status, FileSize, Resolution, CreatedAt, OriginalFilePath, IsPinned FROM Captures {whereClause} ORDER BY IsPinned DESC, CreatedAt DESC{pagination}";
 
                 using (var command = new SqliteCommand(sql, connection))
                 {
@@ -1551,7 +1561,8 @@ namespace CatchCapture.Utilities
                                 FileSize = reader.GetInt64(7),
                                 Resolution = reader.IsDBNull(8) ? "" : reader.GetString(8),
                                 CreatedAt = reader.GetDateTime(9),
-                                OriginalFilePath = reader.IsDBNull(10) ? "" : reader.GetString(10)
+                                OriginalFilePath = reader.IsDBNull(10) ? "" : reader.GetString(10),
+                                IsPinned = reader.GetInt32(11) == 1
                             });
                         }
                     }
@@ -1679,5 +1690,40 @@ namespace CatchCapture.Utilities
         }
 
         #endregion
+        public void EmptyTrash()
+        {
+            using (var connection = new SqliteConnection($"Data Source={HistoryDbPath}"))
+            {
+                connection.Open();
+                var trashIds = new List<long>();
+                using (var cmd = new SqliteCommand("SELECT Id FROM Captures WHERE Status = 1", connection))
+                {
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            trashIds.Add(reader.GetInt64(0));
+                        }
+                    }
+                }
+
+                foreach (var id in trashIds)
+                {
+                    DeleteCapture(id, true);
+                }
+            }
+        }
+        public void TogglePinCapture(long id)
+        {
+            using (var connection = new SqliteConnection($"Data Source={HistoryDbPath}"))
+            {
+                connection.Open();
+                using (var cmd = new SqliteCommand("UPDATE Captures SET IsPinned = CASE WHEN IsPinned = 1 THEN 0 ELSE 1 END WHERE Id = $id", connection))
+                {
+                    cmd.Parameters.AddWithValue("$id", id);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
     }
 }

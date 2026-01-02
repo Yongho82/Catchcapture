@@ -23,10 +23,24 @@ namespace CatchCapture.Models
                 {
                     _isFavorite = value;
                     OnPropertyChanged(nameof(IsFavorite));
-                    OnPropertyChanged(nameof(FavoriteEmoji));
                 }
             }
         }
+
+        private bool _isPinned;
+        public bool IsPinned
+        {
+            get => _isPinned;
+            set
+            {
+                if (_isPinned != value)
+                {
+                    _isPinned = value;
+                    OnPropertyChanged(nameof(IsPinned));
+                }
+            }
+        }
+
         public int Status { get; set; } // 0: Normal, 1: Trash
         public long FileSize { get; set; }
         public string Resolution { get; set; } = string.Empty;

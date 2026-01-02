@@ -353,6 +353,13 @@
                                     </Style>
                                 </Button.Resources>
                             </Button>
+                            <Button x:Name="BtnEmptyTrash" Click="BtnEmptyTrash_Click" Content="휴지통 비우기" Margin="10,0,0,0" Padding="12,5" Foreground="#D93025" Background="Transparent" BorderBrush="#D93025" BorderThickness="1" Visibility="Collapsed">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="6"/>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
                         </StackPanel>
                     </Border>
 
@@ -415,6 +422,30 @@
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock Text="{Binding MetaInfo}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Width="45">
+                                    <GridViewColumn.Header>
+                                        <Path Data="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12Z" 
+                                              Fill="{DynamicResource ThemeForeground}" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.5"/>
+                                    </GridViewColumn.Header>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Click="BtnPin_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalAlignment="Center">
+                                                <Grid>
+                                                    <Path x:Name="PinFilled" Data="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12Z" 
+                                                          Fill="#FF5252" Width="14" Height="14" Stretch="Uniform" Visibility="Collapsed"/>
+                                                    <Path x:Name="PinOutline" Data="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12M14.2,14H9.8L10,12.2V4H14V12.2L14.2,14Z" 
+                                                          Fill="{DynamicResource ThemeForeground}" Opacity="0.3" Width="14" Height="14" Stretch="Uniform"/>
+                                                </Grid>
+                                            </Button>
+                                            <DataTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding IsPinned}" Value="True">
+                                                    <Setter TargetName="PinFilled" Property="Visibility" Value="Visible"/>
+                                                    <Setter TargetName="PinOutline" Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>

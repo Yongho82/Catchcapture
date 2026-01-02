@@ -138,6 +138,12 @@ namespace CatchCapture
                 RefreshCounts();
                 UpdateSelectAllButtonText();
                 UpdatePaginationUI();
+                
+                // 휴지통 비우기 버튼 표시 여부
+                if (BtnEmptyTrash != null)
+                {
+                    BtnEmptyTrash.Visibility = (filter == "Trash") ? Visibility.Visible : Visibility.Collapsed;
+                }
             }
             catch (Exception ex)
             {
@@ -261,6 +267,15 @@ namespace CatchCapture
             }
         }
 
+        private void BtnEmptyTrash_Click(object sender, RoutedEventArgs e)
+        {
+            if (CustomMessageBox.Show("휴지통의 모든 항목을 영구 삭제하시겠습니까?\n(폴더의 실제 파일들도 모두 삭제됩니다)", "휴지통 비우기", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            {
+                DatabaseManager.Instance.EmptyTrash();
+                LoadHistory("Trash");
+            }
+        }
+
         private void BtnSearch_Click(object sender, RoutedEventArgs e)
         {
             LoadHistory(_currentFilter, TxtSearch.Text);
@@ -332,6 +347,17 @@ namespace CatchCapture
                 DatabaseManager.Instance.ToggleFavoriteCapture(item.Id);
                 item.IsFavorite = !item.IsFavorite;
                 RefreshCounts();
+            }
+        }
+
+        private void BtnPin_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.DataContext is HistoryItem item)
+            {
+                DatabaseManager.Instance.TogglePinCapture(item.Id);
+                item.IsPinned = !item.IsPinned;
+                // Pin status changes sorting, so reload
+                LoadHistory(_currentFilter, _currentSearch, _currentDateFrom, _currentDateTo, _currentFileType, false);
             }
         }
 
