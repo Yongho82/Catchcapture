@@ -358,7 +358,7 @@
 
                     <!-- Row 2: History Grid List -->
                     <ListView Grid.Row="1" x:Name="LstHistory" SelectionMode="Single" SelectionChanged="LstHistory_SelectionChanged" KeyDown="LstHistory_KeyDown"
-                              BorderThickness="0" Background="Transparent" VerticalAlignment="Top" ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                              BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Auto">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -421,16 +421,16 @@
                                 <GridViewColumn Width="50">
                                     <GridViewColumn.Header>
                                         <Path Data="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z" 
-                                              Fill="{DynamicResource ThemeForeground}" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                              Fill="{DynamicResource ThemeForeground}" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </GridViewColumn.Header>
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <Button Click="BtnFavorite_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalAlignment="Center">
                                                 <Grid>
                                                     <Path x:Name="StarFilled" Data="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z" 
-                                                          Fill="#FFD700" Width="18" Height="18" Stretch="Uniform" Visibility="Collapsed"/>
+                                                          Fill="#FFD700" Width="15" Height="15" Stretch="Uniform" Visibility="Collapsed"/>
                                                     <Path x:Name="StarOutline" Data="M12,15.39L8.24,17.66L9.23,13.38L5.91,10.5L10.29,10.13L12,6.09L13.71,10.13L18.09,10.5L14.77,13.38L15.76,17.66L12,15.39M22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27L18.18,21L16.54,13.97L22,9.24Z" 
-                                                          Fill="{DynamicResource ThemeForeground}" Opacity="0.3" Width="18" Height="18" Stretch="Uniform"/>
+                                                          Fill="{DynamicResource ThemeForeground}" Opacity="0.3" Width="15" Height="15" Stretch="Uniform"/>
                                                 </Grid>
                                             </Button>
                                             <DataTemplate.Triggers>
@@ -447,10 +447,10 @@
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                                 <Button Click="BtnRestore_Click" Visibility="{Binding IsInTrash, Converter={StaticResource BoolToVis}}" Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="4" ToolTip="복원">
-                                                    <TextBlock Text="🔄" FontSize="16" Opacity="0.8" Foreground="{DynamicResource ThemeForeground}"/>
+                                                    <TextBlock Text="🔄" FontSize="14" Opacity="0.8" Foreground="{DynamicResource ThemeForeground}"/>
                                                 </Button>
                                                 <Button Click="BtnDeleteItem_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="4" ToolTip="삭제">
-                                                    <TextBlock Text="🗑️" FontSize="16" Opacity="0.8" Foreground="{DynamicResource ThemeForeground}"/>
+                                                    <TextBlock Text="🗑️" FontSize="14" Opacity="0.8" Foreground="{DynamicResource ThemeForeground}"/>
                                                 </Button>
                                             </StackPanel>
                                         </DataTemplate>
@@ -508,16 +508,16 @@
                                     <TextBlock Text="앱:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
                                     <TextBlock x:Name="TxtPreviewApp" Text="-" HorizontalAlignment="Right" Foreground="{DynamicResource ThemeForeground}"/>
                                 </Grid>
-                                <Grid Margin="0,0,0,8">
-                                    <TextBlock Text="저장 경로:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                        <TextBlock x:Name="TxtPreviewPath" Text="-" Foreground="{DynamicResource ThemeForeground}" Opacity="0.8" Margin="0,0,8,0" MaxWidth="150" TextTrimming="CharacterEllipsis"/>
-                                        <Button x:Name="BtnOpenFolder" Click="BtnOpenFolder_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="0" VerticalAlignment="Center">
+                                <StackPanel Margin="0,15,0,0">
+                                    <TextBlock Text="상세 경로" FontSize="11" Opacity="0.6" Foreground="{DynamicResource ThemeForeground}" Margin="0,0,0,5"/>
+                                    <Grid>
+                                        <TextBlock x:Name="TxtPreviewPath" Text="-" Foreground="{DynamicResource ThemeForeground}" Opacity="0.8" TextWrapping="Wrap" MaxWidth="250" HorizontalAlignment="Left" TextTrimming="None" Margin="0,0,30,0"/>
+                                        <Button x:Name="BtnOpenFolder" Click="BtnOpenFolder_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="0" HorizontalAlignment="Right" VerticalAlignment="Bottom">
                                             <Path Data="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z" 
-                                                  Fill="#FFD600" Width="16" Height="16" Stretch="Uniform"/>
+                                                  Fill="#FFD600" Width="18" Height="18" Stretch="Uniform"/>
                                         </Button>
-                                    </StackPanel>
-                                </Grid>
+                                    </Grid>
+                                </StackPanel>
                                 <TextBlock Text="전체 제목:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" Margin="0,15,0,5"/>
                                 <TextBlock x:Name="TxtPreviewTitle" Text="-" TextWrapping="Wrap" FontWeight="SemiBold" Foreground="{DynamicResource ThemeForeground}"/>
                             </StackPanel>

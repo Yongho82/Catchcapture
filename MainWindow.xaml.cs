@@ -2412,29 +2412,44 @@ public partial class MainWindow : Window
     {
         try
         {
-            string imgDir = DatabaseManager.Instance.GetImageFolderPath();
-            if (!Directory.Exists(imgDir)) Directory.CreateDirectory(imgDir);
+            var settings = Settings.Load();
+            string? fullPath = null;
 
-            // Parse user settings for filename template to generate filename
-            string? sourceApp = captureInfo.SourceApp;
-            string? sourceTitle = captureInfo.SourceTitle;
-            string fileName = IOPath.GetFileName(GetAutoSaveFilePath(".webp", sourceApp, sourceTitle));
-            
-            string yearFolder = DatabaseManager.Instance.EnsureYearFolderExists(imgDir);
-            string relativePath = IOPath.Combine(yearFolder, fileName);
-            string fullPath = IOPath.Combine(imgDir, relativePath);
+            // 1. 이미 자동 저장된 파일이 있는지 확인
+            if (captureInfo.IsSaved && !string.IsNullOrEmpty(captureInfo.SavedPath) && File.Exists(captureInfo.SavedPath))
+            {
+                // 사용자 지정 캡처 폴더에 이미 저장되어 있다면 해당 경로 사용 (2중 저장 방지)
+                fullPath = captureInfo.SavedPath;
+            }
+            else
+            {
+                // 2. 저장되지 않은 경우 (자동저장 OFF 등) 히스토리 전용 폴더에 저장
+                string historyImgDir = DatabaseManager.Instance.GetHistoryImageFolderPath();
+                if (!Directory.Exists(historyImgDir)) Directory.CreateDirectory(historyImgDir);
 
-            // 이미지 파일 저장 (WebP)
-            ScreenCaptureUtility.SaveAsWebpNative(image, fullPath, 85);
+                string yearFolder = DatabaseManager.Instance.EnsureYearFolderExists(historyImgDir);
+                
+                // 설정된 포맷 및 품질 적용
+                string ext = settings.FileSaveFormat.ToLower();
+                if (!ext.StartsWith(".")) ext = "." + ext;
+                
+                string fileName = IOPath.GetFileName(GetAutoSaveFilePath(ext, captureInfo.SourceApp, captureInfo.SourceTitle));
+                fullPath = IOPath.Combine(yearFolder, fileName);
+
+                // 파일 저장
+                ScreenCaptureUtility.SaveImageToFile(image, fullPath, settings.ImageQuality);
+            }
+
+            if (string.IsNullOrEmpty(fullPath)) return;
 
             // DB 저장
             var historyItem = new HistoryItem
             {
-                FileName = fileName,
+                FileName = IOPath.GetFileName(fullPath),
                 FilePath = fullPath,
-                OriginalFilePath = captureInfo.SavedPath ?? string.Empty, // Original user save path
-                SourceApp = sourceApp ?? "Unknown",
-                SourceTitle = sourceTitle ?? "Unknown",
+                OriginalFilePath = fullPath, // 2중 저장을 안 하므로 FilePath와 동일하게 설정 (삭제 시 연동)
+                SourceApp = captureInfo.SourceApp ?? "Unknown",
+                SourceTitle = captureInfo.SourceTitle ?? "Unknown",
                 FileSize = File.Exists(fullPath) ? new FileInfo(fullPath).Length : 0,
                 Resolution = $"{image.PixelWidth}x{image.PixelHeight}",
                 IsFavorite = false,

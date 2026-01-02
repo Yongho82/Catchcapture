@@ -394,6 +394,12 @@ namespace CatchCapture.Utilities
             string rootDir = Path.GetDirectoryName(dbDir)!;
             return Path.Combine(rootDir, "img");
         }
+
+        public string GetHistoryImageFolderPath()
+        {
+            string dbDir = Path.GetDirectoryName(_historyDbPath)!;
+            return Path.Combine(dbDir, "img");
+        }
         
         public string GetAttachmentsFolderPath()
         {
@@ -1630,7 +1636,7 @@ namespace CatchCapture.Utilities
                     }
 
                     // Delete user's original copy
-                    if (!string.IsNullOrEmpty(originalPath) && File.Exists(originalPath))
+                    if (!string.IsNullOrEmpty(originalPath) && originalPath != path && File.Exists(originalPath))
                     {
                         try { File.Delete(originalPath); } catch { }
                     }
