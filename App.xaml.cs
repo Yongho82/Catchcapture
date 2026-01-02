@@ -204,16 +204,22 @@ public partial class App : Application
                     }
                     else if (settings.ThemeMode == "Blue")
                     {
-                        // bgColor remains blue
-                        sidebarBg = Color.FromRgb(249, 249, 249); // 버튼 249
-                        windowBorder = AdjustColor(bgColor, -20); // 라인 살리고
-                        sidebarBorder = windowBorder;
+                        // bgColor remains blue (E3F2FD) but we want white content area
+                        bgColor = Color.FromRgb(255, 255, 255); 
+                        sidebarBg = Color.FromRgb(225, 245, 254); // Pastel Blue Sidebar (#E1F5FE)
+                        windowBorder = Color.FromRgb(129, 212, 250); // Pastel Border
+                        sidebarBorder = Color.FromRgb(129, 212, 250); // 라인 복원 (버튼 외곽선도 파스텔톤으로 예쁘게)
                     }
 
-                    // For these modes, clarify panel background is white (behind gray buttons)
-                    if (settings.ThemeMode == "General" || settings.ThemeMode == "Light" || settings.ThemeMode == "Blue")
+                    // For these modes, clarify panel background
+                    if (settings.ThemeMode == "General" || settings.ThemeMode == "Light")
                     {
                         Application.Current.Resources["ThemePanelBackground"] = new SolidColorBrush(Color.FromRgb(255, 255, 255));
+                    }
+                    else if (settings.ThemeMode == "Blue")
+                    {
+                        // 블루 모드는 사이드바에 파스텔톤 적용
+                        Application.Current.Resources["ThemePanelBackground"] = new SolidColorBrush(sidebarBg);
                     }
                     else
                     {
@@ -282,9 +288,24 @@ public partial class App : Application
                     // Sharp glossy outline (선명한 하이그로시 윤곽선)
                     Application.Current.Resources["ThemeWindowBorder"] = new SolidColorBrush(Color.FromRgb(45, 45, 45));
                 }
+                else if (settings.ThemeMode == "Blue")
+                {
+                    // 고급스러운 파스텔 블루 그라데이션 타이틀바
+                    var blueGradient = new LinearGradientBrush();
+                    blueGradient.StartPoint = new Point(0, 0);
+                    blueGradient.EndPoint = new Point(1, 0); // 좌우 그라데이션
+                    blueGradient.GradientStops.Add(new GradientStop(Color.FromRgb(179, 229, 252), 0.0)); // Pastel Blue Light (B3E5FC)
+                    blueGradient.GradientStops.Add(new GradientStop(Color.FromRgb(129, 212, 250), 1.0)); // Pastel Blue (81D4FA)
+
+                    Application.Current.Resources["ThemeTitleBackground"] = blueGradient;
+                    Application.Current.Resources["ThemeTitleForeground"] = new SolidColorBrush(Color.FromRgb(1, 87, 155)); // Deep Blue Text (01579B)
+                    
+                    Application.Current.Resources["ThemeSimpleTitleBackground"] = blueGradient;
+                    Application.Current.Resources["ThemeSimpleTitleForeground"] = new SolidColorBrush(Color.FromRgb(1, 87, 155));
+                }
                 else
                 {
-                    // For Blue and Light modes, use theme-based colors
+                    // For Light modes, use theme-based colors
                     var bgBrush = new SolidColorBrush(bgColor);
                     var fgBrush = new SolidColorBrush(fgColor);
                     Application.Current.Resources["ThemeTitleBackground"] = bgBrush;
