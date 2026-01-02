@@ -60,7 +60,7 @@ namespace CatchCapture.Utilities
             }
             
             _dbPath = Path.Combine(storagePath, "notedb", "catch_notes.db");
-            _historyDbPath = Path.Combine(storagePath, "history", "history.db");
+            _historyDbPath = Path.Combine(settings.DefaultSaveFolder, "history", "history.db");
 
             InitializeDatabase();
             InitializeHistoryDatabase(); // Separate DB initialization
@@ -101,7 +101,7 @@ namespace CatchCapture.Utilities
             }
             
             _dbPath = Path.Combine(storagePath, "notedb", "catch_notes.db");
-            _historyDbPath = Path.Combine(storagePath, "history", "history.db");
+            _historyDbPath = Path.Combine(settings.DefaultSaveFolder, "history", "history.db");
             InitializeDatabase();
             InitializeHistoryDatabase();
         }
@@ -1473,7 +1473,7 @@ namespace CatchCapture.Utilities
             }
         }
 
-        public List<HistoryItem> GetHistory(string filter = "All", string search = "", DateTime? dateFrom = null, DateTime? dateTo = null, string? fileType = null)
+        public List<HistoryItem> GetHistory(string filter = "All", string search = "", DateTime? dateFrom = null, DateTime? dateTo = null, string? fileType = null, int limit = 0, int offset = 0)
         {
             var items = new List<HistoryItem>();
             using (var connection = new SqliteConnection($"Data Source={HistoryDbPath}"))
@@ -1514,7 +1514,8 @@ namespace CatchCapture.Utilities
                 }
 
                 string whereClause = wheres.Count > 0 ? " WHERE " + string.Join(" AND ", wheres) : "";
-                string sql = $"SELECT Id, FileName, FilePath, SourceApp, SourceTitle, IsFavorite, Status, FileSize, Resolution, CreatedAt FROM Captures {whereClause} ORDER BY CreatedAt DESC";
+                string pagination = limit > 0 ? $" LIMIT {limit} OFFSET {offset}" : "";
+                string sql = $"SELECT Id, FileName, FilePath, SourceApp, SourceTitle, IsFavorite, Status, FileSize, Resolution, CreatedAt FROM Captures {whereClause} ORDER BY CreatedAt DESC{pagination}";
 
                 using (var command = new SqliteCommand(sql, connection))
                 {
@@ -1546,7 +1547,7 @@ namespace CatchCapture.Utilities
             return items;
         }
 
-        public int GetHistoryCount(string filter = "All")
+        public int GetHistoryCount(string filter = "All", string search = "", DateTime? dateFrom = null, DateTime? dateTo = null, string? fileType = null)
         {
             using (var connection = new SqliteConnection($"Data Source={HistoryDbPath}"))
             {
@@ -1562,10 +1563,25 @@ namespace CatchCapture.Utilities
                     else if (filter == "Recent3Months") wheres.Add("CreatedAt >= date('now', 'localtime', '-3 months')");
                     else if (filter == "Recent6Months") wheres.Add("CreatedAt >= date('now', 'localtime', '-6 months')");
                 }
+
+                if (!string.IsNullOrEmpty(search)) wheres.Add("(FileName LIKE $search OR SourceApp LIKE $search OR SourceTitle LIKE $search)");
+                if (dateFrom.HasValue) wheres.Add("CreatedAt >= $dateFrom");
+                if (dateTo.HasValue) wheres.Add("CreatedAt <= $dateTo");
+                if (!string.IsNullOrEmpty(fileType) && fileType != "전체")
+                {
+                    if (fileType.Contains("이미지"))
+                        wheres.Add("(FileName LIKE '%.png' OR FileName LIKE '%.jpg' OR FileName LIKE '%.jpeg' OR FileName LIKE '%.webp' OR FileName LIKE '%.bmp' OR FileName LIKE '%.gif')");
+                    else if (fileType.Contains("미디어"))
+                        wheres.Add("(FileName LIKE '%.mp4' OR FileName LIKE '%.mp3')");
+                }
+
                 string whereClause = wheres.Count > 0 ? " WHERE " + string.Join(" AND ", wheres) : "";
                 string sql = $"SELECT COUNT(*) FROM Captures {whereClause}";
                 using (var command = new SqliteCommand(sql, connection))
                 {
+                    if (!string.IsNullOrEmpty(search)) command.Parameters.AddWithValue("$search", $"%{search}%");
+                    if (dateFrom.HasValue) command.Parameters.AddWithValue("$dateFrom", dateFrom.Value.ToString("yyyy-MM-dd 00:00:00"));
+                    if (dateTo.HasValue) command.Parameters.AddWithValue("$dateTo", dateTo.Value.ToString("yyyy-MM-dd 23:59:59"));
                     return Convert.ToInt32(command.ExecuteScalar());
                 }
             }

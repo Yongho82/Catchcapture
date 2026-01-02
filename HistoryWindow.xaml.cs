@@ -99,17 +99,34 @@ namespace CatchCapture
             catch { }
         }
 
+        private int _currentPage = 1;
+        private int _pageSize = 20;
+        private int _totalPages = 1;
         private string _currentFilter = "All";
         private string _currentSearch = "";
+        private DateTime? _currentDateFrom = null;
+        private DateTime? _currentDateTo = null;
+        private string? _currentFileType = null;
 
-        public void LoadHistory(string filter = "All", string search = "", DateTime? dateFrom = null, DateTime? dateTo = null, string? fileType = null)
+        public void LoadHistory(string filter = "All", string search = "", DateTime? dateFrom = null, DateTime? dateTo = null, string? fileType = null, bool resetPage = true)
         {
+            if (resetPage) _currentPage = 1;
+            
             _currentFilter = filter;
             _currentSearch = search;
+            _currentDateFrom = dateFrom;
+            _currentDateTo = dateTo;
+            _currentFileType = fileType;
 
             try
             {
-                var items = DatabaseManager.Instance.GetHistory(filter, search, dateFrom, dateTo, fileType);
+                int totalCount = DatabaseManager.Instance.GetHistoryCount(filter, search, dateFrom, dateTo, fileType);
+                _totalPages = (int)Math.Ceiling((double)totalCount / _pageSize);
+                if (_totalPages < 1) _totalPages = 1;
+
+                int offset = (_currentPage - 1) * _pageSize;
+                var items = DatabaseManager.Instance.GetHistory(filter, search, dateFrom, dateTo, fileType, _pageSize, offset);
+                
                 HistoryItems.Clear();
                 foreach (var item in items)
                 {
@@ -120,12 +137,58 @@ namespace CatchCapture
                 UpdateEmptyState();
                 RefreshCounts();
                 UpdateSelectAllButtonText();
+                UpdatePaginationUI();
             }
             catch (Exception ex)
             {
                 CustomMessageBox.Show($"히스토리 로드 중 오류: {ex.Message}", "오류");
             }
         }
+
+        private void UpdatePaginationUI()
+        {
+            TxtPageInfo.Text = $"{_currentPage} / {_totalPages}";
+            
+            // Generate numeric page buttons (simple version with current and neighbors)
+            PanelPageNumbers.Children.Clear();
+            
+            int startPage = Math.Max(1, _currentPage - 2);
+            int endPage = Math.Min(_totalPages, startPage + 4);
+            if (endPage - startPage < 4) startPage = Math.Max(1, endPage - 4);
+
+            for (int i = startPage; i <= endPage; i++)
+            {
+                var btn = new Button
+                {
+                    Content = i.ToString(),
+                    Width = 30,
+                    Height = 30,
+                    Margin = new Thickness(2, 0, 2, 0),
+                    Style = (Style)FindResource("PaginationButtonStyle"),
+                    Tag = i
+                };
+                if (i == _currentPage)
+                {
+                    btn.Background = (SolidColorBrush)FindResource("AccentColor");
+                    btn.Foreground = System.Windows.Media.Brushes.White;
+                }
+                btn.Click += (s, e) => {
+                    _currentPage = (int)((Button)s).Tag;
+                    LoadHistory(_currentFilter, _currentSearch, _currentDateFrom, _currentDateTo, _currentFileType, false);
+                };
+                PanelPageNumbers.Children.Add(btn);
+            }
+
+            BtnFirstPage.IsEnabled = _currentPage > 1;
+            BtnPrevPage.IsEnabled = _currentPage > 1;
+            BtnNextPage.IsEnabled = _currentPage < _totalPages;
+            BtnLastPage.IsEnabled = _currentPage < _totalPages;
+        }
+
+        private void BtnFirstPage_Click(object sender, RoutedEventArgs e) { _currentPage = 1; LoadHistory(_currentFilter, _currentSearch, _currentDateFrom, _currentDateTo, _currentFileType, false); }
+        private void BtnPrevPage_Click(object sender, RoutedEventArgs e) { if (_currentPage > 1) { _currentPage--; LoadHistory(_currentFilter, _currentSearch, _currentDateFrom, _currentDateTo, _currentFileType, false); } }
+        private void BtnNextPage_Click(object sender, RoutedEventArgs e) { if (_currentPage < _totalPages) { _currentPage++; LoadHistory(_currentFilter, _currentSearch, _currentDateFrom, _currentDateTo, _currentFileType, false); } }
+        private void BtnLastPage_Click(object sender, RoutedEventArgs e) { _currentPage = _totalPages; LoadHistory(_currentFilter, _currentSearch, _currentDateFrom, _currentDateTo, _currentFileType, false); }
 
         private void BtnApplyAdvancedFilter_Click(object sender, RoutedEventArgs e)
         {
@@ -268,7 +331,23 @@ namespace CatchCapture
             {
                 DatabaseManager.Instance.ToggleFavoriteCapture(item.Id);
                 item.IsFavorite = !item.IsFavorite;
-                // UI update via property change (if implemented in HistoryItem)
+                RefreshCounts();
+            }
+        }
+
+        private void BtnOpenFolder_Click(object sender, RoutedEventArgs e)
+        {
+            if (LstHistory.SelectedItem is HistoryItem item && !string.IsNullOrEmpty(item.FilePath))
+            {
+                try
+                {
+                    string argument = "/select, \"" + item.FilePath + "\"";
+                    System.Diagnostics.Process.Start("explorer.exe", argument);
+                }
+                catch (Exception ex)
+                {
+                    CustomMessageBox.Show($"폴더를 열 수 없습니다: {ex.Message}", "오류");
+                }
             }
         }
 
@@ -320,6 +399,7 @@ namespace CatchCapture
         {
             try
             {
+                TxtPreviewPath.Text = item.FilePath;
                 if (System.IO.File.Exists(item.FilePath))
                 {
                     var bitmap = new BitmapImage();

@@ -97,6 +97,35 @@
             <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorder}"/>
         </Style>
 
+        <Style x:Key="PaginationButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
+            <Setter Property="Margin" Value="2,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#15FFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.3"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style TargetType="DatePickerTextBox">
             <Setter Property="Background" Value="{DynamicResource ThemeBackground}"/>
             <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
@@ -130,9 +159,20 @@
 
                     <!-- Search & Advanced Filter -->
                     <StackPanel Grid.Column="1" WindowChrome.IsHitTestVisibleInChrome="True" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Border Background="#20000000" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="18" Height="36" Width="450">
+                        <Border x:Name="SearchBorder" Background="#20000000" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="18" Height="36" Width="450">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsKeyboardFocusWithin, ElementName=TxtSearch}" Value="True">
+                                            <Setter Property="BorderBrush" Value="{StaticResource AccentColor}"/>
+                                            <Setter Property="Background" Value="#30000000"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
                             <Grid>
-                                <TextBox x:Name="TxtSearch" KeyDown="TxtSearch_KeyDown" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" FontSize="13" Foreground="{DynamicResource ThemeTitleForeground}" Margin="15,0,35,0" Padding="0"/>
+                                <TextBox x:Name="TxtSearch" KeyDown="TxtSearch_KeyDown" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" FontSize="13" 
+                                         Foreground="{DynamicResource ThemeTitleForeground}" CaretBrush="{DynamicResource ThemeTitleForeground}" Margin="15,0,35,0" Padding="0"/>
                                 <TextBlock Text="파일명, 파일내용, 앱 이름 등 검색..." IsHitTestVisible="False" Foreground="{DynamicResource ThemeTitleForeground}" Opacity="0.4" VerticalAlignment="Center" Margin="17,0" FontSize="13">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
@@ -293,6 +333,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/> <!-- Row 1: Action Buttons -->
                         <RowDefinition Height="*"/>    <!-- Row 2: Grid List -->
+                        <RowDefinition Height="Auto"/> <!-- Row 3: Pagination -->
                     </Grid.RowDefinitions>
 
                     <!-- Row 1: Batch Actions -->
@@ -316,8 +357,8 @@
                     </Border>
 
                     <!-- Row 2: History Grid List -->
-                    <ListView Grid.Row="1" x:Name="LstHistory" BorderThickness="0" Background="Transparent" 
-                              SelectionChanged="LstHistory_SelectionChanged" KeyDown="LstHistory_KeyDown">
+                    <ListView Grid.Row="1" x:Name="LstHistory" SelectionMode="Single" SelectionChanged="LstHistory_SelectionChanged" KeyDown="LstHistory_KeyDown"
+                              BorderThickness="0" Background="Transparent" VerticalAlignment="Top" ScrollViewer.HorizontalScrollBarVisibility="Auto">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -418,6 +459,21 @@
                             </GridView>
                         </ListView.View>
                     </ListView>
+
+                    <!-- Row 3: Pagination -->
+                    <Border Grid.Row="2" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ThemeBorder}" Padding="15,10">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button x:Name="BtnFirstPage" Click="BtnFirstPage_Click" Style="{StaticResource PaginationButtonStyle}" Content="&lt;&lt;" Width="30" Height="30" Margin="2,0"/>
+                            <Button x:Name="BtnPrevPage" Click="BtnPrevPage_Click" Style="{StaticResource PaginationButtonStyle}" Content="&lt;" Width="30" Height="30" Margin="2,0"/>
+                            
+                            <StackPanel x:Name="PanelPageNumbers" Orientation="Horizontal" Margin="5,0"/>
+                            
+                            <Button x:Name="BtnNextPage" Click="BtnNextPage_Click" Style="{StaticResource PaginationButtonStyle}" Content="&gt;" Width="30" Height="30" Margin="2,0"/>
+                            <Button x:Name="BtnLastPage" Click="BtnLastPage_Click" Style="{StaticResource PaginationButtonStyle}" Content="&gt;&gt;" Width="30" Height="30" Margin="2,0"/>
+                            
+                            <TextBlock x:Name="TxtPageInfo" Text="1 / 1" VerticalAlignment="Center" Margin="15,0,0,0" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
+                        </StackPanel>
+                    </Border>
                 </Grid>
 
                 <!-- Column Splitter -->
@@ -452,6 +508,16 @@
                                     <TextBlock Text="앱:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
                                     <TextBlock x:Name="TxtPreviewApp" Text="-" HorizontalAlignment="Right" Foreground="{DynamicResource ThemeForeground}"/>
                                 </Grid>
+                                <Grid Margin="0,0,0,8">
+                                    <TextBlock Text="저장 경로:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <TextBlock x:Name="TxtPreviewPath" Text="-" Foreground="{DynamicResource ThemeForeground}" Opacity="0.8" Margin="0,0,8,0" MaxWidth="150" TextTrimming="CharacterEllipsis"/>
+                                        <Button x:Name="BtnOpenFolder" Click="BtnOpenFolder_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="0" VerticalAlignment="Center">
+                                            <Path Data="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z" 
+                                                  Fill="#FFD600" Width="16" Height="16" Stretch="Uniform"/>
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
                                 <TextBlock Text="전체 제목:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" Margin="0,15,0,5"/>
                                 <TextBlock x:Name="TxtPreviewTitle" Text="-" TextWrapping="Wrap" FontWeight="SemiBold" Foreground="{DynamicResource ThemeForeground}"/>
                             </StackPanel>
@@ -459,9 +525,9 @@
 
                         <!-- Nothing Selected Empty State -->
                         <Grid x:Name="PreviewEmptyState" Grid.RowSpan="2" Background="{DynamicResource ThemeBackground}">
-                            <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="🖼️" FontSize="48" HorizontalAlignment="Center" Opacity="0.2" Foreground="{DynamicResource ThemeForeground}"/>
-                                <TextBlock Text="기록을 선택하면 미리보기가 표시됩니다." HorizontalAlignment="Center" Opacity="0.4" Margin="15,10,15,0" TextAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <Image Source="/icons/icon_main.png" Width="200" Opacity="0.5" Margin="0,0,0,20"/>
+                                <TextBlock Text="상세 내역을 보려면 항목을 선택하세요" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" HorizontalAlignment="Center"/>
                             </StackPanel>
                         </Grid>
                     </Grid>
