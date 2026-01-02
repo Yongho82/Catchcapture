@@ -80,6 +80,7 @@ namespace CatchCapture
             ColPin.Width = settings.HistoryColPin;
             ColFavorite.Width = settings.HistoryColFavorite;
             ColActions.Width = settings.HistoryColActions;
+            ColMemo.Width = settings.HistoryColMemo;
         }
 
         private void HistoryWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
@@ -103,6 +104,7 @@ namespace CatchCapture
             settings.HistoryColPin = ColPin.Width;
             settings.HistoryColFavorite = ColFavorite.Width;
             settings.HistoryColActions = ColActions.Width;
+            settings.HistoryColMemo = ColMemo.Width;
             
             settings.Save();
         }
@@ -449,6 +451,15 @@ namespace CatchCapture
             try
             {
                 TxtPreviewPath.Text = item.FilePath;
+                
+                // Update Memo Display
+                TxtMemoDisplay.Text = string.IsNullOrEmpty(item.Memo) ? "메모가 없습니다." : item.Memo;
+                TxtMemoDisplay.Opacity = string.IsNullOrEmpty(item.Memo) ? 0.4 : 0.8;
+                EditMemoBox.Text = item.Memo;
+                EditMemoBox.Visibility = Visibility.Collapsed;
+                TxtMemoDisplay.Visibility = Visibility.Visible;
+                BtnEditMemo.Content = "수정";
+
                 if (System.IO.File.Exists(item.FilePath))
                 {
                     var bitmap = new BitmapImage();
@@ -488,6 +499,36 @@ namespace CatchCapture
             {
                 DatabaseManager.Instance.RestoreCapture(item.Id);
                 LoadHistory(_currentFilter, _currentSearch);
+            }
+        }
+
+        private void BtnEditMemo_Click(object sender, RoutedEventArgs e)
+        {
+            if (LstHistory.SelectedItem is HistoryItem item)
+            {
+                if (EditMemoBox.Visibility == Visibility.Collapsed)
+                {
+                    // Swtich to Edit Mode
+                    TxtMemoDisplay.Visibility = Visibility.Collapsed;
+                    EditMemoBox.Visibility = Visibility.Visible;
+                    EditMemoBox.Focus();
+                    EditMemoBox.SelectAll();
+                    BtnEditMemo.Content = "저장";
+                }
+                else
+                {
+                    // Save and switch back
+                    string newMemo = EditMemoBox.Text.Trim();
+                    DatabaseManager.Instance.UpdateCaptureMemo(item.Id, newMemo);
+                    item.Memo = newMemo;
+                    
+                    TxtMemoDisplay.Text = string.IsNullOrEmpty(newMemo) ? "메모가 없습니다." : newMemo;
+                    TxtMemoDisplay.Opacity = string.IsNullOrEmpty(newMemo) ? 0.4 : 0.8;
+                    
+                    EditMemoBox.Visibility = Visibility.Collapsed;
+                    TxtMemoDisplay.Visibility = Visibility.Visible;
+                    BtnEditMemo.Content = "수정";
+                }
             }
         }
     }

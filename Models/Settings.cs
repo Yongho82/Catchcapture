@@ -114,6 +114,7 @@ namespace CatchCapture.Models
         public double HistoryColPin { get; set; } = 53;
         public double HistoryColFavorite { get; set; } = 53;
         public double HistoryColActions { get; set; } = 53;
+        public double HistoryColMemo { get; set; } = 150;
 
         public static event EventHandler? SettingsChanged;
 

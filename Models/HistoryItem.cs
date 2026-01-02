@@ -12,6 +12,7 @@ namespace CatchCapture.Models
         public string SourceApp { get; set; } = string.Empty;
         public string SourceTitle { get; set; } = string.Empty;
         public string OriginalFilePath { get; set; } = string.Empty;
+        public string Memo { get; set; } = string.Empty;
         
         private bool _isFavorite;
         public bool IsFavorite

@@ -489,6 +489,13 @@
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
+                                <GridViewColumn x:Name="ColMemo" Header="메모" Width="150">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Memo}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
                             </GridView>
                         </ListView.View>
                     </ListView>
@@ -517,6 +524,7 @@
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>   <!-- Image -->
+                            <RowDefinition Height="Auto"/> <!-- Simple Memo -->
                             <RowDefinition Height="Auto"/> <!-- Details -->
                         </Grid.RowDefinitions>
 
@@ -525,8 +533,29 @@
                             <Image x:Name="ImgPreview" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
                         </Border>
 
+                        <!-- Simple Memo (Above Details) -->
+                        <Border Grid.Row="1" Padding="20,15,20,5">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,10">
+                                    <TextBlock Text="간단 메모" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
+                                    <Button x:Name="BtnEditMemo" Click="BtnEditMemo_Click" Content="수정" HorizontalAlignment="Right" Background="Transparent" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" Padding="8,2" Foreground="{DynamicResource ThemeForeground}" Cursor="Hand">
+                                        <Button.Resources>
+                                            <Style TargetType="Border">
+                                                <Setter Property="CornerRadius" Value="4"/>
+                                            </Style>
+                                        </Button.Resources>
+                                    </Button>
+                                </Grid>
+                                
+                                <Grid x:Name="MemoEditArea">
+                                    <TextBlock x:Name="TxtMemoDisplay" Text="메모가 없습니다." TextWrapping="Wrap" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" MinHeight="40" Margin="0,0,0,10"/>
+                                    <TextBox x:Name="EditMemoBox" Visibility="Collapsed" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="60" MaxHeight="120" VerticalScrollBarVisibility="Auto" Margin="0,0,0,10" Background="{DynamicResource ThemeSidebarButtonBackground}" BorderBrush="{DynamicResource ThemeBorder}" Foreground="{DynamicResource ThemeForeground}"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
                         <!-- Details (Bottom) -->
-                        <Border Grid.Row="1" Padding="20" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ThemeBorder}">
+                        <Border Grid.Row="2" Padding="20" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ThemeBorder}">
                             <StackPanel>
                                 <TextBlock Text="상세 정보" FontSize="14" FontWeight="Bold" Margin="0,0,0,15" Foreground="{DynamicResource ThemeForeground}"/>
                                 <Grid Margin="0,0,0,8">
@@ -557,7 +586,7 @@
                         </Border>
 
                         <!-- Nothing Selected Empty State -->
-                        <Grid x:Name="PreviewEmptyState" Grid.RowSpan="2" Background="{DynamicResource ThemeBackground}">
+                        <Grid x:Name="PreviewEmptyState" Grid.RowSpan="3" Background="{DynamicResource ThemeBackground}">
                             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                 <Image Source="/icons/icon_main.png" Width="200" Opacity="0.5" Margin="0,0,0,20"/>
                                 <TextBlock Text="상세 내역을 보려면 항목을 선택하세요" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" HorizontalAlignment="Center"/>

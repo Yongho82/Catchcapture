@@ -336,7 +336,8 @@ namespace CatchCapture.Utilities
                         Status INTEGER DEFAULT 0, -- 0: Active, 1: Trash
                         FileSize INTEGER,
                         Resolution TEXT,
-                        CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+                        CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        Memo TEXT DEFAULT ''
                     );";
 
                 using (var command = new SqliteCommand(createCapturesTable, connection)) { command.ExecuteNonQuery(); }
@@ -354,6 +355,15 @@ namespace CatchCapture.Utilities
                 try
                 {
                     using (var command = new SqliteCommand("ALTER TABLE Captures ADD COLUMN IsPinned INTEGER DEFAULT 0;", connection))
+                    {
+                        command.ExecuteNonQuery();
+                    }
+                }
+                catch { /* Column might already exist */ }
+
+                try
+                {
+                    using (var command = new SqliteCommand("ALTER TABLE Captures ADD COLUMN Memo TEXT DEFAULT '';", connection))
                     {
                         command.ExecuteNonQuery();
                     }
@@ -1516,7 +1526,7 @@ namespace CatchCapture.Utilities
 
                 if (!string.IsNullOrEmpty(search))
                 {
-                    wheres.Add("(FileName LIKE $search OR SourceApp LIKE $search OR SourceTitle LIKE $search)");
+                    wheres.Add("(FileName LIKE $search OR SourceApp LIKE $search OR SourceTitle LIKE $search OR Memo LIKE $search)");
                 }
 
                 if (dateFrom.HasValue)
@@ -1537,7 +1547,7 @@ namespace CatchCapture.Utilities
 
                 string whereClause = wheres.Count > 0 ? " WHERE " + string.Join(" AND ", wheres) : "";
                 string pagination = limit > 0 ? $" LIMIT {limit} OFFSET {offset}" : "";
-                string sql = $"SELECT Id, FileName, FilePath, SourceApp, SourceTitle, IsFavorite, Status, FileSize, Resolution, CreatedAt, OriginalFilePath, IsPinned FROM Captures {whereClause} ORDER BY IsPinned DESC, CreatedAt DESC{pagination}";
+                string sql = $"SELECT Id, FileName, FilePath, SourceApp, SourceTitle, IsFavorite, Status, FileSize, Resolution, CreatedAt, OriginalFilePath, IsPinned, Memo FROM Captures {whereClause} ORDER BY IsPinned DESC, CreatedAt DESC{pagination}";
 
                 using (var command = new SqliteCommand(sql, connection))
                 {
@@ -1562,7 +1572,8 @@ namespace CatchCapture.Utilities
                                 Resolution = reader.IsDBNull(8) ? "" : reader.GetString(8),
                                 CreatedAt = reader.GetDateTime(9),
                                 OriginalFilePath = reader.IsDBNull(10) ? "" : reader.GetString(10),
-                                IsPinned = reader.GetInt32(11) == 1
+                                IsPinned = reader.GetInt32(11) == 1,
+                                Memo = reader.IsDBNull(12) ? "" : reader.GetString(12)
                             });
                         }
                     }
@@ -1720,6 +1731,20 @@ namespace CatchCapture.Utilities
                 connection.Open();
                 using (var cmd = new SqliteCommand("UPDATE Captures SET IsPinned = CASE WHEN IsPinned = 1 THEN 0 ELSE 1 END WHERE Id = $id", connection))
                 {
+                    cmd.Parameters.AddWithValue("$id", id);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public void UpdateCaptureMemo(long id, string memo)
+        {
+            using (var connection = new SqliteConnection($"Data Source={HistoryDbPath}"))
+            {
+                connection.Open();
+                using (var cmd = new SqliteCommand("UPDATE Captures SET Memo = $memo WHERE Id = $id", connection))
+                {
+                    cmd.Parameters.AddWithValue("$memo", memo);
                     cmd.Parameters.AddWithValue("$id", id);
                     cmd.ExecuteNonQuery();
                 }
