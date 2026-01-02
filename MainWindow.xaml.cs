@@ -247,6 +247,20 @@ public partial class MainWindow : Window
             // refine baseline commented out to persist fixed 692 baseline
             // try { _baseMainWindowHeight = this.ActualHeight > 0 ? this.ActualHeight : this.Height; } catch { }
             AdjustMainWindowHeightForMenuCount();
+
+            // History & Trash Cleanup
+            try
+            {
+                if (settings.TrashRetentionDays > 0)
+                {
+                    DatabaseManager.Instance.CleanupTrash(settings.TrashRetentionDays);
+                }
+                DatabaseManager.Instance.CleanupHistory(settings.HistoryRetentionDays, settings.HistoryTrashRetentionDays);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Cleanup error: {ex.Message}");
+            }
         };
     }
 

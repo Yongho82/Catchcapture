@@ -65,7 +65,9 @@ namespace CatchCapture.Models
         public bool OptimizeNoteImages { get; set; } = true;
         public string NoteSaveFormat { get; set; } = "WEBP"; // PNG, JPG, BMP, GIF, WEBP
         public int NoteImageQuality { get; set; } = 100;
-        public int TrashRetentionDays { get; set; } = 30;
+        public int TrashRetentionDays { get; set; } = 30; // Note Trash
+        public int HistoryRetentionDays { get; set; } = 0;
+        public int HistoryTrashRetentionDays { get; set; } = 30;
 
         // Persisted window states
         public double LastMainLeft { get; set; } = 0;

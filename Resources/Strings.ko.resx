@@ -797,4 +797,18 @@
   <data name="EdgeCircle" xml:space="preserve">
     <value>퍼펙트 서클</value>
   </data>
+  <data name="HistorySettings" xml:space="preserve"><value>히스토리 설정</value></data>
+  <data name="AutoManagement" xml:space="preserve"><value>데이터 보관 및 자동 관리</value></data>
+  <data name="AutoDeletePeriod" xml:space="preserve"><value>자동 삭제 주기</value></data>
+  <data name="AutoDeleteToTrashNotice" xml:space="preserve"><value>(설정된 기간이 지난 데이터는 자동으로 휴지통으로 이동)</value></data>
+  <data name="DbOptimize" xml:space="preserve"><value>DB 최적화</value></data>
+  <data name="DbOptimizeDesc" xml:space="preserve"><value>쌓여있는 빈 공간을 정리하여 속도 개선</value></data>
+  <data name="HistorySameAsCapture" xml:space="preserve"><value>캡처 설정과 동일 설정 적용. 변경이 필요하시면 캡처 설정에서 변경해주세요.</value></data>
+  <data name="RetentionPermanent" xml:space="preserve"><value>영구 보관</value></data>
+  <data name="Days" xml:space="preserve"><value>일</value></data>
+  <data name="ExportBackup" xml:space="preserve"><value>내보내기 (백업)</value></data>
+  <data name="ImportBackup" xml:space="preserve"><value>가져오기 (복구)</value></data>
+  <data name="SaveSettings" xml:space="preserve"><value>저장소 설정</value></data>
+  <data name="BackupRestore" xml:space="preserve"><value>데이터 백업 및 복구</value></data>
+  <data name="TrashSettings" xml:space="preserve"><value>휴지통 설정</value></data>
 </root>

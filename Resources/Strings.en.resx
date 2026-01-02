@@ -785,4 +785,18 @@ Are you sure you want to permanently delete all items?</value>
   <data name="EdgeCircle" xml:space="preserve">
     <value>Perfect Circle</value>
   </data>
+  <data name="HistorySettings" xml:space="preserve"><value>History Settings</value></data>
+  <data name="AutoManagement" xml:space="preserve"><value>Data Retention &amp; Management</value></data>
+  <data name="AutoDeletePeriod" xml:space="preserve"><value>Auto Deletion Period</value></data>
+  <data name="AutoDeleteToTrashNotice" xml:space="preserve"><value>(Moves data older than the set period to trash)</value></data>
+  <data name="DbOptimize" xml:space="preserve"><value>Optimize DB</value></data>
+  <data name="DbOptimizeDesc" xml:space="preserve"><value>Improves speed by cleaning up empty space</value></data>
+  <data name="HistorySameAsCapture" xml:space="preserve"><value>Same as capture settings. If you need to change them, please do so in capture settings.</value></data>
+  <data name="RetentionPermanent" xml:space="preserve"><value>Permanent</value></data>
+  <data name="Days" xml:space="preserve"><value> Days</value></data>
+  <data name="ExportBackup" xml:space="preserve"><value>Export Backup</value></data>
+  <data name="ImportBackup" xml:space="preserve"><value>Import Backup</value></data>
+  <data name="SaveSettings" xml:space="preserve"><value>Storage Settings</value></data>
+  <data name="BackupRestore" xml:space="preserve"><value>Data Backup &amp; Restore</value></data>
+  <data name="TrashSettings" xml:space="preserve"><value>Trash Settings</value></data>
 </root>

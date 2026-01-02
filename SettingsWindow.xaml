@@ -383,6 +383,7 @@
                     <Button x:Name="NavMenuEdit" Content="{DynamicResource MenuEdit}" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="MenuEdit"/>
                     <Button x:Name="NavRecording" Content="{DynamicResource RecordingSettings}" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Recording"/>
                     <Button x:Name="NavNote" Content="{DynamicResource NoteSettings}" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Note"/>
+                    <Button x:Name="NavHistory" Content="{DynamicResource HistorySettings}" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="History"/>
                     <Button x:Name="NavHotkey" Content="{DynamicResource Hotkeys}" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Hotkey"/>
 
                 </StackPanel>
@@ -1006,6 +1007,102 @@
                             </Grid>
                         </StackPanel>
                     </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+            
+            <!-- History Settings Page -->
+            <Border x:Name="PageHistory" Grid.Row="0" Background="{DynamicResource ThemeBackground}" CornerRadius="8" Padding="0" Visibility="Collapsed">
+                <Border.Effect>
+                    <DropShadowEffect Color="Black" Direction="270" ShadowDepth="1" Opacity="0.05" BlurRadius="10"/>
+                </Border.Effect>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0">
+                    <StackPanel Margin="20,0,20,20">
+                        <TextBlock x:Name="HistorySectionTitle" Text="{DynamicResource HistorySettings}" Style="{StaticResource SectionTitle}"/>
+
+                        <!-- 1. Storage Settings (Read-only, Shared with Capture) -->
+                        <GroupBox x:Name="HistorySaveSettingsGroup" Header="{DynamicResource SaveSettings}" Margin="0,0,0,10" BorderBrush="{DynamicResource ThemeBorder}" Padding="10">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource SavePath}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" Margin="0,0,0,5"/>
+                                <TextBox x:Name="TxtHistoryFolder" Height="30" VerticalContentAlignment="Center" Padding="5,0" IsReadOnly="True" Background="{DynamicResource ThemeBorder}" Foreground="{DynamicResource ThemeForeground}" BorderBrush="{DynamicResource ThemeBorder}" Opacity="0.6"/>
+                                
+                                <Grid Margin="0,15,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="120"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{DynamicResource FileFormat}" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}" Margin="0,0,10,0"/>
+                                    <TextBox x:Name="TxtHistoryFormat" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Padding="5,0" IsReadOnly="True" Background="{DynamicResource ThemeBorder}" Foreground="{DynamicResource ThemeForeground}" BorderBrush="{DynamicResource ThemeBorder}" Opacity="0.6"/>
+                                </Grid>
+                                
+                                <TextBlock Text="{DynamicResource HistorySameAsCapture}" Margin="0,15,0,0" FontSize="11" Foreground="{DynamicResource AccentColor}" Opacity="0.8" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <!-- 2. Data Backup & Restore (Referencing Note Logic) -->
+                        <GroupBox x:Name="HistoryBackupGroup" Header="{DynamicResource BackupRestore}" Margin="0,0,0,10" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button x:Name="BtnHistoryExport" Content="{DynamicResource ExportBackup}" Style="{StaticResource MacButtonSecondary}" Height="35" Click="BtnHistoryExport_Click"/>
+                                    <Button x:Name="BtnHistoryImport" Grid.Column="2" Content="{DynamicResource ImportBackup}" Style="{StaticResource MacButtonSecondary}" Height="35" Click="BtnHistoryImport_Click"/>
+                                </Grid>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <!-- 3. Data Retention & Auto Management -->
+                        <GroupBox x:Name="HistoryAutoGroup" Header="{DynamicResource AutoManagement}" Margin="0,0,0,10" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="20"/>
+                                        <ColumnDefinition Width="150"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{DynamicResource AutoDeletePeriod}" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                                    <ComboBox x:Name="CboHistoryRetention" Grid.Column="2" Height="30">
+                                        <ComboBoxItem Content="{DynamicResource Val30Days}" Tag="30"/>
+                                        <ComboBoxItem Content="{DynamicResource Val90Days}" Tag="90"/>
+                                        <ComboBoxItem Content="{DynamicResource ValPermanent}" Tag="0"/>
+                                    </ComboBox>
+                                </Grid>
+                                <TextBlock Text="{DynamicResource AutoDeleteToTrashNotice}" Margin="0,10,0,15" FontSize="11" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
+                                
+                                <StackPanel Orientation="Horizontal">
+                                    <Button x:Name="BtnDbOptimize" Content="{DynamicResource DbOptimize}" Style="{StaticResource MacButtonSecondary}" Height="35" Padding="15,0" Click="BtnDbOptimize_Click"/>
+                                    <TextBlock Text="{DynamicResource DbOptimizeDesc}" VerticalAlignment="Center" Margin="15,0,0,0" FontSize="11" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <!-- 4. Trash Settings -->
+                        <GroupBox x:Name="HistoryTrashGroup" Header="{DynamicResource TrashSettings}" Margin="0,0,0,10" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="20"/>
+                                        <ColumnDefinition Width="200"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{DynamicResource TrashRetentionPeriod}" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                                    <ComboBox x:Name="CboHistoryTrashRetention" Grid.Column="2" Height="30">
+                                        <ComboBoxItem Content="{DynamicResource Val1Day}" Tag="1"/>
+                                        <ComboBoxItem Content="{DynamicResource Val3Days}" Tag="3"/>
+                                        <ComboBoxItem Content="{DynamicResource Val7Days}" Tag="7"/>
+                                        <ComboBoxItem Content="{DynamicResource Val15Days}" Tag="15"/>
+                                        <ComboBoxItem Content="{DynamicResource Val30Days}" Tag="30"/>
+                                        <ComboBoxItem Content="{DynamicResource Val60Days}" Tag="60"/>
+                                        <ComboBoxItem Content="{DynamicResource Val90Days}" Tag="90"/>
+                                        <ComboBoxItem Content="{DynamicResource ValPermanent}" Tag="0"/>
+                                    </ComboBox>
+                                </Grid>
+                                <TextBlock Text="{DynamicResource TrashRetentionNotice}" Margin="0,10,0,0" FontSize="11" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
+                            </StackPanel>
+                        </GroupBox>
                     </StackPanel>
                 </ScrollViewer>
             </Border>

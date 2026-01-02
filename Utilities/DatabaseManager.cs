@@ -408,6 +408,39 @@ namespace CatchCapture.Utilities
             }
         }
 
+        public void BackupHistoryDatabase(string destinationPath)
+        {
+            try
+            {
+                string? dir = Path.GetDirectoryName(destinationPath);
+                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
+
+                if (File.Exists(destinationPath)) File.Delete(destinationPath);
+
+                using (var connection = new SqliteConnection($"Data Source={HistoryDbPath}"))
+                {
+                    connection.Open();
+                    using (var command = new SqliteCommand($"VACUUM INTO '{destinationPath.Replace("'", "''")}';", connection))
+                    {
+                        command.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"History DB 백업 중 오류: {ex.Message}");
+                try
+                {
+                    using (var sourceStream = new FileStream(HistoryDbPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    using (var destStream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write))
+                    {
+                        sourceStream.CopyTo(destStream);
+                    }
+                }
+                catch { throw; }
+            }
+        }
+
         public string GetImageFolderPath()
         {
             string dbDir = Path.GetDirectoryName(DbPath)!;
@@ -451,6 +484,26 @@ namespace CatchCapture.Utilities
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"DB VACUUM 오류: {ex.Message}");
+            }
+        }
+
+        public void VacuumHistory()
+        {
+            try
+            {
+                using (var connection = new SqliteConnection($"Data Source={HistoryDbPath}"))
+                {
+                    connection.Open();
+                    using (var command = new SqliteCommand("VACUUM;", connection))
+                    {
+                        command.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"History DB VACUUM 오류: {ex.Message}");
+                throw;
             }
         }
 
@@ -538,6 +591,67 @@ namespace CatchCapture.Utilities
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"휴지통 자동 비우기 오류: {ex.Message}");
+            }
+        }
+
+        public void CleanupHistory(int retentionDays, int trashRetentionDays)
+        {
+            try
+            {
+                using (var connection = new SqliteConnection($"Data Source={HistoryDbPath}"))
+                {
+                    connection.Open();
+
+                    // 1. Move old items to trash (Status 0 -> 1)
+                    if (retentionDays > 0)
+                    {
+                        string toTrashSql = @"
+                            UPDATE Captures 
+                            SET Status = 1 
+                            WHERE Status = 0 AND IsPinned = 0 AND CreatedAt <= datetime('now', 'localtime', '-' || $days || ' days')";
+                        
+                        using (var cmd = new SqliteCommand(toTrashSql, connection))
+                        {
+                            cmd.Parameters.AddWithValue("$days", retentionDays);
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+
+                    // 2. Permanently delete items from trash
+                    if (trashRetentionDays > 0)
+                    {
+                        var filesToDelete = new List<string>();
+                        string findSql = "SELECT FilePath FROM Captures WHERE Status = 1 AND CreatedAt <= datetime('now', 'localtime', '-' || $days || ' days')";
+                        
+                        using (var cmd = new SqliteCommand(findSql, connection))
+                        {
+                            cmd.Parameters.AddWithValue("$days", trashRetentionDays);
+                            using (var reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read()) filesToDelete.Add(reader.GetString(0));
+                            }
+                        }
+
+                        if (filesToDelete.Count > 0)
+                        {
+                            foreach (var filePath in filesToDelete)
+                            {
+                                try { if (File.Exists(filePath)) File.Delete(filePath); } catch { }
+                            }
+
+                            string deleteSql = "DELETE FROM Captures WHERE Status = 1 AND CreatedAt <= datetime('now', 'localtime', '-' || $days || ' days')";
+                            using (var cmd = new SqliteCommand(deleteSql, connection))
+                            {
+                                cmd.Parameters.AddWithValue("$days", trashRetentionDays);
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"히스토리 자동 정리 오류: {ex.Message}");
             }
         }
 

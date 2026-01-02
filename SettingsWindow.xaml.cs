@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using Microsoft.Win32;
 using CatchCapture.Models;
+using CatchCapture.Utilities;
 using System.Diagnostics;
 using LocalizationManager = CatchCapture.Resources.LocalizationManager;
 
@@ -38,6 +39,7 @@ namespace CatchCapture
                 LoadRecordingPage();
                 LoadNotePage();
                 LoadHotkeysPage();
+                LoadHistoryPage();
                 
                 // Store original theme for cancel revert
                 _originalThemeMode = _settings.ThemeMode ?? "General";
@@ -398,6 +400,38 @@ private void UpdateUIText()
                 if (RestoreDefaultsText != null) RestoreDefaultsText.Text = LocalizationManager.GetString("RestoreDefaults");
                 if (PrivacyPolicyText != null) PrivacyPolicyText.Text = LocalizationManager.GetString("PrivacyPolicy");
                 if (WebsiteIcon != null) WebsiteIcon.ToolTip = LocalizationManager.GetString("VisitHomepage");
+
+                // History Page
+                if (HistorySectionTitle != null) HistorySectionTitle.Text = LocalizationManager.GetString("HistorySettings");
+                if (HistorySaveSettingsGroup != null) HistorySaveSettingsGroup.Header = LocalizationManager.GetString("SaveSettings");
+                if (HistoryBackupGroup != null) HistoryBackupGroup.Header = LocalizationManager.GetString("BackupRestore");
+                if (HistoryAutoGroup != null) HistoryAutoGroup.Header = LocalizationManager.GetString("AutoManagement");
+                if (HistoryTrashGroup != null) HistoryTrashGroup.Header = LocalizationManager.GetString("TrashSettings");
+                
+                if (BtnHistoryExport != null) BtnHistoryExport.Content = LocalizationManager.GetString("ExportBackup");
+                if (BtnHistoryImport != null) BtnHistoryImport.Content = LocalizationManager.GetString("ImportBackup");
+                if (BtnDbOptimize != null) BtnDbOptimize.Content = LocalizationManager.GetString("DbOptimize");
+                
+                if (CboHistoryRetention != null)
+                {
+                    foreach (ComboBoxItem item in CboHistoryRetention.Items)
+                    {
+                        string? tag = item.Tag as string;
+                        if (tag == "0") item.Content = LocalizationManager.GetString("RetentionPermanent");
+                        else if (tag == "30") item.Content = "30" + LocalizationManager.GetString("Days");
+                        else if (tag == "90") item.Content = "90" + LocalizationManager.GetString("Days");
+                    }
+                }
+
+                if (CboHistoryTrashRetention != null)
+                {
+                    foreach (ComboBoxItem item in CboHistoryTrashRetention.Items)
+                    {
+                        string? tag = item.Tag as string;
+                        if (tag == "0") item.Content = LocalizationManager.GetString("RetentionPermanent");
+                        else if (tag != null && int.TryParse(tag, out int days)) item.Content = days.ToString() + LocalizationManager.GetString("Days");
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -455,6 +489,7 @@ private void InitLanguageComboBox()
             NavNote.FontWeight = tag == "Note" ? FontWeights.Bold : FontWeights.Normal;
             NavSystem.FontWeight = tag == "System" ? FontWeights.Bold : FontWeights.Normal;
             NavHotkey.FontWeight = tag == "Hotkey" ? FontWeights.Bold : FontWeights.Normal;
+            NavHistory.FontWeight = tag == "History" ? FontWeights.Bold : FontWeights.Normal;
             
             PageCapture.Visibility = tag == "Capture" ? Visibility.Visible : Visibility.Collapsed;
             PageTheme.Visibility = tag == "Theme" ? Visibility.Visible : Visibility.Collapsed;
@@ -463,6 +498,7 @@ private void InitLanguageComboBox()
             PageNote.Visibility = tag == "Note" ? Visibility.Visible : Visibility.Collapsed;
             PageSystem.Visibility = tag == "System" ? Visibility.Visible : Visibility.Collapsed;
             PageHotkey.Visibility = tag == "Hotkey" ? Visibility.Visible : Visibility.Collapsed;
+            PageHistory.Visibility = tag == "History" ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void LoadThemePage()
@@ -844,6 +880,38 @@ private void InitLanguageComboBox()
             }
             if (CboPrintScreenAction.SelectedItem == null)
                 CboPrintScreenAction.SelectedIndex = 0;
+        }
+
+        private void LoadHistoryPage()
+        {
+            if (TxtHistoryFolder != null) TxtHistoryFolder.Text = _settings.DefaultSaveFolder;
+            if (TxtHistoryFormat != null) TxtHistoryFormat.Text = _settings.FileSaveFormat ?? "PNG";
+
+            if (CboHistoryRetention != null)
+            {
+                foreach (ComboBoxItem item in CboHistoryRetention.Items)
+                {
+                    if (item.Tag?.ToString() == _settings.HistoryRetentionDays.ToString())
+                    {
+                        CboHistoryRetention.SelectedItem = item;
+                        break;
+                    }
+                }
+                if (CboHistoryRetention.SelectedItem == null && CboHistoryRetention.Items.Count > 0) CboHistoryRetention.SelectedIndex = 2; // Default: Permanent (0)
+            }
+
+            if (CboHistoryTrashRetention != null)
+            {
+                foreach (ComboBoxItem item in CboHistoryTrashRetention.Items)
+                {
+                    if (item.Tag?.ToString() == _settings.HistoryTrashRetentionDays.ToString())
+                    {
+                        CboHistoryTrashRetention.SelectedItem = item;
+                        break;
+                    }
+                }
+                if (CboHistoryTrashRetention.SelectedItem == null && CboHistoryTrashRetention.Items.Count > 0) CboHistoryTrashRetention.SelectedIndex = 4; // Default: 30 days
+            }
         }
 
         private void CaptureMode_Checked(object sender, RoutedEventArgs e)
@@ -1522,6 +1590,12 @@ private void InitLanguageComboBox()
                 _settings.MainMenuItems = defaults.MainMenuItems;
                 LoadMenuEditPage();
             }
+            else if (_currentPage == "History")
+            {
+                _settings.HistoryRetentionDays = defaults.HistoryRetentionDays;
+                _settings.HistoryTrashRetentionDays = defaults.HistoryTrashRetentionDays;
+                LoadHistoryPage();
+            }
 
             // 테마 변경사항 즉시 반영
             App.ApplyTheme(_settings);
@@ -1781,6 +1855,18 @@ private void InitLanguageComboBox()
 
             // Menu order
             _settings.MainMenuItems = _menuItems.Select(m => m.Key).ToList();
+
+            // History Settings Harvest
+            if (CboHistoryRetention != null && CboHistoryRetention.SelectedItem is ComboBoxItem hrItem)
+            {
+                if (int.TryParse(hrItem.Tag?.ToString(), out int days))
+                    _settings.HistoryRetentionDays = days;
+            }
+            if (CboHistoryTrashRetention != null && CboHistoryTrashRetention.SelectedItem is ComboBoxItem htrItem)
+            {
+                if (int.TryParse(htrItem.Tag?.ToString(), out int days))
+                    _settings.HistoryTrashRetentionDays = days;
+            }
 
             // Theme Setting
             if (ThemeDark != null && ThemeDark.IsChecked == true) _settings.ThemeMode = "Dark";
@@ -2382,6 +2468,101 @@ private void InitLanguageComboBox()
 
             TxtNoteFileNamePreview.Text = preview + ext;
         }
+
+        private void BtnHistoryExport_Click(object sender, RoutedEventArgs e)
+        {
+            string? tempPath = null;
+            try
+            {
+                var sfd = new Microsoft.Win32.SaveFileDialog();
+                sfd.Filter = "Zip Files (*.zip)|*.zip";
+                sfd.FileName = $"CatchCapture_History_Backup_{DateTime.Now:yyyyMMdd}.zip";
+                if (sfd.ShowDialog() == true)
+                {
+                    string sourceDir = Path.Combine(_settings.DefaultSaveFolder, "history");
+                    if (!Directory.Exists(sourceDir))
+                    {
+                        CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("ErrorNoFolder"), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+                    if (File.Exists(sfd.FileName))
+                    {
+                        try { File.Delete(sfd.FileName); } catch { }
+                    }
+
+                    tempPath = Path.Combine(Path.GetTempPath(), "CatchCapture_History_Backup_Temp_" + Guid.NewGuid().ToString("N"));
+                    Directory.CreateDirectory(tempPath);
+
+                    // For history, we backup the entire history folder.
+                    // But history.db might be in use, so we should back it up safely
+                    CopyDirectory(sourceDir, tempPath, "history.db");
+                    
+                    string tempDbPath = Path.Combine(tempPath, "history.db");
+                    // Assuming DatabaseManager will have a way to backup history DB
+                    DatabaseManager.Instance.BackupHistoryDatabase(tempDbPath);
+
+                    System.IO.Compression.ZipFile.CreateFromDirectory(tempPath, sfd.FileName);
+                    CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("BackupSuccess"), "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                CatchCapture.CustomMessageBox.Show($"{LocalizationManager.GetString("ErrorBackup")}: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                if (tempPath != null && Directory.Exists(tempPath))
+                {
+                    try { Directory.Delete(tempPath, true); } catch { }
+                }
+            }
+        }
+
+        private void BtnHistoryImport_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var ofd = new Microsoft.Win32.OpenFileDialog();
+                ofd.Filter = "Zip Files (*.zip)|*.zip";
+                if (ofd.ShowDialog() == true)
+                {
+                    if (CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("ImportConfirmMsg"), LocalizationManager.GetString("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                    {
+                        string targetDir = Path.Combine(_settings.DefaultSaveFolder, "history");
+                        if (!Directory.Exists(targetDir)) Directory.CreateDirectory(targetDir);
+
+                        DatabaseManager.Instance.CloseConnection(); // This should close both if implemented correctly
+                        Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
+                        GC.Collect();
+                        GC.WaitForPendingFinalizers();
+                        System.Threading.Thread.Sleep(200);
+
+                        System.IO.Compression.ZipFile.ExtractToDirectory(ofd.FileName, targetDir, true);
+                        DatabaseManager.Instance.Reinitialize();
+                        CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("ImportSuccessMsg"), LocalizationManager.GetString("Success"), MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                CatchCapture.CustomMessageBox.Show($"{LocalizationManager.GetString("ErrorImport")}: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnDbOptimize_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                DatabaseManager.Instance.VacuumHistory();
+                CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("Success"), LocalizationManager.GetString("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                CatchCapture.CustomMessageBox.Show(ex.Message, LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private void BtnMinimize_Click(object sender, RoutedEventArgs e)
         {
             this.WindowState = WindowState.Minimized;
