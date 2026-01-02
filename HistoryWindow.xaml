@@ -6,7 +6,7 @@
         xmlns:utils="clr-namespace:CatchCapture.Utilities"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen" ResizeMode="CanResize"
-        MinHeight="300" Height="850" MinWidth="1100" Width="1380"
+        MinHeight="300" Height="820" MinWidth="1100" Width="1430"
         Title="히스토리 - 캐치캡처"
         Background="Transparent" WindowStyle="None" AllowsTransparency="True">
     
@@ -246,9 +246,9 @@
             <Grid Grid.Row="1" x:Name="MainGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="220"/> <!-- Sidebar -->
-                    <ColumnDefinition Width="*"/>   <!-- List -->
+                    <ColumnDefinition Width="*"/>   <!-- List (Calculated: 875) -->
                     <ColumnDefinition Width="Auto"/> <!-- Splitter -->
-                    <ColumnDefinition Width="320" MinWidth="250" MaxWidth="800"/> <!-- Preview Pane -->
+                    <ColumnDefinition Width="331" MinWidth="250" MaxWidth="1000"/> <!-- Preview Pane -->
                 </Grid.ColumnDefinitions>
 
                 <!-- Sidebar (1st Column) -->
@@ -417,6 +417,13 @@
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock Text="{Binding FileName}" Foreground="{DynamicResource ThemeForeground}" TextTrimming="CharacterEllipsis" MaxWidth="195" VerticalAlignment="Center"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn x:Name="ColMeta" Header="출처/제목" Width="180">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding MetaInfo}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>

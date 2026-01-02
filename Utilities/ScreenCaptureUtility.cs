@@ -91,46 +91,45 @@ namespace CatchCapture.Utilities
             try
             {
                 IntPtr hWnd = IntPtr.Zero;
-                POINT p;
-
-                // 1. 마우스 커서 위치의 창 찾기
-                if (GetCursorPos(out p))
-                {
-                    IntPtr hWndPoint = WindowFromPoint(p);
-                    if (hWndPoint != IntPtr.Zero)
-                    {
-                        hWnd = GetAncestor(hWndPoint, GA_ROOT);
-                    }
-                }
-
+                
+                // 1. 현재 활성 창 가져오기
+                hWnd = GetForegroundWindow();
                 (string AppName, string Title) result = TryGetWindowData(hWnd);
 
-                // 2. 자신(CatchCapture)인 경우 ForegoundWindow로 시도
-                if (IsSelfProcess(result.AppName))
+                // 2. 만약 활성 창이 우리 앱(CatchCapture)이거나 유효하지 않다면, Z-Order 순서대로 그 아래 창을 찾음
+                if (IsSelfProcess(result.AppName) || IsInvalidMetadata(result))
                 {
-                    hWnd = GetForegroundWindow();
-                    result = TryGetWindowData(hWnd);
-                    
-                    // Foreground도 자신이면 Unknown 반환
-                    if (IsSelfProcess(result.AppName))
+                    IntPtr currentHwnd = hWnd;
+                    // 최대 10개 창을 탐색
+                    for (int i = 0; i < 20; i++)
                     {
-                        return ("Unknown", "Unknown");
+                        currentHwnd = GetWindow(currentHwnd, GW_HWNDNEXT);
+                        if (currentHwnd == IntPtr.Zero) break;
+
+                        if (!IsWindowVisible(currentHwnd)) continue;
+
+                        var candidateData = TryGetWindowData(currentHwnd);
+                        
+                        // 필터링: 우리 앱, 껍데기 앱, 제목 없는 앱 제외
+                        if (IsSelfProcess(candidateData.AppName)) continue;
+                        if (IsInvalidMetadata(candidateData)) continue;
+                        
+                        // 시스템 더미 창 필터링
+                        if (candidateData.Title == "Program Manager" || 
+                            candidateData.Title == "Taskbar" ||
+                            candidateData.Title == "Windows 입력 환경") continue;
+
+                        // 적절한 창을 찾았으면 채택
+                        return candidateData;
                     }
                 }
-
-                // 3. 유효하지 않거나 실패한 경우 ForegoundWindow로 시도
-                if (IsInvalidMetadata(result))
+                else
                 {
-                    hWnd = GetForegroundWindow();
-                    var fallbackResult = TryGetWindowData(hWnd);
-                    
-                    if (!IsInvalidMetadata(fallbackResult) && !IsSelfProcess(fallbackResult.AppName))
-                    {
-                        result = fallbackResult;
-                    }
+                    // 활성 창이 우리 앱이 아니면 그대로 반환
+                    return result;
                 }
 
-                return result;
+                return ("Unknown", "Unknown");
             }
             catch
             {

@@ -100,12 +100,12 @@ namespace CatchCapture.Models
         public double NoteInputTop { get; set; } = -9999;
         
         // History Window State
-        public double HistoryWindowWidth { get; set; } = 1380;
-        public double HistoryWindowHeight { get; set; } = 380;
+        public double HistoryWindowWidth { get; set; } = 1430;
+        public double HistoryWindowHeight { get; set; } = 820;
         public double HistoryWindowLeft { get; set; } = -9999;
         public double HistoryWindowTop { get; set; } = -9999;
-        public double HistoryPreviewPaneWidth { get; set; } = 320;
-        public double HistoryListPaneWidth { get; set; } = 840;
+        public double HistoryPreviewPaneWidth { get; set; } = 331;
+        public double HistoryListPaneWidth { get; set; } = 875;
 
         // Preview Window State (Added)
         public double PreviewWindowWidth { get; set; } = 0;

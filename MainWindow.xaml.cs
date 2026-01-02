@@ -1662,11 +1662,34 @@ public partial class MainWindow : Window
                     this.Show();
                 }
 
+                // 캡처 영역의 중심 좌표 계산
+                int centerX = (int)(selectedArea.X + selectedArea.Width / 2);
+                int centerY = (int)(selectedArea.Y + selectedArea.Height / 2);
+
+                // 초기 메타데이터 (활성 창 기준) - Null 안전 처리
+                string finalApp = snippingWindow.SourceApp ?? "Unknown";
+                string finalTitle = snippingWindow.SourceTitle ?? "Unknown";
+
+                // 만약 초기 메타데이터가 불확실하거나(Unknown), 시스템 창(Taskbar 등)인 경우
+                // 또는 사용자가 드래그한 영역이 초기 활성 창과 다를 가능성이 높으므로 좌표 기반으로 재확인
+                if (finalApp == "Unknown" || finalTitle == "Unknown" || 
+                    finalTitle == "Program Manager" || finalTitle == "Taskbar" ||
+                    !string.IsNullOrEmpty(finalApp)) // 항상 좌표 기반을 우선 확인해볼 가치가 있음 (드래그 캡처 특성상)
+                {
+                    // 좌표 기반 메타데이터 추출 시도
+                    var pointMetadata = ScreenCaptureUtility.GetWindowAtPoint(centerX, centerY);
+                    if (pointMetadata.AppName != "Unknown" && pointMetadata.Title != "Unknown")
+                    {
+                        finalApp = pointMetadata.AppName;
+                        finalTitle = pointMetadata.Title;
+                    }
+                }
+
                 AddCaptureToList(capturedImage, 
                                  skipPreview: requestMinimize, 
                                  showMainWindow: !requestMinimize, 
-                                 sourceApp: snippingWindow.SourceApp, 
-                                 sourceTitle: snippingWindow.SourceTitle);
+                                 sourceApp: finalApp, 
+                                 sourceTitle: finalTitle);
             }
             else
             {

@@ -56,8 +56,18 @@ namespace CatchCapture
         private void HistoryWindow_Loaded(object sender, RoutedEventArgs e)
         {
             var settings = Settings.Load();
-            if (settings.HistoryWindowWidth > 0) this.Width = settings.HistoryWindowWidth;
-            if (settings.HistoryWindowHeight > 0) this.Height = settings.HistoryWindowHeight;
+            
+            // 크기 복원 시 최소 크기 강제 적용 (짜부되는 현상 방지)
+            if (settings.HistoryWindowWidth > 0) 
+            {
+                this.Width = Math.Max(this.MinWidth, settings.HistoryWindowWidth);
+            }
+            
+            if (settings.HistoryWindowHeight > 0) 
+            {
+                this.Height = Math.Max(this.MinHeight, settings.HistoryWindowHeight);
+            }
+
             if (settings.HistoryWindowLeft != -9999) this.Left = settings.HistoryWindowLeft;
             if (settings.HistoryWindowTop != -9999) this.Top = settings.HistoryWindowTop;
             
@@ -76,37 +86,43 @@ namespace CatchCapture
             // Restore GridView Column Widths
             ColDate.Width = settings.HistoryColDate;
             ColFileName.Width = settings.HistoryColFileName;
-            // ColMeta Removed
+            ColMeta.Width = settings.HistoryColMeta; // Restored
             ColPin.Width = settings.HistoryColPin;
             ColFavorite.Width = settings.HistoryColFavorite;
             ColActions.Width = settings.HistoryColActions;
-            ColMemo.Width = settings.HistoryColMemo;
+            // ColMemo Removed (Old location) - It's now in main columns
+            if (ColMemo != null) ColMemo.Width = settings.HistoryColMemo; // Safety check
         }
 
         private void HistoryWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
             var settings = Settings.Load();
-            settings.HistoryWindowWidth = this.Width;
-            settings.HistoryWindowHeight = this.Height;
-            settings.HistoryWindowLeft = this.Left;
-            settings.HistoryWindowTop = this.Top;
             
-            
-            if (MainGrid.ColumnDefinitions.Count >= 4)
+            // ★ 중요: 창이 Normal 상태일 때만 크기/위치 저장 (최소화 상태 저장 방지)
+            // 비정상적으로 작아진 상태도 저장하지 않도록 최소 크기 체크 추가
+            if (this.WindowState == WindowState.Normal && this.Width >= this.MinWidth && this.Height >= this.MinHeight)
             {
-                settings.HistoryPreviewPaneWidth = MainGrid.ColumnDefinitions[3].Width.Value;
-            }
+                settings.HistoryWindowWidth = this.Width;
+                settings.HistoryWindowHeight = this.Height;
+                settings.HistoryWindowLeft = this.Left;
+                settings.HistoryWindowTop = this.Top;
+                
+                if (MainGrid.ColumnDefinitions.Count >= 4)
+                {
+                    settings.HistoryPreviewPaneWidth = MainGrid.ColumnDefinitions[3].Width.Value;
+                }
 
-            // Save GridView Column Widths
-            settings.HistoryColDate = ColDate.Width;
-            settings.HistoryColFileName = ColFileName.Width;
-            // ColMeta Removed
-            settings.HistoryColPin = ColPin.Width;
-            settings.HistoryColFavorite = ColFavorite.Width;
-            settings.HistoryColActions = ColActions.Width;
-            settings.HistoryColMemo = ColMemo.Width;
-            
-            settings.Save();
+                // Save GridView Column Widths
+                settings.HistoryColDate = ColDate.Width;
+                settings.HistoryColFileName = ColFileName.Width;
+                settings.HistoryColMeta = ColMeta.Width; // Restored
+                settings.HistoryColPin = ColPin.Width;
+                settings.HistoryColFavorite = ColFavorite.Width;
+                settings.HistoryColActions = ColActions.Width;
+                if (ColMemo != null) settings.HistoryColMemo = ColMemo.Width;
+                
+                settings.Save();
+            }
         }
 
         private void RefreshCounts()
