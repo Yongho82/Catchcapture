@@ -159,7 +159,7 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                            <Track x:Name="PART_Track" Grid.Row="0" IsDirectionReversed="true" Focusable="false">
+                            <Track x:Name="PART_Track" Grid.Row="0" IsDirectionReversed="false" Focusable="false">
                                 <Track.Thumb>
                                     <Thumb x:Name="Thumb" Background="#BBBBBB">
                                         <Thumb.Template>
@@ -170,10 +170,10 @@
                                     </Thumb>
                                 </Track.Thumb>
                                 <Track.IncreaseRepeatButton>
-                                    <RepeatButton x:Name="PageUp" Command="ScrollBar.PageDownCommand" Opacity="0" Focusable="false"/>
+                                    <RepeatButton x:Name="PageUp" Command="ScrollBar.PageUpCommand" Opacity="0" Focusable="false"/>
                                 </Track.IncreaseRepeatButton>
                                 <Track.DecreaseRepeatButton>
-                                    <RepeatButton x:Name="PageDown" Command="ScrollBar.PageUpCommand" Opacity="0" Focusable="false"/>
+                                    <RepeatButton x:Name="PageDown" Command="ScrollBar.PageDownCommand" Opacity="0" Focusable="false"/>
                                 </Track.DecreaseRepeatButton>
                             </Track>
                         </Grid>
