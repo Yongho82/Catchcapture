@@ -17,73 +17,112 @@ namespace CatchCapture.Utilities
             Background = Brushes.Transparent;
             Topmost = true;
             ShowInTaskbar = false;
-            SizeToContent = SizeToContent.WidthAndHeight;
+            SizeToContent = SizeToContent.Height; // Width is fixed
             ResizeMode = ResizeMode.NoResize;
             ShowActivated = false;
+            Width = 320; // Slightly wider for ShareX style
 
+            // ShareX Style: Dark background
             var border = new Border
             {
-                Background = new SolidColorBrush(Color.FromArgb(200, 30, 30, 30)), // Semi-transparent dark
-                CornerRadius = new CornerRadius(10),
-                Padding = new Thickness(20, 10, 20, 10),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(100, 100, 100)),
+                Background = new SolidColorBrush(Color.FromRgb(40, 40, 40)), // Dark gray
+                CornerRadius = new CornerRadius(0), // ShareX is usually rectangular or slightly rounded. Let's go with slightly rounded.
+                Padding = new Thickness(15),
+                BorderBrush = new SolidColorBrush(Color.FromRgb(80, 80, 80)),
                 BorderThickness = new Thickness(1),
                 Effect = new System.Windows.Media.Effects.DropShadowEffect 
                 { 
                     BlurRadius = 10, 
-                    ShadowDepth = 3, 
-                    Opacity = 0.5 
+                    ShadowDepth = 5, 
+                    Opacity = 0.4,
+                    Color = Colors.Black
                 }
             };
 
-            var textBlock = new TextBlock
+            var grid = new Grid();
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(10) }); // Accent bar width
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); // content
+
+            // Accent Bar
+            var accentBar = new Rectangle
             {
-                Text = message,
+                Width = 4,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                Fill = new SolidColorBrush(Color.FromRgb(0, 122, 204)), // VS Blue / ShareX Blue-ish
+                Margin = new Thickness(0, -15, 0, -15) // Stretch vertically to cover padding
+            };
+            Grid.SetColumn(accentBar, 0);
+
+            // Content Stack (Title + Message)
+            var contentStack = new StackPanel
+            {
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(5, 0, 0, 0)
+            };
+            Grid.SetColumn(contentStack, 1);
+
+            // Title "Catch Capture"
+            var titleBlock = new TextBlock
+            {
+                Text = "Catch Capture",
                 Foreground = Brushes.White,
                 FontSize = 14,
                 FontWeight = FontWeights.Bold,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
+                Margin = new Thickness(0, 0, 0, 4) // Spacing below title
             };
 
-            border.Child = textBlock;
+            // Message Body
+            var messageBlock = new TextBlock
+            {
+                Text = message,
+                Foreground = new SolidColorBrush(Color.FromRgb(220, 220, 220)), // Slightly off-white for readability
+                FontSize = 13,
+                TextWrapping = TextWrapping.Wrap,
+                HorizontalAlignment = HorizontalAlignment.Left
+            };
+            
+            contentStack.Children.Add(titleBlock);
+            contentStack.Children.Add(messageBlock);
+            
+            grid.Children.Add(accentBar);
+            grid.Children.Add(contentStack);
+
+            border.Child = grid;
             Content = border;
 
-            // Ensure Window is created
-            Width = 300; // Min width? No, Auto is better but maybe safer to have content constraints
-            
-            // Positioning Logic:
-            // CenterScreen works on Primary Screen mostly. 
-            // Better to center on the Mouse or the Active Window screen.
-            
-            // Try to center on mouse screen
-            try 
+            // Positioning Logic: Bottom Right (Tray Area)
+            this.Loaded += (s, e) =>
             {
-                // Get mouse position
-                var mousePt = GetMousePosition();
-                // Simple centering around mouse or offset
-                Left = mousePt.X - 100; // Approximate centering if width is ~200
-                Top = mousePt.Y + 20;   // Below mouse
-                WindowStartupLocation = WindowStartupLocation.Manual;
-            }
-            catch 
-            {
-                WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            }
+                var workArea = SystemParameters.WorkArea;
+                this.Left = workArea.Right - this.Width - 10;
+                this.Top = workArea.Bottom - this.ActualHeight - 10;
+                
+                // Slide Up / Fade In Animation
+                var fadeIn = new System.Windows.Media.Animation.DoubleAnimation(0, 1, TimeSpan.FromSeconds(0.25));
+                var slideUp = new System.Windows.Media.Animation.DoubleAnimation(this.Top + 20, this.Top, TimeSpan.FromSeconds(0.25))
+                {
+                    EasingFunction = new System.Windows.Media.Animation.CubicEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut }
+                };
+                
+                this.BeginAnimation(OpacityProperty, fadeIn);
+                this.BeginAnimation(TopProperty, slideUp);
+            };
 
             // Auto close timer
-            var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2.0) };
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(3.0) };
             timer.Tick += (s, e) => 
             {
                 timer.Stop();
-                var anim = new System.Windows.Media.Animation.DoubleAnimation(1, 0, TimeSpan.FromSeconds(0.5));
-                anim.Completed += (s2, e2) => Close();
-                BeginAnimation(OpacityProperty, anim);
+                // Fade Out / Drop Down
+                var fadeOut = new System.Windows.Media.Animation.DoubleAnimation(1, 0, TimeSpan.FromSeconds(0.3));
+                // Optional: Slide down
+                var slideDown = new System.Windows.Media.Animation.DoubleAnimation(this.Top, this.Top + 20, TimeSpan.FromSeconds(0.3));
+                
+                fadeOut.Completed += (s2, e2) => Close();
+                this.BeginAnimation(OpacityProperty, fadeOut);
+                this.BeginAnimation(TopProperty, slideDown);
             };
             timer.Start();
-
-            // Fade In
-            BeginAnimation(OpacityProperty, new System.Windows.Media.Animation.DoubleAnimation(0, 1, TimeSpan.FromSeconds(0.2)));
         }
 
         [System.Runtime.InteropServices.DllImport("user32.dll")]
