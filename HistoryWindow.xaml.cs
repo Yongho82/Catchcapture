@@ -15,6 +15,9 @@ namespace CatchCapture
     public partial class HistoryWindow : Window
     {
         public ObservableCollection<HistoryItem> HistoryItems { get; set; } = new ObservableCollection<HistoryItem>();
+        private System.Windows.Threading.DispatcherTimer? _tipTimer;
+        private int _currentTipIndex = 0;
+        private List<string> _tips = new List<string>();
 
         public HistoryWindow()
         {
@@ -46,6 +49,11 @@ namespace CatchCapture
                         break;
                     }
                 }
+
+                InitializeTips();
+                InitializeTipTimer();
+                
+                CatchCapture.Resources.LocalizationManager.LanguageChanged += (s, e) => InitializeTips();
             }
             catch (Exception ex)
             {
@@ -123,6 +131,12 @@ namespace CatchCapture
                 
                 settings.Save();
             }
+
+            if (_tipTimer != null)
+            {
+                _tipTimer.Stop();
+                _tipTimer = null;
+            }
         }
 
         private void RefreshCounts()
@@ -159,6 +173,9 @@ namespace CatchCapture
             _currentDateTo = dateTo;
             _currentFileType = fileType;
 
+            // 팁 바 업데이트
+            UpdateBottomTipBar();
+
             try
             {
                 int totalCount = DatabaseManager.Instance.GetHistoryCount(filter, search, dateFrom, dateTo, fileType);
@@ -190,6 +207,68 @@ namespace CatchCapture
             {
                 CustomMessageBox.Show($"히스토리 로드 중 오류: {ex.Message}", "오류");
             }
+        }
+
+        private void InitializeTips()
+        {
+            _tips = new List<string>();
+            for (int i = 1; i <= 6; i++)
+            {
+                string tip = CatchCapture.Resources.LocalizationManager.GetString($"HistoryTip{i}");
+                if (!string.IsNullOrEmpty(tip))
+                    _tips.Add(tip);
+            }
+            if (_tips.Count > 0 && TxtRollingTip != null)
+            {
+                TxtRollingTip.Text = _tips[_currentTipIndex];
+            }
+        }
+
+        private void UpdateBottomTipBar()
+        {
+            if (_currentFilter == "Trash")
+            {
+                // INFO 모드로 전환
+                if (TxtTipLabel != null) TxtTipLabel.Text = CatchCapture.Resources.LocalizationManager.GetString("Info") ?? "INFO";
+                if (BrdTipLabel != null) BrdTipLabel.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E74C3C"));
+
+                int days = Settings.Load().HistoryTrashRetentionDays;
+                if (days > 0)
+                    TxtRollingTip.Text = string.Format(CatchCapture.Resources.LocalizationManager.GetString("TrashRetentionInfo") ?? "...", days);
+                else
+                    TxtRollingTip.Text = CatchCapture.Resources.LocalizationManager.GetString("TrashRetentionPermanentInfo") ?? "...";
+            }
+            else
+            {
+                // TIP 모드로 복구
+                if (TxtTipLabel != null) TxtTipLabel.Text = "TIP";
+                if (BrdTipLabel != null) BrdTipLabel.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#8E44AD"));
+
+                // 현재 팁 표시 (타이머가 돌고 있으므로 인덱스 기반 표시)
+                if (_tips != null && _tips.Count > 0 && TxtRollingTip != null)
+                {
+                    TxtRollingTip.Text = _tips[_currentTipIndex];
+                }
+            }
+        }
+
+        private void InitializeTipTimer()
+        {
+            _tipTimer = new System.Windows.Threading.DispatcherTimer();
+            _tipTimer.Interval = TimeSpan.FromSeconds(5);
+            _tipTimer.Tick += (s, e) => {
+                if (_currentFilter == "Trash") return; // 휴지통에서는 팁 회전 중지
+
+                if (_tips.Count == 0 || TxtRollingTip == null) return;
+
+                _currentTipIndex = (_currentTipIndex + 1) % _tips.Count;
+                TxtRollingTip.Opacity = 0;
+                TxtRollingTip.Text = _tips[_currentTipIndex];
+                
+                var anim = new System.Windows.Media.Animation.DoubleAnimation(0, 1, TimeSpan.FromSeconds(0.5));
+                TxtRollingTip.BeginAnimation(TextBlock.OpacityProperty, anim);
+            };
+            _tipTimer.Start();
         }
 
         private void UpdatePaginationUI()
