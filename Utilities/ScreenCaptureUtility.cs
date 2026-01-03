@@ -345,7 +345,7 @@ namespace CatchCapture.Utilities
             int vw = (int)SystemParameters.VirtualScreenWidth;
             int vh = (int)SystemParameters.VirtualScreenHeight;
 
-            using (Bitmap bitmap = new Bitmap(vw, vh))
+            using (Bitmap bitmap = new Bitmap(vw, vh, PixelFormat.Format32bppRgb))
             {
                 using (Graphics graphics = Graphics.FromImage(bitmap))
                 {
@@ -369,7 +369,7 @@ namespace CatchCapture.Utilities
 
         public static BitmapSource CaptureArea(Int32Rect area)
         {
-            using (Bitmap bitmap = new Bitmap(area.Width, area.Height))
+            using (Bitmap bitmap = new Bitmap(area.Width, area.Height, PixelFormat.Format32bppRgb))
             {
                 using (Graphics graphics = Graphics.FromImage(bitmap))
                 {
@@ -481,7 +481,7 @@ namespace CatchCapture.Utilities
                 
                 // 첫 번째 스크린샷 캡처
                 List<Bitmap> capturedImages = new List<Bitmap>();
-                Bitmap firstCapture = new Bitmap(clientWidth, clientHeight);
+                Bitmap firstCapture = new Bitmap(clientWidth, clientHeight, PixelFormat.Format32bppRgb);
                 using (Graphics g = Graphics.FromImage(firstCapture))
                 {
                     g.CopyFromScreen(clientOrigin.X, clientOrigin.Y, 0, 0, new System.Drawing.Size(clientWidth, clientHeight));
@@ -489,7 +489,7 @@ namespace CatchCapture.Utilities
                 capturedImages.Add(firstCapture);
                 
                 // 중복을 감지하기 위한 픽셀 비교용 이미지
-                Bitmap lastVisibleArea = new Bitmap(clientWidth, clientHeight / 4);
+                Bitmap lastVisibleArea = new Bitmap(clientWidth, clientHeight / 4, PixelFormat.Format32bppRgb);
                 using (Graphics g = Graphics.FromImage(lastVisibleArea))
                 {
                     g.DrawImage(firstCapture, 
@@ -503,7 +503,7 @@ namespace CatchCapture.Utilities
                 bool isScrollEnded = false;
                 
                 // 최초 스크롤 전 확인을 위한 저장
-                Bitmap beforeFirstScroll = new Bitmap(clientWidth, clientHeight);
+                Bitmap beforeFirstScroll = new Bitmap(clientWidth, clientHeight, PixelFormat.Format32bppRgb);
                 using (Graphics g = Graphics.FromImage(beforeFirstScroll))
                 {
                     g.CopyFromScreen(clientOrigin.X, clientOrigin.Y, 0, 0, new System.Drawing.Size(clientWidth, clientHeight));
@@ -514,7 +514,7 @@ namespace CatchCapture.Utilities
                 Thread.Sleep(500); // 스크롤 후 페이지 로드 대기
                 
                 // 첫 스크롤 후 캡처
-                Bitmap afterFirstScroll = new Bitmap(clientWidth, clientHeight);
+                Bitmap afterFirstScroll = new Bitmap(clientWidth, clientHeight, PixelFormat.Format32bppRgb);
                 using (Graphics g = Graphics.FromImage(afterFirstScroll))
                 {
                     g.CopyFromScreen(clientOrigin.X, clientOrigin.Y, 0, 0, new System.Drawing.Size(clientWidth, clientHeight));
@@ -647,7 +647,7 @@ namespace CatchCapture.Utilities
                     Thread.Sleep(600); // 스크롤 후 페이지 로드 대기 시간 증가
                     
                     // 스크린샷 캡처
-                    Bitmap currentCapture = new Bitmap(clientWidth, clientHeight);
+                    Bitmap currentCapture = new Bitmap(clientWidth, clientHeight, PixelFormat.Format32bppRgb);
                     using (Graphics g = Graphics.FromImage(currentCapture))
                     {
                         g.CopyFromScreen(clientOrigin.X, clientOrigin.Y, 0, 0, new System.Drawing.Size(clientWidth, clientHeight));
@@ -766,7 +766,7 @@ namespace CatchCapture.Utilities
                 int imageWidth = capturedImages[0].Width;
                 
                 // 결과 이미지 생성
-                Bitmap combinedImage = new Bitmap(imageWidth, totalHeight);
+                Bitmap combinedImage = new Bitmap(imageWidth, totalHeight, PixelFormat.Format32bppRgb);
                 using (Graphics g = Graphics.FromImage(combinedImage))
                 {
                     g.InterpolationMode = InterpolationMode.HighQualityBicubic;
@@ -1339,7 +1339,7 @@ namespace CatchCapture.Utilities
             }
             
             // 지정된 영역만 새 비트맵으로 복사
-            Bitmap result = new Bitmap(region.Width, region.Height);
+            Bitmap result = new Bitmap(region.Width, region.Height, PixelFormat.Format32bppRgb);
             using (Graphics g = Graphics.FromImage(result))
             {
                 g.DrawImage(source, new Rectangle(0, 0, result.Width, result.Height), region, GraphicsUnit.Pixel);
