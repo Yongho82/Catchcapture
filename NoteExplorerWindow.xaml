@@ -834,10 +834,6 @@
                     <Border Grid.Row="3" Background="{DynamicResource ThemeBackground}" Height="40" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ThemeBorder}">
                         <Grid>
                             <!-- Left: Trash Info (Icon + Text) -->
-                            <StackPanel x:Name="PanelTrashInfo" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="15,0,0,0" Visibility="Collapsed">
-                                <TextBlock Text="💡" Margin="0,0,8,0" VerticalAlignment="Center" FontSize="14"/>
-                                <TextBlock x:Name="TxtTrashInfo" Text="휴지통 보관 안내" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12"/>
-                            </StackPanel>
 
                             <!-- Pagination -->
                             <StackPanel x:Name="PanelPagination" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -955,8 +951,8 @@
             <!-- Bottom Tip Bar -->
             <Border Grid.Row="2" Background="{DynamicResource ThemeSidebarButtonBackground}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ThemeBorder}" Height="40" Padding="30,0">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Background="#8E2DE2" CornerRadius="4" Padding="6,2" Margin="0,0,12,0">
-                        <TextBlock Text="TIP" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                    <Border x:Name="BrdTipLabel" Background="#8E2DE2" CornerRadius="4" Padding="6,2" Margin="0,0,12,0">
+                        <TextBlock x:Name="TxtTipLabel" Text="TIP" Foreground="White" FontSize="10" FontWeight="Bold"/>
                     </Border>
                     <TextBlock x:Name="TxtRollingTip" Text="비밀번호 설정으로 내 노트를 안전하게 보호하세요." 
                                Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" FontSize="12" VerticalAlignment="Center">

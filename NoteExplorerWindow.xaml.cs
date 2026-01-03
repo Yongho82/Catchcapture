@@ -196,18 +196,7 @@ namespace CatchCapture
             if (TxtSearchPlaceholder != null) TxtSearchPlaceholder.Text = CatchCapture.Resources.LocalizationManager.GetString("SearchPlaceholder");
             if (TxtEmptyTrash != null) TxtEmptyTrash.Text = CatchCapture.Resources.LocalizationManager.GetString("EmptyTrash") ?? "휴지통 비우기";
             
-            if (PanelTrashInfo != null && PanelTrashInfo.Visibility == Visibility.Visible)
-            {
-                int days = Settings.Load().TrashRetentionDays;
-                if (days > 0)
-                {
-                    TxtTrashInfo.Text = string.Format(CatchCapture.Resources.LocalizationManager.GetString("TrashRetentionInfo") ?? "중요사항: 현재 휴지통 보관기간이 {0}일로 설정되었습니다. 설정을 변경하려면 노트 설정에서 수정할 수 있습니다.", days);
-                }
-                else
-                {
-                    TxtTrashInfo.Text = CatchCapture.Resources.LocalizationManager.GetString("TrashRetentionPermanentInfo") ?? "중요사항: 현재 휴지통이 영구 보관되도록 설정되었습니다. 설정을 변경하려면 노트 설정에서 수정할 수 있습니다.";
-                }
-            }
+            UpdateBottomTipBar();
             
             if (ColHeaderGroup != null) ColHeaderGroup.Text = CatchCapture.Resources.LocalizationManager.GetString("ColGroup");
             if (ColHeaderTitle != null) ColHeaderTitle.Text = CatchCapture.Resources.LocalizationManager.GetString("ColTitle");
@@ -399,6 +388,8 @@ namespace CatchCapture
             _tipTimer = new System.Windows.Threading.DispatcherTimer();
             _tipTimer.Interval = TimeSpan.FromSeconds(5);
             _tipTimer.Tick += (s, e) => {
+                if (_currentFilter == "Trash") return;
+
                 _currentTipIndex = (_currentTipIndex + 1) % _tips.Count;
                 TxtRollingTip.Opacity = 0;
                 TxtRollingTip.Text = _tips[_currentTipIndex];
@@ -469,26 +460,7 @@ namespace CatchCapture
                     BtnEmptyTrash.Visibility = (filter == "Trash") ? Visibility.Visible : Visibility.Collapsed;
                 }
 
-                if (PanelTrashInfo != null)
-                {
-                    if (filter == "Trash")
-                    {
-                        PanelTrashInfo.Visibility = Visibility.Visible;
-                        int days = Settings.Load().TrashRetentionDays;
-                        if (days > 0)
-                        {
-                            TxtTrashInfo.Text = string.Format(CatchCapture.Resources.LocalizationManager.GetString("TrashRetentionInfo") ?? "중요사항: 현재 휴지통 보관기간이 {0}일로 설정되었습니다. 설정을 변경하려면 노트 설정에서 수정할 수 있습니다.", days);
-                        }
-                        else
-                        {
-                            TxtTrashInfo.Text = CatchCapture.Resources.LocalizationManager.GetString("TrashRetentionPermanentInfo") ?? "중요사항: 현재 휴지통이 영구 보관되도록 설정되었습니다. 설정을 변경하려면 노트 설정에서 수정할 수 있습니다.";
-                        }
-                    }
-                    else
-                    {
-                        PanelTrashInfo.Visibility = Visibility.Collapsed;
-                    }
-                }
+                UpdateBottomTipBar();
 
                 var result = await Task.Run(() =>
                 {
@@ -692,6 +664,41 @@ namespace CatchCapture
             finally
             {
                 if (PanelLoading != null) PanelLoading.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void UpdateBottomTipBar()
+        {
+            if (TxtRollingTip == null || TxtTipLabel == null || BrdTipLabel == null) return;
+
+            if (_currentFilter == "Trash")
+            {
+                // Show Trash Info in the Tip Bar
+                BrdTipLabel.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E74C3C")); // Reddish for info/warning
+                TxtTipLabel.Text = CatchCapture.Resources.LocalizationManager.GetString("Info") ?? "INFO";
+                
+                int days = Settings.Load().TrashRetentionDays;
+                if (days > 0)
+                {
+                    TxtRollingTip.Text = string.Format(CatchCapture.Resources.LocalizationManager.GetString("TrashRetentionInfo") ?? "중요사항: 현재 휴지통 보관기간이 {0}일로 설정되었습니다. 설정을 변경하려면 노트 설정에서 수정할 수 있습니다.", days);
+                }
+                else
+                {
+                    TxtRollingTip.Text = CatchCapture.Resources.LocalizationManager.GetString("TrashRetentionPermanentInfo") ?? "중요사항: 현재 휴지통이 영구 보관되도록 설정되었습니다. 설정을 변경하려면 노트 설정에서 수정할 수 있습니다.";
+                }
+                TxtRollingTip.Opacity = 1;
+            }
+            else
+            {
+                // Restore Tip Display
+                BrdTipLabel.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#8E2DE2")); // Original Purple
+                TxtTipLabel.Text = "TIP";
+                
+                if (_tips.Count > 0)
+                {
+                    TxtRollingTip.Text = _tips[_currentTipIndex];
+                }
+                TxtRollingTip.Opacity = 1;
             }
         }
 
