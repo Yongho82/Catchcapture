@@ -74,6 +74,21 @@ namespace CatchCapture
             HighlightNav(NavHistory, "History");
         }
 
+        public void SelectPage(string page)
+        {
+            switch (page)
+            {
+                case "Capture": if (NavCapture != null) HighlightNav(NavCapture, "Capture"); break;
+                case "Theme": if (NavTheme != null) HighlightNav(NavTheme, "Theme"); break;
+                case "MenuEdit": if (NavMenuEdit != null) HighlightNav(NavMenuEdit, "MenuEdit"); break;
+                case "Recording": if (NavRecording != null) HighlightNav(NavRecording, "Recording"); break;
+                case "Note": if (NavNote != null) HighlightNav(NavNote, "Note"); break;
+                case "System": if (NavSystem != null) HighlightNav(NavSystem, "System"); break;
+                case "Hotkey": if (NavHotkey != null) HighlightNav(NavHotkey, "Hotkey"); break;
+                case "History": if (NavHistory != null) HighlightNav(NavHistory, "History"); break;
+            }
+        }
+
         private void OnLanguageChanged(object? sender, EventArgs e)
         {
             // 모든 텍스트 갱신

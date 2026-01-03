@@ -384,24 +384,38 @@ public partial class MainWindow : Window
         }
     }
 
+    private void OpenSettingsPage(string page)
+    {
+        var sw = Application.Current.Windows.OfType<SettingsWindow>().FirstOrDefault();
+        if (sw == null)
+        {
+            sw = new SettingsWindow();
+            sw.Show();
+        }
+        else
+        {
+            sw.Activate();
+            if (sw.WindowState == WindowState.Minimized) sw.WindowState = WindowState.Normal;
+        }
+        
+        sw.SelectPage(page);
+    }
+
     private void InitializeNotifyIcon()
     {
         notifyIcon = new System.Windows.Forms.NotifyIcon();
         try
         {
-            // 실행 파일의 아이콘을 사용
             notifyIcon.Icon = System.Drawing.Icon.ExtractAssociatedIcon(System.Reflection.Assembly.GetExecutingAssembly().Location);
         }
         catch
         {
-            // 아이콘 로드 실패 시 기본 시스템 아이콘 사용 (fallback)
             notifyIcon.Icon = System.Drawing.SystemIcons.Application;
         }
 
         notifyIcon.Visible = true;
         notifyIcon.Text = LocalizationManager.GetString("AppName");
 
-        // 클릭 시 트레이 모드 창 토글
         notifyIcon.Click += (s, e) =>
         {
             if (e is System.Windows.Forms.MouseEventArgs me && me.Button == System.Windows.Forms.MouseButtons.Left)
@@ -410,61 +424,55 @@ public partial class MainWindow : Window
             }
         };
 
-        // 컨텍스트 메뉴 (다크 테마 + 아이콘)
+        RebuildTrayMenu();
+    }
+
+    private void RebuildTrayMenu()
+    {
         trayContextMenu = new System.Windows.Forms.ContextMenuStrip();
         trayContextMenu.ShowImageMargin = true;
         trayContextMenu.Renderer = new DarkToolStripRenderer();
         trayContextMenu.BackColor = System.Drawing.Color.FromArgb(45, 45, 48);
         trayContextMenu.ForeColor = System.Drawing.Color.White;
         trayContextMenu.Font = new System.Drawing.Font("Segoe UI", 9f, System.Drawing.FontStyle.Regular);
-        trayContextMenu.ImageScalingSize = new System.Drawing.Size(16, 16); // unify icon size for crisp rendering
+        trayContextMenu.ImageScalingSize = new System.Drawing.Size(16, 16);
 
-        // 1. 열기 항목 (최상단)
+        // [1] Open
         trayOpenItem = new System.Windows.Forms.ToolStripMenuItem(
-            LocalizationManager.GetString("Open"), // 리소스에 "Open" 키가 있어야 함
-            LoadMenuImage("catcha.png"), // catcha.png 아이콘 사용
+            LocalizationManager.GetString("Open"),
+            LoadMenuImage("catcha.png"),
             (s, e) => ShowMainWindow());
+        trayContextMenu.Items.Add(trayOpenItem);
 
-        // 2. 빠른 작업 항목 (영역 캡처)
+        // [2] Open Note
+        trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripMenuItem(
+            LocalizationManager.GetString("OpenMyNote"), 
+            LoadMenuImage("my_note.png"), 
+            (s, e) => OpenNoteExplorer()));
+
+        // [3] Open History
+        trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripMenuItem(
+            LocalizationManager.GetString("OpenHistory") ?? "히스토리 열기", 
+            LoadMenuImage("history.png"), 
+            (s, e) => {
+                var hw = Application.Current.Windows.OfType<HistoryWindow>().FirstOrDefault();
+                if (hw == null) { hw = new HistoryWindow(); hw.Show(); }
+                else { hw.Activate(); if (hw.WindowState == WindowState.Minimized) hw.WindowState = WindowState.Normal; }
+            }));
+
+        trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
+
+        // [4] Area Capture
         trayAreaItem = new System.Windows.Forms.ToolStripMenuItem(
             LocalizationManager.GetString("AreaCapture"),
             LoadMenuImage("area_capture.png"),
             (s, e) => StartAreaCapture());
-
-        // 3. 기존 모드 전환 항목
-        trayNormalItem = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("NormalMode"), LoadMenuImage("window_cap.png"), (s, e) => SwitchToNormalMode());
-        traySimpleItem = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("SimpleMode"), LoadMenuImage("simple_mode.png"), (s, e) => SwitchToSimpleMode());
-        trayTrayItem = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("TrayMode"), LoadMenuImage("tray_mode.png"), (s, e) => SwitchToTrayMode());
-
-        // 4. 종료 항목
-        trayExitItem = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("Exit"), LoadMenuImage("power.png"), (s, e) =>
-        {
-            isExit = true;
-            Close();
-        });
-
-        // 메뉴 항목 구성 (순서대로 추가)
-        trayContextMenu.Items.Clear();
-
-        // [열기] 추가
-        trayContextMenu.Items.Add(trayOpenItem);
-
-        // [노트 열기] 추가
-        var trayNoteItem = new System.Windows.Forms.ToolStripMenuItem(
-            LocalizationManager.GetString("OpenMyNote"), 
-            LoadMenuImage("my_note.png"), 
-            (s, e) => OpenNoteExplorer());
-        trayContextMenu.Items.Add(trayNoteItem);
-
-        trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
-
-        // [영역 캡처] & [엣지 캡처]
         trayContextMenu.Items.Add(trayAreaItem);
-        
+
+        // [5] Edge Capture
         trayEdgeItem = new System.Windows.Forms.ToolStripMenuItem(
-            LocalizationManager.GetString("EdgeCapture"),
+            LocalizationManager.GetString("EdgeCapture") ?? "엣지 캡처",
             LoadMenuImage("edge_capture.png"));
-        
         var edgeItems = new (string Key, int Radius, string Emoji)[]
         {
             ("EdgeSoft", 12, "🫧"),
@@ -473,7 +481,6 @@ public partial class MainWindow : Window
             ("EdgeCapsule", 100, "💊"),
             ("EdgeCircle", 999, "🌕")
         };
-
         foreach (var t in edgeItems)
         {
             var subItem = new System.Windows.Forms.ToolStripMenuItem($"{t.Emoji} {LocalizationManager.GetString(t.Key)}");
@@ -486,25 +493,90 @@ public partial class MainWindow : Window
         }
         trayContextMenu.Items.Add(trayEdgeItem);
 
+        // [6] OCR Capture
+        trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripMenuItem(
+            LocalizationManager.GetString("OcrCapture"), 
+            LoadMenuImage("ocr_capture.png"), 
+            (s, e) => OcrCaptureButton_Click(this, new RoutedEventArgs())));
+
+        // [7] Screen Record
+        trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripMenuItem(
+            LocalizationManager.GetString("ScreenRecording"), 
+            LoadMenuImage("videocamera.png"), 
+            (s, e) => ScreenRecordButton_Click(this, new RoutedEventArgs())));
+
         trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
 
-        // [모드 전환]
-        trayContextMenu.Items.Add(trayNormalItem);
-        trayContextMenu.Items.Add(traySimpleItem);
-        trayContextMenu.Items.Add(trayTrayItem);
+        // [8] Capture Submenu "캡처 >"
+        var captureSub = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("Capture") ?? "캡처", LoadMenuImage("camera.png"));
+        
+        captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("DelayCapture"), LoadMenuImage("clock.png"), (s, e) => StartDelayedAreaCaptureSeconds(3)));
+        captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("RealTimeCapture"), LoadMenuImage("real-time.png"), (s, e) => StartRealTimeCaptureMode()));
+        captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("MultiCapture"), LoadMenuImage("multi_capture.png"), (s, e) => MultiCaptureButton_Click(this, new RoutedEventArgs())));
+        captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("FullScreen"), LoadMenuImage("full_screen.png"), (s, e) => FullScreenCaptureButton_Click(this, new RoutedEventArgs())));
+        captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("DesignatedCapture"), LoadMenuImage("designated.png"), (s, e) => DesignatedCaptureButton_Click(this, new RoutedEventArgs())));
+        captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("WindowCapture"), LoadMenuImage("window_cap.png"), (s, e) => WindowCaptureButton_Click(this, new RoutedEventArgs())));
+        captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("UnitCapture"), LoadMenuImage("unit_capture.png"), (s, e) => ElementCaptureButton_Click(this, new RoutedEventArgs())));
+        captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("ScrollCapture"), LoadMenuImage("scroll_capture.png"), (s, e) => ScrollCaptureButton_Click(this, new RoutedEventArgs())));
+        
+        trayContextMenu.Items.Add(captureSub);
 
-        // [설정]
-        traySettingsItem = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("Settings"), LoadMenuImage("setting.png"), (s, e) => SettingsSideButton_Click(this, new RoutedEventArgs()));
+        // [9] Capture Folder
+        trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("CaptureFolder") ?? "캡처 폴더", LoadMenuImage("folder.png"), (s, e) => {
+             try { 
+                 var path = GetAutoSaveFilePath(settings.FileSaveFormat.ToLower(), null, null);
+                 var dir = System.IO.Path.GetDirectoryName(path);
+                 if(dir != null) {
+                     if (!System.IO.Directory.Exists(dir)) System.IO.Directory.CreateDirectory(dir);
+                     System.Diagnostics.Process.Start("explorer.exe", dir);
+                 }
+             } catch {}
+        }));
+        
+        // [10] Note Folder
+        trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("NoteFolder") ?? "노트 폴더", LoadMenuImage("folder_note.png"), (s, e) => {
+             try {
+                 string notePath = settings.NoteStoragePath;
+                 if (string.IsNullOrEmpty(notePath)) notePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Notes");
+                 if (!System.IO.Directory.Exists(notePath)) System.IO.Directory.CreateDirectory(notePath);
+                 System.Diagnostics.Process.Start("explorer.exe", notePath);
+             } catch {}
+        }));
+
+        trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
+
+        // [11] Settings Submenu
+        traySettingsItem = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("Settings"), LoadMenuImage("setting.png"));
+        traySettingsItem.Click += (s, e) => OpenSettingsPage("System");
+
+        void AddSetting(string nameKey, string pageTag, string defaultName) {
+            traySettingsItem.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(
+                LocalizationManager.GetString(nameKey) ?? defaultName, 
+                LoadMenuImage("setting.png"), 
+                (s, e) => OpenSettingsPage(pageTag)));
+        }
+
+        AddSetting("SystemSettings", "System", "프로그램 설정");
+        AddSetting("CaptureSettings", "Capture", "작업 설정");
+        AddSetting("HotkeySettings", "Hotkey", "단축키 설정");
+        AddSetting("ScreenRecording", "Recording", "녹화 설정");
+        AddSetting("NoteSettings", "Note", "노트 설정");
+        AddSetting("HistorySettings", "History", "히스토리 설정");
+        AddSetting("ThemeSettings", "Theme", "테마 설정");
+        AddSetting("MenuEdit", "MenuEdit", "메뉴 편집");
+
         trayContextMenu.Items.Add(traySettingsItem);
-
-        // [종료]
+        
+        // [12] Exit
         trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
+        trayExitItem = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("Exit"), LoadMenuImage("power.png"), (s, e) =>
+        {
+            isExit = true;
+            Close();
+        });
         trayContextMenu.Items.Add(trayExitItem);
 
         notifyIcon.ContextMenuStrip = trayContextMenu;
-
-        // 초기 텍스트 동기화
-        UpdateTrayMenuTexts();
     }
 
     // 다크 테마 렌더러/컬러 테이블로 컨텍스트 메뉴 스타일링
@@ -4980,34 +5052,9 @@ public partial class MainWindow : Window
         {
             notifyIcon.Text = LocalizationManager.GetString("AppTitle");
         }
-        // 트레이 우클릭 메뉴
-        if (trayOpenItem != null) trayOpenItem.Text = LocalizationManager.GetString("Open");
-        if (trayAreaItem != null) trayAreaItem.Text = LocalizationManager.GetString("AreaCapture");
         
-        if (trayEdgeItem != null)
-        {
-            trayEdgeItem.Text = LocalizationManager.GetString("EdgeCapture");
-            
-            var edgeItems = new (string Key, string Emoji)[]
-            {
-                ("EdgeSoft", "🫧"),
-                ("EdgeSmooth", "📱"),
-                ("EdgeClassic", "🍪"),
-                ("EdgeCapsule", "💊"),
-                ("EdgeCircle", "🌕")
-            };
-
-            for (int i = 0; i < edgeItems.Length && i < trayEdgeItem.DropDownItems.Count; i++)
-            {
-                trayEdgeItem.DropDownItems[i].Text = $"{edgeItems[i].Emoji} {LocalizationManager.GetString(edgeItems[i].Key)}";
-            }
-        }
-
-        if (trayNormalItem != null) trayNormalItem.Text = LocalizationManager.GetString("NormalMode");
-        if (traySimpleItem != null) traySimpleItem.Text = LocalizationManager.GetString("SimpleMode");
-        if (trayTrayItem != null) trayTrayItem.Text = LocalizationManager.GetString("TrayMode");
-        if (traySettingsItem != null) traySettingsItem.Text = LocalizationManager.GetString("Settings");  // <-- 이 줄 추가
-        if (trayExitItem != null) trayExitItem.Text = LocalizationManager.GetString("Exit");
+        // 메뉴 전체 재생성
+        RebuildTrayMenu();
     }
     // ★ Low-Level Keyboard Hook 설치
     private void InstallKeyboardHook()
