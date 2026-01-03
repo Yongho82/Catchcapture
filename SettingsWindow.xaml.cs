@@ -1343,7 +1343,7 @@ private void InitLanguageComboBox()
             }
         }
 
-        private void CopyDirectory(string sourceDir, string targetDir, string? excludeDirName = null)
+        private void CopyDirectory(string sourceDir, string targetDir, params string[] excludeDirNames)
         {
             Directory.CreateDirectory(targetDir);
             foreach (string file in Directory.GetFiles(sourceDir))
@@ -1367,7 +1367,7 @@ private void InitLanguageComboBox()
             foreach (string subDir in Directory.GetDirectories(sourceDir))
             {
                 string dirName = Path.GetFileName(subDir);
-                if (excludeDirName != null && string.Equals(dirName, excludeDirName, StringComparison.OrdinalIgnoreCase))
+                if (excludeDirNames != null && excludeDirNames.Any(e => string.Equals(dirName, e, StringComparison.OrdinalIgnoreCase)))
                     continue;
 
                 string dest = Path.Combine(targetDir, dirName);
@@ -2479,7 +2479,7 @@ private void InitLanguageComboBox()
                 sfd.FileName = $"CatchCapture_History_Backup_{DateTime.Now:yyyyMMdd}.zip";
                 if (sfd.ShowDialog() == true)
                 {
-                    string sourceDir = Path.Combine(_settings.DefaultSaveFolder, "history");
+                    string sourceDir = _settings.DefaultSaveFolder;
                     if (!Directory.Exists(sourceDir))
                     {
                         CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("ErrorNoFolder"), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -2494,12 +2494,13 @@ private void InitLanguageComboBox()
                     tempPath = Path.Combine(Path.GetTempPath(), "CatchCapture_History_Backup_Temp_" + Guid.NewGuid().ToString("N"));
                     Directory.CreateDirectory(tempPath);
 
-                    // For history, we backup the entire history folder.
-                    // But history.db might be in use, so we should back it up safely
-                    CopyDirectory(sourceDir, tempPath, "history.db");
+                    // 1. 모든 캡처 이미지 및 폴더 복사 (notedata와 history 폴더는 제외)
+                    CopyDirectory(sourceDir, tempPath, "notedata", "history");
                     
-                    string tempDbPath = Path.Combine(tempPath, "history.db");
-                    // Assuming DatabaseManager will have a way to backup history DB
+                    // 2. history.db는 사용 중일 수 있으므로 안전하게 백업 API 사용
+                    string tempHistoryDir = Path.Combine(tempPath, "history");
+                    Directory.CreateDirectory(tempHistoryDir);
+                    string tempDbPath = Path.Combine(tempHistoryDir, "history.db");
                     DatabaseManager.Instance.BackupHistoryDatabase(tempDbPath);
 
                     System.IO.Compression.ZipFile.CreateFromDirectory(tempPath, sfd.FileName);
@@ -2529,7 +2530,7 @@ private void InitLanguageComboBox()
                 {
                     if (CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("ImportConfirmMsg"), LocalizationManager.GetString("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                     {
-                        string targetDir = Path.Combine(_settings.DefaultSaveFolder, "history");
+                        string targetDir = _settings.DefaultSaveFolder;
                         if (!Directory.Exists(targetDir)) Directory.CreateDirectory(targetDir);
 
                         DatabaseManager.Instance.CloseConnection(); // This should close both if implemented correctly
