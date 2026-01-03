@@ -64,7 +64,7 @@ namespace CatchCapture.Utilities
             // Title "Catch Capture"
             var titleBlock = new TextBlock
             {
-                Text = "Catch Capture",
+                Text = "캐치캡처",
                 Foreground = Brushes.White,
                 FontSize = 14,
                 FontWeight = FontWeights.Bold,

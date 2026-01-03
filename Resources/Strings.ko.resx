@@ -595,8 +595,8 @@
   <data name="Days" xml:space="preserve"><value>일</value></data>
   <data name="EmptyTrash" xml:space="preserve"><value>휴지통 비우기</value></data>
   <data name="Notice" xml:space="preserve"><value>알림</value></data>
-  <data name="TrashRetentionInfo" xml:space="preserve"><value>휴지통 보관기간이 {0}일로 설정되었습니다. 노트 설정에서 변경할 수 있습니다.</value></data>
-  <data name="TrashRetentionPermanentInfo" xml:space="preserve"><value>휴지통이 영구 보관되도록 설정되었습니다. 노트 설정에서 변경할 수 있습니다.</value></data>
+  <data name="TrashRetentionInfo" xml:space="preserve"><value>휴지통 보관기간이 {0}일로 설정되었습니다. 히스토리 설정에서 변경할 수 있습니다.</value></data>
+  <data name="TrashRetentionPermanentInfo" xml:space="preserve"><value>휴지통이 영구 보관되도록 설정되었습니다. 히스토리 설정에서 변경할 수 있습니다.</value></data>
   <data name="NoNotes" xml:space="preserve"><value>노트가 없습니다</value></data>
   <data name="TrashEmpty" xml:space="preserve"><value>휴지통이 비어 있습니다</value></data>
   <data name="NoteSave" xml:space="preserve"><value>노트 저장</value></data>
