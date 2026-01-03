@@ -572,13 +572,21 @@
                                         </Button.Resources>
                                         <Image Source="icons/img_editor.png" Width="18" Height="18" Stretch="Uniform"/>
                                     </Button>
-                                    <Button x:Name="BtnPreviewNote" Click="BtnPreviewNote_Click" Width="36" Height="36" Background="#CC2D2D30" BorderThickness="0" Cursor="Hand" ToolTip="내 노트로 저장">
+                                    <Button x:Name="BtnPreviewNote" Click="BtnPreviewNote_Click" Width="36" Height="36" Margin="0,0,8,0" Background="#CC2D2D30" BorderThickness="0" Cursor="Hand" ToolTip="내 노트로 저장">
                                         <Button.Resources>
                                             <Style TargetType="Border">
                                                 <Setter Property="CornerRadius" Value="18"/>
                                             </Style>
                                         </Button.Resources>
                                         <Image Source="icons/my_note.png" Width="18" Height="18" Stretch="Uniform"/>
+                                    </Button>
+                                    <Button x:Name="BtnPreviewPin" Click="BtnPreviewPin_Click" Width="36" Height="36" Background="#CC2D2D30" BorderThickness="0" Cursor="Hand" ToolTip="화면에 고정">
+                                        <Button.Resources>
+                                            <Style TargetType="Border">
+                                                <Setter Property="CornerRadius" Value="18"/>
+                                            </Style>
+                                        </Button.Resources>
+                                        <Image Source="icons/pin.png" Width="18" Height="18" Stretch="Uniform"/>
                                     </Button>
                                 </StackPanel>
                             </Grid>

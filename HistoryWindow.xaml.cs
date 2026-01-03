@@ -810,5 +810,34 @@ namespace CatchCapture
                 }
             }
         }
+        private void BtnPreviewPin_Click(object sender, RoutedEventArgs e)
+        {
+            if (LstHistory.SelectedItem is HistoryItem item && System.IO.File.Exists(item.FilePath))
+            {
+                try
+                {
+                    BitmapSource? image = ImgPreview.Source as BitmapSource;
+                    if (image == null)
+                    {
+                        var bitmap = new BitmapImage();
+                        bitmap.BeginInit();
+                        bitmap.UriSource = new Uri(item.FilePath);
+                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                        bitmap.EndInit();
+                        image = bitmap;
+                    }
+                    
+                    var pinnedWindow = new PinnedImageWindow(image);
+                    pinnedWindow.Show();
+                    
+                    // 화면 중앙에 배치
+                    pinnedWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                }
+                catch (Exception ex)
+                {
+                    CustomMessageBox.Show($"이미지를 고정할 수 없습니다: {ex.Message}", "오류");
+                }
+            }
+        }
     }
 }
