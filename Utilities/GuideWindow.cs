@@ -10,6 +10,9 @@ namespace CatchCapture.Utilities
     public class GuideWindow : Window
     {
         [DllImport("user32.dll")]
+        private static extern short GetAsyncKeyState(int vKey);
+
+        [DllImport("user32.dll")]
         static extern int GetWindowLong(IntPtr hwnd, int index);
 
         [DllImport("user32.dll")]
@@ -21,6 +24,8 @@ namespace CatchCapture.Utilities
         [DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
         private static extern IntPtr CreateRoundRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect, int nWidthEllipse, int nHeightEllipse);
 
+        private const int VK_ESCAPE = 0x1B;
+
         private const int GWL_STYLE = -16;
         private const int WS_CAPTION = 0x00C00000;
         private const int HWND_TOPMOST = -1;
@@ -30,7 +35,9 @@ namespace CatchCapture.Utilities
         private const uint SWP_SHOWWINDOW = 0x0040;
 
         private TextBlock _messageBlock;
+        private TextBlock? _escBlock;
         private System.Windows.Threading.DispatcherTimer? _countdownTimer;
+        private System.Windows.Threading.DispatcherTimer? _keyCheckTimer;
         private int _remainingSeconds;
 
         public GuideWindow(string message, TimeSpan? duration = null)
@@ -80,6 +87,16 @@ namespace CatchCapture.Utilities
             {
                 CenterWindowOnScreen();
                 MakeWindowRounded();
+                // 창이 뜨자마자 포커스를 가져오도록 시도
+                try { this.Activate(); this.Focus(); } catch { }
+            };
+
+            this.KeyDown += (s, e) =>
+            {
+                if (e.Key == System.Windows.Input.Key.Escape)
+                {
+                    CancelCountdown();
+                }
             };
             // 창 크기 변경 시에도 둥근 모서리 다시 적용
             SizeChanged += (s, e) =>
@@ -117,31 +134,28 @@ namespace CatchCapture.Utilities
             }
 
             _remainingSeconds = seconds;
-            // Make it visually prominent
-            _messageBlock.FontSize = 36; // 44 → 36 (숫자 크기 줄이기)
-            _messageBlock.FontWeight = FontWeights.Bold;
-            _messageBlock.TextWrapping = TextWrapping.NoWrap;
-            _messageBlock.TextAlignment = TextAlignment.Center;
-            _messageBlock.Foreground = Brushes.White; // 가시성 보장
-            // 숫자가 아래로 잘리는 현상 방지: 줄 박스 높이와 마진 조정
-            _messageBlock.LineStackingStrategy = LineStackingStrategy.BlockLineHeight;
-            _messageBlock.LineHeight = _messageBlock.FontSize * 1.1; // 1.2 → 1.1 (줄 간격 줄이기)
-            _messageBlock.Margin = new Thickness(0, 2, 0, 2); // (0, 6, 0, 12) → (0, 2, 0, 2) (상하 여백 줄이기)
-            // 미세한 그림자 효과로 대비 향상
-            _messageBlock.Effect = new System.Windows.Media.Effects.DropShadowEffect
+            
+            // ESC 안내 문구 강제 추가/업데이트
+            if (_escBlock == null)
             {
-                Color = Colors.Black,
-                ShadowDepth = 0,
-                BlurRadius = 6,
-                Opacity = 0.6
-            };
-            _messageBlock.Text = _remainingSeconds.ToString();
-            _messageBlock.SnapsToDevicePixels = true;
-            _messageBlock.UseLayoutRounding = true;
-            _messageBlock.InvalidateMeasure();
-            _messageBlock.InvalidateArrange();
-            this.UpdateLayout();
+                _escBlock = new TextBlock
+                {
+                    Text = "ESC 키를 눌러 취소",
+                    Foreground = new SolidColorBrush(Color.FromRgb(170, 170, 170)),
+                    FontSize = 9,
+                    Margin = new Thickness(0, 2, 0, 0),
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
+                ((StackPanel)Content).Children.Add(_escBlock);
+            }
+            _escBlock.Visibility = Visibility.Visible;
 
+            // 숫자 스타일 설정
+            _messageBlock.FontSize = 36;
+            _messageBlock.FontWeight = FontWeights.Bold;
+            _messageBlock.Foreground = Brushes.White;
+            _messageBlock.Text = _remainingSeconds.ToString();
+            
             _countdownTimer = new System.Windows.Threading.DispatcherTimer
             {
                 Interval = TimeSpan.FromSeconds(1)
@@ -151,28 +165,46 @@ namespace CatchCapture.Utilities
                 _remainingSeconds--;
                 if (_remainingSeconds <= 0)
                 {
-                    _countdownTimer!.Stop();
-                    // 먼저 창을 즉시 숨김 (캡처 전에 화면에서 제거)
+                    StopTimers();
                     this.Hide();
-                    // 약간의 딜레이 후 콜백 실행 (창이 완전히 숨겨질 시간 확보)
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
                         try { onCompleted?.Invoke(); } catch { }
-                        // 콜백 완료 후 창 닫기
                         Close();
                     }), System.Windows.Threading.DispatcherPriority.Background);
                 }
                 else
                 {
-                    _messageBlock.Foreground = Brushes.White; // 혹시 스타일 간섭 방지
                     _messageBlock.Text = _remainingSeconds.ToString();
-                    _messageBlock.InvalidateMeasure();
-                    _messageBlock.InvalidateArrange();
-                    _messageBlock.InvalidateVisual();
-                    this.UpdateLayout();
                 }
             };
             _countdownTimer.Start();
+
+            // 전역 키 체크 타이머 (포커스 잃어도 ESC 감지)
+            _keyCheckTimer = new System.Windows.Threading.DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(50)
+            };
+            _keyCheckTimer.Tick += (s, e) =>
+            {
+                if ((GetAsyncKeyState(VK_ESCAPE) & 0x8000) != 0)
+                {
+                    CancelCountdown();
+                }
+            };
+            _keyCheckTimer.Start();
+        }
+
+        private void CancelCountdown()
+        {
+            StopTimers();
+            this.Close();
+        }
+
+        private void StopTimers()
+        {
+            _countdownTimer?.Stop();
+            _keyCheckTimer?.Stop();
         }
 
         private void CenterWindowOnScreen()
