@@ -2215,8 +2215,8 @@ namespace CatchCapture.Utilities
 
         private void ConfirmAndClose()
         {
-            // 그린 내용을 이미지에 합성
-            if (drawnElements.Count > 0)
+            // 그린 내용을 이미지에 합성, 또는 엣지 캡처(둥근 모서리)인 경우 처리
+            if (drawnElements.Count > 0 || _cornerRadius > 0)
             {
                 SaveDrawingsToImage();
             }
@@ -2935,7 +2935,32 @@ namespace CatchCapture.Utilities
             renderBitmap.Render(drawingVisual);
             renderBitmap.Freeze();
             
-            SelectedFrozenImage = renderBitmap;
+            // [Fix] RenderTargetBitmap을 BitmapImage로 변환하여 스레드 안전성 및 호환성 확보
+            // (다른 스레드에서 저장 시 발생할 수 있는 문제 방지)
+            var bitmapImage = new BitmapImage();
+            using (var stream = new System.IO.MemoryStream())
+            {
+                var encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(renderBitmap));
+                encoder.Save(stream);
+                stream.Seek(0, System.IO.SeekOrigin.Begin);
+                
+                bitmapImage.BeginInit();
+                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapImage.StreamSource = stream;
+                bitmapImage.EndInit();
+                bitmapImage.Freeze();
+            }
+
+            // [Fix] 엣지 캡처(둥근 모서리)인 경우 처리
+            if (_cornerRadius > 0)
+            {
+                SelectedFrozenImage = EdgeCaptureHelper.CreateRoundedCapture(bitmapImage, _cornerRadius);
+            }
+            else
+            {
+                SelectedFrozenImage = bitmapImage;
+            }
         } // 메서드 종료
 
         private bool IsPointInSelection(Point point)

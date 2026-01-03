@@ -2497,13 +2497,16 @@ public partial class MainWindow : Window
 
     private void SaveToHistory(CaptureImage captureInfo, BitmapSource image)
     {
+        string logPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "debug_history_log.txt");
         try
         {
+            System.IO.File.AppendAllText(logPath, $"[{DateTime.Now}] SaveToHistory Started. App={captureInfo.SourceApp}, Title={captureInfo.SourceTitle}, Image={image.PixelWidth}x{image.PixelHeight}\n");
+
             var settings = Settings.Load();
             string? fullPath = null;
 
             // 1. 이미 자동 저장된 파일이 있는지 확인
-            if (captureInfo.IsSaved && !string.IsNullOrEmpty(captureInfo.SavedPath) && File.Exists(captureInfo.SavedPath))
+            if (captureInfo.IsSaved && !string.IsNullOrEmpty(captureInfo.SavedPath) && System.IO.File.Exists(captureInfo.SavedPath))
             {
                 // 사용자 지정 캡처 폴더에 이미 저장되어 있다면 해당 경로 사용
                 fullPath = captureInfo.SavedPath;
@@ -2525,7 +2528,11 @@ public partial class MainWindow : Window
                 captureInfo.IsSaved = true;
             }
 
-            if (string.IsNullOrEmpty(fullPath)) return;
+            if (string.IsNullOrEmpty(fullPath)) 
+            {
+                System.IO.File.AppendAllText(logPath, $"[{DateTime.Now}] FullPath is empty. Aborting.\n");
+                return;
+            }
 
             // DB 저장
             var historyItem = new HistoryItem
@@ -2535,7 +2542,7 @@ public partial class MainWindow : Window
                 OriginalFilePath = fullPath, // 2중 저장을 안 하므로 FilePath와 동일하게 설정
                 SourceApp = captureInfo.SourceApp ?? "Unknown",
                 SourceTitle = captureInfo.SourceTitle ?? "Unknown",
-                FileSize = File.Exists(fullPath) ? new FileInfo(fullPath).Length : 0,
+                FileSize = System.IO.File.Exists(fullPath) ? new System.IO.FileInfo(fullPath).Length : 0,
                 Resolution = $"{image.PixelWidth}x{image.PixelHeight}",
                 IsFavorite = false,
                 Status = 0,
@@ -2544,6 +2551,8 @@ public partial class MainWindow : Window
 
             long newId = DatabaseManager.Instance.InsertCapture(historyItem);
             captureInfo.HistoryId = newId;
+
+            System.IO.File.AppendAllText(logPath, $"[{DateTime.Now}] DB Insert Success. NewId={newId}\n");
 
             // 열려있는 히스토리 창이 있으면 갱신
             Application.Current.Dispatcher.Invoke(() =>
@@ -2557,12 +2566,23 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
+            string errorMsg = $"히스토리 저장 실패: {ex.Message}\nStack: {ex.StackTrace}";
+            try { System.IO.File.AppendAllText(logPath, $"[{DateTime.Now}] ERROR: {errorMsg}\n"); } catch { }
+            
             System.Diagnostics.Debug.WriteLine($"히스토리 저장 실패: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"Stack: {ex.StackTrace}");
+
+            // 사용자 요청: 메시지박스로 확인
+            Application.Current.Dispatcher.Invoke(() => 
+                MessageBox.Show(errorMsg, "SaveToHistory Error", MessageBoxButton.OK, MessageBoxImage.Error));
         }
     }
 
     private void AddCaptureToList(BitmapSource image, bool skipPreview = false, bool showMainWindow = true, string? sourceApp = null, string? sourceTitle = null)
     {
+        // [Fix] 백그라운드 스레드 처리를 위해 이미지 Freeze (Safe threading)
+        if (image.CanFreeze) image.Freeze();
+
         try
         {
             var currentSettings = CatchCapture.Models.Settings.Load();
@@ -2729,12 +2749,12 @@ public partial class MainWindow : Window
                     _autoPreviewOpenCount++;
                     try { this.Hide(); } catch { }
                 }
+            }
 
-            // 히스토리 DB 저장 (비동기)
+            // 히스토리 DB 저장 (비동기) - 모든 모드에서 공통 실행
             Task.Run(() => SaveToHistory(captureImage, image));
 
             UpdateEmptyStateLogo();
-            }
         }
         catch (Exception ex)
         {
