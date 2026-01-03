@@ -446,14 +446,54 @@
             <!-- Top Action Bar -->
             <Border Grid.Row="0" Background="{DynamicResource ThemeTitleBackground}" CornerRadius="12,12,0,0">
                 <Grid Margin="25,12,20,12">
-                    <!-- Row 1: Title & Main Buttons -->
-                    <Grid>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                            <Image Source="icons/my_note.png" Width="22" Height="22" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                            <TextBlock x:Name="TxtMyNoteTitle" Text="마이 노트" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource ThemeTitleForeground}" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/> <!-- Title/Icon -->
+                        <ColumnDefinition Width="*"/>    <!-- Search Box -->
+                        <ColumnDefinition Width="Auto"/> <!-- Buttons -->
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Title & Main Buttons -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <Image Source="icons/my_note.png" Width="22" Height="22" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="TxtMyNoteTitle" Text="마이 노트" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource ThemeTitleForeground}" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- Search Box (Repositioned from content area) -->
+                    <StackPanel Grid.Column="1" WindowChrome.IsHitTestVisibleInChrome="True" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Border x:Name="SearchBorder" Background="#20000000" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="18" Height="36" Width="450">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsKeyboardFocusWithin, ElementName=TxtSearch}" Value="True">
+                                            <Setter Property="BorderBrush" Value="#8E2DE2"/>
+                                            <Setter Property="Background" Value="#30000000"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Grid>
+                                <TextBox x:Name="TxtSearch" KeyDown="TxtSearch_KeyDown" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" FontSize="13" 
+                                         Foreground="{DynamicResource ThemeTitleForeground}" CaretBrush="{DynamicResource ThemeTitleForeground}" Margin="15,0,35,0" Padding="0"/>
+                                <TextBlock x:Name="TxtSearchPlaceholder" Text="검색..." IsHitTestVisible="False" Foreground="{DynamicResource ThemeTitleForeground}" Opacity="0.4" VerticalAlignment="Center" Margin="17,0" FontSize="13">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Text, ElementName=TxtSearch}" Value="">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <Button x:Name="BtnSearch" Click="BtnSearch_Click" HorizontalAlignment="Right" Width="36" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                                    <TextBlock Text="🔍" FontSize="14" Foreground="{DynamicResource ThemeTitleForeground}"/>
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                         <Button x:Name="BtnNewNote" Click="BtnNewNote_Click" Cursor="Hand" Margin="0,0,12,0"
                                 WindowChrome.IsHitTestVisibleInChrome="True">
                             <Button.Template>
@@ -497,7 +537,6 @@
                         </Button>
                     </StackPanel>
                 </Grid>
-            </Grid>
         </Border>
 
             <Grid Grid.Row="1">
@@ -734,38 +773,9 @@
                             </Border>
                         </StackPanel>
 
-                        <!-- Right: Status Text & Search Box -->
+                        <!-- Right: Status Text ONLY -->
                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
                             <TextBlock x:Name="TxtStatusInfo" Text="최근 1주일 기록 내용" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" FontSize="12" Margin="0,0,15,0"/>
-                            
-                            <Border Background="{DynamicResource ThemeSidebarButtonBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="4" Height="32" Width="220">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBox x:Name="TxtSearch" Grid.Column="0" Background="Transparent" BorderThickness="0" 
-                                             VerticalContentAlignment="Center" FontSize="13" Foreground="{DynamicResource ThemeForeground}" Margin="10,0,0,0"
-                                             KeyDown="TxtSearch_KeyDown"/>
-                                    <TextBlock x:Name="TxtSearchPlaceholder" Grid.Column="0" Text="검색..." Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" IsHitTestVisible="False" 
-                                               VerticalAlignment="Center" Margin="12,0" FontSize="13">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Text, ElementName=TxtSearch}" Value="">
-                                                        <Setter Property="Visibility" Value="Visible"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                    <Button Grid.Column="1" x:Name="BtnSearch" Click="BtnSearch_Click" 
-                                            Background="Transparent" BorderThickness="0" Padding="8,0" Cursor="Hand">
-                                        <TextBlock Text="🔍" FontSize="14" Foreground="{DynamicResource ThemeForeground}"/>
-                                    </Button>
-                                </Grid>
-                            </Border>
                         </StackPanel>
                     </Grid>
 
