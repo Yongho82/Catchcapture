@@ -340,6 +340,17 @@ namespace CatchCapture
             }
         }
 
+        private void BtnSettings_Click(object sender, RoutedEventArgs e)
+        {
+            var win = new SettingsWindow();
+            win.Owner = this;
+            win.ShowHistorySettings();
+            win.ShowDialog();
+            // 설정 변경(저장 경로 등)이 있을 수 있으므로 새로고침
+            LoadHistory();
+            RefreshCounts();
+        }
+
         private void UpdateSidebarSelection(Button activeBtn)
         {
             // Find all buttons in the sidebar

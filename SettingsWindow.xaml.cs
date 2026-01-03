@@ -69,6 +69,11 @@ namespace CatchCapture
             HighlightNav(NavNote, "Note");
         }
 
+        public void ShowHistorySettings()
+        {
+            HighlightNav(NavHistory, "History");
+        }
+
         private void OnLanguageChanged(object? sender, EventArgs e)
         {
             // 모든 텍스트 갱신
