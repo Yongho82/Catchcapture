@@ -149,17 +149,14 @@
         </Style>
 
         <!-- 전역 스크롤바 스타일 (기본 - 얇고 연한 스타일) -->
-        <Style x:Key="{x:Type ScrollBar}" TargetType="{x:Type ScrollBar}">
+        <Style TargetType="{x:Type ScrollBar}">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type ScrollBar}">
                         <Grid x:Name="GridRoot" Width="Auto" Background="{TemplateBinding Background}">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-                            <Track x:Name="PART_Track" Grid.Row="0" IsDirectionReversed="false" Focusable="false">
+                            <Track x:Name="PART_Track" Grid.Row="0" Focusable="false">
                                 <Track.Thumb>
                                     <Thumb x:Name="Thumb" Background="#BBBBBB">
                                         <Thumb.Template>
@@ -169,24 +166,26 @@
                                         </Thumb.Template>
                                     </Thumb>
                                 </Track.Thumb>
-                                <Track.IncreaseRepeatButton>
-                                    <RepeatButton x:Name="PageUp" Command="ScrollBar.PageUpCommand" Opacity="0" Focusable="false"/>
-                                </Track.IncreaseRepeatButton>
                                 <Track.DecreaseRepeatButton>
-                                    <RepeatButton x:Name="PageDown" Command="ScrollBar.PageDownCommand" Opacity="0" Focusable="false"/>
+                                    <RepeatButton Command="ScrollBar.PageUpCommand" Opacity="0" Focusable="false"/>
                                 </Track.DecreaseRepeatButton>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageDownCommand" Opacity="0" Focusable="false"/>
+                                </Track.IncreaseRepeatButton>
                             </Track>
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="Orientation" Value="Vertical">
-                                <Setter TargetName="GridRoot" Property="Width" Value="4"/>
+                                <Setter TargetName="GridRoot" Property="Width" Value="5"/>
                                 <Setter TargetName="GridRoot" Property="Height" Value="Auto"/>
+                                <Setter TargetName="PART_Track" Property="IsDirectionReversed" Value="True"/>
                             </Trigger>
                             <Trigger Property="Orientation" Value="Horizontal">
                                 <Setter TargetName="GridRoot" Property="Width" Value="Auto"/>
-                                <Setter TargetName="GridRoot" Property="Height" Value="4"/>
+                                <Setter TargetName="GridRoot" Property="Height" Value="5"/>
                                 <Setter TargetName="Thumb" Property="Width" Value="Auto"/>
-                                <Setter TargetName="Thumb" Property="Height" Value="4"/>
+                                <Setter TargetName="Thumb" Property="Height" Value="5"/>
+                                <Setter TargetName="PART_Track" Property="IsDirectionReversed" Value="False"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
