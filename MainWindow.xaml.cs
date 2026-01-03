@@ -491,8 +491,11 @@ public partial class MainWindow : Window
             };
             trayEdgeItem.DropDownItems.Add(subItem);
         }
-        trayEdgeItem.DropDown.ShowImageMargin = false;
-        trayEdgeItem.DropDown.ShowCheckMargin = false;
+        if (trayEdgeItem.DropDown is System.Windows.Forms.ToolStripDropDownMenu menu)
+        {
+            menu.ShowImageMargin = false;
+            menu.ShowCheckMargin = false;
+        }
         trayContextMenu.Items.Add(trayEdgeItem);
 
         // [6] Capture Submenu "캡처 >"
@@ -605,6 +608,7 @@ public partial class MainWindow : Window
         {
             var g = e.Graphics;
             var item = e.Item;
+            if (item == null) return;
 
             // Force arrow to the right edge of the 180px menu item
             int arrowSize = 4;
