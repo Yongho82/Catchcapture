@@ -476,25 +476,93 @@ namespace CatchCapture
                 TxtMemoDisplay.Visibility = Visibility.Visible;
                 BtnEditMemo.Content = "수정";
 
+                // 기본 메타데이터 설정 (DB 값 우선)
+                TxtPreviewSize.Text = !string.IsNullOrEmpty(item.Resolution) ? item.Resolution : "-";
+                TxtPreviewWeight.Text = GetFileSizeString(item.FileSize);
+                TxtPreviewApp.Text = item.SourceApp;
+                TxtPreviewTitle.Text = item.SourceTitle;
+
                 if (System.IO.File.Exists(item.FilePath))
                 {
-                    var bitmap = new BitmapImage();
-                    bitmap.BeginInit();
-                    bitmap.UriSource = new Uri(item.FilePath);
-                    // ★ 캐시를 무시하고 항상 디스크에서 새로 읽어오도록 설정 (편집 후 즉시 반영을 위해)
-                    bitmap.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
-                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmap.EndInit();
-                    ImgPreview.Source = bitmap;
+                    string previewPath = item.FilePath;
                     
-                    TxtPreviewSize.Text = $"{bitmap.PixelWidth} x {bitmap.PixelHeight}";
-                    TxtPreviewWeight.Text = GetFileSizeString(new System.IO.FileInfo(item.FilePath).Length);
-                    TxtPreviewApp.Text = item.SourceApp;
-                    TxtPreviewTitle.Text = item.SourceTitle;
+                    // 동영상 파일인 경우 썸네일 탐색 (.preview.png)
+                    bool isMedia = item.FilePath.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) || 
+                                   item.FilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase) ||
+                                   item.FilePath.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase);
+                    
+                    bool isAudio = item.FilePath.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase);
+
+                    if (isMedia)
+                    {
+                        // 미디어 파일은 편집 및 노트 저장 비활성화 (현재 이미지 전용)
+                        BtnPreviewEdit.Visibility = Visibility.Collapsed;
+                        BtnPreviewNote.Visibility = Visibility.Collapsed;
+                        MediaOverlay.Visibility = Visibility.Visible;
+                        
+                        // 포맷 표시
+                        TxtPreviewFormat.Text = System.IO.Path.GetExtension(item.FilePath).ToUpper().Replace(".", "");
+                        
+                        if (isAudio)
+                        {
+                            VideoPlayOverlay.Visibility = Visibility.Collapsed;
+                            AudioIconOverlay.Visibility = Visibility.Visible;
+                        }
+                        else
+                        {
+                            VideoPlayOverlay.Visibility = Visibility.Visible;
+                            AudioIconOverlay.Visibility = Visibility.Collapsed;
+                        }
+
+                        string thumbPath = item.FilePath + ".preview.png";
+                        if (System.IO.File.Exists(thumbPath))
+                        {
+                            previewPath = thumbPath;
+                        }
+                        else
+                        {
+                            // 썸네일 파일이 없는 경우 기본 이미지 또는 블랙 배경
+                            if (isAudio) ImgPreview.Source = null;
+                            else ImgPreview.Source = new BitmapImage(new Uri("pack://application:,,,/icons/videocamera.png"));
+                            
+                            ImgPreview.Opacity = 0.5;
+                        }
+                    }
+                    else
+                    {
+                        BtnPreviewEdit.Visibility = Visibility.Visible;
+                        BtnPreviewNote.Visibility = Visibility.Visible;
+                        MediaOverlay.Visibility = Visibility.Collapsed;
+                    }
+
+                    if (!string.IsNullOrEmpty(previewPath) && System.IO.File.Exists(previewPath))
+                    {
+                        var bitmap = new BitmapImage();
+                        bitmap.BeginInit();
+                        bitmap.UriSource = new Uri(previewPath);
+                        bitmap.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                        bitmap.EndInit();
+                        
+                        ImgPreview.Source = bitmap;
+                        ImgPreview.Opacity = 1.0;
+
+                        // 이미지가 있으면 실제 크기 정보 다시 한번 확인 (이미지인 경우만)
+                        if (!isMedia)
+                        {
+                            TxtPreviewSize.Text = $"{bitmap.PixelWidth} x {bitmap.PixelHeight}";
+                        }
+                    }
+                }
+                else
+                {
+                    ImgPreview.Source = null;
+                    MediaOverlay.Visibility = Visibility.Collapsed;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Preview Load Error: {ex.Message}");
                 ImgPreview.Source = null;
             }
         }

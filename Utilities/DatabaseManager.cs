@@ -1760,24 +1760,38 @@ namespace CatchCapture.Utilities
                     }
 
                     // Delete managed copy
-                    if (!string.IsNullOrEmpty(path) && File.Exists(path))
-                    {
-                        try { File.Delete(path); } catch { }
-                    }
+            if (!string.IsNullOrEmpty(path) && File.Exists(path))
+            {
+                try 
+                { 
+                    File.Delete(path); 
+                    // [추가] 프리뷰용 썸네일 파일도 함께 삭제
+                    string thumbPath = path + ".preview.png";
+                    if (File.Exists(thumbPath)) File.Delete(thumbPath);
+                } 
+                catch { }
+            }
 
-                    // Delete user's original copy
-                    if (!string.IsNullOrEmpty(originalPath) && originalPath != path && File.Exists(originalPath))
-                    {
-                        try { File.Delete(originalPath); } catch { }
-                    }
+            // Delete user's original copy
+            if (!string.IsNullOrEmpty(originalPath) && originalPath != path && File.Exists(originalPath))
+            {
+                try 
+                { 
+                    File.Delete(originalPath);
+                    // [추가] 원본 경로 기준 프리뷰 파일도 존재한다면 삭제
+                    string thumbPath = originalPath + ".preview.png";
+                    if (File.Exists(thumbPath)) File.Delete(thumbPath);
+                } 
+                catch { }
+            }
 
-                    using (var cmd = new SqliteCommand("DELETE FROM Captures WHERE Id = $id", connection))
-                    {
-                        cmd.Parameters.AddWithValue("$id", id);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
-                else
+            using (var cmd = new SqliteCommand("DELETE FROM Captures WHERE Id = $id", connection))
+            {
+                cmd.Parameters.AddWithValue("$id", id);
+                cmd.ExecuteNonQuery();
+            }
+        }
+        else
                 {
                     using (var cmd = new SqliteCommand("UPDATE Captures SET Status = 1 WHERE Id = $id", connection))
                     {

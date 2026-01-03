@@ -5323,6 +5323,37 @@ public partial class MainWindow : Window
                     {
                         await recorder.SaveRecordingAsync(fullPath);
 
+                        // [추가] 프리뷰용 썸네일 이미지 파일로 저장
+                        if (thumbnail != null)
+                        {
+                            try
+                            {
+                                string thumbPath = fullPath + ".preview.png";
+                                CatchCapture.Utilities.ScreenCaptureUtility.SaveImageToFile(thumbnail, thumbPath);
+                            }
+                            catch (Exception ex)
+                            {
+                                System.Diagnostics.Debug.WriteLine($"썸네일 저장 실패: {ex.Message}");
+                            }
+                        }
+
+                        // 히스토리에 추가
+                        var historyItem = new HistoryItem
+                        {
+                            FileName = filename,
+                            FilePath = fullPath,
+                            OriginalFilePath = fullPath,
+                            SourceApp = "화면 녹화",
+                            SourceTitle = isMp3 ? "오디오 녹음" : "동영상 녹화",
+                            FileSize = File.Exists(fullPath) ? new FileInfo(fullPath).Length : 0,
+                            Resolution = isMp3 ? "Audio Only" : (thumbnail != null ? $"{thumbnail.PixelWidth}x{thumbnail.PixelHeight}" : "N/A"),
+                            IsFavorite = false,
+                            Status = 0,
+                            CreatedAt = DateTime.Now
+                        };
+
+                        DatabaseManager.Instance.InsertCapture(historyItem);
+
                         // 저장 완료 시 인코딩 표시 제거 및 알림
                         Dispatcher.Invoke(() =>
                         {
@@ -5331,6 +5362,13 @@ public partial class MainWindow : Window
 
                             // 저장 완료 토스트
                             ShowGuideMessage($"녹화 저장 완료: {filename}", TimeSpan.FromSeconds(2));
+
+                            // 열려있는 히스토리 창이 있으면 갱신
+                            var historyWindow = Application.Current.Windows.OfType<HistoryWindow>().FirstOrDefault();
+                            if (historyWindow != null)
+                            {
+                                historyWindow.LoadHistory();
+                            }
                         });
                     }
                     catch (Exception ex)
