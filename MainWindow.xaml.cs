@@ -73,9 +73,6 @@ public partial class MainWindow : Window
     private System.Windows.Forms.ToolStripMenuItem? trayOpenItem;
     private System.Windows.Forms.ToolStripMenuItem? trayAreaItem;
     private System.Windows.Forms.ToolStripMenuItem? trayEdgeItem;
-    private System.Windows.Forms.ToolStripMenuItem? trayNormalItem;
-    private System.Windows.Forms.ToolStripMenuItem? traySimpleItem;
-    private System.Windows.Forms.ToolStripMenuItem? trayTrayItem;
     private System.Windows.Forms.ToolStripMenuItem? traySettingsItem;
     private System.Windows.Forms.ToolStripMenuItem? trayExitItem;
 
@@ -436,6 +433,9 @@ public partial class MainWindow : Window
         trayContextMenu.ForeColor = System.Drawing.Color.White;
         trayContextMenu.Font = new System.Drawing.Font("Segoe UI", 9f, System.Drawing.FontStyle.Regular);
         trayContextMenu.ImageScalingSize = new System.Drawing.Size(16, 16);
+        
+        // 2. 컨텍스트박스 가로 180PX
+        trayContextMenu.MinimumSize = new System.Drawing.Size(180, 0);
 
         // [1] Open
         trayOpenItem = new System.Windows.Forms.ToolStripMenuItem(
@@ -450,10 +450,10 @@ public partial class MainWindow : Window
             LoadMenuImage("my_note.png"), 
             (s, e) => OpenNoteExplorer()));
 
-        // [3] Open History
+        // [3] Open History (아이콘 변경: histroy_note.png)
         trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripMenuItem(
-            LocalizationManager.GetString("OpenHistory") ?? "히스토리 열기", 
-            LoadMenuImage("history.png"), 
+            "히스토리 열기", 
+            LoadMenuImage("histroy_note.png"), 
             (s, e) => {
                 var hw = Application.Current.Windows.OfType<HistoryWindow>().FirstOrDefault();
                 if (hw == null) { hw = new HistoryWindow(); hw.Show(); }
@@ -491,24 +491,12 @@ public partial class MainWindow : Window
             };
             trayEdgeItem.DropDownItems.Add(subItem);
         }
+        trayEdgeItem.DropDown.ShowImageMargin = false;
+        trayEdgeItem.DropDown.ShowCheckMargin = false;
         trayContextMenu.Items.Add(trayEdgeItem);
 
-        // [6] OCR Capture
-        trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripMenuItem(
-            LocalizationManager.GetString("OcrCapture"), 
-            LoadMenuImage("ocr_capture.png"), 
-            (s, e) => OcrCaptureButton_Click(this, new RoutedEventArgs())));
-
-        // [7] Screen Record
-        trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripMenuItem(
-            LocalizationManager.GetString("ScreenRecording"), 
-            LoadMenuImage("videocamera.png"), 
-            (s, e) => ScreenRecordButton_Click(this, new RoutedEventArgs())));
-
-        trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
-
-        // [8] Capture Submenu "캡처 >"
-        var captureSub = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("Capture") ?? "캡처", LoadMenuImage("camera.png"));
+        // [6] Capture Submenu "캡처 >"
+        var captureSub = new System.Windows.Forms.ToolStripMenuItem("캡처", LoadMenuImage("camera.png"));
         
         captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("DelayCapture"), LoadMenuImage("clock.png"), (s, e) => StartDelayedAreaCaptureSeconds(3)));
         captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("RealTimeCapture"), LoadMenuImage("real-time.png"), (s, e) => StartRealTimeCaptureMode()));
@@ -521,8 +509,22 @@ public partial class MainWindow : Window
         
         trayContextMenu.Items.Add(captureSub);
 
+        // [7] OCR Capture
+        trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripMenuItem(
+            LocalizationManager.GetString("OcrCapture"), 
+            LoadMenuImage("ocr_capture.png"), 
+            (s, e) => OcrCaptureButton_Click(this, new RoutedEventArgs())));
+
+        // [8] Screen Record
+        trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripMenuItem(
+            LocalizationManager.GetString("ScreenRecording"), 
+            LoadMenuImage("videocamera.png"), 
+            (s, e) => ScreenRecordButton_Click(this, new RoutedEventArgs())));
+
+        trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
+
         // [9] Capture Folder
-        trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("CaptureFolder") ?? "캡처 폴더", LoadMenuImage("folder.png"), (s, e) => {
+        trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripMenuItem("캡처 폴더", LoadMenuImage("openfolder.png"), (s, e) => {
              try { 
                  var path = GetAutoSaveFilePath(settings.FileSaveFormat.ToLower(), null, null);
                  var dir = System.IO.Path.GetDirectoryName(path);
@@ -534,7 +536,7 @@ public partial class MainWindow : Window
         }));
         
         // [10] Note Folder
-        trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("NoteFolder") ?? "노트 폴더", LoadMenuImage("folder_note.png"), (s, e) => {
+        trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripMenuItem("노트 폴더", LoadMenuImage("openfolder.png"), (s, e) => {
              try {
                  string notePath = settings.NoteStoragePath;
                  if (string.IsNullOrEmpty(notePath)) notePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Notes");
@@ -576,7 +578,18 @@ public partial class MainWindow : Window
         });
         trayContextMenu.Items.Add(trayExitItem);
 
-        notifyIcon.ContextMenuStrip = trayContextMenu;
+        if (notifyIcon != null) notifyIcon.ContextMenuStrip = trayContextMenu;
+        
+        // [레이아웃 보정] 모든 메뉴 항목의 너비를 180px로 강제 설정
+        foreach (System.Windows.Forms.ToolStripItem item in trayContextMenu.Items)
+        {
+            if (item is System.Windows.Forms.ToolStripMenuItem mi)
+            {
+                mi.AutoSize = false;
+                mi.Size = new System.Drawing.Size(180, 22); // Reduced height for better vertical margin
+                mi.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            }
+        }
     }
 
     // 다크 테마 렌더러/컬러 테이블로 컨텍스트 메뉴 스타일링
@@ -587,6 +600,27 @@ public partial class MainWindow : Window
         {
             e.TextColor = System.Drawing.Color.White;
             base.OnRenderItemText(e);
+        }
+        protected override void OnRenderArrow(System.Windows.Forms.ToolStripArrowRenderEventArgs e)
+        {
+            var g = e.Graphics;
+            var item = e.Item;
+
+            // Force arrow to the right edge of the 180px menu item
+            int arrowSize = 4;
+            int x = item.Width - 15; 
+            int y = (item.Height - arrowSize * 2) / 2;
+
+            using (var brush = new System.Drawing.SolidBrush(System.Drawing.Color.White))
+            {
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                System.Drawing.Point[] pts = {
+                    new System.Drawing.Point(x, y),
+                    new System.Drawing.Point(x + arrowSize, y + arrowSize),
+                    new System.Drawing.Point(x, y + arrowSize * 2)
+                };
+                g.FillPolygon(brush, pts);
+            }
         }
     }
 

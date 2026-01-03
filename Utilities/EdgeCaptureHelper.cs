@@ -95,7 +95,7 @@ namespace CatchCapture.Utilities
         /// <summary>
         /// WPF BitmapSource를 둥근 모서리로 처리하여 반환합니다.
         /// </summary>
-        public static System.Windows.Media.Imaging.BitmapSource CreateRoundedCapture(System.Windows.Media.Imaging.BitmapSource source, int radius)
+        public static System.Windows.Media.Imaging.BitmapSource? CreateRoundedCapture(System.Windows.Media.Imaging.BitmapSource source, int radius)
         {
             if (source == null) return source;
 

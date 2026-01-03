@@ -1391,7 +1391,7 @@ private void InitLanguageComboBox()
                     continue;
 
                 string dest = Path.Combine(targetDir, dirName);
-                CopyDirectory(subDir, dest, null); // Only top level exclude for now
+                CopyDirectory(subDir, dest, Array.Empty<string>()); // Use empty array to avoid CS8625 warning
             }
         }
 
