@@ -847,5 +847,100 @@
                 </Border>
             </Grid>
         </Border>
+
+        <!-- [Database Lock Overlay] -->
+        <Grid x:Name="LockOverlay" Visibility="Collapsed" Panel.ZIndex="9999">
+            <Border Background="#CC000000" CornerRadius="8" Margin="10">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <Border Width="60" Height="60" CornerRadius="30" Background="#33FFFFFF" Margin="0,0,0,20">
+                        <TextBlock Text="🔒" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,-3,3"/>
+                    </Border>
+                    
+                    <TextBlock Text="사용 권한이 이전되었습니다" 
+                             Foreground="White" FontSize="18" FontWeight="Bold" 
+                             HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                    
+                    <TextBlock x:Name="LockOverlayMessage" 
+                             Text="다른 컴퓨터에서 이 저장소를 사용 중입니다.&#x0a;데이터 충돌 방지를 위해 기능이 잠겼습니다." 
+                             Foreground="#BBFFFFFF" FontSize="13" TextAlignment="Center" 
+                             LineHeight="20" HorizontalAlignment="Center" Margin="0,0,0,30"/>
+
+                    <Button x:Name="BtnTakeOwnershipBack" 
+                            Content="이 컴퓨터에서 점유권 가져오기" 
+                            Width="220" Height="40" 
+                            Background="#007AFF" Foreground="White" 
+                            FontWeight="Bold" FontSize="14" Cursor="Hand"
+                            Click="BtnTakeOwnershipBack_Click">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="20">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Opacity" Value="0.9" TargetName="border"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    
+                    <Button x:Name="BtnLockSettings" 
+                            Content="공유 폴더 설정 변경" 
+                            Background="Transparent" Foreground="#88FFFFFF" 
+                            FontSize="12" Margin="0,15,0,0" Cursor="Hand"
+                            Click="BtnLockSettings_Click">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <TextBlock Text="{TemplateBinding Content}" TextDecorations="Underline" HorizontalAlignment="Center"/>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- [Database Takeover Progress Overlay] -->
+        <Grid x:Name="TakeoverProgressOverlay" Visibility="Collapsed" Panel.ZIndex="10000">
+            <Border Background="#EE000000" CornerRadius="8" Margin="10">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Text="🔒" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+                    
+                    <TextBlock Text="저장소 권한을 안전하게 가져오고 있습니다" 
+                             Foreground="White" FontSize="18" FontWeight="Bold" 
+                             HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                    
+                    <TextBlock x:Name="TakeoverStatusText" 
+                             Text="기존 컴퓨터의 응답을 기다리는 중... (20/20초)" 
+                             Foreground="#BBFFFFFF" FontSize="13" 
+                             HorizontalAlignment="Center" Margin="0,0,0,25"/>
+
+                    <ProgressBar x:Name="TakeoverProgressBar" 
+                                Width="300" Height="10" 
+                                Minimum="0" Maximum="20" Value="20" 
+                                Foreground="#007AFF" Background="#33FFFFFF" 
+                                BorderThickness="0" Margin="0,0,0,10">
+                        <ProgressBar.Template>
+                            <ControlTemplate TargetType="ProgressBar">
+                                <Grid x:Name="TemplateRoot">
+                                    <VisualStateManager.VisualStateGroups>
+                                        <VisualStateGroup x:Name="CommonStates">
+                                            <VisualState x:Name="Determinate" />
+                                            <VisualState x:Name="Indeterminate" />
+                                        </VisualStateGroup>
+                                    </VisualStateManager.VisualStateGroups>
+                                    <Border Background="{TemplateBinding Background}" CornerRadius="5" />
+                                    <Border x:Name="PART_Indicator" HorizontalAlignment="Left" CornerRadius="5" Background="{TemplateBinding Foreground}"/>
+                                </Grid>
+                            </ControlTemplate>
+                        </ProgressBar.Template>
+                    </ProgressBar>
+                    
+                    <TextBlock Text="데이터 손상을 방지하기 위해 잠시 대기합니다." 
+                             Foreground="#88FFFFFF" FontSize="11" 
+                             HorizontalAlignment="Center" Margin="0,15,0,0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
     </Grid>
 </Window>

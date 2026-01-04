@@ -42,17 +42,46 @@ namespace CatchCapture.Utilities
         private string _dbPath;
         private string DbPath => _dbPath;
         private static readonly object _dbLock = new object();
+        private readonly object _lockObj = new object();
+        private readonly string _currentIdentity = $"{Environment.MachineName}:{Environment.ProcessId}";
+        private DateTime _lastTakeoverTime = DateTime.MinValue;
+        private bool _isLosingOwnership = false;
+        private bool _isTakeoverInProgress = false;
         private SqliteConnection? _activeConnection;
         private string? _noteLockingMachine;
         private string? _historyLockingMachine;
         private System.Timers.Timer? _heartbeatTimer;
         public event Action? OwnershipLost;
 
+        // 디버그 로그 파일 경로
+        private static readonly string _logFilePath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+            "CatchCapture_LockDebug.txt");
+        private static readonly object _logLock = new object();
+
         public string? NoteLockingMachine => _noteLockingMachine;
         public string? HistoryLockingMachine => _historyLockingMachine;
         public string HistoryDbFilePath => _historyDbPath;
 
         public string DbFilePath => _dbPath;
+
+        /// <summary>
+        /// 디버그 로그를 txt 파일로 저장
+        /// </summary>
+        private void LogToFile(string message)
+        {
+            try
+            {
+                lock (_logLock)
+                {
+                    string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+                    string logLine = $"[{timestamp}] [{_currentIdentity}] {message}";
+                    File.AppendAllText(_logFilePath, logLine + Environment.NewLine);
+                    Debug.WriteLine(logLine);
+                }
+            }
+            catch { /* 로그 실패 무시 */ }
+        }
 
         private DatabaseManager()
         {
@@ -69,6 +98,13 @@ namespace CatchCapture.Utilities
             
             _dbPath = Path.Combine(storagePath, "notedb", "catch_notes.db");
             _historyDbPath = Path.Combine(settings.DefaultSaveFolder, "history", "history.db");
+
+            // ★ 버전 확인용 시작 로그
+            LogToFile("============================================");
+            LogToFile("★★★ DatabaseManager 초기화 (v2 - PENDING 즉시감지) ★★★");
+            LogToFile($"Note DB 경로: {_dbPath}");
+            LogToFile($"History DB 경로: {_historyDbPath}");
+            LogToFile("============================================");
 
             InitializeDatabase();
             InitializeHistoryDatabase(); // Separate DB initialization
@@ -119,49 +155,334 @@ namespace CatchCapture.Utilities
             StartHeartbeat();
         }
 
+
         private void StartHeartbeat()
         {
-            if (_heartbeatTimer == null)
+            lock (_lockObj)
             {
-                _heartbeatTimer = new System.Timers.Timer(20000); // 20 seconds
-                _heartbeatTimer.Elapsed += (s, e) => UpdateLocks(false);
-                _heartbeatTimer.AutoReset = true;
-                _heartbeatTimer.Start();
+                if (_heartbeatTimer == null)
+                {
+                    _heartbeatTimer = new System.Timers.Timer(2000); // 2 seconds for faster takeover detection
+                    _heartbeatTimer.Elapsed += (s, e) => UpdateLocks(false);
+                    _heartbeatTimer.AutoReset = true;
+                    _heartbeatTimer.Start();
+                }
+                else if (!_heartbeatTimer.Enabled)
+                {
+                    _heartbeatTimer.Start();
+                }
+                _isLosingOwnership = false;
             }
+        }
+
+        public enum TakeoverStatus
+        {
+            None,
+            Pending,
+            Released,
+            Stale
+        }
+
+        public void RequestTakeover()
+        {
+            lock (_lockObj)
+            {
+                LogToFile("========== RequestTakeover 시작 ==========");
+                LogToFile($"현재상태: _isLosingOwnership={_isLosingOwnership}, _isTakeoverInProgress={_isTakeoverInProgress}");
+                
+                // CRITICAL: Stop heartbeat to prevent overwriting our PENDING status
+                _isTakeoverInProgress = true;
+                _heartbeatTimer?.Stop();
+                LogToFile("Heartbeat 타이머 중지됨");
+                
+                string ticks = DateTime.Now.Ticks.ToString();
+                string pendingContent = $"{_currentIdentity}|{ticks}|PENDING";
+                
+                // Mark as PENDING to notify the other computer to close DB
+                SafeWriteFile(_dbPath + ".lock", pendingContent);
+                SafeWriteFile(_historyDbPath + ".lock", pendingContent);
+                
+                LogToFile($"PENDING 파일 작성 완료: {pendingContent}");
+            }
+        }
+        
+        public void CompleteTakeover()
+        {
+            lock (_lockObj)
+            {
+                _isTakeoverInProgress = false;
+                LogToFile("CompleteTakeover: _isTakeoverInProgress = false");
+            }
+        }
+
+        public TakeoverStatus CheckTakeoverStatus()
+        {
+            try
+            {
+                string lockPath = _dbPath + ".lock";
+                if (!File.Exists(lockPath)) return TakeoverStatus.Released;
+
+                string content = SafeReadFile(lockPath);
+                if (string.IsNullOrEmpty(content)) return TakeoverStatus.None;
+
+                string[] parts = content.Split('|');
+                if (parts.Length < 3) return TakeoverStatus.Pending;
+
+                string status = parts[2];
+                if (status == "RELEASED") return TakeoverStatus.Released;
+                
+                return TakeoverStatus.Pending;
+            }
+            catch { return TakeoverStatus.None; }
         }
 
         private void UpdateLocks(bool forceWrite)
         {
-            try
+            lock (_lockObj)
             {
-                string currentIdentity = $"{Environment.MachineName}:{Environment.ProcessId}";
-                string ticks = DateTime.Now.Ticks.ToString();
-
-                // Check for takeover on Note Lock
-                string noteLockPath = _dbPath + ".lock";
-                if (!forceWrite && File.Exists(noteLockPath))
+                try
                 {
-                    string content = File.ReadAllText(noteLockPath);
-                    if (!content.StartsWith(currentIdentity))
+                    string noteLockPath = _dbPath + ".lock";
+                    string historyLockPath = _historyDbPath + ".lock";
+
+                    // 1. Calculate grace period FIRST
+                    double secondsSinceTakeover = (DateTime.Now - _lastTakeoverTime).TotalSeconds;
+                    bool isWithinTakeoverGracePeriod = secondsSinceTakeover < 60;
+
+                    // 2. Skip if already losing ownership (prevent duplicate triggers)
+                    if (_isLosingOwnership)
                     {
-                        // Someone else took over!
-                        OwnershipLost?.Invoke();
+                        // 가끔 로그 (5초에 한번)
+                        if (DateTime.Now.Second % 5 == 0)
+                            LogToFile($"[SKIP] 이미 점유권 상실 상태 (_isLosingOwnership=true)");
                         return;
                     }
+
+                    // 3. Skip if current instance is already requesting a takeover
+                    if (_isTakeoverInProgress)
+                    {
+                        LogToFile($"[SKIP] Takeover 진행 중 (_isTakeoverInProgress=true)");
+                        return;
+                    }
+
+                    // 4. CRITICAL: Grace Period 내에서도 PENDING만큼은 반드시 체크!
+                    // ACTIVE는 클라우드 지연 때문에 무시하지만, PENDING은 즉시 반응해야 함
+                    if (isWithinTakeoverGracePeriod && !forceWrite)
+                    {
+                        // Grace period 로그 (10초에 한번)
+                        if (DateTime.Now.Second % 10 == 0)
+                            LogToFile($"[GRACE PERIOD] {secondsSinceTakeover:F1}초 경과 (60초까지 보호, 단 PENDING은 체크)");
+                        
+                        // ★★★ PENDING 요청만큼은 Grace Period 내에서도 반드시 확인! ★★★
+                        if (File.Exists(noteLockPath))
+                        {
+                            try
+                            {
+                                string content = SafeReadFile(noteLockPath);
+                                if (!string.IsNullOrEmpty(content))
+                                {
+                                    string[] parts = content.Split('|');
+                                    string lockingIdentity = parts[0];
+                                    string status = parts.Length >= 3 ? parts[2] : "ACTIVE";
+                                    bool isMe = string.Equals(lockingIdentity, _currentIdentity, StringComparison.OrdinalIgnoreCase);
+                                    
+                                    // 다른 컴퓨터가 PENDING 요청을 보냈다면 즉시 양도!
+                                    if (!isMe && status == "PENDING")
+                                    {
+                                        LogToFile($"▶▶▶ [GRACE PERIOD 중 PENDING 감지!] {lockingIdentity}가 점유권 요청. 즉시 양도!");
+                                        ReleaseForTakeover(lockingIdentity);
+                                        return;
+                                    }
+                                    // ACTIVE는 Grace Period 내에서 무시 (클라우드 지연 때문)
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                LogToFile($"[GRACE PERIOD] Lock 파일 읽기 실패: {ex.Message}");
+                            }
+                        }
+                        
+                        // 3.5초 이상 경과했으면 heartbeat 쓰기
+                        if (secondsSinceTakeover >= 3.5)
+                        {
+                            string ticks = DateTime.Now.Ticks.ToString();
+                            string contentToWrite = $"{_currentIdentity}|{ticks}|ACTIVE";
+                            SafeWriteFile(noteLockPath, contentToWrite);
+                            SafeWriteFile(historyLockPath, contentToWrite);
+                        }
+                        return;
+                    }
+
+                    // 5. Check current lock file status (ONLY after grace period)
+                    if (!forceWrite && File.Exists(noteLockPath))
+                    {
+                        try
+                        {
+                            string content = SafeReadFile(noteLockPath);
+                            if (!string.IsNullOrEmpty(content))
+                            {
+                                string[] parts = content.Split('|');
+                                string lockingIdentity = parts[0];
+                                string status = parts.Length >= 3 ? parts[2] : "ACTIVE";
+                                string ticksStr = parts.Length >= 2 ? parts[1] : "0";
+
+                                bool isMe = string.Equals(lockingIdentity, _currentIdentity, StringComparison.OrdinalIgnoreCase);
+
+                                // 상세 로그 (10초에 한번)
+                                if (DateTime.Now.Second % 10 == 0)
+                                {
+                                    LogToFile($"[READ] Lock파일: identity={lockingIdentity}, status={status}, isMe={isMe}");
+                                }
+
+                                if (!isMe)
+                                {
+                                    // A. Someone else wants takeover (PENDING) -> Hand over immediately
+                                    if (status == "PENDING")
+                                    {
+                                        LogToFile($"▶▶▶ [PENDING 감지] {lockingIdentity}가 점유권 요청함. 양도 시작...");
+                                        ReleaseForTakeover(lockingIdentity);
+                                        return;
+                                    }
+
+                                    // B. Someone else is ACTIVE (And we are beyond the grace period)
+                                    if (status == "ACTIVE")
+                                    {
+                                        LogToFile($"▶▶▶ [ACTIVE 감지] 다른 컴퓨터({lockingIdentity})가 ACTIVE 상태!");
+                                        LogToFile($"     Grace Period 경과: {secondsSinceTakeover:F1}초 (60초 이후에만 반응)");
+                                        
+                                        // 이미 grace period 체크를 위에서 했으므로 여기서는 바로 잠금 처리
+                                        _isLosingOwnership = true;
+                                        _heartbeatTimer?.Stop();
+                                        LogToFile($"▶▶▶ [셀프 잠금 발동] OwnershipLost 이벤트 호출!");
+                                        OwnershipLost?.Invoke();
+                                        return;
+                                    }
+                                }
+                                else
+                                {
+                                    // It's my lock. Reset the losing flag if it was set somehow.
+                                    if (_isLosingOwnership)
+                                    {
+                                        LogToFile($"[자기 락 확인] 내 락 파일이므로 _isLosingOwnership 리셋");
+                                    }
+                                    _isLosingOwnership = false;
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            LogToFile($"[ERROR] Lock 파일 읽기 실패: {ex.Message}");
+                        }
+                    }
+
+                    // 6. Normal heartbeat update: Every 3.5+ seconds
+                    if (!forceWrite && secondsSinceTakeover < 3.5) return;
+
+                    // ★★★ CRITICAL: heartbeat 쓰기 전 마지막으로 PENDING 체크! ★★★
+                    // 클라우드 동기화로 인해 위의 체크 이후 파일이 변경됐을 수 있음
+                    if (File.Exists(noteLockPath))
+                    {
+                        try
+                        {
+                            string checkContent = SafeReadFile(noteLockPath);
+                            if (!string.IsNullOrEmpty(checkContent))
+                            {
+                                string[] checkParts = checkContent.Split('|');
+                                string checkIdentity = checkParts[0];
+                                string checkStatus = checkParts.Length >= 3 ? checkParts[2] : "ACTIVE";
+                                bool checkIsMe = string.Equals(checkIdentity, _currentIdentity, StringComparison.OrdinalIgnoreCase);
+                                
+                                if (!checkIsMe && checkStatus == "PENDING")
+                                {
+                                    LogToFile($"▶▶▶ [HEARTBEAT 전 PENDING 발견!] {checkIdentity}가 점유권 요청. 즉시 양도!");
+                                    ReleaseForTakeover(checkIdentity);
+                                    return;
+                                }
+                            }
+                        }
+                        catch { /* 읽기 실패 시 무시하고 heartbeat 진행 */ }
+                    }
+
+                    string ticksNow = DateTime.Now.Ticks.ToString();
+                    string heartbeatContent = $"{_currentIdentity}|{ticksNow}|ACTIVE";
+                    
+                    // 매 heartbeat마다 로그 (디버깅용)
+                    LogToFile($"[HEARTBEAT] 파일 쓰기: {heartbeatContent.Substring(0, Math.Min(50, heartbeatContent.Length))}...");
+                    
+                    // Re-assert ACTIVE status
+                    SafeWriteFile(noteLockPath, heartbeatContent);
+                    SafeWriteFile(historyLockPath, heartbeatContent);
+                    
+                    if (forceWrite)
+                    {
+                        _lastTakeoverTime = DateTime.Now;
+                        LogToFile($"[FORCE WRITE] Heartbeat 강제 갱신, _lastTakeoverTime 리셋");
+                    }
+                    _isLosingOwnership = false;
                 }
-
-                File.WriteAllText(noteLockPath, $"{currentIdentity}|{ticks}");
-
-                // Update History Lock
-                string historyLockPath = _historyDbPath + ".lock";
-                File.WriteAllText(historyLockPath, $"{currentIdentity}|{ticks}");
+                catch (Exception ex)
+                {
+                    LogToFile($"[CRITICAL ERROR] UpdateLocks 예외: {ex.Message}");
+                    if (forceWrite) throw;
+                }
             }
-            catch { }
+        }
+
+        private void ReleaseForTakeover(string newOwnerIdentity)
+        {
+            try
+            {
+                LogToFile($"========== ReleaseForTakeover 시작 ==========");
+                LogToFile($"새 소유자: {newOwnerIdentity}");
+                
+                // 1. Close DB Connection
+                CloseConnection();
+                LogToFile("DB 연결 종료됨");
+                
+                // 2. Mark as RELEASED
+                string ticks = DateTime.Now.Ticks.ToString();
+                string releasedContent = $"{newOwnerIdentity}|{ticks}|RELEASED";
+                SafeWriteFile(_dbPath + ".lock", releasedContent);
+                LogToFile($"RELEASED 파일 작성: {releasedContent}");
+                
+                // 3. Trigger local lock UI
+                _isLosingOwnership = true;
+                _heartbeatTimer?.Stop();
+                LogToFile("Heartbeat 중지, OwnershipLost 이벤트 호출");
+                OwnershipLost?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                LogToFile($"[ERROR] ReleaseForTakeover 예외: {ex.Message}");
+            }
+        }
+
+        private string SafeReadFile(string path)
+        {
+            // Use minimal buffer and no buffering to bypass file system cache
+            using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 1, FileOptions.SequentialScan))
+            using (var reader = new StreamReader(fs))
+            {
+                return reader.ReadToEnd();
+            }
+        }
+
+        private void SafeWriteFile(string path, string content)
+        {
+            using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+            using (var writer = new StreamWriter(fs))
+            {
+                writer.Write(content);
+                writer.Flush();
+            }
         }
 
         public void Reload() 
         {
+            CloseConnection();
             InitializeDatabase();
+            // [IMPORTANT] Don't check locks here if we just acquired ownership
+            // The _lastTakeoverTime check in CheckAndCreateLock handles this
             CheckAndCreateLock();
         }
 
@@ -169,17 +490,76 @@ namespace CatchCapture.Utilities
         {
             try
             {
-                // Just detect, don't write yet. UI will call TakeOwnership() after showing warning.
+                // If we just took ownership (within 60 seconds), don't check for other locks
+                // This prevents reading stale cloud-synced data
+                if ((DateTime.Now - _lastTakeoverTime).TotalSeconds < 60)
+                {
+                    _noteLockingMachine = null;
+                    _historyLockingMachine = null;
+                    return;
+                }
                 _noteLockingMachine = CheckLock(_dbPath);
                 _historyLockingMachine = CheckLock(_historyDbPath);
             }
             catch { }
         }
 
-        public void TakeOwnership()
+        public void ClearLockState()
         {
-            UpdateLocks(true);
-            StartHeartbeat();
+            lock (_lockObj)
+            {
+                _noteLockingMachine = null;
+                _historyLockingMachine = null;
+                _isLosingOwnership = false;
+            }
+        }
+
+        public bool TakeOwnership()
+        {
+            lock (_lockObj)
+            {
+                try
+                {
+                    LogToFile("========== TakeOwnership 시작 ==========");
+                    LogToFile($"이전상태: _isLosingOwnership={_isLosingOwnership}, _isTakeoverInProgress={_isTakeoverInProgress}");
+                    LogToFile($"이전 _lastTakeoverTime: {_lastTakeoverTime}");
+                    
+                    // ★★★ CRITICAL: Set grace period FIRST before ANY file operations ★★★
+                    // This prevents the heartbeat timer from triggering self-lock
+                    _lastTakeoverTime = DateTime.Now;
+                    _isLosingOwnership = false;
+                    _isTakeoverInProgress = false;
+                    _noteLockingMachine = null;
+                    _historyLockingMachine = null;
+                    
+                    LogToFile($"상태 초기화 완료: _lastTakeoverTime={_lastTakeoverTime}, 이제 60초간 보호됨");
+                    
+                    // [IMPORTANT] Delete old locks to ensure a clean state
+                    string noteLockPath = _dbPath + ".lock";
+                    string historyLockPath = _historyDbPath + ".lock";
+                    
+                    try { if (File.Exists(noteLockPath)) File.Delete(noteLockPath); } catch { }
+                    try { if (File.Exists(historyLockPath)) File.Delete(historyLockPath); } catch { }
+                    LogToFile("기존 락 파일 삭제 시도 완료");
+
+                    string ticks = DateTime.Now.Ticks.ToString();
+                    string content = $"{_currentIdentity}|{ticks}|ACTIVE";
+                    
+                    SafeWriteFile(noteLockPath, content);
+                    SafeWriteFile(historyLockPath, content);
+                    LogToFile($"새 락 파일 작성: {content}");
+                    
+                    StartHeartbeat();
+                    LogToFile("Heartbeat 시작됨. TakeOwnership 성공!");
+                    LogToFile("===========================================");
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    LogToFile($"[CRITICAL ERROR] TakeOwnership 실패: {ex.Message}");
+                    return false;
+                }
+            }
         }
 
         private string? CheckLock(string dbFilePath)
@@ -187,27 +567,24 @@ namespace CatchCapture.Utilities
             try
             {
                 string lockPath = dbFilePath + ".lock";
-                string currentMachine = Environment.MachineName;
-
                 if (File.Exists(lockPath))
                 {
-                    string content = File.ReadAllText(lockPath);
+                    string content = SafeReadFile(lockPath);
                     string[] parts = content.Split('|');
                     if (parts.Length > 0)
                     {
                         string lockingIdentity = parts[0];
                         string currentIdentity = $"{Environment.MachineName}:{Environment.ProcessId}";
-                        if (lockingIdentity != currentIdentity)
+                        if (!string.Equals(lockingIdentity, _currentIdentity, StringComparison.OrdinalIgnoreCase))
                         {
                             // If same machine but different PID, or different machine entirely
                             string lockingMachine = lockingIdentity.Split(':')[0];
-                            // Check if the lock is recent (heartbeat within 3 mins) or stale (crash case)
+                            // Check if the lock is recent (heartbeat within 2 mins)
                             if (parts.Length > 1 && long.TryParse(parts[1], out long ticks))
                             {
                                 DateTime lockTime = new DateTime(ticks);
-                                // If updated within 3 minutes, it's definitely active. 
-                                // Otherwise, we still show warning if it's less than 24 hours just in case of slow cloud sync.
-                                if (DateTime.Now - lockTime < TimeSpan.FromHours(24))
+                                // If updated within 2 minutes, it's definitely active.
+                                if (DateTime.Now - lockTime < TimeSpan.FromMinutes(2))
                                 {
                                     return lockingMachine;
                                 }

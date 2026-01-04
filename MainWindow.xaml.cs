@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -253,9 +254,6 @@ public partial class MainWindow : Window
             // 초기 UI 텍스트 설정
             ScreenRecordButtonText.Text = LocalizationManager.GetString("ScreenRecording");
 
-            // refine baseline using ActualHeight now that layout is ready
-            // refine baseline commented out to persist fixed 692 baseline
-            // try { _baseMainWindowHeight = this.ActualHeight > 0 ? this.ActualHeight : this.Height; } catch { }
             AdjustMainWindowHeightForMenuCount();
 
             // History & Trash Cleanup
@@ -272,25 +270,22 @@ public partial class MainWindow : Window
                 Debug.WriteLine($"Cleanup error: {ex.Message}");
             }
 
-            // [Cross-computer Lock Warning]
-            string noteLock = DatabaseManager.Instance.NoteLockingMachine;
-            string historyLock = DatabaseManager.Instance.HistoryLockingMachine;
+            // [Cross-computer Lock Warning] Safe Takeover Implementation
+            string? noteLock = DatabaseManager.Instance.NoteLockingMachine;
+            string? historyLock = DatabaseManager.Instance.HistoryLockingMachine;
 
             if (!string.IsNullOrEmpty(noteLock) || !string.IsNullOrEmpty(historyLock))
             {
                 string message = "[공유 저장소 중복 실행 알림]\n\n";
-                
                 if (!string.IsNullOrEmpty(noteLock) && !string.IsNullOrEmpty(historyLock) && 
                     IOPath.GetDirectoryName(DatabaseManager.Instance.DbFilePath) == IOPath.GetDirectoryName(DatabaseManager.Instance.HistoryDbFilePath))
                 {
-                    // Same folder
                     string folder = IOPath.GetDirectoryName(DatabaseManager.Instance.DbFilePath) ?? "데이터 폴더";
                     message += $"현재 다른 컴퓨터('{noteLock}')에서 '노트 및 히스토리' 저장소를 사용 중입니다.\n\n" +
                                $"공유 폴더: {folder}\n\n";
                 }
                 else
                 {
-                    // Different folders or only one
                     if (!string.IsNullOrEmpty(noteLock))
                     {
                         string folder = IOPath.GetDirectoryName(DatabaseManager.Instance.DbFilePath) ?? "노트 폴더";
@@ -311,44 +306,36 @@ public partial class MainWindow : Window
 
                 if (CustomMessageBox.Show(message, "데이터 손실 주의", MessageBoxButton.YesNo, MessageBoxImage.Warning, width: 500) == MessageBoxResult.Yes)
                 {
-                    CustomMessageBox.Show("DB 사용 권한이 이전되었습니다.\n기존 컴퓨터의 프로그램은 1분 내로 자동 종료됩니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information, width: 500);
-                    DatabaseManager.Instance.TakeOwnership();
+                    _ = PerformSafeTakeoverAsync();
                 }
                 else
                 {
-                    CustomMessageBox.Show("공유 폴더를 변경해 주세요.\n변경하지 않고 동시 사용 시 장기적으로 DB가 손상될 수 있습니다.", "안내", MessageBoxButton.OK, MessageBoxImage.Information, width: 500);
-                    
-                    // Open settings modally to wait for user to change path
+                    CustomMessageBox.Show("공유 폴더를 변경해 주세요.", "안내", MessageBoxButton.OK, MessageBoxImage.Information, width: 500);
                     var settingsWin = new SettingsWindow();
                     settingsWin.Owner = this;
                     settingsWin.SelectPage("Note");
                     settingsWin.ShowDialog();
                     
-                    // After settings closed, check if still locked
                     if (!string.IsNullOrEmpty(DatabaseManager.Instance.NoteLockingMachine) || !string.IsNullOrEmpty(DatabaseManager.Instance.HistoryLockingMachine))
                     {
-                        // Still locked. Ask one last time.
-                        if (CustomMessageBox.Show("여전히 다른 컴퓨터에서 저장소를 사용 중입니다.\n그래도 현재 컴퓨터에서 점유권을 가져오시겠습니까?\n\n'아니오'를 누르면 데이터 보호를 위해 종료합니다.", "최종 확인", MessageBoxButton.YesNo, MessageBoxImage.Question, width: 500) == MessageBoxResult.Yes)
+                        if (CustomMessageBox.Show("여전히 다른 컴퓨터에서 저장소를 사용 중입니다. 그래도 가져오시겠습니까?", "최종 확인", MessageBoxButton.YesNo, MessageBoxImage.Question, width: 500) == MessageBoxResult.Yes)
                         {
-                            DatabaseManager.Instance.TakeOwnership();
+                            _ = PerformSafeTakeoverAsync();
                         }
                         else
                         {
                             isExit = true;
                             Application.Current.Shutdown();
-                            return;
                         }
                     }
                     else
                     {
-                        // Path changed or lock released!
-                        DatabaseManager.Instance.TakeOwnership();
+                        _ = PerformSafeTakeoverAsync();
                     }
                 }
             }
             else
             {
-                // No existing lock
                 DatabaseManager.Instance.TakeOwnership();
             }
         };
@@ -356,18 +343,113 @@ public partial class MainWindow : Window
 
     private void OnDatabaseOwnershipLost()
     {
-        Dispatcher.Invoke(() =>
+        // Use BeginInvoke to prevent blocking the background timer thread (avoid deadlock)
+        Dispatcher.BeginInvoke(new Action(() =>
         {
-            CustomMessageBox.Show(
-                "다른 컴퓨터에서 이 저장소의 사용 권한을 가져갔습니다.\n" +
-                "데이터 충돌 방지를 위해 프로그램을 종료합니다.\n\n" +
-                "다시 사용하시려면 공유 폴더 상태를 확인해 주세요.",
-                "원격 프로그램 종료 안내",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+            try
+            {
+                Debug.WriteLine("[MainWindow] OnDatabaseOwnershipLost triggered");
+
+                // 1. Close DB-related windows safely
+                try
+                {
+                    var windowsToClose = Application.Current.Windows.OfType<Window>()
+                        .Where(w => w is NoteExplorerWindow || w is HistoryWindow || w is NoteViewWindow || w is NoteInputWindow)
+                        .ToList();
+                    foreach (var w in windowsToClose)
+                    {
+                        Debug.WriteLine($"[MainWindow] Closing window: {w.GetType().Name}");
+                        w.Close();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[MainWindow] Error closing windows: {ex.Message}");
+                }
+
+                // 2. Force return to Normal mode if in Simple/Tray mode
+                // This ensures the lock screen is visible!
+                if (this.Visibility != Visibility.Visible)
+                {
+                    Debug.WriteLine("[MainWindow] Forcing window visibility");
+                    SwitchToNormalMode();
+                    this.Show();
+                    this.WindowState = WindowState.Normal;
+                    this.Activate();
+                }
+
+                // 3. Show lock overlay
+                TakeoverProgressOverlay.Visibility = Visibility.Collapsed;
+                LockOverlay.Visibility = Visibility.Visible;
+                Debug.WriteLine("[MainWindow] LockOverlay displayed");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[MainWindow] Critical error in OnDatabaseOwnershipLost: {ex.Message}");
+            }
+        }));
+    }
+
+    private async void BtnTakeOwnershipBack_Click(object sender, RoutedEventArgs e)
+    {
+        await PerformSafeTakeoverAsync();
+    }
+
+    private async Task PerformSafeTakeoverAsync()
+    {
+        try
+        {
+            // 1. Start Request
+            DatabaseManager.Instance.RequestTakeover();
             
-            Application.Current.Shutdown();
-        });
+            // 2. Show UI
+            LockOverlay.Visibility = Visibility.Collapsed;
+            TakeoverProgressOverlay.Visibility = Visibility.Visible;
+            TakeoverProgressBar.Value = 20;
+
+            // 3. Wait/Poll (max 20 seconds)
+            for (int i = 20; i >= 0; i--)
+            {
+                TakeoverStatusText.Text = $"기존 컴퓨터의 응답을 기다리는 중... ({i}/20초)";
+                TakeoverProgressBar.Value = i;
+
+                if (DatabaseManager.Instance.CheckTakeoverStatus() == DatabaseManager.TakeoverStatus.Released)
+                {
+                    break; // Success early!
+                }
+                
+                await Task.Delay(1000);
+            }
+
+            // 4. Final Takeover
+            if (DatabaseManager.Instance.TakeOwnership())
+            {
+                // CRITICAL: Explicitly clear any stale lock state before reloading
+                DatabaseManager.Instance.ClearLockState();
+                DatabaseManager.Instance.Reload();
+                TakeoverProgressOverlay.Visibility = Visibility.Collapsed;
+                LockOverlay.Visibility = Visibility.Collapsed;
+                Debug.WriteLine("[MainWindow] Takeover SUCCESS - All overlays hidden");
+                CustomMessageBox.Show("보유한 모든 권한을 이 컴퓨터로 안전하게 가져왔습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information, width: 500);
+            }
+            else
+            {
+                TakeoverProgressOverlay.Visibility = Visibility.Collapsed;
+                CustomMessageBox.Show("점유권 획득에 실패했습니다.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                LockOverlay.Visibility = Visibility.Visible;
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Takeover Error: {ex.Message}");
+            TakeoverProgressOverlay.Visibility = Visibility.Collapsed;
+            LockOverlay.Visibility = Visibility.Visible;
+        }
+    }
+
+    private void BtnLockSettings_Click(object sender, RoutedEventArgs e)
+    {
+        OpenSettingsPage("Note");
     }
 
     private void OnSettingsChanged(object? sender, EventArgs e)
