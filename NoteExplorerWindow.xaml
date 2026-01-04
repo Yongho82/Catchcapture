@@ -635,7 +635,10 @@
                                 
                                 <Separator Background="{DynamicResource ThemeBorder}" Margin="10,15"/>
                                 
-                                <TextBlock x:Name="TxtTagsTitle" Text="태그" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="11" FontWeight="Bold" Margin="15,0,0,10"/>
+                                <Grid Margin="15,0,10,10">
+                                    <TextBlock x:Name="TxtTagsTitle" Text="태그" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="11" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                    <Button x:Name="BtnClearTags" Click="BtnClearTags_Click" Content="태그 비우기" Style="{StaticResource TextButtonStyle}" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#E74C3C" ToolTip="모든 태그 삭제"/>
+                                </Grid>
                                 <ItemsControl x:Name="ItemsTags" Margin="10,0">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
@@ -644,12 +647,61 @@
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Button Click="BtnTag_Click" Tag="{Binding}" Margin="0,0,6,6" Style="{StaticResource TagButtonStyle}">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="#" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" Margin="0,0,4,0"/>
-                                                    <TextBlock Text="{Binding}" Foreground="{DynamicResource ThemeForeground}"/>
-                                                </StackPanel>
-                                            </Button>
+                                            <Border x:Name="TagBorder" Margin="0,0,6,6" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorder}">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    
+                                                    <Button Click="BtnTag_Click" Tag="{Binding}" Background="Transparent" BorderThickness="0" Padding="10,5" Cursor="Hand" VerticalAlignment="Stretch">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="#" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" Margin="0,0,2,0"/>
+                                                            <TextBlock Text="{Binding}" Foreground="{DynamicResource ThemeForeground}"/>
+                                                        </StackPanel>
+                                                        <Button.Template>
+                                                             <ControlTemplate TargetType="Button">
+                                                                 <ContentPresenter Margin="{TemplateBinding Padding}"/>
+                                                             </ControlTemplate>
+                                                        </Button.Template>
+                                                    </Button>
+                                                    
+                                                    <Button Grid.Column="1" Click="BtnDeleteSingleTag_Click" Tag="{Binding}" 
+                                                            Width="20" Height="20" Margin="0,0,5,0" Cursor="Hand"
+                                                            Background="Transparent" BorderThickness="0">
+                                                        <TextBlock Text="✕" FontSize="10" Foreground="#E74C3C" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        <Button.Style>
+                                                            <Style TargetType="Button">
+                                                                <Setter Property="Opacity" Value="0"/>
+                                                                <Setter Property="IsHitTestVisible" Value="False"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Border}}" Value="True">
+                                                                        <Setter Property="Opacity" Value="1"/>
+                                                                        <Setter Property="IsHitTestVisible" Value="True"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Button.Style>
+                                                        <Button.Template>
+                                                             <ControlTemplate TargetType="Button">
+                                                                 <Border Background="Transparent">
+                                                                      <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                 </Border>
+                                                             </ControlTemplate>
+                                                        </Button.Template>
+                                                    </Button>
+                                                </Grid>
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Background" Value="{DynamicResource ThemeSidebarButtonBackground}"/>
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}"/>
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                            </Border>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>

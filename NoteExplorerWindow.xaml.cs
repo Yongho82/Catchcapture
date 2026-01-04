@@ -1519,6 +1519,136 @@ namespace CatchCapture
             }
         }
 
+        private void BtnClearTags_Click(object sender, RoutedEventArgs e)
+        {
+            if (CatchCapture.CustomMessageBox.Show("정말로 모든 태그를 삭제하시겠습니까?\n모든 노트에서 태그 정보가 제거됩니다.", "태그 비우기", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    using (var connection = new SqliteConnection($"Data Source={DatabaseManager.Instance.DbFilePath}"))
+                    {
+                        connection.Open();
+                        using (var transaction = connection.BeginTransaction())
+                        {
+                            try
+                            {
+                                // 1. 모든 노트-태그 연결 삭제
+                                using (var cmd = new SqliteCommand("DELETE FROM NoteTags", connection, transaction))
+                                {
+                                    cmd.ExecuteNonQuery();
+                                }
+
+                                // 2. 모든 태그 정의 삭제
+                                using (var cmd = new SqliteCommand("DELETE FROM Tags", connection, transaction))
+                                {
+                                    cmd.ExecuteNonQuery();
+                                }
+
+                                transaction.Commit();
+                            }
+                            catch
+                            {
+                                transaction.Rollback();
+                                throw;
+                            }
+                        }
+                    }
+
+                    // UI 갱신
+                    LoadTags();
+                    // 만약 현재 태그 필터링 중이었다면 해제
+                    string? nextTag = _currentTag;
+                    if (!string.IsNullOrEmpty(nextTag)) nextTag = null; // 태그 비웠으니 태그 필터 해제
+                    
+                    LoadNotes(_currentFilter, nextTag, _currentSearch, 1);
+                    CatchCapture.CustomMessageBox.Show("모든 태그가 삭제되었습니다.", "알림");
+                }
+                catch (Exception ex)
+                {
+                    CatchCapture.CustomMessageBox.Show($"태그 삭제 실패: {ex.Message}", "오류");
+                }
+            }
+        }
+
+        private void BtnDeleteSingleTag_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is string tagName)
+            {
+                if (CatchCapture.CustomMessageBox.Show($"태그 '#{tagName}'를 삭제하시겠습니까?\n해당 태그가 적용된 노트에서 이 태그만 제거됩니다.", "태그 삭제", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        using (var connection = new SqliteConnection($"Data Source={DatabaseManager.Instance.DbFilePath}"))
+                        {
+                            connection.Open();
+                            using (var transaction = connection.BeginTransaction())
+                            {
+                                try
+                                {
+                                    // 1. Get Tag Id
+                                    long tagId = -1;
+                                    using (var cmd = new SqliteCommand("SELECT Id FROM Tags WHERE Name = $name", connection, transaction))
+                                    {
+                                        cmd.Parameters.AddWithValue("$name", tagName);
+                                        var result = cmd.ExecuteScalar();
+                                        if (result != null && result != DBNull.Value)
+                                        {
+                                            tagId = Convert.ToInt64(result);
+                                        }
+                                    }
+
+                                    if (tagId != -1)
+                                    {
+                                        // 2. Delete NoteTags relations
+                                        using (var cmd = new SqliteCommand("DELETE FROM NoteTags WHERE TagId = $tagId", connection, transaction))
+                                        {
+                                            cmd.Parameters.AddWithValue("$tagId", tagId);
+                                            cmd.ExecuteNonQuery();
+                                        }
+
+                                        // 3. Delete Tag definition
+                                        using (var cmd = new SqliteCommand("DELETE FROM Tags WHERE Id = $tagId", connection, transaction))
+                                        {
+                                            cmd.Parameters.AddWithValue("$tagId", tagId);
+                                            cmd.ExecuteNonQuery();
+                                        }
+
+                                        transaction.Commit();
+                                    }
+                                }
+                                catch
+                                {
+                                    transaction.Rollback();
+                                    throw;
+                                }
+                            }
+                        }
+
+                        // UI refresh
+                        LoadTags();
+                        
+                        // If current filter was this tag, reset it
+                        if (_currentTag == tagName)
+                        {
+                            _currentTag = null;
+                            LoadNotes(_currentFilter, null, _currentSearch, 1);
+                        }
+                        else
+                        {
+                            // Just reload current list to reflect tag removal
+                             LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage);
+                        }
+                        
+                        CatchCapture.CustomMessageBox.Show($"태그 '#{tagName}'가 삭제되었습니다.", "알림");
+                    }
+                    catch (Exception ex)
+                    {
+                        CatchCapture.CustomMessageBox.Show($"태그 삭제 실패: {ex.Message}", "오류");
+                    }
+                }
+            }
+        }
+
         private void BtnToggleCategories_Click(object sender, RoutedEventArgs e)
         {
             if (BrdCategories.Visibility == Visibility.Visible)
