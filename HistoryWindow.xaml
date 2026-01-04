@@ -500,7 +500,7 @@
                     </Border>
 
                     <!-- Row 2: History Grid List -->
-                    <ListView Grid.Row="1" x:Name="LstHistory" SelectionMode="Single" SelectionChanged="LstHistory_SelectionChanged" KeyDown="LstHistory_KeyDown"
+                    <ListView Grid.Row="1" x:Name="LstHistory" SelectionMode="Single" SelectionChanged="LstHistory_SelectionChanged" KeyDown="LstHistory_KeyDown" MouseDoubleClick="LstHistory_MouseDoubleClick"
                               BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">

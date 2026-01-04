@@ -588,6 +588,39 @@ namespace CatchCapture
             }
         }
 
+        private void LstHistory_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (LstHistory.SelectedItem is HistoryItem item)
+            {
+                if (System.IO.File.Exists(item.FilePath))
+                {
+                    // 이미지 확장자 체크
+                    string ext = System.IO.Path.GetExtension(item.FilePath).ToLower();
+                    string[] imgExts = { ".png", ".jpg", ".jpeg", ".bmp", ".gif", ".webp" };
+                    
+                    if (imgExts.Contains(ext))
+                    {
+                        // 이미지인 경우 단순 프리뷰 창 열기
+                        var previewWin = new HistoryItemPreviewWindow(item);
+                        previewWin.Owner = this;
+                        previewWin.ShowDialog();
+                    }
+                    else
+                    {
+                        // 동영상/오디오인 경우 기본 뷰어로 열기
+                        try
+                        {
+                            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(item.FilePath) { UseShellExecute = true });
+                        }
+                        catch (Exception ex)
+                        {
+                            CustomMessageBox.Show($"파일을 열 수 없습니다: {ex.Message}", "오류");
+                        }
+                    }
+                }
+            }
+        }
+
         private void LstHistory_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Delete)
