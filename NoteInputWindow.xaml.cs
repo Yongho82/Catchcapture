@@ -709,9 +709,10 @@ namespace CatchCapture
 
                 // [Fix] Save all in-memory images to files and replace Source with file Uri
                 // This ensures XAML contains valid file paths instead of unloadable RenderTargetBitmap
+                // [Fix v2] Use NoteStoragePath's img folder for cloud sync compatibility
                 try
                 {
-                    string imgDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images");
+                    string imgDir = DatabaseManager.Instance.GetImageFolderPath();
                     Editor.PrepareImagesForSave(imgDir);
                 }
                 catch (Exception ex)

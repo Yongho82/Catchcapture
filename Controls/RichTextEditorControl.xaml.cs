@@ -1675,7 +1675,23 @@ namespace CatchCapture.Controls
 
         public void PrepareImagesForSave(string imageSaveDir)
         {
-            if (!Directory.Exists(imageSaveDir)) Directory.CreateDirectory(imageSaveDir);
+            // Load settings for format and folder grouping
+            var settings = CatchCapture.Models.Settings.Load();
+            string fileFormat = (settings.NoteSaveFormat ?? "WEBP").ToUpperInvariant();
+            string folderGroupingMode = settings.NoteFolderGroupingMode ?? "Monthly";
+            int quality = settings.NoteImageQuality;
+
+            // Apply folder grouping
+            string finalDir = imageSaveDir;
+            if (folderGroupingMode == "Monthly")
+                finalDir = System.IO.Path.Combine(imageSaveDir, DateTime.Now.ToString("yyyy-MM"));
+            else if (folderGroupingMode == "Quarterly")
+                finalDir = System.IO.Path.Combine(imageSaveDir, $"{DateTime.Now.Year}-Q{(DateTime.Now.Month - 1) / 3 + 1}");
+            else if (folderGroupingMode == "Yearly")
+                finalDir = System.IO.Path.Combine(imageSaveDir, DateTime.Now.Year.ToString());
+            // "None" uses imageSaveDir as-is
+
+            if (!Directory.Exists(finalDir)) Directory.CreateDirectory(finalDir);
 
             var imageControls = GetAllImageControls();
             foreach (var img in imageControls)
@@ -1698,14 +1714,44 @@ namespace CatchCapture.Controls
                      {
                          try 
                          {
-                             // Generate filename
-                             string fileName = $"img_{DateTime.Now:yyyyMMddHHmmss}_{Guid.NewGuid().ToString().Substring(0, 8)}.png";
-                             string fullPath = System.IO.Path.Combine(imageSaveDir, fileName);
+                             // Determine file extension and encoder based on settings
+                             string ext;
+                             BitmapEncoder encoder;
+                             switch (fileFormat)
+                             {
+                                 case "WEBP":
+                                     ext = ".webp";
+                                     encoder = new WmpBitmapEncoder(); // WMP supports WebP-like compression
+                                     break;
+                                 case "JPG":
+                                 case "JPEG":
+                                     ext = ".jpg";
+                                     var jpgEncoder = new JpegBitmapEncoder();
+                                     jpgEncoder.QualityLevel = quality;
+                                     encoder = jpgEncoder;
+                                     break;
+                                 case "GIF":
+                                     ext = ".gif";
+                                     encoder = new GifBitmapEncoder();
+                                     break;
+                                 case "BMP":
+                                     ext = ".bmp";
+                                     encoder = new BmpBitmapEncoder();
+                                     break;
+                                 case "PNG":
+                                 default:
+                                     ext = ".png";
+                                     encoder = new PngBitmapEncoder();
+                                     break;
+                             }
+
+                             // Generate filename with correct extension
+                             string fileName = $"img_{DateTime.Now:yyyyMMddHHmmss}_{Guid.NewGuid().ToString().Substring(0, 8)}{ext}";
+                             string fullPath = System.IO.Path.Combine(finalDir, fileName);
                              
                              // Save to file
                              using (var fileStream = new FileStream(fullPath, FileMode.Create))
                              {
-                                 BitmapEncoder encoder = new PngBitmapEncoder();
                                  encoder.Frames.Add(BitmapFrame.Create(bs));
                                  encoder.Save(fileStream);
                              }
