@@ -707,9 +707,11 @@ namespace CatchCapture
                 // [Fix] Hide all image sliders before serializing XAML
                 Editor.HideAllSliders();
 
-                // [Fix] Save all in-memory images to files and replace Source with file Uri
-                // This ensures XAML contains valid file paths instead of unloadable RenderTargetBitmap
-                // [Fix v2] Use NoteStoragePath's img folder for cloud sync compatibility
+                // [DISABLED] PrepareImagesForSave was causing duplicate image files
+                // Images are now solely managed by SaveNoteAsync in DatabaseManager
+                // which handles proper naming template and folder grouping.
+                // The XAML will contain in-memory image references that get resolved when reloading.
+                /*
                 try
                 {
                     string imgDir = DatabaseManager.Instance.GetImageFolderPath();
@@ -719,6 +721,7 @@ namespace CatchCapture
                 {
                      Console.WriteLine($"PrepareImagesForSave Error: {ex.Message}");
                 }
+                */
 
                 var request = new SaveNoteRequest
                 {
