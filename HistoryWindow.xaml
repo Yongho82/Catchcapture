@@ -146,7 +146,7 @@
             </Grid.RowDefinitions>
 
             <!-- Top Action Bar -->
-            <Border Grid.Row="0" Background="{DynamicResource ThemeTitleBackground}" CornerRadius="12,12,0,0" Padding="25,12,20,12">
+            <Border Grid.Row="0" Background="{DynamicResource ThemeTitleBackground}" CornerRadius="12,12,0,0" Padding="25,12,20,12" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ThemeBorder}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/> <!-- Title/Icon -->
@@ -349,7 +349,7 @@
                     </Grid.RowDefinitions>
 
                     <!-- Row 1: Batch Actions -->
-                    <Border Grid.Row="0" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ThemeBorder}" Padding="15,10">
+                    <Border Grid.Row="0" BorderThickness="0,1,0,1" BorderBrush="{DynamicResource ThemeBorder}" Padding="15,10">
                         <StackPanel Orientation="Horizontal">
                             <Button x:Name="BtnSelectAll" Click="BtnSelectAll_Click" Content="전체 선택" Padding="12,5" HorizontalContentAlignment="Center" VerticalAlignment="Center" Cursor="Hand" Background="Transparent" Foreground="{DynamicResource ThemeForeground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1">
                                 <Button.Resources>

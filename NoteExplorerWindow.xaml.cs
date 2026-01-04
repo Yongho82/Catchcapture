@@ -441,7 +441,7 @@ namespace CatchCapture
                 _currentPage = page;
 
                 // Update Status Text
-                if (!string.IsNullOrEmpty(search)) TxtStatusInfo.Text = string.Format(CatchCapture.Resources.LocalizationManager.GetString("SearchResults"), search);
+                if (!string.IsNullOrEmpty(search)) TxtStatusInfo.Text = string.Format(CatchCapture.Resources.LocalizationManager.GetString("SearchResults"), search, "...");
                 else if (!string.IsNullOrEmpty(tag)) TxtStatusInfo.Text = string.Format(CatchCapture.Resources.LocalizationManager.GetString("TagFilter"), tag);
                 else if (filter == "Today") TxtStatusInfo.Text = CatchCapture.Resources.LocalizationManager.GetString("TodayRecords");
                 else if (filter == "Recent") TxtStatusInfo.Text = CatchCapture.Resources.LocalizationManager.GetString("RecentWeekRecords");
@@ -651,6 +651,12 @@ namespace CatchCapture
                 }
 
                 UpdatePaginationButtons(result.total);
+                
+                // Update Status Text with real count if it's a search
+                if (!string.IsNullOrEmpty(_currentSearch))
+                {
+                    TxtStatusInfo.Text = string.Format(CatchCapture.Resources.LocalizationManager.GetString("SearchResults"), _currentSearch, result.total);
+                }
                 
                 // Auto-select first item if exists
                 if (result.notesList.Count > 0)

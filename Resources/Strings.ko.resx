@@ -534,7 +534,7 @@
   <data name="NoteEditSuccess" xml:space="preserve"><value>노트가 수정되었습니다.</value></data>
   <data name="NoteSaveSuccess" xml:space="preserve"><value>노트가 저장되었습니다.</value></data>
   <data name="ErrSaveNote" xml:space="preserve"><value>노트 저장 중 오류 발생:</value></data>
-  <data name="SearchResults" xml:space="preserve"><value>검색 결과: '{0}'</value></data>
+  <data name="SearchResults" xml:space="preserve"><value>검색 결과 {0} ({1})</value></data>
   <data name="TagFilter" xml:space="preserve"><value>태그 필터: #{0}</value></data>
   <data name="TodayRecords" xml:space="preserve"><value>오늘의 기록</value></data>
   <data name="RecentWeekRecords" xml:space="preserve"><value>최근 1주일간의 기록</value></data>

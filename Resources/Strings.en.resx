@@ -551,7 +551,7 @@
   <data name="NoteEditSuccess" xml:space="preserve"><value>Note updated successfully.</value></data>
   <data name="NoteSaveSuccess" xml:space="preserve"><value>Note saved successfully.</value></data>
   <data name="ErrSaveNote" xml:space="preserve"><value>An error occurred while saving the note:</value></data>
-  <data name="SearchResults" xml:space="preserve"><value>Search Results: '{0}'</value></data>
+  <data name="SearchResults" xml:space="preserve"><value>Search Results {0} ({1})</value></data>
   <data name="TagFilter" xml:space="preserve"><value>Tag Filter: #{0}</value></data>
   <data name="TodayRecords" xml:space="preserve"><value>Today's Records</value></data>
   <data name="RecentWeekRecords" xml:space="preserve"><value>Records for the Last Week</value></data>
