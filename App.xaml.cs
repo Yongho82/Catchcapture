@@ -166,8 +166,29 @@ public partial class App : Application
                 // Derive colors based on brightness
                 double brightness = (0.299 * bgColor.R + 0.587 * bgColor.G + 0.114 * bgColor.B) / 255;
                 
-                // Calculate dynamic colors
-                Color sidebarBg, sidebarBorder, sidebarHover, sidebarPressed, windowBorder;
+                // Helper to set resource only if changed and freeze it
+                void SetResource(string key, object value)
+                {
+                    var existing = Application.Current.Resources[key];
+                    if (existing != null)
+                    {
+                        if (existing is SolidColorBrush exBrush && value is SolidColorBrush newVal)
+                        {
+                            if (exBrush.Color == newVal.Color && exBrush.Opacity == newVal.Opacity) return;
+                        }
+                        else if (existing.Equals(value))
+                        {
+                            return;
+                        }
+                    }
+
+                    if (value is Freezable freezable && !freezable.IsFrozen && freezable.CanFreeze)
+                    {
+                        freezable.Freeze();
+                    }
+                    Application.Current.Resources[key] = value;
+                }
+                Color windowBorder, sidebarBg, sidebarBorder, sidebarHover, sidebarPressed;
 
                 if (brightness < 0.5) // Dark Theme
                 {
@@ -177,7 +198,7 @@ public partial class App : Application
                     sidebarHover = AdjustColor(bgColor, 25);
                     sidebarPressed = AdjustColor(bgColor, 35);
                     
-                    Application.Current.Resources["ThemePanelBackground"] = new SolidColorBrush(sidebarBg);
+                    SetResource("ThemePanelBackground", new SolidColorBrush(sidebarBg));
                 }
                 else // Light Theme
                 {
@@ -204,42 +225,39 @@ public partial class App : Application
                     }
                     else if (settings.ThemeMode == "Blue")
                     {
-                        // bgColor remains blue (E3F2FD) but we want white content area
                         bgColor = Color.FromRgb(255, 255, 255); 
                         sidebarBg = Color.FromRgb(225, 245, 254); // Pastel Blue Sidebar (#E1F5FE)
                         windowBorder = Color.FromRgb(129, 212, 250); // Pastel Border
-                        sidebarBorder = Color.FromRgb(129, 212, 250); // 라인 복원 (버튼 외곽선도 파스텔톤으로 예쁘게)
+                        sidebarBorder = Color.FromRgb(129, 212, 250);
                     }
 
-                    // For these modes, clarify panel background
                     if (settings.ThemeMode == "General" || settings.ThemeMode == "Light")
                     {
-                        Application.Current.Resources["ThemePanelBackground"] = new SolidColorBrush(Color.FromRgb(255, 255, 255));
+                        SetResource("ThemePanelBackground", new SolidColorBrush(Color.FromRgb(255, 255, 255)));
                     }
                     else if (settings.ThemeMode == "Blue")
                     {
-                        // 블루 모드는 사이드바에 파스텔톤 적용
-                        Application.Current.Resources["ThemePanelBackground"] = new SolidColorBrush(sidebarBg);
+                        SetResource("ThemePanelBackground", new SolidColorBrush(sidebarBg));
                     }
                     else
                     {
-                        Application.Current.Resources["ThemePanelBackground"] = new SolidColorBrush(bgColor);
+                        SetResource("ThemePanelBackground", new SolidColorBrush(bgColor));
                     }
                 }
 
                 // Apply resources
-                Application.Current.Resources["ThemeBackground"] = new SolidColorBrush(bgColor);
+                SetResource("ThemeBackground", new SolidColorBrush(bgColor));
                 Application.Current.Resources["ThemeColorBackground"] = bgColor;
-                Application.Current.Resources["ThemeForeground"] = new SolidColorBrush(fgColor);
+                SetResource("ThemeForeground", new SolidColorBrush(fgColor));
                 Application.Current.Resources["ThemeColorForeground"] = fgColor;
 
-                Application.Current.Resources["ThemeWindowBorder"] = new SolidColorBrush(windowBorder);
-                Application.Current.Resources["ThemeBorder"] = new SolidColorBrush(windowBorder); 
-                Application.Current.Resources["ThemeSidebarButtonBackground"] = new SolidColorBrush(sidebarBg);
+                SetResource("ThemeWindowBorder", new SolidColorBrush(windowBorder));
+                SetResource("ThemeBorder", new SolidColorBrush(windowBorder)); 
+                SetResource("ThemeSidebarButtonBackground", new SolidColorBrush(sidebarBg));
                 Application.Current.Resources["ThemeColorSidebarButtonBackground"] = sidebarBg;
-                Application.Current.Resources["ThemeSidebarButtonBorder"] = new SolidColorBrush(sidebarBorder);
-                Application.Current.Resources["ThemeSidebarButtonHoverBackground"] = new SolidColorBrush(sidebarHover);
-                Application.Current.Resources["ThemeSidebarButtonPressedBackground"] = new SolidColorBrush(sidebarPressed);
+                SetResource("ThemeSidebarButtonBorder", new SolidColorBrush(sidebarBorder));
+                SetResource("ThemeSidebarButtonHoverBackground", new SolidColorBrush(sidebarHover));
+                SetResource("ThemeSidebarButtonPressedBackground", new SolidColorBrush(sidebarPressed));
 
                 // Title Bar Colors (Specific colors for General mode as per user feedback)
                 if (settings.ThemeMode == "General")
@@ -252,8 +270,8 @@ public partial class App : Application
                     mainGlossyBrush.GradientStops.Add(new GradientStop(Color.FromRgb(78, 106, 223), 0.4));  // 메인 블루
                     mainGlossyBrush.GradientStops.Add(new GradientStop(Color.FromRgb(50, 75, 180), 1.0));   // 하단 쉐도우
                     
-                    Application.Current.Resources["ThemeTitleBackground"] = mainGlossyBrush;
-                    Application.Current.Resources["ThemeTitleForeground"] = Brushes.White;
+                    SetResource("ThemeTitleBackground", mainGlossyBrush);
+                    SetResource("ThemeTitleForeground", Brushes.White);
 
                     // Light Glossy Gradient for Simple Title Bar
                     var simpleGlossyBrush = new LinearGradientBrush();
@@ -263,11 +281,11 @@ public partial class App : Application
                     simpleGlossyBrush.GradientStops.Add(new GradientStop(Color.FromRgb(206, 230, 255), 0.5));
                     simpleGlossyBrush.GradientStops.Add(new GradientStop(Color.FromRgb(185, 210, 245), 1.0));
                     
-                    Application.Current.Resources["ThemeSimpleTitleBackground"] = simpleGlossyBrush;
-                    Application.Current.Resources["ThemeSimpleTitleForeground"] = new SolidColorBrush(Color.FromRgb(32, 61, 133)); 
+                    SetResource("ThemeSimpleTitleBackground", simpleGlossyBrush);
+                    SetResource("ThemeSimpleTitleForeground", new SolidColorBrush(Color.FromRgb(32, 61, 133))); 
                     
                     // Match window border to the bottom color of title for seamless look
-                    Application.Current.Resources["ThemeWindowBorder"] = new SolidColorBrush(Color.FromRgb(70, 95, 200));
+                    SetResource("ThemeWindowBorder", new SolidColorBrush(Color.FromRgb(70, 95, 200)));
                 }
                 else if (settings.ThemeMode == "Dark")
                 {
@@ -279,14 +297,14 @@ public partial class App : Application
                     glossyBrush.GradientStops.Add(new GradientStop(Color.FromRgb(30, 30, 30), 0.4)); // 중간
                     glossyBrush.GradientStops.Add(new GradientStop(Color.FromRgb(10, 10, 10), 1.0)); // 하단: 딥 블랙
                     
-                    Application.Current.Resources["ThemeTitleBackground"] = glossyBrush;
-                    Application.Current.Resources["ThemeTitleForeground"] = new SolidColorBrush(Color.FromRgb(204, 204, 204)); // #CCCCCC
+                    SetResource("ThemeTitleBackground", glossyBrush);
+                    SetResource("ThemeTitleForeground", new SolidColorBrush(Color.FromRgb(204, 204, 204))); // #CCCCCC
                     
-                    Application.Current.Resources["ThemeSimpleTitleBackground"] = glossyBrush;
-                    Application.Current.Resources["ThemeSimpleTitleForeground"] = new SolidColorBrush(Color.FromRgb(204, 204, 204)); // #CCCCCC
+                    SetResource("ThemeSimpleTitleBackground", glossyBrush);
+                    SetResource("ThemeSimpleTitleForeground", new SolidColorBrush(Color.FromRgb(204, 204, 204))); // #CCCCCC
                     
                     // Sharp glossy outline (선명한 하이그로시 윤곽선)
-                    Application.Current.Resources["ThemeWindowBorder"] = new SolidColorBrush(Color.FromRgb(45, 45, 45));
+                    SetResource("ThemeWindowBorder", new SolidColorBrush(Color.FromRgb(45, 45, 45)));
                 }
                 else if (settings.ThemeMode == "Blue")
                 {
@@ -297,21 +315,18 @@ public partial class App : Application
                     blueGradient.GradientStops.Add(new GradientStop(Color.FromRgb(179, 229, 252), 0.0)); // Pastel Blue Light (B3E5FC)
                     blueGradient.GradientStops.Add(new GradientStop(Color.FromRgb(129, 212, 250), 1.0)); // Pastel Blue (81D4FA)
 
-                    Application.Current.Resources["ThemeTitleBackground"] = blueGradient;
-                    Application.Current.Resources["ThemeTitleForeground"] = new SolidColorBrush(Color.FromRgb(1, 87, 155)); // Deep Blue Text (01579B)
+                    SetResource("ThemeTitleBackground", blueGradient);
+                    SetResource("ThemeTitleForeground", new SolidColorBrush(Color.FromRgb(1, 87, 155))); // Deep Blue Text (01579B)
                     
-                    Application.Current.Resources["ThemeSimpleTitleBackground"] = blueGradient;
-                    Application.Current.Resources["ThemeSimpleTitleForeground"] = new SolidColorBrush(Color.FromRgb(1, 87, 155));
+                    SetResource("ThemeSimpleTitleBackground", blueGradient);
+                    SetResource("ThemeSimpleTitleForeground", new SolidColorBrush(Color.FromRgb(1, 87, 155)));
                 }
                 else
                 {
-                    // For Light modes, use theme-based colors
-                    var bgBrush = new SolidColorBrush(bgColor);
-                    var fgBrush = new SolidColorBrush(fgColor);
-                    Application.Current.Resources["ThemeTitleBackground"] = bgBrush;
-                    Application.Current.Resources["ThemeTitleForeground"] = fgBrush;
-                    Application.Current.Resources["ThemeSimpleTitleBackground"] = bgBrush;
-                    Application.Current.Resources["ThemeSimpleTitleForeground"] = fgBrush;
+                    SetResource("ThemeTitleBackground", new SolidColorBrush(bgColor));
+                    SetResource("ThemeTitleForeground", new SolidColorBrush(fgColor));
+                    SetResource("ThemeSimpleTitleBackground", new SolidColorBrush(bgColor));
+                    SetResource("ThemeSimpleTitleForeground", new SolidColorBrush(fgColor));
                 }
             }
         }

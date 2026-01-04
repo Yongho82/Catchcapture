@@ -134,11 +134,13 @@ namespace CatchCapture
                     this.Height = settings.NoteExplorerHeight;
                 
                 // Restore window position
+                /* [Fix] Disabled to always center on primary screen
                 if (settings.NoteExplorerLeft > -9999 && settings.NoteExplorerTop > -9999)
                 {
                     this.Left = settings.NoteExplorerLeft;
                     this.Top = settings.NoteExplorerTop;
                 }
+                */
                 
                 // Restore splitter position (ColNoteList width)
                 if (settings.NoteExplorerSplitterPosition > 0)
@@ -160,8 +162,9 @@ namespace CatchCapture
                 {
                     settings.NoteExplorerWidth = this.ActualWidth;
                     settings.NoteExplorerHeight = this.ActualHeight;
-                    settings.NoteExplorerLeft = this.Left;
-                    settings.NoteExplorerTop = this.Top;
+                    // [Fix] Disabled to always center on primary screen
+                    // settings.NoteExplorerLeft = this.Left;
+                    // settings.NoteExplorerTop = this.Top;
                 }
                 
                 // Save splitter position (ColNoteList actual width)

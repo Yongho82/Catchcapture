@@ -21,25 +21,24 @@ namespace CatchCapture
         private string _currentPage = "Capture";
         private int[] _customColors = new int[16]; // 색상 대화상자의 사용자 지정 색상 저장
         private bool _isLoaded = false;
+        private bool _suppressThemeUpdate = false;
+        private System.Windows.Threading.DispatcherTimer? _applyThemeTimer;
+        private System.Collections.Generic.HashSet<string> _loadedPages = new System.Collections.Generic.HashSet<string>();
 
         public SettingsWindow()
         {
             try
             {
+                _suppressThemeUpdate = true;
                 InitializeComponent();
-                _settings = Settings.Load();
+                _settings = Settings.Load().Clone();
                 UpdateUIText(); // 다국어 텍스트 적용
                 // 언어 변경 이벤트 구독 (닫힐 때 해제)
                 CatchCapture.Models.LocalizationManager.LanguageChanged += OnLanguageChanged;
-                InitKeyComboBoxes(); // 콤보박스 초기화
-                InitLanguageComboBox(); // 언어 콤보 아이템 채우기
+                
+                // Lazy Load the first page
+                _loadedPages.Add("Capture");
                 LoadCapturePage();
-                LoadMenuEditPage();
-                LoadSystemPage();
-                LoadRecordingPage();
-                LoadNotePage();
-                LoadHotkeysPage();
-                LoadHistoryPage();
                 
                 // Store original theme for cancel revert
                 _originalThemeMode = _settings.ThemeMode ?? "General";
@@ -52,7 +51,8 @@ namespace CatchCapture
                 if (string.IsNullOrEmpty(_settings.CustomThemeTextColor))
                     _settings.CustomThemeTextColor = (_settings.ThemeMode == "Custom" ? _settings.ThemeTextColor : "#333333") ?? "#333333";
                 
-                LoadThemePage();
+                _suppressThemeUpdate = false;
+                
                 HighlightNav(NavCapture, "Capture");
                 _isLoaded = true;
             }
@@ -502,6 +502,10 @@ private void InitLanguageComboBox()
         private void HighlightNav(Button btn, string tag)
         {
             _currentPage = tag;
+
+            // Lazy load the incoming page
+            EnsurePageLoaded(tag);
+
             NavCapture.FontWeight = tag == "Capture" ? FontWeights.Bold : FontWeights.Normal;
             NavTheme.FontWeight = tag == "Theme" ? FontWeights.Bold : FontWeights.Normal;
             NavMenuEdit.FontWeight = tag == "MenuEdit" ? FontWeights.Bold : FontWeights.Normal;
@@ -519,6 +523,39 @@ private void InitLanguageComboBox()
             PageSystem.Visibility = tag == "System" ? Visibility.Visible : Visibility.Collapsed;
             PageHotkey.Visibility = tag == "Hotkey" ? Visibility.Visible : Visibility.Collapsed;
             PageHistory.Visibility = tag == "History" ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void EnsurePageLoaded(string tag)
+        {
+            if (_loadedPages.Contains(tag)) return;
+            _loadedPages.Add(tag);
+
+            bool prevSuppress = _suppressThemeUpdate;
+            _suppressThemeUpdate = true;
+            try
+            {
+                switch (tag)
+                {
+                    case "Capture": LoadCapturePage(); break;
+                    case "Theme": LoadThemePage(); break;
+                    case "MenuEdit": LoadMenuEditPage(); break;
+                    case "Recording": LoadRecordingPage(); break;
+                    case "Note": LoadNotePage(); break;
+                    case "System": 
+                        InitLanguageComboBox();
+                        LoadSystemPage(); 
+                        break;
+                    case "Hotkey": 
+                        InitKeyComboBoxes();
+                        LoadHotkeysPage(); 
+                        break;
+                    case "History": LoadHistoryPage(); break;
+                }
+            }
+            finally
+            {
+                _suppressThemeUpdate = prevSuppress;
+            }
         }
 
         private void LoadThemePage()
@@ -626,8 +663,21 @@ private void InitLanguageComboBox()
                 CustomColorPanel.Visibility = ThemeCustom.IsChecked == true ? Visibility.Visible : Visibility.Hidden;
             }
 
-            // Apply real-time preview to the whole app
-            App.ApplyTheme(_settings);
+            // Apply real-time preview to the whole app with debouncing
+            if (!_suppressThemeUpdate)
+            {
+                if (_applyThemeTimer == null)
+                {
+                    _applyThemeTimer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(30) };
+                    _applyThemeTimer.Tick += (s, ev) => 
+                    {
+                        _applyThemeTimer.Stop();
+                        App.ApplyTheme(_settings);
+                    };
+                }
+                _applyThemeTimer.Stop();
+                _applyThemeTimer.Start();
+            }
         }
 
         private void Theme_Checked(object sender, RoutedEventArgs e)
@@ -1699,108 +1749,116 @@ private void InitLanguageComboBox()
         private void HarvestSettings()
         {
             // Capture options
-            if (CboFormat.SelectedItem is ComboBoxItem item)
+            if (_loadedPages.Contains("Capture"))
             {
-                _settings.FileSaveFormat = item.Content?.ToString() ?? "PNG";
-            }
-            
-            if (CboQuality.SelectedItem is ComboBoxItem qualityItem)
-            {
-                if (int.TryParse(qualityItem.Tag?.ToString(), out int quality))
+                if (CboFormat.SelectedItem is ComboBoxItem item)
                 {
-                    _settings.ImageQuality = quality;
+                    _settings.FileSaveFormat = item.Content?.ToString() ?? "PNG";
+                }
+                
+                if (CboQuality.SelectedItem is ComboBoxItem qualityItem)
+                {
+                    if (int.TryParse(qualityItem.Tag?.ToString(), out int quality))
+                    {
+                        _settings.ImageQuality = quality;
+                    }
+                    else
+                    {
+                        _settings.ImageQuality = 100;
+                    }
                 }
                 else
                 {
                     _settings.ImageQuality = 100;
                 }
-            }
-            else
-            {
-                _settings.ImageQuality = 100;
-            }
 
-            var desiredFolder = (TxtFolder.Text ?? string.Empty).Trim();
-            if (string.IsNullOrWhiteSpace(desiredFolder))
-            {
-                desiredFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture");
-            }
-            _settings.DefaultSaveFolder = desiredFolder;
-            
-            // 파일명 & 폴더 분류 설정 저장
-            if (TxtFileNameTemplate != null) _settings.FileNameTemplate = TxtFileNameTemplate.Text;
-            
-            if (RbGroupNone != null && RbGroupNone.IsChecked == true) _settings.FolderGroupingMode = "None";
-            else if (RbGroupMonthly != null && RbGroupMonthly.IsChecked == true) _settings.FolderGroupingMode = "Monthly";
-            else if (RbGroupQuarterly != null && RbGroupQuarterly.IsChecked == true) _settings.FolderGroupingMode = "Quarterly";
-            else if (RbGroupYearly != null && RbGroupYearly.IsChecked == true) _settings.FolderGroupingMode = "Yearly";
-            _settings.AutoSaveCapture = ChkAutoSave.IsChecked == true;
-            _settings.AutoCopyToClipboard = ChkAutoCopy.IsChecked == true;
-            _settings.ShowPreviewAfterCapture = ChkShowPreview.IsChecked == true;
-            _settings.ShowMagnifier = ChkShowMagnifier.IsChecked == true;
-            
-            _settings.UsePrintScreenKey = ChkUsePrintScreen.IsChecked == true;
-            if (CboPrintScreenAction.SelectedItem is ComboBoxItem actionItem)
-            {
-                _settings.PrintScreenAction = actionItem.Tag?.ToString() ?? "영역 캡처";
-            }
+                var desiredFolder = (TxtFolder.Text ?? string.Empty).Trim();
+                if (string.IsNullOrWhiteSpace(desiredFolder))
+                {
+                    desiredFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture");
+                }
+                _settings.DefaultSaveFolder = desiredFolder;
+                
+                // 파일명 & 폴더 분류 설정 저장
+                if (TxtFileNameTemplate != null) _settings.FileNameTemplate = TxtFileNameTemplate.Text;
+                
+                if (RbGroupNone != null && RbGroupNone.IsChecked == true) _settings.FolderGroupingMode = "None";
+                else if (RbGroupMonthly != null && RbGroupMonthly.IsChecked == true) _settings.FolderGroupingMode = "Monthly";
+                else if (RbGroupQuarterly != null && RbGroupQuarterly.IsChecked == true) _settings.FolderGroupingMode = "Quarterly";
+                else if (RbGroupYearly != null && RbGroupYearly.IsChecked == true) _settings.FolderGroupingMode = "Yearly";
+                _settings.AutoSaveCapture = ChkAutoSave.IsChecked == true;
+                _settings.AutoCopyToClipboard = ChkAutoCopy.IsChecked == true;
+                _settings.ShowPreviewAfterCapture = ChkShowPreview.IsChecked == true;
+                _settings.ShowMagnifier = ChkShowMagnifier.IsChecked == true;
+                
+                _settings.UsePrintScreenKey = ChkUsePrintScreen.IsChecked == true;
+                if (CboPrintScreenAction.SelectedItem is ComboBoxItem actionItem)
+                {
+                    _settings.PrintScreenAction = actionItem.Tag?.ToString() ?? "영역 캡처";
+                }
 
-            if (_settings.AutoSaveCapture)
-            {
-                try { if (!System.IO.Directory.Exists(_settings.DefaultSaveFolder)) System.IO.Directory.CreateDirectory(_settings.DefaultSaveFolder); }
-                catch { }
+                if (_settings.AutoSaveCapture)
+                {
+                    try { if (!System.IO.Directory.Exists(_settings.DefaultSaveFolder)) System.IO.Directory.CreateDirectory(_settings.DefaultSaveFolder); }
+                    catch { }
+                }
             }
 
             // Hotkeys
-            ReadHotkey(_settings.Hotkeys.RegionCapture, HkRegionEnabled, HkRegionCtrl, HkRegionShift, HkRegionAlt, HkRegionWin, HkRegionKey);
-            ReadHotkey(_settings.Hotkeys.DelayCapture, HkDelayEnabled, HkDelayCtrl, HkDelayShift, HkDelayAlt, HkDelayWin, HkDelayKey);
-            ReadHotkey(_settings.Hotkeys.RealTimeCapture, HkRealTimeEnabled, HkRealTimeCtrl, HkRealTimeShift, HkRealTimeAlt, HkRealTimeWin, HkRealTimeKey); 
-            ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiShift, HkMultiAlt, HkMultiWin, HkMultiKey); 
-            ReadHotkey(_settings.Hotkeys.FullScreen, HkFullEnabled, HkFullCtrl, HkFullShift, HkFullAlt, HkFullWin, HkFullKey);
-            ReadHotkey(_settings.Hotkeys.DesignatedCapture, HkDesignatedEnabled, HkDesignatedCtrl, HkDesignatedShift, HkDesignatedAlt, HkDesignatedWin, HkDesignatedKey);
-            ReadHotkey(_settings.Hotkeys.WindowCapture, HkWindowCaptureEnabled, HkWindowCaptureCtrl, HkWindowCaptureShift, HkWindowCaptureAlt, HkWindowCaptureWin, HkWindowCaptureKey);
-            ReadHotkey(_settings.Hotkeys.ElementCapture, HkElementCaptureEnabled, HkElementCaptureCtrl, HkElementCaptureShift, HkElementCaptureAlt, HkElementCaptureWin, HkElementCaptureKey);
-            ReadHotkey(_settings.Hotkeys.ScrollCapture, HkScrollCaptureEnabled, HkScrollCaptureCtrl, HkScrollCaptureShift, HkScrollCaptureAlt, HkScrollCaptureWin, HkScrollCaptureKey);
-            ReadHotkey(_settings.Hotkeys.OcrCapture, HkOcrCaptureEnabled, HkOcrCaptureCtrl, HkOcrCaptureShift, HkOcrCaptureAlt, HkOcrCaptureWin, HkOcrCaptureKey);
-            ReadHotkey(_settings.Hotkeys.ScreenRecord, HkScreenRecordEnabled, HkScreenRecordCtrl, HkScreenRecordShift, HkScreenRecordAlt, HkScreenRecordWin, HkScreenRecordKey);
-            ReadHotkey(_settings.Hotkeys.SimpleMode, HkSimpleModeEnabled, HkSimpleModeCtrl, HkSimpleModeShift, HkSimpleModeAlt, HkSimpleModeWin, HkSimpleModeKey);
-            ReadHotkey(_settings.Hotkeys.TrayMode, HkTrayModeEnabled, HkTrayModeCtrl, HkTrayModeShift, HkTrayModeAlt, HkTrayModeWin, HkTrayModeKey);
-            ReadHotkey(_settings.Hotkeys.SaveAll, HkSaveAllEnabled, HkSaveAllCtrl, HkSaveAllShift, HkSaveAllAlt, HkSaveAllWin, HkSaveAllKey);
-            ReadHotkey(_settings.Hotkeys.DeleteAll, HkDeleteAllEnabled, HkDeleteAllCtrl, HkDeleteAllShift, HkDeleteAllAlt, HkDeleteAllWin, HkDeleteAllKey);
-            ReadHotkey(_settings.Hotkeys.OpenSettings, HkOpenSettingsEnabled, HkOpenSettingsCtrl, HkOpenSettingsShift, HkOpenSettingsAlt, HkOpenSettingsWin, HkOpenSettingsKey);
-            ReadHotkey(_settings.Hotkeys.OpenEditor, HkOpenEditorEnabled, HkOpenEditorCtrl, HkOpenEditorShift, HkOpenEditorAlt, HkOpenEditorWin, HkOpenEditorKey);
-            ReadHotkey(_settings.Hotkeys.OpenNote, HkOpenNoteEnabled, HkOpenNoteCtrl, HkOpenNoteShift, HkOpenNoteAlt, HkOpenNoteWin, HkOpenNoteKey);
-            ReadHotkey(_settings.Hotkeys.EdgeCapture, HkEdgeEnabled, HkEdgeCtrl, HkEdgeShift, HkEdgeAlt, HkEdgeWin, HkEdgeKey);
-            ReadHotkey(_settings.Hotkeys.RecordingStartStop, HkRecStartStopEnabled, HkRecStartStopCtrl, HkRecStartStopShift, HkRecStartStopAlt, HkRecStartStopWin, HkRecStartStopKey);
+            if (_loadedPages.Contains("Hotkey"))
+            {
+                ReadHotkey(_settings.Hotkeys.RegionCapture, HkRegionEnabled, HkRegionCtrl, HkRegionShift, HkRegionAlt, HkRegionWin, HkRegionKey);
+                ReadHotkey(_settings.Hotkeys.DelayCapture, HkDelayEnabled, HkDelayCtrl, HkDelayShift, HkDelayAlt, HkDelayWin, HkDelayKey);
+                ReadHotkey(_settings.Hotkeys.RealTimeCapture, HkRealTimeEnabled, HkRealTimeCtrl, HkRealTimeShift, HkRealTimeAlt, HkRealTimeWin, HkRealTimeKey); 
+                ReadHotkey(_settings.Hotkeys.MultiCapture, HkMultiEnabled, HkMultiCtrl, HkMultiShift, HkMultiAlt, HkMultiWin, HkMultiKey); 
+                ReadHotkey(_settings.Hotkeys.FullScreen, HkFullEnabled, HkFullCtrl, HkFullShift, HkFullAlt, HkFullWin, HkFullKey);
+                ReadHotkey(_settings.Hotkeys.DesignatedCapture, HkDesignatedEnabled, HkDesignatedCtrl, HkDesignatedShift, HkDesignatedAlt, HkDesignatedWin, HkDesignatedKey);
+                ReadHotkey(_settings.Hotkeys.WindowCapture, HkWindowCaptureEnabled, HkWindowCaptureCtrl, HkWindowCaptureShift, HkWindowCaptureAlt, HkWindowCaptureWin, HkWindowCaptureKey);
+                ReadHotkey(_settings.Hotkeys.ElementCapture, HkElementCaptureEnabled, HkElementCaptureCtrl, HkElementCaptureShift, HkElementCaptureAlt, HkElementCaptureWin, HkElementCaptureKey);
+                ReadHotkey(_settings.Hotkeys.ScrollCapture, HkScrollCaptureEnabled, HkScrollCaptureCtrl, HkScrollCaptureShift, HkScrollCaptureAlt, HkScrollCaptureWin, HkScrollCaptureKey);
+                ReadHotkey(_settings.Hotkeys.OcrCapture, HkOcrCaptureEnabled, HkOcrCaptureCtrl, HkOcrCaptureShift, HkOcrCaptureAlt, HkOcrCaptureWin, HkOcrCaptureKey);
+                ReadHotkey(_settings.Hotkeys.ScreenRecord, HkScreenRecordEnabled, HkScreenRecordCtrl, HkScreenRecordShift, HkScreenRecordAlt, HkScreenRecordWin, HkScreenRecordKey);
+                ReadHotkey(_settings.Hotkeys.SimpleMode, HkSimpleModeEnabled, HkSimpleModeCtrl, HkSimpleModeShift, HkSimpleModeAlt, HkSimpleModeWin, HkSimpleModeKey);
+                ReadHotkey(_settings.Hotkeys.TrayMode, HkTrayModeEnabled, HkTrayModeCtrl, HkTrayModeShift, HkTrayModeAlt, HkTrayModeWin, HkTrayModeKey);
+                ReadHotkey(_settings.Hotkeys.SaveAll, HkSaveAllEnabled, HkSaveAllCtrl, HkSaveAllShift, HkSaveAllAlt, HkSaveAllWin, HkSaveAllKey);
+                ReadHotkey(_settings.Hotkeys.DeleteAll, HkDeleteAllEnabled, HkDeleteAllCtrl, HkDeleteAllShift, HkDeleteAllAlt, HkDeleteAllWin, HkDeleteAllKey);
+                ReadHotkey(_settings.Hotkeys.OpenSettings, HkOpenSettingsEnabled, HkOpenSettingsCtrl, HkOpenSettingsShift, HkOpenSettingsAlt, HkOpenSettingsWin, HkOpenSettingsKey);
+                ReadHotkey(_settings.Hotkeys.OpenEditor, HkOpenEditorEnabled, HkOpenEditorCtrl, HkOpenEditorShift, HkOpenEditorAlt, HkOpenEditorWin, HkOpenEditorKey);
+                ReadHotkey(_settings.Hotkeys.OpenNote, HkOpenNoteEnabled, HkOpenNoteCtrl, HkOpenNoteShift, HkOpenNoteAlt, HkOpenNoteWin, HkOpenNoteKey);
+                ReadHotkey(_settings.Hotkeys.EdgeCapture, HkEdgeEnabled, HkEdgeCtrl, HkEdgeShift, HkEdgeAlt, HkEdgeWin, HkEdgeKey);
+                ReadHotkey(_settings.Hotkeys.RecordingStartStop, HkRecStartStopEnabled, HkRecStartStopCtrl, HkRecStartStopShift, HkRecStartStopAlt, HkRecStartStopWin, HkRecStartStopKey);
+            }
 
             // Note settings
-            _settings.NoteStoragePath = CatchCapture.Utilities.DatabaseManager.ResolveStoragePath(TxtNoteFolder.Text);
-
-             if (TxtNoteFileNameTemplate != null) _settings.NoteFileNameTemplate = TxtNoteFileNameTemplate.Text;
-             
-             if (RbNoteGroupNone != null && RbNoteGroupNone.IsChecked == true) _settings.NoteFolderGroupingMode = "None";
-             else if (RbNoteGroupMonthly != null && RbNoteGroupMonthly.IsChecked == true) _settings.NoteFolderGroupingMode = "Monthly";
-             else if (RbNoteGroupQuarterly != null && RbNoteGroupQuarterly.IsChecked == true) _settings.NoteFolderGroupingMode = "Quarterly";
-             else if (RbNoteGroupYearly != null && RbNoteGroupYearly.IsChecked == true) _settings.NoteFolderGroupingMode = "Yearly";
-
-            _settings.IsNoteLockEnabled = ChkEnableNotePassword.IsChecked == true;
-            // Note: Password/Hint are already in _settings via modal if it was used
-            
-            if (CboNoteFormat.SelectedItem is ComboBoxItem noteFmtItem)
+            if (_loadedPages.Contains("Note"))
             {
-                _settings.NoteSaveFormat = noteFmtItem.Content?.ToString() ?? "JPG";
-            }
-            
-            if (CboNoteQuality.SelectedItem is ComboBoxItem noteQualItem)
-            {
-                if (int.TryParse(noteQualItem.Tag?.ToString(), out int q))
-                    _settings.NoteImageQuality = q;
-            }
+                _settings.NoteStoragePath = CatchCapture.Utilities.DatabaseManager.ResolveStoragePath(TxtNoteFolder.Text);
 
-            if (CboTrashRetention != null && CboTrashRetention.SelectedItem is ComboBoxItem trashItem)
-            {
-                if (int.TryParse(trashItem.Tag?.ToString(), out int d))
-                    _settings.TrashRetentionDays = d;
+                 if (TxtNoteFileNameTemplate != null) _settings.NoteFileNameTemplate = TxtNoteFileNameTemplate.Text;
+                 
+                 if (RbNoteGroupNone != null && RbNoteGroupNone.IsChecked == true) _settings.NoteFolderGroupingMode = "None";
+                 else if (RbNoteGroupMonthly != null && RbNoteGroupMonthly.IsChecked == true) _settings.NoteFolderGroupingMode = "Monthly";
+                 else if (RbNoteGroupQuarterly != null && RbNoteGroupQuarterly.IsChecked == true) _settings.NoteFolderGroupingMode = "Quarterly";
+                 else if (RbNoteGroupYearly != null && RbNoteGroupYearly.IsChecked == true) _settings.NoteFolderGroupingMode = "Yearly";
+
+                _settings.IsNoteLockEnabled = ChkEnableNotePassword.IsChecked == true;
+                
+                if (CboNoteFormat.SelectedItem is ComboBoxItem noteFmtItem)
+                {
+                    _settings.NoteSaveFormat = noteFmtItem.Content?.ToString() ?? "JPG";
+                }
+                
+                if (CboNoteQuality.SelectedItem is ComboBoxItem noteQualItem)
+                {
+                    if (int.TryParse(noteQualItem.Tag?.ToString(), out int q))
+                        _settings.NoteImageQuality = q;
+                }
+
+                if (CboTrashRetention != null && CboTrashRetention.SelectedItem is ComboBoxItem trashItem)
+                {
+                    if (int.TryParse(trashItem.Tag?.ToString(), out int d))
+                        _settings.TrashRetentionDays = d;
+                }
             }
 
             EnsureDefaultKey(_settings.Hotkeys.RegionCapture, "A");
@@ -1824,78 +1882,91 @@ private void InitLanguageComboBox()
             EnsureDefaultKey(_settings.Hotkeys.EdgeCapture, "X");
             EnsureDefaultKey(_settings.Hotkeys.RecordingStartStop, "F3");
 
-            // Recording Page Harvest
-            if (CboRecFormat.SelectedItem is ComboBoxItem recFmtItem)
+            if (_loadedPages.Contains("Recording"))
             {
-                if (Enum.TryParse<RecordingFormat>(recFmtItem.Content.ToString(), out var format))
-                    _settings.Recording.Format = format;
+                if (CboRecFormat.SelectedItem is ComboBoxItem recFmtItem)
+                {
+                    if (Enum.TryParse<RecordingFormat>(recFmtItem.Content.ToString(), out var format))
+                        _settings.Recording.Format = format;
+                }
+
+                if (CboRecQuality.SelectedItem is ComboBoxItem recQualItem)
+                {
+                    if (Enum.TryParse<RecordingQuality>(recQualItem.Tag?.ToString(), out var quality))
+                        _settings.Recording.Quality = quality;
+                }
+
+                if (CboRecFps.SelectedItem is ComboBoxItem recFpsItem)
+                {
+                    if (int.TryParse(recFpsItem.Content.ToString(), out int fps))
+                        _settings.Recording.FrameRate = fps;
+                }
+                _settings.Recording.ShowMouseEffects = ChkRecMouse.IsChecked == true;
             }
 
-            if (CboRecQuality.SelectedItem is ComboBoxItem recQualItem)
+            // Theme Settings (Capture Line)
+            if (_loadedPages.Contains("Theme"))
             {
-                if (Enum.TryParse<RecordingQuality>(recQualItem.Tag?.ToString(), out var quality))
-                    _settings.Recording.Quality = quality;
+                if (CboLineStyle.SelectedItem is ComboBoxItem lineStyleItem)
+                {
+                    _settings.CaptureLineStyle = lineStyleItem.Tag?.ToString() ?? "Dash";
+                }
+                if (CboLineThickness.SelectedItem is ComboBoxItem lineThickItem)
+                {
+                    if (double.TryParse(lineThickItem.Tag?.ToString(), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double thick))
+                        _settings.CaptureLineThickness = thick;
+                }
             }
-
-            if (CboRecFps.SelectedItem is ComboBoxItem recFpsItem)
-            {
-                if (int.TryParse(recFpsItem.Content.ToString(), out int fps))
-                    _settings.Recording.FrameRate = fps;
-            }
-
-            // Capture Line Settings Harvest
-            if (CboLineStyle.SelectedItem is ComboBoxItem lineStyleItem)
-            {
-                _settings.CaptureLineStyle = lineStyleItem.Tag?.ToString() ?? "Dash";
-            }
-            if (CboLineThickness.SelectedItem is ComboBoxItem lineThickItem)
-            {
-                if (double.TryParse(lineThickItem.Tag?.ToString(), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double thick))
-                    _settings.CaptureLineThickness = thick;
-            }
-
-            _settings.Recording.ShowMouseEffects = ChkRecMouse.IsChecked == true;
 
             // System settings
-            _settings.StartWithWindows = StartWithWindowsCheckBox.IsChecked == true;
-            _settings.RunAsAdmin = RunAsAdminCheckBox.IsChecked == true;
-            if (StartupModeTrayRadio.IsChecked == true) { _settings.StartupMode = "Tray"; _settings.LastActiveMode = "Tray"; }
-            else if (StartupModeNormalRadio.IsChecked == true) { _settings.StartupMode = "Normal"; _settings.LastActiveMode = "Normal"; }
-            else if (StartupModeSimpleRadio.IsChecked == true) { _settings.StartupMode = "Simple"; _settings.LastActiveMode = "Simple"; }
-            
-            // Language
-            if (LanguageComboBox.SelectedItem is ComboBoxItem langItem)
+            if (_loadedPages.Contains("System"))
             {
-                var lang = langItem.Tag?.ToString() ?? "ko";
-                _settings.Language = lang;
-                CatchCapture.Models.LocalizationManager.SetLanguage(lang);
+                _settings.StartWithWindows = StartWithWindowsCheckBox.IsChecked == true;
+                _settings.RunAsAdmin = RunAsAdminCheckBox.IsChecked == true;
+                if (StartupModeTrayRadio.IsChecked == true) { _settings.StartupMode = "Tray"; _settings.LastActiveMode = "Tray"; }
+                else if (StartupModeNormalRadio.IsChecked == true) { _settings.StartupMode = "Normal"; _settings.LastActiveMode = "Normal"; }
+                else if (StartupModeSimpleRadio.IsChecked == true) { _settings.StartupMode = "Simple"; _settings.LastActiveMode = "Simple"; }
+                
+                // Language
+                if (LanguageComboBox.SelectedItem is ComboBoxItem langItem)
+                {
+                    var lang = langItem.Tag?.ToString() ?? "ko";
+                    _settings.Language = lang;
+                    CatchCapture.Resources.LocalizationManager.SetLanguage(lang);
+                }
+                
+                SetStartup(_settings.StartWithWindows);
             }
-            
-            SetStartup(_settings.StartWithWindows);
 
             // Menu order
-            _settings.MainMenuItems = _menuItems.Select(m => m.Key).ToList();
+            if (_loadedPages.Contains("MenuEdit"))
+            {
+                _settings.MainMenuItems = _menuItems.Select(m => m.Key).ToList();
+            }
 
             // History Settings Harvest
-            if (CboHistoryRetention != null && CboHistoryRetention.SelectedItem is ComboBoxItem hrItem)
+            if (_loadedPages.Contains("History"))
             {
-                if (int.TryParse(hrItem.Tag?.ToString(), out int days))
-                    _settings.HistoryRetentionDays = days;
+                if (CboHistoryRetention != null && CboHistoryRetention.SelectedItem is ComboBoxItem hrItem)
+                {
+                    if (int.TryParse(hrItem.Tag?.ToString(), out int days))
+                        _settings.HistoryRetentionDays = days;
+                }
+                if (CboHistoryTrashRetention != null && CboHistoryTrashRetention.SelectedItem is ComboBoxItem thItem)
+                {
+                    if (int.TryParse(thItem.Tag?.ToString(), out int days))
+                        _settings.HistoryTrashRetentionDays = days;
+                }
             }
-            if (CboHistoryTrashRetention != null && CboHistoryTrashRetention.SelectedItem is ComboBoxItem htrItem)
-            {
-                if (int.TryParse(htrItem.Tag?.ToString(), out int days))
-                    _settings.HistoryTrashRetentionDays = days;
-            }
-
             // Theme Setting
-            if (ThemeDark != null && ThemeDark.IsChecked == true) _settings.ThemeMode = "Dark";
-            else if (ThemeLight != null && ThemeLight.IsChecked == true) _settings.ThemeMode = "Light";
-            else if (ThemeBlue != null && ThemeBlue.IsChecked == true) _settings.ThemeMode = "Blue";
-            else if (ThemeCustom != null && ThemeCustom.IsChecked == true) _settings.ThemeMode = "Custom";
-            else _settings.ThemeMode = "General";
-            
-            // Background color and text color already updated in real-time in _settings
+            if (_loadedPages.Contains("Theme"))
+            {
+                if (ThemeDark != null && ThemeDark.IsChecked == true) _settings.ThemeMode = "Dark";
+                else if (ThemeLight != null && ThemeLight.IsChecked == true) _settings.ThemeMode = "Light";
+                else if (ThemeBlue != null && ThemeBlue.IsChecked == true) _settings.ThemeMode = "Blue";
+                else if (ThemeCustom != null && ThemeCustom.IsChecked == true) _settings.ThemeMode = "Custom";
+                else _settings.ThemeMode = "General";
+            }
         }
 
         private void AdminInfoIcon_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -1908,15 +1979,18 @@ private void InitLanguageComboBox()
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
-            // Revert theme to original if changed
-            var revertSettings = Settings.Load();
-            revertSettings.ThemeMode = _originalThemeMode;
-            revertSettings.ThemeBackgroundColor = _originalThemeBg;
-            revertSettings.ThemeTextColor = _originalThemeFg;
-            App.ApplyTheme(revertSettings);
+            // Revert theme to original if changed without reloading from disk
+            if (_settings.ThemeMode != _originalThemeMode || 
+                _settings.ThemeBackgroundColor != _originalThemeBg || 
+                _settings.ThemeTextColor != _originalThemeFg)
+            {
+                _settings.ThemeMode = _originalThemeMode;
+                _settings.ThemeBackgroundColor = _originalThemeBg;
+                _settings.ThemeTextColor = _originalThemeFg;
+                App.ApplyTheme(_settings);
+            }
             
             DialogResult = false;
-            CatchCapture.Models.LocalizationManager.LanguageChanged -= OnLanguageChanged;
             Close();
         }
 

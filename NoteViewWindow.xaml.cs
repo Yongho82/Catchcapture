@@ -107,11 +107,13 @@ namespace CatchCapture
                     this.Height = settings.NoteViewerHeight;
                 
                 // Restore window position
+                /* [Fix] Disabled to always center on primary screen
                 if (settings.NoteViewerLeft > -9999 && settings.NoteViewerTop > -9999)
                 {
                     this.Left = settings.NoteViewerLeft;
                     this.Top = settings.NoteViewerTop;
                 }
+                */
             }
             catch { /* Ignore errors, use defaults */ }
         }
@@ -127,8 +129,9 @@ namespace CatchCapture
                 {
                     settings.NoteViewerWidth = this.ActualWidth;
                     settings.NoteViewerHeight = this.ActualHeight;
-                    settings.NoteViewerLeft = this.Left;
-                    settings.NoteViewerTop = this.Top;
+                    // [Fix] Disabled to always center on primary screen
+                    // settings.NoteViewerLeft = this.Left;
+                    // settings.NoteViewerTop = this.Top;
                 }
                 
                 settings.Save();

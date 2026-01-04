@@ -9,6 +9,7 @@ namespace CatchCapture.Models
 {
     public class Settings
     {
+        private static Settings? _instance;
         private static Settings? _currentLoadingSettings;
         // General
         public bool ShowSavePrompt { get; set; } = true;
@@ -238,6 +239,7 @@ namespace CatchCapture.Models
 
         public static Settings Load()
         {
+            if (_instance != null) return _instance;
             if (_currentLoadingSettings != null) return _currentLoadingSettings;
 
             string settingsPath = GetSettingsPath();
@@ -301,6 +303,7 @@ namespace CatchCapture.Models
                 {
                     _currentLoadingSettings = null;
                 }
+                _instance = settings;
                 return settings;
                 }
                 return new Settings();
@@ -319,9 +322,16 @@ namespace CatchCapture.Models
             }
             else
             {
+                _instance = settings;
                 // ★ 저장 성공 시 모든 창에 알림
                 SettingsChanged?.Invoke(null, EventArgs.Empty);
             }
+        }
+
+        public Settings Clone()
+        {
+            string json = JsonSerializer.Serialize(this);
+            return JsonSerializer.Deserialize<Settings>(json) ?? new Settings();
         }
 
         public static bool TrySave(Settings settings, out string? error)

@@ -76,8 +76,9 @@ namespace CatchCapture
                 this.Height = Math.Max(this.MinHeight, settings.HistoryWindowHeight);
             }
 
-            if (settings.HistoryWindowLeft != -9999) this.Left = settings.HistoryWindowLeft;
-            if (settings.HistoryWindowTop != -9999) this.Top = settings.HistoryWindowTop;
+            // [Fix] Disable saved position to ensure window opens centered on primary screen
+            // if (settings.HistoryWindowLeft != -9999) this.Left = settings.HistoryWindowLeft;
+            // if (settings.HistoryWindowTop != -9999) this.Top = settings.HistoryWindowTop;
             
             // Ensure List Pane is flexible (Col 1)
             if (MainGrid.ColumnDefinitions.Count >= 2)
@@ -112,8 +113,9 @@ namespace CatchCapture
             {
                 settings.HistoryWindowWidth = this.Width;
                 settings.HistoryWindowHeight = this.Height;
-                settings.HistoryWindowLeft = this.Left;
-                settings.HistoryWindowTop = this.Top;
+                // [Fix] Disable saved position to ensure window opens centered on primary screen
+                // settings.HistoryWindowLeft = this.Left;
+                // settings.HistoryWindowTop = this.Top;
                 
                 if (MainGrid.ColumnDefinitions.Count >= 4)
                 {
