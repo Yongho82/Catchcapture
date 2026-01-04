@@ -439,7 +439,13 @@ namespace CatchCapture
 
                                 if (!string.IsNullOrEmpty(path) && File.Exists(path))
                                 {
-                                    try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true }); } catch { }
+                                    try 
+                                    {
+                                        var viewer = new ImageViewerWindow(path);
+                                        viewer.Owner = Window.GetWindow(this);
+                                        viewer.ShowDialog();
+                                    } 
+                                    catch { }
                                 }
                             };
                         }
