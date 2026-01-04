@@ -99,38 +99,47 @@ namespace CatchCapture.Utilities
         {
             if (source == null) return source;
 
-            // BitmapSource → GDI+ Bitmap 변환
-            Bitmap gdiBitmap;
-            using (var memoryStream = new System.IO.MemoryStream())
+            try 
             {
-                var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
-                encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(source));
-                encoder.Save(memoryStream);
-                memoryStream.Seek(0, System.IO.SeekOrigin.Begin);
-                gdiBitmap = new Bitmap(memoryStream);
-            }
+                using (var memoryStream = new System.IO.MemoryStream())
+                {
+                    // BitmapSource → GDI+ Bitmap 변환
+                    var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+                    encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(source));
+                    encoder.Save(memoryStream);
+                    memoryStream.Seek(0, System.IO.SeekOrigin.Begin);
 
-            // 둥근 모서리 적용
-            var roundedBitmap = GetRoundedBitmap(gdiBitmap, radius);
-            if (roundedBitmap == null) return source;
+                    using (var gdiBitmap = new Bitmap(memoryStream))
+                    {
+                        // 둥근 모서리 적용
+                        using (var roundedBitmap = GetRoundedBitmap(gdiBitmap, radius))
+                        {
+                            if (roundedBitmap == null) return source; // 실패 시 원본 반환
 
-            // GDI+ Bitmap → BitmapSource 변환
-            var hBitmap = roundedBitmap.GetHbitmap();
-            try
-            {
-                var bitmapSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
-                    hBitmap,
-                    IntPtr.Zero,
-                    System.Windows.Int32Rect.Empty,
-                    System.Windows.Media.Imaging.BitmapSizeOptions.FromEmptyOptions());
-                bitmapSource.Freeze();
-                return bitmapSource;
+                            // GDI+ Bitmap → BitmapSource 변환
+                            var hBitmap = roundedBitmap.GetHbitmap();
+                            try
+                            {
+                                var bitmapSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
+                                    hBitmap,
+                                    IntPtr.Zero,
+                                    System.Windows.Int32Rect.Empty,
+                                    System.Windows.Media.Imaging.BitmapSizeOptions.FromEmptyOptions());
+                                bitmapSource.Freeze();
+                                return bitmapSource;
+                            }
+                            finally
+                            {
+                                DeleteObject(hBitmap);
+                            }
+                        }
+                    }
+                }
             }
-            finally
+            catch (Exception)
             {
-                DeleteObject(hBitmap);
-                gdiBitmap.Dispose();
-                roundedBitmap.Dispose();
+                // 변환 중 오류 발생 시 원본 반환 (안전 장치)
+                return source;
             }
         }
 

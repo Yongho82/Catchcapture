@@ -2646,6 +2646,8 @@ namespace CatchCapture.Utilities
 
         private void SaveDrawingsToImage()
         {
+            try
+            {
             // 선택 영역의 위치와 크기
             double selectionLeft = currentSelectionRect.Left;
             double selectionTop = currentSelectionRect.Top;
@@ -2960,6 +2962,12 @@ namespace CatchCapture.Utilities
             else
             {
                 SelectedFrozenImage = bitmapImage;
+            }
+            }
+            catch (Exception ex)
+            {
+                CatchCapture.CustomMessageBox.Show($"이미지 생성 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                SelectedFrozenImage = null;
             }
         } // 메서드 종료
 

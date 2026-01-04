@@ -424,9 +424,10 @@ namespace CatchCapture
             else if (e.Key == Key.C && Keyboard.Modifiers == ModifierKeys.Control)
             {
                 // Ctrl+C: 현재 이미지 복사
-                if (currentImage != null)
+                var finalImage = GetCombinedImage();
+                if (finalImage != null)
                 {
-                    ScreenCaptureUtility.CopyImageToClipboard(currentImage);
+                    ScreenCaptureUtility.CopyImageToClipboard(finalImage);
                     ShowToastMessage(LocalizationManager.GetString("CopyToClipboard"));
                 }
                 e.Handled = true;
@@ -665,6 +666,12 @@ namespace CatchCapture
                     // 1. 배경 이미지 (논리 좌표 크기로 그리기)
                     dc.DrawImage(currentImage, new Rect(0, 0, logicWidth, logicHeight));
 
+                    // [Fix] 배경 이미지의 투명도(모양)에 맞춰 그리기 영역 제한 (Rounded Corner 등)
+                    var maskBrush = new ImageBrush(currentImage);
+                    maskBrush.ViewportUnits = BrushMappingMode.Absolute;
+                    maskBrush.Viewport = new Rect(0, 0, logicWidth, logicHeight);
+                    dc.PushOpacityMask(maskBrush);
+
                     // 2. 그려진 요소들 렌더링
                     foreach (var element in drawnElements)
                     {
@@ -815,6 +822,7 @@ namespace CatchCapture
                              System.Diagnostics.Debug.WriteLine($"Error rendering element {element}: {innerEx.Message}");
                         }
                     }
+                    dc.Pop(); // Pop OpacityMask
                 }
                 renderBitmap.Render(drawingVisual);
                 return renderBitmap;
