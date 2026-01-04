@@ -130,6 +130,7 @@ public partial class App : Application
             CatchCapture.Utilities.DatabaseManager.Instance.RemoveLock();
             // DB 최적화 (VACUUM) 실행
             CatchCapture.Utilities.DatabaseManager.Instance.Vacuum();
+            CatchCapture.Utilities.DatabaseManager.Instance.VacuumHistory();
 
             _pipeServerCts?.Cancel();
             _singleInstanceMutex?.ReleaseMutex();
