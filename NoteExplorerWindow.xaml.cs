@@ -24,6 +24,7 @@ namespace CatchCapture
         private const int PAGE_SIZE = 17;
         private int _totalPages = 1;
         private string _currentSortOrder = "n.UpdatedAt DESC";
+        private DateTime _lastKnownDbTime;
 
         private System.Windows.Threading.DispatcherTimer? _tipTimer;
         private int _currentTipIndex = 0;
@@ -97,6 +98,8 @@ namespace CatchCapture
 
                 // Centralized Hyperlink Click Handler for Preview Area
                 PreviewViewer.PreviewMouseLeftButtonDown += PreviewViewer_PreviewMouseLeftButtonDown;
+
+                this.Activated += NoteExplorerWindow_Activated;
                 
                 LoadNotes(filter: "Recent");
                 LoadTags();
@@ -432,10 +435,14 @@ namespace CatchCapture
             return wheres.Count > 0 ? " WHERE " + string.Join(" AND ", wheres) : "";
         }
 
-        public async void LoadNotes(string filter = "All", string? tag = null, string? search = null, int page = 1)
+        public async Task LoadNotes(string filter = "All", string? tag = null, string? search = null, int page = 1)
         {
             try
             {
+                // Update track time to prevent immediate auto-refresh after manual load
+                string dbPath = DatabaseManager.Instance.DbFilePath;
+                if (File.Exists(dbPath)) _lastKnownDbTime = File.GetLastWriteTime(dbPath);
+
                 _currentFilter = filter;
                 _currentTag = tag;
                 _currentSearch = search;
@@ -659,11 +666,13 @@ namespace CatchCapture
                     TxtStatusInfo.Text = string.Format(CatchCapture.Resources.LocalizationManager.GetString("SearchResults"), _currentSearch, result.total);
                 }
                 
+                /* 
                 // Auto-select first item if exists
                 if (result.notesList.Count > 0)
                 {
                     LstNotes.SelectedIndex = 0;
                 }
+                */
 
                 UpdateSidebarCounts();
             }
@@ -1042,12 +1051,12 @@ namespace CatchCapture
                 // viewWin.Owner = this; // Removed Owner to allow independent layering
                 viewWin.Show();
                 
-                viewWin.Closed += (s, args) => 
+                viewWin.Closed += async (s, args) => 
                 {
                     // Refresh list when viewer closes to reflect any potential edits
                      if (this.IsLoaded)
                      {
-                        LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage);
+                        await LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage);
                         LoadTags();
 
                         // Restore selection
@@ -1906,6 +1915,37 @@ namespace CatchCapture
                     }
                 }
             }
+        }
+
+        private void NoteExplorerWindow_Activated(object sender, EventArgs e)
+        {
+            try
+            {
+                string dbPath = DatabaseManager.Instance.DbFilePath;
+                if (File.Exists(dbPath))
+                {
+                    DateTime currentWriteTime = File.GetLastWriteTime(dbPath);
+                    if (_lastKnownDbTime != DateTime.MinValue && currentWriteTime > _lastKnownDbTime)
+                    {
+                        // DB changed (possibly by cloud sync)
+                        DatabaseManager.Instance.CloseConnection();
+                        LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage);
+                    }
+                    _lastKnownDbTime = currentWriteTime;
+                }
+            }
+            catch { }
+        }
+
+        private async void BtnSync_Click(object sender, RoutedEventArgs e)
+        {
+            // Visual feedback - simple rotate once if possible, but for now just refresh
+            DatabaseManager.Instance.CloseConnection();
+            LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage);
+            
+            // Update last known time
+            string dbPath = DatabaseManager.Instance.DbFilePath;
+            if (File.Exists(dbPath)) _lastKnownDbTime = File.GetLastWriteTime(dbPath);
         }
 
         private void HookHyperlinks(FlowDocument doc)
