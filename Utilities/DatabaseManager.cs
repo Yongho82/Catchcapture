@@ -123,7 +123,7 @@ namespace CatchCapture.Utilities
         {
             if (_heartbeatTimer == null)
             {
-                _heartbeatTimer = new System.Timers.Timer(60000); // 1 minute
+                _heartbeatTimer = new System.Timers.Timer(20000); // 20 seconds
                 _heartbeatTimer.Elapsed += (s, e) => UpdateLocks(false);
                 _heartbeatTimer.AutoReset = true;
                 _heartbeatTimer.Start();

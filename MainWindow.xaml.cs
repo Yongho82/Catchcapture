@@ -307,14 +307,50 @@ public partial class MainWindow : Window
 
                 message += "여러 컴퓨터에서 동시에 동일한 데이터를 사용할 경우,\n" +
                            "기록이 유실되거나 데이터가 깨질 위험이 매우 큽니다.\n\n" +
-                           "데이터 보호를 위해 반드시 한쪽 컴퓨터의 프로그램을 종료한 후 사용해 주세요.\n\n" +
-                           "확인을 누르면 이 샘플링에서 점유권을 가져옵니다.";
+                           "현재 컴퓨터에서 실행하시겠습니까?";
 
-                CustomMessageBox.Show(message, "데이터 손실 주의", MessageBoxButton.OK, MessageBoxImage.Warning, width: 500);
+                if (CustomMessageBox.Show(message, "데이터 손실 주의", MessageBoxButton.YesNo, MessageBoxImage.Warning, width: 500) == MessageBoxResult.Yes)
+                {
+                    CustomMessageBox.Show("DB 사용 권한이 이전되었습니다.\n기존 컴퓨터의 프로그램은 1분 내로 자동 종료됩니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information, width: 500);
+                    DatabaseManager.Instance.TakeOwnership();
+                }
+                else
+                {
+                    CustomMessageBox.Show("공유 폴더를 변경해 주세요.\n변경하지 않고 동시 사용 시 장기적으로 DB가 손상될 수 있습니다.", "안내", MessageBoxButton.OK, MessageBoxImage.Information, width: 500);
+                    
+                    // Open settings modally to wait for user to change path
+                    var settingsWin = new SettingsWindow();
+                    settingsWin.Owner = this;
+                    settingsWin.SelectPage("Note");
+                    settingsWin.ShowDialog();
+                    
+                    // After settings closed, check if still locked
+                    if (!string.IsNullOrEmpty(DatabaseManager.Instance.NoteLockingMachine) || !string.IsNullOrEmpty(DatabaseManager.Instance.HistoryLockingMachine))
+                    {
+                        // Still locked. Ask one last time.
+                        if (CustomMessageBox.Show("여전히 다른 컴퓨터에서 저장소를 사용 중입니다.\n그래도 현재 컴퓨터에서 점유권을 가져오시겠습니까?\n\n'아니오'를 누르면 데이터 보호를 위해 종료합니다.", "최종 확인", MessageBoxButton.YesNo, MessageBoxImage.Question, width: 500) == MessageBoxResult.Yes)
+                        {
+                            DatabaseManager.Instance.TakeOwnership();
+                        }
+                        else
+                        {
+                            isExit = true;
+                            Application.Current.Shutdown();
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        // Path changed or lock released!
+                        DatabaseManager.Instance.TakeOwnership();
+                    }
+                }
             }
-
-            // Always Take Ownership (either initial or takeover)
-            DatabaseManager.Instance.TakeOwnership();
+            else
+            {
+                // No existing lock
+                DatabaseManager.Instance.TakeOwnership();
+            }
         };
     }
 
