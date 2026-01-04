@@ -349,31 +349,7 @@
             </Setter>
         </Style>
 
-        <!-- Text Button Style (No Border) -->
-        <Style x:Key="TextButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
-            <Setter Property="Padding" Value="8,4"/>
-            <Setter Property="Margin" Value="0,0,4,0"/>
-            <Setter Property="FontSize" Value="12"/> <!-- Reduced -1 -->
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="4">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
-                                <Setter Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+
 
         <!-- Tag Button Style -->
         <Style x:Key="TagButtonStyle" TargetType="Button">
@@ -400,36 +376,7 @@
             </Setter>
         </Style>
 
-        <!-- Pagination Button Style -->
-        <Style x:Key="PaginationButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
-            <Setter Property="Width" Value="32"/>
-            <Setter Property="Height" Value="32"/>
-            <Setter Property="Margin" Value="2,0"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="brd" Background="{TemplateBinding Background}" CornerRadius="6">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="brd" Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}"/>
-                            </Trigger>
-                            <Trigger Property="Tag" Value="Active">
-                                <Setter TargetName="brd" Property="Background" Value="#8E2DE2"/>
-                                <Setter Property="Foreground" Value="White"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+
     </Window.Resources>
 
     <Border Background="{DynamicResource ThemeBackground}" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorder}">
@@ -846,7 +793,17 @@
                             <!-- Left: Trash Info (Icon + Text) -->
 
                             <!-- Pagination -->
-                            <StackPanel x:Name="PanelPagination" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Button x:Name="BtnFirstPage" Click="BtnFirstPage_Click" Style="{StaticResource PaginationButtonStyle}" Content="&lt;&lt;"/>
+                                <Button x:Name="BtnPrevPage" Click="BtnPrevPage_Click" Style="{StaticResource PaginationButtonStyle}" Content="&lt;"/>
+                                
+                                <StackPanel x:Name="PanelPagination" Orientation="Horizontal" Margin="5,0"/>
+                                
+                                <Button x:Name="BtnNextPage" Click="BtnNextPage_Click" Style="{StaticResource PaginationButtonStyle}" Content="&gt;"/>
+                                <Button x:Name="BtnLastPage" Click="BtnLastPage_Click" Style="{StaticResource PaginationButtonStyle}" Content="&gt;&gt;"/>
+                                
+                                <TextBlock x:Name="TxtPageInfo" Text="1 / 1" VerticalAlignment="Center" Margin="15,0,0,0" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
+                            </StackPanel>
                             
                             <!-- Empty Trash Button (Visible only in Trash mode) -->
                             <Button x:Name="BtnEmptyTrash" Click="BtnEmptyTrash_Click" HorizontalAlignment="Right" Margin="0,0,15,0" 

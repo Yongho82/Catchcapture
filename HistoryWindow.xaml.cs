@@ -9,11 +9,31 @@ using System.Windows.Media.Imaging;
 using CatchCapture.Models;
 using CatchCapture.Utilities;
 using System.Windows.Media;
+using System.ComponentModel;
 
 namespace CatchCapture
 {
-    public partial class HistoryWindow : Window
+    public partial class HistoryWindow : Window, INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+        private int _currentViewMode = 0; // 0: List, 1: Card
+        private GridView? _historyGridView; // To keep reference
+        public int CurrentViewMode
+        {
+            get => _currentViewMode;
+            set
+            {
+                if (_currentViewMode != value)
+                {
+                    _currentViewMode = value;
+                    OnPropertyChanged(nameof(CurrentViewMode));
+                    ApplyViewMode();
+                }
+            }
+        }
+        public bool IsSelectionActive => HistoryItems.Any(i => i.IsSelected);
         public ObservableCollection<HistoryItem> HistoryItems { get; set; } = new ObservableCollection<HistoryItem>();
         private System.Windows.Threading.DispatcherTimer? _tipTimer;
         private int _currentTipIndex = 0;
@@ -54,6 +74,12 @@ namespace CatchCapture
                 InitializeTipTimer();
                 
                 CatchCapture.Resources.LocalizationManager.LanguageChanged += (s, e) => InitializeTips();
+
+                // Restore View Mode
+                var settings = Models.Settings.Load();
+                _historyGridView = LstHistory.View as GridView;
+                _currentViewMode = settings.HistoryViewMode;
+                ApplyViewMode();
             }
             catch (Exception ex)
             {
@@ -199,6 +225,32 @@ namespace CatchCapture
                 UpdateSelectAllButtonText();
                 UpdatePaginationUI();
                 
+                // Update Search Results Text
+                if (TxtStatusInfo != null)
+                {
+                    if (!string.IsNullOrEmpty(search))
+                    {
+                        TxtStatusInfo.Text = string.Format(CatchCapture.Resources.LocalizationManager.GetString("SearchResults") ?? "검색 결과 {0} ({1})", search, totalCount);
+                    }
+                    else
+                    {
+                        // Show filter description when no search
+                        string filterKey = _currentFilter switch
+                        {
+                            "All" => "AllHistory",
+                            "Recent7" => "Recent7Days",
+                            "Recent30" => "Recent30Days",
+                            "Recent3Months" => "Recent3Months",
+                            "Recent6Months" => "Recent6Months",
+                            "Favorite" => "Favorite",
+                            "Trash" => "Trash",
+                            _ => "AllHistory"
+                        };
+                        string filterName = CatchCapture.Resources.LocalizationManager.GetString(filterKey) ?? _currentFilter;
+                        TxtStatusInfo.Text = filterName;
+                    }
+                }
+                
                 // 휴지통 비우기 버튼 표시 여부
                 if (BtnEmptyTrash != null)
                 {
@@ -289,19 +341,15 @@ namespace CatchCapture
                 var btn = new Button
                 {
                     Content = i.ToString(),
-                    Width = 30,
-                    Height = 30,
+                    Width = 32,
+                    Height = 32,
                     Margin = new Thickness(2, 0, 2, 0),
                     Style = (Style)FindResource("PaginationButtonStyle"),
-                    Tag = i
+                    Tag = (i == _currentPage) ? "Active" : ""
                 };
-                if (i == _currentPage)
-                {
-                    btn.Background = (SolidColorBrush)FindResource("AccentColor");
-                    btn.Foreground = System.Windows.Media.Brushes.White;
-                }
+                int targetPage = i;
                 btn.Click += (s, e) => {
-                    _currentPage = (int)((Button)s).Tag;
+                    _currentPage = targetPage;
                     LoadHistory(_currentFilter, _currentSearch, _currentDateFrom, _currentDateTo, _currentFileType, false);
                 };
                 PanelPageNumbers.Children.Add(btn);
@@ -347,18 +395,22 @@ namespace CatchCapture
 
         private void UpdateSelectAllButtonText()
         {
+            bool anySelected = HistoryItems.Any(i => i.IsSelected);
             bool allSelected = HistoryItems.Count > 0 && HistoryItems.All(i => i.IsSelected);
             BtnSelectAll.Content = allSelected ? "전체 해제" : "전체 선택";
-            ChkHeaderAll.IsChecked = allSelected;
+            if (ChkHeaderAll != null) ChkHeaderAll.IsChecked = allSelected;
+
+            // Handle CheckBox column visibility in List Mode
+            if (CurrentViewMode == 0 && ColCheckBox != null)
+            {
+                ColCheckBox.Width = anySelected ? 45 : 0;
+            }
+
+            OnPropertyChanged(nameof(IsSelectionActive));
         }
 
         private void BtnSelectAll_Click(object sender, RoutedEventArgs e)
         {
-            if (ColCheckBox.Width == 0)
-            {
-                ColCheckBox.Width = 45;
-            }
-
             bool allSelected = HistoryItems.Count > 0 && HistoryItems.All(i => i.IsSelected);
             foreach (var item in HistoryItems)
             {
@@ -839,6 +891,43 @@ namespace CatchCapture
                 {
                     CustomMessageBox.Show($"이미지를 고정할 수 없습니다: {ex.Message}", "오류");
                 }
+            }
+        }
+        private void ApplyViewMode()
+        {
+            if (LstHistory == null || _historyGridView == null) return;
+
+            // Save to settings
+            var settings = Models.Settings.Load();
+            settings.HistoryViewMode = _currentViewMode;
+            settings.Save();
+
+            if (_currentViewMode == 0) // List
+            {
+                LstHistory.View = _historyGridView;
+                ScrollViewer.SetHorizontalScrollBarVisibility(LstHistory, ScrollBarVisibility.Auto);
+                // Restore ItemsPanel to VirtualizingStackPanel (default for ListView with GridView)
+                var template = new ItemsPanelTemplate(new FrameworkElementFactory(typeof(VirtualizingStackPanel)));
+                LstHistory.ItemsPanel = template;
+            }
+            else // Card
+            {
+                LstHistory.View = null; // ListBox behavior
+                LstHistory.ItemTemplate = (DataTemplate)FindResource("HistoryCardTemplate");
+                ScrollViewer.SetHorizontalScrollBarVisibility(LstHistory, ScrollBarVisibility.Disabled);
+                
+                // Set ItemsPanel to WrapPanel
+                var factory = new FrameworkElementFactory(typeof(WrapPanel));
+                var template = new ItemsPanelTemplate(factory);
+                LstHistory.ItemsPanel = template;
+            }
+        }
+
+        private void BtnViewMode_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is string mode)
+            {
+                CurrentViewMode = (mode == "List") ? 0 : 1;
             }
         }
     }

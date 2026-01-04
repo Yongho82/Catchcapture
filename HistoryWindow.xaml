@@ -99,39 +99,111 @@
             <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorder}"/>
         </Style>
 
-        <Style x:Key="PaginationButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorder}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
-            <Setter Property="Margin" Value="2,0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                BorderBrush="{TemplateBinding BorderBrush}" 
-                                BorderThickness="{TemplateBinding BorderThickness}" 
-                                CornerRadius="4">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#15FFFFFF"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.3"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+
 
         <Style TargetType="DatePickerTextBox">
             <Setter Property="Background" Value="{DynamicResource ThemeBackground}"/>
             <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
         </Style>
+
+
+
+        <!-- Card Mode Template -->
+        <DataTemplate x:Key="HistoryCardTemplate">
+            <Border x:Name="CardBorder" Background="{DynamicResource ThemeSidebarButtonPressedBackground}" CornerRadius="10" Margin="5" Width="200" Height="250" BorderThickness="2" BorderBrush="Transparent" UseLayoutRounding="True" SnapsToDevicePixels="True">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="150"/> <!-- Image -->
+                        <RowDefinition Height="*"/>   <!-- Info -->
+                    </Grid.RowDefinitions>
+                    
+                    <!-- Image Border with matching CornerRadius - Using ImageBrush for reliable clipping -->
+                    <Border Grid.Row="0" CornerRadius="8,8,0,0">
+                        <Border.Background>
+                            <ImageBrush ImageSource="{Binding Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </Border.Background>
+                    </Border>
+                    
+                    <!-- Fallback/Overlay for image area -->
+                    <Border Grid.Row="0" Background="#08000000" CornerRadius="8,8,0,0" IsHitTestVisible="False"/>
+                    
+                    <!-- Selection CheckBox -->
+                    <CheckBox x:Name="ChkSelect" Grid.Row="0" IsChecked="{Binding IsSelected}" Click="ChkItem_Click"
+                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10" 
+                              Style="{DynamicResource {x:Type CheckBox}}" Visibility="Collapsed"/>
+
+                    <Grid Grid.Row="1" Margin="12,10,12,10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/> <!-- Title -->
+                            <RowDefinition Height="*"/>    <!-- Date & Icons -->
+                            <RowDefinition Height="Auto"/> <!-- App Info -->
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Text="{Binding FileName}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" TextTrimming="CharacterEllipsis"/>
+                        
+                        <Grid Grid.Row="1" VerticalAlignment="Center" Margin="0,2">
+                            <TextBlock Text="{Binding FormattedDate}" FontSize="11" Opacity="0.6" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
+                            
+                            <!-- Action Icons (Date Row) -->
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                <!-- Favorite Toggle -->
+                                <Button Click="BtnFavorite_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="2">
+                                    <Grid>
+                                        <Path x:Name="StarFilled" Data="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z" 
+                                              Fill="#FFD700" Width="13" Height="13" Stretch="Uniform" Visibility="Collapsed"/>
+                                        <Path x:Name="StarOutline" Data="M12,15.39L8.24,17.66L9.23,13.38L5.91,10.5L10.29,10.13L12,6.09L13.71,10.13L18.09,10.5L14.77,13.38L15.76,17.66L12,15.39M22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27L18.18,21L16.54,13.97L22,9.24Z" 
+                                              Fill="{DynamicResource ThemeForeground}" Opacity="0.3" Width="13" Height="13" Stretch="Uniform" Visibility="Collapsed"/>
+                                    </Grid>
+                                </Button>
+                                <!-- Pin Toggle -->
+                                <Button Click="BtnPin_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="2">
+                                    <Grid>
+                                        <Path x:Name="PinFilled" Data="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12Z" 
+                                              Fill="#FF5252" Width="13" Height="13" Stretch="Uniform" Visibility="Collapsed"/>
+                                        <Path x:Name="PinOutline" Data="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12M14.2,14H9.8L10,12.2V4H14V12.2L14.2,14Z" 
+                                              Fill="{DynamicResource ThemeForeground}" Opacity="0.3" Width="13" Height="13" Stretch="Uniform" Visibility="Collapsed"/>
+                                    </Grid>
+                                </Button>
+                                <!-- Delete Action (Only on hover) -->
+                                <Button x:Name="BtnDeleteAction" Click="BtnDeleteItem_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="2" Visibility="Collapsed" ToolTip="삭제">
+                                    <Path Data="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z" 
+                                          Fill="{DynamicResource ThemeForeground}" Opacity="0.4" Width="13" Height="13" Stretch="Uniform"/>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBlock Grid.Row="2" Text="{Binding SourceApp}" FontSize="11" Opacity="0.5" Foreground="{DynamicResource ThemeForeground}" TextTrimming="CharacterEllipsis"/>
+                    </Grid>
+                </Grid>
+            </Border>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding DataContext.IsSelectionActive, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                    <Setter TargetName="ChkSelect" Property="Visibility" Value="Visible"/>
+                    <Setter TargetName="StarOutline" Property="Visibility" Value="Visible"/>
+                    <Setter TargetName="PinOutline" Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListViewItem}}" Value="True">
+                    <Setter TargetName="CardBorder" Property="BorderBrush" Value="#8E2DE2"/>
+                    <Setter TargetName="ChkSelect" Property="Visibility" Value="Visible"/>
+                    <Setter TargetName="StarOutline" Property="Visibility" Value="Visible"/>
+                    <Setter TargetName="PinOutline" Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+                <Trigger SourceName="CardBorder" Property="IsMouseOver" Value="True">
+                    <Setter TargetName="BtnDeleteAction" Property="Visibility" Value="Visible"/>
+                    <Setter TargetName="StarOutline" Property="Visibility" Value="Visible"/>
+                    <Setter TargetName="PinOutline" Property="Visibility" Value="Visible"/>
+                    <Setter TargetName="ChkSelect" Property="Visibility" Value="Visible"/>
+                </Trigger>
+                <DataTrigger Binding="{Binding IsFavorite}" Value="True">
+                    <Setter TargetName="StarFilled" Property="Visibility" Value="Visible"/>
+                    <Setter TargetName="StarOutline" Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsPinned}" Value="True">
+                    <Setter TargetName="PinFilled" Property="Visibility" Value="Visible"/>
+                    <Setter TargetName="PinOutline" Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
     </Window.Resources>
 
     <Border Background="{DynamicResource ThemeBackground}" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource ThemeWindowBorder}">
@@ -192,6 +264,8 @@
                                 </Button>
                             </Grid>
                         </Border>
+
+
                         
                         <!-- Advanced Filter Button -->
                         <Button x:Name="BtnAdvancedFilter" Click="BtnAdvancedFilter_Click" Width="36" Height="36" Margin="8,0,0,0" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="상세 필터">
@@ -350,34 +424,84 @@
 
                     <!-- Row 1: Batch Actions -->
                     <Border Grid.Row="0" BorderThickness="0,1,0,1" BorderBrush="{DynamicResource ThemeBorder}" Padding="15,10">
-                        <StackPanel Orientation="Horizontal">
-                            <Button x:Name="BtnSelectAll" Click="BtnSelectAll_Click" Content="전체 선택" Padding="12,5" HorizontalContentAlignment="Center" VerticalAlignment="Center" Cursor="Hand" Background="Transparent" Foreground="{DynamicResource ThemeForeground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1">
-                                <Button.Resources>
-                                    <Style TargetType="Border">
-                                        <Setter Property="CornerRadius" Value="6"/>
-                                    </Style>
-                                </Button.Resources>
-                            </Button>
-                            <Button x:Name="BtnDeleteSelected" Click="BtnDeleteSelected_Click" Content="선택 삭제" Margin="10,0,0,0" Padding="12,5" Foreground="#D93025" Background="Transparent" BorderBrush="#D93025" BorderThickness="1">
-                                <Button.Resources>
-                                    <Style TargetType="Border">
-                                        <Setter Property="CornerRadius" Value="6"/>
-                                    </Style>
-                                </Button.Resources>
-                            </Button>
-                            <Button x:Name="BtnEmptyTrash" Click="BtnEmptyTrash_Click" Content="휴지통 비우기" Margin="10,0,0,0" Padding="12,5" Foreground="#D93025" Background="Transparent" BorderBrush="#D93025" BorderThickness="1" Visibility="Collapsed">
-                                <Button.Resources>
-                                    <Style TargetType="Border">
-                                        <Setter Property="CornerRadius" Value="6"/>
-                                    </Style>
-                                </Button.Resources>
-                            </Button>
-                        </StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                <Button x:Name="BtnSelectAll" Click="BtnSelectAll_Click" Content="전체 선택" Padding="12,5" HorizontalContentAlignment="Center" VerticalAlignment="Center" Cursor="Hand" Background="Transparent" Foreground="{DynamicResource ThemeForeground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1">
+                                    <Button.Resources>
+                                        <Style TargetType="Border">
+                                            <Setter Property="CornerRadius" Value="6"/>
+                                        </Style>
+                                    </Button.Resources>
+                                </Button>
+                                <Button x:Name="BtnDeleteSelected" Click="BtnDeleteSelected_Click" Content="선택 삭제" Margin="10,0,0,0" Padding="12,5" Foreground="#D93025" Background="Transparent" BorderBrush="#D93025" BorderThickness="1">
+                                    <Button.Resources>
+                                        <Style TargetType="Border">
+                                            <Setter Property="CornerRadius" Value="6"/>
+                                        </Style>
+                                    </Button.Resources>
+                                </Button>
+                                <Button x:Name="BtnEmptyTrash" Click="BtnEmptyTrash_Click" Content="휴지통 비우기" Margin="10,0,0,0" Padding="12,5" Foreground="#D93025" Background="Transparent" BorderBrush="#D93025" BorderThickness="1" Visibility="Collapsed">
+                                    <Button.Resources>
+                                        <Style TargetType="Border">
+                                            <Setter Property="CornerRadius" Value="6"/>
+                                        </Style>
+                                    </Button.Resources>
+                                </Button>
+
+                                <!-- View Mode Selection -->
+                                <Border Background="{DynamicResource ThemeSidebarButtonBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="4" Margin="15,0,0,0" Padding="1" Height="28" VerticalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button x:Name="BtnViewList" Click="BtnViewMode_Click" Tag="List" Width="26" Height="26" Style="{StaticResource TextButtonStyle}" Padding="0" Margin="0" ToolTip="리스트형">
+                                            <Viewbox Width="14" Height="14">
+                                                <Path Data="M3,5H21V7H3V5M3,11H21V13H3V11M3,17H21V19H3V17Z">
+                                                    <Path.Style>
+                                                        <Style TargetType="Path">
+                                                            <Setter Property="Fill" Value="{DynamicResource ThemeForeground}"/>
+                                                            <Setter Property="Opacity" Value="0.4"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding CurrentViewMode}" Value="0">
+                                                                    <Setter Property="Opacity" Value="1"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Path.Style>
+                                                </Path>
+                                            </Viewbox>
+                                        </Button>
+                                        <Button x:Name="BtnViewCard" Click="BtnViewMode_Click" Tag="Card" Width="26" Height="26" Style="{StaticResource TextButtonStyle}" Padding="0" Margin="0" ToolTip="카드형">
+                                            <Viewbox Width="14" Height="14">
+                                                <Path Data="M3,3H11V11H3V3M13,3H21V11H13V3M3,13H11V21H3V13M13,13H21V21H13V13Z">
+                                                    <Path.Style>
+                                                        <Style TargetType="Path">
+                                                            <Setter Property="Fill" Value="{DynamicResource ThemeForeground}"/>
+                                                            <Setter Property="Opacity" Value="0.4"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding CurrentViewMode}" Value="1">
+                                                                    <Setter Property="Opacity" Value="1"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Path.Style>
+                                                </Path>
+                                            </Viewbox>
+                                        </Button>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Right corner Status Info -->
+                            <TextBlock x:Name="TxtStatusInfo" Grid.Column="1" Text="" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" FontSize="12" Margin="0,0,5,0"/>
+                        </Grid>
                     </Border>
 
                     <!-- Row 2: History Grid List -->
                     <ListView Grid.Row="1" x:Name="LstHistory" SelectionMode="Single" SelectionChanged="LstHistory_SelectionChanged" KeyDown="LstHistory_KeyDown"
-                              BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                              BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -387,8 +511,9 @@
                                         <ControlTemplate TargetType="ListViewItem">
                                             <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="4,2">
                                                 <Grid>
-                                                    <Border BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ThemeBorder}" Opacity="0.4"/>
-                                                    <GridViewRowPresenter Content="{TemplateBinding Content}" Columns="{TemplateBinding GridView.ColumnCollection}"/>
+                                                    <Border x:Name="BottomLine" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ThemeBorder}" Opacity="0.4"/>
+                                                    <GridViewRowPresenter x:Name="PART_GridViewRowPresenter" Content="{TemplateBinding Content}" Columns="{TemplateBinding GridView.ColumnCollection}"/>
+                                                    <ContentPresenter x:Name="PART_ContentPresenter" Visibility="Collapsed"/>
                                                 </Grid>
                                             </Border>
                                             <ControlTemplate.Triggers>
@@ -398,6 +523,17 @@
                                                 <Trigger Property="IsSelected" Value="True">
                                                     <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}"/>
                                                 </Trigger>
+                                                <!-- Handle List vs Card templates switching -->
+                                                <DataTrigger Binding="{Binding View, ElementName=LstHistory}" Value="{x:Null}">
+                                                    <Setter TargetName="PART_GridViewRowPresenter" Property="Visibility" Value="Collapsed"/>
+                                                    <Setter TargetName="BottomLine" Property="Visibility" Value="Collapsed"/>
+                                                    <Setter TargetName="PART_ContentPresenter" Property="Visibility" Value="Visible"/>
+                                                    <Setter Property="GridView.ColumnCollection" Value="{x:Null}"/>
+                                                    <!-- In Card mode, don't show the default selection rectangle around our rounded card -->
+                                                    <Setter TargetName="Bd" Property="Background" Value="Transparent"/>
+                                                    <Setter TargetName="Bd" Property="Padding" Value="0"/>
+                                                    <Setter Property="Background" Value="Transparent"/>
+                                                </DataTrigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>
                                     </Setter.Value>
@@ -405,8 +541,8 @@
                             </Style>
                         </ListView.ItemContainerStyle>
                         <ListView.View>
-                            <GridView>
-                                <GridViewColumn x:Name="ColCheckBox" Width="0">
+                            <GridView x:Name="HistoryGridView">
+                                <GridViewColumn x:Name="ColCheckBox" Width="45">
                                     <GridViewColumn.Header>
                                         <CheckBox x:Name="ChkHeaderAll" Click="BtnSelectAll_Click" HorizontalAlignment="Center"/>
                                     </GridViewColumn.Header>

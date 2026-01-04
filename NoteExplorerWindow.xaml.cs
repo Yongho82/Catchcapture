@@ -22,6 +22,7 @@ namespace CatchCapture
         private string? _currentSearch = "";
         private int _currentPage = 1;
         private const int PAGE_SIZE = 17;
+        private int _totalPages = 1;
         private string _currentSortOrder = "n.UpdatedAt DESC";
 
         private System.Windows.Threading.DispatcherTimer? _tipTimer;
@@ -734,23 +735,45 @@ namespace CatchCapture
         private void UpdatePaginationButtons(int totalCount)
         {
             PanelPagination.Children.Clear();
-            int totalPages = (int)Math.Ceiling((double)totalCount / PAGE_SIZE);
-            if (totalPages <= 1) return;
+            _totalPages = (int)Math.Ceiling((double)totalCount / PAGE_SIZE);
+            if (_totalPages < 1) _totalPages = 1;
 
-            // Simple pagination: 1 2 3 ...
-            for (int i = 1; i <= totalPages; i++)
+            TxtPageInfo.Text = $"{_currentPage} / {_totalPages}";
+
+            // Generate numeric page buttons (simple version with current and neighbors)
+            int startPage = Math.Max(1, _currentPage - 2);
+            int endPage = Math.Min(_totalPages, startPage + 4);
+            if (endPage - startPage < 4) startPage = Math.Max(1, endPage - 4);
+
+            for (int i = startPage; i <= endPage; i++)
             {
                 var btn = new Button
                 {
                     Content = i.ToString(),
+                    Width = 32,
+                    Height = 32,
+                    Margin = new Thickness(2, 0, 2, 0),
                     Style = (Style)FindResource("PaginationButtonStyle"),
                     Tag = (i == _currentPage) ? "Active" : ""
                 };
-                int pageNum = i;
-                btn.Click += (s, e) => LoadNotes(_currentFilter, _currentTag, _currentSearch, pageNum);
+                int targetPage = i;
+                btn.Click += (s, e) => {
+                    _currentPage = targetPage;
+                    LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage);
+                };
                 PanelPagination.Children.Add(btn);
             }
+
+            BtnFirstPage.IsEnabled = _currentPage > 1;
+            BtnPrevPage.IsEnabled = _currentPage > 1;
+            BtnNextPage.IsEnabled = _currentPage < _totalPages;
+            BtnLastPage.IsEnabled = _currentPage < _totalPages;
         }
+
+        private void BtnFirstPage_Click(object sender, RoutedEventArgs e) { _currentPage = 1; LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage); }
+        private void BtnPrevPage_Click(object sender, RoutedEventArgs e) { if (_currentPage > 1) { _currentPage--; LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage); } }
+        private void BtnNextPage_Click(object sender, RoutedEventArgs e) { if (_currentPage < _totalPages) { _currentPage++; LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage); } }
+        private void BtnLastPage_Click(object sender, RoutedEventArgs e) { _currentPage = _totalPages; LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage); }
 
         private void TxtSearch_KeyDown(object sender, KeyEventArgs e)
         {

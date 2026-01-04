@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.Windows.Media.Imaging;
 
 namespace CatchCapture.Models
 {
@@ -47,6 +48,53 @@ namespace CatchCapture.Models
         public string Resolution { get; set; } = string.Empty;
         public bool IsInTrash => Status == 1;
         public bool IsNormal => Status == 0;
+        
+        private BitmapSource? _thumbnail;
+        public BitmapSource? Thumbnail
+        {
+            get
+            {
+                if (_thumbnail == null && !string.IsNullOrEmpty(FilePath) && System.IO.File.Exists(FilePath))
+                {
+                    try
+                    {
+                        // Check if it's media (mp4, gif, mp3)
+                        bool isMedia = FilePath.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) || 
+                                       FilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase) ||
+                                       FilePath.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase);
+                        
+                        string loadPath = FilePath;
+                        if (isMedia)
+                        {
+                            string thumbPath = FilePath + ".preview.png";
+                            if (System.IO.File.Exists(thumbPath)) loadPath = thumbPath;
+                            else if (FilePath.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase)) return null; // No thumb for audio
+                        }
+
+                        // Lazy load thumbnail (optimized size)
+                        _thumbnail = LoadThumbnail(loadPath);
+                    }
+                    catch { }
+                }
+                return _thumbnail;
+            }
+        }
+
+        private BitmapSource? LoadThumbnail(string path)
+        {
+            try
+            {
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(path);
+                bitmap.DecodePixelWidth = 300; // Limit size for performance
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.EndInit();
+                bitmap.Freeze();
+                return bitmap;
+            }
+            catch { return null; }
+        }
 
         // UI Props
         public string FormattedDate => CreatedAt.ToString("yyyy-MM-dd HH:mm:ss");
