@@ -697,6 +697,7 @@ Are you sure you want to permanently delete all items?</value>
   <data name="SettingsWebpEfficiency" xml:space="preserve"><value>Very High (Next-gen Compression)</value></data>
   <data name="SettingsWebpUsage" xml:space="preserve"><value>Website Optimized Images</value></data>
   <data name="SettingsShowMagnifierDesc" xml:space="preserve"><value>Show magnifier during area capture</value></data>
+  <data name="SettingsShowColorPaletteDesc" xml:space="preserve"><value>Show color palette under magnifier</value></data>
   <data name="SettingsShowPreviewDesc" xml:space="preserve"><value>Show preview/editor after capture</value></data>
   <data name="SettingsAutoSaveDesc" xml:space="preserve"><value>Auto-save file after capture</value></data>
   <data name="RecQualityMP4" xml:space="preserve"><value>Quality (MP4)</value></data>

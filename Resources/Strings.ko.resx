@@ -720,6 +720,7 @@
   <data name="SettingsWebpEfficiency" xml:space="preserve"><value>매우 높음 (차세대 압축)</value></data>
   <data name="SettingsWebpUsage" xml:space="preserve"><value>웹사이트 최적화 이미지</value></data>
   <data name="SettingsShowMagnifierDesc" xml:space="preserve"><value>영역 캡처 시 돋보기 표시</value></data>
+  <data name="SettingsShowColorPaletteDesc" xml:space="preserve"><value>돋보기 하단 색상 팔레트 표시</value></data>
   <data name="SettingsShowPreviewDesc" xml:space="preserve"><value>캡처 후 미리보기/편집 창 표시</value></data>
   <data name="SettingsAutoSaveDesc" xml:space="preserve"><value>캡처 시 자동으로 파일 저장</value></data>
   <data name="RecQualityMP4" xml:space="preserve"><value>화질 (MP4)</value></data>

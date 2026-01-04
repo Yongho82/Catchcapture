@@ -148,6 +148,7 @@ private void UpdateUIText()
                 if (ChkAutoCopy != null) ChkAutoCopy.Content = LocalizationManager.GetString("SettingsAutoCopyDesc");
                 if (ChkShowPreview != null) ChkShowPreview.Content = LocalizationManager.GetString("SettingsShowPreviewDesc");
                 if (ChkShowMagnifier != null) ChkShowMagnifier.Content = LocalizationManager.GetString("SettingsShowMagnifierDesc");
+                if (ChkShowColorPalette != null) ChkShowColorPalette.Content = LocalizationManager.GetString("SettingsShowColorPaletteDesc");
                 
                 // 캡처 방식
                 if (CaptureModeGroup != null) CaptureModeGroup.Header = LocalizationManager.GetString("CaptureModeTitle");
@@ -914,6 +915,7 @@ private void InitLanguageComboBox()
             if (ChkAutoCopy != null) ChkAutoCopy.IsChecked = _settings.AutoCopyToClipboard;
             if (ChkShowPreview != null) ChkShowPreview.IsChecked = _settings.ShowPreviewAfterCapture;
             if (ChkShowMagnifier != null) ChkShowMagnifier.IsChecked = _settings.ShowMagnifier;
+            if (ChkShowColorPalette != null) ChkShowColorPalette.IsChecked = _settings.ShowColorPalette;
 
             // 캡처 모드 설정 로드
             if (RbCaptureOverlay != null && RbCaptureStatic != null)
@@ -1622,6 +1624,7 @@ private void InitLanguageComboBox()
                 _settings.AutoCopyToClipboard = defaults.AutoCopyToClipboard;
                 _settings.ShowPreviewAfterCapture = defaults.ShowPreviewAfterCapture;
                 _settings.ShowMagnifier = defaults.ShowMagnifier;
+                _settings.ShowColorPalette = defaults.ShowColorPalette;
                 _settings.FileNameTemplate = defaults.FileNameTemplate;
                 _settings.FolderGroupingMode = defaults.FolderGroupingMode;
                 _settings.UsePrintScreenKey = defaults.UsePrintScreenKey;
@@ -1790,6 +1793,7 @@ private void InitLanguageComboBox()
                 _settings.AutoCopyToClipboard = ChkAutoCopy.IsChecked == true;
                 _settings.ShowPreviewAfterCapture = ChkShowPreview.IsChecked == true;
                 _settings.ShowMagnifier = ChkShowMagnifier.IsChecked == true;
+                _settings.ShowColorPalette = ChkShowColorPalette.IsChecked == true;
                 
                 _settings.UsePrintScreenKey = ChkUsePrintScreen.IsChecked == true;
                 if (CboPrintScreenAction.SelectedItem is ComboBoxItem actionItem)

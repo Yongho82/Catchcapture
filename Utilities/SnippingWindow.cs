@@ -47,7 +47,7 @@ namespace CatchCapture.Utilities
 
         private Image? magnifierImage;
         private const double MagnifierSize = 150; // 돋보기 크기
-        private const double MagnificationFactor = 3.0; // 확대 배율
+        private const double MagnificationFactor = 7.0; // 확대 배율
         // 넘버링 도구 관련
         private int numberingNext = 1; // 배지 번호 자동 증가
         // 십자선 관련 필드 추가
@@ -62,6 +62,7 @@ namespace CatchCapture.Utilities
         private Color lastHoverColor = Colors.Transparent;
         private bool isOverlayMode = false; // [추가] 오버레이 모드(투명창) 여부 확인
         private int _cornerRadius = 0;      // [추가] 엣지 캡처를 위한 반지름
+        private bool showColorPalette = true; // [추가] 색상 팔레트 표시 여부
 
         // 언어 변경 시 런타임 갱신을 위해 툴바 참조 저장
         private Border? toolbarContainer;
@@ -112,9 +113,14 @@ namespace CatchCapture.Utilities
             _cornerRadius = cornerRadius;
             var settings = Settings.Load();
             showMagnifier = settings.ShowMagnifier;
+            showColorPalette = settings.ShowColorPalette;
             
             // [Fix] 엣지 캡처 시에는 돋보기를 표시하지 않음 (사용자 요청)
-            if (_cornerRadius > 0) showMagnifier = false;
+            if (_cornerRadius > 0) 
+            {
+                showMagnifier = false;
+                showColorPalette = false;
+            }
             if (cachedScreenshot == null) isOverlayMode = true; // [추가] 초기 스크린샷이 없으면 오버레이 모드로 간주
 
             // Use provided metadata or capture it now (fallback)
@@ -380,7 +386,8 @@ namespace CatchCapture.Utilities
 
         private void CreateMagnifier()
         {
-            if (!showMagnifier) return;
+            if (!showMagnifier && !showColorPalette) return;
+
             double borderThick = 1.0;
             double cornerRad = 15.0; // [Requested] Rounded corners
             
@@ -388,153 +395,178 @@ namespace CatchCapture.Utilities
             // Calculate inner size so it fits inside the border without being clipped
             // Border Width is fixed to MagnifierSize (150), so content must be smaller by 2*Thickness
             double innerSize = MagnifierSize - (borderThick * 2); 
-
-            // 1. Magnifier Image
-            magnifierImage = new Image
-            {
-                Width = innerSize,
-                Height = innerSize,
-                Stretch = Stretch.Fill,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-            RenderOptions.SetBitmapScalingMode(magnifierImage, BitmapScalingMode.NearestNeighbor);
-
-            // 2. Crosshairs inside Magnifier [Requested] Red Dotted
-            double centerPos = innerSize / 2.0;
             
-            magnifierCrosshairH = new Line
-            {
-                X1 = 0, X2 = innerSize,
-                Y1 = centerPos, Y2 = centerPos,
-                Stroke = Brushes.Red,
-                StrokeThickness = 1,
-                StrokeDashArray = new DoubleCollection { 3, 2 }, // Dotted
-                IsHitTestVisible = false
-            };
-
-            magnifierCrosshairV = new Line
-            {
-                X1 = centerPos, X2 = centerPos,
-                Y1 = 0, Y2 = innerSize,
-                Stroke = Brushes.Red,
-                StrokeThickness = 1,
-                StrokeDashArray = new DoubleCollection { 3, 2 }, // Dotted
-                IsHitTestVisible = false
-            };
-
-            // Center small frame (pixel selector)
-            var centerFrame = new Rectangle
-            {
-                Width = 7, Height = 7,
-                Stroke = Brushes.Black,
-                StrokeThickness = 1,
-                Fill = Brushes.Transparent,
-                IsHitTestVisible = false
-            };
-            Canvas.SetLeft(centerFrame, centerPos - 3.5);
-            Canvas.SetTop(centerFrame, centerPos - 3.5);
-
-            // Container for Image + Crosshairs
-            magnifierCanvas = new Canvas
-            {
-                Width = innerSize,
-                Height = innerSize,
-                Background = Brushes.White
-            };
-            magnifierCanvas.Children.Add(magnifierImage);
-            magnifierCanvas.Children.Add(magnifierCrosshairH);
-            magnifierCanvas.Children.Add(magnifierCrosshairV);
-            magnifierCanvas.Children.Add(centerFrame);
-
-            // Clip content to rounded corners
-            magnifierCanvas.Clip = new RectangleGeometry
-            {
-                Rect = new Rect(0, 0, innerSize, innerSize),
-                RadiusX = Math.Max(0, cornerRad - borderThick),
-                RadiusY = Math.Max(0, cornerRad - borderThick)
-            };
-
-            // 3. Info Panel (Bottom)
-            var infoStack = new StackPanel
-            {
-                Orientation = Orientation.Vertical
-            };
-
-            var infoBorder = new Border
-            {
-                Background = new SolidColorBrush(Color.FromRgb(40, 40, 40)), // Sleek Dark
-                Padding = new Thickness(8),
-                Child = infoStack,
-                CornerRadius = new CornerRadius(0, 0, cornerRad, cornerRad) // Rounded bottom
-            };
-
-            // 3.1 Coordinates
-            coordsTextBlock = new TextBlock
-            {
-                Text = "(0, 0)",
-                Foreground = Brushes.White,
-                FontSize = 14,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                Margin = new Thickness(0, 5, 0, 5)
-            };
-
-            // 3.2 Color Row (Preview + Value)
-            var colorRow = new StackPanel
-            {
-                Orientation = Orientation.Horizontal,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                Margin = new Thickness(0, 5, 0, 5)
-            };
-            
-            colorPreviewRect = new Rectangle
-            {
-                Width = 14, Height = 14,
-                Stroke = Brushes.White,
-                StrokeThickness = 1,
-                Fill = Brushes.White,
-                Margin = new Thickness(0, 0, 8, 0),
-                VerticalAlignment = VerticalAlignment.Center
-            };
-            
-            colorValueTextBlock = new TextBlock
-            {
-                Text = "#FFFFFF",
-                Foreground = Brushes.White,
-                FontSize = 14,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-            
-            colorRow.Children.Add(colorPreviewRect);
-            colorRow.Children.Add(colorValueTextBlock);
-
-            // 3.3 Helper Text
-            var helpText1 = new TextBlock
-            {
-                Text = "[C] 색상복사",
-                Foreground = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
-                FontSize = 11,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                Margin = new Thickness(0, 5, 0, 0)
-            };
-            var helpText2 = new TextBlock
-            {
-                Text = "[Shift] RGB/HEX 값 바꾸기",
-                Foreground = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
-                FontSize = 11,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                Margin = new Thickness(0, 2, 0, 5)
-            };
-
-            infoStack.Children.Add(coordsTextBlock);
-            infoStack.Children.Add(colorRow);
-            infoStack.Children.Add(helpText1);
-            infoStack.Children.Add(helpText2);
-
             // Main Container (Border -> StackPanel)
             var containerStack = new StackPanel();
-            containerStack.Children.Add(magnifierCanvas);
-            containerStack.Children.Add(infoBorder);
+
+            // ---------------------------------------------------------
+            // 1. Magnifier Canvas Construction
+            // ---------------------------------------------------------
+            if (showMagnifier)
+            {
+                // 1. Magnifier Image
+                magnifierImage = new Image
+                {
+                    Width = innerSize,
+                    Height = innerSize,
+                    Stretch = Stretch.Fill,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                RenderOptions.SetBitmapScalingMode(magnifierImage, BitmapScalingMode.NearestNeighbor);
+
+                // 2. Crosshairs inside Magnifier [Requested] Red Dotted
+                double centerPos = innerSize / 2.0;
+                
+                magnifierCrosshairH = new Line
+                {
+                    X1 = 0, X2 = innerSize,
+                    Y1 = centerPos, Y2 = centerPos,
+                    Stroke = Brushes.Red,
+                    StrokeThickness = 1,
+                    StrokeDashArray = new DoubleCollection { 3, 2 }, // Dotted
+                    IsHitTestVisible = false
+                };
+
+                magnifierCrosshairV = new Line
+                {
+                    X1 = centerPos, X2 = centerPos,
+                    Y1 = 0, Y2 = innerSize,
+                    Stroke = Brushes.Red,
+                    StrokeThickness = 1,
+                    StrokeDashArray = new DoubleCollection { 3, 2 }, // Dotted
+                    IsHitTestVisible = false
+                };
+
+                // Center small frame (pixel selector)
+                var centerFrame = new Rectangle
+                {
+                    Width = 7, Height = 7,
+                    Stroke = Brushes.Black,
+                    StrokeThickness = 1,
+                    Fill = Brushes.Transparent,
+                    IsHitTestVisible = false
+                };
+                Canvas.SetLeft(centerFrame, centerPos - 3.5);
+                Canvas.SetTop(centerFrame, centerPos - 3.5);
+
+                // Container for Image + Crosshairs
+                magnifierCanvas = new Canvas
+                {
+                    Width = innerSize,
+                    Height = innerSize,
+                    Background = Brushes.White
+                };
+                magnifierCanvas.Children.Add(magnifierImage);
+                magnifierCanvas.Children.Add(magnifierCrosshairH);
+                magnifierCanvas.Children.Add(magnifierCrosshairV);
+                magnifierCanvas.Children.Add(centerFrame);
+
+                // Clip content to rounded corners
+                // If Palette is shown: Round Top only (by extending Bottom rect out of clip range?)
+                // Actually easiest way for Top-Rounding via Rect is: Rect(0, 0, W, H + R)
+                // If Palette is hidden: Round All corners.
+                double clipHeight = showColorPalette ? innerSize + cornerRad : innerSize;
+                
+                magnifierCanvas.Clip = new RectangleGeometry
+                {
+                    Rect = new Rect(0, 0, innerSize, clipHeight),
+                    RadiusX = Math.Max(0, cornerRad - borderThick),
+                    RadiusY = Math.Max(0, cornerRad - borderThick)
+                };
+                
+                containerStack.Children.Add(magnifierCanvas);
+            }
+
+            // ---------------------------------------------------------
+            // 2. Info Panel (Palette) Construction
+            // ---------------------------------------------------------
+            if (showColorPalette)
+            {
+                var infoStack = new StackPanel
+                {
+                    Orientation = Orientation.Vertical
+                };
+
+                // Radius Logic:
+                // If Magnifier shown: Bottom corners only.
+                // If Magnifier hidden: All corners.
+                var infoRadius = showMagnifier ? 
+                    new CornerRadius(0, 0, cornerRad, cornerRad) : 
+                    new CornerRadius(cornerRad);
+
+                var infoBorder = new Border
+                {
+                    Background = new SolidColorBrush(Color.FromRgb(40, 40, 40)), // Sleek Dark
+                    Padding = new Thickness(8),
+                    Child = infoStack,
+                    CornerRadius = infoRadius
+                };
+
+                // 3.1 Coordinates
+                coordsTextBlock = new TextBlock
+                {
+                    Text = "(0, 0)",
+                    Foreground = Brushes.White,
+                    FontSize = 14,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Margin = new Thickness(0, 5, 0, 5)
+                };
+
+                // 3.2 Color Row (Preview + Value)
+                var colorRow = new StackPanel
+                {
+                    Orientation = Orientation.Horizontal,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Margin = new Thickness(0, 5, 0, 5)
+                };
+                
+                colorPreviewRect = new Rectangle
+                {
+                    Width = 14, Height = 14,
+                    Stroke = Brushes.White,
+                    StrokeThickness = 1,
+                    Fill = Brushes.White,
+                    Margin = new Thickness(0, 0, 8, 0),
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                
+                colorValueTextBlock = new TextBlock
+                {
+                    Text = "#FFFFFF",
+                    Foreground = Brushes.White,
+                    FontSize = 14,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                
+                colorRow.Children.Add(colorPreviewRect);
+                colorRow.Children.Add(colorValueTextBlock);
+
+                // 3.3 Helper Text
+                var helpText1 = new TextBlock
+                {
+                    Text = "[C] 색상복사",
+                    Foreground = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                    FontSize = 11,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Margin = new Thickness(0, 5, 0, 0)
+                };
+                var helpText2 = new TextBlock
+                {
+                    Text = "[Shift] RGB/HEX 값 바꾸기",
+                    Foreground = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                    FontSize = 11,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Margin = new Thickness(0, 2, 0, 5)
+                };
+
+                infoStack.Children.Add(coordsTextBlock);
+                infoStack.Children.Add(colorRow);
+                infoStack.Children.Add(helpText1);
+                infoStack.Children.Add(helpText2);
+                
+                containerStack.Children.Add(infoBorder);
+            }
 
             magnifierBorder = new Border
             {
@@ -900,9 +932,9 @@ namespace CatchCapture.Utilities
         // CompositionTarget_Rendering 메서드 제거 (CaptureSelectionOverlay가 내부적으로 처리)
         private void UpdateMagnifier(Point mousePos)
         {
-            if (!showMagnifier) return;
+            if (!showMagnifier && !showColorPalette) return;
             // screenCapture 체크 제거: 이미지가 없어도 십자선은 그려야 함
-            if (magnifierBorder == null || magnifierImage == null)
+            if (magnifierBorder == null)
                 return;
 
             try
@@ -917,43 +949,49 @@ namespace CatchCapture.Utilities
                     int centerX = (int)(mousePos.X * dpi.DpiScaleX);
                     int centerY = (int)(mousePos.Y * dpi.DpiScaleY);
 
-                    // 1. Update Zoomed Image
-                    int cropSize = (int)(MagnifierSize / MagnificationFactor);
-                    int halfCrop = cropSize / 2;
-
-                    int cropX = Math.Max(0, Math.Min(centerX - halfCrop, screenCapture.PixelWidth - cropSize));
-                    int cropY = Math.Max(0, Math.Min(centerY - halfCrop, screenCapture.PixelHeight - cropSize));
-                    int cropW = Math.Min(cropSize, screenCapture.PixelWidth - cropX);
-                    int cropH = Math.Min(cropSize, screenCapture.PixelHeight - cropY);
-
-                    if (cropW > 0 && cropH > 0)
+                    // 1. Update Zoomed Image (If Magnifier Enabled)
+                    if (showMagnifier && magnifierImage != null)
                     {
-                        var croppedBitmap = new CroppedBitmap(screenCapture, new Int32Rect(cropX, cropY, cropW, cropH));
-                        magnifierImage.Source = croppedBitmap;
-                    }
+                        int cropSize = (int)(MagnifierSize / MagnificationFactor);
+                        int halfCrop = cropSize / 2;
 
-                    // 2. Extract Color at Cursor
-                    if (centerX >= 0 && centerY >= 0 && centerX < screenCapture.PixelWidth && centerY < screenCapture.PixelHeight)
-                    {
-                        byte[] pixels = new byte[4]; 
-                        var rect = new Int32Rect(centerX, centerY, 1, 1);
-                        try 
+                        int cropX = Math.Max(0, Math.Min(centerX - halfCrop, screenCapture.PixelWidth - cropSize));
+                        int cropY = Math.Max(0, Math.Min(centerY - halfCrop, screenCapture.PixelHeight - cropSize));
+                        int cropW = Math.Min(cropSize, screenCapture.PixelWidth - cropX);
+                        int cropH = Math.Min(cropSize, screenCapture.PixelHeight - cropY);
+
+                        if (cropW > 0 && cropH > 0)
                         {
-                            screenCapture.CopyPixels(rect, pixels, 4, 0);
-                            lastHoverColor = Color.FromRgb(pixels[2], pixels[1], pixels[0]);
-                            
-                            if (colorPreviewRect != null) 
-                                colorPreviewRect.Fill = new SolidColorBrush(lastHoverColor);
-                            
-                            UpdateColorInfoText();
+                            var croppedBitmap = new CroppedBitmap(screenCapture, new Int32Rect(cropX, cropY, cropW, cropH));
+                            magnifierImage.Source = croppedBitmap;
                         }
-                        catch { }
                     }
 
-                    // 3. Update Coords Text
-                    if (coordsTextBlock != null)
+                    // 2. Extract Color at Cursor (If Palette Enabled)
+                    if (showColorPalette)
                     {
-                        coordsTextBlock.Text = $"({centerX}, {centerY})";
+                        if (centerX >= 0 && centerY >= 0 && centerX < screenCapture.PixelWidth && centerY < screenCapture.PixelHeight)
+                        {
+                            byte[] pixels = new byte[4]; 
+                            var rect = new Int32Rect(centerX, centerY, 1, 1);
+                            try 
+                            {
+                                screenCapture.CopyPixels(rect, pixels, 4, 0);
+                                lastHoverColor = Color.FromRgb(pixels[2], pixels[1], pixels[0]);
+                                
+                                if (colorPreviewRect != null) 
+                                    colorPreviewRect.Fill = new SolidColorBrush(lastHoverColor);
+                                
+                                UpdateColorInfoText();
+                            }
+                            catch { }
+                        }
+
+                        // 3. Update Coords Text
+                        if (coordsTextBlock != null)
+                        {
+                            coordsTextBlock.Text = $"({centerX}, {centerY})";
+                        }
                     }
 
                     // 4. Update Position

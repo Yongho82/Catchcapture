@@ -475,6 +475,7 @@
                             <CheckBox x:Name="ChkAutoCopy" Content="{DynamicResource SettingsAutoCopyDesc}" Margin="0,5"/>
                             <CheckBox x:Name="ChkShowPreview" Content="{DynamicResource SettingsShowPreviewDesc}" Margin="0,5"/>
                             <CheckBox x:Name="ChkShowMagnifier" Content="{DynamicResource SettingsShowMagnifierDesc}" Margin="0,5"/>
+                            <CheckBox x:Name="ChkShowColorPalette" Content="{DynamicResource SettingsShowColorPaletteDesc}" Margin="0,5"/>
                         </StackPanel>
                     </GroupBox>
 
