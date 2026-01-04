@@ -110,6 +110,7 @@ namespace CatchCapture.Models
         public double HistoryPreviewPaneWidth { get; set; } = 331;
         public double HistoryListPaneWidth { get; set; } = 875;
         public int HistoryViewMode { get; set; } = 0; // 0: List, 1: Card
+        public int MainCaptureViewMode { get; set; } = 0; // 0: List, 1: Card
 
         // Preview Window State (Added)
         public double PreviewWindowWidth { get; set; } = 0;

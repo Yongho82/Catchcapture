@@ -231,11 +231,21 @@ public partial class MainWindow : Window
                 }
             }
             UpdateEmptyStateLogo();
-            UpdateViewModeUI();
-
-            // 초기 보기 모드 설정 (리스트형, 200x150 기준)
+            // 저장된 보기 모드 복원
+            if (settings.MainCaptureViewMode == 1)
+            {
+                currentViewMode = CaptureViewMode.Card;
+                this.Width = 830;
+                CaptureListPanel.HorizontalAlignment = HorizontalAlignment.Left;
+            }
+            else
+            {
+                currentViewMode = CaptureViewMode.List;
+                this.Width = 400;
+                CaptureListPanel.HorizontalAlignment = HorizontalAlignment.Center;
+            }
             CaptureListPanel.ItemWidth = 210;
-            CaptureListPanel.HorizontalAlignment = HorizontalAlignment.Center;
+            UpdateViewModeUI();
 
             // 초기 UI 텍스트 설정
             ScreenRecordButtonText.Text = LocalizationManager.GetString("ScreenRecording");
@@ -1094,6 +1104,9 @@ public partial class MainWindow : Window
             this.Width = 830;
             CaptureListPanel.ItemWidth = 210;
             CaptureListPanel.HorizontalAlignment = HorizontalAlignment.Left;
+            
+            settings.MainCaptureViewMode = 1;
+            Settings.Save(settings);
         }
         else
         {
@@ -1103,12 +1116,12 @@ public partial class MainWindow : Window
             this.Width = 400;
             CaptureListPanel.ItemWidth = 210; 
             CaptureListPanel.HorizontalAlignment = HorizontalAlignment.Center;
+            
+            settings.MainCaptureViewMode = 0;
+            Settings.Save(settings);
         }
         
-        // 화면 중앙 재배치
-        var workArea = SystemParameters.WorkArea;
-        this.Left = (workArea.Width - this.Width) / 2 + workArea.Left;
-        this.Top = (workArea.Height - this.Height) / 2 + workArea.Top;
+
 
         RebuildCaptureList();
         UpdateViewModeUI();
