@@ -805,7 +805,18 @@ namespace CatchCapture
                 {
                     try
                     {
-                        var flowDocument = (FlowDocument)System.Windows.Markup.XamlReader.Parse(note.ContentXaml);
+                        // [Fix] Multi-computer Cloud Sync: Redirect image paths
+                        string correctedXaml = note.ContentXaml;
+                        string currentImgFolder = DatabaseManager.Instance.GetImageFolderPath();
+                        var regex = new System.Text.RegularExpressions.Regex(@"Source=""([^""]*[\\/]img[\\/]([^""]+))""", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                        correctedXaml = regex.Replace(note.ContentXaml, match =>
+                        {
+                            string relativePath = match.Groups[2].Value;
+                            string fullPath = System.IO.Path.Combine(currentImgFolder, relativePath);
+                            return $@"Source=""{fullPath}""";
+                        });
+
+                        var flowDocument = (FlowDocument)System.Windows.Markup.XamlReader.Parse(correctedXaml);
                         flowDocument.PagePadding = new Thickness(0, 0, 10, 0); // Add slight right padding for scrollbar
                         flowDocument.PageWidth = double.NaN; // Allow auto-width
                         flowDocument.FontFamily = new FontFamily("Malgun Gothic, Segoe UI");

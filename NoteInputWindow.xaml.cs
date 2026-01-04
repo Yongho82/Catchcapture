@@ -707,11 +707,8 @@ namespace CatchCapture
                 // [Fix] Hide all image sliders before serializing XAML
                 Editor.HideAllSliders();
 
-                // [DISABLED] PrepareImagesForSave was causing duplicate image files
-                // Images are now solely managed by SaveNoteAsync in DatabaseManager
-                // which handles proper naming template and folder grouping.
-                // The XAML will contain in-memory image references that get resolved when reloading.
-                /*
+                // [Fix] Save in-memory images to files BEFORE serializing XAML
+                // This ensures XAML contains valid file paths and maintains interleaved text-image order
                 try
                 {
                     string imgDir = DatabaseManager.Instance.GetImageFolderPath();
@@ -721,7 +718,6 @@ namespace CatchCapture
                 {
                      Console.WriteLine($"PrepareImagesForSave Error: {ex.Message}");
                 }
-                */
 
                 var request = new SaveNoteRequest
                 {
@@ -733,7 +729,9 @@ namespace CatchCapture
                     CategoryId = (CboCategory.SelectedItem is Category cat) ? cat.Id : 1,
                     SourceApp = _sourceApp,
                     SourceUrl = _sourceUrl,
-                    Images = imagesInEditor.Select(img => { if (img.IsFrozen == false) img.Freeze(); return img; }).ToList()
+                    // [Fix] Do NOT pass images here - they are already saved by PrepareImagesForSave
+                    // and their paths are embedded in ContentXaml. This prevents duplicate files.
+                    Images = new List<BitmapSource>()
                 };
 
                 // Add existing, new, and deleted attachments

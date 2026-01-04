@@ -210,7 +210,18 @@ namespace CatchCapture
                                 {
                                     try 
                                     {
-                                        var flowDocument = (FlowDocument)System.Windows.Markup.XamlReader.Parse(contentXaml);
+                                        // [Fix] Multi-computer Cloud Sync: Redirect image paths
+                                        string correctedXaml = contentXaml;
+                                        string currentImgFolder = DatabaseManager.Instance.GetImageFolderPath();
+                                        var regex = new System.Text.RegularExpressions.Regex(@"Source=""([^""]*[\\/]img[\\/]([^""]+))""", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                                        correctedXaml = regex.Replace(contentXaml, match =>
+                                        {
+                                            string relativePath = match.Groups[2].Value;
+                                            string fullPath = System.IO.Path.Combine(currentImgFolder, relativePath);
+                                            return $@"Source=""{fullPath}""";
+                                        });
+
+                                        var flowDocument = (FlowDocument)System.Windows.Markup.XamlReader.Parse(correctedXaml);
                                         flowDocument.PagePadding = new Thickness(0);
                                         // Compact layout
                                         foreach (var block in flowDocument.Blocks)

@@ -1227,7 +1227,20 @@ namespace CatchCapture.Controls
             if (string.IsNullOrEmpty(xamlString)) return;
             try
             {
-                using (var ms = new System.IO.MemoryStream(System.Text.Encoding.UTF8.GetBytes(xamlString)))
+                // [Fix] Multi-computer Cloud Sync: Redirect image paths to current computer's storage
+                string correctedXaml = xamlString;
+                string currentImgFolder = DatabaseManager.Instance.GetImageFolderPath();
+                
+                // Replace any path ending with \img\... with the current computer's img folder
+                var regex = new Regex(@"Source=""([^""]*[\\/]img[\\/]([^""]+))""", RegexOptions.IgnoreCase);
+                correctedXaml = regex.Replace(xamlString, match =>
+                {
+                    string relativePath = match.Groups[2].Value;
+                    string fullPath = System.IO.Path.Combine(currentImgFolder, relativePath);
+                    return $@"Source=""{fullPath}""";
+                });
+
+                using (var ms = new System.IO.MemoryStream(System.Text.Encoding.UTF8.GetBytes(correctedXaml)))
                 {
                     var flowDocument = (FlowDocument)System.Windows.Markup.XamlReader.Load(ms);
                     RtbEditor.Document = flowDocument;
@@ -1696,13 +1709,27 @@ namespace CatchCapture.Controls
             var imageControls = GetAllImageControls();
             foreach (var img in imageControls)
             {
-                // Check if it is a memory bitmap (RenderTargetBitmap or BitmapImage with no Uri)
+                // Check if it needs to be saved to the note storage folder
                 bool needsSave = false;
                 if (img.Source is BitmapSource bs)
                 {
                      if (bs is BitmapImage bi)
                      {
-                         if (bi.UriSource == null || !bi.UriSource.IsFile) needsSave = true;
+                         if (bi.UriSource == null || !bi.UriSource.IsFile)
+                         {
+                             // In-memory or remote image - needs save
+                             needsSave = true;
+                         }
+                         else
+                         {
+                             // File-based image - check if it's OUTSIDE the note storage folder
+                             string localPath = bi.UriSource.LocalPath;
+                             if (!localPath.StartsWith(imageSaveDir, StringComparison.OrdinalIgnoreCase))
+                             {
+                                 // Image is from outside (e.g., user's Pictures folder) - needs to be copied
+                                 needsSave = true;
+                             }
+                         }
                      }
                      else
                      {
