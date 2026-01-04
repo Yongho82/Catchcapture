@@ -43,6 +43,14 @@ namespace CatchCapture.Utilities
         private string DbPath => _dbPath;
         private static readonly object _dbLock = new object();
         private SqliteConnection? _activeConnection;
+        private string? _noteLockingMachine;
+        private string? _historyLockingMachine;
+        private System.Timers.Timer? _heartbeatTimer;
+        public event Action? OwnershipLost;
+
+        public string? NoteLockingMachine => _noteLockingMachine;
+        public string? HistoryLockingMachine => _historyLockingMachine;
+        public string HistoryDbFilePath => _historyDbPath;
 
         public string DbFilePath => _dbPath;
 
@@ -64,6 +72,9 @@ namespace CatchCapture.Utilities
 
             InitializeDatabase();
             InitializeHistoryDatabase(); // Separate DB initialization
+            
+            // Check for cross-computer locks (Cloud sync safety)
+            CheckAndCreateLock();
 
             Settings.SettingsChanged += (s, e) => {
                 Reinitialize();
@@ -104,9 +115,142 @@ namespace CatchCapture.Utilities
             _historyDbPath = Path.Combine(settings.DefaultSaveFolder, "history", "history.db");
             InitializeDatabase();
             InitializeHistoryDatabase();
+            CheckAndCreateLock();
+            StartHeartbeat();
         }
 
-        public void Reload() => InitializeDatabase();
+        private void StartHeartbeat()
+        {
+            if (_heartbeatTimer == null)
+            {
+                _heartbeatTimer = new System.Timers.Timer(60000); // 1 minute
+                _heartbeatTimer.Elapsed += (s, e) => UpdateLocks(false);
+                _heartbeatTimer.AutoReset = true;
+                _heartbeatTimer.Start();
+            }
+        }
+
+        private void UpdateLocks(bool forceWrite)
+        {
+            try
+            {
+                string currentIdentity = $"{Environment.MachineName}:{Environment.ProcessId}";
+                string ticks = DateTime.Now.Ticks.ToString();
+
+                // Check for takeover on Note Lock
+                string noteLockPath = _dbPath + ".lock";
+                if (!forceWrite && File.Exists(noteLockPath))
+                {
+                    string content = File.ReadAllText(noteLockPath);
+                    if (!content.StartsWith(currentIdentity))
+                    {
+                        // Someone else took over!
+                        OwnershipLost?.Invoke();
+                        return;
+                    }
+                }
+
+                File.WriteAllText(noteLockPath, $"{currentIdentity}|{ticks}");
+
+                // Update History Lock
+                string historyLockPath = _historyDbPath + ".lock";
+                File.WriteAllText(historyLockPath, $"{currentIdentity}|{ticks}");
+            }
+            catch { }
+        }
+
+        public void Reload() 
+        {
+            InitializeDatabase();
+            CheckAndCreateLock();
+        }
+
+        private void CheckAndCreateLock()
+        {
+            try
+            {
+                // Just detect, don't write yet. UI will call TakeOwnership() after showing warning.
+                _noteLockingMachine = CheckLock(_dbPath);
+                _historyLockingMachine = CheckLock(_historyDbPath);
+            }
+            catch { }
+        }
+
+        public void TakeOwnership()
+        {
+            UpdateLocks(true);
+            StartHeartbeat();
+        }
+
+        private string? CheckLock(string dbFilePath)
+        {
+            try
+            {
+                string lockPath = dbFilePath + ".lock";
+                string currentMachine = Environment.MachineName;
+
+                if (File.Exists(lockPath))
+                {
+                    string content = File.ReadAllText(lockPath);
+                    string[] parts = content.Split('|');
+                    if (parts.Length > 0)
+                    {
+                        string lockingIdentity = parts[0];
+                        string currentIdentity = $"{Environment.MachineName}:{Environment.ProcessId}";
+                        if (lockingIdentity != currentIdentity)
+                        {
+                            // If same machine but different PID, or different machine entirely
+                            string lockingMachine = lockingIdentity.Split(':')[0];
+                            // Check if the lock is recent (heartbeat within 3 mins) or stale (crash case)
+                            if (parts.Length > 1 && long.TryParse(parts[1], out long ticks))
+                            {
+                                DateTime lockTime = new DateTime(ticks);
+                                // If updated within 3 minutes, it's definitely active. 
+                                // Otherwise, we still show warning if it's less than 24 hours just in case of slow cloud sync.
+                                if (DateTime.Now - lockTime < TimeSpan.FromHours(24))
+                                {
+                                    return lockingMachine;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+            return null;
+        }
+
+        public void RemoveLock()
+        {
+            try
+            {
+                _heartbeatTimer?.Stop();
+                _heartbeatTimer?.Dispose();
+                _heartbeatTimer = null;
+
+                RemoveSingleLock(_dbPath);
+                RemoveSingleLock(_historyDbPath);
+            }
+            catch { }
+        }
+
+        private void RemoveSingleLock(string dbFilePath)
+        {
+            try
+            {
+                string lockPath = dbFilePath + ".lock";
+                if (File.Exists(lockPath))
+                {
+                    string content = File.ReadAllText(lockPath);
+                    string currentIdentity = $"{Environment.MachineName}:{Environment.ProcessId}";
+                    if (content.StartsWith(currentIdentity))
+                    {
+                        File.Delete(lockPath);
+                    }
+                }
+            }
+            catch { }
+        }
 
         public static string ResolveStoragePath(string path)
         {

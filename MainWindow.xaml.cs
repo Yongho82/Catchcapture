@@ -181,6 +181,9 @@ public partial class MainWindow : Window
         InitializeScreenshotCache();
         UpdateOpenEditorToggleUI();
 
+        // [Cross-computer Registry] Ownership Loss Handler
+        DatabaseManager.Instance.OwnershipLost += OnDatabaseOwnershipLost;
+
         this.Loaded += (s, e) =>
         {
             var helper = new WindowInteropHelper(this);
@@ -268,7 +271,67 @@ public partial class MainWindow : Window
             {
                 Debug.WriteLine($"Cleanup error: {ex.Message}");
             }
+
+            // [Cross-computer Lock Warning]
+            string noteLock = DatabaseManager.Instance.NoteLockingMachine;
+            string historyLock = DatabaseManager.Instance.HistoryLockingMachine;
+
+            if (!string.IsNullOrEmpty(noteLock) || !string.IsNullOrEmpty(historyLock))
+            {
+                string message = "[공유 저장소 중복 실행 알림]\n\n";
+                
+                if (!string.IsNullOrEmpty(noteLock) && !string.IsNullOrEmpty(historyLock) && 
+                    IOPath.GetDirectoryName(DatabaseManager.Instance.DbFilePath) == IOPath.GetDirectoryName(DatabaseManager.Instance.HistoryDbFilePath))
+                {
+                    // Same folder
+                    string folder = IOPath.GetDirectoryName(DatabaseManager.Instance.DbFilePath) ?? "데이터 폴더";
+                    message += $"현재 다른 컴퓨터('{noteLock}')에서 '노트 및 히스토리' 저장소를 사용 중입니다.\n\n" +
+                               $"공유 폴더: {folder}\n\n";
+                }
+                else
+                {
+                    // Different folders or only one
+                    if (!string.IsNullOrEmpty(noteLock))
+                    {
+                        string folder = IOPath.GetDirectoryName(DatabaseManager.Instance.DbFilePath) ?? "노트 폴더";
+                        message += $"[노트 저장소] 다른 컴퓨터('{noteLock}')에서 사용 중\n" +
+                                   $"경로: {folder}\n\n";
+                    }
+                    if (!string.IsNullOrEmpty(historyLock))
+                    {
+                        string folder = IOPath.GetDirectoryName(DatabaseManager.Instance.HistoryDbFilePath) ?? "히스토리 폴더";
+                        message += $"[히스토리 저장소] 다른 컴퓨터('{historyLock}')에서 사용 중\n" +
+                                   $"경로: {folder}\n\n";
+                    }
+                }
+
+                message += "여러 컴퓨터에서 동시에 동일한 데이터를 사용할 경우,\n" +
+                           "기록이 유실되거나 데이터가 깨질 위험이 매우 큽니다.\n\n" +
+                           "데이터 보호를 위해 반드시 한쪽 컴퓨터의 프로그램을 종료한 후 사용해 주세요.\n\n" +
+                           "확인을 누르면 이 샘플링에서 점유권을 가져옵니다.";
+
+                CustomMessageBox.Show(message, "데이터 손실 주의", MessageBoxButton.OK, MessageBoxImage.Warning, width: 500);
+            }
+
+            // Always Take Ownership (either initial or takeover)
+            DatabaseManager.Instance.TakeOwnership();
         };
+    }
+
+    private void OnDatabaseOwnershipLost()
+    {
+        Dispatcher.Invoke(() =>
+        {
+            CustomMessageBox.Show(
+                "다른 컴퓨터에서 이 저장소의 사용 권한을 가져갔습니다.\n" +
+                "데이터 충돌 방지를 위해 프로그램을 종료합니다.\n\n" +
+                "다시 사용하시려면 공유 폴더 상태를 확인해 주세요.",
+                "원격 프로그램 종료 안내",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            
+            Application.Current.Shutdown();
+        });
     }
 
     private void OnSettingsChanged(object? sender, EventArgs e)

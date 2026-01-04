@@ -24,15 +24,16 @@ namespace CatchCapture
         /// <summary>
         /// 커스텀 메시지 박스 표시 (정적 메서드)
         /// </summary>
-        public static MessageBoxResult Show(string message, string? title = null, MessageBoxButton button = MessageBoxButton.OK, MessageBoxImage image = MessageBoxImage.None)
+        public static MessageBoxResult Show(string message, string? title = null, MessageBoxButton button = MessageBoxButton.OK, MessageBoxImage image = MessageBoxImage.None, double width = 0)
         {
             // UI 스레드에서 실행되도록 보장 (비동기 호출 등에서 안전하게)
             if (Application.Current != null && !Application.Current.Dispatcher.CheckAccess())
             {
-                return Application.Current.Dispatcher.Invoke(() => Show(message, title, button, image));
+                return Application.Current.Dispatcher.Invoke(() => Show(message, title, button, image, width));
             }
 
             var msgBox = new CustomMessageBox();
+            if (width > 0) msgBox.Width = width;
             msgBox.TitleText.Text = title ?? LocalizationManager.GetString("Notice");
             // 마침표+공백이 있으면 줄바꿈으로 변경하여 가독성 향상
             msgBox.MessageText.Text = message.Replace(". ", ".\n");

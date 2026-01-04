@@ -24,7 +24,6 @@ namespace CatchCapture
         private const int PAGE_SIZE = 17;
         private int _totalPages = 1;
         private string _currentSortOrder = "n.UpdatedAt DESC";
-        private DateTime _lastKnownDbTime;
 
         private System.Windows.Threading.DispatcherTimer? _tipTimer;
         private int _currentTipIndex = 0;
@@ -99,9 +98,9 @@ namespace CatchCapture
                 // Centralized Hyperlink Click Handler for Preview Area
                 PreviewViewer.PreviewMouseLeftButtonDown += PreviewViewer_PreviewMouseLeftButtonDown;
 
-                this.Activated += NoteExplorerWindow_Activated;
+                // Removed unused sync check registration
                 
-                LoadNotes(filter: "Recent");
+                _ = LoadNotes(filter: "Recent");
                 LoadTags();
                 InitializeTipTimer();
                 HighlightSidebarButton(BtnFilterRecent);
@@ -373,7 +372,7 @@ namespace CatchCapture
             this.Close();
         }
 
-        private void BtnNoteSettings_Click(object sender, RoutedEventArgs e)
+        private async void BtnNoteSettings_Click(object sender, RoutedEventArgs e)
         {
             var settingsWin = new SettingsWindow();
             settingsWin.Owner = this;
@@ -381,13 +380,13 @@ namespace CatchCapture
             if (settingsWin.ShowDialog() == true)
             {
                 // Settings might have changed (e.g. storage path), refresh if needed
-                LoadNotes();
+                await LoadNotes();
             }
         }
 
-        public void RefreshNotes()
+        public async Task RefreshNotes()
         {
-            LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage);
+            await LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage);
         }
 
         private void InitializeTipTimer()
@@ -439,9 +438,6 @@ namespace CatchCapture
         {
             try
             {
-                // Update track time to prevent immediate auto-refresh after manual load
-                string dbPath = DatabaseManager.Instance.DbFilePath;
-                if (File.Exists(dbPath)) _lastKnownDbTime = File.GetLastWriteTime(dbPath);
 
                 _currentFilter = filter;
                 _currentTag = tag;
@@ -766,9 +762,9 @@ namespace CatchCapture
                     Tag = (i == _currentPage) ? "Active" : ""
                 };
                 int targetPage = i;
-                btn.Click += (s, e) => {
+                btn.Click += async (s, e) => {
                     _currentPage = targetPage;
-                    LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage);
+                    await LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage);
                 };
                 PanelPagination.Children.Add(btn);
             }
@@ -779,22 +775,22 @@ namespace CatchCapture
             BtnLastPage.IsEnabled = _currentPage < _totalPages;
         }
 
-        private void BtnFirstPage_Click(object sender, RoutedEventArgs e) { _currentPage = 1; LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage); }
-        private void BtnPrevPage_Click(object sender, RoutedEventArgs e) { if (_currentPage > 1) { _currentPage--; LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage); } }
-        private void BtnNextPage_Click(object sender, RoutedEventArgs e) { if (_currentPage < _totalPages) { _currentPage++; LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage); } }
-        private void BtnLastPage_Click(object sender, RoutedEventArgs e) { _currentPage = _totalPages; LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage); }
+        private async void BtnFirstPage_Click(object sender, RoutedEventArgs e) { _currentPage = 1; await LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage); }
+        private async void BtnPrevPage_Click(object sender, RoutedEventArgs e) { if (_currentPage > 1) { _currentPage--; await LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage); } }
+        private async void BtnNextPage_Click(object sender, RoutedEventArgs e) { if (_currentPage < _totalPages) { _currentPage++; await LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage); } }
+        private async void BtnLastPage_Click(object sender, RoutedEventArgs e) { _currentPage = _totalPages; await LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage); }
 
-        private void TxtSearch_KeyDown(object sender, KeyEventArgs e)
+        private async void TxtSearch_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
             {
-                LoadNotes(_currentFilter, _currentTag, TxtSearch.Text, 1);
+                await LoadNotes(_currentFilter, _currentTag, TxtSearch.Text, 1);
             }
         }
 
-        private void BtnSearch_Click(object sender, RoutedEventArgs e)
+        private async void BtnSearch_Click(object sender, RoutedEventArgs e)
         {
-            LoadNotes(_currentFilter, _currentTag, TxtSearch.Text, 1);
+            await LoadNotes(_currentFilter, _currentTag, TxtSearch.Text, 1);
         }
 
 
@@ -1071,7 +1067,7 @@ namespace CatchCapture
             }
         }
 
-        private void BtnNewNote_Click(object sender, RoutedEventArgs e)
+        private async void BtnNewNote_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -1080,7 +1076,7 @@ namespace CatchCapture
                 noteInput.Owner = this;
                 if (noteInput.ShowDialog() == true)
                 {
-                    LoadNotes(); // Refresh list after saving
+                    await LoadNotes(); // Refresh list after saving
                     LoadTags();
                 }
             }
@@ -1090,7 +1086,7 @@ namespace CatchCapture
             }
         }
 
-        private void BtnEditNote_Click(object sender, RoutedEventArgs e)
+        private async void BtnEditNote_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -1100,7 +1096,7 @@ namespace CatchCapture
                     inputWin.Owner = this;
                     if (inputWin.ShowDialog() == true)
                     {
-                        LoadNotes(); // Refresh list after edit
+                        await LoadNotes(); // Refresh list after edit
                         LoadTags();
                     }
                 }
@@ -1111,7 +1107,7 @@ namespace CatchCapture
             }
         }
 
-        private void BtnDeleteItem_Click(object sender, RoutedEventArgs e)
+        private async void BtnDeleteItem_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.Tag is long noteId)
             {
@@ -1122,7 +1118,7 @@ namespace CatchCapture
                     PreviewViewer.Document = null;
 
                     DeleteNote(noteId);
-                    LoadNotes(); // Refresh
+                    await LoadNotes(); // Refresh
                     LoadTags();  // Refresh tags after cleanup
                 }
             }
@@ -1336,7 +1332,7 @@ namespace CatchCapture
             }
         }
 
-        private void BtnDeleteSelected_Click(object sender, RoutedEventArgs e)
+        private async void BtnDeleteSelected_Click(object sender, RoutedEventArgs e)
         {
             // 1. Check for checked items (CheckBox)
             var checkedNotes = new List<NoteViewModel>();
@@ -1378,17 +1374,17 @@ namespace CatchCapture
                 {
                     DeleteNote(note.Id);
                 }
-                LoadNotes(); // Refresh
+                await LoadNotes(); // Refresh
                 LoadTags();  // Refresh tags after cleanup
             }
         }
 
-        private void BtnFilter_Click(object sender, RoutedEventArgs e)
+        private async void BtnFilter_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.Tag is string filter)
             {
                 TxtSearch.Text = "";
-                LoadNotes(filter: filter, page: 1);
+                await LoadNotes(filter: filter, page: 1);
                 HighlightSidebarButton(btn);
                 
                 // Toggle Recent Sub-filters
@@ -1418,7 +1414,7 @@ namespace CatchCapture
             }
         }
         
-        private void BtnEmptyTrash_Click(object sender, RoutedEventArgs e)
+        private async void BtnEmptyTrash_Click(object sender, RoutedEventArgs e)
         {
             if (CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("TrashEmptyWarning"), 
                 CatchCapture.Resources.LocalizationManager.GetString("ConfirmDelete"), 
@@ -1485,7 +1481,7 @@ namespace CatchCapture
                         }
                     }
                     
-                    LoadNotes("Trash"); // Refresh current view
+                    await LoadNotes("Trash"); // Refresh current view
                     UpdateSidebarCounts(); // Refresh counts
                     CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("TrashEmptyComplete"), CatchCapture.Resources.LocalizationManager.GetString("Notice"));
                 }
@@ -1535,17 +1531,17 @@ namespace CatchCapture
             }
         }
 
-        private void BtnTag_Click(object sender, RoutedEventArgs e)
+        private async void BtnTag_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.Tag is string tagName)
             {
                 TxtSearch.Text = "";
-                LoadNotes(tag: tagName, page: 1);
+                await LoadNotes(tag: tagName, page: 1);
                 HighlightSidebarButton(btn);
             }
         }
 
-        private void BtnClearTags_Click(object sender, RoutedEventArgs e)
+        private async void BtnClearTags_Click(object sender, RoutedEventArgs e)
         {
             if (CatchCapture.CustomMessageBox.Show("정말로 모든 태그를 삭제하시겠습니까?\n모든 노트에서 태그 정보가 제거됩니다.", "태그 비우기", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
             {
@@ -1586,7 +1582,7 @@ namespace CatchCapture
                     string? nextTag = _currentTag;
                     if (!string.IsNullOrEmpty(nextTag)) nextTag = null; // 태그 비웠으니 태그 필터 해제
                     
-                    LoadNotes(_currentFilter, nextTag, _currentSearch, 1);
+                    await LoadNotes(_currentFilter, nextTag, _currentSearch, 1);
                     CatchCapture.CustomMessageBox.Show("모든 태그가 삭제되었습니다.", "알림");
                 }
                 catch (Exception ex)
@@ -1596,7 +1592,7 @@ namespace CatchCapture
             }
         }
 
-        private void BtnDeleteSingleTag_Click(object sender, RoutedEventArgs e)
+        private async void BtnDeleteSingleTag_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.Tag is string tagName)
             {
@@ -1657,12 +1653,12 @@ namespace CatchCapture
                         if (_currentTag == tagName)
                         {
                             _currentTag = null;
-                            LoadNotes(_currentFilter, null, _currentSearch, 1);
+                            await LoadNotes(_currentFilter, null, _currentSearch, 1);
                         }
                         else
                         {
                             // Just reload current list to reflect tag removal
-                             LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage);
+                             await LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage);
                         }
                         
                         CatchCapture.CustomMessageBox.Show($"태그 '#{tagName}'가 삭제되었습니다.", "알림");
@@ -1708,26 +1704,26 @@ namespace CatchCapture
             }
         }
 
-        private void BtnSort_Click(object sender, RoutedEventArgs e)
+        private async void BtnSort_Click(object sender, RoutedEventArgs e)
         {
             if (sender is MenuItem item && item.Tag is string sort)
             {
                 _currentSortOrder = sort;
-                LoadNotes(_currentFilter, _currentTag, _currentSearch, 1);
+                await LoadNotes(_currentFilter, _currentTag, _currentSearch, 1);
             }
         }
 
-        private void BtnCategory_Click(object sender, RoutedEventArgs e)
+        private async void BtnCategory_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.Tag is long id)
             {
                 TxtSearch.Text = "";
-                LoadNotes(filter: $"Category:{id}");
+                await LoadNotes(filter: $"Category:{id}");
                 HighlightSidebarButton(btn);
             }
         }
 
-        private void BtnRestoreItem_Click(object sender, RoutedEventArgs e)
+        private async void BtnRestoreItem_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.Tag is long noteId)
             {
@@ -1744,7 +1740,7 @@ namespace CatchCapture
                                 command.ExecuteNonQuery();
                             }
                         }
-                        LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage);
+                        await LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage);
                         UpdateSidebarCounts();
                     }
                     catch (Exception ex)
@@ -1755,7 +1751,7 @@ namespace CatchCapture
             }
         }
 
-        private void BtnPinItem_Click(object sender, RoutedEventArgs e)
+        private async void BtnPinItem_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.DataContext is NoteViewModel note)
             {
@@ -1777,7 +1773,7 @@ namespace CatchCapture
                     note.IsPinned = newPinned;
                     
                     // Re-sort to bring pinned to top
-                    LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage);
+                    await LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage);
                 }
                 catch (Exception ex)
                 {
@@ -1917,36 +1913,6 @@ namespace CatchCapture
             }
         }
 
-        private void NoteExplorerWindow_Activated(object sender, EventArgs e)
-        {
-            try
-            {
-                string dbPath = DatabaseManager.Instance.DbFilePath;
-                if (File.Exists(dbPath))
-                {
-                    DateTime currentWriteTime = File.GetLastWriteTime(dbPath);
-                    if (_lastKnownDbTime != DateTime.MinValue && currentWriteTime > _lastKnownDbTime)
-                    {
-                        // DB changed (possibly by cloud sync)
-                        DatabaseManager.Instance.CloseConnection();
-                        LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage);
-                    }
-                    _lastKnownDbTime = currentWriteTime;
-                }
-            }
-            catch { }
-        }
-
-        private async void BtnSync_Click(object sender, RoutedEventArgs e)
-        {
-            // Visual feedback - simple rotate once if possible, but for now just refresh
-            DatabaseManager.Instance.CloseConnection();
-            LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage);
-            
-            // Update last known time
-            string dbPath = DatabaseManager.Instance.DbFilePath;
-            if (File.Exists(dbPath)) _lastKnownDbTime = File.GetLastWriteTime(dbPath);
-        }
 
         private void HookHyperlinks(FlowDocument doc)
         {
