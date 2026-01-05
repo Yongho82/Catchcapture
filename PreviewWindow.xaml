@@ -451,29 +451,7 @@
         <!-- 이미지 표시 영역 (전체 바둑판 배경) -->
         <Border Grid.Row="2" Grid.Column="0" BorderThickness="0">
             <Border.Background>
-                <DrawingBrush TileMode="Tile" Viewport="0,0,20,20" ViewportUnits="Absolute">
-                    <DrawingBrush.Drawing>
-                        <DrawingGroup>
-                            <!-- 배경색 (테마 배경) -->
-                            <GeometryDrawing Brush="{DynamicResource ThemeBackground}">
-                                <GeometryDrawing.Geometry>
-                                    <RectangleGeometry Rect="0,0,20,20"/>
-                                </GeometryDrawing.Geometry>
-                            </GeometryDrawing>
-                            <!-- 체크무늬 (테마 글자색의 10% 투명도) -->
-                            <DrawingGroup Opacity="0.1">
-                                <GeometryDrawing Brush="{DynamicResource ThemeForeground}">
-                                    <GeometryDrawing.Geometry>
-                                        <GeometryGroup>
-                                            <RectangleGeometry Rect="0,0,10,10"/>
-                                            <RectangleGeometry Rect="10,10,10,10"/>
-                                        </GeometryGroup>
-                                    </GeometryDrawing.Geometry>
-                                </GeometryDrawing>
-                            </DrawingGroup>
-                        </DrawingGroup>
-                    </DrawingBrush.Drawing>
-                </DrawingBrush>
+                <DynamicResource ResourceKey="CheckerboardBrush"/>
             </Border.Background>
             <Grid>
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">

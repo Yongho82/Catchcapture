@@ -272,15 +272,19 @@ public partial class App : Application
                 var checkerBrush = new DrawingBrush
                 {
                     TileMode = TileMode.Tile,
-                    Viewport = new Rect(0, 0, 20, 20),
+                    Viewport = new Rect(0, 0, 30, 30),
                     ViewportUnits = BrushMappingMode.Absolute
                 };
+                
+                // Determine opacity based on theme brightness
+                double checkerOpacity = (brightness < 0.5) ? 0.03 : 0.05;
+
                 var group = new DrawingGroup();
-                group.Children.Add(new GeometryDrawing(new SolidColorBrush(bgColor), null, new RectangleGeometry(new Rect(0, 0, 20, 20))));
-                var checkGroup = new DrawingGroup { Opacity = 0.1 };
+                group.Children.Add(new GeometryDrawing(new SolidColorBrush(bgColor), null, new RectangleGeometry(new Rect(0, 0, 30, 30))));
+                var checkGroup = new DrawingGroup { Opacity = checkerOpacity };
                 var checkGeom = new GeometryGroup();
-                checkGeom.Children.Add(new RectangleGeometry(new Rect(0, 0, 10, 10)));
-                checkGeom.Children.Add(new RectangleGeometry(new Rect(10, 10, 10, 10)));
+                checkGeom.Children.Add(new RectangleGeometry(new Rect(0, 0, 15, 15)));
+                checkGeom.Children.Add(new RectangleGeometry(new Rect(15, 15, 15, 15)));
                 checkGroup.Children.Add(new GeometryDrawing(new SolidColorBrush(fgColor), null, checkGeom));
                 group.Children.Add(checkGroup);
                 checkerBrush.Drawing = group;
