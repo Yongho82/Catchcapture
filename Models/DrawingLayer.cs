@@ -45,6 +45,7 @@ namespace CatchCapture.Models
         // 모자이크용
         public Int32Rect? MosaicArea { get; set; }
         public int MosaicPixelSize { get; set; }
+        public bool IsBlurred { get; set; }
         
         // 레이어 식별 및 상태용
         public int LayerId { get; set; }

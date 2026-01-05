@@ -106,7 +106,11 @@ namespace CatchCapture.Controls
                     MosaicOptions.Visibility = Visibility.Visible;
                     ColorSection.Visibility = Visibility.Collapsed; // 모자이크는 색상 없음
                     Separator.Visibility = Visibility.Collapsed;
-                    if (_editor != null) MosaicSlider.Value = _editor.MosaicIntensity;
+                    if (_editor != null) 
+                    {
+                        MosaicSlider.Value = _editor.MosaicIntensity;
+                        BlurCheck.IsChecked = _editor.UseBlur;
+                    }
                     break;
                 case "지우개":
                     EraserOptions.Visibility = Visibility.Visible;
@@ -186,6 +190,10 @@ namespace CatchCapture.Controls
             // 마법봉
             MagicWandToleranceSlider.Value = _editor.MagicWandTolerance;
             MagicWandContiguousCheck.IsChecked = _editor.MagicWandContiguous;
+
+            // 모자이크
+            MosaicSlider.Value = _editor.MosaicIntensity;
+            BlurCheck.IsChecked = _editor.UseBlur;
         }
 
         private void UpdateNumberingTabSelection()
@@ -325,6 +333,12 @@ namespace CatchCapture.Controls
                 if (_editor == null) return;
                 _editor.MosaicIntensity = e.NewValue;
                 MosaicValue.Text = $"{(int)e.NewValue}";
+            };
+            BlurCheck.Checked += (s, e) => {
+                if (_editor != null) _editor.UseBlur = true;
+            };
+            BlurCheck.Unchecked += (s, e) => {
+                if (_editor != null) _editor.UseBlur = false;
             };
             
             // Eraser
@@ -510,6 +524,7 @@ namespace CatchCapture.Controls
             NumBadgeLabel.Text = ResLoc.GetString("BadgeSize");
 
             MosaicLabel.Text = ResLoc.GetString("Intensity");
+            BlurCheck.Content = ResLoc.GetString("Blur");
             EraserLabel.Text = ResLoc.GetString("Size");
             MagicWandLabel.Text = ResLoc.GetString("MagicWandToleranceLabel");
             MagicWandContiguousCheck.Content = ResLoc.GetString("MagicWandContiguousOnly");

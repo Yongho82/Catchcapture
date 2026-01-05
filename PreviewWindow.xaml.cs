@@ -190,8 +190,9 @@ namespace CatchCapture
         {
             if (currentImage == null) return;
             SaveForUndo();
-            int intensity = (int)(_editorManager?.MosaicIntensity ?? 15);
-            currentImage = ImageEditUtility.ApplyMosaic(currentImage, new Int32Rect((int)rect.X, (int)rect.Y, (int)rect.Width, (int)rect.Height), intensity);
+            int intensity = (int)_editorManager.MosaicIntensity;
+            bool useBlur = _editorManager.UseBlur;
+            currentImage = ImageEditUtility.ApplyMosaic(currentImage, new Int32Rect((int)rect.X, (int)rect.Y, (int)rect.Width, (int)rect.Height), intensity, useBlur);
             UpdatePreviewImage();
         }
 

@@ -811,4 +811,5 @@
   <data name="HistoryTip4" xml:space="preserve"><value>항목을 선택하고 '내 노트로 저장'을 누르면 캡처 당시의 정보를 포함해 노트로 생성됩니다.</value></data>
   <data name="HistoryTip5" xml:space="preserve"><value>리스트 항목을 더블 클릭하면 윈도우 기본 뷰어로 원본 파일을 크게 볼 수 있습니다.</value></data>
   <data name="HistoryTip6" xml:space="preserve"><value>휴지통에 버려진 기록은 설정된 보관 기간이 지나면 자동으로 영구 삭제됩니다.</value></data>
+  <data name="Blur" xml:space="preserve"><value>블러</value></data>
 </root>

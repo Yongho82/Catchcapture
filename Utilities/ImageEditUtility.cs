@@ -85,20 +85,68 @@ namespace CatchCapture.Utilities
             return renderTargetBitmap;
         }
 
-        public static BitmapSource ApplyMosaic(BitmapSource source, Int32Rect area, int pixelSize)
+        public static BitmapSource ApplyMosaic(BitmapSource source, Int32Rect area, int pixelSize, bool useBlur = false)
         {
+            if (useBlur)
+            {
+                // 블러 효과: 축소 후 부드러운 보간법(Linear)으로 확대
+                int width = source.PixelWidth;
+                int height = source.PixelHeight;
+
+                // 영역 유효성 검사
+                int x = Math.Max(0, area.X);
+                int y = Math.Max(0, area.Y);
+                int w = Math.Min(width - x, area.Width);
+                int h = Math.Min(height - y, area.Height);
+
+                if (w <= 0 || h <= 0) return source;
+
+                // 1. 해당 영역 크롭
+                var cropped = new CroppedBitmap(source, new Int32Rect(x, y, w, h));
+
+                // 2. 축소
+                double scale = 1.0 / Math.Max(1, pixelSize);
+                var transformed = new TransformedBitmap(cropped, new ScaleTransform(scale, scale));
+
+                // 3. 다시 원래 크기로 렌더링 (Linear 보간 사용)
+                var drawingVisual = new DrawingVisual();
+                using (var dc = drawingVisual.RenderOpen())
+                {
+                    // Linear 모드로 설정하여 부드럽게 뭉개지도록 함
+                    RenderOptions.SetBitmapScalingMode(drawingVisual, BitmapScalingMode.Linear);
+                    dc.DrawImage(transformed, new Rect(0, 0, w, h));
+                }
+
+                var rtbArea = new RenderTargetBitmap(w, h, source.DpiX, source.DpiY, PixelFormats.Pbgra32);
+                rtbArea.Render(drawingVisual);
+
+                // 4. 원본 이미지에 합성
+                var finalVisual = new DrawingVisual();
+                using (var dc = finalVisual.RenderOpen())
+                {
+                    dc.DrawImage(source, new Rect(0, 0, width, height));
+                    dc.DrawImage(rtbArea, new Rect(x, y, w, h));
+                }
+
+                var finalRtb = new RenderTargetBitmap(width, height, source.DpiX, source.DpiY, PixelFormats.Pbgra32);
+                finalRtb.Render(finalVisual);
+
+                return finalRtb;
+            }
+
+            // 기존 모자이크 픽셀링 로직
             // 원본 이미지를 픽셀 배열로 변환
-            int width = source.PixelWidth;
-            int height = source.PixelHeight;
-            int stride = width * 4; // BGRA 형식
-            byte[] pixels = new byte[height * stride];
+            int sWidth = source.PixelWidth;
+            int sHeight = source.PixelHeight;
+            int stride = sWidth * 4; // BGRA 형식
+            byte[] pixels = new byte[sHeight * stride];
             source.CopyPixels(pixels, stride, 0);
 
             // 모자이크 영역 계산
             int startX = Math.Max(0, area.X);
             int startY = Math.Max(0, area.Y);
-            int endX = Math.Min(width, area.X + area.Width);
-            int endY = Math.Min(height, area.Y + area.Height);
+            int endX = Math.Min(sWidth, area.X + area.Width);
+            int endY = Math.Min(sHeight, area.Y + area.Height);
 
             // 모자이크 적용
             for (int y = startY; y < endY; y += pixelSize)
@@ -123,6 +171,8 @@ namespace CatchCapture.Utilities
                         }
                     }
 
+                    if (count == 0) continue;
+
                     byte avgB = (byte)(totalB / count);
                     byte avgG = (byte)(totalG / count);
                     byte avgR = (byte)(totalR / count);
@@ -144,8 +194,8 @@ namespace CatchCapture.Utilities
             }
 
             // 픽셀 배열을 다시 BitmapSource로 변환
-            WriteableBitmap writeableBitmap = new WriteableBitmap(width, height, source.DpiX, source.DpiY, source.Format, null);
-            writeableBitmap.WritePixels(new Int32Rect(0, 0, width, height), pixels, stride, 0);
+            WriteableBitmap writeableBitmap = new WriteableBitmap(sWidth, sHeight, source.DpiX, source.DpiY, source.Format, null);
+            writeableBitmap.WritePixels(new Int32Rect(0, 0, sWidth, sHeight), pixels, stride, 0);
 
             return writeableBitmap;
         }

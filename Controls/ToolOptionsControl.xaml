@@ -199,7 +199,10 @@
                 
                  <!-- 모자이크 옵션 -->
                 <StackPanel x:Name="MosaicOptions" Visibility="Collapsed">
-                    <TextBlock Text="강도" FontWeight="SemiBold" Margin="0,0,0,8" x:Name="MosaicLabel"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <TextBlock Text="강도" FontWeight="SemiBold" x:Name="MosaicLabel"/>
+                        <CheckBox x:Name="BlurCheck" Content="블러" Margin="15,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Slider x:Name="MosaicSlider" Minimum="5" Maximum="50" Width="150" SmallChange="5" IsSnapToTickEnabled="True" TickFrequency="5"/>
                         <TextBlock x:Name="MosaicValue" Margin="8,0,0,0" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" FontSize="11"/>

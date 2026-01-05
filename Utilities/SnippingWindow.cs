@@ -3064,8 +3064,15 @@ namespace CatchCapture.Utilities
                 };
                 
                 // 4. 픽셀화 효과 적용 (NearestNeighbor: 인접 픽셀 반복)
-                // 이 옵션이 있어야 흐려지지 않고 깍두기처럼 나옵니다.
-                RenderOptions.SetBitmapScalingMode(mosaicImage, BitmapScalingMode.NearestNeighbor);
+                // 블러 모드일 때는 보간법을 Linear로 설정하여 부드럽게 뭉개지도록 함
+                if (_editorManager.UseBlur)
+                {
+                    RenderOptions.SetBitmapScalingMode(mosaicImage, BitmapScalingMode.Linear);
+                }
+                else
+                {
+                    RenderOptions.SetBitmapScalingMode(mosaicImage, BitmapScalingMode.NearestNeighbor);
+                }
 
                 Canvas.SetLeft(mosaicImage, x);
                 Canvas.SetTop(mosaicImage, y);

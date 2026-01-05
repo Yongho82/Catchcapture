@@ -799,4 +799,5 @@ Are you sure you want to permanently delete all items?</value>
   <data name="HistoryTip4" xml:space="preserve"><value>Select an item and click 'Save to My Note' to create a note with the original info.</value></data>
   <data name="HistoryTip5" xml:space="preserve"><value>Double-click a list item to view the original file in the default Windows viewer.</value></data>
   <data name="HistoryTip6" xml:space="preserve"><value>Deleted records in the trash will be permanently removed after the retention period.</value></data>
+  <data name="Blur" xml:space="preserve"><value>Blur</value></data>
 </root>

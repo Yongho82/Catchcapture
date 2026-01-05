@@ -49,6 +49,7 @@ namespace CatchCapture.Utilities
 
         // 기타 도구
         public double MosaicIntensity { get; set; } = 15;
+        public bool UseBlur { get; set; } = false;
         public double EraserSize { get; set; } = 20;
 
         // 마법봉 관련
@@ -209,6 +210,7 @@ namespace CatchCapture.Utilities
                 {
                     Rect rect = new Rect(Canvas.GetLeft(_tempMosaicSelection), Canvas.GetTop(_tempMosaicSelection), _tempMosaicSelection.Width, _tempMosaicSelection.Height);
                     MosaicRequired?.Invoke(rect);
+                    ActionOccurred?.Invoke(); // 작업 발생 알림 (Redo 스택 클리어 등)
                     _canvas.Children.Remove(_tempMosaicSelection);
                     _tempMosaicSelection = null;
                     _isDrawingShape = false;
