@@ -126,7 +126,7 @@ namespace CatchCapture.Utilities
         {
             var settings = Settings.Load();
             
-            // 1. 클라우드(원본) 경로 설정
+            // 1. 클라우드(원본) 경로 설정 (노트)
             string cloudStoragePath = settings.NoteStoragePath;
             if (string.IsNullOrEmpty(cloudStoragePath))
             {
@@ -134,11 +134,25 @@ namespace CatchCapture.Utilities
             }
             else
             {
+                // [추가] 사용자가 지정한 폴더 하위에 CatchCapture 폴더 보장
+                cloudStoragePath = EnsureCatchCaptureSubFolder(cloudStoragePath);
                 cloudStoragePath = ResolveStoragePath(cloudStoragePath);
             }
             
             _cloudDbPath = Path.Combine(cloudStoragePath, "notedb", "catch_notes.db");
-            _cloudHistoryDbPath = Path.Combine(settings.DefaultSaveFolder, "history", "history.db");
+
+            // 2. 히스토리 클라우드 경로 설정
+            string saveFolder = settings.DefaultSaveFolder;
+            if (string.IsNullOrEmpty(saveFolder))
+            {
+                saveFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "CatchCapture");
+            }
+            else
+            {
+                // [추가] 히스토리도 지정 폴더 하위에 CatchCapture 폴더 보장
+                saveFolder = EnsureCatchCaptureSubFolder(saveFolder);
+            }
+            _cloudHistoryDbPath = Path.Combine(saveFolder, "history", "history.db");
 
             // 2. 로컬(작업용) 경로 설정 (AppData/Local/CatchCapture)
             string localAppData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture");
@@ -324,7 +338,15 @@ namespace CatchCapture.Utilities
 
                 // 클라우드 디렉토리 존재 확인 및 생성
                 string cloudDbDir = Path.GetDirectoryName(_cloudDbPath)!;
+                string cloudNoteDataRoot = Path.GetDirectoryName(cloudDbDir)!; // notedata 폴더
+                
                 if (!Directory.Exists(cloudDbDir)) Directory.CreateDirectory(cloudDbDir);
+                
+                // [추가] notedata 하위에 img, attachments 폴더 생성 보장
+                string cloudImgDir = Path.Combine(cloudNoteDataRoot, "img");
+                string cloudAttachDir = Path.Combine(cloudNoteDataRoot, "attachments");
+                if (!Directory.Exists(cloudImgDir)) Directory.CreateDirectory(cloudImgDir);
+                if (!Directory.Exists(cloudAttachDir)) Directory.CreateDirectory(cloudAttachDir);
                 
                 string cloudHistoryDir = Path.GetDirectoryName(_cloudHistoryDbPath)!;
                 if (!Directory.Exists(cloudHistoryDir)) Directory.CreateDirectory(cloudHistoryDir);
@@ -589,34 +611,41 @@ namespace CatchCapture.Utilities
 
             try
             {
-                // 1. 이미 'notedata' 폴더를 가리키고 있으면 그대로 사용
+                // 1. 'CatchCapture' 폴더가 경로에 없으면 먼저 추가
+                path = EnsureCatchCaptureSubFolder(path);
+
+                // 2. 최종 경로가 'notedata'인지 확인
                 if (Path.GetFileName(path).Equals("notedata", StringComparison.OrdinalIgnoreCase))
                 {
                     return path;
                 }
 
-                // 2. 지정된 폴더 직하에 이미 3개 필수 폴더가 있는 경우 그대로 사용
-                if (Directory.Exists(Path.Combine(path, "notedb")) &&
-                    Directory.Exists(Path.Combine(path, "img")) &&
-                    Directory.Exists(Path.Combine(path, "attachments")))
-                {
-                    return path;
-                }
-
-                // 3. 하위에 'notedata' 폴더가 존재하는지 확인
-                string subPath = Path.Combine(path, "notedata");
-                if (Directory.Exists(subPath))
-                {
-                    return subPath;
-                }
-
-                // 4. 그 외의 경우 'notedata'를 붙여서 관리 (InitializeDatabase에서 생성됨)
-                return subPath;
+                // 3. 무조건 'notedata'를 붙여서 관리 (InitializeDatabase에서 생성됨)
+                return Path.Combine(path, "notedata");
             }
             catch
             {
                 return path;
             }
+        }
+
+        public static string EnsureCatchCaptureSubFolder(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path)) return path;
+
+            try
+            {
+                // 이미 CatchCapture 폴더이거나 경로에 포함되어 있으면 그대로 반환
+                if (path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                        .Any(p => p.Equals("CatchCapture", StringComparison.OrdinalIgnoreCase)))
+                {
+                    return path;
+                }
+
+                // 경로에 없으면 하위에 CatchCapture 폴더 추가
+                return Path.Combine(path, "CatchCapture");
+            }
+            catch { return path; }
         }
 
         private void InitializeDatabase()

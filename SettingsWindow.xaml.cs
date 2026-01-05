@@ -1572,10 +1572,11 @@ private void InitLanguageComboBox()
         private void BtnBrowse_Click(object sender, RoutedEventArgs e)
         {
             var dlg = new System.Windows.Forms.FolderBrowserDialog();
+            if (!string.IsNullOrEmpty(TxtFolder.Text)) dlg.SelectedPath = TxtFolder.Text;
             var result = dlg.ShowDialog();
             if (result == System.Windows.Forms.DialogResult.OK)
             {
-                TxtFolder.Text = dlg.SelectedPath;
+                TxtFolder.Text = CatchCapture.Utilities.DatabaseManager.EnsureCatchCaptureSubFolder(dlg.SelectedPath);
             }
         }
 
@@ -1780,7 +1781,7 @@ private void InitLanguageComboBox()
                 {
                     desiredFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture");
                 }
-                _settings.DefaultSaveFolder = desiredFolder;
+                _settings.DefaultSaveFolder = CatchCapture.Utilities.DatabaseManager.EnsureCatchCaptureSubFolder(desiredFolder);
                 
                 // 파일명 & 폴더 분류 설정 저장
                 if (TxtFileNameTemplate != null) _settings.FileNameTemplate = TxtFileNameTemplate.Text;

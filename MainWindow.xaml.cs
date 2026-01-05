@@ -592,7 +592,15 @@ public partial class MainWindow : Window
         trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripMenuItem("노트 폴더", LoadMenuImage("openfolder.png"), (s, e) => {
              try {
                  string notePath = settings.NoteStoragePath;
-                 if (string.IsNullOrEmpty(notePath)) notePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Notes");
+                 if (string.IsNullOrEmpty(notePath))
+                 {
+                     notePath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyPictures), "CatchCapture", "notedata");
+                 }
+                 else
+                 {
+                     notePath = Utilities.DatabaseManager.EnsureCatchCaptureSubFolder(notePath);
+                     notePath = Utilities.DatabaseManager.ResolveStoragePath(notePath);
+                 }
                  if (!System.IO.Directory.Exists(notePath)) System.IO.Directory.CreateDirectory(notePath);
                  System.Diagnostics.Process.Start("explorer.exe", notePath);
              } catch {}
@@ -2587,6 +2595,10 @@ public partial class MainWindow : Window
         {
             saveFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture");
         }
+        else
+        {
+            saveFolder = Utilities.DatabaseManager.EnsureCatchCaptureSubFolder(saveFolder);
+        }
         
         // 폴더 분류 적용
         string groupMode = currentSettings.FolderGroupingMode ?? "None";
@@ -3470,7 +3482,7 @@ public partial class MainWindow : Window
     {
         try
         {
-            string folderPath = settings.DefaultSaveFolder;
+            string folderPath = Utilities.DatabaseManager.EnsureCatchCaptureSubFolder(settings.DefaultSaveFolder);
             if (!System.IO.Directory.Exists(folderPath))
             {
                 System.IO.Directory.CreateDirectory(folderPath);
