@@ -790,7 +790,12 @@ namespace CatchCapture
 
                 // [중요] 저장 후 즉시 백그라운드 동기화 수행 (종료 시 백업 실패 방지)
                 // true = Live Backup (연결 끊지 않음)
-                _ = Task.Run(() => CatchCapture.Utilities.DatabaseManager.Instance.SyncToCloud(true));
+                _ = Task.Run(() => 
+                {
+                    CatchCapture.Utilities.DatabaseManager.Instance.SyncToCloud(true);
+                    // [핵심] 저장이 끝났으면 즉시 Lock을 해제하여 다른 사람이 쓸 수게 '양보'함 (치고 빠지기)
+                    CatchCapture.Utilities.DatabaseManager.Instance.RemoveLock(); 
+                });
 
                 try { this.DialogResult = true; } catch { }
                 this.Close();

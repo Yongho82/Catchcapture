@@ -396,7 +396,7 @@ namespace CatchCapture.Utilities
                 LogToFile("========== ReleaseOwnership 시작 ==========");
                 
                 // 1. Cloud로 데이터 백업 (동기화)
-                SyncToCloud();
+                // SyncToCloud();
                 
                 // 2. Lock 파일 삭제
                 RemoveSingleLock(_cloudDbPath);
