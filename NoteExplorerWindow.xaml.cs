@@ -1980,7 +1980,32 @@ namespace CatchCapture
                 CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ErrOpenFile") + " " + ex.Message);
             }
         }
-    }
+        private async void BtnSync_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // 사용자 안내 메시지 (말포장)
+                if (CatchCapture.CustomMessageBox.Show(
+                    "클라우드(OneDrive, Dropbox 등) 사용 시 데이터 반영까지 약 1~3분 정도 소요될 수 있습니다.\n\n지금 바로 최신 데이터를 가져오시겠습니까?",
+                    "동기화 안내", 
+                    MessageBoxButton.YesNo, 
+                    MessageBoxImage.Information) == MessageBoxResult.Yes)
+                {
+                    // 수동 동기화: 클라우드에서 최신 데이터를 강제로 받아옴
+                    await Task.Run(() => CatchCapture.Utilities.DatabaseManager.Instance.SyncFromCloudToLocal());
+                    
+                    // 목록 갱신
+                    await RefreshNotes();
+                    LoadTags();
+                }
+            }
+            catch (Exception ex)
+            {
+                CatchCapture.CustomMessageBox.Show("동기화 실패: " + ex.Message, "오류");
+            }
+        }
+
+    } // End of NoteExplorerWindow
 
     public class CategorySidebarItem
     {
