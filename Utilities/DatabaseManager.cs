@@ -40,10 +40,10 @@ namespace CatchCapture.Utilities
         public static DatabaseManager Instance => _instance ??= new DatabaseManager();
 
         // 1. 경로 관리
-        private string _cloudDbPath;        // 클라우드 원본
-        private string _cloudHistoryDbPath; // 클라우드 히스토리
-        private string _localDbPath;        // 로컬 작업용 (AppData)
-        private string _localHistoryDbPath; // 로컬 히스토리 (AppData)
+        private string _cloudDbPath = default!;        // 클라우드 원본
+        private string _cloudHistoryDbPath = default!; // 클라우드 히스토리
+        private string _localDbPath = default!;        // 로컬 작업용 (AppData)
+        private string _localHistoryDbPath = default!; // 로컬 히스토리 (AppData)
 
         // 외부에서는 로컬 경로를 보게 함 (호환성을 위해 기존 이름 DbPath 사용)
         public string DbPath => _localDbPath;
@@ -98,6 +98,32 @@ namespace CatchCapture.Utilities
 
         private DatabaseManager()
         {
+            InitializePaths();
+
+            // ★ 버전 확인용 시작 로그
+            LogToFile("============================================");
+            LogToFile("★★★ DatabaseManager 초기화 (Local-First 구조) ★★★");
+            LogToFile($"Cloud DB: {_cloudDbPath}");
+            LogToFile($"Local DB: {_localDbPath}");
+            LogToFile("============================================");
+
+            // 3. 파일 동기화 (Cloud -> Local)
+            SyncFromCloudToLocal();
+
+            // 4. DB 초기화 (Local 파일 기준)
+            InitializeDatabase();
+            InitializeHistoryDatabase(); 
+            
+            // 5. 초기 권한 체크 (Lock이 있으면 ReadOnly)
+            CheckInitialLockStatus();
+
+            Settings.SettingsChanged += (s, e) => {
+                Reinitialize();
+            };
+        }
+
+        private void InitializePaths()
+        {
             var settings = Settings.Load();
             
             // 1. 클라우드(원본) 경로 설정
@@ -120,27 +146,6 @@ namespace CatchCapture.Utilities
 
             _localDbPath = Path.Combine(localAppData, "catch_notes_local.db");
             _localHistoryDbPath = Path.Combine(localAppData, "history_local.db");
-
-            // ★ 버전 확인용 시작 로그
-            LogToFile("============================================");
-            LogToFile("★★★ DatabaseManager 초기화 (Local-First 구조) ★★★");
-            LogToFile($"Cloud DB: {_cloudDbPath}");
-            LogToFile($"Local DB: {_localDbPath}");
-            LogToFile("============================================");
-
-            // 3. 파일 동기화 (Cloud -> Local)
-            SyncFromCloudToLocal();
-
-            // 4. DB 초기화 (Local 파일 기준)
-            InitializeDatabase();
-            InitializeHistoryDatabase(); 
-            
-            // 5. 초기 권한 체크 (Lock이 있으면 ReadOnly)
-            CheckInitialLockStatus();
-
-            Settings.SettingsChanged += (s, e) => {
-                Reinitialize();
-            };
         }
 
         private void CheckInitialLockStatus()
@@ -192,12 +197,24 @@ namespace CatchCapture.Utilities
 
         public void Reinitialize()
         {
-            CloseConnection();
-            var settings = Settings.Load();
-            // 경로 재설정 및 동기화 로직은 생성자와 동일하게...
-            // (간소화를 위해 앱 재시작 권장을 추천하지만, 여기서는 경로만 업데이트)
-            // 실제 구현에서는 복잡하므로, 경로가 바뀌면 Restart를 유도하는 것이 좋습니다.
-            // 여기서는 간단히 재할당만.
+            try
+            {
+                LogToFile("경로 설정 변경 감지. 재초기화 시작...");
+                CloseConnection();
+                InitializePaths();
+                
+                // 새로운 경로에서 데이터 가져오기 시도
+                SyncFromCloudToLocal();
+                
+                InitializeDatabase();
+                InitializeHistoryDatabase();
+                CheckInitialLockStatus();
+                LogToFile("재초기화 완료.");
+            }
+            catch (Exception ex)
+            {
+                LogToFile($"[ERROR] Reinitialize 실패: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -223,11 +240,21 @@ namespace CatchCapture.Utilities
                     File.Copy(_cloudDbPath, _localDbPath, true);
                     LogToFile($"Note DB 강제 동기화 완료: {_cloudDbPath} -> {_localDbPath}");
                 }
+                else
+                {
+                    // 클라우드에 없으면 로컬 파일 삭제 (경로 이동 시 이전 데이터가 남는 것 방지)
+                    if (File.Exists(_localDbPath)) File.Delete(_localDbPath);
+                }
 
                 if (File.Exists(_cloudHistoryDbPath))
                 {
                     File.Copy(_cloudHistoryDbPath, _localHistoryDbPath, true);
                     LogToFile("History DB 강제 동기화 완료");
+                }
+                else
+                {
+                    // 히스토리 로컬 캐시 초기화
+                    if (File.Exists(_localHistoryDbPath)) File.Delete(_localHistoryDbPath);
                 }
                 
                 LogToFile("Cloud -> Local 동기화 완료");
@@ -294,6 +321,13 @@ namespace CatchCapture.Utilities
             try
             {
                 LogToFile($"Local -> Cloud 저장(백업) 시작... (Live: {isLive})");
+
+                // 클라우드 디렉토리 존재 확인 및 생성
+                string cloudDbDir = Path.GetDirectoryName(_cloudDbPath)!;
+                if (!Directory.Exists(cloudDbDir)) Directory.CreateDirectory(cloudDbDir);
+                
+                string cloudHistoryDir = Path.GetDirectoryName(_cloudHistoryDbPath)!;
+                if (!Directory.Exists(cloudHistoryDir)) Directory.CreateDirectory(cloudHistoryDir);
 
                 if (isLive)
                 {

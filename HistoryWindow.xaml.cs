@@ -438,6 +438,7 @@ namespace CatchCapture
                     DatabaseManager.Instance.DeleteCapture(item.Id, _currentFilter == "Trash");
                 }
                 LoadHistory(_currentFilter, _currentSearch);
+                TriggerLiveSync();
             }
         }
 
@@ -447,6 +448,7 @@ namespace CatchCapture
             {
                 DatabaseManager.Instance.EmptyTrash();
                 LoadHistory("Trash");
+                TriggerLiveSync();
             }
         }
 
@@ -532,6 +534,7 @@ namespace CatchCapture
                 DatabaseManager.Instance.ToggleFavoriteCapture(item.Id);
                 item.IsFavorite = !item.IsFavorite;
                 RefreshCounts();
+                TriggerLiveSync();
             }
         }
 
@@ -543,6 +546,7 @@ namespace CatchCapture
                 item.IsPinned = !item.IsPinned;
                 // Pin status changes sorting, so reload
                 LoadHistory(_currentFilter, _currentSearch, _currentDateFrom, _currentDateTo, _currentFileType, false);
+                TriggerLiveSync();
             }
         }
 
@@ -572,6 +576,7 @@ namespace CatchCapture
             {
                 DatabaseManager.Instance.DeleteCapture(item.Id, _currentFilter == "Trash");
                 LoadHistory(_currentFilter, _currentSearch);
+                TriggerLiveSync();
             }
         }
 
@@ -861,6 +866,7 @@ namespace CatchCapture
             {
                 DatabaseManager.Instance.RestoreCapture(item.Id);
                 LoadHistory(_currentFilter, _currentSearch);
+                TriggerLiveSync();
             }
         }
 
@@ -894,6 +900,7 @@ namespace CatchCapture
                         LstHistory.SelectedItem = reloadedItem;
                         LstHistory.ScrollIntoView(reloadedItem);
                     }
+                    TriggerLiveSync();
                 }
             }
         }
@@ -962,6 +969,38 @@ namespace CatchCapture
             {
                 CurrentViewMode = (mode == "List") ? 0 : 1;
             }
+        }
+
+        private async void BtnSync_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (CatchCapture.CustomMessageBox.Show(
+                    "클라우드(OneDrive, Dropbox 등) 사용 시 데이터 반영까지 약 1~3분 정도 소요될 수 있습니다.\n\n지금 바로 최신 기록을 가져오시겠습니까?",
+                    "동기화 안내",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Information) == MessageBoxResult.Yes)
+                {
+                    // 수동 동기화: 클라우드에서 최신 데이터를 강제로 받아옴
+                    await Task.Run(() => CatchCapture.Utilities.DatabaseManager.Instance.SyncFromCloudToLocal());
+
+                    // 목록 갱신
+                    LoadHistory(_currentFilter, _currentSearch, _currentDateFrom, _currentDateTo, _currentFileType);
+                }
+            }
+            catch (Exception ex)
+            {
+                CatchCapture.CustomMessageBox.Show("동기화 실패: " + ex.Message, "오류");
+            }
+        }
+
+        private void TriggerLiveSync()
+        {
+            _ = Task.Run(() =>
+            {
+                DatabaseManager.Instance.SyncToCloud(true);
+                DatabaseManager.Instance.RemoveLock();
+            });
         }
     }
 }

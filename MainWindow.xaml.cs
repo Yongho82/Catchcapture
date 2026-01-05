@@ -2715,6 +2715,13 @@ public partial class MainWindow : Window
             long newId = DatabaseManager.Instance.InsertCapture(historyItem);
             captureInfo.HistoryId = newId;
 
+            // [Hit & Run] 실시간 동기화 (히스토리 데이터 포함) + 락 해제
+            _ = Task.Run(() =>
+            {
+                DatabaseManager.Instance.SyncToCloud(true);
+                DatabaseManager.Instance.RemoveLock();
+            });
+
             System.IO.File.AppendAllText(logPath, $"[{DateTime.Now}] DB Insert Success. NewId={newId}\n");
 
             // 열려있는 히스토리 창이 있으면 갱신
@@ -5511,6 +5518,13 @@ public partial class MainWindow : Window
                         };
 
                         DatabaseManager.Instance.InsertCapture(historyItem);
+
+                        // [Hit & Run] 실시간 동기화 + 락 해제
+                        _ = Task.Run(() =>
+                        {
+                            DatabaseManager.Instance.SyncToCloud(true);
+                            DatabaseManager.Instance.RemoveLock();
+                        });
 
                         // 저장 완료 시 인코딩 표시 제거 및 알림
                         Dispatcher.Invoke(() =>
