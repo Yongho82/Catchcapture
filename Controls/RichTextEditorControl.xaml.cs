@@ -602,13 +602,7 @@ namespace CatchCapture.Controls
                         bitmap.CacheOption = BitmapCacheOption.OnLoad;
                         bitmap.EndInit();
 
-                        var image = new System.Windows.Controls.Image
-                        {
-                            Source = bitmap,
-                            Stretch = Stretch.Uniform
-                        };
-
-                        CreateResizableImage(image);
+                        InsertImage(bitmap);
                     }
                     catch (Exception ex)
                     {
@@ -643,13 +637,7 @@ namespace CatchCapture.Controls
             
             try
             {
-                var image = new System.Windows.Controls.Image
-                {
-                    Source = capturedImage,
-                    Stretch = Stretch.Uniform
-                };
-
-                CreateResizableImage(image);
+                InsertImage(capturedImage);
             }
             catch (Exception ex)
             {
@@ -776,14 +764,20 @@ namespace CatchCapture.Controls
             var container = new BlockUIContainer(mainGrid);
             HookImageEvents(image, sliderBorder, container);
             
+            string logPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "catchcapture_paste_debug.txt");
+            try { System.IO.File.AppendAllText(logPath, $"  [CreateResizableImage] container 생성 완료\n"); } catch { }
+            
             RtbEditor.BeginChange();
             try
             {
                 // 문서가 비어있으면 기존 빈 단락을 제거하고 삽입
-                if (IsDocumentEmpty())
+                bool isEmpty = IsDocumentEmpty();
+                try { System.IO.File.AppendAllText(logPath, $"  [CreateResizableImage] IsDocumentEmpty: {isEmpty}\n"); } catch { }
+                if (isEmpty)
                 {
                     RtbEditor.Document.Blocks.Clear();
                     RtbEditor.Document.Blocks.Add(container);
+                    try { System.IO.File.AppendAllText(logPath, $"  [CreateResizableImage] 빈 문서에 추가됨, Blocks.Count: {RtbEditor.Document.Blocks.Count}\n"); } catch { }
                     
                     // 이미지 다음에 빈 단락 추가
                     var nextParagraph = new Paragraph { Margin = new Thickness(0), LineHeight = 1.5 };
@@ -792,7 +786,9 @@ namespace CatchCapture.Controls
                 }
                 else
                 {
+                    try { System.IO.File.AppendAllText(logPath, $"  [CreateResizableImage] InsertBlockAtCaret 호출\n"); } catch { }
                     InsertBlockAtCaret(container);
+                    try { System.IO.File.AppendAllText(logPath, $"  [CreateResizableImage] InsertBlockAtCaret 완료, Blocks.Count: {RtbEditor.Document.Blocks.Count}\n"); } catch { }
                 }
             }
             finally
@@ -800,6 +796,7 @@ namespace CatchCapture.Controls
                 RtbEditor.EndChange();
             }
 
+            try { System.IO.File.AppendAllText(logPath, $"  [CreateResizableImage] 완료!\n"); } catch { }
             RtbEditor.Focus();
         }
 
@@ -1420,6 +1417,8 @@ namespace CatchCapture.Controls
 
         public void InsertImage(ImageSource imageSource)
         {
+            string logPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "catchcapture_paste_debug.txt");
+            try { System.IO.File.AppendAllText(logPath, $"  [InsertImage] 시작, imageSource타입: {imageSource?.GetType().Name}\n"); } catch { }
             try
             {
                 ImageSource finalSource = imageSource;
@@ -1427,6 +1426,7 @@ namespace CatchCapture.Controls
                 // If it's a BitmapSource (not file-based), save to temp file for Undo compatibility
                 if (imageSource is BitmapSource bitmapSource && !(imageSource is BitmapImage))
                 {
+                    try { System.IO.File.AppendAllText(logPath, $"  [InsertImage] BitmapSource -> 임시파일 저장\n"); } catch { }
                     string tempPath = System.IO.Path.Combine(
                         System.IO.Path.GetTempPath(), 
                         $"catchcapture_temp_{Guid.NewGuid()}.png");
@@ -1447,18 +1447,23 @@ namespace CatchCapture.Controls
                     bitmapImage.Freeze();
                     
                     finalSource = bitmapImage;
+                    try { System.IO.File.AppendAllText(logPath, $"  [InsertImage] 임시파일 저장 완료: {tempPath}\n"); } catch { }
                 }
                 
+                try { System.IO.File.AppendAllText(logPath, $"  [InsertImage] Image 컨트롤 생성\n"); } catch { }
                 var image = new System.Windows.Controls.Image
                 {
                     Source = finalSource,
                     Stretch = Stretch.Uniform
                 };
 
+                try { System.IO.File.AppendAllText(logPath, $"  [InsertImage] CreateResizableImage 호출\n"); } catch { }
                 CreateResizableImage(image);
+                try { System.IO.File.AppendAllText(logPath, $"  [InsertImage] 완료!\n"); } catch { }
             }
             catch (Exception ex)
             {
+                try { System.IO.File.AppendAllText(logPath, $"  [InsertImage] 예외: {ex.Message}\n"); } catch { }
                 CatchCapture.CustomMessageBox.Show($"이미지를 삽입할 수 없습니다: {ex.Message}", "오류");
             }
         }
@@ -1813,14 +1818,72 @@ namespace CatchCapture.Controls
             
         private void OnPaste(object sender, DataObjectPastingEventArgs e)
         {
-            if (e.DataObject.GetDataPresent(DataFormats.Bitmap))
+            // DEBUG: 로그 파일에 기록
+            string logPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "catchcapture_paste_debug.txt");
+            try
             {
-                var bitmap = e.DataObject.GetData(DataFormats.Bitmap) as BitmapSource;
-                if (bitmap != null)
+                using (var sw = new System.IO.StreamWriter(logPath, true))
                 {
-                    InsertImage(bitmap);
-                    e.CancelCommand();
+                    sw.WriteLine($"[{DateTime.Now:HH:mm:ss}] OnPaste 호출됨");
+                    sw.WriteLine($"  - Bitmap: {e.DataObject.GetDataPresent(DataFormats.Bitmap)}");
+                    sw.WriteLine($"  - PNG: {e.DataObject.GetDataPresent("PNG")}");
+                    sw.WriteLine($"  - Dib: {e.DataObject.GetDataPresent(DataFormats.Dib)}");
+                    sw.WriteLine($"  - FileDrop: {e.DataObject.GetDataPresent(DataFormats.FileDrop)}");
+                    sw.WriteLine($"  - Html: {e.DataObject.GetDataPresent(DataFormats.Html)}");
+                    sw.WriteLine($"  - Text: {e.DataObject.GetDataPresent(DataFormats.Text)}");
+                    var formats = e.DataObject.GetFormats();
+                    sw.WriteLine($"  - 모든 포맷: {string.Join(", ", formats)}");
                 }
+            }
+            catch { }
+
+            // 1. Check for Image formats (Bitmap, PNG, etc.)
+            BitmapSource? bitmap = null;
+
+            try
+            {
+                if (e.DataObject.GetDataPresent(DataFormats.Bitmap))
+                {
+                    bitmap = e.DataObject.GetData(DataFormats.Bitmap) as BitmapSource;
+                    try { System.IO.File.AppendAllText(logPath, $"  - Bitmap 데이터 가져옴: {bitmap != null}\n"); } catch { }
+                }
+                
+                // fallback to PNG if Bitmap failed or not present (common for browser copies)
+                if (bitmap == null && e.DataObject.GetDataPresent("PNG"))
+                {
+                    var stream = e.DataObject.GetData("PNG") as Stream;
+                    try { System.IO.File.AppendAllText(logPath, $"  - PNG 스트림: {stream != null}\n"); } catch { }
+                    if (stream != null)
+                    {
+                        var decoder = new PngBitmapDecoder(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+                        if (decoder.Frames.Count > 0)
+                            bitmap = decoder.Frames[0];
+                        try { System.IO.File.AppendAllText(logPath, $"  - PNG 디코딩 결과: {bitmap != null}\n"); } catch { }
+                    }
+                }
+                
+                // fallback to DeviceIndependentBitmap
+                if (bitmap == null && e.DataObject.GetDataPresent(DataFormats.Dib))
+                {
+                    // DIB is more complex to convert, but sometimes works when standard Bitmap fails
+                    // For now, we rely on WPF's built-in conversion if possible
+                    bitmap = e.DataObject.GetData(DataFormats.Dib) as BitmapSource;
+                    try { System.IO.File.AppendAllText(logPath, $"  - DIB 데이터: {bitmap != null}\n"); } catch { }
+                }
+            }
+            catch (Exception ex)
+            {
+                try { System.IO.File.AppendAllText(logPath, $"  - 예외 발생: {ex.Message}\n"); } catch { }
+            }
+
+            try { System.IO.File.AppendAllText(logPath, $"  - 최종 bitmap: {bitmap != null}\n"); } catch { }
+
+            if (bitmap != null)
+            {
+                try { System.IO.File.AppendAllText(logPath, $"  - InsertImage 호출!\n"); } catch { }
+                InsertImage(bitmap);
+                e.CancelCommand();
+                return;
             }
             else if (e.DataObject.GetDataPresent(DataFormats.FileDrop))
             {
@@ -1840,10 +1903,13 @@ namespace CatchCapture.Controls
             else if (e.DataObject.GetDataPresent(DataFormats.Html))
             {
                 var html = e.DataObject.GetData(DataFormats.Html) as string;
+                try { System.IO.File.AppendAllText(logPath, $"  - HTML 처리 시작, html길이: {html?.Length ?? 0}\n"); } catch { }
                 if (!string.IsNullOrEmpty(html))
                 {
                     var imgRegex = new Regex(@"(<img[^>]+>)", RegexOptions.IgnoreCase);
-                    if (imgRegex.IsMatch(html))
+                    bool hasImg = imgRegex.IsMatch(html);
+                    try { System.IO.File.AppendAllText(logPath, $"  - img 태그 있음: {hasImg}\n"); } catch { }
+                    if (hasImg)
                     {
                         e.CancelCommand();
 
@@ -1854,28 +1920,96 @@ namespace CatchCapture.Controls
                         {
                             content = html.Substring(startIdx + 20, endIdx - (startIdx + 20));
                         }
+                        try { System.IO.File.AppendAllText(logPath, $"  - content: {content.Substring(0, Math.Min(500, content.Length))}\n"); } catch { }
 
                         var parts = imgRegex.Split(content);
+                        try { System.IO.File.AppendAllText(logPath, $"  - parts 개수: {parts.Length}\n"); } catch { }
                         foreach (var part in parts)
                         {
                             if (string.IsNullOrEmpty(part)) continue;
 
                             if (part.StartsWith("<img", StringComparison.OrdinalIgnoreCase))
                             {
+                                try { System.IO.File.AppendAllText(logPath, $"  - img 태그 발견: {part.Substring(0, Math.Min(200, part.Length))}\n"); } catch { }
                                 var srcMatch = Regex.Match(part, @"src=[""']([^""']+)[""']", RegexOptions.IgnoreCase);
                                 if (srcMatch.Success)
                                 {
                                     string url = srcMatch.Groups[1].Value;
+                                    try { System.IO.File.AppendAllText(logPath, $"  - URL: {url.Substring(0, Math.Min(200, url.Length))}\n"); } catch { }
                                     if (url.StartsWith("http", StringComparison.OrdinalIgnoreCase))
                                     {
                                         try
                                         {
-                                            var bitmap = new BitmapImage();
-                                            bitmap.BeginInit();
-                                            bitmap.UriSource = new Uri(url);
-                                            bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                                            bitmap.EndInit();
-                                            InsertImage(bitmap);
+                                            try { System.IO.File.AppendAllText(logPath, $"  - HTTP URL 다운로드 시도 (HttpClient 사용)\n"); } catch { }
+                                            
+                                            // Referer 헤더를 추가하여 이미지 다운로드
+                                            using (var httpClient = new System.Net.Http.HttpClient())
+                                            {
+                                                // URL에서 도메인 추출하여 Referer로 사용
+                                                var uri = new Uri(url);
+                                                string referer = $"{uri.Scheme}://{uri.Host}/";
+                                                httpClient.DefaultRequestHeaders.Add("Referer", referer);
+                                                httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
+                                                
+                                                var imageBytes = httpClient.GetByteArrayAsync(url).Result;
+                                                try { System.IO.File.AppendAllText(logPath, $"  - 다운로드 완료, 바이트: {imageBytes.Length}\n"); } catch { }
+                                                
+                                                if (imageBytes.Length > 100) // 1x1 투명 이미지는 보통 100바이트 미만
+                                                {
+                                                    using (var ms = new MemoryStream(imageBytes))
+                                                    {
+                                                        var bitmapImg = new BitmapImage();
+                                                        bitmapImg.BeginInit();
+                                                        bitmapImg.StreamSource = ms;
+                                                        bitmapImg.CacheOption = BitmapCacheOption.OnLoad;
+                                                        bitmapImg.EndInit();
+                                                        bitmapImg.Freeze();
+                                                        
+                                                        try { System.IO.File.AppendAllText(logPath, $"  - 이미지 크기: {bitmapImg.PixelWidth}x{bitmapImg.PixelHeight}\n"); } catch { }
+                                                        
+                                                        if (bitmapImg.PixelWidth > 1 && bitmapImg.PixelHeight > 1)
+                                                        {
+                                                            try { System.IO.File.AppendAllText(logPath, $"  - InsertImage 호출\n"); } catch { }
+                                                            InsertImage(bitmapImg);
+                                                        }
+                                                        else
+                                                        {
+                                                            try { System.IO.File.AppendAllText(logPath, $"  - 이미지 크기가 너무 작음, 스킵\n"); } catch { }
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    try { System.IO.File.AppendAllText(logPath, $"  - 다운로드 바이트가 너무 작음 (hotlink 차단?)\n"); } catch { }
+                                                }
+                                            }
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            try { System.IO.File.AppendAllText(logPath, $"  - 다운로드 실패: {ex.Message}\n"); } catch { }
+                                        }
+                                    }
+                                    else if (url.StartsWith("data:image/", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        // Handle Base64 Data URL
+                                        try
+                                        {
+                                            int commaIndex = url.IndexOf(",");
+                                            if (commaIndex > 0)
+                                            {
+                                                string base64Data = url.Substring(commaIndex + 1);
+                                                byte[] imageBytes = Convert.FromBase64String(base64Data);
+                                                using (var ms = new MemoryStream(imageBytes))
+                                                {
+                                                    var bi = new BitmapImage();
+                                                    bi.BeginInit();
+                                                    bi.StreamSource = ms;
+                                                    bi.CacheOption = BitmapCacheOption.OnLoad;
+                                                    bi.EndInit();
+                                                    bi.Freeze();
+                                                    InsertImage(bi);
+                                                }
+                                            }
                                         }
                                         catch { }
                                     }
