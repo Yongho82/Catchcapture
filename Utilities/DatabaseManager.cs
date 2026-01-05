@@ -310,11 +310,17 @@ namespace CatchCapture.Utilities
                 }
                 else
                 {
-                    // [종료 시 백업] 연결 확실히 종료 + 파일 복사
+                    // [종료 시 백업] 연결 확실히 종료 + Atomic Copy (파일 깨짐 방지)
                     CloseConnection();
 
-                    File.Copy(_localDbPath, _cloudDbPath, true);
-                    LogToFile($"Note DB 복사 완료: {_localDbPath} -> {_cloudDbPath}");
+                    string tempPath = _cloudDbPath + ".tmp";
+                    File.Copy(_localDbPath, tempPath, true);
+                    
+                    // 복사 성공 시 원본 교체
+                    if (File.Exists(_cloudDbPath)) File.Delete(_cloudDbPath);
+                    File.Move(tempPath, _cloudDbPath);
+                    
+                    LogToFile($"Note DB 복사 완료(Atomic): {_localDbPath} -> {_cloudDbPath}");
                 }
 
                 // History DB 백업 (단순 복사, 실패해도 무방)
@@ -574,6 +580,36 @@ namespace CatchCapture.Utilities
 
         private void InitializeDatabase()
         {
+            try
+            {
+                InitializeDatabaseInternal();
+            }
+            catch (Exception ex)
+            {
+                LogToFile($"[CRITICAL] DB 초기화 실패 (손상 의심): {ex.Message}");
+                try
+                {
+                    // 손상된 DB 처리
+                    CloseConnection();
+                    string corruptPath = DbPath + $".corrupt_{DateTime.Now.Ticks}";
+                    if (File.Exists(DbPath))
+                    {
+                        File.Move(DbPath, corruptPath);
+                        LogToFile($"손상된 DB 백업됨: {corruptPath}");
+                    }
+                    InitializeDatabaseInternal();
+                    LogToFile("DB 자동 복구 완료");
+                }
+                catch (Exception retryEx)
+                {
+                    LogToFile($"[FATAL] DB 복구 실패: {retryEx.Message}");
+                    throw;
+                }
+            }
+        }
+
+        private void InitializeDatabaseInternal()
+        {
             string dbDir = Path.GetDirectoryName(DbPath)!;
             string rootDir = Path.GetDirectoryName(dbDir)!; // One level up from notedb
 
@@ -590,6 +626,12 @@ namespace CatchCapture.Utilities
             using (var connection = new SqliteConnection($"Data Source={DbPath}"))
             {
                 connection.Open();
+
+                // 무결성 검사 (손상 감지용)
+                using (var cmd = new SqliteCommand("PRAGMA quick_check;", connection))
+                {
+                    try { cmd.ExecuteNonQuery(); } catch { throw new Exception("DB Integrity Check Failed"); }
+                }
 
                 // Create Notes table
                 string createNotesTable = @"
