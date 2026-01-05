@@ -847,7 +847,7 @@ namespace CatchCapture.Utilities
                         Status INTEGER DEFAULT 0, -- 0: Active, 1: Trash
                         FileSize INTEGER,
                         Resolution TEXT,
-                        CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        CreatedAt DATETIME DEFAULT (datetime('now', 'localtime')),
                         Memo TEXT DEFAULT ''
                     );";
 
@@ -2112,8 +2112,8 @@ namespace CatchCapture.Utilities
             {
                 connection.Open();
                 string sql = @"
-                    INSERT INTO Captures (FileName, FilePath, SourceApp, SourceTitle, OriginalFilePath, IsFavorite, Status, FileSize, Resolution)
-                    VALUES ($fileName, $filePath, $sourceApp, $sourceTitle, $originalPath, $isFavorite, $status, $fileSize, $resolution);
+                    INSERT INTO Captures (FileName, FilePath, SourceApp, SourceTitle, OriginalFilePath, IsFavorite, Status, FileSize, Resolution, CreatedAt)
+                    VALUES ($fileName, $filePath, $sourceApp, $sourceTitle, $originalPath, $isFavorite, $status, $fileSize, $resolution, $createdAt);
                     SELECT last_insert_rowid();";
                 
                 using (var command = new SqliteCommand(sql, connection))
@@ -2127,6 +2127,7 @@ namespace CatchCapture.Utilities
                     command.Parameters.AddWithValue("$status", item.Status);
                     command.Parameters.AddWithValue("$fileSize", item.FileSize);
                     command.Parameters.AddWithValue("$resolution", item.Resolution);
+                    command.Parameters.AddWithValue("$createdAt", item.CreatedAt == default ? DateTime.Now : item.CreatedAt);
                     return Convert.ToInt64(command.ExecuteScalar());
                 }
             }
