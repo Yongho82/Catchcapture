@@ -126,11 +126,13 @@ public partial class App : Application
         try
         {
             CatchCapture.Utilities.DatabaseManager.Instance.CleanupTempFiles();
-            CatchCapture.Utilities.DatabaseManager.Instance.CloseConnection();
+            
+            // 데이터 백업 및 Lock 해제 (내부에서 CloseConnection 호출됨)
             CatchCapture.Utilities.DatabaseManager.Instance.RemoveLock();
-            // DB 최적화 (VACUUM) 실행
-            CatchCapture.Utilities.DatabaseManager.Instance.Vacuum();
-            CatchCapture.Utilities.DatabaseManager.Instance.VacuumHistory();
+            
+            // DB 최적화 (VACUUM) 실행 (필요한 경우 다시 연결 열어서 수행)
+            // CatchCapture.Utilities.DatabaseManager.Instance.Vacuum(); // 종료 시 시간 걸리므로 제외 고려
+            // CatchCapture.Utilities.DatabaseManager.Instance.VacuumHistory();
 
             _pipeServerCts?.Cancel();
             _singleInstanceMutex?.ReleaseMutex();

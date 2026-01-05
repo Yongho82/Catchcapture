@@ -660,6 +660,10 @@ namespace CatchCapture
 
         private async void BtnSave_Click(object sender, RoutedEventArgs e)
         {
+            // 저장 전 편집 권한(Lock) 획득 시도
+            // 실패하더라도 로컬 저장은 진행되며, 종료 시 강제 백업 로직이 작동함.
+            try { DatabaseManager.Instance.TakeOwnership(forceReload: false); } catch { }
+
             Editor.HideAllSliders();
             var imagesInEditor = Editor.GetAllImages();
             
@@ -673,7 +677,6 @@ namespace CatchCapture
             {
                 string title = TxtTitle.Text ?? "";
                 
-                // If title is empty, try to generate from content
                 if (string.IsNullOrWhiteSpace(title))
                 {
                     string fullText = Editor.GetPlainText();
@@ -778,12 +781,16 @@ namespace CatchCapture
                 {
                     CatchCapture.NoteExplorerWindow.Instance.WindowState = WindowState.Normal;
                     CatchCapture.NoteExplorerWindow.Instance.Activate();
-                    CatchCapture.NoteExplorerWindow.Instance.RefreshNotes();
+                    _ = CatchCapture.NoteExplorerWindow.Instance.RefreshNotes();
                 }
                 else
                 {
                     new CatchCapture.NoteExplorerWindow().Show();
                 }
+
+                // [중요] 저장 후 즉시 백그라운드 동기화 수행 (종료 시 백업 실패 방지)
+                // true = Live Backup (연결 끊지 않음)
+                _ = Task.Run(() => CatchCapture.Utilities.DatabaseManager.Instance.SyncToCloud(true));
 
                 try { this.DialogResult = true; } catch { }
                 this.Close();

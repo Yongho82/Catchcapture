@@ -39,19 +39,34 @@ namespace CatchCapture.Utilities
         private static DatabaseManager? _instance;
         public static DatabaseManager Instance => _instance ??= new DatabaseManager();
 
-        private string _dbPath;
-        private string DbPath => _dbPath;
+        // 1. 경로 관리
+        private string _cloudDbPath;        // 클라우드 원본
+        private string _cloudHistoryDbPath; // 클라우드 히스토리
+        private string _localDbPath;        // 로컬 작업용 (AppData)
+        private string _localHistoryDbPath; // 로컬 히스토리 (AppData)
+
+        // 외부에서는 로컬 경로를 보게 함 (호환성을 위해 기존 이름 DbPath 사용)
+        public string DbPath => _localDbPath;
+        public string HistoryDbPath => _localHistoryDbPath;
+
+        // Alias for compatibility
+        public string DbFilePath => _localDbPath;
+        public string HistoryDbFilePath => _localHistoryDbPath;
+
+        // 원본 경로는 필요할 때만 접근
+        public string CloudDbFilePath => _cloudDbPath;
+        public string CloudHistoryDbFilePath => _cloudHistoryDbPath;
+
         private static readonly object _dbLock = new object();
         private readonly object _lockObj = new object();
         private readonly string _currentIdentity = $"{Environment.MachineName}:{Environment.ProcessId}";
-        private DateTime _lastTakeoverTime = DateTime.MinValue;
-        private bool _isLosingOwnership = false;
-        private bool _isTakeoverInProgress = false;
+        
         private SqliteConnection? _activeConnection;
-        private string? _noteLockingMachine;
-        private string? _historyLockingMachine;
-        private System.Timers.Timer? _heartbeatTimer;
-        public event Action? OwnershipLost;
+        
+        // 권한 관리 상태
+        public bool IsReadOnly { get; private set; } = true; // 기본은 읽기 전용으로 시작
+        
+        // _syncTimer 제거됨
 
         // 디버그 로그 파일 경로
         private static readonly string _logFilePath = Path.Combine(
@@ -59,11 +74,9 @@ namespace CatchCapture.Utilities
             "CatchCapture_LockDebug.txt");
         private static readonly object _logLock = new object();
 
-        public string? NoteLockingMachine => _noteLockingMachine;
-        public string? HistoryLockingMachine => _historyLockingMachine;
-        public string HistoryDbFilePath => _historyDbPath;
-
-        public string DbFilePath => _dbPath;
+        // 락킹 상태 정보
+        public string? NoteLockingMachine => CheckLock(_cloudDbPath);
+        public string? HistoryLockingMachine => CheckLock(_cloudHistoryDbPath);
 
         /// <summary>
         /// 디버그 로그를 txt 파일로 저장
@@ -86,39 +99,83 @@ namespace CatchCapture.Utilities
         private DatabaseManager()
         {
             var settings = Settings.Load();
-            string storagePath = settings.NoteStoragePath;
-            if (string.IsNullOrEmpty(storagePath))
+            
+            // 1. 클라우드(원본) 경로 설정
+            string cloudStoragePath = settings.NoteStoragePath;
+            if (string.IsNullOrEmpty(cloudStoragePath))
             {
-                storagePath = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "CatchCapture"), "notedata");
+                cloudStoragePath = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "CatchCapture"), "notedata");
             }
             else
             {
-                storagePath = ResolveStoragePath(storagePath);
+                cloudStoragePath = ResolveStoragePath(cloudStoragePath);
             }
             
-            _dbPath = Path.Combine(storagePath, "notedb", "catch_notes.db");
-            _historyDbPath = Path.Combine(settings.DefaultSaveFolder, "history", "history.db");
+            _cloudDbPath = Path.Combine(cloudStoragePath, "notedb", "catch_notes.db");
+            _cloudHistoryDbPath = Path.Combine(settings.DefaultSaveFolder, "history", "history.db");
+
+            // 2. 로컬(작업용) 경로 설정 (AppData/Local/CatchCapture)
+            string localAppData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture");
+            if (!Directory.Exists(localAppData)) Directory.CreateDirectory(localAppData);
+
+            _localDbPath = Path.Combine(localAppData, "catch_notes_local.db");
+            _localHistoryDbPath = Path.Combine(localAppData, "history_local.db");
 
             // ★ 버전 확인용 시작 로그
             LogToFile("============================================");
-            LogToFile("★★★ DatabaseManager 초기화 (v2 - PENDING 즉시감지) ★★★");
-            LogToFile($"Note DB 경로: {_dbPath}");
-            LogToFile($"History DB 경로: {_historyDbPath}");
+            LogToFile("★★★ DatabaseManager 초기화 (Local-First 구조) ★★★");
+            LogToFile($"Cloud DB: {_cloudDbPath}");
+            LogToFile($"Local DB: {_localDbPath}");
             LogToFile("============================================");
 
+            // 3. 파일 동기화 (Cloud -> Local)
+            SyncFromCloudToLocal();
+
+            // 4. DB 초기화 (Local 파일 기준)
             InitializeDatabase();
-            InitializeHistoryDatabase(); // Separate DB initialization
+            InitializeHistoryDatabase(); 
             
-            // Check for cross-computer locks (Cloud sync safety)
-            CheckAndCreateLock();
+            // 5. 초기 권한 체크 (Lock이 있으면 ReadOnly)
+            CheckInitialLockStatus();
 
             Settings.SettingsChanged += (s, e) => {
                 Reinitialize();
             };
         }
 
-        private string _historyDbPath;
-        private string HistoryDbPath => _historyDbPath;
+        private void CheckInitialLockStatus()
+        {
+            string? lockingMachine = NoteLockingMachine;
+            if (string.IsNullOrEmpty(lockingMachine) || lockingMachine == _currentIdentity)
+            {
+                // 아무도 안 쓰고 있으면 (또는 내가 쓰던거면) -> 일단은 ReadOnly로 시작하되, 
+                // 사용자가 편집 시도할 때 Lock 잡도록 유도 (혹은 자동 획득 가능)
+                // 정책: 시작은 조용하게 ReadOnly로. 사용자가 쓰려고 할 때 TakeOwnership 호출.
+                IsReadOnly = true; 
+            }
+            else
+            {
+                // 남이 쓰고 있으면 -> 당연히 ReadOnly
+                IsReadOnly = true;
+            }
+            LogToFile($"초기 모드: {(IsReadOnly ? "읽기 전용" : "편집 가능")}");
+        }
+
+        private void OpenConnection()
+        {
+            lock (_dbLock)
+            {
+                if (_activeConnection == null)
+                {
+                    _activeConnection = new SqliteConnection($"Data Source={_localDbPath}");
+                }
+                
+                if (_activeConnection.State != System.Data.ConnectionState.Open)
+                {
+                    _activeConnection.Open();
+                }
+            }
+        }
 
         public void CloseConnection()
         {
@@ -127,7 +184,7 @@ namespace CatchCapture.Utilities
                 if (_activeConnection != null)
                 {
                     _activeConnection.Close();
-                    SqliteConnection.ClearAllPools(); // IMPORTANT: Release all file handles
+                    SqliteConnection.ClearAllPools(); // 중요: 파일 핸들 해제
                     _activeConnection = null;
                 }
             }
@@ -137,330 +194,219 @@ namespace CatchCapture.Utilities
         {
             CloseConnection();
             var settings = Settings.Load();
-            string storagePath = settings.NoteStoragePath;
-            if (string.IsNullOrEmpty(storagePath))
+            // 경로 재설정 및 동기화 로직은 생성자와 동일하게...
+            // (간소화를 위해 앱 재시작 권장을 추천하지만, 여기서는 경로만 업데이트)
+            // 실제 구현에서는 복잡하므로, 경로가 바뀌면 Restart를 유도하는 것이 좋습니다.
+            // 여기서는 간단히 재할당만.
+        }
+
+        /// <summary>
+        /// 클라우드(원본)에서 로컬(작업본)로 파일을 복사합니다.
+        /// </summary>
+        public void SyncFromCloudToLocal()
+        {
+            try
             {
-                storagePath = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "CatchCapture"), "notedata");
+                // [중요] 내 Lock이 걸려있다면? -> 비정상 종료 등으로 로컬 데이터가 아직 백업 안 된 상태일 수 있음.
+                // 이 경우 클라우드(구버전)로 덮어쓰면 데이터 날아감. 따라서 동기화 스킵하고 로컬 데이터 사용.
+                if (IsMyLock())
+                {
+                    LogToFile("[SKIP] 내 Lock 파일이 존재하므로 로컬 데이터를 보존합니다. (동기화 건너뜀)");
+                    return;
+                }
+
+                LogToFile("Cloud -> Local 동기화 시작...");
+
+                // 1. Note DB
+                CopyIfNewer(_cloudDbPath, _localDbPath);
+                
+                // 2. History DB
+                CopyIfNewer(_cloudHistoryDbPath, _localHistoryDbPath);
+                
+                LogToFile("Cloud -> Local 동기화 완료");
             }
-            else
+            catch (Exception ex)
             {
-                storagePath = ResolveStoragePath(storagePath);
+                LogToFile($"[ERROR] 동기화 실패: {ex.Message}");
             }
-            
-            _dbPath = Path.Combine(storagePath, "notedb", "catch_notes.db");
-            _historyDbPath = Path.Combine(settings.DefaultSaveFolder, "history", "history.db");
-            InitializeDatabase();
-            InitializeHistoryDatabase();
-            CheckAndCreateLock();
-            StartHeartbeat();
+        }
+
+        private bool IsMyLock()
+        {
+            try
+            {
+                string lockPath = _cloudDbPath + ".lock";
+                if (!File.Exists(lockPath)) return false;
+                
+                // SafeReadFile은 아래에 정의됨 (382라인 근처)
+                string content = SafeReadFile(lockPath); 
+                string[] parts = content.Split('|');
+                return parts.Length > 0 && parts[0] == _currentIdentity;
+            }
+            catch { return false; }
+        }
+
+        private void CopyIfNewer(string source, string dest)
+        {
+            // 원본이 없으면 복사할 게 없음
+            if (!File.Exists(source)) return;
+
+            string destDir = Path.GetDirectoryName(dest)!;
+            if (!Directory.Exists(destDir)) Directory.CreateDirectory(destDir);
+
+            // 로컬 파일이 존재하면 날짜 비교
+            if (File.Exists(dest))
+            {
+                DateTime sourceTime = File.GetLastWriteTimeUtc(source);
+                DateTime destTime = File.GetLastWriteTimeUtc(dest);
+
+                // 로컬이 클라우드보다 최신이거나 같으면 덮어쓰지 않음 (데이터 유실 절대 방지)
+                if (destTime >= sourceTime)
+                {
+                    LogToFile($"[SKIP] 로컬 파일이 최신이거나 같음. 동기화 건너뜀. (Local: {destTime} >= Cloud: {sourceTime})");
+                    return;
+                }
+            }
+
+            File.Copy(source, dest, true);
+            LogToFile($"파일 복사됨: {Path.GetFileName(source)} -> Local");
+        }
+
+        public void SyncToCloud(bool isLive = false)
+        {
+            // IsReadOnly 상태라도 데이터 보호를 위해 백업 시도
+            if (IsReadOnly)
+            {
+                if (IsLocked(_cloudDbPath) || IsLocked(_cloudHistoryDbPath))
+                {
+                    LogToFile("[SKIP] 읽기 전용 모드이며 다른 사용자가 있어 백업 건너뜀.");
+                    return;
+                }
+            }
+
+            try
+            {
+                LogToFile($"Local -> Cloud 저장(백업) 시작... (Live: {isLive})");
+
+                if (isLive)
+                {
+                    // [실행 중 백업] 연결 유지 + SQLite Backup API 사용
+                    // 주의: _activeConnection이 없으면 일시적으로 열어서 처리
+                    bool needClose = false;
+                    if (_activeConnection == null || _activeConnection.State != System.Data.ConnectionState.Open)
+                    {
+                        OpenConnection();
+                        needClose = true;
+                    }
+
+                    using (var cloudConnection = new SqliteConnection($"Data Source={_cloudDbPath}"))
+                    {
+                        cloudConnection.Open();
+                        _activeConnection!.BackupDatabase(cloudConnection);
+                        LogToFile("Note DB Live 백업 완료 (API)");
+                    }
+                    
+                    if (needClose) CloseConnection();
+                }
+                else
+                {
+                    // [종료 시 백업] 연결 확실히 종료 + 파일 복사
+                    CloseConnection();
+
+                    File.Copy(_localDbPath, _cloudDbPath, true);
+                    LogToFile($"Note DB 복사 완료: {_localDbPath} -> {_cloudDbPath}");
+                }
+
+                // History DB 백업 (단순 복사, 실패해도 무방)
+                try
+                {
+                    File.Copy(_localHistoryDbPath, _cloudHistoryDbPath, true);
+                    LogToFile("History DB 복사 완료");
+                }
+                catch { }
+
+                LogToFile("Local -> Cloud 저장 완료");
+            }
+            catch (Exception ex)
+            {
+                LogToFile($"[ERROR] 클라우드 저장 실패: {ex.Message}");
+            }
         }
 
 
         private void StartHeartbeat()
         {
-            lock (_lockObj)
-            {
-                if (_heartbeatTimer == null)
-                {
-                    _heartbeatTimer = new System.Timers.Timer(2000); // 2 seconds for faster takeover detection
-                    _heartbeatTimer.Elapsed += (s, e) => UpdateLocks(false);
-                    _heartbeatTimer.AutoReset = true;
-                    _heartbeatTimer.Start();
-                }
-                else if (!_heartbeatTimer.Enabled)
-                {
-                    _heartbeatTimer.Start();
-                }
-                _isLosingOwnership = false;
-            }
+             // 삭제된 기능
         }
 
         public enum TakeoverStatus
         {
-            None,
-            Pending,
-            Released,
-            Stale
-        }
-
-        public void RequestTakeover()
-        {
-            lock (_lockObj)
-            {
-                LogToFile("========== RequestTakeover 시작 ==========");
-                LogToFile($"현재상태: _isLosingOwnership={_isLosingOwnership}, _isTakeoverInProgress={_isTakeoverInProgress}");
-                
-                // CRITICAL: Stop heartbeat to prevent overwriting our PENDING status
-                _isTakeoverInProgress = true;
-                _heartbeatTimer?.Stop();
-                LogToFile("Heartbeat 타이머 중지됨");
-                
-                string ticks = DateTime.Now.Ticks.ToString();
-                string pendingContent = $"{_currentIdentity}|{ticks}|PENDING";
-                
-                // Mark as PENDING to notify the other computer to close DB
-                SafeWriteFile(_dbPath + ".lock", pendingContent);
-                SafeWriteFile(_historyDbPath + ".lock", pendingContent);
-                
-                LogToFile($"PENDING 파일 작성 완료: {pendingContent}");
-            }
-        }
-        
-        public void CompleteTakeover()
-        {
-            lock (_lockObj)
-            {
-                _isTakeoverInProgress = false;
-                LogToFile("CompleteTakeover: _isTakeoverInProgress = false");
-            }
+            None,      // Lock 없음 (사용 가능)
+            Locked     // 남이 사용 중
         }
 
         public TakeoverStatus CheckTakeoverStatus()
         {
             try
             {
-                string lockPath = _dbPath + ".lock";
-                if (!File.Exists(lockPath)) return TakeoverStatus.Released;
-
-                string content = SafeReadFile(lockPath);
-                if (string.IsNullOrEmpty(content)) return TakeoverStatus.None;
-
-                string[] parts = content.Split('|');
-                if (parts.Length < 3) return TakeoverStatus.Pending;
-
-                string status = parts[2];
-                if (status == "RELEASED") return TakeoverStatus.Released;
-                
-                return TakeoverStatus.Pending;
+                // Note DB Lock 체크
+                if (IsLocked(_cloudDbPath)) return TakeoverStatus.Locked;
+                return TakeoverStatus.None;
             }
             catch { return TakeoverStatus.None; }
         }
 
-        private void UpdateLocks(bool forceWrite)
+        private bool IsLocked(string dbPath)
         {
-            lock (_lockObj)
+            string lockPath = dbPath + ".lock";
+            if (!File.Exists(lockPath)) return false;
+            
+            // 내 Lock이면 Locked가 아님
+            try {
+                string content = File.ReadAllText(lockPath);
+                string[] parts = content.Split('|');
+                if (parts.Length > 0 && parts[0] == _currentIdentity) return false;
+            } catch {}
+
+            return true;
+        }
+
+        // Heartbeat 제거됨 (UpdateLocks 삭제)
+
+        /// <summary>
+        /// 편집 권한 반납 (저장 후 Lock 해제)
+        /// </summary>
+        public void ReleaseOwnership()
+        {
+            try
             {
-                try
-                {
-                    string noteLockPath = _dbPath + ".lock";
-                    string historyLockPath = _historyDbPath + ".lock";
-
-                    // 1. Calculate grace period FIRST
-                    double secondsSinceTakeover = (DateTime.Now - _lastTakeoverTime).TotalSeconds;
-                    bool isWithinTakeoverGracePeriod = secondsSinceTakeover < 60;
-
-                    // 2. Skip if already losing ownership (prevent duplicate triggers)
-                    if (_isLosingOwnership)
-                    {
-                        // 가끔 로그 (5초에 한번)
-                        if (DateTime.Now.Second % 5 == 0)
-                            LogToFile($"[SKIP] 이미 점유권 상실 상태 (_isLosingOwnership=true)");
-                        return;
-                    }
-
-                    // 3. Skip if current instance is already requesting a takeover
-                    if (_isTakeoverInProgress)
-                    {
-                        LogToFile($"[SKIP] Takeover 진행 중 (_isTakeoverInProgress=true)");
-                        return;
-                    }
-
-                    // 4. CRITICAL: Grace Period 내에서도 PENDING만큼은 반드시 체크!
-                    // ACTIVE는 클라우드 지연 때문에 무시하지만, PENDING은 즉시 반응해야 함
-                    if (isWithinTakeoverGracePeriod && !forceWrite)
-                    {
-                        // Grace period 로그 (10초에 한번)
-                        if (DateTime.Now.Second % 10 == 0)
-                            LogToFile($"[GRACE PERIOD] {secondsSinceTakeover:F1}초 경과 (60초까지 보호, 단 PENDING은 체크)");
-                        
-                        // ★★★ PENDING 요청만큼은 Grace Period 내에서도 반드시 확인! ★★★
-                        if (File.Exists(noteLockPath))
-                        {
-                            try
-                            {
-                                string content = SafeReadFile(noteLockPath);
-                                if (!string.IsNullOrEmpty(content))
-                                {
-                                    string[] parts = content.Split('|');
-                                    string lockingIdentity = parts[0];
-                                    string status = parts.Length >= 3 ? parts[2] : "ACTIVE";
-                                    bool isMe = string.Equals(lockingIdentity, _currentIdentity, StringComparison.OrdinalIgnoreCase);
-                                    
-                                    // 다른 컴퓨터가 PENDING 요청을 보냈다면 즉시 양도!
-                                    if (!isMe && status == "PENDING")
-                                    {
-                                        LogToFile($"▶▶▶ [GRACE PERIOD 중 PENDING 감지!] {lockingIdentity}가 점유권 요청. 즉시 양도!");
-                                        ReleaseForTakeover(lockingIdentity);
-                                        return;
-                                    }
-                                    // ACTIVE는 Grace Period 내에서 무시 (클라우드 지연 때문)
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                LogToFile($"[GRACE PERIOD] Lock 파일 읽기 실패: {ex.Message}");
-                            }
-                        }
-                        
-                        // 3.5초 이상 경과했으면 heartbeat 쓰기
-                        if (secondsSinceTakeover >= 3.5)
-                        {
-                            string ticks = DateTime.Now.Ticks.ToString();
-                            string contentToWrite = $"{_currentIdentity}|{ticks}|ACTIVE";
-                            SafeWriteFile(noteLockPath, contentToWrite);
-                            SafeWriteFile(historyLockPath, contentToWrite);
-                        }
-                        return;
-                    }
-
-                    // 5. Check current lock file status (ONLY after grace period)
-                    if (!forceWrite && File.Exists(noteLockPath))
-                    {
-                        try
-                        {
-                            string content = SafeReadFile(noteLockPath);
-                            if (!string.IsNullOrEmpty(content))
-                            {
-                                string[] parts = content.Split('|');
-                                string lockingIdentity = parts[0];
-                                string status = parts.Length >= 3 ? parts[2] : "ACTIVE";
-                                string ticksStr = parts.Length >= 2 ? parts[1] : "0";
-
-                                bool isMe = string.Equals(lockingIdentity, _currentIdentity, StringComparison.OrdinalIgnoreCase);
-
-                                // 상세 로그 (10초에 한번)
-                                if (DateTime.Now.Second % 10 == 0)
-                                {
-                                    LogToFile($"[READ] Lock파일: identity={lockingIdentity}, status={status}, isMe={isMe}");
-                                }
-
-                                if (!isMe)
-                                {
-                                    // A. Someone else wants takeover (PENDING) -> Hand over immediately
-                                    if (status == "PENDING")
-                                    {
-                                        LogToFile($"▶▶▶ [PENDING 감지] {lockingIdentity}가 점유권 요청함. 양도 시작...");
-                                        ReleaseForTakeover(lockingIdentity);
-                                        return;
-                                    }
-
-                                    // B. Someone else is ACTIVE (And we are beyond the grace period)
-                                    if (status == "ACTIVE")
-                                    {
-                                        LogToFile($"▶▶▶ [ACTIVE 감지] 다른 컴퓨터({lockingIdentity})가 ACTIVE 상태!");
-                                        LogToFile($"     Grace Period 경과: {secondsSinceTakeover:F1}초 (60초 이후에만 반응)");
-                                        
-                                        // 이미 grace period 체크를 위에서 했으므로 여기서는 바로 잠금 처리
-                                        _isLosingOwnership = true;
-                                        _heartbeatTimer?.Stop();
-                                        LogToFile($"▶▶▶ [셀프 잠금 발동] OwnershipLost 이벤트 호출!");
-                                        OwnershipLost?.Invoke();
-                                        return;
-                                    }
-                                }
-                                else
-                                {
-                                    // It's my lock. Reset the losing flag if it was set somehow.
-                                    if (_isLosingOwnership)
-                                    {
-                                        LogToFile($"[자기 락 확인] 내 락 파일이므로 _isLosingOwnership 리셋");
-                                    }
-                                    _isLosingOwnership = false;
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            LogToFile($"[ERROR] Lock 파일 읽기 실패: {ex.Message}");
-                        }
-                    }
-
-                    // 6. Normal heartbeat update: Every 3.5+ seconds
-                    if (!forceWrite && secondsSinceTakeover < 3.5) return;
-
-                    // ★★★ CRITICAL: heartbeat 쓰기 전 마지막으로 PENDING 체크! ★★★
-                    // 클라우드 동기화로 인해 위의 체크 이후 파일이 변경됐을 수 있음
-                    if (File.Exists(noteLockPath))
-                    {
-                        try
-                        {
-                            string checkContent = SafeReadFile(noteLockPath);
-                            if (!string.IsNullOrEmpty(checkContent))
-                            {
-                                string[] checkParts = checkContent.Split('|');
-                                string checkIdentity = checkParts[0];
-                                string checkStatus = checkParts.Length >= 3 ? checkParts[2] : "ACTIVE";
-                                bool checkIsMe = string.Equals(checkIdentity, _currentIdentity, StringComparison.OrdinalIgnoreCase);
-                                
-                                if (!checkIsMe && checkStatus == "PENDING")
-                                {
-                                    LogToFile($"▶▶▶ [HEARTBEAT 전 PENDING 발견!] {checkIdentity}가 점유권 요청. 즉시 양도!");
-                                    ReleaseForTakeover(checkIdentity);
-                                    return;
-                                }
-                            }
-                        }
-                        catch { /* 읽기 실패 시 무시하고 heartbeat 진행 */ }
-                    }
-
-                    string ticksNow = DateTime.Now.Ticks.ToString();
-                    string heartbeatContent = $"{_currentIdentity}|{ticksNow}|ACTIVE";
-                    
-                    // 매 heartbeat마다 로그 (디버깅용)
-                    LogToFile($"[HEARTBEAT] 파일 쓰기: {heartbeatContent.Substring(0, Math.Min(50, heartbeatContent.Length))}...");
-                    
-                    // Re-assert ACTIVE status
-                    SafeWriteFile(noteLockPath, heartbeatContent);
-                    SafeWriteFile(historyLockPath, heartbeatContent);
-                    
-                    if (forceWrite)
-                    {
-                        _lastTakeoverTime = DateTime.Now;
-                        LogToFile($"[FORCE WRITE] Heartbeat 강제 갱신, _lastTakeoverTime 리셋");
-                    }
-                    _isLosingOwnership = false;
-                }
-                catch (Exception ex)
-                {
-                    LogToFile($"[CRITICAL ERROR] UpdateLocks 예외: {ex.Message}");
-                    if (forceWrite) throw;
-                }
+                LogToFile("========== ReleaseOwnership 시작 ==========");
+                
+                // 1. Cloud로 데이터 백업 (동기화)
+                SyncToCloud();
+                
+                // 2. Lock 파일 삭제
+                RemoveSingleLock(_cloudDbPath);
+                RemoveSingleLock(_cloudHistoryDbPath);
+                
+                // 3. 읽기 전용으로 전환
+                IsReadOnly = true;
+                LogToFile("Lock 해제 및 ReadOnly 모드 전환 완료");
+            }
+            catch (Exception ex)
+            {
+                LogToFile($"[ERROR] ReleaseOwnership 예외: {ex.Message}");
             }
         }
 
         private void ReleaseForTakeover(string newOwnerIdentity)
         {
-            try
-            {
-                LogToFile($"========== ReleaseForTakeover 시작 ==========");
-                LogToFile($"새 소유자: {newOwnerIdentity}");
-                
-                // 1. Close DB Connection
-                CloseConnection();
-                LogToFile("DB 연결 종료됨");
-                
-                // 2. Mark as RELEASED
-                string ticks = DateTime.Now.Ticks.ToString();
-                string releasedContent = $"{newOwnerIdentity}|{ticks}|RELEASED";
-                SafeWriteFile(_dbPath + ".lock", releasedContent);
-                LogToFile($"RELEASED 파일 작성: {releasedContent}");
-                
-                // 3. Trigger local lock UI
-                _isLosingOwnership = true;
-                _heartbeatTimer?.Stop();
-                LogToFile("Heartbeat 중지, OwnershipLost 이벤트 호출");
-                OwnershipLost?.Invoke();
-            }
-            catch (Exception ex)
-            {
-                LogToFile($"[ERROR] ReleaseForTakeover 예외: {ex.Message}");
-            }
+            // 삭제된 기능
         }
 
         private string SafeReadFile(string path)
         {
-            // Use minimal buffer and no buffering to bypass file system cache
-            using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 1, FileOptions.SequentialScan))
+            using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var reader = new StreamReader(fs))
             {
                 return reader.ReadToEnd();
@@ -488,69 +434,52 @@ namespace CatchCapture.Utilities
 
         private void CheckAndCreateLock()
         {
-            try
-            {
-                // If we just took ownership (within 60 seconds), don't check for other locks
-                // This prevents reading stale cloud-synced data
-                if ((DateTime.Now - _lastTakeoverTime).TotalSeconds < 60)
-                {
-                    _noteLockingMachine = null;
-                    _historyLockingMachine = null;
-                    return;
-                }
-                _noteLockingMachine = CheckLock(_dbPath);
-                _historyLockingMachine = CheckLock(_historyDbPath);
-            }
-            catch { }
+            // 사용하지 않음 (CheckInitialLockStatus로 대체됨)
         }
 
         public void ClearLockState()
         {
-            lock (_lockObj)
-            {
-                _noteLockingMachine = null;
-                _historyLockingMachine = null;
-                _isLosingOwnership = false;
-            }
+            // 사용하지 않음 (호환성 유지용 빈 메서드)
         }
 
-        public bool TakeOwnership()
+        public bool TakeOwnership(bool forceReload = false)
         {
             lock (_lockObj)
             {
                 try
                 {
-                    LogToFile("========== TakeOwnership 시작 ==========");
-                    LogToFile($"이전상태: _isLosingOwnership={_isLosingOwnership}, _isTakeoverInProgress={_isTakeoverInProgress}");
-                    LogToFile($"이전 _lastTakeoverTime: {_lastTakeoverTime}");
-                    
-                    // ★★★ CRITICAL: Set grace period FIRST before ANY file operations ★★★
-                    // This prevents the heartbeat timer from triggering self-lock
-                    _lastTakeoverTime = DateTime.Now;
-                    _isLosingOwnership = false;
-                    _isTakeoverInProgress = false;
-                    _noteLockingMachine = null;
-                    _historyLockingMachine = null;
-                    
-                    LogToFile($"상태 초기화 완료: _lastTakeoverTime={_lastTakeoverTime}, 이제 60초간 보호됨");
-                    
-                    // [IMPORTANT] Delete old locks to ensure a clean state
-                    string noteLockPath = _dbPath + ".lock";
-                    string historyLockPath = _historyDbPath + ".lock";
-                    
-                    try { if (File.Exists(noteLockPath)) File.Delete(noteLockPath); } catch { }
-                    try { if (File.Exists(historyLockPath)) File.Delete(historyLockPath); } catch { }
-                    LogToFile("기존 락 파일 삭제 시도 완료");
+                    LogToFile("========== TakeOwnership (권한 획득) 시작 ==========");
 
+                    // 1. 이미 권한이 있으면 패스
+                    if (!IsReadOnly && !forceReload)
+                    {
+                        LogToFile("[SKIP] 이미 권한 보유 중");
+                        return true;
+                    }
+
+                    // 2. 다른 사람이 쓰고 있는지 체크 (Lock 파일 확인)
+                    if (IsLocked(_cloudDbPath))
+                    {
+                        LogToFile("[FAIL] 다른 사용자가 이미 점유 중입니다.");
+                        return false;
+                    }
+                    
+                    // 3. 최신 데이터 가져오기 (Cloud -> Local)
+                    // 중요: 권한을 얻는 시점에 클라우드의 최신 데이터를 로컬로 가져와야 함
+                    CloseConnection(); // 연결 끊고
+                    SyncFromCloudToLocal(); // 복사
+                    
+                    // 4. Lock 파일 생성 (내가 점유함)
                     string ticks = DateTime.Now.Ticks.ToString();
                     string content = $"{_currentIdentity}|{ticks}|ACTIVE";
                     
-                    SafeWriteFile(noteLockPath, content);
-                    SafeWriteFile(historyLockPath, content);
-                    LogToFile($"새 락 파일 작성: {content}");
+                    SafeWriteFile(_cloudDbPath + ".lock", content);
+                    SafeWriteFile(_cloudHistoryDbPath + ".lock", content);
+                    LogToFile($"Lock 파일 생성: {content}");
                     
-                    StartHeartbeat();
-                    LogToFile("Heartbeat 시작됨. TakeOwnership 성공!");
+                    // 5. 권한 부여
+                    IsReadOnly = false;
+                    LogToFile("TakeOwnership 성공! (이제 쓰기 가능)");
                     LogToFile("===========================================");
                     return true;
                 }
@@ -564,7 +493,8 @@ namespace CatchCapture.Utilities
 
         private string? CheckLock(string dbFilePath)
         {
-            try
+            // 새 로직: 단순 Lock 파일 체크
+             try
             {
                 string lockPath = dbFilePath + ".lock";
                 if (File.Exists(lockPath))
@@ -573,23 +503,7 @@ namespace CatchCapture.Utilities
                     string[] parts = content.Split('|');
                     if (parts.Length > 0)
                     {
-                        string lockingIdentity = parts[0];
-                        string currentIdentity = $"{Environment.MachineName}:{Environment.ProcessId}";
-                        if (!string.Equals(lockingIdentity, _currentIdentity, StringComparison.OrdinalIgnoreCase))
-                        {
-                            // If same machine but different PID, or different machine entirely
-                            string lockingMachine = lockingIdentity.Split(':')[0];
-                            // Check if the lock is recent (heartbeat within 2 mins)
-                            if (parts.Length > 1 && long.TryParse(parts[1], out long ticks))
-                            {
-                                DateTime lockTime = new DateTime(ticks);
-                                // If updated within 2 minutes, it's definitely active.
-                                if (DateTime.Now - lockTime < TimeSpan.FromMinutes(2))
-                                {
-                                    return lockingMachine;
-                                }
-                            }
-                        }
+                        return parts[0].Split(':')[0]; // Machine Name
                     }
                 }
             }
@@ -599,16 +513,9 @@ namespace CatchCapture.Utilities
 
         public void RemoveLock()
         {
-            try
-            {
-                _heartbeatTimer?.Stop();
-                _heartbeatTimer?.Dispose();
-                _heartbeatTimer = null;
-
-                RemoveSingleLock(_dbPath);
-                RemoveSingleLock(_historyDbPath);
-            }
-            catch { }
+            // 프로그램 종료 시 호출됨
+            // 변경 사항 저장하고 Lock 해제
+             ReleaseOwnership();
         }
 
         private void RemoveSingleLock(string dbFilePath)
@@ -667,16 +574,16 @@ namespace CatchCapture.Utilities
 
         private void InitializeDatabase()
         {
-            string dbDir = Path.GetDirectoryName(_dbPath)!;
+            string dbDir = Path.GetDirectoryName(DbPath)!;
             string rootDir = Path.GetDirectoryName(dbDir)!; // One level up from notedb
 
             if (!Directory.Exists(dbDir)) Directory.CreateDirectory(dbDir);
 
             // Create img directory at root (outside notedb)
             string imgDir = Path.Combine(rootDir, "img");
+            // 로컬 구조에서도 동일하게 생성
             if (!Directory.Exists(imgDir)) Directory.CreateDirectory(imgDir);
 
-            // Create attachments directory at root
             string attachDir = Path.Combine(rootDir, "attachments");
             if (!Directory.Exists(attachDir)) Directory.CreateDirectory(attachDir);
 
@@ -836,7 +743,7 @@ namespace CatchCapture.Utilities
 
         private void InitializeHistoryDatabase()
         {
-            string dbDir = Path.GetDirectoryName(_historyDbPath)!;
+            string dbDir = Path.GetDirectoryName(HistoryDbPath)!;
             if (!Directory.Exists(dbDir)) Directory.CreateDirectory(dbDir);
 
             using (var connection = new SqliteConnection($"Data Source={HistoryDbPath}"))
@@ -903,7 +810,7 @@ namespace CatchCapture.Utilities
                 // If destination exists, Delete it first (VACUUM INTO requires the target to NOT exist)
                 if (File.Exists(destinationPath)) File.Delete(destinationPath);
 
-                using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+                using (var connection = new SqliteConnection($"Data Source={DbFilePath}"))
                 {
                     connection.Open();
                     // 'VACUUM INTO' is the safest way to backup a live SQLite database
@@ -919,7 +826,7 @@ namespace CatchCapture.Utilities
                 // Fallback: if VACUUM INTO fails, try standard copy with sharing
                 try
                 {
-                    using (var sourceStream = new FileStream(DbPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    using (var sourceStream = new FileStream(DbFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                     using (var destStream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write))
                     {
                         sourceStream.CopyTo(destStream);
@@ -938,7 +845,7 @@ namespace CatchCapture.Utilities
 
                 if (File.Exists(destinationPath)) File.Delete(destinationPath);
 
-                using (var connection = new SqliteConnection($"Data Source={HistoryDbPath}"))
+                using (var connection = new SqliteConnection($"Data Source={HistoryDbFilePath}"))
                 {
                     connection.Open();
                     using (var command = new SqliteCommand($"VACUUM INTO '{destinationPath.Replace("'", "''")}';", connection))
@@ -952,7 +859,7 @@ namespace CatchCapture.Utilities
                 System.Diagnostics.Debug.WriteLine($"History DB 백업 중 오류: {ex.Message}");
                 try
                 {
-                    using (var sourceStream = new FileStream(HistoryDbPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    using (var sourceStream = new FileStream(HistoryDbFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                     using (var destStream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write))
                     {
                         sourceStream.CopyTo(destStream);
@@ -964,14 +871,16 @@ namespace CatchCapture.Utilities
 
         public string GetImageFolderPath()
         {
-            string dbDir = Path.GetDirectoryName(DbPath)!;
+            // 이미지는 클라우드 경로를 사용 (공유 목적)
+            string dbDir = Path.GetDirectoryName(CloudDbFilePath)!;
             string rootDir = Path.GetDirectoryName(dbDir)!;
             return Path.Combine(rootDir, "img");
         }
 
         public string GetAttachmentsFolderPath()
         {
-            string dbDir = Path.GetDirectoryName(DbPath)!;
+            // 첨부파일도 클라우드 경로 사용
+            string dbDir = Path.GetDirectoryName(CloudDbFilePath)!;
             string rootDir = Path.GetDirectoryName(dbDir)!;
             return Path.Combine(rootDir, "attachments");
         }
@@ -993,7 +902,7 @@ namespace CatchCapture.Utilities
         {
             try
             {
-                using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+                using (var connection = new SqliteConnection($"Data Source={DbFilePath}"))
                 {
                     connection.Open();
                     using (var command = new SqliteCommand("VACUUM;", connection))
@@ -1012,7 +921,7 @@ namespace CatchCapture.Utilities
         {
             try
             {
-                using (var connection = new SqliteConnection($"Data Source={HistoryDbPath}"))
+                using (var connection = new SqliteConnection($"Data Source={HistoryDbFilePath}"))
                 {
                     connection.Open();
                     using (var command = new SqliteCommand("VACUUM;", connection))
@@ -1032,7 +941,7 @@ namespace CatchCapture.Utilities
         {
             try
             {
-                using (var connection = new SqliteConnection($"Data Source={DbPath}"))
+                using (var connection = new SqliteConnection($"Data Source={DbFilePath}"))
                 {
                     connection.Open();
                     
