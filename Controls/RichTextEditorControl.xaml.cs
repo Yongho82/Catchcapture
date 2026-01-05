@@ -596,9 +596,15 @@ namespace CatchCapture.Controls
                 {
                     try
                     {
+                        var bitmap = new BitmapImage();
+                        bitmap.BeginInit();
+                        bitmap.UriSource = new Uri(fileName);
+                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                        bitmap.EndInit();
+
                         var image = new System.Windows.Controls.Image
                         {
-                            Source = new System.Windows.Media.Imaging.BitmapImage(new Uri(fileName)),
+                            Source = bitmap,
                             Stretch = Stretch.Uniform
                         };
 
@@ -653,23 +659,24 @@ namespace CatchCapture.Controls
 
         private void CreateResizableImage(System.Windows.Controls.Image image)
         {
-            // Set initial width (Default to 360 as requested by user)
+            // Set initial width (Limit to 360 max, but keep original if smaller)
             double initialWidth = 360;
-            try
-            {
-                // [Fix] Explicitly set Image.Width to ensure it is serialized
-                image.Width = initialWidth;
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error getting image width: {ex.Message}");
-            }
-
-            if (initialWidth < 50) initialWidth = 50;
             
-            // Round to integer to avoid XAML serialization issues with long decimals
-            initialWidth = Math.Round(initialWidth);
-
+            if (image.Source != null)
+            {
+                try
+                {
+                    // Source.Width is in DIP (pixels at 96 DPI)
+                    double srcWidth = image.Source.Width;
+                    if (srcWidth > 0 && srcWidth < 360)
+                    {
+                        initialWidth = srcWidth;
+                    }
+                }
+                catch { }
+            }
+            
+            // Explicitly set Image.Width to ensure it is serialized
             image.Width = initialWidth;
             image.Stretch = Stretch.Uniform;
 
@@ -724,7 +731,7 @@ namespace CatchCapture.Controls
 
             var slider = new Slider
             {
-                Minimum = 20,
+                Minimum = 10,
                 Maximum = 1200,
                 Value = initialWidth, // Use calculated initial width
                 Width = 140,
@@ -1335,9 +1342,9 @@ namespace CatchCapture.Controls
                 }
                 else
                 {
-                    // If Image has no width (legacy or reset), sync Image to Slider (default 360 or saved slider val)
-                    // If slider value is effectively 0/default, force 360
-                     if (slider.Value < 10) slider.Value = 360;
+                    // If Image has no width (legacy or reset), sync Image to Slider
+                    // Only force 360 if both are 0 or NaN
+                     if (slider.Value <= 0) slider.Value = 360;
                      
                     image.Width = slider.Value;
                     sizeText.Text = $"{(int)slider.Value}px";
