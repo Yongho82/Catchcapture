@@ -800,4 +800,52 @@ Are you sure you want to permanently delete all items?</value>
   <data name="HistoryTip5" xml:space="preserve"><value>Double-click a list item to view the original file in the default Windows viewer.</value></data>
   <data name="HistoryTip6" xml:space="preserve"><value>Deleted records in the trash will be permanently removed after the retention period.</value></data>
   <data name="Blur" xml:space="preserve"><value>Blur</value></data>
+  <data name="HistoryWindowTitle" xml:space="preserve"><value>History - CatchCapture</value></data>
+  <data name="HistorySearchPlaceholder" xml:space="preserve"><value>Search by filename, memo, app...</value></data>
+  <data name="TotalHistory" xml:space="preserve"><value>Total History</value></data>
+  <data name="HistorySync" xml:space="preserve"><value>Sync</value></data>
+  <data name="HistorySyncTooltip" xml:space="preserve"><value>Fetch latest history</value></data>
+  <data name="OpenWithDefaultViewer" xml:space="preserve"><value>Open with Windows default viewer</value></data>
+  <data name="SimpleMemo" xml:space="preserve"><value>Simple Memo</value></data>
+  <data name="Edit" xml:space="preserve"><value>Edit</value></data>
+  <data name="NoMemo" xml:space="preserve"><value>No memo.</value></data>
+  <data name="Details" xml:space="preserve"><value>Details</value></data>
+  <data name="CapacityLabel" xml:space="preserve"><value>Capacity:</value></data>
+  <data name="AppLabel" xml:space="preserve"><value>App:</value></data>
+  <data name="PathLabel" xml:space="preserve"><value>Detailed Path</value></data>
+  <data name="TitleLabel" xml:space="preserve"><value>Full Title:</value></data>
+  <data name="SelectAnItemToViewDetails" xml:space="preserve"><value>Select an item to view details</value></data>
+  <data name="ImageEditorTooltip" xml:space="preserve"><value>Edit Image</value></data>
+  <data name="SaveToMyNoteTooltip" xml:space="preserve"><value>Save to My Note</value></data>
+  <data name="PinToScreenTooltip" xml:space="preserve"><value>Pin to screen</value></data>
+  <data name="ErrInitHistory" xml:space="preserve"><value>Error initializing history window: </value></data>
+  <data name="ErrLoadHistory" xml:space="preserve"><value>Error loading history: </value></data>
+  <data name="DeleteConfirmTitle" xml:space="preserve"><value>Confirm Delete</value></data>
+  <data name="DeleteConfirmMessage" xml:space="preserve"><value>Do you want to move selected items to trash?</value></data>
+  <data name="PermanentDeleteConfirmMessage" xml:space="preserve"><value>Do you want to permanently delete selected items? (Files will also be deleted)</value></data>
+  <data name="EmptyTrashConfirmMessage" xml:space="preserve"><value>Do you want to permanently delete all items in trash?\n(Original files in folders will also be deleted)</value></data>
+  <data name="EmptyTrashTitle" xml:space="preserve"><value>Empty Trash</value></data>
+  <data name="ErrOpenFolder" xml:space="preserve"><value>Cannot open folder: </value></data>
+  <data name="ErrSaveImage" xml:space="preserve"><value>An error occurred while saving the image: </value></data>
+  <data name="ErrOpenEditor" xml:space="preserve"><value>Cannot open editor: </value></data>
+  <data name="ErrPinImage" xml:space="preserve"><value>Cannot pin image: </value></data>
+  <data name="SyncConfirm" xml:space="preserve"><value>Cloud data (OneDrive, Dropbox, etc.) may take 1-3 minutes to reflect.\n\nWould you like to fetch the latest records now?</value></data>
+  <data name="SyncInfoTitle" xml:space="preserve"><value>Sync Information</value></data>
+  <data name="SyncFailed" xml:space="preserve"><value>Sync failed: </value></data>
+  <data name="NoteSyncTooltip" xml:space="preserve"><value>Fetch latest data</value></data>
+  <data name="ClearTags" xml:space="preserve"><value>Clear Tags</value></data>
+  <data name="ClearTagsTooltip" xml:space="preserve"><value>Delete all tags</value></data>
+  <data name="ClearTagsConfirm" xml:space="preserve"><value>Are you sure you want to delete all tags?\nTag information will be removed from all notes.</value></data>
+  <data name="DeleteSingleTagConfirm" xml:space="preserve"><value>Do you want to delete tag '#{0}'?\nThis tag will only be removed from notes it is applied to.</value></data>
+  <data name="DeleteSingleTagComplete" xml:space="preserve"><value>Tag '#{0}' has been deleted.</value></data>
+  <data name="MyNoteTitle" xml:space="preserve"><value>My Note</value></data>
+  <data name="NewNoteLabel" xml:space="preserve"><value>New Note</value></data>
+  <data name="CopyURL" xml:space="preserve"><value>Copy URL</value></data>
+  <data name="OpenHistory" xml:space="preserve"><value>Open History</value></data>
+  <data name="OpenCaptureFolder" xml:space="preserve"><value>Open Capture Folder</value></data>
+  <data name="OpenNoteFolder" xml:space="preserve"><value>Open Note Folder</value></data>
+  <data name="CaptureAnd" xml:space="preserve"><value>Capture &amp;</value></data>
+  <data name="ChangeEdgeStyleTooltip" xml:space="preserve"><value>Click to change edge style</value></data>
+  <data name="EmptyTrashComplete" xml:space="preserve"><value>Trash has been emptied.</value></data>
+  <data name="All" xml:space="preserve"><value>All</value></data>
 </root>

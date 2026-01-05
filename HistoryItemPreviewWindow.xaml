@@ -110,7 +110,7 @@
                 <Border Grid.Row="1" Padding="20,15,20,5">
                     <StackPanel>
                         <Grid Margin="0,0,0,10">
-                            <TextBlock Text="간단 메모" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="TxtSimpleMemoLabel" Text="간단 메모" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
                             <Button x:Name="BtnEditMemo" Click="BtnEditMemo_Click" Content="수정" HorizontalAlignment="Right" Background="Transparent" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" Padding="8,2" Foreground="{DynamicResource ThemeForeground}" Cursor="Hand">
                                 <Button.Resources>
                                     <Style TargetType="Border">
@@ -138,23 +138,23 @@
                         </Grid.ColumnDefinitions>
                         
                         <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                            <TextBlock Text="상세 정보" FontSize="14" FontWeight="Bold" Margin="0,0,0,10" Foreground="{DynamicResource ThemeForeground}"/>
+                            <TextBlock x:Name="TxtDetailsLabel" Text="상세 정보" FontSize="14" FontWeight="Bold" Margin="0,0,0,10" Foreground="{DynamicResource ThemeForeground}"/>
                             <Grid Margin="0,0,0,5">
-                                <TextBlock Text="크기:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
+                                <TextBlock x:Name="TxtSizeLabel" Text="크기:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
                                 <TextBlock x:Name="TxtPreviewSize" Text="-" HorizontalAlignment="Right" Foreground="{DynamicResource ThemeForeground}"/>
                             </Grid>
                             <Grid Margin="0,0,0,5">
-                                <TextBlock Text="용량:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
+                                <TextBlock x:Name="TxtCapacityLabel" Text="용량:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
                                 <TextBlock x:Name="TxtPreviewWeight" Text="-" HorizontalAlignment="Right" Foreground="{DynamicResource ThemeForeground}"/>
                             </Grid>
                             <Grid Margin="0,0,0,5">
-                                <TextBlock Text="앱:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
+                                <TextBlock x:Name="TxtAppLabel" Text="앱:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
                                 <TextBlock x:Name="TxtPreviewApp" Text="-" HorizontalAlignment="Right" Foreground="{DynamicResource ThemeForeground}"/>
                             </Grid>
                         </StackPanel>
                         
                         <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                             <TextBlock Text="상세 경로" FontSize="11" Opacity="0.6" Foreground="{DynamicResource ThemeForeground}" Margin="0,0,0,5"/>
+                             <TextBlock x:Name="TxtPathLabel" Text="상세 경로" FontSize="11" Opacity="0.6" Foreground="{DynamicResource ThemeForeground}" Margin="0,0,0,5"/>
                              <Grid>
                                  <TextBlock x:Name="TxtPreviewPath" Text="-" Foreground="{DynamicResource ThemeForeground}" Opacity="0.8" TextWrapping="Wrap" MaxHeight="40" TextTrimming="CharacterEllipsis" Margin="0,0,25,0"/>
                                  <Button x:Name="BtnOpenFolder" Click="BtnOpenFolder_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="0" HorizontalAlignment="Right" VerticalAlignment="Top">
@@ -162,7 +162,7 @@
                                            Fill="#FFD600" Width="16" Height="16" Stretch="Uniform"/>
                                  </Button>
                              </Grid>
-                             <TextBlock Text="전체 제목:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" Margin="0,5,0,0"/>
+                             <TextBlock x:Name="TxtTitleLabel" Text="전체 제목:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" Margin="0,5,0,0"/>
                              <TextBlock x:Name="TxtPreviewTitle" Text="-" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" FontWeight="SemiBold" Foreground="{DynamicResource ThemeForeground}"/>
                         </StackPanel>
                     </Grid>

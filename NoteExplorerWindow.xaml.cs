@@ -202,6 +202,17 @@ namespace CatchCapture
             if (TxtSearchPlaceholder != null) TxtSearchPlaceholder.Text = CatchCapture.Resources.LocalizationManager.GetString("SearchPlaceholder");
             if (TxtEmptyTrash != null) TxtEmptyTrash.Text = CatchCapture.Resources.LocalizationManager.GetString("EmptyTrash") ?? "휴지통 비우기";
             
+            if (BtnSync != null)
+            {
+                BtnSync.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("NoteSyncTooltip") ?? "최신 데이터 가져오기";
+                if (TxtSync != null) TxtSync.Text = CatchCapture.Resources.LocalizationManager.GetString("HistorySync") ?? "동기화";
+            }
+            if (BtnClearTags != null)
+            {
+                BtnClearTags.Content = CatchCapture.Resources.LocalizationManager.GetString("ClearTags") ?? "태그 비우기";
+                BtnClearTags.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("ClearTagsTooltip") ?? "모든 태그 삭제";
+            }
+            
             UpdateBottomTipBar();
             
             if (ColHeaderGroup != null) ColHeaderGroup.Text = CatchCapture.Resources.LocalizationManager.GetString("ColGroup");
@@ -1418,8 +1429,8 @@ namespace CatchCapture
         
         private async void BtnEmptyTrash_Click(object sender, RoutedEventArgs e)
         {
-            if (CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("TrashEmptyWarning"), 
-                CatchCapture.Resources.LocalizationManager.GetString("ConfirmDelete"), 
+            if (CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("EmptyTrashConfirmMessage"), 
+                CatchCapture.Resources.LocalizationManager.GetString("EmptyTrashTitle"), 
                 MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
             {
                 try
@@ -1485,11 +1496,11 @@ namespace CatchCapture
                     
                     await LoadNotes("Trash"); // Refresh current view
                     UpdateSidebarCounts(); // Refresh counts
-                    CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("TrashEmptyComplete"), CatchCapture.Resources.LocalizationManager.GetString("Notice"));
+                    CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("EmptyTrashComplete"), CatchCapture.Resources.LocalizationManager.GetString("Notice"));
                 }
                 catch (Exception ex)
                 {
-                    CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("TrashEmptyFailed") + ex.Message, CatchCapture.Resources.LocalizationManager.GetString("Error"));
+                    CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ErrTrashEmpty") + ex.Message, CatchCapture.Resources.LocalizationManager.GetString("Error"));
                 }
             }
         }
@@ -1545,7 +1556,11 @@ namespace CatchCapture
 
         private async void BtnClearTags_Click(object sender, RoutedEventArgs e)
         {
-            if (CatchCapture.CustomMessageBox.Show("정말로 모든 태그를 삭제하시겠습니까?\n모든 노트에서 태그 정보가 제거됩니다.", "태그 비우기", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            if (CatchCapture.CustomMessageBox.Show(
+                CatchCapture.Resources.LocalizationManager.GetString("ClearTagsConfirm") ?? "정말로 모든 태그를 삭제하시겠습니까?\n모든 노트에서 태그 정보가 제거됩니다.", 
+                CatchCapture.Resources.LocalizationManager.GetString("ClearTags") ?? "태그 비우기", 
+                MessageBoxButton.YesNo, 
+                MessageBoxImage.Warning) == MessageBoxResult.Yes)
             {
                 try
                 {
@@ -1988,8 +2003,8 @@ namespace CatchCapture
             {
                 // 사용자 안내 메시지 (말포장)
                 if (CatchCapture.CustomMessageBox.Show(
-                    "클라우드(OneDrive, Dropbox 등) 사용 시 데이터 반영까지 약 1~3분 정도 소요될 수 있습니다.\n\n지금 바로 최신 데이터를 가져오시겠습니까?",
-                    "동기화 안내", 
+                    CatchCapture.Resources.LocalizationManager.GetString("SyncConfirm") ?? "클라우드(OneDrive, Dropbox 등) 사용 시 데이터 반영까지 약 1~3분 정도 소요될 수 있습니다.\n\n지금 바로 최신 데이터를 가져오시겠습니까?",
+                    CatchCapture.Resources.LocalizationManager.GetString("SyncInfoTitle") ?? "동기화 안내", 
                     MessageBoxButton.YesNo, 
                     MessageBoxImage.Information) == MessageBoxResult.Yes)
                 {
@@ -2003,7 +2018,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                CatchCapture.CustomMessageBox.Show("동기화 실패: " + ex.Message, "오류");
+                CatchCapture.CustomMessageBox.Show((CatchCapture.Resources.LocalizationManager.GetString("SyncFailed") ?? "동기화 실패: ") + ex.Message, CatchCapture.Resources.LocalizationManager.GetString("Error"));
             }
         }
 

@@ -293,11 +293,11 @@ public partial class MainWindow : Window
                 LockOverlay.Visibility = Visibility.Collapsed;
                 TakeoverProgressOverlay.Visibility = Visibility.Collapsed;
                 // 성공 알림
-                CustomMessageBox.Show("편집 권한을 가져왔습니다.\n(최신 데이터를 불러왔습니다.)", "성공", MessageBoxButton.OK, MessageBoxImage.Information, width: 400);
+                CustomMessageBox.Show(LocalizationManager.GetString("OwnershipTakenMessage") ?? "편집 권한을 가져왔습니다.\n(최신 데이터를 불러왔습니다.)", LocalizationManager.GetString("Success") ?? "성공", MessageBoxButton.OK, MessageBoxImage.Information, width: 400);
             }
             else
             {
-                CustomMessageBox.Show("권한 획득에 실패했습니다. 다른 컴퓨터가 사용 중일 수 있습니다.", "실패", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show(LocalizationManager.GetString("ErrOwnershipTakeover") ?? "권한 획득에 실패했습니다. 다른 컴퓨터가 사용 중일 수 있습니다.", LocalizationManager.GetString("Failure") ?? "실패", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         catch (Exception ex)
@@ -502,7 +502,7 @@ public partial class MainWindow : Window
 
         // [3] Open History (아이콘 변경: histroy_note.png)
         trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripMenuItem(
-            "히스토리 열기", 
+            LocalizationManager.GetString("OpenHistory") ?? "히스토리 열기", 
             LoadMenuImage("histroy_note.png"), 
             (s, e) => {
                 var hw = Application.Current.Windows.OfType<HistoryWindow>().FirstOrDefault();
@@ -549,7 +549,7 @@ public partial class MainWindow : Window
         trayContextMenu.Items.Add(trayEdgeItem);
 
         // [6] Capture Submenu "캡처 >"
-        var captureSub = new System.Windows.Forms.ToolStripMenuItem("캡처", LoadMenuImage("camera.png"));
+        var captureSub = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("CaptureAnd") ?? "캡처", LoadMenuImage("camera.png"));
         
         captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("DelayCapture"), LoadMenuImage("clock.png"), (s, e) => StartDelayedAreaCaptureSeconds(3)));
         captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("RealTimeCapture"), LoadMenuImage("real-time.png"), (s, e) => StartRealTimeCaptureMode()));
@@ -577,7 +577,7 @@ public partial class MainWindow : Window
         trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
 
         // [9] Capture Folder
-        trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripMenuItem("캡처 폴더", LoadMenuImage("openfolder.png"), (s, e) => {
+        trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("OpenCaptureFolder") ?? "캡처 폴더", LoadMenuImage("openfolder.png"), (s, e) => {
              try { 
                  var path = GetAutoSaveFilePath(settings.FileSaveFormat.ToLower(), null, null);
                  var dir = System.IO.Path.GetDirectoryName(path);
@@ -589,7 +589,7 @@ public partial class MainWindow : Window
         }));
         
         // [10] Note Folder
-        trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripMenuItem("노트 폴더", LoadMenuImage("openfolder.png"), (s, e) => {
+        trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("OpenNoteFolder") ?? "노트 폴더", LoadMenuImage("openfolder.png"), (s, e) => {
              try {
                  string notePath = settings.NoteStoragePath;
                  if (string.IsNullOrEmpty(notePath))
@@ -632,7 +632,7 @@ public partial class MainWindow : Window
         
         // [12] Exit
         trayContextMenu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
-        trayExitItem = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("Exit"), LoadMenuImage("power.png"), (s, e) =>
+        trayExitItem = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("Exit"), LoadMenuImage("exit_tray.png"), (s, e) =>
         {
             isExit = true;
             Close();
@@ -2748,11 +2748,10 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            string errorMsg = $"히스토리 저장 실패: {ex.Message}\nStack: {ex.StackTrace}";
+            string errorMsg = $"{LocalizationManager.GetString("ErrHistorySave") ?? "히스토리 저장 실패"}: {ex.Message}\nStack: {ex.StackTrace}";
             try { System.IO.File.AppendAllText(logPath, $"[{DateTime.Now}] ERROR: {errorMsg}\n"); } catch { }
             
-            System.Diagnostics.Debug.WriteLine($"히스토리 저장 실패: {ex.Message}");
-            System.Diagnostics.Debug.WriteLine($"Stack: {ex.StackTrace}");
+            System.Diagnostics.Debug.WriteLine(errorMsg);
 
             // 사용자 요청: 메시지박스로 확인
             Application.Current.Dispatcher.Invoke(() => 
@@ -2940,7 +2939,7 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"캡처 중 오류가 발생했습니다.\n\n{ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show($"{LocalizationManager.GetString("ErrCapture") ?? "캡처 중 오류가 발생했습니다."}\n\n{ex.Message}", LocalizationManager.GetString("Error") ?? "오류", MessageBoxButton.OK, MessageBoxImage.Error);
         }
         UpdateEmptyStateLogo();
     }
@@ -5154,6 +5153,43 @@ public partial class MainWindow : Window
         if (TitleThemeButton != null) TitleThemeButton.ToolTip = LocalizationManager.GetString("ChangeTheme");
         if (MinimizeButton != null) MinimizeButton.ToolTip = LocalizationManager.GetString("Minimize");
         if (CloseButton != null) CloseButton.ToolTip = LocalizationManager.GetString("Close");
+
+        // Edge Context Menu
+        if (EdgeRadiusContextMenu != null)
+        {
+            foreach (var item in EdgeRadiusContextMenu.Items)
+            {
+                if (item is MenuItem mi && mi.Tag != null)
+                {
+                    string tagStr = mi.Tag.ToString() ?? "";
+                    string key = tagStr switch {
+                        "12" => "EdgeSoft",
+                        "25" => "EdgeSmooth",
+                        "50" => "EdgeClassic",
+                        "100" => "EdgeCapsule",
+                        "999" => "EdgeCircle",
+                        _ => ""
+                    };
+                    if (!string.IsNullOrEmpty(key)) mi.Header = LocalizationManager.GetString(key);
+                }
+            }
+        }
+        if (EdgeRadiusImage != null) EdgeRadiusImage.ToolTip = LocalizationManager.GetString("ChangeEdgeStyleTooltip");
+
+        // View Mode Tooltips
+        if (BtnViewList != null) BtnViewList.ToolTip = LocalizationManager.GetString("ListViewTooltip") ?? "리스트형 보기";
+        if (BtnViewCard != null) BtnViewCard.ToolTip = LocalizationManager.GetString("CardViewTooltip") ?? "카드형 보기";
+        if (BtnHistory != null) BtnHistory.ToolTip = LocalizationManager.GetString("HistoryWindowTitle");
+
+        // Tip Area
+        if (TipTextBlock != null) TipTextBlock.Text = LocalizationManager.GetString("MainTip1") ?? "캡처 목록 이미지를 더블클릭해 빠르게 편집할 수 있어요.";
+
+        // Lock Overlays
+        if (LockOverlayMessage != null) LockOverlayMessage.Text = LocalizationManager.GetString("RepositoryLockedMessage") ?? "다른 컴퓨터에서 이 저장소를 사용 중입니다.\n데이터 충돌 방지를 위해 기능이 잠겼습니다.";
+        if (BtnTakeOwnershipBack != null) BtnTakeOwnershipBack.Content = LocalizationManager.GetString("TakeOwnership") ?? "이 컴퓨터에서 점유권 가져오기";
+        if (BtnLockSettings != null) BtnLockSettings.Content = LocalizationManager.GetString("ChangeStorageSettings") ?? "공유 폴더 설정 변경";
+        
+        if (TakeoverStatusText != null) TakeoverStatusText.Text = LocalizationManager.GetString("TakeoverProgress") ?? "저장소 권한을 안전하게 가져오고 있습니다";
     }
     private void UpdateTrayMenuTexts()
     {

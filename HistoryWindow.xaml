@@ -247,7 +247,7 @@
                             <Grid>
                                 <TextBox x:Name="TxtSearch" KeyDown="TxtSearch_KeyDown" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" FontSize="13" 
                                          Foreground="{DynamicResource ThemeTitleForeground}" CaretBrush="{DynamicResource ThemeTitleForeground}" Margin="15,0,35,0" Padding="0"/>
-                                <TextBlock Text="파일명, 파일내용, 앱 이름 등 검색..." IsHitTestVisible="False" Foreground="{DynamicResource ThemeTitleForeground}" Opacity="0.4" VerticalAlignment="Center" Margin="17,0" FontSize="13">
+                                <TextBlock x:Name="TxtSearchPlaceholder" Text="파일명, 파일내용, 앱 이름 등 검색..." IsHitTestVisible="False" Foreground="{DynamicResource ThemeTitleForeground}" Opacity="0.4" VerticalAlignment="Center" Margin="17,0" FontSize="13">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -330,7 +330,7 @@
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="15,20,5,0">
                                 <Grid Margin="15,0,10,10">
-                                    <TextBlock Text="전체 리스트" Foreground="{DynamicResource ThemeForeground}" Opacity="0.9" FontSize="12" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="TxtTotalListLabel" Text="전체 리스트" Foreground="{DynamicResource ThemeForeground}" Opacity="0.9" FontSize="12" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                                     <Button x:Name="BtnSync" Click="BtnSync_Click" HorizontalAlignment="Right" VerticalAlignment="Center" 
                                             Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="최신 기록 가져오기">
                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -338,7 +338,7 @@
                                                 <Path Data="M12,18A6,6 0 0,1 6,12C6,11 6.25,10.03 6.7,9.2L5.24,7.74C4.46,8.97 4,10.43 4,12A8,8 0 0,0 12,20V23L16,19L12,15V18M12,2V5L8,9L12,13V10A6,6 0 0,1 18,12C18,13 17.75,13.97 17.3,14.8L18.76,16.26C19.54,15.03 20,13.57 20,12A8,8 0 0,0 12,4V1Z" 
                                                       Fill="{DynamicResource ThemeForeground}" Opacity="0.6"/>
                                             </Viewbox>
-                                            <TextBlock Text="동기화" FontSize="12" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="TxtSync" Text="동기화" FontSize="12" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" VerticalAlignment="Center"/>
                                         </StackPanel>
                                         <Button.Style>
                                             <Style TargetType="Button">
@@ -352,11 +352,11 @@
                                         </Button.Style>
                                     </Button>
                                 </Grid>
-                            <Button Style="{StaticResource SidebarItemStyle}" Tag="All" Click="BtnFilter_Click">
+                            <Button x:Name="BtnAll" Style="{StaticResource SidebarItemStyle}" Tag="All" Click="BtnFilter_Click">
                                 <Grid Width="140">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="📋" Margin="0,0,12,0" Foreground="{DynamicResource ThemeForeground}"/>
-                                        <TextBlock Text="전체 기록" Foreground="{DynamicResource ThemeForeground}"/>
+                                        <TextBlock x:Name="TxtAllFilter" Text="전체 기록" Foreground="{DynamicResource ThemeForeground}"/>
                                     </StackPanel>
                                     <TextBlock x:Name="TxtCountAll" Text="0" HorizontalAlignment="Right" Opacity="0.7" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
                                 </Grid>
@@ -364,39 +364,39 @@
                             
                             <Separator Background="{DynamicResource ThemeBorder}" Margin="10,15"/>
                             
-                            <TextBlock Text="기간별" Foreground="{DynamicResource ThemeForeground}" Opacity="0.9" FontSize="12" FontWeight="Bold" Margin="15,0,0,10"/>
-                            <Button Style="{StaticResource SidebarItemStyle}" Tag="Recent7" Click="BtnFilter_Click">
+                            <TextBlock x:Name="TxtPeriodLabel" Text="기간별" Foreground="{DynamicResource ThemeForeground}" Opacity="0.9" FontSize="12" FontWeight="Bold" Margin="15,0,0,10"/>
+                            <Button x:Name="BtnRecent7" Style="{StaticResource SidebarItemStyle}" Tag="Recent7" Click="BtnFilter_Click">
                                 <Grid Width="140">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="🕐" Margin="0,0,12,0" Opacity="0.9" Foreground="{DynamicResource ThemeForeground}"/>
-                                        <TextBlock Text="최근 7일" Foreground="{DynamicResource ThemeForeground}"/>
+                                        <TextBlock x:Name="TxtRecent7Filter" Text="최근 7일" Foreground="{DynamicResource ThemeForeground}"/>
                                     </StackPanel>
                                     <TextBlock x:Name="TxtCountRecent7" Text="0" HorizontalAlignment="Right" Opacity="0.7" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
                                 </Grid>
                             </Button>
-                            <Button Style="{StaticResource SidebarItemStyle}" Tag="Recent30" Click="BtnFilter_Click">
+                            <Button x:Name="BtnRecent30" Style="{StaticResource SidebarItemStyle}" Tag="Recent30" Click="BtnFilter_Click">
                                 <Grid Width="140">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="🕒" Margin="0,0,12,0" Opacity="0.9" Foreground="{DynamicResource ThemeForeground}"/>
-                                        <TextBlock Text="최근 30일" Foreground="{DynamicResource ThemeForeground}"/>
+                                        <TextBlock x:Name="TxtRecent30Filter" Text="최근 30일" Foreground="{DynamicResource ThemeForeground}"/>
                                     </StackPanel>
                                     <TextBlock x:Name="TxtCountRecent30" Text="0" HorizontalAlignment="Right" Opacity="0.7" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
                                 </Grid>
                             </Button>
-                            <Button Style="{StaticResource SidebarItemStyle}" Tag="Recent3Months" Click="BtnFilter_Click">
+                            <Button x:Name="BtnRecent3Months" Style="{StaticResource SidebarItemStyle}" Tag="Recent3Months" Click="BtnFilter_Click">
                                 <Grid Width="140">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="🗓️" Margin="0,0,12,0" Opacity="0.9" Foreground="{DynamicResource ThemeForeground}"/>
-                                        <TextBlock Text="최근 3개월" Foreground="{DynamicResource ThemeForeground}"/>
+                                        <TextBlock x:Name="TxtRecent3MonthsFilter" Text="최근 3개월" Foreground="{DynamicResource ThemeForeground}"/>
                                     </StackPanel>
                                     <TextBlock x:Name="TxtCountRecent3Months" Text="0" HorizontalAlignment="Right" Opacity="0.7" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
                                 </Grid>
                             </Button>
-                            <Button Style="{StaticResource SidebarItemStyle}" Tag="Recent6Months" Click="BtnFilter_Click">
+                            <Button x:Name="BtnRecent6Months" Style="{StaticResource SidebarItemStyle}" Tag="Recent6Months" Click="BtnFilter_Click">
                                 <Grid Width="140">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="🗓️" Margin="0,0,12,0" Opacity="0.9" Foreground="{DynamicResource ThemeForeground}"/>
-                                        <TextBlock Text="최근 6개월" Foreground="{DynamicResource ThemeForeground}"/>
+                                        <TextBlock x:Name="TxtRecent6MonthsFilter" Text="최근 6개월" Foreground="{DynamicResource ThemeForeground}"/>
                                     </StackPanel>
                                     <TextBlock x:Name="TxtCountRecent6Months" Text="0" HorizontalAlignment="Right" Opacity="0.7" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
                                 </Grid>
@@ -404,21 +404,32 @@
 
                             <Separator Background="{DynamicResource ThemeBorder}" Margin="10,15"/>
 
-                            <Button Style="{StaticResource SidebarItemStyle}" Tag="Favorite" Click="BtnFilter_Click">
+                            <Button x:Name="BtnPinned" Style="{StaticResource SidebarItemStyle}" Tag="Pinned" Click="BtnFilter_Click">
+                                <Grid Width="140">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Data="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12Z" 
+                                              Fill="#FF5252" Width="18" Height="18" Stretch="Uniform" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="TxtPinnedFilter" Text="고정됨" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <TextBlock x:Name="TxtCountPinned" Text="0" HorizontalAlignment="Right" Opacity="0.7" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
+                                </Grid>
+                            </Button>
+
+                            <Button x:Name="BtnFavorite" Style="{StaticResource SidebarItemStyle}" Tag="Favorite" Click="BtnFilter_Click">
                                 <Grid Width="140">
                                     <StackPanel Orientation="Horizontal">
                                         <Path Data="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z" 
                                               Fill="#FFD700" Width="18" Height="18" Stretch="Uniform" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                                        <TextBlock Text="즐겨찾기" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="TxtFavoriteFilter" Text="즐겨찾기" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                     <TextBlock x:Name="TxtCountFavorite" Text="0" HorizontalAlignment="Right" Opacity="0.7" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
                                 </Grid>
                             </Button>
-                            <Button Style="{StaticResource SidebarItemStyle}" Tag="Trash" Click="BtnFilter_Click">
+                            <Button x:Name="BtnTrash" Style="{StaticResource SidebarItemStyle}" Tag="Trash" Click="BtnFilter_Click">
                                 <Grid Width="140">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="🗑️" Margin="0,0,12,0" Opacity="0.9" Foreground="{DynamicResource ThemeForeground}"/>
-                                        <TextBlock Text="휴지통" Foreground="{DynamicResource ThemeForeground}"/>
+                                        <TextBlock x:Name="TxtTrashFilter" Text="휴지통" Foreground="{DynamicResource ThemeForeground}"/>
                                     </StackPanel>
                                     <TextBlock x:Name="TxtCountTrash" Text="0" HorizontalAlignment="Right" Opacity="0.7" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForeground}"/>
                                 </Grid>
@@ -428,7 +439,7 @@
                                 <Grid Width="140">
                                     <StackPanel Orientation="Horizontal">
                                         <Image Source="/icons/setting.png" Width="16" Height="16" Margin="0,0,12,0" VerticalAlignment="Center" Opacity="0.9" RenderOptions.BitmapScalingMode="HighQuality"/>
-                                        <TextBlock Text="히스토리 설정" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="TxtSettingsFilter" Text="히스토리 설정" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Grid>
                             </Button>
@@ -730,7 +741,7 @@
 
                         <!-- Image Display -->
                         <Border Grid.Row="0" Margin="15" Background="#08000000" CornerRadius="8">
-                            <Grid Background="Transparent" Cursor="Hand" MouseLeftButtonDown="ImgPreview_MouseDown" ToolTip="윈도우 기본 뷰어로 열기">
+                            <Grid x:Name="BtnImgPreviewGrid" Background="Transparent" Cursor="Hand" MouseLeftButtonDown="ImgPreview_MouseDown" ToolTip="윈도우 기본 뷰어로 열기">
                                  <Image x:Name="ImgPreview" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" IsHitTestVisible="False"/>
                                 
                                 <!-- [추가] 미디어용 오버레이 (비디오 플레이 버튼, 오디오 아이콘, 포맷 뱃지) -->
@@ -784,7 +795,7 @@
                         <Border Grid.Row="1" Padding="20,15,20,5">
                             <StackPanel>
                                 <Grid Margin="0,0,0,10">
-                                    <TextBlock Text="간단 메모" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="TxtSimpleMemoLabel" Text="간단 메모" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
                                     <Button x:Name="BtnEditMemo" Click="BtnEditMemo_Click" Content="수정" HorizontalAlignment="Right" Background="Transparent" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" Padding="8,2" Foreground="{DynamicResource ThemeForeground}" Cursor="Hand">
                                         <Button.Resources>
                                             <Style TargetType="Border">
@@ -806,21 +817,21 @@
                         <!-- Details (Bottom) -->
                         <Border Grid.Row="2" Padding="20" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ThemeBorder}">
                             <StackPanel>
-                                <TextBlock Text="상세 정보" FontSize="14" FontWeight="Bold" Margin="0,0,0,15" Foreground="{DynamicResource ThemeForeground}"/>
+                                <TextBlock x:Name="TxtDetailsLabel" Text="상세 정보" FontSize="14" FontWeight="Bold" Margin="0,0,0,15" Foreground="{DynamicResource ThemeForeground}"/>
                                 <Grid Margin="0,0,0,8">
-                                    <TextBlock Text="크기:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
+                                    <TextBlock x:Name="TxtSizeLabel" Text="크기:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
                                     <TextBlock x:Name="TxtPreviewSize" Text="-" HorizontalAlignment="Right" Foreground="{DynamicResource ThemeForeground}"/>
                                 </Grid>
                                 <Grid Margin="0,0,0,8">
-                                    <TextBlock Text="용량:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
+                                    <TextBlock x:Name="TxtCapacityLabel" Text="용량:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
                                     <TextBlock x:Name="TxtPreviewWeight" Text="-" HorizontalAlignment="Right" Foreground="{DynamicResource ThemeForeground}"/>
                                 </Grid>
                                 <Grid Margin="0,0,0,8">
-                                    <TextBlock Text="앱:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
+                                    <TextBlock x:Name="TxtAppLabel" Text="앱:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
                                     <TextBlock x:Name="TxtPreviewApp" Text="-" HorizontalAlignment="Right" Foreground="{DynamicResource ThemeForeground}"/>
                                 </Grid>
                                 <StackPanel Margin="0,15,0,0">
-                                    <TextBlock Text="상세 경로" FontSize="11" Opacity="0.6" Foreground="{DynamicResource ThemeForeground}" Margin="0,0,0,5"/>
+                                    <TextBlock x:Name="TxtPathLabel" Text="상세 경로" FontSize="11" Opacity="0.6" Foreground="{DynamicResource ThemeForeground}" Margin="0,0,0,5"/>
                                     <Grid>
                                         <TextBlock x:Name="TxtPreviewPath" Text="-" Foreground="{DynamicResource ThemeForeground}" Opacity="0.8" TextWrapping="Wrap" MaxWidth="250" HorizontalAlignment="Left" TextTrimming="None" Margin="0,0,30,0"/>
                                         <Button x:Name="BtnOpenFolder" Click="BtnOpenFolder_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="0" HorizontalAlignment="Right" VerticalAlignment="Bottom">
@@ -829,7 +840,7 @@
                                         </Button>
                                     </Grid>
                                 </StackPanel>
-                                <TextBlock Text="전체 제목:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" Margin="0,15,0,5"/>
+                                <TextBlock x:Name="TxtTitleLabel" Text="전체 제목:" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" Margin="0,15,0,5"/>
                                 <TextBlock x:Name="TxtPreviewTitle" Text="-" TextWrapping="Wrap" FontWeight="SemiBold" Foreground="{DynamicResource ThemeForeground}"/>
                             </StackPanel>
                         </Border>
@@ -838,7 +849,7 @@
                         <Grid x:Name="PreviewEmptyState" Grid.RowSpan="3" Background="{DynamicResource ThemeBackground}">
                             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                 <Image Source="/icons/icon_main.png" Width="200" Opacity="0.5" Margin="0,0,0,20"/>
-                                <TextBlock Text="상세 내역을 보려면 항목을 선택하세요" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="TxtEmptySelection" Text="상세 내역을 보려면 항목을 선택하세요" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" HorizontalAlignment="Center"/>
                             </StackPanel>
                         </Grid>
                     </Grid>

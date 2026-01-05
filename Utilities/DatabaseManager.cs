@@ -2175,6 +2175,7 @@ namespace CatchCapture.Utilities
                 {
                     wheres.Add("Status = 0");
                     if (filter == "Favorite") wheres.Add("IsFavorite = 1");
+                    else if (filter == "Pinned") wheres.Add("IsPinned = 1");
                     else if (filter == "Recent7") wheres.Add("CreatedAt >= date('now', 'localtime', '-7 days')");
                     else if (filter == "Recent30") wheres.Add("CreatedAt >= date('now', 'localtime', '-30 days')");
                     else if (filter == "Recent3Months") wheres.Add("CreatedAt >= date('now', 'localtime', '-3 months')");
@@ -2250,6 +2251,7 @@ namespace CatchCapture.Utilities
                 {
                     wheres.Add("Status = 0");
                     if (filter == "Favorite") wheres.Add("IsFavorite = 1");
+                    else if (filter == "Pinned") wheres.Add("IsPinned = 1");
                     else if (filter == "Recent7") wheres.Add("CreatedAt >= date('now', 'localtime', '-7 days')");
                     else if (filter == "Recent30") wheres.Add("CreatedAt >= date('now', 'localtime', '-30 days')");
                     else if (filter == "Recent3Months") wheres.Add("CreatedAt >= date('now', 'localtime', '-3 months')");

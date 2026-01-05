@@ -8,6 +8,8 @@ using CatchCapture.Models;
 using CatchCapture.Utilities;
 using Microsoft.Data.Sqlite;
 
+using LocalizationManager = CatchCapture.Resources.LocalizationManager;
+
 namespace CatchCapture
 {
     public partial class HistoryItemPreviewWindow : Window
@@ -19,8 +21,31 @@ namespace CatchCapture
             InitializeComponent();
             _item = item;
             this.DataContext = item;
-            
+            UpdateUIText();
             LoadItem();
+        }
+
+        private void UpdateUIText()
+        {
+            if (BtnMinimize != null) BtnMinimize.ToolTip = LocalizationManager.GetString("Minimize") ?? "최소화";
+            if (BtnMaximize != null) BtnMaximize.ToolTip = LocalizationManager.GetString("Maximize") ?? "최대화";
+            if (BtnClose != null) BtnClose.ToolTip = LocalizationManager.GetString("Close") ?? "닫기";
+
+            // Labels
+            if (TxtSimpleMemoLabel != null) TxtSimpleMemoLabel.Text = LocalizationManager.GetString("SimpleMemo") ?? "간단 메모";
+            if (BtnEditMemo != null) BtnEditMemo.Content = LocalizationManager.GetString("Edit") ?? "수정";
+            if (TxtDetailsLabel != null) TxtDetailsLabel.Text = LocalizationManager.GetString("Details") ?? "상세 정보";
+            if (TxtSizeLabel != null) TxtSizeLabel.Text = LocalizationManager.GetString("SizeLabel") ?? "크기:";
+            if (TxtCapacityLabel != null) TxtCapacityLabel.Text = LocalizationManager.GetString("CapacityLabel") ?? "용량:";
+            if (TxtAppLabel != null) TxtAppLabel.Text = LocalizationManager.GetString("AppLabel") ?? "앱:";
+            if (TxtPathLabel != null) TxtPathLabel.Text = LocalizationManager.GetString("PathLabel") ?? "상세 경로";
+            if (TxtTitleLabel != null) TxtTitleLabel.Text = LocalizationManager.GetString("TitleLabel") ?? "전체 제목:";
+
+            // Button tooltips
+            if (BtnPreviewEdit != null) BtnPreviewEdit.ToolTip = LocalizationManager.GetString("ImageEditorTooltip") ?? "이미지 편집";
+            if (BtnPreviewNote != null) BtnPreviewNote.ToolTip = LocalizationManager.GetString("SaveToMyNoteTooltip") ?? "내 노트로 저장";
+            if (BtnPreviewPin != null) BtnPreviewPin.ToolTip = LocalizationManager.GetString("PinToScreenTooltip") ?? "화면에 고정";
+            if (BtnOpenFolder != null) BtnOpenFolder.ToolTip = LocalizationManager.GetString("OpenFolder") ?? "폴더 열기";
         }
 
         private void LoadItem()
@@ -32,12 +57,12 @@ namespace CatchCapture
                 TxtPreviewPath.Text = _item.FilePath;
                 
                 // Update Memo Display
-                TxtMemoDisplay.Text = string.IsNullOrEmpty(_item.Memo) ? "메모가 없습니다." : _item.Memo;
+                TxtMemoDisplay.Text = string.IsNullOrEmpty(_item.Memo) ? LocalizationManager.GetString("NoMemo") : _item.Memo;
                 TxtMemoDisplay.Opacity = string.IsNullOrEmpty(_item.Memo) ? 0.4 : 0.8;
                 EditMemoBox.Text = _item.Memo;
                 EditMemoBox.Visibility = Visibility.Collapsed;
                 TxtMemoDisplay.Visibility = Visibility.Visible;
-                BtnEditMemo.Content = "수정";
+                BtnEditMemo.Content = LocalizationManager.GetString("Edit");
 
                 // 기본 메타데이터 설정
                 TxtPreviewSize.Text = !string.IsNullOrEmpty(_item.Resolution) ? _item.Resolution : "-";
@@ -188,7 +213,7 @@ namespace CatchCapture
                 TxtMemoDisplay.Visibility = Visibility.Collapsed;
                 // 스크롤뷰어 숨김
                 ScrollMemoDisplay.Visibility = Visibility.Collapsed;
-                BtnEditMemo.Content = "저장";
+                BtnEditMemo.Content = LocalizationManager.GetString("Save");
                 EditMemoBox.Focus();
             }
             else
@@ -202,9 +227,9 @@ namespace CatchCapture
                 TxtMemoDisplay.Visibility = Visibility.Visible;
                 ScrollMemoDisplay.Visibility = Visibility.Visible;
                 
-                TxtMemoDisplay.Text = string.IsNullOrEmpty(newMemo) ? "메모가 없습니다." : newMemo;
+                TxtMemoDisplay.Text = string.IsNullOrEmpty(newMemo) ? LocalizationManager.GetString("NoMemo") : newMemo;
                 TxtMemoDisplay.Opacity = string.IsNullOrEmpty(newMemo) ? 0.4 : 0.8;
-                BtnEditMemo.Content = "수정";
+                BtnEditMemo.Content = LocalizationManager.GetString("Edit");
             }
         }
 
@@ -233,7 +258,7 @@ namespace CatchCapture
                         }
                         catch (Exception ex)
                         {
-                            CustomMessageBox.Show($"이미지 저장 중 오류가 발생했습니다: {ex.Message}", "오류");
+                            CustomMessageBox.Show($"{LocalizationManager.GetString("ErrSaveImage")}{ex.Message}", LocalizationManager.GetString("Error"));
                         }
                     };
                     
@@ -241,7 +266,7 @@ namespace CatchCapture
                 }
                 catch (Exception ex)
                 {
-                    CustomMessageBox.Show($"편집창을 열 수 없습니다: {ex.Message}", "오류");
+                    CustomMessageBox.Show($"{LocalizationManager.GetString("ErrOpenEditor")}{ex.Message}", LocalizationManager.GetString("Error"));
                 }
             }
         }
@@ -266,13 +291,13 @@ namespace CatchCapture
                     // 노트 생성 윈도우 직접 호출
                     var noteWin = new NoteInputWindow(image, _item.SourceApp, _item.SourceTitle);
                     noteWin.Show();
-                    CustomMessageBox.Show("새 노트가 생성되었습니다.", "알림");
+                    CustomMessageBox.Show(LocalizationManager.GetString("NoteCreated") ?? "새 노트가 생성되었습니다.", LocalizationManager.GetString("Notice"));
                     // 창 닫기 (선택사항)
                     this.Close();
                 }
                 catch (Exception ex)
                 {
-                    CustomMessageBox.Show($"노트 생성 실패: {ex.Message}", "오류");
+                    CustomMessageBox.Show($"{LocalizationManager.GetString("ErrOpenNoteInput")}{ex.Message}", LocalizationManager.GetString("Error"));
                 }
             }
         }
@@ -300,7 +325,7 @@ namespace CatchCapture
                 }
                 catch (Exception ex)
                 {
-                    CustomMessageBox.Show($"고정 실패: {ex.Message}", "오류");
+                    CustomMessageBox.Show(LocalizationManager.GetString("ErrPinImage") + ex.Message, LocalizationManager.GetString("Error"));
                 }
             }
         }
@@ -316,7 +341,7 @@ namespace CatchCapture
                 }
                 catch (Exception ex)
                 {
-                    CustomMessageBox.Show($"폴더를 열 수 없습니다: {ex.Message}", "오류");
+                    CustomMessageBox.Show($"{LocalizationManager.GetString("ErrOpenFolder")}{ex.Message}", LocalizationManager.GetString("Error"));
                 }
             }
         }

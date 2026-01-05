@@ -58,6 +58,7 @@ namespace CatchCapture.Resources
                     if (key == null) continue;
 
                     string value = entry.Value?.ToString() ?? key;
+                    value = value.Replace("\\n", "\n").Replace("\\r", "\r");
                     System.Windows.Application.Current.Resources[key] = value;
                 }
             }
@@ -98,7 +99,8 @@ namespace CatchCapture.Resources
             try
             {
                 var value = _resourceManager.GetString(key, _currentCulture);
-                return value ?? key;
+                if (value == null) return key;
+                return value.Replace("\\n", "\n").Replace("\\r", "\r");
             }
             catch
             {

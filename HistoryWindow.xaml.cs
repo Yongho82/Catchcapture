@@ -11,6 +11,8 @@ using CatchCapture.Utilities;
 using System.Windows.Media;
 using System.ComponentModel;
 
+using LocalizationManager = CatchCapture.Resources.LocalizationManager;
+
 namespace CatchCapture
 {
     public partial class HistoryWindow : Window, INotifyPropertyChanged
@@ -45,6 +47,7 @@ namespace CatchCapture
             {
                 InitializeComponent();
                 this.DataContext = this;
+                UpdateUIText();
                 
                 // Allow window dragging
                 this.MouseDown += (s, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
@@ -83,7 +86,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"히스토리 창 초기화 중 오류: {ex.Message}\n{ex.StackTrace}", "오류");
+                MessageBox.Show($"{LocalizationManager.GetString("ErrInitHistory")}{ex.Message}\n{ex.StackTrace}", LocalizationManager.GetString("Error"));
             }
         }
 
@@ -176,6 +179,7 @@ namespace CatchCapture
                 TxtCountRecent30.Text = DatabaseManager.Instance.GetHistoryCount("Recent30").ToString();
                 TxtCountRecent3Months.Text = DatabaseManager.Instance.GetHistoryCount("Recent3Months").ToString();
                 TxtCountRecent6Months.Text = DatabaseManager.Instance.GetHistoryCount("Recent6Months").ToString();
+                TxtCountPinned.Text = DatabaseManager.Instance.GetHistoryCount("Pinned").ToString();
                 TxtCountFavorite.Text = DatabaseManager.Instance.GetHistoryCount("Favorite").ToString();
                 TxtCountTrash.Text = DatabaseManager.Instance.GetHistoryCount("Trash").ToString();
             }
@@ -230,23 +234,23 @@ namespace CatchCapture
                 {
                     if (!string.IsNullOrEmpty(search))
                     {
-                        TxtStatusInfo.Text = string.Format(CatchCapture.Resources.LocalizationManager.GetString("SearchResults") ?? "검색 결과 {0} ({1})", search, totalCount);
+                        TxtStatusInfo.Text = string.Format(LocalizationManager.GetString("SearchResults") ?? "검색 결과 {0} ({1})", search, totalCount);
                     }
                     else
                     {
                         // Show filter description when no search
                         string filterKey = _currentFilter switch
                         {
-                            "All" => "AllHistory",
+                            "All" => "AllNotes",
                             "Recent7" => "Recent7Days",
                             "Recent30" => "Recent30Days",
                             "Recent3Months" => "Recent3Months",
                             "Recent6Months" => "Recent6Months",
                             "Favorite" => "Favorite",
                             "Trash" => "Trash",
-                            _ => "AllHistory"
+                            _ => "AllNotes"
                         };
-                        string filterName = CatchCapture.Resources.LocalizationManager.GetString(filterKey) ?? _currentFilter;
+                        string filterName = LocalizationManager.GetString(filterKey) ?? _currentFilter;
                         TxtStatusInfo.Text = filterName;
                     }
                 }
@@ -259,8 +263,55 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                CustomMessageBox.Show($"히스토리 로드 중 오류: {ex.Message}", "오류");
+                CustomMessageBox.Show($"{LocalizationManager.GetString("ErrLoadHistory")}{ex.Message}", LocalizationManager.GetString("Error"));
             }
+        }
+
+        private void UpdateUIText()
+        {
+            this.Title = LocalizationManager.GetString("HistoryWindowTitle") ?? "히스토리 - 캐치캡처";
+            if (TxtSearchPlaceholder != null) TxtSearchPlaceholder.Text = LocalizationManager.GetString("HistorySearchPlaceholder") ?? "파일명, 파일내용, 앱 이름 등 검색...";
+            if (TxtTotalListLabel != null) TxtTotalListLabel.Text = LocalizationManager.GetString("TotalList") ?? "전체 리스트";
+            if (BtnSync != null)
+            {
+                BtnSync.ToolTip = LocalizationManager.GetString("HistorySyncTooltip") ?? "최신 기록 가져오기";
+                if (TxtSync != null) TxtSync.Text = LocalizationManager.GetString("HistorySync") ?? "동기화";
+            }
+            
+            // Preview labels
+            if (TxtSimpleMemoLabel != null) TxtSimpleMemoLabel.Text = LocalizationManager.GetString("SimpleMemo") ?? "간단 메모";
+            if (BtnEditMemo != null) BtnEditMemo.Content = LocalizationManager.GetString("Edit") ?? "수정";
+            if (TxtDetailsLabel != null) TxtDetailsLabel.Text = LocalizationManager.GetString("Details") ?? "상세 정보";
+            if (TxtSizeLabel != null) TxtSizeLabel.Text = LocalizationManager.GetString("SizeLabel") ?? "크기:";
+            if (TxtCapacityLabel != null) TxtCapacityLabel.Text = LocalizationManager.GetString("CapacityLabel") ?? "용량:";
+            if (TxtAppLabel != null) TxtAppLabel.Text = LocalizationManager.GetString("AppLabel") ?? "앱:";
+            if (TxtPathLabel != null) TxtPathLabel.Text = LocalizationManager.GetString("PathLabel") ?? "상세 경로";
+            if (TxtTitleLabel != null) TxtTitleLabel.Text = LocalizationManager.GetString("TitleLabel") ?? "전체 제목:";
+            if (TxtEmptySelection != null) TxtEmptySelection.Text = LocalizationManager.GetString("SelectAnItemToViewDetails") ?? "상세 내역을 보려면 항목을 선택하세요";
+
+            // Buttons tooltips
+            if (BtnPreviewEdit != null) BtnPreviewEdit.ToolTip = LocalizationManager.GetString("ImageEditorTooltip") ?? "이미지 편집";
+            if (BtnPreviewNote != null) BtnPreviewNote.ToolTip = LocalizationManager.GetString("SaveToMyNoteTooltip") ?? "내 노트로 저장";
+            if (BtnPreviewPin != null) BtnPreviewPin.ToolTip = LocalizationManager.GetString("PinToScreenTooltip") ?? "화면에 고정";
+            if (BtnImgPreviewGrid != null) BtnImgPreviewGrid.ToolTip = LocalizationManager.GetString("OpenWithDefaultViewer") ?? "윈도우 기본 뷰어로 열기";
+
+            // Filter buttons
+            if (TxtAllFilter != null) TxtAllFilter.Text = LocalizationManager.GetString("All") ?? "전체 기록";
+            if (TxtRecent7Filter != null) TxtRecent7Filter.Text = LocalizationManager.GetString("Recent7Days") ?? "최근 7일";
+            if (TxtRecent30Filter != null) TxtRecent30Filter.Text = LocalizationManager.GetString("Recent30Days") ?? "최근 30일";
+            if (TxtRecent3MonthsFilter != null) TxtRecent3MonthsFilter.Text = LocalizationManager.GetString("Recent3Months") ?? "최근 3개월";
+            if (TxtRecent6MonthsFilter != null) TxtRecent6MonthsFilter.Text = LocalizationManager.GetString("Recent6Months") ?? "최근 6개월";
+            if (TxtPinnedFilter != null) TxtPinnedFilter.Text = LocalizationManager.GetString("Pinned") ?? "고정됨";
+            if (TxtFavoriteFilter != null) TxtFavoriteFilter.Text = LocalizationManager.GetString("Favorite") ?? "즐겨찾기";
+            if (TxtTrashFilter != null) TxtTrashFilter.Text = LocalizationManager.GetString("Trash") ?? "휴지통";
+            if (TxtSettingsFilter != null) TxtSettingsFilter.Text = LocalizationManager.GetString("HistorySettings") ?? "히스토리 설정";
+
+            if (BtnSelectAll != null) BtnSelectAll.Content = LocalizationManager.GetString("SelectAll") ?? "전체 선택";
+            if (BtnDeleteSelected != null) BtnDeleteSelected.Content = LocalizationManager.GetString("DeleteSelected") ?? "선택 삭제";
+            if (BtnEmptyTrash != null) BtnEmptyTrash.Content = LocalizationManager.GetString("EmptyTrash") ?? "휴지통 비우기";
+
+            if (BtnViewList != null) BtnViewList.ToolTip = LocalizationManager.GetString("ListView") ?? "리스트형";
+            if (BtnViewCard != null) BtnViewCard.ToolTip = LocalizationManager.GetString("CardView") ?? "카드형";
         }
 
         private void InitializeTips()
@@ -295,7 +346,7 @@ namespace CatchCapture
             else
             {
                 // TIP 모드로 복구
-                if (TxtTipLabel != null) TxtTipLabel.Text = "TIP";
+                if (TxtTipLabel != null) TxtTipLabel.Text = LocalizationManager.GetString("Tip") ?? "TIP";
                 if (BrdTipLabel != null) BrdTipLabel.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#8E44AD"));
 
                 // 현재 팁 표시 (타이머가 돌고 있으므로 인덱스 기반 표시)
@@ -397,7 +448,7 @@ namespace CatchCapture
         {
             bool anySelected = HistoryItems.Any(i => i.IsSelected);
             bool allSelected = HistoryItems.Count > 0 && HistoryItems.All(i => i.IsSelected);
-            BtnSelectAll.Content = allSelected ? "전체 해제" : "전체 선택";
+            BtnSelectAll.Content = allSelected ? LocalizationManager.GetString("UnselectAll") : LocalizationManager.GetString("SelectAll");
             if (ChkHeaderAll != null) ChkHeaderAll.IsChecked = allSelected;
 
             // Handle CheckBox column visibility in List Mode
@@ -430,8 +481,8 @@ namespace CatchCapture
             var selectedItems = HistoryItems.Where(i => i.IsSelected).ToList();
             if (selectedItems.Count == 0) return;
 
-            string msg = _currentFilter == "Trash" ? "선택한 항목을 영구 삭제하시겠습니까? (파일도 삭제됩니다)" : "선택한 항목을 휴지통으로 보내시겠습니까?";
-            if (CustomMessageBox.Show(msg, "삭제 확인", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            string msg = _currentFilter == "Trash" ? LocalizationManager.GetString("PermanentDeleteConfirmMessage") : LocalizationManager.GetString("DeleteConfirmMessage");
+            if (CustomMessageBox.Show(msg, LocalizationManager.GetString("DeleteConfirmTitle"), MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 foreach (var item in selectedItems)
                 {
@@ -444,11 +495,12 @@ namespace CatchCapture
 
         private void BtnEmptyTrash_Click(object sender, RoutedEventArgs e)
         {
-            if (CustomMessageBox.Show("휴지통의 모든 항목을 영구 삭제하시겠습니까?\n(폴더의 실제 파일들도 모두 삭제됩니다)", "휴지통 비우기", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            if (CustomMessageBox.Show(LocalizationManager.GetString("EmptyTrashConfirmMessage"), LocalizationManager.GetString("EmptyTrashTitle"), MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
             {
                 DatabaseManager.Instance.EmptyTrash();
                 LoadHistory("Trash");
                 TriggerLiveSync();
+                CustomMessageBox.Show(LocalizationManager.GetString("EmptyTrashComplete"), LocalizationManager.GetString("Notice"));
             }
         }
 
@@ -561,7 +613,7 @@ namespace CatchCapture
                 }
                 catch (Exception ex)
                 {
-                    CustomMessageBox.Show($"폴더를 열 수 없습니다: {ex.Message}", "오류");
+                    CustomMessageBox.Show($"{LocalizationManager.GetString("ErrOpenFile")}{ex.Message}", LocalizationManager.GetString("Error"));
                 }
             }
         }
@@ -571,8 +623,8 @@ namespace CatchCapture
             HistoryItem? item = (sender as Button)?.DataContext as HistoryItem ?? LstHistory.SelectedItem as HistoryItem;
             if (item == null) return;
 
-            string msg = _currentFilter == "Trash" ? "이 항목을 영구 삭제하시겠습니까? (파일도 삭제됩니다)" : "이 항목을 휴지통으로 보내시겠습니까?";
-            if (CustomMessageBox.Show(msg, "삭제 확인", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            string msg = _currentFilter == "Trash" ? LocalizationManager.GetString("PermanentDeleteConfirmMessage") : LocalizationManager.GetString("DeleteConfirmMessage");
+            if (CustomMessageBox.Show(msg, LocalizationManager.GetString("DeleteConfirmTitle"), MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 DatabaseManager.Instance.DeleteCapture(item.Id, _currentFilter == "Trash");
                 LoadHistory(_currentFilter, _currentSearch);
@@ -619,7 +671,7 @@ namespace CatchCapture
                         }
                         catch (Exception ex)
                         {
-                            CustomMessageBox.Show($"파일을 열 수 없습니다: {ex.Message}", "오류");
+                            CustomMessageBox.Show($"{LocalizationManager.GetString("ErrOpenFile")}{ex.Message}", LocalizationManager.GetString("Error"));
                         }
                     }
                 }
@@ -651,12 +703,12 @@ namespace CatchCapture
                 TxtPreviewPath.Text = item.FilePath;
                 
                 // Update Memo Display
-                TxtMemoDisplay.Text = string.IsNullOrEmpty(item.Memo) ? "메모가 없습니다." : item.Memo;
+                TxtMemoDisplay.Text = string.IsNullOrEmpty(item.Memo) ? LocalizationManager.GetString("NoMemo") : item.Memo;
                 TxtMemoDisplay.Opacity = string.IsNullOrEmpty(item.Memo) ? 0.4 : 0.8;
                 EditMemoBox.Text = item.Memo;
                 EditMemoBox.Visibility = Visibility.Collapsed;
                 TxtMemoDisplay.Visibility = Visibility.Visible;
-                BtnEditMemo.Content = "수정";
+                BtnEditMemo.Content = LocalizationManager.GetString("Edit");
 
                 // 기본 메타데이터 설정 (DB 값 우선)
                 TxtPreviewSize.Text = !string.IsNullOrEmpty(item.Resolution) ? item.Resolution : "-";
@@ -736,6 +788,12 @@ namespace CatchCapture
                         }
                     }
                 }
+                if (item != null)
+                {
+                    TxtMemoDisplay.Text = string.IsNullOrEmpty(item.Memo) ? LocalizationManager.GetString("NoMemo") : item.Memo;
+                    TxtMemoDisplay.Opacity = string.IsNullOrEmpty(item.Memo) ? 0.4 : 0.8;
+                    EditMemoBox.Text = item.Memo;
+                }
                 else
                 {
                     ImgPreview.Source = null;
@@ -755,13 +813,27 @@ namespace CatchCapture
             {
                 if (LstHistory.SelectedItem is HistoryItem item && System.IO.File.Exists(item.FilePath))
                 {
-                    try
+                    // 이미지 확장자 체크
+                    string ext = System.IO.Path.GetExtension(item.FilePath).ToLower();
+                    string[] imgExts = { ".png", ".jpg", ".jpeg", ".bmp", ".gif", ".webp" };
+
+                    if (imgExts.Contains(ext))
                     {
-                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(item.FilePath) { UseShellExecute = true });
+                        // 이미지인 경우 우리 전용 프리뷰 창 열기
+                        var previewWin = new HistoryItemPreviewWindow(item);
+                        previewWin.Owner = this;
+                        previewWin.ShowDialog();
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        CustomMessageBox.Show($"이미지를 열 수 없습니다: {ex.Message}", "오류");
+                        try
+                        {
+                            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(item.FilePath) { UseShellExecute = true });
+                        }
+                        catch (Exception ex)
+                        {
+                            CustomMessageBox.Show($"{LocalizationManager.GetString("ErrOpenFile")}{ex.Message}", LocalizationManager.GetString("Error"));
+                        }
                     }
                 }
             }
@@ -783,6 +855,7 @@ namespace CatchCapture
                     
                     var previewWin = new PreviewWindow(bitmap, 0);
                     previewWin.Owner = this;
+                    previewWin.Title = LocalizationManager.GetString("ImageEditorTooltip");
                     
                     // Subscribe to image update event to save changes back to file
                     previewWin.ImageUpdated += (s, ev) =>
@@ -808,7 +881,7 @@ namespace CatchCapture
                         }
                         catch (Exception ex)
                         {
-                            CustomMessageBox.Show($"이미지 저장 중 오류가 발생했습니다: {ex.Message}", "오류");
+                            CustomMessageBox.Show($"{LocalizationManager.GetString("ErrSaveImage")}{ex.Message}", LocalizationManager.GetString("Error"));
                         }
                     };
                     
@@ -816,7 +889,7 @@ namespace CatchCapture
                 }
                 catch (Exception ex)
                 {
-                    CustomMessageBox.Show($"편집창을 열 수 없습니다: {ex.Message}", "오류");
+                    CustomMessageBox.Show($"{LocalizationManager.GetString("ErrOpenFile")}{ex.Message}", LocalizationManager.GetString("Error"));
                 }
             }
         }
@@ -843,7 +916,7 @@ namespace CatchCapture
                 }
                 catch (Exception ex)
                 {
-                    CustomMessageBox.Show($"노트 입력창을 열 수 없습니다: {ex.Message}", "오류");
+                    CustomMessageBox.Show($"{LocalizationManager.GetString("ErrOpenNoteInput")}{ex.Message}", LocalizationManager.GetString("Error"));
                 }
             }
         }
@@ -881,7 +954,7 @@ namespace CatchCapture
                     EditMemoBox.Visibility = Visibility.Visible;
                     EditMemoBox.Focus();
                     EditMemoBox.SelectAll();
-                    BtnEditMemo.Content = "저장";
+                    BtnEditMemo.Content = LocalizationManager.GetString("Save");
                 }
                 else
                 {
@@ -929,7 +1002,7 @@ namespace CatchCapture
                 }
                 catch (Exception ex)
                 {
-                    CustomMessageBox.Show($"이미지를 고정할 수 없습니다: {ex.Message}", "오류");
+                    CustomMessageBox.Show($"{LocalizationManager.GetString("ErrPinImage")}{ex.Message}", LocalizationManager.GetString("Error"));
                 }
             }
         }
@@ -976,8 +1049,8 @@ namespace CatchCapture
             try
             {
                 if (CatchCapture.CustomMessageBox.Show(
-                    "클라우드(OneDrive, Dropbox 등) 사용 시 데이터 반영까지 약 1~3분 정도 소요될 수 있습니다.\n\n지금 바로 최신 기록을 가져오시겠습니까?",
-                    "동기화 안내",
+                    LocalizationManager.GetString("SyncConfirm") ?? "클라우드(OneDrive, Dropbox 등) 사용 시 데이터 반영까지 약 1~3분 정도 소요될 수 있습니다.\n\n지금 바로 최신 기록을 가져오시겠습니까?",
+                    LocalizationManager.GetString("SyncInfoTitle") ?? "동기화 안내",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Information) == MessageBoxResult.Yes)
                 {
@@ -990,7 +1063,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                CatchCapture.CustomMessageBox.Show("동기화 실패: " + ex.Message, "오류");
+                CatchCapture.CustomMessageBox.Show($"{LocalizationManager.GetString("SyncFailed")}{ex.Message}", LocalizationManager.GetString("Error"));
             }
         }
 

@@ -5,6 +5,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.Threading.Tasks;
+using LocalizationManager = CatchCapture.Resources.LocalizationManager;
 
 namespace CatchCapture.Utilities
 {
@@ -64,7 +65,7 @@ namespace CatchCapture.Utilities
             // Title "Catch Capture"
             var titleBlock = new TextBlock
             {
-                Text = "캐치캡처",
+                Text = LocalizationManager.GetString("AppTitle") ?? "캐치캡처",
                 Foreground = Brushes.White,
                 FontSize = 14,
                 FontWeight = FontWeights.Bold,
