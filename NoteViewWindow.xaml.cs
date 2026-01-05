@@ -442,8 +442,10 @@ namespace CatchCapture
                                     try 
                                     {
                                         var viewer = new ImageViewerWindow(path);
-                                        viewer.Owner = Window.GetWindow(this);
-                                        viewer.ShowDialog();
+                                        viewer.Show();
+                                        viewer.Activate();
+                                        viewer.Focus();
+                                        ev.Handled = true;
                                     } 
                                     catch { }
                                 }

@@ -203,6 +203,8 @@ public partial class App : Application
                     sidebarPressed = AdjustColor(bgColor, 35);
                     
                     SetResource("ThemePanelBackground", new SolidColorBrush(sidebarBg));
+                    SetResource("CheckerColor1", new SolidColorBrush(AdjustColor(bgColor, 8)));
+                    SetResource("CheckerColor2", new SolidColorBrush(AdjustColor(bgColor, 15)));
                 }
                 else // Light Theme
                 {
@@ -247,6 +249,8 @@ public partial class App : Application
                     {
                         SetResource("ThemePanelBackground", new SolidColorBrush(bgColor));
                     }
+                    SetResource("CheckerColor1", new SolidColorBrush(Color.FromRgb(239, 239, 239))); // #EFEFEF
+                    SetResource("CheckerColor2", new SolidColorBrush(Color.FromRgb(249, 249, 249))); // #F9F9F9
                 }
 
                 // Apply resources
