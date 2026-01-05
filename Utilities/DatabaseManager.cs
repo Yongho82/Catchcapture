@@ -208,7 +208,6 @@ namespace CatchCapture.Utilities
             try
             {
                 // [중요] 내 Lock이 걸려있다면? -> 비정상 종료 등으로 로컬 데이터가 아직 백업 안 된 상태일 수 있음.
-                // 이 경우 클라우드(구버전)로 덮어쓰면 데이터 날아감. 따라서 동기화 스킵하고 로컬 데이터 사용.
                 if (IsMyLock())
                 {
                     LogToFile("[SKIP] 내 Lock 파일이 존재하므로 로컬 데이터를 보존합니다. (동기화 건너뜀)");
@@ -217,11 +216,19 @@ namespace CatchCapture.Utilities
 
                 LogToFile("Cloud -> Local 동기화 시작...");
 
-                // 1. Note DB
-                CopyIfNewer(_cloudDbPath, _localDbPath);
-                
-                // 2. History DB
-                CopyIfNewer(_cloudHistoryDbPath, _localHistoryDbPath);
+                // Lock이 없으면 클라우드가 '진실(Source of Truth)'임. 
+                // 날짜 비교 없이 과감하게 가져옴 (단, 파일이 존재할 때만)
+                if (File.Exists(_cloudDbPath))
+                {
+                    File.Copy(_cloudDbPath, _localDbPath, true);
+                    LogToFile($"Note DB 강제 동기화 완료: {_cloudDbPath} -> {_localDbPath}");
+                }
+
+                if (File.Exists(_cloudHistoryDbPath))
+                {
+                    File.Copy(_cloudHistoryDbPath, _localHistoryDbPath, true);
+                    LogToFile("History DB 강제 동기화 완료");
+                }
                 
                 LogToFile("Cloud -> Local 동기화 완료");
             }
