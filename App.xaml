@@ -9,19 +9,29 @@
         <SolidColorBrush x:Key="ThemeForeground" Color="#333333"/>
         <SolidColorBrush x:Key="ThemeBorder" Color="#E0E0E0"/>
         <SolidColorBrush x:Key="AccentColor" Color="#007AFF"/>
-        <SolidColorBrush x:Key="CheckerColor1" Color="#EFEFEF"/>
-        <SolidColorBrush x:Key="CheckerColor2" Color="#F9F9F9"/>
-
-        <VisualBrush x:Key="CheckerboardBrush" TileMode="Tile" Viewport="0,0,20,20" ViewportUnits="Absolute">
-            <VisualBrush.Visual>
-                <Grid Width="20" Height="20">
-                    <Rectangle Fill="{DynamicResource CheckerColor1}" Width="10" Height="10" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                    <Rectangle Fill="{DynamicResource CheckerColor1}" Width="10" Height="10" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
-                    <Rectangle Fill="{DynamicResource CheckerColor2}" Width="10" Height="10" HorizontalAlignment="Right" VerticalAlignment="Top"/>
-                    <Rectangle Fill="{DynamicResource CheckerColor2}" Width="10" Height="10" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
-                </Grid>
-            </VisualBrush.Visual>
-        </VisualBrush>
+        <DrawingBrush x:Key="CheckerboardBrush" TileMode="Tile" Viewport="0,0,20,20" ViewportUnits="Absolute">
+            <DrawingBrush.Drawing>
+                <DrawingGroup>
+                    <!-- Base background color (Theme Background) -->
+                    <GeometryDrawing Brush="{DynamicResource ThemeBackground}">
+                        <GeometryDrawing.Geometry>
+                            <RectangleGeometry Rect="0,0,20,20"/>
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                    <!-- Checker pattern (Theme Foreground at 10% opacity) -->
+                    <DrawingGroup Opacity="0.1">
+                        <GeometryDrawing Brush="{DynamicResource ThemeForeground}">
+                            <GeometryDrawing.Geometry>
+                                <GeometryGroup>
+                                    <RectangleGeometry Rect="0,0,10,10"/>
+                                    <RectangleGeometry Rect="10,10,10,10"/>
+                                </GeometryGroup>
+                            </GeometryDrawing.Geometry>
+                        </GeometryDrawing>
+                    </DrawingGroup>
+                </DrawingGroup>
+            </DrawingBrush.Drawing>
+        </DrawingBrush>
         
         <!-- Missing Resources causing crash -->
         <SolidColorBrush x:Key="ThemeWindowBorder" Color="#E0E0E0"/>

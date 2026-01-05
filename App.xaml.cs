@@ -167,9 +167,6 @@ public partial class App : Application
 
             if (Application.Current != null && Application.Current.Resources != null)
             {
-                // Derive colors based on brightness
-                double brightness = (0.299 * bgColor.R + 0.587 * bgColor.G + 0.114 * bgColor.B) / 255;
-                
                 // Helper to set resource only if changed and freeze it
                 void SetResource(string key, object value)
                 {
@@ -192,65 +189,77 @@ public partial class App : Application
                     }
                     Application.Current.Resources[key] = value;
                 }
+
+                // 1. Theme Overrides (Apply special modes before brightness calculation)
+                if (settings.ThemeMode == "General")
+                {
+                    bgColor = Color.FromRgb(255, 255, 255);
+                    fgColor = Color.FromRgb(51, 51, 51); // #333333
+                }
+                else if (settings.ThemeMode == "Light")
+                {
+                    bgColor = Color.FromRgb(255, 255, 255);
+                    fgColor = Color.FromRgb(51, 51, 51);
+                }
+                else if (settings.ThemeMode == "Dark")
+                {
+                    bgColor = Color.FromRgb(30, 30, 30); // Darker base
+                    fgColor = Color.FromRgb(230, 230, 230);
+                }
+                else if (settings.ThemeMode == "Blue")
+                {
+                    bgColor = Color.FromRgb(255, 255, 255);
+                    fgColor = Color.FromRgb(1, 87, 155);
+                }
+
+                // 2. Re-calculate brightness based on final bgColor
+                double brightness = (0.299 * bgColor.R + 0.587 * bgColor.G + 0.114 * bgColor.B) / 255;
+
                 Color windowBorder, sidebarBg, sidebarBorder, sidebarHover, sidebarPressed;
 
-                if (brightness < 0.5) // Dark Theme
+                if (brightness < 0.5) // Dark Theme logic
                 {
                     windowBorder = AdjustColor(bgColor, 15);
-                    sidebarBg = AdjustColor(bgColor, -15); // Increased contrast for dark mode
+                    sidebarBg = AdjustColor(bgColor, -10);
                     sidebarBorder = AdjustColor(bgColor, 20);
                     sidebarHover = AdjustColor(bgColor, 25);
                     sidebarPressed = AdjustColor(bgColor, 35);
                     
                     SetResource("ThemePanelBackground", new SolidColorBrush(sidebarBg));
-                    SetResource("CheckerColor1", new SolidColorBrush(AdjustColor(bgColor, 8)));
-                    SetResource("CheckerColor2", new SolidColorBrush(AdjustColor(bgColor, 15)));
                 }
-                else // Light Theme
+                else // Light Theme logic
                 {
                     windowBorder = AdjustColor(bgColor, -20);
-                    sidebarBg = AdjustColor(bgColor, -6); // #F9F9F9 for white background
+                    sidebarBg = AdjustColor(bgColor, -6);
                     sidebarBorder = windowBorder; 
                     sidebarHover = AdjustColor(bgColor, -15);
                     sidebarPressed = AdjustColor(bgColor, -25);
 
-                    // User requirements overrides
                     if (settings.ThemeMode == "General")
                     {
-                        bgColor = Color.FromRgb(255, 255, 255); // 전체 배경 255
-                        sidebarBg = Color.FromRgb(249, 249, 249); // 버튼 249
-                        windowBorder = Color.FromRgb(224, 224, 224); // #E0E0E0 라인 살림
-                        sidebarBorder = Colors.Transparent; // 버튼 외곽 라인만 제거
+                        sidebarBg = Color.FromRgb(249, 249, 249);
+                        windowBorder = Color.FromRgb(224, 224, 224);
+                        sidebarBorder = Colors.Transparent;
+                        SetResource("ThemePanelBackground", Brushes.White);
                     }
                     else if (settings.ThemeMode == "Light")
                     {
-                        bgColor = Color.FromRgb(255, 255, 255); // 전체 흰색
-                        sidebarBg = Color.FromRgb(249, 249, 249); // 버튼 249
-                        windowBorder = AdjustColor(bgColor, -20); // 라인 살리고
+                        sidebarBg = Color.FromRgb(249, 249, 249);
+                        windowBorder = AdjustColor(bgColor, -20);
                         sidebarBorder = windowBorder;
+                        SetResource("ThemePanelBackground", Brushes.White);
                     }
                     else if (settings.ThemeMode == "Blue")
                     {
-                        bgColor = Color.FromRgb(255, 255, 255); 
-                        sidebarBg = Color.FromRgb(225, 245, 254); // Pastel Blue Sidebar (#E1F5FE)
-                        windowBorder = Color.FromRgb(129, 212, 250); // Pastel Border
+                        sidebarBg = Color.FromRgb(225, 245, 254);
+                        windowBorder = Color.FromRgb(129, 212, 250);
                         sidebarBorder = Color.FromRgb(129, 212, 250);
-                    }
-
-                    if (settings.ThemeMode == "General" || settings.ThemeMode == "Light")
-                    {
-                        SetResource("ThemePanelBackground", new SolidColorBrush(Color.FromRgb(255, 255, 255)));
-                    }
-                    else if (settings.ThemeMode == "Blue")
-                    {
                         SetResource("ThemePanelBackground", new SolidColorBrush(sidebarBg));
                     }
                     else
                     {
                         SetResource("ThemePanelBackground", new SolidColorBrush(bgColor));
                     }
-                    SetResource("CheckerColor1", new SolidColorBrush(Color.FromRgb(239, 239, 239))); // #EFEFEF
-                    SetResource("CheckerColor2", new SolidColorBrush(Color.FromRgb(249, 249, 249))); // #F9F9F9
                 }
 
                 // Apply resources
@@ -258,6 +267,24 @@ public partial class App : Application
                 Application.Current.Resources["ThemeColorBackground"] = bgColor;
                 SetResource("ThemeForeground", new SolidColorBrush(fgColor));
                 Application.Current.Resources["ThemeColorForeground"] = fgColor;
+
+                // Create and set CheckerboardBrush (DrawingBrush) for real-time updates
+                var checkerBrush = new DrawingBrush
+                {
+                    TileMode = TileMode.Tile,
+                    Viewport = new Rect(0, 0, 20, 20),
+                    ViewportUnits = BrushMappingMode.Absolute
+                };
+                var group = new DrawingGroup();
+                group.Children.Add(new GeometryDrawing(new SolidColorBrush(bgColor), null, new RectangleGeometry(new Rect(0, 0, 20, 20))));
+                var checkGroup = new DrawingGroup { Opacity = 0.1 };
+                var checkGeom = new GeometryGroup();
+                checkGeom.Children.Add(new RectangleGeometry(new Rect(0, 0, 10, 10)));
+                checkGeom.Children.Add(new RectangleGeometry(new Rect(10, 10, 10, 10)));
+                checkGroup.Children.Add(new GeometryDrawing(new SolidColorBrush(fgColor), null, checkGeom));
+                group.Children.Add(checkGroup);
+                checkerBrush.Drawing = group;
+                SetResource("CheckerboardBrush", checkerBrush);
 
                 SetResource("ThemeWindowBorder", new SolidColorBrush(windowBorder));
                 SetResource("ThemeBorder", new SolidColorBrush(windowBorder)); 
