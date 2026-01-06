@@ -93,46 +93,20 @@ namespace CatchCapture.Recording
         
         private void RecordingOverlay_Loaded(object sender, RoutedEventArgs e)
         {
-            var allScreens = System.Windows.Forms.Screen.AllScreens;
+            // 모든 모니터를 커버하도록 설정 (VirtualScreen 사용)
+            this.Left = SystemParameters.VirtualScreenLeft;
+            this.Top = SystemParameters.VirtualScreenTop;
+            this.Width = SystemParameters.VirtualScreenWidth;
+            this.Height = SystemParameters.VirtualScreenHeight;
             
-            double left, top, width, height;
-            
-            if (allScreens.Length <= 2)
-            {
-                // 2개 이하: 모든 모니터 커버 (VirtualScreen)
-                left = SystemParameters.VirtualScreenLeft;
-                top = SystemParameters.VirtualScreenTop;
-                width = SystemParameters.VirtualScreenWidth;
-                height = SystemParameters.VirtualScreenHeight;
-            }
-            else
-            {
-                // 3개 이상: 처음 2개 모니터만 커버
-                var screen1 = allScreens[0].Bounds;
-                var screen2 = allScreens[1].Bounds;
-                
-                left = Math.Min(screen1.Left, screen2.Left);
-                top = Math.Min(screen1.Top, screen2.Top);
-                double right = Math.Max(screen1.Right, screen2.Right);
-                double bottom = Math.Max(screen1.Bottom, screen2.Bottom);
-                width = right - left;
-                height = bottom - top;
-            }
-            
-            this.Left = left;
-            this.Top = top;
-            this.Width = width;
-            this.Height = height;
-            
-            // 선택 영역은 주 모니터 중앙에 배치
+            // 선택 영역은 주 모니터 중앙에 배치 (오버레이 기준 상대 좌표로 계산)
             var primaryScreen = System.Windows.Forms.Screen.PrimaryScreen?.Bounds 
                 ?? new System.Drawing.Rectangle(0, 0, 1920, 1080);
-            _selectionArea = new Rect(
-                (primaryScreen.Width - 800) / 2,
-                (primaryScreen.Height - 600) / 2,
-                800,
-                600
-            );
+            
+            double centerX = (primaryScreen.X - this.Left) + (primaryScreen.Width - 800) / 2;
+            double centerY = (primaryScreen.Y - this.Top) + (primaryScreen.Height - 600) / 2;
+
+            _selectionArea = new Rect(centerX, centerY, 800, 600);
             
             // Windows 11 호환성: 명시적으로 Topmost와 Activate 호출
             this.Topmost = true;

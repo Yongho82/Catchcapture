@@ -130,8 +130,14 @@ namespace CatchCapture.Recording
             if (_settings.Format != RecordingFormat.MP3 && _overlay != null && _overlay.IsVisible)
             {
                 var selectionArea = _overlay.SelectionArea;
-                this.Left = selectionArea.Left + (selectionArea.Width - this.Width) / 2;
-                this.Top = Math.Max(0, selectionArea.Top - this.Height - 10);
+                // 오버레이가 이미 절대 좌표계(VirtualScreen) 상에 있으므로, 
+                // 툴박스의 위치는 오버레이의 시작점(_overlay.Left, Top) + 선택 영역의 상대 위치로 계산해야 함
+                this.Left = _overlay.Left + selectionArea.Left + (selectionArea.Width - this.Width) / 2;
+                this.Top = _overlay.Top + selectionArea.Top - this.Height - 10;
+                
+                // 화면 상단 경계보다 위로 올라가지 않도록 보정
+                if (this.Top < SystemParameters.VirtualScreenTop) 
+                    this.Top = _overlay.Top + selectionArea.Top + selectionArea.Height + 10;
             }
             
             // 오버레이보다 위에 표시되도록 활성화
@@ -177,14 +183,16 @@ namespace CatchCapture.Recording
             var primaryScreen = System.Windows.Forms.Screen.PrimaryScreen;
             if (primaryScreen != null)
             {
-                var bounds = primaryScreen.WorkingArea;
+                var workArea = primaryScreen.WorkingArea;
                 
-                // 오버레이를 주 모니터 중앙에 배치
+                // 오버레이를 주 모니터 중앙에 배치 (오버레이의 원점(_overlay.Left)을 기준으로 함)
                 double overlayWidth = 800;
                 double overlayHeight = 600;
+                
+                // 상대 좌표 = 절대 좌표(Primary) - 오버레이 시작점(VirtualScreenLeft)
                 var selectionArea = new Rect(
-                    bounds.X + (bounds.Width - overlayWidth) / 2,
-                    bounds.Y + (bounds.Height - overlayHeight) / 2,
+                    (workArea.X - _overlay.Left) + (workArea.Width - overlayWidth) / 2,
+                    (workArea.Y - _overlay.Top) + (workArea.Height - overlayHeight) / 2,
                     overlayWidth,
                     overlayHeight
                 );
@@ -1282,11 +1290,15 @@ namespace CatchCapture.Recording
             UpdateUI();
 
             // 도구상자가 도킹 상태가 아니고, 사용자가 수동으로 옮기지 않았을 때만 영역을 따라다님
-            if (_isAttachedToOverlay && !_isDocked)
+            if (_isAttachedToOverlay && !_isDocked && _overlay != null)
             {
-                // 영역 위에 중앙 배치
-                this.Left = area.Left + (area.Width - this.Width) / 2;
-                this.Top = Math.Max(0, area.Top - this.Height - 10);
+                // 영역 위에 중앙 배치 (오버레이 절대 좌표 보정)
+                this.Left = _overlay.Left + area.Left + (area.Width - this.Width) / 2;
+                this.Top = _overlay.Top + area.Top - this.Height - 10;
+
+                // 화면 상단 경계보다 위로 올라가지 않도록 보정
+                if (this.Top < SystemParameters.VirtualScreenTop)
+                    this.Top = _overlay.Top + area.Top + area.Height + 10;
             }
         }
         
