@@ -649,19 +649,28 @@ namespace CatchCapture.Recording
         }
         
         /// <summary>
-    /// 파일 형식 변경 (MP4 <-> GIF 토글, MP3는 별도)
+    /// 파일 형식 라디오 버튼 클릭 처리
     /// </summary>
-    private void FormatButton_Click(object sender, RoutedEventArgs e)
+    private void FormatRadioButton_Click(object sender, RoutedEventArgs e)
     {
-        if (IsRecording) return;
-        
-        // MP4/GIF만 토글 (MP3는 별도 버튼)
-        _settings.Format = _settings.Format == RecordingFormat.MP4 
-            ? RecordingFormat.GIF 
-            : RecordingFormat.MP4;
-        
+        if (IsRecording || sender is not RadioButton rb) return;
+
+        if (rb == RbFormatMp4)
+        {
+            _settings.Format = RecordingFormat.MP4;
+        }
+        else if (rb == RbFormatGif)
+        {
+            _settings.Format = RecordingFormat.GIF;
+        }
+        else if (rb == RbFormatMp3)
+        {
+            _settings.Format = RecordingFormat.MP3;
+            _settings.RecordAudio = true; // MP3 모드는 오디오가 필수
+        }
+
         UpdateUI();
-        ShowOverlay(); // 형식 변경 시 오버레이 다시 표시
+        ShowOverlay(); // 형식에 따라 오버레이 표시/숨기기
     }
         
     /// <summary>
@@ -1038,7 +1047,6 @@ namespace CatchCapture.Recording
             _recordingDuration = TimeSpan.Zero;
             _recordingTimer.Start();
 
-            _recordingTimer.Start();
 
             RecordButtonIcon.Visibility = Visibility.Collapsed;
             StopButtonIcon.Visibility = Visibility.Visible;
@@ -1122,7 +1130,9 @@ namespace CatchCapture.Recording
         {
             SystemAudioButton.IsEnabled = enable;
             MicButton.IsEnabled = enable;
-            FormatButton.IsEnabled = enable;
+            if (RbFormatMp4 != null) RbFormatMp4.IsEnabled = enable;
+            if (RbFormatGif != null) RbFormatGif.IsEnabled = enable;
+            if (RbFormatMp3 != null) RbFormatMp3.IsEnabled = enable;
             QualityButton.IsEnabled = enable;
             FpsButton.IsEnabled = enable;
             MouseEffectToggle.IsEnabled = enable;
@@ -1167,15 +1177,13 @@ namespace CatchCapture.Recording
         /// </summary>
         private void UpdateUI()
     {
-        // MP3 모드 토글 버튼 상태
-        if (Mp3ToggleButton != null)
-        {
-            Mp3ToggleButton.IsChecked = _settings.Format == RecordingFormat.MP3;
-        }
+        // 파일 형식 버튼 상태 업데이트
+        if (RbFormatMp4 != null) RbFormatMp4.IsChecked = _settings.Format == RecordingFormat.MP4;
+        if (RbFormatGif != null) RbFormatGif.IsChecked = _settings.Format == RecordingFormat.GIF;
+        if (RbFormatMp3 != null) RbFormatMp3.IsChecked = _settings.Format == RecordingFormat.MP3;
         
         // MP3 모드일 때 비디오 관련 버튼 비활성화
         bool isVideoMode = _settings.Format != RecordingFormat.MP3;
-        if (FormatButton != null) FormatButton.IsEnabled = isVideoMode;
         if (QualityButton != null) QualityButton.IsEnabled = isVideoMode;
         if (FpsButton != null) FpsButton.IsEnabled = isVideoMode;
         if (MouseEffectToggle != null) MouseEffectToggle.IsEnabled = isVideoMode;
@@ -1187,36 +1195,30 @@ namespace CatchCapture.Recording
         
         // 오디오 상태 (아이콘 업데이트)
         // 시스템 오디오
-        if (_settings.RecordAudio)
+        // 시스템 오디오
+        if (SystemAudioButton != null)
         {
-            SystemAudioOffIcon.Visibility = Visibility.Collapsed;
-            SystemAudioOnIcon.Visibility = Visibility.Visible;
-        }
-        else
-        {
-            SystemAudioOffIcon.Visibility = Visibility.Visible;
-            SystemAudioOnIcon.Visibility = Visibility.Collapsed;
+            SystemAudioButton.IsChecked = _settings.RecordAudio;
+            SystemAudioOffIcon.Visibility = _settings.RecordAudio ? Visibility.Collapsed : Visibility.Visible;
+            SystemAudioOnIcon.Visibility = _settings.RecordAudio ? Visibility.Visible : Visibility.Collapsed;
         }
         
         // 마이크
-        if (_settings.RecordMic)
+        // 마이크
+        if (MicButton != null)
         {
-            MicOffIcon.Visibility = Visibility.Collapsed;
-            MicSlash.Visibility = Visibility.Collapsed;
-            MicOnIcon.Visibility = Visibility.Visible;
-        }
-        else
-        {
-            MicOffIcon.Visibility = Visibility.Visible;
-            MicSlash.Visibility = Visibility.Visible;
-            MicOnIcon.Visibility = Visibility.Collapsed;
+            MicButton.IsChecked = _settings.RecordMic;
+            MicOffIcon.Visibility = _settings.RecordMic ? Visibility.Collapsed : Visibility.Visible;
+            MicSlash.Visibility = _settings.RecordMic ? Visibility.Collapsed : Visibility.Visible;
+            MicOnIcon.Visibility = _settings.RecordMic ? Visibility.Visible : Visibility.Collapsed;
         }
         
-        // 파일 형식
-        if (FormatText != null)
-        {
-            FormatText.Text = _settings.Format == RecordingFormat.MP3 ? "MP3" : _settings.Format.ToString();
-        }
+        // 녹화 중에는 형식 변경 불가
+        if (RbFormatMp4 != null) RbFormatMp4.IsEnabled = !IsRecording;
+        if (RbFormatGif != null) RbFormatGif.IsEnabled = !IsRecording;
+        if (RbFormatMp3 != null) RbFormatMp3.IsEnabled = !IsRecording;
+        
+        // 파일 형식은 상단 RadioButton으로 처리됨
         
         // 화질
         if (QualityText != null)
@@ -1266,28 +1268,6 @@ namespace CatchCapture.Recording
         }
     }
     
-    /// <summary>
-    /// MP3 오디오 전용 모드 토글
-    /// </summary>
-    private void Mp3ToggleButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (IsRecording) return;
-        
-        if (Mp3ToggleButton.IsChecked == true)
-        {
-            // MP3 모드 활성화
-            _settings.Format = RecordingFormat.MP3;
-            _settings.RecordAudio = true; // 오디오 강제 활성화
-        }
-        else
-        {
-            // 비디오 모드로 복귀 (기본 MP4)
-            _settings.Format = RecordingFormat.MP4;
-        }
-        
-        UpdateUI();
-        ShowOverlay(); // 오버레이 표시/숨기기
-    }
         
         /// <summary>
         /// 영역 변경 시 호출
@@ -1437,7 +1417,9 @@ namespace CatchCapture.Recording
             {
                 MicButton.ToolTip = _settings.RecordMic ? loc("MicrophoneOn") : loc("MicrophoneOff");
             }
-            if (FormatButton != null) FormatButton.ToolTip = loc("FileFormat");
+            if (RbFormatMp4 != null) RbFormatMp4.ToolTip = loc("FileFormat") + " (MP4)";
+            if (RbFormatGif != null) RbFormatGif.ToolTip = loc("FileFormat") + " (GIF)";
+            if (RbFormatMp3 != null) RbFormatMp3.ToolTip = loc("FileFormat") + " (MP3)";
             if (QualityButton != null) QualityButton.ToolTip = loc("VideoQuality");
             if (FpsButton != null) FpsButton.ToolTip = loc("FrameRate");
             if (MouseEffectToggle != null) MouseEffectToggle.ToolTip = loc("ShowMouseCursor");

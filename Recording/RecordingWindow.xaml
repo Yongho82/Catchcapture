@@ -64,7 +64,9 @@
                                 <Setter Property="Background" Value="#20000000" TargetName="border"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter Property="Background" Value="#204361EE" TargetName="border"/>
+                                <Setter Property="Background" Value="#304361EE" TargetName="border"/>
+                                <Setter Property="BorderThickness" Value="1" TargetName="border"/>
+                                <Setter Property="BorderBrush" Value="#4361EE" TargetName="border"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -89,7 +91,9 @@
                                 <Setter Property="Background" Value="#20000000" TargetName="border"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter Property="Background" Value="#204361EE" TargetName="border"/>
+                                <Setter Property="Background" Value="#304361EE" TargetName="border"/>
+                                <Setter Property="BorderThickness" Value="1" TargetName="border"/>
+                                <Setter Property="BorderBrush" Value="#4361EE" TargetName="border"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -220,7 +224,7 @@
                         <Separator Width="1" Height="20" Margin="4,0" Background="#E0E0E0"/>
                         
                         <!-- 시스템 오디오 토글 (기본 OFF) -->
-                        <Button x:Name="SystemAudioButton" Style="{StaticResource ToolbarButtonStyle}"
+                        <ToggleButton x:Name="SystemAudioButton" Style="{StaticResource ToggleToolbarButtonStyle}"
                                 Click="SystemAudioButton_Click" ToolTip="시스템 소리 녹음 (OFF)">
                             <Grid>
                                 <!-- OFF 상태: 스피커 음소거 아이콘 -->
@@ -230,10 +234,10 @@
                                 <TextBlock x:Name="SystemAudioOnIcon" Text="🔊" FontSize="14" 
                                            HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/>
                             </Grid>
-                        </Button>
+                        </ToggleButton>
                         
                         <!-- 마이크 토글 (기본 OFF) -->
-                        <Button x:Name="MicButton" Style="{StaticResource ToolbarButtonStyle}"
+                        <ToggleButton x:Name="MicButton" Style="{StaticResource ToggleToolbarButtonStyle}"
                                 Click="MicButton_Click" ToolTip="마이크 녹음 (OFF)">
                             <Grid>
                                 <!-- OFF 상태: 마이크 음소거 아이콘 -->
@@ -251,21 +255,26 @@
                                       Stroke="#666" StrokeThickness="2" 
                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Grid>
-                        </Button>
+                        </ToggleButton>
                         
 
+                        <Separator x:Name="FormatSeparator" Width="1" Height="20" Margin="4,0" Background="#E0E0E0"/>
                         
-                        <!-- 파일 형식 -->
-                        <Button x:Name="FormatButton" Style="{StaticResource ToolbarButtonStyle}"
-                                Click="FormatButton_Click" ToolTip="파일 형식">
-                            <TextBlock x:Name="FormatText" Text="GIF" FontSize="10" FontWeight="Bold" Foreground="#4361EE"/>
-                        </Button>
-                        
-                        <!-- MP3 오디오 전용 모드 토글 -->
-                        <ToggleButton x:Name="Mp3ToggleButton" Style="{StaticResource ToggleToolbarButtonStyle}"
-                                      Click="Mp3ToggleButton_Click" ToolTip="MP3 오디오 녹음">
-                            <TextBlock Text="MP3" FontSize="9" FontWeight="Bold" Foreground="#E53935" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </ToggleButton>
+                        <!-- 파일 형식 (MP4, GIF, MP3) -->
+                        <RadioButton x:Name="RbFormatMp4" Style="{StaticResource ToolRadioButtonStyle}"
+                                   GroupName="FormatGroup" Click="FormatRadioButton_Click" ToolTip="MP4 동영상 녹화">
+                            <TextBlock Text="MP4" FontSize="9" FontWeight="Bold" Foreground="#4361EE" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </RadioButton>
+
+                        <RadioButton x:Name="RbFormatGif" Style="{StaticResource ToolRadioButtonStyle}"
+                                   GroupName="FormatGroup" Click="FormatRadioButton_Click" ToolTip="GIF 애니메이션 녹화">
+                            <TextBlock Text="GIF" FontSize="9" FontWeight="Bold" Foreground="#4361EE" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </RadioButton>
+
+                        <RadioButton x:Name="RbFormatMp3" Style="{StaticResource ToolRadioButtonStyle}"
+                                   GroupName="FormatGroup" Click="FormatRadioButton_Click" ToolTip="MP3 오디오 전용 녹화">
+                            <TextBlock Text="MP3" FontSize="9" FontWeight="Bold" Foreground="#E53935" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </RadioButton>
                         
                         <!-- 화질 설정 -->
                         <Button x:Name="QualityButton" Style="{StaticResource ToolbarButtonStyle}"
