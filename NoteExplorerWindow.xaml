@@ -380,7 +380,7 @@
 
     </Window.Resources>
 
-    <Border Background="{DynamicResource ThemeBackground}" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorder}">
+    <Border Background="{DynamicResource ThemeBackground}" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource ThemeWindowBorder}">
         <Border.Effect>
             <DropShadowEffect BlurRadius="25" Color="Black" Opacity="0.1" ShadowDepth="5"/>
         </Border.Effect>
@@ -392,7 +392,7 @@
             </Grid.RowDefinitions>
 
             <!-- Top Action Bar -->
-            <Border Grid.Row="0" Background="{DynamicResource ThemeTitleBackground}" CornerRadius="12,12,0,0" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ThemeBorder}">
+            <Border Grid.Row="0" Background="{DynamicResource ThemeTitleBackground}" CornerRadius="12,12,0,0" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ThemeWindowBorder}">
                 <Grid Margin="25,12,20,12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/> <!-- Title/Icon -->

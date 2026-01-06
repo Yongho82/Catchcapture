@@ -5,7 +5,7 @@
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
     
-    <Border Background="White" CornerRadius="15" BorderThickness="1" BorderBrush="#E0E0E0">
+    <Border Background="{DynamicResource ThemeBackground}" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource ThemeWindowBorder}">
         <Border.Effect>
             <DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.1" ShadowDepth="5" Direction="270"/>
         </Border.Effect>
@@ -17,9 +17,9 @@
             </Grid.RowDefinitions>
             
             <!-- Header (Title Bar) -->
-            <Border Grid.Row="0" Background="#F3E5F5" CornerRadius="14,14,0,0" Padding="20">
+            <Border Grid.Row="0" Background="{DynamicResource ThemeTitleBackground}" CornerRadius="12,12,0,0" Padding="20">
                 <StackPanel>
-                    <TextBlock x:Name="TxtTitle" Text="분류 관리" FontSize="20" FontWeight="Bold" Foreground="#333333"/>
+                    <TextBlock x:Name="TxtTitle" Text="분류 관리" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource ThemeTitleForeground}"/>
                     <TextBlock x:Name="TxtDesc" Text="메모를 분류할 그룹을 관리하세요." FontSize="13" Foreground="#777777" Margin="0,5,0,0"/>
                 </StackPanel>
             </Border>

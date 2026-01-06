@@ -125,7 +125,7 @@
         </EventTrigger>
     </Window.Triggers>
 
-    <Border Margin="10" CornerRadius="16" Background="{DynamicResource ThemeBackground}" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorder}">
+    <Border Margin="10" CornerRadius="12" Background="{DynamicResource ThemeBackground}" BorderThickness="1" BorderBrush="{DynamicResource ThemeWindowBorder}">
         <Border.Effect>
             <DropShadowEffect BlurRadius="12" Direction="270" Opacity="0.12" ShadowDepth="2" Color="Black"/>
         </Border.Effect>

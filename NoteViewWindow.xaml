@@ -16,7 +16,7 @@
                       GlassFrameThickness="0" />
     </WindowChrome.WindowChrome>
 
-    <Border x:Name="WindowBorder" Background="{DynamicResource ThemeBackground}" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorder}">
+    <Border x:Name="WindowBorder" Background="{DynamicResource ThemeBackground}" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource ThemeWindowBorder}">
         <Border.Effect>
             <DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.15" ShadowDepth="5" Direction="270"/>
         </Border.Effect>
@@ -28,7 +28,7 @@
             </Grid.RowDefinitions>
 
             <Grid x:Name="HeaderGrid" Grid.Row="0">
-                <Border CornerRadius="12,12,0,0" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ThemeBorder}" Height="50"
+                <Border CornerRadius="12,12,0,0" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ThemeWindowBorder}" Height="50"
                         Background="{DynamicResource ThemeTitleBackground}">
                 </Border>
                 <Grid Margin="25,0">
@@ -117,7 +117,7 @@
             </ScrollViewer>
 
             <!-- Footer Action -->
-            <Border x:Name="FooterBorder" Grid.Row="2" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ThemeBorder}" Background="{DynamicResource ThemeBackground}" CornerRadius="0,0,12,12" Padding="20">
+            <Border x:Name="FooterBorder" Grid.Row="2" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ThemeWindowBorder}" Background="{DynamicResource ThemeBackground}" CornerRadius="0,0,12,12" Padding="20">
                 <Grid>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button x:Name="BtnPrint" Click="BtnPrint_Click" Cursor="Hand" ToolTip="인쇄 / PDF 저장" Background="Transparent" BorderThickness="0" Margin="0,0,15,0" Width="40" Height="40">
