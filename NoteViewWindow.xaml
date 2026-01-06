@@ -27,9 +27,8 @@
                 <RowDefinition Height="Auto"/> <!-- Footer -->
             </Grid.RowDefinitions>
 
-            <!-- Header: Title Bar (Compact Gradient) -->
             <Grid x:Name="HeaderGrid" Grid.Row="0">
-                <Border CornerRadius="11,11,0,0" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ThemeBorder}" Height="50"
+                <Border CornerRadius="12,12,0,0" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ThemeBorder}" Height="50"
                         Background="{DynamicResource ThemeTitleBackground}">
                 </Border>
                 <Grid Margin="25,0">

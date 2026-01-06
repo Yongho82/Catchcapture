@@ -7,6 +7,7 @@
         WindowStartupLocation="CenterScreen" ResizeMode="CanResize"
         MinHeight="500" Height="920" MinWidth="1000" Width="1200"
         Title="캐치캡처 노트 탐색기"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         StateChanged="NoteExplorerWindow_StateChanged">
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="60" 
