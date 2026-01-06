@@ -158,8 +158,8 @@ namespace CatchCapture.Utilities
             // Place and size the window to cover the entire virtual screen (all monitors)
             vLeft = SystemParameters.VirtualScreenLeft;
             vTop = SystemParameters.VirtualScreenTop;
-            vWidth = SystemParameters.VirtualScreenWidth;
-            vHeight = SystemParameters.VirtualScreenHeight;
+            vWidth = Math.Max(100, SystemParameters.VirtualScreenWidth);
+            vHeight = Math.Max(100, SystemParameters.VirtualScreenHeight);
 
             Left = vLeft;
             Top = vTop;
@@ -249,9 +249,10 @@ namespace CatchCapture.Utilities
                     Activate(); 
                     Focus(); 
                     
-                    // 일반 모드(이미지가 이미 있음)이면 즉시 표시하여 검은 화면 방지
-                    if (screenCapture != null) this.Opacity = 1;
-
+                    // [Fix] 오버레이 모드에서도 가시성 보장
+                    this.Opacity = 1.0;
+                    this.Visibility = Visibility.Visible;
+                    
                     // ★ 속도 최적화: 돋보기를 비동기로 생성 (창 표시 후)
                     await Dispatcher.InvokeAsync(() => CreateMagnifier(), System.Windows.Threading.DispatcherPriority.Background);
                     
@@ -1298,6 +1299,7 @@ namespace CatchCapture.Utilities
             };
             toolbarContainer.SetResourceReference(Border.BackgroundProperty, "ThemePanelBackground");
             toolbarContainer.SetResourceReference(TextElement.ForegroundProperty, "ThemeForeground");
+            Panel.SetZIndex(toolbarContainer, 5000); // 최상단 유지
 
             if (isVerticalToolbarLayout)
             {
@@ -1667,7 +1669,7 @@ namespace CatchCapture.Utilities
             _toolOptionsControl.Initialize(_editorManager);
             _toolOptionsControl.Visibility = Visibility.Collapsed;
             canvas.Children.Add(_toolOptionsControl);
-            Panel.SetZIndex(_toolOptionsControl, 3000);
+            Panel.SetZIndex(_toolOptionsControl, 5001); // 툴바보다 위에 표시
 
             // 펜을 기본 도구로 선택 (첫 실행 시에만, 팔레트는 열지 않음)
             if (string.IsNullOrEmpty(currentTool))
@@ -3219,8 +3221,12 @@ namespace CatchCapture.Utilities
             double margin = 10;
             
             // 캔버스(가상 스크린) 크기 - currentSelectionRect는 이미 캔버스 좌표계
-            double canvasWidth = vWidth;
-            double canvasHeight = vHeight;
+            double canvasWidth = Math.Max(vWidth, 100);
+            double canvasHeight = Math.Max(vHeight, 100);
+
+            // 캔버스가 실제 렌더링된 크기가 있으면 그것을 우선 사용 (안전성)
+            if (canvas.ActualWidth > 100) canvasWidth = canvas.ActualWidth;
+            if (canvas.ActualHeight > 100) canvasHeight = canvas.ActualHeight;
 
             // 하단/상단 여유 공간 계산 (캔버스 기준)
             double bottomSpace = canvasHeight - (sTop + sHeight);

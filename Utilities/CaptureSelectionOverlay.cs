@@ -91,6 +91,7 @@ namespace CatchCapture.Utilities
                 Fill = new SolidColorBrush(overlayColor),
                 IsHitTestVisible = false
             };
+            Panel.SetZIndex(_overlayPath, 1000); // 딤 배경은 중간 레벨
             
             // 렌더링 최적화
             if (_overlayPath.Fill is SolidColorBrush sb && sb.CanFreeze) sb.Freeze();
@@ -183,12 +184,14 @@ namespace CatchCapture.Utilities
         {
             if (!_isSelecting) return;
 
-            // 성능 최적화: 너무 잦은 업데이트 방지
-            if (_moveStopwatch.ElapsedMilliseconds < MinMoveIntervalMs) return;
+            // 성능 최적화: 너무 잦은 업데이트 방지 (하지만 렌더링 루프가 끊겼을 때를 대비해 가끔은 강제 업데이트)
+            bool shouldForceUpdate = !_hasPendingUpdate && _moveStopwatch.ElapsedMilliseconds > 16; // 60fps fallback
+
+            if (_moveStopwatch.ElapsedMilliseconds < MinMoveIntervalMs && !shouldForceUpdate) return;
             _moveStopwatch.Restart();
 
             if (Math.Abs(currentPoint.X - _lastUpdatePoint.X) < MinMoveDelta &&
-                Math.Abs(currentPoint.Y - _lastUpdatePoint.Y) < MinMoveDelta)
+                Math.Abs(currentPoint.Y - _lastUpdatePoint.Y) < MinMoveDelta && !shouldForceUpdate)
             {
                 return;
             }
@@ -202,6 +205,14 @@ namespace CatchCapture.Utilities
 
             _pendingRect = new Rect(left, top, width, height);
             _hasPendingUpdate = true;
+
+            // [Fix] 렌더링 루프가 멈췄을 가능성에 대비하여 직접 업데이트 시도 (안정성 강화)
+            // CompositionTarget_Rendering이 정상 작동하면 여기서 중복 호출되더라도 큰 오버헤드는 없음
+            if (shouldForceUpdate)
+            {
+                UpdateVisuals(_pendingRect);
+                _hasPendingUpdate = false;
+            }
         }
 
         /// <summary>
@@ -214,11 +225,8 @@ namespace CatchCapture.Utilities
             _isSelecting = false;
             
             // 확정된 UI 상태 업데이트 ensure call
-            if (_hasPendingUpdate)
-            {
-                UpdateVisuals(_pendingRect);
-                _hasPendingUpdate = false;
-            }
+            UpdateVisuals(_pendingRect);
+            _hasPendingUpdate = false;
 
             if (hideVisuals)
             {
@@ -245,9 +253,16 @@ namespace CatchCapture.Utilities
         /// </summary>
         public void SetVisibility(Visibility visibility)
         {
-            if (_selectionRectangle != null) _selectionRectangle.Visibility = visibility;
-            if (_sizeTextBlock != null) _sizeTextBlock.Visibility = (visibility == Visibility.Visible && _pendingRect.Width > 5) ? Visibility.Visible : Visibility.Collapsed;
-            // 오버레이 Geometry는 SetRect에서 0으로 만들지 않는 한 유지됨
+            if (_selectionRectangle != null) 
+            {
+                _selectionRectangle.Visibility = visibility;
+                if (visibility == Visibility.Visible) Panel.SetZIndex(_selectionRectangle, 2000);
+            }
+            if (_sizeTextBlock != null) 
+            {
+                _sizeTextBlock.Visibility = (visibility == Visibility.Visible && _pendingRect.Width > 5) ? Visibility.Visible : Visibility.Collapsed;
+                if (_sizeTextBlock.Visibility == Visibility.Visible) Panel.SetZIndex(_sizeTextBlock, 2001);
+            }
         }
 
         /// <summary>
@@ -255,7 +270,11 @@ namespace CatchCapture.Utilities
         /// </summary>
         public void SetSizeTextVisibility(Visibility visibility)
         {
-            if (_sizeTextBlock != null) _sizeTextBlock.Visibility = (visibility == Visibility.Visible && _pendingRect.Width > 5) ? Visibility.Visible : Visibility.Collapsed;
+            if (_sizeTextBlock != null) 
+            {
+                _sizeTextBlock.Visibility = (visibility == Visibility.Visible && _pendingRect.Width > 5) ? Visibility.Visible : Visibility.Collapsed;
+                if (_sizeTextBlock.Visibility == Visibility.Visible) Panel.SetZIndex(_sizeTextBlock, 2001);
+            }
         }
 
         /// <summary>
@@ -288,61 +307,90 @@ namespace CatchCapture.Utilities
 
         private void UpdateVisuals(Rect rect)
         {
-            if (_selectionRectangle != null)
+            try
             {
-                Canvas.SetLeft(_selectionRectangle, rect.Left);
-                Canvas.SetTop(_selectionRectangle, rect.Top);
-                _selectionRectangle.Width = rect.Width;
-                _selectionRectangle.Height = rect.Height;
-
-                // 엣지 캡처를 위한 둥근 모서리 적용
-                double actualRadius = _cornerRadius;
-                if (_cornerRadius >= 999) 
-                    actualRadius = Math.Min(rect.Width, rect.Height) / 2;
-
-                _selectionRectangle.RadiusX = actualRadius;
-                _selectionRectangle.RadiusY = actualRadius;
-            }
-
-            if (_selectionGeometry != null)
-            {
-                _selectionGeometry.Rect = rect;
-                
-                // 오버레이 구멍(Geometry)도 똑같이 둥글게 처리
-                double actualRadius = _cornerRadius;
-                if (_cornerRadius >= 999) 
-                    actualRadius = Math.Min(rect.Width, rect.Height) / 2;
-
-                _selectionGeometry.RadiusX = actualRadius;
-                _selectionGeometry.RadiusY = actualRadius;
-            }
-
-            if (_sizeTextBlock != null)
-            {
-                if (rect.Width > 5 && rect.Height > 5)
+                if (_selectionRectangle != null)
                 {
-                    _sizeTextBlock.Visibility = Visibility.Visible;
-                    string text = $"{(int)rect.Width} x {(int)rect.Height}";
-                    
-                    if (text != _lastSizeText)
+                    if (rect.Width < 0.1 || rect.Height < 0.1)
                     {
-                        _sizeTextBlock.Text = text;
-                        // 텍스트 크기 측정을 위해 measure
-                        _sizeTextBlock.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-                        _lastSizeText = text;
+                        _selectionRectangle.Visibility = Visibility.Collapsed;
                     }
-                    
-                    double tw = _sizeTextBlock.DesiredSize.Width;
-                    double th = _sizeTextBlock.DesiredSize.Height;
-                    const double margin = 8;
-                    
-                    Canvas.SetLeft(_sizeTextBlock, rect.Left + rect.Width - tw - margin);
-                    Canvas.SetTop(_sizeTextBlock, rect.Top + rect.Height - th - margin);
+                    else
+                    {
+                        _selectionRectangle.Visibility = Visibility.Visible;
+                        Canvas.SetLeft(_selectionRectangle, rect.Left);
+                        Canvas.SetTop(_selectionRectangle, rect.Top);
+                        _selectionRectangle.Width = rect.Width;
+                        _selectionRectangle.Height = rect.Height;
+
+                        // 엣지 캡처를 위한 둥근 모서리 적용
+                        double actualRadius = _cornerRadius;
+                        if (_cornerRadius >= 999) 
+                            actualRadius = Math.Min(rect.Width, rect.Height) / 2;
+
+                        _selectionRectangle.RadiusX = actualRadius;
+                        _selectionRectangle.RadiusY = actualRadius;
+                        
+                        // [최적화] Z-Index 보장
+                        Panel.SetZIndex(_selectionRectangle, 2000);
+                    }
                 }
-                else
+
+                if (_selectionGeometry != null)
                 {
-                    _sizeTextBlock.Visibility = Visibility.Collapsed;
+                    _selectionGeometry.Rect = rect;
+                    
+                    // 오버레이 구멍(Geometry)도 똑같이 둥글게 처리
+                    double actualRadius = _cornerRadius;
+                    if (_cornerRadius >= 999) 
+                        actualRadius = Math.Min(rect.Width, rect.Height) / 2;
+
+                    _selectionGeometry.RadiusX = actualRadius;
+                    _selectionGeometry.RadiusY = actualRadius;
                 }
+
+                if (_sizeTextBlock != null)
+                {
+                    if (rect.Width > 5 && rect.Height > 5)
+                    {
+                        _sizeTextBlock.Visibility = Visibility.Visible;
+                        Panel.SetZIndex(_sizeTextBlock, 2001);
+
+                        string text = $"{(int)Math.Max(0, rect.Width)} x {(int)Math.Max(0, rect.Height)}";
+                        
+                        if (text != _lastSizeText)
+                        {
+                            _sizeTextBlock.Text = text;
+                            _sizeTextBlock.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                            _lastSizeText = text;
+                        }
+                        
+                        double tw = _sizeTextBlock.DesiredSize.Width;
+                        double th = _sizeTextBlock.DesiredSize.Height;
+                        if (tw <= 0) tw = 60; // Fallback
+                        if (th <= 0) th = 20;
+
+                        const double margin = 8;
+                        
+                        // 위치 계산 및 화면 밖으로 나가지 않게 보정
+                        double left = rect.Left + rect.Width - tw - margin;
+                        double top = rect.Top + rect.Height - th - margin;
+                        
+                        if (left < rect.Left + margin) left = rect.Left + margin;
+                        if (top < rect.Top + margin) top = rect.Top + margin;
+
+                        Canvas.SetLeft(_sizeTextBlock, left);
+                        Canvas.SetTop(_sizeTextBlock, top);
+                    }
+                    else
+                    {
+                        _sizeTextBlock.Visibility = Visibility.Collapsed;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"UpdateVisuals error: {ex.Message}");
             }
         }
 
