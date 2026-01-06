@@ -321,6 +321,11 @@ public partial class MainWindow : Window
             UpdateOpenEditorToggleUI();
             UpdateMenuButtonOrder();
             AdjustMainWindowHeightForMenuCount();
+
+            // [추가] 단축키 및 트레이 메뉴 갱신 (언어 등 변경 대응)
+            RegisterGlobalHotkeys();
+            RebuildTrayMenu();
+            UpdateUIText();
         });
     }
 
@@ -2808,8 +2813,8 @@ public partial class MainWindow : Window
                     // 원본 이미지(image)를 클립보드에 복사
                     CatchCapture.Utilities.ScreenCaptureUtility.CopyImageToClipboard(image);
                     
-                    // 알림 표시 제거 (사용자 요청)
-                    // CatchCapture.Utilities.StickerWindow.Show(LocalizationManager.GetString("CopiedToClipboard"));
+                    // [수정] 클립보드 복사 알림 표시
+                    CatchCapture.Utilities.StickerWindow.Show(LocalizationManager.GetString("CopiedToClipboard"));
                 }
                 catch (Exception ex)
                 {
@@ -2870,7 +2875,7 @@ public partial class MainWindow : Window
                 try
                 {
                     ScreenCaptureUtility.CopyImageToClipboard(image);
-                    // ShowGuideMessage(LocalizationManager.GetString("CopiedToClipboard"), TimeSpan.FromSeconds(1));
+                    CatchCapture.Utilities.StickerWindow.Show(LocalizationManager.GetString("CopiedToClipboard"));
                 }
                 catch
                 {
@@ -4019,7 +4024,13 @@ public partial class MainWindow : Window
             UnregisterHotKey(hwnd, HOTKEY_ID_AREA);
             UnregisterHotKey(hwnd, HOTKEY_ID_FULLSCREEN);
             UnregisterHotKey(hwnd, HOTKEY_ID_WINDOW);
+            UnregisterHotKey(hwnd, HOTKEY_ID_OCR);
+            UnregisterHotKey(hwnd, HOTKEY_ID_SCREENRECORD);
+            UnregisterHotKey(hwnd, HOTKEY_ID_SIMPLE);
+            UnregisterHotKey(hwnd, HOTKEY_ID_TRAY);
+            UnregisterHotKey(hwnd, HOTKEY_ID_OPENEDITOR);
             UnregisterHotKey(hwnd, HOTKEY_ID_OPENNOTE);
+            UnregisterHotKey(hwnd, HOTKEY_ID_EDGECAPTURE);
 
             // 설정에서 단축키 가져오기
             if (settings.Hotkeys.RegionCapture.Enabled)

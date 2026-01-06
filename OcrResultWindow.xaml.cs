@@ -68,7 +68,7 @@ namespace CatchCapture
                 
                 // 3. 안내 메시지 및 창 닫기
                 RequestGoogleTranslate = true;
-                this.DialogResult = true; 
+                try { this.DialogResult = true; } catch { }
                 this.Close();
             }
             catch (Exception ex)

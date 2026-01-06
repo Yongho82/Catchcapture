@@ -1592,7 +1592,7 @@ private void InitLanguageComboBox()
             _originalThemeBg = _settings.ThemeBackgroundColor;
             _originalThemeFg = _settings.ThemeTextColor;
 
-            DialogResult = true;
+            try { DialogResult = true; } catch { }
             Close();
         }
 
@@ -1995,7 +1995,7 @@ private void InitLanguageComboBox()
                 App.ApplyTheme(_settings);
             }
             
-            DialogResult = false;
+            try { DialogResult = false; } catch { }
             Close();
         }
 

@@ -263,14 +263,14 @@ namespace CatchCapture
             if (mainWindow != null && !mainWindow.isExit)
             {
                 var settings = Settings.Load();
-                if (settings.LastActiveMode != "Simple")
+                // [수정] 일반 모드가 아닐 때는 메인 윈도우를 다시 소환하지 않음
+                if (settings.LastActiveMode == "Normal")
                 {
                     mainWindow.WindowState = WindowState.Normal;
                     mainWindow.Show();
                     mainWindow.Activate();
                 }
-                // 간편모드인 경우 MainWindow.MainWindow_Activated가 이미 처리하지만, 
-                // 원시적으로 여기서 호출을 안 하는 것이 가장 완벽함.
+                // 간편모드나 트레이모드인 경우 메인 창을 직접 소환하지 않음
             }
         }
 
