@@ -29,9 +29,9 @@ namespace CatchCapture.Utilities
         private bool _hasPendingUpdate;
         private bool _isSelecting;
         private Stopwatch _moveStopwatch = new Stopwatch();
-        private const int MinMoveIntervalMs = 4;
+        private const int MinMoveIntervalMs = 0; // 즉시 업데이트 (부드러운 드래그)
         private Point _lastUpdatePoint;
-        private const double MinMoveDelta = 1.0; 
+        private const double MinMoveDelta = 0.5; // 더 민감한 반응
         private string? _lastSizeText;
         private double _cornerRadius = 0;
 
@@ -134,6 +134,10 @@ namespace CatchCapture.Utilities
                 Visibility = Visibility.Collapsed
             };
             
+            // GPU 가속 적용 (부드러운 드래그)
+            _selectionRectangle.CacheMode = new BitmapCache { EnableClearType = false, SnapsToDevicePixels = true };
+            RenderOptions.SetEdgeMode(_selectionRectangle, EdgeMode.Aliased);
+            
             _canvas.Children.Add(_selectionRectangle);
 
             // 사이즈 텍스트
@@ -184,14 +188,9 @@ namespace CatchCapture.Utilities
         {
             if (!_isSelecting) return;
 
-            // 성능 최적화: 너무 잦은 업데이트 방지 (하지만 렌더링 루프가 끊겼을 때를 대비해 가끔은 강제 업데이트)
-            bool shouldForceUpdate = !_hasPendingUpdate && _moveStopwatch.ElapsedMilliseconds > 16; // 60fps fallback
-
-            if (_moveStopwatch.ElapsedMilliseconds < MinMoveIntervalMs && !shouldForceUpdate) return;
-            _moveStopwatch.Restart();
-
+            // [최적화] 최소 이동 거리 체크만 수행 (딜레이 없음)
             if (Math.Abs(currentPoint.X - _lastUpdatePoint.X) < MinMoveDelta &&
-                Math.Abs(currentPoint.Y - _lastUpdatePoint.Y) < MinMoveDelta && !shouldForceUpdate)
+                Math.Abs(currentPoint.Y - _lastUpdatePoint.Y) < MinMoveDelta)
             {
                 return;
             }
@@ -204,15 +203,47 @@ namespace CatchCapture.Utilities
             double height = Math.Abs(currentPoint.Y - _startPoint.Y);
 
             _pendingRect = new Rect(left, top, width, height);
-            _hasPendingUpdate = true;
+            
+            // [최적화] 즉시 업데이트 (CompositionTarget.Rendering 대기 없이)
+            UpdateVisualsImmediate(_pendingRect);
+        }
 
-            // [Fix] 렌더링 루프가 멈췄을 가능성에 대비하여 직접 업데이트 시도 (안정성 강화)
-            // CompositionTarget_Rendering이 정상 작동하면 여기서 중복 호출되더라도 큰 오버헤드는 없음
-            if (shouldForceUpdate)
+        /// <summary>
+        /// 즉시 시각적 업데이트 (드래그 중 호출, 오버레이 구멍 제외)
+        /// </summary>
+        private void UpdateVisualsImmediate(Rect rect)
+        {
+            // 선택 사각형만 빠르게 업데이트 (오버레이 구멍은 CompositionTarget.Rendering에서)
+            if (_selectionRectangle != null && rect.Width > 0.1 && rect.Height > 0.1)
             {
-                UpdateVisuals(_pendingRect);
-                _hasPendingUpdate = false;
+                _selectionRectangle.Visibility = Visibility.Visible;
+                Canvas.SetLeft(_selectionRectangle, rect.Left);
+                Canvas.SetTop(_selectionRectangle, rect.Top);
+                _selectionRectangle.Width = rect.Width;
+                _selectionRectangle.Height = rect.Height;
+
+                double actualRadius = _cornerRadius;
+                if (_cornerRadius >= 999) actualRadius = Math.Min(rect.Width, rect.Height) / 2;
+                _selectionRectangle.RadiusX = actualRadius;
+                _selectionRectangle.RadiusY = actualRadius;
             }
+
+            // 사이즈 텍스트 (간소화)
+            if (_sizeTextBlock != null && rect.Width > 10 && rect.Height > 10)
+            {
+                string text = $"{(int)rect.Width} x {(int)rect.Height}";
+                if (text != _lastSizeText)
+                {
+                    _sizeTextBlock.Text = text;
+                    _lastSizeText = text;
+                }
+                _sizeTextBlock.Visibility = Visibility.Visible;
+                Canvas.SetLeft(_sizeTextBlock, rect.Left + rect.Width - 80);
+                Canvas.SetTop(_sizeTextBlock, rect.Top + rect.Height - 28);
+            }
+
+            // 오버레이 구멍은 렌더링 루프에서 처리 (성능)
+            _hasPendingUpdate = true;
         }
 
         /// <summary>
