@@ -36,8 +36,8 @@ namespace CatchCapture
 
             if (currentImage == null) return;
 
-            // Initial crop area: Full image size
-            _cropArea = new Rect(0, 0, currentImage.PixelWidth, currentImage.PixelHeight);
+            // Initial crop area: Full image size (WPF units for consistency with UI)
+            _cropArea = new Rect(0, 0, currentImage.Width, currentImage.Height);
 
             // Create Dim Rects (Order: Top, Bottom, Left, Right)
             for (int i = 0; i < 4; i++)
@@ -54,8 +54,8 @@ namespace CatchCapture
                 StrokeThickness = 2,    // 두께를 1에서 2로 강화
                 StrokeDashArray = new DoubleCollection { 4, 4 },
                 Fill = Brushes.Transparent,
-                IsHitTestVisible = true, // To allow moving by dragging inside
-                Cursor = Cursors.SizeAll
+                IsHitTestVisible = false, // [사용자 요청] 실수로 움직이는 것을 방지하기 위해 이동 기능 끔
+                Cursor = Cursors.Arrow
             };
             ImageCanvas.Children.Add(_cropBorder);
 
@@ -262,21 +262,31 @@ namespace CatchCapture
                 SaveForUndo();
 
                 try {
-                    Int32Rect cropRect = new Int32Rect((int)_cropArea.X, (int)_cropArea.Y, (int)_cropArea.Width, (int)_cropArea.Height);
-                    // Ensure within bounds
-                    cropRect.X = Math.Max(0, cropRect.X);
                     if (currentImage == null) return;
-                    cropRect.Width = Math.Min(cropRect.Width, currentImage.PixelWidth - cropRect.X);
-                    cropRect.Height = Math.Min(cropRect.Height, currentImage.PixelHeight - cropRect.Y);
+
+                    // WPF 단위 좌표를 실제 이미지 픽셀 단위로 변환
+                    double scaleX = currentImage.PixelWidth / currentImage.Width;
+                    double scaleY = currentImage.PixelHeight / currentImage.Height;
+
+                    Int32Rect cropRect = new Int32Rect(
+                        (int)Math.Round(_cropArea.X * scaleX), 
+                        (int)Math.Round(_cropArea.Y * scaleY), 
+                        (int)Math.Round(_cropArea.Width * scaleX), 
+                        (int)Math.Round(_cropArea.Height * scaleY)
+                    );
+
+                    // 경계값 체크
+                    cropRect.X = Math.Max(0, Math.Min(cropRect.X, currentImage.PixelWidth - 1));
+                    cropRect.Y = Math.Max(0, Math.Min(cropRect.Y, currentImage.PixelHeight - 1));
+                    cropRect.Width = Math.Max(1, Math.Min(cropRect.Width, currentImage.PixelWidth - cropRect.X));
+                    cropRect.Height = Math.Max(1, Math.Min(cropRect.Height, currentImage.PixelHeight - cropRect.Y));
                     
                     if (cropRect.Width <= 0 || cropRect.Height <= 0) return;
 
                     CroppedBitmap croppedBitmap = new CroppedBitmap(currentImage, cropRect);
-
                     currentImage = croppedBitmap;
 
-                    // Crp fix: Update originalImage to the cropped version and clear layers
-                    // This prevents drawings from reverting the image to the original size
+                    // 원본 이미지 참조 갱신 및 레이어 초기화 (자르기 후 정합성 유지)
                     originalImage = currentImage;
                     drawingLayers.Clear();
 

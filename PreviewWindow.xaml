@@ -508,25 +508,79 @@
                 
                 <!-- 하단 중앙 이미지 정보 바 -->
                 <Border HorizontalAlignment="Center" VerticalAlignment="Bottom" 
-                        Background="#E6000000" CornerRadius="4" Padding="12,6" Margin="0,0,0,15">
+                        Background="#AA000000" CornerRadius="20" Padding="15,6" Margin="0,0,0,20">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock x:Name="ImageInfoText" Text="이미지 사이즈 : 808 x 428" 
-                                   Foreground="White" FontSize="12" VerticalAlignment="Center" Margin="0,0,15,0"/>
-                        <TextBlock Text="—" Foreground="#999" FontSize="12" VerticalAlignment="Center" Margin="0,0,15,0"/>
-                        <TextBlock x:Name="ZoomLevelText" Text="100 %" 
-                                   Foreground="White" FontSize="12" VerticalAlignment="Center" Margin="0,0,15,0"/>
-                        <Button x:Name="ZoomOutButton" Content="−" 
-                                Background="Transparent" Foreground="White" BorderThickness="0" 
-                                Padding="8,4" FontSize="16" Cursor="Hand" Click="ZoomOutButton_Click"
-                                Margin="0,0,5,0" ToolTip="축소"/>
-                        <Button x:Name="ZoomInButton" Content="+" 
-                                Background="Transparent" Foreground="White" BorderThickness="0" 
-                                Padding="8,4" FontSize="16" Cursor="Hand" Click="ZoomInButton_Click"
-                                Margin="0,0,5,0" ToolTip="확대"/>
+                        <!-- 이미지 크기 정보 -->
+                        <TextBlock x:Name="ImageInfoText" Text="이미지 사이즈 : 0 x 0" 
+                                   Foreground="White" FontSize="12" VerticalAlignment="Center" Margin="5,0,20,0"/>
+
+                        <!-- 배율 조절 그룹 -->
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <!-- 축소 버튼 (-) : 동그란 버튼 -->
+                            <Button x:Name="ZoomOutButton" Content="−" 
+                                    Width="22" Height="22" VerticalAlignment="Center"
+                                    Foreground="White" Cursor="Hand" Click="ZoomOutButton_Click" ToolTip="축소">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="circle" Background="Transparent" BorderBrush="#88FFFFFF" BorderThickness="1.2" CornerRadius="11">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-2,0,0"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="circle" Property="Background" Value="#44FFFFFF"/>
+                                                <Setter TargetName="circle" Property="BorderBrush" Value="White"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+
+                            <!-- 배율 표시 (%) -->
+                            <TextBlock x:Name="ZoomLevelText" Text="100 %" 
+                                       Foreground="White" FontSize="12" VerticalAlignment="Center" 
+                                       Margin="10,0" Width="45" TextAlignment="Center"/>
+
+                            <!-- 확대 버튼 (+) : 동그란 버튼 -->
+                            <Button x:Name="ZoomInButton" Content="+" 
+                                    Width="22" Height="22" VerticalAlignment="Center"
+                                    Foreground="White" Cursor="Hand" Click="ZoomInButton_Click" ToolTip="확대">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="circle" Background="Transparent" BorderBrush="#88FFFFFF" BorderThickness="1.2" CornerRadius="11">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-1,0,0"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="circle" Property="Background" Value="#44FFFFFF"/>
+                                                <Setter TargetName="circle" Property="BorderBrush" Value="White"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                        </StackPanel>
+
+                        <!-- 세로 구분선 -->
+                        <Rectangle Width="1" Height="14" Fill="#44FFFFFF" Margin="18,0"/>
+
+                        <!-- 원본 버튼 : 윤곽선 있는 사각 버튼 -->
                         <Button x:Name="ZoomResetButton" Content="원본" 
-                                Background="Transparent" Foreground="White" BorderThickness="0" 
-                                Padding="8,2" FontSize="11" Cursor="Hand" Click="ZoomResetButton_Click"
-                                ToolTip="100%"/>
+                                Foreground="White" Cursor="Hand" Click="ZoomResetButton_Click"
+                                ToolTip="100%">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="rect" Background="Transparent" BorderBrush="#88FFFFFF" BorderThickness="1" CornerRadius="4" Padding="10,3">
+                                        <TextBlock Text="{TemplateBinding Content}" FontSize="11" Foreground="White" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="rect" Property="Background" Value="#44FFFFFF"/>
+                                            <Setter TargetName="rect" Property="BorderBrush" Value="White"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
                     </StackPanel>
                 </Border>
             </Grid>
