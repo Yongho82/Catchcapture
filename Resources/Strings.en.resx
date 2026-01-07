@@ -848,4 +848,5 @@ Are you sure you want to permanently delete all items?</value>
   <data name="ChangeEdgeStyleTooltip" xml:space="preserve"><value>Click to change edge style</value></data>
   <data name="EmptyTrashComplete" xml:space="preserve"><value>Trash has been emptied.</value></data>
   <data name="All" xml:space="preserve"><value>All</value></data>
+  <data name="CopyFailed" xml:space="preserve"><value>Failed to copy to clipboard. Another program might be using the clipboard.</value></data>
 </root>

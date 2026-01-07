@@ -23,6 +23,7 @@ using SixLabors.ImageSharp.Formats.Webp;
 using ImageSharpImage = SixLabors.ImageSharp.Image;
 using Color = System.Drawing.Color;
 using Rectangle = System.Drawing.Rectangle;
+// using LocalizationManager = CatchCapture.Resources.LocalizationManager; // Removed to avoid conflict with existing .Get() calls
 
 namespace CatchCapture.Utilities
 {
@@ -1096,15 +1097,74 @@ namespace CatchCapture.Utilities
             }
         }
 
-        public static void CopyImageToClipboard(BitmapSource bitmapSource)
+        public static bool CopyImageToClipboard(BitmapSource bitmapSource)
         {
-            System.Windows.Clipboard.SetImage(bitmapSource);
+            // Retry mechanism for Clipboard operations
+            int retries = 5;
+            for (int i = 0; i < retries; i++)
+            {
+                try
+                {
+                    System.Windows.Clipboard.SetImage(bitmapSource);
+                    return true; // Success
+                }
+                catch (COMException)
+                {
+                    if (i == retries - 1)
+                    {
+                        // Final retry failed, show error
+                        System.Windows.MessageBox.Show(LocalizationManager.Get("CopyFailed") ?? "클립보드 복사에 실패했습니다. 다른 프로그램이 클립보드를 사용 중일 수 있습니다.", 
+                            "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    else
+                    {
+                        Thread.Sleep(100); // Wait before retrying
+                    }
+                }
+                catch (Exception ex)
+                {
+                     // Other exceptions
+                     System.Diagnostics.Debug.WriteLine($"Clipboard Copy Error: {ex.Message}");
+                     if (i == retries - 1) throw;
+                     Thread.Sleep(100);
+                }
+            }
+            return false;
         }
 
-        public static void CopyTextToClipboard(string text)
+        public static bool CopyTextToClipboard(string text)
         {
-            if (string.IsNullOrEmpty(text)) return;
-            System.Windows.Clipboard.SetText(text);
+            if (string.IsNullOrEmpty(text)) return false;
+            
+            // Retry mechanism for Clipboard operations
+            int retries = 5;
+            for (int i = 0; i < retries; i++)
+            {
+                try
+                {
+                    System.Windows.Clipboard.SetText(text);
+                    return true;
+                }
+                catch (COMException)
+                {
+                     if (i == retries - 1)
+                    {
+                         System.Windows.MessageBox.Show(LocalizationManager.Get("CopyFailed") ?? "클립보드 복사에 실패했습니다.", 
+                            "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    else
+                    {
+                        Thread.Sleep(100);
+                    }
+                }
+                 catch (Exception ex)
+                {
+                     System.Diagnostics.Debug.WriteLine($"Clipboard Text Copy Error: {ex.Message}");
+                     if (i == retries - 1) throw;
+                     Thread.Sleep(100);
+                }
+            }
+            return false;
         }
 
         // 두 이미지가 거의 완전히 동일한지 비교 (스크롤 감지용)
