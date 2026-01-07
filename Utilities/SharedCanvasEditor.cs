@@ -38,7 +38,7 @@ namespace CatchCapture.Utilities
         public double NumberingTextSize { get; set; } = 13;
         public Color NumberingBadgeColor { get; set; } = Colors.Red;
         public Color NumberingNoteColor { get; set; } = Colors.White;
-        public double LineHeightMultiplier { get; set; } = 1.35; // 통합 줄 간격 배수
+        public double LineHeightMultiplier { get; set; } = 1.5; // 통합 줄 간격 배수 (보통 기준)
         
         // 텍스트 관련
         public string TextFontFamily { get; set; } = "Arial";
@@ -383,6 +383,10 @@ namespace CatchCapture.Utilities
             _drawnElements.Add(group);
             _undoStack?.Push(group);
             SelectedObject = group;
+            
+            // [추가] 생성 즉시 모든 텍스트/스타일 설정(줄간격 포함) 적용
+            ApplyCurrentTextSettingsToSelectedObject();
+
             NextNumber++;
 
             // 상호작용 로직
@@ -610,6 +614,9 @@ namespace CatchCapture.Utilities
             _drawnElements.Add(group);
             _undoStack?.Push(group);
             SelectedObject = group;
+            
+            // [추가] 생성 즉시 모든 텍스트/스타일 설정(줄간격 포함) 적용
+            ApplyCurrentTextSettingsToSelectedObject();
 
             // 상호작용 로직
             confirmBtn.Click += (s, e) => {
@@ -906,6 +913,11 @@ namespace CatchCapture.Utilities
             {
                 tb.Effect = null;
             }
+            
+            // [추가] 초기 생성 시에도 줄 간격 적용
+            double lineHeight = tb.FontSize * LineHeightMultiplier;
+            TextBlock.SetLineHeight(tb, lineHeight);
+            TextBlock.SetLineStackingStrategy(tb, LineStackingStrategy.BlockLineHeight);
         }
 
         private Color GetContrastColor(Color c)
