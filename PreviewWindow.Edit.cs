@@ -50,8 +50,8 @@ namespace CatchCapture
             // Create Border (Visual for the crop area)
             _cropBorder = new Rectangle
             {
-                Stroke = Brushes.White,
-                StrokeThickness = 1,
+                Stroke = Brushes.Red, // 흰색에서 빨간색으로 변경
+                StrokeThickness = 2,    // 두께를 1에서 2로 강화
                 StrokeDashArray = new DoubleCollection { 4, 4 },
                 Fill = Brushes.Transparent,
                 IsHitTestVisible = true, // To allow moving by dragging inside
@@ -65,10 +65,10 @@ namespace CatchCapture
             {
                 var handle = new Rectangle
                 {
-                    Width = 10, Height = 10,
+                    Width = 14, Height = 14, // 10x10에서 14x14로 크기 확대
                     Fill = Brushes.White,
-                    Stroke = Brushes.Black,
-                    StrokeThickness = 1,
+                    Stroke = Brushes.Red,    // 외곽선을 검정에서 빨간색으로 변경
+                    StrokeThickness = 1.5,
                     Tag = tag
                 };
                 
