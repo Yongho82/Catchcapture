@@ -227,7 +227,7 @@ namespace CatchCapture.Controls
             };
 
             // Text Sizes ComboBox
-            int[] sizes = { 8, 9, 10, 11, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 72 };
+            int[] sizes = { 8, 9, 10, 11, 12, 13, 14, 16, 18, 20, 24, 28, 32, 36, 48, 72 };
             foreach (var sz in sizes) FontSizeComboBox.Items.Add(sz);
             
             FontSizeComboBox.SelectionChanged += (s, e) => {
@@ -371,12 +371,12 @@ namespace CatchCapture.Controls
                 }
             };
             
-            // Paragraph Spacing (for Numbering Text)
+            // Paragraph Spacing (Generalized for Numbering and Text)
             if (ParaSpacingNarrow != null) ParaSpacingNarrow.Click += (s, e) => {
                 UncheckAllParaSpacing();
                 ParaSpacingNarrow.IsChecked = true;
                 if (_editor != null) {
-                    _editor.NumberingLineHeightMultiplier = 1.15; // 좁게
+                    _editor.LineHeightMultiplier = 1.15; // 좁게
                     _editor.ApplyCurrentTextSettingsToSelectedObject();
                 }
             };
@@ -384,7 +384,7 @@ namespace CatchCapture.Controls
                 UncheckAllParaSpacing();
                 ParaSpacingNormal.IsChecked = true;
                 if (_editor != null) {
-                    _editor.NumberingLineHeightMultiplier = 1.5; // 보통 (1.5줄)
+                    _editor.LineHeightMultiplier = 1.5; // 보통 (1.5줄)
                     _editor.ApplyCurrentTextSettingsToSelectedObject();
                 }
             };
@@ -392,7 +392,7 @@ namespace CatchCapture.Controls
                 UncheckAllParaSpacing();
                 ParaSpacingWide.IsChecked = true;
                 if (_editor != null) {
-                    _editor.NumberingLineHeightMultiplier = 2.0; // 넓게 (2줄)
+                    _editor.LineHeightMultiplier = 2.0; // 넓게 (2줄)
                     _editor.ApplyCurrentTextSettingsToSelectedObject();
                 }
             };

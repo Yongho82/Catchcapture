@@ -35,14 +35,14 @@ namespace CatchCapture.Utilities
         // 넘버링 관련
         public int NextNumber { get; set; } = 1;
         public double NumberingBadgeSize { get; set; } = 24;
-        public double NumberingTextSize { get; set; } = 12;
+        public double NumberingTextSize { get; set; } = 13;
         public Color NumberingBadgeColor { get; set; } = Colors.Red;
         public Color NumberingNoteColor { get; set; } = Colors.White;
-        public double NumberingLineHeightMultiplier { get; set; } = 1.35;
+        public double LineHeightMultiplier { get; set; } = 1.35; // 통합 줄 간격 배수
         
         // 텍스트 관련
         public string TextFontFamily { get; set; } = "Arial";
-        public double TextFontSize { get; set; } = 16;
+        public double TextFontSize { get; set; } = 13;
         public FontWeight TextFontWeight { get; set; } = FontWeights.Normal;
         public FontStyle TextFontStyle { get; set; } = FontStyles.Normal;
         public bool TextUnderlineEnabled { get; set; } = false;
@@ -514,54 +514,70 @@ namespace CatchCapture.Utilities
 
         public void AddTextAt(Point p)
         {
-            // 텍스트 박스 컨테이너 (Grid)를 사용하여 점선 테두리와 리사이즈 핸들 배치
+            // [통일화] 넘버링 텍스트박스와 동일한 구조 (배지 제외)
+            var group = new Canvas { Background = Brushes.Transparent };
+            
+            // 텍스트 박스 컨테이너 (Grid)
             var nodeGrid = new Grid { MinWidth = 100, MinHeight = 30 };
 
             var textBox = new TextBox
             {
                 Width = 150, // 기본 너비
                 MinHeight = 30,
+                // [통일] 넘버링 색상 사용 요청 반영 (또는 기존 텍스트 색상 유지)
+                // 사용자가 "기본 셋팅값이 달라... 넘버링이랑 통일해줘"라고 했으므로 넘버링 스타일을 기본으로 하되, 폰트 크기는 TextFontSize 사용
                 FontSize = TextFontSize,
-                Foreground = new SolidColorBrush(SelectedColor),
+                Foreground = new SolidColorBrush(NumberingNoteColor), // [변경] 통일성 위해 NumberingNoteColor 사용 (보통 흰색)
                 Background = Brushes.Transparent,
                 BorderThickness = new Thickness(0),
                 VerticalContentAlignment = VerticalAlignment.Top,
-                Padding = new Thickness(8, 5, 8, 5),
+                Padding = new Thickness(5),
                 TextWrapping = TextWrapping.Wrap,
                 AcceptsReturn = true
             };
             
-            // 편집 모드에서의 점선 테두리
+            // [통일] 넘버링과 동일한 흰색 점선 테두리
             var dashedBorder = new Rectangle {
-                Stroke = new SolidColorBrush(Colors.DeepSkyBlue),
+                Stroke = Brushes.White,
                 StrokeDashArray = new DoubleCollection { 3, 2 },
                 StrokeThickness = 1,
-                Fill = new SolidColorBrush(Color.FromArgb(20, 0, 0, 0)),
+                Fill = new SolidColorBrush(Color.FromArgb(40, 0, 0, 0)),
                 IsHitTestVisible = false
             };
             
-            // 리사이즈 핸들 (우측 하단)
+            // [통일] 리사이즈 핸들 (우측 하단)
             var resizeHandle = new Rectangle {
-                Width = 10, Height = 10,
-                Fill = Brushes.White, Stroke = Brushes.DeepSkyBlue, StrokeThickness = 1,
+                Width = 8, Height = 8,
+                Fill = Brushes.White, Stroke = Brushes.DimGray, StrokeThickness = 1,
                 Cursor = Cursors.SizeNWSE,
                 HorizontalAlignment = HorizontalAlignment.Right,
                 VerticalAlignment = VerticalAlignment.Bottom,
                 Margin = new Thickness(0, 0, -2, -2)
             };
+            
+            // [추가] 이동 핸들 (상단 중앙) - 넘버링과 통일
+            var moveHandle = new Rectangle {
+                Width = 10, Height = 10,
+                Fill = Brushes.White, Stroke = new SolidColorBrush(Colors.DeepSkyBlue), StrokeThickness = 1,
+                Cursor = Cursors.SizeAll,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Top,
+                Margin = new Thickness(0, -5, 0, 0),
+                ToolTip = "위치 이동"
+            };
 
             nodeGrid.Children.Add(dashedBorder);
             nodeGrid.Children.Add(textBox);
             nodeGrid.Children.Add(resizeHandle);
+            nodeGrid.Children.Add(moveHandle); // 핸들 추가
             
             ApplyTextStyleToTextBox(textBox);
 
-            // 그룹화하여 버튼 함께 관리 (넘버링과 동일 스타일)
-            var group = new Canvas { Background = Brushes.Transparent };
             group.Children.Add(nodeGrid);
             Canvas.SetLeft(nodeGrid, 0);
             Canvas.SetTop(nodeGrid, 0);
 
+            // 확정/삭제 버튼
             var btnPanel = new StackPanel { Orientation = Orientation.Horizontal };
             var confirmBtn = new Button { 
                 Content = "✓", Width = 24, Height = 24, Margin = new Thickness(2,0,0,0),
@@ -579,7 +595,7 @@ namespace CatchCapture.Utilities
             btnPanel.Children.Add(deleteBtn);
             group.Children.Add(btnPanel);
             
-            // 버튼 위치 동기화 로직
+            // 버튼 위치 동기화
             void UpdateBtnPos() {
                 double w = nodeGrid.ActualWidth > 0 ? nodeGrid.ActualWidth : textBox.Width;
                 Canvas.SetLeft(btnPanel, w + 5);
@@ -595,12 +611,13 @@ namespace CatchCapture.Utilities
             _undoStack?.Push(group);
             SelectedObject = group;
 
+            // 상호작용 로직
             confirmBtn.Click += (s, e) => {
                 textBox.IsReadOnly = true;
                 dashedBorder.Visibility = Visibility.Collapsed;
                 resizeHandle.Visibility = Visibility.Collapsed;
+                moveHandle.Visibility = Visibility.Collapsed;
                 btnPanel.Visibility = Visibility.Collapsed;
-                textBox.Background = Brushes.Transparent;
                 group.Background = null;
             };
 
@@ -625,8 +642,11 @@ namespace CatchCapture.Utilities
                     double dy = currentPos.Y - lastResizePos.Y;
                     
                     textBox.Width = Math.Max(40, (double.IsNaN(textBox.Width) ? textBox.ActualWidth : textBox.Width) + dx);
-                    textBox.Height = Math.Max(30, (double.IsNaN(textBox.Height) ? textBox.ActualHeight : textBox.Height) + dy);
-                    
+                    // 높이 자동 조절을 원하면 MinHeight만 조정하거나 Height를 null로 둘 수 있으나, 
+                    // 넘버링과 동일하게 명시적 조절 허용
+                    if (double.IsNaN(textBox.Height)) textBox.Height = textBox.ActualHeight;
+                    textBox.Height = Math.Max(30, textBox.Height + dy);
+
                     lastResizePos = currentPos;
                     e.Handled = true;
                 }
@@ -636,6 +656,47 @@ namespace CatchCapture.Utilities
                 resizeHandle.ReleaseMouseCapture();
                 e.Handled = true;
             };
+            
+            // 이동 로직 (그룹 전체 이동)
+            bool isMoving = false;
+            Point lastMovePos = new Point();
+            moveHandle.MouseLeftButtonDown += (s, e) => {
+                isMoving = true;
+                lastMovePos = e.GetPosition(_canvas);
+                moveHandle.CaptureMouse();
+                e.Handled = true;
+            };
+            moveHandle.MouseMove += (s, e) => {
+                if (isMoving) {
+                    Point currentPos = e.GetPosition(_canvas);
+                    double dx = currentPos.X - lastMovePos.X;
+                    double dy = currentPos.Y - lastMovePos.Y;
+                    Canvas.SetLeft(group, Canvas.GetLeft(group) + dx);
+                    Canvas.SetTop(group, Canvas.GetTop(group) + dy);
+                    lastMovePos = currentPos;
+                    e.Handled = true;
+                }
+            };
+            moveHandle.MouseLeftButtonUp += (s, e) => {
+                isMoving = false;
+                moveHandle.ReleaseMouseCapture();
+                e.Handled = true;
+            };
+
+            // 더블 클릭 수정 로직
+            MouseButtonEventHandler doubleClickEdit = (s, e) => {
+                if (e.ClickCount == 2) {
+                    textBox.IsReadOnly = false;
+                    dashedBorder.Visibility = Visibility.Visible;
+                    resizeHandle.Visibility = Visibility.Visible;
+                    moveHandle.Visibility = Visibility.Visible;
+                    btnPanel.Visibility = Visibility.Visible;
+                    SelectedObject = group;
+                    textBox.Focus();
+                    e.Handled = true;
+                }
+            };
+            textBox.PreviewMouseLeftButtonDown += doubleClickEdit;
 
             // 드래그 로직 (그룹 이동)
             bool isDragging = false;
@@ -650,6 +711,7 @@ namespace CatchCapture.Utilities
                     textBox.IsReadOnly = false;
                     dashedBorder.Visibility = Visibility.Visible;
                     resizeHandle.Visibility = Visibility.Visible;
+                    moveHandle.Visibility = Visibility.Visible;
                     btnPanel.Visibility = Visibility.Visible;
                     SelectedObject = group; 
                     textBox.Focus();
@@ -751,19 +813,18 @@ namespace CatchCapture.Utilities
             if (tb != null)
             {
                 ApplyTextStyleToTextBox(tb);
-                tb.FontSize = (CurrentTool == "넘버링") ? NumberingTextSize : TextFontSize;
-                tb.Foreground = new SolidColorBrush((CurrentTool == "넘버링") ? NumberingNoteColor : SelectedColor);
+                tb.FontSize = (CurrentTool == "넘버링" || CurrentTool == "텍스트") ? NumberingTextSize : TextFontSize; // 폰트 사이즈도 넘버링 사이즈 공유? 아니면 TextFontSize 유지? 사용자가 넘버링과 똑같이 해달라고 했으니 사이즈는 일단 각자 유지하되 색상은 통일
+                // 사용자 요청: "기본 셋팅값이 달라... 넘버링에 나오는 텍스트 박스랑 통일 해달라는거야"
+                // 따라서 색상은 NumberingNoteColor로 통일
+                tb.Foreground = new SolidColorBrush((CurrentTool == "넘버링" || CurrentTool == "텍스트") ? NumberingNoteColor : SelectedColor);
                 
-                // [추가] 넘버링일 때 줄 간격(LineHeight) 적용
-                if (CurrentTool == "넘버링")
-                {
-                     double lineHeight = tb.FontSize * NumberingLineHeightMultiplier;
-                     TextBlock.SetLineHeight(tb, lineHeight);
-                     TextBlock.SetLineStackingStrategy(tb, LineStackingStrategy.BlockLineHeight);
-                     
-                     // Padding은 기본값 유지 (텍스트 박스 내부 여백)
-                     tb.Padding = new Thickness(5);
-                }
+                // [추가] 통합 줄 간격(LineHeight) 적용 (넘버링/텍스트 공통)
+                double lineHeight = tb.FontSize * LineHeightMultiplier;
+                TextBlock.SetLineHeight(tb, lineHeight);
+                TextBlock.SetLineStackingStrategy(tb, LineStackingStrategy.BlockLineHeight);
+                
+                // Padding은 기본값 유지 (텍스트 박스 내부 여백)
+                tb.Padding = new Thickness(5);
 
                 // [추가] 포커스 복원하여 즉시 편집 가능하게 함
                 if (!tb.IsReadOnly) tb.Focus();
