@@ -4910,6 +4910,23 @@ public partial class MainWindow : Window
         {
             // 캡처 목록이 비어있으면 로고와 버튼 표시, 아니면 숨김
             EmptyStatePanel.Visibility = captures.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+
+            // 카드 모드에서는 가로 배치, 리스트 모드에서는 세로 배치
+            if (EmptyStateActionPanel != null)
+            {
+                if (currentViewMode == CaptureViewMode.Card)
+                {
+                    EmptyStateActionPanel.Orientation = Orientation.Horizontal;
+                    BigOpenNoteButton.Margin = new Thickness(10, 0, 10, 0);
+                    BigHistoryButton.Margin = new Thickness(10, 0, 10, 0);
+                }
+                else
+                {
+                    EmptyStateActionPanel.Orientation = Orientation.Vertical;
+                    BigOpenNoteButton.Margin = new Thickness(0, 5, 0, 5);
+                    BigHistoryButton.Margin = new Thickness(0, 5, 0, 5);
+                }
+            }
         }
     }
     public void TriggerAreaCapture()

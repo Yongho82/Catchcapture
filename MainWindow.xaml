@@ -762,7 +762,7 @@
                                        Opacity="0.7"
                                        RenderOptions.BitmapScalingMode="HighQuality"/>
                                 
-                                <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,20,0,0">
+                                <StackPanel x:Name="EmptyStateActionPanel" Orientation="Vertical" HorizontalAlignment="Center" Margin="0,20,0,0">
                                     <!-- 내 노트 버튼 -->
                                     <Button x:Name="BigOpenNoteButton" Click="OpenMyNoteButton_Click" 
                                             Style="{StaticResource EmptyStateButtonStyle}"

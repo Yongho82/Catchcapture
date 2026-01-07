@@ -6,7 +6,7 @@
         xmlns:utils="clr-namespace:CatchCapture.Utilities"
         mc:Ignorable="d"
         Title="미리보기" Width="1000" MinWidth="600" Height="800" MinHeight="500"
-        WindowStartupLocation="CenterOwner"
+        WindowStartupLocation="CenterScreen"
         Background="Transparent" WindowStyle="None" AllowsTransparency="True">
     
     <WindowChrome.WindowChrome>
@@ -56,8 +56,8 @@
 
                 <!-- Image Display -->
                 <Border Grid.Row="0" Margin="15" Background="#08000000" CornerRadius="8">
-                    <Grid Background="Transparent">
-                         <Image x:Name="ImgPreview" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                    <Grid x:Name="ImageGridArea" Background="Transparent" MouseLeftButtonDown="ImageGridArea_MouseLeftButtonDown">
+                         <Image x:Name="ImgPreview" Stretch="Uniform" StretchDirection="DownOnly" RenderOptions.BitmapScalingMode="HighQuality"/>
                         
                         <!-- [추가] 미디어용 오버레이 -->
                         <Grid x:Name="MediaOverlay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Visibility="Collapsed">

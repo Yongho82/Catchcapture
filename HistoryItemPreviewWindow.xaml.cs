@@ -247,7 +247,6 @@ namespace CatchCapture
                     bitmap.EndInit();
                     
                     var previewWin = new PreviewWindow(bitmap, 0);
-                    previewWin.Owner = this;
                     
                     previewWin.ImageUpdated += (s, ev) =>
                     {
@@ -262,7 +261,7 @@ namespace CatchCapture
                         }
                     };
                     
-                    previewWin.ShowDialog();
+                    previewWin.Show();
                 }
                 catch (Exception ex)
                 {
@@ -343,6 +342,13 @@ namespace CatchCapture
                 {
                     CustomMessageBox.Show($"{LocalizationManager.GetString("ErrOpenFolder")}{ex.Message}", LocalizationManager.GetString("Error"));
                 }
+            }
+        }
+        private void ImageGridArea_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 2)
+            {
+                BtnMaximize_Click(this, new RoutedEventArgs());
             }
         }
     }
