@@ -175,7 +175,7 @@
                     <!-- 일반 모드 전환 버튼 -->
                     <Button x:Name="SwitchToNormalModeButton" Style="{StaticResource SmallIconButtonStyle}" 
                             Click="SwitchToNormalModeButton_Click">
-                        <Image Source="/icons/area_capture.png" Width="14" Height="14"
+                        <Image Source="/icons/normal_mode.png" Width="14" Height="14"
                                RenderOptions.BitmapScalingMode="HighQuality"/>
                     </Button>
 

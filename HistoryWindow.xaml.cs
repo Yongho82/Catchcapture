@@ -660,6 +660,8 @@ namespace CatchCapture
                         // 이미지인 경우 단순 프리뷰 창 열기
                         var previewWin = new HistoryItemPreviewWindow(item);
                         previewWin.Show();
+                        previewWin.Activate();
+                        previewWin.Focus();
                     }
                     else
                     {
@@ -821,6 +823,8 @@ namespace CatchCapture
                         // 이미지인 경우 우리 전용 프리뷰 창 열기
                         var previewWin = new HistoryItemPreviewWindow(item);
                         previewWin.Show();
+                        previewWin.Activate();
+                        previewWin.Focus();
                     }
                     else
                     {

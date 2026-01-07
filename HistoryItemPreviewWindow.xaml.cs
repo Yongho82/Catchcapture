@@ -137,7 +137,21 @@ namespace CatchCapture
                         if (!isMedia)
                         {
                             TxtPreviewSize.Text = $"{bitmap.PixelWidth} x {bitmap.PixelHeight}";
+                            
+                            // 이미지 가로가 길면 창 너비를 좀 더 늘려줌 (기본 1000 -> 최대 1600)
+                            if (bitmap.PixelWidth > 900)
+                            {
+                                double targetWidth = Math.Min(bitmap.PixelWidth + 100, 1600);
+                                if (targetWidth > this.Width)
+                                {
+                                    this.Width = targetWidth;
+                                }
+                            }
                         }
+                        
+                        // 창을 최상단으로 활성화 (태스크바에 머물지 않도록)
+                        this.Activate();
+                        this.Focus();
                     }
                 }
                 else
