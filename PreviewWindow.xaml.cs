@@ -751,6 +751,13 @@ namespace CatchCapture
                                     textBox.Foreground,
                                     VisualTreeHelper.GetDpi(this).PixelsPerDip);
 
+                                // [Fix] Handle Text Wrapping
+                                double tbWidth = double.IsNaN(textBox.Width) ? textBox.ActualWidth : textBox.Width;
+                                if (tbWidth > 0)
+                                {
+                                    formattedText.MaxTextWidth = Math.Max(1, tbWidth - textBox.Padding.Left - textBox.Padding.Right);
+                                }
+
                                 dc.DrawText(formattedText, new Point(left + textBox.Padding.Left, top + textBox.Padding.Top));
                             }
                             else if (element is Canvas groupCanvas)
@@ -762,8 +769,10 @@ namespace CatchCapture
                                 
                                 dc.PushTransform(new TranslateTransform(gLeft, gTop));
                                 
-                                foreach(var child in groupCanvas.Children)
+                                foreach(UIElement child in groupCanvas.Children)
                                 {
+                                    if (child.Visibility != Visibility.Visible) continue;
+
                                     if (child is Border border)
                                     {
                                         double bLeft = Canvas.GetLeft(border);
@@ -774,21 +783,82 @@ namespace CatchCapture
                                         double bw = double.IsNaN(border.Width) ? border.ActualWidth : border.Width;
                                         double bh = double.IsNaN(border.Height) ? border.ActualHeight : border.Height;
                                         
-                                        var ellipseGeo = new EllipseGeometry(new Point(bLeft + bw/2, bTop + bh/2), bw/2, bh/2);
-                                        dc.DrawGeometry(border.Background, null, ellipseGeo);
-                                        
-                                        if (border.Child is TextBlock tb)
+                                        if (bw > 0 && bh > 0)
                                         {
-                                            var ft = new FormattedText(
-                                                tb.Text,
-                                                System.Globalization.CultureInfo.CurrentCulture,
-                                                FlowDirection.LeftToRight,
-                                                new Typeface(tb.FontFamily, tb.FontStyle, tb.FontWeight, tb.FontStretch),
-                                                tb.FontSize,
-                                                tb.Foreground,
-                                                VisualTreeHelper.GetDpi(this).PixelsPerDip);
-                                            dc.DrawText(ft, new Point(bLeft + (bw - ft.Width)/2, bTop + (bh - ft.Height)/2));
+                                            var ellipseGeo = new EllipseGeometry(new Point(bLeft + bw/2, bTop + bh/2), bw/2, bh/2);
+                                            dc.DrawGeometry(border.Background, null, ellipseGeo);
+                                            
+                                            if (border.Child is TextBlock tb)
+                                            {
+                                                var ft = new FormattedText(
+                                                    tb.Text,
+                                                    System.Globalization.CultureInfo.CurrentCulture,
+                                                    FlowDirection.LeftToRight,
+                                                    new Typeface(tb.FontFamily, tb.FontStyle, tb.FontWeight, tb.FontStretch),
+                                                    tb.FontSize,
+                                                    tb.Foreground,
+                                                    VisualTreeHelper.GetDpi(this).PixelsPerDip);
+                                                dc.DrawText(ft, new Point(bLeft + (bw - ft.Width)/2, bTop + (bh - ft.Height)/2));
+                                            }
                                         }
+                                    }
+                                    else if (child is Grid grid)
+                                    {
+                                        // [Fix] Handle Numbering Note Box (Wrapped in Grid)
+                                        double gridLeft = Canvas.GetLeft(grid);
+                                        double gridTop = Canvas.GetTop(grid);
+                                        if (double.IsNaN(gridLeft)) gridLeft = 0;
+                                        if (double.IsNaN(gridTop)) gridTop = 0;
+
+                                        dc.PushTransform(new TranslateTransform(gridLeft, gridTop));
+                                        
+                                        // Render Grid Background if any
+                                        if (grid.Background != null)
+                                        {
+                                            double gw = double.IsNaN(grid.Width) ? grid.ActualWidth : grid.Width;
+                                            double gh = double.IsNaN(grid.Height) ? grid.ActualHeight : grid.Height;
+                                            if (gw > 0 && gh > 0)
+                                                dc.DrawRectangle(grid.Background, null, new Rect(0, 0, gw, gh));
+                                        }
+
+                                        foreach (UIElement grandChild in grid.Children)
+                                        {
+                                            if (grandChild.Visibility != Visibility.Visible) continue;
+
+                                            if (grandChild is TextBox gtb)
+                                            {
+                                                if (string.IsNullOrWhiteSpace(gtb.Text)) continue;
+
+                                                var ft = new FormattedText(
+                                                    gtb.Text,
+                                                    System.Globalization.CultureInfo.CurrentCulture,
+                                                    FlowDirection.LeftToRight,
+                                                    new Typeface(gtb.FontFamily, gtb.FontStyle, gtb.FontWeight, gtb.FontStretch),
+                                                    gtb.FontSize,
+                                                    gtb.Foreground,
+                                                    VisualTreeHelper.GetDpi(this).PixelsPerDip);
+
+                                                double gtbWidth = double.IsNaN(gtb.Width) ? gtb.ActualWidth : gtb.Width;
+                                                if (gtbWidth > 0)
+                                                {
+                                                    ft.MaxTextWidth = Math.Max(1, gtbWidth - gtb.Padding.Left - gtb.Padding.Right);
+                                                }
+                                                dc.DrawText(ft, new Point(gtb.Padding.Left, gtb.Padding.Top));
+                                            }
+                                            else if (grandChild is TextBlock gtb2)
+                                            {
+                                                var ft = new FormattedText(
+                                                    gtb2.Text,
+                                                    System.Globalization.CultureInfo.CurrentCulture,
+                                                    FlowDirection.LeftToRight,
+                                                    new Typeface(gtb2.FontFamily, gtb2.FontStyle, gtb2.FontWeight, gtb2.FontStretch),
+                                                    gtb2.FontSize,
+                                                    gtb2.Foreground,
+                                                    VisualTreeHelper.GetDpi(this).PixelsPerDip);
+                                                dc.DrawText(ft, new Point(0, 0));
+                                            }
+                                        }
+                                        dc.Pop();
                                     }
                                     else if (child is TextBox tb)
                                     {
@@ -806,7 +876,54 @@ namespace CatchCapture
                                             tb.FontSize,
                                             tb.Foreground,
                                             VisualTreeHelper.GetDpi(this).PixelsPerDip);
+
+                                        double tbWidth = double.IsNaN(tb.Width) ? tb.ActualWidth : tb.Width;
+                                        if (tbWidth > 0)
+                                        {
+                                            ft.MaxTextWidth = Math.Max(1, tbWidth - tb.Padding.Left - tb.Padding.Right);
+                                        }
                                         dc.DrawText(ft, new Point(tLeft + tb.Padding.Left, tTop + tb.Padding.Top));
+                                    }
+                                    else if (child is Line childLine)
+                                    {
+                                        // [Fix] Handle Arrow lines inside Canvas
+                                        dc.DrawLine(new Pen(childLine.Stroke, childLine.StrokeThickness), 
+                                            new Point(childLine.X1, childLine.Y1), new Point(childLine.X2, childLine.Y2));
+                                    }
+                                    else if (child is Polygon polygon)
+                                    {
+                                        // [Fix] Handle Arrow heads inside Canvas
+                                        var geo = new StreamGeometry();
+                                        using (var context = geo.Open())
+                                        {
+                                            if (polygon.Points.Count > 0)
+                                            {
+                                                context.BeginFigure(polygon.Points[0], true, true);
+                                                for (int i = 1; i < polygon.Points.Count; i++)
+                                                {
+                                                    context.LineTo(polygon.Points[i], true, false);
+                                                }
+                                            }
+                                        }
+                                        dc.DrawGeometry(polygon.Fill, new Pen(polygon.Stroke, polygon.StrokeThickness), geo);
+                                    }
+                                    else if (child is Shape childShape)
+                                    {
+                                        // [Fix] Handle other shapes (Rectangle, Ellipse) inside Canvas
+                                        double sLeft = Canvas.GetLeft(childShape);
+                                        double sTop = Canvas.GetTop(childShape);
+                                        if (double.IsNaN(sLeft)) sLeft = 0;
+                                        if (double.IsNaN(sTop)) sTop = 0;
+ 
+                                        double sw = double.IsNaN(childShape.Width) ? childShape.ActualWidth : childShape.Width;
+                                        double sh = double.IsNaN(childShape.Height) ? childShape.ActualHeight : childShape.Height;
+                                        if (sw > 0 && sh > 0)
+                                        {
+                                            if (childShape is Rectangle)
+                                                dc.DrawRectangle(childShape.Fill, new Pen(childShape.Stroke, childShape.StrokeThickness), new Rect(sLeft, sTop, sw, sh));
+                                            else if (childShape is Ellipse)
+                                                dc.DrawEllipse(childShape.Fill, new Pen(childShape.Stroke, childShape.StrokeThickness), new Point(sLeft + sw/2, sTop + sh/2), sw/2, sh/2);
+                                        }
                                     }
                                 }
                                 dc.Pop();

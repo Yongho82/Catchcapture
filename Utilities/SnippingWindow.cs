@@ -2844,46 +2844,37 @@ namespace CatchCapture.Utilities
 
                         drawingContext.DrawImage(image.Source, new Rect(left, top, iWidth, iHeight));
                     }                    
-                    else if (element is Canvas canvas)
+                    else if (element is Canvas groupCanvas)
                     {
-                        // 넘버링 그룹인지 확인 (Border 자식이 있으면 넘버링)
-                        bool isNumbering = false;
-                        foreach (var child in canvas.Children)
+                        double gLeft = Canvas.GetLeft(groupCanvas);
+                        double gTop = Canvas.GetTop(groupCanvas);
+                        if (double.IsNaN(gLeft)) gLeft = 0;
+                        if (double.IsNaN(gTop)) gTop = 0;
+                        double groupOffsetLeft = gLeft - selectionLeft;
+                        double groupOffsetTop = gTop - selectionTop;
+                        
+                        foreach (UIElement child in groupCanvas.Children)
                         {
-                            if (child is Border)
-                            {
-                                isNumbering = true;
-                                break;
-                            }
-                        }
+                            if (child.Visibility != Visibility.Visible) continue;
 
-                        if (isNumbering)
-                        {
-                            double gLeft = Canvas.GetLeft(canvas);
-                            double gTop = Canvas.GetTop(canvas);
-                            if (double.IsNaN(gLeft)) gLeft = 0;
-                            if (double.IsNaN(gTop)) gTop = 0;
-                            double groupLeft = gLeft - selectionLeft;
-                            double groupTop = gTop - selectionTop;
-                            
-                            foreach (var child in canvas.Children)
+                            if (child is Border border)
                             {
-                                if (child is Border border)
+                                // 배지 렌더링
+                                double bLeft = Canvas.GetLeft(border);
+                                double bTop = Canvas.GetTop(border);
+                                if (double.IsNaN(bLeft)) bLeft = 0;
+                                if (double.IsNaN(bTop)) bTop = 0;
+
+                                double badgeLeft = groupOffsetLeft + bLeft;
+                                double badgeTop = groupOffsetTop + bTop;
+                                
+                                double bWidth = border.Width;
+                                double bHeight = border.Height;
+                                if (double.IsNaN(bWidth)) bWidth = border.ActualWidth;
+                                if (double.IsNaN(bHeight)) bHeight = border.ActualHeight;
+
+                                if (bWidth > 0 && bHeight > 0)
                                 {
-                                    // 배지 렌더링
-                                    double bLeft = Canvas.GetLeft(border);
-                                    double bTop = Canvas.GetTop(border);
-                                    if (double.IsNaN(bLeft)) bLeft = 0;
-                                    if (double.IsNaN(bTop)) bTop = 0;
-
-                                    double badgeLeft = groupLeft + bLeft;
-                                    double badgeTop = groupTop + bTop;
-                                    
-                                    double bWidth = border.Width;
-                                    double bHeight = border.Height;
-                                    if (double.IsNaN(bWidth)) bWidth = border.ActualWidth;
-                                    if (double.IsNaN(bHeight)) bHeight = border.ActualHeight;
-
                                     var ellipse = new EllipseGeometry(
                                         new Point(badgeLeft + bWidth / 2, badgeTop + bHeight / 2),
                                         bWidth / 2,
@@ -2892,7 +2883,6 @@ namespace CatchCapture.Utilities
                                     drawingContext.DrawGeometry(border.Background, 
                                         new Pen(border.BorderBrush, border.BorderThickness.Left), ellipse);
                                     
-                                    // 배지 내 텍스트
                                     if (border.Child is TextBlock tb)
                                     {
                                         var formattedText = new FormattedText(
@@ -2909,68 +2899,123 @@ namespace CatchCapture.Utilities
                                                     badgeTop + (bHeight - formattedText.Height) / 2));
                                     }
                                 }
-                                else if (child is TextBox noteTextBox && !string.IsNullOrWhiteSpace(noteTextBox.Text))
-                                {
-                                    // 텍스트박스 렌더링
-                                    double tbLeft = Canvas.GetLeft(noteTextBox);
-                                    double tbTop = Canvas.GetTop(noteTextBox);
-                                    if (double.IsNaN(tbLeft)) tbLeft = 0;
-                                    if (double.IsNaN(tbTop)) tbTop = 0;
-
-                                    double textBoxLeft = groupLeft + tbLeft;
-                                    double textBoxTop = groupTop + tbTop;
-                                    
-                                    double ntWidth = noteTextBox.Width;
-                                    double ntHeight = noteTextBox.Height;
-                                    if (double.IsNaN(ntWidth)) ntWidth = noteTextBox.ActualWidth;
-                                    if (double.IsNaN(ntHeight)) ntHeight = noteTextBox.ActualHeight;
-
-                                    // 텍스트박스 배경/테두리 그리기
-                                    if (noteTextBox.Background != null && noteTextBox.Background != Brushes.Transparent)
-                                    {
-                                        drawingContext.DrawRectangle(noteTextBox.Background, 
-                                            (noteTextBox.BorderThickness.Left > 0) ? new Pen(noteTextBox.BorderBrush, noteTextBox.BorderThickness.Left) : null,
-                                            new Rect(textBoxLeft, textBoxTop, ntWidth, ntHeight));
-                                    }
-
-                                    var formattedText = new FormattedText(
-                                        noteTextBox.Text,
-                                        System.Globalization.CultureInfo.CurrentCulture,
-                                        FlowDirection.LeftToRight,
-                                        new Typeface(noteTextBox.FontFamily, noteTextBox.FontStyle, noteTextBox.FontWeight, noteTextBox.FontStretch),
-                                        noteTextBox.FontSize,
-                                        noteTextBox.Foreground,
-                                        VisualTreeHelper.GetDpi(this).PixelsPerDip);
-                                    
-                                    drawingContext.DrawText(formattedText, new Point(textBoxLeft + noteTextBox.Padding.Left, textBoxTop + noteTextBox.Padding.Top));
-                                }
                             }
-                        }
-                        else
-                        {
-                            // [화살표 렌더링]
-                            foreach (var child in canvas.Children)
+                            else if (child is Grid grid)
                             {
-                                if (child is Line l)
+                                // [Fix] Handle Numbering Note or Text Box (Wrapped in Grid)
+                                double gridL = Canvas.GetLeft(grid);
+                                double gridT = Canvas.GetTop(grid);
+                                if (double.IsNaN(gridL)) gridL = 0;
+                                if (double.IsNaN(gridT)) gridT = 0;
+
+                                double currentGridLeft = groupOffsetLeft + gridL;
+                                double currentGridTop = groupOffsetTop + gridT;
+
+                                drawingContext.PushTransform(new TranslateTransform(currentGridLeft, currentGridTop));
+                                
+                                if (grid.Background != null)
                                 {
-                                    drawingContext.DrawLine(new Pen(l.Stroke, l.StrokeThickness), 
-                                        new Point(l.X1 - selectionLeft, l.Y1 - selectionTop), 
-                                        new Point(l.X2 - selectionLeft, l.Y2 - selectionTop));
+                                    double gw = double.IsNaN(grid.Width) ? grid.ActualWidth : grid.Width;
+                                    double gh = double.IsNaN(grid.Height) ? grid.ActualHeight : grid.Height;
+                                    if (gw > 0 && gh > 0)
+                                        drawingContext.DrawRectangle(grid.Background, null, new Rect(0, 0, gw, gh));
                                 }
-                                else if (child is Polygon p)
+
+                                foreach (UIElement grandChild in grid.Children)
                                 {
-                                    StreamGeometry streamGeometry = new StreamGeometry();
-                                    using (StreamGeometryContext geometryContext = streamGeometry.Open())
+                                    if (grandChild.Visibility != Visibility.Visible) continue;
+
+                                    if (grandChild is TextBox gtb)
                                     {
-                                        var startPoint = new Point(p.Points[0].X - selectionLeft, p.Points[0].Y - selectionTop);
-                                        geometryContext.BeginFigure(startPoint, true, true);
+                                        if (string.IsNullOrWhiteSpace(gtb.Text)) continue;
+
+                                        var formattedText = new FormattedText(
+                                            gtb.Text,
+                                            System.Globalization.CultureInfo.CurrentCulture,
+                                            FlowDirection.LeftToRight,
+                                            new Typeface(gtb.FontFamily, gtb.FontStyle, gtb.FontWeight, gtb.FontStretch),
+                                            gtb.FontSize,
+                                            gtb.Foreground,
+                                            VisualTreeHelper.GetDpi(this).PixelsPerDip);
+
+                                        double gtbWidth = double.IsNaN(gtb.Width) ? gtb.ActualWidth : gtb.Width;
+                                        if (gtbWidth > 0)
+                                        {
+                                            formattedText.MaxTextWidth = Math.Max(1, gtbWidth - gtb.Padding.Left - gtb.Padding.Right);
+                                        }
+                                        drawingContext.DrawText(formattedText, new Point(gtb.Padding.Left, gtb.Padding.Top));
+                                    }
+                                }
+                                drawingContext.Pop();
+                            }
+                            else if (child is TextBox tb)
+                            {
+                                if (string.IsNullOrWhiteSpace(tb.Text)) continue;
+                                double tbL = Canvas.GetLeft(tb);
+                                double tbT = Canvas.GetTop(tb);
+                                if (double.IsNaN(tbL)) tbL = 0;
+                                if (double.IsNaN(tbT)) tbT = 0;
+                                
+                                double currentTbLeft = groupOffsetLeft + tbL;
+                                double currentTbTop = groupOffsetTop + tbT;
+
+                                var formattedText = new FormattedText(
+                                    tb.Text,
+                                    System.Globalization.CultureInfo.CurrentCulture,
+                                    FlowDirection.LeftToRight,
+                                    new Typeface(tb.FontFamily, tb.FontStyle, tb.FontWeight, tb.FontStretch),
+                                    tb.FontSize,
+                                    tb.Foreground,
+                                    VisualTreeHelper.GetDpi(this).PixelsPerDip);
+
+                                double tbWidth = double.IsNaN(tb.Width) ? tb.ActualWidth : tb.Width;
+                                if (tbWidth > 0)
+                                {
+                                    formattedText.MaxTextWidth = Math.Max(1, tbWidth - tb.Padding.Left - tb.Padding.Right);
+                                }
+                                drawingContext.DrawText(formattedText, new Point(currentTbLeft + tb.Padding.Left, currentTbTop + tb.Padding.Top));
+                            }
+                            else if (child is Line l)
+                            {
+                                drawingContext.DrawLine(new Pen(l.Stroke, l.StrokeThickness), 
+                                    new Point(groupOffsetLeft + l.X1, groupOffsetTop + l.Y1), 
+                                    new Point(groupOffsetLeft + l.X2, groupOffsetTop + l.Y2));
+                            }
+                            else if (child is Polygon p)
+                            {
+                                StreamGeometry streamGeometry = new StreamGeometry();
+                                using (StreamGeometryContext geometryContext = streamGeometry.Open())
+                                {
+                                    if (p.Points.Count > 0)
+                                    {
+                                        var startP = new Point(groupOffsetLeft + p.Points[0].X, groupOffsetTop + p.Points[0].Y);
+                                        geometryContext.BeginFigure(startP, true, true);
                                         for (int i = 1; i < p.Points.Count; i++)
                                         {
-                                            var nextPoint = new Point(p.Points[i].X - selectionLeft, p.Points[i].Y - selectionTop);
-                                            geometryContext.LineTo(nextPoint, true, false);
+                                            var nextP = new Point(groupOffsetLeft + p.Points[i].X, groupOffsetTop + p.Points[i].Y);
+                                            geometryContext.LineTo(nextP, true, false);
                                         }
                                     }
-                                    drawingContext.DrawGeometry(p.Fill, new Pen(p.Stroke, p.StrokeThickness), streamGeometry);
+                                }
+                                drawingContext.DrawGeometry(p.Fill, new Pen(p.Stroke, p.StrokeThickness), streamGeometry);
+                            }
+                            else if (child is Shape s)
+                            {
+                                double sL = Canvas.GetLeft(s);
+                                double sT = Canvas.GetTop(s);
+                                if (double.IsNaN(sL)) sL = 0;
+                                if (double.IsNaN(sT)) sT = 0;
+                                double currentSLeft = groupOffsetLeft + sL;
+                                double currentSTop = groupOffsetTop + sT;
+
+                                double sw = double.IsNaN(s.Width) ? s.ActualWidth : s.Width;
+                                double sh = double.IsNaN(s.Height) ? s.ActualHeight : s.Height;
+                                if (sw > 0 && sh > 0)
+                                {
+                                    if (s is Rectangle)
+                                        drawingContext.DrawRectangle(s.Fill, new Pen(s.Stroke, s.StrokeThickness), new Rect(currentSLeft, currentSTop, sw, sh));
+                                    else if (s is Ellipse)
+                                        drawingContext.DrawEllipse(s.Fill, new Pen(s.Stroke, s.StrokeThickness), new Point(currentSLeft + sw/2, currentSTop + sh/2), sw/2, sh/2);
                                 }
                             }
                         }
