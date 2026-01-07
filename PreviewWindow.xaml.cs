@@ -428,8 +428,10 @@ namespace CatchCapture
                 var finalImage = GetCombinedImage();
                 if (finalImage != null)
                 {
-                    ScreenCaptureUtility.CopyImageToClipboard(finalImage);
-                    ShowToastMessage(LocalizationManager.GetString("CopyToClipboard"));
+                    if (ScreenCaptureUtility.CopyImageToClipboard(finalImage))
+                    {
+                        ShowToastMessage(LocalizationManager.GetString("CopyToClipboard"));
+                    }
                 }
                 e.Handled = true;
             }
@@ -1859,8 +1861,10 @@ namespace CatchCapture
                 // Windows Share가 지원되지 않는 경우 클립보드 복사로 대체
                 try
                 {
-                    ScreenCaptureUtility.CopyImageToClipboard(image);
-                    ShowToastMessage("클립보드에 복사됨");
+                    if (ScreenCaptureUtility.CopyImageToClipboard(image))
+                    {
+                        ShowToastMessage("클립보드에 복사됨");
+                    }
                 }
                 catch
                 {

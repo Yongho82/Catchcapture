@@ -3377,8 +3377,12 @@ public partial class MainWindow : Window
                 // Windows Share가 지원되지 않는 경우 클립보드 복사로 대체
                 try
                 {
-                    ScreenCaptureUtility.CopyImageToClipboard(image);
-                    // ShowGuideMessage(LocalizationManager.GetString("CopiedToClipboard"), TimeSpan.FromSeconds(2));
+                    if (ScreenCaptureUtility.CopyImageToClipboard(image))
+                    {
+                        string msg = LocalizationManager.GetString("CopiedToClipboard");
+                        if (msg == "CopiedToClipboard") msg = "클립보드에 복사 되었습니다.";
+                        StickerWindow.Show(msg);
+                    }
                 }
                 catch
                 {
@@ -3510,10 +3514,11 @@ public partial class MainWindow : Window
         {
             // ★ 메모리 최적화: 원본 이미지 로드 (썸네일 모드에서도 파일에서 원본 로드)
             var image = captures[selectedIndex].GetOriginalImage();
-            ScreenCaptureUtility.CopyImageToClipboard(image);
-            
-            // 스티커 알림 표시
-            StickerWindow.Show(LocalizationManager.GetString("CopiedToClipboard"));
+            if (ScreenCaptureUtility.CopyImageToClipboard(image))
+            {
+                // 스티커 알림 표시
+                StickerWindow.Show(LocalizationManager.GetString("CopiedToClipboard"));
+            }
         }
     }
 
@@ -3553,10 +3558,11 @@ public partial class MainWindow : Window
             totalWidth, totalHeight, 96, 96, PixelFormats.Pbgra32);
         combinedImage.Render(drawingVisual);
 
-        ScreenCaptureUtility.CopyImageToClipboard(combinedImage);
-        
-        // 스티커 알림 표시
-        StickerWindow.Show(LocalizationManager.GetString("CopiedToClipboard"));
+        if (ScreenCaptureUtility.CopyImageToClipboard(combinedImage))
+        {
+            // 스티커 알림 표시
+            StickerWindow.Show(LocalizationManager.GetString("CopiedToClipboard"));
+        }
     }
 
     #endregion

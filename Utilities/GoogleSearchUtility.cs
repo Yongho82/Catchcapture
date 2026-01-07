@@ -26,7 +26,7 @@ namespace CatchCapture.Utilities
             try
             {
                 // 1. 이미지 클립보드 복사
-                ScreenCaptureUtility.CopyImageToClipboard(image);
+                if (!ScreenCaptureUtility.CopyImageToClipboard(image)) return;
 
                 // 2. 구글 렌즈 URL 생성 (Base64 편법 포함 - 보험용)
                 double scale = 1.0;
@@ -66,7 +66,7 @@ namespace CatchCapture.Utilities
                 if (string.IsNullOrEmpty(text)) return;
 
                 // 1. 텍스트 클립보드 복사
-                ScreenCaptureUtility.CopyTextToClipboard(text);
+                if (!ScreenCaptureUtility.CopyTextToClipboard(text)) return;
 
                 // 2. 번역 URL 생성
                 string translateUrl = $"https://translate.google.com/?sl=auto&tl={targetLang}&op=translate";

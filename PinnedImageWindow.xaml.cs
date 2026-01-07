@@ -76,11 +76,12 @@ namespace CatchCapture
 
         private void Copy_Click(object sender, RoutedEventArgs e)
         {
-             ScreenCaptureUtility.CopyImageToClipboard((BitmapSource)PinnedImage.Source);
-             
-             string msg = LocalizationManager.GetString("CopiedToClipboard");
-             if (msg == "CopiedToClipboard") msg = "클립보드에 복사 되었습니다.";
-             StickerWindow.Show(msg);
+             if (ScreenCaptureUtility.CopyImageToClipboard((BitmapSource)PinnedImage.Source))
+             {
+                 string msg = LocalizationManager.GetString("CopiedToClipboard");
+                 if (msg == "CopiedToClipboard") msg = "클립보드에 복사 되었습니다.";
+                 StickerWindow.Show(msg);
+             }
         }
         
         private void Close_Click(object sender, RoutedEventArgs e)

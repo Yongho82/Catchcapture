@@ -1072,16 +1072,18 @@ namespace CatchCapture.Utilities
                 else
                     textToCopy = $"{lastHoverColor.R}, {lastHoverColor.G}, {lastHoverColor.B}";
                 
-                ScreenCaptureUtility.CopyTextToClipboard(textToCopy);
-                
-                // Show Sticker (Toast) 
-                string msg = ResLoc.GetString("CopiedToClipboard");
-                StickerWindow.Show(msg);
-
-                if (closeWindow)
+                // [Fix] 성공 시에만 스티커 표시
+                if (ScreenCaptureUtility.CopyTextToClipboard(textToCopy))
                 {
-                    DialogResult = false; // Cancel capture essentially, but job done.
-                    Close();
+                    // Show Sticker (Toast) 
+                    string msg = ResLoc.GetString("CopiedToClipboard");
+                    StickerWindow.Show(msg);
+
+                    if (closeWindow)
+                    {
+                        DialogResult = false; // Cancel capture essentially, but job done.
+                        Close();
+                    }
                 }
             }
             catch { }
@@ -2350,10 +2352,12 @@ namespace CatchCapture.Utilities
 
                 if (SelectedFrozenImage != null)
                 {
-                    ScreenCaptureUtility.CopyImageToClipboard(SelectedFrozenImage);
-                    
-                    // "복사되었습니다" 스티커(토스트) 표시
-                    ShowCopyCompleteSticker();
+                    // [Fix] 복사 성공 시에만 스티커 표시
+                    if (ScreenCaptureUtility.CopyImageToClipboard(SelectedFrozenImage))
+                    {
+                        // "복사되었습니다" 스티커(토스트) 표시
+                        ShowCopyCompleteSticker();
+                    }
                 }
             }
             catch (Exception ex)

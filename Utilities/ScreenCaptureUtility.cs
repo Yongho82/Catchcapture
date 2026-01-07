@@ -1100,25 +1100,24 @@ namespace CatchCapture.Utilities
         public static bool CopyImageToClipboard(BitmapSource bitmapSource)
         {
             // Retry mechanism for Clipboard operations
-            int retries = 5;
+            int retries = 3; // 5 -> 3회로 단축
             for (int i = 0; i < retries; i++)
             {
                 try
                 {
                     System.Windows.Clipboard.SetImage(bitmapSource);
-                    return true; // Success
+                    return true;
                 }
                 catch (COMException)
                 {
                     if (i == retries - 1)
                     {
-                        // Final retry failed, show error
                         System.Windows.MessageBox.Show(LocalizationManager.Get("CopyFailed") ?? "클립보드 복사에 실패했습니다. 다른 프로그램이 클립보드를 사용 중일 수 있습니다.", 
                             "오류", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                     else
                     {
-                        Thread.Sleep(100); // Wait before retrying
+                        Thread.Sleep(50); // 100ms -> 50ms로 단축
                     }
                 }
                 catch (Exception ex)
@@ -1137,7 +1136,7 @@ namespace CatchCapture.Utilities
             if (string.IsNullOrEmpty(text)) return false;
             
             // Retry mechanism for Clipboard operations
-            int retries = 5;
+            int retries = 3;
             for (int i = 0; i < retries; i++)
             {
                 try
@@ -1147,14 +1146,14 @@ namespace CatchCapture.Utilities
                 }
                 catch (COMException)
                 {
-                     if (i == retries - 1)
+                    if (i == retries - 1)
                     {
                          System.Windows.MessageBox.Show(LocalizationManager.Get("CopyFailed") ?? "클립보드 복사에 실패했습니다.", 
                             "오류", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                     else
                     {
-                        Thread.Sleep(100);
+                        Thread.Sleep(50);
                     }
                 }
                  catch (Exception ex)
