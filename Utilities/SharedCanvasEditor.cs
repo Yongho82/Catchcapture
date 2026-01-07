@@ -62,6 +62,7 @@ namespace CatchCapture.Utilities
         private Point _shapeStartPoint;
         private UIElement? _tempShape;
         private Rectangle? _tempMosaicSelection;
+        private bool _isEditingNumbering = false; // 넘버링 편집 중 여부
 
         public event Action<Rect>? MosaicRequired;
         public event Action? ActionOccurred;
@@ -255,10 +256,14 @@ namespace CatchCapture.Utilities
 
         public void CreateNumberingAt(Point p)
         {
+            // [제약] 이미 편집 중인 넘버링이 있으면 추가 생성 막기
+            if (_isEditingNumbering) return;
+
             // [추가] 번호 생성 전 유동적으로 다음 번호 계산 (중복 방지 및 빈 번호 채우기)
             RecalculateNextNumber();
 
             var group = new Canvas { Background = Brushes.Transparent };
+            _isEditingNumbering = true;
             double bSize = NumberingBadgeSize;
             int myNumber = NextNumber;
             
@@ -291,8 +296,8 @@ namespace CatchCapture.Utilities
                 BorderThickness = new Thickness(0),
                 Foreground = new SolidColorBrush(NumberingNoteColor), 
                 FontSize = NumberingTextSize,
-                Text = "", VerticalContentAlignment = VerticalAlignment.Center,
-                Padding = new Thickness(3), 
+                Text = "", VerticalContentAlignment = VerticalAlignment.Top,
+                Padding = new Thickness(5, 5, 5, 5), 
                 TextWrapping = TextWrapping.Wrap, // 줄바꿈 활성화
                 AcceptsReturn = true
             };
@@ -370,12 +375,14 @@ namespace CatchCapture.Utilities
                 resizeHandle.Visibility = Visibility.Collapsed;
                 btnPanel.Visibility = Visibility.Collapsed;
                 group.Background = null;
+                _isEditingNumbering = false;
             };
 
             deleteBtn.Click += (s, e) => {
                 _canvas.Children.Remove(group);
                 _drawnElements.Remove(group);
                 RecalculateNextNumber();
+                _isEditingNumbering = false;
             };
 
             // 리사이즈 로직
@@ -414,11 +421,14 @@ namespace CatchCapture.Utilities
             
             MouseButtonEventHandler doubleClickEdit = (s, e) => {
                 if (e.ClickCount == 2) {
+                    if (_isEditingNumbering) return; // 다른 거 편집 중이면 무시
+                    
                     note.IsReadOnly = false;
                     dashedBorder.Visibility = Visibility.Visible;
                     resizeHandle.Visibility = Visibility.Visible;
                     btnPanel.Visibility = Visibility.Visible;
                     SelectedObject = group; 
+                    _isEditingNumbering = true;
                     note.Focus();
                     e.Handled = true;
                 }
@@ -469,7 +479,8 @@ namespace CatchCapture.Utilities
                 Foreground = new SolidColorBrush(SelectedColor),
                 Background = Brushes.Transparent,
                 BorderThickness = new Thickness(0),
-                Padding = new Thickness(5),
+                VerticalContentAlignment = VerticalAlignment.Top,
+                Padding = new Thickness(8, 5, 8, 5),
                 TextWrapping = TextWrapping.Wrap,
                 AcceptsReturn = true
             };
@@ -706,6 +717,9 @@ namespace CatchCapture.Utilities
             tb.FontWeight = TextFontWeight;
             tb.FontStyle = TextFontStyle;
             
+            // [추가] 커서(캐럿) 색상 가독성 확보 (WPF TextBox는 LineHeight를 직접 지원하지 않음)
+            tb.CaretBrush = Brushes.White;
+
             if (TextUnderlineEnabled)
             {
                 tb.TextDecorations = TextDecorations.Underline;
