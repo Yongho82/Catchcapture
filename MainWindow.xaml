@@ -145,6 +145,47 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- 빈 상태 버튼 스타일 (Premium) -->
+        <Style x:Key="EmptyStateButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource ThemeSidebarButtonBackground}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="MinWidth" Value="150"/>
+            <Setter Property="Padding" Value="15,0"/>
+            <Setter Property="Margin" Value="10,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" 
+                                Background="{TemplateBinding Background}" 
+                                BorderBrush="{DynamicResource ThemeSidebarButtonBorder}" 
+                                BorderThickness="1.5" 
+                                CornerRadius="15">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="12" Opacity="0.12" ShadowDepth="2" Color="Black"/>
+                            </Border.Effect>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource ThemeBorder}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource ThemeSidebarButtonPressedBackground}"/>
+                                <Setter TargetName="border" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="0.97" ScaleY="0.97" CenterX="75" CenterY="25"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         
         <!-- 세련된 컨텍스트 메뉴 스타일 -->
         <Style x:Key="ModernContextMenu" TargetType="ContextMenu">
@@ -699,21 +740,52 @@
                                 </Border>
                             </StackPanel>
                             
-                            <!-- 로고 (캡처 목록이 비어있을 때만 표시) -->
-                            <Image x:Name="EmptyStateLogo"
-                                   Grid.Row="1" 
-                                   Width="160" Height="160"
-                                   Source="/icons/icon_main.png"
-                                   HorizontalAlignment="Center" 
-                                   VerticalAlignment="Center"
-                                   Opacity="0.7"
-                                   Visibility="Visible"/>
-                            
                             <!-- 캡처 리스트 -->
                             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" FocusVisualStyle="{x:Null}">
                                 <!-- 기본형은 가로 전체 너비 사용, 카드형은 가로로 나열 -->
                                 <WrapPanel x:Name="CaptureListPanel" Margin="10,0,10,0" HorizontalAlignment="Left"/>
                             </ScrollViewer>
+
+                            <!-- 로고 및 빠른 시작 버튼 (캡처 목록이 비어있을 때만 표시) -->
+                            <!-- ScrollViewer 뒤에 배치하여 클릭 우선순위를 확보하고, 세로 배치로 짤림 방지 -->
+                            <StackPanel x:Name="EmptyStatePanel"
+                                       Grid.Row="1" 
+                                       VerticalAlignment="Center" 
+                                       HorizontalAlignment="Center"
+                                       Visibility="Visible"
+                                       Background="Transparent">
+                                <Image x:Name="EmptyStateLogo"
+                                       Width="140" Height="140"
+                                       Source="/icons/icon_main.png"
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center"
+                                       Opacity="0.7"
+                                       RenderOptions.BitmapScalingMode="HighQuality"/>
+                                
+                                <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,20,0,0">
+                                    <!-- 내 노트 버튼 -->
+                                    <Button x:Name="BigOpenNoteButton" Click="OpenMyNoteButton_Click" 
+                                            Style="{StaticResource EmptyStateButtonStyle}"
+                                            Margin="0,5"
+                                            ToolTip="내 노트 열기">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="/icons/my_note.png" Width="20" Height="20" Margin="0,0,10,0" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                            <TextBlock Text="내 노트" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" Style="{StaticResource ClearTextStyle}"/>
+                                        </StackPanel>
+                                    </Button>
+
+                                    <!-- 히스토리 버튼 -->
+                                    <Button x:Name="BigHistoryButton" Click="BtnHistory_Click" 
+                                            Style="{StaticResource EmptyStateButtonStyle}"
+                                            Margin="0,5"
+                                            ToolTip="히스토리 열기">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="/icons/histroy_note.png" Width="22" Height="22" Margin="0,0,8,0" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                            <TextBlock Text="히스토리" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" Style="{StaticResource ClearTextStyle}"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </StackPanel>
 
                             <!-- 하단 버튼 영역 -->
                             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,2,10,5">

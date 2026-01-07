@@ -4906,10 +4906,10 @@ public partial class MainWindow : Window
     }
     private void UpdateEmptyStateLogo()
     {
-        if (EmptyStateLogo != null)
+        if (EmptyStatePanel != null)
         {
-            // 캡처 목록이 비어있으면 로고 표시, 아니면 숨김
-            EmptyStateLogo.Visibility = captures.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+            // 캡처 목록이 비어있으면 로고와 버튼 표시, 아니면 숨김
+            EmptyStatePanel.Visibility = captures.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         }
     }
     public void TriggerAreaCapture()
