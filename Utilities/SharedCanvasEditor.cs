@@ -673,11 +673,8 @@ namespace CatchCapture.Utilities
             if (SelectedObject is TextBox t) tb = t;
             else if (SelectedObject is Canvas group)
             {
-                // Numbering or grouped text
-                foreach (var child in group.Children)
-                {
-                    if (child is TextBox note) { tb = note; break; }
-                }
+                // Numbering or grouped text (Now inside a Grid)
+                tb = FindTextBox(group);
 
                 // If Numbering, also maybe resize badge
                 if (group.Children.Count >= 1 && group.Children[0] is Border badge)
@@ -695,7 +692,12 @@ namespace CatchCapture.Utilities
                     // 배지 크기 변경에 맞춰 노트 위치도 조정
                     if (tb != null) 
                     {
-                        Canvas.SetLeft(tb, bSize + 5);
+                        // TextBox가 Grid 내부에 있으므로 Grid를 찾아서 위치 조정
+                        var parentGrid = GetParentGrid(tb);
+                        if (parentGrid != null)
+                        {
+                            Canvas.SetLeft(parentGrid, bSize + 5);
+                        }
                     }
                 }
             }
@@ -709,6 +711,49 @@ namespace CatchCapture.Utilities
                 // [추가] 포커스 복원하여 즉시 편집 가능하게 함
                 if (!tb.IsReadOnly) tb.Focus();
             }
+        }
+
+        private TextBox? FindTextBox(DependencyObject parent)
+        {
+            if (parent is TextBox tb) return tb;
+            
+            int count = VisualTreeHelper.GetChildrenCount(parent);
+            if (count == 0 && parent is Panel panel)
+            {
+                 // VisualTreeHelper might not work if not connected yet, fallback to logical children
+                 foreach (var child in panel.Children)
+                 {
+                     if (child is UIElement ui)
+                     {
+                         var found = FindTextBox(ui);
+                         if (found != null) return found;
+                     }
+                 }
+            }
+            
+            for (int i = 0; i < count; i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                var found = FindTextBox(child);
+                if (found != null) return found;
+            }
+            return null;
+        }
+
+        private Grid? GetParentGrid(TextBox tb)
+        {
+            DependencyObject parent = tb;
+            while (parent != null)
+            {
+                parent = VisualTreeHelper.GetParent(parent);
+                if (parent is Grid grid) return grid;
+                if (parent is Canvas) break; // Don't go beyond canvas
+            }
+            
+            // Fallback: Logical tree or direct inspection if visual tree is tricky
+            if (tb.Parent is Grid g) return g;
+            
+            return null;
         }
 
         private void ApplyTextStyleToTextBox(TextBox tb)
