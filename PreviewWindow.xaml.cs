@@ -367,18 +367,11 @@ namespace CatchCapture
                 var scaleTransform = GetImageScaleTransform();
                 if (scaleTransform != null)
                 {
-                    if (scale < 1.0)
-                    {
-                        // 이미지가 작업 영역보다 크면 축소 (Fit)
-                        scaleTransform.ScaleX = Math.Max(scale, 0.1);
-                        scaleTransform.ScaleY = Math.Max(scale, 0.1);
-                    }
-                    else
-                    {
-                        // 공간이 충분하면 100% (확대하지 않음)
-                        scaleTransform.ScaleX = 1.0;
-                        scaleTransform.ScaleY = 1.0;
-                    }
+                    // [사용자 요청] 항상 원본 사이즈(100%)로 표시하여 이미지가 깨져 보이는 오해를 방지함
+                    // 이미지가 창보다 큰 경우 ScrollViewer를 통해 원본 그대로 볼 수 있음
+                    scaleTransform.ScaleX = 1.0;
+                    scaleTransform.ScaleY = 1.0;
+                    
                     UpdateImageInfo();
                 }
             }
