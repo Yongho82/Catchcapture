@@ -360,7 +360,51 @@ namespace CatchCapture.Controls
             MagicWandContiguousCheck.Unchecked += (s, e) => {
                 if (_editor != null) _editor.MagicWandContiguous = false;
             };
+
+            // Paragraph Spacing Button
+            if (ParaSpacingBtn != null) ParaSpacingBtn.Click += (s, e) => {
+                if (ParaSpacingBtn.ContextMenu != null)
+                {
+                    ParaSpacingBtn.ContextMenu.PlacementTarget = ParaSpacingBtn;
+                    ParaSpacingBtn.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+                    ParaSpacingBtn.ContextMenu.IsOpen = true;
+                }
+            };
+            
+            // Paragraph Spacing (for Numbering Text)
+            if (ParaSpacingNarrow != null) ParaSpacingNarrow.Click += (s, e) => {
+                UncheckAllParaSpacing();
+                ParaSpacingNarrow.IsChecked = true;
+                if (_editor != null) {
+                    _editor.NumberingLineHeightMultiplier = 1.15; // 좁게
+                    _editor.ApplyCurrentTextSettingsToSelectedObject();
+                }
+            };
+            if (ParaSpacingNormal != null) ParaSpacingNormal.Click += (s, e) => {
+                UncheckAllParaSpacing();
+                ParaSpacingNormal.IsChecked = true;
+                if (_editor != null) {
+                    _editor.NumberingLineHeightMultiplier = 1.5; // 보통 (1.5줄)
+                    _editor.ApplyCurrentTextSettingsToSelectedObject();
+                }
+            };
+            if (ParaSpacingWide != null) ParaSpacingWide.Click += (s, e) => {
+                UncheckAllParaSpacing();
+                ParaSpacingWide.IsChecked = true;
+                if (_editor != null) {
+                    _editor.NumberingLineHeightMultiplier = 2.0; // 넓게 (2줄)
+                    _editor.ApplyCurrentTextSettingsToSelectedObject();
+                }
+            };
         }
+
+        private void UncheckAllParaSpacing()
+        {
+            if (ParaSpacingNarrow != null) ParaSpacingNarrow.IsChecked = false;
+            if (ParaSpacingNormal != null) ParaSpacingNormal.IsChecked = false;
+            if (ParaSpacingWide != null) ParaSpacingWide.IsChecked = false;
+        }
+
         
         private void UpdateTextStyle()
         {

@@ -84,6 +84,27 @@
         <Style TargetType="CheckBox">
             <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
         </Style>
+        <Style x:Key="ToolSmallButtonStyle" TargetType="Button">
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" Background="Transparent" CornerRadius="3">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource ThemeSidebarButtonBackground}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource AccentColor}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
     
     <Border Background="{DynamicResource ThemePanelBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="8" Padding="12" TextElement.Foreground="{DynamicResource ThemeForeground}">
@@ -145,6 +166,17 @@
                         <ToggleButton x:Name="ItalicBtn" Content="I" FontStyle="Italic" Width="25" Height="25" Margin="4,0" Style="{StaticResource ToggleButtonStyle}"/>
                         <ToggleButton x:Name="UnderlineBtn" Content="U" Width="25" Height="25" Style="{StaticResource ToggleButtonStyle}"/>
                         <ToggleButton x:Name="ShadowBtn" Content="S" Width="25" Height="25" Margin="4,0" Style="{StaticResource ToggleButtonStyle}"/>
+                        
+                        <!-- [새로 추가] 문단 간격 버튼 -->
+                        <Button x:Name="ParaSpacingBtn" Content="☰" Width="25" Height="25" Style="{StaticResource ToolSmallButtonStyle}" ToolTip="문단 간격 선택">
+                            <Button.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem x:Name="ParaSpacingNarrow" Header="좁게"/>
+                                    <MenuItem x:Name="ParaSpacingNormal" Header="보통" IsCheckable="True" IsChecked="True"/>
+                                    <MenuItem x:Name="ParaSpacingWide" Header="넓게"/>
+                                </ContextMenu>
+                            </Button.ContextMenu>
+                        </Button>
                         
                         <!-- 기존 체크박스 히든 처리 (코드 연동용) -->
                         <CheckBox x:Name="BoldCheck" Visibility="Collapsed"/>

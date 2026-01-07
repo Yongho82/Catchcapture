@@ -38,6 +38,7 @@ namespace CatchCapture.Utilities
         public double NumberingTextSize { get; set; } = 12;
         public Color NumberingBadgeColor { get; set; } = Colors.Red;
         public Color NumberingNoteColor { get; set; } = Colors.White;
+        public double NumberingLineHeightMultiplier { get; set; } = 1.35;
         
         // 텍스트 관련
         public string TextFontFamily { get; set; } = "Arial";
@@ -297,7 +298,7 @@ namespace CatchCapture.Utilities
                 Foreground = new SolidColorBrush(NumberingNoteColor), 
                 FontSize = NumberingTextSize,
                 Text = "", VerticalContentAlignment = VerticalAlignment.Top,
-                Padding = new Thickness(5, 5, 5, 5), 
+                Padding = new Thickness(5), 
                 TextWrapping = TextWrapping.Wrap, // 줄바꿈 활성화
                 AcceptsReturn = true
             };
@@ -753,6 +754,17 @@ namespace CatchCapture.Utilities
                 tb.FontSize = (CurrentTool == "넘버링") ? NumberingTextSize : TextFontSize;
                 tb.Foreground = new SolidColorBrush((CurrentTool == "넘버링") ? NumberingNoteColor : SelectedColor);
                 
+                // [추가] 넘버링일 때 줄 간격(LineHeight) 적용
+                if (CurrentTool == "넘버링")
+                {
+                     double lineHeight = tb.FontSize * NumberingLineHeightMultiplier;
+                     TextBlock.SetLineHeight(tb, lineHeight);
+                     TextBlock.SetLineStackingStrategy(tb, LineStackingStrategy.BlockLineHeight);
+                     
+                     // Padding은 기본값 유지 (텍스트 박스 내부 여백)
+                     tb.Padding = new Thickness(5);
+                }
+
                 // [추가] 포커스 복원하여 즉시 편집 가능하게 함
                 if (!tb.IsReadOnly) tb.Focus();
             }

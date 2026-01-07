@@ -2790,6 +2790,13 @@ namespace CatchCapture.Utilities
                             textBox.FontSize,
                             textBox.Foreground,
                             VisualTreeHelper.GetDpi(this).PixelsPerDip);
+
+                        // [Fix] 줄 간격(행간) 적용
+                        double lineHeight = TextBlock.GetLineHeight(textBox);
+                        if (!double.IsNaN(lineHeight))
+                        {
+                             formattedText.LineHeight = lineHeight;
+                        }
                         
                         drawingContext.DrawText(formattedText, new Point(textLeft + textBox.Padding.Left, textTop + textBox.Padding.Top));
                     }     
@@ -2938,6 +2945,13 @@ namespace CatchCapture.Utilities
                                             gtb.Foreground,
                                             VisualTreeHelper.GetDpi(this).PixelsPerDip);
 
+                                        // [Fix] 줄 간격(행간) 적용
+                                        double gtbLineHeight = TextBlock.GetLineHeight(gtb);
+                                        if (!double.IsNaN(gtbLineHeight))
+                                        {
+                                             formattedText.LineHeight = gtbLineHeight;
+                                        }
+
                                         double gtbWidth = double.IsNaN(gtb.Width) ? gtb.ActualWidth : gtb.Width;
                                         if (gtbWidth > 0)
                                         {
@@ -2967,6 +2981,13 @@ namespace CatchCapture.Utilities
                                     tb.FontSize,
                                     tb.Foreground,
                                     VisualTreeHelper.GetDpi(this).PixelsPerDip);
+
+                                // [Fix] 줄 간격(행간) 적용
+                                double tbLineHeight = TextBlock.GetLineHeight(tb);
+                                if (!double.IsNaN(tbLineHeight))
+                                {
+                                     formattedText.LineHeight = tbLineHeight;
+                                }
 
                                 double tbWidth = double.IsNaN(tb.Width) ? tb.ActualWidth : tb.Width;
                                 if (tbWidth > 0)
