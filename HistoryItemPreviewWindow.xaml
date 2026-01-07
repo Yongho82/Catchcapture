@@ -56,29 +56,32 @@
 
                 <!-- Image Display with ScrollViewer -->
                 <Border Grid.Row="0" Margin="15" Background="#08000000" CornerRadius="8">
-                    <ScrollViewer x:Name="ImageScrollViewer" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                        <Grid x:Name="ImageGridArea" Background="Transparent" MouseLeftButtonDown="ImageGridArea_MouseLeftButtonDown" HorizontalAlignment="Center" VerticalAlignment="Center">
-                             <Image x:Name="ImgPreview" Stretch="None" RenderOptions.BitmapScalingMode="HighQuality"/>
-                        
-                        <!-- [추가] 미디어용 오버레이 -->
-                        <Grid x:Name="MediaOverlay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Visibility="Collapsed">
-                            <!-- Play Button -->
-                            <Grid x:Name="VideoPlayOverlay">
-                                <Ellipse Width="60" Height="60" Fill="#B4000000" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                <TextBlock Text="▶" FontSize="28" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,0,0,0"/>
-                            </Grid>
-                            <!-- Audio Icon -->
-                            <TextBlock x:Name="AudioIconOverlay" Text="🔊" FontSize="80" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/>
+                    <Grid>
+                        <ScrollViewer x:Name="ImageScrollViewer" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                            <Grid x:Name="ImageGridArea" Background="Transparent" MouseLeftButtonDown="ImageGridArea_MouseLeftButtonDown" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                 <Image x:Name="ImgPreview" Stretch="None" RenderOptions.BitmapScalingMode="HighQuality"/>
                             
-                            <!-- Format Badge -->
-                            <Border HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,15,15,0" 
-                                    Background="#C84361EE" CornerRadius="4" Padding="8,4">
-                                <TextBlock x:Name="TxtPreviewFormat" Text="MP4" FontSize="18" FontWeight="Bold" Foreground="White"/>
-                            </Border>
-                        </Grid>
+                                <!-- [추가] 미디어용 오버레이 -->
+                                <Grid x:Name="MediaOverlay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Visibility="Collapsed">
+                                    <!-- Play Button -->
+                                    <Grid x:Name="VideoPlayOverlay">
+                                        <Ellipse Width="60" Height="60" Fill="#B4000000" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Text="▶" FontSize="28" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                                    </Grid>
+                                    <!-- Audio Icon -->
+                                    <TextBlock x:Name="AudioIconOverlay" Text="🔊" FontSize="80" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/>
+                                    
+                                    <!-- Format Badge -->
+                                    <Border HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,15,15,0" 
+                                            Background="#C84361EE" CornerRadius="4" Padding="8,4">
+                                        <TextBlock x:Name="TxtPreviewFormat" Text="MP4" FontSize="18" FontWeight="Bold" Foreground="White"/>
+                                    </Border>
+                                </Grid>
+                            </Grid>
+                        </ScrollViewer>
 
-                        <!-- Interactive Buttons Overlay -->
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,10,10">
+                        <!-- Interactive Buttons Overlay (Fixed at bottom-right) -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,15,15">
                             <Button x:Name="BtnPreviewEdit" Click="BtnPreviewEdit_Click" Width="36" Height="36" Margin="0,0,8,0" Background="#CC2D2D30" BorderThickness="0" Cursor="Hand" ToolTip="이미지 편집">
                                 <Button.Resources>
                                     <Style TargetType="Border">
@@ -105,7 +108,6 @@
                             </Button>
                         </StackPanel>
                     </Grid>
-                </ScrollViewer>
                 </Border>
 
                 <!-- Simple Memo (Above Details) -->
