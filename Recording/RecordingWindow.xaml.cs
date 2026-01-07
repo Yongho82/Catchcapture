@@ -1035,63 +1035,17 @@ namespace CatchCapture.Recording
                 _settings.LastAreaLeft, _settings.LastAreaTop,
                 _settings.LastAreaWidth, _settings.LastAreaHeight);
 
-            // DPI 배율 보정 (논리 좌표 -> 물리 픽셀 변환)
-            // PointToScreen을 사용하여 각 모니터의 DPI 설정에 맞는 정확한 픽셀 좌표를 계산함
-            if (_overlay != null)
-            {
-                try
-                {
-                    // 오버레이가 전체 가상 화면을 덮고 있다고 가정하고,
-                    // SelectionArea는 가상 화면 기준의 절대 좌표(DIP)임
-                    
-                    // 오버레이 윈도우 기준의 상대 좌표로 변환
-                    Point relativeTopLeft = new Point(captureArea.X - _overlay.Left, captureArea.Y - _overlay.Top);
-                    Point relativeBottomRight = new Point(
-                        (captureArea.X - _overlay.Left) + captureArea.Width, 
-                        (captureArea.Y - _overlay.Top) + captureArea.Height);
-                        
-                    // 물리 픽셀 좌표로 변환
-                    Point pixelTopLeft = _overlay.PointToScreen(relativeTopLeft);
-                    Point pixelBottomRight = _overlay.PointToScreen(relativeBottomRight);
-                    
-                    // 변환된 픽셀 좌표로 Rect 재설정
-                    captureArea = new Rect(pixelTopLeft, pixelBottomRight);
-                }
-                catch (Exception ex)
-                {
-                    // 실패 시 기존 방식(단순 DPI 곱셈) Fallback
-                    System.Diagnostics.Debug.WriteLine($"PointToScreen failed: {ex.Message}");
-                    
-                    var source = PresentationSource.FromVisual(this);
-                    if (source != null && source.CompositionTarget != null)
-                    {
-                        double dpiX = source.CompositionTarget.TransformToDevice.M11;
-                        double dpiY = source.CompositionTarget.TransformToDevice.M22;
+            // 좌표 변환 없이 ScreenCaptureUtility와 동일한 방식 사용
+            // SelectionArea는 이미 VirtualScreen 기준의 좌표이므로, Int32Rect로만 변환
+            // (ScreenCaptureUtility.CaptureArea가 이 방식으로 성공했으므로 동일하게 적용)
+            Int32Rect captureRect = new Int32Rect(
+                (int)captureArea.X,
+                (int)captureArea.Y,
+                (int)captureArea.Width,
+                (int)captureArea.Height
+            );
 
-                        captureArea.X *= dpiX;
-                        captureArea.Y *= dpiY;
-                        captureArea.Width *= dpiX;
-                        captureArea.Height *= dpiY;
-                    }
-                }
-            }
-            else
-            {
-                // 오버레이가 없는 경우(거의 없겠지만) 기존 방식 사용
-                var source = PresentationSource.FromVisual(this);
-                if (source != null && source.CompositionTarget != null)
-                {
-                    double dpiX = source.CompositionTarget.TransformToDevice.M11;
-                    double dpiY = source.CompositionTarget.TransformToDevice.M22;
-
-                    captureArea.X *= dpiX;
-                    captureArea.Y *= dpiY;
-                    captureArea.Width *= dpiX;
-                    captureArea.Height *= dpiY;
-                }
-            }
-
-            _recorder.StartRecording(captureArea);
+            _recorder.StartRecording(captureRect);
 
             _recordingDuration = TimeSpan.Zero;
             _recordingTimer.Start();

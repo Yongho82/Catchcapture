@@ -67,6 +67,9 @@ namespace CatchCapture.Recording
         private int _captureWidth;
         private int _captureHeight;
         
+        // 가상 스크린 정보 (DIP 단위)
+        private double _vLeft, _vTop, _vWidth, _vHeight;
+        
         // 일시정지 관련
         private DateTime _pauseStartTime;
         
@@ -115,7 +118,7 @@ namespace CatchCapture.Recording
         /// <summary>
         /// 녹화 시작
         /// </summary>
-        public void StartRecording(Rect captureArea)
+        public void StartRecording(Int32Rect captureArea)
         {
             if (_isRecording) return;
             
@@ -144,6 +147,15 @@ namespace CatchCapture.Recording
             _lastFrameTime = DateTime.Now;
             _cts = new CancellationTokenSource();
             
+            // 가상 스크린 정보 저장 (UI 스레드에서 안전하게 가져옴)
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                _vLeft = SystemParameters.VirtualScreenLeft;
+                _vTop = SystemParameters.VirtualScreenTop;
+                _vWidth = SystemParameters.VirtualScreenWidth;
+                _vHeight = SystemParameters.VirtualScreenHeight;
+            });
+
             // MP3 모드일 경우 오디오 강제 활성화
             if (_settings.Format == RecordingFormat.MP3)
             {
