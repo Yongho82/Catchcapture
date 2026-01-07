@@ -191,6 +191,28 @@ namespace CatchCapture.Models
                     Hotkeys.OpenNote = defaults.OpenNote; // Set to Ctrl+Shift+N
                     changed = true;
                 }
+
+                // [사용자 요청] 전체삭제 단축키 변경 (Ctrl+Shift+D -> Ctrl+D)
+                // 지연캡처(Ctrl+Shift+D)와 충돌 해결 및 편의성 증대
+                if (Hotkeys.DeleteAll != null && Hotkeys.DeleteAll.Ctrl && Hotkeys.DeleteAll.Shift && Hotkeys.DeleteAll.Key == "D")
+                {
+                    Hotkeys.DeleteAll = defaults.DeleteAll; // Ctrl+D
+                    changed = true;
+                }
+
+                // [사용자 요청] 엣지캡처 단축키 기본값 설정 (Ctrl+Shift+E)
+                // 기존 단위캡처(E)와 충돌 방지를 위해 단위캡처는 U로 이동
+                if (Hotkeys.EdgeCapture != null && (string.IsNullOrEmpty(Hotkeys.EdgeCapture.Key) || Hotkeys.EdgeCapture.Key == "X"))
+                {
+                    Hotkeys.EdgeCapture = defaults.EdgeCapture; // Ctrl+Shift+E
+                    changed = true;
+                }
+                
+                if (Hotkeys.ElementCapture != null && Hotkeys.ElementCapture.Key == "E")
+                {
+                    Hotkeys.ElementCapture = defaults.ElementCapture; // Ctrl+Shift+U
+                    changed = true;
+                }
             }
 
             // 2. Sync Main Menu Items (Add missing, don't reorder)
@@ -333,8 +355,9 @@ namespace CatchCapture.Models
 
         public Settings Clone()
         {
-            string json = JsonSerializer.Serialize(this);
-            return JsonSerializer.Deserialize<Settings>(json) ?? new Settings();
+            var options = new JsonSerializerOptions { NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals };
+            string json = JsonSerializer.Serialize(this, options);
+            return JsonSerializer.Deserialize<Settings>(json, options) ?? new Settings();
         }
 
         public static bool TrySave(Settings settings, out string? error)
@@ -346,8 +369,15 @@ namespace CatchCapture.Models
                 var dir = Path.GetDirectoryName(settingsPath);
                 if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
 
+                // Sanitize values before saving (NaN, Infinity check)
+                settings.Sanitize();
+
                 // Serialize
-                string json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
+                string json = JsonSerializer.Serialize(settings, new JsonSerializerOptions 
+                { 
+                    WriteIndented = true,
+                    NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals
+                });
 
                 // Atomic write: write to temp and replace
                 string tmp = settingsPath + ".tmp";
@@ -377,6 +407,71 @@ namespace CatchCapture.Models
                 error = ex.Message;
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Ensures all double values are finite (not NaN or Infinity) to prevent JSON serialization errors.
+        /// </summary>
+        public void Sanitize()
+        {
+            LastMainLeft = EnsureFinite(LastMainLeft, 0);
+            LastMainTop = EnsureFinite(LastMainTop, 0);
+            LastSimpleLeft = EnsureFinite(LastSimpleLeft, 0);
+            LastSimpleTop = EnsureFinite(LastSimpleTop, 0);
+            LastTrayLeft = EnsureFinite(LastTrayLeft, 0);
+            LastTrayTop = EnsureFinite(LastTrayTop, 0);
+            
+            NoteExplorerWidth = EnsureFinite(NoteExplorerWidth, 1450);
+            NoteExplorerHeight = EnsureFinite(NoteExplorerHeight, 995);
+            NoteExplorerLeft = EnsureFinite(NoteExplorerLeft, -9999);
+            NoteExplorerTop = EnsureFinite(NoteExplorerTop, -9999);
+            NoteExplorerSplitterPosition = EnsureFinite(NoteExplorerSplitterPosition, -9999);
+
+            NoteViewerWidth = EnsureFinite(NoteViewerWidth, 1200);
+            NoteViewerHeight = EnsureFinite(NoteViewerHeight, 920);
+            NoteViewerLeft = EnsureFinite(NoteViewerLeft, -9999);
+            NoteViewerTop = EnsureFinite(NoteViewerTop, -9999);
+
+            NoteInputWidth = EnsureFinite(NoteInputWidth, 1200);
+            NoteInputHeight = EnsureFinite(NoteInputHeight, 920);
+            NoteInputLeft = EnsureFinite(NoteInputLeft, -9999);
+            NoteInputTop = EnsureFinite(NoteInputTop, -9999);
+
+            HistoryWindowWidth = EnsureFinite(HistoryWindowWidth, 1430);
+            HistoryWindowHeight = EnsureFinite(HistoryWindowHeight, 820);
+            HistoryWindowLeft = EnsureFinite(HistoryWindowLeft, -9999);
+            HistoryWindowTop = EnsureFinite(HistoryWindowTop, -9999);
+            HistoryPreviewPaneWidth = EnsureFinite(HistoryPreviewPaneWidth, 331);
+            HistoryListPaneWidth = EnsureFinite(HistoryListPaneWidth, 875);
+
+            PreviewWindowWidth = EnsureFinite(PreviewWindowWidth, 0);
+            PreviewWindowHeight = EnsureFinite(PreviewWindowHeight, 0);
+            PreviewWindowLeft = EnsureFinite(PreviewWindowLeft, -9999);
+            PreviewWindowTop = EnsureFinite(PreviewWindowTop, -9999);
+
+            HistoryColDate = EnsureFinite(HistoryColDate, 132);
+            HistoryColFileName = EnsureFinite(HistoryColFileName, 205);
+            HistoryColMeta = EnsureFinite(HistoryColMeta, 205);
+            HistoryColPin = EnsureFinite(HistoryColPin, 53);
+            HistoryColFavorite = EnsureFinite(HistoryColFavorite, 53);
+            HistoryColActions = EnsureFinite(HistoryColActions, 53);
+            HistoryColMemo = EnsureFinite(HistoryColMemo, 150);
+
+            CaptureLineThickness = EnsureFinite(CaptureLineThickness, 1.0);
+
+            if (Recording != null)
+            {
+                Recording.LastAreaLeft = EnsureFinite(Recording.LastAreaLeft, 100);
+                Recording.LastAreaTop = EnsureFinite(Recording.LastAreaTop, 100);
+                Recording.LastAreaWidth = EnsureFinite(Recording.LastAreaWidth, 800);
+                Recording.LastAreaHeight = EnsureFinite(Recording.LastAreaHeight, 600);
+            }
+        }
+
+        private double EnsureFinite(double value, double defaultValue)
+        {
+            if (double.IsNaN(value) || double.IsInfinity(value)) return defaultValue;
+            return value;
         }
     }
 
@@ -424,16 +519,16 @@ namespace CatchCapture.Models
                 FullScreen = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "F" },
                 DesignatedCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "W" },
                 WindowCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "C" },
-                ElementCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "E" },
+                ElementCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "U" }, // E -> U (Edge와 충돌 방지)
                 ScrollCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "S" },
 
                 OcrCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "O" },
                 ScreenRecord = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "V" },
-                EdgeCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "X" },
+                EdgeCapture = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "E" }, // X -> E
 
                 // 편집/기타 기능: 활성화
                 SaveAll = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "A" },
-                DeleteAll = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "Delete" },
+                DeleteAll = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "D" }, // Ctrl+Shift+D -> Ctrl+D
                 SimpleMode = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "Q" },
                 TrayMode = new ToggleHotkey { Enabled = true, Ctrl = true, Shift = true, Key = "T" },
                 OpenSettings = new ToggleHotkey { Enabled = true, Ctrl = true, Key = "O" },

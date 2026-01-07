@@ -478,7 +478,7 @@ private void UpdateUIText()
                 HkOcrCaptureKey, HkScreenRecordKey,
                 HkSimpleModeKey, HkTrayModeKey,
                 HkSaveAllKey, HkDeleteAllKey, HkOpenSettingsKey, HkOpenEditorKey,
-                HkOpenNoteKey, HkRecStartStopKey
+                HkOpenNoteKey, HkRecStartStopKey, HkEdgeKey
             };
 
             foreach (var box in boxes)
@@ -1029,26 +1029,26 @@ private void InitLanguageComboBox()
             var hk = _settings.Hotkeys;
 
             // Fill defaults if empty
-            EnsureDefaultKey(hk.RegionCapture, "A");
-            EnsureDefaultKey(hk.DelayCapture, "K");
-            EnsureDefaultKey(hk.RealTimeCapture, "R");      // 추가
-            EnsureDefaultKey(hk.MultiCapture, "M");         // 추가
+            EnsureDefaultKey(hk.RegionCapture, "F1");
+            EnsureDefaultKey(hk.DelayCapture, "D");
+            EnsureDefaultKey(hk.RealTimeCapture, "R");
+            EnsureDefaultKey(hk.MultiCapture, "M");
             EnsureDefaultKey(hk.FullScreen, "F");
-            EnsureDefaultKey(hk.DesignatedCapture, "W");    // G → W 변경
-            EnsureDefaultKey(hk.WindowCapture, "C");        // W → C 변경
-            EnsureDefaultKey(hk.ElementCapture, "E");
-            EnsureDefaultKey(hk.ScrollCapture, "S");        // R → S 변경
+            EnsureDefaultKey(hk.DesignatedCapture, "W");
+            EnsureDefaultKey(hk.WindowCapture, "C");
+            EnsureDefaultKey(hk.ElementCapture, "U");
+            EnsureDefaultKey(hk.ScrollCapture, "S");
             EnsureDefaultKey(hk.OcrCapture, "O");
             EnsureDefaultKey(hk.ScreenRecord, "V");
-            EnsureDefaultKey(hk.SimpleMode, "Q");           // M → Q 변경
+            EnsureDefaultKey(hk.SimpleMode, "Q");
             EnsureDefaultKey(hk.TrayMode, "T");
-            EnsureDefaultKey(hk.SaveAll, "Z");              // S → Z 변경
-            EnsureDefaultKey(hk.DeleteAll, "X");
+            EnsureDefaultKey(hk.SaveAll, "A");
+            EnsureDefaultKey(hk.DeleteAll, "D");
             EnsureDefaultKey(hk.OpenSettings, "O");
             EnsureDefaultKey(hk.OpenEditor, "E");
             EnsureDefaultKey(hk.OpenNote, "N");
-            EnsureDefaultKey(hk.EdgeCapture, "X");
-            EnsureDefaultKey(hk.RecordingStartStop, "F3");
+            EnsureDefaultKey(hk.EdgeCapture, "E");
+            EnsureDefaultKey(hk.RecordingStartStop, "F2");
 
             // Bind to UI
             BindHotkey(hk.RegionCapture, HkRegionEnabled, HkRegionCtrl, HkRegionShift, HkRegionAlt, HkRegionWin, HkRegionKey);
@@ -1866,26 +1866,26 @@ private void InitLanguageComboBox()
                 }
             }
 
-            EnsureDefaultKey(_settings.Hotkeys.RegionCapture, "A");
+            EnsureDefaultKey(_settings.Hotkeys.RegionCapture, "F1");
             EnsureDefaultKey(_settings.Hotkeys.DelayCapture, "D");
             EnsureDefaultKey(_settings.Hotkeys.RealTimeCapture, "R");
             EnsureDefaultKey(_settings.Hotkeys.MultiCapture, "M");   
             EnsureDefaultKey(_settings.Hotkeys.FullScreen, "F");
-            EnsureDefaultKey(_settings.Hotkeys.DesignatedCapture, "G");
-            EnsureDefaultKey(_settings.Hotkeys.WindowCapture, "W");
-            EnsureDefaultKey(_settings.Hotkeys.ElementCapture, "E");
-            EnsureDefaultKey(_settings.Hotkeys.ScrollCapture, "R");
+            EnsureDefaultKey(_settings.Hotkeys.DesignatedCapture, "W");
+            EnsureDefaultKey(_settings.Hotkeys.WindowCapture, "C");
+            EnsureDefaultKey(_settings.Hotkeys.ElementCapture, "U");
+            EnsureDefaultKey(_settings.Hotkeys.ScrollCapture, "S");
             EnsureDefaultKey(_settings.Hotkeys.OcrCapture, "O");
             EnsureDefaultKey(_settings.Hotkeys.ScreenRecord, "V");
             EnsureDefaultKey(_settings.Hotkeys.SimpleMode, "Q");
             EnsureDefaultKey(_settings.Hotkeys.TrayMode, "T");
-            EnsureDefaultKey(_settings.Hotkeys.SaveAll, "S");
-            EnsureDefaultKey(_settings.Hotkeys.DeleteAll, "X");
+            EnsureDefaultKey(_settings.Hotkeys.SaveAll, "A");
+            EnsureDefaultKey(_settings.Hotkeys.DeleteAll, "D");
             EnsureDefaultKey(_settings.Hotkeys.OpenSettings, "O");
             EnsureDefaultKey(_settings.Hotkeys.OpenEditor, "E");
             EnsureDefaultKey(_settings.Hotkeys.OpenNote, "N");
-            EnsureDefaultKey(_settings.Hotkeys.EdgeCapture, "X");
-            EnsureDefaultKey(_settings.Hotkeys.RecordingStartStop, "F3");
+            EnsureDefaultKey(_settings.Hotkeys.EdgeCapture, "E");
+            EnsureDefaultKey(_settings.Hotkeys.RecordingStartStop, "F2");
 
             if (_loadedPages.Contains("Recording"))
             {
