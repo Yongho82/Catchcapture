@@ -281,21 +281,50 @@ namespace CatchCapture.Utilities
             Canvas.SetLeft(badge, 0);
             Canvas.SetTop(badge, 0);
             
+            // 텍스트 박스 컨테이너 (Grid)를 사용하여 점선 테두리와 리사이즈 핸들 배치
+            var noteGrid = new Grid { MinWidth = 50, MinHeight = bSize };
+            
             var note = new TextBox {
-                MinHeight = bSize, MinWidth = 50,
-                Background = new SolidColorBrush(Color.FromArgb(100, 0, 0, 0)),
-                BorderBrush = Brushes.White, BorderThickness = new Thickness(1),
+                Width = 120, // 기본 너비
+                MinHeight = bSize, 
+                Background = Brushes.Transparent,
+                BorderThickness = new Thickness(0),
                 Foreground = new SolidColorBrush(NumberingNoteColor), 
                 FontSize = NumberingTextSize,
                 Text = "", VerticalContentAlignment = VerticalAlignment.Center,
-                Padding = new Thickness(3), TextWrapping = TextWrapping.NoWrap,
+                Padding = new Thickness(3), 
+                TextWrapping = TextWrapping.Wrap, // 줄바꿈 활성화
                 AcceptsReturn = true
             };
+            
+            // 편집 모드에서의 점선 테두리
+            var dashedBorder = new Rectangle {
+                Stroke = Brushes.White,
+                StrokeDashArray = new DoubleCollection { 3, 2 },
+                StrokeThickness = 1,
+                Fill = new SolidColorBrush(Color.FromArgb(40, 0, 0, 0)),
+                IsHitTestVisible = false
+            };
+            
+            // 리사이즈 핸들 (우측 하단)
+            var resizeHandle = new Rectangle {
+                Width = 8, Height = 8,
+                Fill = Brushes.White, Stroke = Brushes.DimGray, StrokeThickness = 1,
+                Cursor = Cursors.SizeNWSE,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                VerticalAlignment = VerticalAlignment.Bottom,
+                Margin = new Thickness(0, 0, -2, -2)
+            };
+
+            noteGrid.Children.Add(dashedBorder);
+            noteGrid.Children.Add(note);
+            noteGrid.Children.Add(resizeHandle);
+            
             ApplyTextStyleToTextBox(note);
             
-            group.Children.Add(note);
-            Canvas.SetLeft(note, bSize + 5);
-            Canvas.SetTop(note, 0);
+            group.Children.Add(noteGrid);
+            Canvas.SetLeft(noteGrid, bSize + 5);
+            Canvas.SetTop(noteGrid, 0);
 
             // 확정/삭제 버튼
             var btnPanel = new StackPanel { Orientation = Orientation.Horizontal };
@@ -318,11 +347,11 @@ namespace CatchCapture.Utilities
             // 버튼 위치 동기화 로직
             void UpdateBtnPos() {
                 double bWidth = badge.ActualWidth > 0 ? badge.ActualWidth : bSize;
-                double nWidth = note.ActualWidth > 0 ? note.ActualWidth : 0;
+                double nWidth = noteGrid.ActualWidth > 0 ? noteGrid.ActualWidth : note.Width;
                 Canvas.SetLeft(btnPanel, bWidth + nWidth + 10);
                 Canvas.SetTop(btnPanel, 2);
             }
-            note.SizeChanged += (s, e) => UpdateBtnPos();
+            noteGrid.SizeChanged += (s, e) => UpdateBtnPos();
             badge.SizeChanged += (s, e) => UpdateBtnPos();
 
             _canvas.Children.Add(group);
@@ -331,39 +360,65 @@ namespace CatchCapture.Utilities
             
             _drawnElements.Add(group);
             _undoStack?.Push(group);
-            SelectedObject = group; // [추가] 생성 즉시 선택 상태로 설정
+            SelectedObject = group;
             NextNumber++;
 
             // 상호작용 로직
             confirmBtn.Click += (s, e) => {
                 note.IsReadOnly = true;
-                note.Background = Brushes.Transparent;
-                note.BorderThickness = new Thickness(0);
+                dashedBorder.Visibility = Visibility.Collapsed;
+                resizeHandle.Visibility = Visibility.Collapsed;
                 btnPanel.Visibility = Visibility.Collapsed;
-                group.Background = null; // 인터랙션 종료 시 투명 배경 제거 (히트테스트 최적화)
+                group.Background = null;
             };
 
             deleteBtn.Click += (s, e) => {
                 _canvas.Children.Remove(group);
                 _drawnElements.Remove(group);
-                
-                // [추가] 번호 시퀀스 관리: 삭제된 번호가 마지막 번호였거나 끊겼을 때 유동적으로 처리
                 RecalculateNextNumber();
+            };
+
+            // 리사이즈 로직
+            bool isResizing = false;
+            Point lastResizePos = new Point();
+            resizeHandle.MouseLeftButtonDown += (s, e) => {
+                isResizing = true;
+                lastResizePos = e.GetPosition(_canvas);
+                resizeHandle.CaptureMouse();
+                e.Handled = true;
+            };
+            resizeHandle.MouseMove += (s, e) => {
+                if (isResizing) {
+                    Point currentPos = e.GetPosition(_canvas);
+                    double dx = currentPos.X - lastResizePos.X;
+                    double dy = currentPos.Y - lastResizePos.Y;
+                    
+                    note.Width = Math.Max(40, (double.IsNaN(note.Width) ? note.ActualWidth : note.Width) + dx);
+                    // 높이는 텍스트에 따라 자동 조절되길 원할 수도 있으므로 명시적 Height보다는 MinHeight 유지가 좋을 수 있음
+                    // 하지만 사용자가 명시적 높이를 원한다면:
+                    note.Height = Math.Max(bSize, (double.IsNaN(note.Height) ? note.ActualHeight : note.Height) + dy);
+                    
+                    lastResizePos = currentPos;
+                    e.Handled = true;
+                }
+            };
+            resizeHandle.MouseLeftButtonUp += (s, e) => {
+                isResizing = false;
+                resizeHandle.ReleaseMouseCapture();
+                e.Handled = true;
             };
 
             // 드래그 및 더블 클릭 수정 로직 (그룹 이동)
             bool isDragging = false;
             Point lastPos = new Point();
             
-            // 배지나 노트를 더블 클릭하면 편집 모드 재활성화
             MouseButtonEventHandler doubleClickEdit = (s, e) => {
                 if (e.ClickCount == 2) {
                     note.IsReadOnly = false;
-                    note.Background = new SolidColorBrush(Color.FromArgb(100, 0, 0, 0));
-                    note.BorderBrush = Brushes.White;
-                    note.BorderThickness = new Thickness(1);
+                    dashedBorder.Visibility = Visibility.Visible;
+                    resizeHandle.Visibility = Visibility.Visible;
                     btnPanel.Visibility = Visibility.Visible;
-                    SelectedObject = group; // [추가] 선택된 객체 설정
+                    SelectedObject = group; 
                     note.Focus();
                     e.Handled = true;
                 }
@@ -374,7 +429,7 @@ namespace CatchCapture.Utilities
             badge.MouseLeftButtonDown += (s, e) => {
                 isDragging = true;
                 lastPos = e.GetPosition(_canvas);
-                SelectedObject = group; // [추가] 선택된 객체 설정
+                SelectedObject = group; 
                 badge.CaptureMouse();
                 e.Handled = true;
             };
@@ -403,26 +458,52 @@ namespace CatchCapture.Utilities
 
         public void AddTextAt(Point p)
         {
+            // 텍스트 박스 컨테이너 (Grid)를 사용하여 점선 테두리와 리사이즈 핸들 배치
+            var nodeGrid = new Grid { MinWidth = 100, MinHeight = 30 };
+
             var textBox = new TextBox
             {
-                MinWidth = 100,
+                Width = 150, // 기본 너비
                 MinHeight = 30,
                 FontSize = TextFontSize,
                 Foreground = new SolidColorBrush(SelectedColor),
                 Background = Brushes.Transparent,
-                BorderBrush = new SolidColorBrush(Colors.DeepSkyBlue),
-                BorderThickness = new Thickness(2),
+                BorderThickness = new Thickness(0),
                 Padding = new Thickness(5),
                 TextWrapping = TextWrapping.Wrap,
                 AcceptsReturn = true
             };
+            
+            // 편집 모드에서의 점선 테두리
+            var dashedBorder = new Rectangle {
+                Stroke = new SolidColorBrush(Colors.DeepSkyBlue),
+                StrokeDashArray = new DoubleCollection { 3, 2 },
+                StrokeThickness = 1,
+                Fill = new SolidColorBrush(Color.FromArgb(20, 0, 0, 0)),
+                IsHitTestVisible = false
+            };
+            
+            // 리사이즈 핸들 (우측 하단)
+            var resizeHandle = new Rectangle {
+                Width = 10, Height = 10,
+                Fill = Brushes.White, Stroke = Brushes.DeepSkyBlue, StrokeThickness = 1,
+                Cursor = Cursors.SizeNWSE,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                VerticalAlignment = VerticalAlignment.Bottom,
+                Margin = new Thickness(0, 0, -2, -2)
+            };
+
+            nodeGrid.Children.Add(dashedBorder);
+            nodeGrid.Children.Add(textBox);
+            nodeGrid.Children.Add(resizeHandle);
+            
             ApplyTextStyleToTextBox(textBox);
 
             // 그룹화하여 버튼 함께 관리 (넘버링과 동일 스타일)
             var group = new Canvas { Background = Brushes.Transparent };
-            group.Children.Add(textBox);
-            Canvas.SetLeft(textBox, 0);
-            Canvas.SetTop(textBox, 0);
+            group.Children.Add(nodeGrid);
+            Canvas.SetLeft(nodeGrid, 0);
+            Canvas.SetTop(nodeGrid, 0);
 
             var btnPanel = new StackPanel { Orientation = Orientation.Horizontal };
             var confirmBtn = new Button { 
@@ -443,12 +524,11 @@ namespace CatchCapture.Utilities
             
             // 버튼 위치 동기화 로직
             void UpdateBtnPos() {
-                double w = double.IsNaN(textBox.Width) ? textBox.ActualWidth : textBox.Width;
-                if (w < 100) w = 100;
+                double w = nodeGrid.ActualWidth > 0 ? nodeGrid.ActualWidth : textBox.Width;
                 Canvas.SetLeft(btnPanel, w + 5);
                 Canvas.SetTop(btnPanel, 2);
             }
-            textBox.SizeChanged += (s, e) => UpdateBtnPos();
+            nodeGrid.SizeChanged += (s, e) => UpdateBtnPos();
 
             _canvas.Children.Add(group);
             Canvas.SetLeft(group, p.X);
@@ -456,11 +536,12 @@ namespace CatchCapture.Utilities
 
             _drawnElements.Add(group);
             _undoStack?.Push(group);
-            SelectedObject = group; // [추가] 생성 즉시 선택 상태로 설정
+            SelectedObject = group;
 
             confirmBtn.Click += (s, e) => {
                 textBox.IsReadOnly = true;
-                textBox.BorderThickness = new Thickness(0);
+                dashedBorder.Visibility = Visibility.Collapsed;
+                resizeHandle.Visibility = Visibility.Collapsed;
                 btnPanel.Visibility = Visibility.Collapsed;
                 textBox.Background = Brushes.Transparent;
                 group.Background = null;
@@ -469,6 +550,34 @@ namespace CatchCapture.Utilities
             deleteBtn.Click += (s, e) => {
                 _canvas.Children.Remove(group);
                 _drawnElements.Remove(group);
+            };
+
+            // 리사이즈 로직
+            bool isResizing = false;
+            Point lastResizePos = new Point();
+            resizeHandle.MouseLeftButtonDown += (s, e) => {
+                isResizing = true;
+                lastResizePos = e.GetPosition(_canvas);
+                resizeHandle.CaptureMouse();
+                e.Handled = true;
+            };
+            resizeHandle.MouseMove += (s, e) => {
+                if (isResizing) {
+                    Point currentPos = e.GetPosition(_canvas);
+                    double dx = currentPos.X - lastResizePos.X;
+                    double dy = currentPos.Y - lastResizePos.Y;
+                    
+                    textBox.Width = Math.Max(40, (double.IsNaN(textBox.Width) ? textBox.ActualWidth : textBox.Width) + dx);
+                    textBox.Height = Math.Max(30, (double.IsNaN(textBox.Height) ? textBox.ActualHeight : textBox.Height) + dy);
+                    
+                    lastResizePos = currentPos;
+                    e.Handled = true;
+                }
+            };
+            resizeHandle.MouseLeftButtonUp += (s, e) => {
+                isResizing = false;
+                resizeHandle.ReleaseMouseCapture();
+                e.Handled = true;
             };
 
             // 드래그 로직 (그룹 이동)
@@ -482,10 +591,10 @@ namespace CatchCapture.Utilities
                 if (e.ClickCount == 2)
                 {
                     textBox.IsReadOnly = false;
-                    textBox.BorderThickness = new Thickness(2);
-                    // 배경은 투명이라도 테두리가 생기므로 인식 가능
+                    dashedBorder.Visibility = Visibility.Visible;
+                    resizeHandle.Visibility = Visibility.Visible;
                     btnPanel.Visibility = Visibility.Visible;
-                    SelectedObject = group; // [추가] 선택된 객체 설정
+                    SelectedObject = group; 
                     textBox.Focus();
                     e.Handled = true;
                     return;
@@ -493,7 +602,7 @@ namespace CatchCapture.Utilities
                 
                 isDragging = true;
                 lastPos = e.GetPosition(_canvas);
-                SelectedObject = group; // [추가] 선택된 객체 설정
+                SelectedObject = group; 
                 group.CaptureMouse();
                 e.Handled = true;
             };
