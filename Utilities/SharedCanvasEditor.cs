@@ -321,9 +321,21 @@ namespace CatchCapture.Utilities
                 Margin = new Thickness(0, 0, -2, -2)
             };
 
+            // [추가] 이동 핸들 (상단 중앙)
+            var moveHandle = new Rectangle {
+                Width = 10, Height = 10,
+                Fill = Brushes.White, Stroke = new SolidColorBrush(Colors.DeepSkyBlue), StrokeThickness = 1,
+                Cursor = Cursors.SizeAll,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Top,
+                Margin = new Thickness(0, -5, 0, 0),
+                ToolTip = "위치 이동"
+            };
+
             noteGrid.Children.Add(dashedBorder);
             noteGrid.Children.Add(note);
             noteGrid.Children.Add(resizeHandle);
+            noteGrid.Children.Add(moveHandle);
             
             ApplyTextStyleToTextBox(note);
             
@@ -349,12 +361,16 @@ namespace CatchCapture.Utilities
             btnPanel.Children.Add(deleteBtn);
             group.Children.Add(btnPanel);
 
-            // 버튼 위치 동기화 로직
+            // 버튼 위치 동기화 로직 (노트 박스 위치와 크기에 연동)
             void UpdateBtnPos() {
-                double bWidth = badge.ActualWidth > 0 ? badge.ActualWidth : bSize;
-                double nWidth = noteGrid.ActualWidth > 0 ? noteGrid.ActualWidth : note.Width;
-                Canvas.SetLeft(btnPanel, bWidth + nWidth + 10);
-                Canvas.SetTop(btnPanel, 2);
+                double gl = Canvas.GetLeft(noteGrid);
+                double gt = Canvas.GetTop(noteGrid);
+                if (double.IsNaN(gl)) gl = 0;
+                if (double.IsNaN(gt)) gt = 0;
+
+                double nWidth = noteGrid.ActualWidth > 0 ? noteGrid.ActualWidth : (double.IsNaN(note.Width) ? 120 : note.Width);
+                Canvas.SetLeft(btnPanel, gl + nWidth + 6);
+                Canvas.SetTop(btnPanel, gt);
             }
             noteGrid.SizeChanged += (s, e) => UpdateBtnPos();
             badge.SizeChanged += (s, e) => UpdateBtnPos();
@@ -373,6 +389,7 @@ namespace CatchCapture.Utilities
                 note.IsReadOnly = true;
                 dashedBorder.Visibility = Visibility.Collapsed;
                 resizeHandle.Visibility = Visibility.Collapsed;
+                moveHandle.Visibility = Visibility.Collapsed;
                 btnPanel.Visibility = Visibility.Collapsed;
                 group.Background = null;
                 _isEditingNumbering = false;
@@ -415,6 +432,33 @@ namespace CatchCapture.Utilities
                 e.Handled = true;
             };
 
+            // [추가] 텍스트 박스 이동 로직 (그룹 내 상대 위치 이동)
+            bool isNoteMoving = false;
+            Point lastMovePos = new Point();
+            moveHandle.MouseLeftButtonDown += (s, e) => {
+                isNoteMoving = true;
+                lastMovePos = e.GetPosition(_canvas);
+                moveHandle.CaptureMouse();
+                e.Handled = true;
+            };
+            moveHandle.MouseMove += (s, e) => {
+                if (isNoteMoving) {
+                    Point currentPos = e.GetPosition(_canvas);
+                    double dx = currentPos.X - lastMovePos.X;
+                    double dy = currentPos.Y - lastMovePos.Y;
+                    Canvas.SetLeft(noteGrid, Canvas.GetLeft(noteGrid) + dx);
+                    Canvas.SetTop(noteGrid, Canvas.GetTop(noteGrid) + dy);
+                    lastMovePos = currentPos;
+                    UpdateBtnPos();
+                    e.Handled = true;
+                }
+            };
+            moveHandle.MouseLeftButtonUp += (s, e) => {
+                isNoteMoving = false;
+                moveHandle.ReleaseMouseCapture();
+                e.Handled = true;
+            };
+
             // 드래그 및 더블 클릭 수정 로직 (그룹 이동)
             bool isDragging = false;
             Point lastPos = new Point();
@@ -426,6 +470,7 @@ namespace CatchCapture.Utilities
                     note.IsReadOnly = false;
                     dashedBorder.Visibility = Visibility.Visible;
                     resizeHandle.Visibility = Visibility.Visible;
+                    moveHandle.Visibility = Visibility.Visible;
                     btnPanel.Visibility = Visibility.Visible;
                     SelectedObject = group; 
                     _isEditingNumbering = true;
