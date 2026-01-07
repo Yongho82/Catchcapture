@@ -3955,6 +3955,7 @@ public partial class MainWindow : Window
 
         previewWindow.Owner = this;
         previewWindow.Show();
+    
         return previewWindow;
     }
     private void ShowGuideMessage(string message, TimeSpan? duration = null)

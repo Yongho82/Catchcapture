@@ -23,6 +23,16 @@ namespace CatchCapture
             this.DataContext = item;
             UpdateUIText();
             LoadItem();
+
+            this.Loaded += (s, e) => {
+                // 창이 뜨자마자 뒤로 숨는 현상 방지
+                Dispatcher.BeginInvoke(new Action(() => {
+                    this.Activate();
+                    this.Focus();
+                    this.Topmost = true;
+                    this.Topmost = false;
+                }), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+            };
         }
 
         private void UpdateUIText()
@@ -149,9 +159,7 @@ namespace CatchCapture
                             }
                         }
                         
-                        // 창을 최상단으로 활성화 (태스크바에 머물지 않도록)
-                        this.Activate();
-                        this.Focus();
+                        // 창을 최상단으로 활성화 (태스크바에 머물지 않도록) - Loaded 이벤트에서 처리함
                     }
                 }
                 else
