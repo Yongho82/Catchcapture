@@ -20,7 +20,19 @@ namespace CatchCapture
             _imagePath = imagePath;
             LoadImage(imagePath);
             
+            UpdateUIText();
+
             this.KeyDown += (s, e) => { if (e.Key == Key.Escape) Close(); };
+
+            CatchCapture.Resources.LocalizationManager.LanguageChanged += (s, e) => UpdateUIText();
+        }
+
+        private void UpdateUIText()
+        {
+            if (TxtAppTitle != null) TxtAppTitle.Text = CatchCapture.Resources.LocalizationManager.GetString("ImageViewerTitle");
+            if (BtnZoomReset != null) BtnZoomReset.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("ImageViewerResetZoomTooltip");
+            if (BtnCopy != null) BtnCopy.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("ImageViewerCopyTooltip");
+            if (BtnSaveAs != null) BtnSaveAs.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("ImageViewerSaveAsTooltip");
         }
 
         private void LoadImage(string path)

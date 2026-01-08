@@ -276,20 +276,20 @@
                         <Popup x:Name="PopupFilter" PlacementTarget="{Binding ElementName=BtnAdvancedFilter}" StaysOpen="False" AllowsTransparency="True">
                             <Border Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="8" Padding="15" Width="300">
                                 <StackPanel>
-                                    <TextBlock Text="상세 필터" FontWeight="Bold" Margin="0,0,0,10" Foreground="{DynamicResource ThemeForeground}"/>
-                                    <TextBlock Text="날짜 필터" FontSize="11" Opacity="0.7" Margin="0,0,0,5" Foreground="{DynamicResource ThemeForeground}"/>
+                                    <TextBlock x:Name="TxtFilterTitle" Text="상세 필터" FontWeight="Bold" Margin="0,0,0,10" Foreground="{DynamicResource ThemeForeground}"/>
+                                    <TextBlock x:Name="TxtFilterDateLabel" Text="날짜 필터" FontSize="11" Opacity="0.7" Margin="0,0,0,5" Foreground="{DynamicResource ThemeForeground}"/>
                                     <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                                         <DatePicker x:Name="DateFrom" Width="120" Margin="0,0,5,0"/>
                                         <TextBlock Text="~" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="{DynamicResource ThemeForeground}"/>
                                         <DatePicker x:Name="DateTo" Width="120"/>
                                     </StackPanel>
-                                    <TextBlock Text="파일명" FontSize="11" Opacity="0.7" Margin="0,0,0,5" Foreground="{DynamicResource ThemeForeground}"/>
+                                    <TextBlock x:Name="TxtFilterFileNameLabel" Text="파일명" FontSize="11" Opacity="0.7" Margin="0,0,0,5" Foreground="{DynamicResource ThemeForeground}"/>
                                     <TextBox x:Name="TxtFilterFileName" Margin="0,0,0,10" Height="28" Padding="5,4"/>
-                                    <TextBlock Text="파일 종류" FontSize="11" Opacity="0.7" Margin="0,0,0,5" Foreground="{DynamicResource ThemeForeground}"/>
+                                    <TextBlock x:Name="TxtFilterFileTypeLabel" Text="파일 종류" FontSize="11" Opacity="0.7" Margin="0,0,0,5" Foreground="{DynamicResource ThemeForeground}"/>
                                     <ComboBox x:Name="CmbFileType" Height="28" Margin="0,0,0,15">
-                                        <ComboBoxItem Content="전체" IsSelected="True"/>
-                                        <ComboBoxItem Content="이미지 (JPG, PNG, BMP, GIF, WEBP)"/>
-                                        <ComboBoxItem Content="미디어 (MP4, MP3)"/>
+                                        <ComboBoxItem x:Name="CbiTypeAll" Content="전체" IsSelected="True"/>
+                                        <ComboBoxItem x:Name="CbiTypeImage" Content="이미지 (JPG, PNG, BMP, GIF, WEBP)"/>
+                                        <ComboBoxItem x:Name="CbiTypeMedia" Content="미디어 (MP4, MP3)"/>
                                     </ComboBox>
                                     <Button x:Name="BtnApplyAdvancedFilter" Click="BtnApplyAdvancedFilter_Click" Content="필터 적용" Height="32" Background="#1A73E8" Foreground="White" BorderThickness="0" Cursor="Hand">
                                         <Button.Resources>

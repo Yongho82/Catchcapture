@@ -76,7 +76,11 @@ namespace CatchCapture
                 InitializeTips();
                 InitializeTipTimer();
                 
-                CatchCapture.Resources.LocalizationManager.LanguageChanged += (s, e) => InitializeTips();
+                CatchCapture.Resources.LocalizationManager.LanguageChanged += (s, e) => 
+                {
+                    InitializeTips();
+                    UpdateUIText();
+                };
 
                 // Restore View Mode
                 var settings = Models.Settings.Load();
@@ -323,6 +327,16 @@ namespace CatchCapture
             // XAML has ColMemo at line 629. So we should update it.
             if (ColMemo != null) ColMemo.Header = LocalizationManager.GetString("HistoryColMemo") ?? "메모";
             if (ColActions != null) ColActions.Header = LocalizationManager.GetString("HistoryColActions") ?? "작업";
+
+            // Localize Filter Popup
+            if (TxtFilterTitle != null) TxtFilterTitle.Text = LocalizationManager.GetString("HistoryFilterTitle");
+            if (TxtFilterDateLabel != null) TxtFilterDateLabel.Text = LocalizationManager.GetString("HistoryFilterDate");
+            if (TxtFilterFileNameLabel != null) TxtFilterFileNameLabel.Text = LocalizationManager.GetString("HistoryFilterFileName");
+            if (TxtFilterFileTypeLabel != null) TxtFilterFileTypeLabel.Text = LocalizationManager.GetString("HistoryFilterFileType");
+            if (CbiTypeAll != null) CbiTypeAll.Content = LocalizationManager.GetString("HistoryFilterTypeAll");
+            if (CbiTypeImage != null) CbiTypeImage.Content = LocalizationManager.GetString("HistoryFilterTypeImage");
+            if (CbiTypeMedia != null) CbiTypeMedia.Content = LocalizationManager.GetString("HistoryFilterTypeMedia");
+            if (BtnApplyAdvancedFilter != null) BtnApplyAdvancedFilter.Content = LocalizationManager.GetString("HistoryFilterApply");
         }
 
         private void InitializeTips()

@@ -869,4 +869,17 @@
   <data name="HistoryColActions" xml:space="preserve"><value>작업</value></data>
   <data name="HistoryTitle" xml:space="preserve"><value>히스토리</value></data>
   <data name="History" xml:space="preserve"><value>히스토리</value></data>
+  <data name="HistoryFilterTitle" xml:space="preserve"><value>상세 필터</value></data>
+  <data name="HistoryFilterDate" xml:space="preserve"><value>날짜 필터</value></data>
+  <data name="HistoryFilterFileName" xml:space="preserve"><value>파일명</value></data>
+  <data name="HistoryFilterFileType" xml:space="preserve"><value>파일 종류</value></data>
+  <data name="HistoryFilterTypeAll" xml:space="preserve"><value>전체</value></data>
+  <data name="HistoryFilterTypeImage" xml:space="preserve"><value>이미지 (JPG, PNG, BMP, GIF, WEBP)</value></data>
+  <data name="HistoryFilterTypeMedia" xml:space="preserve"><value>미디어 (MP4, MP3)</value></data>
+  <data name="HistoryFilterApply" xml:space="preserve"><value>필터 적용</value></data>
+  <data name="ImageViewerTitle" xml:space="preserve"><value>캐치캡처 - 뷰어</value></data>
+  <data name="ImageViewerDefaultText" xml:space="preserve"><value>이미지 뷰어</value></data>
+  <data name="ImageViewerResetZoomTooltip" xml:space="preserve"><value>줌 초기화 (1:1)</value></data>
+  <data name="ImageViewerCopyTooltip" xml:space="preserve"><value>클립보드에 복사</value></data>
+  <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>다른 이름으로 저장</value></data>
 </root>
