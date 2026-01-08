@@ -158,6 +158,13 @@ namespace CatchCapture
             _editorManager.ElementAdded += (element) => {
                 SaveForUndo();
                 if (element is FrameworkElement fe) CreateLayerForElement(fe);
+                
+                // [New] Auto-select if it's a shape (including Line/Arrow) or text
+                // This puts the user in "Edit Mode" immediately
+                if (element is Shape || (element is Canvas c && c.Children.Count > 0)) 
+                {
+                   SelectObject(element);
+                }
             };
             _editorManager.MosaicRequired += (rect) => ApplyMosaic(rect);
 
@@ -229,7 +236,22 @@ namespace CatchCapture
                 }
                 else
                 {
-                    endPoint = new Point(Canvas.GetLeft(shape) + shape.Width, Canvas.GetTop(shape) + shape.Height);
+                    // [Fix] Calculate EndPoint based on StartPoint and Bounds to preserve drag direction
+                    double left = Canvas.GetLeft(shape);
+                    double top = Canvas.GetTop(shape);
+                    double right = left + shape.Width;
+                    double bottom = top + shape.Height;
+                    
+                    // If StartPoint matches a boundary, EndPoint is the opposite
+                    // Using epsilon for float comparison safety
+                    double ex = (Math.Abs(startPoint.X - left) < 1.0) ? right : left;
+                    double ey = (Math.Abs(startPoint.Y - top) < 1.0) ? bottom : top;
+                    
+                    // Fallback if startPoint is weird (e.g. center?) -> default to BottomRight
+                    if (Math.Abs(startPoint.X - left) > 1.0 && Math.Abs(startPoint.X - right) > 1.0) ex = right;
+                    if (Math.Abs(startPoint.Y - top) > 1.0 && Math.Abs(startPoint.Y - bottom) > 1.0) ey = bottom;
+                    
+                    endPoint = new Point(ex, ey);
                 }
 
                 double rotation = 0;
@@ -325,8 +347,24 @@ namespace CatchCapture
                     var bounds = InteractiveEditor.GetElementBounds(element);
                     if (layer.Type == DrawingLayerType.Shape)
                     {
-                        layer.StartPoint = new Point(bounds.Left, bounds.Top);
-                        layer.EndPoint = new Point(bounds.Right, bounds.Bottom);
+                        // [Fix] Handle Line and Arrow specifically to preserve coordinates/direction
+                        if (element is Line line)
+                        {
+                            layer.StartPoint = new Point(line.X1, line.Y1);
+                            layer.EndPoint = new Point(line.X2, line.Y2);
+                        }
+                        else if (element is Canvas arrowCanvas && layer.ShapeType == ShapeType.Arrow)
+                        {
+                             // Arrow coordinates are managed by InteractiveEditor/ShapeDrawingHelper directly in metadata/layer.
+                             // We don't overwrite them with 'bounds' here because 'bounds' is a bounding box (rect), losing the arrow direction.
+                             // Trust the existing layer values or what was set during Move/Resize.
+                        }
+                        else
+                        {
+                            // Rectangle, Ellipse
+                            layer.StartPoint = new Point(bounds.Left, bounds.Top);
+                            layer.EndPoint = new Point(bounds.Right, bounds.Bottom);
+                        }
                     }
                     else if (layer.Type == DrawingLayerType.Pen || layer.Type == DrawingLayerType.Highlight)
                     {
