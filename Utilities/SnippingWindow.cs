@@ -2708,7 +2708,11 @@ namespace CatchCapture.Utilities
             // [추가] 도형 등 일반 요소인 경우 다시 보이게 함
             if (objectSelectionBorder != null) objectSelectionBorder.Visibility = Visibility.Visible;
             if (objectConfirmButton != null) objectConfirmButton.Visibility = Visibility.Visible;
-            if (objectCopyButton != null) objectCopyButton.Visibility = Visibility.Visible;
+            if (objectCopyButton != null)
+            {
+                // [수정] 펜/형광펜(Polyline)은 복사 버튼을 숨김
+                objectCopyButton.Visibility = (selectedObject is Polyline) ? Visibility.Collapsed : Visibility.Visible;
+            }
             if (objectDeleteButton != null) objectDeleteButton.Visibility = Visibility.Visible;
 
             Rect bounds = InteractiveEditor.GetElementBounds(selectedObject);
