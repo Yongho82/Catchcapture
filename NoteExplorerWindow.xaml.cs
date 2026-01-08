@@ -850,6 +850,19 @@ namespace CatchCapture
                 TxtPreviewDate.Text = note.CreatedAt.ToString("yyyy-MM-dd HH:mm");
                 PreviewTags.ItemsSource = note.Tags;
                 PreviewAttachments.ItemsSource = note.Attachments;
+
+                // Update Main Image Info
+                if (note.ImageFilePaths != null && note.ImageFilePaths.Count > 0)
+                {
+                    string firstPath = note.ImageFilePaths[0];
+                    if (TxtMainImageName != null) TxtMainImageName.Text = System.IO.Path.GetFileName(firstPath);
+                    if (BtnOpenImageFolder != null) BtnOpenImageFolder.Tag = firstPath;
+                    if (PnlImageInfo != null) PnlImageInfo.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    if (PnlImageInfo != null) PnlImageInfo.Visibility = Visibility.Collapsed;
+                }
                 
                 // Use FlowDocument to show EXACT interleaved order (matches Viewer)
                 if (!string.IsNullOrEmpty(note.ContentXaml))
@@ -1112,6 +1125,20 @@ namespace CatchCapture
                         }
                      }
                 };
+            }
+        }
+
+
+        private void BtnOpenImageFolder_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is string path && System.IO.File.Exists(path))
+            {
+                try
+                {
+                    // Open folder and select file
+                    System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{path}\"");
+                }
+                catch { }
             }
         }
 
