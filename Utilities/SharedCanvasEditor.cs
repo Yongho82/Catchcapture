@@ -150,6 +150,33 @@ namespace CatchCapture.Utilities
             }
         }
 
+        private void FinalizeActiveTextEditing()
+        {
+            if (SelectedObject is Canvas group)
+            {
+                var tb = FindTextBox(group);
+                if (tb != null && !tb.IsReadOnly)
+                {
+                    tb.IsReadOnly = true;
+                    // 내부 UI 요소들을 찾아서 숨깁니다.
+                    foreach (var child in LogicalTreeHelper.GetChildren(group))
+                    {
+                        if (child is Grid grid)
+                        {
+                            foreach (var gChild in grid.Children)
+                            {
+                                if (gChild is Rectangle r && (r.StrokeDashArray != null || r.Cursor == Cursors.SizeNWSE || r.Cursor == Cursors.SizeAll))
+                                    r.Visibility = Visibility.Collapsed;
+                            }
+                        }
+                        if (child is StackPanel panel) panel.Visibility = Visibility.Collapsed;
+                    }
+                    group.Background = null;
+                    _isEditingNumbering = false;
+                }
+            }
+        }
+
         public void UpdateDrawing(Point currentPoint)
         {
             if (CurrentTool == "도형" && _isDrawingShape && _tempShape != null)
@@ -257,6 +284,9 @@ namespace CatchCapture.Utilities
 
         public void CreateNumberingAt(Point p)
         {
+            // [추가] 다른 것이 편집 중이라면 확정 처리
+            FinalizeActiveTextEditing();
+
             // [제약] 이미 편집 중인 넘버링이 있으면 추가 생성 막기
             if (_isEditingNumbering) return;
 
@@ -407,7 +437,18 @@ namespace CatchCapture.Utilities
                 _isEditingNumbering = false;
             };
 
+            void InternalConfirm() {
+                note.IsReadOnly = true;
+                dashedBorder.Visibility = Visibility.Collapsed;
+                resizeHandle.Visibility = Visibility.Collapsed;
+                moveHandle.Visibility = Visibility.Collapsed;
+                btnPanel.Visibility = Visibility.Collapsed;
+                group.Background = null;
+                _isEditingNumbering = false;
+            }
+
             copyBtn.Click += (s, e) => {
+                InternalConfirm(); // 원본 확정
                 Point currentPos = new Point(Canvas.GetLeft(group), Canvas.GetTop(group));
                 CreateNumberingAt(new Point(currentPos.X + 30, currentPos.Y + 30));
                 // 복사된 텍스트박스에는 현재 내용 복사 (필요시)
@@ -535,6 +576,9 @@ namespace CatchCapture.Utilities
 
         public void AddTextAt(Point p, string initialText = "")
         {
+            // [추가] 다른 것이 편집 중이라면 확정 처리
+            FinalizeActiveTextEditing();
+
             // [개선] 이미 선택된 텍스트박스가 있고 내용이 비어있는 편집 상태라면, 새로 만들지 않고 위치만 이동
             if (SelectedObject is Canvas existingGroup)
             {
@@ -669,7 +713,17 @@ namespace CatchCapture.Utilities
                 group.Background = null;
             };
 
+            void InternalConfirm() {
+                textBox.IsReadOnly = true;
+                dashedBorder.Visibility = Visibility.Collapsed;
+                resizeHandle.Visibility = Visibility.Collapsed;
+                moveHandle.Visibility = Visibility.Collapsed;
+                btnPanel.Visibility = Visibility.Collapsed;
+                group.Background = null;
+            }
+
             copyBtn.Click += (s, e) => {
+                InternalConfirm(); // 원본 확정
                 Point currentPos = new Point(Canvas.GetLeft(group), Canvas.GetTop(group));
                 AddTextAt(new Point(currentPos.X + 20, currentPos.Y + 20), textBox.Text);
             };
