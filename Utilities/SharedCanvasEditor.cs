@@ -518,6 +518,22 @@ namespace CatchCapture.Utilities
 
         public void AddTextAt(Point p, string initialText = "")
         {
+            // [개선] 이미 선택된 텍스트박스가 있고 내용이 비어있는 편집 상태라면, 새로 만들지 않고 위치만 이동
+            if (SelectedObject is Canvas existingGroup)
+            {
+                var existingTb = FindTextBox(existingGroup);
+                // 넘버링이 아닌 순수 텍스트박스인지 확인 (첫 번째 자식이 Border가 아님)
+                bool isPureText = existingGroup.Children.Count > 0 && !(existingGroup.Children[0] is Border);
+                
+                if (isPureText && existingTb != null && !existingTb.IsReadOnly && string.IsNullOrWhiteSpace(existingTb.Text))
+                {
+                    Canvas.SetLeft(existingGroup, p.X);
+                    Canvas.SetTop(existingGroup, p.Y);
+                    existingTb.Focus();
+                    return;
+                }
+            }
+
             // [통일화] 넘버링 텍스트박스와 동일한 구조 (배지 제외)
             var group = new Canvas { Background = Brushes.Transparent };
             
@@ -532,7 +548,7 @@ namespace CatchCapture.Utilities
                 // [통일] 넘버링 색상 사용 요청 반영 (또는 기존 텍스트 색상 유지)
                 // 사용자가 "기본 셋팅값이 달라... 넘버링이랑 통일해줘"라고 했으므로 넘버링 스타일을 기본으로 하되, 폰트 크기는 TextFontSize 사용
                 FontSize = TextFontSize,
-                Foreground = new SolidColorBrush(NumberingNoteColor), // [변경] 통일성 위해 NumberingNoteColor 사용 (보통 흰색)
+                Foreground = new SolidColorBrush(SelectedColor), // [수정] 텍스트 도구는 SelectedColor 사용
                 Background = Brushes.Transparent,
                 BorderThickness = new Thickness(0),
                 VerticalContentAlignment = VerticalAlignment.Top,
@@ -821,10 +837,10 @@ namespace CatchCapture.Utilities
             if (tb != null)
             {
                 ApplyTextStyleToTextBox(tb);
-                tb.FontSize = (CurrentTool == "넘버링" || CurrentTool == "텍스트") ? NumberingTextSize : TextFontSize; // 폰트 사이즈도 넘버링 사이즈 공유? 아니면 TextFontSize 유지? 사용자가 넘버링과 똑같이 해달라고 했으니 사이즈는 일단 각자 유지하되 색상은 통일
-                // 사용자 요청: "기본 셋팅값이 달라... 넘버링에 나오는 텍스트 박스랑 통일 해달라는거야"
-                // 따라서 색상은 NumberingNoteColor로 통일
-                tb.Foreground = new SolidColorBrush((CurrentTool == "넘버링" || CurrentTool == "텍스트") ? NumberingNoteColor : SelectedColor);
+                tb.FontSize = (CurrentTool == "넘버링") ? NumberingTextSize : TextFontSize;
+                
+                // [수정] 넘버링일 때만 NumberingNoteColor 사용, 일반 텍스트는 SelectedColor 사용
+                tb.Foreground = new SolidColorBrush((CurrentTool == "넘버링") ? NumberingNoteColor : SelectedColor);
                 
                 // [추가] 통합 줄 간격(LineHeight) 적용 (넘버링/텍스트 공통)
                 double lineHeight = tb.FontSize * LineHeightMultiplier;
