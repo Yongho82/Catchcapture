@@ -5225,6 +5225,18 @@ public partial class MainWindow : Window
         if (BtnLockSettings != null) BtnLockSettings.Content = LocalizationManager.GetString("ChangeStorageSettings") ?? "공유 폴더 설정 변경";
         
         if (TakeoverStatusText != null) TakeoverStatusText.Text = LocalizationManager.GetString("TakeoverProgress") ?? "저장소 권한을 안전하게 가져오고 있습니다";
+
+        // Big Empty State Buttons Localization
+        if (BigOpenNoteButton != null)
+        {
+            SetButtonText(BigOpenNoteButton, LocalizationManager.GetString("MyNote"));
+            BigOpenNoteButton.ToolTip = LocalizationManager.GetString("OpenMyNote");
+        }
+        if (BigHistoryButton != null)
+        {
+            SetButtonText(BigHistoryButton, LocalizationManager.GetString("History"));
+            BigHistoryButton.ToolTip = LocalizationManager.GetString("OpenHistory");
+        }
     }
     private void UpdateTrayMenuTexts()
     {

@@ -868,4 +868,5 @@
   <data name="HistoryColMemo" xml:space="preserve"><value>메모</value></data>
   <data name="HistoryColActions" xml:space="preserve"><value>작업</value></data>
   <data name="HistoryTitle" xml:space="preserve"><value>히스토리</value></data>
+  <data name="History" xml:space="preserve"><value>히스토리</value></data>
 </root>
