@@ -238,8 +238,28 @@ namespace CatchCapture
             }
             else if (element is Canvas groupCanvas)
             {
-                // 넘버링 등은 일단 Shape나 Custom으로 처리하거나 별도 타입 추가 가능
-                // 여기서는 일단 Shape 기본값으로 저장 (추후 확장)
+                // [추가] 새로운 Canvas 기반 텍스트/넘버링 지원
+                var tb = _editorManager.FindTextBox(groupCanvas);
+                if (tb != null)
+                {
+                    bool isNumbering = groupCanvas.Children.Count > 0 && groupCanvas.Children[0] is Border;
+                    
+                    layer = new CatchCapture.Models.DrawingLayer
+                    {
+                        Type = DrawingLayerType.Text, // 우선 둘 다 Text로 처리 (나중에 필요시 별도 enum 추가)
+                        Text = tb.Text,
+                        TextPosition = new Point(Canvas.GetLeft(groupCanvas), Canvas.GetTop(groupCanvas)),
+                        Color = (tb.Foreground is SolidColorBrush scb) ? scb.Color : Colors.White,
+                        FontSize = tb.FontSize,
+                        FontFamily = tb.FontFamily.Source,
+                        FontWeight = tb.FontWeight,
+                        FontStyle = tb.FontStyle,
+                        HasUnderline = tb.TextDecorations != null && tb.TextDecorations.Count > 0,
+                        HasShadow = tb.Effect is System.Windows.Media.Effects.DropShadowEffect,
+                        IsInteractive = true,
+                        LayerId = nextLayerId++
+                    };
+                }
             }
 
             if (layer != null)
@@ -265,6 +285,19 @@ namespace CatchCapture
                     else if (layer.Type == DrawingLayerType.Pen || layer.Type == DrawingLayerType.Highlight)
                     {
                         if (element is Polyline p) layer.Points = p.Points.ToArray();
+                    }
+                    else if (layer.Type == DrawingLayerType.Text)
+                    {
+                        var tb = _editorManager.FindTextBox(element);
+                        if (tb != null)
+                        {
+                            layer.Text = tb.Text;
+                            layer.TextPosition = new Point(Canvas.GetLeft(element), Canvas.GetTop(element));
+                            layer.FontSize = tb.FontSize;
+                            if (tb.Foreground is SolidColorBrush scb) layer.Color = scb.Color;
+                            layer.HasUnderline = tb.TextDecorations != null && tb.TextDecorations.Count > 0;
+                            layer.HasShadow = tb.Effect is System.Windows.Media.Effects.DropShadowEffect;
+                        }
                     }
                 }
             }
@@ -742,7 +775,7 @@ namespace CatchCapture
                                 if (double.IsNaN(left)) left = 0;
                                 if (double.IsNaN(top)) top = 0;
 
-                                var formattedText = new FormattedText(
+                                var ft = new FormattedText(
                                     textBox.Text,
                                     System.Globalization.CultureInfo.CurrentCulture,
                                     FlowDirection.LeftToRight,
@@ -751,14 +784,41 @@ namespace CatchCapture
                                     textBox.Foreground,
                                     VisualTreeHelper.GetDpi(this).PixelsPerDip);
 
-                                // [Fix] Handle Text Wrapping
+                                // [개선] 밑줄 및 줄 간격 반영
+                                if (textBox.TextDecorations != null) ft.SetTextDecorations(textBox.TextDecorations);
+                                double lineHeight = TextBlock.GetLineHeight(textBox);
+                                if (lineHeight > 0 && !double.IsNaN(lineHeight)) ft.LineHeight = lineHeight;
+
                                 double tbWidth = double.IsNaN(textBox.Width) ? textBox.ActualWidth : textBox.Width;
                                 if (tbWidth > 0)
                                 {
-                                    formattedText.MaxTextWidth = Math.Max(1, tbWidth - textBox.Padding.Left - textBox.Padding.Right);
+                                    ft.MaxTextWidth = Math.Max(1, tbWidth - textBox.Padding.Left - textBox.Padding.Right);
                                 }
 
-                                dc.DrawText(formattedText, new Point(left + textBox.Padding.Left, top + textBox.Padding.Top));
+                                // [개선] 그림자 효과 반영 (그림자가 활성화된 경우 살짝 오프셋하여 배경에 그림자 그림)
+                                Point drawPos = new Point(left + textBox.Padding.Left, top + textBox.Padding.Top);
+                                if (textBox.Effect is System.Windows.Media.Effects.DropShadowEffect shadow)
+                                {
+                                    var shadowFt = new FormattedText(
+                                        textBox.Text,
+                                        System.Globalization.CultureInfo.CurrentCulture,
+                                        FlowDirection.LeftToRight,
+                                        new Typeface(textBox.FontFamily, textBox.FontStyle, textBox.FontWeight, textBox.FontStretch),
+                                        textBox.FontSize,
+                                        new SolidColorBrush(shadow.Color) { Opacity = shadow.Opacity },
+                                        VisualTreeHelper.GetDpi(this).PixelsPerDip);
+                                    
+                                    if (tbWidth > 0) shadowFt.MaxTextWidth = ft.MaxTextWidth;
+                                    if (lineHeight > 0 && !double.IsNaN(lineHeight)) shadowFt.LineHeight = lineHeight;
+                                    
+                                    // 그림자 오프셋 계산
+                                    double rad = shadow.Direction * (Math.PI / 180.0);
+                                    double shadowX = Math.Cos(rad) * shadow.ShadowDepth;
+                                    double shadowY = -Math.Sin(rad) * shadow.ShadowDepth;
+                                    dc.DrawText(shadowFt, new Point(drawPos.X + shadowX, drawPos.Y + shadowY));
+                                }
+
+                                dc.DrawText(ft, drawPos);
                             }
                             else if (element is Canvas groupCanvas)
                             {
@@ -825,26 +885,54 @@ namespace CatchCapture
                                         {
                                             if (grandChild.Visibility != Visibility.Visible) continue;
 
-                                            if (grandChild is TextBox gtb)
-                                            {
-                                                if (string.IsNullOrWhiteSpace(gtb.Text)) continue;
+                                             if (grandChild is TextBox gtb)
+                                             {
+                                                 if (string.IsNullOrWhiteSpace(gtb.Text)) continue;
 
-                                                var ft = new FormattedText(
-                                                    gtb.Text,
-                                                    System.Globalization.CultureInfo.CurrentCulture,
-                                                    FlowDirection.LeftToRight,
-                                                    new Typeface(gtb.FontFamily, gtb.FontStyle, gtb.FontWeight, gtb.FontStretch),
-                                                    gtb.FontSize,
-                                                    gtb.Foreground,
-                                                    VisualTreeHelper.GetDpi(this).PixelsPerDip);
+                                                 var ft = new FormattedText(
+                                                     gtb.Text,
+                                                     System.Globalization.CultureInfo.CurrentCulture,
+                                                     FlowDirection.LeftToRight,
+                                                     new Typeface(gtb.FontFamily, gtb.FontStyle, gtb.FontWeight, gtb.FontStretch),
+                                                     gtb.FontSize,
+                                                     gtb.Foreground,
+                                                     VisualTreeHelper.GetDpi(this).PixelsPerDip);
 
-                                                double gtbWidth = double.IsNaN(gtb.Width) ? gtb.ActualWidth : gtb.Width;
-                                                if (gtbWidth > 0)
-                                                {
-                                                    ft.MaxTextWidth = Math.Max(1, gtbWidth - gtb.Padding.Left - gtb.Padding.Right);
-                                                }
-                                                dc.DrawText(ft, new Point(gtb.Padding.Left, gtb.Padding.Top));
-                                            }
+                                                 // [개선] 밑줄 및 줄 간격 반영
+                                                 if (gtb.TextDecorations != null) ft.SetTextDecorations(gtb.TextDecorations);
+                                                 double lineHeight = TextBlock.GetLineHeight(gtb);
+                                                 if (lineHeight > 0 && !double.IsNaN(lineHeight)) ft.LineHeight = lineHeight;
+
+                                                 double gtbWidth = double.IsNaN(gtb.Width) ? gtb.ActualWidth : gtb.Width;
+                                                 if (gtbWidth > 0)
+                                                 {
+                                                     ft.MaxTextWidth = Math.Max(1, gtbWidth - gtb.Padding.Left - gtb.Padding.Right);
+                                                 }
+
+                                                 // [개선] 그림자 효과 반영
+                                                 Point drawPos = new Point(gtb.Padding.Left, gtb.Padding.Top);
+                                                 if (gtb.Effect is System.Windows.Media.Effects.DropShadowEffect shadow)
+                                                 {
+                                                     var shadowFt = new FormattedText(
+                                                         gtb.Text,
+                                                         System.Globalization.CultureInfo.CurrentCulture,
+                                                         FlowDirection.LeftToRight,
+                                                         new Typeface(gtb.FontFamily, gtb.FontStyle, gtb.FontWeight, gtb.FontStretch),
+                                                         gtb.FontSize,
+                                                         new SolidColorBrush(shadow.Color) { Opacity = shadow.Opacity },
+                                                         VisualTreeHelper.GetDpi(this).PixelsPerDip);
+                                                     
+                                                     if (gtbWidth > 0) shadowFt.MaxTextWidth = ft.MaxTextWidth;
+                                                     if (lineHeight > 0 && !double.IsNaN(lineHeight)) shadowFt.LineHeight = lineHeight;
+                                                     
+                                                     double rad = shadow.Direction * (Math.PI / 180.0);
+                                                     double shadowX = Math.Cos(rad) * shadow.ShadowDepth;
+                                                     double shadowY = -Math.Sin(rad) * shadow.ShadowDepth;
+                                                     dc.DrawText(shadowFt, new Point(drawPos.X + shadowX, drawPos.Y + shadowY));
+                                                 }
+
+                                                 dc.DrawText(ft, drawPos);
+                                             }
                                             else if (grandChild is TextBlock gtb2)
                                             {
                                                 var ft = new FormattedText(
@@ -1670,7 +1758,9 @@ namespace CatchCapture
                 }
                 else if (layer.Type == CatchCapture.Models.DrawingLayerType.Text)
                 {
-                    element = RecreateTextBoxFromLayer(layer);
+                    // [수정] 새로운 방식의 Canvas 기반 텍스트박스 합성을 위해 _editorManager 사용 고려
+                    // 하지만 SyncDrawnElementsFromLayers 내부에서 ElementAdded 이벤트를 피하기 위해 직접 생성
+                    element = RecreateTextBoxGroupFromLayer(layer);
                 }
                 else if (layer.Type == CatchCapture.Models.DrawingLayerType.Pen || layer.Type == CatchCapture.Models.DrawingLayerType.Highlight)
                 {
@@ -1699,8 +1789,12 @@ namespace CatchCapture
             }
         }
 
-        private TextBox RecreateTextBoxFromLayer(CatchCapture.Models.DrawingLayer layer)
+        private UIElement RecreateTextBoxGroupFromLayer(CatchCapture.Models.DrawingLayer layer)
         {
+            // SharedCanvasEditor.AddTextAt의 로직을 참고하여 Canvas 그룹 직접 생성 (이벤트 루프 방지)
+            var group = new Canvas { Background = Brushes.Transparent };
+            var nodeGrid = new Grid { MinWidth = 100, MinHeight = 30 };
+            
             var textBox = new TextBox
             {
                 Text = layer.Text,
@@ -1708,29 +1802,50 @@ namespace CatchCapture
                 FontFamily = new FontFamily(layer.FontFamily),
                 Foreground = new SolidColorBrush(layer.Color),
                 Background = Brushes.Transparent,
-                BorderBrush = Brushes.Transparent,
                 BorderThickness = new Thickness(0),
+                VerticalContentAlignment = VerticalAlignment.Top,
                 Padding = new Thickness(5),
                 TextWrapping = TextWrapping.Wrap,
                 AcceptsReturn = true,
+                IsReadOnly = true,
                 FontWeight = layer.FontWeight,
                 FontStyle = layer.FontStyle,
-                IsReadOnly = true,
-                Cursor = Cursors.Arrow,
-                Tag = layer
+                TextDecorations = layer.HasUnderline ? TextDecorations.Underline : null,
+                Effect = layer.HasShadow ? new System.Windows.Media.Effects.DropShadowEffect
+                {
+                    Color = Colors.Black,
+                    BlurRadius = 2,
+                    ShadowDepth = 1,
+                    Opacity = 0.5
+                } : null
             };
 
-            Canvas.SetLeft(textBox, layer.TextPosition?.X ?? 0);
-            Canvas.SetTop(textBox, layer.TextPosition?.Y ?? 0);
-            
-            // 이벤트 재연결
-            textBox.PreviewMouseLeftButtonDown += TextBox_PreviewMouseLeftButtonDown;
-            textBox.PreviewMouseMove += TextBox_PreviewMouseMove;
-            textBox.PreviewMouseLeftButtonUp += TextBox_PreviewMouseLeftButtonUp;
-            textBox.MouseDoubleClick += TextBox_MouseDoubleClick;
-            textBox.GotFocus += TextBox_GotFocus;
+            // 줄 간격 복원 (SharedCanvasEditor의 기본값 배율 1.5 사용)
+            double lineHeight = textBox.FontSize * 1.5; // 기본 배율 1.5로 통일
+            TextBlock.SetLineHeight(textBox, lineHeight);
+            TextBlock.SetLineStackingStrategy(textBox, LineStackingStrategy.BlockLineHeight);
 
-            return textBox;
+            var dashedBorder = new Rectangle {
+                Stroke = Brushes.White,
+                StrokeDashArray = new DoubleCollection { 3, 2 },
+                StrokeThickness = 1,
+                Fill = new SolidColorBrush(Color.FromArgb(40, 0, 0, 0)),
+                IsHitTestVisible = false,
+                Visibility = Visibility.Collapsed
+            };
+            
+            nodeGrid.Children.Add(dashedBorder);
+            nodeGrid.Children.Add(textBox);
+            group.Children.Add(nodeGrid);
+            
+            Canvas.SetLeft(group, layer.TextPosition?.X ?? 0);
+            Canvas.SetTop(group, layer.TextPosition?.Y ?? 0);
+            
+            // 공유 에디터에서 정의한 핸들러는 element.Tag를 통해 연결하거나, 
+            // 나중에 SelectObject 시 SharedCanvasEditor의 이벤트를 수동으로 붙여줘야 할 수 있음
+            // 하지만 여기서는 렌더링/데이터 보존이 우선
+            
+            return group;
         }
 
         private void UpdateUndoRedoButtons()

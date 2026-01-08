@@ -44,10 +44,8 @@ namespace CatchCapture
                 case EditMode.Shape:
                 case EditMode.Mosaic:
                 case EditMode.Numbering:
+                case EditMode.Text: // [추가] 텍스트 모드도 EditorManager가 담당
                     _editorManager.StartDrawing(clickPoint, e.OriginalSource);
-                    break;
-                case EditMode.Text:
-                    AddText();
                     break;
                 case EditMode.MagicWand:
                     StartMagicWandSelection();

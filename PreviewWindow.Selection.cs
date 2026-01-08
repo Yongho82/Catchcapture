@@ -37,19 +37,18 @@ namespace CatchCapture
             if (clickedElement != null)
             {
                 SelectObject(clickedElement);
-                if (clickedElement is not TextBox) // 텍스트박스는 자체 드래그 로직 사용
-                {
-                    SaveForUndo(); // 드래그 전 상태 저장
-                    isDraggingObject = true;
-                    objectDragLastPoint = clickPoint;
-                    ImageCanvas.CaptureMouse();
-                    
-                    ImageCanvas.MouseMove -= Preview_SelectMouseMove;
-                    ImageCanvas.MouseMove += Preview_SelectMouseMove;
-                    ImageCanvas.MouseLeftButtonUp -= Preview_SelectMouseUp;
-                    ImageCanvas.MouseLeftButtonUp += Preview_SelectMouseUp;
-                    ImageCanvas.LostMouseCapture -= (s, ev) => { isDraggingObject = false; };
-                }
+                // 모든 인터랙티브 요소는 이제 공통 드래그 로직 또는 자체 핸들을 사용합니다.
+                // (기존 TextBox 전용 예외 제거)
+                SaveForUndo(); // 드래그 전 상태 저장
+                isDraggingObject = true;
+                objectDragLastPoint = clickPoint;
+                ImageCanvas.CaptureMouse();
+                
+                ImageCanvas.MouseMove -= Preview_SelectMouseMove;
+                ImageCanvas.MouseMove += Preview_SelectMouseMove;
+                ImageCanvas.MouseLeftButtonUp -= Preview_SelectMouseUp;
+                ImageCanvas.MouseLeftButtonUp += Preview_SelectMouseUp;
+                ImageCanvas.LostMouseCapture -= (s, ev) => { isDraggingObject = false; };
             }
             else
             {
@@ -89,14 +88,6 @@ namespace CatchCapture
 
             selectedObject = element;
             if (_editorManager != null) _editorManager.SelectedObject = element;
-
-            if (element is TextBox textBox)
-            {
-                ShowTextSelection(textBox);
-                SyncSelectedObjectToGlobalSettings();
-                _toolOptionsControl?.LoadEditorValues(); // [추가] UI 동기화
-                return;
-            }
 
             UpdateObjectSelectionUI();
             CreateObjectResizeHandles();
@@ -151,11 +142,16 @@ namespace CatchCapture
                 // 개별 연동 (필요한 경우)
                 textBox.Foreground = new SolidColorBrush(_editorManager.SelectedColor);
             }
-            else if (selectedObject is Canvas canvas && canvas.Children.Count > 0 && canvas.Children[0] is Border badge && _editorManager != null)
+            else if (selectedObject is Canvas canvas && canvas.Children.Count > 0 && _editorManager != null)
             {
-                // [수정] 공용 에디터 매니저의 기능 사용
+                // [수정] 공용 에디터 매니저의 기능 사용 (텍스트/넘버링 공통)
                 _editorManager.ApplyCurrentTextSettingsToSelectedObject();
-                badge.Background = new SolidColorBrush(_editorManager.SelectedColor);
+                
+                // 넘버링 배지 색상 별도 처리
+                if (canvas.Children[0] is Border badge)
+                {
+                    badge.Background = new SolidColorBrush(_editorManager.SelectedColor);
+                }
             }
         }
 
@@ -185,17 +181,22 @@ namespace CatchCapture
                 // 두께도 동기화 가능
                 _editorManager.PenThickness = (int)polyline.StrokeThickness;
             }
-            else if (selectedObject is TextBox textBox)
+            else if (selectedObject is Canvas canvas && _editorManager != null)
             {
-                if (textBox.Foreground is SolidColorBrush scb) _editorManager.SelectedColor = scb.Color;
-                _editorManager.TextFontSize = textBox.FontSize;
-                _editorManager.TextFontFamily = textBox.FontFamily.Source;
-                _editorManager.TextFontWeight = textBox.FontWeight;
-                _editorManager.TextFontStyle = textBox.FontStyle;
-            }
-            else if (selectedObject is Canvas canvas && canvas.Children.Count > 0 && canvas.Children[0] is Border badge)
-            {
-                if (badge.Background is SolidColorBrush scb) _editorManager.SelectedColor = scb.Color;
+                var tb = _editorManager.FindTextBox(canvas);
+                if (tb != null)
+                {
+                    if (tb.Foreground is SolidColorBrush scb) _editorManager.SelectedColor = scb.Color;
+                    _editorManager.TextFontSize = tb.FontSize;
+                    _editorManager.TextFontFamily = tb.FontFamily.Source;
+                    _editorManager.TextFontWeight = tb.FontWeight;
+                    _editorManager.TextFontStyle = tb.FontStyle;
+                }
+                
+                if (canvas.Children.Count > 0 && canvas.Children[0] is Border badge)
+                {
+                    if (badge.Background is SolidColorBrush scb) _editorManager.SelectedColor = scb.Color;
+                }
             }
 
             SyncEditorProperties(); // [추가] 에디터 매니저와 동기화
@@ -209,7 +210,7 @@ namespace CatchCapture
             {
                 ShowShapeOptionsPopup();
             }
-            else if (selectedObject is TextBox)
+            else if (selectedObject is Canvas canvas && _editorManager?.FindTextBox(canvas) != null)
             {
                 ShowTextOptions();
             }
@@ -217,11 +218,7 @@ namespace CatchCapture
 
         private void DeselectObject()
         {
-            if (selectedObject != null)
-            {
-                if (selectedObject is TextBox) ClearTextSelection();
-                selectedObject = null;
-            }
+            selectedObject = null;
 
             // UI 요소 강제 제거
             if (objectSelectionBorder != null)

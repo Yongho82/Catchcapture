@@ -516,7 +516,7 @@ namespace CatchCapture.Utilities
             note.Focus();
         }
 
-        public void AddTextAt(Point p)
+        public void AddTextAt(Point p, string initialText = "")
         {
             // [통일화] 넘버링 텍스트박스와 동일한 구조 (배지 제외)
             var group = new Canvas { Background = Brushes.Transparent };
@@ -526,6 +526,7 @@ namespace CatchCapture.Utilities
 
             var textBox = new TextBox
             {
+                Text = initialText,
                 Width = 150, // 기본 너비
                 MinHeight = 30,
                 // [통일] 넘버링 색상 사용 요청 반영 (또는 기존 텍스트 색상 유지)
@@ -838,7 +839,7 @@ namespace CatchCapture.Utilities
             }
         }
 
-        private TextBox? FindTextBox(DependencyObject parent)
+        public TextBox? FindTextBox(DependencyObject parent)
         {
             if (parent is TextBox tb) return tb;
             
