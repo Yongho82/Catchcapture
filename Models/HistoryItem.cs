@@ -49,51 +49,56 @@ namespace CatchCapture.Models
         public bool IsInTrash => Status == 1;
         public bool IsNormal => Status == 0;
         
+        private bool _isThumbnailLoading = false;
         private BitmapSource? _thumbnail;
         public BitmapSource? Thumbnail
         {
             get
             {
-                if (_thumbnail == null && !string.IsNullOrEmpty(FilePath) && System.IO.File.Exists(FilePath))
+                if (_thumbnail == null && !_isThumbnailLoading && !string.IsNullOrEmpty(FilePath))
                 {
-                    try
+                    _isThumbnailLoading = true;
+                    System.Threading.Tasks.Task.Run(() => 
                     {
-                        // Check if it's media (mp4, gif, mp3)
-                        bool isMedia = FilePath.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) || 
-                                       FilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase) ||
-                                       FilePath.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase);
-                        
-                        string loadPath = FilePath;
-                        if (isMedia)
+                        try
                         {
-                            string thumbPath = FilePath + ".preview.png";
-                            if (System.IO.File.Exists(thumbPath)) loadPath = thumbPath;
-                            else if (FilePath.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase)) return null; // No thumb for audio
-                        }
+                            string loadPath = FilePath;
+                            
+                            // Check if it's media (mp4, gif, mp3)
+                            bool isMedia = loadPath.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) || 
+                                           loadPath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase) ||
+                                           loadPath.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase);
+                            
+                            if (isMedia)
+                            {
+                                string thumbPath = loadPath + ".preview.png";
+                                if (System.IO.File.Exists(thumbPath)) loadPath = thumbPath;
+                                else if (loadPath.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase)) return; // No thumb for audio
+                            }
 
-                        // Lazy load thumbnail (optimized size)
-                        _thumbnail = LoadThumbnail(loadPath);
-                    }
-                    catch { }
+                            if (System.IO.File.Exists(loadPath))
+                            {
+                                var bitmap = new BitmapImage();
+                                bitmap.BeginInit();
+                                bitmap.UriSource = new Uri(loadPath);
+                                bitmap.DecodePixelWidth = 200; // Reduced to 200 for Card View
+                                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                                bitmap.EndInit();
+                                bitmap.Freeze();
+
+                                _thumbnail = bitmap;
+                                OnPropertyChanged(nameof(Thumbnail));
+                            }
+                        }
+                        catch { }
+                        finally 
+                        { 
+                            _isThumbnailLoading = false; 
+                        }
+                    });
                 }
                 return _thumbnail;
             }
-        }
-
-        private BitmapSource? LoadThumbnail(string path)
-        {
-            try
-            {
-                var bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.UriSource = new Uri(path);
-                bitmap.DecodePixelWidth = 300; // Limit size for performance
-                bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                bitmap.EndInit();
-                bitmap.Freeze();
-                return bitmap;
-            }
-            catch { return null; }
         }
 
         // UI Props
