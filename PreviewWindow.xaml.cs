@@ -162,7 +162,8 @@ namespace CatchCapture
                 
                 // [New] Auto-select if it's a shape (including Line/Arrow) or text
                 // This puts the user in "Edit Mode" immediately
-                if (element is Shape || (element is Canvas c && c.Children.Count > 0)) 
+                // 단, 펜/형광펜(Polyline)은 제외하여 연속 드로잉 방해하지 않음
+                if ((element is Shape && !(element is Polyline)) || (element is Canvas c && c.Children.Count > 0)) 
                 {
                    SelectObject(element);
                 }

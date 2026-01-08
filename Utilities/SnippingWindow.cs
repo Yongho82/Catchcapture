@@ -1939,11 +1939,13 @@ namespace CatchCapture.Utilities
             // [제거] 개별 요소 Clip 대신 _drawingCanvas Clip 사용
             redoStack.Clear();
 
-            // [추가] 도형이나 화살표가 추가되면 즉시 선택 모드로 진입 (PreviewWindow와 동일한 경험)
-            if (element is Shape || (element is Canvas c && c.Children.Count > 0))
-            {
-                SelectObject(element);
-            }
+                // [New] Auto-select if it's a shape (including Line/Arrow) or text
+                // This puts the user in "Edit Mode" immediately
+                // 단, 펜/형광펜(Polyline)은 제외하여 연속 드로잉 방해하지 않음
+                if ((element is Shape && !(element is Polyline)) || (element is Canvas c && c.Children.Count > 0)) 
+                {
+                   SelectObject(element);
+                }
         }
 
         private void SetupEditorEvents()
