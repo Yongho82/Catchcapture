@@ -1713,18 +1713,37 @@ namespace CatchCapture.Utilities
                                     if (!Directory.Exists(targetDir)) Directory.CreateDirectory(targetDir);
 
                                     string fName = settings.NoteFileNameTemplate ?? "Catch_$yyyy-MM-dd_HH-mm-ss$";
-                                    foreach (System.Text.RegularExpressions.Match match in System.Text.RegularExpressions.Regex.Matches(fName, @"\$(.*?)\$"))
+                                    
+                                    // [Modified] Check if original file name exists
+                                    string? originalName = null;
+                                    if (imgSource is BitmapImage biOrig && biOrig.UriSource != null && biOrig.UriSource.IsFile)
                                     {
-                                        string k = match.Groups[1].Value;
-                                        if (k.Equals("App", StringComparison.OrdinalIgnoreCase)) fName = fName.Replace(match.Value, request.SourceApp ?? "CatchC");
-                                        else if (k.Equals("Title", StringComparison.OrdinalIgnoreCase))
-                                        {
-                                            string st = request.Title;
-                                            if (st.Length > 20) st = st.Substring(0, 20);
-                                            fName = fName.Replace(match.Value, st);
-                                        }
-                                        else try { fName = fName.Replace(match.Value, now.ToString(k)); } catch { }
+                                        originalName = Path.GetFileNameWithoutExtension(biOrig.UriSource.LocalPath);
                                     }
+
+                                    if (!string.IsNullOrEmpty(originalName))
+                                    {
+                                        // Use original filename
+                                        fName = originalName;
+                                    }
+                                    else
+                                    {
+                                        // Use Template
+                                        foreach (System.Text.RegularExpressions.Match match in System.Text.RegularExpressions.Regex.Matches(fName, @"\$(.*?)\$"))
+                                        {
+                                            string k = match.Groups[1].Value;
+                                            if (k.Equals("App", StringComparison.OrdinalIgnoreCase)) fName = fName.Replace(match.Value, request.SourceApp ?? "CatchC");
+                                            else if (k.Equals("Title", StringComparison.OrdinalIgnoreCase))
+                                            {
+                                                string st = request.Title;
+                                                if (st.Length > 20) st = st.Substring(0, 20);
+                                                foreach (char c in Path.GetInvalidFileNameChars()) st = st.Replace(c, '_'); // sanitize title
+                                                fName = fName.Replace(match.Value, st);
+                                            }
+                                            else try { fName = fName.Replace(match.Value, now.ToString(k)); } catch { }
+                                        }
+                                    }
+
                                     foreach (char c in Path.GetInvalidFileNameChars()) fName = fName.Replace(c, '_');
                                     
                                     string fileNameOnly = fName + "." + format.ToLower();

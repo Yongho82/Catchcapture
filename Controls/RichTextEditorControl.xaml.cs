@@ -1443,6 +1443,20 @@ namespace CatchCapture.Controls
                     Stretch = Stretch.Uniform
                 };
 
+                // [Modified] Preserve Original Filename in Tag
+                string? originalPath = null;
+                if (imageSource is BitmapImage bi && bi.UriSource != null && bi.UriSource.IsFile)
+                {
+                    originalPath = bi.UriSource.LocalPath;
+                }
+                
+                // If it's a temp file we created (via BitmapSource check above), try to assign a sensible name like "PastedImage"
+                // but primarily we want real file paths.
+                if (!string.IsNullOrEmpty(originalPath))
+                {
+                    image.Tag = originalPath;
+                }
+
                 CreateResizableImage(image);
             }
             catch (Exception ex)
@@ -1767,9 +1781,52 @@ namespace CatchCapture.Controls
                                      break;
                              }
 
-                             // Generate filename with correct extension
-                             string fileName = $"img_{DateTime.Now:yyyyMMddHHmmss}_{Guid.NewGuid().ToString().Substring(0, 8)}{ext}";
+                             // [Modified] Generate filename with correct extension (Prioritize Original Name)
+                             string fileName;
+                             
+                             // 1. Try to get original path from Tag
+                             string? originalPath = img.Tag as string;
+                             
+                             // 2. If Tag is missing, try to get from UriSource (only if it's a file)
+                             if (string.IsNullOrEmpty(originalPath) && bs is BitmapImage biOrig && biOrig.UriSource != null && biOrig.UriSource.IsFile)
+                             {
+                                 originalPath = biOrig.UriSource.LocalPath;
+                             }
+
+                             if (!string.IsNullOrEmpty(originalPath) && !originalPath.Contains("catchcapture_temp_"))
+                             {
+                                 // Use original filename
+                                 string originalName = System.IO.Path.GetFileNameWithoutExtension(originalPath);
+                                 fileName = originalName + ext;
+                             }
+                             else
+                             {
+                                 // Fallback to Template or GUID
+                                 string fName = settings.NoteFileNameTemplate ?? "Catch_$yyyy-MM-dd_HH-mm-ss$";
+                                 DateTime now = DateTime.Now;
+                                 foreach (System.Text.RegularExpressions.Match match in System.Text.RegularExpressions.Regex.Matches(fName, @"\$(.*?)\$"))
+                                 {
+                                     try { fName = fName.Replace(match.Value, now.ToString(match.Groups[1].Value)); } catch { }
+                                 }
+                                 foreach (char c in System.IO.Path.GetInvalidFileNameChars()) fName = fName.Replace(c, '_');
+                                 
+                                 // If template failed to produce unique enough name (e.g. fast consecutive saves), add randomness
+                                 if (settings.NoteFileNameTemplate == null)
+                                     fileName = $"img_{DateTime.Now:yyyyMMddHHmmss}_{Guid.NewGuid().ToString().Substring(0, 8)}{ext}";
+                                 else
+                                     fileName = fName + ext;
+                             }
+
                              string fullPath = System.IO.Path.Combine(finalDir, fileName);
+                             
+                             // Handle Conflicts
+                             int counter = 1;
+                             string nameWithoutExt = System.IO.Path.GetFileNameWithoutExtension(fileName);
+                             while (System.IO.File.Exists(fullPath))
+                             {
+                                 fileName = $"{nameWithoutExt}_{counter++}{ext}";
+                                 fullPath = System.IO.Path.Combine(finalDir, fileName);
+                             }
                              
                              // Save to file
                              using (var fileStream = new FileStream(fullPath, FileMode.Create))
@@ -1787,6 +1844,8 @@ namespace CatchCapture.Controls
                              newBitmap.Freeze();
                              
                              img.Source = newBitmap;
+                             // Update Tag to new path so subsequent saves don't duplicate logic unnecessarily
+                             img.Tag = fullPath;
                              // Width is preserved automatically as it's a property of Image control
                          }
                          catch (Exception ex)
