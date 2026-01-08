@@ -89,6 +89,10 @@ namespace CatchCapture.Controls
                 case "넘버링":
                     ColorLabel.Visibility = Visibility.Collapsed;
                     NumberingTabs.Visibility = Visibility.Visible;
+                    
+                    // [수정] 넘버링 선택 시 기본 탭을 '텍스트'로 설정
+                    NumTextTab.IsChecked = true;
+
                     if (_editor != null)
                     {
                         FontSizeComboBox.SelectedItem = (int)_editor.NumberingTextSize;
