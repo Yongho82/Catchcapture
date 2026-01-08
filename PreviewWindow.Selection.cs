@@ -93,7 +93,8 @@ namespace CatchCapture
             CreateObjectResizeHandles();
             SyncSelectedObjectToGlobalSettings();
             _toolOptionsControl?.LoadEditorValues(); // [추가] UI 동기화
-            ShowSelectionOptions();
+            _toolOptionsControl?.LoadEditorValues(); // [추가] UI 동기화
+            // ShowSelectionOptions(); // [Changed] Don't auto-show options popup
         }
 
         public void ApplyPropertyChangesToSelectedObject()

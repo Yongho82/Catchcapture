@@ -1937,6 +1937,12 @@ namespace CatchCapture.Utilities
         {
             // [제거] 개별 요소 Clip 대신 _drawingCanvas Clip 사용
             redoStack.Clear();
+
+            // [추가] 도형이나 화살표가 추가되면 즉시 선택 모드로 진입 (PreviewWindow와 동일한 경험)
+            if (element is Shape || (element is Canvas c && c.Children.Count > 0))
+            {
+                SelectObject(element);
+            }
         }
 
         private void SetupEditorEvents()
@@ -2431,6 +2437,10 @@ namespace CatchCapture.Utilities
             }
         }
 
+        private Rectangle? objectRotationHandle;
+        private bool isRotatingObject = false;
+        private double initialRotationAngle = 0;
+
         private void CreateObjectResizeHandles()
         {
             RemoveObjectResizeHandles();
@@ -2460,6 +2470,20 @@ namespace CatchCapture.Utilities
                 Panel.SetZIndex(handle, 2010);
                 objectResizeHandles.Add(handle);
             }
+            // [추가] 회전 핸들 생성
+            objectRotationHandle = new Rectangle
+            {
+                Name = "RotationHandle",
+                Width = 10, Height = 10, 
+                Fill = Brushes.White, Stroke = Brushes.Red, StrokeThickness = 1, 
+                RadiusX = 5, RadiusY = 5, // 원형
+                Cursor = Cursors.Hand,
+                ToolTip = LocalizationManager.Get("Rotate") ?? "회전"
+            };
+            objectRotationHandle.MouseLeftButtonDown += ObjectRotationHandle_MouseDown;
+            canvas.Children.Add(objectRotationHandle);
+            Panel.SetZIndex(objectRotationHandle, 2010);
+
             UpdateObjectResizeHandles(InteractiveEditor.GetElementBounds(selectedObject));
         }
 
@@ -2467,6 +2491,11 @@ namespace CatchCapture.Utilities
         {
             foreach (var h in objectResizeHandles) canvas.Children.Remove(h);
             objectResizeHandles.Clear();
+            if (objectRotationHandle != null)
+            {
+                canvas.Children.Remove(objectRotationHandle);
+                objectRotationHandle = null;
+            }
         }
 
         private void UpdateObjectResizeHandles(Rect bounds)
@@ -2490,6 +2519,13 @@ namespace CatchCapture.Utilities
 
                 Canvas.SetLeft(handle, left);
                 Canvas.SetTop(handle, top);
+            }
+
+            // [추가] 회전 핸들 위치 업데이트 (상단 중앙 위쪽)
+            if (objectRotationHandle != null)
+            {
+                Canvas.SetLeft(objectRotationHandle, bounds.Left + bounds.Width / 2 - 5);
+                Canvas.SetTop(objectRotationHandle, bounds.Top - 25); // 25px 위쪽에 배치
             }
         }
 
@@ -2534,6 +2570,68 @@ namespace CatchCapture.Utilities
                 canvas.ReleaseMouseCapture();
                 canvas.MouseMove -= ObjectResizeHandle_MouseMove;
                 canvas.MouseLeftButtonUp -= ObjectResizeHandle_MouseUp;
+                e.Handled = true;
+            }
+        }
+
+        // [추가] 회전 로직 구현
+        private void ObjectRotationHandle_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+             if (selectedObject == null) return;
+             
+             // SaveForUndo(); // 필요 시 Undo 구현
+             isRotatingObject = true;
+             
+             // 현재 각도 확인
+             double currentAngle = 0;
+             if (selectedObject.RenderTransform is RotateTransform rt) currentAngle = rt.Angle;
+             
+             initialRotationAngle = currentAngle;
+             
+             canvas.CaptureMouse();
+             canvas.MouseMove -= ObjectRotation_MouseMove;
+             canvas.MouseMove += ObjectRotation_MouseMove;
+             canvas.MouseLeftButtonUp -= ObjectRotation_MouseUp;
+             canvas.MouseLeftButtonUp += ObjectRotation_MouseUp;
+             
+             e.Handled = true;
+        }
+
+        private void ObjectRotation_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (isRotatingObject && selectedObject != null)
+            {
+                Rect bounds = InteractiveEditor.GetElementBounds(selectedObject);
+                Point center = new Point(bounds.Left + bounds.Width / 2, bounds.Top + bounds.Height / 2);
+                Point currentPos = e.GetPosition(canvas);
+                
+                // 각도 계산
+                double angle = Math.Atan2(currentPos.Y - center.Y, currentPos.X - center.X) * 180 / Math.PI;
+                angle += 90; // 핸들이 위쪽(-90도)에 있으므로 보정 
+
+                // Shift 키 누르면 15도 단위 스냅
+                if (Keyboard.Modifiers == ModifierKeys.Shift)
+                {
+                    angle = Math.Round(angle / 15) * 15;
+                }
+
+                selectedObject.RenderTransformOrigin = new Point(0.5, 0.5);
+                selectedObject.RenderTransform = new RotateTransform(angle);
+                
+                // 태그 메타데이터 업데이트 (저장/복원용)
+                // SnippingWindow는 DrawingLayer 모델을 쓰지 않을 수도 있지만, ShapeMetadata 등을 쓸 수 있음
+                // 여기서는 UI의 RenderTransform을 직접 제어
+            }
+        }
+        
+        private void ObjectRotation_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (isRotatingObject)
+            {
+                isRotatingObject = false;
+                canvas.ReleaseMouseCapture();
+                canvas.MouseMove -= ObjectRotation_MouseMove;
+                canvas.MouseLeftButtonUp -= ObjectRotation_MouseUp;
                 e.Handled = true;
             }
         }
