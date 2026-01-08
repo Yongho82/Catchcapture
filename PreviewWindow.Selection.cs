@@ -334,6 +334,10 @@ namespace CatchCapture
 
 
 
+        private Rectangle? objectRotationHandle;
+        private bool isRotatingObject = false;
+        private double initialRotationAngle = 0;
+        
         private void CreateObjectResizeHandles()
         {
             RemoveObjectResizeHandles();
@@ -355,10 +359,33 @@ namespace CatchCapture
                 Panel.SetZIndex(handle, 2010);
                 objectResizeHandles.Add(handle);
             }
+
+            // [New] Rotation Handle
+            objectRotationHandle = new Rectangle
+            {
+                Name = "RotationHandle",
+                Width = 10, Height = 10, 
+                Fill = Brushes.White, Stroke = Brushes.Red, StrokeThickness = 1, 
+                RadiusX = 5, RadiusY = 5, // Circle shape
+                Cursor = Cursors.Hand,
+                ToolTip = "회전"
+            };
+            objectRotationHandle.MouseLeftButtonDown += ObjectRotationHandle_MouseDown;
+            ImageCanvas.Children.Add(objectRotationHandle);
+            Panel.SetZIndex(objectRotationHandle, 2010);
+
             UpdateObjectResizeHandles(InteractiveEditor.GetElementBounds(selectedObject));
         }
 
-        private void RemoveObjectResizeHandles() { foreach (var h in objectResizeHandles) ImageCanvas.Children.Remove(h); objectResizeHandles.Clear(); }
+        private void RemoveObjectResizeHandles() { 
+            foreach (var h in objectResizeHandles) ImageCanvas.Children.Remove(h); 
+            objectResizeHandles.Clear();
+            if (objectRotationHandle != null)
+            {
+                ImageCanvas.Children.Remove(objectRotationHandle);
+                objectRotationHandle = null;
+            }
+        }
 
         private void UpdateObjectResizeHandles(Rect bounds)
         {
@@ -377,6 +404,13 @@ namespace CatchCapture
                     case "SE": left = bounds.Right - 4; top = bounds.Bottom - 4; break;
                 }
                 Canvas.SetLeft(handle, left); Canvas.SetTop(handle, top);
+            }
+
+            // Update Rotation Handle Position (Above Top-Center)
+            if (objectRotationHandle != null)
+            {
+                Canvas.SetLeft(objectRotationHandle, bounds.Left + bounds.Width / 2 - 5);
+                Canvas.SetTop(objectRotationHandle, bounds.Top - 25); // 25px above top
             }
         }
 
@@ -425,6 +459,72 @@ namespace CatchCapture
             }
         }
 
+        // [New] Rotation Logic
+        private void ObjectRotationHandle_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+             if (currentEditMode != EditMode.Select || selectedObject == null) return;
+             
+             SaveForUndo();
+             isRotatingObject = true;
+             
+             // Initial Angle check
+             double currentAngle = 0;
+             if (selectedObject.RenderTransform is RotateTransform rt) currentAngle = rt.Angle;
+             // If complex transform, simplified to just taking the first rotate or 0
+             
+             initialRotationAngle = currentAngle;
+             
+             ImageCanvas.CaptureMouse();
+             ImageCanvas.MouseMove -= ObjectRotation_MouseMove;
+             ImageCanvas.MouseMove += ObjectRotation_MouseMove;
+             ImageCanvas.MouseLeftButtonUp -= ObjectRotation_MouseUp;
+             ImageCanvas.MouseLeftButtonUp += ObjectRotation_MouseUp;
+             
+             e.Handled = true;
+        }
 
+        private void ObjectRotation_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (isRotatingObject && selectedObject != null)
+            {
+                Rect bounds = InteractiveEditor.GetElementBounds(selectedObject);
+                Point center = new Point(bounds.Left + bounds.Width / 2, bounds.Top + bounds.Height / 2);
+                Point currentPos = e.GetPosition(ImageCanvas);
+                
+                // Calculate angle
+                double angle = Math.Atan2(currentPos.Y - center.Y, currentPos.X - center.X) * 180 / Math.PI;
+                // Adjust to make Up (Top-Center) be near 0 relative to where handle is? 
+                // Handle is at Top (-90 degrees in math). 
+                angle += 90; 
+
+                // Shift key for 15 degree snapping
+                if (Keyboard.Modifiers == ModifierKeys.Shift)
+                {
+                    angle = Math.Round(angle / 15) * 15;
+                }
+
+                selectedObject.RenderTransformOrigin = new Point(0.5, 0.5);
+                selectedObject.RenderTransform = new RotateTransform(angle);
+                
+                // Update Tag metadata if present so persistence works immediately
+                if (selectedObject is FrameworkElement fe && fe.Tag is CatchCapture.Models.DrawingLayer layer)
+                {
+                    layer.Rotation = angle;
+                }
+            }
+        }
+        
+        private void ObjectRotation_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (isRotatingObject)
+            {
+                isRotatingObject = false;
+                ImageCanvas.ReleaseMouseCapture();
+                ImageCanvas.MouseMove -= ObjectRotation_MouseMove;
+                ImageCanvas.MouseLeftButtonUp -= ObjectRotation_MouseUp;
+                e.Handled = true;
+            }
+        }
     }
 }
+

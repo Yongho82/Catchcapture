@@ -222,43 +222,89 @@ namespace CatchCapture
             else if (element is Shape shape)
             {
                 // 도형 레이어 생성
+                Point endPoint;
+                if (shape is Line l)
+                {
+                    endPoint = new Point(l.X2, l.Y2);
+                }
+                else
+                {
+                    endPoint = new Point(Canvas.GetLeft(shape) + shape.Width, Canvas.GetTop(shape) + shape.Height);
+                }
+
+                double rotation = 0;
+                if (shape.RenderTransform is RotateTransform rt) rotation = rt.Angle;
+                else if (shape.RenderTransform is TransformGroup tg)
+                {
+                    foreach (var t in tg.Children) if (t is RotateTransform r) rotation += r.Angle;
+                }
+
                 layer = new CatchCapture.Models.DrawingLayer
                 {
                     Type = DrawingLayerType.Shape,
                     ShapeType = _editorManager.CurrentShapeType, // 현재 설정된 타입 사용
                     StartPoint = startPoint,
-                    EndPoint = new Point(Canvas.GetLeft(shape) + shape.Width, Canvas.GetTop(shape) + shape.Height), // 대략적 계산
+                    EndPoint = endPoint,
                     Color = _editorManager.SelectedColor,
                     Thickness = _editorManager.ShapeBorderThickness,
                     IsFilled = _editorManager.ShapeIsFilled,
                     FillOpacity = _editorManager.ShapeFillOpacity,
                     IsInteractive = true,
-                    LayerId = nextLayerId++
+                    LayerId = nextLayerId++,
+                    Rotation = rotation
                 };
             }
             else if (element is Canvas groupCanvas)
             {
-                // [추가] 새로운 Canvas 기반 텍스트/넘버링 지원
-                var tb = _editorManager.FindTextBox(groupCanvas);
-                if (tb != null)
+                // [Arrow Support] Check for ShapeMetadata (Arrow is a Canvas)
+                if (groupCanvas.Tag is CatchCapture.Utilities.ShapeMetadata metadata)
                 {
-                    bool isNumbering = groupCanvas.Children.Count > 0 && groupCanvas.Children[0] is Border;
-                    
+                    double rotation = 0;
+                    if (groupCanvas.RenderTransform is RotateTransform rt) rotation = rt.Angle;
+                    else if (groupCanvas.RenderTransform is TransformGroup tg)
+                    {
+                        foreach (var t in tg.Children) if (t is RotateTransform r) rotation += r.Angle;
+                    }
+
                     layer = new CatchCapture.Models.DrawingLayer
                     {
-                        Type = DrawingLayerType.Text, // 우선 둘 다 Text로 처리 (나중에 필요시 별도 enum 추가)
-                        Text = tb.Text,
-                        TextPosition = new Point(Canvas.GetLeft(groupCanvas), Canvas.GetTop(groupCanvas)),
-                        Color = (tb.Foreground is SolidColorBrush scb) ? scb.Color : Colors.White,
-                        FontSize = tb.FontSize,
-                        FontFamily = tb.FontFamily.Source,
-                        FontWeight = tb.FontWeight,
-                        FontStyle = tb.FontStyle,
-                        HasUnderline = tb.TextDecorations != null && tb.TextDecorations.Count > 0,
-                        HasShadow = tb.Effect is System.Windows.Media.Effects.DropShadowEffect,
+                        Type = DrawingLayerType.Shape,
+                        ShapeType = metadata.ShapeType,
+                        StartPoint = metadata.StartPoint,
+                        EndPoint = metadata.EndPoint,
+                        Color = metadata.Color,
+                        Thickness = metadata.Thickness,
+                        IsFilled = metadata.IsFilled,
+                        FillOpacity = metadata.FillOpacity,
                         IsInteractive = true,
-                        LayerId = nextLayerId++
+                        LayerId = nextLayerId++,
+                        Rotation = rotation
                     };
+                }
+                else
+                {
+                    // [추가] 새로운 Canvas 기반 텍스트/넘버링 지원
+                    var tb = _editorManager.FindTextBox(groupCanvas);
+                    if (tb != null)
+                    {
+                        bool isNumbering = groupCanvas.Children.Count > 0 && groupCanvas.Children[0] is Border;
+                        
+                        layer = new CatchCapture.Models.DrawingLayer
+                        {
+                            Type = DrawingLayerType.Text, // 우선 둘 다 Text로 처리 (나중에 필요시 별도 enum 추가)
+                            Text = tb.Text,
+                            TextPosition = new Point(Canvas.GetLeft(groupCanvas), Canvas.GetTop(groupCanvas)),
+                            Color = (tb.Foreground is SolidColorBrush scb) ? scb.Color : Colors.White,
+                            FontSize = tb.FontSize,
+                            FontFamily = tb.FontFamily.Source,
+                            FontWeight = tb.FontWeight,
+                            FontStyle = tb.FontStyle,
+                            HasUnderline = tb.TextDecorations != null && tb.TextDecorations.Count > 0,
+                            HasShadow = tb.Effect is System.Windows.Media.Effects.DropShadowEffect,
+                            IsInteractive = true,
+                            LayerId = nextLayerId++
+                        };
+                    }
                 }
             }
 
@@ -1672,7 +1718,8 @@ namespace CatchCapture
                 FontStyle = layer.FontStyle,
                 FontFamily = layer.FontFamily,
                 HasShadow = layer.HasShadow,
-                HasUnderline = layer.HasUnderline
+                HasUnderline = layer.HasUnderline,
+                Rotation = layer.Rotation
             }).ToList();
             undoLayersStack.Push(layersCopy);
             redoLayersStack.Clear();
@@ -1785,6 +1832,13 @@ namespace CatchCapture
                     fe.Tag = layer;
                     drawnElements.Add(element);
                     ImageCanvas.Children.Add(element);
+
+                    // [New] Apply Rotation
+                    if (layer.Rotation != 0)
+                    {
+                        fe.RenderTransformOrigin = new Point(0.5, 0.5);
+                        fe.RenderTransform = new RotateTransform(layer.Rotation);
+                    }
                 }
             }
         }

@@ -52,5 +52,6 @@ namespace CatchCapture.Models
         public bool IsErased { get; set; } = false;
         public bool IsInteractive { get; set; } = false;
         public double FillOpacity { get; set; } = 0.5;
+        public double Rotation { get; set; } = 0;
     }
 }
