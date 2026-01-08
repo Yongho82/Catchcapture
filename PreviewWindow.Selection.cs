@@ -141,7 +141,7 @@ namespace CatchCapture
             else if (selectedObject is TextBox textBox && _editorManager != null)
             {
                 // [수정] 공용 에디터 매니저의 기능 사용 (일관성 유지)
-                _editorManager.ApplyCurrentTextSettingsToSelectedObject();
+                _editorManager.ApplyCurrentSettingsToSelectedObject();
                 
                 // 개별 연동 (필요한 경우)
                 textBox.Foreground = new SolidColorBrush(_editorManager.SelectedColor);
@@ -149,7 +149,7 @@ namespace CatchCapture
             else if (selectedObject is Canvas canvas && canvas.Children.Count > 0 && _editorManager != null)
             {
                 // [수정] 공용 에디터 매니저의 기능 사용 (텍스트/넘버링 공통)
-                _editorManager.ApplyCurrentTextSettingsToSelectedObject();
+                _editorManager.ApplyCurrentSettingsToSelectedObject();
                 
                 // 넘버링 배지 색상 별도 처리
                 if (canvas.Children[0] is Border badge)

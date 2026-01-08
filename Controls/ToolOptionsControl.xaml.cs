@@ -242,7 +242,7 @@ namespace CatchCapture.Controls
                     else _editor.TextFontSize = sz;
 
                     // [추가] 선택된 객체가 있으면 즉시 적용
-                    _editor.ApplyCurrentTextSettingsToSelectedObject();
+                    _editor.ApplyCurrentSettingsToSelectedObject();
                 }
                 catch { }
             };
@@ -270,7 +270,7 @@ namespace CatchCapture.Controls
                 if (f != null) {
                     _editor.TextFontFamily = f;
                     // [추가] 선택된 객체가 있으면 즉시 적용
-                    _editor.ApplyCurrentTextSettingsToSelectedObject();
+                    _editor.ApplyCurrentSettingsToSelectedObject();
                 }
             };
 
@@ -308,6 +308,7 @@ namespace CatchCapture.Controls
                 if (_editor == null) return;
                 _editor.ShapeBorderThickness = e.NewValue;
                 ShapeThicknessValue.Text = $"{(int)e.NewValue}px";
+                _editor.ApplyCurrentSettingsToSelectedObject(); // [추가] 즉시 반영
             };
 
             ShapeOpacitySlider.ValueChanged += (s, e) =>
@@ -315,6 +316,7 @@ namespace CatchCapture.Controls
                 if (_editor == null) return;
                 _editor.ShapeFillOpacity = e.NewValue;
                 ShapeOpacityValue.Text = $"{(int)(e.NewValue * 100)}%";
+                _editor.ApplyCurrentSettingsToSelectedObject(); // [추가] 즉시 반영
             };
 
             // Numbering
@@ -325,7 +327,7 @@ namespace CatchCapture.Controls
                 if (_editor == null) return;
                 _editor.NumberingBadgeSize = e.NewValue;
                 NumBadgeValue.Text = $"{(int)e.NewValue}px";
-                _editor.ApplyCurrentTextSettingsToSelectedObject();
+                _editor.ApplyCurrentSettingsToSelectedObject();
             };
 
             // Mosaic
@@ -377,7 +379,7 @@ namespace CatchCapture.Controls
                 ParaSpacingNarrow.IsChecked = true;
                 if (_editor != null) {
                     _editor.LineHeightMultiplier = 1.15; // 좁게
-                    _editor.ApplyCurrentTextSettingsToSelectedObject();
+                    _editor.ApplyCurrentSettingsToSelectedObject();
                 }
             };
             if (ParaSpacingNormal != null) ParaSpacingNormal.Click += (s, e) => {
@@ -385,7 +387,7 @@ namespace CatchCapture.Controls
                 ParaSpacingNormal.IsChecked = true;
                 if (_editor != null) {
                     _editor.LineHeightMultiplier = 1.5; // 보통 (1.5줄)
-                    _editor.ApplyCurrentTextSettingsToSelectedObject();
+                    _editor.ApplyCurrentSettingsToSelectedObject();
                 }
             };
             if (ParaSpacingWide != null) ParaSpacingWide.Click += (s, e) => {
@@ -393,7 +395,7 @@ namespace CatchCapture.Controls
                 ParaSpacingWide.IsChecked = true;
                 if (_editor != null) {
                     _editor.LineHeightMultiplier = 2.0; // 넓게 (2줄)
-                    _editor.ApplyCurrentTextSettingsToSelectedObject();
+                    _editor.ApplyCurrentSettingsToSelectedObject();
                 }
             };
         }
@@ -415,7 +417,7 @@ namespace CatchCapture.Controls
             _editor.TextShadowEnabled = (ShadowBtn.IsChecked == true);
 
             // [추가] 선택된 객체가 있으면 즉시 적용
-            _editor.ApplyCurrentTextSettingsToSelectedObject();
+            _editor.ApplyCurrentSettingsToSelectedObject();
         }
 
         private void BuildColorPalette()
@@ -500,7 +502,7 @@ namespace CatchCapture.Controls
                     {
                         _editor.SelectedColor = c;
                     }
-                    _editor.ApplyCurrentTextSettingsToSelectedObject();
+                    _editor.ApplyCurrentSettingsToSelectedObject();
                 }
                 UpdateColorSelection(c);
             };
@@ -564,7 +566,7 @@ namespace CatchCapture.Controls
                         {
                              _editor.SelectedColor = newColor;
                         }
-                        _editor.ApplyCurrentTextSettingsToSelectedObject();
+                        _editor.ApplyCurrentSettingsToSelectedObject();
                   }
                   UpdateColorSelection(newColor);
              }

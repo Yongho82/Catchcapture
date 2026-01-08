@@ -385,7 +385,7 @@ namespace CatchCapture.Utilities
             SelectedObject = group;
             
             // [추가] 생성 즉시 모든 텍스트/스타일 설정(줄간격 포함) 적용
-            ApplyCurrentTextSettingsToSelectedObject();
+            ApplyCurrentSettingsToSelectedObject();
 
             NextNumber++;
 
@@ -633,7 +633,7 @@ namespace CatchCapture.Utilities
             SelectedObject = group;
             
             // [추가] 생성 즉시 모든 텍스트/스타일 설정(줄간격 포함) 적용
-            ApplyCurrentTextSettingsToSelectedObject();
+            ApplyCurrentSettingsToSelectedObject();
 
             // 상호작용 로직
             confirmBtn.Click += (s, e) => {
@@ -799,9 +799,39 @@ namespace CatchCapture.Utilities
             NextNumber = next;
         }
 
-        public void ApplyCurrentTextSettingsToSelectedObject()
+        public void ApplyCurrentSettingsToSelectedObject()
         {
             if (SelectedObject == null) return;
+
+            // [추가] 일반 도형(사각형, 원, 선) 처리
+            if (SelectedObject is Shape s)
+            {
+                s.Stroke = new SolidColorBrush(SelectedColor);
+                s.StrokeThickness = ShapeBorderThickness;
+                if (s is Rectangle || s is Ellipse)
+                {
+                    s.Fill = ShapeIsFilled ? new SolidColorBrush(Color.FromArgb((byte)(ShapeFillOpacity * 255), SelectedColor.R, SelectedColor.G, SelectedColor.B)) : Brushes.Transparent;
+                }
+                
+                // 메타데이터 업데이트 (저장/복구용)
+                if (s.Tag is ShapeMetadata metadata)
+                {
+                    metadata.Color = SelectedColor;
+                    metadata.Thickness = ShapeBorderThickness;
+                    metadata.IsFilled = ShapeIsFilled;
+                    metadata.FillOpacity = ShapeFillOpacity;
+                }
+                return;
+            }
+
+            // [추가] 화살표(Canvas) 처리
+            if (SelectedObject is Canvas arrowCanvas && arrowCanvas.Tag is ShapeMetadata arrowMeta && arrowMeta.ShapeType == ShapeType.Arrow)
+            {
+                ShapeDrawingHelper.UpdateArrow(arrowCanvas, arrowMeta.StartPoint, arrowMeta.EndPoint, SelectedColor, ShapeBorderThickness);
+                arrowMeta.Color = SelectedColor;
+                arrowMeta.Thickness = ShapeBorderThickness;
+                return;
+            }
 
             TextBox? tb = null;
             if (SelectedObject is TextBox t) tb = t;
