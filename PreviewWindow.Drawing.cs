@@ -39,12 +39,18 @@ namespace CatchCapture
                     Crop_MouseDown(sender, e);
                     break;
                 case EditMode.Eraser:
+                    _editorManager.StartDrawing(clickPoint, e.OriginalSource);
+                    break;
                 case EditMode.Highlight:
                 case EditMode.Pen:
                 case EditMode.Shape:
                 case EditMode.Mosaic:
                 case EditMode.Numbering:
-                case EditMode.Text: // [추가] 텍스트 모드도 EditorManager가 담당
+                case EditMode.Text:
+                    // [수정] 그리기 모드에서도 기존 요소를 클릭했다면 선택/드래그를 먼저 시도
+                    if (Preview_SelectMouseDown(sender, e)) return;
+                    
+                    // 기존 요소 클릭이 아니라면 새로운 그리기 시작
                     _editorManager.StartDrawing(clickPoint, e.OriginalSource);
                     break;
                 case EditMode.MagicWand:

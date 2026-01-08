@@ -303,26 +303,28 @@ namespace CatchCapture.Utilities
                 AcceptsReturn = true
             };
             
-            // 편집 모드에서의 점선 테두리
+            // 편집 모드에서의 점선 테두리 (글로벌 선택 UI와 중복방지를 위해 기본 숨김)
             var dashedBorder = new Rectangle {
                 Stroke = Brushes.White,
                 StrokeDashArray = new DoubleCollection { 3, 2 },
                 StrokeThickness = 1,
                 Fill = new SolidColorBrush(Color.FromArgb(40, 0, 0, 0)),
-                IsHitTestVisible = false
+                IsHitTestVisible = false,
+                Visibility = Visibility.Collapsed
             };
             
-            // 리사이즈 핸들 (우측 하단)
+            // 리사이즈 핸들 (우측 하단) - 글로벌 핸들로 대체되므로 기본 숨김
             var resizeHandle = new Rectangle {
                 Width = 8, Height = 8,
                 Fill = Brushes.White, Stroke = Brushes.DimGray, StrokeThickness = 1,
                 Cursor = Cursors.SizeNWSE,
                 HorizontalAlignment = HorizontalAlignment.Right,
                 VerticalAlignment = VerticalAlignment.Bottom,
-                Margin = new Thickness(0, 0, -2, -2)
+                Margin = new Thickness(0, 0, -2, -2),
+                Visibility = Visibility.Collapsed
             };
 
-            // [추가] 이동 핸들 (상단 중앙)
+            // [추가] 이동 핸들 (상단 중앙) - 글로벌 핸들로 대체되므로 기본 숨김
             var moveHandle = new Rectangle {
                 Width = 10, Height = 10,
                 Fill = Brushes.White, Stroke = new SolidColorBrush(Colors.DeepSkyBlue), StrokeThickness = 1,
@@ -330,7 +332,8 @@ namespace CatchCapture.Utilities
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Top,
                 Margin = new Thickness(0, -5, 0, 0),
-                ToolTip = "위치 이동"
+                ToolTip = "위치 이동",
+                Visibility = Visibility.Collapsed
             };
 
             noteGrid.Children.Add(dashedBorder);
@@ -344,8 +347,8 @@ namespace CatchCapture.Utilities
             Canvas.SetLeft(noteGrid, bSize + 5);
             Canvas.SetTop(noteGrid, 0);
 
-            // 확정/삭제 버튼
-            var btnPanel = new StackPanel { Orientation = Orientation.Horizontal };
+            // 확정/삭제 버튼 (글로벌 버튼과 중복방지를 위해 기본 숨김)
+            var btnPanel = new StackPanel { Orientation = Orientation.Horizontal, Visibility = Visibility.Collapsed };
             var confirmBtn = new Button { 
                 Content = "✓", Width = 24, Height = 24, Margin = new Thickness(2,0,0,0),
                 Background = Brushes.Green, Foreground = Brushes.White, BorderThickness = new Thickness(0),
@@ -557,34 +560,37 @@ namespace CatchCapture.Utilities
                 AcceptsReturn = true
             };
             
-            // [통일] 넘버링과 동일한 흰색 점선 테두리
+            // [통일] 넘버링과 동일한 흰색 점선 테두리 (기본 숨김)
             var dashedBorder = new Rectangle {
                 Stroke = Brushes.White,
                 StrokeDashArray = new DoubleCollection { 3, 2 },
                 StrokeThickness = 1,
                 Fill = new SolidColorBrush(Color.FromArgb(40, 0, 0, 0)),
-                IsHitTestVisible = false
+                IsHitTestVisible = false,
+                Visibility = Visibility.Collapsed
             };
             
-            // [통일] 리사이즈 핸들 (우측 하단)
+            // [통일] 리사이즈 핸들 (우측 하단) (기본 숨김)
             var resizeHandle = new Rectangle {
                 Width = 8, Height = 8,
                 Fill = Brushes.White, Stroke = Brushes.DimGray, StrokeThickness = 1,
                 Cursor = Cursors.SizeNWSE,
                 HorizontalAlignment = HorizontalAlignment.Right,
                 VerticalAlignment = VerticalAlignment.Bottom,
-                Margin = new Thickness(0, 0, -2, -2)
+                Margin = new Thickness(0, 0, -2, -2),
+                Visibility = Visibility.Collapsed
             };
             
-            // [추가] 이동 핸들 (상단 중앙) - 넘버링과 통일
+            // [추가] 이동 핸들 (상단 중앙) - 넘버링과 통일 (기본 숨김)
             var moveHandle = new Rectangle {
                 Width = 10, Height = 10,
                 Fill = Brushes.White, Stroke = new SolidColorBrush(Colors.DeepSkyBlue), StrokeThickness = 1,
-                Cursor = Cursors.SizeAll,
+                Cursor = Cursors.Hand, // 십자 모양 대신 손 모양이나 다른 도구 사용 가능
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Top,
                 Margin = new Thickness(0, -5, 0, 0),
-                ToolTip = "위치 이동"
+                ToolTip = "위치 이동",
+                Visibility = Visibility.Collapsed
             };
 
             nodeGrid.Children.Add(dashedBorder);
@@ -598,8 +604,8 @@ namespace CatchCapture.Utilities
             Canvas.SetLeft(nodeGrid, 0);
             Canvas.SetTop(nodeGrid, 0);
 
-            // 확정/삭제 버튼
-            var btnPanel = new StackPanel { Orientation = Orientation.Horizontal };
+            // 확정/삭제 버튼 (글로벌 버튼과 중복방지를 위해 기본 숨김)
+            var btnPanel = new StackPanel { Orientation = Orientation.Horizontal, Visibility = Visibility.Collapsed };
             var confirmBtn = new Button { 
                 Content = "✓", Width = 24, Height = 24, Margin = new Thickness(2,0,0,0),
                 Background = Brushes.Green, Foreground = Brushes.White, BorderThickness = new Thickness(0),
@@ -711,10 +717,10 @@ namespace CatchCapture.Utilities
             MouseButtonEventHandler doubleClickEdit = (s, e) => {
                 if (e.ClickCount == 2) {
                     textBox.IsReadOnly = false;
-                    dashedBorder.Visibility = Visibility.Visible;
-                    resizeHandle.Visibility = Visibility.Visible;
-                    moveHandle.Visibility = Visibility.Visible;
-                    btnPanel.Visibility = Visibility.Visible;
+                    // dashedBorder.Visibility = Visibility.Visible;
+                    // resizeHandle.Visibility = Visibility.Visible;
+                    // moveHandle.Visibility = Visibility.Visible;
+                    // btnPanel.Visibility = Visibility.Visible;
                     SelectedObject = group;
                     textBox.Focus();
                     e.Handled = true;
@@ -733,10 +739,12 @@ namespace CatchCapture.Utilities
                 if (e.ClickCount == 2)
                 {
                     textBox.IsReadOnly = false;
+                    /*
                     dashedBorder.Visibility = Visibility.Visible;
                     resizeHandle.Visibility = Visibility.Visible;
                     moveHandle.Visibility = Visibility.Visible;
                     btnPanel.Visibility = Visibility.Visible;
+                    */
                     SelectedObject = group; 
                     textBox.Focus();
                     e.Handled = true;

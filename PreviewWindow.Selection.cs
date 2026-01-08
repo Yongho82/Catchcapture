@@ -12,13 +12,11 @@ namespace CatchCapture
 {
     public partial class PreviewWindow : Window
     {
-        private void Preview_SelectMouseDown(object sender, MouseButtonEventArgs e)
+        private bool Preview_SelectMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (currentEditMode != EditMode.Select) return;
-
             // 리사이즈 핸들이나 이미 선택된 요소의 부속 버튼 클릭 시 무시
-            if (e.OriginalSource is FrameworkElement fe && (fe.Name.StartsWith("ResizeHandle") || fe.Parent is Button || fe is Button))
-                return;
+            if (e.OriginalSource is FrameworkElement fe && (fe.Name.StartsWith("ResizeHandle") || fe.Name == "RotationHandle" || fe.Parent is Button || fe is Button))
+                return false;
 
             Point clickPoint = e.GetPosition(ImageCanvas);
 
@@ -38,7 +36,6 @@ namespace CatchCapture
             {
                 SelectObject(clickedElement);
                 // 모든 인터랙티브 요소는 이제 공통 드래그 로직 또는 자체 핸들을 사용합니다.
-                // (기존 TextBox 전용 예외 제거)
                 SaveForUndo(); // 드래그 전 상태 저장
                 isDraggingObject = true;
                 objectDragLastPoint = clickPoint;
@@ -49,10 +46,16 @@ namespace CatchCapture
                 ImageCanvas.MouseLeftButtonUp -= Preview_SelectMouseUp;
                 ImageCanvas.MouseLeftButtonUp += Preview_SelectMouseUp;
                 ImageCanvas.LostMouseCapture -= (s, ev) => { isDraggingObject = false; };
+                return true;
             }
             else
             {
-                DeselectObject();
+                // 선택 모드일 때만 빈 곳 클릭 시 선택 해제
+                if (currentEditMode == EditMode.Select)
+                {
+                    DeselectObject();
+                }
+                return false;
             }
         }
 
@@ -219,7 +222,19 @@ namespace CatchCapture
 
         private void DeselectObject()
         {
+            if (selectedObject != null)
+            {
+                // [추가] 텍스트박스인 경우 편집 모드 종료
+                var tb = InteractiveEditor.FindTextBox(selectedObject);
+                if (tb != null)
+                {
+                    tb.IsReadOnly = true;
+                    tb.Focusable = true;
+                }
+            }
+
             selectedObject = null;
+            if (_editorManager != null) _editorManager.SelectedObject = null;
 
             // UI 요소 강제 제거
             if (objectSelectionBorder != null)
@@ -255,6 +270,13 @@ namespace CatchCapture
 
             Rect bounds = InteractiveEditor.GetElementBounds(selectedObject);
             
+            // Get current rotation
+            double rotation = 0;
+            if (selectedObject.RenderTransform is RotateTransform rt)
+            {
+                rotation = rt.Angle;
+            }
+
             if (objectSelectionBorder == null)
             {
                 objectSelectionBorder = new Rectangle
@@ -267,10 +289,27 @@ namespace CatchCapture
                 ImageCanvas.Children.Add(objectSelectionBorder);
             }
 
+            // Apply rotation to selection border
             objectSelectionBorder.Width = bounds.Width + 6;
             objectSelectionBorder.Height = bounds.Height + 6;
             Canvas.SetLeft(objectSelectionBorder, bounds.Left - 3);
             Canvas.SetTop(objectSelectionBorder, bounds.Top - 3);
+            
+            if (rotation != 0)
+            {
+                objectSelectionBorder.RenderTransformOrigin = new Point(0.5, 0.5);
+                objectSelectionBorder.RenderTransform = new RotateTransform(rotation);
+            }
+            else
+            {
+                objectSelectionBorder.RenderTransform = null;
+            }
+
+            Point center = new Point(bounds.Left + bounds.Width / 2, bounds.Top + bounds.Height / 2);
+
+            // Update Buttons Position with rotation
+            Point confirmPos = new Point(bounds.Right - 18, bounds.Top - 15);
+            Point rotatedConfirmPos = rotation != 0 ? RotatePoint(confirmPos, center, rotation) : confirmPos;
 
             if (objectConfirmButton == null)
             {
@@ -292,8 +331,11 @@ namespace CatchCapture
                 };
                 ImageCanvas.Children.Add(objectConfirmButton);
             }
-            Canvas.SetLeft(objectConfirmButton, bounds.Right - 18);
-            Canvas.SetTop(objectConfirmButton, bounds.Top - 15);
+            Canvas.SetLeft(objectConfirmButton, rotatedConfirmPos.X);
+            Canvas.SetTop(objectConfirmButton, rotatedConfirmPos.Y);
+
+            Point deletePos = new Point(bounds.Right + 5, bounds.Top - 15);
+            Point rotatedDeletePos = rotation != 0 ? RotatePoint(deletePos, center, rotation) : deletePos;
 
             if (objectDeleteButton == null)
             {
@@ -327,15 +369,25 @@ namespace CatchCapture
                 };
                 ImageCanvas.Children.Add(objectDeleteButton);
             }
-            Canvas.SetLeft(objectDeleteButton, bounds.Right + 5);
-            Canvas.SetTop(objectDeleteButton, bounds.Top - 15);
+            Canvas.SetLeft(objectDeleteButton, rotatedDeletePos.X);
+            Canvas.SetTop(objectDeleteButton, rotatedDeletePos.Y);
             
-            UpdateObjectResizeHandles(bounds);
+            UpdateObjectResizeHandles(bounds, rotation);
+        }
+
+        private Point RotatePoint(Point point, Point center, double angle)
+        {
+            double rad = angle * Math.PI / 180;
+            double cos = Math.Cos(rad);
+            double sin = Math.Sin(rad);
+            double dx = point.X - center.X;
+            double dy = point.Y - center.Y;
+            return new Point(center.X + dx * cos - dy * sin, center.Y + dx * sin + dy * cos);
         }
 
 
 
-        private Rectangle? objectRotationHandle;
+        private Ellipse? objectRotationHandle;
         private bool isRotatingObject = false;
         private double initialRotationAngle = 0;
         
@@ -362,12 +414,13 @@ namespace CatchCapture
             }
 
             // [New] Rotation Handle
-            objectRotationHandle = new Rectangle
+            objectRotationHandle = new Ellipse
             {
                 Name = "RotationHandle",
                 Width = 10, Height = 10, 
-                Fill = Brushes.White, Stroke = Brushes.Red, StrokeThickness = 1, 
-                RadiusX = 5, RadiusY = 5, // Circle shape
+                Fill = Brushes.White, 
+                Stroke = Brushes.Red, 
+                StrokeThickness = 2, 
                 Cursor = Cursors.Hand,
                 ToolTip = "회전"
             };
@@ -375,7 +428,13 @@ namespace CatchCapture
             ImageCanvas.Children.Add(objectRotationHandle);
             Panel.SetZIndex(objectRotationHandle, 2010);
 
-            UpdateObjectResizeHandles(InteractiveEditor.GetElementBounds(selectedObject));
+            // Initial generic update call (will be refined in specific update method)
+            if (selectedObject != null)
+            {
+                double angle = 0;
+                if (selectedObject.RenderTransform is RotateTransform rt) angle = rt.Angle;
+                UpdateObjectResizeHandles(InteractiveEditor.GetElementBounds(selectedObject), angle);
+            }
         }
 
         private void RemoveObjectResizeHandles() { 
@@ -388,36 +447,56 @@ namespace CatchCapture
             }
         }
 
-        private void UpdateObjectResizeHandles(Rect bounds)
+        private void UpdateObjectResizeHandles(Rect bounds, double rotation = 0)
         {
+            Point center = new Point(bounds.Left + bounds.Width / 2, bounds.Top + bounds.Height / 2);
+
             foreach (var handle in objectResizeHandles)
             {
                 string dir = handle.Name.Replace("ResizeHandle_", "");
-                double left = 0, top = 0;
+                // Calculate center position of handle (before rotation)
+                double cx = 0, cy = 0;
+                
                 switch (dir) {
-                    case "NW": left = bounds.Left - 4; top = bounds.Top - 4; break;
-                    case "N": left = bounds.Left + bounds.Width / 2 - 4; top = bounds.Top - 4; break;
-                    case "NE": left = bounds.Right - 4; top = bounds.Top - 4; break;
-                    case "W": left = bounds.Left - 4; top = bounds.Top + bounds.Height / 2 - 4; break;
-                    case "E": left = bounds.Right - 4; top = bounds.Top + bounds.Height / 2 - 4; break;
-                    case "SW": left = bounds.Left - 4; top = bounds.Bottom - 4; break;
-                    case "S": left = bounds.Left + bounds.Width / 2 - 4; top = bounds.Bottom - 4; break;
-                    case "SE": left = bounds.Right - 4; top = bounds.Bottom - 4; break;
+                    case "NW": cx = bounds.Left; cy = bounds.Top; break;
+                    case "N": cx = bounds.Left + bounds.Width / 2; cy = bounds.Top; break;
+                    case "NE": cx = bounds.Right; cy = bounds.Top; break;
+                    case "W": cx = bounds.Left; cy = bounds.Top + bounds.Height / 2; break;
+                    case "E": cx = bounds.Right; cy = bounds.Top + bounds.Height / 2; break;
+                    case "SW": cx = bounds.Left; cy = bounds.Bottom; break;
+                    case "S": cx = bounds.Left + bounds.Width / 2; cy = bounds.Bottom; break;
+                    case "SE": cx = bounds.Right; cy = bounds.Bottom; break;
                 }
-                Canvas.SetLeft(handle, left); Canvas.SetTop(handle, top);
+
+                // Apply rotation
+                Point handleCenter = new Point(cx, cy);
+                if (rotation != 0)
+                {
+                    handleCenter = RotatePoint(handleCenter, center, rotation);
+                }
+
+                // Set Canvas position (top-left of handle, handle size is 8x8)
+                Canvas.SetLeft(handle, handleCenter.X - 4);
+                Canvas.SetTop(handle, handleCenter.Y - 4);
             }
 
             // Update Rotation Handle Position (Above Top-Center)
             if (objectRotationHandle != null)
             {
-                Canvas.SetLeft(objectRotationHandle, bounds.Left + bounds.Width / 2 - 5);
-                Canvas.SetTop(objectRotationHandle, bounds.Top - 25); // 25px above top
+                Point rotHandleCenter = new Point(bounds.Left + bounds.Width / 2, bounds.Top - 25);
+                if (rotation != 0)
+                {
+                    rotHandleCenter = RotatePoint(rotHandleCenter, center, rotation);
+                }
+
+                Canvas.SetLeft(objectRotationHandle, rotHandleCenter.X - 5); // Handle size 10x10
+                Canvas.SetTop(objectRotationHandle, rotHandleCenter.Y - 5);
             }
         }
 
         private void ObjectResizeHandle_MouseDown(object sender, MouseButtonEventArgs e, string direction)
         {
-            if (currentEditMode != EditMode.Select) return;
+            // [수정] 핸들이 클릭되었다면 현재 모드와 상관없이 리사이즈 허용 (핸들이 보인다는 것은 조작 가능하다는 뜻)
             if (sender is UIElement handle)
             {
                 SaveForUndo(); // 리사이즈 전 상태 저장
@@ -463,7 +542,8 @@ namespace CatchCapture
         // [New] Rotation Logic
         private void ObjectRotationHandle_MouseDown(object sender, MouseButtonEventArgs e)
         {
-             if (currentEditMode != EditMode.Select || selectedObject == null) return;
+             // [수정] 회전 핸들이 클릭되었다면 현재 모드와 상관없이 회전 허용
+             if (selectedObject == null) return;
              
              SaveForUndo();
              isRotatingObject = true;
@@ -512,6 +592,9 @@ namespace CatchCapture
                 {
                     layer.Rotation = angle;
                 }
+                
+                // Update selection UI to rotate with the object
+                UpdateObjectSelectionUI();
             }
         }
         

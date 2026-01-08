@@ -18,8 +18,31 @@ namespace CatchCapture.Utilities
     {
         public static bool IsPointInElement(Point pt, UIElement element)
         {
+            if (element == null) return false;
+
+            // Handle Rotation
+            Point hitPoint = pt;
+            if (element is FrameworkElement feRot && feRot.RenderTransform is RotateTransform rt && rt.Angle != 0)
+            {
+                // Invert the point relative to element center to check against unrotated bounds
+                Rect visualBounds = GetElementBounds(element);
+                Point center = new Point(visualBounds.Left + visualBounds.Width / 2, visualBounds.Top + visualBounds.Height / 2);
+                
+                double angleRad = -rt.Angle * Math.PI / 180;
+                double cos = Math.Cos(angleRad);
+                double sin = Math.Sin(angleRad);
+                double dx = pt.X - center.X;
+                double dy = pt.Y - center.Y;
+                hitPoint = new Point(center.X + dx * cos - dy * sin, center.Y + dx * sin + dy * cos);
+            }
+
             if (element is Polyline polyline)
             {
+                // For rotated polyline, we should ideally use hitPoint, 
+                // but polyline points are typically global coordinates in this app.
+                // However, if it has a RenderTransform, the points are relative to IT?
+                // Let's check how polylines are handled. 
+                // Usually drawnElements polylines have points in Canvas coordinates.
                 foreach (var p in polyline.Points)
                 {
                     if (Math.Abs(p.X - pt.X) < 10 && Math.Abs(p.Y - pt.Y) < 10) return true;
@@ -31,7 +54,12 @@ namespace CatchCapture.Utilities
                 double t = Canvas.GetTop(textBox);
                 if (double.IsNaN(l)) l = 0;
                 if (double.IsNaN(t)) t = 0;
-                return pt.X >= l && pt.X <= l + textBox.ActualWidth && pt.Y >= t && pt.Y <= t + textBox.ActualHeight;
+                double w = textBox.ActualWidth > 0 ? textBox.ActualWidth : textBox.Width;
+                double h = textBox.ActualHeight > 0 ? textBox.ActualHeight : textBox.Height;
+                if (double.IsNaN(w)) w = 0;
+                if (double.IsNaN(h)) h = 0;
+
+                return hitPoint.X >= l && hitPoint.X <= l + w && hitPoint.Y >= t && hitPoint.Y <= t + h;
             }
             else if (element is Shape shape)
             {
@@ -49,23 +77,36 @@ namespace CatchCapture.Utilities
                     double h = shape.Height;
                     if (double.IsNaN(w)) w = shape.ActualWidth;
                     if (double.IsNaN(h)) h = shape.ActualHeight;
-                    return pt.X >= l && pt.X <= l + w && pt.Y >= t && pt.Y <= t + h;
+                    return hitPoint.X >= l && hitPoint.X <= l + w && hitPoint.Y >= t && hitPoint.Y <= t + h;
                 }
             }
-            else if (element is Canvas groupCanvas)
+            else if (element is Panel panel) // Canvas, Grid, StackPanel, etc.
             {
                 // Numbering group 등
-                foreach (var child in groupCanvas.Children)
+                foreach (var child in panel.Children)
                 {
                     if (child is UIElement ue && IsPointInElement(pt, ue)) return true;
                 }
                 
-                // Canvas 자체 영역도 체크 (태그나 라벨 등이 있을 수 있음)
-                double cl = Canvas.GetLeft(groupCanvas);
-                double ct = Canvas.GetTop(groupCanvas);
+                // Content area check
+                double cl = Canvas.GetLeft(panel);
+                double ct = Canvas.GetTop(panel);
                 if (double.IsNaN(cl)) cl = 0;
                 if (double.IsNaN(ct)) ct = 0;
-                if (pt.X >= cl && pt.X <= cl + groupCanvas.ActualWidth && pt.Y >= ct && pt.Y <= ct + groupCanvas.ActualHeight) return true;
+                double cw = panel.ActualWidth;
+                double ch = panel.ActualHeight;
+                
+                return pt.X >= cl && pt.X <= cl + cw && pt.Y >= ct && pt.Y <= ct + ch;
+            }
+            else if (element is Border border)
+            {
+                if (border.Child is UIElement child && IsPointInElement(pt, child)) return true;
+                
+                double bl = Canvas.GetLeft(border);
+                double bt = Canvas.GetTop(border);
+                if (double.IsNaN(bl)) bl = 0;
+                if (double.IsNaN(bt)) bt = 0;
+                return pt.X >= bl && pt.X <= bl + border.ActualWidth && pt.Y >= bt && pt.Y <= bt + border.ActualHeight;
             }
             return false;
         }
@@ -164,12 +205,14 @@ namespace CatchCapture.Utilities
                 double maxY = polygon.Points.Max(p => p.Y);
                 return new Rect(minX, minY, maxX - minX, maxY - minY);
             }
-            else if (element is Canvas groupCanvas)
+            else if (element is Panel panel) // Canvas, Grid, StackPanel, etc.
             {
-                if (groupCanvas.Children.Count == 0) return Rect.Empty;
+                if (panel.Children.Count == 0 || (panel.ActualWidth == 0 && panel.Width == 0)) 
+                    return new Rect(Canvas.GetLeft(panel), Canvas.GetTop(panel), panel.Width, panel.Height);
+
                 double minX = double.MaxValue, minY = double.MaxValue, maxX = double.MinValue, maxY = double.MinValue;
                 bool found = false;
-                foreach (UIElement child in groupCanvas.Children)
+                foreach (UIElement child in panel.Children)
                 {
                     Rect r = GetElementBounds(child);
                     if (r != Rect.Empty)
@@ -182,14 +225,40 @@ namespace CatchCapture.Utilities
                     }
                 }
 
-                if (!found) return Rect.Empty;
-
-                double left = Canvas.GetLeft(groupCanvas);
-                double top = Canvas.GetTop(groupCanvas);
+                double left = Canvas.GetLeft(panel);
+                double top = Canvas.GetTop(panel);
                 if (double.IsNaN(left)) left = 0;
                 if (double.IsNaN(top)) top = 0;
 
+                if (!found) 
+                {
+                    double w = panel.Width;
+                    double h = panel.Height;
+                    if (double.IsNaN(w)) w = panel.ActualWidth;
+                    if (double.IsNaN(h)) h = panel.ActualHeight;
+                    return new Rect(left, top, w, h);
+                }
+
                 return new Rect(minX + left, minY + top, maxX - minX, maxY - minY);
+            }
+            else if (element is Border border)
+            {
+                double left = Canvas.GetLeft(border);
+                double top = Canvas.GetTop(border);
+                if (double.IsNaN(left)) left = 0;
+                if (double.IsNaN(top)) top = 0;
+
+                if (border.Child is UIElement child)
+                {
+                    Rect r = GetElementBounds(child);
+                    return new Rect(r.Left + left, r.Top + top, r.Width, r.Height);
+                }
+                
+                double w = border.Width;
+                double h = border.Height;
+                if (double.IsNaN(w)) w = border.ActualWidth;
+                if (double.IsNaN(h)) h = border.ActualHeight;
+                return new Rect(left, top, w, h);
             }
             else
             {
@@ -323,6 +392,64 @@ namespace CatchCapture.Utilities
 
                 ShapeDrawingHelper.UpdateArrow(arrowCanvas, start, end, color, thickness);
             }
+            else if (element is Canvas group)
+            {
+                // Handle grouped TextBox or Numbering
+                TextBox? tb = FindTextBox(group);
+                if (tb != null)
+                {
+                    double left = Canvas.GetLeft(group);
+                    double top = Canvas.GetTop(group);
+                    if (double.IsNaN(left)) left = 0;
+                    if (double.IsNaN(top)) top = 0;
+
+                    // Note: Group dimensions are affected by dx, dy.
+                    // For Canvas groups (smart elements), we usually modify internal TextBox width/height
+                    // and move the base group if necessary.
+
+                    if (dir.Contains("W")) { left += dx; }
+                    if (dir.Contains("N")) { top += dy; }
+
+                    Canvas.SetLeft(group, left);
+                    Canvas.SetTop(group, top);
+
+                    // Resize the internal TextBox.
+                    double newW = (double.IsNaN(tb.Width) ? tb.ActualWidth : tb.Width) + (dir.Contains("W") ? -dx : (dir.Contains("E") ? dx : 0));
+                    double newH = (double.IsNaN(tb.Height) ? tb.ActualHeight : tb.Height) + (dir.Contains("N") ? -dy : (dir.Contains("S") ? dy : 0));
+
+                    if (newW < 20) newW = 20;
+                    if (newH < 20) newH = 20;
+
+                    tb.Width = newW;
+                    tb.Height = newH;
+                }
+            }
+        }
+
+        public static TextBox? FindTextBox(DependencyObject parent)
+        {
+            if (parent is TextBox tb) return tb;
+
+            int count = VisualTreeHelper.GetChildrenCount(parent);
+            if (count == 0 && parent is Panel panel)
+            {
+                foreach (var child in panel.Children)
+                {
+                    if (child is UIElement ui)
+                    {
+                        var found = FindTextBox(ui);
+                        if (found != null) return found;
+                    }
+                }
+            }
+
+            for (int i = 0; i < count; i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                var found = FindTextBox(child);
+                if (found != null) return found;
+            }
+            return null;
         }
     }
 }
