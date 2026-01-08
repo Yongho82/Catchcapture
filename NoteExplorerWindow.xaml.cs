@@ -648,6 +648,47 @@ namespace CatchCapture
                                 if (imagesDict.ContainsKey(n.Id)) n.Images = imagesDict[n.Id];
                                 if (imagePathsDict.ContainsKey(n.Id)) n.ImageFilePaths = imagePathsDict[n.Id];
                                 n.Thumbnail = n.Images?.FirstOrDefault();
+                                
+                                // [Fix] Fallback: If no thumbnail found in DB, try to extract from XAML
+                                if (n.Thumbnail == null && !string.IsNullOrEmpty(n.ContentXaml))
+                                {
+                                    try
+                                    {
+                                        // Find first Image Source
+                                        var match = System.Text.RegularExpressions.Regex.Match(n.ContentXaml, @"Source=""([^""]+)""", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                                        if (match.Success)
+                                        {
+                                            string src = match.Groups[1].Value;
+                                            
+                                            // Try to resolve path
+                                            string fullPath = src;
+                                            
+                                            // 1. If path is not rooted (unlikely for XamlWriter but possible), combine with imgDir
+                                            if (!System.IO.Path.IsPathRooted(fullPath))
+                                            {
+                                                fullPath = System.IO.Path.Combine(imgDir, System.IO.Path.GetFileName(src));
+                                            }
+                                            
+                                            // 2. If file doesn't exist at exact path, try looking in imgDir by filename
+                                            if (!System.IO.File.Exists(fullPath))
+                                            {
+                                                fullPath = System.IO.Path.Combine(imgDir, System.IO.Path.GetFileName(src));
+                                            }
+
+                                            // 3. Load if exists
+                                            if (System.IO.File.Exists(fullPath))
+                                            {
+                                                var bmp = LoadBitmapOptimized(fullPath);
+                                                if (bmp != null)
+                                                {
+                                                    n.Thumbnail = bmp;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    catch {}
+                                }
+
                                 if (tagsDict.ContainsKey(n.Id)) n.Tags = tagsDict[n.Id];
                                 if (attachDict.ContainsKey(n.Id)) n.Attachments = attachDict[n.Id];
                             }
