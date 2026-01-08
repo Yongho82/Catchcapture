@@ -252,6 +252,11 @@ namespace CatchCapture
                 ImageCanvas.Children.Remove(objectConfirmButton);
                 objectConfirmButton = null;
             }
+            if (objectCopyButton != null)
+            {
+                ImageCanvas.Children.Remove(objectCopyButton);
+                objectCopyButton = null;
+            }
             RemoveObjectResizeHandles();
             
             isDraggingObject = false;
@@ -348,7 +353,33 @@ namespace CatchCapture
             Canvas.SetLeft(objectConfirmButton, rotatedConfirmPos.X);
             Canvas.SetTop(objectConfirmButton, rotatedConfirmPos.Y);
 
-            Point deletePos = new Point(bounds.Right + 5, bounds.Top - 15);
+            // [추가] 복사 버튼 (❐)
+            Point copyPos = new Point(bounds.Right - 5, bounds.Top - 15);
+            Point rotatedCopyPos = rotation != 0 ? RotatePoint(copyPos, center, rotation) : copyPos;
+
+            if (objectCopyButton == null)
+            {
+                objectCopyButton = new Button
+                {
+                    Content = "❐", Width = 20, Height = 20,
+                    Background = Brushes.DodgerBlue, Foreground = Brushes.White,
+                    FontSize = 10, FontWeight = FontWeights.Bold,
+                    BorderThickness = new Thickness(0), Cursor = Cursors.Hand,
+                    ToolTip = "복사"
+                };
+                objectCopyButton.Click += (s, e) => {
+                    if (selectedObject != null)
+                    {
+                        SaveForUndo();
+                        _editorManager?.DuplicateElement(selectedObject);
+                    }
+                };
+                ImageCanvas.Children.Add(objectCopyButton);
+            }
+            Canvas.SetLeft(objectCopyButton, rotatedCopyPos.X);
+            Canvas.SetTop(objectCopyButton, rotatedCopyPos.Y);
+
+            Point deletePos = new Point(bounds.Right + 18, bounds.Top - 15);
             Point rotatedDeletePos = rotation != 0 ? RotatePoint(deletePos, center, rotation) : deletePos;
 
             if (objectDeleteButton == null)

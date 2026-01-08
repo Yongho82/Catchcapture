@@ -54,6 +54,7 @@ namespace CatchCapture
         private Point objectDragLastPoint;
         private Button? objectDeleteButton;
         private Button? objectConfirmButton;
+        private Button? objectCopyButton;
 
         private SharedCanvasEditor _editorManager;
         private Stack<UIElement> _editorUndoStack = new Stack<UIElement>();

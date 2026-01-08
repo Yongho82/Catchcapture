@@ -344,12 +344,18 @@ namespace CatchCapture.Utilities
             Canvas.SetLeft(noteGrid, bSize + 5);
             Canvas.SetTop(noteGrid, 0);
 
-            // 확정/삭제 버튼
+            // 확정/복사/삭제 버튼
             var btnPanel = new StackPanel { Orientation = Orientation.Horizontal };
             var confirmBtn = new Button { 
                 Content = "✓", Width = 24, Height = 24, Margin = new Thickness(2,0,0,0),
                 Background = Brushes.Green, Foreground = Brushes.White, BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
+                FontSize = 12, FontWeight = FontWeights.Bold
+            };
+            var copyBtn = new Button { 
+                Content = "❐", Width = 24, Height = 24, Margin = new Thickness(2,0,0,0),
+                Background = Brushes.DodgerBlue, Foreground = Brushes.White, BorderThickness = new Thickness(0),
+                Cursor = Cursors.Hand, ToolTip = "복사",
                 FontSize = 12, FontWeight = FontWeights.Bold
             };
             var deleteBtn = new Button { 
@@ -359,6 +365,7 @@ namespace CatchCapture.Utilities
                 FontSize = 12, FontWeight = FontWeights.Bold
             };
             btnPanel.Children.Add(confirmBtn);
+            btnPanel.Children.Add(copyBtn);
             btnPanel.Children.Add(deleteBtn);
             group.Children.Add(btnPanel);
 
@@ -398,6 +405,16 @@ namespace CatchCapture.Utilities
                 btnPanel.Visibility = Visibility.Collapsed;
                 group.Background = null;
                 _isEditingNumbering = false;
+            };
+
+            copyBtn.Click += (s, e) => {
+                Point currentPos = new Point(Canvas.GetLeft(group), Canvas.GetTop(group));
+                CreateNumberingAt(new Point(currentPos.X + 30, currentPos.Y + 30));
+                // 복사된 텍스트박스에는 현재 내용 복사 (필요시)
+                if (SelectedObject is Canvas newGroup) {
+                    var newTb = FindTextBox(newGroup);
+                    if (newTb != null) newTb.Text = note.Text;
+                }
             };
 
             deleteBtn.Click += (s, e) => {
@@ -598,12 +615,18 @@ namespace CatchCapture.Utilities
             Canvas.SetLeft(nodeGrid, 0);
             Canvas.SetTop(nodeGrid, 0);
 
-            // 확정/삭제 버튼
+            // 확정/복사/삭제 버튼
             var btnPanel = new StackPanel { Orientation = Orientation.Horizontal };
             var confirmBtn = new Button { 
                 Content = "✓", Width = 24, Height = 24, Margin = new Thickness(2,0,0,0),
                 Background = Brushes.Green, Foreground = Brushes.White, BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
+                FontSize = 12, FontWeight = FontWeights.Bold
+            };
+            var copyBtn = new Button { 
+                Content = "❐", Width = 24, Height = 24, Margin = new Thickness(2,0,0,0),
+                Background = Brushes.DodgerBlue, Foreground = Brushes.White, BorderThickness = new Thickness(0),
+                Cursor = Cursors.Hand, ToolTip = "복사",
                 FontSize = 12, FontWeight = FontWeights.Bold
             };
             var deleteBtn = new Button { 
@@ -613,6 +636,7 @@ namespace CatchCapture.Utilities
                 FontSize = 12, FontWeight = FontWeights.Bold
             };
             btnPanel.Children.Add(confirmBtn);
+            btnPanel.Children.Add(copyBtn);
             btnPanel.Children.Add(deleteBtn);
             group.Children.Add(btnPanel);
             
@@ -643,6 +667,11 @@ namespace CatchCapture.Utilities
                 moveHandle.Visibility = Visibility.Collapsed;
                 btnPanel.Visibility = Visibility.Collapsed;
                 group.Background = null;
+            };
+
+            copyBtn.Click += (s, e) => {
+                Point currentPos = new Point(Canvas.GetLeft(group), Canvas.GetTop(group));
+                AddTextAt(new Point(currentPos.X + 20, currentPos.Y + 20), textBox.Text);
             };
 
             deleteBtn.Click += (s, e) => {
@@ -711,10 +740,10 @@ namespace CatchCapture.Utilities
             MouseButtonEventHandler doubleClickEdit = (s, e) => {
                 if (e.ClickCount == 2) {
                     textBox.IsReadOnly = false;
-                    // dashedBorder.Visibility = Visibility.Visible;
-                    // resizeHandle.Visibility = Visibility.Visible;
-                    // moveHandle.Visibility = Visibility.Visible;
-                    // btnPanel.Visibility = Visibility.Visible;
+                    dashedBorder.Visibility = Visibility.Visible;
+                    resizeHandle.Visibility = Visibility.Visible;
+                    moveHandle.Visibility = Visibility.Visible;
+                    btnPanel.Visibility = Visibility.Visible;
                     SelectedObject = group;
                     textBox.Focus();
                     e.Handled = true;
@@ -733,12 +762,10 @@ namespace CatchCapture.Utilities
                 if (e.ClickCount == 2)
                 {
                     textBox.IsReadOnly = false;
-                    /*
                     dashedBorder.Visibility = Visibility.Visible;
                     resizeHandle.Visibility = Visibility.Visible;
                     moveHandle.Visibility = Visibility.Visible;
                     btnPanel.Visibility = Visibility.Visible;
-                    */
                     SelectedObject = group; 
                     textBox.Focus();
                     e.Handled = true;
@@ -976,5 +1003,68 @@ namespace CatchCapture.Utilities
         }
 
         private Brush GetContrastBrush(Color c) => new SolidColorBrush(GetContrastColor(c));
+        public UIElement? DuplicateElement(UIElement original)
+        {
+            if (original == null) return null;
+
+            double offset = 20;
+            double left = Canvas.GetLeft(original);
+            double top = Canvas.GetTop(original);
+            if (double.IsNaN(left)) left = 0;
+            if (double.IsNaN(top)) top = 0;
+
+            UIElement? clone = null;
+
+            // 1. 순수 텍스트박스 또는 넘버링 (Canvas 그룹)
+            if (original is Canvas group)
+            {
+                TextBox? tb = FindTextBox(group);
+                if (tb != null)
+                {
+                    bool isNumbering = group.Children.Count > 0 && group.Children[0] is Border;
+                    if (isNumbering)
+                    {
+                        CreateNumberingAt(new Point(left + offset + 15, top + offset + 15)); // 배지 중심 기준이므로 약간 보정
+                        clone = SelectedObject;
+                        if (clone is Canvas newCanvas && FindTextBox(newCanvas) is TextBox newTb)
+                        {
+                            newTb.Text = tb.Text;
+                        }
+                    }
+                    else
+                    {
+                        AddTextAt(new Point(left + offset, top + offset), tb.Text);
+                        clone = SelectedObject;
+                    }
+                    return clone;
+                }
+            }
+
+            // 2. 일반 도형 (ShapeMetadata 사용)
+            if (original is FrameworkElement fe && fe.Tag is ShapeMetadata meta)
+            {
+                Point nStart = new Point(meta.StartPoint.X + offset, meta.StartPoint.Y + offset);
+                Point nEnd = new Point(meta.EndPoint.X + offset, meta.EndPoint.Y + offset);
+                
+                // RotateTransform이 있다면 복제본에도 적용
+                var rt = original.RenderTransform as RotateTransform;
+
+                clone = ShapeDrawingHelper.CreateShape(meta.ShapeType, nStart, nEnd, meta.Color, meta.Thickness, meta.IsFilled, meta.FillOpacity);
+                if (clone != null)
+                {
+                    if (rt != null) clone.RenderTransform = new RotateTransform(rt.Angle);
+                    
+                    _canvas.Children.Add(clone);
+                    _drawnElements.Add(clone);
+                    _undoStack?.Push(clone);
+                    SelectedObject = clone;
+                    ElementAdded?.Invoke(clone);
+                    ActionOccurred?.Invoke();
+                }
+                return clone;
+            }
+
+            return null;
+        }
     }
 }

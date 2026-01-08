@@ -86,6 +86,7 @@ namespace CatchCapture.Utilities
         private Point objectDragLastPoint;
         private Button? objectDeleteButton;
         private Button? objectConfirmButton;
+        private Button? objectCopyButton;
 
         private SharedCanvasEditor _editorManager;
 
@@ -2132,6 +2133,11 @@ namespace CatchCapture.Utilities
                     canvas.Children.Remove(objectConfirmButton);
                     objectConfirmButton = null;
                 }
+                if (objectCopyButton != null)
+                {
+                    canvas.Children.Remove(objectCopyButton);
+                    objectCopyButton = null;
+                }
                 RemoveObjectResizeHandles();
             }
             isDraggingObject = false;
@@ -2692,6 +2698,7 @@ namespace CatchCapture.Utilities
             {
                 if (objectSelectionBorder != null) objectSelectionBorder.Visibility = Visibility.Collapsed;
                 if (objectConfirmButton != null) objectConfirmButton.Visibility = Visibility.Collapsed;
+                if (objectCopyButton != null) objectCopyButton.Visibility = Visibility.Collapsed;
                 if (objectDeleteButton != null) objectDeleteButton.Visibility = Visibility.Collapsed;
                 return;
             }
@@ -2699,6 +2706,7 @@ namespace CatchCapture.Utilities
             // [추가] 도형 등 일반 요소인 경우 다시 보이게 함
             if (objectSelectionBorder != null) objectSelectionBorder.Visibility = Visibility.Visible;
             if (objectConfirmButton != null) objectConfirmButton.Visibility = Visibility.Visible;
+            if (objectCopyButton != null) objectCopyButton.Visibility = Visibility.Visible;
             if (objectDeleteButton != null) objectDeleteButton.Visibility = Visibility.Visible;
 
             Rect bounds = InteractiveEditor.GetElementBounds(selectedObject);
@@ -2750,10 +2758,34 @@ namespace CatchCapture.Utilities
                 canvas.Children.Add(objectConfirmButton);
             }
             
-            Point confirmPos = new Point(bounds.Right - 18, bounds.Top - 15);
+            Point confirmPos = new Point(bounds.Right - 40, bounds.Top - 15);
             if (rotation != 0) confirmPos = RotatePoint(confirmPos, center, rotation);
             Canvas.SetLeft(objectConfirmButton, confirmPos.X);
             Canvas.SetTop(objectConfirmButton, confirmPos.Y);
+
+            // [추가] 복사 버튼
+            if (objectCopyButton == null)
+            {
+                objectCopyButton = new Button
+                {
+                    Content = "❐", Width = 20, Height = 20,
+                    Background = Brushes.DodgerBlue, Foreground = Brushes.White,
+                    FontSize = 10, FontWeight = FontWeights.Bold,
+                    BorderThickness = new Thickness(0), Cursor = Cursors.Hand,
+                    ToolTip = ResLoc.GetString("Copy") ?? "복사"
+                };
+                objectCopyButton.Click += (s, e) => {
+                    if (selectedObject != null)
+                    {
+                        _editorManager?.DuplicateElement(selectedObject);
+                    }
+                };
+                canvas.Children.Add(objectCopyButton);
+            }
+            Point copyPos = new Point(bounds.Right - 18, bounds.Top - 15);
+            if (rotation != 0) copyPos = RotatePoint(copyPos, center, rotation);
+            Canvas.SetLeft(objectCopyButton, copyPos.X);
+            Canvas.SetTop(objectCopyButton, copyPos.Y);
 
             // 삭제 버튼
             if (objectDeleteButton == null)
