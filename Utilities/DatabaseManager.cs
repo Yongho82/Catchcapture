@@ -1812,9 +1812,42 @@ namespace CatchCapture.Utilities
                                 else if (!att.IsExisting && att.FullPath != null && File.Exists(att.FullPath))
                                 {
                                     string yearSub = EnsureYearFolderExists(attachDir);
-                                    string newFileNameOnly = $"{Guid.NewGuid()}_{att.DisplayName}";
-                                    string relPath = Path.Combine(yearSub, newFileNameOnly);
-                                    string fullPath = Path.Combine(attachDir, relPath);
+                                    
+                                    // [Modified] Use Template for Attachment Filename
+                                    string ext = Path.GetExtension(att.DisplayName).ToLower();
+                                    string fName = settings.NoteFileNameTemplate ?? "Catch_$yyyy-MM-dd_HH-mm-ss$";
+                                    DateTime now = DateTime.Now;
+                                    
+                                    foreach (System.Text.RegularExpressions.Match match in System.Text.RegularExpressions.Regex.Matches(fName, @"\$(.*?)\$"))
+                                    {
+                                        string k = match.Groups[1].Value;
+                                        if (k.Equals("App", StringComparison.OrdinalIgnoreCase)) fName = fName.Replace(match.Value, request.SourceApp ?? "CatchC");
+                                        else if (k.Equals("Title", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            string st = request.Title;
+                                            if (st.Length > 20) st = st.Substring(0, 20);
+                                            // sanitize title
+                                            foreach (char c in Path.GetInvalidFileNameChars()) st = st.Replace(c, '_');
+                                            fName = fName.Replace(match.Value, st);
+                                        }
+                                        else try { fName = fName.Replace(match.Value, now.ToString(k)); } catch { }
+                                    }
+                                    
+                                    // Sanitize final filename
+                                    foreach (char c in Path.GetInvalidFileNameChars()) fName = fName.Replace(c, '_');
+                                    
+                                    string fileNameOnly = fName + ext;
+                                    string targetDir = Path.Combine(attachDir, yearSub);
+                                    string fullPath = Path.Combine(targetDir, fileNameOnly);
+                                    
+                                    int counter = 1;
+                                    while (File.Exists(fullPath))
+                                    {
+                                        fileNameOnly = $"{fName}_{counter++}{ext}";
+                                        fullPath = Path.Combine(targetDir, fileNameOnly);
+                                    }
+
+                                    string relPath = Path.Combine(yearSub, fileNameOnly);
                                     File.Copy(att.FullPath, fullPath);
 
                                     using (var cmd = new SqliteCommand("INSERT INTO NoteAttachments (NoteId, FilePath, OriginalName, FileType) VALUES ($nid, $path, $name, $type)", connection, transaction))
