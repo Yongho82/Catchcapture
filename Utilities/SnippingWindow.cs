@@ -2460,6 +2460,9 @@ namespace CatchCapture.Utilities
             if (selectedObject == null) return;
             if (selectedObject is Polyline) return; // Polyline은 리사이즈 복잡해서 일단 보류
 
+            // [추가] 텍스트나 넘버링 요소는 자체 내부 핸들을 사용하므로 글로벌 리사이즈 핸들 및 회전 핸들 생성 안함
+            if (InteractiveEditor.FindTextBox(selectedObject) != null) return;
+
             string[] directions = { "NW", "N", "NE", "W", "E", "SW", "S", "SE" };
             Cursor[] cursors = { Cursors.SizeNWSE, Cursors.SizeNS, Cursors.SizeNESW, Cursors.SizeWE, Cursors.SizeWE, Cursors.SizeNESW, Cursors.SizeNS, Cursors.SizeNWSE };
 
@@ -2683,6 +2686,20 @@ namespace CatchCapture.Utilities
         private void UpdateObjectSelectionUI()
         {
             if (selectedObject == null) return;
+
+            // [추가] 텍스트나 넘버링 요소는 자체 내부 UI를 사용하므로 글로벌 선택 테두리 및 버튼 감춤
+            if (InteractiveEditor.FindTextBox(selectedObject) != null)
+            {
+                if (objectSelectionBorder != null) objectSelectionBorder.Visibility = Visibility.Collapsed;
+                if (objectConfirmButton != null) objectConfirmButton.Visibility = Visibility.Collapsed;
+                if (objectDeleteButton != null) objectDeleteButton.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            // [추가] 도형 등 일반 요소인 경우 다시 보이게 함
+            if (objectSelectionBorder != null) objectSelectionBorder.Visibility = Visibility.Visible;
+            if (objectConfirmButton != null) objectConfirmButton.Visibility = Visibility.Visible;
+            if (objectDeleteButton != null) objectDeleteButton.Visibility = Visibility.Visible;
 
             Rect bounds = InteractiveEditor.GetElementBounds(selectedObject);
             double rotation = 0;

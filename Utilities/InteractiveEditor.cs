@@ -82,21 +82,26 @@ namespace CatchCapture.Utilities
             }
             else if (element is Panel panel) // Canvas, Grid, StackPanel, etc.
             {
-                // Numbering group 등
+                // Numbering group 등 내부 요소 체크
                 foreach (var child in panel.Children)
                 {
                     if (child is UIElement ue && IsPointInElement(pt, ue)) return true;
                 }
                 
-                // Content area check
-                double cl = Canvas.GetLeft(panel);
-                double ct = Canvas.GetTop(panel);
-                if (double.IsNaN(cl)) cl = 0;
-                if (double.IsNaN(ct)) ct = 0;
-                double cw = panel.ActualWidth;
-                double ch = panel.ActualHeight;
+                // 배경이 투명하지 않은 경우에만 전체 영역 히트 테스트 허용
+                if (panel.Background != null && panel.Background != Brushes.Transparent)
+                {
+                    double cl = Canvas.GetLeft(panel);
+                    double ct = Canvas.GetTop(panel);
+                    if (double.IsNaN(cl)) cl = 0;
+                    if (double.IsNaN(ct)) ct = 0;
+                    double cw = panel.ActualWidth;
+                    double ch = panel.ActualHeight;
+                    
+                    if (pt.X >= cl && pt.X <= cl + cw && pt.Y >= ct && pt.Y <= ct + ch) return true;
+                }
                 
-                return pt.X >= cl && pt.X <= cl + cw && pt.Y >= ct && pt.Y <= ct + ch;
+                return false;
             }
             else if (element is Border border)
             {
@@ -236,10 +241,17 @@ namespace CatchCapture.Utilities
                     double h = panel.Height;
                     if (double.IsNaN(w)) w = panel.ActualWidth;
                     if (double.IsNaN(h)) h = panel.ActualHeight;
+                    if (double.IsNaN(w)) w = 0;
+                    if (double.IsNaN(h)) h = 0;
                     return new Rect(left, top, w, h);
                 }
 
-                return new Rect(minX + left, minY + top, maxX - minX, maxY - minY);
+                double rw = maxX - minX;
+                double rh = maxY - minY;
+                if (rw < 0) rw = 0;
+                if (rh < 0) rh = 0;
+
+                return new Rect(minX + left, minY + top, rw, rh);
             }
             else if (element is Border border)
             {
