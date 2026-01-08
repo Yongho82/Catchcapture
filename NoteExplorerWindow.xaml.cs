@@ -578,29 +578,16 @@ namespace CatchCapture
 
                             // [최적화 2] 이미지 파일 로딩을 병렬 처리 (클라우드 환경에서 매우 효과적)
                             // 동시성 제어를 위해 lock 사용
-                            object dictLock = new object();
-                            
-                            System.Threading.Tasks.Parallel.ForEach(pendingImages, new ParallelOptions { MaxDegreeOfParallelism = 8 }, item =>
+                            // [최적화 2] 이미지 경로만 수집 (로딩은 NoteViewModel에서 Lazy Async 처리)
+                            foreach (var item in pendingImages)
                             {
                                 string full = Path.Combine(imgDir, item.FileName);
                                 if (File.Exists(full))
                                 {
-                                    // [최적화 3] 썸네일 크기 축소 (150px)
-                                    var bmp = LoadBitmapOptimized(full);
-                                    
-                                    lock (dictLock)
-                                    {
-                                        if (bmp != null)
-                                        {
-                                            if (!imagesDict.ContainsKey(item.NoteId)) imagesDict[item.NoteId] = new List<BitmapSource>();
-                                            imagesDict[item.NoteId].Add(bmp);
-                                        }
-                                        // Always store path
-                                        if (!imagePathsDict.ContainsKey(item.NoteId)) imagePathsDict[item.NoteId] = new List<string>();
-                                        imagePathsDict[item.NoteId].Add(full);
-                                    }
+                                    if (!imagePathsDict.ContainsKey(item.NoteId)) imagePathsDict[item.NoteId] = new List<string>();
+                                    imagePathsDict[item.NoteId].Add(full);
                                 }
-                            });
+                            }
 
                             // Tags
                             var tagsDict = new Dictionary<long, List<string>>();
@@ -645,9 +632,9 @@ namespace CatchCapture
 
                             foreach (var n in notesList)
                             {
-                                if (imagesDict.ContainsKey(n.Id)) n.Images = imagesDict[n.Id];
+                                // if (imagesDict.ContainsKey(n.Id)) n.Images = imagesDict[n.Id]; // Removed eager loading
                                 if (imagePathsDict.ContainsKey(n.Id)) n.ImageFilePaths = imagePathsDict[n.Id];
-                                n.Thumbnail = n.Images?.FirstOrDefault();
+                                // n.Thumbnail = n.Images?.FirstOrDefault(); // Handled by Lazy Loading property
                                 
                                 // [Fix] Fallback: If no thumbnail found in DB, try to extract from XAML
                                 if (n.Thumbnail == null && !string.IsNullOrEmpty(n.ContentXaml))
@@ -678,10 +665,11 @@ namespace CatchCapture
                                             // 3. Load if exists
                                             if (System.IO.File.Exists(fullPath))
                                             {
-                                                var bmp = LoadBitmapOptimized(fullPath);
-                                                if (bmp != null)
+                                                // Instead of loading bitmap here, add to ImageFilePaths so Lazy Loader picks it up
+                                                if (n.ImageFilePaths == null) n.ImageFilePaths = new List<string>();
+                                                if (!n.ImageFilePaths.Contains(fullPath))
                                                 {
-                                                    n.Thumbnail = bmp;
+                                                    n.ImageFilePaths.Insert(0, fullPath); // Prioritize this extracted image
                                                 }
                                             }
                                         }
@@ -1879,8 +1867,47 @@ namespace CatchCapture
         private string _categoryColor = "#8E2DE2";
         public string CategoryColor { get => _categoryColor; set { _categoryColor = value; OnPropertyChanged(nameof(CategoryColor)); } }
         
+        private bool _isThumbnailLoading = false;
         private BitmapSource? _thumbnail;
-        public BitmapSource? Thumbnail { get => _thumbnail; set { _thumbnail = value; OnPropertyChanged(nameof(Thumbnail)); } }
+        public BitmapSource? Thumbnail 
+        { 
+            get 
+            {
+                if (_thumbnail == null && !_isThumbnailLoading && ImageFilePaths != null && ImageFilePaths.Count > 0)
+                {
+                    _isThumbnailLoading = true;
+                    var path = ImageFilePaths[0];
+                    
+                    System.Threading.Tasks.Task.Run(() => 
+                    {
+                        try
+                        {
+                            if (System.IO.File.Exists(path))
+                            {
+                                var bitmap = new BitmapImage();
+                                bitmap.BeginInit();
+                                bitmap.UriSource = new Uri(path);
+                                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                                // Optimize decode size for thumbnails (150px is enough for list/card)
+                                bitmap.DecodePixelWidth = 150; 
+                                bitmap.EndInit();
+                                bitmap.Freeze();
+
+                                _thumbnail = bitmap;
+                                OnPropertyChanged(nameof(Thumbnail));
+                            }
+                        }
+                        catch { }
+                        finally 
+                        { 
+                            _isThumbnailLoading = false; 
+                        }
+                    });
+                }
+                return _thumbnail; 
+            }
+            set { _thumbnail = value; OnPropertyChanged(nameof(Thumbnail)); } 
+        }
 
         private List<BitmapSource> _images = new List<BitmapSource>();
         public List<BitmapSource> Images { get => _images; set { _images = value; OnPropertyChanged(nameof(Images)); } }
