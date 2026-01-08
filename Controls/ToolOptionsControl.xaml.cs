@@ -428,13 +428,26 @@ namespace CatchCapture.Controls
                     ColorGrid.Children.Add(CreateColorSwatch(c));
             }
             
-            // Custom Colors (Placeholder - ideally this syncs with persistent storage)
-            // For now, just add a + button
+            // Custom Colors from Settings
+            var settings = Settings.Load();
+            foreach (var hexColor in settings.CustomPaletteColors)
+            {
+                try
+                {
+                    var color = (Color)ColorConverter.ConvertFromString(hexColor);
+                    ColorGrid.Children.Add(CreateColorSwatch(color));
+                }
+                catch { }
+            }
+
+            // Add '+' button
              var addButton = new Button
              {
-                 Content = "+", Width = 20, Height = 20, Margin = new Thickness(2),
+                 Content = new TextBlock { Text = "+", FontSize = 16, FontWeight = FontWeights.Bold, Margin = new Thickness(0, -4, 0, 0), Foreground = Brushes.Black },
+                 Width = 20, Height = 20, Margin = new Thickness(2),
                  BorderThickness = new Thickness(1), Cursor = Cursors.Hand,
-                 Background = Brushes.White
+                 Background = Brushes.White,
+                 Padding = new Thickness(0)
              };
              addButton.Click += AddCustomColor;
              ColorGrid.Children.Add(addButton);
@@ -493,9 +506,31 @@ namespace CatchCapture.Controls
              if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
              {
                   var newColor = Color.FromArgb(dlg.Color.A, dlg.Color.R, dlg.Color.G, dlg.Color.B);
-                  _customColors.Add(newColor);
+                  
+                  // Add to persistent settings
+                  var settings = Settings.Load();
+                  string hex = newColor.ToString(); // #AARRGGBB
+                  if (!settings.CustomPaletteColors.Contains(hex))
+                  {
+                      settings.CustomPaletteColors.Add(hex);
+                      settings.Save();
+                  }
+
+                  // Add to UI (before the + button)
                   ColorGrid.Children.Insert(ColorGrid.Children.Count - 1, CreateColorSwatch(newColor));
-                  if (_editor != null) _editor.SelectedColor = newColor;
+                  
+                  if (_editor != null) {
+                        if (_currentMode == "넘버링")
+                        {
+                            if (NumBadgeTab.IsChecked == true) _editor.NumberingBadgeColor = newColor;
+                            else _editor.NumberingNoteColor = newColor;
+                        }
+                        else
+                        {
+                             _editor.SelectedColor = newColor;
+                        }
+                        _editor.ApplyCurrentTextSettingsToSelectedObject();
+                  }
                   UpdateColorSelection(newColor);
              }
         }

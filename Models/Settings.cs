@@ -27,6 +27,9 @@ namespace CatchCapture.Models
         public string CustomThemeBackgroundColor { get; set; } = "#FFFFFF";
         public string CustomThemeTextColor { get; set; } = "#333333";
 
+        // Custom Palette Colors
+        public List<string> CustomPaletteColors { get; set; } = new List<string>();
+
         // Capture Line & Overlay Settings
         public string OverlayBackgroundColor { get; set; } = "#8C000000"; // Default: 140/255 opacity black
         public string CaptureLineColor { get; set; } = "#FF0000";       // Default: Red
