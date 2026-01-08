@@ -409,9 +409,13 @@ namespace CatchCapture
         private void InitializeTipTimer()
         {
             _tipTimer = new System.Windows.Threading.DispatcherTimer();
-            _tipTimer.Interval = TimeSpan.FromSeconds(5);
+            // ★ 최적화: 유휴 상태 CPU 점유율 감소를 위해 간격 확대 (5초 -> 15초)
+            _tipTimer.Interval = TimeSpan.FromSeconds(15);
             _tipTimer.Tick += (s, e) => {
                 if (_currentFilter == "Trash") return;
+
+                // ★ 최적화: 창이 활성화된 상태일 때만 애니메이션 및 팁 변경 실행
+                if (!this.IsActive) return;
 
                 _currentTipIndex = (_currentTipIndex + 1) % _tips.Count;
                 TxtRollingTip.Opacity = 0;
@@ -1389,9 +1393,8 @@ namespace CatchCapture
                 LstNotes.ItemContainerStyle = (Style)FindResource("NoteCardStyle");
                 LstNotes.ItemTemplate = (DataTemplate)FindResource("CardTemplate");
                 
-                // Set ItemsPanel to WrapPanel
+                // Use WrapPanel (virtualization disabled for now due to stability issues)
                 var factory = new FrameworkElementFactory(typeof(WrapPanel));
-                // factory.SetValue(WrapPanel.ItemWidthProperty, 260.0); // Can add this if we want fixed wrapping
                 var template = new ItemsPanelTemplate(factory);
                 LstNotes.ItemsPanel = template;
                 
@@ -1903,37 +1906,33 @@ namespace CatchCapture
                 if (_thumbnail == null && !_isThumbnailLoading && ImageFilePaths != null && ImageFilePaths.Count > 0)
                 {
                     _isThumbnailLoading = true;
-                    var path = ImageFilePaths[0];
-                    
-                    System.Threading.Tasks.Task.Run(() => 
-                    {
-                        try
-                        {
-                            if (System.IO.File.Exists(path))
-                            {
-                                var bitmap = new BitmapImage();
-                                bitmap.BeginInit();
-                                bitmap.UriSource = new Uri(path);
-                                bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                                // Optimize decode size for thumbnails (150px is enough for list/card)
-                                bitmap.DecodePixelWidth = 150; 
-                                bitmap.EndInit();
-                                bitmap.Freeze();
-
-                                _thumbnail = bitmap;
-                                OnPropertyChanged(nameof(Thumbnail));
-                            }
-                        }
-                        catch { }
-                        finally 
-                        { 
-                            _isThumbnailLoading = false; 
-                        }
-                    });
+                    _ = LoadThumbnailInternal();
                 }
                 return _thumbnail; 
             }
             set { _thumbnail = value; OnPropertyChanged(nameof(Thumbnail)); } 
+        }
+
+        private async Task LoadThumbnailInternal()
+        {
+            try
+            {
+                if (ImageFilePaths != null && ImageFilePaths.Count > 0)
+                {
+                    var path = ImageFilePaths[0];
+                    var bitmap = await ThumbnailManager.LoadThumbnailAsync(path, 150);
+                    if (bitmap != null)
+                    {
+                        _thumbnail = bitmap;
+                        OnPropertyChanged(nameof(Thumbnail));
+                    }
+                }
+            }
+            catch { }
+            finally
+            {
+                _isThumbnailLoading = false;
+            }
         }
 
         private List<BitmapSource> _images = new List<BitmapSource>();

@@ -58,7 +58,7 @@ namespace CatchCapture
             if (BtnOpenFolder != null) BtnOpenFolder.ToolTip = LocalizationManager.GetString("OpenFolder") ?? "폴더 열기";
         }
 
-        private void LoadItem()
+        private async void LoadItem()
         {
             if (_item == null) return;
             
@@ -133,33 +133,30 @@ namespace CatchCapture
 
                     if (!string.IsNullOrEmpty(previewPath) && System.IO.File.Exists(previewPath))
                     {
-                        var bitmap = new BitmapImage();
-                        bitmap.BeginInit();
-                        bitmap.UriSource = new Uri(previewPath);
-                        bitmap.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
-                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                        bitmap.EndInit();
-                        
-                        ImgPreview.Source = bitmap;
-                        ImgPreview.Opacity = 1.0;
-
-                        // 이미지가 있으면 실제 크기 정보 다시 한번 확인 (이미지인 경우만)
-                        if (!isMedia)
+                        // Use ThumbnailManager for throttled decoding
+                        // 0 for decodeWidth means full size, but we use the throttled manager
+                        var bitmap = await ThumbnailManager.LoadThumbnailAsync(previewPath, 0);
+                        if (bitmap != null)
                         {
-                            TxtPreviewSize.Text = $"{bitmap.PixelWidth} x {bitmap.PixelHeight}";
-                            
-                            // 이미지 가로가 길면 창 너비를 좀 더 늘려줌 (기본 1000 -> 최대 1600)
-                            if (bitmap.PixelWidth > 900)
+                            ImgPreview.Source = bitmap;
+                            ImgPreview.Opacity = 1.0;
+
+                            // 이미지가 있으면 실제 크기 정보 다시 한번 확인 (이미지인 경우만)
+                            if (!isMedia)
                             {
-                                double targetWidth = Math.Min(bitmap.PixelWidth + 100, 1600);
-                                if (targetWidth > this.Width)
+                                TxtPreviewSize.Text = $"{bitmap.PixelWidth} x {bitmap.PixelHeight}";
+                                
+                                // 이미지 가로가 길면 창 너비를 좀 더 늘려줌 (기본 1000 -> 최대 1600)
+                                if (bitmap.PixelWidth > 900)
                                 {
-                                    this.Width = targetWidth;
+                                    double targetWidth = Math.Min(bitmap.PixelWidth + 100, 1600);
+                                    if (targetWidth > this.Width)
+                                    {
+                                        this.Width = targetWidth;
+                                    }
                                 }
                             }
                         }
-                        
-                        // 창을 최상단으로 활성화 (태스크바에 머물지 않도록) - Loaded 이벤트에서 처리함
                     }
                 }
                 else

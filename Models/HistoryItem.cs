@@ -1,6 +1,8 @@
 using System;
 using System.ComponentModel;
 using System.Windows.Media.Imaging;
+using System.Threading.Tasks;
+using CatchCapture.Utilities;
 
 namespace CatchCapture.Models
 {
@@ -58,46 +60,45 @@ namespace CatchCapture.Models
                 if (_thumbnail == null && !_isThumbnailLoading && !string.IsNullOrEmpty(FilePath))
                 {
                     _isThumbnailLoading = true;
-                    System.Threading.Tasks.Task.Run(() => 
-                    {
-                        try
-                        {
-                            string loadPath = FilePath;
-                            
-                            // Check if it's media (mp4, gif, mp3)
-                            bool isMedia = loadPath.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) || 
-                                           loadPath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase) ||
-                                           loadPath.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase);
-                            
-                            if (isMedia)
-                            {
-                                string thumbPath = loadPath + ".preview.png";
-                                if (System.IO.File.Exists(thumbPath)) loadPath = thumbPath;
-                                else if (loadPath.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase)) return; // No thumb for audio
-                            }
-
-                            if (System.IO.File.Exists(loadPath))
-                            {
-                                var bitmap = new BitmapImage();
-                                bitmap.BeginInit();
-                                bitmap.UriSource = new Uri(loadPath);
-                                bitmap.DecodePixelWidth = 200; // Reduced to 200 for Card View
-                                bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                                bitmap.EndInit();
-                                bitmap.Freeze();
-
-                                _thumbnail = bitmap;
-                                OnPropertyChanged(nameof(Thumbnail));
-                            }
-                        }
-                        catch { }
-                        finally 
-                        { 
-                            _isThumbnailLoading = false; 
-                        }
-                    });
+                    _ = LoadThumbnailInternal();
                 }
                 return _thumbnail;
+            }
+        }
+
+        private async Task LoadThumbnailInternal()
+        {
+            try
+            {
+                string loadPath = FilePath;
+
+                // Check if it's media (mp4, gif, mp3)
+                bool isMedia = loadPath.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) ||
+                               loadPath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase) ||
+                               loadPath.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase);
+
+                if (isMedia)
+                {
+                    string thumbPath = loadPath + ".preview.png";
+                    if (System.IO.File.Exists(thumbPath)) loadPath = thumbPath;
+                    else if (loadPath.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase))
+                    {
+                        _isThumbnailLoading = false;
+                        return;
+                    }
+                }
+
+                var bitmap = await ThumbnailManager.LoadThumbnailAsync(loadPath, 200);
+                if (bitmap != null)
+                {
+                    _thumbnail = bitmap;
+                    OnPropertyChanged(nameof(Thumbnail));
+                }
+            }
+            catch { }
+            finally
+            {
+                _isThumbnailLoading = false;
             }
         }
 

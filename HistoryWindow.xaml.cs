@@ -174,18 +174,20 @@ namespace CatchCapture
             }
         }
 
-        private void RefreshCounts()
+        private async void RefreshCounts()
         {
             try
             {
-                TxtCountAll.Text = DatabaseManager.Instance.GetHistoryCount("All").ToString();
-                TxtCountRecent7.Text = DatabaseManager.Instance.GetHistoryCount("Recent7").ToString();
-                TxtCountRecent30.Text = DatabaseManager.Instance.GetHistoryCount("Recent30").ToString();
-                TxtCountRecent3Months.Text = DatabaseManager.Instance.GetHistoryCount("Recent3Months").ToString();
-                TxtCountRecent6Months.Text = DatabaseManager.Instance.GetHistoryCount("Recent6Months").ToString();
-                TxtCountPinned.Text = DatabaseManager.Instance.GetHistoryCount("Pinned").ToString();
-                TxtCountFavorite.Text = DatabaseManager.Instance.GetHistoryCount("Favorite").ToString();
-                TxtCountTrash.Text = DatabaseManager.Instance.GetHistoryCount("Trash").ToString();
+                var counts = await System.Threading.Tasks.Task.Run(() => DatabaseManager.Instance.GetHistorySummaryCounts());
+                
+                TxtCountAll.Text = counts["All"].ToString();
+                TxtCountRecent7.Text = counts["Recent7"].ToString();
+                TxtCountRecent30.Text = counts["Recent30"].ToString();
+                TxtCountRecent3Months.Text = counts["Recent3Months"].ToString();
+                TxtCountRecent6Months.Text = counts["Recent6Months"].ToString();
+                TxtCountPinned.Text = counts["Pinned"].ToString();
+                TxtCountFavorite.Text = counts["Favorite"].ToString();
+                TxtCountTrash.Text = counts["Trash"].ToString();
             }
             catch { }
         }
@@ -385,9 +387,13 @@ namespace CatchCapture
         private void InitializeTipTimer()
         {
             _tipTimer = new System.Windows.Threading.DispatcherTimer();
-            _tipTimer.Interval = TimeSpan.FromSeconds(5);
+            // ★ 최적화: 유휴 상태 CPU 점유율 감소를 위해 간격 확대 (5초 -> 15초)
+            _tipTimer.Interval = TimeSpan.FromSeconds(15);
             _tipTimer.Tick += (s, e) => {
                 if (_currentFilter == "Trash") return; // 휴지통에서는 팁 회전 중지
+
+                // ★ 최적화: 창이 활성화된 상태일 때만 애니메이션 및 팁 변경 실행
+                if (!this.IsActive) return;
 
                 if (_tips.Count == 0 || TxtRollingTip == null) return;
 
@@ -720,7 +726,7 @@ namespace CatchCapture
             }
         }
 
-        private void UpdatePreview(HistoryItem item)
+        private async void UpdatePreview(HistoryItem item)
         {
             try
             {
@@ -795,20 +801,16 @@ namespace CatchCapture
 
                     if (!string.IsNullOrEmpty(previewPath) && System.IO.File.Exists(previewPath))
                     {
-                        var bitmap = new BitmapImage();
-                        bitmap.BeginInit();
-                        bitmap.UriSource = new Uri(previewPath);
-                        bitmap.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
-                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                        bitmap.EndInit();
-                        
-                        ImgPreview.Source = bitmap;
-                        ImgPreview.Opacity = 1.0;
-
-                        // 이미지가 있으면 실제 크기 정보 다시 한번 확인 (이미지인 경우만)
-                        if (!isMedia)
+                        var bitmap = await ThumbnailManager.LoadThumbnailAsync(previewPath, 800);
+                        if (bitmap != null)
                         {
-                            TxtPreviewSize.Text = $"{bitmap.PixelWidth} x {bitmap.PixelHeight}";
+                            ImgPreview.Source = bitmap;
+                            ImgPreview.Opacity = 1.0;
+
+                            if (!isMedia)
+                            {
+                                TxtPreviewSize.Text = $"{bitmap.PixelWidth} x {bitmap.PixelHeight}";
+                            }
                         }
                     }
                 }
@@ -1052,7 +1054,7 @@ namespace CatchCapture
                 LstHistory.ItemTemplate = (DataTemplate)FindResource("HistoryCardTemplate");
                 ScrollViewer.SetHorizontalScrollBarVisibility(LstHistory, ScrollBarVisibility.Disabled);
                 
-                // Set ItemsPanel to WrapPanel
+                // Use WrapPanel (virtualization disabled for now due to stability issues)
                 var factory = new FrameworkElementFactory(typeof(WrapPanel));
                 var template = new ItemsPanelTemplate(factory);
                 LstHistory.ItemsPanel = template;
@@ -1090,13 +1092,39 @@ namespace CatchCapture
             }
         }
 
+        private System.Threading.CancellationTokenSource? _syncDebounceCts;
+
+        /// <summary>
+        /// ★ 최적화: 라이브 싱크 디바운싱 (2초)
+        /// 사용자가 연속해서 수정/삭제를 할 경우 마지막 작업 후 2초 뒤에 한 번만 싱크를 수행합니다.
+        /// </summary>
         private void TriggerLiveSync()
         {
-            _ = Task.Run(() =>
+            _syncDebounceCts?.Cancel();
+            _syncDebounceCts = new System.Threading.CancellationTokenSource();
+            var token = _syncDebounceCts.Token;
+
+            Task.Run(async () =>
             {
-                DatabaseManager.Instance.SyncToCloud(true);
-                DatabaseManager.Instance.RemoveLock();
-            });
+                try
+                {
+                    await Task.Delay(2000, token); // 2초 대기
+                    if (token.IsCancellationRequested) return;
+
+                    DatabaseManager.Instance.SyncToCloud(true);
+                    DatabaseManager.Instance.RemoveLock();
+                }
+                catch (OperationCanceledException) { }
+                catch (Exception ex)
+                {
+                    LogToFile($"LiveSync Error: {ex.Message}");
+                }
+            }, token);
+        }
+
+        private void LogToFile(string message)
+        {
+            try { DatabaseManager.Instance.LogToFile(message); } catch { }
         }
     }
 }

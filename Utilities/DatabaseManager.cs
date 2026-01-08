@@ -81,7 +81,7 @@ namespace CatchCapture.Utilities
         /// <summary>
         /// 디버그 로그를 txt 파일로 저장
         /// </summary>
-        private void LogToFile(string message)
+        public void LogToFile(string message)
         {
             try
             {
@@ -2332,6 +2332,44 @@ namespace CatchCapture.Utilities
                 }
             }
         }
+
+        public Dictionary<string, int> GetHistorySummaryCounts()
+        {
+            var counts = new Dictionary<string, int>();
+            using (var connection = new SqliteConnection($"Data Source={HistoryDbPath}"))
+            {
+                connection.Open();
+                string sql = @"
+                    SELECT 
+                        COUNT(CASE WHEN Status = 0 THEN 1 END) as AllCount,
+                        COUNT(CASE WHEN Status = 0 AND IsPinned = 1 THEN 1 END) as PinnedCount,
+                        COUNT(CASE WHEN Status = 0 AND IsFavorite = 1 THEN 1 END) as FavoriteCount,
+                        COUNT(CASE WHEN Status = 1 THEN 1 END) as TrashCount,
+                        COUNT(CASE WHEN Status = 0 AND CreatedAt >= date('now', 'localtime', '-7 days') THEN 1 END) as Recent7,
+                        COUNT(CASE WHEN Status = 0 AND CreatedAt >= date('now', 'localtime', '-30 days') THEN 1 END) as Recent30,
+                        COUNT(CASE WHEN Status = 0 AND CreatedAt >= date('now', 'localtime', '-3 months') THEN 1 END) as Recent3Months,
+                        COUNT(CASE WHEN Status = 0 AND CreatedAt >= date('now', 'localtime', '-6 months') THEN 1 END) as Recent6Months
+                    FROM Captures";
+
+                using (var command = new SqliteCommand(sql, connection))
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        counts["All"] = reader.GetInt32(0);
+                        counts["Pinned"] = reader.GetInt32(1);
+                        counts["Favorite"] = reader.GetInt32(2);
+                        counts["Trash"] = reader.GetInt32(3);
+                        counts["Recent7"] = reader.GetInt32(4);
+                        counts["Recent30"] = reader.GetInt32(5);
+                        counts["Recent3Months"] = reader.GetInt32(6);
+                        counts["Recent6Months"] = reader.GetInt32(7);
+                    }
+                }
+            }
+            return counts;
+        }
+
 
         public void DeleteCapture(long id, bool permanent = false)
         {

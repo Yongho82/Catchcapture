@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
+using System.Threading.Tasks;
 using CatchCapture.Models;
 
 namespace CatchCapture
@@ -128,14 +129,14 @@ namespace CatchCapture
             };
 
             // 클릭 이벤트
-            border.MouseLeftButtonDown += (s, e) =>
+            border.MouseLeftButtonDown += async (s, e) =>
             {
                 if (s is Border clickedBorder && clickedBorder.Tag is int clickedIndex)
                 {
                     // 다른 이미지 선택 시 이미지만 교체 (창 재생성 없이)
                     if (clickedIndex != imageIndex && allCaptures != null)
                     {
-                        SwitchToCapture(clickedIndex);
+                        await SwitchToCapture(clickedIndex);
                     }
                 }
             };
@@ -158,7 +159,7 @@ namespace CatchCapture
             return border;
         }
 
-        private void SwitchToCapture(int newIndex)
+        private async Task SwitchToCapture(int newIndex)
         {
             if (allCaptures == null || newIndex < 0 || newIndex >= allCaptures.Count) return;
 
@@ -185,7 +186,7 @@ namespace CatchCapture
             // 새 이미지로 전환
             imageIndex = newIndex;
             var newCapture = allCaptures[newIndex];
-            originalImage = newCapture.GetOriginalImage();
+            originalImage = await newCapture.GetOriginalImageAsync();
             currentImage = originalImage;
 
             // Undo/Redo 스택 초기화
@@ -249,7 +250,7 @@ namespace CatchCapture
             }
         }
 
-        private void StartCaptureItemDrag(Border border, CaptureImage captureImage)
+        private async void StartCaptureItemDrag(Border border, CaptureImage captureImage)
         {
             try
             {
@@ -265,8 +266,8 @@ namespace CatchCapture
                     string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss_fff");
                     filePath = IOPath.Combine(tempFolder, $"Capture_{timestamp}.png");
 
-                    // PNG로 저장
-                    var originalImage = captureImage.GetOriginalImage();
+                    // PNG로 저장 (비동기로 원본 로드)
+                    var originalImage = await captureImage.GetOriginalImageAsync();
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
                         var encoder = new PngBitmapEncoder();
@@ -278,7 +279,7 @@ namespace CatchCapture
                 // 2. DataObject 생성 (FileDrop 형식)
                 var data = new DataObject(DataFormats.FileDrop, new string[] { filePath });
 
-                // 3. 드래그 시작
+                // 3. 드래그 시작 (DoDragDrop은 블로킹 작업임)
                 DragDrop.DoDragDrop(border, data, DragDropEffects.Copy);
             }
             catch (Exception ex)

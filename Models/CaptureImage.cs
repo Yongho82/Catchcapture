@@ -4,6 +4,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Threading.Tasks;
 
 namespace CatchCapture.Models
 {
@@ -88,6 +89,25 @@ namespace CatchCapture.Models
                 }
             }
             
+            return (_thumbnail ?? _image)!;
+        }
+
+        /// <summary>
+        /// ★ 메모리 최적화: 원본 이미지 비동기 로드
+        /// </summary>
+        public async Task<BitmapSource> GetOriginalImageAsync()
+        {
+            if (!_useThumbnailMode || (_image != null && _image != _thumbnail))
+            {
+                return _image ?? _thumbnail!;
+            }
+
+            if (!string.IsNullOrEmpty(_savedPath) && File.Exists(_savedPath))
+            {
+                var bitmap = await CatchCapture.Utilities.ThumbnailManager.LoadThumbnailAsync(_savedPath, 0);
+                if (bitmap != null) return bitmap;
+            }
+
             return (_thumbnail ?? _image)!;
         }
 

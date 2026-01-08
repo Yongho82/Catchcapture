@@ -1241,7 +1241,7 @@ public partial class MainWindow : Window
         KeyDown += MainWindow_KeyDown;
     }
 
-    private void MainWindow_KeyDown(object sender, KeyEventArgs e)
+    private async void MainWindow_KeyDown(object sender, KeyEventArgs e)
     {
         var mods = Keyboard.Modifiers;
 
@@ -1351,8 +1351,9 @@ public partial class MainWindow : Window
         {
             if (selectedIndex >= 0 && selectedIndex < captures.Count)
             {
-                // ★ 메모리 최적화: 원본 이미지 로드 (썸네일 모드에서도 파일에서 원본 로드)
-                ShowPreviewWindow(captures[selectedIndex].GetOriginalImage(), selectedIndex);
+                // ★ 메모리 최적화: 원본 이미지 비동기 로드 (썸네일 모드에서도 파일에서 원본 로드)
+                var original = await captures[selectedIndex].GetOriginalImageAsync();
+                ShowPreviewWindow(original, selectedIndex);
                 e.Handled = true;
             }
             return;
@@ -1421,7 +1422,7 @@ public partial class MainWindow : Window
     }
 
     // 파일 열기 다이얼로그
-    private void OpenFileDialog_Click(object? sender, RoutedEventArgs? e)
+    private async void OpenFileDialog_Click(object? sender, RoutedEventArgs? e)
     {
         var dialog = new OpenFileDialog
         {
@@ -1436,8 +1437,12 @@ public partial class MainWindow : Window
             {
                 try
                 {
-                    var bitmap = new BitmapImage(new Uri(fileName));
-                    AddCaptureToList(bitmap);
+                    // Use ThumbnailManager to load images asynchronously and throttled
+                    var bitmap = await ThumbnailManager.LoadThumbnailAsync(fileName, 0);
+                    if (bitmap != null)
+                    {
+                        AddCaptureToList(bitmap);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -2982,13 +2987,14 @@ public partial class MainWindow : Window
         image.Tag = index;
 
         // 더블 클릭 이벤트 (미리보기)
-        image.MouseDown += (s, e) =>
+        image.MouseDown += async (s, e) =>
         {
             if (e.ClickCount == 2)
             {
                 int actualIndex = (int)((Image)s).Tag;
-                // ★ 메모리 최적화: 원본 이미지 로드
-                ShowPreviewWindow(captureImage.GetOriginalImage(), actualIndex);
+                // ★ 메모리 최적화: 원본 이미지 비동기 로드
+                var original = await captureImage.GetOriginalImageAsync();
+                ShowPreviewWindow(original, actualIndex);
                 e.Handled = true;
             }
         };
@@ -3111,10 +3117,11 @@ public partial class MainWindow : Window
         googleBtn.Content = googleIcon;
 
         // 클릭 이벤트 연결
-        googleBtn.Click += (s, e) =>
+        googleBtn.Click += async (s, e) =>
         {
             e.Handled = true;
-            SearchImageOnGoogle(captureImage.GetOriginalImage());
+            var original = await captureImage.GetOriginalImageAsync();
+            SearchImageOnGoogle(original);
         };
 
         // 버튼 생성 헬퍼 함수
@@ -3193,7 +3200,11 @@ public partial class MainWindow : Window
 
         // 공유 버튼 추가
         Button shareBtn = CreateHoverButton("share_img.png", LocalizationManager.GetString("Share"));
-        shareBtn.Click += (s, e) => { e.Handled = true; ShareImage(captureImage.GetOriginalImage()); };
+        shareBtn.Click += async (s, e) => { 
+            e.Handled = true; 
+            var original = await captureImage.GetOriginalImageAsync();
+            ShareImage(original); 
+        };
 
         // 패널에 버튼 추가 (구글 -> 공유 -> 저장 -> 삭제)
         buttonPanel.Children.Add(googleBtn);
@@ -3256,15 +3267,16 @@ public partial class MainWindow : Window
         };
 
         // 클릭 이벤트 (선택)
-        border.MouseLeftButtonDown += (s, e) =>
+        border.MouseLeftButtonDown += async (s, e) =>
         {
 
             // 더블클릭 시 미리보기 창 열기
             if (e.ClickCount == 2)
             {
                 int actualIndex = (int)((Border)s).Tag;
-                // ★ 메모리 최적화: 원본 이미지 로드
-                ShowPreviewWindow(captureImage.GetOriginalImage(), actualIndex);
+                // ★ 메모리 최적화: 원본 이미지 비동기 로드
+                var original = await captureImage.GetOriginalImageAsync();
+                ShowPreviewWindow(original, actualIndex);
                 e.Handled = true;
             }
             // 싱글클릭 시 선택
@@ -3293,7 +3305,7 @@ public partial class MainWindow : Window
         return border;
     }
 
-    private void StartCaptureItemDrag(Border border, CaptureImage captureImage)
+    private async void StartCaptureItemDrag(Border border, CaptureImage captureImage)
     {
         try
         {
@@ -3309,8 +3321,8 @@ public partial class MainWindow : Window
                 string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss_fff");
                 filePath = IOPath.Combine(tempFolder, $"Capture_{timestamp}.png");
 
-                // PNG로 저장
-                var originalImage = captureImage.GetOriginalImage();
+                // PNG로 저장 (비동기로 원본 로드)
+                var originalImage = await captureImage.GetOriginalImageAsync();
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     var encoder = new PngBitmapEncoder();
@@ -3322,7 +3334,7 @@ public partial class MainWindow : Window
             // 2. DataObject 생성 (FileDrop 형식)
             var data = new DataObject(DataFormats.FileDrop, new string[] { filePath });
 
-            // 3. 드래그 시작
+            // 3. 드래그 시작 (DoDragDrop은 블로킹 작업임)
             DragDrop.DoDragDrop(border, data, DragDropEffects.Copy);
         }
         catch (Exception ex)
@@ -4336,8 +4348,9 @@ public partial class MainWindow : Window
     {
         var now = DateTime.Now;
 
-        // ★ 속도 최적화: 프리로딩 간격 단축 (2초 → 1초)
-        if ((now - lastScreenshotTime).TotalSeconds < 1) return;
+        // ★ 성능 최적화: 프리로딩 간격 대폭 확대 (1초 -> 10초) 및 비활성 상태 시 스킵
+        if ((now - lastScreenshotTime).TotalSeconds < 10) return;
+        if (!this.IsActive) return;
 
         // 이미 진행 중인 백그라운드 작업이 있다면 스킵
         if (isPreloading) return;
