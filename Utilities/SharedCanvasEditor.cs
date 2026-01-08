@@ -1024,7 +1024,12 @@ namespace CatchCapture.Utilities
                     bool isNumbering = group.Children.Count > 0 && group.Children[0] is Border;
                     if (isNumbering)
                     {
+                        // [Fix] 넘버링 복사는 편집 중이어도 허용하도록 임시 플래그 해제 (CreateNumberingAt의 체크 우회)
+                        bool wasEditing = _isEditingNumbering;
+                        _isEditingNumbering = false;
                         CreateNumberingAt(new Point(left + offset + 15, top + offset + 15)); // 배지 중심 기준이므로 약간 보정
+                        _isEditingNumbering = wasEditing;
+
                         clone = SelectedObject;
                         if (clone is Canvas newCanvas && FindTextBox(newCanvas) is TextBox newTb)
                         {
@@ -1040,28 +1045,61 @@ namespace CatchCapture.Utilities
                 }
             }
 
-            // 2. 일반 도형 (ShapeMetadata 사용)
-            if (original is FrameworkElement fe && fe.Tag is ShapeMetadata meta)
-            {
-                Point nStart = new Point(meta.StartPoint.X + offset, meta.StartPoint.Y + offset);
-                Point nEnd = new Point(meta.EndPoint.X + offset, meta.EndPoint.Y + offset);
-                
-                // RotateTransform이 있다면 복제본에도 적용
-                var rt = original.RenderTransform as RotateTransform;
+            // 2. 일반 도형 (ShapeMetadata(즉시편집) 또는 DrawingLayer(이미지편집) 사용)
+            ShapeType? sType = null;
+            Point? sStart = null;
+            Point? sEnd = null;
+            Color? sColor = null;
+            double? sThickness = null;
+            bool? sIsFilled = null;
+            double? sFillOpacity = null;
+            double rotation = 0;
 
-                clone = ShapeDrawingHelper.CreateShape(meta.ShapeType, nStart, nEnd, meta.Color, meta.Thickness, meta.IsFilled, meta.FillOpacity);
-                if (clone != null)
+            if (original is FrameworkElement fe)
+            {
+                if (fe.Tag is ShapeMetadata meta)
                 {
-                    if (rt != null) clone.RenderTransform = new RotateTransform(rt.Angle);
-                    
-                    _canvas.Children.Add(clone);
-                    _drawnElements.Add(clone);
-                    _undoStack?.Push(clone);
-                    SelectedObject = clone;
-                    ElementAdded?.Invoke(clone);
-                    ActionOccurred?.Invoke();
+                    sType = meta.ShapeType;
+                    sStart = meta.StartPoint;
+                    sEnd = meta.EndPoint;
+                    sColor = meta.Color;
+                    sThickness = meta.Thickness;
+                    sIsFilled = meta.IsFilled;
+                    sFillOpacity = meta.FillOpacity;
                 }
-                return clone;
+                else if (fe.Tag is CatchCapture.Models.DrawingLayer layer)
+                {
+                    sType = layer.ShapeType;
+                    sStart = layer.StartPoint;
+                    sEnd = layer.EndPoint;
+                    sColor = layer.Color;
+                    sThickness = layer.Thickness;
+                    sIsFilled = layer.IsFilled;
+                    sFillOpacity = layer.FillOpacity;
+                    rotation = layer.Rotation;
+                }
+
+                if (sType.HasValue && sStart.HasValue && sEnd.HasValue)
+                {
+                    Point nStart = new Point(sStart.Value.X + offset, sStart.Value.Y + offset);
+                    Point nEnd = new Point(sEnd.Value.X + offset, sEnd.Value.Y + offset);
+                    
+                    if (rotation == 0 && original.RenderTransform is RotateTransform rt) rotation = rt.Angle;
+
+                    clone = ShapeDrawingHelper.CreateShape(sType.Value, nStart, nEnd, sColor ?? Colors.Red, sThickness ?? 2, sIsFilled ?? false, sFillOpacity ?? 0.5);
+                    if (clone != null)
+                    {
+                        if (rotation != 0) clone.RenderTransform = new RotateTransform(rotation);
+                        
+                        _canvas.Children.Add(clone);
+                        _drawnElements.Add(clone);
+                        _undoStack?.Push(clone);
+                        SelectedObject = clone;
+                        ElementAdded?.Invoke(clone);
+                        ActionOccurred?.Invoke();
+                    }
+                    return clone;
+                }
             }
 
             return null;

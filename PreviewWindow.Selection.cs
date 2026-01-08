@@ -326,8 +326,8 @@ namespace CatchCapture
 
             Point center = new Point(bounds.Left + bounds.Width / 2, bounds.Top + bounds.Height / 2);
 
-            // Update Buttons Position with rotation
-            Point confirmPos = new Point(bounds.Right - 18, bounds.Top - 15);
+            // Update Buttons Position with rotation (Confirm, Copy, Delete 순서, 간격 조정)
+            Point confirmPos = new Point(bounds.Right - 40, bounds.Top - 15);
             Point rotatedConfirmPos = rotation != 0 ? RotatePoint(confirmPos, center, rotation) : confirmPos;
 
             if (objectConfirmButton == null)
@@ -354,7 +354,7 @@ namespace CatchCapture
             Canvas.SetTop(objectConfirmButton, rotatedConfirmPos.Y);
 
             // [추가] 복사 버튼 (❐)
-            Point copyPos = new Point(bounds.Right - 5, bounds.Top - 15);
+            Point copyPos = new Point(bounds.Right - 18, bounds.Top - 15);
             Point rotatedCopyPos = rotation != 0 ? RotatePoint(copyPos, center, rotation) : copyPos;
 
             if (objectCopyButton == null)
@@ -379,7 +379,7 @@ namespace CatchCapture
             Canvas.SetLeft(objectCopyButton, rotatedCopyPos.X);
             Canvas.SetTop(objectCopyButton, rotatedCopyPos.Y);
 
-            Point deletePos = new Point(bounds.Right + 18, bounds.Top - 15);
+            Point deletePos = new Point(bounds.Right + 5, bounds.Top - 15);
             Point rotatedDeletePos = rotation != 0 ? RotatePoint(deletePos, center, rotation) : deletePos;
 
             if (objectDeleteButton == null)
