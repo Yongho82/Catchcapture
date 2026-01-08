@@ -453,19 +453,42 @@ namespace CatchCapture.Controls
              ColorGrid.Children.Add(addButton);
         }
 
-        private Border CreateColorSwatch(Color c)
+        private FrameworkElement CreateColorSwatch(Color c)
         {
-            var border = new Border
+            var container = new Grid
             {
-                Width = 20, Height = 20, Margin = new Thickness(2),
-                CornerRadius = new CornerRadius(4),
+                Width = 26, Height = 26,
+                Margin = new Thickness(1),
+                Cursor = Cursors.Hand,
+                Background = Brushes.Transparent
+            };
+
+            // Selection Border (Outer Ring)
+            var selectionBorder = new Border
+            {
+                BorderThickness = new Thickness(2),
+                BorderBrush = Brushes.Transparent,
+                CornerRadius = new CornerRadius(5),
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                VerticalAlignment = VerticalAlignment.Stretch
+            };
+
+            // Color Swatch (Inner)
+            var colorSwatch = new Border
+            {
+                Width = 18, Height = 18,
+                CornerRadius = new CornerRadius(3),
                 Background = new SolidColorBrush(c),
                 BorderThickness = new Thickness(1),
-                BorderBrush = Brushes.Gray,
-                Cursor = Cursors.Hand
+                BorderBrush = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0)),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
             };
+
+            container.Children.Add(selectionBorder);
+            container.Children.Add(colorSwatch);
             
-            border.MouseLeftButtonDown += (s, e) =>
+            container.MouseLeftButtonDown += (s, e) =>
             {
                 if (_editor != null) {
                     if (_currentMode == "넘버링")
@@ -477,25 +500,37 @@ namespace CatchCapture.Controls
                     {
                         _editor.SelectedColor = c;
                     }
-                    // [추가] 선택된 객체가 있으면 즉시 적용
                     _editor.ApplyCurrentTextSettingsToSelectedObject();
                 }
                 UpdateColorSelection(c);
             };
             
-            return border;
+            return container;
         }
 
         private void UpdateColorSelection(Color selected)
         {
             foreach (var child in ColorGrid.Children)
             {
-                if (child is Border b && b.Background is SolidColorBrush sc)
+                // New structure: Grid -> [SelectionBorder, ColorSwatch]
+                if (child is Grid g && g.Children.Count >= 2)
+                {
+                    if (g.Children[1] is Border colorSwatch && colorSwatch.Background is SolidColorBrush sc)
+                    {
+                        bool isSel = (sc.Color == selected);
+                        if (g.Children[0] is Border selBorder)
+                        {
+                            // Change selection color to Red for better visibility
+                            selBorder.BorderBrush = isSel ? Brushes.Red : Brushes.Transparent;
+                        }
+                    }
+                }
+                // Legacy support (fallback)
+                else if (child is Border b && b.Background is SolidColorBrush sc)
                 {
                     bool isSel = (sc.Color == selected);
                     b.BorderThickness = new Thickness(isSel ? 2 : 1);
-                    b.BorderBrush = isSel ? Brushes.Black : Brushes.Gray;
-                    b.Effect = isSel ? new System.Windows.Media.Effects.DropShadowEffect { ShadowDepth = 0, BlurRadius = 5, Color = Colors.Gray } : null;
+                    b.BorderBrush = isSel ? Brushes.Red : Brushes.Gray;
                 }
             }
         }

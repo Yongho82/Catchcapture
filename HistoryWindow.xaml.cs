@@ -312,6 +312,17 @@ namespace CatchCapture
 
             if (BtnViewList != null) BtnViewList.ToolTip = LocalizationManager.GetString("ListView") ?? "리스트형";
             if (BtnViewCard != null) BtnViewCard.ToolTip = LocalizationManager.GetString("CardView") ?? "카드형";
+
+            // [New] Localize TitleBar Title and Grid Headers
+            if (TxtTitleBarTitle != null) TxtTitleBarTitle.Text = LocalizationManager.GetString("HistoryTitle") ?? "히스토리";
+            
+            if (ColDate != null) ColDate.Header = LocalizationManager.GetString("HistoryColDate") ?? "날짜 및 시각";
+            if (ColFileName != null) ColFileName.Header = LocalizationManager.GetString("HistoryColFileName") ?? "파일명";
+            if (ColMeta != null) ColMeta.Header = LocalizationManager.GetString("HistoryColMeta") ?? "출처/제목";
+            // ColMemo seems to be in the grid view in XAML but was commented out in code. Checking XAML... 
+            // XAML has ColMemo at line 629. So we should update it.
+            if (ColMemo != null) ColMemo.Header = LocalizationManager.GetString("HistoryColMemo") ?? "메모";
+            if (ColActions != null) ColActions.Header = LocalizationManager.GetString("HistoryColActions") ?? "작업";
         }
 
         private void InitializeTips()
