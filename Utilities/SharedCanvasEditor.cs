@@ -958,10 +958,19 @@ namespace CatchCapture.Utilities
                 // [추가] 통합 줄 간격(LineHeight) 적용 (넘버링/텍스트 공통)
                 double lineHeight = tb.FontSize * LineHeightMultiplier;
                 TextBlock.SetLineHeight(tb, lineHeight);
-                TextBlock.SetLineStackingStrategy(tb, LineStackingStrategy.BlockLineHeight);
-                
-                // Padding은 기본값 유지 (텍스트 박스 내부 여백)
-                tb.Padding = new Thickness(5);
+
+                if (CurrentTool == "넘버링")
+                {
+                    // [수정] 넘버링은 첫 줄이 배지와 잘 맞아야 하므로 MaxHeight를 사용하고 상단 여백을 줄임
+                    TextBlock.SetLineStackingStrategy(tb, LineStackingStrategy.MaxHeight);
+                    tb.Padding = new Thickness(5, 2, 5, 5);
+                }
+                else
+                {
+                    // 일반 텍스트는 일관된 줄 간격을 위해 BlockLineHeight 유지
+                    TextBlock.SetLineStackingStrategy(tb, LineStackingStrategy.BlockLineHeight);
+                    tb.Padding = new Thickness(5);
+                }
 
                 // [추가] 포커스 복원하여 즉시 편집 가능하게 함
                 if (!tb.IsReadOnly) tb.Focus();
