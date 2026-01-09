@@ -667,7 +667,7 @@ public partial class MainWindow : Window
                 // 하위 메뉴가 있는 경우 화살표 공간 확보
                 if (mi.DropDownItems.Count > 0)
                 {
-                    mi.Padding = new System.Windows.Forms.Padding(0, 4, 0, 4); 
+                    mi.Padding = new System.Windows.Forms.Padding(0, 2, 0, 2); 
                     ApplyRecursiveStyle(mi.DropDownItems);
                     
                     if (mi.DropDown is System.Windows.Forms.ToolStripDropDownMenu dropdown)
@@ -679,7 +679,7 @@ public partial class MainWindow : Window
                 }
                 else
                 {
-                    mi.Padding = new System.Windows.Forms.Padding(0, 4, 6, 4); // Leaf
+                    mi.Padding = new System.Windows.Forms.Padding(0, 1, 6, 1); // Leaf
                 }
             }
         }
@@ -693,9 +693,9 @@ public partial class MainWindow : Window
         {
             if (e.Item == null) return;
             
-            // 시각적 균형을 위해 텍스트 영역을 3픽셀 아래로 내리고, 아이콘 쪽으로 6픽셀 당김
+            // 시각적 균형을 위해 텍스트 영역을 아이콘 쪽으로 6픽셀 당김 (상하 오프셋은 0으로 조정)
             var textRect = e.TextRectangle;
-            textRect.Offset(-6, 4);
+            textRect.Offset(-6, 0);
             
             System.Windows.Forms.TextRenderer.DrawText(e.Graphics, e.Text, e.TextFont, textRect, System.Drawing.Color.White, 
                 System.Windows.Forms.TextFormatFlags.VerticalCenter | System.Windows.Forms.TextFormatFlags.Left | System.Windows.Forms.TextFormatFlags.NoPrefix);
