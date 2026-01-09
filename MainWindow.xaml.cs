@@ -483,14 +483,16 @@ public partial class MainWindow : Window
     {
         trayContextMenu = new System.Windows.Forms.ContextMenuStrip();
         trayContextMenu.ShowImageMargin = true;
+        trayContextMenu.ShowCheckMargin = false; 
+        trayContextMenu.DropShadowEnabled = false; // 시스템 그림자로 인한 간격 벌어짐 방지
         trayContextMenu.Renderer = new DarkToolStripRenderer();
         trayContextMenu.BackColor = System.Drawing.Color.FromArgb(45, 45, 48);
         trayContextMenu.ForeColor = System.Drawing.Color.White;
         trayContextMenu.Font = new System.Drawing.Font("Segoe UI", 9f, System.Drawing.FontStyle.Regular);
         trayContextMenu.ImageScalingSize = new System.Drawing.Size(16, 16);
         
-        // 2. 컨텍스트박스 가로 180PX
-        trayContextMenu.MinimumSize = new System.Drawing.Size(180, 0);
+        // 2. 컨텍스트박스 자동 크기 조절 (최소 크기 제거)
+        // trayContextMenu.MinimumSize = new System.Drawing.Size(180, 0);
 
         // [1] Open
         trayOpenItem = new System.Windows.Forms.ToolStripMenuItem(
@@ -548,8 +550,10 @@ public partial class MainWindow : Window
         }
         if (trayEdgeItem.DropDown is System.Windows.Forms.ToolStripDropDownMenu menu)
         {
+            // ApplyRecursiveStyle에서 처리되지만, EdgeCapture만 예외적으로 ImageMargin 제거
             menu.ShowImageMargin = false;
             menu.ShowCheckMargin = false;
+            menu.DropShadowEnabled = false;
         }
         trayContextMenu.Items.Add(trayEdgeItem);
 
@@ -647,13 +651,36 @@ public partial class MainWindow : Window
         if (notifyIcon != null) notifyIcon.ContextMenuStrip = trayContextMenu;
         
         // [레이아웃 보정] 모든 메뉴 항목의 너비를 180px로 강제 설정
-        foreach (System.Windows.Forms.ToolStripItem item in trayContextMenu.Items)
+        // 재귀적으로 스타일 적용
+        ApplyRecursiveStyle(trayContextMenu.Items);
+    }
+
+    private void ApplyRecursiveStyle(System.Windows.Forms.ToolStripItemCollection items)
+    {
+        foreach (System.Windows.Forms.ToolStripItem item in items)
         {
             if (item is System.Windows.Forms.ToolStripMenuItem mi)
             {
-                mi.AutoSize = false;
-                mi.Size = new System.Drawing.Size(180, 22); // Reduced height for better vertical margin
+                mi.AutoSize = true;
                 mi.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+                
+                // 하위 메뉴가 있는 경우 화살표 공간 확보
+                if (mi.DropDownItems.Count > 0)
+                {
+                    mi.Padding = new System.Windows.Forms.Padding(0, 4, 0, 4); 
+                    ApplyRecursiveStyle(mi.DropDownItems);
+                    
+                    if (mi.DropDown is System.Windows.Forms.ToolStripDropDownMenu dropdown)
+                    {
+                        dropdown.ShowCheckMargin = false;
+                        dropdown.ImageScalingSize = new System.Drawing.Size(16, 16);
+                        dropdown.DropShadowEnabled = false; 
+                    }
+                }
+                else
+                {
+                    mi.Padding = new System.Windows.Forms.Padding(0, 4, 6, 4); // Leaf
+                }
             }
         }
     }
@@ -664,8 +691,14 @@ public partial class MainWindow : Window
         public DarkToolStripRenderer() : base(new DarkColorTable()) { }
         protected override void OnRenderItemText(System.Windows.Forms.ToolStripItemTextRenderEventArgs e)
         {
-            e.TextColor = System.Drawing.Color.White;
-            base.OnRenderItemText(e);
+            if (e.Item == null) return;
+            
+            // 시각적 균형을 위해 텍스트 영역을 3픽셀 아래로 내리고, 아이콘 쪽으로 6픽셀 당김
+            var textRect = e.TextRectangle;
+            textRect.Offset(-6, 4);
+            
+            System.Windows.Forms.TextRenderer.DrawText(e.Graphics, e.Text, e.TextFont, textRect, System.Drawing.Color.White, 
+                System.Windows.Forms.TextFormatFlags.VerticalCenter | System.Windows.Forms.TextFormatFlags.Left | System.Windows.Forms.TextFormatFlags.NoPrefix);
         }
         protected override void OnRenderArrow(System.Windows.Forms.ToolStripArrowRenderEventArgs e)
         {
@@ -673,10 +706,13 @@ public partial class MainWindow : Window
             var item = e.Item;
             if (item == null) return;
 
-            // Force arrow to the right edge of the 180px menu item
+            // Use the system-calculated arrow rectangle for correct positioning with AutoSize
             int arrowSize = 4;
-            int x = item.Width - 15; 
-            int y = (item.Height - arrowSize * 2) / 2;
+            var rect = e.ArrowRectangle;
+            
+            // Center the arrow within the arrow rectangle
+            int x = rect.Left + (rect.Width - arrowSize) / 2;
+            int y = rect.Top + (rect.Height - arrowSize * 2) / 2;
 
             using (var brush = new System.Drawing.SolidBrush(System.Drawing.Color.White))
             {
