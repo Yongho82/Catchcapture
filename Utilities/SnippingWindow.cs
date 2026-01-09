@@ -663,8 +663,8 @@ namespace CatchCapture.Utilities
                 if (magnifierBorder != null)
                     magnifierBorder.Visibility = Visibility.Collapsed;
                 
-                // 오버레이 종료 및 최종 사각형 획득
-                Rect finalRect = selectionOverlay?.EndSelection(hideVisuals: !instantEditMode) ?? new Rect(0,0,0,0);
+                // 오버레이 종료 및 최종 사각형 획득 (캡처에 포함되지 않도록 항상 숨김)
+                Rect finalRect = selectionOverlay?.EndSelection(hideVisuals: true) ?? new Rect(0,0,0,0);
                 
                 // 선택 영역 저장 (다른 메서드에서 사용)
                 currentSelectionRect = finalRect;
@@ -699,10 +699,7 @@ namespace CatchCapture.Utilities
                 // [최적화] 비동기 캡처로 UI 반응 속도 향상
                 if (instantEditMode)
                 {
-                    // 1. 툴바 즉시 표시 (캡처 전에 UI 반응)
-                    ShowEditToolbar();
-                    
-                    // 2. 캡처와 이미지 처리는 백그라운드에서 수행
+                    // [Fix] 캡처를 먼저 수행하고, 완료 후 툴바 표시
                     if (screenCapture == null)
                     {
                         // 오버레이 모드: 백그라운드 캡처
@@ -715,7 +712,7 @@ namespace CatchCapture.Utilities
                             
                             try
                             {
-                                System.Threading.Thread.Sleep(1);
+                                System.Threading.Thread.Sleep(50); // UI 업데이트 대기
                                 var fullScreen = ScreenCaptureUtility.CaptureScreen();
                                 
                                 if (fullScreen != null)
@@ -727,9 +724,16 @@ namespace CatchCapture.Utilities
                                         screenCapture = fullScreen;
                                         screenImage.Source = screenCapture;
                                         screenImage.Visibility = Visibility.Visible;
-                                        // canvas.Background는 변경하지 않음 (밝아짐 방지)
                                         
                                         CreateFrozenImage(pxWidth, pxHeight, globalX, globalY);
+                                        
+                                        // 캡처 완료 후 툴바 표시 및 선택 영역 복원
+                                        ShowEditToolbar();
+                                        if (selectionOverlay != null)
+                                        {
+                                            selectionOverlay.SetRect(currentSelectionRect);
+                                            selectionOverlay.SetVisibility(Visibility.Visible);
+                                        }
                                     });
                                 }
                             }
@@ -741,7 +745,8 @@ namespace CatchCapture.Utilities
                     }
                     else
                     {
-                        // 정지 캡처 모드: 이미 이미지가 있음
+                        // 정지 캡처 모드: 이미 이미지가 있음 - 바로 툴바 표시
+                        ShowEditToolbar();
                         screenImage.Visibility = Visibility.Visible;
                         CreateFrozenImage(pxWidth, pxHeight, globalX, globalY);
                     }
