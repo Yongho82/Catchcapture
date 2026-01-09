@@ -659,12 +659,14 @@ namespace CatchCapture.Utilities
                 // CompositionTarget.Rendering -= CompositionTarget_Rendering; // 제거됨
                 if (Mouse.Captured == this) Mouse.Capture(null);
                 
-                // 돋보기 숨기기
-                if (magnifierBorder != null)
-                    magnifierBorder.Visibility = Visibility.Collapsed;
+                // 돋보기 및 십자선 숨기기
+                HideMagnifier();
                 
-                // 오버레이 종료 및 최종 사각형 획득 (캡처에 포함되지 않도록 항상 숨김)
-                Rect finalRect = selectionOverlay?.EndSelection(hideVisuals: !instantEditMode) ?? new Rect(0,0,0,0);
+                // 오버레이 종료 및 최종 사각형 획득 
+                // [Fix] 즉시편집 모드이면서 오버레이 모드(screenCapture == null)인 경우, 
+                // 배경 캡처 시 빨간 라인이 들어가지 않도록 일단 숨김 (나중에 다시 표시)
+                bool hideVisuals = !instantEditMode || screenCapture == null;
+                Rect finalRect = selectionOverlay?.EndSelection(hideVisuals: hideVisuals) ?? new Rect(0,0,0,0);
                 
                 // 선택 영역 저장 (다른 메서드에서 사용)
                 currentSelectionRect = finalRect;
@@ -761,11 +763,15 @@ namespace CatchCapture.Utilities
                         // 백그라운드에서 캡처 후 창 닫기
                         _ = Task.Run(() =>
                         {
+                            Dispatcher.Invoke(() => {
+                                this.UpdateLayout(); // UI 상태 강제 갱신
+                            });
+
                             ScreenCaptureUtility.SetWindowDisplayAffinity(hwnd, ScreenCaptureUtility.WDA_EXCLUDEFROMCAPTURE);
                             
                             try
                             {
-                                System.Threading.Thread.Sleep(1);
+                                System.Threading.Thread.Sleep(50); // UI 업데이트 대기 시간 확보 (빨간 선 제거 반영)
                                 var fullScreen = ScreenCaptureUtility.CaptureScreen();
                                 
                                 if (fullScreen != null)
