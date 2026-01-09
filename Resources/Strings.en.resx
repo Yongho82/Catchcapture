@@ -869,4 +869,5 @@ Are you sure you want to permanently delete all items?</value>
   <data name="ImageViewerResetZoomTooltip" xml:space="preserve"><value>Reset Zoom (1:1)</value></data>
   <data name="ImageViewerCopyTooltip" xml:space="preserve"><value>Copy to Clipboard</value></data>
   <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>Save Image As...</value></data>
+  <data name="RightClickBoxHint" xml:space="preserve"><value>Right Click: Box</value></data>
 </root>

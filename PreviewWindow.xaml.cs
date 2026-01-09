@@ -180,7 +180,7 @@ namespace CatchCapture
             // [추가] 그리기 힌트 라벨 초기화
             drawHintLabel = new TextBlock
             {
-                Text = "우클릭: 박스형",
+                Text = LocalizationManager.GetString("RightClickBoxHint"),
                 Background = new SolidColorBrush(Color.FromArgb(160, 0, 0, 0)),
                 Foreground = Brushes.White,
                 Padding = new Thickness(4, 2, 4, 2),
@@ -2223,6 +2223,9 @@ namespace CatchCapture
         {
             // Title
             this.Title = LocalizationManager.GetString("AppTitle");
+            
+            // [추가] 그리기 힌트 라벨 텍스트 업데이트
+            if (drawHintLabel != null) drawHintLabel.Text = LocalizationManager.GetString("RightClickBoxHint");
             // Toolbar Buttons Texts & Tooltips
             // Recapture
             if(RecaptureLabelText != null) RecaptureLabelText.Text = LocalizationManager.GetString("Recapture");

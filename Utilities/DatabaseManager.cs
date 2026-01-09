@@ -70,7 +70,8 @@ namespace CatchCapture.Utilities
 
         // 디버그 로그 파일 경로
         private static readonly string _logFilePath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "CatchCapture",
             "CatchCapture_LockDebug.txt");
         private static readonly object _logLock = new object();
 
@@ -87,6 +88,9 @@ namespace CatchCapture.Utilities
             {
                 lock (_logLock)
                 {
+                    string? dir = Path.GetDirectoryName(_logFilePath);
+                    if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
+
                     string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
                     string logLine = $"[{timestamp}] [{_currentIdentity}] {message}";
                     File.AppendAllText(_logFilePath, logLine + Environment.NewLine);

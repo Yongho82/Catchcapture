@@ -861,7 +861,6 @@
   <data name="EmptyTrashComplete" xml:space="preserve"><value>휴지통 비우기가 완료되었습니다.</value></data>
   <data name="All" xml:space="preserve"><value>전체</value></data>
   <data name="CopyFailed" xml:space="preserve"><value>클립보드 복사에 실패했습니다. 다른 프로그램이 클립보드를 사용 중일 수 있습니다.</value></data>
-  <data name="HistoryWindowTitle" xml:space="preserve"><value>히스토리</value></data>
   <data name="HistoryColDate" xml:space="preserve"><value>날짜 및 시각</value></data>
   <data name="HistoryColFileName" xml:space="preserve"><value>파일명</value></data>
   <data name="HistoryColMeta" xml:space="preserve"><value>출처/제목</value></data>
@@ -882,4 +881,5 @@
   <data name="ImageViewerResetZoomTooltip" xml:space="preserve"><value>줌 초기화 (1:1)</value></data>
   <data name="ImageViewerCopyTooltip" xml:space="preserve"><value>클립보드에 복사</value></data>
   <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>다른 이름으로 저장</value></data>
+  <data name="RightClickBoxHint" xml:space="preserve"><value>우클릭: 박스형</value></data>
 </root>

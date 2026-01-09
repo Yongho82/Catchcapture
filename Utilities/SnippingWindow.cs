@@ -195,7 +195,7 @@ namespace CatchCapture.Utilities
             // [추가] 그리기 힌트 라벨 초기화
             drawHintLabel = new TextBlock
             {
-                Text = "우클릭: 박스형",
+                Text = ResLoc.GetString("RightClickBoxHint"),
                 Background = new SolidColorBrush(Color.FromArgb(160, 0, 0, 0)),
                 Foreground = Brushes.White,
                 Padding = new Thickness(4, 2, 4, 2),
@@ -3417,6 +3417,7 @@ namespace CatchCapture.Utilities
             {
                 Dispatcher.Invoke(() =>
                 {
+                    if (drawHintLabel != null) drawHintLabel.Text = ResLoc.GetString("RightClickBoxHint");
                     RebuildInstantEditUIPreservingState();
                 });
             }
