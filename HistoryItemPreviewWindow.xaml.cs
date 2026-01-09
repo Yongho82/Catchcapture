@@ -135,28 +135,19 @@ namespace CatchCapture
                     if (!string.IsNullOrEmpty(previewPath) && System.IO.File.Exists(previewPath))
                     {
                         // Use ThumbnailManager for throttled decoding
-                        // 0 for decodeWidth means full size, but we use the throttled manager
-                        var bitmap = await ThumbnailManager.LoadThumbnailAsync(previewPath, 0);
+                        // 0 for decodeWidth means full size, but we use 800 for stability/layout
+                        var bitmap = await ThumbnailManager.LoadThumbnailAsync(previewPath, 800);
                         if (bitmap != null)
                         {
                             ImgPreview.Source = bitmap;
                             ImgPreview.Opacity = 1.0;
 
-                            // 이미지가 있으면 실제 크기 정보 다시 한번 확인 (이미지인 경우만)
-                            if (!isMedia)
-                            {
-                                TxtPreviewSize.Text = $"{bitmap.PixelWidth} x {bitmap.PixelHeight}";
-                                
-                                // 이미지 가로가 길면 창 너비를 좀 더 늘려줌 (기본 1000 -> 최대 1600)
-                                if (bitmap.PixelWidth > 900)
-                                {
-                                    double targetWidth = Math.Min(bitmap.PixelWidth + 100, 1600);
-                                    if (targetWidth > this.Width)
-                                    {
-                                        this.Width = targetWidth;
-                                    }
-                                }
-                            }
+                            // *중요* 비트맵 크기로 텍스트 덮어쓰기 로직 제거 (원본 해상도 유지)
+                            
+                            // 이미지 가로가 길면 창 너비를 좀 더 늘려줌 (기본 1000 -> 최대 1600)
+                            // 800으로 로드했지만, 원본 비율에 따라 창을 늘려주는 것이 좋음.
+                            // 하지만 여기서 bitmap.PixelWidth는 800이므로 900보다 클 수 없음. 
+                            // 따라서 창 크기 자동 조절 로직은 800 로드시엔 동작 안 함 (의도된 바).
                         }
                     }
                 }
@@ -356,9 +347,32 @@ namespace CatchCapture
         }
         private void ImageGridArea_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ClickCount == 2)
+            if (_item != null && System.IO.File.Exists(_item.FilePath))
             {
-                BtnMaximize_Click(this, new RoutedEventArgs());
+                // 미디어 확인
+                bool isMedia = _item.FilePath.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) || 
+                               _item.FilePath.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase);
+
+                if (isMedia)
+                {
+                    try 
+                    {
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(_item.FilePath) { UseShellExecute = true });
+                    }
+                    catch { }
+                }
+                else
+                {
+                    try
+                    {
+                        // 이미지 뷰어 호출
+                        var viewer = new ImageViewerWindow(_item.FilePath);
+                        viewer.Owner = this;
+                        viewer.Show();
+                        viewer.Activate();
+                    }
+                    catch { }
+                }
             }
         }
     }

@@ -9,34 +9,41 @@ namespace CatchCapture.Utilities
 {
     public static class ThumbnailManager
     {
-        // Limit concurrent image decodes to 4 to prevent CPU spikes
         private static readonly SemaphoreSlim _decodeSemaphore = new SemaphoreSlim(4, 4);
 
         public static async Task<BitmapSource?> LoadThumbnailAsync(string path, int decodeWidth)
         {
-            if (string.IsNullOrEmpty(path) || !System.IO.File.Exists(path))
+            if (string.IsNullOrEmpty(path) || !File.Exists(path))
                 return null;
 
             await _decodeSemaphore.WaitAsync();
             try
             {
-                // Read all bytes first to avoid any file locking issues while WPF decodes
                 byte[] bytes = await File.ReadAllBytesAsync(path);
 
                 return await Task.Run(() =>
                 {
                     try
                     {
-                        using (var ms = new System.IO.MemoryStream(bytes))
+                        using (var ms = new MemoryStream(bytes))
                         {
+                            // Check original size first
+                            var decoder = BitmapDecoder.Create(ms, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
+                            int originalWidth = decoder.Frames[0].PixelWidth;
+                            
+                            ms.Position = 0; // Reset stream
+
                             var bitmap = new BitmapImage();
                             bitmap.BeginInit();
                             bitmap.StreamSource = ms;
                             bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                            if (decodeWidth > 0)
+                            
+                            // Only downscale if the image is larger than the target width
+                            if (decodeWidth > 0 && originalWidth > decodeWidth)
                             {
                                 bitmap.DecodePixelWidth = decodeWidth;
                             }
+                            
                             bitmap.EndInit();
                             bitmap.Freeze();
                             return bitmap;

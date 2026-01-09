@@ -751,7 +751,7 @@ namespace CatchCapture
                 EditMemoBox.Text = item.Memo;
                 EditMemoBox.Visibility = Visibility.Collapsed;
                 TxtMemoDisplay.Visibility = Visibility.Visible;
-                BtnEditMemo.Content = LocalizationManager.GetString("Edit");
+                BtnEditMemo.Content = LocalizationManager.GetString("Save");
 
                 // Default metadata (DB values first)
                 TxtPreviewSize.Text = !string.IsNullOrEmpty(item.Resolution) ? item.Resolution : "-";
@@ -810,17 +810,17 @@ namespace CatchCapture
 
                     if (!string.IsNullOrEmpty(previewPath) && System.IO.File.Exists(previewPath))
                     {
-                        var bitmap = await ThumbnailManager.LoadThumbnailAsync(previewPath, 0); 
+                        // UI 표시용으로 800px로 리사이징하여 로드 (레이아웃 보호 및 성능 향상)
+                        var bitmap = await ThumbnailManager.LoadThumbnailAsync(previewPath, 800); 
                         
                         if (bitmap != null)
                         {
                             ImgPreview.Source = bitmap;
                             ImgPreview.Opacity = 1.0;
-                            
-                            if (!isMedia)
-                            {
-                                TxtPreviewSize.Text = $"{bitmap.PixelWidth} x {bitmap.PixelHeight}";
-                            }
+
+                            // *중요* 비트맵 크기로 텍스트를 덮어쓰지 않음. 
+                            // 800px로 로드했기 때문에 bitmap.PixelWidth는 800이 되버림.
+                            // 원본 크기 정보는 이미 item.Resolution에 있으므로 그대로 둠.
                         }
                         else
                         {
