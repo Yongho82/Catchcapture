@@ -20,7 +20,7 @@
             <Border Grid.Row="0" Background="{DynamicResource ThemeTitleBackground}" CornerRadius="12,12,0,0" Padding="20">
                 <StackPanel>
                     <TextBlock x:Name="TxtTitle" Text="분류 관리" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource ThemeTitleForeground}"/>
-                    <TextBlock x:Name="TxtDesc" Text="메모를 분류할 그룹을 관리하세요." FontSize="13" Foreground="#777777" Margin="0,5,0,0"/>
+                    <TextBlock x:Name="TxtDesc" Text="메모를 분류할 그룹을 관리하세요." FontSize="13" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" Margin="0,5,0,0"/>
                 </StackPanel>
             </Border>
             
@@ -37,11 +37,11 @@
                     <ItemsControl x:Name="CategoriesList">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Background="#F8F9FA" CornerRadius="8" Margin="0,0,0,8" Padding="12,8">
+                                <Border Background="{DynamicResource ThemeSidebarButtonBackground}" CornerRadius="8" Margin="0,0,0,8" Padding="12,8">
                                     <Grid>
                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                             <Ellipse Width="10" Height="10" Fill="{Binding Color}" Margin="0,0,10,0"/>
-                                            <TextBlock Text="{Binding Name}" FontSize="15" Foreground="#333333" FontWeight="Medium"/>
+                                            <TextBlock Text="{Binding Name}" FontSize="15" Foreground="{DynamicResource ThemeForeground}" FontWeight="Medium"/>
                                         </StackPanel>
                                         <Button HorizontalAlignment="Right" Background="Transparent" BorderThickness="0" 
                                                 Tag="{Binding Id}" Click="BtnDeleteCategory_Click" Cursor="Hand">
@@ -56,13 +56,14 @@
                 </ScrollViewer>
                 
                 <!-- Input Area -->
-                <Border Grid.Row="1" Background="#F1F3F5" CornerRadius="8" Padding="15" Margin="0,15,0,0">
+                <Border Grid.Row="1" Background="{DynamicResource ThemeSidebarButtonBackground}" CornerRadius="8" Padding="15" Margin="0,15,0,0">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBox x:Name="TxtNewCategory" Background="Transparent" BorderThickness="0" FontSize="14" 
+                                 Foreground="{DynamicResource ThemeForeground}" CaretBrush="{DynamicResource ThemeForeground}"
                                  VerticalAlignment="Center" Padding="5" Tag="새 분류 입력..."/>
                         <Button Grid.Column="1" x:Name="BtnAddCategory" Click="BtnAddCategory_Click" Width="32" Height="32" 
                                 Background="#8E2DE2" Foreground="White" BorderThickness="0" Cursor="Hand">
@@ -78,8 +79,8 @@
                 </Border>
                 
                 <!-- Footer -->
-                <Button Grid.Row="2" x:Name="BtnClose" Content="닫기" Click="BtnClose_Click" Margin="0,20,0,0" Height="40" Background="#F8F9FA" 
-                        Foreground="#555555" BorderBrush="#E0E0E0" BorderThickness="1" FontSize="14" FontWeight="Bold" Cursor="Hand">
+                <Button Grid.Row="2" x:Name="BtnClose" Content="닫기" Click="BtnClose_Click" Margin="0,20,0,0" Height="40" Background="{DynamicResource ThemeSidebarButtonBackground}" 
+                        Foreground="{DynamicResource ThemeForeground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" FontSize="14" FontWeight="Bold" Cursor="Hand">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" 
