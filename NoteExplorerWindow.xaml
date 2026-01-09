@@ -159,18 +159,10 @@
                         </Button.Template>
                     </Button>
 
-                    <Button Content="✕" Click="BtnDeleteItem_Click" Tag="{Binding Id}"
-                            Background="Transparent" BorderThickness="0" Foreground="#CCCCCC" Cursor="Hand" 
-                            FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,5,0">
-                        <Button.Style>
-                            <Style TargetType="Button">
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Foreground" Value="#E74C3C"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
+                    <Button Click="BtnDeleteItem_Click" Tag="{Binding Id}"
+                            Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="{DynamicResource Delete}"
+                            VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,5,0">
+                         <TextBlock Text="🗑️" FontSize="14" Opacity="0.5" Foreground="{DynamicResource ThemeForeground}"/>
                     </Button>
                 </StackPanel>
 
@@ -992,9 +984,9 @@
                         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
                              <!-- Main Image Info -->
                              <StackPanel x:Name="PnlImageInfo" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,15,0" Visibility="Collapsed">
-                                 <TextBlock Text="메인이미지: " Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" FontSize="12" VerticalAlignment="Center" Margin="0,0,2,0"/>
+                                 <TextBlock Text="{DynamicResource MainImageLabel}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" FontSize="12" VerticalAlignment="Center" Margin="0,0,2,0"/>
                                  <TextBlock x:Name="TxtMainImageName" Text="image.png" Foreground="{DynamicResource ThemeForeground}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0" TextTrimming="CharacterEllipsis" MaxWidth="180"/>
-                                 <Button x:Name="BtnOpenImageFolder" Click="BtnOpenImageFolder_Click" Style="{StaticResource IconButton}" ToolTip="폴더 열기" VerticalAlignment="Center">
+                                 <Button x:Name="BtnOpenImageFolder" Click="BtnOpenImageFolder_Click" Style="{StaticResource IconButton}" ToolTip="{DynamicResource OpenFolder}" VerticalAlignment="Center">
                                      <Viewbox Width="16" Height="16">
                                          <Path Data="M19,20H5A2,2 0 0,1 3,18V6A2,2 0 0,1 5,4H9L11,6H19A2,2 0 0,1 21,8V18A2,2 0 0,1 19,20Z" Fill="#F8D775"/>
                                      </Viewbox>

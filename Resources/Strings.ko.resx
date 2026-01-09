@@ -461,6 +461,7 @@
   <data name="NoteStorage" xml:space="preserve"><value>저장 및 데이터베이스</value></data>
   <data name="NotePath" xml:space="preserve"><value>노트 저장 위치</value></data>
   <data name="OpenFolder" xml:space="preserve"><value>폴더 열기</value></data>
+  <data name="MainImageLabel" xml:space="preserve"><value>메인 이미지: </value></data>
   <data name="ExtraOptions" xml:space="preserve"><value>추가 옵션</value></data>
   <data name="BackupRestore" xml:space="preserve"><value>데이터 백업 및 복구</value></data>
   <data name="ExportBackup" xml:space="preserve"><value>내보내기 (.zip)</value></data>

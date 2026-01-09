@@ -461,6 +461,7 @@
   <data name="NoteStorage" xml:space="preserve"><value>ストレージ＆データベース</value></data>
   <data name="NotePath" xml:space="preserve"><value>ノート保存パス</value></data>
   <data name="OpenFolder" xml:space="preserve"><value>フォルダを開く</value></data>
+  <data name="MainImageLabel" xml:space="preserve"><value>メイン画像: </value></data>
   <data name="ExtraOptions" xml:space="preserve"><value>追加オプション</value></data>
   <data name="BackupRestore" xml:space="preserve"><value>バックアップ＆復元</value></data>
   <data name="ExportBackup" xml:space="preserve"><value>エクスポート（.zip）</value></data>

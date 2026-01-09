@@ -461,6 +461,7 @@
   <data name="NoteStorage" xml:space="preserve"><value>Storage &amp; Database</value></data>
   <data name="NotePath" xml:space="preserve"><value>Note Storage Path</value></data>
   <data name="OpenFolder" xml:space="preserve"><value>Open Folder</value></data>
+  <data name="MainImageLabel" xml:space="preserve"><value>Main Image: </value></data>
   <data name="ExtraOptions" xml:space="preserve"><value>Extra Options</value></data>
   <data name="BackupRestore" xml:space="preserve"><value>Backup &amp; Restore</value></data>
   <data name="ExportBackup" xml:space="preserve"><value>Export (.zip)</value></data>
