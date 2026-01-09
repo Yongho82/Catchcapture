@@ -3937,6 +3937,16 @@ public partial class MainWindow : Window
 
     private PreviewWindow ShowPreviewWindow(BitmapSource image, int index)
     {
+        // [Fix] 이미 해당 인덱스의 창이 열려있는지 확인하여 중복 방지
+        var existing = Application.Current.Windows.OfType<PreviewWindow>().FirstOrDefault(w => w.Tag is int idx && idx == index);
+        if (existing != null)
+        {
+            existing.Show();
+            existing.Activate();
+            if (existing.WindowState == WindowState.Minimized) existing.WindowState = WindowState.Normal;
+            return existing;
+        }
+
         // 미리보기 창 생성
         PreviewWindow previewWindow = new PreviewWindow(image, index, captures);
         previewWindow.ImageUpdated += (sender, e) =>

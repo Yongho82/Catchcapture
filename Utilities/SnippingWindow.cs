@@ -664,7 +664,7 @@ namespace CatchCapture.Utilities
                     magnifierBorder.Visibility = Visibility.Collapsed;
                 
                 // 오버레이 종료 및 최종 사각형 획득 (캡처에 포함되지 않도록 항상 숨김)
-                Rect finalRect = selectionOverlay?.EndSelection(hideVisuals: true) ?? new Rect(0,0,0,0);
+                Rect finalRect = selectionOverlay?.EndSelection(hideVisuals: !instantEditMode) ?? new Rect(0,0,0,0);
                 
                 // 선택 영역 저장 (다른 메서드에서 사용)
                 currentSelectionRect = finalRect;

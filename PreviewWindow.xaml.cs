@@ -92,6 +92,7 @@ namespace CatchCapture
             originalImage = image;
             currentImage = image;
             imageIndex = index;
+            this.Tag = index;
             allCaptures = captures;
 
             // 이미지 표시
