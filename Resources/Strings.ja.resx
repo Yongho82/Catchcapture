@@ -766,4 +766,95 @@
   <data name="CaptureModeOverlay" xml:space="preserve"><value>高速キャプチャ（オーバーレイ） - アニメーションが再生されたまま</value></data>
   <data name="CaptureModeStatic" xml:space="preserve"><value>画面固定キャプチャ - 画面を即座に固定（デフォルト）</value></data>
   <data name="CaptureModeDesc" xml:space="preserve"><value>※ 高速キャプチャモードで拡大鏡を使用するとドラッグ時にラグが発生する場合があります。</value></data>
+  <data name="EdgeCapture" xml:space="preserve"><value>エッジキャプチャ</value></data>
+  <data name="EdgeSoft" xml:space="preserve"><value>ソフトエッジ</value></data>
+  <data name="EdgeSmooth" xml:space="preserve"><value>スムースエッジ</value></data>
+  <data name="EdgeClassic" xml:space="preserve"><value>クラシック丸角</value></data>
+  <data name="EdgeCapsule" xml:space="preserve"><value>カプセルスタイル</value></data>
+  <data name="EdgeCircle" xml:space="preserve"><value>パーフェクトサークル</value></data>
+  <data name="HistorySettings" xml:space="preserve"><value>履歴設定</value></data>
+  <data name="AutoManagement" xml:space="preserve"><value>データ保持と管理</value></data>
+  <data name="AutoDeletePeriod" xml:space="preserve"><value>自動削除期間</value></data>
+  <data name="AutoDeleteToTrashNotice" xml:space="preserve"><value>(設定期間より古いデータをゴミ箱へ移動します)</value></data>
+  <data name="DbOptimize" xml:space="preserve"><value>DB最適化</value></data>
+  <data name="DbOptimizeDesc" xml:space="preserve"><value>空き領域を整理して速度を向上させます</value></data>
+  <data name="HistorySameAsCapture" xml:space="preserve"><value>キャプチャ設定と同じです。変更が必要な場合はキャプチャ設定で行ってください。</value></data>
+  <data name="HistoryTip1" xml:space="preserve"><value>履歴で過去のすべてのキャプチャと記録を一目で確認できます。</value></data>
+  <data name="HistoryTip2" xml:space="preserve"><value>検索バーを使ってファイル名やアプリ名で素早く記録を探せます。</value></data>
+  <data name="HistoryTip3" xml:space="preserve"><value>詳細フィルターを使って特定の日付やファイルタイプで検索できます。</value></data>
+  <data name="HistoryTip4" xml:space="preserve"><value>項目を選択して「マイノートに保存」をクリックすると、元の情報を含めたノートを作成できます。</value></data>
+  <data name="HistoryTip5" xml:space="preserve"><value>リスト項目をダブルクリックすると、Windowsの既定ビューワーで元のファイルを開けます。</value></data>
+  <data name="HistoryTip6" xml:space="preserve"><value>ゴミ箱内の削除記録は保持期間経過後に完全に削除されます。</value></data>
+  <data name="Blur" xml:space="preserve"><value>ぼかし</value></data>
+  <data name="HistoryWindowTitle" xml:space="preserve"><value>履歴 - CatchCapture</value></data>
+  <data name="HistorySearchPlaceholder" xml:space="preserve"><value>ファイル名、メモ、アプリで検索...</value></data>
+  <data name="TotalHistory" xml:space="preserve"><value>合計履歴</value></data>
+  <data name="HistorySync" xml:space="preserve"><value>同期</value></data>
+  <data name="HistorySyncTooltip" xml:space="preserve"><value>最新の履歴を取得</value></data>
+  <data name="OpenWithDefaultViewer" xml:space="preserve"><value>Windows既定ビューワーで開く</value></data>
+  <data name="SimpleMemo" xml:space="preserve"><value>シンプルメモ</value></data>
+  <data name="Edit" xml:space="preserve"><value>編集</value></data>
+  <data name="NoMemo" xml:space="preserve"><value>メモなし</value></data>
+  <data name="Details" xml:space="preserve"><value>詳細</value></data>
+  <data name="CapacityLabel" xml:space="preserve"><value>容量:</value></data>
+  <data name="AppLabel" xml:space="preserve"><value>アプリ:</value></data>
+  <data name="PathLabel" xml:space="preserve"><value>詳細パス</value></data>
+  <data name="TitleLabel" xml:space="preserve"><value>フルタイトル:</value></data>
+  <data name="SelectAnItemToViewDetails" xml:space="preserve"><value>詳細を表示するには項目を選択してください</value></data>
+  <data name="ImageEditorTooltip" xml:space="preserve"><value>画像を編集</value></data>
+  <data name="SaveToMyNoteTooltip" xml:space="preserve"><value>マイノートに保存</value></data>
+  <data name="PinToScreenTooltip" xml:space="preserve"><value>画面に固定</value></data>
+  <data name="ErrInitHistory" xml:space="preserve"><value>履歴ウィンドウの初期化エラー: </value></data>
+  <data name="ErrLoadHistory" xml:space="preserve"><value>履歴の読み込みエラー: </value></data>
+  <data name="DeleteConfirmTitle" xml:space="preserve"><value>削除の確認</value></data>
+  <data name="DeleteConfirmMessage" xml:space="preserve"><value>選択した項目をゴミ箱へ移動しますか？</value></data>
+  <data name="PermanentDeleteConfirmMessage" xml:space="preserve"><value>選択した項目を完全に削除しますか？(ファイルも削除されます)</value></data>
+  <data name="EmptyTrashConfirmMessage" xml:space="preserve"><value>ゴミ箱内のすべての項目を完全に削除しますか？\n(フォルダー内の元ファイルも削除されます)</value></data>
+  <data name="EmptyTrashTitle" xml:space="preserve"><value>ゴミ箱を空にする</value></data>
+  <data name="ErrOpenFolder" xml:space="preserve"><value>フォルダーを開けません: </value></data>
+  <data name="ErrSaveImage" xml:space="preserve"><value>画像の保存中にエラーが発生しました: </value></data>
+  <data name="ErrOpenEditor" xml:space="preserve"><value>エディターを開けません: </value></data>
+  <data name="ErrPinImage" xml:space="preserve"><value>画像を固定できません: </value></data>
+  <data name="SyncConfirm" xml:space="preserve"><value>クラウドデータ(OneDrive、Dropboxなど)は反映に1〜3分かかる場合があります。\n\n今すぐ最新の記録を取得しますか？</value></data>
+  <data name="SyncInfoTitle" xml:space="preserve"><value>同期情報</value></data>
+  <data name="SyncFailed" xml:space="preserve"><value>同期に失敗しました: </value></data>
+  <data name="NoteSyncTooltip" xml:space="preserve"><value>最新データを取得</value></data>
+  <data name="ClearTags" xml:space="preserve"><value>タグをクリア</value></data>
+  <data name="ClearTagsTooltip" xml:space="preserve"><value>すべてのタグを削除</value></data>
+  <data name="ClearTagsConfirm" xml:space="preserve"><value>すべてのタグを削除してもよろしいですか？\nすべてのノートからタグ情報が削除されます。</value></data>
+  <data name="DeleteSingleTagConfirm" xml:space="preserve"><value>タグ '#{0}' を削除しますか？\nこのタグは適用されているノートからのみ削除されます。</value></data>
+  <data name="DeleteSingleTagComplete" xml:space="preserve"><value>タグ '#{0}' を削除しました。</value></data>
+  <data name="MyNoteTitle" xml:space="preserve"><value>マイノート</value></data>
+  <data name="NewNoteLabel" xml:space="preserve"><value>新しいノート</value></data>
+  <data name="CopyURL" xml:space="preserve"><value>URLをコピー</value></data>
+  <data name="OpenHistory" xml:space="preserve"><value>履歴を開く</value></data>
+  <data name="OpenCaptureFolder" xml:space="preserve"><value>キャプチャフォルダーを開く</value></data>
+  <data name="OpenNoteFolder" xml:space="preserve"><value>ノートフォルダーを開く</value></data>
+  <data name="CaptureAnd" xml:space="preserve"><value>キャプチャ &amp;</value></data>
+  <data name="ChangeEdgeStyleTooltip" xml:space="preserve"><value>クリックしてエッジスタイルを変更</value></data>
+  <data name="EmptyTrashComplete" xml:space="preserve"><value>ゴミ箱を空にしました。</value></data>
+  <data name="All" xml:space="preserve"><value>すべて</value></data>
+  <data name="CopyFailed" xml:space="preserve"><value>クリップボードへのコピーに失敗しました。他のプログラムがクリップボードを使用している可能性があります。</value></data>
+  <data name="HistoryTitle" xml:space="preserve"><value>履歴</value></data>
+  <data name="HistoryColDate" xml:space="preserve"><value>日時</value></data>
+  <data name="HistoryColFileName" xml:space="preserve"><value>ファイル名</value></data>
+  <data name="HistoryColMeta" xml:space="preserve"><value>ソース/タイトル</value></data>
+  <data name="HistoryColMemo" xml:space="preserve"><value>メモ</value></data>
+  <data name="HistoryColActions" xml:space="preserve"><value>操作</value></data>
+  <data name="History" xml:space="preserve"><value>履歴</value></data>
+  <data name="HistoryFilterTitle" xml:space="preserve"><value>詳細フィルター</value></data>
+  <data name="HistoryFilterDate" xml:space="preserve"><value>日付フィルター</value></data>
+  <data name="HistoryFilterFileName" xml:space="preserve"><value>ファイル名</value></data>
+  <data name="HistoryFilterFileType" xml:space="preserve"><value>ファイルタイプ</value></data>
+  <data name="HistoryFilterTypeAll" xml:space="preserve"><value>すべて</value></data>
+  <data name="HistoryFilterTypeImage" xml:space="preserve"><value>画像 (JPG, PNG, BMP, GIF, WEBP)</value></data>
+  <data name="HistoryFilterTypeMedia" xml:space="preserve"><value>メディア (MP4, MP3)</value></data>
+  <data name="HistoryFilterApply" xml:space="preserve"><value>フィルターを適用</value></data>
+  <data name="ImageViewerTitle" xml:space="preserve"><value>CatchCapture - ビューア</value></data>
+  <data name="ImageViewerDefaultText" xml:space="preserve"><value>画像ビューア</value></data>
+  <data name="ImageViewerResetZoomTooltip" xml:space="preserve"><value>ズームをリセット (1:1)</value></data>
+  <data name="ImageViewerCopyTooltip" xml:space="preserve"><value>クリップボードにコピー</value></data>
+  <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>画像を名前を付けて保存...</value></data>
+  <data name="RightClickBoxHint" xml:space="preserve"><value>右クリック: ボックス</value></data>
+  <data name="SettingsShowColorPaletteDesc" xml:space="preserve"><value>拡大鏡の下にカラーパレットを表示</value></data>
 </root>

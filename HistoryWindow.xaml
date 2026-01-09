@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:utils="clr-namespace:CatchCapture.Utilities"
+
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen" ResizeMode="CanResize"
         MinHeight="300" Height="820" MinWidth="1100" Width="1430"
@@ -165,7 +166,7 @@
                                     </Grid>
                                 </Button>
                                 <!-- Delete Action (Only on hover) -->
-                                <Button x:Name="BtnDeleteAction" Click="BtnDeleteItem_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="2" Visibility="Collapsed" ToolTip="삭제">
+                                <Button x:Name="BtnDeleteAction" Click="BtnDeleteItem_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="2" Visibility="Collapsed" ToolTip="{DynamicResource Delete}">
                                     <Path Data="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z" 
                                           Fill="{DynamicResource ThemeForeground}" Opacity="0.4" Width="13" Height="13" Stretch="Uniform"/>
                                 </Button>
@@ -705,7 +706,7 @@
                                                     <Path Data="M12,5V1L7,6L12,11V7A6,6 0 0,1 18,13A6,6 0 0,1 12,19A6,6 0 0,1 6,13H4A8,8 0 0,0 12,21A8,8 0 0,0 20,13A8,8 0 0,0 12,5Z" 
                                                           Fill="{DynamicResource ThemeForeground}" Opacity="0.8" Width="14" Height="14" Stretch="Uniform"/>
                                                 </Button>
-                                                <Button Click="BtnDeleteItem_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="4" ToolTip="삭제">
+                                                <Button Click="BtnDeleteItem_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="4" ToolTip="{DynamicResource Delete}">
                                                     <Path Data="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z" 
                                                           Fill="{DynamicResource ThemeForeground}" Opacity="0.4" Width="14" Height="14" Stretch="Uniform"/>
                                                 </Button>

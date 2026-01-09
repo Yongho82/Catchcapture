@@ -766,4 +766,95 @@
   <data name="CaptureModeOverlay" xml:space="preserve"><value>Captura rápida (Superposición) - Mantiene las animaciones en reproducción</value></data>
   <data name="CaptureModeStatic" xml:space="preserve"><value>Captura congelada - Congela la pantalla al instante (Predeterminado)</value></data>
   <data name="CaptureModeDesc" xml:space="preserve"><value>※ Usar la lupa en el modo de captura rápida puede causar retraso al arrastrar.</value></data>
+  <data name="EdgeCapture" xml:space="preserve"><value>Captura con borde</value></data>
+  <data name="EdgeSoft" xml:space="preserve"><value>Borde suave</value></data>
+  <data name="EdgeSmooth" xml:space="preserve"><value>Borde alisado</value></data>
+  <data name="EdgeClassic" xml:space="preserve"><value>Redondeado clásico</value></data>
+  <data name="EdgeCapsule" xml:space="preserve"><value>Estilo cápsula</value></data>
+  <data name="EdgeCircle" xml:space="preserve"><value>Círculo perfecto</value></data>
+  <data name="HistorySettings" xml:space="preserve"><value>Configuración del historial</value></data>
+  <data name="AutoManagement" xml:space="preserve"><value>Retención y gestión de datos</value></data>
+  <data name="AutoDeletePeriod" xml:space="preserve"><value>Período de eliminación automática</value></data>
+  <data name="AutoDeleteToTrashNotice" xml:space="preserve"><value>(Mueve los datos anteriores al período establecido a la papelera)</value></data>
+  <data name="DbOptimize" xml:space="preserve"><value>Optimizar base de datos</value></data>
+  <data name="DbOptimizeDesc" xml:space="preserve"><value>Mejora la velocidad eliminando espacio vacío</value></data>
+  <data name="HistorySameAsCapture" xml:space="preserve"><value>Igual que la configuración de captura. Si necesita cambiarlos, hágalo en la configuración de captura.</value></data>
+  <data name="HistoryTip1" xml:space="preserve"><value>Visualice todas sus capturas y registros pasados de un vistazo en el Historial.</value></data>
+  <data name="HistoryTip2" xml:space="preserve"><value>Use la barra de búsqueda para encontrar rápidamente registros por nombre de archivo o aplicación.</value></data>
+  <data name="HistoryTip3" xml:space="preserve"><value>Use filtros avanzados para buscar por fechas específicas o tipos de archivo.</value></data>
+  <data name="HistoryTip4" xml:space="preserve"><value>Seleccione un elemento y haga clic en 'Guardar en Mi Nota' para crear una nota con la información original.</value></data>
+  <data name="HistoryTip5" xml:space="preserve"><value>Haga doble clic en un elemento de la lista para ver el archivo original en el visor predeterminado de Windows.</value></data>
+  <data name="HistoryTip6" xml:space="preserve"><value>Los registros eliminados en la papelera se eliminarán permanentemente después del período de retención.</value></data>
+  <data name="Blur" xml:space="preserve"><value>Desenfocar</value></data>
+  <data name="HistoryWindowTitle" xml:space="preserve"><value>Historial - CatchCapture</value></data>
+  <data name="HistorySearchPlaceholder" xml:space="preserve"><value>Buscar por nombre de archivo, memo, app...</value></data>
+  <data name="TotalHistory" xml:space="preserve"><value>Historial total</value></data>
+  <data name="HistorySync" xml:space="preserve"><value>Sincronizar</value></data>
+  <data name="HistorySyncTooltip" xml:space="preserve"><value>Obtener el historial más reciente</value></data>
+  <data name="OpenWithDefaultViewer" xml:space="preserve"><value>Abrir con el visor predeterminado de Windows</value></data>
+  <data name="SimpleMemo" xml:space="preserve"><value>Memo simple</value></data>
+  <data name="Edit" xml:space="preserve"><value>Editar</value></data>
+  <data name="NoMemo" xml:space="preserve"><value>Sin memo.</value></data>
+  <data name="Details" xml:space="preserve"><value>Detalles</value></data>
+  <data name="CapacityLabel" xml:space="preserve"><value>Capacidad:</value></data>
+  <data name="AppLabel" xml:space="preserve"><value>Aplicación:</value></data>
+  <data name="PathLabel" xml:space="preserve"><value>Ruta detallada</value></data>
+  <data name="TitleLabel" xml:space="preserve"><value>Título completo:</value></data>
+  <data name="SelectAnItemToViewDetails" xml:space="preserve"><value>Seleccione un elemento para ver los detalles</value></data>
+  <data name="ImageEditorTooltip" xml:space="preserve"><value>Editar imagen</value></data>
+  <data name="SaveToMyNoteTooltip" xml:space="preserve"><value>Guardar en Mi Nota</value></data>
+  <data name="PinToScreenTooltip" xml:space="preserve"><value>Fijar en pantalla</value></data>
+  <data name="ErrInitHistory" xml:space="preserve"><value>Error al inicializar la ventana de historial: </value></data>
+  <data name="ErrLoadHistory" xml:space="preserve"><value>Error al cargar el historial: </value></data>
+  <data name="DeleteConfirmTitle" xml:space="preserve"><value>Confirmar eliminación</value></data>
+  <data name="DeleteConfirmMessage" xml:space="preserve"><value>¿Desea mover los elementos seleccionados a la papelera?</value></data>
+  <data name="PermanentDeleteConfirmMessage" xml:space="preserve"><value>¿Desea eliminar permanentemente los elementos seleccionados? (Los archivos también se eliminarán)</value></data>
+  <data name="EmptyTrashConfirmMessage" xml:space="preserve"><value>¿Desea eliminar permanentemente todos los elementos de la papelera?\n(Los archivos originales en las carpetas también se eliminarán)</value></data>
+  <data name="EmptyTrashTitle" xml:space="preserve"><value>Vaciar papelera</value></data>
+  <data name="ErrOpenFolder" xml:space="preserve"><value>No se puede abrir la carpeta: </value></data>
+  <data name="ErrSaveImage" xml:space="preserve"><value>Ocurrió un error al guardar la imagen: </value></data>
+  <data name="ErrOpenEditor" xml:space="preserve"><value>No se puede abrir el editor: </value></data>
+  <data name="ErrPinImage" xml:space="preserve"><value>No se puede fijar la imagen: </value></data>
+  <data name="SyncConfirm" xml:space="preserve"><value>Los datos en la nube (OneDrive, Dropbox, etc.) pueden tardar 1-3 minutos en reflejarse.\n\n¿Desea obtener los registros más recientes ahora?</value></data>
+  <data name="SyncInfoTitle" xml:space="preserve"><value>Información de sincronización</value></data>
+  <data name="SyncFailed" xml:space="preserve"><value>Falló la sincronización: </value></data>
+  <data name="NoteSyncTooltip" xml:space="preserve"><value>Obtener los datos más recientes</value></data>
+  <data name="ClearTags" xml:space="preserve"><value>Borrar etiquetas</value></data>
+  <data name="ClearTagsTooltip" xml:space="preserve"><value>Eliminar todas las etiquetas</value></data>
+  <data name="ClearTagsConfirm" xml:space="preserve"><value>¿Está seguro de que desea eliminar todas las etiquetas?\nLa información de etiquetas se eliminará de todas las notas.</value></data>
+  <data name="DeleteSingleTagConfirm" xml:space="preserve"><value>¿Desea eliminar la etiqueta '#{0}'?\nEsta etiqueta solo se eliminará de las notas en las que está aplicada.</value></data>
+  <data name="DeleteSingleTagComplete" xml:space="preserve"><value>La etiqueta '#{0}' ha sido eliminada.</value></data>
+  <data name="MyNoteTitle" xml:space="preserve"><value>Mi Nota</value></data>
+  <data name="NewNoteLabel" xml:space="preserve"><value>Nueva nota</value></data>
+  <data name="CopyURL" xml:space="preserve"><value>Copiar URL</value></data>
+  <data name="OpenHistory" xml:space="preserve"><value>Abrir historial</value></data>
+  <data name="OpenCaptureFolder" xml:space="preserve"><value>Abrir carpeta de capturas</value></data>
+  <data name="OpenNoteFolder" xml:space="preserve"><value>Abrir carpeta de notas</value></data>
+  <data name="CaptureAnd" xml:space="preserve"><value>Capturar &amp;</value></data>
+  <data name="ChangeEdgeStyleTooltip" xml:space="preserve"><value>Haga clic para cambiar el estilo de borde</value></data>
+  <data name="EmptyTrashComplete" xml:space="preserve"><value>La papelera ha sido vaciada.</value></data>
+  <data name="All" xml:space="preserve"><value>Todo</value></data>
+  <data name="CopyFailed" xml:space="preserve"><value>No se pudo copiar al portapapeles. Es posible que otro programa esté usando el portapapeles.</value></data>
+  <data name="HistoryTitle" xml:space="preserve"><value>Historial</value></data>
+  <data name="HistoryColDate" xml:space="preserve"><value>Fecha y hora</value></data>
+  <data name="HistoryColFileName" xml:space="preserve"><value>Nombre de archivo</value></data>
+  <data name="HistoryColMeta" xml:space="preserve"><value>Origen/Título</value></data>
+  <data name="HistoryColMemo" xml:space="preserve"><value>Memo</value></data>
+  <data name="HistoryColActions" xml:space="preserve"><value>Acciones</value></data>
+  <data name="History" xml:space="preserve"><value>Historial</value></data>
+  <data name="HistoryFilterTitle" xml:space="preserve"><value>Filtro detallado</value></data>
+  <data name="HistoryFilterDate" xml:space="preserve"><value>Filtro por fecha</value></data>
+  <data name="HistoryFilterFileName" xml:space="preserve"><value>Nombre de archivo</value></data>
+  <data name="HistoryFilterFileType" xml:space="preserve"><value>Tipo de archivo</value></data>
+  <data name="HistoryFilterTypeAll" xml:space="preserve"><value>Todo</value></data>
+  <data name="HistoryFilterTypeImage" xml:space="preserve"><value>Imagen (JPG, PNG, BMP, GIF, WEBP)</value></data>
+  <data name="HistoryFilterTypeMedia" xml:space="preserve"><value>Multimedia (MP4, MP3)</value></data>
+  <data name="HistoryFilterApply" xml:space="preserve"><value>Aplicar filtro</value></data>
+  <data name="ImageViewerTitle" xml:space="preserve"><value>CatchCapture - Visor</value></data>
+  <data name="ImageViewerDefaultText" xml:space="preserve"><value>Visor de imágenes</value></data>
+  <data name="ImageViewerResetZoomTooltip" xml:space="preserve"><value>Restablecer zoom (1:1)</value></data>
+  <data name="ImageViewerCopyTooltip" xml:space="preserve"><value>Copiar al portapapeles</value></data>
+  <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>Guardar imagen como...</value></data>
+  <data name="RightClickBoxHint" xml:space="preserve"><value>Clic derecho: Cuadro</value></data>
+  <data name="SettingsShowColorPaletteDesc" xml:space="preserve"><value>Mostrar paleta de colores bajo la lupa</value></data>
 </root>
