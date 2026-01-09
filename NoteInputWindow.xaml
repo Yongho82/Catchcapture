@@ -7,6 +7,7 @@
         mc:Ignorable="d"
         Title="캐치캡처-글쓰기" Height="980" Width="1200"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        UseLayoutRounding="True"
         WindowStartupLocation="CenterScreen" ShowInTaskbar="True" ResizeMode="CanResize"
         MinHeight="500" MinWidth="600"
         StateChanged="NoteInputWindow_StateChanged">
@@ -14,11 +15,11 @@
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="50" 
                       ResizeBorderThickness="8" 
-                      CornerRadius="12" 
+                      CornerRadius="0" 
                       GlassFrameThickness="0" />
     </WindowChrome.WindowChrome>
     
-    <Border Background="{DynamicResource ThemeBackground}" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource ThemeWindowBorder}">
+    <Border Background="{DynamicResource ThemeBackground}" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource ThemeWindowBorder}" Margin="10">
         <Border.CacheMode>
             <BitmapCache EnableClearType="True" RenderAtScale="1"/>
         </Border.CacheMode>

@@ -11,6 +11,7 @@
         WindowStyle="None" AllowsTransparency="True" 
         Background="Transparent"
         Icon="icons/catcha.ico" 
+        UseLayoutRounding="True"
         FontFamily="Segoe UI">
     
     <WindowChrome.WindowChrome>

@@ -6,17 +6,18 @@
         mc:Ignorable="d"
         Title="캐치캡처-노트뷰어" Height="800" Width="900"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        UseLayoutRounding="True"
         WindowStartupLocation="CenterScreen" ResizeMode="CanResize"
         MinHeight="300" MinWidth="400">
 
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="50" 
                       ResizeBorderThickness="8" 
-                      CornerRadius="12" 
+                      CornerRadius="0" 
                       GlassFrameThickness="0" />
     </WindowChrome.WindowChrome>
 
-    <Border x:Name="WindowBorder" Background="{DynamicResource ThemeBackground}" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource ThemeWindowBorder}">
+    <Border x:Name="WindowBorder" Background="{DynamicResource ThemeBackground}" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource ThemeWindowBorder}" Margin="10">
         <Border.Effect>
             <DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.15" ShadowDepth="5" Direction="270"/>
         </Border.Effect>

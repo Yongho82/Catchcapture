@@ -4,6 +4,7 @@
         Title="{DynamicResource SettingsWindowTitle}" Height="620" Width="850"
         WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
         Background="Transparent" WindowStyle="None" AllowsTransparency="True"
+        UseLayoutRounding="True"
         FontFamily="Malgun Gothic, Segoe UI">
 
     <WindowChrome.WindowChrome>

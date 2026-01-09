@@ -38,7 +38,7 @@
         <WindowChrome CaptionHeight="40" CornerRadius="0" GlassFrameThickness="0" ResizeBorderThickness="8" UseAeroCaptionButtons="False"/>
     </WindowChrome.WindowChrome>
 
-    <Border Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="12" ClipToBounds="True">
+    <Border Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="12" ClipToBounds="True" Margin="10">
         <Grid x:Name="MainGrid">
             <Grid.RowDefinitions>
                 <RowDefinition Height="40"/>

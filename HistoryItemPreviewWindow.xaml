@@ -7,16 +7,17 @@
         mc:Ignorable="d"
         Title="미리보기" Width="1000" MinWidth="600" Height="800" MinHeight="500"
         WindowStartupLocation="CenterScreen"
-        Background="Transparent" WindowStyle="None" AllowsTransparency="True">
+        Background="Transparent" WindowStyle="None" AllowsTransparency="True"
+        UseLayoutRounding="True">
     
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="40" 
                       ResizeBorderThickness="8" 
-                      CornerRadius="12" 
+                      CornerRadius="0" 
                       GlassFrameThickness="0" />
     </WindowChrome.WindowChrome>
 
-    <Border Background="{DynamicResource ThemeBackground}" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource ThemeWindowBorder}">
+    <Border Background="{DynamicResource ThemeBackground}" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource ThemeWindowBorder}" Margin="10">
         <Border.Effect>
             <DropShadowEffect BlurRadius="25" Color="Black" Opacity="0.1" ShadowDepth="5"/>
         </Border.Effect>

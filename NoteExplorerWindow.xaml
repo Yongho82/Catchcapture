@@ -8,11 +8,12 @@
         MinHeight="500" Height="920" MinWidth="1000" Width="1200"
         Title="캐치캡처 노트 탐색기"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        UseLayoutRounding="True"
         StateChanged="NoteExplorerWindow_StateChanged">
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="60" 
                       ResizeBorderThickness="8" 
-                      CornerRadius="12" 
+                      CornerRadius="0" 
                       GlassFrameThickness="0" />
     </WindowChrome.WindowChrome>
     <Window.Resources>
@@ -396,7 +397,7 @@
 
     </Window.Resources>
 
-    <Border Background="{DynamicResource ThemeBackground}" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource ThemeWindowBorder}">
+    <Border Background="{DynamicResource ThemeBackground}" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource ThemeWindowBorder}" Margin="10">
         <Border.Effect>
             <DropShadowEffect BlurRadius="25" Color="Black" Opacity="0.1" ShadowDepth="5"/>
         </Border.Effect>
@@ -1018,7 +1019,7 @@
             </Grid>
             
             <!-- Bottom Tip Bar -->
-            <Border Grid.Row="2" Background="{DynamicResource ThemeSidebarButtonBackground}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ThemeBorder}" Height="40" Padding="30,0">
+            <Border Grid.Row="2" Background="{DynamicResource ThemeSidebarButtonBackground}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ThemeBorder}" Height="40" Padding="30,0" CornerRadius="0,0,12,12">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Border x:Name="BrdTipLabel" Background="#8E2DE2" CornerRadius="4" Padding="6,2" Margin="0,0,12,0">
                         <TextBlock x:Name="TxtTipLabel" Text="TIP" Foreground="White" FontSize="10" FontWeight="Bold"/>
