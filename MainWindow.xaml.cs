@@ -239,14 +239,16 @@ public partial class MainWindow : Window
             if (settings.MainCaptureViewMode == 1)
             {
                 currentViewMode = CaptureViewMode.Card;
-                this.Width = 830;
+                this.Width = 845;
                 CaptureListPanel.HorizontalAlignment = HorizontalAlignment.Left;
+                if (EmptyStateActionPanel != null) EmptyStateActionPanel.Orientation = Orientation.Horizontal;
             }
             else
             {
                 currentViewMode = CaptureViewMode.List;
-                this.Width = 400;
+                this.Width = 415;
                 CaptureListPanel.HorizontalAlignment = HorizontalAlignment.Center;
+                if (EmptyStateActionPanel != null) EmptyStateActionPanel.Orientation = Orientation.Vertical;
             }
             CaptureListPanel.ItemWidth = 210;
             UpdateViewModeUI();
@@ -1190,9 +1192,10 @@ public partial class MainWindow : Window
             if (currentViewMode == CaptureViewMode.Card) return;
             currentViewMode = CaptureViewMode.Card;
             
-            this.Width = 830;
+            this.Width = 845;
             CaptureListPanel.ItemWidth = 210;
             CaptureListPanel.HorizontalAlignment = HorizontalAlignment.Left;
+            if (EmptyStateActionPanel != null) EmptyStateActionPanel.Orientation = Orientation.Horizontal;
             
             settings.MainCaptureViewMode = 1;
             Settings.Save(settings);
@@ -1202,9 +1205,10 @@ public partial class MainWindow : Window
             if (currentViewMode == CaptureViewMode.List) return;
             currentViewMode = CaptureViewMode.List;
             
-            this.Width = 400;
+            this.Width = 415;
             CaptureListPanel.ItemWidth = 210; 
             CaptureListPanel.HorizontalAlignment = HorizontalAlignment.Center;
+            if (EmptyStateActionPanel != null) EmptyStateActionPanel.Orientation = Orientation.Vertical;
             
             settings.MainCaptureViewMode = 0;
             Settings.Save(settings);
