@@ -18,9 +18,9 @@ namespace CatchCapture
     {
         #region 마우스 이벤트 핸들러
 
-        private void ImageCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void ImageCanvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (ImageCanvas == null) return;
+            if (e.Handled || ImageCanvas == null) return;
 
             Point clickPoint = e.GetPosition(ImageCanvas);
             WriteLog($"MouseDown: 위치({clickPoint.X:F1}, {clickPoint.Y:F1}), 편집모드={currentEditMode}");
@@ -39,7 +39,7 @@ namespace CatchCapture
                     Crop_MouseDown(sender, e);
                     break;
                 case EditMode.Eraser:
-                    _editorManager.StartDrawing(clickPoint, e.OriginalSource);
+                    _editorManager.StartDrawing(clickPoint, e.OriginalSource, e.ChangedButton == MouseButton.Right);
                     break;
                 case EditMode.Highlight:
                 case EditMode.Pen:
@@ -51,7 +51,7 @@ namespace CatchCapture
                     if (Preview_SelectMouseDown(sender, e)) return;
                     
                     // 기존 요소 클릭이 아니라면 새로운 그리기 시작
-                    _editorManager.StartDrawing(clickPoint, e.OriginalSource);
+                    _editorManager.StartDrawing(clickPoint, e.OriginalSource, e.ChangedButton == MouseButton.Right);
                     break;
                 case EditMode.MagicWand:
                     StartMagicWandSelection();
@@ -68,6 +68,21 @@ namespace CatchCapture
             if (ImageCanvas == null) return;
 
             Point currentPoint = e.GetPosition(ImageCanvas);
+
+            // [추가] 그리기 힌트 라벨 위치 업데이트
+            if (drawHintLabel != null)
+            {
+                if ((currentEditMode == EditMode.Pen || currentEditMode == EditMode.Highlight))
+                {
+                    drawHintLabel.Visibility = Visibility.Visible;
+                    Canvas.SetLeft(drawHintLabel, currentPoint.X + 15);
+                    Canvas.SetTop(drawHintLabel, currentPoint.Y + 15);
+                }
+                else
+                {
+                    drawHintLabel.Visibility = Visibility.Collapsed;
+                }
+            }
 
             // 지우개 모드일 때 커서 표시 (클릭 여부 상관없이)
             if (currentEditMode == EditMode.Eraser)
@@ -89,8 +104,8 @@ namespace CatchCapture
                 HideMagicWandCursor();
             }
 
-            // 왼쪽 버튼이 눌려 있지 않으면 드래그 로직은 실행하지 않음
-            if (e.LeftButton != MouseButtonState.Pressed) return;
+            // 왼쪽 또는 오른쪽 버튼이 눌려 있지 않으면 드래그 로직은 실행하지 않음
+            if (e.LeftButton != MouseButtonState.Pressed && e.RightButton != MouseButtonState.Pressed) return;
 
             // 다른 모드 처리
             switch (currentEditMode)
@@ -150,10 +165,9 @@ namespace CatchCapture
             }
         }
 
-        private void ImageCanvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private void ImageCanvas_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            // 편집 모드가 없으면 아무것도 하지 않음
-            if (currentEditMode == EditMode.None) return;
+            if (e.Handled || currentEditMode == EditMode.None) return;
 
             if (ImageCanvas == null) return;
 
@@ -190,6 +204,9 @@ namespace CatchCapture
             
             // 마법봉 커서 숨기기
             HideMagicWandCursor();
+
+            // [추가] 힌트 라벨 숨기기
+            if (drawHintLabel != null) drawHintLabel.Visibility = Visibility.Collapsed;
         }
 
         #endregion

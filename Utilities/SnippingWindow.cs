@@ -89,6 +89,7 @@ namespace CatchCapture.Utilities
         private Button? objectCopyButton;
 
         private SharedCanvasEditor _editorManager;
+        private TextBlock? drawHintLabel; // [추가] 그리기 힌트 라벨
 
         public Int32Rect SelectedArea { get; private set; }
         public bool IsCancelled { get; private set; } = false;
@@ -190,6 +191,20 @@ namespace CatchCapture.Utilities
             _drawingCanvas.Width = vWidth;
             _drawingCanvas.Height = vHeight;
             canvas.Children.Add(_drawingCanvas);
+
+            // [추가] 그리기 힌트 라벨 초기화
+            drawHintLabel = new TextBlock
+            {
+                Text = "우클릭: 박스형",
+                Background = new SolidColorBrush(Color.FromArgb(160, 0, 0, 0)),
+                Foreground = Brushes.White,
+                Padding = new Thickness(4, 2, 4, 2),
+                FontSize = 10,
+                IsHitTestVisible = false,
+                Visibility = Visibility.Collapsed
+            };
+            canvas.Children.Add(drawHintLabel);
+            Panel.SetZIndex(drawHintLabel, 1000);
 
             // 캐시된 스크린샷이 있으면 즉시 사용
             if (cachedScreenshot != null)
@@ -1951,13 +1966,17 @@ namespace CatchCapture.Utilities
         private void SetupEditorEvents()
         {
             canvas.MouseLeftButtonDown -= Canvas_DrawMouseDown;
+            canvas.MouseRightButtonDown -= Canvas_DrawMouseDown; // [추가]
             canvas.MouseMove -= Canvas_DrawMouseMove;
             canvas.MouseLeftButtonUp -= Canvas_DrawMouseUp;
+            canvas.MouseRightButtonUp -= Canvas_DrawMouseUp; // [추가]
             canvas.MouseLeftButtonDown -= Canvas_SelectMouseDown;
             
             canvas.MouseLeftButtonDown += Canvas_DrawMouseDown;
+            canvas.MouseRightButtonDown += Canvas_DrawMouseDown; // [추가]
             canvas.MouseMove += Canvas_DrawMouseMove;
             canvas.MouseLeftButtonUp += Canvas_DrawMouseUp;
+            canvas.MouseRightButtonUp += Canvas_DrawMouseUp; // [추가]
         }
 
         private void EnableDrawingMode(string tool = "펜")
@@ -2872,6 +2891,7 @@ namespace CatchCapture.Utilities
 
         private void Canvas_DrawMouseDown(object sender, MouseButtonEventArgs e)
         {
+            if (e.Handled) return;
             if (currentTool == "지우개")
             {
                 // 지우개 모드에서는 선택보다 지우기가 우선일 수 있으나, 
@@ -2887,13 +2907,29 @@ namespace CatchCapture.Utilities
             if (!IsPointInSelection(clickPoint)) return;
 
             SyncEditorProperties();
-            _editorManager.StartDrawing(clickPoint, e.OriginalSource);
+            _editorManager.StartDrawing(clickPoint, e.OriginalSource, e.ChangedButton == MouseButton.Right);
             numberingNext = _editorManager.NextNumber; // 넘버링 번호 동기화
         }
         
         private void Canvas_DrawMouseMove(object sender, MouseEventArgs e)
         {
             Point currentPoint = e.GetPosition(canvas);
+            
+            // [추가] 그리기 힌트 라벨 위치 업데이트
+            if (drawHintLabel != null)
+            {
+                if (!isSelecting && (currentTool == "펜" || currentTool == "형광펜") && IsPointInSelection(currentPoint))
+                {
+                    drawHintLabel.Visibility = Visibility.Visible;
+                    Canvas.SetLeft(drawHintLabel, currentPoint.X + 15);
+                    Canvas.SetTop(drawHintLabel, currentPoint.Y + 15);
+                }
+                else
+                {
+                    drawHintLabel.Visibility = Visibility.Collapsed;
+                }
+            }
+
             if (!IsPointInSelection(currentPoint)) return;
 
             _editorManager.UpdateDrawing(currentPoint);
@@ -2901,6 +2937,7 @@ namespace CatchCapture.Utilities
         
         private void Canvas_DrawMouseUp(object sender, MouseButtonEventArgs e)
         {
+            if (e.Handled) return;
             _editorManager.FinishDrawing();
         }
 

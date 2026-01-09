@@ -57,6 +57,7 @@ namespace CatchCapture
         private Button? objectCopyButton;
 
         private SharedCanvasEditor _editorManager;
+        private TextBlock? drawHintLabel; // [추가] 그리기 힌트 라벨
         private Stack<UIElement> _editorUndoStack = new Stack<UIElement>();
         private CatchCapture.Controls.ToolOptionsControl _toolOptionsControl;
 
@@ -116,9 +117,11 @@ namespace CatchCapture
             }
 
             // 이벤트 핸들러 등록
-            ImageCanvas.MouseLeftButtonDown += ImageCanvas_MouseLeftButtonDown;
+            ImageCanvas.MouseLeftButtonDown += ImageCanvas_MouseDown; // [수정] 성격상 MouseDown으로 통일
+            ImageCanvas.MouseRightButtonDown += ImageCanvas_MouseDown; // [추가]
             ImageCanvas.MouseMove += ImageCanvas_MouseMove;
-            ImageCanvas.MouseLeftButtonUp += ImageCanvas_MouseLeftButtonUp;
+            ImageCanvas.MouseLeftButtonUp += ImageCanvas_MouseUp; // [수정] Up으로 통일
+            ImageCanvas.MouseRightButtonUp += ImageCanvas_MouseUp; // [추가]
             ImageCanvas.MouseLeave += ImageCanvas_MouseLeave;
             PreviewKeyDown += PreviewWindow_KeyDown;
             this.PreviewMouseWheel += PreviewWindow_PreviewMouseWheel;
@@ -173,6 +176,20 @@ namespace CatchCapture
             // 공용 도구 옵션 컨트롤 초기화
             _toolOptionsControl = new CatchCapture.Controls.ToolOptionsControl();
             _toolOptionsControl.Initialize(_editorManager);
+
+            // [추가] 그리기 힌트 라벨 초기화
+            drawHintLabel = new TextBlock
+            {
+                Text = "우클릭: 박스형",
+                Background = new SolidColorBrush(Color.FromArgb(160, 0, 0, 0)),
+                Foreground = Brushes.White,
+                Padding = new Thickness(4, 2, 4, 2),
+                FontSize = 10,
+                IsHitTestVisible = false,
+                Visibility = Visibility.Collapsed
+            };
+            ImageCanvas.Children.Add(drawHintLabel);
+            Panel.SetZIndex(drawHintLabel, 1000);
         }
 
         private void BtnMinimize_Click(object sender, RoutedEventArgs e)
@@ -265,14 +282,16 @@ namespace CatchCapture
 
                 layer = new CatchCapture.Models.DrawingLayer
                 {
-                    Type = DrawingLayerType.Shape,
-                    ShapeType = _editorManager.CurrentShapeType, // 현재 설정된 타입 사용
+                    // [수정] 현재 도구가 펜/형광펜인 경우 해당 레이어 타입으로 설정 (박스형 대응)
+                    Type = (_editorManager.CurrentTool == "형광펜") ? DrawingLayerType.Highlight : 
+                           (_editorManager.CurrentTool == "펜") ? DrawingLayerType.Pen : DrawingLayerType.Shape,
+                    ShapeType = (shape.Tag is ShapeMetadata meta) ? meta.ShapeType : _editorManager.CurrentShapeType, 
                     StartPoint = startPoint,
                     EndPoint = endPoint,
                     Color = _editorManager.SelectedColor,
-                    Thickness = _editorManager.ShapeBorderThickness,
-                    IsFilled = _editorManager.ShapeIsFilled,
-                    FillOpacity = _editorManager.ShapeFillOpacity,
+                    Thickness = (_editorManager.CurrentTool == "펜") ? _editorManager.PenThickness : _editorManager.ShapeBorderThickness,
+                    IsFilled = (_editorManager.CurrentTool == "형광펜"),
+                    FillOpacity = (_editorManager.CurrentTool == "형광펜") ? _editorManager.HighlightOpacity : _editorManager.ShapeFillOpacity,
                     IsInteractive = true,
                     LayerId = nextLayerId++,
                     Rotation = rotation
@@ -2346,9 +2365,11 @@ namespace CatchCapture
                 // 이미지 캔버스 이벤트 해제
                 if (ImageCanvas != null)
                 {
-                    ImageCanvas.MouseLeftButtonDown -= ImageCanvas_MouseLeftButtonDown;
+                    ImageCanvas.MouseLeftButtonDown -= ImageCanvas_MouseDown;
+                    ImageCanvas.MouseRightButtonDown -= ImageCanvas_MouseDown;
                     ImageCanvas.MouseMove -= ImageCanvas_MouseMove;
-                    ImageCanvas.MouseLeftButtonUp -= ImageCanvas_MouseLeftButtonUp;
+                    ImageCanvas.MouseLeftButtonUp -= ImageCanvas_MouseUp;
+                    ImageCanvas.MouseRightButtonUp -= ImageCanvas_MouseUp;
                     ImageCanvas.MouseLeave -= ImageCanvas_MouseLeave;
                 }
 

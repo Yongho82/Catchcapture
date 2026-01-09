@@ -60,6 +60,7 @@ namespace CatchCapture.Utilities
         private Polyline? _currentPolyline;
         private Point _lastDrawPoint;
         private bool _isDrawingShape = false;
+        private bool _isRightClickBoxMode = false; // 우측 클릭 박스 모드 여부
         private Point _shapeStartPoint;
         private UIElement? _tempShape;
         private Rectangle? _tempMosaicSelection;
@@ -76,11 +77,13 @@ namespace CatchCapture.Utilities
             _undoStack = undoStack;
         }
 
-        public void StartDrawing(Point clickPoint, object originalSource)
+        public void StartDrawing(Point clickPoint, object originalSource, bool isRightButton = false)
         {
             // 툴바 클릭 등은 무시
-            if (originalSource is FrameworkElement fe && (fe is Button || fe.Parent is Button || fe.TemplatedParent is Button))
+            if (originalSource is FrameworkElement fe && (fe is Button || fe.Parent is Button || fe.TemplatedParent is Button || fe is Slider || fe.Parent is Slider))
                 return;
+
+            _isRightClickBoxMode = isRightButton;
 
             if (CurrentTool == "지우개")
             {
@@ -97,6 +100,26 @@ namespace CatchCapture.Utilities
             if (CurrentTool == "텍스트")
             {
                 AddTextAt(clickPoint);
+                return;
+            }
+
+            // 우측 클릭 드래그인 경우 펜/형광펜 도구에서도 박스형으로 그리기
+            if (_isRightClickBoxMode && (CurrentTool == "펜" || CurrentTool == "형광펜"))
+            {
+                _isDrawingShape = true;
+                _shapeStartPoint = clickPoint;
+                
+                // 형광펜은 채워진 박스, 펜은 테두리 박스
+                bool isFilled = (CurrentTool == "형광펜");
+                double thickness = isFilled ? 0 : PenThickness;
+                double fillOpacity = isFilled ? HighlightOpacity : 0;
+
+                _tempShape = ShapeDrawingHelper.CreateShape(
+                    ShapeType.Rectangle, _shapeStartPoint, _shapeStartPoint,
+                    SelectedColor, thickness, isFilled, fillOpacity);
+                
+                if (_tempShape != null) _canvas.Children.Add(_tempShape);
+                _canvas.CaptureMouse();
                 return;
             }
 
@@ -179,6 +202,14 @@ namespace CatchCapture.Utilities
 
         public void UpdateDrawing(Point currentPoint)
         {
+            if (_isRightClickBoxMode && (CurrentTool == "펜" || CurrentTool == "형광펜") && _tempShape != null)
+            {
+                bool isFilled = (CurrentTool == "형광펜");
+                double thickness = isFilled ? 0 : PenThickness;
+                ShapeDrawingHelper.UpdateShapeProperties(_tempShape, _shapeStartPoint, currentPoint, SelectedColor, thickness);
+                return;
+            }
+
             if (CurrentTool == "도형" && _isDrawingShape && _tempShape != null)
             {
                 ShapeDrawingHelper.UpdateShapeProperties(_tempShape, _shapeStartPoint, currentPoint, SelectedColor, ShapeBorderThickness);
@@ -217,6 +248,23 @@ namespace CatchCapture.Utilities
 
         public void FinishDrawing()
         {
+            if (_isRightClickBoxMode && (CurrentTool == "펜" || CurrentTool == "형광펜"))
+            {
+                if (_isDrawingShape && _tempShape != null)
+                {
+                    _drawnElements.Add(_tempShape);
+                    _undoStack?.Push(_tempShape);
+                    var added = _tempShape;
+                    _tempShape = null;
+                    _isDrawingShape = false;
+                    _isRightClickBoxMode = false;
+                    ElementAdded?.Invoke(added);
+                    ActionOccurred?.Invoke();
+                }
+                _canvas.ReleaseMouseCapture();
+                return;
+            }
+
             if (CurrentTool == "도형")
             {
                 if (_isDrawingShape && _tempShape != null)
@@ -888,10 +936,28 @@ namespace CatchCapture.Utilities
             if (SelectedObject is Shape s)
             {
                 s.Stroke = new SolidColorBrush(SelectedColor);
-                s.StrokeThickness = ShapeBorderThickness;
-                if (s is Rectangle || s is Ellipse)
+
+                // [수정] 펜/형광펜 도구 상태에서 일반 도형(박스형)을 수정할 때의 두께 연동
+                if (CurrentTool == "펜")
                 {
-                    s.Fill = ShapeIsFilled ? new SolidColorBrush(Color.FromArgb((byte)(ShapeFillOpacity * 255), SelectedColor.R, SelectedColor.G, SelectedColor.B)) : Brushes.Transparent;
+                    s.StrokeThickness = PenThickness;
+                    if (s is Rectangle || s is Ellipse) s.Fill = Brushes.Transparent;
+                }
+                else if (CurrentTool == "형광펜")
+                {
+                    s.StrokeThickness = 0;
+                    if (s is Rectangle || s is Ellipse)
+                    {
+                        s.Fill = new SolidColorBrush(Color.FromArgb((byte)(HighlightOpacity * 255), SelectedColor.R, SelectedColor.G, SelectedColor.B));
+                    }
+                }
+                else
+                {
+                    s.StrokeThickness = ShapeBorderThickness;
+                    if (s is Rectangle || s is Ellipse)
+                    {
+                        s.Fill = ShapeIsFilled ? new SolidColorBrush(Color.FromArgb((byte)(ShapeFillOpacity * 255), SelectedColor.R, SelectedColor.G, SelectedColor.B)) : Brushes.Transparent;
+                    }
                 }
                 
                 // 메타데이터 업데이트 (저장/복구용)
