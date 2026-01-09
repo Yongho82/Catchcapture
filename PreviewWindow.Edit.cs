@@ -525,13 +525,16 @@ namespace CatchCapture
                 byte[] pixels = new byte[height * stride];
                 writeable.CopyPixels(pixels, stride, 0);
 
+                // 엣지 맵 계산 (텍스트/윤곽선 보호용)
+                double[,] edgeMap = CalculateEdgeMap(pixels, width, height, stride);
+
                 // 기준 색상 가져오기
                 int refIndex = (refY * stride) + (refX * 4);
                 byte targetB = pixels[refIndex];
                 byte targetG = pixels[refIndex + 1];
                 byte targetR = pixels[refIndex + 2];
 
-                // 영역 내에서만 비슷한 색상 제거
+                // 영역 내에서만 비슷한 색상 제거 (엣지 보호 적용)
                 for (int y = Math.Max(0, y1); y < Math.Min(height, y2); y++)
                 {
                     for (int x = Math.Max(0, x1); x < Math.Min(width, x2); x++)
@@ -541,12 +544,18 @@ namespace CatchCapture
                         byte g = pixels[index + 1];
                         byte r = pixels[index + 2];
 
-                        if (IsColorSimilar(r, g, b, targetR, targetG, targetB, magicWandTolerance))
+                        // 엣지 강도 확인
+                        double edgeStrength = edgeMap[x, y];
+
+                        if (IsColorSimilarWithEdgeProtection(r, g, b, targetR, targetG, targetB, magicWandTolerance, edgeStrength))
                         {
                             pixels[index + 3] = 0; // Alpha = 0 (투명)
                         }
                     }
                 }
+
+                // 경계 부드럽게 처리 (안티앨리어싱 잔여물 제거)
+                SmoothTransparentEdges(pixels, width, height, stride, targetR, targetG, targetB, magicWandTolerance);
 
                 // 수정된 픽셀 적용
                 writeable.WritePixels(new Int32Rect(0, 0, width, height), pixels, stride, 0);
@@ -633,6 +642,9 @@ namespace CatchCapture
                     RemoveSimilarColors(pixels, width, height, stride, targetR, targetG, targetB);
                 }
 
+                // 경계 부드럽게 처리 (안티앨리어싱 잔여물 제거)
+                SmoothTransparentEdges(pixels, width, height, stride, targetR, targetG, targetB, magicWandTolerance);
+
                 // 수정된 픽셀을 WriteableBitmap에 적용
                 writeable.WritePixels(new Int32Rect(0, 0, width, height), pixels, stride, 0);
 
@@ -649,11 +661,14 @@ namespace CatchCapture
         }
 
         /// <summary>
-        /// Flood Fill 알고리즘으로 연속된 영역 투명하게 처리
+        /// Flood Fill 알고리즘으로 연속된 영역 투명하게 처리 (엣지 보호 적용)
         /// </summary>
         private void FloodFillRemove(byte[] pixels, int width, int height, int stride,
             int startX, int startY, byte targetR, byte targetG, byte targetB)
         {
+            // 엣지 맵 계산 (텍스트/윤곽선 보호용)
+            double[,] edgeMap = CalculateEdgeMap(pixels, width, height, stride);
+            
             bool[,] visited = new bool[width, height];
             Queue<(int x, int y)> queue = new Queue<(int, int)>();
             queue.Enqueue((startX, startY));
@@ -682,8 +697,11 @@ namespace CatchCapture
                 if (a == 0)
                     continue;
 
-                // 색상 비교 (허용 오차 내인지 확인)
-                if (IsColorSimilar(r, g, b, targetR, targetG, targetB, magicWandTolerance))
+                // 엣지 강도 확인
+                double edgeStrength = edgeMap[x, y];
+
+                // 색상 비교 (엣지 보호 적용)
+                if (IsColorSimilarWithEdgeProtection(r, g, b, targetR, targetG, targetB, magicWandTolerance, edgeStrength))
                 {
                     // 투명하게 처리
                     pixels[index + 3] = 0; // Alpha = 0
@@ -725,11 +743,14 @@ namespace CatchCapture
         }
 
         /// <summary>
-        /// 이미지 전체에서 비슷한 색상을 모두 투명하게 처리
+        /// 이미지 전체에서 비슷한 색상을 모두 투명하게 처리 (엣지 보호 적용)
         /// </summary>
         private void RemoveSimilarColors(byte[] pixels, int width, int height, int stride,
             byte targetR, byte targetG, byte targetB)
         {
+            // 엣지 맵 계산 (텍스트/윤곽선 보호용)
+            double[,] edgeMap = CalculateEdgeMap(pixels, width, height, stride);
+
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
@@ -739,7 +760,10 @@ namespace CatchCapture
                     byte g = pixels[index + 1];
                     byte r = pixels[index + 2];
 
-                    if (IsColorSimilar(r, g, b, targetR, targetG, targetB, magicWandTolerance))
+                    // 엣지 강도 확인
+                    double edgeStrength = edgeMap[x, y];
+
+                    if (IsColorSimilarWithEdgeProtection(r, g, b, targetR, targetG, targetB, magicWandTolerance, edgeStrength))
                     {
                         pixels[index + 3] = 0; // Alpha = 0
                     }
@@ -748,15 +772,250 @@ namespace CatchCapture
         }
 
         /// <summary>
-        /// 두 색상이 허용 오차 내에서 비슷한지 확인
+        /// 두 색상이 허용 오차 내에서 비슷한지 확인 (HSL 색상 공간 기반)
         /// </summary>
         private bool IsColorSimilar(byte r1, byte g1, byte b1, byte r2, byte g2, byte b2, int tolerance)
         {
-            int diffR = Math.Abs(r1 - r2);
-            int diffG = Math.Abs(g1 - g2);
-            int diffB = Math.Abs(b1 - b2);
+            // HSL로 변환하여 비교 (더 자연스러운 색상 인식)
+            var (h1, s1, l1) = RgbToHsl(r1, g1, b1);
+            var (h2, s2, l2) = RgbToHsl(r2, g2, b2);
 
-            return diffR <= tolerance && diffG <= tolerance && diffB <= tolerance;
+            // 허용 오차를 0-1 범위로 정규화
+            double tolNorm = tolerance / 255.0;
+
+            // 밝기(Luminance) 차이 - 가장 중요
+            double diffL = Math.Abs(l1 - l2);
+            
+            // 채도가 낮으면(무채색) 색상 차이는 무시
+            double diffH = 0;
+            if (s1 > 0.1 && s2 > 0.1)
+            {
+                // 색상환에서의 거리 (0~0.5 범위로 정규화)
+                diffH = Math.Abs(h1 - h2);
+                if (diffH > 0.5) diffH = 1.0 - diffH;
+                diffH *= 2; // 0~1 범위로
+            }
+
+            // 채도 차이
+            double diffS = Math.Abs(s1 - s2);
+
+            // 가중치 적용 (밝기 > 채도 > 색상)
+            double totalDiff = (diffL * 0.5) + (diffS * 0.3) + (diffH * 0.2);
+
+            return totalDiff <= tolNorm;
+        }
+
+        /// <summary>
+        /// RGB를 HSL로 변환
+        /// </summary>
+        private (double H, double S, double L) RgbToHsl(byte r, byte g, byte b)
+        {
+            double rd = r / 255.0;
+            double gd = g / 255.0;
+            double bd = b / 255.0;
+
+            double max = Math.Max(rd, Math.Max(gd, bd));
+            double min = Math.Min(rd, Math.Min(gd, bd));
+            double delta = max - min;
+
+            double h = 0, s = 0, l = (max + min) / 2.0;
+
+            if (delta > 0)
+            {
+                s = l > 0.5 ? delta / (2.0 - max - min) : delta / (max + min);
+
+                if (max == rd)
+                    h = ((gd - bd) / delta + (gd < bd ? 6 : 0)) / 6.0;
+                else if (max == gd)
+                    h = ((bd - rd) / delta + 2) / 6.0;
+                else
+                    h = ((rd - gd) / delta + 4) / 6.0;
+            }
+
+            return (h, s, l);
+        }
+
+        /// <summary>
+        /// 엣지 강도 맵 생성 (Sobel 연산자)
+        /// </summary>
+        private double[,] CalculateEdgeMap(byte[] pixels, int width, int height, int stride)
+        {
+            double[,] edgeMap = new double[width, height];
+
+            // Sobel 커널
+            int[,] sobelX = { { -1, 0, 1 }, { -2, 0, 2 }, { -1, 0, 1 } };
+            int[,] sobelY = { { -1, -2, -1 }, { 0, 0, 0 }, { 1, 2, 1 } };
+
+            for (int y = 1; y < height - 1; y++)
+            {
+                for (int x = 1; x < width - 1; x++)
+                {
+                    double gx = 0, gy = 0;
+
+                    for (int ky = -1; ky <= 1; ky++)
+                    {
+                        for (int kx = -1; kx <= 1; kx++)
+                        {
+                            int idx = ((y + ky) * stride) + ((x + kx) * 4);
+                            // 그레이스케일 값 (가중 평균)
+                            double gray = pixels[idx + 2] * 0.299 + pixels[idx + 1] * 0.587 + pixels[idx] * 0.114;
+                            
+                            gx += gray * sobelX[ky + 1, kx + 1];
+                            gy += gray * sobelY[ky + 1, kx + 1];
+                        }
+                    }
+
+                    // 엣지 강도 (0~1 정규화)
+                    edgeMap[x, y] = Math.Min(1.0, Math.Sqrt(gx * gx + gy * gy) / 255.0);
+                }
+            }
+
+            return edgeMap;
+        }
+
+        /// <summary>
+        /// 엣지 보호를 적용한 색상 유사성 검사
+        /// </summary>
+        private bool IsColorSimilarWithEdgeProtection(byte r1, byte g1, byte b1, byte r2, byte g2, byte b2, 
+            int tolerance, double edgeStrength)
+        {
+            // 엣지 강도가 높으면 (텍스트, 윤곽선 등) 보호
+            // edgeThreshold: 0.15 이상이면 엣지로 판단
+            const double edgeThreshold = 0.15;
+            
+            if (edgeStrength >= edgeThreshold)
+            {
+                // 엣지 영역은 더 엄격한 허용 오차 적용 (50% 감소)
+                tolerance = (int)(tolerance * 0.5);
+            }
+
+            return IsColorSimilar(r1, g1, b1, r2, g2, b2, tolerance);
+        }
+
+        /// <summary>
+        /// 투명 영역 경계를 부드럽게 처리 (안티앨리어싱 잔여물 제거)
+        /// </summary>
+        private void SmoothTransparentEdges(byte[] pixels, int width, int height, int stride, 
+            byte targetR, byte targetG, byte targetB, int tolerance)
+        {
+            // 1단계: 투명 영역과 인접한 반투명 픽셀 찾기
+            for (int y = 1; y < height - 1; y++)
+            {
+                for (int x = 1; x < width - 1; x++)
+                {
+                    int index = (y * stride) + (x * 4);
+                    byte a = pixels[index + 3];
+                    
+                    // 이미 투명하거나 완전 불투명이 아닌 픽셀은 건너뜀
+                    if (a == 0) continue;
+                    
+                    // 주변 8방향에 투명 픽셀이 있는지 확인
+                    int transparentNeighbors = 0;
+                    for (int dy = -1; dy <= 1; dy++)
+                    {
+                        for (int dx = -1; dx <= 1; dx++)
+                        {
+                            if (dx == 0 && dy == 0) continue;
+                            int ni = ((y + dy) * stride) + ((x + dx) * 4);
+                            if (pixels[ni + 3] == 0) transparentNeighbors++;
+                        }
+                    }
+                    
+                    // 주변에 투명 픽셀이 있으면 (경계 픽셀)
+                    if (transparentNeighbors > 0)
+                    {
+                        byte b = pixels[index];
+                        byte g = pixels[index + 1];
+                        byte r = pixels[index + 2];
+                        
+                        // 배경색과 비슷한 정도에 따라 알파값 조정
+                        double similarity = CalculateColorSimilarity(r, g, b, targetR, targetG, targetB);
+                        double tolNorm = tolerance / 255.0;
+                        
+                        if (similarity < tolNorm * 1.5) // 허용 오차의 1.5배 이내
+                        {
+                            // 유사도에 따라 부분 투명 처리
+                            double alphaFactor = similarity / (tolNorm * 1.5);
+                            byte newAlpha = (byte)(a * alphaFactor);
+                            
+                            // 최소 알파값 적용 (너무 투명해지는 것 방지)
+                            if (newAlpha < 30 && transparentNeighbors >= 3)
+                            {
+                                pixels[index + 3] = 0; // 완전 투명
+                            }
+                            else if (newAlpha < a)
+                            {
+                                pixels[index + 3] = newAlpha;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // 2단계: 색상 오염 제거 (배경색 성분 제거)
+            DecontaminateColors(pixels, width, height, stride, targetR, targetG, targetB);
+        }
+
+        /// <summary>
+        /// 색상 오염 제거 - 반투명 픽셀에서 배경색 성분 제거
+        /// </summary>
+        private void DecontaminateColors(byte[] pixels, int width, int height, int stride,
+            byte targetR, byte targetG, byte targetB)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    int index = (y * stride) + (x * 4);
+                    byte a = pixels[index + 3];
+                    
+                    // 반투명 픽셀만 처리 (0 < alpha < 255)
+                    if (a > 0 && a < 255)
+                    {
+                        byte b = pixels[index];
+                        byte g = pixels[index + 1];
+                        byte r = pixels[index + 2];
+                        
+                        // 알파 비율 계산
+                        double alphaRatio = a / 255.0;
+                        
+                        // 배경색 성분 제거 (premultiplied alpha 역산)
+                        // 원본색 = (현재색 - 배경색 * (1-alpha)) / alpha
+                        if (alphaRatio > 0.1)
+                        {
+                            double newR = (r - targetR * (1 - alphaRatio)) / alphaRatio;
+                            double newG = (g - targetG * (1 - alphaRatio)) / alphaRatio;
+                            double newB = (b - targetB * (1 - alphaRatio)) / alphaRatio;
+                            
+                            // 범위 클램핑
+                            pixels[index + 2] = (byte)Math.Clamp(newR, 0, 255);
+                            pixels[index + 1] = (byte)Math.Clamp(newG, 0, 255);
+                            pixels[index] = (byte)Math.Clamp(newB, 0, 255);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 색상 유사도 계산 (0.0 ~ 1.0, 낮을수록 유사)
+        /// </summary>
+        private double CalculateColorSimilarity(byte r1, byte g1, byte b1, byte r2, byte g2, byte b2)
+        {
+            var (h1, s1, l1) = RgbToHsl(r1, g1, b1);
+            var (h2, s2, l2) = RgbToHsl(r2, g2, b2);
+
+            double diffL = Math.Abs(l1 - l2);
+            double diffH = 0;
+            if (s1 > 0.1 && s2 > 0.1)
+            {
+                diffH = Math.Abs(h1 - h2);
+                if (diffH > 0.5) diffH = 1.0 - diffH;
+                diffH *= 2;
+            }
+            double diffS = Math.Abs(s1 - s2);
+
+            return (diffL * 0.5) + (diffS * 0.3) + (diffH * 0.2);
         }
 
         #endregion
