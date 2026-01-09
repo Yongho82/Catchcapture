@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,27 +20,39 @@ namespace CatchCapture.Utilities
             await _decodeSemaphore.WaitAsync();
             try
             {
+                // Read all bytes first to avoid any file locking issues while WPF decodes
+                byte[] bytes = await File.ReadAllBytesAsync(path);
+
                 return await Task.Run(() =>
                 {
                     try
                     {
-                        var bitmap = new BitmapImage();
-                        bitmap.BeginInit();
-                        bitmap.UriSource = new Uri(path);
-                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                        if (decodeWidth > 0)
+                        using (var ms = new System.IO.MemoryStream(bytes))
                         {
-                            bitmap.DecodePixelWidth = decodeWidth;
+                            var bitmap = new BitmapImage();
+                            bitmap.BeginInit();
+                            bitmap.StreamSource = ms;
+                            bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                            if (decodeWidth > 0)
+                            {
+                                bitmap.DecodePixelWidth = decodeWidth;
+                            }
+                            bitmap.EndInit();
+                            bitmap.Freeze();
+                            return bitmap;
                         }
-                        bitmap.EndInit();
-                        bitmap.Freeze();
-                        return bitmap;
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        System.Diagnostics.Debug.WriteLine($"Thumbnail Decode Error ({path}): {ex.Message}");
                         return null;
                     }
                 });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Thumbnail Load Error ({path}): {ex.Message}");
+                return null;
             }
             finally
             {

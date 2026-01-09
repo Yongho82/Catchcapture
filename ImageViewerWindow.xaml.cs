@@ -35,24 +35,25 @@ namespace CatchCapture
             if (BtnSaveAs != null) BtnSaveAs.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("ImageViewerSaveAsTooltip");
         }
 
-        private void LoadImage(string path)
+        private async void LoadImage(string path)
         {
             try
             {
                 if (!File.Exists(path)) return;
 
-                var bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.UriSource = new Uri(path);
-                bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                bitmap.EndInit();
-                bitmap.Freeze();
+                // Use ThumbnailManager for robust loading (decodeWidth 0 means full size)
+                var bitmap = await Utilities.ThumbnailManager.LoadThumbnailAsync(path, 0);
+                if (bitmap == null)
+                {
+                    TxtFileName.Text = "Error: Failed to decode image.";
+                    return;
+                }
 
                 ImgDisplay.Source = bitmap;
                 TxtFileName.Text = Path.GetFileName(path);
                 TxtResolution.Text = $"({bitmap.PixelWidth} × {bitmap.PixelHeight})";
 
-                this.Loaded += (s, e) => FitToWindow();
+                FitToWindow();
             }
             catch (Exception ex)
             {

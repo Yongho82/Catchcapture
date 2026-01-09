@@ -64,6 +64,7 @@ namespace CatchCapture
             
             try
             {
+                ImgPreview.Source = null;
                 TxtPreviewPath.Text = _item.FilePath;
                 
                 // Update Memo Display
@@ -252,18 +253,14 @@ namespace CatchCapture
             }
         }
 
-        private void BtnPreviewEdit_Click(object sender, RoutedEventArgs e)
+        private async void BtnPreviewEdit_Click(object sender, RoutedEventArgs e)
         {
             if (System.IO.File.Exists(_item.FilePath))
             {
                 try
                 {
-                    var bitmap = new BitmapImage();
-                    bitmap.BeginInit();
-                    bitmap.UriSource = new Uri(_item.FilePath);
-                    bitmap.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
-                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmap.EndInit();
+                    var bitmap = await Utilities.ThumbnailManager.LoadThumbnailAsync(_item.FilePath, 0);
+                    if (bitmap == null) return;
                     
                     var previewWin = new PreviewWindow(bitmap, 0);
                     
@@ -289,7 +286,7 @@ namespace CatchCapture
             }
         }
 
-        private void BtnPreviewNote_Click(object sender, RoutedEventArgs e)
+        private async void BtnPreviewNote_Click(object sender, RoutedEventArgs e)
         {
              if (System.IO.File.Exists(_item.FilePath))
             {
@@ -298,13 +295,10 @@ namespace CatchCapture
                     BitmapSource? image = ImgPreview.Source as BitmapSource;
                     if (image == null)
                     {
-                         var bitmap = new BitmapImage();
-                        bitmap.BeginInit();
-                        bitmap.UriSource = new Uri(_item.FilePath);
-                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                        bitmap.EndInit();
-                        image = bitmap;
+                        image = await Utilities.ThumbnailManager.LoadThumbnailAsync(_item.FilePath, 0);
                     }
+
+                    if (image == null) return;
 
                     // 노트 생성 윈도우 직접 호출
                     var noteWin = new NoteInputWindow(image, _item.SourceApp, _item.SourceTitle);
@@ -320,7 +314,7 @@ namespace CatchCapture
             }
         }
 
-        private void BtnPreviewPin_Click(object sender, RoutedEventArgs e)
+        private async void BtnPreviewPin_Click(object sender, RoutedEventArgs e)
         {
             if (System.IO.File.Exists(_item.FilePath))
             {
@@ -329,13 +323,10 @@ namespace CatchCapture
                     BitmapSource? image = ImgPreview.Source as BitmapSource;
                     if (image == null)
                     {
-                         var bitmap = new BitmapImage();
-                        bitmap.BeginInit();
-                        bitmap.UriSource = new Uri(_item.FilePath);
-                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                        bitmap.EndInit();
-                        image = bitmap;
+                        image = await Utilities.ThumbnailManager.LoadThumbnailAsync(_item.FilePath, 0);
                     }
+                    
+                    if (image == null) return;
                     
                     var pinnedWindow = new PinnedImageWindow(image);
                     pinnedWindow.Show();

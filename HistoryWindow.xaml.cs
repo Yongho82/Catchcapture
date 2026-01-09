@@ -728,8 +728,21 @@ namespace CatchCapture
 
         private async void UpdatePreview(HistoryItem item)
         {
+            if (item == null)
+            {
+                ImgPreview.Source = null;
+                PreviewEmptyState.Visibility = Visibility.Visible;
+                return;
+            }
+
             try
             {
+                PreviewEmptyState.Visibility = Visibility.Collapsed;
+                
+                // Clear current preview to avoid showing stale data
+                ImgPreview.Source = null;
+                ImgPreview.Opacity = 0.5;
+                
                 TxtPreviewPath.Text = item.FilePath;
                 
                 // Update Memo Display
@@ -740,7 +753,7 @@ namespace CatchCapture
                 TxtMemoDisplay.Visibility = Visibility.Visible;
                 BtnEditMemo.Content = LocalizationManager.GetString("Edit");
 
-                // 기본 메타데이터 설정 (DB 값 우선)
+                // Default metadata (DB values first)
                 TxtPreviewSize.Text = !string.IsNullOrEmpty(item.Resolution) ? item.Resolution : "-";
                 TxtPreviewWeight.Text = GetFileSizeString(item.FileSize);
                 TxtPreviewApp.Text = item.SourceApp;
@@ -750,7 +763,6 @@ namespace CatchCapture
                 {
                     string previewPath = item.FilePath;
                     
-                    // 동영상 파일인 경우 썸네일 탐색 (.preview.png)
                     bool isMedia = item.FilePath.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) || 
                                    item.FilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase) ||
                                    item.FilePath.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase);
@@ -759,12 +771,10 @@ namespace CatchCapture
 
                     if (isMedia)
                     {
-                        // 미디어 파일은 편집 및 노트 저장 비활성화 (현재 이미지 전용)
                         BtnPreviewEdit.Visibility = Visibility.Collapsed;
                         BtnPreviewNote.Visibility = Visibility.Collapsed;
                         MediaOverlay.Visibility = Visibility.Visible;
                         
-                        // 포맷 표시
                         TxtPreviewFormat.Text = System.IO.Path.GetExtension(item.FilePath).ToUpper().Replace(".", "");
                         
                         if (isAudio)
@@ -785,11 +795,10 @@ namespace CatchCapture
                         }
                         else
                         {
-                            // 썸네일 파일이 없는 경우 기본 이미지 또는 블랙 배경
                             if (isAudio) ImgPreview.Source = null;
                             else ImgPreview.Source = new BitmapImage(new Uri("pack://application:,,,/icons/videocamera.png"));
-                            
                             ImgPreview.Opacity = 0.5;
+                            previewPath = ""; // No need to load further
                         }
                     }
                     else
@@ -801,29 +810,27 @@ namespace CatchCapture
 
                     if (!string.IsNullOrEmpty(previewPath) && System.IO.File.Exists(previewPath))
                     {
-                        var bitmap = await ThumbnailManager.LoadThumbnailAsync(previewPath, 800);
+                        var bitmap = await ThumbnailManager.LoadThumbnailAsync(previewPath, 0); 
+                        
                         if (bitmap != null)
                         {
                             ImgPreview.Source = bitmap;
                             ImgPreview.Opacity = 1.0;
-
+                            
                             if (!isMedia)
                             {
                                 TxtPreviewSize.Text = $"{bitmap.PixelWidth} x {bitmap.PixelHeight}";
                             }
                         }
+                        else
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[UpdatePreview] Failed to load bitmap: {previewPath}");
+                        }
                     }
-                }
-                if (item != null)
-                {
-                    TxtMemoDisplay.Text = string.IsNullOrEmpty(item.Memo) ? LocalizationManager.GetString("NoMemo") : item.Memo;
-                    TxtMemoDisplay.Opacity = string.IsNullOrEmpty(item.Memo) ? 0.4 : 0.8;
-                    EditMemoBox.Text = item.Memo;
-                }
-                else
-                {
-                    ImgPreview.Source = null;
-                    MediaOverlay.Visibility = Visibility.Collapsed;
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[UpdatePreview] File not found: {previewPath}");
+                    }
                 }
             }
             catch (Exception ex)
@@ -864,21 +871,21 @@ namespace CatchCapture
             }
         }
 
-        private void BtnPreviewEdit_Click(object sender, RoutedEventArgs e)
+        private async void BtnPreviewEdit_Click(object sender, RoutedEventArgs e)
         {
             if (LstHistory.SelectedItem is HistoryItem item && System.IO.File.Exists(item.FilePath))
             {
                 long selectedId = item.Id; // 현재 ID 저장
                 try
                 {
-                    var bitmap = new BitmapImage();
-                    bitmap.BeginInit();
-                    bitmap.UriSource = new Uri(item.FilePath);
-                    bitmap.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
-                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmap.EndInit();
+                    var bitmap = await Utilities.ThumbnailManager.LoadThumbnailAsync(item.FilePath, 0);
+                    if (bitmap == null)
+                    {
+                         CustomMessageBox.Show(LocalizationManager.GetString("ErrOpenFile"), LocalizationManager.GetString("Error"));
+                         return;
+                    }
                     
-                    var previewWin = new PreviewWindow(bitmap, 0);
+                    var previewWin = new PreviewWindow(bitmap!, 0);
                     previewWin.Owner = this;
                     previewWin.Title = LocalizationManager.GetString("ImageEditorTooltip");
                     
@@ -919,7 +926,7 @@ namespace CatchCapture
             }
         }
 
-        private void BtnPreviewNote_Click(object sender, RoutedEventArgs e)
+        private async void BtnPreviewNote_Click(object sender, RoutedEventArgs e)
         {
             if (LstHistory.SelectedItem is HistoryItem item && System.IO.File.Exists(item.FilePath))
             {
@@ -928,13 +935,10 @@ namespace CatchCapture
                     BitmapSource? image = ImgPreview.Source as BitmapSource;
                     if (image == null)
                     {
-                        var bitmap = new BitmapImage();
-                        bitmap.BeginInit();
-                        bitmap.UriSource = new Uri(item.FilePath);
-                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                        bitmap.EndInit();
-                        image = bitmap;
+                        image = await Utilities.ThumbnailManager.LoadThumbnailAsync(item.FilePath, 0);
                     }
+
+                    if (image == null) return;
                     
                     var noteWin = new NoteInputWindow(image, item.SourceApp, item.SourceTitle);
                     noteWin.Show();
@@ -1002,7 +1006,7 @@ namespace CatchCapture
                 }
             }
         }
-        private void BtnPreviewPin_Click(object sender, RoutedEventArgs e)
+        private async void BtnPreviewPin_Click(object sender, RoutedEventArgs e)
         {
             if (LstHistory.SelectedItem is HistoryItem item && System.IO.File.Exists(item.FilePath))
             {
@@ -1011,13 +1015,10 @@ namespace CatchCapture
                     BitmapSource? image = ImgPreview.Source as BitmapSource;
                     if (image == null)
                     {
-                        var bitmap = new BitmapImage();
-                        bitmap.BeginInit();
-                        bitmap.UriSource = new Uri(item.FilePath);
-                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                        bitmap.EndInit();
-                        image = bitmap;
+                        image = await Utilities.ThumbnailManager.LoadThumbnailAsync(item.FilePath, 0);
                     }
+
+                    if (image == null) return;
                     
                     var pinnedWindow = new PinnedImageWindow(image);
                     pinnedWindow.Show();
