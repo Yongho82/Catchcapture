@@ -44,31 +44,30 @@ namespace CatchCapture.Utilities
         {
             try
             {
-                UpdateScrollInfo(availableSize);
-
                 ItemsControl itemsControl = ItemsControl.GetItemsOwner(this);
                 if (itemsControl == null) return new Size(0, 0);
 
                 int itemCount = itemsControl.Items.Count;
+                UpdateScrollInfo(availableSize, itemCount);
+
                 if (itemCount == 0)
                 {
                     CleanUpItems(-1, -1);
-                    return new Size(0, 0);
+                    return new Size(Math.Min(availableSize.Width, 0), Math.Min(availableSize.Height, 0));
                 }
 
                 int itemsPerRow = GetItemsPerRow();
 
-                // Determine visible range
-                // Use a small buffer to avoid flickering
-                int firstVisibleItemIndex = (int)(_offset.Y / ItemHeight) * itemsPerRow;
-                int lastVisibleItemIndex = (int)((_offset.Y + _viewport.Height) / ItemHeight + 1) * itemsPerRow + itemsPerRow - 1;
+                // Determine visible range with buffer
+                int firstVisibleRow = (int)(_offset.Y / ItemHeight);
+                int lastVisibleRow = (int)((_offset.Y + _viewport.Height) / ItemHeight);
+                
+                int firstVisibleItemIndex = firstVisibleRow * itemsPerRow;
+                int lastVisibleItemIndex = (lastVisibleRow + 1) * itemsPerRow - 1;
 
                 // Clamp indices
-                if (firstVisibleItemIndex < 0) firstVisibleItemIndex = 0;
-                if (firstVisibleItemIndex >= itemCount) firstVisibleItemIndex = itemCount - 1;
-                
-                if (lastVisibleItemIndex >= itemCount) lastVisibleItemIndex = itemCount - 1;
-                if (lastVisibleItemIndex < firstVisibleItemIndex) lastVisibleItemIndex = firstVisibleItemIndex;
+                firstVisibleItemIndex = Math.Max(0, firstVisibleItemIndex);
+                lastVisibleItemIndex = Math.Min(itemCount - 1, lastVisibleItemIndex);
 
                 IItemContainerGenerator generator = ItemContainerGenerator;
                 GeneratorPosition startPos = generator.GeneratorPositionFromIndex(firstVisibleItemIndex);
@@ -76,7 +75,7 @@ namespace CatchCapture.Utilities
 
                 using (generator.StartAt(startPos, GeneratorDirection.Forward, true))
                 {
-                    for (int i = firstVisibleItemIndex; i <= lastVisibleItemIndex; ++i)
+                    for (int i = firstVisibleItemIndex; i <= lastVisibleItemIndex; ++i, childIndex++)
                     {
                         bool isNewlyRealized;
                         UIElement? element = generator.GenerateNext(out isNewlyRealized) as UIElement;
@@ -92,16 +91,14 @@ namespace CatchCapture.Utilities
                         }
 
                         element.Measure(new Size(ItemWidth, ItemHeight));
-                        childIndex++;
                     }
                 }
 
                 CleanUpItems(firstVisibleItemIndex, lastVisibleItemIndex);
 
-                // Return a finite size to avoid collapsing
                 return new Size(
                     double.IsInfinity(availableSize.Width) ? (itemsPerRow * ItemWidth) : availableSize.Width,
-                    double.IsInfinity(availableSize.Height) ? _viewport.Height : availableSize.Height);
+                    double.IsInfinity(availableSize.Height) ? _extent.Height : availableSize.Height);
             }
             catch (Exception ex)
             {
@@ -112,26 +109,34 @@ namespace CatchCapture.Utilities
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            UpdateScrollInfo(finalSize);
-
-            IItemContainerGenerator generator = ItemContainerGenerator;
-            int itemsPerRow = GetItemsPerRow();
-
-            for (int i = 0; i < InternalChildren.Count; i++)
+            try
             {
-                UIElement child = InternalChildren[i];
-                int itemIndex = generator.IndexFromGeneratorPosition(new GeneratorPosition(i, 0));
+                IItemContainerGenerator generator = ItemContainerGenerator;
+                int itemsPerRow = GetItemsPerRow();
 
-                int row = itemIndex / itemsPerRow;
-                int col = itemIndex % itemsPerRow;
+                for (int i = 0; i < InternalChildren.Count; i++)
+                {
+                    UIElement child = InternalChildren[i];
+                    int itemIndex = generator.IndexFromGeneratorPosition(new GeneratorPosition(i, 0));
 
-                double x = col * ItemWidth;
-                double y = row * ItemHeight - _offset.Y;
+                    if (itemIndex < 0) continue;
 
-                child.Arrange(new Rect(x, y, ItemWidth, ItemHeight));
+                    int row = itemIndex / itemsPerRow;
+                    int col = itemIndex % itemsPerRow;
+
+                    double x = col * ItemWidth;
+                    double y = row * ItemHeight - _offset.Y;
+
+                    child.Arrange(new Rect(x, y, ItemWidth, ItemHeight));
+                }
+
+                return finalSize;
             }
-
-            return finalSize;
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"VirtualizingWrapPanel Arrange Error: {ex.Message}");
+                return finalSize;
+            }
         }
 
         private void CleanUpItems(int minIndex, int maxIndex)
@@ -157,29 +162,13 @@ namespace CatchCapture.Utilities
             return count > 0 ? count : 1;
         }
 
-        private void UpdateScrollInfo(Size availableSize)
+        private void UpdateScrollInfo(Size availableSize, int itemCount)
         {
-            ItemsControl itemsControl = ItemsControl.GetItemsOwner(this);
-            if (itemsControl == null) return;
-
             Size viewport = availableSize;
 
-            // Handle infinite constraints by looking at actual size or parent size
-            if (double.IsInfinity(viewport.Width))
-            {
-                if (ActualWidth > 0) viewport.Width = ActualWidth;
-                else if (Application.Current?.MainWindow != null) viewport.Width = Application.Current.MainWindow.ActualWidth;
-                else viewport.Width = 800; // Final fallback
-            }
+            if (double.IsInfinity(viewport.Width)) viewport.Width = _viewport.Width > 0 ? _viewport.Width : 800;
+            if (double.IsInfinity(viewport.Height)) viewport.Height = _viewport.Height > 0 ? _viewport.Height : 600;
 
-            if (double.IsInfinity(viewport.Height))
-            {
-                if (ActualHeight > 0) viewport.Height = ActualHeight;
-                else if (Application.Current?.MainWindow != null) viewport.Height = Application.Current.MainWindow.ActualHeight;
-                else viewport.Height = 600; // Final fallback
-            }
-
-            int itemCount = itemsControl.Items.Count;
             int itemsPerRow = (int)(viewport.Width / ItemWidth);
             if (itemsPerRow <= 0) itemsPerRow = 1;
 
@@ -191,6 +180,11 @@ namespace CatchCapture.Utilities
                 _extent = extent;
                 _viewport = viewport;
 
+                if (_offset.Y + _viewport.Height > _extent.Height)
+                {
+                    _offset.Y = Math.Max(0, _extent.Height - _viewport.Height);
+                }
+
                 ScrollOwner?.InvalidateScrollInfo();
             }
         }
@@ -198,8 +192,11 @@ namespace CatchCapture.Utilities
         protected override void OnItemsChanged(object sender, ItemsChangedEventArgs args)
         {
             base.OnItemsChanged(sender, args);
-            // Invalidate layout when items change
-            _offset = new Point(0, 0);
+            // Don't reset offset on simple additions, only on reset
+            if (args.Action == NotifyCollectionChangedAction.Reset)
+            {
+                _offset = new Point(0, 0);
+            }
             InvalidateMeasure();
         }
 
@@ -214,20 +211,20 @@ namespace CatchCapture.Utilities
         public double HorizontalOffset => _offset.X;
         public double VerticalOffset => _offset.Y;
 
-        public void LineDown() => SetVerticalOffset(VerticalOffset + 10);
-        public void LineUp() => SetVerticalOffset(VerticalOffset - 10);
-        public void LineLeft() => SetHorizontalOffset(HorizontalOffset - 10);
-        public void LineRight() => SetHorizontalOffset(HorizontalOffset + 10);
+        public void LineDown() => SetVerticalOffset(VerticalOffset + 25);
+        public void LineUp() => SetVerticalOffset(VerticalOffset - 25);
+        public void LineLeft() => SetHorizontalOffset(HorizontalOffset - 25);
+        public void LineRight() => SetHorizontalOffset(HorizontalOffset + 25);
         public void PageDown() => SetVerticalOffset(VerticalOffset + _viewport.Height);
         public void PageUp() => SetVerticalOffset(VerticalOffset - _viewport.Height);
         public void PageLeft() => SetHorizontalOffset(HorizontalOffset - _viewport.Width);
         public void PageRight() => SetHorizontalOffset(HorizontalOffset + _viewport.Width);
-        public void MouseWheelDown() => SetVerticalOffset(VerticalOffset + 30);
-        public void MouseWheelUp() => SetVerticalOffset(VerticalOffset - 30);
-        public void MouseWheelLeft() => SetHorizontalOffset(HorizontalOffset - 30);
-        public void MouseWheelRight() => SetHorizontalOffset(HorizontalOffset + 30);
+        public void MouseWheelDown() => SetVerticalOffset(VerticalOffset + 75);
+        public void MouseWheelUp() => SetVerticalOffset(VerticalOffset - 75);
+        public void MouseWheelLeft() => SetHorizontalOffset(HorizontalOffset - 75);
+        public void MouseWheelRight() => SetHorizontalOffset(HorizontalOffset + 75);
 
-        public void SetHorizontalOffset(double offset) { /* Horizontal scroll not needed for wrap panel generally */ }
+        public void SetHorizontalOffset(double offset) { }
 
         public void SetVerticalOffset(double offset)
         {
@@ -240,5 +237,6 @@ namespace CatchCapture.Utilities
         }
 
         public Rect MakeVisible(Visual visual, Rect rectangle) => new Rect();
+
     }
 }

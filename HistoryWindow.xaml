@@ -534,7 +534,13 @@
 
                     <!-- Row 2: History Grid List -->
                     <ListView Grid.Row="1" x:Name="LstHistory" SelectionMode="Single" SelectionChanged="LstHistory_SelectionChanged" KeyDown="LstHistory_KeyDown" MouseDoubleClick="LstHistory_MouseDoubleClick"
-                              BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                              BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                              VirtualizingPanel.IsVirtualizing="True"
+                              VirtualizingPanel.VirtualizationMode="Recycling"
+                              VirtualizingPanel.ScrollUnit="Pixel"
+                              VirtualizingPanel.CacheLengthUnit="Item"
+                              VirtualizingPanel.CacheLength="10,10">
+
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>

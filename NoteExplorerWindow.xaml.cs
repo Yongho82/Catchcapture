@@ -1393,14 +1393,27 @@ namespace CatchCapture
                 LstNotes.ItemContainerStyle = (Style)FindResource("NoteCardStyle");
                 LstNotes.ItemTemplate = (DataTemplate)FindResource("CardTemplate");
                 
-                // Use WrapPanel (virtualization disabled for now due to stability issues)
-                var factory = new FrameworkElementFactory(typeof(WrapPanel));
+                // Re-introduced VirtualizingWrapPanel
+                var factory = new FrameworkElementFactory(typeof(VirtualizingWrapPanel));
+                factory.SetValue(VirtualizingWrapPanel.ItemWidthProperty, 240.0);
+                factory.SetValue(VirtualizingWrapPanel.ItemHeightProperty, 250.0);
                 var template = new ItemsPanelTemplate(factory);
                 LstNotes.ItemsPanel = template;
                 
                 if (ColHeaderBorder != null) ColHeaderBorder.Visibility = Visibility.Collapsed;
             }
+
+            // Force layout update after panel change
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                LstNotes.UpdateLayout();
+                // Rebind to force panel to recalculate
+                var currentSource = LstNotes.ItemsSource;
+                LstNotes.ItemsSource = null;
+                LstNotes.ItemsSource = currentSource;
+            }), System.Windows.Threading.DispatcherPriority.Loaded);
         }
+
 
         private void BtnViewMode_Click(object sender, RoutedEventArgs e)
         {

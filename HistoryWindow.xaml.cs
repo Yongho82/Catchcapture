@@ -1054,12 +1054,25 @@ namespace CatchCapture
                 LstHistory.ItemTemplate = (DataTemplate)FindResource("HistoryCardTemplate");
                 ScrollViewer.SetHorizontalScrollBarVisibility(LstHistory, ScrollBarVisibility.Disabled);
                 
-                // Use WrapPanel (virtualization disabled for now due to stability issues)
-                var factory = new FrameworkElementFactory(typeof(WrapPanel));
+                // Re-introduced VirtualizingWrapPanel
+                var factory = new FrameworkElementFactory(typeof(VirtualizingWrapPanel));
+                factory.SetValue(VirtualizingWrapPanel.ItemWidthProperty, 210.0);
+                factory.SetValue(VirtualizingWrapPanel.ItemHeightProperty, 260.0);
                 var template = new ItemsPanelTemplate(factory);
                 LstHistory.ItemsPanel = template;
             }
+
+            // Force layout update after panel change
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                LstHistory.UpdateLayout();
+                // Rebind to force panel to recalculate
+                var currentSource = LstHistory.ItemsSource;
+                LstHistory.ItemsSource = null;
+                LstHistory.ItemsSource = currentSource;
+            }), System.Windows.Threading.DispatcherPriority.Loaded);
         }
+
 
         private void BtnViewMode_Click(object sender, RoutedEventArgs e)
         {
