@@ -409,8 +409,7 @@ namespace CatchCapture
         private void InitializeTipTimer()
         {
             _tipTimer = new System.Windows.Threading.DispatcherTimer();
-            // ★ 최적화: 유휴 상태 CPU 점유율 감소를 위해 간격 확대 (5초 -> 15초)
-            _tipTimer.Interval = TimeSpan.FromSeconds(15);
+            _tipTimer.Interval = TimeSpan.FromSeconds(4);
             _tipTimer.Tick += (s, e) => {
                 if (_currentFilter == "Trash") return;
 
@@ -768,10 +767,8 @@ namespace CatchCapture
                 BrdTipLabel.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#8E2DE2")); // Original Purple
                 TxtTipLabel.Text = "TIP";
                 
-                if (_tips.Count > 0)
-                {
-                    TxtRollingTip.Text = _tips[_currentTipIndex];
-                }
+                // 팁 텍스트는 타이머가 관리하므로 여기서는 건드리지 않음
+                // (타이머가 자동으로 순환시킴)
                 TxtRollingTip.Opacity = 1;
             }
         }

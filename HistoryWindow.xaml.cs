@@ -376,19 +376,15 @@ namespace CatchCapture
                 if (TxtTipLabel != null) TxtTipLabel.Text = LocalizationManager.GetString("Tip") ?? "TIP";
                 if (BrdTipLabel != null) BrdTipLabel.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#8E44AD"));
 
-                // 현재 팁 표시 (타이머가 돌고 있으므로 인덱스 기반 표시)
-                if (_tips != null && _tips.Count > 0 && TxtRollingTip != null)
-                {
-                    TxtRollingTip.Text = _tips[_currentTipIndex];
-                }
+                // 팁 텍스트는 타이머가 관리하므로 여기서는 건드리지 않음
+                // (타이머가 자동으로 순환시킴)
             }
         }
 
         private void InitializeTipTimer()
         {
             _tipTimer = new System.Windows.Threading.DispatcherTimer();
-            // ★ 최적화: 유휴 상태 CPU 점유율 감소를 위해 간격 확대 (5초 -> 15초)
-            _tipTimer.Interval = TimeSpan.FromSeconds(15);
+            _tipTimer.Interval = TimeSpan.FromSeconds(4);
             _tipTimer.Tick += (s, e) => {
                 if (_currentFilter == "Trash") return; // 휴지통에서는 팁 회전 중지
 
