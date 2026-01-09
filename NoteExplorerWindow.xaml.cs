@@ -417,6 +417,8 @@ namespace CatchCapture
                 // ★ 최적화: 창이 활성화된 상태일 때만 애니메이션 및 팁 변경 실행
                 if (!this.IsActive) return;
 
+                if (_tips.Count == 0 || TxtRollingTip == null) return;
+
                 _currentTipIndex = (_currentTipIndex + 1) % _tips.Count;
                 TxtRollingTip.Opacity = 0;
                 TxtRollingTip.Text = _tips[_currentTipIndex];
@@ -425,6 +427,13 @@ namespace CatchCapture
                 TxtRollingTip.BeginAnimation(TextBlock.OpacityProperty, anim);
             };
             _tipTimer.Start();
+            
+            // 초기 팁 표시 (타이머 시작 전에 첫 팁을 즉시 표시)
+            if (_tips.Count > 0 && TxtRollingTip != null && _currentFilter != "Trash")
+            {
+                TxtRollingTip.Text = _tips[0];
+                TxtRollingTip.Opacity = 1;
+            }
         }
 
         private string BuildWhereClause(string filter, string? tag, string? search, out string joinSql)

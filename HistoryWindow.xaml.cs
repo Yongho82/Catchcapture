@@ -59,19 +59,9 @@ namespace CatchCapture
                 DateFrom.SelectedDate = DateTime.Today;
                 DateTo.SelectedDate = DateTime.Today;
                 
-                // Load cached history first (will be refreshed)
-                LoadHistory(); 
+                // Load Recent 7 days by default (like NoteExplorer)
+                LoadHistory("Recent7"); 
                 RefreshCounts();
-
-                // Set default sidebar selection
-                foreach (var btn in FindVisualChildren<Button>(MainGrid.Children[0]))
-                {
-                    if (btn.Tag?.ToString() == "All")
-                    {
-                        UpdateSidebarSelection(btn);
-                        break;
-                    }
-                }
 
                 InitializeTips();
                 InitializeTipTimer();
@@ -134,6 +124,16 @@ namespace CatchCapture
             ColActions.Width = settings.HistoryColActions;
             // ColMemo Removed (Old location) - It's now in main columns
             if (ColMemo != null) ColMemo.Width = settings.HistoryColMemo; // Safety check
+            
+            // Set default sidebar selection to Recent7 (visual tree is now ready)
+            foreach (var btn in FindVisualChildren<Button>(MainGrid.Children[0]))
+            {
+                if (btn.Tag?.ToString() == "Recent7")
+                {
+                    UpdateSidebarSelection(btn);
+                    break;
+                }
+            }
         }
 
         private void HistoryWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
@@ -405,6 +405,13 @@ namespace CatchCapture
                 TxtRollingTip.BeginAnimation(TextBlock.OpacityProperty, anim);
             };
             _tipTimer.Start();
+            
+            // 초기 팁 표시 (타이머 시작 전에 첫 팁을 즉시 표시)
+            if (_tips.Count > 0 && TxtRollingTip != null && _currentFilter != "Trash")
+            {
+                TxtRollingTip.Text = _tips[0];
+                TxtRollingTip.Opacity = 1;
+            }
         }
 
         private void UpdatePaginationUI()
