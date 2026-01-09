@@ -2232,12 +2232,12 @@ namespace CatchCapture.Utilities
                 // 경고(CS1998) 방지용 최소 대기
                 await Task.Yield();
 
-                // 즉시편집 모드에서는 편집 요소가 남아 있으면 먼저 확정(✓)하도록 안내
+                // [수정] 즉시편집 모드에서 편집 요소가 있으면 자동으로 확정 처리하여 편의성 개선
                 if (instantEditMode && drawnElements != null && drawnElements.Count > 0)
                 {
-                    CatchCapture.CustomMessageBox.Show(ResLoc.GetString("EditConfirmGuide"), LocalizationManager.Get("Info"), MessageBoxButton.OK, MessageBoxImage.Information);
-                    return;
+                    SaveDrawingsToImage();
                 }
+
 
                 // 대상 이미지: 선택된 영역의 동결 이미지 우선 사용
                 BitmapSource? imageToSearch = SelectedFrozenImage;
