@@ -846,21 +846,32 @@ namespace CatchCapture
             {
                 if (LstHistory.SelectedItem is HistoryItem item && System.IO.File.Exists(item.FilePath))
                 {
-                    // 이미지 확장자 체크
-                    string ext = System.IO.Path.GetExtension(item.FilePath).ToLower();
-                    string[] imgExts = { ".png", ".jpg", ".jpeg", ".bmp", ".gif", ".webp" };
+                    // 미디어 파일인지 확인
+                    bool isMedia = item.FilePath.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) || 
+                                   item.FilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase) ||
+                                   item.FilePath.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase);
 
-                    if (imgExts.Contains(ext))
+                    if (isMedia)
                     {
-                        // 이미지인 경우 우리 전용 프리뷰 창 열기
-                        var previewWin = new HistoryItemPreviewWindow(item);
-                        previewWin.Show();
+                        try
+                        {
+                            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(item.FilePath) { UseShellExecute = true });
+                        }
+                        catch (Exception ex)
+                        {
+                            CustomMessageBox.Show($"{LocalizationManager.GetString("ErrOpenFile")}{ex.Message}", LocalizationManager.GetString("Error"));
+                        }
                     }
                     else
                     {
                         try
                         {
-                            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(item.FilePath) { UseShellExecute = true });
+                            // 이미지는 전용 뷰어(ImageViewerWindow) 사용
+                            // 상세보기 팝업(HistoryItemPreviewWindow) 대신 뷰어를 띄움
+                            var viewer = new ImageViewerWindow(item.FilePath);
+                            viewer.Owner = this; // 부모 창 설정
+                            viewer.Show();
+                            viewer.Activate();
                         }
                         catch (Exception ex)
                         {
