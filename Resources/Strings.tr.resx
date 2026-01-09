@@ -764,4 +764,95 @@ Tüm öğeleri kalıcı olarak silmek istediğinizden emin misiniz?</value>
   <data name="CaptureModeOverlay" xml:space="preserve"><value>Hızlı Yakalama (Kaplama) - Animasyonlar çalışmaya devam eder</value></data>
   <data name="CaptureModeStatic" xml:space="preserve"><value>Ekran Dondurma - Ekranı anında dondurur (Varsayılan)</value></data>
   <data name="CaptureModeDesc" xml:space="preserve"><value>※ Hızlı Yakalama modunda büyüteç kullanmak sürükleme sırasında gecikmeye neden olabilir.</value></data>
+  <data name="EdgeCapture" xml:space="preserve"><value>Kenar Yakalama</value></data>
+  <data name="EdgeSoft" xml:space="preserve"><value>Yumuşak Kenar</value></data>
+  <data name="EdgeSmooth" xml:space="preserve"><value>Pürüzsüz Kenar</value></data>
+  <data name="EdgeClassic" xml:space="preserve"><value>Klasik Yuvarlak</value></data>
+  <data name="EdgeCapsule" xml:space="preserve"><value>Kapsül Stili</value></data>
+  <data name="EdgeCircle" xml:space="preserve"><value>Mükemmel Daire</value></data>
+  <data name="HistorySettings" xml:space="preserve"><value>Geçmiş Ayarları</value></data>
+  <data name="AutoManagement" xml:space="preserve"><value>Veri Saklama &amp; Yönetimi</value></data>
+  <data name="AutoDeletePeriod" xml:space="preserve"><value>Otomatik Silme Süresi</value></data>
+  <data name="AutoDeleteToTrashNotice" xml:space="preserve"><value>(Belirlenen süreden eski verileri çöp kutusuna taşır)</value></data>
+  <data name="DbOptimize" xml:space="preserve"><value>DB Optimizasyonu</value></data>
+  <data name="DbOptimizeDesc" xml:space="preserve"><value>Boş alanı temizleyerek hızı artırır</value></data>
+  <data name="HistorySameAsCapture" xml:space="preserve"><value>Yakalama ayarlarıyla aynı. Değiştirmek için yakalama ayarlarından yapın.</value></data>
+  <data name="HistoryTip1" xml:space="preserve"><value>Tüm geçmiş yakalamaları ve kayıtları Geçmiş'ten bir bakışta görüntüleyin.</value></data>
+  <data name="HistoryTip2" xml:space="preserve"><value>Arama çubuğunu kullanarak dosya adı veya uygulama adına göre hızlıca bulun.</value></data>
+  <data name="HistoryTip3" xml:space="preserve"><value>Gelişmiş filtrelerle belirli tarih veya dosya türüne göre arayın.</value></data>
+  <data name="HistoryTip4" xml:space="preserve"><value>Bir öğe seçip 'Notuma Kaydet' tıklayarak orijinal bilgilerle not oluşturun.</value></data>
+  <data name="HistoryTip5" xml:space="preserve"><value>Listede bir öğeye çift tıklayarak orijinal dosyayı Windows varsayılan görüntüleyicide açın.</value></data>
+  <data name="HistoryTip6" xml:space="preserve"><value>Çöp kutusundaki silinen kayıtlar saklama süresinden sonra kalıcı olarak silinir.</value></data>
+  <data name="Blur" xml:space="preserve"><value>Bulanıklaştırma</value></data>
+  <data name="HistoryWindowTitle" xml:space="preserve"><value>Geçmiş - CatchCapture</value></data>
+  <data name="HistorySearchPlaceholder" xml:space="preserve"><value>Dosya adı, not, uygulama ile ara...</value></data>
+  <data name="TotalHistory" xml:space="preserve"><value>Toplam Geçmiş</value></data>
+  <data name="HistorySync" xml:space="preserve"><value>Senkronize Et</value></data>
+  <data name="HistorySyncTooltip" xml:space="preserve"><value>En son geçmişi getir</value></data>
+  <data name="OpenWithDefaultViewer" xml:space="preserve"><value>Windows varsayılan görüntüleyici ile aç</value></data>
+  <data name="SimpleMemo" xml:space="preserve"><value>Basit Not</value></data>
+  <data name="Edit" xml:space="preserve"><value>Düzenle</value></data>
+  <data name="NoMemo" xml:space="preserve"><value>Not yok</value></data>
+  <data name="Details" xml:space="preserve"><value>Ayrıntılar</value></data>
+  <data name="CapacityLabel" xml:space="preserve"><value>Kapasite:</value></data>
+  <data name="AppLabel" xml:space="preserve"><value>Uygulama:</value></data>
+  <data name="PathLabel" xml:space="preserve"><value>Ayrıntılı Yol</value></data>
+  <data name="TitleLabel" xml:space="preserve"><value>Tam Başlık:</value></data>
+  <data name="SelectAnItemToViewDetails" xml:space="preserve"><value>Ayrıntıları görmek için bir öğe seçin</value></data>
+  <data name="ImageEditorTooltip" xml:space="preserve"><value>Resmi düzenle</value></data>
+  <data name="SaveToMyNoteTooltip" xml:space="preserve"><value>Notuma Kaydet</value></data>
+  <data name="PinToScreenTooltip" xml:space="preserve"><value>Ekrana sabitle</value></data>
+  <data name="ErrInitHistory" xml:space="preserve"><value>Geçmiş penceresi başlatılırken hata: </value></data>
+  <data name="ErrLoadHistory" xml:space="preserve"><value>Geçmiş yüklenirken hata: </value></data>
+  <data name="DeleteConfirmTitle" xml:space="preserve"><value>Silme Onayı</value></data>
+  <data name="DeleteConfirmMessage" xml:space="preserve"><value>Seçili öğeleri çöp kutusuna taşımak istiyor musunuz?</value></data>
+  <data name="PermanentDeleteConfirmMessage" xml:space="preserve"><value>Seçili öğeleri kalıcı olarak silmek istiyor musunuz? (Dosyalar da silinecek)</value></data>
+  <data name="EmptyTrashConfirmMessage" xml:space="preserve"><value>Çöp kutusundaki tüm öğeleri kalıcı olarak silmek istiyor musunuz?\n(Klasörlerdeki orijinal dosyalar da silinecek)</value></data>
+  <data name="EmptyTrashTitle" xml:space="preserve"><value>Çöp Kutusunu Boşalt</value></data>
+  <data name="ErrOpenFolder" xml:space="preserve"><value>Klasör açılamıyor: </value></data>
+  <data name="ErrSaveImage" xml:space="preserve"><value>Resim kaydederken hata oluştu: </value></data>
+  <data name="ErrOpenEditor" xml:space="preserve"><value>Düzenleyici açılamıyor: </value></data>
+  <data name="ErrPinImage" xml:space="preserve"><value>Resim sabitlenemiyor: </value></data>
+  <data name="SyncConfirm" xml:space="preserve"><value>Bulut verileri (OneDrive, Dropbox vb.) yansıması 1-3 dakika sürebilir.\n\nEn son kayıtları şimdi getirilsin mi?</value></data>
+  <data name="SyncInfoTitle" xml:space="preserve"><value>Senkronizasyon Bilgileri</value></data>
+  <data name="SyncFailed" xml:space="preserve"><value>Senkronizasyon başarısız: </value></data>
+  <data name="NoteSyncTooltip" xml:space="preserve"><value>En son verileri getir</value></data>
+  <data name="ClearTags" xml:space="preserve"><value>Etiketleri Temizle</value></data>
+  <data name="ClearTagsTooltip" xml:space="preserve"><value>Tüm etiketleri sil</value></data>
+  <data name="ClearTagsConfirm" xml:space="preserve"><value>Tüm etiketleri silmek istediğinizden emin misiniz?\nEtiket bilgileri tüm notlardan kaldırılacak.</value></data>
+  <data name="DeleteSingleTagConfirm" xml:space="preserve"><value>'#{0}' etiketini silmek istiyor musunuz?\nBu etiket sadece uygulandığı notlardan kaldırılacak.</value></data>
+  <data name="DeleteSingleTagComplete" xml:space="preserve"><value>'#{0}' etiketi silindi.</value></data>
+  <data name="MyNoteTitle" xml:space="preserve"><value>Notum</value></data>
+  <data name="NewNoteLabel" xml:space="preserve"><value>Yeni Not</value></data>
+  <data name="CopyURL" xml:space="preserve"><value>URL Kopyala</value></data>
+  <data name="OpenHistory" xml:space="preserve"><value>Geçmişi Aç</value></data>
+  <data name="OpenCaptureFolder" xml:space="preserve"><value>Yakalama Klasörünü Aç</value></data>
+  <data name="OpenNoteFolder" xml:space="preserve"><value>Not Klasörünü Aç</value></data>
+  <data name="CaptureAnd" xml:space="preserve"><value>Yakala &amp;</value></data>
+  <data name="ChangeEdgeStyleTooltip" xml:space="preserve"><value>Kenar stilini değiştirmek için tıklayın</value></data>
+  <data name="EmptyTrashComplete" xml:space="preserve"><value>Çöp kutusu boşaltıldı.</value></data>
+  <data name="All" xml:space="preserve"><value>Tümü</value></data>
+  <data name="CopyFailed" xml:space="preserve"><value>Pano'ya kopyalama başarısız. Başka bir program panoyu kullanıyor olabilir.</value></data>
+  <data name="HistoryTitle" xml:space="preserve"><value>Geçmiş</value></data>
+  <data name="HistoryColDate" xml:space="preserve"><value>Tarih &amp; Saat</value></data>
+  <data name="HistoryColFileName" xml:space="preserve"><value>Dosya Adı</value></data>
+  <data name="HistoryColMeta" xml:space="preserve"><value>Kaynak/Başlık</value></data>
+  <data name="HistoryColMemo" xml:space="preserve"><value>Not</value></data>
+  <data name="HistoryColActions" xml:space="preserve"><value>Eylemler</value></data>
+  <data name="History" xml:space="preserve"><value>Geçmiş</value></data>
+  <data name="HistoryFilterTitle" xml:space="preserve"><value>Ayrıntılı Filtre</value></data>
+  <data name="HistoryFilterDate" xml:space="preserve"><value>Tarih Filtresi</value></data>
+  <data name="HistoryFilterFileName" xml:space="preserve"><value>Dosya Adı</value></data>
+  <data name="HistoryFilterFileType" xml:space="preserve"><value>Dosya Türü</value></data>
+  <data name="HistoryFilterTypeAll" xml:space="preserve"><value>Tümü</value></data>
+  <data name="HistoryFilterTypeImage" xml:space="preserve"><value>Resim (JPG, PNG, BMP, GIF, WEBP)</value></data>
+  <data name="HistoryFilterTypeMedia" xml:space="preserve"><value>Medya (MP4, MP3)</value></data>
+  <data name="HistoryFilterApply" xml:space="preserve"><value>Filtreyi Uygula</value></data>
+  <data name="ImageViewerTitle" xml:space="preserve"><value>CatchCapture - Görüntüleyici</value></data>
+  <data name="ImageViewerDefaultText" xml:space="preserve"><value>Resim Görüntüleyici</value></data>
+  <data name="ImageViewerResetZoomTooltip" xml:space="preserve"><value>Yakınlaştırmayı Sıfırla (1:1)</value></data>
+  <data name="ImageViewerCopyTooltip" xml:space="preserve"><value>Panoya Kopyala</value></data>
+  <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>Resmi Farklı Kaydet...</value></data>
+  <data name="RightClickBoxHint" xml:space="preserve"><value>Sağ Tık: Kutu</value></data>
+  <data name="SettingsShowColorPaletteDesc" xml:space="preserve"><value>Büyütecin altında renk paletini göster</value></data>
 </root>

@@ -766,4 +766,95 @@
   <data name="CaptureModeOverlay" xml:space="preserve"><value>التقاط سريع (طبقة علوية) - يحافظ على تشغيل الرسوم المتحركة</value></data>
   <data name="CaptureModeStatic" xml:space="preserve"><value>التقاط تجميد - يجمد الشاشة فوراً (افتراضي)</value></data>
   <data name="CaptureModeDesc" xml:space="preserve"><value>※ استخدام المكبر في وضع الالتقاط السريع قد يسبب تأخيراً عند السحب.</value></data>
+  <data name="EdgeCapture" xml:space="preserve"><value>التقاط الحواف</value></data>
+  <data name="EdgeSoft" xml:space="preserve"><value>حافة ناعمة</value></data>
+  <data name="EdgeSmooth" xml:space="preserve"><value>حافة سلسة</value></data>
+  <data name="EdgeClassic" xml:space="preserve"><value>زوايا مستديرة كلاسيكية</value></data>
+  <data name="EdgeCapsule" xml:space="preserve"><value>أسلوب كبسولة</value></data>
+  <data name="EdgeCircle" xml:space="preserve"><value>دائرة مثالية</value></data>
+  <data name="HistorySettings" xml:space="preserve"><value>إعدادات السجل</value></data>
+  <data name="AutoManagement" xml:space="preserve"><value>الاحتفاظ بالبيانات والإدارة</value></data>
+  <data name="AutoDeletePeriod" xml:space="preserve"><value>فترة الحذف التلقائي</value></data>
+  <data name="AutoDeleteToTrashNotice" xml:space="preserve"><value>(ينقل البيانات الأقدم من الفترة المحددة إلى سلة المهملات)</value></data>
+  <data name="DbOptimize" xml:space="preserve"><value>تحسين قاعدة البيانات</value></data>
+  <data name="DbOptimizeDesc" xml:space="preserve"><value>يزيد السرعة بتنظيف المساحة الفارغة</value></data>
+  <data name="HistorySameAsCapture" xml:space="preserve"><value>نفس إعدادات الالتقاط. إذا احتجت إلى التغيير، يرجى القيام به في إعدادات الالتقاط.</value></data>
+  <data name="HistoryTip1" xml:space="preserve"><value>يمكنك عرض جميع الالتقاطات والسجلات السابقة بنظرة واحدة في السجل.</value></data>
+  <data name="HistoryTip2" xml:space="preserve"><value>استخدم شريط البحث للعثور بسرعة على السجلات باسم الملف أو اسم التطبيق.</value></data>
+  <data name="HistoryTip3" xml:space="preserve"><value>استخدم الفلاتر المتقدمة للبحث حسب تاريخ محدد أو نوع الملف.</value></data>
+  <data name="HistoryTip4" xml:space="preserve"><value>حدد عنصرًا وانقر على "حفظ في ملاحظاتي" لإنشاء ملاحظة تحتوي على المعلومات الأصلية.</value></data>
+  <data name="HistoryTip5" xml:space="preserve"><value>انقر نقرًا مزدوجًا على عنصر في القائمة لفتح الملف الأصلي في عارض Windows الافتراضي.</value></data>
+  <data name="HistoryTip6" xml:space="preserve"><value>سيتم حذف السجلات المحذوفة في سلة المهملات نهائيًا بعد انتهاء فترة الاحتفاظ.</value></data>
+  <data name="Blur" xml:space="preserve"><value>تمويه</value></data>
+  <data name="HistoryWindowTitle" xml:space="preserve"><value>السجل - CatchCapture</value></data>
+  <data name="HistorySearchPlaceholder" xml:space="preserve"><value>البحث باسم الملف أو الملاحظة أو التطبيق...</value></data>
+  <data name="TotalHistory" xml:space="preserve"><value>إجمالي السجل</value></data>
+  <data name="HistorySync" xml:space="preserve"><value>مزامنة</value></data>
+  <data name="HistorySyncTooltip" xml:space="preserve"><value>جلب أحدث سجل</value></data>
+  <data name="OpenWithDefaultViewer" xml:space="preserve"><value>فتح بعارض Windows الافتراضي</value></data>
+  <data name="SimpleMemo" xml:space="preserve"><value>ملاحظة بسيطة</value></data>
+  <data name="Edit" xml:space="preserve"><value>تحرير</value></data>
+  <data name="NoMemo" xml:space="preserve"><value>لا توجد ملاحظة</value></data>
+  <data name="Details" xml:space="preserve"><value>تفاصيل</value></data>
+  <data name="CapacityLabel" xml:space="preserve"><value>السعة:</value></data>
+  <data name="AppLabel" xml:space="preserve"><value>التطبيق:</value></data>
+  <data name="PathLabel" xml:space="preserve"><value>المسار التفصيلي</value></data>
+  <data name="TitleLabel" xml:space="preserve"><value>العنوان الكامل:</value></data>
+  <data name="SelectAnItemToViewDetails" xml:space="preserve"><value>حدد عنصرًا لعرض التفاصيل</value></data>
+  <data name="ImageEditorTooltip" xml:space="preserve"><value>تحرير الصورة</value></data>
+  <data name="SaveToMyNoteTooltip" xml:space="preserve"><value>حفظ في ملاحظاتي</value></data>
+  <data name="PinToScreenTooltip" xml:space="preserve"><value>تثبيت على الشاشة</value></data>
+  <data name="ErrInitHistory" xml:space="preserve"><value>خطأ في تهيئة نافذة السجل: </value></data>
+  <data name="ErrLoadHistory" xml:space="preserve"><value>خطأ في تحميل السجل: </value></data>
+  <data name="DeleteConfirmTitle" xml:space="preserve"><value>تأكيد الحذف</value></data>
+  <data name="DeleteConfirmMessage" xml:space="preserve"><value>هل تريد نقل العناصر المحددة إلى سلة المهملات؟</value></data>
+  <data name="PermanentDeleteConfirmMessage" xml:space="preserve"><value>هل تريد حذف العناصر المحددة نهائيًا؟ (سيتم حذف الملفات أيضًا)</value></data>
+  <data name="EmptyTrashConfirmMessage" xml:space="preserve"><value>هل تريد حذف جميع العناصر في سلة المهملات نهائيًا؟\n(سيتم حذف الملفات الأصلية في المجلدات أيضًا)</value></data>
+  <data name="EmptyTrashTitle" xml:space="preserve"><value>إفراغ سلة المهملات</value></data>
+  <data name="ErrOpenFolder" xml:space="preserve"><value>لا يمكن فتح المجلد: </value></data>
+  <data name="ErrSaveImage" xml:space="preserve"><value>حدث خطأ أثناء حفظ الصورة: </value></data>
+  <data name="ErrOpenEditor" xml:space="preserve"><value>لا يمكن فتح المحرر: </value></data>
+  <data name="ErrPinImage" xml:space="preserve"><value>لا يمكن تثبيت الصورة: </value></data>
+  <data name="SyncConfirm" xml:space="preserve"><value>قد تستغرق بيانات السحابة (OneDrive، Dropbox، إلخ) من 1 إلى 3 دقائق للانعكاس.\n\nهل تريد جلب أحدث السجلات الآن؟</value></data>
+  <data name="SyncInfoTitle" xml:space="preserve"><value>معلومات المزامنة</value></data>
+  <data name="SyncFailed" xml:space="preserve"><value>فشلت المزامنة: </value></data>
+  <data name="NoteSyncTooltip" xml:space="preserve"><value>جلب أحدث البيانات</value></data>
+  <data name="ClearTags" xml:space="preserve"><value>مسح العلامات</value></data>
+  <data name="ClearTagsTooltip" xml:space="preserve"><value>حذف جميع العلامات</value></data>
+  <data name="ClearTagsConfirm" xml:space="preserve"><value>هل أنت متأكد من حذف جميع العلامات؟\nسيتم إزالة معلومات العلامات من جميع الملاحظات.</value></data>
+  <data name="DeleteSingleTagConfirm" xml:space="preserve"><value>هل تريد حذف العلامة '#{0}'؟\nسيتم إزالة هذه العلامة فقط من الملاحظات التي تم تطبيقها عليها.</value></data>
+  <data name="DeleteSingleTagComplete" xml:space="preserve"><value>تم حذف العلامة '#{0}'.</value></data>
+  <data name="MyNoteTitle" xml:space="preserve"><value>ملاحظاتي</value></data>
+  <data name="NewNoteLabel" xml:space="preserve"><value>ملاحظة جديدة</value></data>
+  <data name="CopyURL" xml:space="preserve"><value>نسخ الرابط</value></data>
+  <data name="OpenHistory" xml:space="preserve"><value>فتح السجل</value></data>
+  <data name="OpenCaptureFolder" xml:space="preserve"><value>فتح مجلد الالتقاط</value></data>
+  <data name="OpenNoteFolder" xml:space="preserve"><value>فتح مجلد الملاحظات</value></data>
+  <data name="CaptureAnd" xml:space="preserve"><value>التقاط &amp;</value></data>
+  <data name="ChangeEdgeStyleTooltip" xml:space="preserve"><value>انقر لتغيير نمط الحافة</value></data>
+  <data name="EmptyTrashComplete" xml:space="preserve"><value>تم إفراغ سلة المهملات.</value></data>
+  <data name="All" xml:space="preserve"><value>الكل</value></data>
+  <data name="CopyFailed" xml:space="preserve"><value>فشل النسخ إلى الحافظة. ربما يستخدم برنامج آخر الحافظة.</value></data>
+  <data name="HistoryTitle" xml:space="preserve"><value>السجل</value></data>
+  <data name="HistoryColDate" xml:space="preserve"><value>التاريخ والوقت</value></data>
+  <data name="HistoryColFileName" xml:space="preserve"><value>اسم الملف</value></data>
+  <data name="HistoryColMeta" xml:space="preserve"><value>المصدر/العنوان</value></data>
+  <data name="HistoryColMemo" xml:space="preserve"><value>الملاحظة</value></data>
+  <data name="HistoryColActions" xml:space="preserve"><value>الإجراءات</value></data>
+  <data name="History" xml:space="preserve"><value>السجل</value></data>
+  <data name="HistoryFilterTitle" xml:space="preserve"><value>فلتر تفصيلي</value></data>
+  <data name="HistoryFilterDate" xml:space="preserve"><value>فلتر التاريخ</value></data>
+  <data name="HistoryFilterFileName" xml:space="preserve"><value>اسم الملف</value></data>
+  <data name="HistoryFilterFileType" xml:space="preserve"><value>نوع الملف</value></data>
+  <data name="HistoryFilterTypeAll" xml:space="preserve"><value>الكل</value></data>
+  <data name="HistoryFilterTypeImage" xml:space="preserve"><value>صورة (JPG, PNG, BMP, GIF, WEBP)</value></data>
+  <data name="HistoryFilterTypeMedia" xml:space="preserve"><value>وسائط (MP4, MP3)</value></data>
+  <data name="HistoryFilterApply" xml:space="preserve"><value>تطبيق الفلتر</value></data>
+  <data name="ImageViewerTitle" xml:space="preserve"><value>CatchCapture - العارض</value></data>
+  <data name="ImageViewerDefaultText" xml:space="preserve"><value>عارض الصور</value></data>
+  <data name="ImageViewerResetZoomTooltip" xml:space="preserve"><value>إعادة تعيين التكبير (1:1)</value></data>
+  <data name="ImageViewerCopyTooltip" xml:space="preserve"><value>نسخ إلى الحافظة</value></data>
+  <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>حفظ الصورة باسم...</value></data>
+  <data name="RightClickBoxHint" xml:space="preserve"><value>نقر يمين: مربع</value></data>
+  <data name="SettingsShowColorPaletteDesc" xml:space="preserve"><value>عرض لوحة الألوان أسفل العدسة المكبرة</value></data>
 </root>

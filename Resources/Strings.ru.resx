@@ -766,4 +766,95 @@
   <data name="CaptureModeOverlay" xml:space="preserve"><value>Быстрый захват (оверлей) — анимации продолжают работать</value></data>
   <data name="CaptureModeStatic" xml:space="preserve"><value>Заморозка экрана — мгновенное фиксирование (по умолчанию)</value></data>
   <data name="CaptureModeDesc" xml:space="preserve"><value>※ Использование лупы в режиме быстрого захвата может вызывать лаги при перетаскивании.</value></data>
+  <data name="EdgeCapture" xml:space="preserve"><value>Захват с краями</value></data>
+  <data name="EdgeSoft" xml:space="preserve"><value>Мягкие края</value></data>
+  <data name="EdgeSmooth" xml:space="preserve"><value>Сглаженные края</value></data>
+  <data name="EdgeClassic" xml:space="preserve"><value>Классические скруглённые углы</value></data>
+  <data name="EdgeCapsule" xml:space="preserve"><value>Стиль капсулы</value></data>
+  <data name="EdgeCircle" xml:space="preserve"><value>Идеальный круг</value></data>
+  <data name="HistorySettings" xml:space="preserve"><value>Настройки истории</value></data>
+  <data name="AutoManagement" xml:space="preserve"><value>Хранение и управление данными</value></data>
+  <data name="AutoDeletePeriod" xml:space="preserve"><value>Период автоматического удаления</value></data>
+  <data name="AutoDeleteToTrashNotice" xml:space="preserve"><value>(Данные старше установленного периода перемещаются в корзину)</value></data>
+  <data name="DbOptimize" xml:space="preserve"><value>Оптимизация БД</value></data>
+  <data name="DbOptimizeDesc" xml:space="preserve"><value>Увеличивает скорость, очищая пустое пространство</value></data>
+  <data name="HistorySameAsCapture" xml:space="preserve"><value>Те же, что и в настройках захвата. Для изменения используйте настройки захвата.</value></data>
+  <data name="HistoryTip1" xml:space="preserve"><value>Просматривайте все прошлые захваты и записи одним взглядом в Истории.</value></data>
+  <data name="HistoryTip2" xml:space="preserve"><value>Используйте строку поиска для быстрого поиска по имени файла или приложения.</value></data>
+  <data name="HistoryTip3" xml:space="preserve"><value>Используйте расширенные фильтры для поиска по конкретным датам или типам файлов.</value></data>
+  <data name="HistoryTip4" xml:space="preserve"><value>Выделите элемент и нажмите «Сохранить в Мои заметки», чтобы создать заметку с исходной информацией.</value></data>
+  <data name="HistoryTip5" xml:space="preserve"><value>Дважды щёлкните по элементу списка, чтобы открыть исходный файл в стандартной программе Windows.</value></data>
+  <data name="HistoryTip6" xml:space="preserve"><value>Удалённые записи в корзине будут окончательно удалены по истечении срока хранения.</value></data>
+  <data name="Blur" xml:space="preserve"><value>Размытие</value></data>
+  <data name="HistoryWindowTitle" xml:space="preserve"><value>История - CatchCapture</value></data>
+  <data name="HistorySearchPlaceholder" xml:space="preserve"><value>Поиск по имени файла, заметке, приложению...</value></data>
+  <data name="TotalHistory" xml:space="preserve"><value>Общая история</value></data>
+  <data name="HistorySync" xml:space="preserve"><value>Синхронизировать</value></data>
+  <data name="HistorySyncTooltip" xml:space="preserve"><value>Получить последнюю историю</value></data>
+  <data name="OpenWithDefaultViewer" xml:space="preserve"><value>Открыть в стандартной программе Windows</value></data>
+  <data name="SimpleMemo" xml:space="preserve"><value>Простая заметка</value></data>
+  <data name="Edit" xml:space="preserve"><value>Редактировать</value></data>
+  <data name="NoMemo" xml:space="preserve"><value>Нет заметки</value></data>
+  <data name="Details" xml:space="preserve"><value>Подробности</value></data>
+  <data name="CapacityLabel" xml:space="preserve"><value>Ёмкость:</value></data>
+  <data name="AppLabel" xml:space="preserve"><value>Приложение:</value></data>
+  <data name="PathLabel" xml:space="preserve"><value>Подробный путь</value></data>
+  <data name="TitleLabel" xml:space="preserve"><value>Полное название:</value></data>
+  <data name="SelectAnItemToViewDetails" xml:space="preserve"><value>Выберите элемент для просмотра подробностей</value></data>
+  <data name="ImageEditorTooltip" xml:space="preserve"><value>Редактировать изображение</value></data>
+  <data name="SaveToMyNoteTooltip" xml:space="preserve"><value>Сохранить в Мои заметки</value></data>
+  <data name="PinToScreenTooltip" xml:space="preserve"><value>Закрепить на экране</value></data>
+  <data name="ErrInitHistory" xml:space="preserve"><value>Ошибка инициализации окна истории: </value></data>
+  <data name="ErrLoadHistory" xml:space="preserve"><value>Ошибка загрузки истории: </value></data>
+  <data name="DeleteConfirmTitle" xml:space="preserve"><value>Подтверждение удаления</value></data>
+  <data name="DeleteConfirmMessage" xml:space="preserve"><value>Переместить выбранные элементы в корзину?</value></data>
+  <data name="PermanentDeleteConfirmMessage" xml:space="preserve"><value>Окончательно удалить выбранные элементы? (Файлы тоже будут удалены)</value></data>
+  <data name="EmptyTrashConfirmMessage" xml:space="preserve"><value>Окончательно удалить все элементы в корзине?\n(Исходные файлы в папках тоже будут удалены)</value></data>
+  <data name="EmptyTrashTitle" xml:space="preserve"><value>Очистить корзину</value></data>
+  <data name="ErrOpenFolder" xml:space="preserve"><value>Не удалось открыть папку: </value></data>
+  <data name="ErrSaveImage" xml:space="preserve"><value>Ошибка при сохранении изображения: </value></data>
+  <data name="ErrOpenEditor" xml:space="preserve"><value>Не удалось открыть редактор: </value></data>
+  <data name="ErrPinImage" xml:space="preserve"><value>Не удалось закрепить изображение: </value></data>
+  <data name="SyncConfirm" xml:space="preserve"><value>Облачные данные (OneDrive, Dropbox и т.д.) могут обновляться 1–3 минуты.\n\nПолучить самые свежие записи сейчас?</value></data>
+  <data name="SyncInfoTitle" xml:space="preserve"><value>Информация о синхронизации</value></data>
+  <data name="SyncFailed" xml:space="preserve"><value>Синхронизация не удалась: </value></data>
+  <data name="NoteSyncTooltip" xml:space="preserve"><value>Получить последние данные</value></data>
+  <data name="ClearTags" xml:space="preserve"><value>Очистить теги</value></data>
+  <data name="ClearTagsTooltip" xml:space="preserve"><value>Удалить все теги</value></data>
+  <data name="ClearTagsConfirm" xml:space="preserve"><value>Удалить все теги?\nИнформация о тегах будет удалена из всех заметок.</value></data>
+  <data name="DeleteSingleTagConfirm" xml:space="preserve"><value>Удалить тег '#{0}'?\nТег будет удалён только из применённых к нему заметок.</value></data>
+  <data name="DeleteSingleTagComplete" xml:space="preserve"><value>Тег '#{0}' удалён.</value></data>
+  <data name="MyNoteTitle" xml:space="preserve"><value>Мои заметки</value></data>
+  <data name="NewNoteLabel" xml:space="preserve"><value>Новая заметка</value></data>
+  <data name="CopyURL" xml:space="preserve"><value>Копировать URL</value></data>
+  <data name="OpenHistory" xml:space="preserve"><value>Открыть историю</value></data>
+  <data name="OpenCaptureFolder" xml:space="preserve"><value>Открыть папку захватов</value></data>
+  <data name="OpenNoteFolder" xml:space="preserve"><value>Открыть папку заметок</value></data>
+  <data name="CaptureAnd" xml:space="preserve"><value>Захват &amp;</value></data>
+  <data name="ChangeEdgeStyleTooltip" xml:space="preserve"><value>Нажмите, чтобы изменить стиль краёв</value></data>
+  <data name="EmptyTrashComplete" xml:space="preserve"><value>Корзина очищена.</value></data>
+  <data name="All" xml:space="preserve"><value>Все</value></data>
+  <data name="CopyFailed" xml:space="preserve"><value>Не удалось скопировать в буфер обмена. Возможно, другая программа использует буфер.</value></data>
+  <data name="HistoryTitle" xml:space="preserve"><value>История</value></data>
+  <data name="HistoryColDate" xml:space="preserve"><value>Дата и время</value></data>
+  <data name="HistoryColFileName" xml:space="preserve"><value>Имя файла</value></data>
+  <data name="HistoryColMeta" xml:space="preserve"><value>Источник/Заголовок</value></data>
+  <data name="HistoryColMemo" xml:space="preserve"><value>Заметка</value></data>
+  <data name="HistoryColActions" xml:space="preserve"><value>Действия</value></data>
+  <data name="History" xml:space="preserve"><value>История</value></data>
+  <data name="HistoryFilterTitle" xml:space="preserve"><value>Подробный фильтр</value></data>
+  <data name="HistoryFilterDate" xml:space="preserve"><value>Фильтр по дате</value></data>
+  <data name="HistoryFilterFileName" xml:space="preserve"><value>Имя файла</value></data>
+  <data name="HistoryFilterFileType" xml:space="preserve"><value>Тип файла</value></data>
+  <data name="HistoryFilterTypeAll" xml:space="preserve"><value>Все</value></data>
+  <data name="HistoryFilterTypeImage" xml:space="preserve"><value>Изображение (JPG, PNG, BMP, GIF, WEBP)</value></data>
+  <data name="HistoryFilterTypeMedia" xml:space="preserve"><value>Медиа (MP4, MP3)</value></data>
+  <data name="HistoryFilterApply" xml:space="preserve"><value>Применить фильтр</value></data>
+  <data name="ImageViewerTitle" xml:space="preserve"><value>CatchCapture - Просмотр</value></data>
+  <data name="ImageViewerDefaultText" xml:space="preserve"><value>Просмотр изображений</value></data>
+  <data name="ImageViewerResetZoomTooltip" xml:space="preserve"><value>Сбросить масштаб (1:1)</value></data>
+  <data name="ImageViewerCopyTooltip" xml:space="preserve"><value>Копировать в буфер обмена</value></data>
+  <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>Сохранить изображение как...</value></data>
+  <data name="RightClickBoxHint" xml:space="preserve"><value>Правый клик: Прямоугольник</value></data>
+  <data name="SettingsShowColorPaletteDesc" xml:space="preserve"><value>Показывать палитру цветов под лупой</value></data>
 </root>

@@ -766,4 +766,95 @@ Yakin ingin menghapus permanen semua item?</value>
   <data name="CaptureModeOverlay" xml:space="preserve"><value>Tangkap Cepat (Overlay) - Animasi tetap berjalan</value></data>
   <data name="CaptureModeStatic" xml:space="preserve"><value>Tangkap Beku - Membekukan layar secara instan (Default)</value></data>
   <data name="CaptureModeDesc" xml:space="preserve"><value>※ Menggunakan Pembesar di mode Tangkap Cepat dapat menyebabkan lag saat menyeret.</value></data>
+  <data name="EdgeCapture" xml:space="preserve"><value>Capture Tepi</value></data>
+  <data name="EdgeSoft" xml:space="preserve"><value>Tepi Lembut</value></data>
+  <data name="EdgeSmooth" xml:space="preserve"><value>Tepi Halus</value></data>
+  <data name="EdgeClassic" xml:space="preserve"><value>Bulat Klasik</value></data>
+  <data name="EdgeCapsule" xml:space="preserve"><value>Gaya Kapsul</value></data>
+  <data name="EdgeCircle" xml:space="preserve"><value>Lingkaran Sempurna</value></data>
+  <data name="HistorySettings" xml:space="preserve"><value>Pengaturan Riwayat</value></data>
+  <data name="AutoManagement" xml:space="preserve"><value>Retensi &amp; Pengelolaan Data</value></data>
+  <data name="AutoDeletePeriod" xml:space="preserve"><value>Periode Hapus Otomatis</value></data>
+  <data name="AutoDeleteToTrashNotice" xml:space="preserve"><value>(Memindahkan data lebih lama dari periode yang ditentukan ke tempat sampah)</value></data>
+  <data name="DbOptimize" xml:space="preserve"><value>Optimalkan DB</value></data>
+  <data name="DbOptimizeDesc" xml:space="preserve"><value>Meningkatkan kecepatan dengan membersihkan ruang kosong</value></data>
+  <data name="HistorySameAsCapture" xml:space="preserve"><value>Sama dengan pengaturan capture. Jika perlu diubah, lakukan di pengaturan capture.</value></data>
+  <data name="HistoryTip1" xml:space="preserve"><value>Lihat semua capture dan rekaman masa lalu sekilas di Riwayat.</value></data>
+  <data name="HistoryTip2" xml:space="preserve"><value>Gunakan bilah pencarian untuk menemukan rekaman dengan cepat berdasarkan nama file atau nama app.</value></data>
+  <data name="HistoryTip3" xml:space="preserve"><value>Gunakan filter lanjutan untuk mencari berdasarkan tanggal atau jenis file tertentu.</value></data>
+  <data name="HistoryTip4" xml:space="preserve"><value>Pilih item dan klik 'Simpan ke Catatan Saya' untuk membuat catatan dengan info asli.</value></data>
+  <data name="HistoryTip5" xml:space="preserve"><value>Klik dua kali pada item daftar untuk membuka file asli di penampil default Windows.</value></data>
+  <data name="HistoryTip6" xml:space="preserve"><value>Rekaman yang dihapus di tempat sampah akan dihapus permanen setelah masa retensi.</value></data>
+  <data name="Blur" xml:space="preserve"><value>Buram</value></data>
+  <data name="HistoryWindowTitle" xml:space="preserve"><value>Riwayat - CatchCapture</value></data>
+  <data name="HistorySearchPlaceholder" xml:space="preserve"><value>Cari berdasarkan nama file, memo, app...</value></data>
+  <data name="TotalHistory" xml:space="preserve"><value>Total Riwayat</value></data>
+  <data name="HistorySync" xml:space="preserve"><value>Sinkronkan</value></data>
+  <data name="HistorySyncTooltip" xml:space="preserve"><value>Ambil riwayat terbaru</value></data>
+  <data name="OpenWithDefaultViewer" xml:space="preserve"><value>Buka dengan penampil default Windows</value></data>
+  <data name="SimpleMemo" xml:space="preserve"><value>Memo Sederhana</value></data>
+  <data name="Edit" xml:space="preserve"><value>Edit</value></data>
+  <data name="NoMemo" xml:space="preserve"><value>Tidak ada memo</value></data>
+  <data name="Details" xml:space="preserve"><value>Detail</value></data>
+  <data name="CapacityLabel" xml:space="preserve"><value>Kapasitas:</value></data>
+  <data name="AppLabel" xml:space="preserve"><value>App:</value></data>
+  <data name="PathLabel" xml:space="preserve"><value>Path Detail</value></data>
+  <data name="TitleLabel" xml:space="preserve"><value>Judul Lengkap:</value></data>
+  <data name="SelectAnItemToViewDetails" xml:space="preserve"><value>Pilih item untuk melihat detail</value></data>
+  <data name="ImageEditorTooltip" xml:space="preserve"><value>Edit gambar</value></data>
+  <data name="SaveToMyNoteTooltip" xml:space="preserve"><value>Simpan ke Catatan Saya</value></data>
+  <data name="PinToScreenTooltip" xml:space="preserve"><value>Sematkan ke layar</value></data>
+  <data name="ErrInitHistory" xml:space="preserve"><value>Error inisialisasi jendela riwayat: </value></data>
+  <data name="ErrLoadHistory" xml:space="preserve"><value>Error memuat riwayat: </value></data>
+  <data name="DeleteConfirmTitle" xml:space="preserve"><value>Konfirmasi Hapus</value></data>
+  <data name="DeleteConfirmMessage" xml:space="preserve"><value>Pindahkan item yang dipilih ke tempat sampah?</value></data>
+  <data name="PermanentDeleteConfirmMessage" xml:space="preserve"><value>Hapus permanen item yang dipilih? (File juga akan dihapus)</value></data>
+  <data name="EmptyTrashConfirmMessage" xml:space="preserve"><value>Hapus permanen semua item di tempat sampah?\n(File asli di folder juga akan dihapus)</value></data>
+  <data name="EmptyTrashTitle" xml:space="preserve"><value>Kosongkan Tempat Sampah</value></data>
+  <data name="ErrOpenFolder" xml:space="preserve"><value>Tidak dapat membuka folder: </value></data>
+  <data name="ErrSaveImage" xml:space="preserve"><value>Terjadi error saat menyimpan gambar: </value></data>
+  <data name="ErrOpenEditor" xml:space="preserve"><value>Tidak dapat membuka editor: </value></data>
+  <data name="ErrPinImage" xml:space="preserve"><value>Tidak dapat menyematkan gambar: </value></data>
+  <data name="SyncConfirm" xml:space="preserve"><value>Data cloud (OneDrive, Dropbox, dll.) mungkin butuh 1-3 menit untuk tercermin.\n\nAmbil rekaman terbaru sekarang?</value></data>
+  <data name="SyncInfoTitle" xml:space="preserve"><value>Informasi Sinkronisasi</value></data>
+  <data name="SyncFailed" xml:space="preserve"><value>Sinkronisasi gagal: </value></data>
+  <data name="NoteSyncTooltip" xml:space="preserve"><value>Ambil data terbaru</value></data>
+  <data name="ClearTags" xml:space="preserve"><value>Hapus Tag</value></data>
+  <data name="ClearTagsTooltip" xml:space="preserve"><value>Hapus semua tag</value></data>
+  <data name="ClearTagsConfirm" xml:space="preserve"><value>Yakin ingin menghapus semua tag?\nInformasi tag akan dihapus dari semua catatan.</value></data>
+  <data name="DeleteSingleTagConfirm" xml:space="preserve"><value>Hapus tag '#{0}'?\nTag ini hanya akan dihapus dari catatan yang menggunakannya.</value></data>
+  <data name="DeleteSingleTagComplete" xml:space="preserve"><value>Tag '#{0}' telah dihapus.</value></data>
+  <data name="MyNoteTitle" xml:space="preserve"><value>Catatan Saya</value></data>
+  <data name="NewNoteLabel" xml:space="preserve"><value>Catatan Baru</value></data>
+  <data name="CopyURL" xml:space="preserve"><value>Salin URL</value></data>
+  <data name="OpenHistory" xml:space="preserve"><value>Buka Riwayat</value></data>
+  <data name="OpenCaptureFolder" xml:space="preserve"><value>Buka Folder Capture</value></data>
+  <data name="OpenNoteFolder" xml:space="preserve"><value>Buka Folder Catatan</value></data>
+  <data name="CaptureAnd" xml:space="preserve"><value>Capture &amp;</value></data>
+  <data name="ChangeEdgeStyleTooltip" xml:space="preserve"><value>Klik untuk mengubah gaya tepi</value></data>
+  <data name="EmptyTrashComplete" xml:space="preserve"><value>Tempat sampah telah dikosongkan.</value></data>
+  <data name="All" xml:space="preserve"><value>Semua</value></data>
+  <data name="CopyFailed" xml:space="preserve"><value>Gagal menyalin ke clipboard. Mungkin program lain sedang menggunakan clipboard.</value></data>
+  <data name="HistoryTitle" xml:space="preserve"><value>Riwayat</value></data>
+  <data name="HistoryColDate" xml:space="preserve"><value>Tanggal &amp; Waktu</value></data>
+  <data name="HistoryColFileName" xml:space="preserve"><value>Nama File</value></data>
+  <data name="HistoryColMeta" xml:space="preserve"><value>Sumber/Judul</value></data>
+  <data name="HistoryColMemo" xml:space="preserve"><value>Memo</value></data>
+  <data name="HistoryColActions" xml:space="preserve"><value>Aksi</value></data>
+  <data name="History" xml:space="preserve"><value>Riwayat</value></data>
+  <data name="HistoryFilterTitle" xml:space="preserve"><value>Filter Detail</value></data>
+  <data name="HistoryFilterDate" xml:space="preserve"><value>Filter Tanggal</value></data>
+  <data name="HistoryFilterFileName" xml:space="preserve"><value>Nama File</value></data>
+  <data name="HistoryFilterFileType" xml:space="preserve"><value>Jenis File</value></data>
+  <data name="HistoryFilterTypeAll" xml:space="preserve"><value>Semua</value></data>
+  <data name="HistoryFilterTypeImage" xml:space="preserve"><value>Gambar (JPG, PNG, BMP, GIF, WEBP)</value></data>
+  <data name="HistoryFilterTypeMedia" xml:space="preserve"><value>Media (MP4, MP3)</value></data>
+  <data name="HistoryFilterApply" xml:space="preserve"><value>Terapkan Filter</value></data>
+  <data name="ImageViewerTitle" xml:space="preserve"><value>CatchCapture - Penampil</value></data>
+  <data name="ImageViewerDefaultText" xml:space="preserve"><value>Penampil Gambar</value></data>
+  <data name="ImageViewerResetZoomTooltip" xml:space="preserve"><value>Reset Zoom (1:1)</value></data>
+  <data name="ImageViewerCopyTooltip" xml:space="preserve"><value>Salin ke Clipboard</value></data>
+  <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>Simpan Gambar Sebagai...</value></data>
+  <data name="RightClickBoxHint" xml:space="preserve"><value>Klik Kanan: Kotak</value></data>
+  <data name="SettingsShowColorPaletteDesc" xml:space="preserve"><value>Tampilkan palet warna di bawah kaca pembesar</value></data>
 </root>

@@ -766,4 +766,95 @@ Chắc chắn xóa vĩnh viễn toàn bộ thùng rác?</value>
   <data name="CaptureModeOverlay" xml:space="preserve"><value>Chụp nhanh (Lớp phủ) - Hoạt hình vẫn chạy</value></data>
   <data name="CaptureModeStatic" xml:space="preserve"><value>Chụp đông cứng - Đông cứng màn hình tức thì (Mặc định)</value></data>
   <data name="CaptureModeDesc" xml:space="preserve"><value>※ Sử dụng kính lúp ở chế độ chụp nhanh có thể gây lag khi kéo.</value></data>
+  <data name="EdgeCapture" xml:space="preserve"><value>Chụp Viền</value></data>
+  <data name="EdgeSoft" xml:space="preserve"><value>Viền Mềm</value></data>
+  <data name="EdgeSmooth" xml:space="preserve"><value>Viền Mịn</value></data>
+  <data name="EdgeClassic" xml:space="preserve"><value>Bo Góc Cổ Điển</value></data>
+  <data name="EdgeCapsule" xml:space="preserve"><value>Phong Cách Capsule</value></data>
+  <data name="EdgeCircle" xml:space="preserve"><value>Hình Tròn Hoàn Hảo</value></data>
+  <data name="HistorySettings" xml:space="preserve"><value>Cài Đặt Lịch Sử</value></data>
+  <data name="AutoManagement" xml:space="preserve"><value>Lưu Trữ &amp; Quản Lý Dữ Liệu</value></data>
+  <data name="AutoDeletePeriod" xml:space="preserve"><value>Thời Gian Xóa Tự Động</value></data>
+  <data name="AutoDeleteToTrashNotice" xml:space="preserve"><value>(Di chuyển dữ liệu cũ hơn thời gian đã đặt vào thùng rác)</value></data>
+  <data name="DbOptimize" xml:space="preserve"><value>Tối Ưu Hóa DB</value></data>
+  <data name="DbOptimizeDesc" xml:space="preserve"><value>Cải thiện tốc độ bằng cách dọn dẹp không gian trống</value></data>
+  <data name="HistorySameAsCapture" xml:space="preserve"><value>Giống với cài đặt chụp. Nếu cần thay đổi, vui lòng thực hiện trong cài đặt chụp.</value></data>
+  <data name="HistoryTip1" xml:space="preserve"><value>Xem tất cả các ảnh chụp và bản ghi trước đây một cách nhanh chóng trong Lịch Sử.</value></data>
+  <data name="HistoryTip2" xml:space="preserve"><value>Sử dụng thanh tìm kiếm để tìm bản ghi nhanh theo tên file hoặc tên app.</value></data>
+  <data name="HistoryTip3" xml:space="preserve"><value>Sử dụng bộ lọc nâng cao để tìm theo ngày hoặc loại file cụ thể.</value></data>
+  <data name="HistoryTip4" xml:space="preserve"><value>Chọn một mục và click 'Lưu vào Ghi Chú Của Tôi' để tạo ghi chú với thông tin gốc.</value></data>
+  <data name="HistoryTip5" xml:space="preserve"><value>Nhấp đúp vào mục trong danh sách để mở file gốc trong trình xem mặc định của Windows.</value></data>
+  <data name="HistoryTip6" xml:space="preserve"><value>Bản ghi đã xóa trong thùng rác sẽ bị xóa vĩnh viễn sau thời gian lưu trữ.</value></data>
+  <data name="Blur" xml:space="preserve"><value>Làm Mờ</value></data>
+  <data name="HistoryWindowTitle" xml:space="preserve"><value>Lịch Sử - CatchCapture</value></data>
+  <data name="HistorySearchPlaceholder" xml:space="preserve"><value>Tìm kiếm theo tên file, ghi chú, app...</value></data>
+  <data name="TotalHistory" xml:space="preserve"><value>Toàn Bộ Lịch Sử</value></data>
+  <data name="HistorySync" xml:space="preserve"><value>Đồng Bộ</value></data>
+  <data name="HistorySyncTooltip" xml:space="preserve"><value>Lấy lịch sử mới nhất</value></data>
+  <data name="OpenWithDefaultViewer" xml:space="preserve"><value>Mở bằng trình xem mặc định Windows</value></data>
+  <data name="SimpleMemo" xml:space="preserve"><value>Ghi Chú Đơn Giản</value></data>
+  <data name="Edit" xml:space="preserve"><value>Chỉnh Sửa</value></data>
+  <data name="NoMemo" xml:space="preserve"><value>Không có ghi chú</value></data>
+  <data name="Details" xml:space="preserve"><value>Chi Tiết</value></data>
+  <data name="CapacityLabel" xml:space="preserve"><value>Dung Lượng:</value></data>
+  <data name="AppLabel" xml:space="preserve"><value>App:</value></data>
+  <data name="PathLabel" xml:space="preserve"><value>Đường Dẫn Chi Tiết</value></data>
+  <data name="TitleLabel" xml:space="preserve"><value>Tiêu Đề đầy đủ:</value></data>
+  <data name="SelectAnItemToViewDetails" xml:space="preserve"><value>Chọn một mục để xem chi tiết</value></data>
+  <data name="ImageEditorTooltip" xml:space="preserve"><value>Chỉnh sửa ảnh</value></data>
+  <data name="SaveToMyNoteTooltip" xml:space="preserve"><value>Lưu vào Ghi Chú Của Tôi</value></data>
+  <data name="PinToScreenTooltip" xml:space="preserve"><value>Ghim lên màn hình</value></data>
+  <data name="ErrInitHistory" xml:space="preserve"><value>Lỗi khởi tạo cửa sổ lịch sử: </value></data>
+  <data name="ErrLoadHistory" xml:space="preserve"><value>Lỗi tải lịch sử: </value></data>
+  <data name="DeleteConfirmTitle" xml:space="preserve"><value>Xác Nhận Xóa</value></data>
+  <data name="DeleteConfirmMessage" xml:space="preserve"><value>Bạn có muốn di chuyển các mục đã chọn vào thùng rác?</value></data>
+  <data name="PermanentDeleteConfirmMessage" xml:space="preserve"><value>Bạn có muốn xóa vĩnh viễn các mục đã chọn? (File cũng sẽ bị xóa)</value></data>
+  <data name="EmptyTrashConfirmMessage" xml:space="preserve"><value>Bạn có muốn xóa vĩnh viễn tất cả mục trong thùng rác?\n(File gốc trong thư mục cũng sẽ bị xóa)</value></data>
+  <data name="EmptyTrashTitle" xml:space="preserve"><value>Dọn Thùng Rác</value></data>
+  <data name="ErrOpenFolder" xml:space="preserve"><value>Không thể mở thư mục: </value></data>
+  <data name="ErrSaveImage" xml:space="preserve"><value>Đã xảy ra lỗi khi lưu ảnh: </value></data>
+  <data name="ErrOpenEditor" xml:space="preserve"><value>Không thể mở trình chỉnh sửa: </value></data>
+  <data name="ErrPinImage" xml:space="preserve"><value>Không thể ghim ảnh: </value></data>
+  <data name="SyncConfirm" xml:space="preserve"><value>Dữ liệu đám mây (OneDrive, Dropbox, v.v.) có thể mất 1-3 phút để cập nhật.\n\nBạn có muốn lấy bản ghi mới nhất ngay bây giờ?</value></data>
+  <data name="SyncInfoTitle" xml:space="preserve"><value>Thông Tin Đồng Bộ</value></data>
+  <data name="SyncFailed" xml:space="preserve"><value>Đồng bộ thất bại: </value></data>
+  <data name="NoteSyncTooltip" xml:space="preserve"><value>Lấy dữ liệu mới nhất</value></data>
+  <data name="ClearTags" xml:space="preserve"><value>Xóa Thẻ</value></data>
+  <data name="ClearTagsTooltip" xml:space="preserve"><value>Xóa tất cả thẻ</value></data>
+  <data name="ClearTagsConfirm" xml:space="preserve"><value>Bạn có chắc muốn xóa tất cả thẻ?\nThông tin thẻ sẽ bị xóa khỏi tất cả ghi chú.</value></data>
+  <data name="DeleteSingleTagConfirm" xml:space="preserve"><value>Bạn có muốn xóa thẻ '#{0}'?\nThẻ này chỉ bị xóa khỏi các ghi chú đã áp dụng.</value></data>
+  <data name="DeleteSingleTagComplete" xml:space="preserve"><value>Thẻ '#{0}' đã bị xóa.</value></data>
+  <data name="MyNoteTitle" xml:space="preserve"><value>Ghi Chú Của Tôi</value></data>
+  <data name="NewNoteLabel" xml:space="preserve"><value>Ghi Chú Mới</value></data>
+  <data name="CopyURL" xml:space="preserve"><value>Sao Chép URL</value></data>
+  <data name="OpenHistory" xml:space="preserve"><value>Mở Lịch Sử</value></data>
+  <data name="OpenCaptureFolder" xml:space="preserve"><value>Mở Thư Mục Chụp</value></data>
+  <data name="OpenNoteFolder" xml:space="preserve"><value>Mở Thư Mục Ghi Chú</value></data>
+  <data name="CaptureAnd" xml:space="preserve"><value>Chụp &amp;</value></data>
+  <data name="ChangeEdgeStyleTooltip" xml:space="preserve"><value>Click để thay đổi kiểu viền</value></data>
+  <data name="EmptyTrashComplete" xml:space="preserve"><value>Thùng rác đã được dọn sạch.</value></data>
+  <data name="All" xml:space="preserve"><value>Tất Cả</value></data>
+  <data name="CopyFailed" xml:space="preserve"><value>Sao chép vào clipboard thất bại. Có thể chương trình khác đang sử dụng clipboard.</value></data>
+  <data name="HistoryTitle" xml:space="preserve"><value>Lịch Sử</value></data>
+  <data name="HistoryColDate" xml:space="preserve"><value>Ngày &amp; Giờ</value></data>
+  <data name="HistoryColFileName" xml:space="preserve"><value>Tên File</value></data>
+  <data name="HistoryColMeta" xml:space="preserve"><value>Nguồn/Tiêu Đề</value></data>
+  <data name="HistoryColMemo" xml:space="preserve"><value>Ghi Chú</value></data>
+  <data name="HistoryColActions" xml:space="preserve"><value>Hành Động</value></data>
+  <data name="History" xml:space="preserve"><value>Lịch Sử</value></data>
+  <data name="HistoryFilterTitle" xml:space="preserve"><value>Bộ Lọc Chi Tiết</value></data>
+  <data name="HistoryFilterDate" xml:space="preserve"><value>Bộ Lọc Ngày</value></data>
+  <data name="HistoryTranslateFileName" xml:space="preserve"><value>Tên File</value></data>
+  <data name="HistoryFilterFileType" xml:space="preserve"><value>Loại File</value></data>
+  <data name="HistoryFilterTypeAll" xml:space="preserve"><value>Tất Cả</value></data>
+  <data name="HistoryFilterTypeImage" xml:space="preserve"><value>Hình Ảnh (JPG, PNG, BMP, GIF, WEBP)</value></data>
+  <data name="HistoryFilterTypeMedia" xml:space="preserve"><value>Media (MP4, MP3)</value></data>
+  <data name="HistoryFilterApply" xml:space="preserve"><value>Áp Dụng Bộ Lọc</value></data>
+  <data name="ImageViewerTitle" xml:space="preserve"><value>CatchCapture - Trình Xem</value></data>
+  <data name="ImageViewerDefaultText" xml:space="preserve"><value>Trình Xem Hình Ảnh</value></data>
+  <data name="ImageViewerResetZoomTooltip" xml:space="preserve"><value>Đặt Lại Thu Phóng (1:1)</value></data>
+  <data name="ImageViewerCopyTooltip" xml:space="preserve"><value>Sao Chép Vào Clipboard</value></data>
+  <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>Lưu Hình Ảnh Dưới Dạng...</value></data>
+  <data name="RightClickBoxHint" xml:space="preserve"><value>Nhấp Phải: Hộp</value></data>
+  <data name="SettingsShowColorPaletteDesc" xml:space="preserve"><value>Hiển thị bảng màu dưới kính lúp</value></data>
 </root>

@@ -766,4 +766,95 @@ Eliminare permanentemente tutti gli elementi?</value>
   <data name="CaptureModeOverlay" xml:space="preserve"><value>Cattura rapida (Sovrapposizione) - Mantiene le animazioni in riproduzione</value></data>
   <data name="CaptureModeStatic" xml:space="preserve"><value>Cattura congelata - Congela lo schermo immediatamente (Predefinito)</value></data>
   <data name="CaptureModeDesc" xml:space="preserve"><value>※ L'uso della lente in modalità cattura rapida può causare ritardo durante il trascinamento.</value></data>
+  <data name="EdgeCapture" xml:space="preserve"><value>Cattura bordi</value></data>
+  <data name="EdgeSoft" xml:space="preserve"><value>Bordo morbido</value></data>
+  <data name="EdgeSmooth" xml:space="preserve"><value>Bordo levigato</value></data>
+  <data name="EdgeClassic" xml:space="preserve"><value>Angoli arrotondati classici</value></data>
+  <data name="EdgeCapsule" xml:space="preserve"><value>Stile capsula</value></data>
+  <data name="EdgeCircle" xml:space="preserve"><value>Cerchio perfetto</value></data>
+  <data name="HistorySettings" xml:space="preserve"><value>Impostazioni cronologia</value></data>
+  <data name="AutoManagement" xml:space="preserve"><value>Conservazione e gestione dati</value></data>
+  <data name="AutoDeletePeriod" xml:space="preserve"><value>Periodo di eliminazione automatica</value></data>
+  <data name="AutoDeleteToTrashNotice" xml:space="preserve"><value>(Sposta i dati più vecchi del periodo impostato nel cestino)</value></data>
+  <data name="DbOptimize" xml:space="preserve"><value>Ottimizza DB</value></data>
+  <data name="DbOptimizeDesc" xml:space="preserve"><value>Migliora la velocità ripulendo lo spazio vuoto</value></data>
+  <data name="HistorySameAsCapture" xml:space="preserve"><value>Uguale alle impostazioni di cattura. Se necessario modificarle, fallo nelle impostazioni di cattura.</value></data>
+  <data name="HistoryTip1" xml:space="preserve"><value>Visualizza tutte le catture e registrazioni passate in un colpo d'occhio nella Cronologia.</value></data>
+  <data name="HistoryTip2" xml:space="preserve"><value>Usa la barra di ricerca per trovare rapidamente le registrazioni per nome file o app.</value></data>
+  <data name="HistoryTip3" xml:space="preserve"><value>Usa i filtri avanzati per cercare per date specifiche o tipi di file.</value></data>
+  <data name="HistoryTip4" xml:space="preserve"><value>Seleziona un elemento e fai clic su "Salva nelle mie note" per creare una nota con le informazioni originali.</value></data>
+  <data name="HistoryTip5" xml:space="preserve"><value>Fai doppio clic su un elemento della lista per aprire il file originale nel visualizzatore predefinito di Windows.</value></data>
+  <data name="HistoryTip6" xml:space="preserve"><value>Le registrazioni eliminate nel cestino verranno rimosse definitivamente dopo il periodo di conservazione.</value></data>
+  <data name="Blur" xml:space="preserve"><value>Sfocatura</value></data>
+  <data name="HistoryWindowTitle" xml:space="preserve"><value>Cronologia - CatchCapture</value></data>
+  <data name="HistorySearchPlaceholder" xml:space="preserve"><value>Cerca per nome file, memo, app...</value></data>
+  <data name="TotalHistory" xml:space="preserve"><value>Cronologia totale</value></data>
+  <data name="HistorySync" xml:space="preserve"><value>Sincronizza</value></data>
+  <data name="HistorySyncTooltip" xml:space="preserve"><value>Recupera la cronologia più recente</value></data>
+  <data name="OpenWithDefaultViewer" xml:space="preserve"><value>Apri con visualizzatore predefinito di Windows</value></data>
+  <data name="SimpleMemo" xml:space="preserve"><value>Memo semplice</value></data>
+  <data name="Edit" xml:space="preserve"><value>Modifica</value></data>
+  <data name="NoMemo" xml:space="preserve"><value>Nessun memo</value></data>
+  <data name="Details" xml:space="preserve"><value>Dettagli</value></data>
+  <data name="CapacityLabel" xml:space="preserve"><value>Capacità:</value></data>
+  <data name="AppLabel" xml:space="preserve"><value>App:</value></data>
+  <data name="PathLabel" xml:space="preserve"><value>Percorso dettagliato</value></data>
+  <data name="TitleLabel" xml:space="preserve"><value>Titolo completo:</value></data>
+  <data name="SelectAnItemToViewDetails" xml:space="preserve"><value>Seleziona un elemento per visualizzare i dettagli</value></data>
+  <data name="ImageEditorTooltip" xml:space="preserve"><value>Modifica immagine</value></data>
+  <data name="SaveToMyNoteTooltip" xml:space="preserve"><value>Salva nelle mie note</value></data>
+  <data name="PinToScreenTooltip" xml:space="preserve"><value>Fissa sullo schermo</value></data>
+  <data name="ErrInitHistory" xml:space="preserve"><value>Errore nell'inizializzazione della finestra cronologia: </value></data>
+  <data name="ErrLoadHistory" xml:space="preserve"><value>Errore nel caricamento della cronologia: </value></data>
+  <data name="DeleteConfirmTitle" xml:space="preserve"><value>Conferma eliminazione</value></data>
+  <data name="DeleteConfirmMessage" xml:space="preserve"><value>Vuoi spostare gli elementi selezionati nel cestino?</value></data>
+  <data name="PermanentDeleteConfirmMessage" xml:space="preserve"><value>Vuoi eliminare definitivamente gli elementi selezionati? (Verranno eliminati anche i file)</value></data>
+  <data name="EmptyTrashConfirmMessage" xml:space="preserve"><value>Vuoi eliminare definitivamente tutti gli elementi nel cestino?\n(Verranno eliminati anche i file originali nelle cartelle)</value></data>
+  <data name="EmptyTrashTitle" xml:space="preserve"><value>Svuota cestino</value></data>
+  <data name="ErrOpenFolder" xml:space="preserve"><value>Impossibile aprire la cartella: </value></data>
+  <data name="ErrSaveImage" xml:space="preserve"><value>Si è verificato un errore durante il salvataggio dell'immagine: </value></data>
+  <data name="ErrOpenEditor" xml:space="preserve"><value>Impossibile aprire l'editor: </value></data>
+  <data name="ErrPinImage" xml:space="preserve"><value>Impossibile fissare l'immagine: </value></data>
+  <data name="SyncConfirm" xml:space="preserve"><value>I dati cloud (OneDrive, Dropbox, ecc.) potrebbero richiedere 1-3 minuti per aggiornarsi.\n\nVuoi recuperare ora le registrazioni più recenti?</value></data>
+  <data name="SyncInfoTitle" xml:space="preserve"><value>Informazioni sincronizzazione</value></data>
+  <data name="SyncFailed" xml:space="preserve"><value>Sincronizzazione fallita: </value></data>
+  <data name="NoteSyncTooltip" xml:space="preserve"><value>Recupera i dati più recenti</value></data>
+  <data name="ClearTags" xml:space="preserve"><value>Cancella tag</value></data>
+  <data name="ClearTagsTooltip" xml:space="preserve"><value>Elimina tutti i tag</value></data>
+  <data name="ClearTagsConfirm" xml:space="preserve"><value>Sei sicuro di voler eliminare tutti i tag?\nLe informazioni dei tag verranno rimosse da tutte le note.</value></data>
+  <data name="DeleteSingleTagConfirm" xml:space="preserve"><value>Vuoi eliminare il tag '#{0}'?\nQuesto tag verrà rimosso solo dalle note a cui è applicato.</value></data>
+  <data name="DeleteSingleTagComplete" xml:space="preserve"><value>Il tag '#{0}' è stato eliminato.</value></data>
+  <data name="MyNoteTitle" xml:space="preserve"><value>Le mie note</value></data>
+  <data name="NewNoteLabel" xml:space="preserve"><value>Nuova nota</value></data>
+  <data name="CopyURL" xml:space="preserve"><value>Copia URL</value></data>
+  <data name="OpenHistory" xml:space="preserve"><value>Apri cronologia</value></data>
+  <data name="OpenCaptureFolder" xml:space="preserve"><value>Apri cartella catture</value></data>
+  <data name="OpenNoteFolder" xml:space="preserve"><value>Apri cartella note</value></data>
+  <data name="CaptureAnd" xml:space="preserve"><value>Cattura &amp;</value></data>
+  <data name="ChangeEdgeStyleTooltip" xml:space="preserve"><value>Fai clic per cambiare stile bordo</value></data>
+  <data name="EmptyTrashComplete" xml:space="preserve"><value>Il cestino è stato svuotato.</value></data>
+  <data name="All" xml:space="preserve"><value>Tutto</value></data>
+  <data name="CopyFailed" xml:space="preserve"><value>Copia negli appunti non riuscita. Potrebbe esserci un altro programma che sta utilizzando gli appunti.</value></data>
+  <data name="HistoryTitle" xml:space="preserve"><value>Cronologia</value></data>
+  <data name="HistoryColDate" xml:space="preserve"><value>Data e ora</value></data>
+  <data name="HistoryColFileName" xml:space="preserve"><value>Nome file</value></data>
+  <data name="HistoryColMeta" xml:space="preserve"><value>Origine/Titolo</value></data>
+  <data name="HistoryColMemo" xml:space="preserve"><value>Memo</value></data>
+  <data name="HistoryColActions" xml:space="preserve"><value>Azioni</value></data>
+  <data name="History" xml:space="preserve"><value>Cronologia</value></data>
+  <data name="HistoryFilterTitle" xml:space="preserve"><value>Filtro dettagliato</value></data>
+  <data name="HistoryFilterDate" xml:space="preserve"><value>Filtro data</value></data>
+  <data name="HistoryFilterFileName" xml:space="preserve"><value>Nome file</value></data>
+  <data name="HistoryFilterFileType" xml:space="preserve"><value>Tipo file</value></data>
+  <data name="HistoryFilterTypeAll" xml:space="preserve"><value>Tutto</value></data>
+  <data name="HistoryFilterTypeImage" xml:space="preserve"><value>Immagine (JPG, PNG, BMP, GIF, WEBP)</value></data>
+  <data name="HistoryFilterTypeMedia" xml:space="preserve"><value>Media (MP4, MP3)</value></data>
+  <data name="HistoryFilterApply" xml:space="preserve"><value>Applica filtro</value></data>
+  <data name="ImageViewerTitle" xml:space="preserve"><value>CatchCapture - Visualizzatore</value></data>
+  <data name="ImageViewerDefaultText" xml:space="preserve"><value>Visualizzatore immagini</value></data>
+  <data name="ImageViewerResetZoomTooltip" xml:space="preserve"><value>Ripristina zoom (1:1)</value></data>
+  <data name="ImageViewerCopyTooltip" xml:space="preserve"><value>Copia negli appunti</value></data>
+  <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>Salva immagine come...</value></data>
+  <data name="RightClickBoxHint" xml:space="preserve"><value>Clic destro: Rettangolo</value></data>
+  <data name="SettingsShowColorPaletteDesc" xml:space="preserve"><value>Mostra la tavolozza dei colori sotto la lente di ingrandimento</value></data>
 </root>

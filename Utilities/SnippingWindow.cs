@@ -89,7 +89,7 @@ namespace CatchCapture.Utilities
         private Button? objectCopyButton;
 
         private SharedCanvasEditor _editorManager;
-        private TextBlock? drawHintLabel; // [추가] 그리기 힌트 라벨
+
 
         public Int32Rect SelectedArea { get; private set; }
         public bool IsCancelled { get; private set; } = false;
@@ -192,19 +192,7 @@ namespace CatchCapture.Utilities
             _drawingCanvas.Height = vHeight;
             canvas.Children.Add(_drawingCanvas);
 
-            // [추가] 그리기 힌트 라벨 초기화
-            drawHintLabel = new TextBlock
-            {
-                Text = ResLoc.GetString("RightClickBoxHint"),
-                Background = new SolidColorBrush(Color.FromArgb(160, 0, 0, 0)),
-                Foreground = Brushes.White,
-                Padding = new Thickness(4, 2, 4, 2),
-                FontSize = 10,
-                IsHitTestVisible = false,
-                Visibility = Visibility.Collapsed
-            };
-            canvas.Children.Add(drawHintLabel);
-            Panel.SetZIndex(drawHintLabel, 1000);
+
 
             // 캐시된 스크린샷이 있으면 즉시 사용
             if (cachedScreenshot != null)
@@ -2926,20 +2914,7 @@ namespace CatchCapture.Utilities
         {
             Point currentPoint = e.GetPosition(canvas);
             
-            // [추가] 그리기 힌트 라벨 위치 업데이트
-            if (drawHintLabel != null)
-            {
-                if (!isSelecting && (currentTool == "펜" || currentTool == "형광펜") && IsPointInSelection(currentPoint))
-                {
-                    drawHintLabel.Visibility = Visibility.Visible;
-                    Canvas.SetLeft(drawHintLabel, currentPoint.X + 15);
-                    Canvas.SetTop(drawHintLabel, currentPoint.Y + 15);
-                }
-                else
-                {
-                    drawHintLabel.Visibility = Visibility.Collapsed;
-                }
-            }
+
 
             if (!IsPointInSelection(currentPoint)) return;
 
@@ -3428,7 +3403,6 @@ namespace CatchCapture.Utilities
             {
                 Dispatcher.Invoke(() =>
                 {
-                    if (drawHintLabel != null) drawHintLabel.Text = ResLoc.GetString("RightClickBoxHint");
                     RebuildInstantEditUIPreservingState();
                 });
             }

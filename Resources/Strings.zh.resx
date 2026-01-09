@@ -766,4 +766,95 @@
   <data name="CaptureModeOverlay" xml:space="preserve"><value>快速截图（叠加层） - 动画保持播放</value></data>
   <data name="CaptureModeStatic" xml:space="preserve"><value>冻结截图 - 立即冻结屏幕（默认）</value></data>
   <data name="CaptureModeDesc" xml:space="preserve"><value>※ 在快速截图模式下使用放大镜拖拽时可能出现延迟。</value></data>
+  <data name="EdgeCapture" xml:space="preserve"><value>边缘捕获</value></data>
+  <data name="EdgeSoft" xml:space="preserve"><value>柔和边缘</value></data>
+  <data name="EdgeSmooth" xml:space="preserve"><value>平滑边缘</value></data>
+  <data name="EdgeClassic" xml:space="preserve"><value>经典圆角</value></data>
+  <data name="EdgeCapsule" xml:space="preserve"><value>胶囊样式</value></data>
+  <data name="EdgeCircle" xml:space="preserve"><value>完美圆形</value></data>
+  <data name="HistorySettings" xml:space="preserve"><value>历史记录设置</value></data>
+  <data name="AutoManagement" xml:space="preserve"><value>数据保留与管理</value></data>
+  <data name="AutoDeletePeriod" xml:space="preserve"><value>自动删除周期</value></data>
+  <data name="AutoDeleteToTrashNotice" xml:space="preserve"><value>(将超过设定周期的数据移到回收站)</value></data>
+  <data name="DbOptimize" xml:space="preserve"><value>优化数据库</value></data>
+  <data name="DbOptimizeDesc" xml:space="preserve"><value>清理空白空间以提升速度</value></data>
+  <data name="HistorySameAsCapture" xml:space="preserve"><value>与捕获设置相同。如需更改，请在捕获设置中进行。</value></data>
+  <data name="HistoryTip1" xml:space="preserve"><value>在历史记录中一览所有过去的捕获和记录。</value></data>
+  <data name="HistoryTip2" xml:space="preserve"><value>使用搜索栏可按文件名或应用名快速查找记录。</value></data>
+  <data name="HistoryTip3" xml:space="preserve"><value>使用高级筛选按特定日期或文件类型搜索。</value></data>
+  <data name="HistoryTip4" xml:space="preserve"><value>选中项目后点击“保存到我的笔记”即可创建包含原始信息的笔记。</value></data>
+  <data name="HistoryTip5" xml:space="preserve"><value>双击列表项目可在 Windows 默认查看器中打开原始文件。</value></data>
+  <data name="HistoryTip6" xml:space="preserve"><value>回收站中的删除记录在保留期结束后将被永久删除。</value></data>
+  <data name="Blur" xml:space="preserve"><value>模糊</value></data>
+  <data name="HistoryWindowTitle" xml:space="preserve"><value>历史记录 - CatchCapture</value></data>
+  <data name="HistorySearchPlaceholder" xml:space="preserve"><value>按文件名、笔记、应用搜索...</value></data>
+  <data name="TotalHistory" xml:space="preserve"><value>全部历史记录</value></data>
+  <data name="HistorySync" xml:space="preserve"><value>同步</value></data>
+  <data name="HistorySyncTooltip" xml:space="preserve"><value>获取最新历史记录</value></data>
+  <data name="OpenWithDefaultViewer" xml:space="preserve"><value>使用 Windows 默认查看器打开</value></data>
+  <data name="SimpleMemo" xml:space="preserve"><value>简单笔记</value></data>
+  <data name="Edit" xml:space="preserve"><value>编辑</value></data>
+  <data name="NoMemo" xml:space="preserve"><value>无笔记</value></data>
+  <data name="Details" xml:space="preserve"><value>详细信息</value></data>
+  <data name="CapacityLabel" xml:space="preserve"><value>容量：</value></data>
+  <data name="AppLabel" xml:space="preserve"><value>应用：</value></data>
+  <data name="PathLabel" xml:space="preserve"><value>详细路径</value></data>
+  <data name="TitleLabel" xml:space="preserve"><value>完整标题：</value></data>
+  <data name="SelectAnItemToViewDetails" xml:space="preserve"><value>请选择项目以查看详细信息</value></data>
+  <data name="ImageEditorTooltip" xml:space="preserve"><value>编辑图像</value></data>
+  <data name="SaveToMyNoteTooltip" xml:space="preserve"><value>保存到我的笔记</value></data>
+  <data name="PinToScreenTooltip" xml:space="preserve"><value>固定到屏幕</value></data>
+  <data name="ErrInitHistory" xml:space="preserve"><value>初始化历史记录窗口错误： </value></data>
+  <data name="ErrLoadHistory" xml:space="preserve"><value>加载历史记录错误： </value></data>
+  <data name="DeleteConfirmTitle" xml:space="preserve"><value>确认删除</value></data>
+  <data name="DeleteConfirmMessage" xml:space="preserve"><value>是否将选中项目移到回收站？</value></data>
+  <data name="PermanentDeleteConfirmMessage" xml:space="preserve"><value>是否永久删除选中项目？(文件也将被删除)</value></data>
+  <data name="EmptyTrashConfirmMessage" xml:space="preserve"><value>是否永久删除回收站中的所有项目？\n(文件夹中的原始文件也将被删除)</value></data>
+  <data name="EmptyTrashTitle" xml:space="preserve"><value>清空回收站</value></data>
+  <data name="ErrOpenFolder" xml:space="preserve"><value>无法打开文件夹： </value></data>
+  <data name="ErrSaveImage" xml:space="preserve"><value>保存图像时发生错误： </value></data>
+  <data name="ErrOpenEditor" xml:space="preserve"><value>无法打开编辑器： </value></data>
+  <data name="ErrPinImage" xml:space="preserve"><value>无法固定图像： </value></data>
+  <data name="SyncConfirm" xml:space="preserve"><value>云数据(OneDrive、Dropbox 等)可能需要 1-3 分钟才能同步。\n\n是否现在获取最新记录？</value></data>
+  <data name="SyncInfoTitle" xml:space="preserve"><value>同步信息</value></data>
+  <data name="SyncFailed" xml:space="preserve"><value>同步失败： </value></data>
+  <data name="NoteSyncTooltip" xml:space="preserve"><value>获取最新数据</value></data>
+  <data name="ClearTags" xml:space="preserve"><value>清除标签</value></data>
+  <data name="ClearTagsTooltip" xml:space="preserve"><value>删除所有标签</value></data>
+  <data name="ClearTagsConfirm" xml:space="preserve"><value>是否确定删除所有标签？\n所有笔记中的标签信息将被移除。</value></data>
+  <data name="DeleteSingleTagConfirm" xml:space="preserve"><value>是否删除标签 '#{0}'？\n该标签仅从已应用的笔记中移除。</value></data>
+  <data name="DeleteSingleTagComplete" xml:space="preserve"><value>标签 '#{0}' 已删除。</value></data>
+  <data name="MyNoteTitle" xml:space="preserve"><value>我的笔记</value></data>
+  <data name="NewNoteLabel" xml:space="preserve"><value>新笔记</value></data>
+  <data name="CopyURL" xml:space="preserve"><value>复制 URL</value></data>
+  <data name="OpenHistory" xml:space="preserve"><value>打开历史记录</value></data>
+  <data name="OpenCaptureFolder" xml:space="preserve"><value>打开捕获文件夹</value></data>
+  <data name="OpenNoteFolder" xml:space="preserve"><value>打开笔记文件夹</value></data>
+  <data name="CaptureAnd" xml:space="preserve"><value>捕获 &amp;</value></data>
+  <data name="ChangeEdgeStyleTooltip" xml:space="preserve"><value>点击更改边缘样式</value></data>
+  <data name="EmptyTrashComplete" xml:space="preserve"><value>回收站已清空。</value></data>
+  <data name="All" xml:space="preserve"><value>全部</value></data>
+  <data name="CopyFailed" xml:space="preserve"><value>复制到剪贴板失败。可能有其他程序正在使用剪贴板。</value></data>
+  <data name="HistoryTitle" xml:space="preserve"><value>历史记录</value></data>
+  <data name="HistoryColDate" xml:space="preserve"><value>日期与时间</value></data>
+  <data name="HistoryColFileName" xml:space="preserve"><value>文件名</value></data>
+  <data name="HistoryColMeta" xml:space="preserve"><value>来源/标题</value></data>
+  <data name="HistoryColMemo" xml:space="preserve"><value>笔记</value></data>
+  <data name="HistoryColActions" xml:space="preserve"><value>操作</value></data>
+  <data name="History" xml:space="preserve"><value>历史记录</value></data>
+  <data name="HistoryFilterTitle" xml:space="preserve"><value>详细筛选</value></data>
+  <data name="HistoryFilterDate" xml:space="preserve"><value>日期筛选</value></data>
+  <data name="HistoryFilterFileName" xml:space="preserve"><value>文件名</value></data>
+  <data name="HistoryFilterFileType" xml:space="preserve"><value>文件类型</value></data>
+  <data name="HistoryFilterTypeAll" xml:space="preserve"><value>全部</value></data>
+  <data name="HistoryFilterTypeImage" xml:space="preserve"><value>图像 (JPG, PNG, BMP, GIF, WEBP)</value></data>
+  <data name="HistoryFilterTypeMedia" xml:space="preserve"><value>媒体 (MP4, MP3)</value></data>
+  <data name="HistoryFilterApply" xml:space="preserve"><value>应用筛选</value></data>
+  <data name="ImageViewerTitle" xml:space="preserve"><value>CatchCapture - 查看器</value></data>
+  <data name="ImageViewerDefaultText" xml:space="preserve"><value>图像查看器</value></data>
+  <data name="ImageViewerResetZoomTooltip" xml:space="preserve"><value>重置缩放 (1:1)</value></data>
+  <data name="ImageViewerCopyTooltip" xml:space="preserve"><value>复制到剪贴板</value></data>
+  <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>图像另存为...</value></data>
+  <data name="RightClickBoxHint" xml:space="preserve"><value>右键：矩形</value></data>
+  <data name="SettingsShowColorPaletteDesc" xml:space="preserve"><value>在放大镜下方显示调色板</value></data>
 </root>

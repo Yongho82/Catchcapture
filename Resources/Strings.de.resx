@@ -766,4 +766,95 @@ Alle Elemente endgültig löschen?</value>
   <data name="CaptureModeOverlay" xml:space="preserve"><value>Schnelle Erfassung (Overlay) - Animationen laufen weiter</value></data>
   <data name="CaptureModeStatic" xml:space="preserve"><value>Eingefrorene Erfassung - Bildschirm sofort einfrieren (Standard)</value></data>
   <data name="CaptureModeDesc" xml:space="preserve"><value>※ Bei Verwendung der Lupe im schnellen Erfassungsmodus kann es beim Ziehen zu Verzögerungen kommen.</value></data>
+  <data name="EdgeCapture" xml:space="preserve"><value>Rand-Erfassung</value></data>
+  <data name="EdgeSoft" xml:space="preserve"><value>Weicher Rand</value></data>
+  <data name="EdgeSmooth" xml:space="preserve"><value>Geglätteter Rand</value></data>
+  <data name="EdgeClassic" xml:space="preserve"><value>Klassisch abgerundet</value></data>
+  <data name="EdgeCapsule" xml:space="preserve"><value>Kapsel-Stil</value></data>
+  <data name="EdgeCircle" xml:space="preserve"><value>Perfekter Kreis</value></data>
+  <data name="HistorySettings" xml:space="preserve"><value>Verlaufseinstellungen</value></data>
+  <data name="AutoManagement" xml:space="preserve"><value>Datenaufbewahrung &amp; Verwaltung</value></data>
+  <data name="AutoDeletePeriod" xml:space="preserve"><value>Automatische Löschfrist</value></data>
+  <data name="AutoDeleteToTrashNotice" xml:space="preserve"><value>(Verschiebt Daten älter als die festgelegte Frist in den Papierkorb)</value></data>
+  <data name="DbOptimize" xml:space="preserve"><value>DB optimieren</value></data>
+  <data name="DbOptimizeDesc" xml:space="preserve"><value>Erhöht die Geschwindigkeit durch Bereinigen von leerem Speicherplatz</value></data>
+  <data name="HistorySameAsCapture" xml:space="preserve"><value>Gleich wie Erfassungseinstellungen. Änderungen bitte dort vornehmen.</value></data>
+  <data name="HistoryTip1" xml:space="preserve"><value>Alle vergangenen Aufnahmen und Einträge auf einen Blick im Verlauf ansehen.</value></data>
+  <data name="HistoryTip2" xml:space="preserve"><value>Mit der Suchleiste schnell nach Dateinamen oder App-Namen suchen.</value></data>
+  <data name="HistoryTip3" xml:space="preserve"><value>Erweiterte Filter für Suche nach bestimmten Daten oder Dateitypen nutzen.</value></data>
+  <data name="HistoryTip4" xml:space="preserve"><value>Element auswählen und „In Meine Notiz speichern“ klicken, um eine Notiz mit Originalinformationen zu erstellen.</value></data>
+  <data name="HistoryTip5" xml:space="preserve"><value>Doppelklick auf Listenelement öffnet die Originaldatei im Windows-Standardviewer.</value></data>
+  <data name="HistoryTip6" xml:space="preserve"><value>Gelöschte Einträge im Papierkorb werden nach Ablauf der Aufbewahrungsfrist endgültig entfernt.</value></data>
+  <data name="Blur" xml:space="preserve"><value>Weichzeichnen</value></data>
+  <data name="HistoryWindowTitle" xml:space="preserve"><value>Verlauf – CatchCapture</value></data>
+  <data name="HistorySearchPlaceholder" xml:space="preserve"><value>Nach Dateiname, Memo, App suchen...</value></data>
+  <data name="TotalHistory" xml:space="preserve"><value>Gesamter Verlauf</value></data>
+  <data name="HistorySync" xml:space="preserve"><value>Synchronisieren</value></data>
+  <data name="HistorySyncTooltip" xml:space="preserve"><value>Neuesten Verlauf abrufen</value></data>
+  <data name="OpenWithDefaultViewer" xml:space="preserve"><value>Mit Windows-Standardviewer öffnen</value></data>
+  <data name="SimpleMemo" xml:space="preserve"><value>Einfaches Memo</value></data>
+  <data name="Edit" xml:space="preserve"><value>Bearbeiten</value></data>
+  <data name="NoMemo" xml:space="preserve"><value>Kein Memo</value></data>
+  <data name="Details" xml:space="preserve"><value>Details</value></data>
+  <data name="CapacityLabel" xml:space="preserve"><value>Kapazität:</value></data>
+  <data name="AppLabel" xml:space="preserve"><value>App:</value></data>
+  <data name="PathLabel" xml:space="preserve"><value>Detaillierter Pfad</value></data>
+  <data name="TitleLabel" xml:space="preserve"><value>Vollständiger Titel:</value></data>
+  <data name="SelectAnItemToViewDetails" xml:space="preserve"><value>Element auswählen, um Details anzuzeigen</value></data>
+  <data name="ImageEditorTooltip" xml:space="preserve"><value>Bild bearbeiten</value></data>
+  <data name="SaveToMyNoteTooltip" xml:space="preserve"><value>In Meine Notiz speichern</value></data>
+  <data name="PinToScreenTooltip" xml:space="preserve"><value>Auf Bildschirm anheften</value></data>
+  <data name="ErrInitHistory" xml:space="preserve"><value>Fehler beim Initialisieren des Verlaufsfensters: </value></data>
+  <data name="ErrLoadHistory" xml:space="preserve"><value>Fehler beim Laden des Verlaufs: </value></data>
+  <data name="DeleteConfirmTitle" xml:space="preserve"><value>Löschen bestätigen</value></data>
+  <data name="DeleteConfirmMessage" xml:space="preserve"><value>Ausgewählte Elemente in den Papierkorb verschieben?</value></data>
+  <data name="PermanentDeleteConfirmMessage" xml:space="preserve"><value>Ausgewählte Elemente endgültig löschen? (Dateien werden ebenfalls gelöscht)</value></data>
+  <data name="EmptyTrashConfirmMessage" xml:space="preserve"><value>Alle Elemente im Papierkorb endgültig löschen?\n(Originaldateien in Ordnern werden ebenfalls gelöscht)</value></data>
+  <data name="EmptyTrashTitle" xml:space="preserve"><value>Papierkorb leeren</value></data>
+  <data name="ErrOpenFolder" xml:space="preserve"><value>Ordner konnte nicht geöffnet werden: </value></data>
+  <data name="ErrSaveImage" xml:space="preserve"><value>Fehler beim Speichern des Bildes: </value></data>
+  <data name="ErrOpenEditor" xml:space="preserve"><value>Editor konnte nicht geöffnet werden: </value></data>
+  <data name="ErrPinImage" xml:space="preserve"><value>Bild konnte nicht angeheftet werden: </value></data>
+  <data name="SyncConfirm" xml:space="preserve"><value>Cloud-Daten (OneDrive, Dropbox usw.) können 1–3 Minuten zur Aktualisierung benötigen.\n\nJetzt die neuesten Einträge abrufen?</value></data>
+  <data name="SyncInfoTitle" xml:space="preserve"><value>Synchronisationsinformationen</value></data>
+  <data name="SyncFailed" xml:space="preserve"><value>Synchronisation fehlgeschlagen: </value></data>
+  <data name="NoteSyncTooltip" xml:space="preserve"><value>Neueste Daten abrufen</value></data>
+  <data name="ClearTags" xml:space="preserve"><value>Tags löschen</value></data>
+  <data name="ClearTagsTooltip" xml:space="preserve"><value>Alle Tags löschen</value></data>
+  <data name="ClearTagsConfirm" xml:space="preserve"><value>Alle Tags wirklich löschen?\nTag-Informationen werden aus allen Notizen entfernt.</value></data>
+  <data name="DeleteSingleTagConfirm" xml:space="preserve"><value>Tag '#{0}' löschen?\nDer Tag wird nur aus den zugehörigen Notizen entfernt.</value></data>
+  <data name="DeleteSingleTagComplete" xml:space="preserve"><value>Tag '#{0}' wurde gelöscht.</value></data>
+  <data name="MyNoteTitle" xml:space="preserve"><value>Meine Notiz</value></data>
+  <data name="NewNoteLabel" xml:space="preserve"><value>Neue Notiz</value></data>
+  <data name="CopyURL" xml:space="preserve"><value>URL kopieren</value></data>
+  <data name="OpenHistory" xml:space="preserve"><value>Verlauf öffnen</value></data>
+  <data name="OpenCaptureFolder" xml:space="preserve"><value>Erfassungsordner öffnen</value></data>
+  <data name="OpenNoteFolder" xml:space="preserve"><value>Notizordner öffnen</value></data>
+  <data name="CaptureAnd" xml:space="preserve"><value>Erfassen &amp;</value></data>
+  <data name="ChangeEdgeStyleTooltip" xml:space="preserve"><value>Klicken, um Randstil zu ändern</value></data>
+  <data name="EmptyTrashComplete" xml:space="preserve"><value>Papierkorb wurde geleert.</value></data>
+  <data name="All" xml:space="preserve"><value>Alle</value></data>
+  <data name="CopyFailed" xml:space="preserve"><value>Kopieren in die Zwischenablage fehlgeschlagen. Möglicherweise verwendet ein anderes Programm die Zwischenablage.</value></data>
+  <data name="HistoryTitle" xml:space="preserve"><value>Verlauf</value></data>
+  <data name="HistoryColDate" xml:space="preserve"><value>Datum &amp; Uhrzeit</value></data>
+  <data name="HistoryColFileName" xml:space="preserve"><value>Dateiname</value></data>
+  <data name="HistoryColMeta" xml:space="preserve"><value>Quelle/Titel</value></data>
+  <data name="HistoryColMemo" xml:space="preserve"><value>Memo</value></data>
+  <data name="HistoryColActions" xml:space="preserve"><value>Aktionen</value></data>
+  <data name="History" xml:space="preserve"><value>Verlauf</value></data>
+  <data name="HistoryFilterTitle" xml:space="preserve"><value>Detaillierter Filter</value></data>
+  <data name="HistoryFilterDate" xml:space="preserve"><value>Datumsfilter</value></data>
+  <data name="HistoryFilterFileName" xml:space="preserve"><value>Dateiname</value></data>
+  <data name="HistoryFilterFileType" xml:space="preserve"><value>Dateityp</value></data>
+  <data name="HistoryFilterTypeAll" xml:space="preserve"><value>Alle</value></data>
+  <data name="HistoryFilterTypeImage" xml:space="preserve"><value>Bild (JPG, PNG, BMP, GIF, WEBP)</value></data>
+  <data name="HistoryFilterTypeMedia" xml:space="preserve"><value>Medien (MP4, MP3)</value></data>
+  <data name="HistoryFilterApply" xml:space="preserve"><value>Filter anwenden</value></data>
+  <data name="ImageViewerTitle" xml:space="preserve"><value>CatchCapture – Viewer</value></data>
+  <data name="ImageViewerDefaultText" xml:space="preserve"><value>Bildbetrachter</value></data>
+  <data name="ImageViewerResetZoomTooltip" xml:space="preserve"><value>Zoom zurücksetzen (1:1)</value></data>
+  <data name="ImageViewerCopyTooltip" xml:space="preserve"><value>In Zwischenablage kopieren</value></data>
+  <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>Bild speichern unter...</value></data>
+  <data name="RightClickBoxHint" xml:space="preserve"><value>Rechtsklick: Rechteck</value></data>
+  <data name="SettingsShowColorPaletteDesc" xml:space="preserve"><value>Farbpalette unter der Lupe anzeigen</value></data>
 </root>

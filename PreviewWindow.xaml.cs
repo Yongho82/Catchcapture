@@ -58,6 +58,7 @@ namespace CatchCapture
 
         private SharedCanvasEditor _editorManager;
         private TextBlock? drawHintLabel; // [추가] 그리기 힌트 라벨
+        private TextBlock? confirmHintLabel; // [추가] 완료 힌트 라벨 ("Confirm : Enter")
         private Stack<UIElement> _editorUndoStack = new Stack<UIElement>();
         private CatchCapture.Controls.ToolOptionsControl _toolOptionsControl;
 
@@ -191,6 +192,20 @@ namespace CatchCapture
             };
             ImageCanvas.Children.Add(drawHintLabel);
             Panel.SetZIndex(drawHintLabel, 1000);
+
+            // [추가] 완료 힌트 라벨 초기화 (Hardcoded English as requested)
+            confirmHintLabel = new TextBlock
+            {
+                Text = "Confirm : Enter key",
+                Background = new SolidColorBrush(Color.FromArgb(180, 0, 0, 0)),
+                Foreground = Brushes.White,
+                Padding = new Thickness(6, 3, 6, 3),
+                FontSize = 11,
+                IsHitTestVisible = false,
+                Visibility = Visibility.Collapsed
+            };
+            ImageCanvas.Children.Add(confirmHintLabel);
+            Panel.SetZIndex(confirmHintLabel, 6000); 
         }
 
         private void BtnMinimize_Click(object sender, RoutedEventArgs e)

@@ -69,18 +69,30 @@ namespace CatchCapture
 
             Point currentPoint = e.GetPosition(ImageCanvas);
 
-            // [추가] 그리기 힌트 라벨 위치 업데이트
-            if (drawHintLabel != null)
+            // [추가] 완료 힌트 라벨 위치 업데이트
+
+            // [추가] 완료 힌트 라벨 위치 업데이트
+            if (confirmHintLabel != null)
             {
-                if ((currentEditMode == EditMode.Pen || currentEditMode == EditMode.Highlight))
+                if (currentEditMode == EditMode.Crop)
                 {
-                    drawHintLabel.Visibility = Visibility.Visible;
-                    Canvas.SetLeft(drawHintLabel, currentPoint.X + 15);
-                    Canvas.SetTop(drawHintLabel, currentPoint.Y + 15);
+                    confirmHintLabel.Visibility = Visibility.Visible;
+                    
+                    double px = currentPoint.X + 15;
+                    double py = currentPoint.Y + 15;
+
+                    // 화면 경계 처리 (ImageCanvas 기준)
+                    if (px + 120 > ImageCanvas.ActualWidth) // Estimate width 120
+                        px = currentPoint.X - 130;
+                    if (py + 30 > ImageCanvas.ActualHeight) // Estimate height 30
+                        py = currentPoint.Y - 40;
+
+                    Canvas.SetLeft(confirmHintLabel, px);
+                    Canvas.SetTop(confirmHintLabel, py);
                 }
                 else
                 {
-                    drawHintLabel.Visibility = Visibility.Collapsed;
+                    confirmHintLabel.Visibility = Visibility.Collapsed;
                 }
             }
 
@@ -207,6 +219,7 @@ namespace CatchCapture
 
             // [추가] 힌트 라벨 숨기기
             if (drawHintLabel != null) drawHintLabel.Visibility = Visibility.Collapsed;
+            if (confirmHintLabel != null) confirmHintLabel.Visibility = Visibility.Collapsed;
         }
 
         #endregion

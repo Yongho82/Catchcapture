@@ -766,4 +766,95 @@
   <data name="CaptureModeOverlay" xml:space="preserve"><value>จับภาพเร็ว (โอเวอร์เลย์) - แอนิเมชันยังเล่นต่อ</value></data>
   <data name="CaptureModeStatic" xml:space="preserve"><value>จับภาพหยุดนิ่ง - หยุดหน้าจอทันที (ค่าเริ่มต้น)</value></data>
   <data name="CaptureModeDesc" xml:space="preserve"><value>※ การใช้แว่นขยายในโหมดจับภาพเร็วอาจทำให้หน่วงขณะลาก</value></data>
+  <data name="EdgeCapture" xml:space="preserve"><value>จับภาพขอบ</value></data>
+  <data name="EdgeSoft" xml:space="preserve"><value>ขอบนุ่ม</value></data>
+  <data name="EdgeSmooth" xml:space="preserve"><value>ขอบเรียบ</value></data>
+  <data name="EdgeClassic" xml:space="preserve"><value>มุมโค้งคลาสสิก</value></data>
+  <data name="EdgeCapsule" xml:space="preserve"><value>สไตล์แคปซูล</value></data>
+  <data name="EdgeCircle" xml:space="preserve"><value>วงกลมสมบูรณ์</value></data>
+  <data name="HistorySettings" xml:space="preserve"><value>การตั้งค่าประวัติ</value></data>
+  <data name="AutoManagement" xml:space="preserve"><value>การเก็บรักษาและจัดการข้อมูล</value></data>
+  <data name="AutoDeletePeriod" xml:space="preserve"><value>ระยะเวลาลบอัตโนมัติ</value></data>
+  <data name="AutoDeleteToTrashNotice" xml:space="preserve"><value>(ย้ายข้อมูลที่เก่ากว่าระยะเวลาที่ตั้งไว้ไปยังถังขยะ)</value></data>
+  <data name="DbOptimize" xml:space="preserve"><value>ปรับฐานข้อมูลให้เหมาะสม</value></data>
+  <data name="DbOptimizeDesc" xml:space="preserve"><value>เพิ่มความเร็วโดยล้างพื้นที่ว่าง</value></data>
+  <data name="HistorySameAsCapture" xml:space="preserve"><value>เหมือนการตั้งค่าการจับภาพ หากต้องการเปลี่ยนโปรดทำในตั้งค่าการจับภาพ</value></data>
+  <data name="HistoryTip1" xml:space="preserve"><value>ดูการจับภาพและบันทึกทั้งหมดในอดีตได้ในพริบตาในประวัติ</value></data>
+  <data name="HistoryTip2" xml:space="preserve"><value>ใช้แถบค้นหาเพื่อค้นหาบันทึกอย่างรวดเร็วตามชื่อไฟล์หรือชื่อแอป</value></data>
+  <data name="HistoryTip3" xml:space="preserve"><value>ใช้ตัวกรองขั้นสูงเพื่อค้นหาตามวันที่หรือประเภทไฟล์เฉพาะ</value></data>
+  <data name="HistoryTip4" xml:space="preserve"><value>เลือกไอเทมแล้วคลิก 'บันทึกในโน้ตของฉัน' เพื่อสร้างโน้ตที่มีข้อมูลต้นฉบับ</value></data>
+  <data name="HistoryTip5" xml:space="preserve"><value>ดับเบิลคลิกไอเทมในรายการเพื่อเปิดไฟล์ต้นฉบับในโปรแกรมดูค่าเริ่มต้นของ Windows</value></data>
+  <data name="HistoryTip6" xml:space="preserve"><value>บันทึกที่ลบในถังขยะจะถูกลบถาวรหลังจากหมดระยะเวลาการเก็บรักษา</value></data>
+  <data name="Blur" xml:space="preserve"><value>เบลอ</value></data>
+  <data name="HistoryWindowTitle" xml:space="preserve"><value>ประวัติ - CatchCapture</value></data>
+  <data name="HistorySearchPlaceholder" xml:space="preserve"><value>ค้นหาตามชื่อไฟล์ โน้ต แอป...</value></data>
+  <data name="TotalHistory" xml:space="preserve"><value>ประวัติทั้งหมด</value></data>
+  <data name="HistorySync" xml:space="preserve"><value>ซิงค์</value></data>
+  <data name="HistorySyncTooltip" xml:space="preserve"><value>ดึงประวัติล่าสุด</value></data>
+  <data name="OpenWithDefaultViewer" xml:space="preserve"><value>เปิดด้วยโปรแกรมดูค่าเริ่มต้นของ Windows</value></data>
+  <data name="SimpleMemo" xml:space="preserve"><value>โน้ตง่ายๆ</value></data>
+  <data name="Edit" xml:space="preserve"><value>แก้ไข</value></data>
+  <data name="NoMemo" xml:space="preserve"><value>ไม่มีโน้ต</value></data>
+  <data name="Details" xml:space="preserve"><value>รายละเอียด</value></data>
+  <data name="CapacityLabel" xml:space="preserve"><value>ความจุ:</value></data>
+  <data name="AppLabel" xml:space="preserve"><value>แอป:</value></data>
+  <data name="PathLabel" xml:space="preserve"><value>พาธละเอียด</value></data>
+  <data name="TitleLabel" xml:space="preserve"><value>ชื่อเต็ม:</value></data>
+  <data name="SelectAnItemToViewDetails" xml:space="preserve"><value>เลือกไอเทมเพื่อดูรายละเอียด</value></data>
+  <data name="ImageEditorTooltip" xml:space="preserve"><value>แก้ไขภาพ</value></data>
+  <data name="SaveToMyNoteTooltip" xml:space="preserve"><value>บันทึกในโน้ตของฉัน</value></data>
+  <data name="PinToScreenTooltip" xml:space="preserve"><value>ปักหมุดบนหน้าจอ</value></data>
+  <data name="ErrInitHistory" xml:space="preserve"><value>เกิดข้อผิดพลาดในการเริ่มต้นหน้าต่างประวัติ: </value></data>
+  <data name="ErrLoadHistory" xml:space="preserve"><value>เกิดข้อผิดพลาดในการโหลดประวัติ: </value></data>
+  <data name="DeleteConfirmTitle" xml:space="preserve"><value>ยืนยันการลบ</value></data>
+  <data name="DeleteConfirmMessage" xml:space="preserve"><value>ย้ายไอเทมที่เลือกไปยังถังขยะหรือไม่?</value></data>
+  <data name="PermanentDeleteConfirmMessage" xml:space="preserve"><value>ลบไอเทมที่เลือกถาวรหรือไม่? (ไฟล์จะถูกลบด้วย)</value></data>
+  <data name="EmptyTrashConfirmMessage" xml:space="preserve"><value>ลบทุกไอเทมในถังขยะถาวรหรือไม่?\n(ไฟล์ต้นฉบับในโฟลเดอร์จะถูกลบด้วย)</value></data>
+  <data name="EmptyTrashTitle" xml:space="preserve"><value>เทถังขยะ</value></data>
+  <data name="ErrOpenFolder" xml:space="preserve"><value>ไม่สามารถเปิดโฟลเดอร์: </value></data>
+  <data name="ErrSaveImage" xml:space="preserve"><value>เกิดข้อผิดพลาดในการบันทึกภาพ: </value></data>
+  <data name="ErrOpenEditor" xml:space="preserve"><value>ไม่สามารถเปิดตัวแก้ไข: </value></data>
+  <data name="ErrPinImage" xml:space="preserve"><value>ไม่สามารถปักหมุดภาพ: </value></data>
+  <data name="SyncConfirm" xml:space="preserve"><value>ข้อมูลคลาวด์ (OneDrive, Dropbox ฯลฯ) อาจใช้เวลา 1-3 นาทีในการอัปเดต\n\nต้องการดึงบันทึกล่าสุดตอนนี้หรือไม่?</value></data>
+  <data name="SyncInfoTitle" xml:space="preserve"><value>ข้อมูลการซิงค์</value></data>
+  <data name="SyncFailed" xml:space="preserve"><value>การซิงค์ล้มเหลว: </value></data>
+  <data name="NoteSyncTooltip" xml:space="preserve"><value>ดึงข้อมูลล่าสุด</value></data>
+  <data name="ClearTags" xml:space="preserve"><value>ล้างแท็ก</value></data>
+  <data name="ClearTagsTooltip" xml:space="preserve"><value>ลบแท็กทั้งหมด</value></data>
+  <data name="ClearTagsConfirm" xml:space="preserve"><value>แน่ใจหรือไม่ว่าต้องการลบแท็กทั้งหมด?\nข้อมูลแท็กจะถูกลบจากโน้ตทั้งหมด</value></data>
+  <data name="DeleteSingleTagConfirm" xml:space="preserve"><value>ต้องการลบแท็ก '#{0}' หรือไม่?\nแท็กนี้จะถูกลบเฉพาะจากโน้ตที่ใช้งาน</value></data>
+  <data name="DeleteSingleTagComplete" xml:space="preserve"><value>ลบแท็ก '#{0}' แล้ว</value></data>
+  <data name="MyNoteTitle" xml:space="preserve"><value>โน้ตของฉัน</value></data>
+  <data name="NewNoteLabel" xml:space="preserve"><value>โน้ตใหม่</value></data>
+  <data name="CopyURL" xml:space="preserve"><value>คัดลอก URL</value></data>
+  <data name="OpenHistory" xml:space="preserve"><value>เปิดประวัติ</value></data>
+  <data name="OpenCaptureFolder" xml:space="preserve"><value>เปิดโฟลเดอร์การจับภาพ</value></data>
+  <data name="OpenNoteFolder" xml:space="preserve"><value>เปิดโฟลเดอร์โน้ต</value></data>
+  <data name="CaptureAnd" xml:space="preserve"><value>จับภาพ &amp;</value></data>
+  <data name="ChangeEdgeStyleTooltip" xml:space="preserve"><value>คลิกเพื่อเปลี่ยนสไตล์ขอบ</value></data>
+  <data name="EmptyTrashComplete" xml:space="preserve"><value>เทถังขยะเรียบร้อยแล้ว</value></data>
+  <data name="All" xml:space="preserve"><value>ทั้งหมด</value></data>
+  <data name="CopyFailed" xml:space="preserve"><value>คัดลอกไปยังคลิปบอร์ดล้มเหลว อาจมีโปรแกรมอื่นกำลังใช้คลิปบอร์ด</value></data>
+  <data name="HistoryTitle" xml:space="preserve"><value>ประวัติ</value></data>
+  <data name="HistoryColDate" xml:space="preserve"><value>วันที่และเวลา</value></data>
+  <data name="HistoryColFileName" xml:space="preserve"><value>ชื่อไฟล์</value></data>
+  <data name="HistoryColMeta" xml:space="preserve"><value>แหล่งที่มา/ชื่อเรื่อง</value></data>
+  <data name="HistoryColMemo" xml:space="preserve"><value>โน้ต</value></data>
+  <data name="HistoryColActions" xml:space="preserve"><value>การกระทำ</value></data>
+  <data name="History" xml:space="preserve"><value>ประวัติ</value></data>
+  <data name="HistoryFilterTitle" xml:space="preserve"><value>ตัวกรองละเอียด</value></data>
+  <data name="HistoryFilterDate" xml:space="preserve"><value>ตัวกรองวันที่</value></data>
+  <data name="HistoryFilterFileName" xml:space="preserve"><value>ชื่อไฟล์</value></data>
+  <data name="HistoryFilterFileType" xml:space="preserve"><value>ประเภทไฟล์</value></data>
+  <data name="HistoryFilterTypeAll" xml:space="preserve"><value>ทั้งหมด</value></data>
+  <data name="HistoryFilterTypeImage" xml:space="preserve"><value>ภาพ (JPG, PNG, BMP, GIF, WEBP)</value></data>
+  <data name="HistoryFilterTypeMedia" xml:space="preserve"><value>สื่อ (MP4, MP3)</value></data>
+  <data name="HistoryFilterApply" xml:space="preserve"><value>ใช้ตัวกรอง</value></data>
+  <data name="ImageViewerTitle" xml:space="preserve"><value>CatchCapture - ตัวดู</value></data>
+  <data name="ImageViewerDefaultText" xml:space="preserve"><value>ตัวดูภาพ</value></data>
+  <data name="ImageViewerResetZoomTooltip" xml:space="preserve"><value>รีเซ็ตซูม (1:1)</value></data>
+  <data name="ImageViewerCopyTooltip" xml:space="preserve"><value>คัดลอกไปยังคลิปบอร์ด</value></data>
+  <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>บันทึกภาพเป็น...</value></data>
+  <data name="RightClickBoxHint" xml:space="preserve"><value>คลิกขวา: กล่อง</value></data>
+  <data name="SettingsShowColorPaletteDesc" xml:space="preserve"><value>แสดงจานสีใต้แว่นขยาย</value></data>
 </root>
