@@ -1051,7 +1051,7 @@ public partial class MainWindow : Window
         this.Topmost = false;
 
         // 기본 크기로 복원
-        this.Width = currentViewMode == CaptureViewMode.Card ? 830 : 400;
+        this.Width = currentViewMode == CaptureViewMode.Card ? 885 : 455;
         this.Height = 692;
 
         // 사용자 요청: 모드 전환 시 또는 시작 시 항상 화면 정중앙에 배치
@@ -1197,7 +1197,7 @@ public partial class MainWindow : Window
             if (currentViewMode == CaptureViewMode.Card) return;
             currentViewMode = CaptureViewMode.Card;
             
-            this.Width = 845;
+            this.Width = 890;
             CaptureListPanel.ItemWidth = 210;
             CaptureListPanel.HorizontalAlignment = HorizontalAlignment.Left;
             if (EmptyStateActionPanel != null) EmptyStateActionPanel.Orientation = Orientation.Horizontal;
@@ -1210,7 +1210,7 @@ public partial class MainWindow : Window
             if (currentViewMode == CaptureViewMode.List) return;
             currentViewMode = CaptureViewMode.List;
             
-            this.Width = 415;
+            this.Width = 455;
             CaptureListPanel.ItemWidth = 210; 
             CaptureListPanel.HorizontalAlignment = HorizontalAlignment.Center;
             if (EmptyStateActionPanel != null) EmptyStateActionPanel.Orientation = Orientation.Vertical;
@@ -3541,6 +3541,9 @@ public partial class MainWindow : Window
 
         // 삭제 버튼 상태 업데이트 - 전체 삭제는 동영상 포함하여 지울 수 있어야 함
         DeleteAllButton.IsEnabled = hasItems;
+
+        // 로고 및 안내 버튼 가시성 업데이트
+        UpdateEmptyStateLogo();
     }
 
     private void UpdateCaptureCount()
@@ -5042,8 +5045,8 @@ public partial class MainWindow : Window
     {
         if (EmptyStatePanel != null)
         {
-            // 캡처 목록이 비어있으면 로고와 버튼 표시, 아니면 숨김
-            EmptyStatePanel.Visibility = captures.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+            // 캡처 목록(이미지, 동영상, MP3 등)이 비어있으면 로고와 버튼 표시, 아니면 숨김
+            EmptyStatePanel.Visibility = CaptureListPanel.Children.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
             // 카드 모드에서는 가로 배치, 리스트 모드에서는 세로 배치
             if (EmptyStateActionPanel != null)

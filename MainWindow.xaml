@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CatchCapture"
         mc:Ignorable="d"
-        Title="캐치 캡처" Height="692" Width="400" 
-        MinWidth="400" MinHeight="692"
+        Title="캐치 캡처" Height="692" Width="425" 
+        MinWidth="425" MinHeight="692"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None" AllowsTransparency="True" 
         Background="Transparent"
@@ -315,7 +315,7 @@
                 <!-- 메인 콘텐츠 영역 -->
                 <Grid Grid.Row="1">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="155" />
+                        <ColumnDefinition Width="160" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
