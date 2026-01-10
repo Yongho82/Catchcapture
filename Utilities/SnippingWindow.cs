@@ -846,18 +846,8 @@ namespace CatchCapture.Utilities
                         // 엣지 캡처 적용: 반지름이 0보다 크면 이미지를 둥글게 깎음
                         if (_cornerRadius > 0)
                         {
-                            var bitmap = BitmapSourceToBitmap(rtb);
-                            var rounded = EdgeCaptureHelper.GetRoundedBitmap(bitmap, _cornerRadius);
-                            if (rounded != null)
-                            {
-                                SelectedFrozenImage = BitmapToBitmapSource(rounded);
-                                rounded.Dispose();
-                            }
-                            else
-                            {
-                                SelectedFrozenImage = rtb;
-                            }
-                            bitmap.Dispose();
+                            // [Fix] GDI+(GetRoundedBitmap) 대신 품질이 더 좋은 WPF(CreateRoundedCapture) 방식을 동일하게 사용
+                            SelectedFrozenImage = EdgeCaptureHelper.CreateRoundedCapture(rtb, _cornerRadius);
                         }
                         else
                         {

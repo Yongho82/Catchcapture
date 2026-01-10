@@ -120,7 +120,7 @@ namespace CatchCapture.Utilities
                     dc.DrawRoundedRectangle(brush, null, new System.Windows.Rect(0, 0, width, height), actualRadius, actualRadius);
                 }
 
-                var rtb = new System.Windows.Media.Imaging.RenderTargetBitmap(width, height, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+                var rtb = new System.Windows.Media.Imaging.RenderTargetBitmap(width, height, source.DpiX, source.DpiY, System.Windows.Media.PixelFormats.Pbgra32);
                 rtb.Render(visual);
                 rtb.Freeze();
                 return rtb;
