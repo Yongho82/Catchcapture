@@ -72,5 +72,11 @@
                    MouseLeftButtonDown="SelectionHitTarget_MouseLeftButtonDown"
                    MouseMove="SelectionHitTarget_MouseMove"
                    MouseLeftButtonUp="SelectionHitTarget_MouseLeftButtonUp"/>
+
+        <!-- 크로스헤어 가이드 (새 영역 선택 시 표시) -->
+        <Line x:Name="CrosshairX" Stroke="#4361EE" StrokeThickness="1" StrokeDashArray="4 2" 
+              Visibility="Collapsed" IsHitTestVisible="False"/>
+        <Line x:Name="CrosshairY" Stroke="#4361EE" StrokeThickness="1" StrokeDashArray="4 2" 
+              Visibility="Collapsed" IsHitTestVisible="False"/>
     </Canvas>
 </Window>

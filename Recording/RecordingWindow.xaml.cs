@@ -92,6 +92,10 @@ namespace CatchCapture.Recording
     {
         try
         {
+            // 캡처에서 창 제외 (Windows 10 2004+)
+            var interop = new WindowInteropHelper(this);
+            SetWindowDisplayAffinity(interop.Handle, WDA_EXCLUDEFROMCAPTURE);
+
             // 먼저 주 모니터에 도구상자 배치
             var primaryScreen = System.Windows.Forms.Screen.PrimaryScreen;
             if (primaryScreen != null)
@@ -107,15 +111,7 @@ namespace CatchCapture.Recording
             // MP3 모드가 아닐 때만 오버레이 기준으로 위치 재조정
             if (_settings.Format != RecordingFormat.MP3 && _overlay != null && _overlay.IsVisible)
             {
-                var selectionArea = _overlay.SelectionArea;
-                // 오버레이가 이미 절대 좌표계(VirtualScreen) 상에 있으므로, 
-                // 툴박스의 위치는 오버레이의 시작점(_overlay.Left, Top) + 선택 영역의 상대 위치로 계산해야 함
-                this.Left = _overlay.Left + selectionArea.Left + (selectionArea.Width - this.Width) / 2;
-                this.Top = _overlay.Top + selectionArea.Top - this.Height - 10;
-                
-                // 화면 상단 경계보다 위로 올라가지 않도록 보정
-                if (this.Top < SystemParameters.VirtualScreenTop) 
-                    this.Top = _overlay.Top + selectionArea.Top + selectionArea.Height + 10;
+                UpdateToolboxPosition(_overlay.SelectionArea);
             }
             
             // 오버레이보다 위에 표시되도록 활성화
@@ -133,7 +129,12 @@ namespace CatchCapture.Recording
             System.Diagnostics.Debug.WriteLine($"RecordingWindow_Loaded error: {ex.Message}");
         }
     }
-        
+
+    [DllImport("user32.dll")]
+    private static extern uint SetWindowDisplayAffinity(IntPtr hwnd, uint dwAffinity);
+    private const uint WDA_NONE = 0x00000000;
+    private const uint WDA_EXCLUDEFROMCAPTURE = 0x00000011;
+
     /// <summary>
     /// 오버레이 표시
     /// </summary>
@@ -516,7 +517,15 @@ namespace CatchCapture.Recording
         private void AreaSelectButton_Click(object sender, RoutedEventArgs e)
         {
             if (_overlay == null) return;
-            _overlay.StartNewSelectionMode();
+            
+            if (_overlay.IsSelectingNewArea)
+            {
+                _overlay.CancelNewSelectionMode();
+            }
+            else
+            {
+                _overlay.StartNewSelectionMode();
+            }
         }
 
 
@@ -1207,14 +1216,35 @@ namespace CatchCapture.Recording
             // 도구상자가 도킹 상태가 아니고, 사용자가 수동으로 옮기지 않았을 때만 영역을 따라다님
             if (_isAttachedToOverlay && !_isDocked && _overlay != null)
             {
-                // 영역 위에 중앙 배치 (오버레이 절대 좌표 보정)
-                this.Left = _overlay.Left + area.Left + (area.Width - this.Width) / 2;
-                this.Top = _overlay.Top + area.Top - this.Height - 10;
-
-                // 화면 상단 경계보다 위로 올라가지 않도록 보정
-                if (this.Top < SystemParameters.VirtualScreenTop)
-                    this.Top = _overlay.Top + area.Top + area.Height + 10;
+                UpdateToolboxPosition(area);
             }
+        }
+
+        private void UpdateToolboxPosition(Rect area)
+        {
+            if (_overlay == null) return;
+
+            // 영역 위에 중앙 배치 (오버레이 절대 좌표 보정)
+            this.Left = _overlay.Left + area.Left + (area.Width - this.Width) / 2;
+            
+            double targetTop = _overlay.Top + area.Top - this.Height - 10;
+            double screenTop = SystemParameters.VirtualScreenTop;
+            double screenHeight = SystemParameters.VirtualScreenHeight;
+            double screenBottom = screenTop + screenHeight;
+
+            // 1. 화면 상단 벗어남 방지 -> 영역 내부 상단으로 이동
+            if (targetTop < screenTop)
+            {
+                targetTop = _overlay.Top + area.Top + 10;
+            }
+
+            // 2. 화면 하단 벗어남 방지 -> 화면 하단에 맟춤
+            if (targetTop + this.Height > screenBottom)
+            {
+                targetTop = screenBottom - this.Height - 10;
+            }
+
+            this.Top = targetTop;
         }
         
         #endregion

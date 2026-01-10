@@ -70,8 +70,16 @@ namespace CatchCapture.Recording
         
         #region 초기화
         
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern uint SetWindowDisplayAffinity(IntPtr hwnd, uint dwAffinity);
+        private const uint WDA_EXCLUDEFROMCAPTURE = 0x00000011;
+
         private void RecordingOverlay_Loaded(object sender, RoutedEventArgs e)
         {
+            // 캡처 제외 설정
+            var interop = new System.Windows.Interop.WindowInteropHelper(this);
+            SetWindowDisplayAffinity(interop.Handle, WDA_EXCLUDEFROMCAPTURE);
+
             // 모든 모니터를 커버하도록 설정 (VirtualScreen 사용)
             this.Left = SystemParameters.VirtualScreenLeft;
             this.Top = SystemParameters.VirtualScreenTop;
@@ -101,6 +109,153 @@ namespace CatchCapture.Recording
             
             UpdateVisuals();
             AreaChanged?.Invoke(this, _selectionArea);
+        }
+
+        // Helper method to show/hide handles
+        private void ShowHandles(bool show)
+        {
+             var visibility = show ? Visibility.Visible : Visibility.Collapsed;
+             if (HandleNW != null) HandleNW.Visibility = visibility;
+             if (HandleN != null) HandleN.Visibility = visibility;
+             if (HandleNE != null) HandleNE.Visibility = visibility;
+             if (HandleE != null) HandleE.Visibility = visibility;
+             if (HandleSE != null) HandleSE.Visibility = visibility;
+             if (HandleS != null) HandleS.Visibility = visibility;
+             if (HandleSW != null) HandleSW.Visibility = visibility;
+             if (HandleW != null) HandleW.Visibility = visibility;
+             if (SizeLabelBorder != null) SizeLabelBorder.Visibility = visibility;
+        }
+
+        // 영역 선택 모드 멤버 변수
+        private Rect _savedSelectionArea; 
+        private Point _newSelectionStart;
+        private bool _isSelectingNew = false;
+        
+        public bool IsSelectingNewArea => SelectionHitTarget != null && SelectionHitTarget.Visibility == Visibility.Visible;
+
+        private void SelectionHitTarget_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            _isSelectingNew = true;
+            _newSelectionStart = e.GetPosition(this);
+            SelectionHitTarget.CaptureMouse();
+            
+            // 초기 0 크기 설정
+            _selectionArea = new Rect(_newSelectionStart, new Size(0,0));
+            UpdateVisuals();
+            
+            // 크로스헤어 업데이트
+            if (CrosshairX != null && CrosshairY != null)
+            {
+                CrosshairX.X1 = 0; CrosshairX.X2 = ActualWidth;
+                CrosshairX.Y1 = _newSelectionStart.Y; CrosshairX.Y2 = _newSelectionStart.Y;
+                
+                CrosshairY.X1 = _newSelectionStart.X; CrosshairY.X2 = _newSelectionStart.X;
+                CrosshairY.Y1 = 0; CrosshairY.Y2 = ActualHeight;
+            }
+        }
+
+        public void StartNewSelectionMode()
+        {
+            if (SelectionHitTarget == null) return;
+
+            // 현재 영역 저장 (취소 시 복구용)
+            // 단, 현재 이미 유효한 크기라면 저장, 아니면 기본값 저장
+            if (_selectionArea.Width > 1 && _selectionArea.Height > 1)
+            {
+                _savedSelectionArea = _selectionArea;
+            }
+            else
+            {
+                 var screen = SystemParameters.WorkArea;
+                 _savedSelectionArea = new Rect((screen.Width - 800) / 2, (screen.Height - 600) / 2, 800, 600);
+            }
+
+            // 현재 선택 영역 초기화 (전체 화면이 어두워짐)
+            _selectionArea = new Rect(0, 0, 0, 0);
+            UpdateVisuals();
+
+            // 핸들 및 라벨 숨기기
+            ShowHandles(false);
+            
+            // 히트 타겟 활성화
+            SelectionHitTarget.Visibility = Visibility.Visible;
+            
+            // 크로스헤어 활성화
+            if (CrosshairX != null) CrosshairX.Visibility = Visibility.Visible;
+            if (CrosshairY != null) CrosshairY.Visibility = Visibility.Visible;
+        }
+
+        public void CancelNewSelectionMode()
+        {
+            if (SelectionHitTarget == null) return;
+
+            // 영역 복구
+            SelectionArea = _savedSelectionArea;
+
+            // 핸들 다시 표시
+            ShowHandles(true);
+            SelectionHitTarget.Visibility = Visibility.Collapsed;
+            
+            // 크로스헤어 숨김
+            if (CrosshairX != null) CrosshairX.Visibility = Visibility.Collapsed;
+            if (CrosshairY != null) CrosshairY.Visibility = Visibility.Collapsed;
+
+            // 드래그 상태 초기화
+            _isSelectingNew = false;
+            SelectionHitTarget.ReleaseMouseCapture();
+        }
+
+        // ... existing code ...
+
+        private void SelectionHitTarget_MouseMove(object sender, MouseEventArgs e)
+        {
+            var current = e.GetPosition(this);
+            
+            // 크로스헤어 업데이트
+            if (CrosshairX != null && CrosshairY != null)
+            {
+                CrosshairX.X1 = 0; CrosshairX.X2 = ActualWidth;
+                CrosshairX.Y1 = current.Y; CrosshairX.Y2 = current.Y;
+                
+                CrosshairY.X1 = current.X; CrosshairY.X2 = current.X;
+                CrosshairY.Y1 = 0; CrosshairY.Y2 = ActualHeight;
+            }
+
+            if (!_isSelectingNew) return;
+            
+            double x = Math.Min(_newSelectionStart.X, current.X);
+            double y = Math.Min(_newSelectionStart.Y, current.Y);
+            double w = Math.Abs(_newSelectionStart.X - current.X);
+            double h = Math.Abs(_newSelectionStart.Y - current.Y);
+            
+            _selectionArea = new Rect(x, y, w, h);
+            UpdateVisuals();
+        }
+
+        private void SelectionHitTarget_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (_isSelectingNew)
+            {
+                _isSelectingNew = false;
+                SelectionHitTarget.ReleaseMouseCapture();
+                SelectionHitTarget.Visibility = Visibility.Collapsed;
+                
+                // 크로스헤어 숨김
+                if (CrosshairX != null) CrosshairX.Visibility = Visibility.Collapsed;
+                if (CrosshairY != null) CrosshairY.Visibility = Visibility.Collapsed;
+                
+                // 크기가 너무 작으면 기본 크기로 복원 (실수 방지)
+                if (_selectionArea.Width < 50 || _selectionArea.Height < 50)
+                {
+                    var screen = SystemParameters.WorkArea;
+                    _selectionArea = new Rect((screen.Width - 800) / 2, (screen.Height - 600) / 2, 800, 600);
+                    UpdateVisuals();
+                }
+
+                // 핸들 다시 표시
+                ShowHandles(true);
+                AreaChanged?.Invoke(this, _selectionArea);
+            }
         }
         
         private void RecordingOverlay_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -973,90 +1128,8 @@ namespace CatchCapture.Recording
 
         #endregion
         
-        #region 새 영역 선택
 
-        public void StartNewSelectionMode()
-        {
-            if (SelectionHitTarget == null) return;
 
-            // 현재 선택 영역 초기화 (전체 화면이 어두워짐)
-            _selectionArea = new Rect(0, 0, 0, 0);
-            UpdateVisuals();
 
-            // 핸들 및 라벨 숨기기
-            ShowHandles(false);
-            
-            // 히트 타겟 활성화
-            SelectionHitTarget.Visibility = Visibility.Visible;
-            
-            // 선택 모드 진입 시 마우스 캡처는 하지 않음 (클릭 대기)
-        }
-
-        private void ShowHandles(bool show)
-        {
-             var visibility = show ? Visibility.Visible : Visibility.Collapsed;
-             if (HandleNW != null) HandleNW.Visibility = visibility;
-             if (HandleN != null) HandleN.Visibility = visibility;
-             if (HandleNE != null) HandleNE.Visibility = visibility;
-             if (HandleE != null) HandleE.Visibility = visibility;
-             if (HandleSE != null) HandleSE.Visibility = visibility;
-             if (HandleS != null) HandleS.Visibility = visibility;
-             if (HandleSW != null) HandleSW.Visibility = visibility;
-             if (HandleW != null) HandleW.Visibility = visibility;
-             if (SizeLabelBorder != null) SizeLabelBorder.Visibility = visibility;
-        }
-
-        private Point _newSelectionStart;
-        private bool _isSelectingNew = false;
-
-        private void SelectionHitTarget_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            _isSelectingNew = true;
-            _newSelectionStart = e.GetPosition(this);
-            SelectionHitTarget.CaptureMouse();
-            
-            // 초기 0 크기 설정
-            _selectionArea = new Rect(_newSelectionStart, new Size(0,0));
-            UpdateVisuals();
-        }
-
-        private void SelectionHitTarget_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (!_isSelectingNew) return;
-            
-            var current = e.GetPosition(this);
-            
-            double x = Math.Min(_newSelectionStart.X, current.X);
-            double y = Math.Min(_newSelectionStart.Y, current.Y);
-            double w = Math.Abs(_newSelectionStart.X - current.X);
-            double h = Math.Abs(_newSelectionStart.Y - current.Y);
-            
-            _selectionArea = new Rect(x, y, w, h);
-            UpdateVisuals();
-        }
-
-        private void SelectionHitTarget_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            if (_isSelectingNew)
-            {
-                _isSelectingNew = false;
-                SelectionHitTarget.ReleaseMouseCapture();
-                SelectionHitTarget.Visibility = Visibility.Collapsed;
-                
-                // 크기가 너무 작으면 기본 크기로 복원 (실수 방지)
-                if (_selectionArea.Width < 50 || _selectionArea.Height < 50)
-                {
-                    var screen = SystemParameters.WorkArea;
-                    _selectionArea = new Rect((screen.Width - 800) / 2, (screen.Height - 600) / 2, 800, 600);
-                    UpdateVisuals();
-                }
-
-                // 핸들 다시 표시
-                ShowHandles(true);
-                AreaChanged?.Invoke(this, _selectionArea);
-            }
-        }
-        
-        #endregion
     }
 }
