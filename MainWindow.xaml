@@ -436,40 +436,101 @@
                                 </Border>
                             </Grid>
 
-                            <!-- 지연 캡처 버튼 (우측 서브메뉴) -->
-                            <Button x:Name="DelayCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="DelayCaptureButton_Click">
-                                <Button.ContextMenu>
-                                    <ContextMenu Style="{StaticResource ModernContextMenu}" Placement="Right" PlacementTarget="{Binding ElementName=DelayCaptureButton}">
-                                        <MenuItem x:Name="DelayNoneMenu" Style="{StaticResource ModernMenuItem}" Header="지연없음" Tag="0" Click="DelayMenuItem_Click">
-                                            <MenuItem.Icon>
-                                                <TextBlock Text="0" FontWeight="Bold" Opacity="0.5" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <MenuItem x:Name="Delay3Menu" Style="{StaticResource ModernMenuItem}" Header="3초" Tag="3" Click="DelayMenuItem_Click">
-                                            <MenuItem.Icon>
-                                                <TextBlock Text="3" FontWeight="Bold" Foreground="#007AFF" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <MenuItem x:Name="Delay5Menu" Style="{StaticResource ModernMenuItem}" Header="5초" Tag="5" Click="DelayMenuItem_Click">
-                                            <MenuItem.Icon>
-                                                <TextBlock Text="5" FontWeight="Bold" Foreground="#007AFF" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <MenuItem x:Name="Delay10Menu" Style="{StaticResource ModernMenuItem}" Header="10초" Tag="10" Click="DelayMenuItem_Click">
-                                            <MenuItem.Icon>
-                                                <TextBlock Text="10" FontWeight="Bold" Foreground="#34C759" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                    </ContextMenu>
-                                </Button.ContextMenu>
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="/icons/clock.png" Width="16" Height="16" Margin="0,0,5,0"
-                                           RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    <Viewbox Width="100" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left">
-                                        <TextBlock x:Name="DelayCaptureButtonText" Text="지연 캡처" FontSize="12"/>
-                                    </Viewbox>
-                                </StackPanel>
-                            </Button>
+                            <!-- 지연 캡처 버튼 (이모지 선택 버튼 포함) -->
+                            <Grid x:Name="DelayCaptureGrid" Margin="5,3,5,3">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <!-- 메인 캡처 버튼 -->
+                                <Button x:Name="DelayCaptureButton" Grid.Column="0" Height="35"
+                                        Background="{DynamicResource ThemeSidebarButtonBackground}"
+                                        Foreground="{DynamicResource ThemeForeground}"
+                                        BorderThickness="1,1,0,1"
+                                        BorderBrush="{DynamicResource ThemeSidebarButtonBorder}"
+                                        Cursor="Hand" Focusable="False"
+                                        Click="DelayCaptureButton_Click">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                                    BorderBrush="{TemplateBinding BorderBrush}" 
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    CornerRadius="6,0,0,6">
+                                                <ContentPresenter HorizontalAlignment="Left" Margin="10,0,0,0"
+                                                                  VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}" TargetName="border"/>
+                                                </Trigger>
+                                                <Trigger Property="IsPressed" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource ThemeSidebarButtonPressedBackground}" TargetName="border"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="/icons/clock.png" Width="16" Height="16" Margin="0,0,5,0" 
+                                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                                        <Viewbox Width="70" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left">
+                                            <TextBlock x:Name="DelayCaptureButtonText" Text="지연 캡처" FontSize="12"/>
+                                        </Viewbox>
+                                    </StackPanel>
+                                </Button>
+                                
+                                <!-- 지연 시간 선택 버튼 (오른쪽 끝) -->
+                                <Border x:Name="DelaySelectorBorder" Grid.Column="1" 
+                                        Width="28" Height="35"
+                                        BorderBrush="{DynamicResource ThemeSidebarButtonBorder}"
+                                        BorderThickness="0,1,1,1"
+                                        CornerRadius="0,6,6,0"
+                                        Cursor="Hand"
+                                        MouseLeftButtonDown="DelaySelector_Click">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="{DynamicResource ThemeSidebarButtonBackground}"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <Border.ContextMenu>
+                                        <ContextMenu x:Name="DelayContextMenu" Style="{StaticResource ModernContextMenu}" Placement="Right">
+                                            <MenuItem x:Name="DelayNoneMenu" Header="지연 없음" Tag="0" Style="{StaticResource ModernMenuItem}" Click="DelayMenuItem_Click">
+                                                <MenuItem.Icon>
+                                                    <TextBlock Text="0" FontWeight="Bold" Opacity="0.5" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem x:Name="Delay3Menu" Header="3초" Tag="3" Style="{StaticResource ModernMenuItem}" Click="DelayMenuItem_Click">
+                                                <MenuItem.Icon>
+                                                    <TextBlock Text="3" FontWeight="Bold" Foreground="#007AFF" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem x:Name="Delay5Menu" Header="5초" Tag="5" Style="{StaticResource ModernMenuItem}" Click="DelayMenuItem_Click">
+                                                <MenuItem.Icon>
+                                                    <TextBlock Text="5" FontWeight="Bold" Foreground="#007AFF" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem x:Name="Delay10Menu" Header="10초" Tag="10" Style="{StaticResource ModernMenuItem}" Click="DelayMenuItem_Click">
+                                                <MenuItem.Icon>
+                                                    <TextBlock Text="10" FontWeight="Bold" Foreground="#34C759" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                        </ContextMenu>
+                                    </Border.ContextMenu>
+                                    <TextBlock x:Name="DelayValueText" 
+                                               Text="3" 
+                                               FontWeight="Bold"
+                                               FontSize="11"
+                                               Foreground="{DynamicResource ThemeForeground}"
+                                               HorizontalAlignment="Center" 
+                                               VerticalAlignment="Center"
+                                               ToolTip="클릭하여 지연 시간 변경"/>
+                                </Border>
+                            </Grid>
                             
                             <!-- 실시간 캡처 버튼 -->
                             <Button x:Name="RealTimeCaptureButton" Style="{StaticResource SidebarButtonStyle}" Click="RealTimeCaptureButton_Click">

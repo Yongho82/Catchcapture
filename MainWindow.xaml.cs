@@ -94,6 +94,7 @@ public partial class MainWindow : Window
     private const int HOTKEY_ID_OPENEDITOR = 9014;
     private const int HOTKEY_ID_OPENNOTE = 9015;
     private const int HOTKEY_ID_EDGECAPTURE = 9016;
+    private const int HOTKEY_ID_DELAY = 9017;
 
     [DllImport("user32.dll")]
     private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
@@ -153,6 +154,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         LocalizationManager.LanguageChanged += MainWindow_LanguageChanged;
         settings = Settings.Load();
+        captureDelaySeconds = settings.DelayCaptureSeconds;
 
         Settings.SettingsChanged += OnSettingsChanged;
 
@@ -201,6 +203,9 @@ public partial class MainWindow : Window
 
             // 엣지 캡처 반경 이모지 초기화
             UpdateEdgeRadiusEmoji();
+
+            // 지연 캡처 UI 초기화
+            UpdateDelayCaptureUI();
 
             // 언어 변경 즉시 반영
             LocalizationManager.LanguageChanged += MainWindow_LanguageChanged;
@@ -339,7 +344,7 @@ public partial class MainWindow : Window
         var buttonMap = new Dictionary<string, UIElement>
         {
             { "AreaCapture", AreaCaptureButton },
-            { "DelayCapture", DelayCaptureButton },
+            { "DelayCapture", DelayCaptureGrid },
             { "RealTimeCapture", RealTimeCaptureButton },
             { "MultiCapture", MultiCaptureButton },
             { "FullScreen", FullScreenCaptureButton },
@@ -1529,34 +1534,10 @@ public partial class MainWindow : Window
 
     private void DelayCaptureButton_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is FrameworkElement fe)
-        {
-            if (fe.ContextMenu != null)
-            {
-                fe.ContextMenu.PlacementTarget = fe;
-                fe.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Right;
-                fe.ContextMenu.IsOpen = true;
-            }
-        }
-    }
-
-    private void DelayMenuItem_Click(object sender, RoutedEventArgs e)
-    {
-        if (sender is MenuItem mi && mi.Tag is string tagStr && int.TryParse(tagStr, out int seconds))
-        {
-            captureDelaySeconds = seconds;
-        }
-        else if (sender is MenuItem mi2 && mi2.Tag is int tagInt)
-        {
-            captureDelaySeconds = tagInt;
-        }
-        else
-        {
-            captureDelaySeconds = 0;
-        }
-
-        // 실시간 카운트다운 표시 후 캡처 시작
-        if (captureDelaySeconds <= 0)
+        // 저장된 지연 시간으로 바로 캡처 시작 (컨텍스트 메뉴 없음)
+        int delay = settings.DelayCaptureSeconds;
+        
+        if (delay <= 0)
         {
             StartAreaCapture();
             return;
@@ -1567,11 +1548,52 @@ public partial class MainWindow : Window
             Owner = this
         };
         countdown.Show();
-        countdown.StartCountdown(captureDelaySeconds, () =>
+        countdown.StartCountdown(delay, () =>
         {
             // UI 스레드에서 실행
             Dispatcher.Invoke(StartAreaCapture);
         });
+    }
+
+    private void DelaySelector_Click(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is FrameworkElement fe && fe.ContextMenu != null)
+        {
+            fe.ContextMenu.PlacementTarget = fe;
+            fe.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Right;
+            fe.ContextMenu.IsOpen = true;
+            e.Handled = true;
+        }
+    }
+
+    private void UpdateDelayCaptureUI()
+    {
+        var delayText = this.FindName("DelayValueText") as TextBlock;
+        if (delayText != null)
+        {
+            delayText.Text = settings.DelayCaptureSeconds.ToString();
+            delayText.ToolTip = settings.DelayCaptureSeconds == 0 ? "현재: 지연 없음\n(클릭하여 지연 시간 변경)" : $"현재: {settings.DelayCaptureSeconds}초\n(클릭하여 지연 시간 변경)";
+        }
+    }
+
+    private void DelayMenuItem_Click(object sender, RoutedEventArgs e)
+    {
+        int seconds = 0;
+        if (sender is MenuItem mi && mi.Tag is string tagStr && int.TryParse(tagStr, out int s))
+        {
+            seconds = s;
+        }
+        else if (sender is MenuItem mi2 && mi2.Tag is int tagInt)
+        {
+            seconds = tagInt;
+        }
+
+        settings.DelayCaptureSeconds = seconds;
+        captureDelaySeconds = seconds;
+        Settings.Save(settings);
+        
+        // UI 업데이트
+        UpdateDelayCaptureUI();
     }
 
     private void EdgeCaptureButton_Click(object sender, RoutedEventArgs e)
@@ -4100,6 +4122,7 @@ public partial class MainWindow : Window
             UnregisterHotKey(hwnd, HOTKEY_ID_OPENEDITOR);
             UnregisterHotKey(hwnd, HOTKEY_ID_OPENNOTE);
             UnregisterHotKey(hwnd, HOTKEY_ID_EDGECAPTURE);
+            UnregisterHotKey(hwnd, HOTKEY_ID_DELAY);
 
             // 설정에서 단축키 가져오기
             if (settings.Hotkeys.RegionCapture.Enabled)
@@ -4160,6 +4183,12 @@ public partial class MainWindow : Window
             {
                 var (modifiers, key) = ConvertToggleHotkey(settings.Hotkeys.EdgeCapture);
                 RegisterHotKey(hwnd, HOTKEY_ID_EDGECAPTURE, modifiers, key);
+            }
+
+            if (settings.Hotkeys.DelayCapture.Enabled)
+            {
+                var (modifiers, key) = ConvertToggleHotkey(settings.Hotkeys.DelayCapture);
+                RegisterHotKey(hwnd, HOTKEY_ID_DELAY, modifiers, key);
             }
         }
         catch (Exception ex)
@@ -4378,6 +4407,11 @@ public partial class MainWindow : Window
 
                 case HOTKEY_ID_EDGECAPTURE:
                     Dispatcher.Invoke(() => StartAreaCaptureAsync(settings.EdgeCaptureRadius));
+                    handled = true;
+                    break;
+
+                case HOTKEY_ID_DELAY:
+                    Dispatcher.Invoke(() => DelayCaptureButton_Click(this, new RoutedEventArgs()));
                     handled = true;
                     break;
             }
@@ -4787,10 +4821,10 @@ public partial class MainWindow : Window
             StartAreaCapture();
             return true;
         }
-        // 지연 캡처: 기본 3초 바로 실행
+        // 지연 캡처: 설정값만큼 지연 후 실행
         if (MatchHotkey(hk.DelayCapture, e))
         {
-            StartDelayedAreaCaptureSeconds(3);
+            StartDelayedAreaCaptureSeconds(settings.DelayCaptureSeconds);
             return true;
         }
         // 전체화면
@@ -4942,15 +4976,12 @@ public partial class MainWindow : Window
 
     #region Trigger Methods for TrayModeWindow
 
-    public void TriggerDelayCapture(int seconds = 0)
+    public void TriggerDelayCapture(int seconds = -1)
     {
-        if (seconds > 0)
-        {
-            captureDelaySeconds = seconds;
-        }
+        int delay = (seconds >= 0) ? seconds : settings.DelayCaptureSeconds;
 
         // 실시간 카운트다운 표시 후 캡처 시작
-        if (captureDelaySeconds <= 0)
+        if (delay <= 0)
         {
             StartAreaCapture();
             return;
@@ -4962,7 +4993,7 @@ public partial class MainWindow : Window
             Topmost = true
         };
         countdown.Show();
-        countdown.StartCountdown(captureDelaySeconds, () =>
+        countdown.StartCountdown(delay, () =>
         {
             // UI 스레드에서 실행
             Dispatcher.Invoke(StartAreaCapture);
@@ -5300,6 +5331,9 @@ public partial class MainWindow : Window
             SetButtonText(BigHistoryButton, LocalizationManager.GetString("History"));
             BigHistoryButton.ToolTip = LocalizationManager.GetString("OpenHistory");
         }
+
+        // Delay Capture UI Update
+        UpdateDelayCaptureUI();
     }
     private void UpdateTrayMenuTexts()
     {
@@ -5352,7 +5386,7 @@ public partial class MainWindow : Window
                             StartAreaCapture();
                             break;
                         case "지연 캡처":
-                            StartDelayedAreaCaptureSeconds(3);
+                            StartDelayedAreaCaptureSeconds(settings.DelayCaptureSeconds);
                             break;
                         case "실시간 캡처":
                             StartRealTimeCaptureMode();

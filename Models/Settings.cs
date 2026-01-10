@@ -37,6 +37,7 @@ namespace CatchCapture.Models
         public string CaptureLineStyle { get; set; } = "Dash";          // "Solid", "Dash", "Dot", "DashDot"
         public bool UseOverlayCaptureMode { get; set; } = false;         // ★ true: 오버레이 캡처 (동영상 안멈춤), false: 정지 캡처
         public int EdgeCaptureRadius { get; set; } = 50;                 // 엣지 캡처 둥글기 강도 (기본: 50px)
+        public int DelayCaptureSeconds { get; set; } = 3;                // 지연 캡처 대기 시간 (기본: 3초)
         
         // Recording Settings
         public RecordingSettings Recording { get; set; } = new RecordingSettings();
