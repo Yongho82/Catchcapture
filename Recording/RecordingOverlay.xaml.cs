@@ -103,10 +103,17 @@ namespace CatchCapture.Recording
             var primaryScreen = System.Windows.Forms.Screen.PrimaryScreen?.Bounds 
                 ?? new System.Drawing.Rectangle(0, 0, 1920, 1080);
             
-            double centerX = (primaryScreen.X - this.Left) + (primaryScreen.Width - 800) / 2;
-            double centerY = (primaryScreen.Y - this.Top) + (primaryScreen.Height - 600) / 2;
-
-            _selectionArea = new Rect(centerX, centerY, 800, 600);
+            // 물리적 좌표(pixels) -> 논리적 좌표(units) 변환
+            Point logicalTopLeft = this.PointFromScreen(new Point(primaryScreen.X, primaryScreen.Y));
+            Point logicalBottomRight = this.PointFromScreen(new Point(primaryScreen.Right, primaryScreen.Bottom));
+            
+            double w = logicalBottomRight.X - logicalTopLeft.X;
+            double h = logicalBottomRight.Y - logicalTopLeft.Y;
+            
+            _selectionArea = new Rect(
+                logicalTopLeft.X + (w - 800) / 2,
+                logicalTopLeft.Y + (h - 600) / 2,
+                800, 600);
             
             // Windows 11 호환성: 명시적으로 Topmost와 Activate 호출
             this.Topmost = true;

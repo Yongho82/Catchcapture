@@ -185,14 +185,19 @@ namespace CatchCapture.Recording
             {
                 var workArea = primaryScreen.WorkingArea;
                 
-                // 오버레이를 주 모니터 중앙에 배치 (오버레이의 원점(_overlay.Left)을 기준으로 함)
+                // 물리적 좌표(pixels) -> 논리적 좌표(units) 변환
+                Point logicalTopLeft = _overlay.PointFromScreen(new Point(workArea.X, workArea.Y));
+                Point logicalBottomRight = _overlay.PointFromScreen(new Point(workArea.Right, workArea.Bottom));
+                
+                double w = logicalBottomRight.X - logicalTopLeft.X;
+                double h = logicalBottomRight.Y - logicalTopLeft.Y;
+                
                 double overlayWidth = 800;
                 double overlayHeight = 600;
                 
-                // 상대 좌표 = 절대 좌표(Primary) - 오버레이 시작점(VirtualScreenLeft)
                 var selectionArea = new Rect(
-                    (workArea.X - _overlay.Left) + (workArea.Width - overlayWidth) / 2,
-                    (workArea.Y - _overlay.Top) + (workArea.Height - overlayHeight) / 2,
+                    logicalTopLeft.X + (w - overlayWidth) / 2,
+                    logicalTopLeft.Y + (h - overlayHeight) / 2,
                     overlayWidth,
                     overlayHeight
                 );
@@ -620,8 +625,11 @@ namespace CatchCapture.Recording
                 var toolbarRect = new Rect(this.Left, this.Top, this.Width, this.Height);
                 if (toolbarRect.Contains(new System.Windows.Point(mousePt.X, mousePt.Y))) return;
 
-                // 오버레이 영역 업데이트
-                _overlay.SelectionArea = new Rect(rect.Left, rect.Top, width, height);
+                // 물리적 좌표(pixels) -> 논리적 좌표(units) 변환
+                Point logicalTopLeft = _overlay.PointFromScreen(new Point(rect.Left, rect.Top));
+                Point logicalBottomRight = _overlay.PointFromScreen(new Point(rect.Right, rect.Bottom));
+                
+                _overlay.SelectionArea = new Rect(logicalTopLeft, logicalBottomRight);
             }
             catch { /* 실패 시 무시 */ }
         }
@@ -652,7 +660,12 @@ namespace CatchCapture.Recording
                 var screen = System.Windows.Forms.Screen.FromPoint(mousePt);
                 var bounds = screen.Bounds;
                 
-                _overlay.SelectionArea = new Rect(bounds.X, bounds.Y, bounds.Width, bounds.Height);
+                // 물리적 좌표(pixels) -> 논리적 좌표(units) 변환
+                // _overlay를 기준으로 좌표를 가져와야 하므로 PointFromScreen 사용
+                Point logicalTopLeft = _overlay.PointFromScreen(new Point(bounds.X, bounds.Y));
+                Point logicalBottomRight = _overlay.PointFromScreen(new Point(bounds.Right, bounds.Bottom));
+                
+                _overlay.SelectionArea = new Rect(logicalTopLeft, logicalBottomRight);
             }
         }
         
@@ -1035,15 +1048,33 @@ namespace CatchCapture.Recording
                 _settings.LastAreaLeft, _settings.LastAreaTop,
                 _settings.LastAreaWidth, _settings.LastAreaHeight);
 
-            // 좌표 변환 없이 ScreenCaptureUtility와 동일한 방식 사용
-            // SelectionArea는 이미 VirtualScreen 기준의 좌표이므로, Int32Rect로만 변환
-            // (ScreenCaptureUtility.CaptureArea가 이 방식으로 성공했으므로 동일하게 적용)
-            Int32Rect captureRect = new Int32Rect(
-                (int)captureArea.X,
-                (int)captureArea.Y,
-                (int)captureArea.Width,
-                (int)captureArea.Height
-            );
+            // [중요] WPF 논리 좌표를 스크린의 물리적 픽셀 좌표로 변환
+            // 다중 모니터 및 High DPI 환경에서 GDI+ CopyFromScreen은 물리적 좌표가 필요합니다.
+            // PointToScreen은 윈도우의 위치(VirtualScreenLeft 등)와 DPI 배율을 모두 계산에 포함합니다.
+            Int32Rect captureRect;
+            if (_overlay != null)
+            {
+                // UI 스레드에서 안전하게 좌표 변환
+                Point screenTopLeft = _overlay.PointToScreen(new Point(captureArea.X, captureArea.Y));
+                Point screenBottomRight = _overlay.PointToScreen(new Point(captureArea.Right, captureArea.Bottom));
+
+                captureRect = new Int32Rect(
+                    (int)Math.Round(screenTopLeft.X),
+                    (int)Math.Round(screenTopLeft.Y),
+                    (int)Math.Round(screenBottomRight.X - screenTopLeft.X),
+                    (int)Math.Round(screenBottomRight.Y - screenTopLeft.Y)
+                );
+            }
+            else
+            {
+                // 폴백 (오버레이가 없을 경우)
+                captureRect = new Int32Rect(
+                    (int)captureArea.X,
+                    (int)captureArea.Y,
+                    (int)captureArea.Width,
+                    (int)captureArea.Height
+                );
+            }
 
             _recorder.StartRecording(captureRect);
 
