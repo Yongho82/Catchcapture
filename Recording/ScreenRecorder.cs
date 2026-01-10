@@ -707,11 +707,41 @@ namespace CatchCapture.Recording
             
             try
             {
+                // 화질별 FFmpeg GIF 변환 가변 설정 (SaveAsGifAsync와 동일 로직)
+                string scaleStr = "iw";
+                string fpsStr = "15"; // 기본 15fps
+                string paletteGenOpt = ""; 
+                string paletteUseOpt = "";
+
+                switch (_settings.Quality)
+                {
+                    case RecordingQuality.High:
+                        scaleStr = "iw"; // 100%
+                        fpsStr = Math.Min(_settings.FrameRate, 30).ToString();
+                        paletteGenOpt = "stats_mode=diff"; // 움직임 최적화
+                        paletteUseOpt = "dither=sierra2_4a"; // 고품질 디더링
+                        break;
+                        
+                    case RecordingQuality.Medium:
+                        scaleStr = "iw"; // 100% (유저 요청: 크기 축소 안함)
+                        fpsStr = Math.Min(_settings.FrameRate, 12).ToString();
+                        paletteGenOpt = "max_colors=128:stats_mode=diff"; // 128색
+                        paletteUseOpt = "dither=bayer:bayer_scale=3"; // 패턴 디더링
+                        break;
+                        
+                    case RecordingQuality.Low:
+                        scaleStr = "iw"; // 100% (유저 요청: 크기 축소 안함)
+                        fpsStr = "8"; // 8fps로 하향
+                        paletteGenOpt = "max_colors=64:stats_mode=diff"; // 64색
+                        paletteUseOpt = "dither=none"; // 디더링 없음
+                        break;
+                }
+
                 // 팔레트 생성
                 var paletteProcess = Process.Start(new ProcessStartInfo
                 {
                     FileName = ffmpegPath,
-                    Arguments = $"-y -i \"{videoPath}\" -vf \"fps=15,palettegen\" \"{paletteTemp}\"",
+                    Arguments = $"-y -i \"{videoPath}\" -vf \"fps={fpsStr},scale={scaleStr}:-1:flags=lanczos,palettegen={paletteGenOpt}\" \"{paletteTemp}\"",
                     UseShellExecute = false,
                     CreateNoWindow = true
                 });
@@ -721,7 +751,7 @@ namespace CatchCapture.Recording
                 var gifProcess = Process.Start(new ProcessStartInfo
                 {
                     FileName = ffmpegPath,
-                    Arguments = $"-y -i \"{videoPath}\" -i \"{paletteTemp}\" -lavfi \"fps=15 [x]; [x][1:v] paletteuse\" \"{gifPath}\"",
+                    Arguments = $"-y -i \"{videoPath}\" -i \"{paletteTemp}\" -lavfi \"fps={fpsStr},scale={scaleStr}:-1:flags=lanczos [x]; [x][1:v] paletteuse={paletteUseOpt}\" \"{gifPath}\"",
                     UseShellExecute = false,
                     CreateNoWindow = true
                 });
@@ -1108,17 +1138,17 @@ namespace CatchCapture.Recording
                                 break;
                                 
                             case RecordingQuality.Medium:
-                                scaleStr = "iw*0.8"; // 80%
-                                fpsStr = Math.Min(_settings.FrameRate, 15).ToString();
+                                scaleStr = "iw"; // 100% (유저 요청: 크기 축소 안함)
+                                fpsStr = Math.Min(_settings.FrameRate, 12).ToString(); // 15 -> 12fps로 소폭 하향
                                 paletteGenOpt = "max_colors=128:stats_mode=diff"; // 128색
-                                paletteUseOpt = "dither=bayer:bayer_scale=3"; // 패턴 디더링 (용량 절약)
+                                paletteUseOpt = "dither=bayer:bayer_scale=3"; // 패턴 디더링
                                 break;
                                 
                             case RecordingQuality.Low:
-                                scaleStr = "iw*0.6"; // 60%
-                                fpsStr = "10"; // 10fps 고정
+                                scaleStr = "iw"; // 100% (유저 요청: 크기 축소 안함)
+                                fpsStr = "8"; // 10 -> 8fps로 하향
                                 paletteGenOpt = "max_colors=64:stats_mode=diff"; // 64색
-                                paletteUseOpt = "dither=none"; // 디더링 없음 (가장 깔끔, 등고선 발생 가능하지만 용량/속도 최강)
+                                paletteUseOpt = "dither=none"; // 디더링 없음
                                 break;
                         }
 
@@ -1195,9 +1225,9 @@ namespace CatchCapture.Recording
                     double scale = _settings.Quality switch
                     {
                         RecordingQuality.High => 1.0,      // 원본
-                        RecordingQuality.Medium => 0.8,    // 80%
-                        RecordingQuality.Low => 0.6,       // 60%
-                        _ => 0.8
+                        RecordingQuality.Medium => 1.0,    // 원본 (축소 제거)
+                        RecordingQuality.Low => 1.0,       // 원본 (축소 제거)
+                        _ => 1.0
                     };
                     
                     if (scale < 0.99)

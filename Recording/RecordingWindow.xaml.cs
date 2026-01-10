@@ -1216,31 +1216,33 @@ namespace CatchCapture.Recording
         if (RbFormatGif != null) RbFormatGif.IsChecked = _settings.Format == RecordingFormat.GIF;
         if (RbFormatMp3 != null) RbFormatMp3.IsChecked = _settings.Format == RecordingFormat.MP3;
         
-        // MP3 모드일 때 비디오 관련 버튼 비활성화
-        bool isVideoMode = _settings.Format != RecordingFormat.MP3;
+        bool isGifMode = _settings.Format == RecordingFormat.GIF;
+        bool isMp3Mode = _settings.Format == RecordingFormat.MP3;
+        bool isVideoMode = !isMp3Mode; // MP4, GIF는 비디오 모드 (화면 필요)
+
+        // 1. 비디오 관련 버튼 제어
         if (QualityButton != null) QualityButton.IsEnabled = isVideoMode;
-        if (FpsButton != null) FpsButton.IsEnabled = isVideoMode;
+        if (FpsButton != null) FpsButton.IsEnabled = isVideoMode && !isGifMode; // GIF는 내부 정책 사용
         if (MouseEffectToggle != null) MouseEffectToggle.IsEnabled = isVideoMode;
         if (AreaSelectButton != null) AreaSelectButton.IsEnabled = isVideoMode;
         if (AutoSnapButton != null) AutoSnapButton.IsEnabled = isVideoMode;
         if (FullScreenButton != null) FullScreenButton.IsEnabled = isVideoMode;
         if (DrawingButton != null) DrawingButton.IsEnabled = isVideoMode;
         if (AreaSizeText != null) AreaSizeText.Visibility = isVideoMode ? Visibility.Visible : Visibility.Collapsed;
-        
-        // 오디오 상태 (아이콘 업데이트)
-        // 시스템 오디오
-        // 시스템 오디오
+
+        // 2. 오디오 관련 버튼 제어 (GIF는 오디오 불가, MP3는 오디오 전용)
+        bool canRecordAudio = !isGifMode;
         if (SystemAudioButton != null)
         {
+            SystemAudioButton.IsEnabled = canRecordAudio && !IsRecording;
             SystemAudioButton.IsChecked = _settings.RecordAudio;
             SystemAudioOffIcon.Visibility = _settings.RecordAudio ? Visibility.Collapsed : Visibility.Visible;
             SystemAudioOnIcon.Visibility = _settings.RecordAudio ? Visibility.Visible : Visibility.Collapsed;
         }
         
-        // 마이크
-        // 마이크
         if (MicButton != null)
         {
+            MicButton.IsEnabled = canRecordAudio && !IsRecording;
             MicButton.IsChecked = _settings.RecordMic;
             MicOffIcon.Visibility = _settings.RecordMic ? Visibility.Collapsed : Visibility.Visible;
             MicSlash.Visibility = _settings.RecordMic ? Visibility.Collapsed : Visibility.Visible;
