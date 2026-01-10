@@ -163,13 +163,9 @@ namespace CatchCapture
 
         private void DelayCaptureButton_Click(object sender, RoutedEventArgs e)
         {
-            // 컨텍스트 메뉴 표시
-            if (sender is FrameworkElement fe && fe.ContextMenu != null)
-            {
-                fe.ContextMenu.PlacementTarget = fe;
-                fe.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Right;
-                fe.ContextMenu.IsOpen = true;
-            }
+            // [수정] 메인 윈도우 설정된 지연 시간으로 바로 실행
+            this.Hide();
+            mainWindow.TriggerDelayCapture(-1); // -1 이면 settings.DelayCaptureSeconds 사용
         }
 
         private void DelayMenuItem_Click(object sender, RoutedEventArgs e)
@@ -717,15 +713,17 @@ namespace CatchCapture
             if (this.TryFindResource("DarkContextMenu") is Style darkMenu)
                 menu.Style = darkMenu;
             
+            var mi0 = new MenuItem { Header = LocalizationManager.Get("DelayNone"), Tag = "0" };
             var mi3 = new MenuItem { Header = LocalizationManager.Get("Delay3Sec"), Tag = "3" };
             var mi5 = new MenuItem { Header = LocalizationManager.Get("Delay5Sec"), Tag = "5" };
             var mi10 = new MenuItem { Header = LocalizationManager.Get("Delay10Sec"), Tag = "10" };
 
             if (this.TryFindResource("DarkMenuItem") is Style darkItem)
             {
-                mi3.Style = darkItem; mi5.Style = darkItem; mi10.Style = darkItem;
+                mi0.Style = darkItem; mi3.Style = darkItem; mi5.Style = darkItem; mi10.Style = darkItem;
             }
 
+            menu.Items.Add(mi0);
             menu.Items.Add(mi3);
             menu.Items.Add(mi5);
             menu.Items.Add(mi10);
@@ -1668,7 +1666,13 @@ namespace CatchCapture
                 if (AreaCaptureButton != null)
                     AreaCaptureButton.ToolTip = LocalizationManager.Get("AreaCapture");
                 if (DelayCaptureButton != null)
+                {
                     DelayCaptureButton.ToolTip = LocalizationManager.Get("DelayCapture");
+                    if (DelayNoneMenuItem != null) DelayNoneMenuItem.Header = LocalizationManager.Get("DelayNone");
+                    if (Delay3MenuItem != null) Delay3MenuItem.Header = LocalizationManager.Get("Delay3Sec");
+                    if (Delay5MenuItem != null) Delay5MenuItem.Header = LocalizationManager.Get("Delay5Sec");
+                    if (Delay10MenuItem != null) Delay10MenuItem.Header = LocalizationManager.Get("Delay10Sec");
+                }
                 if (FullScreenButton != null)
                     FullScreenButton.ToolTip = LocalizationManager.Get("FullScreen");
                 if (DesignatedCaptureButton != null)

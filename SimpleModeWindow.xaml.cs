@@ -1006,7 +1006,7 @@ namespace CatchCapture
                     PerformCapture(AreaCaptureRequested);
                     break;
                 case "DelayCapture":
-                    StartDelayedAreaCapture(3);
+                    StartDelayedAreaCapture(settings?.DelayCaptureSeconds ?? 3);
                     break;
                 case "FullScreen":
                     PerformCapture(FullScreenCaptureRequested);

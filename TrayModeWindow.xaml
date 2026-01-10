@@ -233,6 +233,7 @@
                         Click="DelayCaptureButton_Click">
                     <Button.ContextMenu>
                         <ContextMenu Style="{StaticResource DarkContextMenu}">
+                            <MenuItem x:Name="DelayNoneMenuItem" Header="" Tag="0" Click="DelayMenuItem_Click" Style="{StaticResource DarkMenuItem}"/>
                             <MenuItem x:Name="Delay3MenuItem" Header="" Tag="3" Click="DelayMenuItem_Click" Style="{StaticResource DarkMenuItem}"/>
                             <MenuItem x:Name="Delay5MenuItem" Header="" Tag="5" Click="DelayMenuItem_Click" Style="{StaticResource DarkMenuItem}"/>
                             <MenuItem x:Name="Delay10MenuItem" Header="" Tag="10" Click="DelayMenuItem_Click" Style="{StaticResource DarkMenuItem}"/>
