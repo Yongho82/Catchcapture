@@ -72,9 +72,9 @@ namespace CatchCapture.Utilities
             {
                 TextBlock escBlock = new TextBlock
                 {
-                    Text = "ESC 키를 눌러 취소",
+                    Text = "ESC : Cancel",
                     Foreground = new SolidColorBrush(Color.FromRgb(170, 170, 170)),
-                    FontSize = 9,
+                    FontSize = 11,
                     Margin = new Thickness(0, 5, 0, 0),
                     HorizontalAlignment = HorizontalAlignment.Center
                 };
@@ -140,9 +140,9 @@ namespace CatchCapture.Utilities
             {
                 _escBlock = new TextBlock
                 {
-                    Text = "ESC 키를 눌러 취소",
+                    Text = "ESC : Cancel",
                     Foreground = new SolidColorBrush(Color.FromRgb(170, 170, 170)),
-                    FontSize = 9,
+                    FontSize = 11,
                     Margin = new Thickness(0, 2, 0, 0),
                     HorizontalAlignment = HorizontalAlignment.Center
                 };
