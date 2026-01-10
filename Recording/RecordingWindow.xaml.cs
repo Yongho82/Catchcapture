@@ -1153,6 +1153,10 @@ namespace CatchCapture.Recording
             FpsButton.IsEnabled = enable;
             MouseEffectToggle.IsEnabled = enable;
             TimerButton.IsEnabled = enable;
+            
+            // 영역 선택 및 전체 화면 버튼도 비활성화
+            if (AreaSelectButton != null) AreaSelectButton.IsEnabled = enable;
+            if (FullScreenButton != null) FullScreenButton.IsEnabled = enable;
         }
         
         /// <summary>
@@ -1203,13 +1207,13 @@ namespace CatchCapture.Recording
         bool isVideoMode = !isMp3Mode; // MP4, GIF는 비디오 모드 (화면 필요)
 
         // 1. 비디오 관련 버튼 제어
-        if (QualityButton != null) QualityButton.IsEnabled = isVideoMode;
-        if (FpsButton != null) FpsButton.IsEnabled = isVideoMode && !isGifMode; // GIF는 내부 정책 사용
-        if (MouseEffectToggle != null) MouseEffectToggle.IsEnabled = isVideoMode;
-        if (AreaSelectButton != null) AreaSelectButton.IsEnabled = isVideoMode;
+        if (QualityButton != null) QualityButton.IsEnabled = isVideoMode && !IsRecording;
+        if (FpsButton != null) FpsButton.IsEnabled = isVideoMode && !isGifMode && !IsRecording; 
+        if (MouseEffectToggle != null) MouseEffectToggle.IsEnabled = isVideoMode && !IsRecording;
+        if (AreaSelectButton != null) AreaSelectButton.IsEnabled = isVideoMode && !IsRecording;
 
-        if (FullScreenButton != null) FullScreenButton.IsEnabled = isVideoMode;
-        if (DrawingButton != null) DrawingButton.IsEnabled = isVideoMode;
+        if (FullScreenButton != null) FullScreenButton.IsEnabled = isVideoMode && !IsRecording;
+        if (DrawingButton != null) DrawingButton.IsEnabled = isVideoMode; // 그리기 도구는 녹화 중에도 사용 가능해야 함
         if (AreaSizeText != null) AreaSizeText.Visibility = isVideoMode ? Visibility.Visible : Visibility.Collapsed;
 
         // 2. 오디오 관련 버튼 제어 (GIF는 오디오 불가, MP3는 오디오 전용)
