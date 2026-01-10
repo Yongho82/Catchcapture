@@ -297,6 +297,15 @@ namespace CatchCapture.Utilities
         }
 
         /// <summary>
+        /// 모서리 곡률 동적 설정
+        /// </summary>
+        public void SetCornerRadius(double radius)
+        {
+            _cornerRadius = radius;
+            _hasPendingUpdate = true;
+        }
+
+        /// <summary>
         /// 크기 텍스트 가시성만 별도로 설정
         /// </summary>
         public void SetSizeTextVisibility(Visibility visibility)
@@ -338,7 +347,7 @@ namespace CatchCapture.Utilities
         /// </summary>
         private void CompositionTarget_Rendering(object? sender, EventArgs e)
         {
-            if (!_hasPendingUpdate || !_isSelecting) return;
+            if (!_hasPendingUpdate) return;
             
             UpdateVisuals(_pendingRect);
             _hasPendingUpdate = false;

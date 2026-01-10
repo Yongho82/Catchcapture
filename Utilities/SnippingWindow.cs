@@ -4274,11 +4274,14 @@ namespace CatchCapture.Utilities
                     _edgePreviewImage.Source = preview;
                     _edgePreviewImage.Visibility = Visibility.Visible;
 
-                    // [추가] 엣지 곡률에 따라 드로잉 캔버스 클리핑 업데이트 (전체 화면 기준 좌표 사용)
+                    // [추가] 엣지 곡률에 따라 드로잉 캔버스 및 딤 배경 클리핑 업데이트 (전체 화면 기준 좌표 사용)
                     if (_drawingCanvas != null)
                     {
                         double rad = ( _editorManager.EdgeCornerRadius >= 99) ? Math.Min(currentSelectionRect.Width, currentSelectionRect.Height) / 2.0 : _editorManager.EdgeCornerRadius;
                         _drawingCanvas.Clip = new RectangleGeometry(currentSelectionRect, rad, rad);
+                        
+                        // [추가] 딤 배경의 구멍 곡률도 동기화하여 프리뷰의 둥근 모서리가 명확히 보이도록 함
+                        selectionOverlay?.SetCornerRadius(rad);
                     }
 
                     // 위치 및 크기 조정
