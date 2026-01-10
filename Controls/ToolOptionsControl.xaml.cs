@@ -397,6 +397,7 @@ namespace CatchCapture.Controls
                 EdgeThicknessValue.Text = $"{(int)e.NewValue}px";
                 _editor.ApplyCurrentSettingsToSelectedObject();
                 _editor.FireEdgePropertiesChanged(); // [추가] 프리뷰 갱신 알림
+                SaveEdgeSettings();
             };
             EdgeRadiusSlider.ValueChanged += (s, e) => {
                 if (_editor == null) return;
@@ -404,6 +405,7 @@ namespace CatchCapture.Controls
                 EdgeRadiusValue.Text = $"{(int)e.NewValue}";
                 _editor.ApplyCurrentSettingsToSelectedObject();
                 _editor.FireEdgePropertiesChanged(); // [추가] 프리뷰 갱신 알림
+                SaveEdgeSettings();
             };
             EdgeShadowCheck.Click += (s, e) => {
                 if (_editor == null) return;
@@ -413,24 +415,28 @@ namespace CatchCapture.Controls
                 ShadowDetailPanel.Opacity = isChecked ? 1.0 : 0.5;
                 _editor.ApplyCurrentSettingsToSelectedObject();
                 _editor.FireEdgePropertiesChanged(); // [추가] 프리뷰 갱신 알림
+                SaveEdgeSettings();
             };
             ShadowOpacitySlider.ValueChanged += (s, e) => {
                 if (_editor == null) return;
                 _editor.EdgeShadowOpacity = e.NewValue;
                 _editor.ApplyCurrentSettingsToSelectedObject();
                 _editor.FireEdgePropertiesChanged(); // [추가] 프리뷰 갱신 알림
+                SaveEdgeSettings();
             };
             ShadowBlurSlider.ValueChanged += (s, e) => {
                 if (_editor == null) return;
                 _editor.EdgeShadowBlur = e.NewValue;
                 _editor.ApplyCurrentSettingsToSelectedObject();
                 _editor.FireEdgePropertiesChanged(); // [추가] 프리뷰 갱신 알림
+                SaveEdgeSettings();
             };
             ShadowDepthSlider.ValueChanged += (s, e) => {
                 if (_editor == null) return;
                 _editor.EdgeShadowDepth = e.NewValue;
                 _editor.ApplyCurrentSettingsToSelectedObject();
                 _editor.FireEdgePropertiesChanged(); // [추가] 프리뷰 갱신 알림
+                SaveEdgeSettings();
             };
 
             // Paragraph Spacing Button
@@ -573,6 +579,12 @@ namespace CatchCapture.Controls
                         _editor.SelectedColor = c;
                     }
                     _editor.ApplyCurrentSettingsToSelectedObject();
+                    
+                    if (_currentMode == "엣지라인")
+                    {
+                        _editor.FireEdgePropertiesChanged();
+                        SaveEdgeSettings();
+                    }
                 }
                 UpdateColorSelection(c);
             };
@@ -722,6 +734,20 @@ namespace CatchCapture.Controls
             ShadowBlurLabel.Text = ResLoc.GetString("ShadowBlur");
             ShadowOpacityLabel.Text = ResLoc.GetString("ShadowIntensity");
             ShadowDepthLabel.Text = ResLoc.GetString("ShadowSize");
+        }
+
+        private void SaveEdgeSettings()
+        {
+            if (_editor == null) return;
+            var settings = Settings.Load();
+            settings.EdgeBorderThickness = _editor.EdgeBorderThickness;
+            settings.EdgeCornerRadius = _editor.EdgeCornerRadius;
+            settings.HasEdgeShadow = _editor.HasEdgeShadow;
+            settings.EdgeShadowBlur = _editor.EdgeShadowBlur;
+            settings.EdgeShadowDepth = _editor.EdgeShadowDepth;
+            settings.EdgeShadowOpacity = _editor.EdgeShadowOpacity;
+            settings.EdgeLineColor = _editor.SelectedColor.ToString(); // [추가] 색상 저장
+            Settings.Save(settings);
         }
     }
 }

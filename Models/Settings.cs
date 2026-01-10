@@ -38,6 +38,15 @@ namespace CatchCapture.Models
         public bool UseOverlayCaptureMode { get; set; } = false;         // ★ true: 오버레이 캡처 (동영상 안멈춤), false: 정지 캡처
         public int EdgeCaptureRadius { get; set; } = 50;                 // 엣지 캡처 둥글기 강도 (기본: 50px)
         public int DelayCaptureSeconds { get; set; } = 3;                // 지연 캡처 대기 시간 (기본: 3초)
+
+        // [추가] 엣지라인 및 그림자 영구 설정
+        public double EdgeBorderThickness { get; set; } = 0;
+        public double EdgeCornerRadius { get; set; } = 0;
+        public bool HasEdgeShadow { get; set; } = false;
+        public double EdgeShadowBlur { get; set; } = 15;
+        public double EdgeShadowDepth { get; set; } = 5;
+        public double EdgeShadowOpacity { get; set; } = 0.4;
+        public string EdgeLineColor { get; set; } = "#FF0000"; // [추가] 엣지 라인 색상
         
         // Recording Settings
         public RecordingSettings Recording { get; set; } = new RecordingSettings();
@@ -244,6 +253,13 @@ namespace CatchCapture.Models
 
             // 4. Ensure internal objects are not null
             if (Recording == null) { Recording = new RecordingSettings(); changed = true; }
+
+            // [추가] 엣지 색상 기본값 동기화
+            if (string.IsNullOrEmpty(EdgeLineColor))
+            {
+                EdgeLineColor = "#FF0000";
+                changed = true;
+            }
 
             return changed;
         }
@@ -462,6 +478,13 @@ namespace CatchCapture.Models
             HistoryColMemo = EnsureFinite(HistoryColMemo, 150);
 
             CaptureLineThickness = EnsureFinite(CaptureLineThickness, 1.0);
+
+            // [추가] 엣지 설정 소독
+            EdgeBorderThickness = EnsureFinite(EdgeBorderThickness, 0);
+            EdgeCornerRadius = EnsureFinite(EdgeCornerRadius, 0);
+            EdgeShadowBlur = EnsureFinite(EdgeShadowBlur, 15);
+            EdgeShadowDepth = EnsureFinite(EdgeShadowDepth, 5);
+            EdgeShadowOpacity = EnsureFinite(EdgeShadowOpacity, 0.4);
 
             if (Recording != null)
             {

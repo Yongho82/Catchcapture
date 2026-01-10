@@ -289,7 +289,19 @@ namespace CatchCapture.Utilities
             this.PreviewKeyDown += SnippingWindow_PreviewKeyDown;
 
             _editorManager = new SharedCanvasEditor(_drawingCanvas ?? canvas, drawnElements, undoStack);
-            _editorManager.EdgeCornerRadius = _cornerRadius; // [추가] 초기 곡률 설정
+            // [수정] 사용자 설정에서 엣지 효과 초기값 불러오기
+            _editorManager.EdgeBorderThickness = settings.EdgeBorderThickness;
+            _editorManager.EdgeCornerRadius = (_cornerRadius > 0) ? _cornerRadius : settings.EdgeCornerRadius;
+            _editorManager.HasEdgeShadow = settings.HasEdgeShadow;
+            _editorManager.EdgeShadowBlur = settings.EdgeShadowBlur;
+            _editorManager.EdgeShadowDepth = settings.EdgeShadowDepth;
+            _editorManager.EdgeShadowOpacity = settings.EdgeShadowOpacity;
+            try
+            {
+                _editorManager.SelectedColor = (Color)ColorConverter.ConvertFromString(settings.EdgeLineColor);
+            }
+            catch { _editorManager.SelectedColor = Colors.Red; }
+
             _editorManager.MosaicRequired += (rect) => ApplyMosaic(rect);
             _editorManager.ElementAdded += OnElementAdded;
             _editorManager.ActionOccurred += () => redoStack.Clear();
