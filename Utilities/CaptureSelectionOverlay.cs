@@ -34,6 +34,7 @@ namespace CatchCapture.Utilities
         private const double MinMoveDelta = 0.5; // 더 민감한 반응
         private string? _lastSizeText;
         private double _cornerRadius = 0;
+        private bool _isRectangleSuppressed = false; // [추가] 선택 가이드 라인 강제 숨김 여부
 
         public bool IsSelecting => _isSelecting;
         public Rect CurrentRect => _pendingRect;
@@ -284,6 +285,7 @@ namespace CatchCapture.Utilities
         /// </summary>
         public void SetVisibility(Visibility visibility)
         {
+            _isRectangleSuppressed = (visibility == Visibility.Collapsed);
             if (_selectionRectangle != null) 
             {
                 _selectionRectangle.Visibility = visibility;
@@ -359,7 +361,7 @@ namespace CatchCapture.Utilities
             {
                 if (_selectionRectangle != null)
                 {
-                    if (rect.Width < 0.1 || rect.Height < 0.1)
+                    if (rect.Width < 0.1 || rect.Height < 0.1 || _isRectangleSuppressed)
                     {
                         _selectionRectangle.Visibility = Visibility.Collapsed;
                     }
