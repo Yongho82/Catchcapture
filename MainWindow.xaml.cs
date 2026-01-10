@@ -244,14 +244,14 @@ public partial class MainWindow : Window
             if (settings.MainCaptureViewMode == 1)
             {
                 currentViewMode = CaptureViewMode.Card;
-                this.Width = 845;
+                this.Width = 850;
                 CaptureListPanel.HorizontalAlignment = HorizontalAlignment.Left;
                 if (EmptyStateActionPanel != null) EmptyStateActionPanel.Orientation = Orientation.Horizontal;
             }
             else
             {
                 currentViewMode = CaptureViewMode.List;
-                this.Width = 415;
+                this.Width = 430;
                 CaptureListPanel.HorizontalAlignment = HorizontalAlignment.Center;
                 if (EmptyStateActionPanel != null) EmptyStateActionPanel.Orientation = Orientation.Vertical;
             }
@@ -1051,7 +1051,7 @@ public partial class MainWindow : Window
         this.Topmost = false;
 
         // 기본 크기로 복원
-        this.Width = currentViewMode == CaptureViewMode.Card ? 885 : 455;
+        this.Width = currentViewMode == CaptureViewMode.Card ? 850 : 430;
         this.Height = 692;
 
         // 사용자 요청: 모드 전환 시 또는 시작 시 항상 화면 정중앙에 배치
@@ -1197,7 +1197,7 @@ public partial class MainWindow : Window
             if (currentViewMode == CaptureViewMode.Card) return;
             currentViewMode = CaptureViewMode.Card;
             
-            this.Width = 890;
+            this.Width = 850;
             CaptureListPanel.ItemWidth = 210;
             CaptureListPanel.HorizontalAlignment = HorizontalAlignment.Left;
             if (EmptyStateActionPanel != null) EmptyStateActionPanel.Orientation = Orientation.Horizontal;
@@ -1210,7 +1210,7 @@ public partial class MainWindow : Window
             if (currentViewMode == CaptureViewMode.List) return;
             currentViewMode = CaptureViewMode.List;
             
-            this.Width = 455;
+            this.Width = 430;
             CaptureListPanel.ItemWidth = 210; 
             CaptureListPanel.HorizontalAlignment = HorizontalAlignment.Center;
             if (EmptyStateActionPanel != null) EmptyStateActionPanel.Orientation = Orientation.Vertical;
