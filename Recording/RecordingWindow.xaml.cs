@@ -85,7 +85,39 @@ namespace CatchCapture.Recording
             KeyDown += RecordingWindow_KeyDown;
             
             // 로드 시 오버레이 표시
+            // 로드 시 오버레이 표시
             Loaded += RecordingWindow_Loaded;
+
+            // 툴팁(ToolTip) 열릴 때 캡처 제외 설정
+            AddHandler(System.Windows.Controls.ToolTip.OpenedEvent, new RoutedEventHandler(OnToolTipOpened));
+        }
+
+        private void OnToolTipOpened(object sender, RoutedEventArgs e)
+        {
+            if (e.OriginalSource is ToolTip toolTip)
+            {
+                // 툴팁 윈도우의 핸들 가져오기
+                // PresentationSource.FromVisual은 툴팁이 팝업 안에 있을 때 때때로 null을 반환할 수 있음
+                var source = PresentationSource.FromVisual(toolTip) as System.Windows.Interop.HwndSource;
+                
+                if (source != null)
+                {
+                    SetWindowDisplayAffinity(source.Handle, WDA_EXCLUDEFROMCAPTURE);
+                }
+                else
+                {
+                    // 툴팁이 아직 시각적 트리에 완전히 연결되지 않았을 수 있음
+                    // 약간의 지연 후 재시도하거나, PopupRoot를 찾아야 함
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        var delayedSource = PresentationSource.FromVisual(toolTip) as System.Windows.Interop.HwndSource;
+                        if (delayedSource != null)
+                        {
+                            SetWindowDisplayAffinity(delayedSource.Handle, WDA_EXCLUDEFROMCAPTURE);
+                        }
+                    }), System.Windows.Threading.DispatcherPriority.Loaded);
+                }
+            }
         }
         
         private void RecordingWindow_Loaded(object sender, RoutedEventArgs e)
