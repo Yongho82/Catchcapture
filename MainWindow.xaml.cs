@@ -1569,10 +1569,49 @@ public partial class MainWindow : Window
     private void UpdateDelayCaptureUI()
     {
         var delayText = this.FindName("DelayValueText") as TextBlock;
+        var delayBox = this.FindName("DelayValueBox") as Border;
+        var stop1 = this.FindName("DelayStop1") as System.Windows.Media.GradientStop;
+        var stop2 = this.FindName("DelayStop2") as System.Windows.Media.GradientStop;
+
         if (delayText != null)
         {
             delayText.Text = settings.DelayCaptureSeconds.ToString();
             delayText.ToolTip = settings.DelayCaptureSeconds == 0 ? "현재: 지연 없음\n(클릭하여 지연 시간 변경)" : $"현재: {settings.DelayCaptureSeconds}초\n(클릭하여 지연 시간 변경)";
+            
+            if (stop1 != null && stop2 != null)
+            {
+                Color color1, color2;
+                // 지연 시간에 따른 그라데이션 색상 변경
+                switch (settings.DelayCaptureSeconds)
+                {
+                    case 3:
+                        color1 = (Color)ColorConverter.ConvertFromString("#007AFF");
+                        color2 = (Color)ColorConverter.ConvertFromString("#5856D6");
+                        break;
+                    case 5:
+                        color1 = (Color)ColorConverter.ConvertFromString("#FF9500");
+                        color2 = (Color)ColorConverter.ConvertFromString("#FF2D55");
+                        break;
+                    case 10:
+                        color1 = (Color)ColorConverter.ConvertFromString("#AF52DE");
+                        color2 = (Color)ColorConverter.ConvertFromString("#FF2D55");
+                        break;
+                    default:
+                        color1 = (Color)ColorConverter.ConvertFromString("#007AFF");
+                        color2 = (Color)ColorConverter.ConvertFromString("#5856D6");
+                        break;
+                }
+                stop1.Color = color1;
+                stop2.Color = color2;
+
+                // 박스 테두리 색상도 숫자 색상에 맞춰 반투명하게 변경
+                if (delayBox != null)
+                {
+                    var borderBrush = new SolidColorBrush(color1);
+                    borderBrush.Opacity = 0.5;
+                    delayBox.BorderBrush = borderBrush;
+                }
+            }
         }
     }
 
@@ -5168,7 +5207,6 @@ public partial class MainWindow : Window
         if (EdgeCaptureButtonText != null) EdgeCaptureButtonText.Text = LocalizationManager.GetString("EdgeCapture");
         if (EdgeCaptureButton != null) EdgeCaptureButton.ToolTip = GetLocalizedTooltip("EdgeCapture");
 
-        if (DelayNoneMenu != null) DelayNoneMenu.Header = LocalizationManager.GetString("DelayNone");
         if (Delay3Menu != null) Delay3Menu.Header = LocalizationManager.GetString("Delay3Sec");
         if (Delay5Menu != null) Delay5Menu.Header = LocalizationManager.GetString("Delay5Sec");
         if (Delay10Menu != null) Delay10Menu.Header = LocalizationManager.GetString("Delay10Sec");

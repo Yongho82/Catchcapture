@@ -713,17 +713,15 @@ namespace CatchCapture
             if (this.TryFindResource("DarkContextMenu") is Style darkMenu)
                 menu.Style = darkMenu;
             
-            var mi0 = new MenuItem { Header = LocalizationManager.Get("DelayNone"), Tag = "0" };
             var mi3 = new MenuItem { Header = LocalizationManager.Get("Delay3Sec"), Tag = "3" };
             var mi5 = new MenuItem { Header = LocalizationManager.Get("Delay5Sec"), Tag = "5" };
             var mi10 = new MenuItem { Header = LocalizationManager.Get("Delay10Sec"), Tag = "10" };
 
             if (this.TryFindResource("DarkMenuItem") is Style darkItem)
             {
-                mi0.Style = darkItem; mi3.Style = darkItem; mi5.Style = darkItem; mi10.Style = darkItem;
+                mi3.Style = darkItem; mi5.Style = darkItem; mi10.Style = darkItem;
             }
 
-            menu.Items.Add(mi0);
             menu.Items.Add(mi3);
             menu.Items.Add(mi5);
             menu.Items.Add(mi10);
@@ -1668,7 +1666,6 @@ namespace CatchCapture
                 if (DelayCaptureButton != null)
                 {
                     DelayCaptureButton.ToolTip = LocalizationManager.Get("DelayCapture");
-                    if (DelayNoneMenuItem != null) DelayNoneMenuItem.Header = LocalizationManager.Get("DelayNone");
                     if (Delay3MenuItem != null) Delay3MenuItem.Header = LocalizationManager.Get("Delay3Sec");
                     if (Delay5MenuItem != null) Delay5MenuItem.Header = LocalizationManager.Get("Delay5Sec");
                     if (Delay10MenuItem != null) Delay10MenuItem.Header = LocalizationManager.Get("Delay10Sec");
