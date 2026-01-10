@@ -551,7 +551,7 @@
                                             CornerRadius="4" 
                                             Padding="3,0" 
                                             Margin="3,0" 
-                                            Height="17"
+                                            Height="17.5"
                                             HorizontalAlignment="Center" 
                                             VerticalAlignment="Center">
                                         <TextBlock x:Name="DelayValueText" 
