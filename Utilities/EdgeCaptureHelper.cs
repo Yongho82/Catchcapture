@@ -25,25 +25,33 @@ namespace CatchCapture.Utilities
                 actualRadius = Math.Min(width, height) / 2;
             }
 
-            // 원본 크기에서 투명 배경을 가진 출력용 비트맵 생성
+            // 반지름이 0이면 가공 없이 원본 클론 반환 (직각 유지 및 아티팩트 방지)
+            if (actualRadius <= 0)
+            {
+                return new Bitmap(source);
+            }
+
+            // 원본 크기에서 투명 배경을 가진 출력용 비트맵 생성 (투명 검정 배경)
             Bitmap target = new Bitmap(width, height, PixelFormat.Format32bppArgb);
 
             using (Graphics g = Graphics.FromImage(target))
             {
-                g.Clear(Color.Transparent);
+                // 투명한 검은색으로 초기화하여 안티앨리어싱 시 흰색 테두리 방지
+                g.Clear(Color.FromArgb(0, 0, 0, 0));
                 
-                // 외곽선 품질 설정: AntiAlias를 사용하여 부드러운 경계 구현 (전체 스케일링을 배제하여 선명도 유지)
+                // 부드러운 곡선을 위해 안티앨리어싱 및 고품질 보간 적용
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;
                 g.PixelOffsetMode = PixelOffsetMode.HighQuality;
                 g.CompositingQuality = CompositingQuality.HighQuality;
+                g.CompositingMode = CompositingMode.SourceCopy; // 배경색 혼합을 차단하여 흰색 테두리 방지
 
                 using (GraphicsPath path = GetRoundedRectanglePath(new Rectangle(0, 0, width, height), actualRadius))
                 {
-                    // 원본 이미지를 텍스처 브러시로 사용하여 경로 내부를 채움 (1:1 매핑)
+                    // 텍스처 브러시 사용 (이미지 밖 영역 참조 차단을 위해 Clamp 설정)
                     using (TextureBrush brush = new TextureBrush(source))
                     {
-                        brush.WrapMode = System.Drawing.Drawing2D.WrapMode.Clamp;
+                        brush.WrapMode = WrapMode.Clamp;
                         g.FillPath(brush, path);
                     }
                 }
@@ -97,50 +105,27 @@ namespace CatchCapture.Utilities
         /// </summary>
         public static System.Windows.Media.Imaging.BitmapSource? CreateRoundedCapture(System.Windows.Media.Imaging.BitmapSource source, int radius)
         {
-            if (source == null) return source;
+            if (source == null || radius <= 0) return source;
 
             try 
             {
-                using (var memoryStream = new System.IO.MemoryStream())
+                int width = (int)source.PixelWidth;
+                int height = (int)source.PixelHeight;
+                double actualRadius = (radius >= 999) ? Math.Min(width, height) / 2.0 : radius;
+
+                var visual = new System.Windows.Media.DrawingVisual();
+                using (var dc = visual.RenderOpen())
                 {
-                    // BitmapSource → GDI+ Bitmap 변환
-                    var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
-                    encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(source));
-                    encoder.Save(memoryStream);
-                    memoryStream.Seek(0, System.IO.SeekOrigin.Begin);
-
-                    using (var gdiBitmap = new Bitmap(memoryStream))
-                    {
-                        // 둥근 모서리 적용
-                        using (var roundedBitmap = GetRoundedBitmap(gdiBitmap, radius))
-                        {
-                            if (roundedBitmap == null) return source; // 실패 시 원본 반환
-
-                            // GDI+ Bitmap → BitmapSource 변환
-                            var hBitmap = roundedBitmap.GetHbitmap();
-                            try
-                            {
-                                var bitmapSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
-                                    hBitmap,
-                                    IntPtr.Zero,
-                                    System.Windows.Int32Rect.Empty,
-                                    System.Windows.Media.Imaging.BitmapSizeOptions.FromEmptyOptions());
-                                bitmapSource.Freeze();
-                                return bitmapSource;
-                            }
-                            finally
-                            {
-                                DeleteObject(hBitmap);
-                            }
-                        }
-                    }
+                    var brush = new System.Windows.Media.ImageBrush(source) { Stretch = System.Windows.Media.Stretch.None };
+                    dc.DrawRoundedRectangle(brush, null, new System.Windows.Rect(0, 0, width, height), actualRadius, actualRadius);
                 }
+
+                var rtb = new System.Windows.Media.Imaging.RenderTargetBitmap(width, height, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+                rtb.Render(visual);
+                rtb.Freeze();
+                return rtb;
             }
-            catch (Exception)
-            {
-                // 변환 중 오류 발생 시 원본 반환 (안전 장치)
-                return source;
-            }
+            catch { return source; }
         }
 
         [System.Runtime.InteropServices.DllImport("gdi32.dll")]
