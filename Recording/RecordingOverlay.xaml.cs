@@ -26,6 +26,7 @@ namespace CatchCapture.Recording
         
         // 영역 변경 이벤트
         public event EventHandler<Rect>? AreaChanged;
+        public event EventHandler? AreaSelectionEnded; // 선택 모드 종료 시 (완료 또는 취소)
         
         // ESC 키 이벤트 (부모 창에서 처리하도록)
         public event EventHandler? EscapePressed;
@@ -70,16 +71,8 @@ namespace CatchCapture.Recording
         
         #region 초기화
         
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        private static extern uint SetWindowDisplayAffinity(IntPtr hwnd, uint dwAffinity);
-        private const uint WDA_EXCLUDEFROMCAPTURE = 0x00000011;
-
         private void RecordingOverlay_Loaded(object sender, RoutedEventArgs e)
         {
-            // 캡처 제외 설정
-            var interop = new System.Windows.Interop.WindowInteropHelper(this);
-            SetWindowDisplayAffinity(interop.Handle, WDA_EXCLUDEFROMCAPTURE);
-
             // 모든 모니터를 커버하도록 설정 (VirtualScreen 사용)
             this.Left = SystemParameters.VirtualScreenLeft;
             this.Top = SystemParameters.VirtualScreenTop;
@@ -203,6 +196,8 @@ namespace CatchCapture.Recording
             // 드래그 상태 초기화
             _isSelectingNew = false;
             SelectionHitTarget.ReleaseMouseCapture();
+            
+            AreaSelectionEnded?.Invoke(this, EventArgs.Empty);
         }
 
         // ... existing code ...
@@ -255,6 +250,7 @@ namespace CatchCapture.Recording
                 // 핸들 다시 표시
                 ShowHandles(true);
                 AreaChanged?.Invoke(this, _selectionArea);
+                AreaSelectionEnded?.Invoke(this, EventArgs.Empty);
             }
         }
         

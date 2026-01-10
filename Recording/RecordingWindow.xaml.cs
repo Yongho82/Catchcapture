@@ -155,6 +155,7 @@ namespace CatchCapture.Recording
             _overlay = new RecordingOverlay();
             _overlay.AreaChanged += Overlay_AreaChanged;
             _overlay.EscapePressed += Overlay_EscapePressed; // ESC 키 처리
+            _overlay.AreaSelectionEnded += Overlay_AreaSelectionEnded; // 선택 모드 종료 처리
             
             _overlay.Show();
             
@@ -518,14 +519,40 @@ namespace CatchCapture.Recording
         {
             if (_overlay == null) return;
             
-            if (_overlay.IsSelectingNewArea)
+            // 토글 버튼이므로 IsChecked 상태를 확인
+            // 이미 IsChecked가 바뀐 상태로 들어옴 (클릭 시 자동 토글됨)
+            bool isChecked = AreaSelectButton.IsChecked == true;
+
+            if (isChecked)
             {
-                _overlay.CancelNewSelectionMode();
+                if (!_overlay.IsSelectingNewArea)
+                {
+                    _overlay.StartNewSelectionMode();
+                }
             }
             else
             {
-                _overlay.StartNewSelectionMode();
+                if (_overlay.IsSelectingNewArea)
+                {
+                    _overlay.CancelNewSelectionMode();
+                }
             }
+        }
+        
+        private void DrawingPopup_Opened(object sender, EventArgs e)
+        {
+            try 
+            {
+                if (DrawingPopup.Child is UIElement child)
+                {
+                    var source = PresentationSource.FromVisual(child) as System.Windows.Interop.HwndSource;
+                    if (source != null)
+                    {
+                        SetWindowDisplayAffinity(source.Handle, WDA_EXCLUDEFROMCAPTURE);
+                    }
+                }
+            }
+            catch { }
         }
 
 
@@ -1340,6 +1367,14 @@ namespace CatchCapture.Recording
             anim.EasingFunction = new System.Windows.Media.Animation.CubicEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut };
             BeginAnimation(TopProperty, anim);
             _isHidden = false;
+        }
+
+        private void Overlay_AreaSelectionEnded(object? sender, EventArgs e)
+        {
+            if (AreaSelectButton != null)
+            {
+                AreaSelectButton.IsChecked = false;
+            }
         }
 
         #endregion
