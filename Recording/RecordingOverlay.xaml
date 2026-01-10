@@ -46,6 +46,19 @@
                        FontSize="12"
                        FontWeight="SemiBold"/>
         </Border>
+
+        <!-- 용량 표시 (오버레이 우측 상단) -->
+        <TextBlock x:Name="FileSizeText" 
+                   Text="0.0 MB"
+                   Foreground="White"
+                   FontSize="16"
+                   FontWeight="Bold"
+                   Visibility="Collapsed"
+                   IsHitTestVisible="False">
+            <TextBlock.Effect>
+                <DropShadowEffect BlurRadius="2" ShadowDepth="1" Color="Black" Opacity="1"/>
+            </TextBlock.Effect>
+        </TextBlock>
         
         <!-- 리사이즈 핸들 (8개) -->
         <Rectangle x:Name="HandleNW" Width="10" Height="10" Fill="White" Stroke="#4361EE" StrokeThickness="1"

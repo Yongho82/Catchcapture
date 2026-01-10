@@ -718,6 +718,19 @@ namespace CatchCapture.Recording
         {
             _recordingDuration = _recordingDuration.Add(TimeSpan.FromSeconds(1));
             RecordingTimeText.Text = _recordingDuration.ToString(@"mm\:ss");
+
+            // 파일 용량 업데이트
+            if (_recorder != null && _overlay != null)
+            {
+                long bytes = _recorder.CurrentFileSize;
+                string sizeStr;
+                if (bytes < 1024) sizeStr = $"{bytes} B";
+                else if (bytes < 1024 * 1024) sizeStr = $"{bytes / 1024.0:F1} KB";
+                else if (bytes < 1024 * 1024 * 1024) sizeStr = $"{bytes / 1024.0 / 1024.0:F1} MB";
+                else sizeStr = $"{bytes / 1024.0 / 1024.0 / 1024.0:F2} GB";
+                
+                _overlay.UpdateFileSizeText(sizeStr);
+            }
         }
         
         /// <summary>

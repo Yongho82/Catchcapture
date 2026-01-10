@@ -406,6 +406,34 @@ namespace CatchCapture.Recording
                 SelectionHitTarget.Width = screenWidth;
                 SelectionHitTarget.Height = screenHeight;
             }
+            
+            // 파일 용량 텍스트 위치 업데이트 (표시 중이라면)
+            if (FileSizeText != null && FileSizeText.Visibility == Visibility.Visible)
+            {
+                // Measure를 호출하여 ActualWidth 갱신 보장
+                FileSizeText.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                Canvas.SetLeft(FileSizeText, _selectionArea.Right - FileSizeText.DesiredSize.Width - 10);
+                Canvas.SetTop(FileSizeText, _selectionArea.Top + 10);
+                
+                // Z-Index 최상위 보장
+                Panel.SetZIndex(FileSizeText, 999);
+            }
+        }
+
+        public void UpdateFileSizeText(string text)
+        {
+            if (FileSizeText == null) return;
+            
+            FileSizeText.Text = text;
+            FileSizeText.Visibility = Visibility.Visible;
+
+            // 위치 조정: 선택 영역 우측 상단 10px 안쪽
+            if (_selectionArea.Width > 0 && _selectionArea.Height > 0)
+            {
+                FileSizeText.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                Canvas.SetLeft(FileSizeText, _selectionArea.Right - FileSizeText.DesiredSize.Width - 10);
+                Canvas.SetTop(FileSizeText, _selectionArea.Top + 10);
+            }
         }
         
         /// <summary>

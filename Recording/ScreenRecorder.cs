@@ -99,6 +99,35 @@ namespace CatchCapture.Recording
         public bool IsRecording => _isRecording;
         public bool IsPaused => _isPaused;
         public int FrameCount => _frameCount;
+
+        /// <summary>
+        /// 현재 녹화 중인 비디오/오디오 파일의 합계 용량 (bytes)
+        /// 오디오는 WAV(Raw) -> AAC(Compressed) 변환을 가정하여 1/10 수준으로 계산
+        /// </summary>
+        public long CurrentFileSize
+        {
+            get
+            {
+                long size = 0;
+                try
+                {
+                    // 비디오: Copy 모드이므로 현재 크기 그대로 반영
+                    if (!string.IsNullOrEmpty(_tempVideoPath) && File.Exists(_tempVideoPath))
+                    {
+                        size += new FileInfo(_tempVideoPath).Length;
+                    }
+                    
+                    // 오디오: 현재는 WAV(비압축)이지만 최종본은 AAC(압축)이므로 용량이 대폭 줆.
+                    // 대략 1/10 수준으로 보정하여 예상치를 보여줌.
+                    if (!string.IsNullOrEmpty(_tempAudioPath) && File.Exists(_tempAudioPath))
+                    {
+                        size += (long)(new FileInfo(_tempAudioPath).Length * 0.1); 
+                    }
+                }
+                catch { } // 파일 접근 충돌 무시
+                return size;
+            }
+        }
         
         public ScreenRecorder(RecordingSettings settings)
         {
