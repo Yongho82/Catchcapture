@@ -85,38 +85,38 @@ namespace CatchCapture.Recording
             KeyDown += RecordingWindow_KeyDown;
             
             // 로드 시 오버레이 표시
-            // 로드 시 오버레이 표시
             Loaded += RecordingWindow_Loaded;
-
-            // 툴팁(ToolTip) 열릴 때 캡처 제외 설정
-            AddHandler(System.Windows.Controls.ToolTip.OpenedEvent, new RoutedEventHandler(OnToolTipOpened));
         }
 
-        private void OnToolTipOpened(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// 녹화 중 툴팁 비활성화/활성화
+        /// </summary>
+        private void SetToolTipsEnabled(bool enabled)
         {
-            if (e.OriginalSource is ToolTip toolTip)
+            // 윈도우 자체의 툴팁 서비스 비활성화
+            ToolTipService.SetIsEnabled(this, enabled);
+            
+            // 모든 자식 요소를 재귀적으로 순회하며 툴팁 비활성화
+            SetToolTipsEnabledRecursive(this, enabled);
+        }
+
+        private void SetToolTipsEnabledRecursive(DependencyObject parent, bool enabled)
+        {
+            if (parent == null) return;
+
+            int childCount = System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent);
+            for (int i = 0; i < childCount; i++)
             {
-                // 툴팁 윈도우의 핸들 가져오기
-                // PresentationSource.FromVisual은 툴팁이 팝업 안에 있을 때 때때로 null을 반환할 수 있음
-                var source = PresentationSource.FromVisual(toolTip) as System.Windows.Interop.HwndSource;
+                var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
                 
-                if (source != null)
+                // 각 자식 요소의 툴팁 서비스 설정
+                if (child is FrameworkElement element)
                 {
-                    SetWindowDisplayAffinity(source.Handle, WDA_EXCLUDEFROMCAPTURE);
+                    ToolTipService.SetIsEnabled(element, enabled);
                 }
-                else
-                {
-                    // 툴팁이 아직 시각적 트리에 완전히 연결되지 않았을 수 있음
-                    // 약간의 지연 후 재시도하거나, PopupRoot를 찾아야 함
-                    Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        var delayedSource = PresentationSource.FromVisual(toolTip) as System.Windows.Interop.HwndSource;
-                        if (delayedSource != null)
-                        {
-                            SetWindowDisplayAffinity(delayedSource.Handle, WDA_EXCLUDEFROMCAPTURE);
-                        }
-                    }), System.Windows.Threading.DispatcherPriority.Loaded);
-                }
+                
+                // 재귀적으로 하위 요소 처리
+                SetToolTipsEnabledRecursive(child, enabled);
             }
         }
         
@@ -1069,6 +1069,9 @@ namespace CatchCapture.Recording
 
             EnableSettings(false);
             UpdateUI();
+
+            // 녹화 중 툴팁 비활성화 (캡처 방지)
+            SetToolTipsEnabled(false);
         }
         
         /// <summary>
@@ -1086,6 +1089,9 @@ namespace CatchCapture.Recording
             
             // 일시정지 버튼 숨김
             PauseButton.Visibility = Visibility.Collapsed;
+
+            // 툴팁 재활성화
+            SetToolTipsEnabled(true);
             
             // 녹화만 중지 (저장하지 않음)
             try

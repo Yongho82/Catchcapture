@@ -19,7 +19,18 @@ namespace CatchCapture
                 if (e.ButtonState == MouseButtonState.Pressed)
                     DragMove();
             };
+
+            // 화면 캡처에서 제외
+            Loaded += (s, e) =>
+            {
+                var interop = new System.Windows.Interop.WindowInteropHelper(this);
+                SetWindowDisplayAffinity(interop.Handle, WDA_EXCLUDEFROMCAPTURE);
+            };
         }
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern uint SetWindowDisplayAffinity(IntPtr hwnd, uint dwAffinity);
+        private const uint WDA_EXCLUDEFROMCAPTURE = 0x00000011;
 
         /// <summary>
         /// 커스텀 메시지 박스 표시 (정적 메서드)
