@@ -2,8 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="" 
-        Height="70"
-        SizeToContent="Width"
+        SizeToContent="WidthAndHeight"
         WindowStyle="None" 
         AllowsTransparency="True" 
         Background="Transparent"
@@ -187,7 +186,7 @@
             
             <!-- 툴바 -->
             <Border Grid.Row="1" Background="#FAFAFA" CornerRadius="0,0,8,8">
-    <StackPanel Orientation="Horizontal" Margin="8,4" VerticalAlignment="Center">
+                <StackPanel x:Name="MainToolbarPanel" Orientation="Horizontal" Margin="8,4" VerticalAlignment="Center">
                     
                     <!-- 녹화 시간 -->
                     <TextBlock x:Name="RecordingTimeText" Text="00:00" 
@@ -221,7 +220,7 @@
                     
                     <!-- 가변 설정 패널 (접기/펴기 대상) -->
                     <StackPanel x:Name="SettingsPanel" Orientation="Horizontal">
-                        <Separator Width="1" Height="20" Margin="4,0" Background="#E0E0E0"/>
+                        <Separator x:Name="Separator1" Width="1" Height="20" Margin="4,0" Background="#E0E0E0"/>
                         
                         <!-- 시스템 오디오 토글 (기본 OFF) -->
                         <ToggleButton x:Name="SystemAudioButton" Style="{StaticResource ToggleToolbarButtonStyle}"
@@ -315,7 +314,7 @@
                             </Grid>
                         </Button>
                         
-                        <Separator Width="1" Height="20" Margin="4,0" Background="#E0E0E0"/>
+                        <Separator x:Name="Separator2" Width="1" Height="20" Margin="4,0" Background="#E0E0E0"/>
                         
                         <!-- 영역 새로 선택 -->
                         <ToggleButton x:Name="AreaSelectButton" Style="{StaticResource ToggleToolbarButtonStyle}"

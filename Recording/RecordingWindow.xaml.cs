@@ -527,6 +527,7 @@ namespace CatchCapture.Recording
             {
                 if (!_overlay.IsSelectingNewArea)
                 {
+                    this.Hide(); // 툴박스 숨기기
                     _overlay.StartNewSelectionMode();
                 }
             }
@@ -555,9 +556,16 @@ namespace CatchCapture.Recording
             catch { }
         }
 
-
-        
-        /// <summary>
+        private void Overlay_AreaSelectionEnded(object? sender, EventArgs e)
+        {
+            this.Show(); // 툴박스 다시 보이기
+            this.Activate(); // 활성화
+            
+            if (AreaSelectButton != null)
+            {
+                AreaSelectButton.IsChecked = false;
+            }
+        }
         /// 전체 화면 버튼 클릭 (토글)
         /// </summary>
         private void FullScreenButton_Click(object sender, RoutedEventArgs e)
@@ -1251,27 +1259,180 @@ namespace CatchCapture.Recording
         {
             if (_overlay == null) return;
 
-            // 영역 위에 중앙 배치 (오버레이 절대 좌표 보정)
-            this.Left = _overlay.Left + area.Left + (area.Width - this.Width) / 2;
+            // 오버레이가 위치한 모니터 상의 실제 영역 계산 (Virtual Screen 좌표계)
+            Rect absoluteArea = new Rect(_overlay.Left + area.Left, _overlay.Top + area.Top, area.Width, area.Height);
             
-            double targetTop = _overlay.Top + area.Top - this.Height - 10;
-            double screenTop = SystemParameters.VirtualScreenTop;
-            double screenHeight = SystemParameters.VirtualScreenHeight;
-            double screenBottom = screenTop + screenHeight;
+            // 영역의 중심점 계산
+            Point center = new Point(absoluteArea.Left + absoluteArea.Width / 2, absoluteArea.Top + absoluteArea.Height / 2);
+            
+            // 해당 중심점이 포함된 스크린 찾기
+            var screen = System.Windows.Forms.Screen.FromPoint(new System.Drawing.Point((int)center.X, (int)center.Y));
+            var workArea = screen.WorkingArea; // Taskbar 제외 영역
 
-            // 1. 화면 상단 벗어남 방지 -> 영역 내부 상단으로 이동
-            if (targetTop < screenTop)
+            // 1. 상단 배치 시도 (Top Outer) - 가로 모드
+            // 조건: 영역 위쪽에 툴바 높이(약 60px) + 여유(10px)가 있는가?
+            bool canPlaceTop = (absoluteArea.Top - workArea.Top) >= 70;
+
+            if (canPlaceTop)
             {
-                targetTop = _overlay.Top + area.Top + 10;
-            }
+                SetLayoutMode(false); // 가로 모드
+                this.UpdateLayout();  // 크기 갱신
 
-            // 2. 화면 하단 벗어남 방지 -> 화면 하단에 맟춤
-            if (targetTop + this.Height > screenBottom)
+                double currentWidth = this.ActualWidth;
+                double currentHeight = this.ActualHeight;
+
+                double newLeft = absoluteArea.Left + (absoluteArea.Width - currentWidth) / 2;
+                double newTop = absoluteArea.Top - currentHeight - 10;
+
+                // 가로 위치 화면 보정
+                if (newLeft < workArea.Left) newLeft = workArea.Left + 10;
+                if (newLeft + currentWidth > workArea.Right) newLeft = workArea.Right - currentWidth - 10;
+
+                this.Left = newLeft;
+                this.Top = newTop;
+            }
+            else
             {
-                targetTop = screenBottom - this.Height - 10;
-            }
+                // 상단 공간 부족 -> 세로 모드 전환
+                SetLayoutMode(true);
+                this.UpdateLayout(); // 크기 갱신
 
-            this.Top = targetTop;
+                double currentWidth = this.ActualWidth;
+                double currentHeight = this.ActualHeight;
+
+                // 2. 좌측 외부 배치 시도 (Left Outer)
+                // 조건: 영역 왼쪽에 툴바 폭 + 여유(10px)가 있는가?
+                bool canPlaceLeft = (absoluteArea.Left - workArea.Left) >= (currentWidth + 10);
+                
+                // 3. 우측 외부 배치 시도 (Right Outer)
+                // 조건: 영역 오른쪽에 툴바 폭 + 여유(10px)가 있는가?
+                bool canPlaceRight = (workArea.Right - absoluteArea.Right) >= (currentWidth + 10);
+
+                if (canPlaceLeft)
+                {
+                    // 좌측 바깥 배치
+                    double newLeft = absoluteArea.Left - currentWidth - 10;
+                    double newTop = absoluteArea.Top; // 상단 정렬
+                    
+                    // 세로 위치 화면 보정
+                    if (newTop < workArea.Top) newTop = workArea.Top + 10;
+                    if (newTop + currentHeight > workArea.Bottom) newTop = workArea.Bottom - currentHeight - 10;
+
+                    this.Left = newLeft;
+                    this.Top = newTop;
+                }
+                else if (canPlaceRight)
+                {
+                    // 우측 바깥 배치
+                    double newLeft = absoluteArea.Right + 10;
+                    double newTop = absoluteArea.Top; // 상단 정렬
+
+                    // 세로 위치 화면 보정
+                    if (newTop < workArea.Top) newTop = workArea.Top + 10;
+                    if (newTop + currentHeight > workArea.Bottom) newTop = workArea.Bottom - currentHeight - 10;
+
+                    this.Left = newLeft;
+                    this.Top = newTop;
+                }
+                else
+                {
+                    // 4. 공간 모두 부족 -> 내부 좌측 배치 (Inner Left) - 최후의 수단
+                    double newLeft = absoluteArea.Left + 10;
+                    double newTop = absoluteArea.Top + 10;
+
+                    // 화면 보정
+                    if (newLeft < workArea.Left) newLeft = workArea.Left + 10;
+                    if (newTop < workArea.Top) newTop = workArea.Top + 10;
+                    if (newTop + currentHeight > workArea.Bottom) newTop = workArea.Bottom - currentHeight - 10;
+
+                    this.Left = newLeft;
+                    this.Top = newTop;
+                }
+            }
+        }
+
+        private bool _isVerticalLayout = false;
+
+        private void SetLayoutMode(bool vertical)
+        {
+            if (_isVerticalLayout == vertical) return;
+            _isVerticalLayout = vertical;
+
+            if (vertical)
+            {
+                // 세로 모드
+                
+                // 마진 초기화 (세로 모드에 맞게)
+                if (MainToolbarPanel != null)
+                {
+                    MainToolbarPanel.Orientation = Orientation.Vertical;
+                    MainToolbarPanel.Margin = new Thickness(4, 4, 4, 4);
+                }
+                
+                if (SettingsPanel != null)
+                {
+                    SettingsPanel.Orientation = Orientation.Vertical;
+                    SettingsPanel.Margin = new Thickness(0, 4, 0, 4);
+                }
+
+                // 타이틀바 텍스트 숨김 (폭 좁게 유지)
+                if (TitleText != null) TitleText.Visibility = Visibility.Collapsed;
+                
+                // 아이콘도 숨겨서 더 깔끔하게 (선택적)
+                // TitleBar 내부 Image 찾기 필요하지만 x:Name이 없으므로 생략 혹은 TitleText 옆의 stackpanel 접근 필요
+                // 여기선 TitleText만 숨김
+
+                // 녹화 시간 텍스트 정렬
+                if (RecordingTimeText != null)
+                {
+                    RecordingTimeText.Margin = new Thickness(0, 0, 0, 8);
+                    RecordingTimeText.HorizontalAlignment = HorizontalAlignment.Center;
+                }
+
+                // 구분선 숨기기
+                if (Separator1 != null) Separator1.Visibility = Visibility.Collapsed;
+                if (Separator2 != null) Separator2.Visibility = Visibility.Collapsed;
+                
+                // 영역 크기 텍스트 숨기기 (세로 모드에선 공간 차지 큼) 또는 작게 표시
+                if (AreaSizeText != null) AreaSizeText.Visibility = Visibility.Collapsed;
+
+                // 접기 버튼 회전 (아래쪽을 가리키거나 위쪽을 가리키도록?) 
+                // 일단 숨기거나 유지. 세로 모드에서 접기는 복잡할 수 있음. 유지.
+                
+                this.Width = Double.NaN;
+                this.Height = Double.NaN;
+            }
+            else
+            {
+                // 가로 모드 (복원)
+                if (MainToolbarPanel != null)
+                {
+                    MainToolbarPanel.Orientation = Orientation.Horizontal;
+                    MainToolbarPanel.Margin = new Thickness(8, 4, 8, 4);
+                }
+                
+                if (SettingsPanel != null)
+                {
+                    SettingsPanel.Orientation = Orientation.Horizontal;
+                    SettingsPanel.Margin = new Thickness(0, 0, 0, 0);
+                }
+
+                if (TitleText != null) TitleText.Visibility = Visibility.Visible;
+
+                if (RecordingTimeText != null)
+                {
+                    RecordingTimeText.Margin = new Thickness(0, 0, 8, 0);
+                    // RecordingTimeText.VerticalAlignment = VerticalAlignment.Center; // 기본값
+                }
+
+                if (Separator1 != null) Separator1.Visibility = Visibility.Visible;
+                if (Separator2 != null) Separator2.Visibility = Visibility.Visible;
+                
+                if (AreaSizeText != null) AreaSizeText.Visibility = Visibility.Visible;
+
+                this.Width = Double.NaN;
+                this.Height = Double.NaN;
+            }
         }
         
         #endregion
@@ -1283,7 +1444,7 @@ namespace CatchCapture.Recording
         /// </summary>
         private void CheckDocking()
         {
-            if (Top <= DOCK_THRESHOLD)
+            if (Math.Abs(Top) <= DOCK_THRESHOLD)
             {
                 DockToTop();
             }
@@ -1367,14 +1528,6 @@ namespace CatchCapture.Recording
             anim.EasingFunction = new System.Windows.Media.Animation.CubicEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut };
             BeginAnimation(TopProperty, anim);
             _isHidden = false;
-        }
-
-        private void Overlay_AreaSelectionEnded(object? sender, EventArgs e)
-        {
-            if (AreaSelectButton != null)
-            {
-                AreaSelectButton.IsChecked = false;
-            }
         }
 
         #endregion
