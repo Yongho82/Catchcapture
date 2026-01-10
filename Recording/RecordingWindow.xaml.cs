@@ -7,7 +7,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using System.Windows.Automation;
 using System.Windows.Interop;
 using System.Runtime.InteropServices;
 using CatchCapture.Models;
@@ -19,23 +18,7 @@ namespace CatchCapture.Recording
     /// </summary>
     public partial class RecordingWindow : Window
     {
-        // Win32 API for window detection
-        [DllImport("user32.dll")]
-        private static extern IntPtr WindowFromPoint(POINT point);
-        
-        [DllImport("user32.dll")]
-        private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
-        
-        [DllImport("user32.dll")]
-        private static extern IntPtr GetAncestor(IntPtr hwnd, uint gaFlags);
-        
-        private const uint GA_ROOT = 2; // 최상위 부모 윈도우 가져오기
-        
-        [StructLayout(LayoutKind.Sequential)]
-        private struct POINT { public int X; public int Y; }
-        
-        [StructLayout(LayoutKind.Sequential)]
-        private struct RECT { public int Left; public int Top; public int Right; public int Bottom; }
+
         
         // 설정
         private RecordingSettings _settings;
@@ -56,10 +39,8 @@ namespace CatchCapture.Recording
         private const double DOCK_THRESHOLD = 20;
         private DispatcherTimer _autoHideTimer;
         private bool _isHidden = false;
-        private DispatcherTimer _snapTimer; // 자동 맞춤 타이머
         private Rect? _savedArea = null; // 전체 화면 전 크기 저장용
-        private System.Drawing.Point _lastMousePos; // 마지막 마우스 위치
-        private int _mouseIdleCount = 0; // 마우스 정지 카운터
+
         private bool _isAttachedToOverlay = true; // 도구상자가 영역을 따라다니는지 여부
         
         // 상태
@@ -82,10 +63,7 @@ namespace CatchCapture.Recording
             _autoHideTimer.Interval = TimeSpan.FromSeconds(0.5);
             _autoHideTimer.Tick += AutoHideTimer_Tick;
             
-            // 자동 맞춤 타이머
-            _snapTimer = new DispatcherTimer();
-            _snapTimer.Interval = TimeSpan.FromMilliseconds(100);
-            _snapTimer.Tick += SnapTimer_Tick;
+
             
             // 이벤트 구독
             MouseEnter += RecordingWindow_MouseEnter;
@@ -541,98 +519,7 @@ namespace CatchCapture.Recording
             _overlay.StartNewSelectionMode();
         }
 
-        /// <summary>
-        /// 자동 맞춤 (자석) 버튼 클릭
-        /// </summary>
-        private void AutoSnapButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (_overlay != null)
-            {
-                _overlay.IsSnapEnabled = AutoSnapButton.IsChecked == true;
-                
-                // 툴팁 업데이트
-                AutoSnapButton.ToolTip = _overlay.IsSnapEnabled 
-                    ? "자동 영역 맞춤 (ON) - 드래그하면 창에 맞춤" 
-                    : "자동 영역 맞춤 (OFF)";
-            }
-        }
-        
-        /// <summary>
-        /// 자동 맞춤 타이머 틱 - 마우스가 멈췄을 때만 윈도우 감지
-        /// </summary>
-        private void SnapTimer_Tick(object? sender, EventArgs e)
-        {
-            try
-            {
-                if (_overlay == null || !_overlay.IsVisible) return;
-                
-                // 마우스 위치 가져오기
-                var mousePt = System.Windows.Forms.Control.MousePosition;
-                
-                // 마우스가 움직였는지 확인
-                if (mousePt.X != _lastMousePos.X || mousePt.Y != _lastMousePos.Y)
-                {
-                    // 마우스가 움직임 -> 카운터 리셋
-                    _lastMousePos = mousePt;
-                    _mouseIdleCount = 0;
-                    return; // 움직이는 동안은 스냅하지 않음
-                }
-                
-                // 마우스가 같은 위치에 있음 -> 카운터 증가
-                _mouseIdleCount++;
-                
-                // 0.3초(3틱) 이상 멈춰있어야 스냅 (0.1초 간격이므로)
-                if (_mouseIdleCount < 3) return;
-                
-                // 이미 스냅했으면 다시 하지 않음 (계속 붙는 것 방지)
-                if (_mouseIdleCount > 3) return;
-                
-                var point = new POINT { X = mousePt.X, Y = mousePt.Y };
-                
-                // 해당 위치의 윈도우 핸들 가져오기 (내부 컨트롤도 포함)
-                IntPtr hWnd = WindowFromPoint(point);
-                if (hWnd == IntPtr.Zero) return;
-                
-                // 내부 컨트롤(동영상 등) 감지를 위해 GetAncestor 제거
-                // 대신 해당 컨트롤의 크기가 너무 작으면 부모로 올라감
-                if (!GetWindowRect(hWnd, out RECT rect)) return;
-                
-                int width = rect.Right - rect.Left;
-                int height = rect.Bottom - rect.Top;
-                
-                // 너무 작은 컨트롤이면 부모 창으로
-                if (width < 200 || height < 150)
-                {
-                    IntPtr parentWnd = GetAncestor(hWnd, GA_ROOT);
-                    if (parentWnd != IntPtr.Zero && GetWindowRect(parentWnd, out rect))
-                    {
-                        width = rect.Right - rect.Left;
-                        height = rect.Bottom - rect.Top;
-                    }
-                }
-                
-                // 1. 유효성 검사
-                if (width <= 0 || height <= 0) return;
-                
-                // 2. 최소 크기 제한
-                if (width < 200 || height < 150) return;
-                
-                // 3. 전체 화면 크기 무시
-                var screen = System.Windows.Forms.Screen.FromPoint(mousePt);
-                if (width >= screen.Bounds.Width - 10 && height >= screen.Bounds.Height - 10) return;
-                
-                // 4. 우리 앱 무시
-                var toolbarRect = new Rect(this.Left, this.Top, this.Width, this.Height);
-                if (toolbarRect.Contains(new System.Windows.Point(mousePt.X, mousePt.Y))) return;
 
-                // 물리적 좌표(pixels) -> 논리적 좌표(units) 변환
-                Point logicalTopLeft = _overlay.PointFromScreen(new Point(rect.Left, rect.Top));
-                Point logicalBottomRight = _overlay.PointFromScreen(new Point(rect.Right, rect.Bottom));
-                
-                _overlay.SelectionArea = new Rect(logicalTopLeft, logicalBottomRight);
-            }
-            catch { /* 실패 시 무시 */ }
-        }
         
         /// <summary>
         /// 전체 화면 버튼 클릭 (토글)
@@ -1225,7 +1112,7 @@ namespace CatchCapture.Recording
         if (FpsButton != null) FpsButton.IsEnabled = isVideoMode && !isGifMode; // GIF는 내부 정책 사용
         if (MouseEffectToggle != null) MouseEffectToggle.IsEnabled = isVideoMode;
         if (AreaSelectButton != null) AreaSelectButton.IsEnabled = isVideoMode;
-        if (AutoSnapButton != null) AutoSnapButton.IsEnabled = isVideoMode;
+
         if (FullScreenButton != null) FullScreenButton.IsEnabled = isVideoMode;
         if (DrawingButton != null) DrawingButton.IsEnabled = isVideoMode;
         if (AreaSizeText != null) AreaSizeText.Visibility = isVideoMode ? Visibility.Visible : Visibility.Collapsed;
@@ -1471,7 +1358,7 @@ namespace CatchCapture.Recording
 
             // 새로운 도구 툴팁 추가
             if (AreaSelectButton != null) AreaSelectButton.ToolTip = loc("AreaSelection");
-            if (AutoSnapButton != null) AutoSnapButton.ToolTip = loc("AutoSnap");
+
             if (FullScreenButton != null) FullScreenButton.ToolTip = loc("FullScreen");
             if (DrawingButton != null) DrawingButton.ToolTip = loc("DrawingTools");
             

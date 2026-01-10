@@ -4,8 +4,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using System.Runtime.InteropServices;
-using System.Windows.Automation;
 
 namespace CatchCapture.Recording
 {
@@ -14,26 +12,7 @@ namespace CatchCapture.Recording
     /// </summary>
     public partial class RecordingOverlay : Window
     {
-        // Win32 API for snap feature
-        [DllImport("user32.dll")]
-        private static extern IntPtr WindowFromPoint(POINT point);
-        
-        [DllImport("user32.dll")]
-        private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
-        
-        [DllImport("user32.dll")]
-        private static extern IntPtr GetAncestor(IntPtr hwnd, uint gaFlags);
-        
-        private const uint GA_ROOT = 2;
-        
-        [StructLayout(LayoutKind.Sequential)]
-        private struct POINT { public int X; public int Y; }
-        
-        [StructLayout(LayoutKind.Sequential)]
-        private struct RECT { public int Left; public int Top; public int Right; public int Bottom; }
-        
-        // 자석 기능 활성화 여부
-        public bool IsSnapEnabled { get; set; } = false;
+
         
         // 현재 선택 영역
         private Rect _selectionArea;
@@ -334,87 +313,7 @@ namespace CatchCapture.Recording
         {
             if (!_isDragging) return;
             
-            // 자석 기능이 켜져 있으면 창에 맞춤
-            if (IsSnapEnabled)
-            {
-                bool snapped = false;
-                var screenPos = System.Windows.Forms.Control.MousePosition;
 
-                // 1. UI Automation 시도 (정밀 감지: 동영상, 내부 패널 등)
-                try
-                {
-                    var element = AutomationElement.FromPoint(new System.Windows.Point(screenPos.X, screenPos.Y));
-                    if (element != null)
-                    {
-                        Rect rect = element.Current.BoundingRectangle;
-                        
-                        // 유효성 및 크기 검사
-                        if (!double.IsInfinity(rect.Width) && rect.Width >= 200 && rect.Height >= 150)
-                        {
-                            // 전체 화면 크기는 무시
-                            var screen = System.Windows.Forms.Screen.FromPoint(screenPos);
-                            if (!(rect.Width >= screen.Bounds.Width - 10 && rect.Height >= screen.Bounds.Height - 10))
-                            {
-                                // 오버레이 기준 좌표로 변환
-                                double newLeft = rect.Left - this.Left;
-                                double newTop = rect.Top - this.Top;
-                                
-                                SelectionArea = new Rect(newLeft, newTop, rect.Width, rect.Height);
-                                snapped = true;
-                            }
-                        }
-                    }
-                }
-                catch { /* UI Automation 실패 시 무시하고 Win32로 넘어감 */ }
-
-                // 2. Win32 API 시도 (일반 창 감지 - UI Automation이 실패하거나 스냅되지 않았을 때)
-                if (!snapped)
-                {
-                    try
-                    {
-                        var point = new POINT { X = screenPos.X, Y = screenPos.Y };
-                        IntPtr hWnd = WindowFromPoint(point);
-                        
-                        if (hWnd != IntPtr.Zero)
-                        {
-                            if (GetWindowRect(hWnd, out RECT rect))
-                            {
-                                int width = rect.Right - rect.Left;
-                                int height = rect.Bottom - rect.Top;
-                                
-                                // 너무 작은 컨트롤이면 부모 창으로
-                                if (width < 200 || height < 150)
-                                {
-                                    IntPtr parentWnd = GetAncestor(hWnd, GA_ROOT);
-                                    if (parentWnd != IntPtr.Zero)
-                                    {
-                                        GetWindowRect(parentWnd, out rect);
-                                        width = rect.Right - rect.Left;
-                                        height = rect.Bottom - rect.Top;
-                                    }
-                                }
-                                
-                                // 유효한 크기면 적용
-                                if (width >= 200 && height >= 150)
-                                {
-                                    var screen = System.Windows.Forms.Screen.FromPoint(screenPos);
-                                    if (!(width >= screen.Bounds.Width - 10 && height >= screen.Bounds.Height - 10))
-                                    {
-                                        double newLeft = rect.Left - this.Left;
-                                        double newTop = rect.Top - this.Top;
-                                        
-                                        SelectionArea = new Rect(newLeft, newTop, width, height);
-                                        return;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    catch { /* Win32 실패 시 무시 */ }
-                }
-                
-                if (snapped) return;
-            }
             
             // 기본 드래그 동작
             var current = e.GetPosition(this);

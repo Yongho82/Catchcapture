@@ -323,11 +323,7 @@
                             <TextBlock Text="⛶" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Button>
                         
-                        <!-- 자동 맞춤 (자석) -->
-                        <ToggleButton x:Name="AutoSnapButton" Style="{StaticResource ToggleToolbarButtonStyle}"
-                                      Click="AutoSnapButton_Click" ToolTip="자동 영역 맞춤 (OFF)">
-                            <TextBlock Text="🧲" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </ToggleButton>
+
                         
                         <!-- 전체 화면 -->
                         <Button x:Name="FullScreenButton" Style="{StaticResource ToolbarButtonStyle}"
