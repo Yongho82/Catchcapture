@@ -128,6 +128,68 @@ namespace CatchCapture.Utilities
             catch { return source; }
         }
 
+        /// <summary>
+        /// WPF BitmapSource에 둥근 모서리, 테두리 라인, 그림자 효과를 적용합니다.
+        /// </summary>
+        public static System.Windows.Media.Imaging.BitmapSource? CreateEdgeLineCapture(
+            System.Windows.Media.Imaging.BitmapSource source, 
+            double radius, 
+            double borderThickness, 
+            System.Windows.Media.Color borderColor,
+            bool hasShadow,
+            double shadowBlur,
+            double shadowDepth,
+            double shadowOpacity)
+        {
+            if (source == null) return null;
+
+            try
+            {
+                int sourceWidth = (int)source.PixelWidth;
+                int sourceHeight = (int)source.PixelHeight;
+                double actualRadius = (radius >= 99) ? Math.Min(sourceWidth, sourceHeight) / 2.0 : radius;
+
+                // 그림자 및 테두리 두께를 고려한 여백(Padding) 계산
+                double padding = (hasShadow ? (shadowBlur + shadowDepth) : 0) + (borderThickness / 2.0) + 5;
+                int targetWidth = (int)(sourceWidth + padding * 2);
+                int targetHeight = (int)(sourceHeight + padding * 2);
+
+                var border = new System.Windows.Controls.Border
+                {
+                    Width = sourceWidth,
+                    Height = sourceHeight,
+                    CornerRadius = new System.Windows.CornerRadius(actualRadius),
+                    Background = new System.Windows.Media.ImageBrush(source) { Stretch = System.Windows.Media.Stretch.None },
+                    BorderBrush = new System.Windows.Media.SolidColorBrush(borderColor),
+                    BorderThickness = new System.Windows.Thickness(borderThickness),
+                    SnapsToDevicePixels = true
+                };
+
+                if (hasShadow)
+                {
+                    border.Effect = new System.Windows.Media.Effects.DropShadowEffect
+                    {
+                        Color = System.Windows.Media.Colors.Black,
+                        BlurRadius = shadowBlur,
+                        ShadowDepth = shadowDepth,
+                        Opacity = shadowOpacity,
+                        Direction = 315
+                    };
+                }
+
+                // 레이아웃 강제 수행 (여백 적용)
+                border.Measure(new System.Windows.Size(targetWidth, targetHeight));
+                border.Arrange(new System.Windows.Rect(padding, padding, sourceWidth, sourceHeight));
+                border.UpdateLayout();
+
+                var rtb = new System.Windows.Media.Imaging.RenderTargetBitmap(targetWidth, targetHeight, source.DpiX, source.DpiY, System.Windows.Media.PixelFormats.Pbgra32);
+                rtb.Render(border);
+                rtb.Freeze();
+                return rtb;
+            }
+            catch { return source; }
+        }
+
         [System.Runtime.InteropServices.DllImport("gdi32.dll")]
         private static extern bool DeleteObject(IntPtr hObject);
     }

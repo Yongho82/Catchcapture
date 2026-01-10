@@ -97,6 +97,8 @@ namespace CatchCapture.Utilities
         
         // 선택 영역 정보 (즉시편집 모드에서 사용)
         private Rect currentSelectionRect = Rect.Empty;
+        private BitmapSource? _originalCroppedImage; // [추가] 엣지 효과 없는 원본 크롭 이미지
+        private Image? _edgePreviewImage;           // [추가] 실시간 프리뷰용 이미지 컨트롤
 
         private string? _sourceApp;
         private string? _sourceTitle;
@@ -287,6 +289,7 @@ namespace CatchCapture.Utilities
             this.PreviewKeyDown += SnippingWindow_PreviewKeyDown;
 
             _editorManager = new SharedCanvasEditor(_drawingCanvas ?? canvas, drawnElements, undoStack);
+            _editorManager.EdgeCornerRadius = _cornerRadius; // [추가] 초기 곡률 설정
             _editorManager.MosaicRequired += (rect) => ApplyMosaic(rect);
             _editorManager.ElementAdded += OnElementAdded;
             _editorManager.ActionOccurred += () => redoStack.Clear();
@@ -843,6 +846,8 @@ namespace CatchCapture.Utilities
                         rtb.Render(visual);
                         rtb.Freeze();
 
+                        _originalCroppedImage = rtb; // [추가] 원본 저장
+
                         // 엣지 캡처 적용: 반지름이 0보다 크면 이미지를 둥글게 깎음
                         if (_cornerRadius > 0)
                         {
@@ -1238,6 +1243,7 @@ namespace CatchCapture.Utilities
                     {
                         var cropRect = new Int32Rect(relX, relY, cw, ch);
                         SelectedFrozenImage = new CroppedBitmap(screenCapture, cropRect);
+                        _originalCroppedImage = SelectedFrozenImage; // [추가] 원본 저장
                     }
                 }
             }
@@ -1362,6 +1368,10 @@ namespace CatchCapture.Utilities
             var eraserButton = CreateToolButton("eraser.png", ResLoc.GetString("Eraser"), GetLocalizedTooltip("Eraser"));
             eraserButton.Tag = "지우개";
             eraserButton.Click += (s, e) => ToggleToolPalette("지우개", eraserButton);
+
+            var edgeLineButton = CreateToolButton("edge_3.png", ResLoc.GetString("EdgeLine"), ResLoc.GetString("EdgeLine"));
+            edgeLineButton.Tag = "엣지라인";
+            edgeLineButton.Click += (s, e) => ToggleToolPalette("엣지라인", edgeLineButton);
 
             // 이미지 검색 버튼
             var imageSearchButton = CreateToolButton("img_find.png", ResLoc.GetString("ImageSearch"), GetLocalizedTooltip("ImageSearch"));
@@ -1648,6 +1658,7 @@ namespace CatchCapture.Utilities
             toolbarPanel.Children.Add(shapeButton);
             toolbarPanel.Children.Add(numberingButton);
             toolbarPanel.Children.Add(mosaicButton);
+            toolbarPanel.Children.Add(edgeLineButton);
             toolbarPanel.Children.Add(eraserButton);
             toolbarPanel.Children.Add(imageSearchButton);
             toolbarPanel.Children.Add(ocrButton);
@@ -1677,6 +1688,18 @@ namespace CatchCapture.Utilities
             _toolOptionsControl.Visibility = Visibility.Collapsed;
             canvas.Children.Add(_toolOptionsControl);
             Panel.SetZIndex(_toolOptionsControl, 5001); // 툴바보다 위에 표시
+
+            // [추가] 엣지라인 실시간 프리뷰 이미지 초기화
+            _edgePreviewImage = new Image
+            {
+                IsHitTestVisible = false,
+                Visibility = Visibility.Collapsed
+            };
+            Panel.SetZIndex(_edgePreviewImage, 1500); // 딤 배경(1000)보다 위, 드로잉보다는 아래
+            canvas.Children.Add(_edgePreviewImage);
+
+            // 엣지 속성 변경 이벤트 연결
+            _editorManager.EdgePropertiesChanged += UpdateEdgeLinePreview;
 
             // 펜을 기본 도구로 선택 (첫 실행 시에만, 팔레트는 열지 않음)
             if (string.IsNullOrEmpty(currentTool))
@@ -2292,8 +2315,9 @@ namespace CatchCapture.Utilities
 
         private void ConfirmAndClose()
         {
-            // 그린 내용을 이미지에 합성, 또는 엣지 캡처(둥근 모서리)인 경우 처리
-            if (drawnElements.Count > 0 || _cornerRadius > 0)
+            // 그린 내용이 있거나, 엣지 효과(둥근 모서리, 테두리, 그림자)가 설정된 경우 이미지 합성 수행
+            bool hasEdgeEffects = _editorManager != null && (_editorManager.EdgeCornerRadius > 0 || _editorManager.EdgeBorderThickness > 0 || _editorManager.HasEdgeShadow);
+            if (drawnElements.Count > 0 || _cornerRadius > 0 || hasEdgeEffects)
             {
                 SaveDrawingsToImage();
             }
@@ -2372,8 +2396,9 @@ namespace CatchCapture.Utilities
         {
             try
             {
-                // 그린 내용을 이미지에 합성
-                if (drawnElements.Count > 0)
+                // 그린 내용 또는 엣지 효과가 있는 경우 이미지 합성
+                bool hasEdgeEffects = _editorManager != null && (_editorManager.EdgeCornerRadius > 0 || _editorManager.EdgeBorderThickness > 0 || _editorManager.HasEdgeShadow);
+                if (drawnElements.Count > 0 || _cornerRadius > 0 || hasEdgeEffects)
                 {
                     SaveDrawingsToImage();
                 }
@@ -2412,8 +2437,9 @@ namespace CatchCapture.Utilities
         {
             try
             {
-                // 그린 내용을 이미지에 합성
-                if (drawnElements.Count > 0)
+                // 그린 내용 또는 엣지 효과가 있는 경우 이미지 합성
+                bool hasEdgeEffects = _editorManager != null && (_editorManager.EdgeCornerRadius > 0 || _editorManager.EdgeBorderThickness > 0 || _editorManager.HasEdgeShadow);
+                if (drawnElements.Count > 0 || _cornerRadius > 0 || hasEdgeEffects)
                 {
                     SaveDrawingsToImage();
                 }
@@ -2906,15 +2932,25 @@ namespace CatchCapture.Utilities
             
 
 
-            if (!IsPointInSelection(currentPoint)) return;
-
             _editorManager.UpdateDrawing(currentPoint);
+
+            // [추가] 엣지라인 모드일 경우 실시간 프리뷰 갱신
+            if (currentTool == "엣지라인")
+            {
+                UpdateEdgeLinePreview();
+            }
         }
         
         private void Canvas_DrawMouseUp(object sender, MouseButtonEventArgs e)
         {
             if (e.Handled) return;
             _editorManager.FinishDrawing();
+
+            // [추가] 엣지라인 모드일 경우 그리기 종료 시 프리뷰 확정 업데이트
+            if (currentTool == "엣지라인")
+            {
+                UpdateEdgeLinePreview();
+            }
         }
 
         private void SaveDrawingsToImage()
@@ -3293,9 +3329,23 @@ namespace CatchCapture.Utilities
                 bitmapImage.Freeze();
             }
 
-            // [Fix] 엣지 캡처(둥근 모서리)인 경우 처리
-            if (_cornerRadius > 0)
+            // [Fix] 엣지 캡처(둥근 모서리, 테두리, 그림자) 처리
+            if (_editorManager != null && (_editorManager.EdgeCornerRadius > 0 || _editorManager.EdgeBorderThickness > 0 || _editorManager.HasEdgeShadow))
             {
+                SelectedFrozenImage = EdgeCaptureHelper.CreateEdgeLineCapture(
+                    bitmapImage, 
+                    _editorManager.EdgeCornerRadius, 
+                    _editorManager.EdgeBorderThickness, 
+                    _editorManager.SelectedColor, // 테두리 색상으로 현재 선택된 색상 사용
+                    _editorManager.HasEdgeShadow,
+                    _editorManager.EdgeShadowBlur,
+                    _editorManager.EdgeShadowDepth,
+                    _editorManager.EdgeShadowOpacity
+                );
+            }
+            else if (_cornerRadius > 0)
+            {
+                // [하위 호환] 에디터 설정은 없지만 엣지 캡처 모드로 시작된 경우
                 SelectedFrozenImage = EdgeCaptureHelper.CreateRoundedCapture(bitmapImage, _cornerRadius);
             }
             else
@@ -3473,6 +3523,30 @@ namespace CatchCapture.Utilities
                     case "넘버링": EnableNumberingMode(); break;
                     case "모자이크": EnableMosaicMode(); break;
                     case "지우개": EnableEraserMode(); break;
+                    case "엣지라인": break; 
+                }
+
+                // [추가] 엣지라인 모드일 때는 선택 영역 가이드(빨간 선)만 숨기기
+                if (toolName == "엣지라인")
+                {
+                    selectionOverlay?.SetVisibility(Visibility.Collapsed);
+                    // selectionOverlay?.SetOverlayVisibility(Visibility.Collapsed); // 딤 배경은 유지
+                    RemoveResizeHandles();
+                    UpdateEdgeLinePreview();
+                }
+                else
+                {
+                    selectionOverlay?.SetVisibility(Visibility.Visible);
+                    selectionOverlay?.SetOverlayVisibility(Visibility.Visible); // 딤 배경 다시 표시
+                    CreateResizeHandles();
+                    if (_edgePreviewImage != null) _edgePreviewImage.Visibility = Visibility.Collapsed;
+
+                    // 클리핑 복원 (기존 엣지 캡처의 곡률을 유지하거나 0으로)
+                    if (_drawingCanvas != null)
+                    {
+                        double rad = selectionOverlay != null ? selectionOverlay.CornerRadius : 0;
+                        _drawingCanvas.Clip = new RectangleGeometry(currentSelectionRect, rad, rad);
+                    }
                 }
                 
                 ShowToolOptions(toolName);
@@ -3974,6 +4048,7 @@ namespace CatchCapture.Utilities
                  if (cw > 0 && ch > 0)
                  {
                      SelectedFrozenImage = new CroppedBitmap(screenCapture, new Int32Rect(relX, relY, cw, ch));
+                     _originalCroppedImage = SelectedFrozenImage; // [추가] 원본 갱신
                  }
              }
         }
@@ -4094,8 +4169,9 @@ namespace CatchCapture.Utilities
         {
             try
             {
-                // 그린 내용을 이미지에 합성
-                if (drawnElements.Count > 0)
+                // 그린 내용 또는 엣지 효과가 있는 경우 이미지 합성
+                bool hasEdgeEffects = _editorManager != null && (_editorManager.EdgeCornerRadius > 0 || _editorManager.EdgeBorderThickness > 0 || _editorManager.HasEdgeShadow);
+                if (drawnElements.Count > 0 || _cornerRadius > 0 || hasEdgeEffects)
                 {
                     SaveDrawingsToImage();
                 }
@@ -4138,6 +4214,87 @@ namespace CatchCapture.Utilities
                 bitmap = new Drawing.Bitmap(outStream);
             }
             return new Drawing.Bitmap(bitmap);
+        }
+
+        private void UpdateEdgeLinePreview()
+        {
+            if (_originalCroppedImage == null || _edgePreviewImage == null || _editorManager == null || currentTool != "엣지라인")
+            {
+                if (_edgePreviewImage != null) _edgePreviewImage.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            try
+            {
+                // [개선] 배경 이미지와 드로잉 요소를 합친 비트맵 생성
+                double w = currentSelectionRect.Width;
+                double h = currentSelectionRect.Height;
+                if (w <= 0 || h <= 0) return;
+
+                var rtb = new RenderTargetBitmap((int)w, (int)h, 96, 96, PixelFormats.Pbgra32);
+                var dv = new DrawingVisual();
+                using (var dc = dv.RenderOpen())
+                {
+                    // 1. 배경 이미지
+                    dc.DrawImage(_originalCroppedImage, new Rect(0, 0, w, h));
+                    
+                    // 2. 드로잉 요소들을 임시 캔버스 오프셋에 맞춰 렌더링
+                    // (여기서는 간단하게 _drawingCanvas 자체를 브러시로 그려볼 수도 있으나, 
+                    // VisualBrush는 성능 이슈가 있을 수 있어 직접 그리는 것이 나음)
+                    // 하지만 실시간 프리뷰이므로 VisualBrush를 사용하여 _drawingCanvas를 캡처하는 것이 가장 정확하고 구현이 빠름
+                    if (_drawingCanvas != null)
+                    {
+                        var vb = new VisualBrush(_drawingCanvas) 
+                        { 
+                            Stretch = Stretch.None, 
+                            AlignmentX = AlignmentX.Left, 
+                            AlignmentY = AlignmentY.Top,
+                            Viewbox = currentSelectionRect,
+                            ViewboxUnits = BrushMappingMode.Absolute
+                        };
+                        dc.DrawRectangle(vb, null, new Rect(0, 0, w, h));
+                    }
+                }
+                rtb.Render(dv);
+                rtb.Freeze();
+
+                var preview = EdgeCaptureHelper.CreateEdgeLineCapture(
+                    rtb,
+                    _editorManager.EdgeCornerRadius,
+                    _editorManager.EdgeBorderThickness,
+                    _editorManager.SelectedColor,
+                    _editorManager.HasEdgeShadow,
+                    _editorManager.EdgeShadowBlur,
+                    _editorManager.EdgeShadowDepth,
+                    _editorManager.EdgeShadowOpacity
+                );
+
+                if (preview != null)
+                {
+                    _edgePreviewImage.Source = preview;
+                    _edgePreviewImage.Visibility = Visibility.Visible;
+
+                    // [추가] 엣지 곡률에 따라 드로잉 캔버스 클리핑 업데이트 (전체 화면 기준 좌표 사용)
+                    if (_drawingCanvas != null)
+                    {
+                        double rad = ( _editorManager.EdgeCornerRadius >= 99) ? Math.Min(currentSelectionRect.Width, currentSelectionRect.Height) / 2.0 : _editorManager.EdgeCornerRadius;
+                        _drawingCanvas.Clip = new RectangleGeometry(currentSelectionRect, rad, rad);
+                    }
+
+                    // 위치 및 크기 조정
+                    double borderThickness = _editorManager.EdgeBorderThickness;
+                    bool hasShadow = _editorManager.HasEdgeShadow;
+                    double shadowBlur = _editorManager.EdgeShadowBlur;
+                    double shadowDepth = _editorManager.EdgeShadowDepth;
+                    
+                    // EdgeCaptureHelper와 동일한 패딩 계산 로직 사용
+                    double padding = (hasShadow ? (shadowBlur + shadowDepth) : 0) + (borderThickness / 2.0) + 5;
+                    
+                    Canvas.SetLeft(_edgePreviewImage, currentSelectionRect.Left - padding);
+                    Canvas.SetTop(_edgePreviewImage, currentSelectionRect.Top - padding);
+                }
+            }
+            catch { }
         }
 
         private BitmapSource BitmapToBitmapSource(Drawing.Bitmap bitmap)

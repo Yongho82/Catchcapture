@@ -54,6 +54,7 @@ namespace CatchCapture.Controls
             MosaicOptions.Visibility = Visibility.Collapsed;
             EraserOptions.Visibility = Visibility.Collapsed;
             MagicWandOptions.Visibility = Visibility.Collapsed; // [추가] 마법봉 옵션 숨기기
+            EdgeOptions.Visibility = Visibility.Collapsed; // [추가] 엣지라인 옵션 숨기기
             ColorSection.Visibility = Visibility.Visible;
             Separator.Visibility = Visibility.Visible;
 
@@ -126,10 +127,24 @@ namespace CatchCapture.Controls
                     MagicWandOptions.Visibility = Visibility.Visible;
                     ColorSection.Visibility = Visibility.Collapsed;
                     Separator.Visibility = Visibility.Collapsed;
-                    if (_editor != null)
+                     if (_editor != null)
                     {
                         MagicWandToleranceSlider.Value = _editor.MagicWandTolerance;
                         MagicWandContiguousCheck.IsChecked = _editor.MagicWandContiguous;
+                    }
+                    break;
+                case "엣지라인":
+                    EdgeOptions.Visibility = Visibility.Visible;
+                    if (_editor != null)
+                    {
+                        EdgeThicknessSlider.Value = _editor.EdgeBorderThickness;
+                        EdgeRadiusSlider.Value = _editor.EdgeCornerRadius;
+                        EdgeShadowCheck.IsChecked = _editor.HasEdgeShadow;
+                        ShadowOpacitySlider.Value = _editor.EdgeShadowOpacity;
+                        ShadowBlurSlider.Value = _editor.EdgeShadowBlur;
+                        ShadowDepthSlider.Value = _editor.EdgeShadowDepth;
+                        ShadowDetailPanel.IsEnabled = _editor.HasEdgeShadow;
+                        ShadowDetailPanel.Opacity = _editor.HasEdgeShadow ? 1.0 : 0.5;
                     }
                     break;
             }
@@ -198,6 +213,14 @@ namespace CatchCapture.Controls
             // 모자이크
             MosaicSlider.Value = _editor.MosaicIntensity;
             BlurCheck.IsChecked = _editor.UseBlur;
+
+            // 엣지라인
+            EdgeThicknessSlider.Value = _editor.EdgeBorderThickness;
+            EdgeRadiusSlider.Value = _editor.EdgeCornerRadius;
+            EdgeShadowCheck.IsChecked = _editor.HasEdgeShadow;
+            ShadowOpacitySlider.Value = _editor.EdgeShadowOpacity;
+            ShadowBlurSlider.Value = _editor.EdgeShadowBlur;
+            ShadowDepthSlider.Value = _editor.EdgeShadowDepth;
         }
 
         private void UpdateNumberingTabSelection()
@@ -363,8 +386,51 @@ namespace CatchCapture.Controls
             MagicWandContiguousCheck.Checked += (s, e) => {
                 if (_editor != null) _editor.MagicWandContiguous = true;
             };
-            MagicWandContiguousCheck.Unchecked += (s, e) => {
+             MagicWandContiguousCheck.Unchecked += (s, e) => {
                 if (_editor != null) _editor.MagicWandContiguous = false;
+            };
+
+            // EdgeLine Events
+            EdgeThicknessSlider.ValueChanged += (s, e) => {
+                if (_editor == null) return;
+                _editor.EdgeBorderThickness = e.NewValue;
+                EdgeThicknessValue.Text = $"{(int)e.NewValue}px";
+                _editor.ApplyCurrentSettingsToSelectedObject();
+                _editor.FireEdgePropertiesChanged(); // [추가] 프리뷰 갱신 알림
+            };
+            EdgeRadiusSlider.ValueChanged += (s, e) => {
+                if (_editor == null) return;
+                _editor.EdgeCornerRadius = e.NewValue;
+                EdgeRadiusValue.Text = $"{(int)e.NewValue}";
+                _editor.ApplyCurrentSettingsToSelectedObject();
+                _editor.FireEdgePropertiesChanged(); // [추가] 프리뷰 갱신 알림
+            };
+            EdgeShadowCheck.Click += (s, e) => {
+                if (_editor == null) return;
+                bool isChecked = (EdgeShadowCheck.IsChecked == true);
+                _editor.HasEdgeShadow = isChecked;
+                ShadowDetailPanel.IsEnabled = isChecked;
+                ShadowDetailPanel.Opacity = isChecked ? 1.0 : 0.5;
+                _editor.ApplyCurrentSettingsToSelectedObject();
+                _editor.FireEdgePropertiesChanged(); // [추가] 프리뷰 갱신 알림
+            };
+            ShadowOpacitySlider.ValueChanged += (s, e) => {
+                if (_editor == null) return;
+                _editor.EdgeShadowOpacity = e.NewValue;
+                _editor.ApplyCurrentSettingsToSelectedObject();
+                _editor.FireEdgePropertiesChanged(); // [추가] 프리뷰 갱신 알림
+            };
+            ShadowBlurSlider.ValueChanged += (s, e) => {
+                if (_editor == null) return;
+                _editor.EdgeShadowBlur = e.NewValue;
+                _editor.ApplyCurrentSettingsToSelectedObject();
+                _editor.FireEdgePropertiesChanged(); // [추가] 프리뷰 갱신 알림
+            };
+            ShadowDepthSlider.ValueChanged += (s, e) => {
+                if (_editor == null) return;
+                _editor.EdgeShadowDepth = e.NewValue;
+                _editor.ApplyCurrentSettingsToSelectedObject();
+                _editor.FireEdgePropertiesChanged(); // [추가] 프리뷰 갱신 알림
             };
 
             // Paragraph Spacing Button
@@ -648,6 +714,14 @@ namespace CatchCapture.Controls
             EraserLabel.Text = ResLoc.GetString("Size");
             MagicWandLabel.Text = ResLoc.GetString("MagicWandToleranceLabel");
             MagicWandContiguousCheck.Content = ResLoc.GetString("MagicWandContiguousOnly");
+
+            // EdgeLine Localization
+            EdgeThicknessLabel.Text = ResLoc.GetString("EdgeLineThickness");
+            EdgeRadiusLabel.Text = ResLoc.GetString("EdgeRounding");
+            EdgeShadowCheck.Content = ResLoc.GetString("ShadowEffect");
+            ShadowBlurLabel.Text = ResLoc.GetString("ShadowBlur");
+            ShadowOpacityLabel.Text = ResLoc.GetString("ShadowIntensity");
+            ShadowDepthLabel.Text = ResLoc.GetString("ShadowSize");
         }
     }
 }

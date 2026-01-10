@@ -57,6 +57,14 @@ namespace CatchCapture.Utilities
         public int MagicWandTolerance { get; set; } = 32;
         public bool MagicWandContiguous { get; set; } = true;
 
+        // [추가] 엣지라인 및 그림자 관련 (글로벌 성격)
+        public double EdgeBorderThickness { get; set; } = 0;
+        public double EdgeCornerRadius { get; set; } = 0;
+        public bool HasEdgeShadow { get; set; } = false;
+        public double EdgeShadowBlur { get; set; } = 10;
+        public double EdgeShadowDepth { get; set; } = 5;
+        public double EdgeShadowOpacity { get; set; } = 0.5;
+
         private Polyline? _currentPolyline;
         private Point _lastDrawPoint;
         private bool _isDrawingShape = false;
@@ -69,6 +77,7 @@ namespace CatchCapture.Utilities
         public event Action<Rect>? MosaicRequired;
         public event Action? ActionOccurred;
         public event Action<UIElement>? ElementAdded;
+        public event Action? EdgePropertiesChanged; // [추가] 엣지라인 속성 변경 이벤트
 
         public SharedCanvasEditor(Canvas canvas, List<UIElement> drawnElements, Stack<UIElement> undoStack)
         {
@@ -76,6 +85,8 @@ namespace CatchCapture.Utilities
             _drawnElements = drawnElements;
             _undoStack = undoStack;
         }
+
+        public void FireEdgePropertiesChanged() => EdgePropertiesChanged?.Invoke(); // [추가] 이벤트 발생 헬퍼
 
         public void StartDrawing(Point clickPoint, object originalSource, bool isRightButton = false)
         {

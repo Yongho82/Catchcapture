@@ -259,6 +259,40 @@
                     </StackPanel>
                     <CheckBox x:Name="MagicWandContiguousCheck" Content="연속 영역만" Margin="0,8,0,0" IsChecked="True"/>
                 </StackPanel>
+
+                <!-- 엣지라인 옵션 (새로 추가) -->
+                <StackPanel x:Name="EdgeOptions" Visibility="Collapsed" Width="220">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                            <TextBlock Text="라인 두께" FontWeight="SemiBold" Margin="0,0,0,4" x:Name="EdgeThicknessLabel"/>
+                            <Slider x:Name="EdgeThicknessSlider" Minimum="0" Maximum="20" Width="100" Margin="0,0,0,2"/>
+                            <TextBlock x:Name="EdgeThicknessValue" HorizontalAlignment="Center" FontSize="10" Opacity="0.7"/>
+
+                            <TextBlock Text="엣지 조절" FontWeight="SemiBold" Margin="0,8,0,4" x:Name="EdgeRadiusLabel"/>
+                            <Slider x:Name="EdgeRadiusSlider" Minimum="0" Maximum="100" Width="100" Margin="0,0,0,2"/>
+                            <TextBlock x:Name="EdgeRadiusValue" HorizontalAlignment="Center" FontSize="10" Opacity="0.7"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1">
+                            <CheckBox x:Name="EdgeShadowCheck" Content="그림자 효과" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                            <StackPanel x:Name="ShadowDetailPanel" IsEnabled="False" Opacity="0.5">
+                                <TextBlock Text="그림자 흐림" FontSize="10" Margin="0,2,0,2" x:Name="ShadowBlurLabel"/>
+                                <Slider x:Name="ShadowBlurSlider" Minimum="0" Maximum="50" Width="100" Margin="0,0,0,2"/>
+                                
+                                <TextBlock Text="그림자 진하기" FontSize="10" Margin="0,5,0,2" x:Name="ShadowOpacityLabel"/>
+                                <Slider x:Name="ShadowOpacitySlider" Minimum="0" Maximum="1" Width="100" Margin="0,0,0,2"/>
+                                
+                                <TextBlock Text="그림자 두께" FontSize="10" Margin="0,5,0,2" x:Name="ShadowDepthLabel"/>
+                                <Slider x:Name="ShadowDepthSlider" Minimum="0" Maximum="50" Width="100"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
             </Grid>
         </StackPanel>
     </Border>

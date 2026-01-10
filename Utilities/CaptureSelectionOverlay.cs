@@ -309,6 +309,14 @@ namespace CatchCapture.Utilities
         }
 
         /// <summary>
+        /// 어두운 배경 오버레이의 가시성 설정
+        /// </summary>
+        public void SetOverlayVisibility(Visibility visibility)
+        {
+            if (_overlayPath != null) _overlayPath.Visibility = visibility;
+        }
+
+        /// <summary>
         /// 선택 초기화
         /// </summary>
         public void Reset()
