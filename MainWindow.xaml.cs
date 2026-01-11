@@ -2859,18 +2859,36 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            // 클라우드 드라이브 로드 관련 오류 감지
-            bool isCloudDriveError = ex.Message.Contains("database disk image is malformed") ||
-                                     ex.Message.Contains("히스토리 데이터베이스가 아직 초기화되지 않았습니다") ||
-                                     ex.Message.Contains("클라우드 드라이브가 로드될 때까지");
+            // 저장 경로 접근 불가 오류 감지
+            bool isStorageError = ex.Message.Contains("database disk image is malformed") ||
+                                  ex.Message.Contains("히스토리 데이터베이스가 아직 초기화되지 않았습니다") ||
+                                  ex.Message.Contains("클라우드 드라이브가 로드될 때까지") ||
+                                  ex is DirectoryNotFoundException ||
+                                  ex is IOException;
             
             string errorMsg;
-            if (isCloudDriveError)
+            string errorTitle;
+            
+            if (isStorageError)
             {
-                errorMsg = "클라우드 드라이브가 아직 로드되지 않았습니다.\n잠시 후 다시 시도해주세요.";
+                errorTitle = Models.LocalizationManager.CurrentLanguage == "ko" ? "저장 경로 접근 불가" : "Storage Not Ready";
+                
+                if (Models.LocalizationManager.CurrentLanguage == "ko")
+                {
+                    errorMsg = "저장 경로에 접근할 수 없습니다.\n잠시 후 다시 시도해주세요.\n\n" +
+                               "※ 외장 하드/USB가 연결되어 있는지 확인하세요.\n" +
+                               "※ 클라우드 드라이브(OneDrive, Google Drive 등)가 로드될 때까지 기다려주세요.";
+                }
+                else
+                {
+                    errorMsg = "Cannot access storage path.\nPlease try again later.\n\n" +
+                               "※ Check if external HDD/USB is connected.\n" +
+                               "※ Wait for cloud drive (OneDrive, Google Drive, etc.) to load.";
+                }
             }
             else
             {
+                errorTitle = "SaveToHistory Error";
                 errorMsg = $"{LocalizationManager.GetString("ErrHistorySave") ?? "히스토리 저장 실패"}: {ex.Message}\nStack: {ex.StackTrace}";
             }
             
@@ -2878,9 +2896,9 @@ public partial class MainWindow : Window
             
             System.Diagnostics.Debug.WriteLine(errorMsg);
 
-            // 사용자 요청: 메시지박스로 확인
+            // CustomMessageBox 사용
             Application.Current.Dispatcher.Invoke(() => 
-                MessageBox.Show(errorMsg, "SaveToHistory Error", MessageBoxButton.OK, MessageBoxImage.Error));
+                CatchCapture.CustomMessageBox.Show(errorMsg, errorTitle, MessageBoxButton.OK, MessageBoxImage.Error));
         }
     }
 
@@ -3064,7 +3082,39 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"{LocalizationManager.GetString("ErrCapture") ?? "캡처 중 오류가 발생했습니다."}\n\n{ex.Message}", LocalizationManager.GetString("Error") ?? "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            // 저장 경로 접근 불가 오류 감지
+            bool isStorageError = ex.Message.Contains("Could not find a part of the path") ||
+                                  ex.Message.Contains("경로의 일부를 찾을 수 없습니다") ||
+                                  ex is DirectoryNotFoundException ||
+                                  ex is IOException;
+            
+            string errorMsg;
+            string errorTitle;
+            
+            if (isStorageError)
+            {
+                errorTitle = Models.LocalizationManager.CurrentLanguage == "ko" ? "저장 경로 접근 불가" : "Storage Not Ready";
+                
+                if (Models.LocalizationManager.CurrentLanguage == "ko")
+                {
+                    errorMsg = "저장 경로에 접근할 수 없습니다.\n잠시 후 다시 시도해주세요.\n\n" +
+                               "※ 외장 하드/USB가 연결되어 있는지 확인하세요.\n" +
+                               "※ 클라우드 드라이브(OneDrive, Google Drive 등)가 로드될 때까지 기다려주세요.";
+                }
+                else
+                {
+                    errorMsg = "Cannot access storage path.\nPlease try again later.\n\n" +
+                               "※ Check if external HDD/USB is connected.\n" +
+                               "※ Wait for cloud drive (OneDrive, Google Drive, etc.) to load.";
+                }
+            }
+            else
+            {
+                errorTitle = Models.LocalizationManager.Get("Error") ?? "오류";
+                errorMsg = $"{Models.LocalizationManager.Get("ErrCapture") ?? "캡처 중 오류가 발생했습니다."}\n\n{ex.Message}";
+            }
+            
+            CatchCapture.CustomMessageBox.Show(errorMsg, errorTitle, MessageBoxButton.OK, MessageBoxImage.Error);
         }
         UpdateEmptyStateLogo();
     }
