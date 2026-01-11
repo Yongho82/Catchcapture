@@ -3119,8 +3119,28 @@ public partial class MainWindow : Window
         UpdateEmptyStateLogo();
     }
     private Border CreateCaptureItem(CaptureImage captureImage, int index)
+{
+    // [추가] 비디오/오디오 파일인 경우 전용 생성 로직으로 위임
+    if (captureImage.IsVideo)
     {
-        // 썸네일 크기 고정 (사용자 요청: 200x150)
+        // AddVideoToList에서 이미 UI에 추가되었거나 RebuildCaptureList에서 호출된 경우
+        // CreateVideoThumbnailItem은 Border 뿐만 아니라 인딩 오버레이도 반환하므로 주의
+        // 여기서는 이미 인코딩이 완료된 상태거나 히스토리성 로드인 경우가 많음
+        var (vItem, _) = CreateVideoThumbnailItem(captureImage.Image, captureImage.SavedPath);
+        // 인코딩 오버레이는 로드 시점에는 숨김 (인코딩 상태 추적은 AddVideoToList 내 Task에서 수행)
+        if (vItem.Child is Grid vGrid)
+        {
+             foreach (var child in vGrid.Children)
+             {
+                 if (child is Border b && b.Visibility == Visibility.Visible && b.Height == 24) // encodingOverlay 힌트
+                 {
+                     b.Visibility = Visibility.Collapsed;
+                 }
+             }
+        }
+        return vItem;
+    }
+    // 썸네일 크기 고정 (사용자 요청: 200x150)
         double thumbWidth = 200;
         double thumbHeight = 150;
         double imgHeight = currentViewMode == CaptureViewMode.Card ? 115 : 140;
@@ -5775,8 +5795,23 @@ public partial class MainWindow : Window
                 var (videoItem, encodingOverlay) = CreateVideoThumbnailItem(thumbnail!, fullPath);
                 CaptureListPanel.Children.Insert(0, videoItem);
 
+                // [추가] captures 리스트에도 추가하여 관리 (모드 전환 시 유지 등)
+                var captureImage = new CaptureImage(thumbnail!, fullPath,
+                                    thumbnail?.PixelWidth ?? 0, thumbnail?.PixelHeight ?? 0,
+                                    isMp3 ? "오디오 녹음" : "동영상 녹화", filename);
+                captureImage.IsVideo = true;
+                captures.Add(captureImage);
+
+                // 간편모드/트레이모드 카운트 갱신
+                UpdateCaptureCount();
+                if (trayModeWindow != null) trayModeWindow.UpdateCaptureCount(captures.Count);
+
+                // 추가된 아이템 선택
+                SelectCapture(videoItem, captures.Count - 1);
+
                 // 버튼 상태 업데이트 (전체 삭제 활성화 등)
                 UpdateButtonStates();
+                UpdateEmptyStateLogo();
 
                 // 백그라운드에서 저장 시작
                 _ = Task.Run(async () =>

@@ -1105,7 +1105,7 @@ namespace CatchCapture.Recording
                 if (canSave)
                 {
                     // MainWindow의 캡처 리스트에 추가 (recorder 객체와 설정 전달)
-                    var mainWindow = Application.Current.MainWindow as MainWindow;
+                    var mainWindow = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
                     if (mainWindow != null)
                     {
                         // 녹화 데이터를 MainWindow에 전달 (자동 저장 시작)

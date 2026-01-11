@@ -23,7 +23,21 @@ namespace CatchCapture.Models
         private int _originalHeight;
         private string? _sourceApp;
         private string? _sourceTitle;
+        private bool _isVideo = false;
         private long? _historyId;
+
+        public bool IsVideo
+        {
+            get => _isVideo;
+            set
+            {
+                if (_isVideo != value)
+                {
+                    _isVideo = value;
+                    OnPropertyChanged(nameof(IsVideo));
+                }
+            }
+        }
 
         public long? HistoryId
         {

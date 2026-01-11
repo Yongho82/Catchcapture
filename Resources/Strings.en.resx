@@ -859,25 +859,11 @@ Are you sure you want to permanently delete all items?</value>
   <data name="ImageViewerCopyTooltip" xml:space="preserve"><value>Copy to Clipboard</value></data>
   <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>Save Image As...</value></data>
   <data name="RightClickBoxHint" xml:space="preserve"><value>Right Click: Box</value></data>
-  <data name="EdgeLine" xml:space="preserve">
-    <value>Edge Line</value>
-  </data>
-  <data name="EdgeLineThickness" xml:space="preserve">
-    <value>Line Thickness</value>
-  </data>
-  <data name="EdgeRounding" xml:space="preserve">
-    <value>Edge Rounding</value>
-  </data>
-  <data name="ShadowEffect" xml:space="preserve">
-    <value>Shadow Effect</value>
-  </data>
-  <data name="ShadowIntensity" xml:space="preserve">
-    <value>Shadow Intensity</value>
-  </data>
-  <data name="ShadowBlur" xml:space="preserve">
-    <value>Shadow Blur</value>
-  </data>
-  <data name="ShadowSize" xml:space="preserve">
-    <value>Shadow Size</value>
-  </data>
+  <data name="EdgeLine" xml:space="preserve"><value>Edge Line</value></data>
+  <data name="EdgeLineThickness" xml:space="preserve"><value>Line Thickness</value></data>
+  <data name="EdgeRounding" xml:space="preserve"><value>Edge Rounding</value></data>
+  <data name="ShadowEffect" xml:space="preserve"><value>Shadow Effect</value></data>
+  <data name="ShadowIntensity" xml:space="preserve"><value>Shadow Intensity</value></data>
+  <data name="ShadowBlur" xml:space="preserve"><value>Shadow Blur</value></data>
+  <data name="ShadowSize" xml:space="preserve"><value>Shadow Size</value></data>
 </root>

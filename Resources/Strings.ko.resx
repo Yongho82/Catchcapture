@@ -871,25 +871,11 @@
   <data name="ImageViewerCopyTooltip" xml:space="preserve"><value>클립보드에 복사</value></data>
   <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>다른 이름으로 저장</value></data>
   <data name="RightClickBoxHint" xml:space="preserve"><value>우클릭: 박스형</value></data>
-  <data name="EdgeLine" xml:space="preserve">
-    <value>엣지라인</value>
-  </data>
-  <data name="EdgeLineThickness" xml:space="preserve">
-    <value>라인 두께</value>
-  </data>
-  <data name="EdgeRounding" xml:space="preserve">
-    <value>엣지 조절</value>
-  </data>
-  <data name="ShadowEffect" xml:space="preserve">
-    <value>그림자 효과</value>
-  </data>
-  <data name="ShadowIntensity" xml:space="preserve">
-    <value>그림자 진하기</value>
-  </data>
-  <data name="ShadowBlur" xml:space="preserve">
-    <value>그림자 흐림</value>
-  </data>
-  <data name="ShadowSize" xml:space="preserve">
-    <value>그림자 두께</value>
-  </data>
+  <data name="EdgeLine" xml:space="preserve"><value>엣지라인</value></data>
+  <data name="EdgeLineThickness" xml:space="preserve"><value>라인 두께</value></data>
+  <data name="EdgeRounding" xml:space="preserve"><value>엣지 조절</value></data>
+  <data name="ShadowEffect" xml:space="preserve"><value>그림자 효과</value></data>
+  <data name="ShadowIntensity" xml:space="preserve"><value>그림자 진하기</value>
+  </data><data name="ShadowBlur" xml:space="preserve"><value>그림자 흐림</value></data>
+  <data name="ShadowSize" xml:space="preserve"><value>그림자 두께</value></data>
 </root>
