@@ -189,6 +189,53 @@ namespace CatchCapture
             }
         }
 
+        private void EdgeLineButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (currentEditMode != EditMode.EdgeLine)
+            {
+                CancelCurrentEditMode();
+                currentEditMode = EditMode.EdgeLine;
+                SetActiveToolButton(EdgeLineToolButton);
+                _editorManager.IsEdgeLineEnabled = true;
+                SyncEditorProperties();
+                UpdateEdgeLinePreview();
+            }
+        }
+
+        private void EdgeLineOptionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (currentEditMode != EditMode.EdgeLine)
+            {
+                CancelCurrentEditMode();
+                currentEditMode = EditMode.EdgeLine;
+                SetActiveToolButton(EdgeLineToolButton);
+                _editorManager.IsEdgeLineEnabled = true;
+                SyncEditorProperties();
+            }
+
+            if (ToolOptionsPopup.IsOpen && ToolOptionsPopup.PlacementTarget == EdgeLineToolButton)
+            {
+                ToolOptionsPopup.IsOpen = false;
+            }
+            else
+            {
+                ShowEdgeLineOptionsPopup();
+            }
+            UpdateEdgeLinePreview();
+        }
+
+        private void ShowEdgeLineOptionsPopup()
+        {
+            // 공용 컨트롤 사용
+            ToolOptionsPopupContent.Children.Clear();
+            _toolOptionsControl.SetMode("엣지라인");
+            ToolOptionsPopupContent.Children.Add(_toolOptionsControl);
+            
+            ToolOptionsPopup.PlacementTarget = EdgeLineToolButton;
+            ToolOptionsPopup.Placement = PlacementMode.Bottom;
+            ToolOptionsPopup.IsOpen = true;
+        }
+
         private void EraserOptionsButton_Click(object sender, RoutedEventArgs e)
         {
             if (currentEditMode != EditMode.Eraser)

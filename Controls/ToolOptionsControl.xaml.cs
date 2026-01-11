@@ -15,6 +15,7 @@ namespace CatchCapture.Controls
         private SharedCanvasEditor? _editor;
         private string _currentMode = "";
         private List<Color> _customColors = new List<Color>();
+        private System.Windows.Threading.DispatcherTimer? _saveDebounceTimer; // [추가] 설정 저장 지연용 타이머
 
 
 
@@ -739,15 +740,31 @@ namespace CatchCapture.Controls
         private void SaveEdgeSettings()
         {
             if (_editor == null) return;
-            var settings = Settings.Load();
-            settings.EdgeBorderThickness = _editor.EdgeBorderThickness;
-            settings.EdgeCornerRadius = _editor.EdgeCornerRadius;
-            settings.HasEdgeShadow = _editor.HasEdgeShadow;
-            settings.EdgeShadowBlur = _editor.EdgeShadowBlur;
-            settings.EdgeShadowDepth = _editor.EdgeShadowDepth;
-            settings.EdgeShadowOpacity = _editor.EdgeShadowOpacity;
-            settings.EdgeLineColor = _editor.SelectedColor.ToString(); // [추가] 색상 저장
-            Settings.Save(settings);
+            
+            // [성능 최적화] 슬라이더 드래그 시 매번 디스크에 저장하지 않도록 디바운스 처리 (300ms)
+            if (_saveDebounceTimer == null)
+            {
+                _saveDebounceTimer = new System.Windows.Threading.DispatcherTimer();
+                _saveDebounceTimer.Interval = TimeSpan.FromMilliseconds(300);
+                _saveDebounceTimer.Tick += (s, e) => 
+                {
+                    _saveDebounceTimer.Stop();
+                    if (_editor == null) return;
+                    
+                    var settings = Settings.Load();
+                    settings.EdgeBorderThickness = _editor.EdgeBorderThickness;
+                    settings.EdgeCornerRadius = _editor.EdgeCornerRadius;
+                    settings.HasEdgeShadow = _editor.HasEdgeShadow;
+                    settings.EdgeShadowBlur = _editor.EdgeShadowBlur;
+                    settings.EdgeShadowDepth = _editor.EdgeShadowDepth;
+                    settings.EdgeShadowOpacity = _editor.EdgeShadowOpacity;
+                    settings.EdgeLineColor = _editor.SelectedColor.ToString();
+                    Settings.Save(settings);
+                };
+            }
+
+            _saveDebounceTimer.Stop();
+            _saveDebounceTimer.Start();
         }
     }
 }

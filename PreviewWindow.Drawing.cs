@@ -238,6 +238,7 @@ namespace CatchCapture
                 EditMode.Numbering => "넘버링",
                 EditMode.Text => "텍스트",
                 EditMode.Eraser => "지우개",
+                EditMode.EdgeLine => "엣지라인",
                 _ => ""
             };
         }

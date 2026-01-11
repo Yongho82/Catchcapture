@@ -61,6 +61,7 @@ namespace CatchCapture
         private TextBlock? confirmHintLabel; // [추가] 완료 힌트 라벨 ("Confirm : Enter")
         private Stack<UIElement> _editorUndoStack = new Stack<UIElement>();
         private CatchCapture.Controls.ToolOptionsControl _toolOptionsControl;
+        private Image? _edgePreviewImage;
 
         private List<CatchCapture.Models.DrawingLayer> drawingLayers = new List<CatchCapture.Models.DrawingLayer>();
         private Dictionary<int, List<CatchCapture.Models.DrawingLayer>> captureDrawingLayers = new Dictionary<int, List<CatchCapture.Models.DrawingLayer>>();
@@ -179,6 +180,16 @@ namespace CatchCapture
             _toolOptionsControl = new CatchCapture.Controls.ToolOptionsControl();
             _toolOptionsControl.Initialize(_editorManager);
 
+            // 엣지라인 설정 로드
+            var edgeSettings = CatchCapture.Models.Settings.Load();
+            _editorManager.EdgeBorderThickness = edgeSettings.EdgeBorderThickness;
+            _editorManager.EdgeCornerRadius = edgeSettings.EdgeCornerRadius;
+            _editorManager.HasEdgeShadow = edgeSettings.HasEdgeShadow;
+            _editorManager.EdgeShadowBlur = edgeSettings.EdgeShadowBlur;
+            _editorManager.EdgeShadowDepth = edgeSettings.EdgeShadowDepth;
+            _editorManager.EdgeShadowOpacity = edgeSettings.EdgeShadowOpacity;
+            _editorManager.IsEdgeLineEnabled = false; // 이미지 편집 창 시작 시에는 꺼짐 상태로 시작 (2중 적용 방지)
+
             // [추가] 그리기 힌트 라벨 초기화
             drawHintLabel = new TextBlock
             {
@@ -205,7 +216,18 @@ namespace CatchCapture
                 Visibility = Visibility.Collapsed
             };
             ImageCanvas.Children.Add(confirmHintLabel);
-            Panel.SetZIndex(confirmHintLabel, 6000); 
+            Panel.SetZIndex(confirmHintLabel, 6000);
+
+            // [추가] 엣지라인 프리뷰 이미지
+            _edgePreviewImage = new Image
+            {
+                IsHitTestVisible = false,
+                Visibility = Visibility.Collapsed
+            };
+            ImageCanvas.Children.Add(_edgePreviewImage);
+            Panel.SetZIndex(_edgePreviewImage, 900); // 이미지(0)보다 위, 드로잉보다는 아래(또는 상황에 따라 조절)
+
+            _editorManager.EdgePropertiesChanged += UpdateEdgeLinePreview;
         }
 
         private void BtnMinimize_Click(object sender, RoutedEventArgs e)
@@ -677,9 +699,10 @@ namespace CatchCapture
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
-            // 그려진 요소(Visible)가 있거나 배경 이미지 자체가 변경된 경우(모자이크 등) 닫을 때 합성하여 부모 리스트 업데이트 (자동 저장)
-            bool isModified = (drawnElements != null && drawnElements.Any(el => el.Visibility == Visibility.Visible)) ||
-                              (currentImage != originalImage);
+            // [Fix] 엣지라인 효과가 켜져 있거나, 드로잉 요소가 있거나, 배경이 변경된 경우 모두 수정된 것으로 간주
+            bool isModified = (drawnElements != null && drawnElements.Any()) ||
+                              (currentImage != originalImage) ||
+                              (_editorManager != null && _editorManager.IsEdgeLineEnabled);
 
             if (isModified)
             {
@@ -771,6 +794,14 @@ namespace CatchCapture
                 ImageCanvas.Cursor = Cursors.Arrow;
             }
 
+            // [추가] 엣지라인 프리뷰 및 가시성 복원
+            if (_edgePreviewImage != null) _edgePreviewImage.Visibility = Visibility.Collapsed;
+            if (PreviewImage != null) PreviewImage.Visibility = Visibility.Visible;
+            if (drawnElements != null)
+            {
+                foreach (var el in drawnElements) el.Visibility = Visibility.Visible;
+            }
+
             // 그리기 포인트 초기화 - _editorManager에서 관리됨
             drawingPoints.Clear();
             WriteLog("그리기 상태 초기화");
@@ -785,7 +816,7 @@ namespace CatchCapture
         /// drawnElements를 직접 렌더링하여 합성 이미지 생성 (SnippingWindow 방식)
         /// DPI 스케일링을 고려하여 정확하게 렌더링
         /// </summary>
-        private BitmapSource? GetCombinedImage()
+        private BitmapSource? GetCombinedImage(bool ignoreEdge = false)
         {
             try
             {
@@ -825,7 +856,9 @@ namespace CatchCapture
                     // 2. 그려진 요소들 렌더링
                     foreach (var element in drawnElements)
                     {
-                        if (element.Visibility != Visibility.Visible) continue;
+                        // 엣지라인 프리뷰 이미지는 합성에서 제외
+                        if (element == _edgePreviewImage) continue;
+                        if (element.Visibility != Visibility.Visible && currentEditMode != EditMode.EdgeLine) continue;
 
                         try
                         {
@@ -1147,6 +1180,23 @@ namespace CatchCapture
                     dc.Pop(); // Pop OpacityMask
                 }
                 renderBitmap.Render(drawingVisual);
+
+                // 3. 엣지 효과 적용 (무조건 마지막에)
+                if (!ignoreEdge && _editorManager != null && _editorManager.IsEdgeLineEnabled && (_editorManager.EdgeCornerRadius > 0 || _editorManager.EdgeBorderThickness > 0 || _editorManager.HasEdgeShadow))
+                {
+                    var edgedBitmap = EdgeCaptureHelper.CreateEdgeLineCapture(
+                        renderBitmap,
+                        (int)_editorManager.EdgeCornerRadius,
+                        _editorManager.EdgeBorderThickness,
+                        _editorManager.SelectedColor,
+                        _editorManager.HasEdgeShadow,
+                        _editorManager.EdgeShadowBlur,
+                        _editorManager.EdgeShadowDepth,
+                        _editorManager.EdgeShadowOpacity
+                    );
+                    if (edgedBitmap != null) return edgedBitmap;
+                }
+
                 return renderBitmap;
             }
             catch (Exception ex)
@@ -1154,6 +1204,66 @@ namespace CatchCapture
                 // 치명적 오류 시 메시지 표시 및 원본 반환
                  System.Diagnostics.Debug.WriteLine($"이미지 합성 중 오류: {ex.Message}");
                 return currentImage; 
+            }
+        }
+
+        private void UpdateEdgeLinePreview()
+        {
+            if (currentEditMode != EditMode.EdgeLine || _edgePreviewImage == null || !_editorManager.IsEdgeLineEnabled)
+            {
+                if (_edgePreviewImage != null) _edgePreviewImage.Visibility = Visibility.Collapsed;
+                if (PreviewImage != null) PreviewImage.Visibility = Visibility.Visible;
+                if (drawnElements != null)
+                {
+                    foreach (var el in drawnElements) el.Visibility = Visibility.Visible;
+                }
+                return;
+            }
+
+            try
+            {
+                // 배경 + 드로잉 합성 (엣지 효과 제외)
+                var combined = GetCombinedImage(ignoreEdge: true);
+                if (combined == null) return;
+
+                // 엣지 효과 적용
+                var preview = EdgeCaptureHelper.CreateEdgeLineCapture(
+                    combined,
+                    (int)_editorManager.EdgeCornerRadius,
+                    _editorManager.EdgeBorderThickness,
+                    _editorManager.SelectedColor,
+                    _editorManager.HasEdgeShadow,
+                    _editorManager.EdgeShadowBlur,
+                    _editorManager.EdgeShadowDepth,
+                    _editorManager.EdgeShadowOpacity
+                );
+
+                if (preview != null)
+                {
+                    _edgePreviewImage.Source = preview;
+                    _edgePreviewImage.Visibility = Visibility.Visible;
+                    
+                    // 프리뷰 중에는 원본 및 드로잉 숨김 (중첩 방지)
+                    if (PreviewImage != null) PreviewImage.Visibility = Visibility.Collapsed;
+                    if (drawnElements != null)
+                    {
+                        foreach (var el in drawnElements) el.Visibility = Visibility.Collapsed;
+                    }
+
+                    // 그림자 패딩만큼 마이너스 오프셋 적용하여 제자리에 위치
+                    double borderThickness = _editorManager.EdgeBorderThickness;
+                    bool hasShadow = _editorManager.HasEdgeShadow;
+                    double shadowBlur = _editorManager.EdgeShadowBlur;
+                    double shadowDepth = _editorManager.EdgeShadowDepth;
+                    double padding = Math.Ceiling((hasShadow ? (shadowBlur + shadowDepth) : 0) + (borderThickness / 2.0) + 10);
+                    
+                    Canvas.SetLeft(_edgePreviewImage, -padding);
+                    Canvas.SetTop(_edgePreviewImage, -padding);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"UpdateEdgeLinePreview Error: {ex.Message}");
             }
         }
 
@@ -2434,7 +2544,8 @@ namespace CatchCapture
         Eraser,
         Shape,
         MagicWand,
-        Numbering
+        Numbering,
+        EdgeLine
     }
 
     public class ImageUpdatedEventArgs : EventArgs

@@ -58,6 +58,19 @@ namespace CatchCapture.Utilities
         public bool MagicWandContiguous { get; set; } = true;
 
         // [추가] 엣지라인 및 그림자 관련 (글로벌 성격)
+        private bool _isEdgeLineEnabled = false;
+        public bool IsEdgeLineEnabled
+        {
+            get => _isEdgeLineEnabled;
+            set
+            {
+                if (_isEdgeLineEnabled != value)
+                {
+                    _isEdgeLineEnabled = value;
+                    FireEdgePropertiesChanged();
+                }
+            }
+        }
         public double EdgeBorderThickness { get; set; } = 0;
         public double EdgeCornerRadius { get; set; } = 0;
         public bool HasEdgeShadow { get; set; } = false;

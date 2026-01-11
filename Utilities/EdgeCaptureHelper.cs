@@ -149,8 +149,8 @@ namespace CatchCapture.Utilities
                 int sourceHeight = (int)source.PixelHeight;
                 double actualRadius = (radius >= 99) ? Math.Min(sourceWidth, sourceHeight) / 2.0 : radius;
 
-                // 그림자 및 테두리 두께를 고려한 여백(Padding) 계산
-                double padding = (hasShadow ? (shadowBlur + shadowDepth) : 0) + (borderThickness / 2.0) + 5;
+                // 그림자 및 테두리 두께를 고려한 여백(Padding) 계산 (정수화하여 흔들림 방지)
+                double padding = Math.Ceiling((hasShadow ? (shadowBlur + shadowDepth) : 0) + (borderThickness / 2.0) + 10);
                 int targetWidth = (int)(sourceWidth + padding * 2);
                 int targetHeight = (int)(sourceHeight + padding * 2);
 
@@ -177,13 +177,25 @@ namespace CatchCapture.Utilities
                     };
                 }
 
-                // 레이아웃 강제 수행 (여백 적용)
-                border.Measure(new System.Windows.Size(targetWidth, targetHeight));
+                // [개선] 그림자가 잘리지 않도록 최상위 Grid 컨테이너 사용
+                var container = new System.Windows.Controls.Grid
+                {
+                    Width = targetWidth,
+                    Height = targetHeight,
+                    Background = System.Windows.Media.Brushes.Transparent,
+                    UseLayoutRounding = true,
+                    SnapsToDevicePixels = true
+                };
+                container.Children.Add(border);
+
+                // 레이아웃 강제 수행
+                container.Measure(new System.Windows.Size(targetWidth, targetHeight));
+                container.Arrange(new System.Windows.Rect(0, 0, targetWidth, targetHeight));
                 border.Arrange(new System.Windows.Rect(padding, padding, sourceWidth, sourceHeight));
-                border.UpdateLayout();
+                container.UpdateLayout();
 
                 var rtb = new System.Windows.Media.Imaging.RenderTargetBitmap(targetWidth, targetHeight, source.DpiX, source.DpiY, System.Windows.Media.PixelFormats.Pbgra32);
-                rtb.Render(border);
+                rtb.Render(container);
                 rtb.Freeze();
                 return rtb;
             }

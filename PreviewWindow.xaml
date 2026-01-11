@@ -373,6 +373,17 @@
                             <Image Source="icons/mosaic.png" Width="20" Height="20"/>
                         </controls:TwoTierToolButton.IconContent>
                     </controls:TwoTierToolButton>
+                    
+                    <controls:TwoTierToolButton 
+                        x:Name="EdgeLineToolButton"
+                        Label="엣지라인" 
+                        ToolTipText="엣지라인"
+                        MainButtonClick="EdgeLineButton_Click"
+                        OptionsButtonClick="EdgeLineOptionsButton_Click">
+                        <controls:TwoTierToolButton.IconContent>
+                            <Image Source="icons/edge_3.png" Width="20" Height="20"/>
+                        </controls:TwoTierToolButton.IconContent>
+                    </controls:TwoTierToolButton>
 
                     <controls:TwoTierToolButton 
                         x:Name="NumberingToolButton"

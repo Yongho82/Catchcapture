@@ -111,6 +111,8 @@ namespace CatchCapture.Utilities
         // Flag to request MainWindow to open NoteInputWindow after this window closes
         public bool RequestSaveToNote { get; private set; } = false;
         private CaptureSelectionOverlay? selectionOverlay; // [추가] 오버레이 관리를 위한 필드
+        private readonly System.Diagnostics.Stopwatch _edgePreviewStopwatch = new();
+        private const int MinEdgePreviewIntervalMs = 33; // 실시간 프리뷰 쓰로틀링 (30fps)
 
         public SnippingWindow(bool showGuideText = false, BitmapSource? cachedScreenshot = null, string? sourceApp = null, string? sourceTitle = null, int cornerRadius = 0)
         {
@@ -296,6 +298,7 @@ namespace CatchCapture.Utilities
             _editorManager.EdgeShadowBlur = settings.EdgeShadowBlur;
             _editorManager.EdgeShadowDepth = settings.EdgeShadowDepth;
             _editorManager.EdgeShadowOpacity = settings.EdgeShadowOpacity;
+            _editorManager.IsEdgeLineEnabled = (_cornerRadius > 0); // 엣지 캡처 모드가 아니라면 초기에는 비활성 상태로 시작
             try
             {
                 _editorManager.SelectedColor = (Color)ColorConverter.ConvertFromString(settings.EdgeLineColor);
@@ -860,11 +863,23 @@ namespace CatchCapture.Utilities
 
                         _originalCroppedImage = rtb; // [추가] 원본 저장
 
-                        // 엣지 캡처 적용: 반지름이 0보다 크면 이미지를 둥글게 깎음
+                        // 엣지 캡처 적용: 반지름이 0보다 크면 저장된 엣지 설정을 모두 적용
                         if (_cornerRadius > 0)
                         {
-                            // [Fix] GDI+(GetRoundedBitmap) 대신 품질이 더 좋은 WPF(CreateRoundedCapture) 방식을 동일하게 사용
-                            SelectedFrozenImage = EdgeCaptureHelper.CreateRoundedCapture(rtb, _cornerRadius);
+                            var s = Settings.Load();
+                            Color edgeColor = Colors.Red;
+                            try { edgeColor = (Color)ColorConverter.ConvertFromString(s.EdgeLineColor); } catch { }
+
+                            SelectedFrozenImage = EdgeCaptureHelper.CreateEdgeLineCapture(
+                                rtb,
+                                _cornerRadius,
+                                s.EdgeBorderThickness,
+                                edgeColor,
+                                s.HasEdgeShadow,
+                                s.EdgeShadowBlur,
+                                s.EdgeShadowDepth,
+                                s.EdgeShadowOpacity
+                            );
                         }
                         else
                         {
@@ -2946,8 +2961,8 @@ namespace CatchCapture.Utilities
 
             _editorManager.UpdateDrawing(currentPoint);
 
-            // [추가] 엣지라인 모드일 경우 실시간 프리뷰 갱신
-            if (currentTool == "엣지라인")
+            // [추가] 엣지라인 모드일 경우 실시간 프리뷰 갱신 (드래그 중이거나 속성이 바뀌었을 때)
+            if (currentTool == "엣지라인" && e.LeftButton == MouseButtonState.Pressed)
             {
                 UpdateEdgeLinePreview();
             }
@@ -3342,7 +3357,7 @@ namespace CatchCapture.Utilities
             }
 
             // [Fix] 엣지 캡처(둥근 모서리, 테두리, 그림자) 처리
-            if (_editorManager != null && (_editorManager.EdgeCornerRadius > 0 || _editorManager.EdgeBorderThickness > 0 || _editorManager.HasEdgeShadow))
+            if (_editorManager != null && _editorManager.IsEdgeLineEnabled)
             {
                 SelectedFrozenImage = EdgeCaptureHelper.CreateEdgeLineCapture(
                     bitmapImage, 
@@ -3527,15 +3542,15 @@ namespace CatchCapture.Utilities
                 
                 switch (toolName)
                 {
-                    case "선택": EnableSelectMode(); HideColorPalette(); return; 
-                    case "펜": EnableDrawingMode(); break;
-                    case "형광펜": EnableDrawingMode("형광펜"); break; 
-                    case "텍스트": EnableTextMode(); break;
-                    case "도형": EnableShapeMode(); break;
-                    case "넘버링": EnableNumberingMode(); break;
-                    case "모자이크": EnableMosaicMode(); break;
-                    case "지우개": EnableEraserMode(); break;
-                    case "엣지라인": break; 
+                    case "선택": EnableSelectMode(); HideColorPalette(); _editorManager.IsEdgeLineEnabled = false; return; 
+                    case "펜": EnableDrawingMode(); _editorManager.IsEdgeLineEnabled = false; break;
+                    case "형광펜": EnableDrawingMode("형광펜"); _editorManager.IsEdgeLineEnabled = false; break; 
+                    case "텍스트": EnableTextMode(); _editorManager.IsEdgeLineEnabled = false; break;
+                    case "도형": EnableShapeMode(); _editorManager.IsEdgeLineEnabled = false; break;
+                    case "넘버링": EnableNumberingMode(); _editorManager.IsEdgeLineEnabled = false; break;
+                    case "모자이크": EnableMosaicMode(); _editorManager.IsEdgeLineEnabled = false; break;
+                    case "지우개": EnableEraserMode(); _editorManager.IsEdgeLineEnabled = false; break;
+                    case "엣지라인": _editorManager.IsEdgeLineEnabled = true; break; 
                 }
 
                 // [추가] 엣지라인 모드일 때는 선택 영역 가이드(빨간 선)만 숨기기
@@ -4230,11 +4245,18 @@ namespace CatchCapture.Utilities
 
         private void UpdateEdgeLinePreview()
         {
-            if (_originalCroppedImage == null || _edgePreviewImage == null || _editorManager == null || currentTool != "엣지라인")
+            if (_originalCroppedImage == null || _edgePreviewImage == null || _editorManager == null || currentTool != "엣지라인" || !_editorManager.IsEdgeLineEnabled)
             {
                 if (_edgePreviewImage != null) _edgePreviewImage.Visibility = Visibility.Collapsed;
                 return;
             }
+
+            // [성능 최적화] 쓰로틀링: 너무 빈번한 업데이트 방지 (최소 33ms 대기)
+            if (_edgePreviewStopwatch.IsRunning && _edgePreviewStopwatch.ElapsedMilliseconds < MinEdgePreviewIntervalMs)
+            {
+                return;
+            }
+            _edgePreviewStopwatch.Restart();
 
             try
             {
@@ -4302,11 +4324,11 @@ namespace CatchCapture.Utilities
                     double shadowBlur = _editorManager.EdgeShadowBlur;
                     double shadowDepth = _editorManager.EdgeShadowDepth;
                     
-                    // EdgeCaptureHelper와 동일한 패딩 계산 로직 사용
-                    double padding = (hasShadow ? (shadowBlur + shadowDepth) : 0) + (borderThickness / 2.0) + 5;
+                    // EdgeCaptureHelper와 동일한 패딩 계산 로직 사용 (정수화)
+                    double padding = Math.Ceiling((hasShadow ? (shadowBlur + shadowDepth) : 0) + (borderThickness / 2.0) + 10);
                     
-                    Canvas.SetLeft(_edgePreviewImage, currentSelectionRect.Left - padding);
-                    Canvas.SetTop(_edgePreviewImage, currentSelectionRect.Top - padding);
+                    Canvas.SetLeft(_edgePreviewImage, Math.Round(currentSelectionRect.Left - padding));
+                    Canvas.SetTop(_edgePreviewImage, Math.Round(currentSelectionRect.Top - padding));
                 }
             }
             catch { }
