@@ -467,7 +467,7 @@ namespace CatchCapture
             double maxWindowHeight = workAreaHeight * 0.95;
 
             // 최소 창 크기 설정
-            double minWindowWidth = 1520; // 사용자가 원했던 기본 가로 사이즈로 복원 (기존 1200 -> 1520)
+            double minWindowWidth = 1550; // 사용자가 원했던 기본 가로 사이즈로 복원 (기존 1200 -> 1520)
             double minWindowHeight = 800; // XAML Height 기본값
 
             // UI 요소 크기 예상치
