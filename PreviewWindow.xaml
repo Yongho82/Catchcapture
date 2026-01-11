@@ -466,9 +466,9 @@
             </Border.Background>
             <Grid>
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                    <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Margin="50">
+                    <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Margin="200">
                         <!-- Canvas 배경을 투명하게 해서 뒤쪽(Border)의 바둑판 무늬가 보이도록 함 -->
-                        <Canvas x:Name="ImageCanvas" ClipToBounds="True" Background="Transparent">
+                        <Canvas x:Name="ImageCanvas" ClipToBounds="False" Background="Transparent">
                             <Canvas.LayoutTransform>
                                 <ScaleTransform x:Name="CanvasScaleTransform"/>
                             </Canvas.LayoutTransform>

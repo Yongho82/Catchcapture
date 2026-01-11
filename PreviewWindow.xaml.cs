@@ -1255,7 +1255,7 @@ namespace CatchCapture
                     bool hasShadow = _editorManager.HasEdgeShadow;
                     double shadowBlur = _editorManager.EdgeShadowBlur;
                     double shadowDepth = _editorManager.EdgeShadowDepth;
-                    double padding = Math.Ceiling((hasShadow ? (shadowBlur + shadowDepth) : 0) + (borderThickness / 2.0) + 10);
+                    double padding = Math.Ceiling((hasShadow ? (shadowBlur + shadowDepth) : 0) + (borderThickness / 2.0) + 20);
                     
                     Canvas.SetLeft(_edgePreviewImage, -padding);
                     Canvas.SetTop(_edgePreviewImage, -padding);
