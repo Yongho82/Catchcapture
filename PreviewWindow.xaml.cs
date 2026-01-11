@@ -1637,11 +1637,26 @@ namespace CatchCapture
                 // 원본으로 리셋
                 currentImage = originalImage;
                 drawingLayers.Clear(); // 레이어 초기화
-                _editorManager?.ResetNumbering(); // 넘버링 번호 초기화
+                
+                // 엣지라인 초기화
+                if (_editorManager != null)
+                {
+                    _editorManager.IsEdgeLineEnabled = false;
+                    _editorManager.ResetNumbering(); // 넘버링 번호 초기화
+                }
+
+                // 현재 모드가 엣지라인일 경우 모드 해재
+                if (currentEditMode == EditMode.EdgeLine)
+                {
+                    currentEditMode = EditMode.None;
+                    SetActiveToolButton(null);
+                }
+                
                 SyncDrawnElementsFromLayers();
                 
                 UpdateUndoRedoButtons();
                 UpdatePreviewImage();
+                UpdateEdgeLinePreview(); // 엣지라인 프리뷰 레이어 숨기기
             }
         }
 
