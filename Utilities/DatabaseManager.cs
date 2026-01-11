@@ -78,6 +78,9 @@ namespace CatchCapture.Utilities
         // 락킹 상태 정보
         public string? NoteLockingMachine => CheckLock(_cloudDbPath);
         public string? HistoryLockingMachine => CheckLock(_cloudHistoryDbPath);
+        
+        // 데이터베이스 초기화 상태
+        public bool IsHistoryDatabaseReady { get; private set; } = false;
 
         /// <summary>
         /// 디버그 로그를 txt 파일로 저장
@@ -859,60 +862,72 @@ namespace CatchCapture.Utilities
 
         private void InitializeHistoryDatabase()
         {
-            string dbDir = Path.GetDirectoryName(HistoryDbPath)!;
-            if (!Directory.Exists(dbDir)) Directory.CreateDirectory(dbDir);
-
-            using (var connection = new SqliteConnection($"Data Source={HistoryDbPath}"))
+            try
             {
-                connection.Open();
+                string dbDir = Path.GetDirectoryName(HistoryDbPath)!;
+                if (!Directory.Exists(dbDir)) Directory.CreateDirectory(dbDir);
 
-                // Create Captures (History) table
-                string createCapturesTable = @"
-                    CREATE TABLE IF NOT EXISTS Captures (
-                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        FileName TEXT,
-                        FilePath TEXT,
-                        SourceApp TEXT,
-                        SourceTitle TEXT,
-                        OriginalFilePath TEXT,
-                        IsFavorite INTEGER DEFAULT 0,
-                        IsPinned INTEGER DEFAULT 0,
-                        Status INTEGER DEFAULT 0, -- 0: Active, 1: Trash
-                        FileSize INTEGER,
-                        Resolution TEXT,
-                        CreatedAt DATETIME DEFAULT (datetime('now', 'localtime')),
-                        Memo TEXT DEFAULT ''
-                    );";
-
-                using (var command = new SqliteCommand(createCapturesTable, connection)) { command.ExecuteNonQuery(); }
-
-                // Migration: Add OriginalFilePath if it doesn't exist
-                try
+                using (var connection = new SqliteConnection($"Data Source={HistoryDbPath}"))
                 {
-                    using (var command = new SqliteCommand("ALTER TABLE Captures ADD COLUMN OriginalFilePath TEXT;", connection))
-                    {
-                        command.ExecuteNonQuery();
-                    }
-                }
-                catch { /* Column might already exist */ }
+                    connection.Open();
 
-                try
-                {
-                    using (var command = new SqliteCommand("ALTER TABLE Captures ADD COLUMN IsPinned INTEGER DEFAULT 0;", connection))
-                    {
-                        command.ExecuteNonQuery();
-                    }
-                }
-                catch { /* Column might already exist */ }
+                    // Create Captures (History) table
+                    string createCapturesTable = @"
+                        CREATE TABLE IF NOT EXISTS Captures (
+                            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            FileName TEXT,
+                            FilePath TEXT,
+                            SourceApp TEXT,
+                            SourceTitle TEXT,
+                            OriginalFilePath TEXT,
+                            IsFavorite INTEGER DEFAULT 0,
+                            IsPinned INTEGER DEFAULT 0,
+                            Status INTEGER DEFAULT 0, -- 0: Active, 1: Trash
+                            FileSize INTEGER,
+                            Resolution TEXT,
+                            CreatedAt DATETIME DEFAULT (datetime('now', 'localtime')),
+                            Memo TEXT DEFAULT ''
+                        );";
 
-                try
-                {
-                    using (var command = new SqliteCommand("ALTER TABLE Captures ADD COLUMN Memo TEXT DEFAULT '';", connection))
+                    using (var command = new SqliteCommand(createCapturesTable, connection)) { command.ExecuteNonQuery(); }
+
+                    // Migration: Add OriginalFilePath if it doesn't exist
+                    try
                     {
-                        command.ExecuteNonQuery();
+                        using (var command = new SqliteCommand("ALTER TABLE Captures ADD COLUMN OriginalFilePath TEXT;", connection))
+                        {
+                            command.ExecuteNonQuery();
+                        }
                     }
+                    catch { /* Column might already exist */ }
+
+                    try
+                    {
+                        using (var command = new SqliteCommand("ALTER TABLE Captures ADD COLUMN IsPinned INTEGER DEFAULT 0;", connection))
+                        {
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                    catch { /* Column might already exist */ }
+
+                    try
+                    {
+                        using (var command = new SqliteCommand("ALTER TABLE Captures ADD COLUMN Memo TEXT DEFAULT '';", connection))
+                        {
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                    catch { /* Column might already exist */ }
                 }
-                catch { /* Column might already exist */ }
+                
+                // 초기화 성공
+                IsHistoryDatabaseReady = true;
+                LogToFile("히스토리 데이터베이스 초기화 완료");
+            }
+            catch (Exception ex)
+            {
+                IsHistoryDatabaseReady = false;
+                LogToFile($"[ERROR] 히스토리 데이터베이스 초기화 실패: {ex.Message}");
             }
         }
 
@@ -2193,6 +2208,12 @@ namespace CatchCapture.Utilities
 
         public long InsertCapture(HistoryItem item)
         {
+            // 데이터베이스 초기화 상태 확인
+            if (!IsHistoryDatabaseReady)
+            {
+                throw new InvalidOperationException("히스토리 데이터베이스가 아직 초기화되지 않았습니다. 클라우드 드라이브가 로드될 때까지 잠시 기다려주세요.");
+            }
+            
             using (var connection = new SqliteConnection($"Data Source={HistoryDbPath}"))
             {
                 connection.Open();

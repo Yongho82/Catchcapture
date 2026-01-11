@@ -2859,8 +2859,22 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            string errorMsg = $"{LocalizationManager.GetString("ErrHistorySave") ?? "히스토리 저장 실패"}: {ex.Message}\nStack: {ex.StackTrace}";
-            try { System.IO.File.AppendAllText(logPath, $"[{DateTime.Now}] ERROR: {errorMsg}\n"); } catch { }
+            // 클라우드 드라이브 로드 관련 오류 감지
+            bool isCloudDriveError = ex.Message.Contains("database disk image is malformed") ||
+                                     ex.Message.Contains("히스토리 데이터베이스가 아직 초기화되지 않았습니다") ||
+                                     ex.Message.Contains("클라우드 드라이브가 로드될 때까지");
+            
+            string errorMsg;
+            if (isCloudDriveError)
+            {
+                errorMsg = "클라우드 드라이브가 아직 로드되지 않았습니다.\n잠시 후 다시 시도해주세요.";
+            }
+            else
+            {
+                errorMsg = $"{LocalizationManager.GetString("ErrHistorySave") ?? "히스토리 저장 실패"}: {ex.Message}\nStack: {ex.StackTrace}";
+            }
+            
+            try { System.IO.File.AppendAllText(logPath, $"[{DateTime.Now}] ERROR: {errorMsg}\n원본 오류: {ex.Message}\n"); } catch { }
             
             System.Diagnostics.Debug.WriteLine(errorMsg);
 
