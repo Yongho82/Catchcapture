@@ -569,9 +569,9 @@ public partial class MainWindow : Window
         
         captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("DelayCapture"), LoadMenuImage("clock.png"), (s, e) => StartDelayedAreaCaptureSeconds(3, false)));
         captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("RealTimeCapture"), LoadMenuImage("real-time.png"), (s, e) => StartRealTimeCaptureMode(false)));
-        captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("MultiCapture"), LoadMenuImage("multi_capture.png"), (s, e) => MultiCaptureButton_Click(s, new RoutedEventArgs()))); // RoutedEventArgs doesn't have a way to pass flag easily, but we'll see
+        captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("MultiCapture"), LoadMenuImage("multi_capture.png"), (s, e) => MultiCaptureButton_Click(this, new RoutedEventArgs()))); 
         captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("FullScreen"), LoadMenuImage("full_screen.png"), (s, e) => CaptureFullScreen(false)));
-        captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("DesignatedCapture"), LoadMenuImage("designated.png"), (s, e) => DesignatedCaptureButton_Click(s, new RoutedEventArgs())));
+        captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("DesignatedCapture"), LoadMenuImage("designated.png"), (s, e) => DesignatedCaptureButton_Click(this, new RoutedEventArgs())));
         captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("WindowCapture"), LoadMenuImage("window_cap.png"), (s, e) => WindowCaptureButton_Click(this, new RoutedEventArgs())));
         captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("UnitCapture"), LoadMenuImage("unit_capture.png"), (s, e) => ElementCaptureButton_Click(this, new RoutedEventArgs())));
         captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("ScrollCapture"), LoadMenuImage("scroll_capture.png"), (s, e) => ScrollCaptureButton_Click(this, new RoutedEventArgs())));
