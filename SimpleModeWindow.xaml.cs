@@ -923,6 +923,7 @@ namespace CatchCapture
                 "Delete" => "/icons/delete_selected.png",
                 "DeleteAll" => "/icons/delete_all.png",
                 "MyNote" => "/icons/my_note.png",
+                "History" => "/icons/histroy_note.png",
                 "Settings" => "/icons/setting.png",
                 "EdgeCapture" => "/icons/edge_capture.png",
                 _ => null
@@ -964,6 +965,7 @@ namespace CatchCapture
                 "Delete" => CatchCapture.Models.LocalizationManager.Get("Delete"),
                 "DeleteAll" => CatchCapture.Models.LocalizationManager.Get("DeleteAll"),
                 "MyNote" => CatchCapture.Models.LocalizationManager.Get("OpenMyNote"),
+                "History" => CatchCapture.Models.LocalizationManager.Get("History"),
                 "Settings" => CatchCapture.Models.LocalizationManager.Get("Settings"),
                 "EdgeCapture" => CatchCapture.Models.LocalizationManager.Get("EdgeCapture") ?? "엣지 캡처",
                 _ => string.Empty
@@ -992,6 +994,7 @@ namespace CatchCapture
                 "Delete" => CatchCapture.Models.LocalizationManager.Get("Delete"),
                 "DeleteAll" => CatchCapture.Models.LocalizationManager.Get("DeleteAll"),
                 "MyNote" => CatchCapture.Models.LocalizationManager.Get("OpenMyNote"),
+                "History" => CatchCapture.Models.LocalizationManager.Get("History"),
                 "Settings" => CatchCapture.Models.LocalizationManager.Get("Settings"),
                 "EdgeCapture" => CatchCapture.Models.LocalizationManager.Get("EdgeCapture") ?? "엣지 캡처",
                 _ => iconName
@@ -1065,6 +1068,9 @@ namespace CatchCapture
                     break;
                 case "MyNote":
                     _mainWindow?.OpenNoteExplorer();
+                    break;
+                case "History":
+                    _mainWindow?.BtnHistory_Click(this, new RoutedEventArgs());
                     break;
                 case "Settings":
                     _mainWindow?.OpenSettingsWindow();
@@ -1175,7 +1181,7 @@ namespace CatchCapture
             string[] allIcons = {
                 "AreaCapture", "EdgeCapture", "DelayCapture", "FullScreen", "RealTimeCapture", "MultiCapture",
                 "DesignatedCapture", "WindowCapture", "UnitCapture", "ScrollCapture", "OcrCapture",
-                "ScreenRecord", "Copy", "CopyAll", "Save", "SaveAll", 
+                "ScreenRecord", "History", "Copy", "CopyAll", "Save", "SaveAll", 
                 "Delete", "DeleteAll", "MyNote", "Settings"
             };
 
@@ -1207,6 +1213,7 @@ namespace CatchCapture
                             "Delete" => CreateMenuIcon("/icons/delete_selected.png"),
                             "DeleteAll" => CreateMenuIcon("/icons/delete_all.png"),
                             "MyNote" => CreateMenuIcon("/icons/my_note.png"),
+                            "History" => CreateMenuIcon("/icons/histroy_note.png"),
                             "Settings" => CreateMenuIcon("/icons/setting.png"),
                             "EdgeCapture" => CreateMenuIcon("/icons/edge_capture.png"),
                             _ => null

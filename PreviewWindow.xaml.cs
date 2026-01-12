@@ -474,7 +474,7 @@ namespace CatchCapture
             double toolbarHeight = 100; // 상단 툴바 + 타이틀바
             double bottomPanelHeight = 40; // 하단 상태바
             double rightPanelWidth = 320; // 우측 캡처 리스트 패널
-            double padding = 60; // 여백
+            double padding = 20; // 여백
 
             // 1. 높이 결정 (저장된 값이 있으면 우선 사용)
             double targetWindowHeight;

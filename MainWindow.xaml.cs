@@ -1225,7 +1225,7 @@ public partial class MainWindow : Window
         UpdateViewModeUI();
     }
 
-    private void BtnHistory_Click(object sender, RoutedEventArgs e)
+    public void BtnHistory_Click(object sender, RoutedEventArgs e)
     {
         var historyWindow = Application.Current.Windows.OfType<HistoryWindow>().FirstOrDefault();
         if (historyWindow == null)

@@ -635,6 +635,15 @@ namespace CatchCapture
                     iconImage = CreateImage("/icons/my_note.png");
                     labelText = LocalizationManager.Get("OpenMyNote");
                     break;
+                case "History":
+                    button.Click += (s, e) => {
+                        var historyWindow = Application.Current.Windows.OfType<HistoryWindow>().FirstOrDefault();
+                        if (historyWindow == null) { historyWindow = new HistoryWindow(); historyWindow.Show(); }
+                        else { historyWindow.Activate(); if (historyWindow.WindowState == WindowState.Minimized) historyWindow.WindowState = WindowState.Normal; }
+                    };
+                    iconImage = CreateImage("/icons/histroy_note.png");
+                    labelText = LocalizationManager.Get("History");
+                    break;
                 case "EdgeCapture":
                     // 저장된 반경으로 바로 캡처 (컨텍스트 메뉴 없음)
                     button.Click += async (s, e) => {
@@ -1200,6 +1209,7 @@ namespace CatchCapture
                 "Delete" => LocalizationManager.Get("Delete"),
                 "DeleteAll" => LocalizationManager.Get("DeleteAll"),
                 "MyNote" => LocalizationManager.Get("OpenMyNote"),
+                "History" => LocalizationManager.Get("History"),
                 "Settings" => LocalizationManager.Get("Settings"),
                 "EdgeCapture" => LocalizationManager.Get("EdgeCapture"),
                 _ => iconName
@@ -1713,7 +1723,7 @@ namespace CatchCapture
             string[] allIcons = {
                 "AreaCapture", "EdgeCapture", "DelayCapture", "FullScreen", "RealTimeCapture", "MultiCapture",
                 "DesignatedCapture", "WindowCapture", "UnitCapture", "ScrollCapture", "OcrCapture",
-                "ScreenRecord", "Copy", "CopyAll", "Save", "SaveAll", 
+                "ScreenRecord", "History", "Copy", "CopyAll", "Save", "SaveAll", 
                 "Delete", "DeleteAll", "MyNote", "Settings"
             };
             
@@ -1744,6 +1754,7 @@ namespace CatchCapture
                             "Delete" => CreateMenuIcon("/icons/delete_selected.png"),
                             "DeleteAll" => CreateMenuIcon("/icons/delete_all.png"),
                             "MyNote" => CreateMenuIcon("/icons/my_note.png"),
+                            "History" => CreateMenuIcon("/icons/histroy_note.png"),
                             "Settings" => CreateMenuIcon("/icons/setting.png"),
                             "EdgeCapture" => CreateMenuIcon("/icons/edge_capture.png"),
                             _ => null

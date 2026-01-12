@@ -148,13 +148,13 @@ namespace CatchCapture.Models
         public List<string> TrayModeIcons { get; set; } = new List<string>
         {
             "AreaCapture", "DelayCapture", "FullScreen", 
-            "DesignatedCapture", "WindowCapture", "UnitCapture"
+            "DesignatedCapture", "WindowCapture", "UnitCapture", "History"
         };
         
         // Simple mode icon customization (built-in tools)
         public List<string> SimpleModeIcons { get; set; } = new List<string>
         {
-            "AreaCapture", "DelayCapture", "FullScreen", "DesignatedCapture"
+            "AreaCapture", "DelayCapture", "FullScreen", "DesignatedCapture", "History"
         };
 
         // Simple mode external application shortcuts
@@ -240,14 +240,14 @@ namespace CatchCapture.Models
             var defaultTrayIcons = new List<string>
             {
                 "AreaCapture", "DelayCapture", "FullScreen", 
-                "DesignatedCapture", "WindowCapture", "UnitCapture"
+                "DesignatedCapture", "WindowCapture", "UnitCapture", "History"
             };
             if (TrayModeIcons == null) { TrayModeIcons = new List<string>(defaultTrayIcons); changed = true; }
 
             // 4. Sync Simple Mode Icons
             var defaultSimpleIcons = new List<string>
             {
-                "AreaCapture", "DelayCapture", "FullScreen", "DesignatedCapture"
+                "AreaCapture", "DelayCapture", "FullScreen", "DesignatedCapture", "History"
             };
             if (SimpleModeIcons == null) { SimpleModeIcons = new List<string>(defaultSimpleIcons); changed = true; }
 
