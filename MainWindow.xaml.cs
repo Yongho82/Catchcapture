@@ -530,7 +530,7 @@ public partial class MainWindow : Window
         trayAreaItem = new System.Windows.Forms.ToolStripMenuItem(
             LocalizationManager.GetString("AreaCapture"),
             LoadMenuImage("area_capture.png"),
-            (s, e) => StartAreaCapture());
+            (s, e) => StartAreaCapture(false));
         trayContextMenu.Items.Add(trayAreaItem);
 
         // [5] Edge Capture
@@ -551,7 +551,7 @@ public partial class MainWindow : Window
             subItem.Click += async (s, e) => {
                 settings.EdgeCaptureRadius = t.Radius;
                 Settings.Save(settings);
-                await StartAreaCaptureAsync(t.Radius);
+                await StartAreaCaptureAsync(t.Radius, false);
             };
             trayEdgeItem.DropDownItems.Add(subItem);
         }
@@ -567,11 +567,11 @@ public partial class MainWindow : Window
         // [6] Capture Submenu "캡처 >"
         var captureSub = new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("CaptureAnd") ?? "캡처", LoadMenuImage("camera.png"));
         
-        captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("DelayCapture"), LoadMenuImage("clock.png"), (s, e) => StartDelayedAreaCaptureSeconds(3)));
-        captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("RealTimeCapture"), LoadMenuImage("real-time.png"), (s, e) => StartRealTimeCaptureMode()));
-        captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("MultiCapture"), LoadMenuImage("multi_capture.png"), (s, e) => MultiCaptureButton_Click(this, new RoutedEventArgs())));
-        captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("FullScreen"), LoadMenuImage("full_screen.png"), (s, e) => FullScreenCaptureButton_Click(this, new RoutedEventArgs())));
-        captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("DesignatedCapture"), LoadMenuImage("designated.png"), (s, e) => DesignatedCaptureButton_Click(this, new RoutedEventArgs())));
+        captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("DelayCapture"), LoadMenuImage("clock.png"), (s, e) => StartDelayedAreaCaptureSeconds(3, false)));
+        captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("RealTimeCapture"), LoadMenuImage("real-time.png"), (s, e) => StartRealTimeCaptureMode(false)));
+        captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("MultiCapture"), LoadMenuImage("multi_capture.png"), (s, e) => MultiCaptureButton_Click(s, new RoutedEventArgs()))); // RoutedEventArgs doesn't have a way to pass flag easily, but we'll see
+        captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("FullScreen"), LoadMenuImage("full_screen.png"), (s, e) => CaptureFullScreen(false)));
+        captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("DesignatedCapture"), LoadMenuImage("designated.png"), (s, e) => DesignatedCaptureButton_Click(s, new RoutedEventArgs())));
         captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("WindowCapture"), LoadMenuImage("window_cap.png"), (s, e) => WindowCaptureButton_Click(this, new RoutedEventArgs())));
         captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("UnitCapture"), LoadMenuImage("unit_capture.png"), (s, e) => ElementCaptureButton_Click(this, new RoutedEventArgs())));
         captureSub.DropDownItems.Add(new System.Windows.Forms.ToolStripMenuItem(LocalizationManager.GetString("ScrollCapture"), LoadMenuImage("scroll_capture.png"), (s, e) => ScrollCaptureButton_Click(this, new RoutedEventArgs())));
@@ -1844,7 +1844,7 @@ public partial class MainWindow : Window
     }
 
 
-    public async Task StartAreaCaptureAsync(int cornerRadius = 0)
+    public async Task StartAreaCaptureAsync(int cornerRadius = 0, bool showMainWindowAfter = true)
     {
         // ★ 기존 캡처창이 열려있다면 닫기 (재캡처 연타 시 중복 실행 방지)
         if (_activeSnippingWindow != null)
@@ -1983,7 +1983,7 @@ public partial class MainWindow : Window
 
                 AddCaptureToList(capturedImage, 
                                  skipPreview: requestMinimize, 
-                                 showMainWindow: !requestMinimize, 
+                                 showMainWindow: showMainWindowAfter && !requestMinimize, 
                                  sourceApp: finalApp, 
                                  sourceTitle: finalTitle);
             }
@@ -2003,14 +2003,14 @@ public partial class MainWindow : Window
                             simpleModeWindow.Activate();
                         }
                     }
-                    else if (!settings.IsTrayMode)
+                    else if (!settings.IsTrayMode && showMainWindowAfter)
                     {
                         this.Show();
                         this.Activate();
                     }
                     else
                     {
-                        if (trayModeWindow != null)
+                        if (trayModeWindow != null && showMainWindowAfter)
                         {
                             trayModeWindow.Show();
                             trayModeWindow.Activate();
@@ -2033,9 +2033,9 @@ public partial class MainWindow : Window
         }
     }
 
-    public void StartAreaCapture()
+    public void StartAreaCapture(bool showMainWindowAfter = true)
     {
-        _ = StartAreaCaptureAsync(0);  // 일반 모드는 항상 직각(0)
+        _ = StartAreaCaptureAsync(0, showMainWindowAfter);
     }
 
     private void FullScreenCaptureButton_Click(object sender, RoutedEventArgs e)
@@ -2043,14 +2043,14 @@ public partial class MainWindow : Window
         CaptureFullScreen();
     }
 
-    private void CaptureFullScreen()
+    private void CaptureFullScreen(bool showMainWindowAfter = true)
     {
         // 전체 화면 캡처
         this.Hide();
         FlushUIAfterHide();
 
         var capturedImage = ScreenCaptureUtility.CaptureScreen();
-        AddCaptureToList(capturedImage);
+        AddCaptureToList(capturedImage, showMainWindow: showMainWindowAfter);
     }
 
 
@@ -4388,9 +4388,11 @@ public partial class MainWindow : Window
     private LowLevelKeyboardProc? _f1HookProc;
     private IntPtr _f1HookID = IntPtr.Zero;
 
-    private void StartRealTimeCaptureMode()
+    private bool _showMainWindowAfterRealTimeCapture = true;
+    private void StartRealTimeCaptureMode(bool showMainWindowAfter = true)
     {
         // 원래 모드 기억
+        _showMainWindowAfterRealTimeCapture = showMainWindowAfter;
         wasInTrayModeBeforeRealTimeCapture = settings.IsTrayMode;
 
         // 캡처 시작 전 메인 창이 보인다면 일반 모드로 확실히 설정
@@ -4453,7 +4455,7 @@ public partial class MainWindow : Window
                         // 영역 캡처 시작
                         try
                         {
-                            await StartAreaCaptureAsync();
+                            await StartAreaCaptureAsync(0, _showMainWindowAfterRealTimeCapture);
                         }
                         finally
                         {
@@ -5031,7 +5033,7 @@ public partial class MainWindow : Window
         StartRealTimeCaptureMode();
     }
     // 설정기반 지연 캡처(초)
-    private void StartDelayedAreaCaptureSeconds(int seconds)
+    private void StartDelayedAreaCaptureSeconds(int seconds, bool showMainWindowAfter = true)
     {
         // [추가된 코드 시작] -----------------------------------------
         // 지연 캡처 시작 전 메인 창이 보인다면 일반 모드로 확실히 설정
@@ -5044,7 +5046,7 @@ public partial class MainWindow : Window
 
         if (seconds <= 0)
         {
-            StartAreaCapture();
+            StartAreaCapture(showMainWindowAfter);
             return;
         }
         var countdown = new GuideWindow("", null)
@@ -5055,7 +5057,7 @@ public partial class MainWindow : Window
         countdown.StartCountdown(seconds, () =>
         {
             // UI 스레드에서 실행
-            Dispatcher.Invoke(StartAreaCapture);
+            Dispatcher.Invoke(() => StartAreaCapture(showMainWindowAfter));
         });
     }
 
