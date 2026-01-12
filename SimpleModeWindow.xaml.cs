@@ -1181,8 +1181,8 @@ namespace CatchCapture
             string[] allIcons = {
                 "AreaCapture", "EdgeCapture", "DelayCapture", "FullScreen", "RealTimeCapture", "MultiCapture",
                 "DesignatedCapture", "WindowCapture", "UnitCapture", "ScrollCapture", "OcrCapture",
-                "ScreenRecord", "History", "Copy", "CopyAll", "Save", "SaveAll", 
-                "Delete", "DeleteAll", "MyNote", "Settings"
+                "ScreenRecord", "History", "MyNote", "Copy", "CopyAll", "Save", "SaveAll", 
+                "Delete", "DeleteAll", "Settings"
             };
 
             if (settings != null)
