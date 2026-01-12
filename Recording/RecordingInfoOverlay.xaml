@@ -1,0 +1,26 @@
+<Window x:Class="CatchCapture.Recording.RecordingInfoOverlay"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RecordingInfoOverlay" 
+        WindowStyle="None" 
+        AllowsTransparency="True" 
+        Background="Transparent"
+        ShowInTaskbar="False"
+        Topmost="True"
+        ResizeMode="NoResize"
+        WindowStartupLocation="Manual"
+        IsHitTestVisible="False">
+    <Canvas x:Name="OverlayCanvas">
+        <!-- 용량 표시 -->
+        <TextBlock x:Name="FileSizeText" 
+                   Text="0.0 MB"
+                   Foreground="White"
+                   FontSize="16"
+                   FontWeight="Bold"
+                   Visibility="Collapsed">
+            <TextBlock.Effect>
+                <DropShadowEffect BlurRadius="2" ShadowDepth="1" Color="Black" Opacity="1"/>
+            </TextBlock.Effect>
+        </TextBlock>
+    </Canvas>
+</Window>

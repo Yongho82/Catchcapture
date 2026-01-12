@@ -33,6 +33,7 @@ namespace CatchCapture.Recording
         
         // 녹화 영역 오버레이 창
         private RecordingOverlay? _overlay;
+        private RecordingInfoOverlay? _infoOverlay;
         
         // 도킹 관련
         private bool _isDocked = false;
@@ -46,10 +47,15 @@ namespace CatchCapture.Recording
         // 상태
         public bool IsRecording => _recorder?.IsRecording ?? false;
         
-        public RecordingWindow()
+        [DllImport("user32.dll")]
+        private static extern uint SetWindowDisplayAffinity(IntPtr hwnd, uint dwAffinity);
+        private const uint WDA_EXCLUDEFROMCAPTURE = 0x00000011;
+
+        public RecordingWindow() // Original constructor signature
         {
             InitializeComponent();
             
+
             _globalSettings = CatchCapture.Models.Settings.Load();
             _settings = _globalSettings.Recording;
             
@@ -162,10 +168,6 @@ namespace CatchCapture.Recording
         }
     }
 
-    [DllImport("user32.dll")]
-    private static extern uint SetWindowDisplayAffinity(IntPtr hwnd, uint dwAffinity);
-    private const uint WDA_NONE = 0x00000000;
-    private const uint WDA_EXCLUDEFROMCAPTURE = 0x00000011;
 
     /// <summary>
     /// 오버레이 표시
@@ -178,6 +180,7 @@ namespace CatchCapture.Recording
             if (_overlay != null && _overlay.IsVisible)
             {
                 _overlay.Hide();
+                _infoOverlay?.Hide();
             }
             return;
         }
@@ -222,6 +225,11 @@ namespace CatchCapture.Recording
             
             // 툴바를 오버레이의 'Owned Window'로 설정하면 툴바가 항상 오버레이 위에 뜸
             this.Owner = _overlay;
+
+            // 용량 표시용 오버레이 (캡처 제외)
+            _infoOverlay = new RecordingInfoOverlay();
+            _infoOverlay.Owner = _overlay;
+            _infoOverlay.Show();
         }
         else
         {
@@ -230,6 +238,8 @@ namespace CatchCapture.Recording
                 _overlay.Show();
                 _overlay.Topmost = true;
                 _overlay.Activate();
+
+                _infoOverlay?.Show();
             }
         }
     }
@@ -560,6 +570,7 @@ namespace CatchCapture.Recording
                 if (!_overlay.IsSelectingNewArea)
                 {
                     this.Hide(); // 툴박스 숨기기
+                    _infoOverlay?.HideFileSize();
                     _overlay.StartNewSelectionMode();
                 }
             }
@@ -761,7 +772,7 @@ namespace CatchCapture.Recording
                 else if (bytes < 1024 * 1024 * 1024) sizeStr = $"{bytes / 1024.0 / 1024.0:F1} MB";
                 else sizeStr = $"{bytes / 1024.0 / 1024.0 / 1024.0:F2} GB";
                 
-                _overlay.UpdateFileSizeText(sizeStr);
+                _infoOverlay?.UpdateFileSizeText(sizeStr, _overlay.SelectionArea);
             }
         }
         
@@ -779,6 +790,12 @@ namespace CatchCapture.Recording
             {
                 _overlay.Close();
                 _overlay = null;
+            }
+
+            if (_infoOverlay != null)
+            {
+                _infoOverlay.Close();
+                _infoOverlay = null;
             }
             
             Owner = null;
@@ -1135,6 +1152,7 @@ namespace CatchCapture.Recording
             
             // 오버레이를 다시 선택 모드(핸들 표시 등)로 전환
             _overlay?.SetRecordingMode(false);
+            _infoOverlay?.HideFileSize();
             
             UpdateUI();
         }
@@ -1307,6 +1325,12 @@ namespace CatchCapture.Recording
             if (_isAttachedToOverlay && !_isDocked && _overlay != null)
             {
                 UpdateToolboxPosition(area);
+            }
+
+            // 녹화 중일 때만 용량 표시 위치 동기화
+            if (IsRecording && _infoOverlay != null && _infoOverlay.IsVisible)
+            {
+                _infoOverlay.UpdateFileSizeText(_infoOverlay.FileSizeText.Text, area);
             }
         }
 

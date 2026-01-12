@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Runtime.InteropServices;
 
 namespace CatchCapture.Recording
 {
@@ -35,9 +36,20 @@ namespace CatchCapture.Recording
         private const double MIN_WIDTH = 100;
         private const double MIN_HEIGHT = 100;
         
+        [DllImport("user32.dll")]
+        private static extern uint SetWindowDisplayAffinity(IntPtr hwnd, uint dwAffinity);
+        private const uint WDA_EXCLUDEFROMCAPTURE = 0x00000011;
+
         public RecordingOverlay()
         {
             InitializeComponent();
+            
+            this.Loaded += (s, e) =>
+            {
+                var interop = new System.Windows.Interop.WindowInteropHelper(this);
+                SetWindowDisplayAffinity(interop.Handle, WDA_EXCLUDEFROMCAPTURE);
+            };
+
             
             // 기본 선택 영역 (주 모니터 중앙 800x600)
             var screen = SystemParameters.WorkArea;
@@ -406,36 +418,8 @@ namespace CatchCapture.Recording
                 SelectionHitTarget.Width = screenWidth;
                 SelectionHitTarget.Height = screenHeight;
             }
-            
-            // 파일 용량 텍스트 위치 업데이트 (표시 중이라면)
-            if (FileSizeText != null && FileSizeText.Visibility == Visibility.Visible)
-            {
-                // Measure를 호출하여 ActualWidth 갱신 보장
-                FileSizeText.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-                Canvas.SetLeft(FileSizeText, _selectionArea.Right - FileSizeText.DesiredSize.Width - 10);
-                Canvas.SetTop(FileSizeText, _selectionArea.Top + 10);
-                
-                // Z-Index 최상위 보장
-                Panel.SetZIndex(FileSizeText, 999);
-            }
         }
 
-        public void UpdateFileSizeText(string text)
-        {
-            if (FileSizeText == null) return;
-            
-            FileSizeText.Text = text;
-            FileSizeText.Visibility = Visibility.Visible;
-
-            // 위치 조정: 선택 영역 우측 상단 10px 안쪽
-            if (_selectionArea.Width > 0 && _selectionArea.Height > 0)
-            {
-                FileSizeText.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-                Canvas.SetLeft(FileSizeText, _selectionArea.Right - FileSizeText.DesiredSize.Width - 10);
-                Canvas.SetTop(FileSizeText, _selectionArea.Top + 10);
-            }
-        }
-        
         /// <summary>
         /// 리사이즈 핸들 위치 업데이트
         /// </summary>

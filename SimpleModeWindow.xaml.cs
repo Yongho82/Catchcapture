@@ -1866,7 +1866,7 @@ namespace CatchCapture
             try
             {
                 // 창 제목
-                this.Title = LocalizationManager.Get("SimpleModeTitle");
+                this.Title = LocalizationManager.Get("Catch-SimpleMode");
 
                 // 즉시편집 라벨 (타이틀바 좌측)
                 if (InstantEditLabelH != null)
