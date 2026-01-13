@@ -1105,7 +1105,27 @@ namespace CatchCapture.Utilities
             {
                 try
                 {
-                    System.Windows.Clipboard.SetImage(bitmapSource);
+                    // [Fix] 투명도(Alpha Channel) 보존을 위해 PNG 포맷을 함께 설정
+                    // 엑셀 등 오피스 프로그램은 일반 비트맵 복사 시 투명 영역을 검은색으로 처리함
+                    
+                    DataObject data = new DataObject();
+                    
+                    // 1. 기본 비트맵 (호환성)
+                    data.SetImage(bitmapSource);
+                    
+                    // 2. PNG 포맷 (투명도 지원, Excel 등에서 필요)
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        PngBitmapEncoder encoder = new PngBitmapEncoder();
+                        encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+                        encoder.Save(ms);
+                        ms.Position = 0;
+                        data.SetData("PNG", ms, false);
+                        
+                        // copy=true로 설정하여 앱 종료 후에도 클립보드 유지
+                        System.Windows.Clipboard.SetDataObject(data, true);
+                    }
+                    
                     return true;
                 }
                 catch (COMException)

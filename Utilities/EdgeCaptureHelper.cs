@@ -150,7 +150,7 @@ namespace CatchCapture.Utilities
                 double actualRadius = (radius >= 99) ? Math.Min(sourceWidth, sourceHeight) / 2.0 : radius;
 
                 // 그림자 및 테두리 두께를 고려한 여백(Padding) 계산 (정수화하여 흔들림 방지)
-                double padding = Math.Ceiling((hasShadow ? (shadowBlur + shadowDepth) : 0) + (borderThickness / 2.0) + 20);
+                double padding = Math.Ceiling((hasShadow ? (shadowBlur + shadowDepth) : 0) + (borderThickness / 2.0) + 1);
                 int targetWidth = (int)(sourceWidth + padding * 2);
                 int targetHeight = (int)(sourceHeight + padding * 2);
 
