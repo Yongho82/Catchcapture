@@ -62,6 +62,7 @@ namespace CatchCapture
         private Stack<UIElement> _editorUndoStack = new Stack<UIElement>();
         private CatchCapture.Controls.ToolOptionsControl _toolOptionsControl;
         private Image? _edgePreviewImage;
+        private System.Windows.Shapes.Rectangle? _edgeBorderOverlay;
 
         private List<CatchCapture.Models.DrawingLayer> drawingLayers = new List<CatchCapture.Models.DrawingLayer>();
         private Dictionary<int, List<CatchCapture.Models.DrawingLayer>> captureDrawingLayers = new Dictionary<int, List<CatchCapture.Models.DrawingLayer>>();
@@ -226,6 +227,16 @@ namespace CatchCapture
             };
             ImageCanvas.Children.Add(_edgePreviewImage);
             Panel.SetZIndex(_edgePreviewImage, 900); // 이미지(0)보다 위, 드로잉보다는 아래(또는 상황에 따라 조절)
+
+            // [추가] 엣지 테두리 오버레이 (EdgeLine 모드가 아닐 때 테두리만 표시)
+            _edgeBorderOverlay = new System.Windows.Shapes.Rectangle
+            {
+                IsHitTestVisible = false,
+                Visibility = Visibility.Collapsed,
+                Fill = Brushes.Transparent
+            };
+            ImageCanvas.Children.Add(_edgeBorderOverlay);
+            Panel.SetZIndex(_edgeBorderOverlay, 950); // 드로잉 요소보다 위
 
             _editorManager.EdgePropertiesChanged += UpdateEdgeLinePreview;
         }
@@ -794,13 +805,8 @@ namespace CatchCapture
                 ImageCanvas.Cursor = Cursors.Arrow;
             }
 
-            // [추가] 엣지라인 프리뷰 및 가시성 복원
-            if (_edgePreviewImage != null) _edgePreviewImage.Visibility = Visibility.Collapsed;
-            if (PreviewImage != null) PreviewImage.Visibility = Visibility.Visible;
-            if (drawnElements != null)
-            {
-                foreach (var el in drawnElements) el.Visibility = Visibility.Visible;
-            }
+            // [수정] 엣지라인 프리뷰 상태 업데이트 (IsEdgeLineEnabled 상태에 따라 클리핑 유지)
+            UpdateEdgeLinePreview();
 
             // 그리기 포인트 초기화 - _editorManager에서 관리됨
             drawingPoints.Clear();
@@ -1209,14 +1215,73 @@ namespace CatchCapture
 
         private void UpdateEdgeLinePreview()
         {
-            if (currentEditMode != EditMode.EdgeLine || _edgePreviewImage == null || !_editorManager.IsEdgeLineEnabled)
+            // 엣지 설정이 아예 꺼져 있으면 모든 효과 제거 (원본 상태)
+            if (_editorManager == null || !_editorManager.IsEdgeLineEnabled)
             {
                 if (_edgePreviewImage != null) _edgePreviewImage.Visibility = Visibility.Collapsed;
-                if (PreviewImage != null) PreviewImage.Visibility = Visibility.Visible;
+                if (_edgeBorderOverlay != null) _edgeBorderOverlay.Visibility = Visibility.Collapsed;
+                if (PreviewImage != null) 
+                {
+                    PreviewImage.Visibility = Visibility.Visible;
+                    PreviewImage.Clip = null;
+                }
+                if (ImageCanvas != null) ImageCanvas.Clip = null;
                 if (drawnElements != null)
                 {
                     foreach (var el in drawnElements) el.Visibility = Visibility.Visible;
                 }
+                return;
+            }
+
+            // [핵심] IsEdgeLineEnabled가 true이면 곡률(둥근 모서리)은 항상 적용
+            // 단, 테두리/그림자는 EdgeLine 모드에서만 프리뷰로 표시
+            double rad = _editorManager.EdgeCornerRadius;
+            if (rad > 0 && currentImage != null)
+            {
+                // 최대 곡률 처리 (99 이상은 완전한 원형/최대값)
+                if (rad >= 99) rad = Math.Min(currentImage.Width, currentImage.Height) / 2.0;
+                
+                var clip = new RectangleGeometry(new Rect(0, 0, currentImage.Width, currentImage.Height), rad, rad);
+                // PreviewImage에만 클리핑 적용 (ImageCanvas는 그리기 요소가 잘리지 않도록 제외)
+                if (PreviewImage != null) PreviewImage.Clip = clip;
+            }
+            else
+            {
+                if (PreviewImage != null) PreviewImage.Clip = null;
+            }
+
+            // 엣지라인 모드가 아닐 때는 원본/그리기 요소만 보여줌 (테두리/그림자 프리뷰는 숨김)
+            if (currentEditMode != EditMode.EdgeLine || _edgePreviewImage == null)
+            {
+                if (_edgePreviewImage != null) _edgePreviewImage.Visibility = Visibility.Collapsed;
+                if (PreviewImage != null) PreviewImage.Visibility = Visibility.Visible;
+                if (ImageCanvas != null) ImageCanvas.Clip = null; // 그리기 요소는 클리핑하지 않음
+                if (drawnElements != null)
+                {
+                    foreach (var el in drawnElements) el.Visibility = Visibility.Visible;
+                }
+                
+                // [추가] EdgeLine 모드가 아니지만 테두리가 있으면 테두리 오버레이 표시
+                if (_edgeBorderOverlay != null && currentImage != null && _editorManager.EdgeBorderThickness > 0)
+                {
+                    _edgeBorderOverlay.Width = currentImage.Width;
+                    _edgeBorderOverlay.Height = currentImage.Height;
+                    _edgeBorderOverlay.Stroke = new SolidColorBrush(_editorManager.SelectedColor);
+                    _edgeBorderOverlay.StrokeThickness = _editorManager.EdgeBorderThickness;
+                    
+                    double borderRad = rad; // 위에서 계산한 곡률 사용
+                    _edgeBorderOverlay.RadiusX = borderRad;
+                    _edgeBorderOverlay.RadiusY = borderRad;
+                    
+                    Canvas.SetLeft(_edgeBorderOverlay, 0);
+                    Canvas.SetTop(_edgeBorderOverlay, 0);
+                    _edgeBorderOverlay.Visibility = Visibility.Visible;
+                }
+                else if (_edgeBorderOverlay != null)
+                {
+                    _edgeBorderOverlay.Visibility = Visibility.Collapsed;
+                }
+                
                 return;
             }
 
@@ -1243,6 +1308,9 @@ namespace CatchCapture
                     _edgePreviewImage.Source = preview;
                     _edgePreviewImage.Visibility = Visibility.Visible;
                     
+                    // [추가] EdgeLine 모드에서는 테두리 오버레이 숨김 (프리뷰에 이미 포함됨)
+                    if (_edgeBorderOverlay != null) _edgeBorderOverlay.Visibility = Visibility.Collapsed;
+                    
                     // 프리뷰 중에는 원본 및 드로잉 숨김 (중첩 방지)
                     if (PreviewImage != null) PreviewImage.Visibility = Visibility.Collapsed;
                     if (drawnElements != null)
@@ -1250,15 +1318,16 @@ namespace CatchCapture
                         foreach (var el in drawnElements) el.Visibility = Visibility.Collapsed;
                     }
 
-                    // 그림자 패딩만큼 마이너스 오프셋 적용하여 제자리에 위치
-                    double borderThickness = _editorManager.EdgeBorderThickness;
-                    bool hasShadow = _editorManager.HasEdgeShadow;
-                    double shadowBlur = _editorManager.EdgeShadowBlur;
-                    double shadowDepth = _editorManager.EdgeShadowDepth;
-                    double padding = Math.Ceiling((hasShadow ? (shadowBlur + shadowDepth) : 0) + (borderThickness / 2.0) + 20);
-                    
-                    Canvas.SetLeft(_edgePreviewImage, -padding);
-                    Canvas.SetTop(_edgePreviewImage, -padding);
+                    // [수정] 위치 보정: 생성된 이미지 크기와 원본 이미지 크기의 차이(패딩)를 계산하여 중앙 정렬
+                    // SnippingWindow와 동일한 방식 사용
+                    if (currentImage != null)
+                    {
+                        double paddingX = (preview.PixelWidth - currentImage.Width) / 2.0;
+                        double paddingY = (preview.PixelHeight - currentImage.Height) / 2.0;
+                        
+                        Canvas.SetLeft(_edgePreviewImage, -paddingX);
+                        Canvas.SetTop(_edgePreviewImage, -paddingY);
+                    }
                 }
             }
             catch (Exception ex)
