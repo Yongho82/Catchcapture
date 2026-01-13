@@ -834,7 +834,7 @@ namespace CatchCapture
             stackPanel.Children.Add(textBlock);
             
             button.Content = stackPanel;
-            button.ToolTip = GetIconDisplayName(iconName);
+            button.ToolTip = GetIconTooltip(iconName);
             
             // 클릭 이벤트 연결
             button.Click += (s, e) => HandleIconClick(iconName);
@@ -999,6 +999,43 @@ namespace CatchCapture
                 "EdgeCapture" => CatchCapture.Models.LocalizationManager.Get("EdgeCapture") ?? "엣지 캡처",
                 _ => iconName
             };
+        }
+
+        private string GetIconTooltip(string iconName)
+        {
+            string description = GetIconDisplayName(iconName);
+            if (settings?.Hotkeys == null) return description;
+
+            ToggleHotkey? hotkey = iconName switch
+            {
+                "AreaCapture" => settings.Hotkeys.RegionCapture,
+                "DelayCapture" => settings.Hotkeys.DelayCapture,
+                "RealTimeCapture" => settings.Hotkeys.RealTimeCapture,
+                "FullScreen" => settings.Hotkeys.FullScreen,
+                "MultiCapture" => settings.Hotkeys.MultiCapture,
+                "DesignatedCapture" => settings.Hotkeys.DesignatedCapture,
+                "WindowCapture" => settings.Hotkeys.WindowCapture,
+                "UnitCapture" => settings.Hotkeys.ElementCapture,
+                "ScrollCapture" => settings.Hotkeys.ScrollCapture,
+                "OcrCapture" => settings.Hotkeys.OcrCapture,
+                "ScreenRecord" => settings.Hotkeys.ScreenRecord,
+                "EdgeCapture" => settings.Hotkeys.EdgeCapture,
+                "Settings" => settings.Hotkeys.OpenSettings,
+                _ => null
+            };
+
+            if (hotkey == null || !hotkey.Enabled || string.IsNullOrEmpty(hotkey.Key))
+                return description;
+
+            var parts = new List<string>();
+            if (hotkey.Ctrl) parts.Add("Ctrl");
+            if (hotkey.Shift) parts.Add("Shift");
+            if (hotkey.Alt) parts.Add("Alt");
+            if (hotkey.Win) parts.Add("Win");
+            parts.Add(hotkey.Key);
+
+            string hotkeyText = string.Join("+", parts);
+            return $"{description}\n({hotkeyText})";
         }
 
         private void HandleIconClick(string iconName)

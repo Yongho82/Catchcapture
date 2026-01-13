@@ -472,7 +472,7 @@
 
                     <GroupBox x:Name="EdgeCaptureSettingsGroup" Header="엣지 캡처 설정 (Edge Capture Settings)" BorderBrush="{DynamicResource ThemeBorder}" Padding="10" Margin="0,0,0,10">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="프리셋 (Preset):" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="{DynamicResource ThemeForeground}"/>
+                            <TextBlock x:Name="EdgePresetLabel" Text="프리셋 (Preset):" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="{DynamicResource ThemeForeground}"/>
                             <ComboBox x:Name="CboEdgePreset" Width="180" Height="26" VerticalContentAlignment="Center">
                                 <ComboBoxItem Content="1단계 (Soft)" Tag="1"/>
                                 <ComboBoxItem Content="2단계 (Smooth)" Tag="2"/>

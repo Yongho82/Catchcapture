@@ -526,7 +526,7 @@ namespace CatchCapture
             var button = new Button
             {
                 Style = this.FindResource("IconButtonStyle") as Style,
-                ToolTip = GetIconDisplayName(iconName)
+                ToolTip = GetIconTooltip(iconName)
             };
             
             // 아이콘과 텍스트를 담을 StackPanel 생성
@@ -1215,6 +1215,43 @@ namespace CatchCapture
                 "EdgeCapture" => LocalizationManager.Get("EdgeCapture"),
                 _ => iconName
             };
+        }
+
+        private string GetIconTooltip(string iconName)
+        {
+            string description = GetIconDisplayName(iconName);
+            if (settings?.Hotkeys == null) return description;
+
+            ToggleHotkey? hotkey = iconName switch
+            {
+                "AreaCapture" => settings.Hotkeys.RegionCapture,
+                "DelayCapture" => settings.Hotkeys.DelayCapture,
+                "RealTimeCapture" => settings.Hotkeys.RealTimeCapture,
+                "FullScreen" => settings.Hotkeys.FullScreen,
+                "MultiCapture" => settings.Hotkeys.MultiCapture,
+                "DesignatedCapture" => settings.Hotkeys.DesignatedCapture,
+                "WindowCapture" => settings.Hotkeys.WindowCapture,
+                "UnitCapture" => settings.Hotkeys.ElementCapture,
+                "ScrollCapture" => settings.Hotkeys.ScrollCapture,
+                "OcrCapture" => settings.Hotkeys.OcrCapture,
+                "ScreenRecord" => settings.Hotkeys.ScreenRecord,
+                "EdgeCapture" => settings.Hotkeys.EdgeCapture,
+                "Settings" => settings.Hotkeys.OpenSettings,
+                _ => null
+            };
+
+            if (hotkey == null || !hotkey.Enabled || string.IsNullOrEmpty(hotkey.Key))
+                return description;
+
+            var parts = new List<string>();
+            if (hotkey.Ctrl) parts.Add("Ctrl");
+            if (hotkey.Shift) parts.Add("Shift");
+            if (hotkey.Alt) parts.Add("Alt");
+            if (hotkey.Win) parts.Add("Win");
+            parts.Add(hotkey.Key);
+
+            string hotkeyText = string.Join("+", parts);
+            return $"{description}\n({hotkeyText})";
         }
         private void UpdateInstantEditToggleUI()
         {

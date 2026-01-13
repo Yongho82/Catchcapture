@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -5263,6 +5263,23 @@ public partial class MainWindow : Window
         return tt;
     }
 
+    private string GetCaptureTooltip(string key, ToggleHotkey? hotkey)
+    {
+        string description = GetLocalizedTooltip(key);
+        if (hotkey == null || !hotkey.Enabled || string.IsNullOrEmpty(hotkey.Key))
+            return description;
+
+        var parts = new List<string>();
+        if (hotkey.Ctrl) parts.Add("Ctrl");
+        if (hotkey.Shift) parts.Add("Shift");
+        if (hotkey.Alt) parts.Add("Alt");
+        if (hotkey.Win) parts.Add("Win");
+        parts.Add(hotkey.Key);
+
+        string hotkeyText = string.Join("+", parts);
+        return $"{description}\n({hotkeyText})";
+    }
+
     #endregion
 
     private void SetButtonText(System.Windows.Controls.Button? button, string text)
@@ -5306,50 +5323,60 @@ public partial class MainWindow : Window
 
         // 2. 메인 버튼들
         if (AreaCaptureButtonText != null) AreaCaptureButtonText.Text = LocalizationManager.GetString("AreaCapture");
-        if (AreaCaptureButton != null) AreaCaptureButton.ToolTip = GetLocalizedTooltip("AreaCapture");
+        if (AreaCaptureButton != null) AreaCaptureButton.ToolTip = GetCaptureTooltip("AreaCapture", settings?.Hotkeys?.RegionCapture);
 
         if (DelayCaptureButtonText != null) DelayCaptureButtonText.Text = LocalizationManager.GetString("DelayCapture");
-        if (DelayCaptureButton != null) DelayCaptureButton.ToolTip = GetLocalizedTooltip("DelayCapture");
+        if (DelayCaptureButton != null)
+        {
+            var tt = GetCaptureTooltip("DelayCapture", settings?.Hotkeys?.DelayCapture);
+            DelayCaptureButton.ToolTip = tt;
+            if (DelayCaptureGrid != null) DelayCaptureGrid.ToolTip = tt;
+        }
 
         if (EdgeCaptureButtonText != null) EdgeCaptureButtonText.Text = LocalizationManager.GetString("EdgeCapture");
-        if (EdgeCaptureButton != null) EdgeCaptureButton.ToolTip = GetLocalizedTooltip("EdgeCapture");
+        if (EdgeCaptureButton != null)
+        {
+            var tt = GetCaptureTooltip("EdgeCapture", settings?.Hotkeys?.EdgeCapture);
+            EdgeCaptureButton.ToolTip = tt;
+            if (EdgeCaptureGrid != null) EdgeCaptureGrid.ToolTip = tt;
+        }
 
         if (Delay3Menu != null) Delay3Menu.Header = LocalizationManager.GetString("Delay3Sec");
         if (Delay5Menu != null) Delay5Menu.Header = LocalizationManager.GetString("Delay5Sec");
         if (Delay10Menu != null) Delay10Menu.Header = LocalizationManager.GetString("Delay10Sec");
 
         if (RealTimeCaptureButtonText != null) RealTimeCaptureButtonText.Text = LocalizationManager.GetString("RealTimeCapture");
-        if (RealTimeCaptureButton != null) RealTimeCaptureButton.ToolTip = GetLocalizedTooltip("RealTimeCapture");
+        if (RealTimeCaptureButton != null) RealTimeCaptureButton.ToolTip = GetCaptureTooltip("RealTimeCapture", settings?.Hotkeys?.RealTimeCapture);
 
         if (MultiCaptureButtonText != null) MultiCaptureButtonText.Text = LocalizationManager.GetString("MultiCapture");
-        if (MultiCaptureButton != null) MultiCaptureButton.ToolTip = GetLocalizedTooltip("MultiCapture");
+        if (MultiCaptureButton != null) MultiCaptureButton.ToolTip = GetCaptureTooltip("MultiCapture", settings?.Hotkeys?.MultiCapture);
 
         if (FullScreenButtonText != null) FullScreenButtonText.Text = LocalizationManager.GetString("FullScreen");
-        if (FullScreenCaptureButton != null) FullScreenCaptureButton.ToolTip = GetLocalizedTooltip("FullScreen");
+        if (FullScreenCaptureButton != null) FullScreenCaptureButton.ToolTip = GetCaptureTooltip("FullScreen", settings?.Hotkeys?.FullScreen);
 
         if (DesignatedCaptureButtonText != null) DesignatedCaptureButtonText.Text = LocalizationManager.GetString("DesignatedCapture");
-        if (DesignatedCaptureButton != null) DesignatedCaptureButton.ToolTip = GetLocalizedTooltip("DesignatedCapture");
+        if (DesignatedCaptureButton != null) DesignatedCaptureButton.ToolTip = GetCaptureTooltip("DesignatedCapture", settings?.Hotkeys?.DesignatedCapture);
 
         if (WindowCaptureButtonText != null) WindowCaptureButtonText.Text = LocalizationManager.GetString("WindowCapture");
-        if (WindowCaptureButton != null) WindowCaptureButton.ToolTip = GetLocalizedTooltip("WindowCapture");
+        if (WindowCaptureButton != null) WindowCaptureButton.ToolTip = GetCaptureTooltip("WindowCapture", settings?.Hotkeys?.WindowCapture);
 
         if (ElementCaptureButtonText != null) ElementCaptureButtonText.Text = LocalizationManager.GetString("ElementCapture");
-        if (ElementCaptureButton != null) ElementCaptureButton.ToolTip = GetLocalizedTooltip("ElementCapture");
+        if (ElementCaptureButton != null) ElementCaptureButton.ToolTip = GetCaptureTooltip("ElementCapture", settings?.Hotkeys?.ElementCapture);
 
         if (ScrollCaptureButtonText != null) ScrollCaptureButtonText.Text = LocalizationManager.GetString("ScrollCapture");
-        if (ScrollCaptureButton != null) ScrollCaptureButton.ToolTip = GetLocalizedTooltip("ScrollCapture");
+        if (ScrollCaptureButton != null) ScrollCaptureButton.ToolTip = GetCaptureTooltip("ScrollCapture", settings?.Hotkeys?.ScrollCapture);
 
         if (OcrCaptureButtonText != null) OcrCaptureButtonText.Text = LocalizationManager.GetString("OcrCapture");
-        if (OcrCaptureButton != null) OcrCaptureButton.ToolTip = GetLocalizedTooltip("OcrCapture");
+        if (OcrCaptureButton != null) OcrCaptureButton.ToolTip = GetCaptureTooltip("OcrCapture", settings?.Hotkeys?.OcrCapture);
 
         if (ScreenRecordButtonText != null) ScreenRecordButtonText.Text = LocalizationManager.GetString("ScreenRecording");
-        if (ScreenRecordButton != null) ScreenRecordButton.ToolTip = GetLocalizedTooltip("ScreenRecording");
+        if (ScreenRecordButton != null) ScreenRecordButton.ToolTip = GetCaptureTooltip("ScreenRecording", settings?.Hotkeys?.ScreenRecord);
 
         if (SimpleModeButtonText != null) SimpleModeButtonText.Text = LocalizationManager.GetString("SimpleMode");
-        if (SimpleModeButton != null) SimpleModeButton.ToolTip = GetLocalizedTooltip("SimpleMode");
+        if (SimpleModeButton != null) SimpleModeButton.ToolTip = GetCaptureTooltip("SimpleMode", settings?.Hotkeys?.SimpleMode);
 
         if (TrayModeButtonText != null) TrayModeButtonText.Text = LocalizationManager.GetString("TrayMode");
-        if (TrayModeButton != null) TrayModeButton.ToolTip = GetLocalizedTooltip("TrayMode");
+        if (TrayModeButton != null) TrayModeButton.ToolTip = GetCaptureTooltip("TrayMode", settings?.Hotkeys?.TrayMode);
 
         if (ModeSelectText != null) ModeSelectText.Text = LocalizationManager.GetString("ModeSelect");
         // 3. 하단 아이콘 버튼들

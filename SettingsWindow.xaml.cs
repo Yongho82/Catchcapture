@@ -156,6 +156,26 @@ private void UpdateUIText()
                 if (RbCaptureStatic != null) RbCaptureStatic.Content = LocalizationManager.GetString("CaptureModeStatic");
                 if (TxtCaptureModeDesc != null) TxtCaptureModeDesc.Text = LocalizationManager.GetString("CaptureModeDesc");
                 
+                // 엣지 캡처 설정
+                if (EdgeCaptureSettingsGroup != null) EdgeCaptureSettingsGroup.Header = LocalizationManager.GetString("EdgeCaptureSettings");
+                if (EdgePresetLabel != null) EdgePresetLabel.Text = LocalizationManager.GetString("Preset");
+                if (CboEdgePreset != null)
+                {
+                    foreach (ComboBoxItem item in CboEdgePreset.Items)
+                    {
+                        string tag = item.Tag?.ToString() ?? "";
+                        item.Content = tag switch
+                        {
+                            "1" => LocalizationManager.GetString("EdgeLevel1"),
+                            "2" => LocalizationManager.GetString("EdgeLevel2"),
+                            "3" => LocalizationManager.GetString("EdgeLevel3"),
+                            "4" => LocalizationManager.GetString("EdgeLevel4"),
+                            "5" => LocalizationManager.GetString("EdgeLevel5"),
+                            _ => item.Content
+                        };
+                    }
+                }
+
                 // 파일명 설정 & 폴더 분류 설정 UI
                 if (FileNameSettingsGroup != null) FileNameSettingsGroup.Header = LocalizationManager.GetString("FileNameSettings");
                 if (PreviewLabel != null) PreviewLabel.Text = LocalizationManager.GetString("FileNamePreview") + " : ";
