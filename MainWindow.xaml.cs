@@ -1638,7 +1638,7 @@ public partial class MainWindow : Window
     private void EdgeCaptureButton_Click(object sender, RoutedEventArgs e)
     {
         // [Modified] Use Preset Settings for Edge Capture
-        var (radius, _, _, _) = CatchCapture.Utilities.EdgeCaptureHelper.GetPresetSettings(settings.EdgeCapturePresetLevel);
+        var (radius, _, _, _, _) = CatchCapture.Utilities.EdgeCaptureHelper.GetPresetSettings(settings.EdgeCapturePresetLevel);
         _ = StartAreaCaptureAsync(radius);
     }
 
@@ -4550,8 +4550,8 @@ public partial class MainWindow : Window
 
                 case HOTKEY_ID_EDGECAPTURE:
                     Dispatcher.Invoke(() => {
-                         var (pRadius, _, _, _) = CatchCapture.Utilities.EdgeCaptureHelper.GetPresetSettings(settings.EdgeCapturePresetLevel);
-                         StartAreaCaptureAsync(pRadius);
+                         var (radius, _, _, _, _) = CatchCapture.Utilities.EdgeCaptureHelper.GetPresetSettings(settings?.EdgeCapturePresetLevel ?? 3);
+                         StartAreaCaptureAsync(radius);
                     });
                     handled = true;
                     break;

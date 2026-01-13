@@ -207,19 +207,19 @@ namespace CatchCapture.Utilities
 
         /// <summary>
         /// 엣지 캡처 프리셋 레벨(1~5)에 따른 최적화된 파라미터를 반환합니다.
-        /// (Radius, ShadowBlur, ShadowDepth, ShadowOpacity)
+        /// (Radius, ShadowBlur, ShadowDepth, ShadowOpacity, BorderThickness)
         /// 사용자가 편집창 설정과 분리된 '단순화된 5단계' 캡처를 원함.
         /// </summary>
-        public static (int Radius, double Blur, double Depth, double Opacity) GetPresetSettings(int level)
+        public static (int Radius, double Blur, double Depth, double Opacity, double Thickness) GetPresetSettings(int level)
         {
             return level switch
             {
-                1 => (12, 0, 0, 0.0),   // Soft (No Shadow)
-                2 => (25, 0, 0, 0.0),   // Smooth (No Shadow)
-                3 => (50, 0, 0, 0.0),   // Classic (No Shadow)
-                4 => (100, 0, 0, 0.0),  // Capsule (No Shadow)
-                5 => (999, 0, 0, 0.0),  // Circle (No Shadow)
-                _ => (50, 0, 0, 0.0)    // Default
+                1 => (12, 0, 0, 0.0, 0.0),   // Soft (No Shadow, No Line)
+                2 => (25, 0, 0, 0.0, 0.0),   // Smooth (No Shadow, No Line)
+                3 => (50, 0, 0, 0.0, 0.0),   // Classic (No Shadow, No Line)
+                4 => (100, 0, 0, 0.0, 0.0),  // Capsule (No Shadow, No Line)
+                5 => (999, 0, 0, 0.0, 0.0),  // Circle (No Shadow, No Line)
+                _ => (50, 0, 0, 0.0, 0.0)    // Default
             };
         }
     }

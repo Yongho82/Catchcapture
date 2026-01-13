@@ -297,12 +297,13 @@ namespace CatchCapture.Utilities
             if (_cornerRadius > 0)
             {
                 // [Modified] Edge Capture Mode: Use Preset Settings for consistent look
-                var (pRadius, pBlur, pDepth, pOpacity) = CatchCapture.Utilities.EdgeCaptureHelper.GetPresetSettings(settings.EdgeCapturePresetLevel);
+                var (pRadius, pBlur, pDepth, pOpacity, pThickness) = CatchCapture.Utilities.EdgeCaptureHelper.GetPresetSettings(settings.EdgeCapturePresetLevel);
                 
                 _editorManager.EdgeCornerRadius = _cornerRadius;
                 _editorManager.EdgeShadowBlur = pBlur;
                 _editorManager.EdgeShadowDepth = pDepth;
                 _editorManager.EdgeShadowOpacity = pOpacity;
+                _editorManager.EdgeBorderThickness = pThickness;
                 _editorManager.HasEdgeShadow = pOpacity > 0;
             }
             else
@@ -3558,14 +3559,14 @@ namespace CatchCapture.Utilities
                 
                 switch (toolName)
                 {
-                    case "선택": EnableSelectMode(); HideColorPalette(); _editorManager.IsEdgeLineEnabled = false; return; 
-                    case "펜": EnableDrawingMode(); _editorManager.IsEdgeLineEnabled = false; break;
-                    case "형광펜": EnableDrawingMode("형광펜"); _editorManager.IsEdgeLineEnabled = false; break; 
-                    case "텍스트": EnableTextMode(); _editorManager.IsEdgeLineEnabled = false; break;
-                    case "도형": EnableShapeMode(); _editorManager.IsEdgeLineEnabled = false; break;
-                    case "넘버링": EnableNumberingMode(); _editorManager.IsEdgeLineEnabled = false; break;
-                    case "모자이크": EnableMosaicMode(); _editorManager.IsEdgeLineEnabled = false; break;
-                    case "지우개": EnableEraserMode(); _editorManager.IsEdgeLineEnabled = false; break;
+                    case "선택": EnableSelectMode(); HideColorPalette(); return; 
+                    case "펜": EnableDrawingMode(); break;
+                    case "형광펜": EnableDrawingMode("형광펜"); break; 
+                    case "텍스트": EnableTextMode(); break;
+                    case "도형": EnableShapeMode(); break;
+                    case "넘버링": EnableNumberingMode(); break;
+                    case "모자이크": EnableMosaicMode(); break;
+                    case "지우개": EnableEraserMode(); break;
                     case "엣지라인": _editorManager.IsEdgeLineEnabled = true; break; 
                 }
 
@@ -3584,11 +3585,13 @@ namespace CatchCapture.Utilities
                     CreateResizeHandles();
                     if (_edgePreviewImage != null) _edgePreviewImage.Visibility = Visibility.Collapsed;
 
-                    // 클리핑 복원 (기존 엣지 캡처의 곡률을 유지하거나 0으로)
+                    // 클리핑 복원 (기존 엣지 캡처의 곡률을 유지)
                     if (_drawingCanvas != null)
                     {
-                        double rad = selectionOverlay != null ? selectionOverlay.CornerRadius : 0;
+                        double rad = _editorManager != null && _editorManager.IsEdgeLineEnabled ? _editorManager.EdgeCornerRadius : 0;
+                        if (rad >= 99 && currentSelectionRect.Width > 0) rad = Math.Min(currentSelectionRect.Width, currentSelectionRect.Height) / 2.0;
                         _drawingCanvas.Clip = new RectangleGeometry(currentSelectionRect, rad, rad);
+                        selectionOverlay?.SetCornerRadius(rad);
                     }
                 }
                 
