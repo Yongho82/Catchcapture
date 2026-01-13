@@ -4335,16 +4335,15 @@ namespace CatchCapture.Utilities
                     }
 
                     // 위치 및 크기 조정
-                    double borderThickness = _editorManager.EdgeBorderThickness;
-                    bool hasShadow = _editorManager.HasEdgeShadow;
-                    double shadowBlur = _editorManager.EdgeShadowBlur;
-                    double shadowDepth = _editorManager.EdgeShadowDepth;
+                    // [Fix] 위치 보정: 생성된 이미지 크기와 선택 영역 크기의 차이(패딩)를 계산하여 중앙 정렬
+                    double previewWidth = preview.PixelWidth; // DPI 고려 필요 없음 (WPF 단위와 1:1 가정) - 아니면 Width 사용 필요
+                    // RenderTargetBitmap의 PixelWidth는 96DPI 기준이므로 WPF 단위와 같음.
                     
-                    // EdgeCaptureHelper와 동일한 패딩 계산 로직 사용 (정수화)
-                    double padding = Math.Ceiling((hasShadow ? (shadowBlur + shadowDepth) : 0) + (borderThickness / 2.0) + 10);
+                    double paddingX = (previewWidth - currentSelectionRect.Width) / 2.0;
+                    double paddingY = (preview.PixelHeight - currentSelectionRect.Height) / 2.0;
                     
-                    Canvas.SetLeft(_edgePreviewImage, Math.Round(currentSelectionRect.Left - padding));
-                    Canvas.SetTop(_edgePreviewImage, Math.Round(currentSelectionRect.Top - padding));
+                    Canvas.SetLeft(_edgePreviewImage, currentSelectionRect.Left - paddingX);
+                    Canvas.SetTop(_edgePreviewImage, currentSelectionRect.Top - paddingY);
                 }
             }
             catch { }
