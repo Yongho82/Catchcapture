@@ -1224,6 +1224,7 @@ namespace CatchCapture
                 {
                     PreviewImage.Visibility = Visibility.Visible;
                     PreviewImage.Clip = null;
+                    PreviewImage.Effect = null; // 그림자 효과도 제거
                 }
                 if (ImageCanvas != null) ImageCanvas.Clip = null;
                 if (drawnElements != null)
@@ -1282,6 +1283,23 @@ namespace CatchCapture
                     _edgeBorderOverlay.Visibility = Visibility.Collapsed;
                 }
                 
+                // [추가] 그림자 효과도 PreviewImage에 직접 적용
+                if (PreviewImage != null && _editorManager.HasEdgeShadow)
+                {
+                    PreviewImage.Effect = new DropShadowEffect
+                    {
+                        Color = Colors.Black,
+                        Direction = 315, // 왼쪽 위에서 오른쪽 아래로
+                        ShadowDepth = _editorManager.EdgeShadowDepth,
+                        BlurRadius = _editorManager.EdgeShadowBlur,
+                        Opacity = _editorManager.EdgeShadowOpacity
+                    };
+                }
+                else if (PreviewImage != null)
+                {
+                    PreviewImage.Effect = null;
+                }
+                
                 return;
             }
 
@@ -1312,7 +1330,11 @@ namespace CatchCapture
                     if (_edgeBorderOverlay != null) _edgeBorderOverlay.Visibility = Visibility.Collapsed;
                     
                     // 프리뷰 중에는 원본 및 드로잉 숨김 (중첩 방지)
-                    if (PreviewImage != null) PreviewImage.Visibility = Visibility.Collapsed;
+                    if (PreviewImage != null) 
+                    {
+                        PreviewImage.Visibility = Visibility.Collapsed;
+                        PreviewImage.Effect = null; // EdgeLine 모드에서는 프리뷰 이미지에 이미 그림자 포함
+                    }
                     if (drawnElements != null)
                     {
                         foreach (var el in drawnElements) el.Visibility = Visibility.Collapsed;
