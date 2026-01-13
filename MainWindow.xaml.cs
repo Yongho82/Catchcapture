@@ -1637,8 +1637,9 @@ public partial class MainWindow : Window
 
     private void EdgeCaptureButton_Click(object sender, RoutedEventArgs e)
     {
-        // 저장된 반경으로 바로 캡처 시작 (컨텍스트 메뉴 없음)
-        _ = StartAreaCaptureAsync(settings.EdgeCaptureRadius);
+        // [Modified] Use Preset Settings for Edge Capture
+        var (radius, _, _, _) = CatchCapture.Utilities.EdgeCaptureHelper.GetPresetSettings(settings.EdgeCapturePresetLevel);
+        _ = StartAreaCaptureAsync(radius);
     }
 
     // 엣지 반경 옵션 배열 (반경, 아이콘 경로)
@@ -1665,13 +1666,18 @@ public partial class MainWindow : Window
 
     private void UpdateEdgeRadiusEmoji()
     {
-        // FindName으로 요소 찾기 (중첩된 그리드 안에 있으므로)
+        // FindName으로 요소 찾기
         var iconImage = this.FindName("EdgeRadiusImage") as System.Windows.Controls.Image;
         if (iconImage == null) return;
 
-        var option = Array.Find(EdgeRadiusOptions, x => x.Radius == settings.EdgeCaptureRadius);
-        if (option.IconPath != null)
+        int level = settings.EdgeCapturePresetLevel;
+        if (level < 1 || level > 5) level = 3; // Fallback
+
+        // Level is 1-based, array is 0-based
+        int index = level - 1;
+        if (index >= 0 && index < EdgeRadiusOptions.Length)
         {
+            var option = EdgeRadiusOptions[index];
             try
             {
                 iconImage.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri(option.IconPath, UriKind.Relative));
@@ -1680,8 +1686,7 @@ public partial class MainWindow : Window
             
             // 툴팁 업데이트
             string[] names = { "소프트 엣지", "매끄러운 둥근 모서리", "클래식 라운드", "알약 스타일", "퍼펙트 서클" };
-            int index = Array.FindIndex(EdgeRadiusOptions, x => x.Radius == settings.EdgeCaptureRadius);
-            if (index >= 0 && index < names.Length)
+            if (index < names.Length)
             {
                 iconImage.ToolTip = $"현재: {names[index]}\n(우클릭/좌클릭하여 변경)";
             }
@@ -1692,10 +1697,20 @@ public partial class MainWindow : Window
     {
         if (sender is MenuItem mi && mi.Tag is string tagStr && int.TryParse(tagStr, out int radius))
         {
-            settings.EdgeCaptureRadius = radius;
+            // Map legacy radius values to Preset Levels
+            int level = 3; // Default
+            if (radius == 12) level = 1;
+            else if (radius == 25) level = 2;
+            else if (radius == 50) level = 3;
+            else if (radius == 100) level = 4;
+            else if (radius == 999) level = 5;
+
+            settings.EdgeCapturePresetLevel = level;
+            // Also update legacy radius for compatibility if needed, though we rely on PresetLevel now
+            settings.EdgeCaptureRadius = radius; 
             Settings.Save(settings);
             
-            // UI 업데이트 (이모지 변경)
+            // UI 업데이트
             UpdateEdgeRadiusEmoji();
         }
     }
@@ -4534,7 +4549,10 @@ public partial class MainWindow : Window
                     break;
 
                 case HOTKEY_ID_EDGECAPTURE:
-                    Dispatcher.Invoke(() => StartAreaCaptureAsync(settings.EdgeCaptureRadius));
+                    Dispatcher.Invoke(() => {
+                         var (pRadius, _, _, _) = CatchCapture.Utilities.EdgeCaptureHelper.GetPresetSettings(settings.EdgeCapturePresetLevel);
+                         StartAreaCaptureAsync(pRadius);
+                    });
                     handled = true;
                     break;
 

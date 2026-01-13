@@ -925,6 +925,21 @@ private void InitLanguageComboBox()
                 else
                     RbCaptureStatic.IsChecked = true;
             }
+
+            // [추가] 엣지 캡처 프리셋 로드
+            if (CboEdgePreset != null)
+            {
+                string currentLevel = _settings.EdgeCapturePresetLevel.ToString();
+                foreach (ComboBoxItem item in CboEdgePreset.Items)
+                {
+                    if (item.Tag?.ToString() == currentLevel)
+                    {
+                        CboEdgePreset.SelectedItem = item;
+                        break;
+                    }
+                }
+                if (CboEdgePreset.SelectedItem == null) CboEdgePreset.SelectedIndex = 2; // Default 3
+            }
             
             // 파일명 & 폴더 분류 설정 로드
             if (TxtFileNameTemplate != null) TxtFileNameTemplate.Text = _settings.FileNameTemplate ?? "Catch_$yyyy-MM-dd_HH-mm-ss$";
@@ -1806,6 +1821,15 @@ private void InitLanguageComboBox()
                 {
                     try { if (!System.IO.Directory.Exists(_settings.DefaultSaveFolder)) System.IO.Directory.CreateDirectory(_settings.DefaultSaveFolder); }
                     catch { }
+                }
+
+                // [추가] 엣지 캡처 프리셋 저장
+                if (CboEdgePreset != null && CboEdgePreset.SelectedItem is ComboBoxItem edgeItem)
+                {
+                    if (int.TryParse(edgeItem.Tag?.ToString(), out int level))
+                    {
+                        _settings.EdgeCapturePresetLevel = level;
+                    }
                 }
             }
 

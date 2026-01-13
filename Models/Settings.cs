@@ -47,6 +47,7 @@ namespace CatchCapture.Models
         public double EdgeShadowDepth { get; set; } = 5;
         public double EdgeShadowOpacity { get; set; } = 0.4;
         public string EdgeLineColor { get; set; } = "#FF0000"; // [추가] 엣지 라인 색상
+        public int EdgeCapturePresetLevel { get; set; } = 3; // [추가] 엣지 프리셋 레벨 (1~5)
         
         // Recording Settings
         public RecordingSettings Recording { get; set; } = new RecordingSettings();
@@ -485,6 +486,10 @@ namespace CatchCapture.Models
             EdgeShadowBlur = EnsureFinite(EdgeShadowBlur, 15);
             EdgeShadowDepth = EnsureFinite(EdgeShadowDepth, 5);
             EdgeShadowOpacity = EnsureFinite(EdgeShadowOpacity, 0.4);
+
+            // [추가] 엣지 프리셋 레벨 (1~5) 범위 제한
+            if (EdgeCapturePresetLevel < 1) EdgeCapturePresetLevel = 3; // Default to Standard if invalid
+            if (EdgeCapturePresetLevel > 5) EdgeCapturePresetLevel = 5;
 
             if (Recording != null)
             {

@@ -293,11 +293,27 @@ namespace CatchCapture.Utilities
             _editorManager = new SharedCanvasEditor(_drawingCanvas ?? canvas, drawnElements, undoStack);
             // [수정] 사용자 설정에서 엣지 효과 초기값 불러오기
             _editorManager.EdgeBorderThickness = settings.EdgeBorderThickness;
-            _editorManager.EdgeCornerRadius = (_cornerRadius > 0) ? _cornerRadius : settings.EdgeCornerRadius;
-            _editorManager.HasEdgeShadow = settings.HasEdgeShadow;
-            _editorManager.EdgeShadowBlur = settings.EdgeShadowBlur;
-            _editorManager.EdgeShadowDepth = settings.EdgeShadowDepth;
-            _editorManager.EdgeShadowOpacity = settings.EdgeShadowOpacity;
+            
+            if (_cornerRadius > 0)
+            {
+                // [Modified] Edge Capture Mode: Use Preset Settings for consistent look
+                var (pRadius, pBlur, pDepth, pOpacity) = CatchCapture.Utilities.EdgeCaptureHelper.GetPresetSettings(settings.EdgeCapturePresetLevel);
+                
+                _editorManager.EdgeCornerRadius = _cornerRadius;
+                _editorManager.EdgeShadowBlur = pBlur;
+                _editorManager.EdgeShadowDepth = pDepth;
+                _editorManager.EdgeShadowOpacity = pOpacity;
+                _editorManager.HasEdgeShadow = pOpacity > 0;
+            }
+            else
+            {
+                // Standard Mode: Use Global Settings
+                _editorManager.EdgeCornerRadius = settings.EdgeCornerRadius;
+                _editorManager.HasEdgeShadow = settings.HasEdgeShadow;
+                _editorManager.EdgeShadowBlur = settings.EdgeShadowBlur;
+                _editorManager.EdgeShadowDepth = settings.EdgeShadowDepth;
+                _editorManager.EdgeShadowOpacity = settings.EdgeShadowOpacity; 
+            }
             _editorManager.IsEdgeLineEnabled = (_cornerRadius > 0); // 엣지 캡처 모드가 아니라면 초기에는 비활성 상태로 시작
             try
             {

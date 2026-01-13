@@ -648,7 +648,8 @@ namespace CatchCapture
                     // 저장된 반경으로 바로 캡처 (컨텍스트 메뉴 없음)
                     button.Click += async (s, e) => {
                         this.Hide();
-                        await mainWindow.StartAreaCaptureAsync(settings?.EdgeCaptureRadius ?? 12);
+                        var (radius, _, _, _) = CatchCapture.Utilities.EdgeCaptureHelper.GetPresetSettings(settings?.EdgeCapturePresetLevel ?? 3);
+                        await mainWindow.StartAreaCaptureAsync(radius);
                     };
                     iconImage = CreateImage("/icons/edge_capture.png");
                     labelText = LocalizationManager.Get("EdgeCapture");

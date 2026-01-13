@@ -470,6 +470,19 @@
                         </StackPanel>
                     </GroupBox>
 
+                    <GroupBox x:Name="EdgeCaptureSettingsGroup" Header="엣지 캡처 설정 (Edge Capture Settings)" BorderBrush="{DynamicResource ThemeBorder}" Padding="10" Margin="0,0,0,10">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="프리셋 (Preset):" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="{DynamicResource ThemeForeground}"/>
+                            <ComboBox x:Name="CboEdgePreset" Width="180" Height="26" VerticalContentAlignment="Center">
+                                <ComboBoxItem Content="1단계 (Soft)" Tag="1"/>
+                                <ComboBoxItem Content="2단계 (Smooth)" Tag="2"/>
+                                <ComboBoxItem Content="3단계 (Standard)" Tag="3"/>
+                                <ComboBoxItem Content="4단계 (Capsule)" Tag="4"/>
+                                <ComboBoxItem Content="5단계 (Circle)" Tag="5"/>
+                            </ComboBox>
+                        </StackPanel>
+                    </GroupBox>
+
                     <GroupBox x:Name="OptionsGroup" Header="{DynamicResource Options}" BorderBrush="{DynamicResource ThemeBorder}" Padding="10">
                         <StackPanel>
                             <CheckBox x:Name="ChkAutoSave" Content="{DynamicResource SettingsAutoSaveDesc}" Margin="0,5"/>
