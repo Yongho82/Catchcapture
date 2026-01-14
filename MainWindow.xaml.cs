@@ -4549,9 +4549,9 @@ public partial class MainWindow : Window
                     break;
 
                 case HOTKEY_ID_EDGECAPTURE:
-                    Dispatcher.Invoke(() => {
+                    Dispatcher.Invoke(async () => {
                          var (radius, _, _, _, _) = CatchCapture.Utilities.EdgeCaptureHelper.GetPresetSettings(settings?.EdgeCapturePresetLevel ?? 3);
-                         StartAreaCaptureAsync(radius);
+                         await StartAreaCaptureAsync(radius);
                     });
                     handled = true;
                     break;

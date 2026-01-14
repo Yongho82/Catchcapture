@@ -1371,6 +1371,7 @@ namespace CatchCapture.Utilities
             {
                 CornerRadius = new CornerRadius(8),
                 Padding = new Thickness(5),
+                Cursor = Cursors.Arrow, // [추가] 툴바에서는 기본 마우스 커서 사용
                 Effect = new System.Windows.Media.Effects.DropShadowEffect
                 {
                     Color = Colors.Black,

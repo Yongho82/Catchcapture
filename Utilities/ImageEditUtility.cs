@@ -120,18 +120,20 @@ namespace CatchCapture.Utilities
                 var rtbArea = new RenderTargetBitmap(w, h, source.DpiX, source.DpiY, PixelFormats.Pbgra32);
                 rtbArea.Render(drawingVisual);
 
-                // 4. 원본 이미지에 합성
-                var finalVisual = new DrawingVisual();
-                using (var dc = finalVisual.RenderOpen())
+                // 4. 원본 이미지에 합성 (픽셀 덮어쓰기 방식으로 변경하여 화질 열화 방지)
+                WriteableBitmap wb = new WriteableBitmap(source);
+
+                int blurStride = rtbArea.PixelWidth * 4; 
+                byte[] blurBuffer = new byte[rtbArea.PixelHeight * blurStride];
+                rtbArea.CopyPixels(blurBuffer, blurStride, 0);
+
+                try
                 {
-                    dc.DrawImage(source, new Rect(0, 0, width, height));
-                    dc.DrawImage(rtbArea, new Rect(x, y, w, h));
+                     wb.WritePixels(new Int32Rect(x, y, w, h), blurBuffer, blurStride, 0);
                 }
-
-                var finalRtb = new RenderTargetBitmap(width, height, source.DpiX, source.DpiY, PixelFormats.Pbgra32);
-                finalRtb.Render(finalVisual);
-
-                return finalRtb;
+                catch { return source; }
+                
+                return wb;
             }
 
             // 기존 모자이크 픽셀링 로직

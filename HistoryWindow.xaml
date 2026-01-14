@@ -366,7 +366,7 @@
                             
                             <Separator Background="{DynamicResource ThemeBorder}" Margin="10,15"/>
                             
-                            <TextBlock x:Name="TxtPeriodLabel" Text="기간별" Foreground="{DynamicResource ThemeForeground}" Opacity="0.9" FontSize="12" FontWeight="Bold" Margin="15,0,0,10"/>
+                            <TextBlock x:Name="TxtPeriodLabel" Text="Period" Foreground="{DynamicResource ThemeForeground}" Opacity="0.9" FontSize="12" FontWeight="Bold" Margin="15,0,0,10"/>
                             <Button x:Name="BtnRecent7" Style="{StaticResource SidebarItemStyle}" Tag="Recent7" Click="BtnFilter_Click">
                                 <Grid Width="140">
                                     <StackPanel Orientation="Horizontal">
