@@ -19,6 +19,7 @@ namespace CatchCapture.Utilities
         
         // 시각적 요소
         private Rectangle? _selectionRectangle;
+        private Border? _sizeInfoContainer; // 텍스트와 아이콘을 감싸는 컨테이너
         private TextBlock? _sizeTextBlock;
         private RectangleGeometry? _selectionGeometry;
         private System.Windows.Shapes.Path? _overlayPath;
@@ -141,20 +142,51 @@ namespace CatchCapture.Utilities
             
             _canvas.Children.Add(_selectionRectangle);
 
-            // 사이즈 텍스트
+            // 사이즈 정보 컨테이너 (Border > StackPanel > Path + TextBlock)
+            _sizeInfoContainer = new Border
+            {
+                Background = new SolidColorBrush(Color.FromArgb(220, 0, 0, 0)), // 더 진한 검정색
+                CornerRadius = new CornerRadius(4),
+                Padding = new Thickness(6, 4, 8, 4),
+                Visibility = Visibility.Collapsed,
+                SnapsToDevicePixels = true
+            };
+
+            var stackPanel = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
+            // 아이콘 (크롭/선택 모양)
+            var iconPath = new System.Windows.Shapes.Path
+            {
+                // 아이콘 데이터 교체: 사각형 내부에 십자가 혹은 모서리 강조
+                Data = Geometry.Parse("M1,1 H12 V12 H1 Z M4,6 H9 M6.5,3.5 V8.5"), // 사각형 테두리와 내부 십자
+                Fill = Brushes.Transparent,
+                Stroke = Brushes.White,
+                StrokeThickness = 1.5,
+                Width = 14,
+                Height = 14,
+                Margin = new Thickness(0, 0, 8, 0),
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            
             _sizeTextBlock = new TextBlock
             {
                 Foreground = Brushes.White,
-                Background = new SolidColorBrush(Color.FromArgb(200, 0, 0, 0)),
-                Padding = new Thickness(8, 4, 8, 4),
                 FontSize = 12,
-                FontWeight = FontWeights.Bold,
-                Visibility = Visibility.Collapsed
+                FontWeight = FontWeights.SemiBold,
+                VerticalAlignment = VerticalAlignment.Center,
+                TextAlignment = TextAlignment.Center
             };
             TextOptions.SetTextFormattingMode(_sizeTextBlock, TextFormattingMode.Display);
-            if (_sizeTextBlock.Background is SolidColorBrush sb && sb.CanFreeze) sb.Freeze();
+
+            stackPanel.Children.Add(iconPath);
+            stackPanel.Children.Add(_sizeTextBlock);
+            _sizeInfoContainer.Child = stackPanel;
             
-            _canvas.Children.Add(_sizeTextBlock);
+            _canvas.Children.Add(_sizeInfoContainer);
         }
 
         /// <summary>
@@ -183,9 +215,9 @@ namespace CatchCapture.Utilities
                 Panel.SetZIndex(_selectionRectangle, 2000);
             }
 
-            if (_sizeTextBlock != null)
+            if (_sizeInfoContainer != null)
             {
-                _sizeTextBlock.Visibility = Visibility.Collapsed;
+                _sizeInfoContainer.Visibility = Visibility.Collapsed;
             }
             
             // [Fix] 렌더링 갱신 강제 유도
@@ -204,9 +236,9 @@ namespace CatchCapture.Utilities
                     _canvas.Children.Add(_selectionRectangle);
                 }
                 
-                if (_sizeTextBlock != null && !_canvas.Children.Contains(_sizeTextBlock))
+                if (_sizeInfoContainer != null && !_canvas.Children.Contains(_sizeInfoContainer))
                 {
-                    _canvas.Children.Add(_sizeTextBlock);
+                    _canvas.Children.Add(_sizeInfoContainer);
                 }
                 
                 if (_overlayPath != null && !_canvas.Children.Contains(_overlayPath))
@@ -269,7 +301,7 @@ namespace CatchCapture.Utilities
             }
 
             // 사이즈 텍스트 (간소화)
-            if (_sizeTextBlock != null && rect.Width > 10 && rect.Height > 10)
+            if (_sizeInfoContainer != null && rect.Width > 10 && rect.Height > 10 && _sizeTextBlock != null)
             {
                 string text = $"{(int)rect.Width} x {(int)rect.Height}";
                 if (text != _lastSizeText)
@@ -277,18 +309,29 @@ namespace CatchCapture.Utilities
                     _sizeTextBlock.Text = text;
                     _lastSizeText = text;
                 }
-                _sizeTextBlock.Visibility = Visibility.Visible;
-                double estWidth = 80;
-                double estHeight = 28;
-                double imLeft = rect.Right - estWidth;
-                double imTop = rect.Bottom + 5;
+                
+                _sizeInfoContainer.Visibility = Visibility.Visible;
+                Panel.SetZIndex(_sizeInfoContainer, 2001);
 
-                // 간단한 바운더리 체크 (화면 아래쪽만)
-                if (imTop + estHeight > SystemParameters.VirtualScreenHeight)
-                    imTop = rect.Bottom - estHeight - 5;
+                // 예상 크기 (패딩 + 아이콘 + 텍스트)
+                // 정확한 크기는 Measure 후 DesiredSize로 얻지만, 즉시 업데이트에서는 대략적인 값 사용
+                double estWidth = 90; 
+                double estHeight = 30;
 
-                Canvas.SetLeft(_sizeTextBlock, imLeft);
-                Canvas.SetTop(_sizeTextBlock, imTop);
+                // 위치: 우측 변 옆, 하단 정렬 (Right, Bottom Aligned)
+                double imLeft = rect.Right + 5; 
+                double imTop = rect.Bottom - estHeight; // 위로 올라와서 바닥 맞춤
+
+                // 화면 오른쪽 경계 체크
+                if (imLeft + estWidth > SystemParameters.VirtualScreenWidth)
+                {
+                    // 오른쪽 공간 없으면 사각형 안쪽 우측 하단으로
+                    imLeft = rect.Right - estWidth - 5;
+                    imTop = rect.Bottom - estHeight - 5; // 안쪽 바닥에서 약간 띄움
+                }
+
+                Canvas.SetLeft(_sizeInfoContainer, imLeft);
+                Canvas.SetTop(_sizeInfoContainer, imTop);
             }
 
             // 오버레이 구멍은 렌더링 루프에서 처리 (성능)
@@ -311,7 +354,7 @@ namespace CatchCapture.Utilities
             if (hideVisuals)
             {
                 if (_selectionRectangle != null) _selectionRectangle.Visibility = Visibility.Collapsed;
-                if (_sizeTextBlock != null) _sizeTextBlock.Visibility = Visibility.Collapsed;
+                if (_sizeInfoContainer != null) _sizeInfoContainer.Visibility = Visibility.Collapsed;
             }
 
             return _pendingRect;
@@ -339,10 +382,10 @@ namespace CatchCapture.Utilities
                 _selectionRectangle.Visibility = visibility;
                 if (visibility == Visibility.Visible) Panel.SetZIndex(_selectionRectangle, 2000);
             }
-            if (_sizeTextBlock != null) 
+            if (_sizeInfoContainer != null) 
             {
-                _sizeTextBlock.Visibility = (visibility == Visibility.Visible && _pendingRect.Width > 5) ? Visibility.Visible : Visibility.Collapsed;
-                if (_sizeTextBlock.Visibility == Visibility.Visible) Panel.SetZIndex(_sizeTextBlock, 2001);
+                _sizeInfoContainer.Visibility = (visibility == Visibility.Visible && _pendingRect.Width > 5) ? Visibility.Visible : Visibility.Collapsed;
+                if (_sizeInfoContainer.Visibility == Visibility.Visible) Panel.SetZIndex(_sizeInfoContainer, 2001);
             }
         }
 
@@ -360,10 +403,10 @@ namespace CatchCapture.Utilities
         /// </summary>
         public void SetSizeTextVisibility(Visibility visibility)
         {
-            if (_sizeTextBlock != null) 
+            if (_sizeInfoContainer != null) 
             {
-                _sizeTextBlock.Visibility = (visibility == Visibility.Visible && _pendingRect.Width > 5) ? Visibility.Visible : Visibility.Collapsed;
-                if (_sizeTextBlock.Visibility == Visibility.Visible) Panel.SetZIndex(_sizeTextBlock, 2001);
+                _sizeInfoContainer.Visibility = (visibility == Visibility.Visible && _pendingRect.Width > 5) ? Visibility.Visible : Visibility.Collapsed;
+                if (_sizeInfoContainer.Visibility == Visibility.Visible) Panel.SetZIndex(_sizeInfoContainer, 2001);
             }
         }
 
@@ -383,7 +426,7 @@ namespace CatchCapture.Utilities
             _isSelecting = false;
             _hasPendingUpdate = false;
             if (_selectionRectangle != null) _selectionRectangle.Visibility = Visibility.Collapsed;
-            if (_sizeTextBlock != null) _sizeTextBlock.Visibility = Visibility.Collapsed;
+            if (_sizeInfoContainer != null) _sizeInfoContainer.Visibility = Visibility.Collapsed;
             
             // 오버레이 구멍 메우기
             if (_selectionGeometry != null)
@@ -447,58 +490,62 @@ namespace CatchCapture.Utilities
                     _selectionGeometry.RadiusY = actualRadius;
                 }
 
-                if (_sizeTextBlock != null)
+                if (_sizeInfoContainer != null && _sizeTextBlock != null)
                 {
                     if (rect.Width > 5 && rect.Height > 5)
                     {
-                        _sizeTextBlock.Visibility = Visibility.Visible;
-                        Panel.SetZIndex(_sizeTextBlock, 2001);
+                        _sizeInfoContainer.Visibility = Visibility.Visible;
+                        Panel.SetZIndex(_sizeInfoContainer, 2001);
 
                         string text = $"{(int)Math.Max(0, rect.Width)} x {(int)Math.Max(0, rect.Height)}";
                         
+                        // 텍스트 업데이트 및 크기 측정
                         if (text != _lastSizeText)
                         {
                             _sizeTextBlock.Text = text;
-                            _sizeTextBlock.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
                             _lastSizeText = text;
                         }
                         
-                        double tw = _sizeTextBlock.DesiredSize.Width;
-                        double th = _sizeTextBlock.DesiredSize.Height;
-                        if (tw <= 0) tw = 60; // Fallback
-                        if (th <= 0) th = 20;
-
-                        const double margin = 8;
+                        // 레이아웃 강제 업데이트를 위해 Measure 호출 (정확한 위치 계산 위함)
+                        _sizeInfoContainer.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
                         
-                        // 위치 계산 및 화면 밖으로 나가지 않게 보정
-                        // 위치 계산: 기본적으로 우측 하단 바깥쪽
-                        double left = rect.Right - tw;
-                        double top = rect.Bottom + 5;
+                        double containerWidth = _sizeInfoContainer.DesiredSize.Width;
+                        double containerHeight = _sizeInfoContainer.DesiredSize.Height;
+                        if (containerWidth <= 0) containerWidth = 90;
+                        if (containerHeight <= 0) containerHeight = 30;
 
-                        // 화면 아래쪽 경계 체크 (VirtualScreen 높이 기준)
-                        double screenHeight = SystemParameters.VirtualScreenHeight;
-                        // 만약 텍스트가 화면 아래로 벗어나면, 사각형 안쪽(하단)으로 이동
-                        if (top + th > screenHeight)
-                        {
-                            top = rect.Bottom - th - 5;
-                        }
+                        // 위치: 우측 세로 면 하단 (Right side, Bottom aligned)
+                        // 사각형의 오른쪽 변에 붙이고(약간 띄움), 
+                        // 사각형의 바닥 변과 텍스트 박스의 바닥을 일치시킴(또는 약간 아래/위)
+                        
+                        // 요청: "사각형 기준으로 우측 세로 면 하단" -> 사각형 우측 변, 하단부
+                        // 기본값: 사각형 오른쪽(Right + 8), 사각형 바닥보다 약간 위로 올려서 모서리 맞춤
+                        
+                        double left = rect.Right + 8; // 사각형 우측에서 8px 띄움
+                        double top = rect.Bottom - containerHeight; // 사각형 바닥 라인에 맞춤 (Bottom Alignment)
 
                         // 화면 오른쪽 경계 체크
-                        double screenWidth = SystemParameters.VirtualScreenWidth;
-                        if (left + tw > screenWidth)
+                        if (left + containerWidth > SystemParameters.VirtualScreenWidth)
                         {
-                            left = screenWidth - tw - 5;
+                            // 오른쪽에 공간 없으면 -> 안쪽 우측 하단으로 이동
+                            left = rect.Right - containerWidth - 8;
+                            top = rect.Bottom - containerHeight - 8;
                         }
-                        
+
+                         // 화면 아래쪽 경계 체크 (혹시 container가 짤리면 위로 올림)
+                        if (top + containerHeight > SystemParameters.VirtualScreenHeight)
+                        {
+                            top = SystemParameters.VirtualScreenHeight - containerHeight - 5;
+                        }
                         // 화면 왼쪽 경계 체크
                         if (left < 0) left = 5;
 
-                        Canvas.SetLeft(_sizeTextBlock, left);
-                        Canvas.SetTop(_sizeTextBlock, top);
+                        Canvas.SetLeft(_sizeInfoContainer, left);
+                        Canvas.SetTop(_sizeInfoContainer, top);
                     }
                     else
                     {
-                        _sizeTextBlock.Visibility = Visibility.Collapsed;
+                        _sizeInfoContainer.Visibility = Visibility.Collapsed;
                     }
                 }
             }
