@@ -193,6 +193,7 @@ namespace CatchCapture
         {
             if (currentEditMode != EditMode.EdgeLine)
             {
+                SaveForUndo(); // [추가] 변경 전 상태 저장
                 CancelCurrentEditMode();
                 currentEditMode = EditMode.EdgeLine;
                 SetActiveToolButton(EdgeLineToolButton);
@@ -206,6 +207,7 @@ namespace CatchCapture
         {
             if (currentEditMode != EditMode.EdgeLine)
             {
+                SaveForUndo(); // [추가] 변경 전 상태 저장
                 CancelCurrentEditMode();
                 currentEditMode = EditMode.EdgeLine;
                 SetActiveToolButton(EdgeLineToolButton);

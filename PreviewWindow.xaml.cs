@@ -71,6 +71,20 @@ namespace CatchCapture
         private string? _sourceApp;
         private string? _sourceTitle;
 
+        // [추가] 엣지라인 상태 Undo/Redo 지원
+        private struct EdgeState
+        {
+            public bool IsEnabled;
+            public double CornerRadius;
+            public double BorderThickness;
+            public bool HasShadow;
+            public double ShadowBlur;
+            public double ShadowDepth;
+            public double ShadowOpacity;
+        }
+        private Stack<EdgeState> undoEdgeStateStack = new Stack<EdgeState>();
+        private Stack<EdgeState> redoEdgeStateStack = new Stack<EdgeState>();
+
         public bool RequestMainWindowMinimize { get; private set; } = false;
         private Point _dragStartPoint;
         private bool _isReadyToDrag = false;
@@ -1626,8 +1640,24 @@ namespace CatchCapture
                     FontStyle = layer.FontStyle,
                     FontFamily = layer.FontFamily,
                     HasShadow = layer.HasShadow,
-                    HasUnderline = layer.HasUnderline
+                    HasUnderline = layer.HasUnderline,
+                    Rotation = layer.Rotation
                 }).ToList());
+                
+                // 엣지 상태 Redo 저장
+                if (_editorManager != null)
+                {
+                    redoEdgeStateStack.Push(new EdgeState
+                    {
+                        IsEnabled = _editorManager.IsEdgeLineEnabled,
+                        CornerRadius = _editorManager.EdgeCornerRadius,
+                        BorderThickness = _editorManager.EdgeBorderThickness,
+                        HasShadow = _editorManager.HasEdgeShadow,
+                        ShadowBlur = _editorManager.EdgeShadowBlur,
+                        ShadowDepth = _editorManager.EdgeShadowDepth,
+                        ShadowOpacity = _editorManager.EdgeShadowOpacity
+                    });
+                }
                 
                 // Undo 스택에서 이전 상태 복원
                 currentImage = undoStack.Pop();
@@ -1635,10 +1665,31 @@ namespace CatchCapture
                     originalImage = undoOriginalStack.Pop();
                 drawingLayers = undoLayersStack.Pop();
                 
-                SyncDrawnElementsFromLayers(); // ← 인터랙티브 요소 동기화
-                _editorManager?.RecalculateNextNumber(); // 넘버링 번호 동기화
+                // 엣지 상태 복원
+                if (undoEdgeStateStack.Count > 0 && _editorManager != null)
+                {
+                    var state = undoEdgeStateStack.Pop();
+                    _editorManager.IsEdgeLineEnabled = state.IsEnabled;
+                    _editorManager.EdgeCornerRadius = state.CornerRadius;
+                    _editorManager.EdgeBorderThickness = state.BorderThickness;
+                    _editorManager.HasEdgeShadow = state.HasShadow;
+                    _editorManager.EdgeShadowBlur = state.ShadowBlur;
+                    _editorManager.EdgeShadowDepth = state.ShadowDepth;
+                    _editorManager.EdgeShadowOpacity = state.ShadowOpacity;
+                    
+                    // [추가] 엣지라인이 꺼졌다면 모드도 리셋
+                    if (!state.IsEnabled && currentEditMode == EditMode.EdgeLine)
+                    {
+                        currentEditMode = EditMode.None;
+                        SetActiveToolButton(null);
+                    }
+                }
+                
+                SyncDrawnElementsFromLayers();
+                _editorManager?.RecalculateNextNumber();
                 UpdateUndoRedoButtons();
                 UpdatePreviewImage();
+                UpdateEdgeLinePreview();
             }
         }
 
@@ -1646,10 +1697,9 @@ namespace CatchCapture
         {
             if (redoStack.Count > 0)
             {
-                // 현재 상태를 Undo 스택에 저장
+                // 현재 상태를 Undo 스택에 저장 (Redo 수행 전)
                 if (currentImage != null) undoStack.Push(currentImage);
                 if (originalImage != null) undoOriginalStack.Push(originalImage);
-
                 undoLayersStack.Push(drawingLayers.Select(layer => new CatchCapture.Models.DrawingLayer
                 {
                     LayerId = layer.LayerId,
@@ -1671,19 +1721,56 @@ namespace CatchCapture
                     FontStyle = layer.FontStyle,
                     FontFamily = layer.FontFamily,
                     HasShadow = layer.HasShadow,
-                    HasUnderline = layer.HasUnderline
+                    HasUnderline = layer.HasUnderline,
+                    Rotation = layer.Rotation
                 }).ToList());
                 
-                // Redo 스택에서 복원
+                // 엣지 상태 Undo 저장
+                if (_editorManager != null)
+                {
+                    undoEdgeStateStack.Push(new EdgeState
+                    {
+                        IsEnabled = _editorManager.IsEdgeLineEnabled,
+                        CornerRadius = _editorManager.EdgeCornerRadius,
+                        BorderThickness = _editorManager.EdgeBorderThickness,
+                        HasShadow = _editorManager.HasEdgeShadow,
+                        ShadowBlur = _editorManager.EdgeShadowBlur,
+                        ShadowDepth = _editorManager.EdgeShadowDepth,
+                        ShadowOpacity = _editorManager.EdgeShadowOpacity
+                    });
+                }
+                
+                // Redo 스택에서 상태 복원
                 currentImage = redoStack.Pop();
                 if (redoOriginalStack.Count > 0)
                     originalImage = redoOriginalStack.Pop();
                 drawingLayers = redoLayersStack.Pop();
                 
+                // 엣지 상태 Redo 복원
+                if (redoEdgeStateStack.Count > 0 && _editorManager != null)
+                {
+                    var state = redoEdgeStateStack.Pop();
+                    _editorManager.IsEdgeLineEnabled = state.IsEnabled;
+                    _editorManager.EdgeCornerRadius = state.CornerRadius;
+                    _editorManager.EdgeBorderThickness = state.BorderThickness;
+                    _editorManager.HasEdgeShadow = state.HasShadow;
+                    _editorManager.EdgeShadowBlur = state.ShadowBlur;
+                    _editorManager.EdgeShadowDepth = state.ShadowDepth;
+                    _editorManager.EdgeShadowOpacity = state.ShadowOpacity;
+                    
+                    // [추가] 엣지라인이 꺼졌다면 모드도 리셋
+                    if (!state.IsEnabled && currentEditMode == EditMode.EdgeLine)
+                    {
+                        currentEditMode = EditMode.None;
+                        SetActiveToolButton(null);
+                    }
+                }
+                
                 SyncDrawnElementsFromLayers();
-                _editorManager?.RecalculateNextNumber(); // 넘버링 번호 동기화
+                _editorManager?.RecalculateNextNumber();
                 UpdateUndoRedoButtons();
                 UpdatePreviewImage();
+                UpdateEdgeLinePreview();
             }
         }
 
@@ -1720,23 +1807,38 @@ namespace CatchCapture
                 }).ToList();
                 undoLayersStack.Push(layersCopy);
                 
+                // 엣지 상태 저장
+                if (_editorManager != null)
+                {
+                    undoEdgeStateStack.Push(new EdgeState
+                    {
+                        IsEnabled = _editorManager.IsEdgeLineEnabled,
+                        CornerRadius = _editorManager.EdgeCornerRadius,
+                        BorderThickness = _editorManager.EdgeBorderThickness,
+                        HasShadow = _editorManager.HasEdgeShadow,
+                        ShadowBlur = _editorManager.EdgeShadowBlur,
+                        ShadowDepth = _editorManager.EdgeShadowDepth,
+                        ShadowOpacity = _editorManager.EdgeShadowOpacity
+                    });
+                }
+                
                 // Redo 스택 초기화 (새로운 작업이므로)
                 redoStack.Clear();
                 redoOriginalStack.Clear();
                 redoLayersStack.Clear();
+                redoEdgeStateStack.Clear();
                 
-                // 원본으로 리셋
+                // 원본 이미지로 복원 (초기 상태)
                 currentImage = originalImage;
-                drawingLayers.Clear(); // 레이어 초기화
+                drawingLayers.Clear();
                 
                 // 엣지라인 초기화
                 if (_editorManager != null)
                 {
                     _editorManager.IsEdgeLineEnabled = false;
-                    _editorManager.ResetNumbering(); // 넘버링 번호 초기화
                 }
 
-                // 현재 모드가 엣지라인일 경우 모드 해재
+                // 현재 모드가 엣지라인일 경우 모드 해재 (UI 상태 복구)
                 if (currentEditMode == EditMode.EdgeLine)
                 {
                     currentEditMode = EditMode.None;
@@ -1744,10 +1846,11 @@ namespace CatchCapture
                 }
                 
                 SyncDrawnElementsFromLayers();
+                _editorManager?.ResetNumbering();
                 
                 UpdateUndoRedoButtons();
                 UpdatePreviewImage();
-                UpdateEdgeLinePreview(); // 엣지라인 프리뷰 레이어 숨기기
+                UpdateEdgeLinePreview();
             }
         }
 
@@ -2015,6 +2118,22 @@ namespace CatchCapture
             undoLayersStack.Push(layersCopy);
             redoLayersStack.Clear();
             
+            // [추가] 엣지라인 상태 저장
+            if (_editorManager != null)
+            {
+                undoEdgeStateStack.Push(new EdgeState
+                {
+                    IsEnabled = _editorManager.IsEdgeLineEnabled,
+                    CornerRadius = _editorManager.EdgeCornerRadius,
+                    BorderThickness = _editorManager.EdgeBorderThickness,
+                    HasShadow = _editorManager.HasEdgeShadow,
+                    ShadowBlur = _editorManager.EdgeShadowBlur,
+                    ShadowDepth = _editorManager.EdgeShadowDepth,
+                    ShadowOpacity = _editorManager.EdgeShadowOpacity
+                });
+                redoEdgeStateStack.Clear();
+            }
+            
             UpdateUndoRedoButtons();
         }
 
@@ -2054,6 +2173,17 @@ namespace CatchCapture
                 for (int i = 0; i < MAX_UNDO_STACK_SIZE; i++)
                 {
                     undoLayersStack.Push(items[MAX_UNDO_STACK_SIZE - 1 - i]);
+                }
+                break;
+            }
+            
+            while (undoEdgeStateStack.Count > MAX_UNDO_STACK_SIZE)
+            {
+                var items = undoEdgeStateStack.ToArray();
+                undoEdgeStateStack.Clear();
+                for (int i = 0; i < MAX_UNDO_STACK_SIZE; i++)
+                {
+                    undoEdgeStateStack.Push(items[MAX_UNDO_STACK_SIZE - 1 - i]);
                 }
                 break;
             }
