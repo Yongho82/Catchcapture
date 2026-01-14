@@ -2411,6 +2411,13 @@ namespace CatchCapture.Utilities
             
             // 마지막 요소 제거
             var lastElement = drawnElements[drawnElements.Count - 1];
+            
+            // [추가] 엣지라인 Undo 처리
+            if (lastElement is FrameworkElement fe && fe.Tag is string tag && tag == "EdgeLineAction")
+            {
+                if (_editorManager != null) _editorManager.IsEdgeLineEnabled = false;
+            }
+
             drawnElements.RemoveAt(drawnElements.Count - 1);
             (_drawingCanvas ?? canvas).Children.Remove(lastElement);
             
@@ -2440,7 +2447,7 @@ namespace CatchCapture.Utilities
         
         private void ResetAllDrawings()
         {
-            if (drawnElements.Count == 0)
+            if (drawnElements.Count == 0 && !(_editorManager != null && _editorManager.IsEdgeLineEnabled))
             {
                 return; // 조용히 무시
             }
@@ -2465,6 +2472,12 @@ namespace CatchCapture.Utilities
                 
                 drawnElements.Clear();
                 _editorManager.ResetNumbering(); // 넘버링 번호도 초기화
+                
+                // [추가] 엣지라인 초기화
+                if (_editorManager != null)
+                {
+                    _editorManager.IsEdgeLineEnabled = false;
+                }
             }
         }
         
@@ -3599,7 +3612,16 @@ namespace CatchCapture.Utilities
                     case "넘버링": EnableNumberingMode(); break;
                     case "모자이크": EnableMosaicMode(); break;
                     case "지우개": EnableEraserMode(); break;
-                    case "엣지라인": _editorManager.IsEdgeLineEnabled = true; break; 
+                        case "엣지라인": 
+                    if (!_editorManager.IsEdgeLineEnabled)
+                    {
+                        _editorManager.IsEdgeLineEnabled = true; 
+                        // [추가] Undo 지원을 위한 더미 요소 추가
+                        var dummy = new Rectangle { Visibility = Visibility.Collapsed, Tag = "EdgeLineAction" };
+                        (_drawingCanvas ?? canvas).Children.Add(dummy);
+                        drawnElements.Add(dummy);
+                    }
+                    break; 
                 }
 
                 // [추가] 엣지라인 모드일 때는 선택 영역 가이드(빨간 선)만 숨기기
