@@ -3853,7 +3853,7 @@ namespace CatchCapture.Utilities
                 paletteWidth = _toolOptionsControl.ActualWidth;
             }
 
-            double margin = 10;
+            double margin = 0; // [Fix] 팔레트와 툴바 사이 마진 제거
             
             if (isVerticalToolbarLayout)
             {
