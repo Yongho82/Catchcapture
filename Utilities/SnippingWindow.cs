@@ -2415,7 +2415,22 @@ namespace CatchCapture.Utilities
             // [추가] 엣지라인 Undo 처리
             if (lastElement is FrameworkElement fe && fe.Tag is string tag && tag == "EdgeLineAction")
             {
-                if (_editorManager != null) _editorManager.IsEdgeLineEnabled = false;
+                if (_editorManager != null)
+                {
+                    _editorManager.IsEdgeLineEnabled = false;
+                    
+                    // UI 상태 복원
+                    selectionOverlay?.SetVisibility(Visibility.Visible);
+                    selectionOverlay?.SetOverlayVisibility(Visibility.Visible);
+                    CreateResizeHandles();
+                    if (_edgePreviewImage != null) _edgePreviewImage.Visibility = Visibility.Collapsed;
+                    
+                    if (_drawingCanvas != null)
+                    {
+                        selectionOverlay?.SetCornerRadius(0);
+                        _drawingCanvas.Clip = new RectangleGeometry(currentSelectionRect, 0, 0);
+                    }
+                }
             }
 
             drawnElements.RemoveAt(drawnElements.Count - 1);
@@ -2473,9 +2488,27 @@ namespace CatchCapture.Utilities
                 drawnElements.Clear();
                 _editorManager.ResetNumbering(); // 넘버링 번호도 초기화
                 
-                // [추가] 엣지라인 초기화
-                if (_editorManager != null)
+                // [추가] 엣지라인 초기화 및 UI 복원
+                if (_editorManager != null && _editorManager.IsEdgeLineEnabled)
                 {
+                    _editorManager.IsEdgeLineEnabled = false;
+                    
+                    // UI 상태 복원 (ToggleToolPalette의 else 블록 로직)
+                    selectionOverlay?.SetVisibility(Visibility.Visible);
+                    selectionOverlay?.SetOverlayVisibility(Visibility.Visible);
+                    CreateResizeHandles();
+                    if (_edgePreviewImage != null) _edgePreviewImage.Visibility = Visibility.Collapsed;
+                    
+                    // 클리핑 복원 (0으로)
+                    if (_drawingCanvas != null)
+                    {
+                        selectionOverlay?.SetCornerRadius(0);
+                        _drawingCanvas.Clip = new RectangleGeometry(currentSelectionRect, 0, 0);
+                    }
+                }
+                else if (_editorManager != null)
+                {
+                    // 혹시 모르니 체크
                     _editorManager.IsEdgeLineEnabled = false;
                 }
             }
