@@ -64,6 +64,10 @@ namespace CatchCapture.Utilities
         private int _cornerRadius = 0;      // [추가] 엣지 캡처를 위한 반지름
         private bool showColorPalette = true; // [추가] 색상 팔레트 표시 여부
 
+        // [추가] 힌트 라벨 관련 필드
+        private TextBlock? drawHintLabel;
+        private System.Windows.Threading.DispatcherTimer? _drawHintTimer;
+
         // 언어 변경 시 런타임 갱신을 위해 툴바 참조 저장
         private Border? toolbarContainer;
         private StackPanel? toolbarPanel;
@@ -1743,9 +1747,12 @@ namespace CatchCapture.Utilities
             // 툴바 위치 설정 (초기화)
             UpdateToolbarPosition();
 
-            // [추가] 드로잉 영역 클리핑 설정
+            // [추가] 드로잉 영역 클리핑 설정 및 이벤트 수신 준비
             if (_drawingCanvas != null)
+            {
                 _drawingCanvas.Clip = new RectangleGeometry(currentSelectionRect);
+                _drawingCanvas.Background = Brushes.Transparent;
+            }
 
             // 도구 옵션 컨트롤 초기화
             _toolOptionsControl = new CatchCapture.Controls.ToolOptionsControl();
@@ -1771,7 +1778,26 @@ namespace CatchCapture.Utilities
             {
                 EnableDrawingMode("펜");
                 SetActiveToolButton(penButton);
+                ShowDrawHint();
             }
+
+            // [추가] 힌트 라벨 생성
+            drawHintLabel = new TextBlock
+            {
+                Text = "Mouse Right key : Box",
+                FontSize = 12,
+                Foreground = Brushes.White,
+                Background = new SolidColorBrush(Color.FromArgb(128, 0, 0, 0)),
+                Padding = new Thickness(5),
+                Visibility = Visibility.Collapsed,
+                IsHitTestVisible = false
+            };
+            Panel.SetZIndex(drawHintLabel, 6000); 
+            canvas.Children.Add(drawHintLabel);
+
+            // 힌트 위치 갱신을 위한 MouseMove 등록
+            if (_drawingCanvas != null)
+                _drawingCanvas.MouseMove += EditCanvas_MouseMove;
         }
 
         private Button CreateToolButton(string iconPath, string label, string tooltip)
@@ -3615,6 +3641,61 @@ namespace CatchCapture.Utilities
                 ShowPaletteAtCurrentPosition();
             }
         }
+
+        private void ShowDrawHint()
+        {
+            if (drawHintLabel == null) return;
+            
+            drawHintLabel.Text = "Mouse Right key : Box";
+            drawHintLabel.Visibility = Visibility.Visible;
+
+            // 즉시 마우스 위치로 이동
+            try
+            {
+                Point pos = Mouse.GetPosition(canvas);
+                double px = pos.X + 15;
+                double py = pos.Y + 15;
+                if (px + 150 > canvas.ActualWidth) px = pos.X - 160;
+                if (py + 30 > canvas.ActualHeight) py = pos.Y - 40;
+                Canvas.SetLeft(drawHintLabel, px);
+                Canvas.SetTop(drawHintLabel, py);
+            }
+            catch { }
+            
+            if (_drawHintTimer == null)
+            {
+                _drawHintTimer = new System.Windows.Threading.DispatcherTimer();
+                _drawHintTimer.Interval = TimeSpan.FromSeconds(3); // 3초 뒤 사라짐
+                _drawHintTimer.Tick += (s, e) => 
+                { 
+                    if (drawHintLabel != null) drawHintLabel.Visibility = Visibility.Collapsed; 
+                    _drawHintTimer.Stop(); 
+                };
+            }
+            _drawHintTimer.Stop();
+            _drawHintTimer.Start();
+        }
+
+        private void EditCanvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            // 펜/형광펜 마우스 우클릭 박스 힌트 위치 갱신
+            if (currentTool == "펜" || currentTool == "형광펜")
+            {
+                if (drawHintLabel != null && drawHintLabel.Visibility == Visibility.Visible)
+                {
+                    Point currentPoint = e.GetPosition(canvas); // 캔버스 기준 좌표
+                    
+                    double px = currentPoint.X + 15;
+                    double py = currentPoint.Y + 15;
+                    
+                    if (px + 150 > canvas.ActualWidth) px = currentPoint.X - 160;
+                    if (py + 30 > canvas.ActualHeight) py = currentPoint.Y - 40;
+                        
+                    Canvas.SetLeft(drawHintLabel, px);
+                    Canvas.SetTop(drawHintLabel, py);
+                }
+            }
+        }
         
         private void ToggleToolPalette(string toolName, Button button)
         {
@@ -3638,8 +3719,8 @@ namespace CatchCapture.Utilities
                 switch (toolName)
                 {
                     case "선택": EnableSelectMode(); HideColorPalette(); return; 
-                    case "펜": EnableDrawingMode(); break;
-                    case "형광펜": EnableDrawingMode("형광펜"); break; 
+                    case "펜": EnableDrawingMode(); ShowDrawHint(); break;
+                    case "형광펜": EnableDrawingMode("형광펜"); ShowDrawHint(); break; 
                     case "텍스트": EnableTextMode(); break;
                     case "도형": EnableShapeMode(); break;
                     case "넘버링": EnableNumberingMode(); break;

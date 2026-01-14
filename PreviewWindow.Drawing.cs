@@ -69,9 +69,25 @@ namespace CatchCapture
 
             Point currentPoint = e.GetPosition(ImageCanvas);
 
-            // [추가] 완료 힌트 라벨 위치 업데이트
-
-            // [추가] 완료 힌트 라벨 위치 업데이트
+            // [추가] 펜/형광펜 마우스 우클릭 박스 힌트
+            // [추가] 펜/형광펜 마우스 우클릭 박스 힌트
+            if (currentEditMode == EditMode.Pen || currentEditMode == EditMode.Highlight)
+            {
+                if (drawHintLabel != null && drawHintLabel.Visibility == Visibility.Visible)
+                {
+                    double px = currentPoint.X + 15;
+                    double py = currentPoint.Y + 15;
+                    
+                    // 화면 경계 처리
+                    if (px + 150 > ImageCanvas.ActualWidth) 
+                        px = currentPoint.X - 160;
+                    if (py + 30 > ImageCanvas.ActualHeight)
+                        py = currentPoint.Y - 40;
+                        
+                    Canvas.SetLeft(drawHintLabel, px);
+                    Canvas.SetTop(drawHintLabel, py);
+                }
+            }
             if (confirmHintLabel != null)
             {
                 if (currentEditMode == EditMode.Crop)
@@ -243,5 +259,41 @@ namespace CatchCapture
             };
         }
         #endregion
+
+        private System.Windows.Threading.DispatcherTimer? _drawHintTimer;
+
+        public void ShowDrawHint()
+        {
+            if (drawHintLabel == null || ImageCanvas == null) return;
+            
+            drawHintLabel.Text = "Mouse Right key : Box";
+            drawHintLabel.Visibility = Visibility.Visible;
+
+            // 즉시 마우스 위치로 이동
+            try
+            {
+                Point pos = Mouse.GetPosition(ImageCanvas);
+                double px = pos.X + 15;
+                double py = pos.Y + 15;
+                if (px + 150 > ImageCanvas.ActualWidth) px = pos.X - 160;
+                if (py + 30 > ImageCanvas.ActualHeight) py = pos.Y - 40;
+                Canvas.SetLeft(drawHintLabel, px);
+                Canvas.SetTop(drawHintLabel, py);
+            }
+            catch { }
+            
+            if (_drawHintTimer == null)
+            {
+                _drawHintTimer = new System.Windows.Threading.DispatcherTimer();
+                _drawHintTimer.Interval = TimeSpan.FromSeconds(3);
+                _drawHintTimer.Tick += (s, e) => 
+                { 
+                    if (drawHintLabel != null) drawHintLabel.Visibility = Visibility.Collapsed; 
+                    _drawHintTimer.Stop(); 
+                };
+            }
+            _drawHintTimer.Stop();
+            _drawHintTimer.Start();
+        }
     }
 }

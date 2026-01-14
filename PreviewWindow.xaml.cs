@@ -170,6 +170,34 @@ namespace CatchCapture
             LocalizationManager.LanguageChanged += PreviewWindow_LanguageChanged;
 
             _editorManager = new SharedCanvasEditor(ImageCanvas, drawnElements, _editorUndoStack);
+            
+            // [추가] 힌트 라벨 초기화
+            drawHintLabel = new TextBlock
+            {
+                Text = "Mouse Right key : Box",
+                Background = new SolidColorBrush(Color.FromArgb(180, 0, 0, 0)),
+                Foreground = Brushes.White,
+                Padding = new Thickness(6, 3, 6, 3),
+                FontSize = 12,
+                IsHitTestVisible = false,
+                Visibility = Visibility.Collapsed
+            };
+            ImageCanvas.Children.Add(drawHintLabel);
+            Panel.SetZIndex(drawHintLabel, 7000);
+
+            confirmHintLabel = new TextBlock
+            {
+                Text = "Confirm : Enter key",
+                Background = new SolidColorBrush(Color.FromArgb(180, 0, 0, 0)),
+                Foreground = Brushes.White,
+                Padding = new Thickness(6, 3, 6, 3),
+                FontSize = 12,
+                IsHitTestVisible = false,
+                Visibility = Visibility.Collapsed
+            };
+            ImageCanvas.Children.Add(confirmHintLabel);
+            Panel.SetZIndex(confirmHintLabel, 7000);
+
             _editorManager.ActionOccurred += () => { 
                 SyncEditorToLayers(); 
                 redoStack.Clear(); 
@@ -204,34 +232,6 @@ namespace CatchCapture
             _editorManager.EdgeShadowDepth = edgeSettings.EdgeShadowDepth;
             _editorManager.EdgeShadowOpacity = edgeSettings.EdgeShadowOpacity;
             _editorManager.IsEdgeLineEnabled = false; // 이미지 편집 창 시작 시에는 꺼짐 상태로 시작 (2중 적용 방지)
-
-            // [추가] 그리기 힌트 라벨 초기화
-            drawHintLabel = new TextBlock
-            {
-                Text = LocalizationManager.GetString("RightClickBoxHint"),
-                Background = new SolidColorBrush(Color.FromArgb(160, 0, 0, 0)),
-                Foreground = Brushes.White,
-                Padding = new Thickness(4, 2, 4, 2),
-                FontSize = 10,
-                IsHitTestVisible = false,
-                Visibility = Visibility.Collapsed
-            };
-            ImageCanvas.Children.Add(drawHintLabel);
-            Panel.SetZIndex(drawHintLabel, 1000);
-
-            // [추가] 완료 힌트 라벨 초기화 (Hardcoded English as requested)
-            confirmHintLabel = new TextBlock
-            {
-                Text = "Confirm : Enter key",
-                Background = new SolidColorBrush(Color.FromArgb(180, 0, 0, 0)),
-                Foreground = Brushes.White,
-                Padding = new Thickness(6, 3, 6, 3),
-                FontSize = 11,
-                IsHitTestVisible = false,
-                Visibility = Visibility.Collapsed
-            };
-            ImageCanvas.Children.Add(confirmHintLabel);
-            Panel.SetZIndex(confirmHintLabel, 6000);
 
             // [추가] 엣지라인 프리뷰 이미지
             _edgePreviewImage = new Image
@@ -1945,6 +1945,7 @@ namespace CatchCapture
             
             // 바로 그리기 시작 (팝업 표시 안 함)
             SetActiveToolButton(HighlightToolButton);
+            ShowDrawHint();
         }
 
         private void PenButton_Click(object sender, RoutedEventArgs e)
@@ -1960,6 +1961,7 @@ namespace CatchCapture
             
             // 바로 그리기 시작 (팝업 표시 안 함)
             SetActiveToolButton(PenToolButton);  // ← 이 줄 추가
+            ShowDrawHint();
         }
 
 

@@ -52,6 +52,7 @@ namespace CatchCapture
                 CancelCurrentEditMode();
                 currentEditMode = EditMode.Pen;
                 SetActiveToolButton(PenToolButton);
+                ShowDrawHint();
             }
 
             if (ToolOptionsPopup.IsOpen && ToolOptionsPopup.PlacementTarget == PenToolButton)
@@ -139,6 +140,7 @@ namespace CatchCapture
                 CancelCurrentEditMode();
                 currentEditMode = EditMode.Highlight;
                 SetActiveToolButton(HighlightToolButton);
+                ShowDrawHint();
             }
 
             if (ToolOptionsPopup.IsOpen && ToolOptionsPopup.PlacementTarget == HighlightToolButton)
