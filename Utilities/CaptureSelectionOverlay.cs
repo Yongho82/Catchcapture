@@ -165,7 +165,11 @@ namespace CatchCapture.Utilities
             _startPoint = point;
             _isSelecting = true;
             _hasPendingUpdate = false;
+            _isRectangleSuppressed = false; // [Fix] 숨김 상태 해제
             _moveStopwatch.Restart();
+
+            // [Fix] 장시간 방치 후 UI 요소가 캔버스에서 분리되었거나 숨겨졌을 수 있으므로 검증
+            EnsureUIElementsAttached();
 
             if (_selectionRectangle != null)
             {
@@ -174,11 +178,46 @@ namespace CatchCapture.Utilities
                 Canvas.SetTop(_selectionRectangle, point.Y);
                 _selectionRectangle.Width = 0;
                 _selectionRectangle.Height = 0;
+                
+                // [Fix] Z-Index 강제 설정 (다른 요소에 가려지지 않도록)
+                Panel.SetZIndex(_selectionRectangle, 2000);
             }
 
             if (_sizeTextBlock != null)
             {
                 _sizeTextBlock.Visibility = Visibility.Collapsed;
+            }
+            
+            // [Fix] 렌더링 갱신 강제 유도
+            _canvas.InvalidateVisual();
+        }
+        
+        /// <summary>
+        /// [Fix] UI 요소가 캔버스에 연결되어 있는지 확인하고, 없으면 다시 추가
+        /// </summary>
+        private void EnsureUIElementsAttached()
+        {
+            try
+            {
+                if (_selectionRectangle != null && !_canvas.Children.Contains(_selectionRectangle))
+                {
+                    _canvas.Children.Add(_selectionRectangle);
+                }
+                
+                if (_sizeTextBlock != null && !_canvas.Children.Contains(_sizeTextBlock))
+                {
+                    _canvas.Children.Add(_sizeTextBlock);
+                }
+                
+                if (_overlayPath != null && !_canvas.Children.Contains(_overlayPath))
+                {
+                    _canvas.Children.Add(_overlayPath);
+                    Panel.SetZIndex(_overlayPath, 1000);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"EnsureUIElementsAttached error: {ex.Message}");
             }
         }
 
@@ -239,8 +278,17 @@ namespace CatchCapture.Utilities
                     _lastSizeText = text;
                 }
                 _sizeTextBlock.Visibility = Visibility.Visible;
-                Canvas.SetLeft(_sizeTextBlock, rect.Left + rect.Width - 80);
-                Canvas.SetTop(_sizeTextBlock, rect.Top + rect.Height - 28);
+                double estWidth = 80;
+                double estHeight = 28;
+                double imLeft = rect.Right - estWidth;
+                double imTop = rect.Bottom + 5;
+
+                // 간단한 바운더리 체크 (화면 아래쪽만)
+                if (imTop + estHeight > SystemParameters.VirtualScreenHeight)
+                    imTop = rect.Bottom - estHeight - 5;
+
+                Canvas.SetLeft(_sizeTextBlock, imLeft);
+                Canvas.SetTop(_sizeTextBlock, imTop);
             }
 
             // 오버레이 구멍은 렌더링 루프에서 처리 (성능)
@@ -423,11 +471,27 @@ namespace CatchCapture.Utilities
                         const double margin = 8;
                         
                         // 위치 계산 및 화면 밖으로 나가지 않게 보정
-                        double left = rect.Left + rect.Width - tw - margin;
-                        double top = rect.Top + rect.Height - th - margin;
+                        // 위치 계산: 기본적으로 우측 하단 바깥쪽
+                        double left = rect.Right - tw;
+                        double top = rect.Bottom + 5;
+
+                        // 화면 아래쪽 경계 체크 (VirtualScreen 높이 기준)
+                        double screenHeight = SystemParameters.VirtualScreenHeight;
+                        // 만약 텍스트가 화면 아래로 벗어나면, 사각형 안쪽(하단)으로 이동
+                        if (top + th > screenHeight)
+                        {
+                            top = rect.Bottom - th - 5;
+                        }
+
+                        // 화면 오른쪽 경계 체크
+                        double screenWidth = SystemParameters.VirtualScreenWidth;
+                        if (left + tw > screenWidth)
+                        {
+                            left = screenWidth - tw - 5;
+                        }
                         
-                        if (left < rect.Left + margin) left = rect.Left + margin;
-                        if (top < rect.Top + margin) top = rect.Top + margin;
+                        // 화면 왼쪽 경계 체크
+                        if (left < 0) left = 5;
 
                         Canvas.SetLeft(_sizeTextBlock, left);
                         Canvas.SetTop(_sizeTextBlock, top);

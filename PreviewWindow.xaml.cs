@@ -1974,7 +1974,7 @@ namespace CatchCapture
         #region 유틸리티 메서드
 
         // ★ 메모리 최적화: Undo 스택 최대 개수 제한
-        private const int MAX_UNDO_STACK_SIZE = 10;
+        private const int MAX_UNDO_STACK_SIZE = 20;
 
         private void SaveForUndo()
         {

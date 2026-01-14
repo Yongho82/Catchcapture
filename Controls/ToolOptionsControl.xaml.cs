@@ -588,6 +588,7 @@ namespace CatchCapture.Controls
                     }
                 }
                 UpdateColorSelection(c);
+                e.Handled = true;
             };
             
             return container;

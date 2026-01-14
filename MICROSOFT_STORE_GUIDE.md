@@ -150,7 +150,7 @@ $signtool = "C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\x64\signtoo
 **속성:**
 - 개인정보 처리방침 URL: `https://ezupsoft.com/catchcapture/privacy-policy.html`
 - 웹사이트: `https://ezupsoft.com`
-- 지원 연락처: `eyh1982@gmail.com`
+- 지원 연락처: `ezupsoft@gmail.com`
 
 **연령 등급:**
 - 모든 연령 (3+)
@@ -237,7 +237,7 @@ Microsoft Store 인증을 통과하려면:
 
 - Microsoft Store 문서: https://docs.microsoft.com/windows/uwp/publish/
 - Partner Center 지원: https://partner.microsoft.com/support
-- 이메일: eyh1982@gmail.com
+- 이메일: ezupsoft@gmail.com
 
 ---
 

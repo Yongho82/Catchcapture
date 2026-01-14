@@ -250,6 +250,7 @@ namespace CatchCapture.Utilities
             // Keep drag active even if window momentarily deactivates or capture is lost
             Deactivated += SnippingWindow_Deactivated;
             LostMouseCapture += SnippingWindow_LostMouseCapture;
+            Activated += SnippingWindow_Activated; // [Fix] 장시간 방치 후 렌더링 갱신
             Loaded += async (s, e) => 
             { 
                 try 
@@ -1159,6 +1160,26 @@ namespace CatchCapture.Utilities
                 }
                 catch { }
             }
+        }
+
+        /// <summary>
+        /// [Fix] 창이 다시 활성화될 때 렌더링 상태 갱신 (장시간 방치 후 드래그 문제 해결)
+        /// </summary>
+        private void SnippingWindow_Activated(object? sender, EventArgs e)
+        {
+            try
+            {
+                // 캔버스 레이아웃 강제 갱신
+                canvas.InvalidateVisual();
+                canvas.UpdateLayout();
+                
+                // selectionOverlay가 있으면 상태 리셋 (다음 드래그를 위해 준비)
+                if (selectionOverlay != null && !selectionOverlay.IsSelecting)
+                {
+                    selectionOverlay.Reset();
+                }
+            }
+            catch { }
         }
 
         private void SnippingWindow_LostMouseCapture(object? sender, MouseEventArgs e)
@@ -2071,9 +2092,20 @@ namespace CatchCapture.Utilities
 
         private bool TrySelectObject(object sender, MouseButtonEventArgs e)
         {
+            // [Fix] 팔레트(ToolOptionsControl), 툴바, 혹은 버튼 클릭 시에는 선택 해제 방지
+            if (e.OriginalSource is DependencyObject d)
+            {
+                if (FindParent<CatchCapture.Controls.ToolOptionsControl>(d) != null || 
+                    FindParent<Button>(d) != null ||
+                    (toolbarContainer != null && (d == toolbarContainer || FindParent<Border>(d) == toolbarContainer)))
+                {
+                    return true;
+                }
+            }
+
             // 리사이즈 핸들이나 이미 선택된 요소의 부속 버튼 클릭 시 무시
-            if (e.OriginalSource is FrameworkElement fe && (fe.Name.Contains("ResizeHandle") || fe.Name.Contains("RotationHandle") || fe.Parent is Button || fe is Button))
-                return true; // Already handled by handle/button events
+            if (e.OriginalSource is FrameworkElement fe && (fe.Name.Contains("ResizeHandle") || fe.Name.Contains("RotationHandle")))
+                return true; 
 
             Point clickPoint = e.GetPosition(canvas);
 

@@ -41,7 +41,7 @@
 - [ ] 앱 설명 작성
 - [ ] 스크린샷 업로드
 - [ ] 개인정보 처리방침 URL 입력
-- [ ] 지원 연락처 입력: eyh1982@gmail.com
+- [ ] 지원 연락처 입력: ezupsoft@gmail.com
 - [ ] 웹사이트 URL 입력: https://ezupsoft.com
 
 ### ✅ 최종 확인
@@ -73,7 +73,7 @@
 ## 📞 연락처
 
 - 회사: 이지업소프트
-- 이메일: eyh1982@gmail.com
+- 이메일: ezupsoft@gmail.com
 - 웹사이트: https://ezupsoft.com
 - 제품: CatchCapture v1.0.0
 
