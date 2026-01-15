@@ -787,7 +787,31 @@ Are you sure you want to permanently delete all items?</value>
   <data name="HistoryTip1" xml:space="preserve"><value>View all your past captures and records at a glance in History.</value></data>
   <data name="HistoryTip2" xml:space="preserve"><value>Use the search bar to quickly find records by filename or app name.</value></data>
   <data name="HistoryTip3" xml:space="preserve"><value>Use advanced filters to search by specific dates or file types.</value></data>
-  <data name="HistoryTip4" xml:space="preserve"><value>Select an item and click 'Save to My Note' to create a note with the original info.</value></data>
+  <data name="HistoryTip4" xml:space="preserve"><value>Select an item and click 'Save to My Note' to create a note with the capture information.</value></data>
+  
+  <!-- Recording Window Localization -->
+  <data name="RecordingSaved" xml:space="preserve"><value>Recording saved: {0}</value></data>
+  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>Recording is in progress. Do you want to save?</value></data>
+  <data name="RecordingInProgressTitle" xml:space="preserve"><value>Recording in progress</value></data>
+  <data name="FFmpegRequiredMessage" xml:space="preserve"><value>The video recording (MP4/GIF) feature requires an additional component (FFmpeg).\n\nDo you want to download and install it now?</value></data>
+  <data name="ComponentRequired" xml:space="preserve"><value>Additional Component Required</value></data>
+  <data name="FFmpegDownloadTitle" xml:space="preserve"><value>📦 Downloading FFmpeg...</value></data>
+  <data name="ConnectingToServer" xml:space="preserve"><value>Connecting to server...</value></data>
+  <data name="Downloading" xml:space="preserve"><value>Downloading...</value></data>
+  <data name="Extracting" xml:space="preserve"><value>Extracting...</value></data>
+  <data name="Installing" xml:space="preserve"><value>Installing...</value></data>
+  <data name="Completed" xml:space="preserve"><value>✓ Completed!</value></data>
+  <data name="FFmpegInstallComplete" xml:space="preserve"><value>✅ FFmpeg Installation Complete!</value></data>
+  <data name="RecordingFeatureAvailable" xml:space="preserve"><value>You can now use the recording feature.</value></data>
+  <data name="FFmpegAutoDownloadFailed" xml:space="preserve"><value>Automatic download failed.\nDo you want to manually select and install the ffmpeg.exe file?\n\n(Selecting the ffmpeg.exe file will copy it to the correct location)</value></data>
+  <data name="InstallFailed" xml:space="preserve"><value>Installation Failed</value></data>
+  <data name="FFmpegManualInstallSuccess" xml:space="preserve"><value>FFmpeg manual installation completed.</value></data>
+  <data name="NoFramesToSave" xml:space="preserve"><value>No frames recorded, cannot save.</value></data>
+  <data name="StopRecordingError" xml:space="preserve"><value>Error stopping recording:\n{0}</value></data>
+  <data name="NoMicDetected" xml:space="preserve"><value>No microphone detected.\nPlease connect an audio input device.</value></data>
+  <data name="NoMicTitle" xml:space="preserve"><value>No Microphone</value></data>
+  <data name="MicCheckFailed" xml:space="preserve"><value>Microphone check failed: {0}</value></data>
+  <data name="RecordingError" xml:space="preserve"><value>Error during recording:\n{0}</value></data>
   <data name="HistoryTip5" xml:space="preserve"><value>Double-click a list item to view the original file in the default Windows viewer.</value></data>
   <data name="HistoryTip6" xml:space="preserve"><value>Deleted records in the trash will be permanently removed after the retention period.</value></data>
   <data name="Blur" xml:space="preserve"><value>Blur</value></data>

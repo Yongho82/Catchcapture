@@ -10,6 +10,7 @@ using System.Windows.Threading;
 using System.Windows.Interop;
 using System.Runtime.InteropServices;
 using CatchCapture.Models;
+using LocalizationManager = CatchCapture.Resources.LocalizationManager;
 
 namespace CatchCapture.Recording
 {
@@ -416,8 +417,8 @@ namespace CatchCapture.Recording
             if (IsRecording)
             {
                 var result = CatchCapture.CustomMessageBox.Show(
-                    "녹화가 진행 중입니다. 저장하시겠습니까?",
-                    "녹화 중",
+                    LocalizationManager.GetString("RecordingInProgressConfirm") ?? "Recording is in progress. Do you want to save?",
+                    LocalizationManager.GetString("RecordingInProgressTitle") ?? "Recording in progress",
                     MessageBoxButton.YesNoCancel,
                     MessageBoxImage.Question);
                 
@@ -519,8 +520,8 @@ namespace CatchCapture.Recording
                 int micCount = NAudio.Wave.WaveIn.DeviceCount;
                 if (micCount == 0)
                 {
-                    CatchCapture.CustomMessageBox.Show("마이크 장치가 감지되지 않았습니다.\n오디오 입력 장치를 연결해주세요.", 
-                        "마이크 없음", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("NoMicDetected") ?? "No microphone detected.\nPlease connect an audio input device.", 
+                        LocalizationManager.GetString("NoMicTitle") ?? "No Microphone", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
                 
@@ -530,7 +531,8 @@ namespace CatchCapture.Recording
             }
             catch (Exception ex)
             {
-                CatchCapture.CustomMessageBox.Show($"마이크 장치 확인 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                CatchCapture.CustomMessageBox.Show(string.Format(LocalizationManager.GetString("MicCheckFailed") ?? "Microphone check failed: {0}", ex.Message), 
+                    LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             
@@ -818,9 +820,8 @@ namespace CatchCapture.Recording
             if (!FFmpegDownloader.IsFFmpegInstalled())
             {
                 var result = CatchCapture.CustomMessageBox.Show(
-                    "동영상 녹화(MP4/GIF) 기능을 사용하려면 추가 구성 요소(FFmpeg)가 필요합니다.\n\n" +
-                    "지금 다운로드하여 설치하시겠습니까?",
-                    "추가 구성 요소 필요",
+                    LocalizationManager.GetString("FFmpegRequiredMessage") ?? "The video recording (MP4/GIF) feature requires an additional component (FFmpeg).\n\nDo you want to download and install it now?",
+                    LocalizationManager.GetString("ComponentRequired") ?? "Additional Component Required",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Question);
 
@@ -855,7 +856,7 @@ namespace CatchCapture.Recording
                     // 제목
                     var titleText = new TextBlock
                     {
-                        Text = "📦 FFmpeg 다운로드 중...",
+                        Text = LocalizationManager.GetString("FFmpegDownloadTitle") ?? "📦 Downloading FFmpeg...",
                         FontSize = 18,
                         FontWeight = FontWeights.SemiBold,
                         Foreground = System.Windows.Media.Brushes.White,
@@ -866,7 +867,7 @@ namespace CatchCapture.Recording
                     // 상태 텍스트
                     var statusText = new TextBlock
                     {
-                        Text = "서버 연결 중...",
+                        Text = LocalizationManager.GetString("ConnectingToServer") ?? "Connecting to server...",
                         FontSize = 12,
                         Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(180, 180, 190)),
                         HorizontalAlignment = HorizontalAlignment.Center,
@@ -933,13 +934,13 @@ namespace CatchCapture.Recording
                             percentText.Text = $"{p}%";
                             
                             if (p < 50)
-                                statusText.Text = "다운로드 중...";
+                                statusText.Text = LocalizationManager.GetString("Downloading") ?? "Downloading...";
                             else if (p < 70)
-                                statusText.Text = "압축 해제 중...";
+                                statusText.Text = LocalizationManager.GetString("Extracting") ?? "Extracting...";
                             else if (p < 100)
-                                statusText.Text = "설치 중...";
+                                statusText.Text = LocalizationManager.GetString("Installing") ?? "Installing...";
                             else
-                                statusText.Text = "✓ 완료!";
+                                statusText.Text = LocalizationManager.GetString("Completed") ?? "✓ Completed!";
                         });
                     });
 
@@ -950,8 +951,8 @@ namespace CatchCapture.Recording
                         // 성공 시 완료 메시지 표시 후 1초 대기
                         Dispatcher.Invoke(() =>
                         {
-                            titleText.Text = "✅ FFmpeg 설치 완료!";
-                            statusText.Text = "녹화 기능을 사용할 수 있습니다.";
+                            titleText.Text = LocalizationManager.GetString("FFmpegInstallComplete") ?? "✅ FFmpeg Installation Complete!";
+                            statusText.Text = LocalizationManager.GetString("RecordingFeatureAvailable") ?? "You can now use the recording feature.";
                         });
                         await Task.Delay(1200);
                     }
@@ -962,10 +963,8 @@ namespace CatchCapture.Recording
                     {
                         // 자동 다운로드 실패 -> 수동 설치 제안
                         var manualResult = CatchCapture.CustomMessageBox.Show(
-                            "자동 다운로드에 실패했습니다.\n" +
-                            "직접 ffmpeg.exe 파일을 선택하여 설치하시겠습니까?\n\n" +
-                            "(ffmpeg.exe 파일을 선택하면 올바른 위치로 복사됩니다)", 
-                            "설치 실패", 
+                            LocalizationManager.GetString("FFmpegAutoDownloadFailed") ?? "Automatic download failed.\nDo you want to manually select and install the ffmpeg.exe file?\n\n(Selecting the ffmpeg.exe file will copy it to the correct location)", 
+                            LocalizationManager.GetString("InstallFailed") ?? "Installation Failed", 
                             MessageBoxButton.YesNo, 
                             MessageBoxImage.Warning);
                             
@@ -985,7 +984,7 @@ namespace CatchCapture.Recording
                                     return; // 수동 설치 실패
                                 }
                                 // 성공 시 계속 진행
-                                CatchCapture.CustomMessageBox.Show("FFmpeg 수동 설치가 완료되었습니다.", "완료", MessageBoxButton.OK, MessageBoxImage.Information);
+                                CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("FFmpegManualInstallSuccess") ?? "FFmpeg manual installation completed.", LocalizationManager.GetString("Success"), MessageBoxButton.OK, MessageBoxImage.Information);
                             }
                             else
                             {
@@ -1137,13 +1136,13 @@ namespace CatchCapture.Recording
                 }
                 else
                 {
-                    CatchCapture.CustomMessageBox.Show("녹화된 프레임이 없어 저장할 수 없습니다.", "알림", 
+                    CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("NoFramesToSave") ?? "No frames recorded, cannot save.", LocalizationManager.GetString("Notice"), 
                         MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
             {
-                CatchCapture.CustomMessageBox.Show($"녹화 중지 중 오류가 발생했습니다:\n{ex.Message}", "오류", 
+                CatchCapture.CustomMessageBox.Show(string.Format(LocalizationManager.GetString("StopRecordingError") ?? "Error stopping recording:\n{0}", ex.Message), LocalizationManager.GetString("Error"), 
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
             
@@ -1201,7 +1200,7 @@ namespace CatchCapture.Recording
         {
             Dispatcher.Invoke(() =>
             {
-                CatchCapture.CustomMessageBox.Show($"녹화 중 오류가 발생했습니다:\n{ex.Message}", "오류",
+                CatchCapture.CustomMessageBox.Show(string.Format(LocalizationManager.GetString("RecordingError") ?? "Error during recording:\n{0}", ex.Message), LocalizationManager.GetString("Error"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             });
         }

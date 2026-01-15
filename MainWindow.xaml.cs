@@ -5916,7 +5916,8 @@ public partial class MainWindow : Window
                             encodingOverlay.Visibility = Visibility.Collapsed;
 
                             // 저장 완료 토스트
-                            ShowGuideMessage($"녹화 저장 완료: {filename}", TimeSpan.FromSeconds(2));
+                            string savedMsg = string.Format(LocalizationManager.GetString("RecordingSaved") ?? "녹화 저장 완료: {0}", filename);
+                            CatchCapture.Utilities.StickerWindow.Show(savedMsg);
 
                             // 열려있는 히스토리 창이 있으면 갱신
                             var historyWindow = Application.Current.Windows.OfType<HistoryWindow>().FirstOrDefault();
