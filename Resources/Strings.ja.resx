@@ -289,7 +289,9 @@
   <data name="HighlighterLbl" xml:space="preserve"><value>ハイライト</value></data>
   <data name="TextAdd" xml:space="preserve"><value>テキスト追加</value></data>
   <data name="UndoLbl" xml:space="preserve"><value>元に戻す</value></data>
-  <data name="ScreenRecording" xml:space="preserve"><value>録画</value></data>
+  <data name="ScreenRecording" xml:space="preserve"><value>画面録画</value></data>
+  <data name="VideoRecording" xml:space="preserve"><value>動画録画</value></data>
+  <data name="AudioRecording" xml:space="preserve"><value>音声録音</value></data>
   <data name="Record" xml:space="preserve"><value>録画</value></data>
   <data name="RedoLbl" xml:space="preserve"><value>やり直し</value></data>
   <data name="ResetLbl" xml:space="preserve"><value>リセット</value></data>

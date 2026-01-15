@@ -378,6 +378,8 @@
   <data name="Open" xml:space="preserve"><value>열기</value></data>
   <data name="ShowMagnifier" xml:space="preserve"><value>영역 캡처 시 돋보기 표시</value></data>
   <data name="ScreenRecording" xml:space="preserve"><value>화면 녹화</value></data>
+  <data name="VideoRecording" xml:space="preserve"><value>동영상 녹화</value></data>
+  <data name="AudioRecording" xml:space="preserve"><value>오디오 녹음</value></data>
   <data name="Record" xml:space="preserve"><value>화면 녹화</value></data>
   <data name="RecordingTool" xml:space="preserve"><value>녹화도구</value></data>
   <data name="StartStopRecording" xml:space="preserve"><value>녹화 시작/정지</value></data>

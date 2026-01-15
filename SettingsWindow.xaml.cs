@@ -32,6 +32,11 @@ namespace CatchCapture
                 _suppressThemeUpdate = true;
                 InitializeComponent();
                 _settings = Settings.Load().Clone();
+                
+                // Initialize ComboBox items (available keys, languages)
+                InitKeyComboBoxes();
+                InitLanguageComboBox();
+                
                 UpdateUIText(); // 다국어 텍스트 적용
                 // 언어 변경 이벤트 구독 (닫힐 때 해제)
                 CatchCapture.Models.LocalizationManager.LanguageChanged += OnLanguageChanged;
@@ -563,11 +568,9 @@ private void InitLanguageComboBox()
                     case "Recording": LoadRecordingPage(); break;
                     case "Note": LoadNotePage(); break;
                     case "System": 
-                        InitLanguageComboBox();
                         LoadSystemPage(); 
                         break;
                     case "Hotkey": 
-                        InitKeyComboBoxes();
                         LoadHotkeysPage(); 
                         break;
                     case "History": LoadHistoryPage(); break;
@@ -1105,7 +1108,6 @@ private void InitLanguageComboBox()
             BindHotkey(hk.OpenEditor, HkOpenEditorEnabled, HkOpenEditorCtrl, HkOpenEditorShift, HkOpenEditorAlt, HkOpenEditorWin, HkOpenEditorKey);
             BindHotkey(hk.OpenNote, HkOpenNoteEnabled, HkOpenNoteCtrl, HkOpenNoteShift, HkOpenNoteAlt, HkOpenNoteWin, HkOpenNoteKey);
             BindHotkey(hk.EdgeCapture, HkEdgeEnabled, HkEdgeCtrl, HkEdgeShift, HkEdgeAlt, HkEdgeWin, HkEdgeKey);
-            BindHotkey(hk.RecordingStartStop, HkRecStartStopEnabled, HkRecStartStopCtrl, HkRecStartStopShift, HkRecStartStopAlt, HkRecStartStopWin, HkRecStartStopKey);
         }
 
         private static void BindHotkey(ToggleHotkey src, CheckBox? en, CheckBox? ctrl, CheckBox? shift, CheckBox? alt, CheckBox? win, ComboBox? key)
@@ -1141,7 +1143,7 @@ private void InitLanguageComboBox()
             dst.Shift = shift.IsChecked == true;
             dst.Alt = alt.IsChecked == true;
             dst.Win = win.IsChecked == true;
-            dst.Key = (key.SelectedItem as string ?? string.Empty).Trim().ToUpperInvariant();
+            dst.Key = (key.SelectedItem as string ?? key.Text ?? string.Empty).Trim().ToUpperInvariant();
         }
 
         private void LoadNotePage()
@@ -1875,7 +1877,6 @@ private void InitLanguageComboBox()
                 ReadHotkey(_settings.Hotkeys.OpenEditor, HkOpenEditorEnabled, HkOpenEditorCtrl, HkOpenEditorShift, HkOpenEditorAlt, HkOpenEditorWin, HkOpenEditorKey);
                 ReadHotkey(_settings.Hotkeys.OpenNote, HkOpenNoteEnabled, HkOpenNoteCtrl, HkOpenNoteShift, HkOpenNoteAlt, HkOpenNoteWin, HkOpenNoteKey);
                 ReadHotkey(_settings.Hotkeys.EdgeCapture, HkEdgeEnabled, HkEdgeCtrl, HkEdgeShift, HkEdgeAlt, HkEdgeWin, HkEdgeKey);
-                ReadHotkey(_settings.Hotkeys.RecordingStartStop, HkRecStartStopEnabled, HkRecStartStopCtrl, HkRecStartStopShift, HkRecStartStopAlt, HkRecStartStopWin, HkRecStartStopKey);
             }
 
             // Note settings
@@ -1910,38 +1911,17 @@ private void InitLanguageComboBox()
                 }
             }
 
-            EnsureDefaultKey(_settings.Hotkeys.RegionCapture, "F1");
-            EnsureDefaultKey(_settings.Hotkeys.DelayCapture, "D");
-            EnsureDefaultKey(_settings.Hotkeys.RealTimeCapture, "R");
-            EnsureDefaultKey(_settings.Hotkeys.MultiCapture, "M");   
-            EnsureDefaultKey(_settings.Hotkeys.FullScreen, "F");
-            EnsureDefaultKey(_settings.Hotkeys.DesignatedCapture, "W");
-            EnsureDefaultKey(_settings.Hotkeys.WindowCapture, "C");
-            EnsureDefaultKey(_settings.Hotkeys.ElementCapture, "U");
-            EnsureDefaultKey(_settings.Hotkeys.ScrollCapture, "S");
-            EnsureDefaultKey(_settings.Hotkeys.OcrCapture, "O");
-            EnsureDefaultKey(_settings.Hotkeys.ScreenRecord, "V");
-            EnsureDefaultKey(_settings.Hotkeys.SimpleMode, "Q");
-            EnsureDefaultKey(_settings.Hotkeys.TrayMode, "T");
-            EnsureDefaultKey(_settings.Hotkeys.SaveAll, "A");
-            EnsureDefaultKey(_settings.Hotkeys.DeleteAll, "D");
-            EnsureDefaultKey(_settings.Hotkeys.OpenSettings, "O");
-            EnsureDefaultKey(_settings.Hotkeys.OpenEditor, "E");
-            EnsureDefaultKey(_settings.Hotkeys.OpenNote, "N");
-            EnsureDefaultKey(_settings.Hotkeys.EdgeCapture, "E");
-            EnsureDefaultKey(_settings.Hotkeys.RecordingStartStop, "F2");
-
             if (_loadedPages.Contains("Recording"))
             {
                 if (CboRecFormat.SelectedItem is ComboBoxItem recFmtItem)
                 {
-                    if (Enum.TryParse<RecordingFormat>(recFmtItem.Content.ToString(), out var format))
+                    if (Enum.TryParse<CatchCapture.Models.RecordingFormat>(recFmtItem.Content.ToString(), out var format))
                         _settings.Recording.Format = format;
                 }
 
                 if (CboRecQuality.SelectedItem is ComboBoxItem recQualItem)
                 {
-                    if (Enum.TryParse<RecordingQuality>(recQualItem.Tag?.ToString(), out var quality))
+                    if (Enum.TryParse<CatchCapture.Models.RecordingQuality>(recQualItem.Tag?.ToString(), out var quality))
                         _settings.Recording.Quality = quality;
                 }
 
@@ -1950,7 +1930,9 @@ private void InitLanguageComboBox()
                     if (int.TryParse(recFpsItem.Content.ToString(), out int fps))
                         _settings.Recording.FrameRate = fps;
                 }
+
                 _settings.Recording.ShowMouseEffects = ChkRecMouse.IsChecked == true;
+                ReadHotkey(_settings.Hotkeys.RecordingStartStop, HkRecStartStopEnabled, HkRecStartStopCtrl, HkRecStartStopShift, HkRecStartStopAlt, HkRecStartStopWin, HkRecStartStopKey);
             }
 
             // Theme Settings (Capture Line)
@@ -2016,6 +1998,28 @@ private void InitLanguageComboBox()
                 else if (ThemeCustom != null && ThemeCustom.IsChecked == true) _settings.ThemeMode = "Custom";
                 else _settings.ThemeMode = "General";
             }
+
+            // Ensure defaults after all harvests
+            EnsureDefaultKey(_settings.Hotkeys.RegionCapture, "F1");
+            EnsureDefaultKey(_settings.Hotkeys.DelayCapture, "D");
+            EnsureDefaultKey(_settings.Hotkeys.RealTimeCapture, "R");
+            EnsureDefaultKey(_settings.Hotkeys.MultiCapture, "M");   
+            EnsureDefaultKey(_settings.Hotkeys.FullScreen, "F");
+            EnsureDefaultKey(_settings.Hotkeys.DesignatedCapture, "W");
+            EnsureDefaultKey(_settings.Hotkeys.WindowCapture, "C");
+            EnsureDefaultKey(_settings.Hotkeys.ElementCapture, "U");
+            EnsureDefaultKey(_settings.Hotkeys.ScrollCapture, "S");
+            EnsureDefaultKey(_settings.Hotkeys.OcrCapture, "O");
+            EnsureDefaultKey(_settings.Hotkeys.ScreenRecord, "V");
+            EnsureDefaultKey(_settings.Hotkeys.SimpleMode, "Q");
+            EnsureDefaultKey(_settings.Hotkeys.TrayMode, "T");
+            EnsureDefaultKey(_settings.Hotkeys.SaveAll, "A");
+            EnsureDefaultKey(_settings.Hotkeys.DeleteAll, "D");
+            EnsureDefaultKey(_settings.Hotkeys.OpenSettings, "O");
+            EnsureDefaultKey(_settings.Hotkeys.OpenEditor, "E");
+            EnsureDefaultKey(_settings.Hotkeys.OpenNote, "N");
+            EnsureDefaultKey(_settings.Hotkeys.EdgeCapture, "E");
+            EnsureDefaultKey(_settings.Hotkeys.RecordingStartStop, "F2");
         }
 
         private void AdminInfoIcon_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)

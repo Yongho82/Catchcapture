@@ -5843,9 +5843,13 @@ public partial class MainWindow : Window
                 CaptureListPanel.Children.Insert(0, videoItem);
 
                 // [추가] captures 리스트에도 추가하여 관리 (모드 전환 시 유지 등)
+                string sourceApp = LocalizationManager.GetString("ScreenRecording") ?? "화면 녹화";
+                string sourceTitle = isMp3 ? (LocalizationManager.GetString("AudioRecording") ?? "오디오 녹음") 
+                                         : (LocalizationManager.GetString("VideoRecording") ?? "동영상 녹화");
+
                 var captureImage = new CaptureImage(thumbnail!, fullPath,
                                     thumbnail?.PixelWidth ?? 0, thumbnail?.PixelHeight ?? 0,
-                                    isMp3 ? "오디오 녹음" : "동영상 녹화", filename);
+                                    sourceTitle, filename);
                 captureImage.IsVideo = true;
                 captures.Add(captureImage);
 
@@ -5887,8 +5891,8 @@ public partial class MainWindow : Window
                             FileName = filename,
                             FilePath = fullPath,
                             OriginalFilePath = fullPath,
-                            SourceApp = "화면 녹화",
-                            SourceTitle = isMp3 ? "오디오 녹음" : "동영상 녹화",
+                            SourceApp = sourceApp,
+                            SourceTitle = sourceTitle,
                             FileSize = File.Exists(fullPath) ? new FileInfo(fullPath).Length : 0,
                             Resolution = isMp3 ? "Audio Only" : (thumbnail != null ? $"{thumbnail.PixelWidth}x{thumbnail.PixelHeight}" : "N/A"),
                             IsFavorite = false,

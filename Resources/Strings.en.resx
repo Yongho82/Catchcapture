@@ -289,7 +289,9 @@
   <data name="HighlighterLbl" xml:space="preserve"><value>Highlighter</value></data>
   <data name="TextAdd" xml:space="preserve"><value>Add Text</value></data>
   <data name="UndoLbl" xml:space="preserve"><value>Undo</value></data>
-  <data name="ScreenRecording" xml:space="preserve"><value>Record</value></data>
+  <data name="ScreenRecording" xml:space="preserve"><value>Screen Recording</value></data>
+  <data name="VideoRecording" xml:space="preserve"><value>Video Recording</value></data>
+  <data name="AudioRecording" xml:space="preserve"><value>Audio Recording</value></data>
   <data name="Record" xml:space="preserve"><value>Record</value></data>
   <data name="RedoLbl" xml:space="preserve"><value>Redo</value></data>
   <data name="ResetLbl" xml:space="preserve"><value>Reset</value></data>
