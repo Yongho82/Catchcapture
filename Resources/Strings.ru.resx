@@ -857,4 +857,27 @@
   <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>Сохранить изображение как...</value></data>
   <data name="RightClickBoxHint" xml:space="preserve"><value>Правый клик: Прямоугольник</value></data>
   <data name="SettingsShowColorPaletteDesc" xml:space="preserve"><value>Показывать палитру цветов под лупой</value></data>
+  <data name="EdgeLine" xml:space="preserve"><value>Линия края</value></data>
+  <data name="EdgeLineThickness" xml:space="preserve"><value>Толщина линии</value></data>
+  <data name="EdgeRounding" xml:space="preserve"><value>Скругление краев</value></data>
+  <data name="ShadowEffect" xml:space="preserve"><value>Эффект тени</value></data>
+  <data name="ShadowIntensity" xml:space="preserve"><value>Интенсивность тени</value></data>
+  <data name="ShadowBlur" xml:space="preserve"><value>Размытие тени</value></data>
+  <data name="ShadowSize" xml:space="preserve"><value>Размер тени</value></data>
+  <data name="EdgeCaptureSettings" xml:space="preserve"><value>Настройки захвата краев</value></data>
+  <data name="Preset" xml:space="preserve"><value>Пресет:</value></data>
+  <data name="EdgeLevel1" xml:space="preserve"><value>Уровень 1 (Мягкий)</value></data>
+  <data name="EdgeLevel2" xml:space="preserve"><value>Уровень 2 (Гладкий)</value></data>
+  <data name="EdgeLevel3" xml:space="preserve"><value>Уровень 3 (Стандарт)</value></data>
+  <data name="EdgeLevel4" xml:space="preserve"><value>Уровень 4 (Капсула)</value></data>
+  <data name="EdgeLevel5" xml:space="preserve"><value>Уровень 5 (Круг)</value></data>
+  <data name="RecordingSaved" xml:space="preserve"><value>Запись сохранена: {0}</value></data>
+  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>Идёт запись. Сохранить?</value></data>
+  <data name="RecordingInProgressTitle" xml:space="preserve"><value>Запись идёт</value></data>
+  <data name="NoFramesToSave" xml:space="preserve"><value>Нет записанных кадров, сохранение невозможно.</value></data>
+  <data name="StopRecordingError" xml:space="preserve"><value>Ошибка при остановке записи: {0}</value></data>
+  <data name="NoMicDetected" xml:space="preserve"><value>Микрофон не обнаружен. Подключите устройство ввода аудио.</value></data>
+  <data name="NoMicTitle" xml:space="preserve"><value>Нет микрофона</value></data>
+  <data name="MicCheckFailed" xml:space="preserve"><value>Проверка микрофона не удалась: {0}</value></data>
+  <data name="RecordingError" xml:space="preserve"><value>Ошибка во время записи: {0}</value></data>
 </root>

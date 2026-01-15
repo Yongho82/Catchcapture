@@ -857,4 +857,27 @@
   <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>儲存圖像為...</value></data>
   <data name="RightClickBoxHint" xml:space="preserve"><value>右鍵 click: 矩形</value></data>
   <data name="SettingsShowColorPaletteDesc" xml:space="preserve"><value>在放大鏡下方顯示顏色盤</value></data>
+  <data name="EdgeLine" xml:space="preserve"><value>邊緣線條</value></data>
+  <data name="EdgeLineThickness" xml:space="preserve"><value>線條粗細</value></data>
+  <data name="EdgeRounding" xml:space="preserve"><value>邊緣圓角</value></data>
+  <data name="ShadowEffect" xml:space="preserve"><value>陰影效果</value></data>
+  <data name="ShadowIntensity" xml:space="preserve"><value>陰影強度</value></data>
+  <data name="ShadowBlur" xml:space="preserve"><value>陰影模糊</value></data>
+  <data name="ShadowSize" xml:space="preserve"><value>陰影大小</value></data>
+  <data name="EdgeCaptureSettings" xml:space="preserve"><value>邊緣擷取設定</value></data>
+  <data name="Preset" xml:space="preserve"><value>預設：</value></data>
+  <data name="EdgeLevel1" xml:space="preserve"><value>第1級 (柔和)</value></data>
+  <data name="EdgeLevel2" xml:space="preserve"><value>第2級 (平滑)</value></data>
+  <data name="EdgeLevel3" xml:space="preserve"><value>第3級 (標準)</value></data>
+  <data name="EdgeLevel4" xml:space="preserve"><value>第4級 (膠囊)</value></data>
+  <data name="EdgeLevel5" xml:space="preserve"><value>第5級 (圓形)</value></data>
+  <data name="RecordingSaved" xml:space="preserve"><value>錄製已儲存：{0}</value></data>
+  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>正在錄製中。您要儲存嗎？</value></data>
+  <data name="RecordingInProgressTitle" xml:space="preserve"><value>正在錄製</value></data>
+  <data name="NoFramesToSave" xml:space="preserve"><value>沒有錄製任何畫格，無法儲存。</value></data>
+  <data name="StopRecordingError" xml:space="preserve"><value>停止錄製時發生錯誤：{0}</value></data>
+  <data name="NoMicDetected" xml:space="preserve"><value>未偵測到麥克風。請連接音訊輸入裝置。</value></data>
+  <data name="NoMicTitle" xml:space="preserve"><value>無麥克風</value></data>
+  <data name="MicCheckFailed" xml:space="preserve"><value>麥克風檢查失敗：{0}</value></data>
+  <data name="RecordingError" xml:space="preserve"><value>錄製過程中發生錯誤：{0}</value></data>
 </root>

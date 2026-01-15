@@ -857,4 +857,27 @@ Yakin ingin menghapus permanen semua item?</value>
   <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>Simpan Gambar Sebagai...</value></data>
   <data name="RightClickBoxHint" xml:space="preserve"><value>Klik Kanan: Kotak</value></data>
   <data name="SettingsShowColorPaletteDesc" xml:space="preserve"><value>Tampilkan palet warna di bawah kaca pembesar</value></data>
+  <data name="EdgeLine" xml:space="preserve"><value>Garis Tepi</value></data>
+  <data name="EdgeLineThickness" xml:space="preserve"><value>Ketebalan Garis</value></data>
+  <data name="EdgeRounding" xml:space="preserve"><value>Pembulatan Tepi</value></data>
+  <data name="ShadowEffect" xml:space="preserve"><value>Efek Bayangan</value></data>
+  <data name="ShadowIntensity" xml:space="preserve"><value>Intensitas Bayangan</value></data>
+  <data name="ShadowBlur" xml:space="preserve"><value>Keburaman Bayangan</value></data>
+  <data name="ShadowSize" xml:space="preserve"><value>Ukuran Bayangan</value></data>
+  <data name="EdgeCaptureSettings" xml:space="preserve"><value>Pengaturan Tangkap Tepi</value></data>
+  <data name="Preset" xml:space="preserve"><value>Preset:</value></data>
+  <data name="EdgeLevel1" xml:space="preserve"><value>Level 1 (Lembut)</value></data>
+  <data name="EdgeLevel2" xml:space="preserve"><value>Level 2 (Halus)</value></data>
+  <data name="EdgeLevel3" xml:space="preserve"><value>Level 3 (Standar)</value></data>
+  <data name="EdgeLevel4" xml:space="preserve"><value>Level 4 (Kapsul)</value></data>
+  <data name="EdgeLevel5" xml:space="preserve"><value>Level 5 (Lingkaran)</value></data>
+  <data name="RecordingSaved" xml:space="preserve"><value>Perekaman disimpan: {0}</value></data>
+  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>Perekaman sedang berlangsung. Apakah Anda ingin menyimpan?</value></data>
+  <data name="RecordingInProgressTitle" xml:space="preserve"><value>Perekaman sedang berlangsung</value></data>
+  <data name="NoFramesToSave" xml:space="preserve"><value>Tidak ada frame yang direkam, tidak dapat disimpan.</value></data>
+  <data name="StopRecordingError" xml:space="preserve"><value>Error menghentikan perekaman: {0}</value></data>
+  <data name="NoMicDetected" xml:space="preserve"><value>Mikrofon tidak terdeteksi. Hubungkan perangkat input audio.</value></data>
+  <data name="NoMicTitle" xml:space="preserve"><value>Tidak ada mikrofon</value></data>
+  <data name="MicCheckFailed" xml:space="preserve"><value>Pemeriksaan mikrofon gagal: {0}</value></data>
+  <data name="RecordingError" xml:space="preserve"><value>Error selama perekaman: {0}</value></data>
 </root>

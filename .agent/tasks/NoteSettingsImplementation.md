@@ -44,3 +44,37 @@
     - `FileNamePreset_Default`
     - `FileNamePreset_Simple`
     - `FileNamePreset_Timestamp`
+
+파일명	언어 코드	해당 언어/국가
+Strings.ar.resx
+ar	아랍어 (Arabic)
+Strings.de.resx
+de	독일어 (German)
+Strings.en.resx
+en	영어 (English)
+Strings.es.resx
+es	스페인어 (Spanish)
+Strings.fr.resx
+fr	프랑스어 (French)
+Strings.id.resx
+id	인도네시아어 (Indonesian)
+Strings.it.resx
+it	이탈리아어 (Italian)
+Strings.ja.resx
+ja	일본어 (Japanese)
+Strings.ko.resx
+ko	한국어 (Korean)
+Strings.pt.resx
+pt	포르투갈어 (Portuguese)
+Strings.ru.resx
+ru	러시아어 (Russian)
+Strings.th.resx
+th	태국어 (Thai)
+Strings.tr.resx
+tr	튀르키예어 (Turkish)
+Strings.vi.resx
+vi	베트남어 (Vietnamese)
+Strings.zh-TW.resx
+zh-TW	중국어 번체 (Traditional Chinese - 대만)
+Strings.zh.resx
+zh	중국어 간체 (Simplified Chinese)

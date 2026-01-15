@@ -855,4 +855,27 @@ Tüm öğeleri kalıcı olarak silmek istediğinizden emin misiniz?</value>
   <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>Resmi Farklı Kaydet...</value></data>
   <data name="RightClickBoxHint" xml:space="preserve"><value>Sağ Tık: Kutu</value></data>
   <data name="SettingsShowColorPaletteDesc" xml:space="preserve"><value>Büyütecin altında renk paletini göster</value></data>
+  <data name="EdgeLine" xml:space="preserve"><value>Kenar Çizgisi</value></data>
+  <data name="EdgeLineThickness" xml:space="preserve"><value>Çizgi Kalınlığı</value></data>
+  <data name="EdgeRounding" xml:space="preserve"><value>Kenar Yuvarlama</value></data>
+  <data name="ShadowEffect" xml:space="preserve"><value>Gölge Efekti</value></data>
+  <data name="ShadowIntensity" xml:space="preserve"><value>Gölge Yoğunluğu</value></data>
+  <data name="ShadowBlur" xml:space="preserve"><value>Gölge Bulanıklığı</value></data>
+  <data name="ShadowSize" xml:space="preserve"><value>Gölge Boyutu</value></data>
+  <data name="EdgeCaptureSettings" xml:space="preserve"><value>Kenar Yakalama Ayarları</value></data>
+  <data name="Preset" xml:space="preserve"><value>Ön Ayar:</value></data>
+  <data name="EdgeLevel1" xml:space="preserve"><value>Seviye 1 (Yumuşak)</value></data>
+  <data name="EdgeLevel2" xml:space="preserve"><value>Seviye 2 (Pürüzsüz)</value></data>
+  <data name="EdgeLevel3" xml:space="preserve"><value>Seviye 3 (Standart)</value></data>
+  <data name="EdgeLevel4" xml:space="preserve"><value>Seviye 4 (Kapsül)</value></data>
+  <data name="EdgeLevel5" xml:space="preserve"><value>Seviye 5 (Daire)</value></data>
+  <data name="RecordingSaved" xml:space="preserve"><value>Kayıt kaydedildi: {0}</value></data>
+  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>Kayıt devam ediyor. Kaydetmek istiyor musunuz?</value></data>
+  <data name="RecordingInProgressTitle" xml:space="preserve"><value>Kayıt devam ediyor</value></data>
+  <data name="NoFramesToSave" xml:space="preserve"><value>Kayıtlı kare yok, kaydedilemez.</value></data>
+  <data name="StopRecordingError" xml:space="preserve"><value>Kaydı durdururken hata: {0}</value></data>
+  <data name="NoMicDetected" xml:space="preserve"><value>Mikrofon algılanmadı. Lütfen ses giriş cihazı bağlayın.</value></data>
+  <data name="NoMicTitle" xml:space="preserve"><value>Mikrofon yok</value></data>
+  <data name="MicCheckFailed" xml:space="preserve"><value>Mikrofon kontrolü başarısız: {0}</value></data>
+  <data name="RecordingError" xml:space="preserve"><value>Kayıt sırasında hata: {0}</value></data>
 </root>

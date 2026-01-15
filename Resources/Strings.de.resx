@@ -857,4 +857,27 @@ Alle Elemente endgültig löschen?</value>
   <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>Bild speichern unter...</value></data>
   <data name="RightClickBoxHint" xml:space="preserve"><value>Rechtsklick: Rechteck</value></data>
   <data name="SettingsShowColorPaletteDesc" xml:space="preserve"><value>Farbpalette unter der Lupe anzeigen</value></data>
+  <data name="EdgeLine" xml:space="preserve"><value>Randlinie</value></data>
+  <data name="EdgeLineThickness" xml:space="preserve"><value>Linienstärke</value></data>
+  <data name="EdgeRounding" xml:space="preserve"><value>Eckenrundung</value></data>
+  <data name="ShadowEffect" xml:space="preserve"><value>Schatteneffekt</value></data>
+  <data name="ShadowIntensity" xml:space="preserve"><value>Schattenintensität</value></data>
+  <data name="ShadowBlur" xml:space="preserve"><value>Schattenunschärfe</value></data>
+  <data name="ShadowSize" xml:space="preserve"><value>Schattengröße</value></data>
+  <data name="EdgeCaptureSettings" xml:space="preserve"><value>Randaufnahme-Einstellungen</value></data>
+  <data name="Preset" xml:space="preserve"><value>Profil:</value></data>
+  <data name="EdgeLevel1" xml:space="preserve"><value>Stufe 1 (Weich)</value></data>
+  <data name="EdgeLevel2" xml:space="preserve"><value>Stufe 2 (Glatt)</value></data>
+  <data name="EdgeLevel3" xml:space="preserve"><value>Stufe 3 (Standard)</value></data>
+  <data name="EdgeLevel4" xml:space="preserve"><value>Stufe 4 (Kapsel)</value></data>
+  <data name="EdgeLevel5" xml:space="preserve"><value>Stufe 5 (Kreis)</value></data>
+  <data name="RecordingSaved" xml:space="preserve"><value>Aufnahme gespeichert: {0}</value></data>
+  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>Aufnahme läuft. Möchten Sie speichern?</value></data>
+  <data name="RecordingInProgressTitle" xml:space="preserve"><value>Aufnahme läuft</value></data>
+  <data name="NoFramesToSave" xml:space="preserve"><value>Keine Frames aufgezeichnet, kann nicht speichern.</value></data>
+  <data name="StopRecordingError" xml:space="preserve"><value>Fehler beim Stoppen der Aufnahme: {0}</value></data>
+  <data name="NoMicDetected" xml:space="preserve"><value>Kein Mikrofon erkannt. Bitte verbinden Sie ein Audio-Eingabegerät.</value></data>
+  <data name="NoMicTitle" xml:space="preserve"><value>Kein Mikrofon</value></data>
+  <data name="MicCheckFailed" xml:space="preserve"><value>Mikrofon-Überprüfung fehlgeschlagen: {0}</value></data>
+  <data name="RecordingError" xml:space="preserve"><value>Fehler während der Aufnahme: {0}</value></data>
 </root>

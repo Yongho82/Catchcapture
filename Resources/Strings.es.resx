@@ -858,4 +858,27 @@
   <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>Guardar imagen como...</value></data>
   <data name="RightClickBoxHint" xml:space="preserve"><value>Clic derecho: Cuadro</value></data>
   <data name="SettingsShowColorPaletteDesc" xml:space="preserve"><value>Mostrar paleta de colores bajo la lupa</value></data>
+  <data name="EdgeLine" xml:space="preserve"><value>Línea de borde</value></data>
+  <data name="EdgeLineThickness" xml:space="preserve"><value>Grosor de línea</value></data>
+  <data name="EdgeRounding" xml:space="preserve"><value>Redondeo de bordes</value></data>
+  <data name="ShadowEffect" xml:space="preserve"><value>Efecto de sombra</value></data>
+  <data name="ShadowIntensity" xml:space="preserve"><value>Intensidad de sombra</value></data>
+  <data name="ShadowBlur" xml:space="preserve"><value>Desenfoque de sombra</value></data>
+  <data name="ShadowSize" xml:space="preserve"><value>Tamaño de sombra</value></data>
+  <data name="EdgeCaptureSettings" xml:space="preserve"><value>Configuración de captura de borde</value></data>
+  <data name="Preset" xml:space="preserve"><value>Preajuste:</value></data>
+  <data name="EdgeLevel1" xml:space="preserve"><value>Nivel 1 (Suave)</value></data>
+  <data name="EdgeLevel2" xml:space="preserve"><value>Nivel 2 (Liso)</value></data>
+  <data name="EdgeLevel3" xml:space="preserve"><value>Nivel 3 (Estándar)</value></data>
+  <data name="EdgeLevel4" xml:space="preserve"><value>Nivel 4 (Cápsula)</value></data>
+  <data name="EdgeLevel5" xml:space="preserve"><value>Nivel 5 (Círculo)</value></data>
+  <data name="RecordingSaved" xml:space="preserve"><value>Grabación guardada: {0}</value></data>
+  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>Grabación en progreso. ¿Quieres guardar?</value></data>
+  <data name="RecordingInProgressTitle" xml:space="preserve"><value>Grabación en progreso</value></data>
+  <data name="NoFramesToSave" xml:space="preserve"><value>No se grabaron fotogramas, no se puede guardar.</value></data>
+  <data name="StopRecordingError" xml:space="preserve"><value>Error al detener la grabación: {0}</value></data>
+  <data name="NoMicDetected" xml:space="preserve"><value>No se detectó micrófono. Conecta un dispositivo de entrada de audio.</value></data>
+  <data name="NoMicTitle" xml:space="preserve"><value>Sin micrófono</value></data>
+  <data name="MicCheckFailed" xml:space="preserve"><value>Fallo en la verificación del micrófono: {0}</value></data>
+  <data name="RecordingError" xml:space="preserve"><value>Error durante la grabación: {0}</value></data>
 </root>

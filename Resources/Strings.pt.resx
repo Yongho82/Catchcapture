@@ -857,4 +857,27 @@ Tem a certeza que quer apagar permanentemente todos os itens?</value>
   <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>Salvar Imagem Como...</value></data>
   <data name="RightClickBoxHint" xml:space="preserve"><value>Clique Direito: Caixa</value></data>
   <data name="SettingsShowColorPaletteDesc" xml:space="preserve"><value>Mostrar paleta de cores abaixo da lupa</value></data>
+  <data name="EdgeLine" xml:space="preserve"><value>Linha de Borda</value></data>
+  <data name="EdgeLineThickness" xml:space="preserve"><value>Espessura da Linha</value></data>
+  <data name="EdgeRounding" xml:space="preserve"><value>Arredondamento</value></data>
+  <data name="ShadowEffect" xml:space="preserve"><value>Efeito de Sombra</value></data>
+  <data name="ShadowIntensity" xml:space="preserve"><value>Intensidade da Sombra</value></data>
+  <data name="ShadowBlur" xml:space="preserve"><value>Desfoque da Sombra</value></data>
+  <data name="ShadowSize" xml:space="preserve"><value>Tamanho da Sombra</value></data>
+  <data name="EdgeCaptureSettings" xml:space="preserve"><value>Configurações de Captura de Borda</value></data>
+  <data name="Preset" xml:space="preserve"><value>Predefinição:</value></data>
+  <data name="EdgeLevel1" xml:space="preserve"><value>Nível 1 (Suave)</value></data>
+  <data name="EdgeLevel2" xml:space="preserve"><value>Nível 2 (Liso)</value></data>
+  <data name="EdgeLevel3" xml:space="preserve"><value>Nível 3 (Padrão)</value></data>
+  <data name="EdgeLevel4" xml:space="preserve"><value>Nível 4 (Cápsula)</value></data>
+  <data name="EdgeLevel5" xml:space="preserve"><value>Nível 5 (Círculo)</value></data>
+  <data name="RecordingSaved" xml:space="preserve"><value>Gravação salva: {0}</value></data>
+  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>Gravação em andamento. Deseja salvar?</value></data>
+  <data name="RecordingInProgressTitle" xml:space="preserve"><value>Gravação em andamento</value></data>
+  <data name="NoFramesToSave" xml:space="preserve"><value>Nenhum quadro gravado, não é possível salvar.</value></data>
+  <data name="StopRecordingError" xml:space="preserve"><value>Erro ao parar a gravação: {0}</value></data>
+  <data name="NoMicDetected" xml:space="preserve"><value>Nenhum microfone detectado. Conecte um dispositivo de entrada de áudio.</value></data>
+  <data name="NoMicTitle" xml:space="preserve"><value>Sem microfone</value></data>
+  <data name="MicCheckFailed" xml:space="preserve"><value>Falha na verificação do microfone: {0}</value></data>
+  <data name="RecordingError" xml:space="preserve"><value>Erro durante a gravação: {0}</value></data>
 </root>

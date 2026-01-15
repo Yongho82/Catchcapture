@@ -857,4 +857,27 @@
   <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>บันทึกภาพเป็น...</value></data>
   <data name="RightClickBoxHint" xml:space="preserve"><value>คลิกขวา: กล่อง</value></data>
   <data name="SettingsShowColorPaletteDesc" xml:space="preserve"><value>แสดงจานสีใต้แว่นขยาย</value></data>
+  <data name="EdgeLine" xml:space="preserve"><value>เส้นขอบ</value></data>
+  <data name="EdgeLineThickness" xml:space="preserve"><value>ความหนาเส้น</value></data>
+  <data name="EdgeRounding" xml:space="preserve"><value>ความโค้งมนขอบ</value></data>
+  <data name="ShadowEffect" xml:space="preserve"><value>เอฟเฟกต์เงา</value></data>
+  <data name="ShadowIntensity" xml:space="preserve"><value>ความเข้มเงา</value></data>
+  <data name="ShadowBlur" xml:space="preserve"><value>ความเบลอเงา</value></data>
+  <data name="ShadowSize" xml:space="preserve"><value>ขนาดเงา</value></data>
+  <data name="EdgeCaptureSettings" xml:space="preserve"><value>การตั้งค่าการจับภาพขอบ</value></data>
+  <data name="Preset" xml:space="preserve"><value>ค่าที่ตั้งไว้:</value></data>
+  <data name="EdgeLevel1" xml:space="preserve"><value>ระดับ 1 (นุ่ม)</value></data>
+  <data name="EdgeLevel2" xml:space="preserve"><value>ระดับ 2 (เรียบ)</value></data>
+  <data name="EdgeLevel3" xml:space="preserve"><value>ระดับ 3 (มาตรฐาน)</value></data>
+  <data name="EdgeLevel4" xml:space="preserve"><value>ระดับ 4 (แคปซูล)</value></data>
+  <data name="EdgeLevel5" xml:space="preserve"><value>ระดับ 5 (วงกลม)</value></data>
+  <data name="RecordingSaved" xml:space="preserve"><value>บันทึกแล้ว: {0}</value></data>
+  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>กำลังบันทึกอยู่ คุณต้องการบันทึกหรือไม่?</value></data>
+  <data name="RecordingInProgressTitle" xml:space="preserve"><value>กำลังบันทึก</value></data>
+  <data name="NoFramesToSave" xml:space="preserve"><value>ไม่มีเฟรมที่บันทึก ไม่สามารถบันทึกได้</value></data>
+  <data name="StopRecordingError" xml:space="preserve"><value>ข้อผิดพลาดในการหยุดบันทึก: {0}</value></data>
+  <data name="NoMicDetected" xml:space="preserve"><value>ไม่พบไมโครโฟน โปรดเชื่อมต่ออุปกรณ์อินพุตเสียง</value></data>
+  <data name="NoMicTitle" xml:space="preserve"><value>ไม่มีไมโครโฟน</value></data>
+  <data name="MicCheckFailed" xml:space="preserve"><value>การตรวจสอบไมโครโฟนล้มเหลว: {0}</value></data>
+  <data name="RecordingError" xml:space="preserve"><value>ข้อผิดพลาดระหว่างการบันทึก: {0}</value></data>
 </root>

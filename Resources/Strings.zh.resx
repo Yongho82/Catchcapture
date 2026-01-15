@@ -857,4 +857,27 @@
   <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>图像另存为...</value></data>
   <data name="RightClickBoxHint" xml:space="preserve"><value>右键：矩形</value></data>
   <data name="SettingsShowColorPaletteDesc" xml:space="preserve"><value>在放大镜下方显示调色板</value></data>
+  <data name="EdgeLine" xml:space="preserve"><value>边缘线条</value></data>
+  <data name="EdgeLineThickness" xml:space="preserve"><value>线条粗细</value></data>
+  <data name="EdgeRounding" xml:space="preserve"><value>边缘圆角</value></data>
+  <data name="ShadowEffect" xml:space="preserve"><value>阴影效果</value></data>
+  <data name="ShadowIntensity" xml:space="preserve"><value>阴影强度</value></data>
+  <data name="ShadowBlur" xml:space="preserve"><value>阴影模糊</value></data>
+  <data name="ShadowSize" xml:space="preserve"><value>阴影大小</value></data>
+  <data name="EdgeCaptureSettings" xml:space="preserve"><value>边缘捕获设置</value></data>
+  <data name="Preset" xml:space="preserve"><value>预设：</value></data>
+  <data name="EdgeLevel1" xml:space="preserve"><value>第1级 (柔和)</value></data>
+  <data name="EdgeLevel2" xml:space="preserve"><value>第2级 (平滑)</value></data>
+  <data name="EdgeLevel3" xml:space="preserve"><value>第3级 (标准)</value></data>
+  <data name="EdgeLevel4" xml:space="preserve"><value>第4级 (胶囊)</value></data>
+  <data name="EdgeLevel5" xml:space="preserve"><value>第5级 (圆形)</value></data>
+  <data name="RecordingSaved" xml:space="preserve"><value>录制已保存：{0}</value></data>
+  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>正在录制。您要保存吗？</value></data>
+  <data name="RecordingInProgressTitle" xml:space="preserve"><value>正在录制</value></data>
+  <data name="NoFramesToSave" xml:space="preserve"><value>没有录制任何帧，无法保存。</value></data>
+  <data name="StopRecordingError" xml:space="preserve"><value>停止录制时出错：{0}</value></data>
+  <data name="NoMicDetected" xml:space="preserve"><value>未检测到麦克风。请连接音频输入设备。</value></data>
+  <data name="NoMicTitle" xml:space="preserve"><value>无麦克风</value></data>
+  <data name="MicCheckFailed" xml:space="preserve"><value>麦克风检查失败：{0}</value></data>
+  <data name="RecordingError" xml:space="preserve"><value>录制过程中出错：{0}</value></data>
 </root>

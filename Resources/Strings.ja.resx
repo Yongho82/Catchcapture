@@ -860,4 +860,18 @@
   <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>画像を名前を付けて保存...</value></data>
   <data name="RightClickBoxHint" xml:space="preserve"><value>右クリック: ボックス</value></data>
   <data name="SettingsShowColorPaletteDesc" xml:space="preserve"><value>拡大鏡の下にカラーパレットを表示</value></data>
+  <data name="EdgeLine" xml:space="preserve"><value>境界線</value></data>
+  <data name="EdgeLineThickness" xml:space="preserve"><value>線の太さ</value></data>
+  <data name="EdgeRounding" xml:space="preserve"><value>角の丸み</value></data>
+  <data name="ShadowEffect" xml:space="preserve"><value>影の効果</value></data>
+  <data name="ShadowIntensity" xml:space="preserve"><value>影の強さ</value></data>
+  <data name="ShadowBlur" xml:space="preserve"><value>影のぼかし</value></data>
+  <data name="ShadowSize" xml:space="preserve"><value>影のサイズ</value></data>
+  <data name="EdgeCaptureSettings" xml:space="preserve"><value>境界線キャプチャ設定</value></data>
+  <data name="Preset" xml:space="preserve"><value>プリセット:</value></data>
+  <data name="EdgeLevel1" xml:space="preserve"><value>レベル 1 (ソフト)</value></data>
+  <data name="EdgeLevel2" xml:space="preserve"><value>レベル 2 (スムーズ)</value></data>
+  <data name="EdgeLevel3" xml:space="preserve"><value>レベル 3 (標準)</value></data>
+  <data name="EdgeLevel4" xml:space="preserve"><value>レベル 4 (カプセル)</value></data>
+  <data name="EdgeLevel5" xml:space="preserve"><value>レベル 5 (円形)</value></data>
 </root>

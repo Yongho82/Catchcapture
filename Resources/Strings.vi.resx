@@ -857,4 +857,27 @@ Chắc chắn xóa vĩnh viễn toàn bộ thùng rác?</value>
   <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>Lưu Hình Ảnh Dưới Dạng...</value></data>
   <data name="RightClickBoxHint" xml:space="preserve"><value>Nhấp Phải: Hộp</value></data>
   <data name="SettingsShowColorPaletteDesc" xml:space="preserve"><value>Hiển thị bảng màu dưới kính lúp</value></data>
+  <data name="EdgeLine" xml:space="preserve"><value>Đường viền</value></data>
+  <data name="EdgeLineThickness" xml:space="preserve"><value>Độ dày đường</value></data>
+  <data name="EdgeRounding" xml:space="preserve"><value>Bo tròn góc</value></data>
+  <data name="ShadowEffect" xml:space="preserve"><value>Hiệu ứng bóng</value></data>
+  <data name="ShadowIntensity" xml:space="preserve"><value>Độ đậm bóng</value></data>
+  <data name="ShadowBlur" xml:space="preserve"><value>Độ mờ bóng</value></data>
+  <data name="ShadowSize" xml:space="preserve"><value>Kích thước bóng</value></data>
+  <data name="EdgeCaptureSettings" xml:space="preserve"><value>Cài đặt chụp viền</value></data>
+  <data name="Preset" xml:space="preserve"><value>Cài sẵn:</value></data>
+  <data name="EdgeLevel1" xml:space="preserve"><value>Cấp 1 (Mềm)</value></data>
+  <data name="EdgeLevel2" xml:space="preserve"><value>Cấp 2 (Mịn)</value></data>
+  <data name="EdgeLevel3" xml:space="preserve"><value>Cấp 3 (Chuẩn)</value></data>
+  <data name="EdgeLevel4" xml:space="preserve"><value>Cấp 4 (Viên thuốc)</value></data>
+  <data name="EdgeLevel5" xml:space="preserve"><value>Cấp 5 (Tròn)</value></data>
+  <data name="RecordingSaved" xml:space="preserve"><value>Đã lưu bản ghi: {0}</value></data>
+  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>Đang ghi âm. Bạn có muốn lưu không?</value></data>
+  <data name="RecordingInProgressTitle" xml:space="preserve"><value>Đang ghi âm</value></data>
+  <data name="NoFramesToSave" xml:space="preserve"><value>Không có khung hình nào được ghi, không thể lưu.</value></data>
+  <data name="StopRecordingError" xml:space="preserve"><value>Lỗi khi dừng ghi âm: {0}</value></data>
+  <data name="NoMicDetected" xml:space="preserve"><value>Không phát hiện micro. Vui lòng kết nối thiết bị đầu vào âm thanh.</value></data>
+  <data name="NoMicTitle" xml:space="preserve"><value>Không có micro</value></data>
+  <data name="MicCheckFailed" xml:space="preserve"><value>Kiểm tra micro thất bại: {0}</value></data>
+  <data name="RecordingError" xml:space="preserve"><value>Lỗi trong quá trình ghi âm: {0}</value></data>
 </root>

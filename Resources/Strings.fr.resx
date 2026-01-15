@@ -857,4 +857,27 @@ Voulez-vous vraiment supprimer définitivement tous les éléments ?</value>
   <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>Enregistrer l'image sous...</value></data>
   <data name="RightClickBoxHint" xml:space="preserve"><value>Clic droit : Rectangle</value></data>
   <data name="SettingsShowColorPaletteDesc" xml:space="preserve"><value>Afficher la palette de couleurs sous la loupe</value></data>
+  <data name="EdgeLine" xml:space="preserve"><value>Ligne de bordure</value></data>
+  <data name="EdgeLineThickness" xml:space="preserve"><value>Épaisseur de ligne</value></data>
+  <data name="EdgeRounding" xml:space="preserve"><value>Arrondi des bords</value></data>
+  <data name="ShadowEffect" xml:space="preserve"><value>Effet d'ombre</value></data>
+  <data name="ShadowIntensity" xml:space="preserve"><value>Intensité de l'ombre</value></data>
+  <data name="ShadowBlur" xml:space="preserve"><value>Flou de l'ombre</value></data>
+  <data name="ShadowSize" xml:space="preserve"><value>Taille de l'ombre</value></data>
+  <data name="EdgeCaptureSettings" xml:space="preserve"><value>Paramètres de capture de bordure</value></data>
+  <data name="Preset" xml:space="preserve"><value>Préréglage :</value></data>
+  <data name="EdgeLevel1" xml:space="preserve"><value>Niveau 1 (Doux)</value></data>
+  <data name="EdgeLevel2" xml:space="preserve"><value>Niveau 2 (Lisse)</value></data>
+  <data name="EdgeLevel3" xml:space="preserve"><value>Niveau 3 (Standard)</value></data>
+  <data name="EdgeLevel4" xml:space="preserve"><value>Niveau 4 (Capsule)</value></data>
+  <data name="EdgeLevel5" xml:space="preserve"><value>Niveau 5 (Cercle)</value></data>
+  <data name="RecordingSaved" xml:space="preserve"><value>Enregistrement sauvegardé : {0}</value></data>
+  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>Enregistrement en cours. Voulez-vous sauvegarder ?</value></data>
+  <data name="RecordingInProgressTitle" xml:space="preserve"><value>Enregistrement en cours</value></data>
+  <data name="NoFramesToSave" xml:space="preserve"><value>Aucun cadre enregistré, impossible de sauvegarder.</value></data>
+  <data name="StopRecordingError" xml:space="preserve"><value>Erreur lors de l'arrêt de l'enregistrement : {0}</value></data>
+  <data name="NoMicDetected" xml:space="preserve"><value>Aucun microphone détecté. Veuillez connecter un périphérique d'entrée audio.</value></data>
+  <data name="NoMicTitle" xml:space="preserve"><value>Pas de microphone</value></data>
+  <data name="MicCheckFailed" xml:space="preserve"><value>Échec de la vérification du microphone : {0}</value></data>
+  <data name="RecordingError" xml:space="preserve"><value>Erreur pendant l'enregistrement : {0}</value></data>
 </root>

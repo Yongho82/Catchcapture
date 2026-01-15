@@ -857,4 +857,27 @@
   <data name="ImageViewerSaveAsTooltip" xml:space="preserve"><value>حفظ الصورة باسم...</value></data>
   <data name="RightClickBoxHint" xml:space="preserve"><value>نقر يمين: مربع</value></data>
   <data name="SettingsShowColorPaletteDesc" xml:space="preserve"><value>عرض لوحة الألوان أسفل العدسة المكبرة</value></data>
+  <data name="EdgeLine" xml:space="preserve"><value>خط الحافة</value></data>
+  <data name="EdgeLineThickness" xml:space="preserve"><value>سمك الخط</value></data>
+  <data name="EdgeRounding" xml:space="preserve"><value>تدوير الحواف</value></data>
+  <data name="ShadowEffect" xml:space="preserve"><value>تأثير الظل</value></data>
+  <data name="ShadowIntensity" xml:space="preserve"><value>شدة الظل</value></data>
+  <data name="ShadowBlur" xml:space="preserve"><value>ضبابية الظل</value></data>
+  <data name="ShadowSize" xml:space="preserve"><value>حجم الظل</value></data>
+  <data name="EdgeCaptureSettings" xml:space="preserve"><value>إعدادات التقاط الحواف</value></data>
+  <data name="Preset" xml:space="preserve"><value>الإعداد المسبق:</value></data>
+  <data name="EdgeLevel1" xml:space="preserve"><value>المستوى 1 (ناعم)</value></data>
+  <data name="EdgeLevel2" xml:space="preserve"><value>المستوى 2 (سلس)</value></data>
+  <data name="EdgeLevel3" xml:space="preserve"><value>المستوى 3 (قياسي)</value></data>
+  <data name="EdgeLevel4" xml:space="preserve"><value>المستوى 4 (كبسولة)</value></data>
+  <data name="EdgeLevel5" xml:space="preserve"><value>المستوى 5 (دائرة)</value></data>
+  <data name="RecordingSaved" xml:space="preserve"><value>Registrazione salvata: {0}</value></data>
+  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>Registrazione in corso. Vuoi salvare?</value></data>
+  <data name="RecordingInProgressTitle" xml:space="preserve"><value>Registrazione in corso</value></data>
+  <data name="NoFramesToSave" xml:space="preserve"><value>Nessun frame registrato, impossibile salvare.</value></data>
+  <data name="StopRecordingError" xml:space="preserve"><value>Errore durante l'interruzione della registrazione: {0}</value></data>
+  <data name="NoMicDetected" xml:space="preserve"><value>Nessun microfono rilevato. Collega un dispositivo di input audio.</value></data>
+  <data name="NoMicTitle" xml:space="preserve"><value>Nessun microfono</value></data>
+  <data name="MicCheckFailed" xml:space="preserve"><value>Controllo microfono fallito: {0}</value></data>
+  <data name="RecordingError" xml:space="preserve"><value>Errore durante la registrazione: {0}</value></data>
 </root>
