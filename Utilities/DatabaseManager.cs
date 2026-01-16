@@ -44,6 +44,7 @@ namespace CatchCapture.Utilities
         private string _cloudHistoryDbPath = default!; // 클라우드 히스토리
         private string _localDbPath = default!;        // 로컬 작업용 (AppData)
         private string _localHistoryDbPath = default!; // 로컬 히스토리 (AppData)
+        private string _localSyncMetaPath = default!;  // [추가] 마지막 동기화 경로 기록용 (오프라인 방지)
 
         // 외부에서는 로컬 경로를 보게 함 (호환성을 위해 기존 이름 DbPath 사용)
         public string DbPath => _localDbPath;
@@ -65,6 +66,7 @@ namespace CatchCapture.Utilities
         
         // 권한 관리 상태
         public bool IsReadOnly { get; private set; } = true; // 기본은 읽기 전용으로 시작
+        public bool IsOfflineMode { get; private set; } = false; // [추가] 오프라인 모드 상태 플래그
         
         // _syncTimer 제거됨
 
@@ -129,6 +131,9 @@ namespace CatchCapture.Utilities
             };
         }
 
+        public event EventHandler<string>? OfflineModeDetected;
+        public event EventHandler<string>? CloudSaveFailed;
+
         private void InitializePaths()
         {
             var settings = Settings.Load();
@@ -167,6 +172,7 @@ namespace CatchCapture.Utilities
 
             _localDbPath = Path.Combine(localAppData, "catch_notes_local.db");
             _localHistoryDbPath = Path.Combine(localAppData, "history_local.db");
+            _localSyncMetaPath = Path.Combine(localAppData, "catch_sync_meta.txt");
         }
 
         private void CheckInitialLockStatus()
@@ -245,6 +251,8 @@ namespace CatchCapture.Utilities
         {
             try
             {
+                IsOfflineMode = false; // 기본적으로 초기화
+
                 // [중요] 내 Lock이 걸려있다면? -> 비정상 종료 등으로 로컬 데이터가 아직 백업 안 된 상태일 수 있음.
                 if (IsMyLock())
                 {
@@ -254,28 +262,66 @@ namespace CatchCapture.Utilities
 
                 LogToFile("Cloud -> Local 동기화 시작...");
 
-                // Lock이 없으면 클라우드가 '진실(Source of Truth)'임. 
-                // 날짜 비교 없이 과감하게 가져옴 (단, 파일이 존재할 때만)
+                // 1. Note DB 처리
                 if (File.Exists(_cloudDbPath))
                 {
+                    // 클라우드 존재 -> 로컬로 복사 (Source of Truth)
                     File.Copy(_cloudDbPath, _localDbPath, true);
                     LogToFile($"Note DB 강제 동기화 완료: {_cloudDbPath} -> {_localDbPath}");
+                    
+                    // 성공했으므로 메타 업데이트
+                    SetLastSyncedPath("NotePath", _cloudDbPath);
                 }
                 else
                 {
-                    // 클라우드에 없으면 로컬 파일 삭제 (경로 이동 시 이전 데이터가 남는 것 방지)
-                    if (File.Exists(_localDbPath)) File.Delete(_localDbPath);
+                    // 클라우드 없음 -> 오프라인인지, 경로 변경인지 판단
+                    string lastPath = GetLastSyncedPath("NotePath");
+                    if (lastPath == _cloudDbPath)
+                    {
+                         // 경로는 같은데 파일이 없다? -> 일시적 연결 실패(오프라인)로 간주
+                         // 로컬 데이터 보존!
+                         // 로컬 데이터 보존!
+                         // 로컬 데이터 보존!
+                         IsOfflineMode = true;
+                         LogToFile($"[OFFLINE PROTECT] Note DB 클라우드 파일 없음. 오프라인 모드로 로컬 데이터 보존함. ({_cloudDbPath})");
+                         OfflineModeDetected?.Invoke(this, "클라우드 노트 저장소 연결에 실패하여 오프라인(로컬) 모드로 시작합니다.\n인터넷 연결을 확인하세요.");
+                    }
+                    else
+                    {
+                        // 경로가 달라짐 -> 사용자가 진짜로 경로를 바꿈 (또는 첫 설치)
+                        // 이 경우엔 기존 로컬 데이터가 쓸모 없거나 꼬일 수 있으므로 삭제 (기존 로직 유지)
+                        if (File.Exists(_localDbPath)) File.Delete(_localDbPath);
+                        LogToFile($"Note DB 클라우드 없음 & 경로 변경됨. 로컬 초기화. (Old: {lastPath} -> New: {_cloudDbPath})");
+                        
+                        // 새 경로는 아직 파일이 없지만, 이 상태를 '동기화된 상태'로 볼 것인가?
+                        // 보통 새 폴더 지정시 빈 DB 생성은 InitializeDatabase에서 함. 
+                        // 다음 실행시 오프라인 보호를 위해 미리 메타 기록
+                        SetLastSyncedPath("NotePath", _cloudDbPath);
+                    }
                 }
 
+                // 2. History DB 처리
                 if (File.Exists(_cloudHistoryDbPath))
                 {
                     File.Copy(_cloudHistoryDbPath, _localHistoryDbPath, true);
                     LogToFile("History DB 강제 동기화 완료");
+                    SetLastSyncedPath("HistoryPath", _cloudHistoryDbPath);
                 }
                 else
                 {
-                    // 히스토리 로컬 캐시 초기화
-                    if (File.Exists(_localHistoryDbPath)) File.Delete(_localHistoryDbPath);
+                    // History도 동일 로직
+                    string lastPath = GetLastSyncedPath("HistoryPath");
+                    if (lastPath == _cloudHistoryDbPath)
+                    {
+                         IsOfflineMode = true;
+                         LogToFile($"[OFFLINE PROTECT] History DB 클라우드 파일 없음. 로컬 데이터 보존함.");
+                    }
+                    else
+                    {
+                        if (File.Exists(_localHistoryDbPath)) File.Delete(_localHistoryDbPath);
+                        LogToFile("History DB 클라우드 없음 & 경로 변경됨. 로컬 초기화.");
+                        SetLastSyncedPath("HistoryPath", _cloudHistoryDbPath);
+                    }
                 }
                 
                 LogToFile("Cloud -> Local 동기화 완료");
@@ -284,6 +330,45 @@ namespace CatchCapture.Utilities
             {
                 LogToFile($"[ERROR] 동기화 실패: {ex.Message}");
             }
+        }
+
+        private string GetLastSyncedPath(string key)
+        {
+            try
+            {
+                if (!File.Exists(_localSyncMetaPath)) return string.Empty;
+                var lines = File.ReadAllLines(_localSyncMetaPath);
+                foreach (var line in lines)
+                {
+                    var parts = line.Split(new[]{'|'}, 2);
+                    if (parts.Length == 2 && parts[0] == key) return parts[1];
+                }
+            }
+            catch { }
+            return string.Empty;
+        }
+
+        private void SetLastSyncedPath(string key, string value)
+        {
+            try
+            {
+                var dict = new Dictionary<string, string>();
+                if (File.Exists(_localSyncMetaPath))
+                {
+                    var lines = File.ReadAllLines(_localSyncMetaPath);
+                    foreach (var line in lines)
+                    {
+                        var parts = line.Split(new[]{'|'}, 2);
+                        if (parts.Length == 2) dict[parts[0]] = parts[1];
+                    }
+                }
+                
+                dict[key] = value;
+                
+                var newLines = dict.Select(kv => $"{kv.Key}|{kv.Value}").ToArray();
+                File.WriteAllLines(_localSyncMetaPath, newLines);
+            }
+            catch { }
         }
 
         private bool IsMyLock()
@@ -329,6 +414,12 @@ namespace CatchCapture.Utilities
 
         public void SyncToCloud(bool isLive = false)
         {
+            if (IsOfflineMode)
+            {
+                LogToFile("[SKIP] 오프라인 모드이므로 클라우드 저장(백업)을 건너뜀.");
+                return;
+            }
+
             // IsReadOnly 상태라도 데이터 보호를 위해 백업 시도
             if (IsReadOnly)
             {
@@ -406,6 +497,7 @@ namespace CatchCapture.Utilities
             catch (Exception ex)
             {
                 LogToFile($"[ERROR] 클라우드 저장 실패: {ex.Message}");
+                CloudSaveFailed?.Invoke(this, $"클라우드 저장 실패: {ex.Message}");
             }
         }
 

@@ -43,9 +43,39 @@ namespace CatchCapture
 
         public HistoryWindow()
         {
+            InitializeComponent();
+            
+            // 오프라인 모드 체크 - 창 표시 전에 즉시 처리
+            if (DatabaseManager.Instance.IsOfflineMode)
+            {
+                this.Visibility = Visibility.Hidden; // 창을 숨긴 상태로 유지
+                
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    var result = CustomMessageBox.Show(
+                        "지정된 드라이브가 연결되지 않아 히스토리 기능을 사용할 수 없습니다.\n\n드라이브 연결 상태를 확인해주세요.\n폴더 변경이 필요하면 아래 '폴더 변경' 버튼을 눌러주세요.",
+                        LocalizationManager.GetString("Warning") ?? "경고",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Warning,
+                        width: 480,
+                        yesLabel: "예",
+                        noLabel: "폴더 변경");
+                    
+                    if (result == MessageBoxResult.No)
+                    {
+                        var settingsWin = new SettingsWindow();
+                        settingsWin.ShowHistorySettings();
+                        settingsWin.ShowDialog();
+                    }
+                    
+                    this.Close();
+                }), System.Windows.Threading.DispatcherPriority.Loaded);
+                
+                return;
+            }
+
             try
             {
-                InitializeComponent();
                 this.DataContext = this;
                 UpdateUIText();
                 

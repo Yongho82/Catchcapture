@@ -35,12 +35,12 @@ namespace CatchCapture
         /// <summary>
         /// 커스텀 메시지 박스 표시 (정적 메서드)
         /// </summary>
-        public static MessageBoxResult Show(string message, string? title = null, MessageBoxButton button = MessageBoxButton.OK, MessageBoxImage image = MessageBoxImage.None, double width = 0)
+        public static MessageBoxResult Show(string message, string? title = null, MessageBoxButton button = MessageBoxButton.OK, MessageBoxImage image = MessageBoxImage.None, double width = 0, string? yesLabel = null, string? noLabel = null, string? cancelLabel = null, string? okLabel = null)
         {
             // UI 스레드에서 실행되도록 보장 (비동기 호출 등에서 안전하게)
             if (Application.Current != null && !Application.Current.Dispatcher.CheckAccess())
             {
-                return Application.Current.Dispatcher.Invoke(() => Show(message, title, button, image, width));
+                return Application.Current.Dispatcher.Invoke(() => Show(message, title, button, image, width, yesLabel, noLabel, cancelLabel, okLabel));
             }
 
             var msgBox = new CustomMessageBox();
@@ -71,28 +71,28 @@ namespace CatchCapture
             {
                 case MessageBoxButton.OK:
                     msgBox.BtnLeft.Visibility = Visibility.Collapsed;
-                    msgBox.BtnRight.Content = LocalizationManager.GetString("BtnOK");
+                    msgBox.BtnRight.Content = okLabel ?? LocalizationManager.GetString("BtnOK");
                     msgBox.BtnRight.Tag = MessageBoxResult.OK;
                     msgBox.BtnRight.IsDefault = true;
                     // 왼쪽이 숨겨지면 StackPanel 내부 정렬에 의해 오른쪽 버튼이 중앙에 올 수 있음 (StackPanel HorizontalAlignment="Center")
                     break;
                     
                 case MessageBoxButton.OKCancel:
-                    msgBox.BtnLeft.Content = LocalizationManager.GetString("BtnCancel");
+                    msgBox.BtnLeft.Content = cancelLabel ?? LocalizationManager.GetString("BtnCancel");
                     msgBox.BtnLeft.Tag = MessageBoxResult.Cancel;
                     msgBox.BtnLeft.IsCancel = true;
 
-                    msgBox.BtnRight.Content = LocalizationManager.GetString("BtnOK");
+                    msgBox.BtnRight.Content = okLabel ?? LocalizationManager.GetString("BtnOK");
                     msgBox.BtnRight.Tag = MessageBoxResult.OK;
                     msgBox.BtnRight.IsDefault = true;
                     break;
                     
                 case MessageBoxButton.YesNo:
                 case MessageBoxButton.YesNoCancel:
-                    msgBox.BtnLeft.Content = LocalizationManager.GetString("BtnNo");
+                    msgBox.BtnLeft.Content = noLabel ?? LocalizationManager.GetString("BtnNo");
                     msgBox.BtnLeft.Tag = MessageBoxResult.No;
                     
-                    msgBox.BtnRight.Content = LocalizationManager.GetString("BtnYes");
+                    msgBox.BtnRight.Content = yesLabel ?? LocalizationManager.GetString("BtnYes");
                     msgBox.BtnRight.Tag = MessageBoxResult.Yes;
                     msgBox.BtnRight.IsDefault = true;
                     break;

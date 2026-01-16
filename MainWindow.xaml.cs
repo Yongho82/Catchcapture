@@ -281,6 +281,40 @@ public partial class MainWindow : Window
 
             // [Cross-computer Lock Warning] Removed for faster startup
             // 조용히 시작 (ReadOnly 모드 자동 적용)
+
+            // [추가] 오프라인 모드 및 저장 실패 알림 구독
+            DatabaseManager.Instance.OfflineModeDetected += (s, msg) =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    var result = CustomMessageBox.Show(
+                        "지정된 드라이브가 연결되지 않아 오프라인(로컬) 모드로 시작합니다.\n\n드라이브 연결 상태를 확인해주세요.\n폴더 변경이 필요하면 아래 '폴더 변경' 버튼을 눌러주세요.", 
+                        LocalizationManager.GetString("Warning") ?? "경고", 
+                        MessageBoxButton.YesNo, 
+                        MessageBoxImage.Warning,
+                        width: 480,
+                        yesLabel: "예",
+                        noLabel: "폴더 변경");
+                    
+                    if (result == MessageBoxResult.No)
+                    {
+                        OpenSettingsPage("Note");
+                    }
+                });
+            };
+
+            DatabaseManager.Instance.CloudSaveFailed += (s, msg) =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    CustomMessageBox.Show(
+                        msg, 
+                        LocalizationManager.GetString("Error") ?? "오류", 
+                        MessageBoxButton.OK, 
+                        MessageBoxImage.Error,
+                        width: 450);
+                });
+            };
         };
     }
 
@@ -3661,6 +3695,9 @@ public partial class MainWindow : Window
 
     public void OpenNoteExplorer()
     {
+        // 오프라인 모드 체크
+        if (CheckOfflineRestricted("내 노트")) return;
+
         // 이미 열려있는지 확인
         if (NoteExplorerWindow.Instance != null && NoteExplorerWindow.Instance.IsLoaded)
         {
@@ -6290,5 +6327,27 @@ public partial class MainWindow : Window
         {
             CatchCapture.CustomMessageBox.Show($"노트 저장 중 오류가 발생했습니다: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
         }
+    }
+    private bool CheckOfflineRestricted(string featureName)
+    {
+        if (DatabaseManager.Instance.IsOfflineMode)
+        {
+            var result = CustomMessageBox.Show(
+                $"지정된 드라이브가 연결되지 않아 {featureName} 기능을 사용할 수 없습니다.\n\n드라이브 연결 상태를 확인해주세요.\n폴더 변경이 필요하면 아래 '폴더 변경' 버튼을 눌러주세요.",
+                LocalizationManager.GetString("Warning") ?? "경고",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning,
+                width: 480,
+                yesLabel: "예",
+                noLabel: "폴더 변경"
+            );
+
+            if (result == MessageBoxResult.No)
+            {
+                OpenSettingsPage("Note");
+            }
+            return true;
+        }
+        return false;
     }
 }
