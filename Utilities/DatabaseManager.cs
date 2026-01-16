@@ -2743,7 +2743,7 @@ namespace CatchCapture.Utilities
                 : $"{SizeBytes / (1024.0 * 1024.0):F2} MB";
         }
 
-        public async Task CreateBackup()
+        public async Task CreateBackup(bool backupNote = true, bool backupHistory = true)
         {
             await Task.Run(() =>
             {
@@ -2754,14 +2754,14 @@ namespace CatchCapture.Utilities
                     if (!Directory.Exists(_localBackupPath)) Directory.CreateDirectory(_localBackupPath);
 
                     // 1. 노트 DB 백업
-                    if (File.Exists(_localDbPath))
+                    if (backupNote && File.Exists(_localDbPath))
                     {
                         string dest = Path.Combine(_localBackupPath, $"notes_{timestamp}.db");
                         File.Copy(_localDbPath, dest, true);
                     }
 
                     // 2. 히스토리 DB 백업
-                    if (File.Exists(_localHistoryDbPath))
+                    if (backupHistory && File.Exists(_localHistoryDbPath))
                     {
                         string dest = Path.Combine(_localBackupPath, $"history_{timestamp}.db");
                         File.Copy(_localHistoryDbPath, dest, true);
@@ -2842,15 +2842,30 @@ namespace CatchCapture.Utilities
                 System.Threading.Thread.Sleep(200);
 
                 string targetPath = isHistory ? _localHistoryDbPath : _localDbPath;
+                string cloudTargetPath = isHistory ? _cloudHistoryDbPath : _cloudDbPath;
                 
                 // 현재 DB 백업 후 복원 (안전장치)
                 string tempBackup = targetPath + ".bak";
                 if (File.Exists(targetPath)) File.Copy(targetPath, tempBackup, true);
 
+                // 1. 로컬 복원
                 File.Copy(backupPath, targetPath, true);
                 
-                // 복원 성공 시 클라우드로도 전파 필요 (동기화 트리거)
-                // 하지만 여기서는 로컬 복원만 수행하고, 앱 재시작 등을 유도하는게 좋음
+                // 2. 클라우드에 복원 내용 즉시 반영 (재시작 시 덮어쓰기 방지)
+                try
+                {
+                    string? cloudDir = Path.GetDirectoryName(cloudTargetPath);
+                    if (!string.IsNullOrEmpty(cloudDir) && !Directory.Exists(cloudDir))
+                    {
+                        Directory.CreateDirectory(cloudDir);
+                    }
+                    File.Copy(backupPath, cloudTargetPath, true);
+                    LogToFile($"DB 복원 완료 (Local & Cloud): {backupPath}");
+                }
+                catch (Exception cloudEx)
+                {
+                    LogToFile($"[WARNING] 클라우드 복원 반영 실패 (로컬만 복원됨): {cloudEx.Message}");
+                }
             }
             catch (Exception ex)
             {

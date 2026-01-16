@@ -10,10 +10,26 @@ namespace CatchCapture
 {
     public partial class BackupRestoreWindow : Window
     {
+        private bool _isHistory;
+
         public BackupRestoreWindow(bool isHistory = false)
         {
             InitializeComponent();
-            LoadBackups(isHistory);
+            _isHistory = isHistory;
+            
+            // Set Title
+            string titleKey = _isHistory ? "HistoryBackupList" : "NoteBackupList";
+            var titleRes = TryFindResource(titleKey) as string;
+            if (!string.IsNullOrEmpty(titleRes))
+            {
+                TitleText.Text = titleRes;
+            }
+            else
+            {
+                TitleText.Text = _isHistory ? "히스토리 DB 복구" : "노트 DB 복구";
+            }
+
+            LoadBackups(_isHistory);
         }
 
         private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -95,15 +111,12 @@ namespace CatchCapture
             try
             {
                 BtnCreateManualBackup.IsEnabled = false;
-                await DatabaseManager.Instance.CreateBackup();
+                
+                // 현재 창 모드에 따라 해당 DB만 백업
+                await DatabaseManager.Instance.CreateBackup(backupNote: !_isHistory, backupHistory: _isHistory);
                 
                 // 리스트 새로고침
-                bool isHistory = false;
-                if (BackupListView.ItemsSource is List<DatabaseManager.BackupInfo> list && list.Count > 0)
-                {
-                    isHistory = list[0].IsHistory;
-                }
-                LoadBackups(isHistory);
+                LoadBackups(_isHistory);
                 
                 MessageBox.Show("백업이 완료되었습니다.", "백업 완료", MessageBoxButton.OK, MessageBoxImage.Information);
             }
