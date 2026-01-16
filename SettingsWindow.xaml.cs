@@ -356,12 +356,12 @@ private void UpdateUIText()
                 if (BtnOpenNoteFolder != null) BtnOpenNoteFolder.Content = LocalizationManager.GetString("OpenFolder");
                 if (BtnCloudTip != null) BtnCloudTip.Content = LocalizationManager.GetString("RemoteStorage");
                 if (TxtRemoteStorageWarning != null) TxtRemoteStorageWarning.Text = LocalizationManager.GetString("RemoteStorageWarning");
-                if (TxtResetNote != null) TxtResetNote.Text = LocalizationManager.GetString("InitializeReset");
 
                 
                 if (NoteBackupGroup != null) NoteBackupGroup.Header = LocalizationManager.GetString("BackupRestore");
-                if (BtnExportBackup != null) BtnExportBackup.Content = LocalizationManager.GetString("ExportBackup");
-                if (BtnImportBackup != null) BtnImportBackup.Content = LocalizationManager.GetString("ImportBackup");
+                if (BtnRestoreBackup != null) BtnRestoreBackup.Content = LocalizationManager.GetString("BackupRestore");
+                if (BtnResetNote != null) BtnResetNote.Content = LocalizationManager.GetString("InitializeReset");
+
 
                 // 노트 파일명 설정 로컬라이징 추가
                 if (NoteFileNameSettingsGroup != null) NoteFileNameSettingsGroup.Header = LocalizationManager.GetString("FileNameSettings");
@@ -451,11 +451,11 @@ private void UpdateUIText()
                 if (HistorySectionTitle != null) HistorySectionTitle.Text = LocalizationManager.GetString("HistorySettings");
                 if (HistorySaveSettingsGroup != null) HistorySaveSettingsGroup.Header = LocalizationManager.GetString("SaveSettings");
                 if (HistoryBackupGroup != null) HistoryBackupGroup.Header = LocalizationManager.GetString("BackupRestore");
+                if (BtnHistoryRestore != null) BtnHistoryRestore.Content = LocalizationManager.GetString("BackupRestore");
+                if (BtnResetHistory != null) BtnResetHistory.Content = LocalizationManager.GetString("InitializeReset");
                 if (HistoryAutoGroup != null) HistoryAutoGroup.Header = LocalizationManager.GetString("AutoManagement");
                 if (HistoryTrashGroup != null) HistoryTrashGroup.Header = LocalizationManager.GetString("TrashSettings");
                 
-                if (BtnHistoryExport != null) BtnHistoryExport.Content = LocalizationManager.GetString("ExportBackup");
-                if (BtnHistoryImport != null) BtnHistoryImport.Content = LocalizationManager.GetString("ImportBackup");
                 if (BtnDbOptimize != null) BtnDbOptimize.Content = LocalizationManager.GetString("DbOptimize");
                 
                 if (CboHistoryRetention != null)
@@ -1237,8 +1237,9 @@ private void InitLanguageComboBox()
 
         private void BtnResetNote_Click(object sender, RoutedEventArgs e)
         {
-            // 1. First Warning
-            if (CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("NoteResetConfirm1"), LocalizationManager.GetString("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+             // Updated message as requested
+            string msg = "전체 노트를 초기화 하시겠습니까? 예를 누르시면 이미지 및 DB가 모두 초기화 됩니다.\n백업이 필요하시면 데이터 백업 및 복구를 먼저 진행해주세요.";
+            if (CatchCapture.CustomMessageBox.Show(msg, LocalizationManager.GetString("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
             {
                 return;
             }
@@ -1406,196 +1407,6 @@ private void InitLanguageComboBox()
             }
         }
 
-        private void BtnExportBackup_Click(object sender, RoutedEventArgs e)
-        {
-            string? tempPath = null;
-            try
-            {
-                var sfd = new Microsoft.Win32.SaveFileDialog();
-                sfd.Filter = "Zip Files (*.zip)|*.zip";
-                sfd.FileName = $"CatchCapture_Note_Backup_{DateTime.Now:yyyyMMdd}.zip";
-                if (sfd.ShowDialog() == true)
-                {
-                    string sourceDir = TxtNoteFolder.Text;
-                    if (!Directory.Exists(sourceDir))
-                    {
-                        CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("ErrorNoFolder"), "오류", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
-
-                    // 1. Destination already exists fix
-                    if (File.Exists(sfd.FileName))
-                    {
-                        try { File.Delete(sfd.FileName); } catch { }
-                    }
-
-                    // 2. Temp copy logic
-                    tempPath = Path.Combine(Path.GetTempPath(), "CatchCapture_Backup_Temp_" + Guid.NewGuid().ToString("N"));
-                    Directory.CreateDirectory(tempPath);
-
-                    // A. Copy folders (img, attachments, etc.) - Skip notedb as we use VACUUM for it
-                    CopyDirectory(sourceDir, tempPath, "notedb");
-
-                    // B. Safely backup the database using VACUUM INTO
-                    string tempDbPath = Path.Combine(tempPath, "notedb", "catch_notes.db");
-                    CatchCapture.Utilities.DatabaseManager.Instance.BackupDatabase(tempDbPath);
-
-                    // 3. Zip from temp
-                    System.IO.Compression.ZipFile.CreateFromDirectory(tempPath, sfd.FileName);
-                    
-                    CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("BackupSuccess"), "성공", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-            }
-            catch (Exception ex)
-            {
-                CatchCapture.CustomMessageBox.Show($"{LocalizationManager.GetString("ErrorBackup")}: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            finally
-            {
-                if (tempPath != null && Directory.Exists(tempPath))
-                {
-                    try { Directory.Delete(tempPath, true); } catch { }
-                }
-            }
-        }
-
-        private void CopyDirectory(string sourceDir, string targetDir, params string[] excludeDirNames)
-        {
-            Directory.CreateDirectory(targetDir);
-            foreach (string file in Directory.GetFiles(sourceDir))
-            {
-                string dest = Path.Combine(targetDir, Path.GetFileName(file));
-                try
-                {
-                    // Use FileStream with FileShare.ReadWrite to copy even if the file is locked
-                    using (var sourceStream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                    using (var destStream = new FileStream(dest, FileMode.Create, FileAccess.Write))
-                    {
-                        sourceStream.CopyTo(destStream);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Failed to copy {file}: {ex.Message}");
-                    try { File.Copy(file, dest, true); } catch { }
-                }
-            }
-            foreach (string subDir in Directory.GetDirectories(sourceDir))
-            {
-                string dirName = Path.GetFileName(subDir);
-                if (excludeDirNames != null && excludeDirNames.Any(e => string.Equals(dirName, e, StringComparison.OrdinalIgnoreCase)))
-                    continue;
-
-                string dest = Path.Combine(targetDir, dirName);
-                CopyDirectory(subDir, dest, Array.Empty<string>()); // Use empty array to avoid CS8625 warning
-            }
-        }
-
-        private void BtnImportBackup_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                var ofd = new Microsoft.Win32.OpenFileDialog();
-                ofd.Filter = "Zip Files (*.zip)|*.zip";
-                if (ofd.ShowDialog() == true)
-                {
-                    if (CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("ImportConfirmMsg"), LocalizationManager.GetString("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
-                    {
-                        string targetDir = TxtNoteFolder.Text;
-                        if (!Directory.Exists(targetDir)) Directory.CreateDirectory(targetDir);
-
-                        // 1. Aggressively release all SQLite file handles
-                        CatchCapture.Utilities.DatabaseManager.Instance.CloseConnection();
-                        Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
-                        GC.Collect();
-                        GC.WaitForPendingFinalizers();
-                        System.Threading.Thread.Sleep(200); // Give Windows time to release handles
-
-                        // 2. Extract and overwrite
-                        System.IO.Compression.ZipFile.ExtractToDirectory(ofd.FileName, targetDir, true);
-                        
-                        // 3. Re-initialize DB Manager with the new data
-                        CatchCapture.Utilities.DatabaseManager.Instance.Reinitialize();
-                        
-                        CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("ImportSuccessMsg"), LocalizationManager.GetString("Success"), MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                CatchCapture.CustomMessageBox.Show($"{LocalizationManager.GetString("ErrorImport")}: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private async void BtnMergeBackup_Click(object sender, RoutedEventArgs e)
-        {
-            string? tempDir = null;
-            try
-            {
-                var ofd = new Microsoft.Win32.OpenFileDialog();
-                ofd.Filter = "Zip Files (*.zip)|*.zip";
-                if (ofd.ShowDialog() != true) return;
-
-                if (CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("MergeConfirmMsg"), LocalizationManager.GetString("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
-                {
-                    return;
-                }
-
-                // Show Loading Overlay
-                LoadingOverlay.Visibility = Visibility.Visible;
-                TxtWorkStatus.Text = LocalizationManager.GetString("MergingMsg");
-
-                string zipPath = ofd.FileName;
-                tempDir = Path.Combine(Path.GetTempPath(), "CatchCapture_Merge_Temp_" + Guid.NewGuid().ToString("N"));
-                Directory.CreateDirectory(tempDir);
-
-                await Task.Run(() =>
-                {
-                    // 1. Extract ZIP
-                    System.IO.Compression.ZipFile.ExtractToDirectory(zipPath, tempDir);
-
-                    string sourceDbPath = Path.Combine(tempDir, "notedb", "catch_notes.db");
-                    string sourceImgDir = Path.Combine(tempDir, "img");
-                    string sourceAttachDir = Path.Combine(tempDir, "attachments");
-
-                    if (!File.Exists(sourceDbPath))
-                        throw new FileNotFoundException("Invalid backup file: catch_notes.db not found.");
-
-                    // 2. Perform Merge
-                    CatchCapture.Utilities.DatabaseManager.Instance.MergeNotesFromBackup(sourceDbPath, sourceImgDir, sourceAttachDir, (msg) => {
-                        Dispatcher.Invoke(() => TxtWorkStatus.Text = msg);
-                    });
-                });
-
-                CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("MergeSuccessMsg"), LocalizationManager.GetString("Success"), MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            catch (Exception ex)
-            {
-                CatchCapture.CustomMessageBox.Show($"{LocalizationManager.GetString("ErrorMerge")}: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            finally
-            {
-                LoadingOverlay.Visibility = Visibility.Collapsed;
-                if (tempDir != null && Directory.Exists(tempDir))
-                {
-                    try { Directory.Delete(tempDir, true); } catch { }
-                }
-            }
-        }
-
-        private void BtnRestoreBackup_Click(object sender, RoutedEventArgs e)
-        {
-            var win = new BackupRestoreWindow(false);
-            win.Owner = this;
-            win.ShowDialog();
-        }
-
-        private void BtnHistoryRestore_Click(object sender, RoutedEventArgs e)
-        {
-            var win = new BackupRestoreWindow(true);
-            win.Owner = this;
-            win.ShowDialog();
-        }
 
         private void BtnBrowseBackupFolder_Click(object sender, RoutedEventArgs e)
         {
@@ -2768,6 +2579,40 @@ private void InitLanguageComboBox()
         private void BtnMinimize_Click(object sender, RoutedEventArgs e)
         {
             this.WindowState = WindowState.Minimized;
+        }
+
+
+
+        private void BtnRestoreBackup_Click(object sender, RoutedEventArgs e)
+        {
+             var win = new BackupRestoreWindow(false) { Owner = this };
+             win.ShowDialog();
+        }
+
+        private void BtnHistoryRestore_Click(object sender, RoutedEventArgs e)
+        {
+             var win = new BackupRestoreWindow(true) { Owner = this };
+             win.ShowDialog();
+        }
+
+
+        private void CopyDirectory(string sourceDir, string targetDir, params string[] excludeNames)
+        {
+            Directory.CreateDirectory(targetDir);
+            foreach (string file in Directory.GetFiles(sourceDir))
+            {
+                string dest = Path.Combine(targetDir, Path.GetFileName(file));
+                File.Copy(file, dest, true);
+            }
+            foreach (string subDir in Directory.GetDirectories(sourceDir))
+            {
+                string dirName = Path.GetFileName(subDir);
+                if (excludeNames.Any(e => string.Equals(dirName, e, StringComparison.OrdinalIgnoreCase)))
+                    continue;
+
+                string dest = Path.Combine(targetDir, dirName);
+                CopyDirectory(subDir, dest, Array.Empty<string>());
+            }
         }
     }
 

@@ -2862,14 +2862,130 @@ namespace CatchCapture.Utilities
                     File.Copy(backupPath, cloudTargetPath, true);
                     LogToFile($"DB 복원 완료 (Local & Cloud): {backupPath}");
                 }
-                catch (Exception cloudEx)
+                catch
                 {
-                    LogToFile($"[WARNING] 클라우드 복원 반영 실패 (로컬만 복원됨): {cloudEx.Message}");
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception($"복원 실패: {ex.Message}");
+                LogToFile($"[ERROR] 백업 복원 실패: {ex.Message}");
+                throw;
+            }
+        }
+
+        public void ExportNoteData(string zipPath, string sourceDir)
+        {
+            string? tempPath = null;
+            try
+            {
+                if (!Directory.Exists(sourceDir)) throw new DirectoryNotFoundException("Source directory not found.");
+
+                // 2. Temp copy logic
+                tempPath = Path.Combine(Path.GetTempPath(), "CatchCapture_Backup_Temp_" + Guid.NewGuid().ToString("N"));
+                Directory.CreateDirectory(tempPath);
+
+                // A. Copy folders (img, attachments, etc.) - Skip notedb as we use VACUUM for it
+                CopyDirectory(sourceDir, tempPath, "notedb");
+
+                // B. Safely backup the database using VACUUM INTO
+                string tempDbPath = Path.Combine(tempPath, "notedb", "catch_notes.db");
+                BackupDatabase(tempDbPath);
+
+                // 3. Zip from temp
+                if (File.Exists(zipPath)) File.Delete(zipPath);
+                System.IO.Compression.ZipFile.CreateFromDirectory(tempPath, zipPath);
+            }
+            finally
+            {
+                if (tempPath != null && Directory.Exists(tempPath))
+                {
+                    try { Directory.Delete(tempPath, true); } catch { }
+                }
+            }
+        }
+
+        public void ImportNoteData(string zipPath, string targetDir)
+        {
+             // 1. Aggressively release all SQLite file handles
+            CloseConnection();
+            Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+
+            // 2. Extract to temp to merge/overwrite
+            string tempExtractPath = Path.Combine(Path.GetTempPath(), "CatchCapture_Import_Temp_" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                System.IO.Compression.ZipFile.ExtractToDirectory(zipPath, tempExtractPath);
+
+                // 3. Merge DB Logic
+                string importedDbPath = Path.Combine(tempExtractPath, "notedb", "catch_notes.db");
+                
+                // If local DB exists, we MERGE. If not, we just copy.
+                if (File.Exists(DbPath))
+                {
+                    MergeNotesFromBackup(importedDbPath, Path.Combine(tempExtractPath, "img"), Path.Combine(tempExtractPath, "attachments"));
+                }
+                else
+                {
+                    // Copy entire structure if fresh
+                    CopyDirectory(tempExtractPath, targetDir, null);
+                }
+
+                // 4. Copy Resources (img/attachments) - Always merge/overwrite
+                string targetImg = Path.Combine(targetDir, "img");
+                string importedImg = Path.Combine(tempExtractPath, "img");
+                if (Directory.Exists(importedImg))
+                {
+                    CopyDirectory(importedImg, targetImg, null);
+                }
+
+                string targetAttach = Path.Combine(targetDir, "attachments");
+                string importedAttach = Path.Combine(tempExtractPath, "attachments");
+                if (Directory.Exists(importedAttach))
+                {
+                    CopyDirectory(importedAttach, targetAttach, null);
+                }
+                
+                // Refresh
+                Reload();
+            }
+            finally
+            {
+                if (Directory.Exists(tempExtractPath))
+                {
+                    try { Directory.Delete(tempExtractPath, true); } catch { }
+                }
+            }
+        }
+
+        private void CopyDirectory(string sourceDir, string targetDir, params string[]? excludeDirNames)
+        {
+            Directory.CreateDirectory(targetDir);
+            foreach (string file in Directory.GetFiles(sourceDir))
+            {
+                string dest = Path.Combine(targetDir, Path.GetFileName(file));
+                try
+                {
+                    using (var sourceStream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    using (var destStream = new FileStream(dest, FileMode.Create, FileAccess.Write))
+                    {
+                        sourceStream.CopyTo(destStream);
+                    }
+                }
+                catch
+                {
+                    try { File.Copy(file, dest, true); } catch { }
+                }
+            }
+            foreach (string subDir in Directory.GetDirectories(sourceDir))
+            {
+                string dirName = Path.GetFileName(subDir);
+                if (excludeDirNames != null && excludeDirNames.Any(e => string.Equals(dirName, e, StringComparison.OrdinalIgnoreCase)))
+                    continue;
+
+                string dest = Path.Combine(targetDir, dirName);
+                CopyDirectory(subDir, dest, Array.Empty<string>());
             }
         }
     }

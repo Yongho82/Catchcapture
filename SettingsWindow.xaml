@@ -882,12 +882,6 @@
                                     </Border>
                                 </Popup>
 
-                                <Button x:Name="BtnResetNote" Click="BtnResetNote_Click" Style="{StaticResource MacButtonSecondary}" Margin="10,0,0,0" Padding="10,0" ToolTip="{DynamicResource ResetNoteDataTooltip}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Image Source="/icons/delete_all.png" Width="14" Height="14" Margin="0,0,5,0" RenderOptions.BitmapScalingMode="HighQuality"/>
-                                        <TextBlock x:Name="TxtResetNote" Text="{DynamicResource Reset}" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Button>
                             </StackPanel>
                         </StackPanel>
                     </GroupBox>
@@ -942,18 +936,15 @@
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="6"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="10"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Button x:Name="BtnExportBackup" Content="{DynamicResource ExportBackup}" Click="BtnExportBackup_Click" Style="{StaticResource MacButtonSecondary}" Height="35" ToolTip="Export (.zip)"/>
-                                <Button x:Name="BtnImportBackup" Grid.Column="2" Content="{DynamicResource ImportBackup}" Click="BtnImportBackup_Click" Style="{StaticResource MacButtonSecondary}" Height="35" ToolTip="Import (.zip)"/>
-                                <Button x:Name="BtnRestoreBackup" Grid.Column="4" Content="DB 백업/복구" Click="BtnRestoreBackup_Click" Style="{StaticResource MacButtonSecondary}" Height="35">
+                                <Button x:Name="BtnRestoreBackup" Content="데이터 백업 및 복구" Click="BtnRestoreBackup_Click" Style="{StaticResource MacButtonSecondary}" Height="35">
                                     <Button.ToolTip>
                                         <ToolTip Content="DB는 종료 시 또는 주요 변경 시 자동으로 백업됩니다."/>
                                     </Button.ToolTip>
                                 </Button>
+                                <Button x:Name="BtnResetNote" Grid.Column="2" Content="{DynamicResource InitializeReset}" Click="BtnResetNote_Click" Style="{StaticResource MacButtonSecondary}" Height="35" Foreground="#FF4444" BorderBrush="#FF4444"/>
                             </Grid>
                         </StackPanel>
                     </GroupBox>
@@ -1076,18 +1067,15 @@
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="8"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="8"/>
+                                        <ColumnDefinition Width="10"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Button x:Name="BtnHistoryExport" Content="{DynamicResource ExportBackup}" Style="{StaticResource MacButtonSecondary}" Height="35" Click="BtnHistoryExport_Click"/>
-                                    <Button x:Name="BtnHistoryImport" Grid.Column="2" Content="{DynamicResource ImportBackup}" Style="{StaticResource MacButtonSecondary}" Height="35" Click="BtnHistoryImport_Click"/>
-                                    <Button x:Name="BtnHistoryRestore" Grid.Column="4" Content="DB 백업/복구" Style="{StaticResource MacButtonSecondary}" Height="35" Click="BtnHistoryRestore_Click">
+                                    <Button x:Name="BtnHistoryRestore" Content="데이터 백업 및 복구" Style="{StaticResource MacButtonSecondary}" Height="35" Click="BtnHistoryRestore_Click">
                                         <Button.ToolTip>
                                             <ToolTip Content="DB는 종료 시 또는 주요 변경 시 자동으로 백업됩니다."/>
                                         </Button.ToolTip>
                                     </Button>
+                                    <Button x:Name="BtnResetHistory" Grid.Column="2" Content="{DynamicResource InitializeReset}" Style="{StaticResource MacButtonSecondary}" Height="35" Click="BtnResetHistory_Click" Foreground="#FF4444" BorderBrush="#FF4444"/>
                                 </Grid>
                             </StackPanel>
                         </GroupBox>
@@ -1113,11 +1101,6 @@
                                  <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                                      <Button x:Name="BtnDbOptimize" Content="{DynamicResource DbOptimize}" Style="{StaticResource MacButtonSecondary}" Height="35" Padding="15,0" Click="BtnDbOptimize_Click"/>
                                      <TextBlock Text="{DynamicResource DbOptimizeDesc}" VerticalAlignment="Center" Margin="15,0,0,0" FontSize="11" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6"/>
-                                 </StackPanel>
-
-                                 <StackPanel Orientation="Horizontal">
-                                     <Button x:Name="BtnResetHistory" Content="{DynamicResource ResetData}" Style="{StaticResource MacButtonSecondary}" Height="35" Padding="15,0" Click="BtnResetHistory_Click" BorderBrush="#FF4444" Foreground="#FF4444"/>
-                                     <TextBlock Text="히스토리 모든 기록을 영구적으로 삭제하고 초기화합니다." VerticalAlignment="Center" Margin="15,0,0,0" FontSize="11" Foreground="#FF4444" Opacity="0.8"/>
                                  </StackPanel>
                              </StackPanel>
                          </GroupBox>

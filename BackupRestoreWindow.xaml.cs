@@ -16,7 +16,12 @@ namespace CatchCapture
         {
             InitializeComponent();
             _isHistory = isHistory;
+            _tickerTimer = new System.Windows.Threading.DispatcherTimer();
             
+            // UI Init
+            BtnExport.Visibility = _isHistory ? Visibility.Collapsed : Visibility.Visible;
+            BtnImport.Visibility = _isHistory ? Visibility.Collapsed : Visibility.Visible;
+
             // Set Title
             string titleKey = _isHistory ? "HistoryBackupList" : "NoteBackupList";
             var titleRes = TryFindResource(titleKey) as string;
@@ -26,16 +31,47 @@ namespace CatchCapture
             }
             else
             {
-                TitleText.Text = _isHistory ? "히스토리 DB 복구" : "노트 DB 복구";
+                TitleText.Text = _isHistory ? "히스토리 DB 복구" : "데이터 백업 및 복구";
             }
 
             LoadBackups(_isHistory);
+            StartTicker();
+        }
+
+        private System.Windows.Threading.DispatcherTimer _tickerTimer;
+        private int _tickerIndex = 0;
+        private string[] _tickerMessages = new string[] 
+        {
+            "노트 DB는 종료 시 자동으로 백업됩니다.",
+            "주기적인 데이터 백업을 권장합니다.",
+            "초기화 전에는 반드시 전체 내보내기를 진행하세요.",
+            "DB 복구 시 현재 데이터는 덮어씌워집니다."
+        };
+
+        private void StartTicker()
+        {
+            _tickerTimer.Interval = TimeSpan.FromSeconds(4);
+            _tickerTimer.Tick += (s, e) => 
+            {
+                if (_tickerMessages.Length == 0) return;
+                TxtTicker.Text = _tickerMessages[_tickerIndex];
+                _tickerIndex = (_tickerIndex + 1) % _tickerMessages.Length;
+            };
+            _tickerTimer.Start();
+            
+            // Initial call
+            if (_tickerMessages.Length > 0) TxtTicker.Text = _tickerMessages[0];
         }
 
         private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)
                 this.DragMove();
+        }
+
+        private void BtnMinimize_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
         }
 
         private void BtnClose_Click(object sender, RoutedEventArgs e)
@@ -127,6 +163,88 @@ namespace CatchCapture
             finally
             {
                 BtnCreateManualBackup.IsEnabled = true;
+            }
+        }
+    
+
+        private void DeleteDirectoryContents(string path)
+        {
+            try
+            {
+                foreach (string file in System.IO.Directory.GetFiles(path))
+                {
+                    try { System.IO.File.Delete(file); } catch { }
+                }
+                foreach (string dir in System.IO.Directory.GetDirectories(path))
+                {
+                    try { System.IO.Directory.Delete(dir, true); } catch { }
+                }
+            }
+            catch { }
+        }
+
+        private void BtnExport_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var sfd = new Microsoft.Win32.SaveFileDialog();
+                sfd.Filter = "Zip Files (*.zip)|*.zip";
+                sfd.FileName = $"CatchCapture_All_Data_{DateTime.Now:yyyyMMdd}.zip";
+                if (sfd.ShowDialog() == true)
+                {
+                    string sourceDir = DatabaseManager.Instance.DbPath; 
+                    sourceDir = System.IO.Path.GetDirectoryName(sourceDir)!;
+                     // Usually notedb is in notedata/notedb or CatchCapture/notedb. 
+                     // We need the PARENT of notedb to include img/attachments.
+                     
+                     // However, DbPath is local cache path? No. DbPath public property returns _localDbPath.
+                     // But for Export, we want the Cloud Path data usually? Or local?
+                     // The user said "Export Img+DB". Source of truth is Cloud path for notes.
+                     
+                    string noteRoot = System.IO.Path.GetDirectoryName(DatabaseManager.Instance.CloudDbFilePath)!; // .../notedb
+                    noteRoot = System.IO.Path.GetDirectoryName(noteRoot)!; // .../CatchCapture (or notedata)
+                    
+                    LoadingOverlay.Visibility = Visibility.Visible;
+                    DatabaseManager.Instance.ExportNoteData(sfd.FileName, noteRoot);
+                    LoadingOverlay.Visibility = Visibility.Collapsed;
+
+                    MessageBox.Show("전체 데이터 내보내기 완료!", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                LoadingOverlay.Visibility = Visibility.Collapsed;
+                MessageBox.Show($"내보내기 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnImport_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var ofd = new Microsoft.Win32.OpenFileDialog();
+                ofd.Filter = "Zip Files (*.zip)|*.zip";
+                if (ofd.ShowDialog() == true)
+                {
+                    if (MessageBox.Show("불러오기를 진행하면 현재 노트 데이터와 병합되거나 덮어씌워질 수 있습니다.\n계속 하시겠습니까?", 
+                        "확인", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                    {
+                        LoadingOverlay.Visibility = Visibility.Visible;
+                        
+                        string targetDir = System.IO.Path.GetDirectoryName(DatabaseManager.Instance.CloudDbFilePath)!; // .../notedb
+                        targetDir = System.IO.Path.GetDirectoryName(targetDir)!; // .../CatchCapture
+
+                        DatabaseManager.Instance.ImportNoteData(ofd.FileName, targetDir);
+                        
+                        LoadingOverlay.Visibility = Visibility.Collapsed;
+                        MessageBox.Show("데이터 가져오기 완료! 앱이 재시작될 수 있습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LoadingOverlay.Visibility = Visibility.Collapsed;
+                MessageBox.Show($"가져오기 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
