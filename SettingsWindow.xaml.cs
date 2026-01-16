@@ -1590,6 +1590,19 @@ private void InitLanguageComboBox()
             win.ShowDialog();
         }
 
+        private void BtnCreateBackup_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                DatabaseManager.Instance.CreateBackup();
+                CatchCapture.CustomMessageBox.Show("DB 백업 파일이 생성되었습니다.", "백업 완료", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                CatchCapture.CustomMessageBox.Show($"백업 생성 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private bool ValidateNoteSettings()
         {
             if (ChkEnableNotePassword.IsChecked == true)

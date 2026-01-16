@@ -315,6 +315,9 @@ public partial class MainWindow : Window
                         width: 450);
                 });
             };
+
+            // [추가] 시작 시 자동 백업 1회 실행 (목록이 비어있지 않도록)
+            DatabaseManager.Instance.CreateBackup();
         };
     }
 
