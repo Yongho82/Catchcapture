@@ -89,5 +89,32 @@ namespace CatchCapture
                 MessageBox.Show(selectMsg, "Info", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
+
+        private async void BtnCreateManualBackup_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                BtnCreateManualBackup.IsEnabled = false;
+                await DatabaseManager.Instance.CreateBackup();
+                
+                // 리스트 새로고침
+                bool isHistory = false;
+                if (BackupListView.ItemsSource is List<DatabaseManager.BackupInfo> list && list.Count > 0)
+                {
+                    isHistory = list[0].IsHistory;
+                }
+                LoadBackups(isHistory);
+                
+                MessageBox.Show("백업이 완료되었습니다.", "백업 완료", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"백업 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                BtnCreateManualBackup.IsEnabled = true;
+            }
+        }
     }
 }

@@ -597,6 +597,7 @@
   <data name="TrashRetentionNotice" xml:space="preserve"><value>(설정된 기간이 지나면 자동 영구 삭제)</value></data>
   <data name="RetentionPermanent" xml:space="preserve"><value>영구 보관</value></data>
   <data name="Days" xml:space="preserve"><value>일</value></data>
+  <data name="ResetData" xml:space="preserve"><value>데이터 초기화</value></data>
   <data name="EmptyTrash" xml:space="preserve"><value>휴지통 비우기</value></data>
   <data name="Notice" xml:space="preserve"><value>알림</value></data>
   <data name="TrashRetentionInfo" xml:space="preserve"><value>휴지통 보관기간이 {0}일로 설정되었습니다. 히스토리 설정에서 변경할 수 있습니다.</value></data>

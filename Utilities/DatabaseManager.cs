@@ -173,8 +173,12 @@ namespace CatchCapture.Utilities
             _localDbPath = Path.Combine(localAppData, "catch_notes_local.db");
             _localHistoryDbPath = Path.Combine(localAppData, "history_local.db");
             
-            // [추가] 백업 폴더 생성
-            _localBackupPath = Path.Combine(localAppData, "db_backups");
+            // [추가] 백업 폴더 설정 (설정값 기반)
+            _localBackupPath = settings.BackupStoragePath;
+            if (string.IsNullOrEmpty(_localBackupPath))
+            {
+                _localBackupPath = Path.Combine(localAppData, "db_backups");
+            }
             if (!Directory.Exists(_localBackupPath)) Directory.CreateDirectory(_localBackupPath);
         }
 
@@ -274,18 +278,49 @@ namespace CatchCapture.Utilities
                 }
                 else
                 {
-                    // 클라우드 없음
-                    if (File.Exists(_localDbPath))
+                    // 클라우드 파일 없음 -> 오프라인인지 신규 생성/초기화 인지 구분 필요
+                    string? cloudDbDir = Path.GetDirectoryName(_cloudDbPath);
+                    bool isCloudAccessible = false;
+
+                    if (!string.IsNullOrEmpty(cloudDbDir))
                     {
-                         // 로컬에는 파일이 있는데 클라우드엔 없다? -> 오프라인(또는 클라우드 파일 유실) 가능성 높음
-                         IsOfflineMode = true;
-                         LogToFile($"[OFFLINE PROTECT] Note DB 클라우드 파일 없음. 오프라인 모드로 로컬 데이터 보존함. ({_cloudDbPath})");
-                         OfflineModeDetected?.Invoke(this, "클라우드 노트 저장소 연결에 실패하여 오프라인(로컬) 모드로 시작합니다.\n인터넷 연결을 확인하세요.");
+                        // 폴더가 없으면 생성을 시도해봄으로써 접근 가능성(연결 상태)을 확인
+                        if (!Directory.Exists(cloudDbDir))
+                        {
+                            try
+                            {
+                                Directory.CreateDirectory(cloudDbDir);
+                                isCloudAccessible = true;
+                            }
+                            catch
+                            {
+                                isCloudAccessible = false;
+                            }
+                        }
+                        else
+                        {
+                            isCloudAccessible = true;
+                        }
+                    }
+
+                    if (!isCloudAccessible && File.Exists(_localDbPath))
+                    {
+                        // 폴더 생성도 실패하고 접근도 안 됨 -> 진짜 오프라인
+                        IsOfflineMode = true;
+                        LogToFile($"[OFFLINE PROTECT] Note DB 클라우드 폴더 접근/생성 불가. 오프라인 모드로 로컬 데이터 보존함. ({cloudDbDir})");
+                        OfflineModeDetected?.Invoke(this, "클라우드 노트 저장소 드라이브가 연결되지 않았습니다.\n오프라인(로컬) 모드로 시작합니다.");
+                    }
+                    else if (isCloudAccessible && !File.Exists(_cloudDbPath) && File.Exists(_localDbPath))
+                    {
+                        // 클라우드 폴더는 접근 가능한데 파일만 없다? (사용자가 삭제했거나 초기화함)
+                        // 이 경우 로컬 파일을 클라우드로 올리거나(동기화), 로컬 파일도 지워야 함(초기화).
+                        // 초기화 버튼 클릭 후 상황이라면 이미 로컬/클라우드 다 지워졌을 것.
+                        // 만약 클라우드만 지워진 상태라면? 일단 로컬 데이터를 유지하고 오프라인은 띄우지 않음.
+                        LogToFile("Note DB 클라우드 파일 없음(폴더는 접근 가능). 로컬 파일 유지 중.");
                     }
                     else
                     {
-                        // 둘 다 없음 -> 초기 상태
-                        LogToFile("Note DB 클라우드 없음 & 로컬 없음. 초기화 대기.");
+                        LogToFile("Note DB 클라우드 & 로컬 모두 없음. 초기화 대기.");
                     }
                 }
 
@@ -297,14 +332,37 @@ namespace CatchCapture.Utilities
                 }
                 else
                 {
-                    if (File.Exists(_localHistoryDbPath))
+                    string? cloudHistoryDir = Path.GetDirectoryName(_cloudHistoryDbPath);
+                    bool isHistoryCloudAccessible = false;
+
+                    if (!string.IsNullOrEmpty(cloudHistoryDir))
                     {
-                         IsOfflineMode = true;
-                         LogToFile($"[OFFLINE PROTECT] History DB 클라우드 파일 없음. 로컬 데이터 보존함.");
+                        if (!Directory.Exists(cloudHistoryDir))
+                        {
+                            try
+                            {
+                                Directory.CreateDirectory(cloudHistoryDir);
+                                isHistoryCloudAccessible = true;
+                            }
+                            catch
+                            {
+                                isHistoryCloudAccessible = false;
+                            }
+                        }
+                        else
+                        {
+                            isHistoryCloudAccessible = true;
+                        }
+                    }
+
+                    if (!isHistoryCloudAccessible && File.Exists(_localHistoryDbPath))
+                    {
+                        IsOfflineMode = true;
+                        LogToFile($"[OFFLINE PROTECT] History DB 클라우드 폴더 접근/생성 불가. 로컬 데이터 보존함.");
                     }
                     else
                     {
-                        LogToFile("History DB 클라우드 없음 & 로컬 없음.");
+                        LogToFile("History DB 클라우드 & 로컬 모두 없음.");
                     }
                 }
                 
@@ -541,10 +599,91 @@ namespace CatchCapture.Utilities
         public void Reload() 
         {
             CloseConnection();
+            InitializePaths();
+            SyncFromCloudToLocal();
             InitializeDatabase();
-            // [IMPORTANT] Don't check locks here if we just acquired ownership
-            // The _lastTakeoverTime check in CheckAndCreateLock handles this
+            InitializeHistoryDatabase();
             CheckAndCreateLock();
+        }
+
+        public void ResetNoteDatabase()
+        {
+            lock (_dbLock)
+            {
+                try
+                {
+                    LogToFile("노트 데이터베이스 초기화 시작...");
+                    CloseConnection();
+                    SqliteConnection.ClearAllPools();
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+
+                    // 1. 클라우드 파일 제거
+                    if (File.Exists(_cloudDbPath))
+                    {
+                        try { File.Delete(_cloudDbPath); } catch (Exception ex) { LogToFile($"Cloud DB 삭제 실패: {ex.Message}"); }
+                    }
+                    
+                    // 2. 로컬 파일 제거
+                    if (File.Exists(_localDbPath))
+                    {
+                        try { File.Delete(_localDbPath); } catch (Exception ex) { LogToFile($"Local DB 삭제 실패: {ex.Message}"); }
+                    }
+
+                    // 3. 재초기화
+                    InitializeDatabase();
+                    
+                    // 4. 즉시 동기화 시도 (클라우드 파일 생성 보장)
+                    SyncToCloud();
+                    
+                    LogToFile("노트 데이터베이스 초기화 완료.");
+                }
+                catch (Exception ex)
+                {
+                    LogToFile($"[ERROR] ResetNoteDatabase 실패: {ex.Message}");
+                    throw;
+                }
+            }
+        }
+
+        public void ResetHistoryDatabase()
+        {
+            lock (_dbLock)
+            {
+                try
+                {
+                    LogToFile("히스토리 데이터베이스 초기화 시작...");
+                    CloseConnection();
+                    SqliteConnection.ClearAllPools();
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+
+                    // 1. 클라우드 파일 제거
+                    if (File.Exists(_cloudHistoryDbPath))
+                    {
+                        try { File.Delete(_cloudHistoryDbPath); } catch (Exception ex) { LogToFile($"Cloud History DB 삭제 실패: {ex.Message}"); }
+                    }
+                    
+                    // 2. 로컬 파일 제거
+                    if (File.Exists(_localHistoryDbPath))
+                    {
+                        try { File.Delete(_localHistoryDbPath); } catch (Exception ex) { LogToFile($"Local History DB 삭제 실패: {ex.Message}"); }
+                    }
+
+                    // 3. 재초기화
+                    InitializeHistoryDatabase();
+                    
+                    // 4. 즉시 동기화 시도
+                    SyncToCloud();
+
+                    LogToFile("히스토리 데이터베이스 초기화 완료.");
+                }
+                catch (Exception ex)
+                {
+                    LogToFile($"[ERROR] ResetHistoryDatabase 실패: {ex.Message}");
+                    throw;
+                }
+            }
         }
 
         private void CheckAndCreateLock()
@@ -727,7 +866,14 @@ namespace CatchCapture.Utilities
         private void InitializeDatabaseInternal()
         {
             string dbDir = Path.GetDirectoryName(DbPath)!;
-            string rootDir = Path.GetDirectoryName(dbDir)!; // One level up from notedb
+            string rootDir = dbDir;
+
+            // Handle structure: notedata/notedb/file.db
+            if (Path.GetFileName(dbDir).Equals("notedb", StringComparison.OrdinalIgnoreCase))
+            {
+                string? parent = Path.GetDirectoryName(dbDir);
+                if (parent != null) rootDir = parent;
+            }
 
             if (!Directory.Exists(dbDir)) Directory.CreateDirectory(dbDir);
 
@@ -749,19 +895,23 @@ namespace CatchCapture.Utilities
                     try { cmd.ExecuteNonQuery(); } catch { throw new Exception("DB Integrity Check Failed"); }
                 }
 
-                // Create Notes table
+                // Create Notes table (Consolidated with all columns)
                 string createNotesTable = @"
                     CREATE TABLE IF NOT EXISTS Notes (
                         Id INTEGER PRIMARY KEY AUTOINCREMENT,
                         Title TEXT,
                         Content TEXT,
+                        ContentXaml TEXT,
                         SourceApp TEXT,
                         SourceUrl TEXT,
                         CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
                         UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
                         IsFavorite INTEGER DEFAULT 0,
+                        IsPinned INTEGER DEFAULT 0,
                         Status INTEGER DEFAULT 0, -- 0: Active, 1: Trash
-                        PasswordHash TEXT
+                        CategoryId INTEGER DEFAULT 1,
+                        PasswordHash TEXT,
+                        DeletedAt DATETIME
                     );";
 
                 // Create Images table (for multi-screenshot support)
@@ -2601,6 +2751,8 @@ namespace CatchCapture.Utilities
                 {
                     string timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
                     
+                    if (!Directory.Exists(_localBackupPath)) Directory.CreateDirectory(_localBackupPath);
+
                     // 1. 노트 DB 백업
                     if (File.Exists(_localDbPath))
                     {

@@ -84,6 +84,7 @@ namespace CatchCapture.Models
         public int TrashRetentionDays { get; set; } = 30; // Note Trash
         public int HistoryRetentionDays { get; set; } = 0;
         public int HistoryTrashRetentionDays { get; set; } = 30;
+        public string BackupStoragePath { get; set; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture", "db_backups");
 
         // Persisted window states
         public double LastMainLeft { get; set; } = 0;

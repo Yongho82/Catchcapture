@@ -623,6 +623,7 @@
   <data name="TrashRetentionNotice" xml:space="preserve"><value>(Auto-delete after set period)</value></data>
   <data name="RetentionPermanent" xml:space="preserve"><value>Permanent</value></data>
   <data name="Days" xml:space="preserve"><value>Days</value></data>
+  <data name="ResetData" xml:space="preserve"><value>Reset Data</value></data>
   <data name="EmptyTrash" xml:space="preserve"><value>Empty Trash</value></data>
   <data name="Notice" xml:space="preserve"><value>Notice</value></data>
   <data name="TrashRetentionInfo" xml:space="preserve"><value>Important: Trash retention period is currently set to {0} days. You can change this in Note Settings.</value></data>

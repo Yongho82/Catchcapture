@@ -1149,6 +1149,7 @@ private void InitLanguageComboBox()
         private void LoadNotePage()
         {
             TxtNoteFolder.Text = _settings.NoteStoragePath;
+            TxtBackupFolder.Text = _settings.BackupStoragePath;
 
             if (CboNoteFileNamePresets != null)
             {
@@ -1264,19 +1265,11 @@ private void InitLanguageComboBox()
             try
             {
                 string notePath = TxtNoteFolder.Text;
-                string dbPath = System.IO.Path.Combine(notePath, "notedb", "catch_notes.db");
                 string imgPath = System.IO.Path.Combine(notePath, "img");
                 string attachPath = System.IO.Path.Combine(notePath, "attachments");
 
-                // Release DB locks
-                Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-
-                if (System.IO.File.Exists(dbPath))
-                {
-                    System.IO.File.Delete(dbPath);
-                }
+                // Use the specialized reset method
+                CatchCapture.Utilities.DatabaseManager.Instance.ResetNoteDatabase();
 
                 if (System.IO.Directory.Exists(imgPath))
                 {
@@ -1288,16 +1281,30 @@ private void InitLanguageComboBox()
                     DeleteDirectoryContents(attachPath);
                 }
 
-                // Re-initialize DB
-                CatchCapture.Utilities.DatabaseManager.Instance.Reload();
-
                 CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("NoteResetComplete"), LocalizationManager.GetString("Success"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
                 CatchCapture.CustomMessageBox.Show(string.Format(LocalizationManager.GetString("NoteResetError"), ex.Message), LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
 
+        private void BtnResetHistory_Click(object sender, RoutedEventArgs e)
+        {
+            if (CatchCapture.CustomMessageBox.Show("히스토리 모든 기록을 영구적으로 삭제하시겠습니까?", LocalizationManager.GetString("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            try
+            {
+                CatchCapture.Utilities.DatabaseManager.Instance.ResetHistoryDatabase();
+                CatchCapture.CustomMessageBox.Show("히스토리가 초기화되었습니다.", LocalizationManager.GetString("Success"), MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                CatchCapture.CustomMessageBox.Show($"히스토리 초기화 실패: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void DeleteDirectoryContents(string path)
@@ -1590,16 +1597,35 @@ private void InitLanguageComboBox()
             win.ShowDialog();
         }
 
-        private void BtnCreateBackup_Click(object sender, RoutedEventArgs e)
+        private void BtnBrowseBackupFolder_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new Microsoft.Win32.OpenFolderDialog
+            {
+                InitialDirectory = TxtBackupFolder.Text,
+                Title = "백업 폴더 선택"
+            };
+            if (dialog.ShowDialog() == true)
+            {
+                TxtBackupFolder.Text = dialog.FolderName;
+            }
+        }
+
+        private void BtnOpenBackupFolder_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                DatabaseManager.Instance.CreateBackup();
-                CatchCapture.CustomMessageBox.Show("DB 백업 파일이 생성되었습니다.", "백업 완료", MessageBoxButton.OK, MessageBoxImage.Information);
+                if (Directory.Exists(TxtBackupFolder.Text))
+                {
+                    Process.Start("explorer.exe", TxtBackupFolder.Text);
+                }
+                else
+                {
+                    CatchCapture.CustomMessageBox.Show("폴더가 존재하지 않습니다.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
             catch (Exception ex)
             {
-                CatchCapture.CustomMessageBox.Show($"백업 생성 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                CatchCapture.CustomMessageBox.Show($"폴더 열기 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -1910,6 +1936,7 @@ private void InitLanguageComboBox()
             if (_loadedPages.Contains("Note"))
             {
                 _settings.NoteStoragePath = CatchCapture.Utilities.DatabaseManager.ResolveStoragePath(TxtNoteFolder.Text);
+                _settings.BackupStoragePath = TxtBackupFolder.Text;
 
                  if (TxtNoteFileNameTemplate != null) _settings.NoteFileNameTemplate = TxtNoteFileNameTemplate.Text;
                  
