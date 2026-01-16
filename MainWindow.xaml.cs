@@ -5153,6 +5153,10 @@ public partial class MainWindow : Window
             GC.Collect();
             GC.WaitForPendingFinalizers();
             GC.Collect();
+            
+            // [자동 백업] 앱 종료 시 백업 생성 (최대 20ms 소요)
+            // 비동기 Task를 동기적으로 대기하여 프로세스 종료 전 완료 보장
+            DatabaseManager.Instance.CreateBackup().Wait(1000); // 최대 1초 대기
         }
         catch { /* 정리 중 오류 무시 */ }
     }

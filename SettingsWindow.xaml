@@ -934,10 +934,13 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="8"/>
                                     <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <Button x:Name="BtnExportBackup" Content="{DynamicResource ExportBackup}" Click="BtnExportBackup_Click" Style="{StaticResource MacButtonSecondary}" Height="35" ToolTip="Export (.zip)"/>
                                 <Button x:Name="BtnImportBackup" Grid.Column="2" Content="{DynamicResource ImportBackup}" Click="BtnImportBackup_Click" Style="{StaticResource MacButtonSecondary}" Height="35" ToolTip="Import (.zip)"/>
                                 <Button x:Name="BtnMergeBackup" Grid.Column="4" Content="{DynamicResource MergeBackup}" Click="BtnMergeBackup_Click" Style="{StaticResource MacButtonSecondary}" Height="35" ToolTip="Merge (.zip)"/>
+                                <Button x:Name="BtnRestoreBackup" Grid.Column="6" Content="{DynamicResource RestoreFromBackup}" Click="BtnRestoreBackup_Click" Style="{StaticResource MacButtonSecondary}" Height="35" ToolTip="Restore from local backup"/>
                             </Grid>
                         </StackPanel>
                     </GroupBox>
@@ -1060,11 +1063,14 @@
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="8"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="8"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Button x:Name="BtnHistoryExport" Content="{DynamicResource ExportBackup}" Style="{StaticResource MacButtonSecondary}" Height="35" Click="BtnHistoryExport_Click"/>
                                     <Button x:Name="BtnHistoryImport" Grid.Column="2" Content="{DynamicResource ImportBackup}" Style="{StaticResource MacButtonSecondary}" Height="35" Click="BtnHistoryImport_Click"/>
+                                    <Button x:Name="BtnHistoryRestore" Grid.Column="4" Content="{DynamicResource RestoreFromBackup}" Style="{StaticResource MacButtonSecondary}" Height="35" Click="BtnHistoryRestore_Click"/>
                                 </Grid>
                             </StackPanel>
                         </GroupBox>

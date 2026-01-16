@@ -44,7 +44,7 @@ namespace CatchCapture.Utilities
         private string _cloudHistoryDbPath = default!; // 클라우드 히스토리
         private string _localDbPath = default!;        // 로컬 작업용 (AppData)
         private string _localHistoryDbPath = default!; // 로컬 히스토리 (AppData)
-        private string _localSyncMetaPath = default!;  // [추가] 마지막 동기화 경로 기록용 (오프라인 방지)
+        private string _localBackupPath = default!;    // [추가] 로컬 백업 폴더 (AppData/db_backups)
 
         // 외부에서는 로컬 경로를 보게 함 (호환성을 위해 기존 이름 DbPath 사용)
         public string DbPath => _localDbPath;
@@ -172,7 +172,10 @@ namespace CatchCapture.Utilities
 
             _localDbPath = Path.Combine(localAppData, "catch_notes_local.db");
             _localHistoryDbPath = Path.Combine(localAppData, "history_local.db");
-            _localSyncMetaPath = Path.Combine(localAppData, "catch_sync_meta.txt");
+            
+            // [추가] 백업 폴더 생성
+            _localBackupPath = Path.Combine(localAppData, "db_backups");
+            if (!Directory.Exists(_localBackupPath)) Directory.CreateDirectory(_localBackupPath);
         }
 
         private void CheckInitialLockStatus()
@@ -268,35 +271,21 @@ namespace CatchCapture.Utilities
                     // 클라우드 존재 -> 로컬로 복사 (Source of Truth)
                     File.Copy(_cloudDbPath, _localDbPath, true);
                     LogToFile($"Note DB 강제 동기화 완료: {_cloudDbPath} -> {_localDbPath}");
-                    
-                    // 성공했으므로 메타 업데이트
-                    SetLastSyncedPath("NotePath", _cloudDbPath);
                 }
                 else
                 {
-                    // 클라우드 없음 -> 오프라인인지, 경로 변경인지 판단
-                    string lastPath = GetLastSyncedPath("NotePath");
-                    if (lastPath == _cloudDbPath)
+                    // 클라우드 없음
+                    if (File.Exists(_localDbPath))
                     {
-                         // 경로는 같은데 파일이 없다? -> 일시적 연결 실패(오프라인)로 간주
-                         // 로컬 데이터 보존!
-                         // 로컬 데이터 보존!
-                         // 로컬 데이터 보존!
+                         // 로컬에는 파일이 있는데 클라우드엔 없다? -> 오프라인(또는 클라우드 파일 유실) 가능성 높음
                          IsOfflineMode = true;
                          LogToFile($"[OFFLINE PROTECT] Note DB 클라우드 파일 없음. 오프라인 모드로 로컬 데이터 보존함. ({_cloudDbPath})");
                          OfflineModeDetected?.Invoke(this, "클라우드 노트 저장소 연결에 실패하여 오프라인(로컬) 모드로 시작합니다.\n인터넷 연결을 확인하세요.");
                     }
                     else
                     {
-                        // 경로가 달라짐 -> 사용자가 진짜로 경로를 바꿈 (또는 첫 설치)
-                        // 이 경우엔 기존 로컬 데이터가 쓸모 없거나 꼬일 수 있으므로 삭제 (기존 로직 유지)
-                        if (File.Exists(_localDbPath)) File.Delete(_localDbPath);
-                        LogToFile($"Note DB 클라우드 없음 & 경로 변경됨. 로컬 초기화. (Old: {lastPath} -> New: {_cloudDbPath})");
-                        
-                        // 새 경로는 아직 파일이 없지만, 이 상태를 '동기화된 상태'로 볼 것인가?
-                        // 보통 새 폴더 지정시 빈 DB 생성은 InitializeDatabase에서 함. 
-                        // 다음 실행시 오프라인 보호를 위해 미리 메타 기록
-                        SetLastSyncedPath("NotePath", _cloudDbPath);
+                        // 둘 다 없음 -> 초기 상태
+                        LogToFile("Note DB 클라우드 없음 & 로컬 없음. 초기화 대기.");
                     }
                 }
 
@@ -305,22 +294,17 @@ namespace CatchCapture.Utilities
                 {
                     File.Copy(_cloudHistoryDbPath, _localHistoryDbPath, true);
                     LogToFile("History DB 강제 동기화 완료");
-                    SetLastSyncedPath("HistoryPath", _cloudHistoryDbPath);
                 }
                 else
                 {
-                    // History도 동일 로직
-                    string lastPath = GetLastSyncedPath("HistoryPath");
-                    if (lastPath == _cloudHistoryDbPath)
+                    if (File.Exists(_localHistoryDbPath))
                     {
                          IsOfflineMode = true;
                          LogToFile($"[OFFLINE PROTECT] History DB 클라우드 파일 없음. 로컬 데이터 보존함.");
                     }
                     else
                     {
-                        if (File.Exists(_localHistoryDbPath)) File.Delete(_localHistoryDbPath);
-                        LogToFile("History DB 클라우드 없음 & 경로 변경됨. 로컬 초기화.");
-                        SetLastSyncedPath("HistoryPath", _cloudHistoryDbPath);
+                        LogToFile("History DB 클라우드 없음 & 로컬 없음.");
                     }
                 }
                 
@@ -332,44 +316,7 @@ namespace CatchCapture.Utilities
             }
         }
 
-        private string GetLastSyncedPath(string key)
-        {
-            try
-            {
-                if (!File.Exists(_localSyncMetaPath)) return string.Empty;
-                var lines = File.ReadAllLines(_localSyncMetaPath);
-                foreach (var line in lines)
-                {
-                    var parts = line.Split(new[]{'|'}, 2);
-                    if (parts.Length == 2 && parts[0] == key) return parts[1];
-                }
-            }
-            catch { }
-            return string.Empty;
-        }
 
-        private void SetLastSyncedPath(string key, string value)
-        {
-            try
-            {
-                var dict = new Dictionary<string, string>();
-                if (File.Exists(_localSyncMetaPath))
-                {
-                    var lines = File.ReadAllLines(_localSyncMetaPath);
-                    foreach (var line in lines)
-                    {
-                        var parts = line.Split(new[]{'|'}, 2);
-                        if (parts.Length == 2) dict[parts[0]] = parts[1];
-                    }
-                }
-                
-                dict[key] = value;
-                
-                var newLines = dict.Select(kv => $"{kv.Key}|{kv.Value}").ToArray();
-                File.WriteAllLines(_localSyncMetaPath, newLines);
-            }
-            catch { }
-        }
 
         private bool IsMyLock()
         {
@@ -2628,6 +2575,134 @@ namespace CatchCapture.Utilities
                     cmd.Parameters.AddWithValue("$id", id);
                     cmd.ExecuteNonQuery();
                 }
+            }
+        }
+        // [백업 관리 시스템]
+        public class BackupInfo
+        {
+            public string FileName { get; set; } = default!;
+            public string FullPath { get; set; } = default!;
+            public DateTime CreatedDate { get; set; }
+            public long SizeBytes { get; set; }
+            public bool IsHistory { get; set; } // true=history, false=note
+
+            // Helper Properties for UI
+            public string DateDisplay => CreatedDate.ToString("yyyy-MM-dd HH:mm:ss");
+            public string SizeDisplay => SizeBytes < 1024 * 1024 
+                ? $"{SizeBytes / 1024.0:F1} KB" 
+                : $"{SizeBytes / (1024.0 * 1024.0):F2} MB";
+        }
+
+        public async Task CreateBackup()
+        {
+            await Task.Run(() =>
+            {
+                try
+                {
+                    string timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+                    
+                    // 1. 노트 DB 백업
+                    if (File.Exists(_localDbPath))
+                    {
+                        string dest = Path.Combine(_localBackupPath, $"notes_{timestamp}.db");
+                        File.Copy(_localDbPath, dest, true);
+                    }
+
+                    // 2. 히스토리 DB 백업
+                    if (File.Exists(_localHistoryDbPath))
+                    {
+                        string dest = Path.Combine(_localBackupPath, $"history_{timestamp}.db");
+                        File.Copy(_localHistoryDbPath, dest, true);
+                    }
+
+                    // 3. 오래된 백업 정리
+                    CleanupOldBackups();
+                }
+                catch (Exception ex)
+                {
+                    LogToFile($"백업 생성 실패: {ex.Message}");
+                }
+            });
+        }
+
+        private void CleanupOldBackups()
+        {
+            try
+            {
+                var dir = new DirectoryInfo(_localBackupPath);
+                if (!dir.Exists) return;
+
+                var files = dir.GetFiles("*.db");
+                var cutoffDate = DateTime.Now.AddDays(-7); // 7일 보관
+
+                foreach (var file in files)
+                {
+                    // 생성일 기준 (파일명 파싱보다 파일 속성이 정확/간단)
+                    if (file.CreationTime < cutoffDate)
+                    {
+                        try { file.Delete(); } catch { }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogToFile($"백업 정리 실패: {ex.Message}");
+            }
+        }
+
+        public List<BackupInfo> GetBackups(bool isHistory)
+        {
+            var list = new List<BackupInfo>();
+            try
+            {
+                var dir = new DirectoryInfo(_localBackupPath);
+                if (dir.Exists)
+                {
+                    string prefix = isHistory ? "history_" : "notes_";
+                    foreach (var file in dir.GetFiles($"{prefix}*.db").OrderByDescending(f => f.CreationTime))
+                    {
+                        list.Add(new BackupInfo
+                        {
+                            FileName = file.Name,
+                            FullPath = file.FullName,
+                            CreatedDate = file.CreationTime,
+                            SizeBytes = file.Length,
+                            IsHistory = isHistory
+                        });
+                    }
+                }
+            }
+            catch { }
+            return list;
+        }
+
+        public void RestoreFromBackup(string backupPath, bool isHistory)
+        {
+            try
+            {
+                if (!File.Exists(backupPath)) return;
+
+                // DB 연결 해제
+                CloseConnection();
+                Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                System.Threading.Thread.Sleep(200);
+
+                string targetPath = isHistory ? _localHistoryDbPath : _localDbPath;
+                
+                // 현재 DB 백업 후 복원 (안전장치)
+                string tempBackup = targetPath + ".bak";
+                if (File.Exists(targetPath)) File.Copy(targetPath, tempBackup, true);
+
+                File.Copy(backupPath, targetPath, true);
+                
+                // 복원 성공 시 클라우드로도 전파 필요 (동기화 트리거)
+                // 하지만 여기서는 로컬 복원만 수행하고, 앱 재시작 등을 유도하는게 좋음
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"복원 실패: {ex.Message}");
             }
         }
     }

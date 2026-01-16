@@ -466,9 +466,9 @@
   <data name="MainImageLabel" xml:space="preserve"><value>Main Image: </value></data>
   <data name="ExtraOptions" xml:space="preserve"><value>Extra Options</value></data>
   <data name="BackupRestore" xml:space="preserve"><value>Backup &amp; Restore</value></data>
-  <data name="ExportBackup" xml:space="preserve"><value>Export (.zip)</value></data>
-  <data name="ImportBackup" xml:space="preserve"><value>Import (.zip)</value></data>
-  <data name="MergeBackup" xml:space="preserve"><value>Merge (.zip)</value></data>
+  <data name="ExportBackup" xml:space="preserve"><value>Export</value></data>
+  <data name="ImportBackup" xml:space="preserve"><value>Import</value></data>
+  <data name="MergeBackup" xml:space="preserve"><value>Merge</value></data>
   <data name="MergeConfirmMsg" xml:space="preserve"><value>Do you want to merge the selected backup with the current data?
 (Items will be added in chronological order)</value></data>
   <data name="MergingMsg" xml:space="preserve"><value>Merging data... Please wait.</value></data>
@@ -899,4 +899,13 @@ Are you sure you want to permanently delete all items?</value>
   <data name="EdgeLevel3" xml:space="preserve"><value>Level 3 (Standard)</value></data>
   <data name="EdgeLevel4" xml:space="preserve"><value>Level 4 (Capsule)</value></data>
   <data name="EdgeLevel5" xml:space="preserve"><value>Level 5 (Circle)</value></data>
+
+  <data name="RestoreFromBackup" xml:space="preserve"><value>DB Restore</value></data>
+  <data name="RestoringMsg" xml:space="preserve"><value>Restoring data... Please wait.</value></data>
+  <data name="RestoreSuccessMsg" xml:space="preserve"><value>Restore completed. The application will restart to apply changes.</value></data>
+  <data name="ErrorRestore" xml:space="preserve"><value>Error during restore</value></data>
+  <data name="NoteBackupList" xml:space="preserve"><value>Note Backups</value></data>
+  <data name="HistoryBackupList" xml:space="preserve"><value>History Backups</value></data>
+  <data name="SelectBackupToRestore" xml:space="preserve"><value>Select a backup point to restore</value></data>
+  <data name="ConfirmRestoreBackup" xml:space="preserve"><value>Do you want to restore to the selected point ({0})?\nCurrent data will be automatically backed up.</value></data>
 </root>

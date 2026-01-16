@@ -466,9 +466,10 @@
   <data name="MainImageLabel" xml:space="preserve"><value>메인 이미지: </value></data>
   <data name="ExtraOptions" xml:space="preserve"><value>추가 옵션</value></data>
   <data name="BackupRestore" xml:space="preserve"><value>데이터 백업 및 복구</value></data>
-  <data name="ExportBackup" xml:space="preserve"><value>내보내기 (.zip)</value></data>
-  <data name="ImportBackup" xml:space="preserve"><value>가져오기 (.zip)</value></data>
-  <data name="MergeBackup" xml:space="preserve"><value>병합하기 (.zip)</value></data>
+  <data name="ExportBackup" xml:space="preserve"><value>내보내기</value></data>
+  <data name="ImportBackup" xml:space="preserve"><value>가져오기</value></data>
+  <data name="MergeBackup" xml:space="preserve"><value>병합하기</value></data>
+  <data name="RestoreFromBackup" xml:space="preserve"><value>DB 복구</value></data>
   <data name="MergeConfirmMsg" xml:space="preserve"><value>선택한 백업 파일을 현재 데이터에 병합하시겠습니까?
 (날짜 순으로 추가됩니다)</value></data>
   <data name="MergingMsg" xml:space="preserve"><value>데이터 병합 중입니다... 잠시만 기다려 주세요.</value></data>
@@ -911,4 +912,12 @@
   <data name="EdgeLevel3" xml:space="preserve"><value>3단계 (Standard)</value></data>
   <data name="EdgeLevel4" xml:space="preserve"><value>4단계 (Capsule)</value></data>
   <data name="EdgeLevel5" xml:space="preserve"><value>5단계 (Circle)</value></data>
+
+  <data name="RestoringMsg" xml:space="preserve"><value>데이터 복원 중입니다... 잠시만 기다려 주세요.</value></data>
+  <data name="RestoreSuccessMsg" xml:space="preserve"><value>복원이 완료되었습니다. 변경 사항을 적용하기 위해 프로그램이 다시 시작됩니다.</value></data>
+  <data name="ErrorRestore" xml:space="preserve"><value>복원 중 오류 발생</value></data>
+  <data name="NoteBackupList" xml:space="preserve"><value>노트 백업 목록</value></data>
+  <data name="HistoryBackupList" xml:space="preserve"><value>히스토리 백업 목록</value></data>
+  <data name="SelectBackupToRestore" xml:space="preserve"><value>복원할 시점을 선택하세요</value></data>
+  <data name="ConfirmRestoreBackup" xml:space="preserve"><value>선택한 시점({0})으로 복원하시겠습니까?\n현재 데이터는 백업 폴더에 자동 저장됩니다.</value></data>
 </root>

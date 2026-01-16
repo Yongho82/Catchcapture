@@ -1576,6 +1576,20 @@ private void InitLanguageComboBox()
             }
         }
 
+        private void BtnRestoreBackup_Click(object sender, RoutedEventArgs e)
+        {
+            var win = new BackupRestoreWindow(false);
+            win.Owner = this;
+            win.ShowDialog();
+        }
+
+        private void BtnHistoryRestore_Click(object sender, RoutedEventArgs e)
+        {
+            var win = new BackupRestoreWindow(true);
+            win.Owner = this;
+            win.ShowDialog();
+        }
+
         private bool ValidateNoteSettings()
         {
             if (ChkEnableNotePassword.IsChecked == true)
