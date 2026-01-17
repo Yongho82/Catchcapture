@@ -386,4 +386,33 @@ public partial class App : Application
             (byte)Math.Clamp(baseColor.B + amount, 0, 255)
         );
     }
+
+    public static void Restart()
+    {
+        try
+        {
+            // Mutex 해제
+            if (_singleInstanceMutex != null)
+            {
+                _singleInstanceMutex.ReleaseMutex();
+                _singleInstanceMutex.Dispose();
+                _singleInstanceMutex = null;
+            }
+
+            // 파이프 서버 중지
+            // (인스턴스 접근이 어렵다면 생략 가능하거나 _pipeServerCts가 이미 정적 field가 아니라서 접근 불가할 수도 있음.
+            //  App 인스턴스를 통해 접근 필요하지만 여기서는 static context임.
+            //  _singleInstanceMutex가 static이므로 가장 중요한 부분은 처리됨.)
+            
+            // 새 프로세스 시작
+            string processPath = System.Environment.ProcessPath ?? System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName ?? "";
+            if (!string.IsNullOrEmpty(processPath))
+            {
+                System.Diagnostics.Process.Start(processPath);
+            }
+        }
+        catch { }
+        
+        Application.Current.Shutdown();
+    }
 }

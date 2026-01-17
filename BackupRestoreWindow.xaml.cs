@@ -117,12 +117,12 @@ namespace CatchCapture
                         MessageBox.Show(successMsg, "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                         
                         // Restart App
-                        string processPath = System.Environment.ProcessPath ?? System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName ?? "";
-                        if (!string.IsNullOrEmpty(processPath))
+                        // Restart App
+                        try
                         {
-                            System.Diagnostics.Process.Start(processPath);
-                            Application.Current.Shutdown();
+                            CatchCapture.App.Restart();
                         }
+                        catch { Application.Current.Shutdown(); }
                     }
                     catch (Exception ex)
                     {

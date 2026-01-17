@@ -2783,7 +2783,10 @@ namespace CatchCapture.Utilities
                 {
                     // 날짜까지만 포함 (하루에 파일 하나만 유지 -> 덮어쓰기)
                     string dateStr = DateTime.Now.ToString("yyyy-MM-dd");
-                    string typeStr = force ? "manual" : "auto";
+                    // Manual backup includes time to avoid overwriting
+                    string suffix = force 
+                        ? $"manual_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}" 
+                        : $"auto_{dateStr}";
                     
                     if (!Directory.Exists(_localBackupPath)) Directory.CreateDirectory(_localBackupPath);
 
@@ -2793,7 +2796,7 @@ namespace CatchCapture.Utilities
                     {
                         if (force || _isNoteDirty)
                         {
-                            string dest = Path.Combine(_localBackupPath, $"notes_{typeStr}_{dateStr}.db");
+                            string dest = Path.Combine(_localBackupPath, $"notes_{suffix}.db");
                             File.Copy(_localDbPath, dest, true); // Overwrite allowed
                             if (!force) _isNoteDirty = false; // 자동 백업 후 플래그 초기화
                         }
@@ -2804,7 +2807,7 @@ namespace CatchCapture.Utilities
                     {
                         if (force || _isHistoryDirty)
                         {
-                            string dest = Path.Combine(_localBackupPath, $"history_{typeStr}_{dateStr}.db");
+                            string dest = Path.Combine(_localBackupPath, $"history_{suffix}.db");
                             File.Copy(_localHistoryDbPath, dest, true); // Overwrite allowed
                             if (!force) _isHistoryDirty = false;
                         }
