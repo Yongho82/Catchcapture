@@ -2775,6 +2775,26 @@ namespace CatchCapture.Utilities
             public string BackupType { get; set; } = "시스템 자동 백업";
         }
 
+        private void CheckpointDatabase(string dbPath)
+        {
+            try
+            {
+                using (var connection = new SqliteConnection($"Data Source={dbPath}"))
+                {
+                    connection.Open();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = "PRAGMA wal_checkpoint(TRUNCATE);";
+                        command.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogToFile($"Checkpoint failed for {dbPath}: {ex.Message}");
+            }
+        }
+
         public async Task CreateBackup(bool backupNote = true, bool backupHistory = true, bool force = false)
         {
             await Task.Run(() =>
@@ -2796,6 +2816,9 @@ namespace CatchCapture.Utilities
                     {
                         if (force || _isNoteDirty)
                         {
+                            // [중요] Manual 백업 시 WAL 파일 내용을 DB로 Flush
+                            if (force) CheckpointDatabase(_localDbPath);
+                            
                             string dest = Path.Combine(_localBackupPath, $"notes_{suffix}.db");
                             File.Copy(_localDbPath, dest, true); // Overwrite allowed
                             File.SetLastWriteTime(dest, DateTime.Now); // Ensure timestamp reflects backup time
@@ -2808,6 +2831,8 @@ namespace CatchCapture.Utilities
                     {
                         if (force || _isHistoryDirty)
                         {
+                            if (force) CheckpointDatabase(_localHistoryDbPath);
+                            
                             string dest = Path.Combine(_localBackupPath, $"history_{suffix}.db");
                             File.Copy(_localHistoryDbPath, dest, true); // Overwrite allowed
                             File.SetLastWriteTime(dest, DateTime.Now); // Ensure timestamp reflects backup time
