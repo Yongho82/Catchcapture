@@ -1205,6 +1205,7 @@ namespace CatchCapture
                     DeleteNote(noteId);
                     await LoadNotes(); // Refresh
                     LoadTags();  // Refresh tags after cleanup
+                    await Task.Run(() => DatabaseManager.Instance.SyncToCloud(true)); // Sync to cloud immediately
                 }
             }
         }
@@ -1473,6 +1474,7 @@ namespace CatchCapture
                 }
                 await LoadNotes(); // Refresh
                 LoadTags();  // Refresh tags after cleanup
+                await Task.Run(() => DatabaseManager.Instance.SyncToCloud(true)); // Sync to cloud immediately
             }
         }
 
@@ -1578,8 +1580,10 @@ namespace CatchCapture
                         }
                     }
                     
+                    
                     await LoadNotes("Trash"); // Refresh current view
                     UpdateSidebarCounts(); // Refresh counts
+                    await Task.Run(() => DatabaseManager.Instance.SyncToCloud(true)); // Sync to cloud immediately
                     CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("EmptyTrashComplete"), CatchCapture.Resources.LocalizationManager.GetString("Notice"));
                 }
                 catch (Exception ex)

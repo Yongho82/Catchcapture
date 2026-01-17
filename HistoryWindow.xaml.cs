@@ -540,7 +540,7 @@ namespace CatchCapture
             UpdateSelectAllButtonText();
         }
 
-        private void BtnDeleteSelected_Click(object sender, RoutedEventArgs e)
+        private async void BtnDeleteSelected_Click(object sender, RoutedEventArgs e)
         {
             var selectedItems = HistoryItems.Where(i => i.IsSelected).ToList();
             if (selectedItems.Count == 0) return;
@@ -553,17 +553,17 @@ namespace CatchCapture
                     DatabaseManager.Instance.DeleteCapture(item.Id, _currentFilter == "Trash");
                 }
                 LoadHistory(_currentFilter, _currentSearch);
-                TriggerLiveSync();
+                await Task.Run(() => DatabaseManager.Instance.SyncToCloud(true));
             }
         }
 
-        private void BtnEmptyTrash_Click(object sender, RoutedEventArgs e)
+        private async void BtnEmptyTrash_Click(object sender, RoutedEventArgs e)
         {
             if (CustomMessageBox.Show(LocalizationManager.GetString("EmptyTrashConfirmMessage"), LocalizationManager.GetString("EmptyTrashTitle"), MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
             {
                 DatabaseManager.Instance.EmptyTrash();
                 LoadHistory("Trash");
-                TriggerLiveSync();
+                await Task.Run(() => DatabaseManager.Instance.SyncToCloud(true));
                 CustomMessageBox.Show(LocalizationManager.GetString("EmptyTrashComplete"), LocalizationManager.GetString("Notice"));
             }
         }
@@ -682,7 +682,7 @@ namespace CatchCapture
             }
         }
 
-        private void BtnDeleteItem_Click(object sender, RoutedEventArgs e)
+        private async void BtnDeleteItem_Click(object sender, RoutedEventArgs e)
         {
             HistoryItem? item = (sender as Button)?.DataContext as HistoryItem ?? LstHistory.SelectedItem as HistoryItem;
             if (item == null) return;
@@ -692,7 +692,7 @@ namespace CatchCapture
             {
                 DatabaseManager.Instance.DeleteCapture(item.Id, _currentFilter == "Trash");
                 LoadHistory(_currentFilter, _currentSearch);
-                TriggerLiveSync();
+                await Task.Run(() => DatabaseManager.Instance.SyncToCloud(true));
             }
         }
 
