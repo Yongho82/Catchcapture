@@ -2798,6 +2798,7 @@ namespace CatchCapture.Utilities
                         {
                             string dest = Path.Combine(_localBackupPath, $"notes_{suffix}.db");
                             File.Copy(_localDbPath, dest, true); // Overwrite allowed
+                            File.SetLastWriteTime(dest, DateTime.Now); // Ensure timestamp reflects backup time
                             if (!force) _isNoteDirty = false; // 자동 백업 후 플래그 초기화
                         }
                     }
@@ -2809,6 +2810,7 @@ namespace CatchCapture.Utilities
                         {
                             string dest = Path.Combine(_localBackupPath, $"history_{suffix}.db");
                             File.Copy(_localHistoryDbPath, dest, true); // Overwrite allowed
+                            File.SetLastWriteTime(dest, DateTime.Now); // Ensure timestamp reflects backup time
                             if (!force) _isHistoryDirty = false;
                         }
                     }
