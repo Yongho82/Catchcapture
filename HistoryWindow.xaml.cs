@@ -501,6 +501,19 @@ namespace CatchCapture
         }
 
         private void BtnMinimize_Click(object sender, RoutedEventArgs e) => this.WindowState = WindowState.Minimized;
+        private void BtnMaximize_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.WindowState == WindowState.Maximized)
+            {
+                this.WindowState = WindowState.Normal;
+                if (PathMaximize != null) PathMaximize.Data = System.Windows.Media.Geometry.Parse("M4,4H20V20H4V4M6,8V18H18V8H6Z");
+            }
+            else
+            {
+                this.WindowState = WindowState.Maximized;
+                if (PathMaximize != null) PathMaximize.Data = System.Windows.Media.Geometry.Parse("M4,8H8V4H20V16H16V20H4V8M16,8V14H18V6H10V8H16M6,10V18H14V10H6Z");
+            }
+        }
         private void BtnClose_Click(object sender, RoutedEventArgs e) => this.Close();
 
         private void BtnAdvancedFilter_Click(object sender, RoutedEventArgs e)

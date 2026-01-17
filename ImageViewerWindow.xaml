@@ -46,7 +46,7 @@
             </Grid.RowDefinitions>
 
             <!-- Top Header -->
-            <Border Grid.Row="0" Background="{DynamicResource ThemeTitleBackground}"/>
+            <Border Grid.Row="0" Background="{DynamicResource ThemeTitleBackground}" CornerRadius="12,12,0,0"/>
             <Grid Grid.Row="0" Margin="20,0">
                 <!-- Left: Logo & App Title -->
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" WindowChrome.IsHitTestVisibleInChrome="True">
