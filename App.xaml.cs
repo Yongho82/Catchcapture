@@ -125,6 +125,9 @@ public partial class App : Application
     {
         try
         {
+            // [자동 백업] 앱 종료 시 변경사항이 있으면 백업 (최대 1초 대기)
+            CatchCapture.Utilities.DatabaseManager.Instance.CreateBackup().Wait(1000);
+
             CatchCapture.Utilities.DatabaseManager.Instance.CleanupTempFiles();
             
             // 데이터 백업 및 Lock 해제 (내부에서 CloseConnection 호출됨)

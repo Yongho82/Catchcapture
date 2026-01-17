@@ -46,6 +46,10 @@ namespace CatchCapture.Utilities
         private string _localHistoryDbPath = default!; // 로컬 히스토리 (AppData)
         private string _localBackupPath = default!;    // [추가] 로컬 백업 폴더 (AppData/db_backups)
 
+        // [추가] 데이터 변경 추적 플래그
+        private bool _isNoteDirty = false;
+        private bool _isHistoryDirty = false;
+
         // 외부에서는 로컬 경로를 보게 함 (호환성을 위해 기존 이름 DbPath 사용)
         public string DbPath => _localDbPath;
         public string HistoryDbPath => _localHistoryDbPath;
@@ -1411,6 +1415,7 @@ namespace CatchCapture.Utilities
             {
                 connection.Open();
                 string sql = "INSERT INTO NoteImages (NoteId, FilePath, OrderIndex, FileHash) VALUES ($noteId, $filePath, $orderIndex, $fileHash);";
+                _isNoteDirty = true; // Mark as dirty
                 using (var command = new SqliteCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("$noteId", noteId);
@@ -1427,6 +1432,7 @@ namespace CatchCapture.Utilities
             using (var connection = new SqliteConnection($"Data Source={DbPath}"))
             {
                 connection.Open();
+                _isNoteDirty = true;
                 using (var transaction = connection.BeginTransaction())
                 {
                     try
@@ -1532,6 +1538,7 @@ namespace CatchCapture.Utilities
             using (var connection = new SqliteConnection($"Data Source={DbPath}"))
             {
                 connection.Open();
+                _isNoteDirty = true;
                 using (var transaction = connection.BeginTransaction())
                 {
                     try
@@ -1603,6 +1610,7 @@ namespace CatchCapture.Utilities
             using (var connection = new SqliteConnection($"Data Source={DbPath}"))
             {
                 connection.Open();
+                _isNoteDirty = true;
                 string sql = @"
                     INSERT INTO NoteAttachments (NoteId, FilePath, OriginalName, FileType)
                     VALUES ($noteId, $filePath, $originalName, $fileType);";
@@ -1665,6 +1673,7 @@ namespace CatchCapture.Utilities
             using (var connection = new SqliteConnection($"Data Source={DbPath}"))
             {
                 connection.Open();
+                _isNoteDirty = true;
                 string sql = "INSERT OR IGNORE INTO Categories (Name, Color) VALUES ($name, $color);";
                 using (var command = new SqliteCommand(sql, connection))
                 {
@@ -1682,6 +1691,7 @@ namespace CatchCapture.Utilities
             using (var connection = new SqliteConnection($"Data Source={DbPath}"))
             {
                 connection.Open();
+                _isNoteDirty = true;
                 // Move notes to default category (Id=1) before deleting
                 string updateSql = "UPDATE Notes SET CategoryId = 1 WHERE CategoryId = $id;";
                 using (var command = new SqliteCommand(updateSql, connection))
@@ -1825,6 +1835,7 @@ namespace CatchCapture.Utilities
                 using (var connection = new SqliteConnection($"Data Source={DbPath}"))
                 {
                     connection.Open();
+                    _isNoteDirty = true;
                     using (var transaction = connection.BeginTransaction())
                     {
                         try
@@ -2406,6 +2417,7 @@ namespace CatchCapture.Utilities
             using (var connection = new SqliteConnection($"Data Source={HistoryDbPath}"))
             {
                 connection.Open();
+                _isHistoryDirty = true;
                 string sql = @"
                     INSERT INTO Captures (FileName, FilePath, SourceApp, SourceTitle, OriginalFilePath, IsFavorite, Status, FileSize, Resolution, CreatedAt)
                     VALUES ($fileName, $filePath, $sourceApp, $sourceTitle, $originalPath, $isFavorite, $status, $fileSize, $resolution, $createdAt);
@@ -2636,6 +2648,7 @@ namespace CatchCapture.Utilities
 
             using (var cmd = new SqliteCommand("DELETE FROM Captures WHERE Id = $id", connection))
             {
+                _isHistoryDirty = true;
                 cmd.Parameters.AddWithValue("$id", id);
                 cmd.ExecuteNonQuery();
             }
@@ -2644,6 +2657,7 @@ namespace CatchCapture.Utilities
                 {
                     using (var cmd = new SqliteCommand("UPDATE Captures SET Status = 1 WHERE Id = $id", connection))
                     {
+                        _isHistoryDirty = true;
                         cmd.Parameters.AddWithValue("$id", id);
                         cmd.ExecuteNonQuery();
                     }
@@ -2658,6 +2672,7 @@ namespace CatchCapture.Utilities
                 connection.Open();
                 using (var cmd = new SqliteCommand("UPDATE Captures SET Status = 0 WHERE Id = $id", connection))
                 {
+                    _isHistoryDirty = true;
                     cmd.Parameters.AddWithValue("$id", id);
                     cmd.ExecuteNonQuery();
                 }
@@ -2671,6 +2686,7 @@ namespace CatchCapture.Utilities
                 connection.Open();
                 using (var cmd = new SqliteCommand("UPDATE Captures SET IsFavorite = 1 - IsFavorite WHERE Id = $id", connection))
                 {
+                    _isHistoryDirty = true;
                     cmd.Parameters.AddWithValue("$id", id);
                     cmd.ExecuteNonQuery();
                 }
@@ -2683,6 +2699,7 @@ namespace CatchCapture.Utilities
             using (var connection = new SqliteConnection($"Data Source={HistoryDbPath}"))
             {
                 connection.Open();
+                _isHistoryDirty = true;
                 var trashIds = new List<long>();
                 using (var cmd = new SqliteCommand("SELECT Id FROM Captures WHERE Status = 1", connection))
                 {
@@ -2741,30 +2758,56 @@ namespace CatchCapture.Utilities
             public string SizeDisplay => SizeBytes < 1024 * 1024 
                 ? $"{SizeBytes / 1024.0:F1} KB" 
                 : $"{SizeBytes / (1024.0 * 1024.0):F2} MB";
+            
+            public string TimeAgo
+            {
+                get
+                {
+                    var span = DateTime.Now - CreatedDate;
+                    if (span.TotalMinutes < 1) return "방금 전";
+                    if (span.TotalMinutes < 60) return $"{(int)span.TotalMinutes}분 전";
+                    if (span.TotalHours < 24) return $"{(int)span.TotalHours}시간 전";
+                    if (span.TotalDays < 7) return $"{(int)span.TotalDays}일 전";
+                    return CreatedDate.ToString("yyyy-MM-dd");
+                }
+            }
+            
+            public string BackupType { get; set; } = "시스템 자동 백업";
         }
 
-        public async Task CreateBackup(bool backupNote = true, bool backupHistory = true)
+        public async Task CreateBackup(bool backupNote = true, bool backupHistory = true, bool force = false)
         {
             await Task.Run(() =>
             {
                 try
                 {
-                    string timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+                    // 날짜까지만 포함 (하루에 파일 하나만 유지 -> 덮어쓰기)
+                    string dateStr = DateTime.Now.ToString("yyyy-MM-dd");
+                    string typeStr = force ? "manual" : "auto";
                     
                     if (!Directory.Exists(_localBackupPath)) Directory.CreateDirectory(_localBackupPath);
 
                     // 1. 노트 DB 백업
+                    // force(수동백업)이거나, 변경사항이 있을 때만
                     if (backupNote && File.Exists(_localDbPath))
                     {
-                        string dest = Path.Combine(_localBackupPath, $"notes_{timestamp}.db");
-                        File.Copy(_localDbPath, dest, true);
+                        if (force || _isNoteDirty)
+                        {
+                            string dest = Path.Combine(_localBackupPath, $"notes_{typeStr}_{dateStr}.db");
+                            File.Copy(_localDbPath, dest, true); // Overwrite allowed
+                            if (!force) _isNoteDirty = false; // 자동 백업 후 플래그 초기화
+                        }
                     }
 
                     // 2. 히스토리 DB 백업
                     if (backupHistory && File.Exists(_localHistoryDbPath))
                     {
-                        string dest = Path.Combine(_localBackupPath, $"history_{timestamp}.db");
-                        File.Copy(_localHistoryDbPath, dest, true);
+                        if (force || _isHistoryDirty)
+                        {
+                            string dest = Path.Combine(_localBackupPath, $"history_{typeStr}_{dateStr}.db");
+                            File.Copy(_localHistoryDbPath, dest, true); // Overwrite allowed
+                            if (!force) _isHistoryDirty = false;
+                        }
                     }
 
                     // 3. 오래된 백업 정리
@@ -2811,15 +2854,20 @@ namespace CatchCapture.Utilities
                 if (dir.Exists)
                 {
                     string prefix = isHistory ? "history_" : "notes_";
-                    foreach (var file in dir.GetFiles($"{prefix}*.db").OrderByDescending(f => f.CreationTime))
+                    foreach (var file in dir.GetFiles($"{prefix}*.db").OrderByDescending(f => f.LastWriteTime))
                     {
+                        string type = "시스템 자동 백업";
+                        if (file.Name.Contains("_manual")) type = "사용자 수동 백업";
+                        else if (file.Name.Contains("_auto")) type = "시스템 자동 백업";
+                        
                         list.Add(new BackupInfo
                         {
                             FileName = file.Name,
                             FullPath = file.FullName,
-                            CreatedDate = file.CreationTime,
+                            CreatedDate = file.LastWriteTime,
                             SizeBytes = file.Length,
-                            IsHistory = isHistory
+                            IsHistory = isHistory,
+                            BackupType = type
                         });
                     }
                 }

@@ -149,7 +149,7 @@ namespace CatchCapture
                 BtnCreateManualBackup.IsEnabled = false;
                 
                 // 현재 창 모드에 따라 해당 DB만 백업
-                await DatabaseManager.Instance.CreateBackup(backupNote: !_isHistory, backupHistory: _isHistory);
+                await DatabaseManager.Instance.CreateBackup(backupNote: !_isHistory, backupHistory: _isHistory, force: true);
                 
                 // 리스트 새로고침
                 LoadBackups(_isHistory);
@@ -181,6 +181,35 @@ namespace CatchCapture
                 }
             }
             catch { }
+        }
+
+        private void BtnDeleteBackup_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.DataContext is DatabaseManager.BackupInfo info)
+            {
+                if (MessageBox.Show($"정말로 이 백업 파일을 삭제하시겠습니까?\n\n{info.FileName}", 
+                    "삭제 확인", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        if (System.IO.File.Exists(info.FullPath))
+                        {
+                            System.IO.File.Delete(info.FullPath);
+                            LoadBackups(_isHistory); // Refresh list
+                            MessageBox.Show("백업 파일이 삭제되었습니다.", "삭제 완료", MessageBoxButton.OK, MessageBoxImage.Information);
+                        }
+                        else
+                        {
+                            MessageBox.Show("파일을 찾을 수 없습니다.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                            LoadBackups(_isHistory); // Refresh anyway
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"파일 삭제 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
         }
 
         private void BtnExport_Click(object sender, RoutedEventArgs e)
