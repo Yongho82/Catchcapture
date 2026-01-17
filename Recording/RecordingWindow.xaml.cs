@@ -60,6 +60,12 @@ namespace CatchCapture.Recording
             _globalSettings = CatchCapture.Models.Settings.Load();
             _settings = _globalSettings.Recording;
             
+            // [User Request] Always start with MP4 SD 30F defaults
+            // This prevents the app from starting in MP3 mode even if the last session used MP3.
+            _settings.Format = RecordingFormat.MP4;
+            _settings.Quality = RecordingQuality.Medium;
+            _settings.FrameRate = 30;
+            
             // 타이머 초기화
             _recordingTimer = new DispatcherTimer();
             _recordingTimer.Interval = TimeSpan.FromSeconds(1);
