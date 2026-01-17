@@ -5116,6 +5116,12 @@ public partial class MainWindow : Window
         });
     }
 
+    protected override void OnClosed(EventArgs e)
+    {
+        CleanupMainWindowResources();
+        base.OnClosed(e);
+    }
+
     private void CleanupMainWindowResources()
     {
         try
