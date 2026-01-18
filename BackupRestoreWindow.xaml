@@ -142,51 +142,64 @@
                           ItemContainerStyle="{StaticResource DarkListViewItemStyle}">
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn Header="구분" Width="120">
+                            <GridViewColumn x:Name="ColType" Header="구분" Width="120">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding BackupType}" HorizontalAlignment="Center"/>
+                                        <Viewbox Stretch="Uniform" StretchDirection="DownOnly" MaxHeight="24" HorizontalAlignment="Center">
+                                            <TextBlock Text="{Binding BackupType}" FontSize="12" HorizontalAlignment="Center"/>
+                                        </Viewbox>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
-                            <GridViewColumn Header="크기" Width="80">
+                            <GridViewColumn x:Name="ColSize" Header="크기" Width="80">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding SizeDisplay}" HorizontalAlignment="Center"/>
+                                        <Viewbox Stretch="Uniform" StretchDirection="DownOnly" MaxHeight="24" HorizontalAlignment="Center">
+                                            <TextBlock Text="{Binding SizeDisplay}" FontSize="12" HorizontalAlignment="Center"/>
+                                        </Viewbox>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
-                            <GridViewColumn Header="날짜" Width="150">
+                            <GridViewColumn x:Name="ColDate" Header="날짜" Width="150">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding DateDisplay}" HorizontalAlignment="Center"/>
+                                        <Viewbox Stretch="Uniform" StretchDirection="DownOnly" MaxHeight="24" HorizontalAlignment="Center">
+                                            <TextBlock Text="{Binding DateDisplay}" FontSize="12" HorizontalAlignment="Center"/>
+                                        </Viewbox>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
-                            <GridViewColumn Header="파일명" Width="240">
+                            <GridViewColumn x:Name="ColFileName" Header="파일명" Width="240">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding FileName}" TextTrimming="CharacterEllipsis" ToolTip="{Binding FileName}"/>
+                                        <Viewbox Stretch="Uniform" StretchDirection="DownOnly" MaxHeight="24">
+                                            <TextBlock Text="{Binding FileName}" FontSize="12" ToolTip="{Binding FileName}"/>
+                                        </Viewbox>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
-                            <GridViewColumn Header="백업 시점" Width="100">
+                            <GridViewColumn x:Name="ColTimeAgo" Header="백업 시점" Width="100">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding TimeAgo}" HorizontalAlignment="Center"/>
+                                        <Viewbox Stretch="Uniform" StretchDirection="DownOnly" MaxHeight="24" HorizontalAlignment="Center">
+                                            <TextBlock Text="{Binding TimeAgo}" FontSize="12" HorizontalAlignment="Center"/>
+                                        </Viewbox>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
-                            <GridViewColumn Header="관리" Width="60">
+                            <GridViewColumn x:Name="ColManage" Header="관리" Width="65">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Content="삭제" FontSize="11" Padding="8,2" Click="BtnDeleteBackup_Click"
+                                        <Button x:Name="BtnDeleteBackupItem" FontSize="11" Padding="8,2" Click="BtnDeleteBackup_Click"
                                                 Background="#FF5252" Foreground="White" BorderThickness="0" HorizontalAlignment="Center">
                                             <Button.Resources>
                                                 <Style TargetType="Border">
                                                     <Setter Property="CornerRadius" Value="4"/>
                                                 </Style>
                                             </Button.Resources>
+                                            <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
+                                                <TextBlock Text="{DynamicResource Delete}" FontSize="11"/>
+                                            </Viewbox>
                                         </Button>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
@@ -211,21 +224,41 @@
                 <!-- Buttons (Combined for better spacing) -->
                 <Grid Grid.ColumnSpan="3" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                        <Button x:Name="BtnExport" Content="전체 내보내기 (Img포함)" Width="190" Height="36" Margin="0,0,10,0" Click="BtnExport_Click"
-                                Style="{StaticResource MacButtonSecondary}"/>
-                        <Button x:Name="BtnImport" Content="전체 가져오기 (Img포함)" Width="190" Height="36" Click="BtnImport_Click"
-                                Style="{StaticResource MacButtonSecondary}"/>
+                        <Button x:Name="BtnExport" Width="190" Height="36" Margin="0,0,10,0" Padding="10,4" Click="BtnExport_Click"
+                                Style="{StaticResource MacButtonSecondary}">
+                            <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
+                                <TextBlock x:Name="TxtBtnExport" Text="전체 내보내기 (Img포함)" FontSize="13"/>
+                            </Viewbox>
+                        </Button>
+                        <Button x:Name="BtnImport" Width="190" Height="36" Padding="10,4" Click="BtnImport_Click"
+                                Style="{StaticResource MacButtonSecondary}">
+                            <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
+                                <TextBlock x:Name="TxtBtnImport" Text="전체 가져오기 (Img포함)" FontSize="13"/>
+                            </Viewbox>
+                        </Button>
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button x:Name="BtnCreateManualBackup" Content="DB 백업 (현재 상태)" Width="160" Height="36" Margin="0,0,10,0" Click="BtnCreateManualBackup_Click"
-                                Style="{StaticResource MacButtonSecondary}"/>
+                        <Button x:Name="BtnCreateManualBackup" Width="160" Height="36" Margin="0,0,10,0" Padding="10,4" Click="BtnCreateManualBackup_Click"
+                                Style="{StaticResource MacButtonSecondary}">
+                            <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
+                                <TextBlock x:Name="TxtBtnCreateManualBackup" Text="DB 백업 (현재 상태)" FontSize="13"/>
+                            </Viewbox>
+                        </Button>
 
-                        <Button x:Name="BtnRestore" Content="DB 복구" Width="100" Height="36" Margin="0,0,10,0" Click="BtnRestore_Click"
-                                Style="{StaticResource MacButtonPrimary}"/>
+                        <Button x:Name="BtnRestore" Width="100" Height="36" Margin="0,0,10,0" Padding="10,4" Click="BtnRestore_Click"
+                                Style="{StaticResource MacButtonPrimary}">
+                            <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
+                                <TextBlock x:Name="TxtBtnRestore" Text="DB 복구" FontSize="13"/>
+                            </Viewbox>
+                        </Button>
                         
-                        <Button Content="{DynamicResource Close}" Width="90" Height="36" Click="BtnClose_Click"
-                                Style="{StaticResource MacButtonSecondary}"/>
+                        <Button Width="90" Height="36" Padding="10,4" Click="BtnClose_Click"
+                                Style="{StaticResource MacButtonSecondary}">
+                            <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
+                                <TextBlock Text="{DynamicResource Close}" FontSize="13"/>
+                            </Viewbox>
+                        </Button>
                     </StackPanel>
                 </Grid>
             </Grid>

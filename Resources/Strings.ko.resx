@@ -921,4 +921,46 @@
   <data name="HistoryBackupList" xml:space="preserve"><value>히스토리 백업 목록</value></data>
   <data name="SelectBackupToRestore" xml:space="preserve"><value>복원할 시점을 선택하세요</value></data>
   <data name="ConfirmRestoreBackup" xml:space="preserve"><value>선택한 시점({0})으로 복원하시겠습니까?\n현재 데이터는 백업 폴더에 자동 저장됩니다.</value></data>
+  <data name="BackupColType" xml:space="preserve"><value>구분</value></data>
+  <data name="BackupColSize" xml:space="preserve"><value>크기</value></data>
+  <data name="BackupColDate" xml:space="preserve"><value>날짜</value></data>
+  <data name="BackupColFileName" xml:space="preserve"><value>파일명</value></data>
+  <data name="BackupColTimeAgo" xml:space="preserve"><value>백업 시점</value></data>
+  <data name="BackupColManage" xml:space="preserve"><value>관리</value></data>
+  <data name="ExportAllWithImages" xml:space="preserve"><value>전체 내보내기 (Img포함)</value></data>
+  <data name="ImportAllWithImages" xml:space="preserve"><value>전체 가져오기 (Img포함)</value></data>
+  <data name="CreateManualBackupNote" xml:space="preserve"><value>DB 백업 (현재 상태)</value></data>
+  <data name="CreateManualBackupHistory" xml:space="preserve"><value>히스토리 DB 백업</value></data>
+  <data name="BackupTicker1" xml:space="preserve"><value>노트 DB는 종료 시 자동으로 백업됩니다.</value></data>
+  <data name="BackupTicker2" xml:space="preserve"><value>주기적인 데이터 백업을 권장합니다.</value></data>
+  <data name="BackupTicker3" xml:space="preserve"><value>초기화 전에는 반드시 전체 내보내기를 진행하세요.</value></data>
+  <data name="BackupTicker4" xml:space="preserve"><value>DB 복구 시 현재 데이터는 덮어씌워집니다.</value></data>
+  <data name="BackupCompleted" xml:space="preserve"><value>백업이 완료되었습니다.</value></data>
+  <data name="BackupCompletedTitle" xml:space="preserve"><value>백업 완료</value></data>
+  <data name="BackupFailed" xml:space="preserve"><value>백업 실패</value></data>
+  <data name="ConfirmDeleteBackup" xml:space="preserve"><value>정말로 이 백업 파일을 삭제하시겠습니까?</value></data>
+  <data name="BackupDeleted" xml:space="preserve"><value>백업 파일이 삭제되었습니다.</value></data>
+  <data name="ExportSuccess" xml:space="preserve"><value>전체 데이터 내보내기 완료!</value></data>
+  <data name="ExportFailed" xml:space="preserve"><value>내보내기 실패</value></data>
+  <data name="ImportConfirmation" xml:space="preserve"><value>불러오기를 진행하면 현재 노트 데이터와 병합되거나 덮어씌워질 수 있습니다.\n계속 하시겠습니까?</value></data>
+  <data name="ImportSuccess" xml:space="preserve"><value>데이터 가져오기 완료! 앱이 재시작될 수 있습니다.</value></data>
+  <data name="ImportFailed" xml:space="preserve"><value>가져오기 실패</value></data>
+  <data name="BackupHistoryDBRestore" xml:space="preserve"><value>히스토리 DB 복구</value></data>
+  <data name="BackupDataBackupAndRestore" xml:space="preserve"><value>데이터 백업 및 복구</value></data>
+  <data name="ConfirmResetNote" xml:space="preserve"><value>전체 노트를 초기화 하시겠습니까? 예를 누르시면 이미지 및 DB가 모두 초기화 됩니다.\n백업이 필요하시면 데이터 백업 및 복구를 먼저 진행해주세요.</value></data>
+  <data name="ConfirmResetHistory" xml:space="preserve"><value>히스토리 모든 기록을 영구적으로 삭제하시겠습니까?</value></data>
+  <data name="HistoryResetComplete" xml:space="preserve"><value>히스토리가 초기화되었습니다.</value></data>
+  <data name="HistoryResetError" xml:space="preserve"><value>히스토리 초기화 실패: {0}</value></data>
+  <data name="SelectBackupFolder" xml:space="preserve"><value>백업 폴더 선택</value></data>
+  <data name="FolderNotFound" xml:space="preserve"><value>폴더가 존재하지 않습니다.</value></data>
+  <data name="PasswordNotSet" xml:space="preserve"><value>비밀번호가 설정되지 않았습니다. 비밀번호를 설정해주세요.</value></data>
+  <data name="BackupAuto" xml:space="preserve"><value>시스템 자동 백업</value></data>
+  <data name="BackupManual" xml:space="preserve"><value>사용자 수동 백업</value></data>
+  <data name="TimeJustNow" xml:space="preserve"><value>방금 전</value></data>
+  <data name="TimeMinutesAgo" xml:space="preserve"><value>{0}분 전</value></data>
+  <data name="TimeHoursAgo" xml:space="preserve"><value>{0}시간 전</value></data>
+  <data name="TimeDaysAgo" xml:space="preserve"><value>{0}일 전</value></data>
+  <data name="DeleteConfirmation" xml:space="preserve"><value>삭제 확인</value></data>
+  <data name="DeleteCompletedTitle" xml:space="preserve"><value>삭제 완료</value></data>
+  <data name="DeleteError" xml:space="preserve"><value>삭제 중 오류 발생</value></data>
 </root>

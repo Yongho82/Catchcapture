@@ -909,4 +909,46 @@ Are you sure you want to permanently delete all items?</value>
   <data name="HistoryBackupList" xml:space="preserve"><value>History Backups</value></data>
   <data name="SelectBackupToRestore" xml:space="preserve"><value>Select a backup point to restore</value></data>
   <data name="ConfirmRestoreBackup" xml:space="preserve"><value>Do you want to restore to the selected point ({0})?\nCurrent data will be automatically backed up.</value></data>
+  <data name="BackupColType" xml:space="preserve"><value>Type</value></data>
+  <data name="BackupColSize" xml:space="preserve"><value>Size</value></data>
+  <data name="BackupColDate" xml:space="preserve"><value>Date</value></data>
+  <data name="BackupColFileName" xml:space="preserve"><value>Filename</value></data>
+  <data name="BackupColTimeAgo" xml:space="preserve"><value>Time Ago</value></data>
+  <data name="BackupColManage" xml:space="preserve"><value>Manage</value></data>
+  <data name="ExportAllWithImages" xml:space="preserve"><value>Export All (Incl. Images)</value></data>
+  <data name="ImportAllWithImages" xml:space="preserve"><value>Import All (Incl. Images)</value></data>
+  <data name="CreateManualBackupNote" xml:space="preserve"><value>DB Backup (Current State)</value></data>
+  <data name="CreateManualBackupHistory" xml:space="preserve"><value>History DB Backup</value></data>
+  <data name="BackupTicker1" xml:space="preserve"><value>Note DB is automatically backed up on exit.</value></data>
+  <data name="BackupTicker2" xml:space="preserve"><value>Periodic data backups are recommended.</value></data>
+  <data name="BackupTicker3" xml:space="preserve"><value>Please perform a full export before initialization.</value></data>
+  <data name="BackupTicker4" xml:space="preserve"><value>Current data will be overwritten during DB restore.</value></data>
+  <data name="BackupCompleted" xml:space="preserve"><value>Backup completed.</value></data>
+  <data name="BackupCompletedTitle" xml:space="preserve"><value>Backup Completed</value></data>
+  <data name="BackupFailed" xml:space="preserve"><value>Backup Failed</value></data>
+  <data name="ConfirmDeleteBackup" xml:space="preserve"><value>Are you sure you want to delete this backup file?</value></data>
+  <data name="BackupDeleted" xml:space="preserve"><value>Backup file has been deleted.</value></data>
+  <data name="ExportSuccess" xml:space="preserve"><value>Full data export complete!</value></data>
+  <data name="ExportFailed" xml:space="preserve"><value>Export failed</value></data>
+  <data name="ImportConfirmation" xml:space="preserve"><value>Importing may merge or overwrite current note data.\nDo you want to continue?</value></data>
+  <data name="ImportSuccess" xml:space="preserve"><value>Data import complete! The application may restart.</value></data>
+  <data name="ImportFailed" xml:space="preserve"><value>Import failed</value></data>
+  <data name="BackupHistoryDBRestore" xml:space="preserve"><value>History DB Restore</value></data>
+  <data name="BackupDataBackupAndRestore" xml:space="preserve"><value>Data Backup &amp; Restore</value></data>
+  <data name="ConfirmResetNote" xml:space="preserve"><value>Do you want to initialize all notes? Clicking Yes will reset all images and databases.\nIf you need a backup, please perform Data Backup first.</value></data>
+  <data name="ConfirmResetHistory" xml:space="preserve"><value>Are you sure you want to permanently delete all history records?</value></data>
+  <data name="HistoryResetComplete" xml:space="preserve"><value>History has been initialized.</value></data>
+  <data name="HistoryResetError" xml:space="preserve"><value>History initialization failed: {0}</value></data>
+  <data name="SelectBackupFolder" xml:space="preserve"><value>Select Backup Folder</value></data>
+  <data name="FolderNotFound" xml:space="preserve"><value>Folder does not exist.</value></data>
+  <data name="PasswordNotSet" xml:space="preserve"><value>Password is not set. Please set a password.</value></data>
+  <data name="BackupAuto" xml:space="preserve"><value>System Auto Backup</value></data>
+  <data name="BackupManual" xml:space="preserve"><value>User Manual Backup</value></data>
+  <data name="TimeJustNow" xml:space="preserve"><value>Just now</value></data>
+  <data name="TimeMinutesAgo" xml:space="preserve"><value>{0}m ago</value></data>
+  <data name="TimeHoursAgo" xml:space="preserve"><value>{0}h ago</value></data>
+  <data name="TimeDaysAgo" xml:space="preserve"><value>{0}d ago</value></data>
+  <data name="DeleteConfirmation" xml:space="preserve"><value>Confirm Delete</value></data>
+  <data name="DeleteCompletedTitle" xml:space="preserve"><value>Delete Completed</value></data>
+  <data name="DeleteError" xml:space="preserve"><value>Error during delete</value></data>
 </root>

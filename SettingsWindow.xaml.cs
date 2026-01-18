@@ -1237,8 +1237,8 @@ private void InitLanguageComboBox()
 
         private void BtnResetNote_Click(object sender, RoutedEventArgs e)
         {
-             // Updated message as requested
-            string msg = "전체 노트를 초기화 하시겠습니까? 예를 누르시면 이미지 및 DB가 모두 초기화 됩니다.\n백업이 필요하시면 데이터 백업 및 복구를 먼저 진행해주세요.";
+             // Localized message
+            string msg = LocalizationManager.GetString("ConfirmResetNote");
             if (CatchCapture.CustomMessageBox.Show(msg, LocalizationManager.GetString("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
             {
                 return;
@@ -1292,7 +1292,7 @@ private void InitLanguageComboBox()
 
         private void BtnResetHistory_Click(object sender, RoutedEventArgs e)
         {
-            if (CatchCapture.CustomMessageBox.Show("히스토리 모든 기록을 영구적으로 삭제하시겠습니까?", LocalizationManager.GetString("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
+            if (CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("ConfirmResetHistory"), LocalizationManager.GetString("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
             {
                 return;
             }
@@ -1300,11 +1300,11 @@ private void InitLanguageComboBox()
             try
             {
                 CatchCapture.Utilities.DatabaseManager.Instance.ResetHistoryDatabase();
-                CatchCapture.CustomMessageBox.Show("히스토리가 초기화되었습니다.", LocalizationManager.GetString("Success"), MessageBoxButton.OK, MessageBoxImage.Information);
+                CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("HistoryResetComplete"), LocalizationManager.GetString("Success"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                CatchCapture.CustomMessageBox.Show($"히스토리 초기화 실패: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+                CatchCapture.CustomMessageBox.Show(string.Format(LocalizationManager.GetString("HistoryResetError"), ex.Message), LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -1413,7 +1413,7 @@ private void InitLanguageComboBox()
             var dialog = new Microsoft.Win32.OpenFolderDialog
             {
                 InitialDirectory = TxtBackupFolder.Text,
-                Title = "백업 폴더 선택"
+                Title = LocalizationManager.GetString("SelectBackupFolder")
             };
             if (dialog.ShowDialog() == true)
             {
@@ -1431,12 +1431,12 @@ private void InitLanguageComboBox()
                 }
                 else
                 {
-                    CatchCapture.CustomMessageBox.Show("폴더가 존재하지 않습니다.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                    CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("FolderNotFound"), LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             catch (Exception ex)
             {
-                CatchCapture.CustomMessageBox.Show($"폴더 열기 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                CatchCapture.CustomMessageBox.Show(string.Format(LocalizationManager.GetString("ErrOpenFolder"), ex.Message), LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -1446,7 +1446,7 @@ private void InitLanguageComboBox()
             {
                 if (string.IsNullOrWhiteSpace(_settings.NotePassword))
                 {
-                    CatchCapture.CustomMessageBox.Show("비밀번호가 설정되지 않았습니다. 비밀번호를 설정해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("PasswordNotSet"), LocalizationManager.GetString("Info"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     var pwdWin = new NotePasswordWindow(null, null);
                     pwdWin.Owner = this;
                     if (pwdWin.ShowDialog() == true)
@@ -1462,7 +1462,7 @@ private void InitLanguageComboBox()
                 }
                 if (string.IsNullOrWhiteSpace(_settings.NotePasswordHint))
                 {
-                    CatchCapture.CustomMessageBox.Show("비밀번호 힌트 설정이 필요합니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("PasswordHintRequired"), LocalizationManager.GetString("Info"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     HighlightNav(NavNote, "Note");
                     return false;
                 }

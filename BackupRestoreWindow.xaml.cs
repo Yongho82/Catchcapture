@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using CatchCapture.Utilities;
+using LocalizationManager = CatchCapture.Resources.LocalizationManager;
 
 namespace CatchCapture
 {
@@ -16,37 +17,57 @@ namespace CatchCapture
         {
             InitializeComponent();
             _isHistory = isHistory;
+            
+            UpdateUIText();
+
             _tickerTimer = new System.Windows.Threading.DispatcherTimer();
             
             // UI Init
             BtnExport.Visibility = _isHistory ? Visibility.Collapsed : Visibility.Visible;
             BtnImport.Visibility = _isHistory ? Visibility.Collapsed : Visibility.Visible;
 
-            // Set Title
-            string titleKey = _isHistory ? "HistoryBackupList" : "NoteBackupList";
-            var titleRes = TryFindResource(titleKey) as string;
-            if (!string.IsNullOrEmpty(titleRes))
-            {
-                TitleText.Text = titleRes;
-            }
-            else
-            {
-                TitleText.Text = _isHistory ? "히스토리 DB 복구" : "데이터 백업 및 복구";
-            }
-
             LoadBackups(_isHistory);
             StartTicker();
         }
 
+        private void UpdateUIText()
+        {
+            // Title
+            string titleKey = _isHistory ? "BackupHistoryDBRestore" : "BackupDataBackupAndRestore";
+            TitleText.Text = LocalizationManager.GetString(titleKey);
+
+            // Grid Headers
+            if (ColType != null) ColType.Header = LocalizationManager.GetString("BackupColType");
+            if (ColSize != null) ColSize.Header = LocalizationManager.GetString("BackupColSize");
+            if (ColDate != null) ColDate.Header = LocalizationManager.GetString("BackupColDate");
+            if (ColFileName != null) ColFileName.Header = LocalizationManager.GetString("BackupColFileName");
+            if (ColTimeAgo != null) ColTimeAgo.Header = LocalizationManager.GetString("BackupColTimeAgo");
+            if (ColManage != null) ColManage.Header = LocalizationManager.GetString("BackupColManage");
+
+            // Buttons
+            if (TxtBtnExport != null) TxtBtnExport.Text = LocalizationManager.GetString("ExportAllWithImages");
+            if (TxtBtnImport != null) TxtBtnImport.Text = LocalizationManager.GetString("ImportAllWithImages");
+            
+            if (TxtBtnCreateManualBackup != null)
+            {
+                TxtBtnCreateManualBackup.Text = _isHistory ? LocalizationManager.GetString("CreateManualBackupHistory") : LocalizationManager.GetString("CreateManualBackupNote");
+            }
+
+            if (TxtBtnRestore != null) TxtBtnRestore.Text = LocalizationManager.GetString("RestoreFromBackup");
+
+            // Messages for ticker
+            _tickerMessages = new string[] 
+            {
+                LocalizationManager.GetString("BackupTicker1"),
+                LocalizationManager.GetString("BackupTicker2"),
+                LocalizationManager.GetString("BackupTicker3"),
+                LocalizationManager.GetString("BackupTicker4")
+            };
+        }
+
         private System.Windows.Threading.DispatcherTimer _tickerTimer;
         private int _tickerIndex = 0;
-        private string[] _tickerMessages = new string[] 
-        {
-            "노트 DB는 종료 시 자동으로 백업됩니다.",
-            "주기적인 데이터 백업을 권장합니다.",
-            "초기화 전에는 반드시 전체 내보내기를 진행하세요.",
-            "DB 복구 시 현재 데이터는 덮어씌워집니다."
-        };
+        private string[] _tickerMessages = new string[0];
 
         private void StartTicker()
         {
@@ -99,8 +120,8 @@ namespace CatchCapture
         {
             if (BackupListView.SelectedItem is DatabaseManager.BackupInfo selectedBackup)
             {
-                string title = TryFindResource("RestoreFromBackup") as string ?? "DB Restore";
-                string format = TryFindResource("ConfirmRestoreBackup") as string ?? "Restore to {0}?";
+                string title = LocalizationManager.GetString("RestoreFromBackup");
+                string format = LocalizationManager.GetString("ConfirmRestoreBackup");
                 string msg = string.Format(format, selectedBackup.DateDisplay);
                 
                 if (MessageBox.Show(msg, title, MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
@@ -113,10 +134,9 @@ namespace CatchCapture
                             DatabaseManager.Instance.RestoreFromBackup(selectedBackup.FullPath, selectedBackup.IsHistory);
                         });
 
-                        string successMsg = TryFindResource("RestoreSuccessMsg") as string ?? "Success. Restarting...";
-                        MessageBox.Show(successMsg, "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                        string successMsg = LocalizationManager.GetString("RestoreSuccessMsg");
+                        MessageBox.Show(successMsg, LocalizationManager.GetString("Success"), MessageBoxButton.OK, MessageBoxImage.Information);
                         
-                        // Restart App
                         // Restart App
                         try
                         {
@@ -126,8 +146,8 @@ namespace CatchCapture
                     }
                     catch (Exception ex)
                     {
-                        string errorTitle = TryFindResource("ErrorRestore") as string ?? "Error";
-                        MessageBox.Show($"{errorTitle}: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        string errorTitle = LocalizationManager.GetString("ErrorRestore");
+                        MessageBox.Show($"{errorTitle}: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                     finally
                     {
@@ -137,7 +157,7 @@ namespace CatchCapture
             }
             else
             {
-                string selectMsg = TryFindResource("SelectBackupToRestore") as string ?? "Please select a backup.";
+                string selectMsg = LocalizationManager.GetString("SelectBackupToRestore");
                 MessageBox.Show(selectMsg, "Info", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
@@ -154,11 +174,11 @@ namespace CatchCapture
                 // 리스트 새로고침
                 LoadBackups(_isHistory);
                 
-                MessageBox.Show("백업이 완료되었습니다.", "백업 완료", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(LocalizationManager.GetString("BackupCompleted"), LocalizationManager.GetString("BackupCompletedTitle"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"백업 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"{LocalizationManager.GetString("BackupFailed")}: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
@@ -187,8 +207,8 @@ namespace CatchCapture
         {
             if (sender is Button btn && btn.DataContext is DatabaseManager.BackupInfo info)
             {
-                if (MessageBox.Show($"정말로 이 백업 파일을 삭제하시겠습니까?\n\n{info.FileName}", 
-                    "삭제 확인", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                if (MessageBox.Show($"{LocalizationManager.GetString("ConfirmDeleteBackup")}\n\n{info.FileName}", 
+                    LocalizationManager.GetString("DeleteConfirmation"), MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                 {
                     try
                     {
@@ -196,17 +216,17 @@ namespace CatchCapture
                         {
                             System.IO.File.Delete(info.FullPath);
                             LoadBackups(_isHistory); // Refresh list
-                            MessageBox.Show("백업 파일이 삭제되었습니다.", "삭제 완료", MessageBoxButton.OK, MessageBoxImage.Information);
+                            MessageBox.Show(LocalizationManager.GetString("BackupDeleted"), LocalizationManager.GetString("DeleteCompletedTitle"), MessageBoxButton.OK, MessageBoxImage.Information);
                         }
                         else
                         {
-                            MessageBox.Show("파일을 찾을 수 없습니다.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                            MessageBox.Show(LocalizationManager.GetString("FileNotFound"), LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
                             LoadBackups(_isHistory); // Refresh anyway
                         }
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"파일 삭제 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show($"{LocalizationManager.GetString("DeleteError")}: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
             }
@@ -237,13 +257,13 @@ namespace CatchCapture
                     DatabaseManager.Instance.ExportNoteData(sfd.FileName, noteRoot);
                     LoadingOverlay.Visibility = Visibility.Collapsed;
 
-                    MessageBox.Show("전체 데이터 내보내기 완료!", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show(LocalizationManager.GetString("ExportSuccess"), LocalizationManager.GetString("Success"), MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
             {
                 LoadingOverlay.Visibility = Visibility.Collapsed;
-                MessageBox.Show($"내보내기 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"{LocalizationManager.GetString("ExportFailed")}: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -255,8 +275,8 @@ namespace CatchCapture
                 ofd.Filter = "Zip Files (*.zip)|*.zip";
                 if (ofd.ShowDialog() == true)
                 {
-                    if (MessageBox.Show("불러오기를 진행하면 현재 노트 데이터와 병합되거나 덮어씌워질 수 있습니다.\n계속 하시겠습니까?", 
-                        "확인", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                    if (MessageBox.Show(LocalizationManager.GetString("ImportConfirmation"), 
+                        LocalizationManager.GetString("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                     {
                         LoadingOverlay.Visibility = Visibility.Visible;
                         
@@ -266,14 +286,14 @@ namespace CatchCapture
                         DatabaseManager.Instance.ImportNoteData(ofd.FileName, targetDir);
                         
                         LoadingOverlay.Visibility = Visibility.Collapsed;
-                        MessageBox.Show("데이터 가져오기 완료! 앱이 재시작될 수 있습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
+                        MessageBox.Show(LocalizationManager.GetString("ImportSuccess"), LocalizationManager.GetString("Success"), MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                 }
             }
             catch (Exception ex)
             {
                 LoadingOverlay.Visibility = Visibility.Collapsed;
-                MessageBox.Show($"가져오기 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"{LocalizationManager.GetString("ImportFailed")}: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

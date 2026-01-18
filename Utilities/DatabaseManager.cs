@@ -2764,15 +2764,15 @@ namespace CatchCapture.Utilities
                 get
                 {
                     var span = DateTime.Now - CreatedDate;
-                    if (span.TotalMinutes < 1) return "방금 전";
-                    if (span.TotalMinutes < 60) return $"{(int)span.TotalMinutes}분 전";
-                    if (span.TotalHours < 24) return $"{(int)span.TotalHours}시간 전";
-                    if (span.TotalDays < 7) return $"{(int)span.TotalDays}일 전";
+                    if (span.TotalMinutes < 1) return Resources.LocalizationManager.GetString("TimeJustNow");
+                    if (span.TotalMinutes < 60) return string.Format(Resources.LocalizationManager.GetString("TimeMinutesAgo"), (int)span.TotalMinutes);
+                    if (span.TotalHours < 24) return string.Format(Resources.LocalizationManager.GetString("TimeHoursAgo"), (int)span.TotalHours);
+                    if (span.TotalDays < 7) return string.Format(Resources.LocalizationManager.GetString("TimeDaysAgo"), (int)span.TotalDays);
                     return CreatedDate.ToString("yyyy-MM-dd");
                 }
             }
             
-            public string BackupType { get; set; } = "시스템 자동 백업";
+            public string BackupType { get; set; } = string.Empty;
         }
 
         private void CheckpointDatabase(string dbPath)
@@ -2886,9 +2886,9 @@ namespace CatchCapture.Utilities
                     string prefix = isHistory ? "history_" : "notes_";
                     foreach (var file in dir.GetFiles($"{prefix}*.db").OrderByDescending(f => f.LastWriteTime))
                     {
-                        string type = "시스템 자동 백업";
-                        if (file.Name.Contains("_manual")) type = "사용자 수동 백업";
-                        else if (file.Name.Contains("_auto")) type = "시스템 자동 백업";
+                        string type = Resources.LocalizationManager.GetString("BackupAuto");
+                        if (file.Name.Contains("_manual")) type = Resources.LocalizationManager.GetString("BackupManual");
+                        else if (file.Name.Contains("_auto")) type = Resources.LocalizationManager.GetString("BackupAuto");
                         
                         list.Add(new BackupInfo
                         {
