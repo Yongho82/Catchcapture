@@ -5,6 +5,8 @@ using System.Windows.Media.Imaging;
 using System.IO;
 using Microsoft.Win32;
 
+using CatchCapture.Utilities;
+
 namespace CatchCapture
 {
     public partial class ImageViewerWindow : Window
@@ -31,6 +33,7 @@ namespace CatchCapture
         {
             if (TxtAppTitle != null) TxtAppTitle.Text = CatchCapture.Resources.LocalizationManager.GetString("ImageViewerTitle");
             if (BtnZoomReset != null) BtnZoomReset.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("ImageViewerResetZoomTooltip");
+            if (BtnPin != null) BtnPin.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("PinToScreenTooltip") ?? "화면에 고정";
             if (BtnCopy != null) BtnCopy.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("ImageViewerCopyTooltip");
             if (BtnSaveAs != null) BtnSaveAs.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("ImageViewerSaveAsTooltip");
         }
@@ -173,9 +176,29 @@ namespace CatchCapture
             UpdateHUD();
         }
 
+        private void BtnPin_Click(object sender, RoutedEventArgs e)
+        {
+            if (ImgDisplay.Source is BitmapSource bs)
+            {
+                var pinnedWindow = new PinnedImageWindow(bs);
+                pinnedWindow.Show();
+                pinnedWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            }
+        }
+
         private void BtnCopy_Click(object sender, RoutedEventArgs e)
         {
-            try { if (ImgDisplay.Source is BitmapSource bs) Clipboard.SetImage(bs); } catch { }
+            try 
+            { 
+                if (ImgDisplay.Source is BitmapSource bs) 
+                {
+                    Clipboard.SetImage(bs); 
+                    string msg = CatchCapture.Resources.LocalizationManager.GetString("CopiedToClipboard");
+                    if (string.IsNullOrEmpty(msg) || msg == "CopiedToClipboard") msg = "클립보드에 복사 되었습니다.";
+                    StickerWindow.Show(msg);
+                }
+            } 
+            catch { }
         }
 
         private void BtnSaveAs_Click(object sender, RoutedEventArgs e)
