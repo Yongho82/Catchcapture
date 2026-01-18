@@ -376,8 +376,8 @@
                     
                     <controls:TwoTierToolButton 
                         x:Name="EdgeLineToolButton"
-                        Label="엣지라인" 
-                        ToolTipText="엣지라인"
+                        Label="{DynamicResource EdgeLine}" 
+                        ToolTipText="{DynamicResource EdgeLine}"
                         MainButtonClick="EdgeLineButton_Click"
                         OptionsButtonClick="EdgeLineOptionsButton_Click">
                         <controls:TwoTierToolButton.IconContent>
