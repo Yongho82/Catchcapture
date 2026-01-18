@@ -871,8 +871,58 @@ Tem a certeza que quer apagar permanentemente todos os itens?</value>
   <data name="EdgeLevel3" xml:space="preserve"><value>Nível 3 (Padrão)</value></data>
   <data name="EdgeLevel4" xml:space="preserve"><value>Nível 4 (Cápsula)</value></data>
   <data name="EdgeLevel5" xml:space="preserve"><value>Nível 5 (Círculo)</value></data>
+  <data name="RestoreFromBackup" xml:space="preserve"><value>Restaurar do Backup</value></data>
+  <data name="RestoringMsg" xml:space="preserve"><value>Restaurando dados... Aguarde por favor.</value></data>
+  <data name="RestoreSuccessMsg" xml:space="preserve"><value>Restauração concluída. O aplicativo será reiniciado para aplicar as alterações.</value></data>
+  <data name="ErrorRestore" xml:space="preserve"><value>Erro durante a restauração</value></data>
+  <data name="NoteBackupList" xml:space="preserve"><value>Backups de Notas</value></data>
+  <data name="HistoryBackupList" xml:space="preserve"><value>Backups de Histórico</value></data>
+  <data name="SelectBackupToRestore" xml:space="preserve"><value>Selecione um ponto de backup para restaurar</value></data>
+  <data name="ConfirmRestoreBackup" xml:space="preserve"><value>Deseja restaurar para o ponto selecionado ({0})?\nOs dados atuais serão automaticamente salvos em backup.</value></data>
+  <data name="BackupColType" xml:space="preserve"><value>Tipo</value></data>
+  <data name="BackupColSize" xml:space="preserve"><value>Tamanho</value></data>
+  <data name="BackupColDate" xml:space="preserve"><value>Data</value></data>
+  <data name="BackupColFileName" xml:space="preserve"><value>Nome do arquivo</value></data>
+  <data name="BackupColTimeAgo" xml:space="preserve"><value>Há</value></data>
+  <data name="BackupColManage" xml:space="preserve"><value>Gerenciar</value></data>
+  <data name="ExportAllWithImages" xml:space="preserve"><value>Exportar Tudo (Incl. Imagens)</value></data>
+  <data name="ImportAllWithImages" xml:space="preserve"><value>Importar Tudo (Incl. Imagens)</value></data>
+  <data name="CreateManualBackupNote" xml:space="preserve"><value>Backup DB (Estado Atual)</value></data>
+  <data name="CreateManualBackupHistory" xml:space="preserve"><value>Backup DB Histórico</value></data>
+  <data name="BackupTicker1" xml:space="preserve"><value>O DB de notas é salvo automaticamente ao sair.</value></data>
+  <data name="BackupTicker2" xml:space="preserve"><value>Backups periódicos de dados são recomendados.</value></data>
+  <data name="BackupTicker3" xml:space="preserve"><value>Realize uma exportação completa antes da inicialização.</value></data>
+  <data name="BackupTicker4" xml:space="preserve"><value>Os dados atuais serão sobrescritos durante a restauração do DB.</value></data>
+  <data name="BackupCompleted" xml:space="preserve"><value>Backup concluído.</value></data>
+  <data name="BackupCompletedTitle" xml:space="preserve"><value>Backup Concluído</value></data>
+  <data name="BackupFailed" xml:space="preserve"><value>Falha no backup</value></data>
+  <data name="ConfirmDeleteBackup" xml:space="preserve"><value>Tem certeza de que deseja excluir este arquivo de backup?</value></data>
+  <data name="BackupDeleted" xml:space="preserve"><value>O arquivo de backup foi excluído.</value></data>
+  <data name="ExportSuccess" xml:space="preserve"><value>Exportação completa de dados concluída!</value></data>
+  <data name="ExportFailed" xml:space="preserve"><value>Falha na exportação</value></data>
+  <data name="ImportConfirmation" xml:space="preserve"><value>A importação pode mesclar ou sobrescrever os dados de notas atuais.\nDeseja continuar?</value></data>
+  <data name="ImportSuccess" xml:space="preserve"><value>Importação de dados concluída! O aplicativo pode reiniciar.</value></data>
+  <data name="ImportFailed" xml:space="preserve"><value>Falha na importação</value></data>
+  <data name="BackupHistoryDBRestore" xml:space="preserve"><value>Restauração DB Histórico</value></data>
+  <data name="BackupDataBackupAndRestore" xml:space="preserve"><value>Backup e Restauração de Dados</value></data>
+  <data name="ConfirmResetNote" xml:space="preserve"><value>Deseja inicializar todas as notas? Clicar em Sim resetará todas as imagens e bancos de dados.\nSe precisar de backup, realize primeiro o Backup de Dados.</value></data>
+  <data name="ConfirmResetHistory" xml:space="preserve"><value>Tem certeza de que deseja excluir permanentemente todos os registros de histórico?</value></data>
+  <data name="HistoryResetComplete" xml:space="preserve"><value>O histórico foi inicializado.</value></data>
+  <data name="HistoryResetError" xml:space="preserve"><value>Falha na inicialização do histórico: {0}</value></data>
+  <data name="SelectBackupFolder" xml:space="preserve"><value>Selecionar Pasta de Backup</value></data>
+  <data name="FolderNotFound" xml:space="preserve"><value>A pasta não existe.</value></data>
+  <data name="PasswordNotSet" xml:space="preserve"><value>Senha não definida. Defina uma senha.</value></data>
+  <data name="BackupAuto" xml:space="preserve"><value>Backup Automático do Sistema</value></data>
+  <data name="BackupManual" xml:space="preserve"><value>Backup Manual do Usuário</value></data>
+  <data name="TimeJustNow" xml:space="preserve"><value>Agora mesmo</value></data>
+  <data name="TimeMinutesAgo" xml:space="preserve"><value>{0} min atrás</value></data>
+  <data name="TimeHoursAgo" xml:space="preserve"><value>{0} h atrás</value></data>
+  <data name="TimeDaysAgo" xml:space="preserve"><value>{0} d atrás</value></data>
+  <data name="DeleteConfirmation" xml:space="preserve"><value>Confirmar Exclusão</value></data>
+  <data name="DeleteCompletedTitle" xml:space="preserve"><value>Exclusão Concluída</value></data>
+  <data name="DeleteError" xml:space="preserve"><value>Erro durante a exclusão</value></data>
   <data name="RecordingSaved" xml:space="preserve"><value>Gravação salva: {0}</value></data>
-  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>Gravação em andamento. Deseja salvar?</value></data>
+  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>Gravação em andamento. Salvar?</value></data>
   <data name="RecordingInProgressTitle" xml:space="preserve"><value>Gravação em andamento</value></data>
   <data name="NoFramesToSave" xml:space="preserve"><value>Nenhum quadro gravado, não é possível salvar.</value></data>
   <data name="StopRecordingError" xml:space="preserve"><value>Erro ao parar a gravação: {0}</value></data>

@@ -871,11 +871,61 @@ Yakin ingin menghapus permanen semua item?</value>
   <data name="EdgeLevel3" xml:space="preserve"><value>Level 3 (Standar)</value></data>
   <data name="EdgeLevel4" xml:space="preserve"><value>Level 4 (Kapsul)</value></data>
   <data name="EdgeLevel5" xml:space="preserve"><value>Level 5 (Lingkaran)</value></data>
+  <data name="RestoreFromBackup" xml:space="preserve"><value>Pulihkan dari Cadangan</value></data>
+  <data name="RestoringMsg" xml:space="preserve"><value>Memulihkan data... Harap tunggu.</value></data>
+  <data name="RestoreSuccessMsg" xml:space="preserve"><value>Pemulihan selesai. Aplikasi akan restart untuk menerapkan perubahan.</value></data>
+  <data name="ErrorRestore" xml:space="preserve"><value>Error saat pemulihan</value></data>
+  <data name="NoteBackupList" xml:space="preserve"><value>Cadangan Catatan</value></data>
+  <data name="HistoryBackupList" xml:space="preserve"><value>Cadangan Riwayat</value></data>
+  <data name="SelectBackupToRestore" xml:space="preserve"><value>Pilih titik cadangan untuk dipulihkan</value></data>
+  <data name="ConfirmRestoreBackup" xml:space="preserve"><value>Apakah Anda ingin memulihkan ke titik yang dipilih ({0})?\nData saat ini akan dicadangkan secara otomatis.</value></data>
+  <data name="BackupColType" xml:space="preserve"><value>Jenis</value></data>
+  <data name="BackupColSize" xml:space="preserve"><value>Ukuran</value></data>
+  <data name="BackupColDate" xml:space="preserve"><value>Tanggal</value></data>
+  <data name="BackupColFileName" xml:space="preserve"><value>Nama File</value></data>
+  <data name="BackupColTimeAgo" xml:space="preserve"><value>Waktu yang lalu</value></data>
+  <data name="BackupColManage" xml:space="preserve"><value>Kelola</value></data>
+  <data name="ExportAllWithImages" xml:space="preserve"><value>Ekspor Semua (Termasuk Gambar)</value></data>
+  <data name="ImportAllWithImages" xml:space="preserve"><value>Impor Semua (Termasuk Gambar)</value></data>
+  <data name="CreateManualBackupNote" xml:space="preserve"><value>Cadangan DB (Status Saat Ini)</value></data>
+  <data name="CreateManualBackupHistory" xml:space="preserve"><value>Cadangan DB Riwayat</value></data>
+  <data name="BackupTicker1" xml:space="preserve"><value>DB Catatan dicadangkan secara otomatis saat keluar.</value></data>
+  <data name="BackupTicker2" xml:space="preserve"><value>Cadangan data berkala direkomendasikan.</value></data>
+  <data name="BackupTicker3" xml:space="preserve"><value>Harap lakukan ekspor lengkap sebelum inisialisasi.</value></data>
+  <data name="BackupTicker4" xml:space="preserve"><value>Data saat ini akan ditimpa saat pemulihan DB.</value></data>
+  <data name="BackupCompleted" xml:space="preserve"><value>Cadangan selesai.</value></data>
+  <data name="BackupCompletedTitle" xml:space="preserve"><value>Cadangan Selesai</value></data>
+  <data name="BackupFailed" xml:space="preserve"><value>Cadangan Gagal</value></data>
+  <data name="ConfirmDeleteBackup" xml:space="preserve"><value>Apakah Anda yakin ingin menghapus file cadangan ini?</value></data>
+  <data name="BackupDeleted" xml:space="preserve"><value>File cadangan telah dihapus.</value></data>
+  <data name="ExportSuccess" xml:space="preserve"><value>Ekspor data lengkap selesai!</value></data>
+  <data name="ExportFailed" xml:space="preserve"><value>Ekspor gagal</value></data>
+  <data name="ImportConfirmation" xml:space="preserve"><value>Impor dapat menggabungkan atau menimpa data catatan saat ini.\nApakah Anda ingin melanjutkan?</value></data>
+  <data name="ImportSuccess" xml:space="preserve"><value>Impor data selesai! Aplikasi mungkin akan restart.</value></data>
+  <data name="ImportFailed" xml:space="preserve"><value>Impor gagal</value></data>
+  <data name="BackupHistoryDBRestore" xml:space="preserve"><value>Pemulihan DB Riwayat</value></data>
+  <data name="BackupDataBackupAndRestore" xml:space="preserve"><value>Cadangan, Pemulihan Data</value></data>
+  <data name="ConfirmResetNote" xml:space="preserve"><value>Apakah Anda ingin menginisialisasi semua catatan? Mengklik Ya akan mereset semua gambar dan database.\nJika perlu cadangan, lakukan Cadangan Data terlebih dahulu.</value></data>
+  <data name="ConfirmResetHistory" xml:space="preserve"><value>Apakah Anda yakin ingin menghapus permanen semua catatan riwayat?</value></data>
+  <data name="HistoryResetComplete" xml:space="preserve"><value>Riwayat telah diinisialisasi.</value></data>
+  <data name="HistoryResetError" xml:space="preserve"><value>Inisialisasi riwayat gagal: {0}</value></data>
+  <data name="SelectBackupFolder" xml:space="preserve"><value>Pilih Folder Cadangan</value></data>
+  <data name="FolderNotFound" xml:space="preserve"><value>Folder tidak ada.</value></data>
+  <data name="PasswordNotSet" xml:space="preserve"><value>Kata sandi belum diatur. Silakan atur kata sandi.</value></data>
+  <data name="BackupAuto" xml:space="preserve"><value>Cadangan Otomatis Sistem</value></data>
+  <data name="BackupManual" xml:space="preserve"><value>Cadangan Manual Pengguna</value></data>
+  <data name="TimeJustNow" xml:space="preserve"><value>Baru saja</value></data>
+  <data name="TimeMinutesAgo" xml:space="preserve"><value>{0} menit lalu</value></data>
+  <data name="TimeHoursAgo" xml:space="preserve"><value>{0} jam lalu</value></data>
+  <data name="TimeDaysAgo" xml:space="preserve"><value>{0} hari lalu</value></data>
+  <data name="DeleteConfirmation" xml:space="preserve"><value>Konfirmasi Hapus</value></data>
+  <data name="DeleteCompletedTitle" xml:space="preserve"><value>Hapus Selesai</value></data>
+  <data name="DeleteError" xml:space="preserve"><value>Error saat menghapus</value></data>
   <data name="RecordingSaved" xml:space="preserve"><value>Perekaman disimpan: {0}</value></data>
-  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>Perekaman sedang berlangsung. Apakah Anda ingin menyimpan?</value></data>
-  <data name="RecordingInProgressTitle" xml:space="preserve"><value>Perekaman sedang berlangsung</value></data>
+  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>Perekaman sedang berlangsung. Simpan?</value></data>
+  <data name="RecordingInProgressTitle" xml:space="preserve"><value>Perekaman berlangsung</value></data>
   <data name="NoFramesToSave" xml:space="preserve"><value>Tidak ada frame yang direkam, tidak dapat disimpan.</value></data>
-  <data name="StopRecordingError" xml:space="preserve"><value>Error menghentikan perekaman: {0}</value></data>
+  <data name="StopRecordingError" xml:space="preserve"><value>Error saat menghentikan perekaman: {0}</value></data>
   <data name="NoMicDetected" xml:space="preserve"><value>Mikrofon tidak terdeteksi. Hubungkan perangkat input audio.</value></data>
   <data name="NoMicTitle" xml:space="preserve"><value>Tidak ada mikrofon</value></data>
   <data name="MicCheckFailed" xml:space="preserve"><value>Pemeriksaan mikrofon gagal: {0}</value></data>

@@ -900,7 +900,6 @@ Are you sure you want to permanently delete all items?</value>
   <data name="EdgeLevel3" xml:space="preserve"><value>Level 3 (Standard)</value></data>
   <data name="EdgeLevel4" xml:space="preserve"><value>Level 4 (Capsule)</value></data>
   <data name="EdgeLevel5" xml:space="preserve"><value>Level 5 (Circle)</value></data>
-
   <data name="RestoreFromBackup" xml:space="preserve"><value>DB Restore</value></data>
   <data name="RestoringMsg" xml:space="preserve"><value>Restoring data... Please wait.</value></data>
   <data name="RestoreSuccessMsg" xml:space="preserve"><value>Restore completed. The application will restart to apply changes.</value></data>

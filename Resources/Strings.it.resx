@@ -871,11 +871,61 @@ Eliminare permanentemente tutti gli elementi?</value>
   <data name="EdgeLevel3" xml:space="preserve"><value>Livello 3 (Standard)</value></data>
   <data name="EdgeLevel4" xml:space="preserve"><value>Livello 4 (Capsula)</value></data>
   <data name="EdgeLevel5" xml:space="preserve"><value>Livello 5 (Cerchio)</value></data>
+  <data name="RestoreFromBackup" xml:space="preserve"><value>Ripristina da backup</value></data>
+  <data name="RestoringMsg" xml:space="preserve"><value>Ripristino dati in corso... Attendere prego.</value></data>
+  <data name="RestoreSuccessMsg" xml:space="preserve"><value>Ripristino completato. L'app verrà riavviata per applicare le modifiche.</value></data>
+  <data name="ErrorRestore" xml:space="preserve"><value>Errore durante il ripristino</value></data>
+  <data name="NoteBackupList" xml:space="preserve"><value>Backup note</value></data>
+  <data name="HistoryBackupList" xml:space="preserve"><value>Backup cronologia</value></data>
+  <data name="SelectBackupToRestore" xml:space="preserve"><value>Seleziona un punto di backup da ripristinare</value></data>
+  <data name="ConfirmRestoreBackup" xml:space="preserve"><value>Vuoi ripristinare al punto selezionato ({0})?\nI dati attuali verranno automaticamente salvati in backup.</value></data>
+  <data name="BackupColType" xml:space="preserve"><value>Tipo</value></data>
+  <data name="BackupColSize" xml:space="preserve"><value>Dimensione</value></data>
+  <data name="BackupColDate" xml:space="preserve"><value>Data</value></data>
+  <data name="BackupColFileName" xml:space="preserve"><value>Nome file</value></data>
+  <data name="BackupColTimeAgo" xml:space="preserve"><value>Tempo fa</value></data>
+  <data name="BackupColManage" xml:space="preserve"><value>Gestisci</value></data>
+  <data name="ExportAllWithImages" xml:space="preserve"><value>Esporta tutto (incl. immagini)</value></data>
+  <data name="ImportAllWithImages" xml:space="preserve"><value>Importa tutto (incl. immagini)</value></data>
+  <data name="CreateManualBackupNote" xml:space="preserve"><value>Backup DB (Stato attuale)</value></data>
+  <data name="CreateManualBackupHistory" xml:space="preserve"><value>Backup DB Cronologia</value></data>
+  <data name="BackupTicker1" xml:space="preserve"><value>Il DB note viene backuppato automaticamente all'uscita.</value></data>
+  <data name="BackupTicker2" xml:space="preserve"><value>Sono consigliati backup periodici dei dati.</value></data>
+  <data name="BackupTicker3" xml:space="preserve"><value>Esegui un'esportazione completa prima dell'inizializzazione.</value></data>
+  <data name="BackupTicker4" xml:space="preserve"><value>I dati attuali verranno sovrascritti durante il ripristino del DB.</value></data>
+  <data name="BackupCompleted" xml:space="preserve"><value>Backup completato.</value></data>
+  <data name="BackupCompletedTitle" xml:space="preserve"><value>Backup completato</value></data>
+  <data name="BackupFailed" xml:space="preserve"><value>Backup fallito</value></data>
+  <data name="ConfirmDeleteBackup" xml:space="preserve"><value>Sei sicuro di voler eliminare questo file di backup?</value></data>
+  <data name="BackupDeleted" xml:space="preserve"><value>Il file di backup è stato eliminato.</value></data>
+  <data name="ExportSuccess" xml:space="preserve"><value>Esportazione completa dei dati completata!</value></data>
+  <data name="ExportFailed" xml:space="preserve"><value>Esportazione fallita</value></data>
+  <data name="ImportConfirmation" xml:space="preserve"><value>L'importazione potrebbe unire o sovrascrivere i dati note attuali.\nVuoi continuare?</value></data>
+  <data name="ImportSuccess" xml:space="preserve"><value>Importazione dati completata! L'app potrebbe riavviarsi.</value></data>
+  <data name="ImportFailed" xml:space="preserve"><value>Importazione fallita</value></data>
+  <data name="BackupHistoryDBRestore" xml:space="preserve"><value>Ripristino DB Cronologia</value></data>
+  <data name="BackupDataBackupAndRestore" xml:space="preserve"><value>Backup, Ripristino Dati</value></data>
+  <data name="ConfirmResetNote" xml:space="preserve"><value>Vuoi inizializzare tutte le note? Cliccando Sì verranno resettate tutte le immagini e i database.\nSe hai bisogno di un backup, esegui prima il Backup Dati.</value></data>
+  <data name="ConfirmResetHistory" xml:space="preserve"><value>Sei sicuro di voler eliminare permanentemente tutti i record della cronologia?</value></data>
+  <data name="HistoryResetComplete" xml:space="preserve"><value>La cronologia è stata inizializzata.</value></data>
+  <data name="HistoryResetError" xml:space="preserve"><value>Inizializzazione cronologia fallita: {0}</value></data>
+  <data name="SelectBackupFolder" xml:space="preserve"><value>Seleziona cartella di backup</value></data>
+  <data name="FolderNotFound" xml:space="preserve"><value>La cartella non esiste.</value></data>
+  <data name="PasswordNotSet" xml:space="preserve"><value>Password non impostata. Imposta una password.</value></data>
+  <data name="BackupAuto" xml:space="preserve"><value>Backup automatico di sistema</value></data>
+  <data name="BackupManual" xml:space="preserve"><value>Backup manuale utente</value></data>
+  <data name="TimeJustNow" xml:space="preserve"><value>Proprio ora</value></data>
+  <data name="TimeMinutesAgo" xml:space="preserve"><value>{0} min fa</value></data>
+  <data name="TimeHoursAgo" xml:space="preserve"><value>{0} ore fa</value></data>
+  <data name="TimeDaysAgo" xml:space="preserve"><value>{0} gg fa</value></data>
+  <data name="DeleteConfirmation" xml:space="preserve"><value>Conferma eliminazione</value></data>
+  <data name="DeleteCompletedTitle" xml:space="preserve"><value>Eliminazione completata</value></data>
+  <data name="DeleteError" xml:space="preserve"><value>Errore durante l'eliminazione</value></data>
   <data name="RecordingSaved" xml:space="preserve"><value>Registrazione salvata: {0}</value></data>
-  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>Registrazione in corso. Vuoi salvare?</value></data>
+  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>Registrazione in corso. Salvare?</value></data>
   <data name="RecordingInProgressTitle" xml:space="preserve"><value>Registrazione in corso</value></data>
   <data name="NoFramesToSave" xml:space="preserve"><value>Nessun frame registrato, impossibile salvare.</value></data>
-  <data name="StopRecordingError" xml:space="preserve"><value>Errore durante l'interruzione della registrazione: {0}</value></data>
+  <data name="StopRecordingError" xml:space="preserve"><value>Errore durante l'arresto della registrazione: {0}</value></data>
   <data name="NoMicDetected" xml:space="preserve"><value>Nessun microfono rilevato. Collega un dispositivo di input audio.</value></data>
   <data name="NoMicTitle" xml:space="preserve"><value>Nessun microfono</value></data>
   <data name="MicCheckFailed" xml:space="preserve"><value>Controllo microfono fallito: {0}</value></data>

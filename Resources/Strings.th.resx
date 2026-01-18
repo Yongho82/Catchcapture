@@ -871,13 +871,63 @@
   <data name="EdgeLevel3" xml:space="preserve"><value>ระดับ 3 (มาตรฐาน)</value></data>
   <data name="EdgeLevel4" xml:space="preserve"><value>ระดับ 4 (แคปซูล)</value></data>
   <data name="EdgeLevel5" xml:space="preserve"><value>ระดับ 5 (วงกลม)</value></data>
-  <data name="RecordingSaved" xml:space="preserve"><value>บันทึกแล้ว: {0}</value></data>
-  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>กำลังบันทึกอยู่ คุณต้องการบันทึกหรือไม่?</value></data>
+  <data name="RestoreFromBackup" xml:space="preserve"><value>กู้คืนจากข้อมูลสำรอง</value></data>
+  <data name="RestoringMsg" xml:space="preserve"><value>กำลังกู้คืนข้อมูล... กรุณารอสักครู่</value></data>
+  <data name="RestoreSuccessMsg" xml:space="preserve"><value>กู้คืนเสร็จสิ้น แอปจะรีสตาร์ทเพื่อใช้การเปลี่ยนแปลง</value></data>
+  <data name="ErrorRestore" xml:space="preserve"><value>เกิดข้อผิดพลาดระหว่างการกู้คืน</value></data>
+  <data name="NoteBackupList" xml:space="preserve"><value>ข้อมูลสำรองโน้ต</value></data>
+  <data name="HistoryBackupList" xml:space="preserve"><value>ข้อมูลสำรองประวัติ</value></data>
+  <data name="SelectBackupToRestore" xml:space="preserve"><value>เลือกจุดข้อมูลสำรองเพื่อกู้คืน</value></data>
+  <data name="ConfirmRestoreBackup" xml:space="preserve"><value>ต้องการกู้คืนไปยังจุดที่เลือก ({0}) หรือไม่?\nข้อมูลปัจจุบันจะถูกสำรองอัตโนมัติ</value></data>
+  <data name="BackupColType" xml:space="preserve"><value>ประเภท</value></data>
+  <data name="BackupColSize" xml:space="preserve"><value>ขนาด</value></data>
+  <data name="BackupColDate" xml:space="preserve"><value>วันที่</value></data>
+  <data name="BackupColFileName" xml:space="preserve"><value>ชื่อไฟล์</value></data>
+  <data name="BackupColTimeAgo" xml:space="preserve"><value>ที่แล้ว</value></data>
+  <data name="BackupColManage" xml:space="preserve"><value>จัดการ</value></data>
+  <data name="ExportAllWithImages" xml:space="preserve"><value>ส่งออกทั้งหมด (รวมภาพ)</value></data>
+  <data name="ImportAllWithImages" xml:space="preserve"><value>นำเข้าทั้งหมด (รวมภาพ)</value></data>
+  <data name="CreateManualBackupNote" xml:space="preserve"><value>สำรอง DB (สถานะปัจจุบัน)</value></data>
+  <data name="CreateManualBackupHistory" xml:space="preserve"><value>สำรอง DB ประวัติ</value></data>
+  <data name="BackupTicker1" xml:space="preserve"><value>DB โน้ตจะถูกสำรองอัตโนมัติเมื่อออก</value></data>
+  <data name="BackupTicker2" xml:space="preserve"><value>แนะนำให้สำรองข้อมูลเป็นระยะ</value></data>
+  <data name="BackupTicker3" xml:space="preserve"><value>กรุณาทำการส่งออกทั้งหมดก่อนเริ่มต้น</value></data>
+  <data name="BackupTicker4" xml:space="preserve"><value>ข้อมูลปัจจุบันจะถูกเขียนทับระหว่างกู้คืน DB</value></data>
+  <data name="BackupCompleted" xml:space="preserve"><value>สำรองเสร็จสิ้น</value></data>
+  <data name="BackupCompletedTitle" xml:space="preserve"><value>สำรองเสร็จสิ้น</value></data>
+  <data name="BackupFailed" xml:space="preserve"><value>สำรองล้มเหลว</value></data>
+  <data name="ConfirmDeleteBackup" xml:space="preserve"><value>แน่ใจหรือไม่ว่าต้องการลบไฟล์สำรองนี้?</value></data>
+  <data name="BackupDeleted" xml:space="preserve"><value>ไฟล์สำรองถูกลบแล้ว</value></data>
+  <data name="ExportSuccess" xml:space="preserve"><value>ส่งออกข้อมูลทั้งหมดเสร็จสิ้น!</value></data>
+  <data name="ExportFailed" xml:space="preserve"><value>ส่งออกล้มเหลว</value></data>
+  <data name="ImportConfirmation" xml:space="preserve"><value>การนำเข้าอาจรวมหรือเขียนทับข้อมูลโน้ตปัจจุบัน\nต้องการดำเนินการต่อหรือไม่?</value></data>
+  <data name="ImportSuccess" xml:space="preserve"><value>นำเข้าข้อมูลเสร็จสิ้น! แอปอาจรีสตาร์ท</value></data>
+  <data name="ImportFailed" xml:space="preserve"><value>นำเข้าล้มเหลว</value></data>
+  <data name="BackupHistoryDBRestore" xml:space="preserve"><value>กู้คืน DB ประวัติ</value></data>
+  <data name="BackupDataBackupAndRestore" xml:space="preserve"><value>สำรองและกู้คืนข้อมูล</value></data>
+  <data name="ConfirmResetNote" xml:space="preserve"><value>ต้องการเริ่มต้นโน้ตทั้งหมดหรือไม่? การคลิกใช่จะรีเซ็ตภาพและฐานข้อมูลทั้งหมด\nหากต้องการสำรอง กรุณาทำสำรองข้อมูลก่อน</value></data>
+  <data name="ConfirmResetHistory" xml:space="preserve"><value>แน่ใจหรือไม่ว่าต้องการลบประวัติทั้งหมดอย่างถาวร?</value></data>
+  <data name="HistoryResetComplete" xml:space="preserve"><value>ประวัติถูกเริ่มต้นแล้ว</value></data>
+  <data name="HistoryResetError" xml:space="preserve"><value>เริ่มต้นประวัติล้มเหลว: {0}</value></data>
+  <data name="SelectBackupFolder" xml:space="preserve"><value>เลือกโฟลเดอร์สำรอง</value></data>
+  <data name="FolderNotFound" xml:space="preserve"><value>โฟลเดอร์ไม่มีอยู่</value></data>
+  <data name="PasswordNotSet" xml:space="preserve"><value>ยังไม่ได้ตั้งรหัสผ่าน กรุณาตั้งรหัสผ่าน</value></data>
+  <data name="BackupAuto" xml:space="preserve"><value>สำรองอัตโนมัติของระบบ</value></data>
+  <data name="BackupManual" xml:space="preserve"><value>สำรองด้วยมือโดยผู้ใช้</value></data>
+  <data name="TimeJustNow" xml:space="preserve"><value>เพิ่งเมื่อกี้</value></data>
+  <data name="TimeMinutesAgo" xml:space="preserve"><value>{0} นาทีที่แล้ว</value></data>
+  <data name="TimeHoursAgo" xml:space="preserve"><value>{0} ชั่วโมงที่แล้ว</value></data>
+  <data name="TimeDaysAgo" xml:space="preserve"><value>{0} วันที่แล้ว</value></data>
+  <data name="DeleteConfirmation" xml:space="preserve"><value>ยืนยันการลบ</value></data>
+  <data name="DeleteCompletedTitle" xml:space="preserve"><value>ลบเสร็จสิ้น</value></data>
+  <data name="DeleteError" xml:space="preserve"><value>เกิดข้อผิดพลาดระหว่างการลบ</value></data>
+  <data name="RecordingSaved" xml:space="preserve"><value>บันทึกการบันทึกแล้ว: {0}</value></data>
+  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>กำลังบันทึกอยู่ บันทึกหรือไม่?</value></data>
   <data name="RecordingInProgressTitle" xml:space="preserve"><value>กำลังบันทึก</value></data>
-  <data name="NoFramesToSave" xml:space="preserve"><value>ไม่มีเฟรมที่บันทึก ไม่สามารถบันทึกได้</value></data>
-  <data name="StopRecordingError" xml:space="preserve"><value>ข้อผิดพลาดในการหยุดบันทึก: {0}</value></data>
-  <data name="NoMicDetected" xml:space="preserve"><value>ไม่พบไมโครโฟน โปรดเชื่อมต่ออุปกรณ์อินพุตเสียง</value></data>
+  <data name="NoFramesToSave" xml:space="preserve"><value>ไม่มีเฟรมที่บันทึกไว้ ไม่สามารถบันทึกได้</value></data>
+  <data name="StopRecordingError" xml:space="preserve"><value>เกิดข้อผิดพลาดขณะหยุดบันทึก: {0}</value></data>
+  <data name="NoMicDetected" xml:space="preserve"><value>ไม่พบไมโครโฟน เชื่อมต่ออุปกรณ์อินพุตเสียง</value></data>
   <data name="NoMicTitle" xml:space="preserve"><value>ไม่มีไมโครโฟน</value></data>
-  <data name="MicCheckFailed" xml:space="preserve"><value>การตรวจสอบไมโครโฟนล้มเหลว: {0}</value></data>
-  <data name="RecordingError" xml:space="preserve"><value>ข้อผิดพลาดระหว่างการบันทึก: {0}</value></data>
+  <data name="MicCheckFailed" xml:space="preserve"><value>ตรวจสอบไมโครโฟนล้มเหลว: {0}</value></data>
+  <data name="RecordingError" xml:space="preserve"><value>เกิดข้อผิดพลาดระหว่างการบันทึก: {0}</value></data>
 </root>

@@ -871,6 +871,56 @@
   <data name="EdgeLevel3" xml:space="preserve"><value>Уровень 3 (Стандарт)</value></data>
   <data name="EdgeLevel4" xml:space="preserve"><value>Уровень 4 (Капсула)</value></data>
   <data name="EdgeLevel5" xml:space="preserve"><value>Уровень 5 (Круг)</value></data>
+  <data name="RestoreFromBackup" xml:space="preserve"><value>Восстановить из резервной копии</value></data>
+  <data name="RestoringMsg" xml:space="preserve"><value>Восстановление данных... Пожалуйста, подождите.</value></data>
+  <data name="RestoreSuccessMsg" xml:space="preserve"><value>Восстановление завершено. Приложение перезапустится для применения изменений.</value></data>
+  <data name="ErrorRestore" xml:space="preserve"><value>Ошибка при восстановлении</value></data>
+  <data name="NoteBackupList" xml:space="preserve"><value>Резервные копии заметок</value></data>
+  <data name="HistoryBackupList" xml:space="preserve"><value>Резервные копии истории</value></data>
+  <data name="SelectBackupToRestore" xml:space="preserve"><value>Выберите точку резервной копии для восстановления</value></data>
+  <data name="ConfirmRestoreBackup" xml:space="preserve"><value>Восстановить до выбранной точки ({0})?\nТекущие данные будут автоматически сохранены в резервную копию.</value></data>
+  <data name="BackupColType" xml:space="preserve"><value>Тип</value></data>
+  <data name="BackupColSize" xml:space="preserve"><value>Размер</value></data>
+  <data name="BackupColDate" xml:space="preserve"><value>Дата</value></data>
+  <data name="BackupColFileName" xml:space="preserve"><value>Имя файла</value></data>
+  <data name="BackupColTimeAgo" xml:space="preserve"><value>Назад</value></data>
+  <data name="BackupColManage" xml:space="preserve"><value>Управление</value></data>
+  <data name="ExportAllWithImages" xml:space="preserve"><value>Экспорт всего (вкл. изображения)</value></data>
+  <data name="ImportAllWithImages" xml:space="preserve"><value>Импорт всего (вкл. изображения)</value></data>
+  <data name="CreateManualBackupNote" xml:space="preserve"><value>Резервная копия БД (текущее состояние)</value></data>
+  <data name="CreateManualBackupHistory" xml:space="preserve"><value>Резервная копия БД истории</value></data>
+  <data name="BackupTicker1" xml:space="preserve"><value>БД заметок автоматически сохраняется при выходе.</value></data>
+  <data name="BackupTicker2" xml:space="preserve"><value>Рекомендуются периодические резервные копии данных.</value></data>
+  <data name="BackupTicker3" xml:space="preserve"><value>Перед инициализацией выполните полный экспорт.</value></data>
+  <data name="BackupTicker4" xml:space="preserve"><value>Текущие данные будут перезаписаны при восстановлении БД.</value></data>
+  <data name="BackupCompleted" xml:space="preserve"><value>Резервное копирование завершено.</value></data>
+  <data name="BackupCompletedTitle" xml:space="preserve"><value>Резервное копирование завершено</value></data>
+  <data name="BackupFailed" xml:space="preserve"><value>Ошибка резервного копирования</value></data>
+  <data name="ConfirmDeleteBackup" xml:space="preserve"><value>Вы уверены, что хотите удалить этот файл резервной копии?</value></data>
+  <data name="BackupDeleted" xml:space="preserve"><value>Файл резервной копии удалён.</value></data>
+  <data name="ExportSuccess" xml:space="preserve"><value>Полный экспорт данных завершён!</value></data>
+  <data name="ExportFailed" xml:space="preserve"><value>Экспорт не удался</value></data>
+  <data name="ImportConfirmation" xml:space="preserve"><value>Импорт может объединить или перезаписать текущие данные заметок.\nПродолжить?</value></data>
+  <data name="ImportSuccess" xml:space="preserve"><value>Импорт данных завершён! Приложение может перезапуститься.</value></data>
+  <data name="ImportFailed" xml:space="preserve"><value>Импорт не удался</value></data>
+  <data name="BackupHistoryDBRestore" xml:space="preserve"><value>Восстановление БД истории</value></data>
+  <data name="BackupDataBackupAndRestore" xml:space="preserve"><value>Резервное копирование и восстановление данных</value></data>
+  <data name="ConfirmResetNote" xml:space="preserve"><value>Инициализировать все заметки? Нажатие «Да» сбросит все изображения и базы данных.\nЕсли нужен резерв, сначала выполните резервное копирование данных.</value></data>
+  <data name="ConfirmResetHistory" xml:space="preserve"><value>Вы уверены, что хотите навсегда удалить все записи истории?</value></data>
+  <data name="HistoryResetComplete" xml:space="preserve"><value>История инициализирована.</value></data>
+  <data name="HistoryResetError" xml:space="preserve"><value>Ошибка инициализации истории: {0}</value></data>
+  <data name="SelectBackupFolder" xml:space="preserve"><value>Выбрать папку резервных копий</value></data>
+  <data name="FolderNotFound" xml:space="preserve"><value>Папка не существует.</value></data>
+  <data name="PasswordNotSet" xml:space="preserve"><value>Пароль не установлен. Установите пароль.</value></data>
+  <data name="BackupAuto" xml:space="preserve"><value>Автоматическое резервное копирование системы</value></data>
+  <data name="BackupManual" xml:space="preserve"><value>Ручное резервное копирование пользователя</value></data>
+  <data name="TimeJustNow" xml:space="preserve"><value>Только что</value></data>
+  <data name="TimeMinutesAgo" xml:space="preserve"><value>{0} мин назад</value></data>
+  <data name="TimeHoursAgo" xml:space="preserve"><value>{0} ч назад</value></data>
+  <data name="TimeDaysAgo" xml:space="preserve"><value>{0} дн назад</value></data>
+  <data name="DeleteConfirmation" xml:space="preserve"><value>Подтвердить удаление</value></data>
+  <data name="DeleteCompletedTitle" xml:space="preserve"><value>Удаление завершено</value></data>
+  <data name="DeleteError" xml:space="preserve"><value>Ошибка при удалении</value></data>
   <data name="RecordingSaved" xml:space="preserve"><value>Запись сохранена: {0}</value></data>
   <data name="RecordingInProgressConfirm" xml:space="preserve"><value>Идёт запись. Сохранить?</value></data>
   <data name="RecordingInProgressTitle" xml:space="preserve"><value>Запись идёт</value></data>

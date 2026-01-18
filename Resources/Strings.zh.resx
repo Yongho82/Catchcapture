@@ -871,13 +871,63 @@
   <data name="EdgeLevel3" xml:space="preserve"><value>第3级 (标准)</value></data>
   <data name="EdgeLevel4" xml:space="preserve"><value>第4级 (胶囊)</value></data>
   <data name="EdgeLevel5" xml:space="preserve"><value>第5级 (圆形)</value></data>
-  <data name="RecordingSaved" xml:space="preserve"><value>录制已保存：{0}</value></data>
-  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>正在录制。您要保存吗？</value></data>
-  <data name="RecordingInProgressTitle" xml:space="preserve"><value>正在录制</value></data>
-  <data name="NoFramesToSave" xml:space="preserve"><value>没有录制任何帧，无法保存。</value></data>
-  <data name="StopRecordingError" xml:space="preserve"><value>停止录制时出错：{0}</value></data>
+  <data name="RestoreFromBackup" xml:space="preserve"><value>从备份还原</value></data>
+  <data name="RestoringMsg" xml:space="preserve"><value>正在还原数据... 请稍候。</value></data>
+  <data name="RestoreSuccessMsg" xml:space="preserve"><value>还原完成。应用将重启以应用更改。</value></data>
+  <data name="ErrorRestore" xml:space="preserve"><value>还原过程中出错</value></data>
+  <data name="NoteBackupList" xml:space="preserve"><value>笔记备份</value></data>
+  <data name="HistoryBackupList" xml:space="preserve"><value>历史备份</value></data>
+  <data name="SelectBackupToRestore" xml:space="preserve"><value>选择要还原的备份点</value></data>
+  <data name="ConfirmRestoreBackup" xml:space="preserve"><value>是否还原到选中的点 ({0})？\n当前数据将自动备份。</value></data>
+  <data name="BackupColType" xml:space="preserve"><value>类型</value></data>
+  <data name="BackupColSize" xml:space="preserve"><value>大小</value></data>
+  <data name="BackupColDate" xml:space="preserve"><value>日期</value></data>
+  <data name="BackupColFileName" xml:space="preserve"><value>文件名</value></data>
+  <data name="BackupColTimeAgo" xml:space="preserve"><value>前</value></data>
+  <data name="BackupColManage" xml:space="preserve"><value>管理</value></data>
+  <data name="ExportAllWithImages" xml:space="preserve"><value>全部导出（含图片）</value></data>
+  <data name="ImportAllWithImages" xml:space="preserve"><value>全部导入（含图片）</value></data>
+  <data name="CreateManualBackupNote" xml:space="preserve"><value>数据库备份（当前状态）</value></data>
+  <data name="CreateManualBackupHistory" xml:space="preserve"><value>历史数据库备份</value></data>
+  <data name="BackupTicker1" xml:space="preserve"><value>笔记数据库退出时自动备份。</value></data>
+  <data name="BackupTicker2" xml:space="preserve"><value>建议定期备份数据。</value></data>
+  <data name="BackupTicker3" xml:space="preserve"><value>初始化前请先完整导出。</value></data>
+  <data name="BackupTicker4" xml:space="preserve"><value>还原数据库时当前数据将被覆盖。</value></data>
+  <data name="BackupCompleted" xml:space="preserve"><value>备份完成。</value></data>
+  <data name="BackupCompletedTitle" xml:space="preserve"><value>备份完成</value></data>
+  <data name="BackupFailed" xml:space="preserve"><value>备份失败</value></data>
+  <data name="ConfirmDeleteBackup" xml:space="preserve"><value>确定要删除此备份文件吗？</value></data>
+  <data name="BackupDeleted" xml:space="preserve"><value>备份文件已删除。</value></data>
+  <data name="ExportSuccess" xml:space="preserve"><value>完整数据导出完成！</value></data>
+  <data name="ExportFailed" xml:space="preserve"><value>导出失败</value></data>
+  <data name="ImportConfirmation" xml:space="preserve"><value>导入可能会合并或覆盖当前笔记数据。\n是否继续？</value></data>
+  <data name="ImportSuccess" xml:space="preserve"><value>数据导入完成！应用可能会重启。</value></data>
+  <data name="ImportFailed" xml:space="preserve"><value>导入失败</value></data>
+  <data name="BackupHistoryDBRestore" xml:space="preserve"><value>历史数据库还原</value></data>
+  <data name="BackupDataBackupAndRestore" xml:space="preserve"><value>数据备份与还原</value></data>
+  <data name="ConfirmResetNote" xml:space="preserve"><value>是否初始化所有笔记？点击是会重置所有图片和数据库。\n如需备份，请先进行数据备份。</value></data>
+  <data name="ConfirmResetHistory" xml:space="preserve"><value>确定要永久删除所有历史记录吗？</value></data>
+  <data name="HistoryResetComplete" xml:space="preserve"><value>历史已初始化。</value></data>
+  <data name="HistoryResetError" xml:space="preserve"><value>历史初始化失败：{0}</value></data>
+  <data name="SelectBackupFolder" xml:space="preserve"><value>选择备份文件夹</value></data>
+  <data name="FolderNotFound" xml:space="preserve"><value>文件夹不存在。</value></data>
+  <data name="PasswordNotSet" xml:space="preserve"><value>未设置密码。请设置密码。</value></data>
+  <data name="BackupAuto" xml:space="preserve"><value>系统自动备份</value></data>
+  <data name="BackupManual" xml:space="preserve"><value>用户手动备份</value></data>
+  <data name="TimeJustNow" xml:space="preserve"><value>刚刚</value></data>
+  <data name="TimeMinutesAgo" xml:space="preserve"><value>{0} 分钟前</value></data>
+  <data name="TimeHoursAgo" xml:space="preserve"><value>{0} 小时前</value></data>
+  <data name="TimeDaysAgo" xml:space="preserve"><value>{0} 天前</value></data>
+  <data name="DeleteConfirmation" xml:space="preserve"><value>确认删除</value></data>
+  <data name="DeleteCompletedTitle" xml:space="preserve"><value>删除完成</value></data>
+  <data name="DeleteError" xml:space="preserve"><value>删除过程中出错</value></data>
+  <data name="RecordingSaved" xml:space="preserve"><value>录音已保存：{0}</value></data>
+  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>正在录音。要保存吗？</value></data>
+  <data name="RecordingInProgressTitle" xml:space="preserve"><value>正在录音</value></data>
+  <data name="NoFramesToSave" xml:space="preserve"><value>没有录制的帧，无法保存。</value></data>
+  <data name="StopRecordingError" xml:space="preserve"><value>停止录音时出错：{0}</value></data>
   <data name="NoMicDetected" xml:space="preserve"><value>未检测到麦克风。请连接音频输入设备。</value></data>
   <data name="NoMicTitle" xml:space="preserve"><value>无麦克风</value></data>
   <data name="MicCheckFailed" xml:space="preserve"><value>麦克风检查失败：{0}</value></data>
-  <data name="RecordingError" xml:space="preserve"><value>录制过程中出错：{0}</value></data>
+  <data name="RecordingError" xml:space="preserve"><value>录音过程中出错：{0}</value></data>
 </root>

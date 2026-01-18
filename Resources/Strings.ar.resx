@@ -871,13 +871,63 @@
   <data name="EdgeLevel3" xml:space="preserve"><value>المستوى 3 (قياسي)</value></data>
   <data name="EdgeLevel4" xml:space="preserve"><value>المستوى 4 (كبسولة)</value></data>
   <data name="EdgeLevel5" xml:space="preserve"><value>المستوى 5 (دائرة)</value></data>
-  <data name="RecordingSaved" xml:space="preserve"><value>Registrazione salvata: {0}</value></data>
-  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>Registrazione in corso. Vuoi salvare?</value></data>
-  <data name="RecordingInProgressTitle" xml:space="preserve"><value>Registrazione in corso</value></data>
-  <data name="NoFramesToSave" xml:space="preserve"><value>Nessun frame registrato, impossibile salvare.</value></data>
-  <data name="StopRecordingError" xml:space="preserve"><value>Errore durante l'interruzione della registrazione: {0}</value></data>
-  <data name="NoMicDetected" xml:space="preserve"><value>Nessun microfono rilevato. Collega un dispositivo di input audio.</value></data>
-  <data name="NoMicTitle" xml:space="preserve"><value>Nessun microfono</value></data>
-  <data name="MicCheckFailed" xml:space="preserve"><value>Controllo microfono fallito: {0}</value></data>
-  <data name="RecordingError" xml:space="preserve"><value>Errore durante la registrazione: {0}</value></data>
+  <data name="RestoreFromBackup" xml:space="preserve"><value>استعادة من النسخ الاحتياطي</value></data>
+  <data name="RestoringMsg" xml:space="preserve"><value>جارٍ استعادة البيانات... يرجى الانتظار.</value></data>
+  <data name="RestoreSuccessMsg" xml:space="preserve"><value>اكتملت الاستعادة. سيتم إعادة تشغيل التطبيق لتطبيق التغييرات.</value></data>
+  <data name="ErrorRestore" xml:space="preserve"><value>خطأ أثناء الاستعادة</value></data>
+  <data name="NoteBackupList" xml:space="preserve"><value>نسخ احتياطية الملاحظات</value></data>
+  <data name="HistoryBackupList" xml:space="preserve"><value>نسخ احتياطية السجل</value></data>
+  <data name="SelectBackupToRestore" xml:space="preserve"><value>اختر نقطة النسخ الاحتياطي للاستعادة</value></data>
+  <data name="ConfirmRestoreBackup" xml:space="preserve"><value>هل تريد الاستعادة إلى النقطة المحددة ({0})؟\nسيتم عمل نسخة احتياطية تلقائية للبيانات الحالية.</value></data>
+  <data name="BackupColType" xml:space="preserve"><value>النوع</value></data>
+  <data name="BackupColSize" xml:space="preserve"><value>الحجم</value></data>
+  <data name="BackupColDate" xml:space="preserve"><value>التاريخ</value></data>
+  <data name="BackupColFileName" xml:space="preserve"><value>اسم الملف</value></data>
+  <data name="BackupColTimeAgo" xml:space="preserve"><value>منذ</value></data>
+  <data name="BackupColManage" xml:space="preserve"><value>إدارة</value></data>
+  <data name="ExportAllWithImages" xml:space="preserve"><value>تصدير الكل (مع الصور)</value></data>
+  <data name="ImportAllWithImages" xml:space="preserve"><value>استيراد الكل (مع الصور)</value></data>
+  <data name="CreateManualBackupNote" xml:space="preserve"><value>نسخ احتياطي لقاعدة البيانات (الحالة الحالية)</value></data>
+  <data name="CreateManualBackupHistory" xml:space="preserve"><value>نسخ احتياطي لقاعدة بيانات السجل</value></data>
+  <data name="BackupTicker1" xml:space="preserve"><value>يتم عمل نسخة احتياطية تلقائية لقاعدة بيانات الملاحظات عند الخروج.</value></data>
+  <data name="BackupTicker2" xml:space="preserve"><value>يُوصى بعمل نسخ احتياطية دورية للبيانات.</value></data>
+  <data name="BackupTicker3" xml:space="preserve"><value>يرجى عمل تصدير كامل قبل التهيئة.</value></data>
+  <data name="BackupTicker4" xml:space="preserve"><value>سيتم الكتابة فوق البيانات الحالية أثناء استعادة قاعدة البيانات.</value></data>
+  <data name="BackupCompleted" xml:space="preserve"><value>اكتمل النسخ الاحتياطي.</value></data>
+  <data name="BackupCompletedTitle" xml:space="preserve"><value>اكتمل النسخ الاحتياطي</value></data>
+  <data name="BackupFailed" xml:space="preserve"><value>فشل النسخ الاحتياطي</value></data>
+  <data name="ConfirmDeleteBackup" xml:space="preserve"><value>هل أنت متأكد من حذف ملف النسخ الاحتياطي هذا؟</value></data>
+  <data name="BackupDeleted" xml:space="preserve"><value>تم حذف ملف النسخ الاحتياطي.</value></data>
+  <data name="ExportSuccess" xml:space="preserve"><value>اكتمل تصدير البيانات الكامل!</value></data>
+  <data name="ExportFailed" xml:space="preserve"><value>فشل التصدير</value></data>
+  <data name="ImportConfirmation" xml:space="preserve"><value>قد يؤدي الاستيراد إلى دمج أو الكتابة فوق بيانات الملاحظات الحالية.\nهل تريد المتابعة؟</value></data>
+  <data name="ImportSuccess" xml:space="preserve"><value>اكتمل استيراد البيانات! قد يُعاد تشغيل التطبيق.</value></data>
+  <data name="ImportFailed" xml:space="preserve"><value>فشل الاستيراد</value></data>
+  <data name="BackupHistoryDBRestore" xml:space="preserve"><value>استعادة قاعدة بيانات السجل</value></data>
+  <data name="BackupDataBackupAndRestore" xml:space="preserve"><value>نسخ احتياطي واستعادة البيانات</value></data>
+  <data name="ConfirmResetNote" xml:space="preserve"><value>هل تريد تهيئة جميع الملاحظات؟ النقر على نعم سيؤدي إلى إعادة تعيين جميع الصور وقواعد البيانات.\nإذا كنت بحاجة إلى نسخة احتياطية، يرجى عمل نسخ احتياطي للبيانات أولاً.</value></data>
+  <data name="ConfirmResetHistory" xml:space="preserve"><value>هل أنت متأكد من حذف جميع سجلات التاريخ نهائيًا؟</value></data>
+  <data name="HistoryResetComplete" xml:space="preserve"><value>تم تهيئة السجل.</value></data>
+  <data name="HistoryResetError" xml:space="preserve"><value>فشلت تهيئة السجل: {0}</value></data>
+  <data name="SelectBackupFolder" xml:space="preserve"><value>اختر مجلد النسخ الاحتياطي</value></data>
+  <data name="FolderNotFound" xml:space="preserve"><value>المجلد غير موجود.</value></data>
+  <data name="PasswordNotSet" xml:space="preserve"><value>لم يتم تعيين كلمة المرور. يرجى تعيين كلمة مرور.</value></data>
+  <data name="BackupAuto" xml:space="preserve"><value>النسخ الاحتياطي التلقائي للنظام</value></data>
+  <data name="BackupManual" xml:space="preserve"><value>نسخ احتياطي يدوي من المستخدم</value></data>
+  <data name="TimeJustNow" xml:space="preserve"><value>الآن</value></data>
+  <data name="TimeMinutesAgo" xml:space="preserve"><value>منذ {0} دقيقة</value></data>
+  <data name="TimeHoursAgo" xml:space="preserve"><value>منذ {0} ساعة</value></data>
+  <data name="TimeDaysAgo" xml:space="preserve"><value>منذ {0} يوم</value></data>
+  <data name="DeleteConfirmation" xml:space="preserve"><value>تأكيد الحذف</value></data>
+  <data name="DeleteCompletedTitle" xml:space="preserve"><value>اكتمل الحذف</value></data>
+  <data name="DeleteError" xml:space="preserve"><value>خطأ أثناء الحذف</value></data>
+  <data name="RecordingSaved" xml:space="preserve"><value>تم حفظ التسجيل: {0}</value></data>
+  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>التسجيل جارٍ. هل تريد الحفظ؟</value></data>
+  <data name="RecordingInProgressTitle" xml:space="preserve"><value>التسجيل جارٍ</value></data>
+  <data name="NoFramesToSave" xml:space="preserve"><value>لا توجد إطارات مسجلة، لا يمكن الحفظ.</value></data>
+  <data name="StopRecordingError" xml:space="preserve"><value>خطأ أثناء إيقاف التسجيل: {0}</value></data>
+  <data name="NoMicDetected" xml:space="preserve"><value>لم يتم اكتشاف الميكروفون. قم بتوصيل جهاز إدخال صوتي.</value></data>
+  <data name="NoMicTitle" xml:space="preserve"><value>لا يوجد ميكروفون</value></data>
+  <data name="MicCheckFailed" xml:space="preserve"><value>فشل فحص الميكروفون: {0}</value></data>
+  <data name="RecordingError" xml:space="preserve"><value>خطأ أثناء التسجيل: {0}</value></data>
 </root>

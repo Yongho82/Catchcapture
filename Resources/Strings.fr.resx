@@ -871,12 +871,62 @@ Voulez-vous vraiment supprimer définitivement tous les éléments ?</value>
   <data name="EdgeLevel3" xml:space="preserve"><value>Niveau 3 (Standard)</value></data>
   <data name="EdgeLevel4" xml:space="preserve"><value>Niveau 4 (Capsule)</value></data>
   <data name="EdgeLevel5" xml:space="preserve"><value>Niveau 5 (Cercle)</value></data>
+  <data name="RestoreFromBackup" xml:space="preserve"><value>Restaurer depuis la sauvegarde</value></data>
+  <data name="RestoringMsg" xml:space="preserve"><value>Restauration des données en cours... Veuillez patienter.</value></data>
+  <data name="RestoreSuccessMsg" xml:space="preserve"><value>Restauration terminée. L'application va redémarrer pour appliquer les modifications.</value></data>
+  <data name="ErrorRestore" xml:space="preserve"><value>Erreur lors de la restauration</value></data>
+  <data name="NoteBackupList" xml:space="preserve"><value>Sauvegardes des notes</value></data>
+  <data name="HistoryBackupList" xml:space="preserve"><value>Sauvegardes de l'historique</value></data>
+  <data name="SelectBackupToRestore" xml:space="preserve"><value>Sélectionnez un point de sauvegarde à restaurer</value></data>
+  <data name="ConfirmRestoreBackup" xml:space="preserve"><value>Voulez-vous restaurer au point sélectionné ({0}) ?\nLes données actuelles seront automatiquement sauvegardées.</value></data>
+  <data name="BackupColType" xml:space="preserve"><value>Type</value></data>
+  <data name="BackupColSize" xml:space="preserve"><value>Taille</value></data>
+  <data name="BackupColDate" xml:space="preserve"><value>Date</value></data>
+  <data name="BackupColFileName" xml:space="preserve"><value>Nom du fichier</value></data>
+  <data name="BackupColTimeAgo" xml:space="preserve"><value>Il y a</value></data>
+  <data name="BackupColManage" xml:space="preserve"><value>Gérer</value></data>
+  <data name="ExportAllWithImages" xml:space="preserve"><value>Exporter tout (images incluses)</value></data>
+  <data name="ImportAllWithImages" xml:space="preserve"><value>Importer tout (images incluses)</value></data>
+  <data name="CreateManualBackupNote" xml:space="preserve"><value>Sauvegarde BD (état actuel)</value></data>
+  <data name="CreateManualBackupHistory" xml:space="preserve"><value>Sauvegarde BD Historique</value></data>
+  <data name="BackupTicker1" xml:space="preserve"><value>La BD des notes est automatiquement sauvegardée à la fermeture.</value></data>
+  <data name="BackupTicker2" xml:space="preserve"><value>Des sauvegardes périodiques des données sont recommandées.</value></data>
+  <data name="BackupTicker3" xml:space="preserve"><value>Veuillez effectuer une exportation complète avant l'initialisation.</value></data>
+  <data name="BackupTicker4" xml:space="preserve"><value>Les données actuelles seront écrasées lors de la restauration de la BD.</value></data>
+  <data name="BackupCompleted" xml:space="preserve"><value>Sauvegarde terminée.</value></data>
+  <data name="BackupCompletedTitle" xml:space="preserve"><value>Sauvegarde terminée</value></data>
+  <data name="BackupFailed" xml:space="preserve"><value>Échec de la sauvegarde</value></data>
+  <data name="ConfirmDeleteBackup" xml:space="preserve"><value>Êtes-vous sûr de vouloir supprimer ce fichier de sauvegarde ?</value></data>
+  <data name="BackupDeleted" xml:space="preserve"><value>Le fichier de sauvegarde a été supprimé.</value></data>
+  <data name="ExportSuccess" xml:space="preserve"><value>Exportation complète des données terminée !</value></data>
+  <data name="ExportFailed" xml:space="preserve"><value>Échec de l'exportation</value></data>
+  <data name="ImportConfirmation" xml:space="preserve"><value>L'importation peut fusionner ou écraser les données de notes actuelles.\nVoulez-vous continuer ?</value></data>
+  <data name="ImportSuccess" xml:space="preserve"><value>Importation des données terminée ! L'application peut redémarrer.</value></data>
+  <data name="ImportFailed" xml:space="preserve"><value>Échec de l'importation</value></data>
+  <data name="BackupHistoryDBRestore" xml:space="preserve"><value>Restauration BD Historique</value></data>
+  <data name="BackupDataBackupAndRestore" xml:space="preserve"><value>Sauvegarde et restauration des données</value></data>
+  <data name="ConfirmResetNote" xml:space="preserve"><value>Voulez-vous initialiser toutes les notes ? Cliquer sur Oui réinitialisera toutes les images et bases de données.\nSi vous avez besoin d'une sauvegarde, effectuez d'abord une sauvegarde des données.</value></data>
+  <data name="ConfirmResetHistory" xml:space="preserve"><value>Êtes-vous sûr de vouloir supprimer définitivement tous les enregistrements d'historique ?</value></data>
+  <data name="HistoryResetComplete" xml:space="preserve"><value>L'historique a été initialisé.</value></data>
+  <data name="HistoryResetError" xml:space="preserve"><value>Échec de l'initialisation de l'historique : {0}</value></data>
+  <data name="SelectBackupFolder" xml:space="preserve"><value>Sélectionner le dossier de sauvegarde</value></data>
+  <data name="FolderNotFound" xml:space="preserve"><value>Le dossier n'existe pas.</value></data>
+  <data name="PasswordNotSet" xml:space="preserve"><value>Aucun mot de passe défini. Veuillez en définir un.</value></data>
+  <data name="BackupAuto" xml:space="preserve"><value>Sauvegarde automatique du système</value></data>
+  <data name="BackupManual" xml:space="preserve"><value>Sauvegarde manuelle utilisateur</value></data>
+  <data name="TimeJustNow" xml:space="preserve"><value>À l'instant</value></data>
+  <data name="TimeMinutesAgo" xml:space="preserve"><value>il y a {0} min</value></data>
+  <data name="TimeHoursAgo" xml:space="preserve"><value>il y a {0} h</value></data>
+  <data name="TimeDaysAgo" xml:space="preserve"><value>il y a {0} j</value></data>
+  <data name="DeleteConfirmation" xml:space="preserve"><value>Confirmer la suppression</value></data>
+  <data name="DeleteCompletedTitle" xml:space="preserve"><value>Suppression terminée</value></data>
+  <data name="DeleteError" xml:space="preserve"><value>Erreur lors de la suppression</value></data>
   <data name="RecordingSaved" xml:space="preserve"><value>Enregistrement sauvegardé : {0}</value></data>
-  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>Enregistrement en cours. Voulez-vous sauvegarder ?</value></data>
+  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>Enregistrement en cours. Enregistrer ?</value></data>
   <data name="RecordingInProgressTitle" xml:space="preserve"><value>Enregistrement en cours</value></data>
   <data name="NoFramesToSave" xml:space="preserve"><value>Aucun cadre enregistré, impossible de sauvegarder.</value></data>
   <data name="StopRecordingError" xml:space="preserve"><value>Erreur lors de l'arrêt de l'enregistrement : {0}</value></data>
-  <data name="NoMicDetected" xml:space="preserve"><value>Aucun microphone détecté. Veuillez connecter un périphérique d'entrée audio.</value></data>
+  <data name="NoMicDetected" xml:space="preserve"><value>Aucun microphone détecté. Connectez un périphérique d'entrée audio.</value></data>
   <data name="NoMicTitle" xml:space="preserve"><value>Pas de microphone</value></data>
   <data name="MicCheckFailed" xml:space="preserve"><value>Échec de la vérification du microphone : {0}</value></data>
   <data name="RecordingError" xml:space="preserve"><value>Erreur pendant l'enregistrement : {0}</value></data>

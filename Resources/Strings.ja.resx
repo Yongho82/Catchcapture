@@ -874,4 +874,63 @@
   <data name="EdgeLevel3" xml:space="preserve"><value>レベル 3 (標準)</value></data>
   <data name="EdgeLevel4" xml:space="preserve"><value>レベル 4 (カプセル)</value></data>
   <data name="EdgeLevel5" xml:space="preserve"><value>レベル 5 (円形)</value></data>
+  <data name="RestoreFromBackup" xml:space="preserve"><value>バックアップから復元</value></data>
+  <data name="RestoringMsg" xml:space="preserve"><value>データを復元中... お待ちください。</value></data>
+  <data name="RestoreSuccessMsg" xml:space="preserve"><value>復元が完了しました。変更を適用するためアプリを再起動します。</value></data>
+  <data name="ErrorRestore" xml:space="preserve"><value>復元中にエラーが発生しました</value></data>
+  <data name="NoteBackupList" xml:space="preserve"><value>ノートバックアップ</value></data>
+  <data name="HistoryBackupList" xml:space="preserve"><value>履歴バックアップ</value></data>
+  <data name="SelectBackupToRestore" xml:space="preserve"><value>復元するバックアップポイントを選択</value></data>
+  <data name="ConfirmRestoreBackup" xml:space="preserve"><value>選択したポイント({0})に復元しますか？\n現在のデータは自動的にバックアップされます。</value></data>
+  <data name="BackupColType" xml:space="preserve"><value>種類</value></data>
+  <data name="BackupColSize" xml:space="preserve"><value>サイズ</value></data>
+  <data name="BackupColDate" xml:space="preserve"><value>日付</value></data>
+  <data name="BackupColFileName" xml:space="preserve"><value>ファイル名</value></data>
+  <data name="BackupColTimeAgo" xml:space="preserve"><value>経過時間</value></data>
+  <data name="BackupColManage" xml:space="preserve"><value>管理</value></data>
+  <data name="ExportAllWithImages" xml:space="preserve"><value>すべてエクスポート（画像含む）</value></data>
+  <data name="ImportAllWithImages" xml:space="preserve"><value>すべてインポート（画像含む）</value></data>
+  <data name="CreateManualBackupNote" xml:space="preserve"><value>DBバックアップ（現在の状態）</value></data>
+  <data name="CreateManualBackupHistory" xml:space="preserve"><value>履歴DBバックアップ</value></data>
+  <data name="BackupTicker1" xml:space="preserve"><value>終了時にノートDBが自動バックアップされます。</value></data>
+  <data name="BackupTicker2" xml:space="preserve"><value>定期的なデータバックアップをおすすめします。</value></data>
+  <data name="BackupTicker3" xml:space="preserve"><value>初期化前に完全エクスポートを行ってください。</value></data>
+  <data name="BackupTicker4" xml:space="preserve"><value>DB復元時に現在のデータは上書きされます。</value></data>
+  <data name="BackupCompleted" xml:space="preserve"><value>バックアップが完了しました。</value></data>
+  <data name="BackupCompletedTitle" xml:space="preserve"><value>バックアップ完了</value></data>
+  <data name="BackupFailed" xml:space="preserve"><value>バックアップに失敗しました</value></data>
+  <data name="ConfirmDeleteBackup" xml:space="preserve"><value>このバックアップファイルを削除してもよろしいですか？</value></data>
+  <data name="BackupDeleted" xml:space="preserve"><value>バックアップファイルが削除されました。</value></data>
+  <data name="ExportSuccess" xml:space="preserve"><value>全データエクスポートが完了しました！</value></data>
+  <data name="ExportFailed" xml:space="preserve"><value>エクスポートに失敗しました</value></data>
+  <data name="ImportConfirmation" xml:space="preserve"><value>インポートにより現在のノートデータがマージまたは上書きされる可能性があります。\n続行しますか？</value></data>
+  <data name="ImportSuccess" xml:space="preserve"><value>データインポートが完了しました！アプリが再起動する場合があります。</value></data>
+  <data name="ImportFailed" xml:space="preserve"><value>インポートに失敗しました</value></data>
+  <data name="BackupHistoryDBRestore" xml:space="preserve"><value>履歴DB復元</value></data>
+  <data name="BackupDataBackupAndRestore" xml:space="preserve"><value>データバックアップ＆復元</value></data>
+  <data name="ConfirmResetNote" xml:space="preserve"><value>すべてのノートを初期化しますか？「はい」をクリックするとすべての画像とデータベースがリセットされます。\nバックアップが必要な場合は先にデータバックアップを行ってください。</value></data>
+  <data name="ConfirmResetHistory" xml:space="preserve"><value>すべての履歴レコードを完全に削除してもよろしいですか？</value></data>
+  <data name="HistoryResetComplete" xml:space="preserve"><value>履歴が初期化されました。</value></data>
+  <data name="HistoryResetError" xml:space="preserve"><value>履歴の初期化に失敗しました：{0}</value></data>
+  <data name="SelectBackupFolder" xml:space="preserve"><value>バックアップフォルダを選択</value></data>
+  <data name="FolderNotFound" xml:space="preserve"><value>フォルダが存在しません。</value></data>
+  <data name="PasswordNotSet" xml:space="preserve"><value>パスワードが設定されていません。パスワードを設定してください。</value></data>
+  <data name="BackupAuto" xml:space="preserve"><value>システム自動バックアップ</value></data>
+  <data name="BackupManual" xml:space="preserve"><value>ユーザー手動バックアップ</value></data>
+  <data name="TimeJustNow" xml:space="preserve"><value>たった今</value></data>
+  <data name="TimeMinutesAgo" xml:space="preserve"><value>{0}分前</value></data>
+  <data name="TimeHoursAgo" xml:space="preserve"><value>{0}時間前</value></data>
+  <data name="TimeDaysAgo" xml:space="preserve"><value>{0}日前</value></data>
+  <data name="DeleteConfirmation" xml:space="preserve"><value>削除の確認</value></data>
+  <data name="DeleteCompletedTitle" xml:space="preserve"><value>削除完了</value></data>
+  <data name="DeleteError" xml:space="preserve"><value>削除中にエラーが発生しました</value></data>
+  <data name="RecordingSaved" xml:space="preserve"><value>録音を保存しました: {0}</value></data>
+  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>録音中です。保存しますか？</value></data>
+  <data name="RecordingInProgressTitle" xml:space="preserve"><value>録音中</value></data>
+  <data name="NoFramesToSave" xml:space="preserve"><value>録画されたフレームがありません。保存できません。</value></data>
+  <data name="StopRecordingError" xml:space="preserve"><value>録音停止中にエラーが発生しました: {0}</value></data>
+  <data name="NoMicDetected" xml:space="preserve"><value>マイクが検出されませんでした。オーディオ入力デバイスを接続してください。</value></data>
+  <data name="NoMicTitle" xml:space="preserve"><value>マイクなし</value></data>
+  <data name="MicCheckFailed" xml:space="preserve"><value>マイクチェックに失敗しました: {0}</value></data>
+  <data name="RecordingError" xml:space="preserve"><value>録音中にエラーが発生しました: {0}</value></data>
 </root>

@@ -871,8 +871,58 @@ Chắc chắn xóa vĩnh viễn toàn bộ thùng rác?</value>
   <data name="EdgeLevel3" xml:space="preserve"><value>Cấp 3 (Chuẩn)</value></data>
   <data name="EdgeLevel4" xml:space="preserve"><value>Cấp 4 (Viên thuốc)</value></data>
   <data name="EdgeLevel5" xml:space="preserve"><value>Cấp 5 (Tròn)</value></data>
-  <data name="RecordingSaved" xml:space="preserve"><value>Đã lưu bản ghi: {0}</value></data>
-  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>Đang ghi âm. Bạn có muốn lưu không?</value></data>
+  <data name="RestoreFromBackup" xml:space="preserve"><value>Khôi phục từ Bản sao lưu</value></data>
+  <data name="RestoringMsg" xml:space="preserve"><value>Đang khôi phục dữ liệu... Vui lòng đợi.</value></data>
+  <data name="RestoreSuccessMsg" xml:space="preserve"><value>Khôi phục hoàn tất. Ứng dụng sẽ khởi động lại để áp dụng thay đổi.</value></data>
+  <data name="ErrorRestore" xml:space="preserve"><value>Lỗi trong quá trình khôi phục</value></data>
+  <data name="NoteBackupList" xml:space="preserve"><value>Bản sao lưu Ghi chú</value></data>
+  <data name="HistoryBackupList" xml:space="preserve"><value>Bản sao lưu Lịch sử</value></data>
+  <data name="SelectBackupToRestore" xml:space="preserve"><value>Chọn điểm sao lưu để khôi phục</value></data>
+  <data name="ConfirmRestoreBackup" xml:space="preserve"><value>Bạn có muốn khôi phục về điểm đã chọn ({0}) không?\nDữ liệu hiện tại sẽ được sao lưu tự động.</value></data>
+  <data name="BackupColType" xml:space="preserve"><value>Loại</value></data>
+  <data name="BackupColSize" xml:space="preserve"><value>Kích thước</value></data>
+  <data name="BackupColDate" xml:space="preserve"><value>Ngày</value></data>
+  <data name="BackupColFileName" xml:space="preserve"><value>Tên tệp</value></data>
+  <data name="BackupColTimeAgo" xml:space="preserve"><value>Trước</value></data>
+  <data name="BackupColManage" xml:space="preserve"><value>Quản lý</value></data>
+  <data name="ExportAllWithImages" xml:space="preserve"><value>Xuất tất cả (Bao gồm Hình ảnh)</value></data>
+  <data name="ImportAllWithImages" xml:space="preserve"><value>Nhập tất cả (Bao gồm Hình ảnh)</value></data>
+  <data name="CreateManualBackupNote" xml:space="preserve"><value>Sao lưu DB (Trạng thái hiện tại)</value></data>
+  <data name="CreateManualBackupHistory" xml:space="preserve"><value>Sao lưu DB Lịch sử</value></data>
+  <data name="BackupTicker1" xml:space="preserve"><value>DB Ghi chú được sao lưu tự động khi thoát.</value></data>
+  <data name="BackupTicker2" xml:space="preserve"><value>Nên sao lưu dữ liệu định kỳ.</value></data>
+  <data name="BackupTicker3" xml:space="preserve"><value>Vui lòng xuất toàn bộ trước khi khởi tạo.</value></data>
+  <data name="BackupTicker4" xml:space="preserve"><value>Dữ liệu hiện tại sẽ bị ghi đè khi khôi phục DB.</value></data>
+  <data name="BackupCompleted" xml:space="preserve"><value>Sao lưu hoàn tất.</value></data>
+  <data name="BackupCompletedTitle" xml:space="preserve"><value>Sao lưu Hoàn tất</value></data>
+  <data name="BackupFailed" xml:space="preserve"><value>Sao lưu Thất bại</value></data>
+  <data name="ConfirmDeleteBackup" xml:space="preserve"><value>Bạn có chắc muốn xóa tệp sao lưu này không?</value></data>
+  <data name="BackupDeleted" xml:space="preserve"><value>Tệp sao lưu đã được xóa.</value></data>
+  <data name="ExportSuccess" xml:space="preserve"><value>Xuất dữ liệu đầy đủ hoàn tất!</value></data>
+  <data name="ExportFailed" xml:space="preserve"><value>Xuất thất bại</value></data>
+  <data name="ImportConfirmation" xml:space="preserve"><value>Việc nhập có thể hợp nhất hoặc ghi đè dữ liệu ghi chú hiện tại.\nBạn có muốn tiếp tục?</value></data>
+  <data name="ImportSuccess" xml:space="preserve"><value>Nhập dữ liệu hoàn tất! Ứng dụng có thể khởi động lại.</value></data>
+  <data name="ImportFailed" xml:space="preserve"><value>Nhập thất bại</value></data>
+  <data name="BackupHistoryDBRestore" xml:space="preserve"><value>Khôi phục DB Lịch sử</value></data>
+  <data name="BackupDataBackupAndRestore" xml:space="preserve"><value>Sao lưu, Khôi phục Dữ liệu</value></data>
+  <data name="ConfirmResetNote" xml:space="preserve"><value>Bạn có muốn khởi tạo tất cả ghi chú không? Nhấn Có sẽ đặt lại tất cả hình ảnh và cơ sở dữ liệu.\nNếu cần sao lưu, hãy thực hiện Sao lưu Dữ liệu trước.</value></data>
+  <data name="ConfirmResetHistory" xml:space="preserve"><value>Bạn có chắc muốn xóa vĩnh viễn tất cả bản ghi lịch sử không?</value></data>
+  <data name="HistoryResetComplete" xml:space="preserve"><value>Lịch sử đã được khởi tạo.</value></data>
+  <data name="HistoryResetError" xml:space="preserve"><value>Khởi tạo lịch sử thất bại: {0}</value></data>
+  <data name="SelectBackupFolder" xml:space="preserve"><value>Chọn Thư mục Sao lưu</value></data>
+  <data name="FolderNotFound" xml:space="preserve"><value>Thư mục không tồn tại.</value></data>
+  <data name="PasswordNotSet" xml:space="preserve"><value>Chưa đặt mật khẩu. Vui lòng đặt mật khẩu.</value></data>
+  <data name="BackupAuto" xml:space="preserve"><value>Sao lưu Tự động Hệ thống</value></data>
+  <data name="BackupManual" xml:space="preserve"><value>Sao lưu Thủ công Người dùng</value></data>
+  <data name="TimeJustNow" xml:space="preserve"><value>Vừa nãy</value></data>
+  <data name="TimeMinutesAgo" xml:space="preserve"><value>{0} phút trước</value></data>
+  <data name="TimeHoursAgo" xml:space="preserve"><value>{0} giờ trước</value></data>
+  <data name="TimeDaysAgo" xml:space="preserve"><value>{0} ngày trước</value></data>
+  <data name="DeleteConfirmation" xml:space="preserve"><value>Xác nhận Xóa</value></data>
+  <data name="DeleteCompletedTitle" xml:space="preserve"><value>Xóa Hoàn tất</value></data>
+  <data name="DeleteError" xml:space="preserve"><value>Lỗi trong quá trình xóa</value></data>
+  <data name="RecordingSaved" xml:space="preserve"><value>Ghi âm đã lưu: {0}</value></data>
+  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>Đang ghi âm. Lưu?</value></data>
   <data name="RecordingInProgressTitle" xml:space="preserve"><value>Đang ghi âm</value></data>
   <data name="NoFramesToSave" xml:space="preserve"><value>Không có khung hình nào được ghi, không thể lưu.</value></data>
   <data name="StopRecordingError" xml:space="preserve"><value>Lỗi khi dừng ghi âm: {0}</value></data>

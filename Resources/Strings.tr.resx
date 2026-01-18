@@ -869,12 +869,62 @@ Tüm öğeleri kalıcı olarak silmek istediğinizden emin misiniz?</value>
   <data name="EdgeLevel3" xml:space="preserve"><value>Seviye 3 (Standart)</value></data>
   <data name="EdgeLevel4" xml:space="preserve"><value>Seviye 4 (Kapsül)</value></data>
   <data name="EdgeLevel5" xml:space="preserve"><value>Seviye 5 (Daire)</value></data>
+  <data name="RestoreFromBackup" xml:space="preserve"><value>Yedekten Geri Yükle</value></data>
+  <data name="RestoringMsg" xml:space="preserve"><value>Veriler geri yükleniyor... Lütfen bekleyin.</value></data>
+  <data name="RestoreSuccessMsg" xml:space="preserve"><value>Geri yükleme tamamlandı. Değişiklikleri uygulamak için uygulama yeniden başlatılacak.</value></data>
+  <data name="ErrorRestore" xml:space="preserve"><value>Geri yükleme sırasında hata</value></data>
+  <data name="NoteBackupList" xml:space="preserve"><value>Not Yedekleri</value></data>
+  <data name="HistoryBackupList" xml:space="preserve"><value>Geçmiş Yedekleri</value></data>
+  <data name="SelectBackupToRestore" xml:space="preserve"><value>Geri yüklenecek yedek noktasını seçin</value></data>
+  <data name="ConfirmRestoreBackup" xml:space="preserve"><value>Seçilen noktaya ({0}) geri yüklemek istiyor musunuz?\nMevcut veriler otomatik olarak yedeklenecek.</value></data>
+  <data name="BackupColType" xml:space="preserve"><value>Tür</value></data>
+  <data name="BackupColSize" xml:space="preserve"><value>Boyut</value></data>
+  <data name="BackupColDate" xml:space="preserve"><value>Tarih</value></data>
+  <data name="BackupColFileName" xml:space="preserve"><value>Dosya Adı</value></data>
+  <data name="BackupColTimeAgo" xml:space="preserve"><value>Önce</value></data>
+  <data name="BackupColManage" xml:space="preserve"><value>Yönet</value></data>
+  <data name="ExportAllWithImages" xml:space="preserve"><value>Tümünü Dışa Aktar (Resimler Dahil)</value></data>
+  <data name="ImportAllWithImages" xml:space="preserve"><value>Tümünü İçe Aktar (Resimler Dahil)</value></data>
+  <data name="CreateManualBackupNote" xml:space="preserve"><value>DB Yedek (Mevcut Durum)</value></data>
+  <data name="CreateManualBackupHistory" xml:space="preserve"><value>Geçmiş DB Yedek</value></data>
+  <data name="BackupTicker1" xml:space="preserve"><value>Not DB'si çıkışta otomatik yedeklenir.</value></data>
+  <data name="BackupTicker2" xml:space="preserve"><value>Periyodik veri yedeklemeleri önerilir.</value></data>
+  <data name="BackupTicker3" xml:space="preserve"><value>Başlatmadan önce tam dışa aktarma yapın.</value></data>
+  <data name="BackupTicker4" xml:space="preserve"><value>DB geri yüklemede mevcut veriler üzerine yazılır.</value></data>
+  <data name="BackupCompleted" xml:space="preserve"><value>Yedekleme tamamlandı.</value></data>
+  <data name="BackupCompletedTitle" xml:space="preserve"><value>Yedekleme Tamamlandı</value></data>
+  <data name="BackupFailed" xml:space="preserve"><value>Yedekleme Başarısız</value></data>
+  <data name="ConfirmDeleteBackup" xml:space="preserve"><value>Bu yedek dosyasını silmek istediğinizden emin misiniz?</value></data>
+  <data name="BackupDeleted" xml:space="preserve"><value>Yedek dosyası silindi.</value></data>
+  <data name="ExportSuccess" xml:space="preserve"><value>Tam veri dışa aktarımı tamamlandı!</value></data>
+  <data name="ExportFailed" xml:space="preserve"><value>Dışa aktarma başarısız</value></data>
+  <data name="ImportConfirmation" xml:space="preserve"><value>İçe aktarma mevcut not verilerini birleştirebilir veya üzerine yazabilir.\nDevam etmek istiyor musunuz?</value></data>
+  <data name="ImportSuccess" xml:space="preserve"><value>Veri içe aktarımı tamamlandı! Uygulama yeniden başlayabilir.</value></data>
+  <data name="ImportFailed" xml:space="preserve"><value>İçe aktarma başarısız</value></data>
+  <data name="BackupHistoryDBRestore" xml:space="preserve"><value>Geçmiş DB Geri Yükleme</value></data>
+  <data name="BackupDataBackupAndRestore" xml:space="preserve"><value>Veri Yedekleme, Geri Yükleme</value></data>
+  <data name="ConfirmResetNote" xml:space="preserve"><value>Tüm notları sıfırlamak istiyor musunuz? Evet'e tıklarsanız tüm resimler ve veritabanları sıfırlanır.\nYedek gerekiyorsa önce Veri Yedekleme yapın.</value></data>
+  <data name="ConfirmResetHistory" xml:space="preserve"><value>Tüm geçmiş kayıtlarını kalıcı olarak silmek istediğinizden emin misiniz?</value></data>
+  <data name="HistoryResetComplete" xml:space="preserve"><value>Geçmiş sıfırlandı.</value></data>
+  <data name="HistoryResetError" xml:space="preserve"><value>Geçmiş sıfırlama başarısız: {0}</value></data>
+  <data name="SelectBackupFolder" xml:space="preserve"><value>Yedek Klasörü Seç</value></data>
+  <data name="FolderNotFound" xml:space="preserve"><value>Klasör mevcut değil.</value></data>
+  <data name="PasswordNotSet" xml:space="preserve"><value>Şifre ayarlanmadı. Lütfen şifre belirleyin.</value></data>
+  <data name="BackupAuto" xml:space="preserve"><value>Sistem Otomatik Yedek</value></data>
+  <data name="BackupManual" xml:space="preserve"><value>Kullanıcı Manuel Yedek</value></data>
+  <data name="TimeJustNow" xml:space="preserve"><value>Şimdi</value></data>
+  <data name="TimeMinutesAgo" xml:space="preserve"><value>{0} dk önce</value></data>
+  <data name="TimeHoursAgo" xml:space="preserve"><value>{0} sa önce</value></data>
+  <data name="TimeDaysAgo" xml:space="preserve"><value>{0} g önce</value></data>
+  <data name="DeleteConfirmation" xml:space="preserve"><value>Silme Onayı</value></data>
+  <data name="DeleteCompletedTitle" xml:space="preserve"><value>Silme Tamamlandı</value></data>
+  <data name="DeleteError" xml:space="preserve"><value>Silme sırasında hata</value></data>
   <data name="RecordingSaved" xml:space="preserve"><value>Kayıt kaydedildi: {0}</value></data>
-  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>Kayıt devam ediyor. Kaydetmek istiyor musunuz?</value></data>
+  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>Kayıt devam ediyor. Kaydet?</value></data>
   <data name="RecordingInProgressTitle" xml:space="preserve"><value>Kayıt devam ediyor</value></data>
-  <data name="NoFramesToSave" xml:space="preserve"><value>Kayıtlı kare yok, kaydedilemez.</value></data>
-  <data name="StopRecordingError" xml:space="preserve"><value>Kaydı durdururken hata: {0}</value></data>
-  <data name="NoMicDetected" xml:space="preserve"><value>Mikrofon algılanmadı. Lütfen ses giriş cihazı bağlayın.</value></data>
+  <data name="NoFramesToSave" xml:space="preserve"><value>Kaydedilmiş kare yok, kaydedilemez.</value></data>
+  <data name="StopRecordingError" xml:space="preserve"><value>Kayıt durdurulurken hata: {0}</value></data>
+  <data name="NoMicDetected" xml:space="preserve"><value>Mikrofon algılanmadı. Ses giriş cihazı bağlayın.</value></data>
   <data name="NoMicTitle" xml:space="preserve"><value>Mikrofon yok</value></data>
   <data name="MicCheckFailed" xml:space="preserve"><value>Mikrofon kontrolü başarısız: {0}</value></data>
   <data name="RecordingError" xml:space="preserve"><value>Kayıt sırasında hata: {0}</value></data>
