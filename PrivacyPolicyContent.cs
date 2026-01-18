@@ -19,16 +19,25 @@ namespace CatchCapture
     {
         public static PrivacyPolicyData Get(string lang)
         {
-            return lang switch
+            return lang.ToLower() switch
             {
                 "en" => GetEn(),
                 "zh" => GetZh(),
-                "zh-TW" => GetZh(), // Traditional uses same content for now or update if needed
+                "zh-tw" => GetZh(),  // 번체와 간체 동일하게 유지 (필요 시 별도 메서드 분리 가능)
                 "ja" => GetJa(),
                 "es" => GetEs(),
                 "fr" => GetFr(),
                 "de" => GetDe(),
-                _ => GetKo(),
+                "ko" => GetKo(),
+                "ar" => GetAr(),
+                "id" => GetId(),
+                "it" => GetIt(),
+                "pt" => GetPt(),
+                "ru" => GetRu(),
+                "th" => GetTh(),
+                "tr" => GetTr(),
+                "vi" => GetVi(),
+                _ => GetKo(),  // 기본값: 한국어
             };
         }
 
@@ -67,7 +76,7 @@ namespace CatchCapture
             return new PrivacyPolicyData
             {
                 Title = "CatchCapture Privacy Policy",
-                Subtitle = "Last updated: Jan 14, 2026",
+                Subtitle = "Last updated: January 14, 2026",
                 Intro = "EZUPSOFT (\"we\") complies with applicable privacy laws and is committed to protecting users' personal data.",
                 HighlightTitle = "【 IMPORTANT 】",
                 HighlightText = "CatchCapture does not collect any personal information.\nThe app runs locally on your computer and does not send any personal data to external servers.",
@@ -85,7 +94,7 @@ namespace CatchCapture
                      "All data is processed only on your computer and protected by Windows security policies."),
                 },
                 ContactTitle = "Contact",
-                ContactInfo = "Company: EZUPSOFT\nProduct: CatchCapture\nEmail: ezupsoft@gmail.com\nWebsite: https://ezupsoft.com\nEffective date: Jan 14, 2026",
+                ContactInfo = "Company: EZUPSOFT\nProduct: CatchCapture\nEmail: ezupsoft@gmail.com\nWebsite: https://ezupsoft.com\nEffective date: January 14, 2026",
                 CloseLabel = "Close"
             };
         }
@@ -151,7 +160,7 @@ namespace CatchCapture
             return new PrivacyPolicyData
             {
                 Title = "Política de Privacidad de CatchCapture",
-                Subtitle = "Última actualización: 14 de ene. de 2026",
+                Subtitle = "Última actualización: 14 de enero de 2026",
                 Intro = "EZUPSOFT (\"nosotros\") cumple con las leyes de privacidad aplicables y se compromete a proteger los datos personales de los usuarios.",
                 HighlightTitle = "【 IMPORTANTE 】",
                 HighlightText = "CatchCapture no recopila ninguna información personal.\nLa aplicación se ejecuta localmente en su computadora y no envía ningún dato personal a servidores externos.",
@@ -169,7 +178,7 @@ namespace CatchCapture
                      "Todos los datos se procesan solo en su computadora y están protegidos por las políticas de seguridad de Windows."),
                 },
                 ContactTitle = "Contacto",
-                ContactInfo = "Empresa: EZUPSOFT\nProducto: CatchCapture\nCorreo electrónico: ezupsoft@gmail.com\nSitio web: https://ezupsoft.com\nFecha de vigencia: 14 de ene. de 2026",
+                ContactInfo = "Empresa: EZUPSOFT\nProducto: CatchCapture\nCorreo electrónico: ezupsoft@gmail.com\nSitio web: https://ezupsoft.com\nFecha de vigencia: 14 de enero de 2026",
                 CloseLabel = "Cerrar"
             };
         }
@@ -179,7 +188,7 @@ namespace CatchCapture
             return new PrivacyPolicyData
             {
                 Title = "Politique de Confidentialité de CatchCapture",
-                Subtitle = "Dernière mise à jour : 14 janv. 2026",
+                Subtitle = "Dernière mise à jour : 14 janvier 2026",
                 Intro = "EZUPSOFT (« nous ») respecte les lois applicables en matière de confidentialité et s'engage à protéger les données personnelles des utilisateurs.",
                 HighlightTitle = "【 IMPORTANT 】",
                 HighlightText = "CatchCapture ne collecte aucune information personnelle.\nL'application s'exécute localement sur votre ordinateur et n'envoie aucune donnée personnelle à des serveurs externes.",
@@ -197,7 +206,7 @@ namespace CatchCapture
                      "Toutes les données sont traitées uniquement sur votre ordinateur et protégées par les politiques de sécurité de Windows."),
                 },
                 ContactTitle = "Contact",
-                ContactInfo = "Société : EZUPSOFT\nProduit : CatchCapture\nE-mail : ezupsoft@gmail.com\nSite web : https://ezupsoft.com\nDate d'entrée en vigueur : 14 janv. 2026",
+                ContactInfo = "Société : EZUPSOFT\nProduit : CatchCapture\nE-mail : ezupsoft@gmail.com\nSite web : https://ezupsoft.com\nDate d'entrée en vigueur : 14 janvier 2026",
                 CloseLabel = "Fermer"
             };
         }
@@ -207,7 +216,7 @@ namespace CatchCapture
             return new PrivacyPolicyData
             {
                 Title = "CatchCapture Datenschutzerklärung",
-                Subtitle = "Zuletzt aktualisiert: 14. Jan. 2026",
+                Subtitle = "Zuletzt aktualisiert: 14. Januar 2026",
                 Intro = "EZUPSOFT („wir“) hält die geltenden Datenschutzgesetze ein und verpflichtet sich zum Schutz der personenbezogenen Daten der Nutzer.",
                 HighlightTitle = "【 WICHTIG 】",
                 HighlightText = "CatchCapture sammelt keine personenbezogenen Daten.\nDie App läuft lokal auf Ihrem Computer und sendet keine personenbezogenen Daten an externe Server.",
@@ -225,8 +234,232 @@ namespace CatchCapture
                      "Alle Daten werden nur auf Ihrem Computer verarbeitet und durch Windows-Sicherheitsrichtlinien geschützt."),
                 },
                 ContactTitle = "Kontakt",
-                ContactInfo = "Firma: EZUPSOFT\nProdukt: CatchCapture\nE-Mail: ezupsoft@gmail.com\nWebseite: https://ezupsoft.com\nDatum des Inkrafttretens: 14. Jan. 2026",
+                ContactInfo = "Firma: EZUPSOFT\nProdukt: CatchCapture\nE-Mail: ezupsoft@gmail.com\nWebseite: https://ezupsoft.com\nDatum des Inkrafttretens: 14. Januar 2026",
                 CloseLabel = "Schließen"
+            };
+        }
+
+        private static PrivacyPolicyData GetAr()
+        {
+            return new PrivacyPolicyData
+            {
+                Title = "سياسة خصوصية CatchCapture",
+                Subtitle = "آخر تحديث: 14 يناير 2026",
+                Intro = "تلتزم شركة EZUPSOFT (\"نحن\") بالقوانين المتعلقة بحماية البيانات الشخصية ونسعى لحماية معلومات المستخدمين.",
+                HighlightTitle = "【 هام 】",
+                HighlightText = "لا يقوم CatchCapture بجمع أي معلومات شخصية.\nيعمل التطبيق محليًا على جهاز الكمبيوتر الخاص بك ولا يرسل أي بيانات إلى خوادم خارجية.",
+                Sections = new List<(string, string)>
+                {
+                    ("1. جمع واستخدام المعلومات الشخصية",
+                     "لا يقوم CatchCapture بجمع المعلومات التالية:\n• معرفات شخصية (الاسم، البريد الإلكتروني، الهاتف)\n• معلومات الموقع\n• معلومات حساب المستخدم\n• نشاط الشبكة أو الإنترنت"),
+                    ("2. التخزين المحلي للبيانات",
+                     "يتم تخزين إعدادات التطبيق والصور المُلتقطة فقط على جهاز الكمبيوتر الخاص بك ولا يتم إرسالها إلى خوادمنا أو أطراف ثالثة.\n\nمسار التخزين: %LocalAppData%\\CatchCapture"),
+                    ("3. المشاركة مع أطراف ثالثة والمعالجة",
+                     "بما أنه لا يتم جمع معلومات شخصية، لا توجد مشاركة أو تكليف مع أطراف ثالثة."),
+                    ("4. حقوق المستخدم",
+                     "يمكنك حذف التطبيق في أي وقت لإزالة جميع البيانات المخزنة محليًا."),
+                    ("5. إجراءات الأمان",
+                     "تتم معالجة جميع البيانات فقط على جهاز الكمبيوتر الخاص بك ومحمية بسياسات أمان Windows.")
+                },
+                ContactTitle = "الاتصال",
+                ContactInfo = "الشركة: EZUPSOFT\nالمنتج: CatchCapture\nالبريد الإلكتروني: ezupsoft@gmail.com\nالموقع: https://ezupsoft.com\nتاريخ السريان: 14 يناير 2026",
+                CloseLabel = "إغلاق"
+            };
+        }
+
+        private static PrivacyPolicyData GetId()
+        {
+            return new PrivacyPolicyData
+            {
+                Title = "Kebijakan Privasi CatchCapture",
+                Subtitle = "Terakhir diperbarui: 14 Januari 2026",
+                Intro = "EZUPSOFT (\"kami\") mematuhi hukum privasi yang berlaku dan berkomitmen melindungi data pribadi pengguna.",
+                HighlightTitle = "【 PENTING 】",
+                HighlightText = "CatchCapture tidak mengumpulkan informasi pribadi apa pun.\nAplikasi berjalan secara lokal di komputer Anda dan tidak mengirimkan data apa pun ke server eksternal.",
+                Sections = new List<(string, string)>
+                {
+                    ("1. Pengumpulan dan Penggunaan Informasi Pribadi",
+                     "CatchCapture tidak mengumpulkan informasi berikut:\n• Pengenal pribadi (nama, email, telepon)\n• Informasi lokasi\n• Informasi akun pengguna\n• Aktivitas jaringan atau internet"),
+                    ("2. Penyimpanan Data Lokal",
+                     "Pengaturan aplikasi dan gambar yang ditangkap hanya disimpan di komputer Anda dan tidak dikirim ke server kami atau pihak ketiga.\n\nLokasi penyimpanan: %LocalAppData%\\CatchCapture"),
+                    ("3. Berbagi dan Pemrosesan dengan Pihak Ketiga",
+                     "Karena tidak ada informasi pribadi yang dikumpulkan, tidak ada berbagi atau outsourcing ke pihak ketiga."),
+                    ("4. Hak Pengguna",
+                     "Anda dapat menghapus aplikasi kapan saja untuk menghapus semua data yang disimpan secara lokal."),
+                    ("5. Langkah Keamanan",
+                     "Semua data hanya diproses di komputer Anda dan dilindungi oleh kebijakan keamanan Windows.")
+                },
+                ContactTitle = "Kontak",
+                ContactInfo = "Perusahaan: EZUPSOFT\nProduk: CatchCapture\nEmail: ezupsoft@gmail.com\nSitus web: https://ezupsoft.com\nTanggal berlaku: 14 Januari 2026",
+                CloseLabel = "Tutup"
+            };
+        }
+
+        private static PrivacyPolicyData GetIt()
+        {
+            return new PrivacyPolicyData
+            {
+                Title = "Informativa sulla Privacy di CatchCapture",
+                Subtitle = "Ultimo aggiornamento: 14 gennaio 2026",
+                Intro = "EZUPSOFT (\"noi\") rispetta le leggi sulla privacy applicabili e si impegna a proteggere i dati personali degli utenti.",
+                HighlightTitle = "【 IMPORTANTE 】",
+                HighlightText = "CatchCapture non raccoglie alcuna informazione personale.\nL'app funziona localmente sul tuo computer e non invia dati personali a server esterni.",
+                Sections = new List<(string, string)>
+                {
+                    ("1. Raccolta e utilizzo delle informazioni personali",
+                     "CatchCapture non raccoglie le seguenti informazioni:\n• Identificativi personali (nome, email, telefono)\n• Informazioni sulla posizione\n• Informazioni sull'account utente\n• Attività di rete o internet"),
+                    ("2. Archiviazione locale dei dati",
+                     "Le impostazioni dell'app e le immagini catturate sono archiviate solo sul tuo computer e non trasmesse ai nostri server o a terze parti.\n\nPercorso di archiviazione: %LocalAppData%\\CatchCapture"),
+                    ("3. Condivisione e elaborazione con terze parti",
+                     "Poiché non vengono raccolte informazioni personali, non vi è condivisione né esternalizzazione a terze parti."),
+                    ("4. Diritti dell'utente",
+                     "Puoi eliminare l'app in qualsiasi momento per rimuovere tutti i dati archiviati localmente."),
+                    ("5. Misure di sicurezza",
+                     "Tutti i dati vengono elaborati solo sul tuo computer e protetti dalle policy di sicurezza di Windows.")
+                },
+                ContactTitle = "Contatti",
+                ContactInfo = "Azienda: EZUPSOFT\nProdotto: CatchCapture\nEmail: ezupsoft@gmail.com\nSito web: https://ezupsoft.com\nData di entrata in vigore: 14 gennaio 2026",
+                CloseLabel = "Chiudi"
+            };
+        }
+
+        private static PrivacyPolicyData GetPt()
+        {
+            return new PrivacyPolicyData
+            {
+                Title = "Política de Privacidade do CatchCapture",
+                Subtitle = "Última atualização: 14 de janeiro de 2026",
+                Intro = "A EZUPSOFT (\"nós\") cumpre as leis de privacidade aplicáveis e está comprometida em proteger os dados pessoais dos usuários.",
+                HighlightTitle = "【 IMPORTANTE 】",
+                HighlightText = "O CatchCapture não coleta nenhuma informação pessoal.\nO aplicativo roda localmente no seu computador e não envia dados para servidores externos.",
+                Sections = new List<(string, string)>
+                {
+                    ("1. Coleta e Uso de Informações Pessoais",
+                     "O CatchCapture não coleta as seguintes informações:\n• Identificadores pessoais (nome, e-mail, telefone)\n• Informações de localização\n• Informações de conta do usuário\n• Atividade de rede ou internet"),
+                    ("2. Armazenamento Local de Dados",
+                     "As configurações do aplicativo e as imagens capturadas são armazenadas apenas no seu computador e não são transmitidas para nossos servidores ou terceiros.\n\nCaminho de armazenamento: %LocalAppData%\\CatchCapture"),
+                    ("3. Compartilhamento e Processamento por Terceiros",
+                     "Como nenhuma informação pessoal é coletada, não há compartilhamento nem terceirização para terceiros."),
+                    ("4. Direitos do Usuário",
+                     "Você pode excluir o aplicativo a qualquer momento para remover todos os dados armazenados localmente."),
+                    ("5. Medidas de Segurança",
+                     "Todos os dados são processados apenas no seu computador e protegidos pelas políticas de segurança do Windows.")
+                },
+                ContactTitle = "Contato",
+                ContactInfo = "Empresa: EZUPSOFT\nProduto: CatchCapture\nE-mail: ezupsoft@gmail.com\nSite: https://ezupsoft.com\nData de vigência: 14 de janeiro de 2026",
+                CloseLabel = "Fechar"
+            };
+        }
+
+        private static PrivacyPolicyData GetRu()
+        {
+            return new PrivacyPolicyData
+            {
+                Title = "Политика конфиденциальности CatchCapture",
+                Subtitle = "Последнее обновление: 14 января 2026 г.",
+                Intro = "EZUPSOFT («мы») соблюдает применимые законы о конфиденциальности и стремится защищать персональные данные пользователей.",
+                HighlightTitle = "【 ВАЖНО 】",
+                HighlightText = "CatchCapture не собирает никакой персональной информации.\nПриложение работает локально на вашем компьютере и не отправляет данные на внешние серверы.",
+                Sections = new List<(string, string)>
+                {
+                    ("1. Сбор и использование персональных данных",
+                     "CatchCapture не собирает следующие данные:\n• Персональные идентификаторы (имя, email, телефон)\n• Информацию о местоположении\n• Данные учетной записи пользователя\n• Сетевую или интернет-активность"),
+                    ("2. Локальное хранение данных",
+                     "Настройки приложения и захваченные изображения хранятся только на вашем компьютере и не передаются на наши серверы или третьим лицам.\n\nПуть хранения: %LocalAppData%\\CatchCapture"),
+                    ("3. Передача и обработка третьими лицами",
+                     "Поскольку персональные данные не собираются, передача или обработка третьими лицами отсутствует."),
+                    ("4. Права пользователя",
+                     "Вы можете удалить приложение в любое время, чтобы удалить все локально сохраненные данные."),
+                    ("5. Меры безопасности",
+                     "Все данные обрабатываются только на вашем компьютере и защищены политиками безопасности Windows.")
+                },
+                ContactTitle = "Контакты",
+                ContactInfo = "Компания: EZUPSOFT\nПродукт: CatchCapture\nEmail: ezupsoft@gmail.com\nСайт: https://ezupsoft.com\nДата вступления в силу: 14 января 2026 г.",
+                CloseLabel = "Закрыть"
+            };
+        }
+
+        private static PrivacyPolicyData GetTh()
+        {
+            return new PrivacyPolicyData
+            {
+                Title = "นโยบายความเป็นส่วนตัวของ CatchCapture",
+                Subtitle = "อัปเดตล่าสุด: 14 มกราคม 2569",
+                Intro = "EZUPSOFT (\"เรา\") ปฏิบัติตามกฎหมายความเป็นส่วนตัวที่เกี่ยวข้องและมุ่งมั่นปกป้องข้อมูลส่วนบุคคลของผู้ใช้",
+                HighlightTitle = "【 สำคัญ 】",
+                HighlightText = "CatchCapture ไม่เก็บรวบรวมข้อมูลส่วนบุคคลใด ๆ\nแอปทำงานแบบโลคอลบนคอมพิวเตอร์ของคุณและไม่ส่งข้อมูลใด ๆ ไปยังเซิร์ฟเวอร์ภายนอก",
+                Sections = new List<(string, string)>
+                {
+                    ("1. การเก็บรวบรวมและการใช้ข้อมูลส่วนบุคคล",
+                     "CatchCapture ไม่เก็บรวบรวมข้อมูลต่อไปนี้:\n• ตัวระบุส่วนบุคคล (ชื่อ อีเมล โทรศัพท์)\n• ข้อมูลตำแหน่ง\n• ข้อมูลบัญชีผู้ใช้\n• กิจกรรมเครือข่ายหรืออินเทอร์เน็ต"),
+                    ("2. การเก็บข้อมูลแบบโลคอล",
+                     "การตั้งค่าแอปและภาพที่จับได้จะถูกเก็บไว้เฉพาะบนคอมพิวเตอร์ของคุณและไม่ถูกส่งไปยังเซิร์ฟเวอร์ของเรา หรือบุคคลที่สาม\n\nตำแหน่งเก็บข้อมูล: %LocalAppData%\\CatchCapture"),
+                    ("3. การแบ่งปันและการประมวลผลกับบุคคลที่สาม",
+                     "เนื่องจากไม่มีการเก็บข้อมูลส่วนบุคคล จึงไม่มี การแบ่งปันหรือว่าจ้างบุคคลที่สาม"),
+                    ("4. สิทธิของผู้ใช้",
+                     "คุณสามารถลบแอปได้ทุกเมื่อเพื่อลบข้อมูลที่เก็บไว้ในเครื่องทั้งหมด"),
+                    ("5. มาตรการรักษาความปลอดภัย",
+                     "ข้อมูลทั้งหมดถูกประมวลผลเฉพาะบนคอมพิวเตอร์ของคุณและได้รับการป้องกันตามนโยบายความปลอดภัยของ Windows")
+                },
+                ContactTitle = "ติดต่อ",
+                ContactInfo = "บริษัท: EZUPSOFT\nผลิตภัณฑ์: CatchCapture\nอีเมล: ezupsoft@gmail.com\nเว็บไซต์: https://ezupsoft.com\nวันที่มีผลบังคับใช้: 14 มกราคม 2569",
+                CloseLabel = "ปิด"
+            };
+        }
+
+        private static PrivacyPolicyData GetTr()
+        {
+            return new PrivacyPolicyData
+            {
+                Title = "CatchCapture Gizlilik Politikası",
+                Subtitle = "Son güncelleme: 14 Ocak 2026",
+                Intro = "EZUPSOFT (\"biz\") geçerli gizlilik yasalarına uyar ve kullanıcıların kişisel verilerini korumaya kararlıdır.",
+                HighlightTitle = "【 ÖNEMLİ 】",
+                HighlightText = "CatchCapture hiçbir kişisel bilgi toplamaz.\nUygulama bilgisayarınızda yerel olarak çalışır ve hiçbir kişisel veriyi harici sunuculara göndermez.",
+                Sections = new List<(string, string)>
+                {
+                    ("1. Kişisel Bilgilerin Toplanması ve Kullanımı",
+                     "CatchCapture aşağıdaki bilgileri toplamaz:\n• Kişisel tanımlayıcılar (isim, e-posta, telefon)\n• Konum bilgileri\n• Kullanıcı hesabı bilgileri\n• Ağ veya internet etkinliği"),
+                    ("2. Yerel Veri Depolama",
+                     "Uygulama ayarları ve yakalanan görüntüler yalnızca bilgisayarınızda saklanır ve sunucularımıza veya üçüncü taraflara iletilmez.\n\nDepolama yolu: %LocalAppData%\\CatchCapture"),
+                    ("3. Üçüncü Taraflarla Paylaşım ve İşleme",
+                     "Kişisel bilgi toplanmadığı için üçüncü taraflarla paylaşım veya dış kaynak kullanımı yoktur."),
+                    ("4. Kullanıcı Hakları",
+                     "Uygulamayı istediğiniz zaman silerek yerel olarak saklanan tüm verileri kaldırabilirsiniz."),
+                    ("5. Güvenlik Önlemleri",
+                     "Tüm veriler yalnızca bilgisayarınızda işlenir ve Windows güvenlik politikalarıyla korunur.")
+                },
+                ContactTitle = "İletişim",
+                ContactInfo = "Şirket: EZUPSOFT\nÜrün: CatchCapture\nE-posta: ezupsoft@gmail.com\nWeb sitesi: https://ezupsoft.com\nYürürlük tarihi: 14 Ocak 2026",
+                CloseLabel = "Kapat"
+            };
+        }
+
+        private static PrivacyPolicyData GetVi()
+        {
+            return new PrivacyPolicyData
+            {
+                Title = "Chính sách Bảo mật của CatchCapture",
+                Subtitle = "Cập nhật lần cuối: 14 tháng 1 năm 2026",
+                Intro = "EZUPSOFT (\"chúng tôi\") tuân thủ các luật bảo mật hiện hành và cam kết bảo vệ dữ liệu cá nhân của người dùng.",
+                HighlightTitle = "【 QUAN TRỌNG 】",
+                HighlightText = "CatchCapture không thu thập bất kỳ thông tin cá nhân nào.\nỨng dụng chạy cục bộ trên máy tính của bạn và không gửi dữ liệu đến máy chủ bên ngoài.",
+                Sections = new List<(string, string)>
+                {
+                    ("1. Thu thập và Sử dụng Thông tin Cá nhân",
+                     "CatchCapture không thu thập các thông tin sau:\n• Định danh cá nhân (tên, email, điện thoại)\n• Thông tin vị trí\n• Thông tin tài khoản người dùng\n• Hoạt động mạng hoặc internet"),
+                    ("2. Lưu trữ Dữ liệu Cục bộ",
+                     "Cài đặt ứng dụng và hình ảnh chụp được chỉ lưu trữ trên máy tính của bạn và không được gửi đến máy chủ của chúng tôi hoặc bên thứ ba.\n\nĐường dẫn lưu trữ: %LocalAppData%\\CatchCapture"),
+                    ("3. Chia sẻ và Xử lý với Bên thứ ba",
+                     "Vì không thu thập thông tin cá nhân nên không có việc chia sẻ hoặc ủy thác xử lý cho bên thứ ba."),
+                    ("4. Quyền của Người dùng",
+                     "Bạn có thể xóa ứng dụng bất kỳ lúc nào để xóa toàn bộ dữ liệu lưu trữ cục bộ."),
+                    ("5. Biện pháp Bảo mật",
+                     "Tất cả dữ liệu chỉ được xử lý trên máy tính của bạn và được bảo vệ bởi chính sách bảo mật của Windows.")
+                },
+                ContactTitle = "Liên hệ",
+                ContactInfo = "Công ty: EZUPSOFT\nSản phẩm: CatchCapture\nEmail: ezupsoft@gmail.com\nTrang web: https://ezupsoft.com\nNgày hiệu lực: 14 tháng 1 năm 2026",
+                CloseLabel = "Đóng"
             };
         }
     }

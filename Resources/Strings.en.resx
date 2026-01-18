@@ -942,20 +942,13 @@ Are you sure you want to permanently delete all items?</value>
   <data name="SelectBackupFolder" xml:space="preserve"><value>Select Backup Folder</value></data>
   <data name="FolderNotFound" xml:space="preserve"><value>Folder does not exist.</value></data>
   <data name="PasswordNotSet" xml:space="preserve"><value>Password is not set. Please set a password.</value></data>
-  <data name="PasswordHintRequired" xml:space="preserve"><value>Password hint is required.</value></data>
   <data name="BackupAuto" xml:space="preserve"><value>System Auto Backup</value></data>
   <data name="BackupManual" xml:space="preserve"><value>User Manual Backup</value></data>
   <data name="TimeJustNow" xml:space="preserve"><value>Just now</value></data>
   <data name="TimeMinutesAgo" xml:space="preserve"><value>{0}m ago</value></data>
   <data name="TimeHoursAgo" xml:space="preserve"><value>{0}h ago</value></data>
   <data name="TimeDaysAgo" xml:space="preserve"><value>{0}d ago</value></data>
-  <data name="Success" xml:space="preserve"><value>Success</value></data>
-  <data name="Error" xml:space="preserve"><value>Error</value></data>
-  <data name="Confirm" xml:space="preserve"><value>Confirm</value></data>
-  <data name="Info" xml:space="preserve"><value>Info</value></data>
-  <data name="DataLossWarning" xml:space="preserve"><value>Data Loss Warning</value></data>
   <data name="DeleteConfirmation" xml:space="preserve"><value>Confirm Delete</value></data>
   <data name="DeleteCompletedTitle" xml:space="preserve"><value>Delete Completed</value></data>
   <data name="DeleteError" xml:space="preserve"><value>Error during delete</value></data>
-  <data name="FileNotFound" xml:space="preserve"><value>File not found.</value></data>
 </root>
