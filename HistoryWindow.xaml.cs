@@ -1155,6 +1155,9 @@ namespace CatchCapture
 
                     // 목록 갱신
                     LoadHistory(_currentFilter, _currentSearch, _currentDateFrom, _currentDateTo, _currentFileType);
+
+                    // 성공 메시지 표시
+                    CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("SyncSuccess"), LocalizationManager.GetString("Success"));
                 }
             }
             catch (Exception ex)

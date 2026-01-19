@@ -2767,7 +2767,11 @@ namespace CatchCapture.Utilities
                     if (span.TotalMinutes < 1) return Resources.LocalizationManager.GetString("TimeJustNow");
                     if (span.TotalMinutes < 60) return string.Format(Resources.LocalizationManager.GetString("TimeMinutesAgo"), (int)span.TotalMinutes);
                     if (span.TotalHours < 24) return string.Format(Resources.LocalizationManager.GetString("TimeHoursAgo"), (int)span.TotalHours);
-                    if (span.TotalDays < 7) return string.Format(Resources.LocalizationManager.GetString("TimeDaysAgo"), (int)span.TotalDays);
+                    
+                    // 24시간 이상인 경우 달력 날짜 차이로 계산 (사용자 직관성 향상)
+                    int days = (int)(DateTime.Now.Date - CreatedDate.Date).TotalDays;
+                    if (days > 0 && days < 14) return string.Format(Resources.LocalizationManager.GetString("TimeDaysAgo"), days);
+                    
                     return CreatedDate.ToString("yyyy-MM-dd");
                 }
             }

@@ -25,6 +25,7 @@ namespace CatchCapture
         private long? _editingNoteId = null;
         public bool IsEditMode => _isEditMode;
         private bool _isEditMode => _editingNoteId.HasValue;
+        public long? LastSavedNoteId { get; private set; }
 
         public class AttachmentItem
         {
@@ -761,6 +762,7 @@ namespace CatchCapture
                 }
 
                 long targetNoteId = await DatabaseManager.Instance.SaveNoteAsync(request);
+                LastSavedNoteId = targetNoteId;
 
                 // UI Cleanup after save
                 GridLoading.Visibility = Visibility.Collapsed;
@@ -781,11 +783,11 @@ namespace CatchCapture
                 {
                     CatchCapture.NoteExplorerWindow.Instance.WindowState = WindowState.Normal;
                     CatchCapture.NoteExplorerWindow.Instance.Activate();
-                    _ = CatchCapture.NoteExplorerWindow.Instance.RefreshNotes();
+                    _ = CatchCapture.NoteExplorerWindow.Instance.RefreshNotes(targetNoteId);
                 }
                 else
                 {
-                    new CatchCapture.NoteExplorerWindow().Show();
+                    new CatchCapture.NoteExplorerWindow(targetNoteId).Show();
                 }
 
                 // [중요] 저장 후 즉시 백그라운드 동기화 수행 (종료 시 백업 실패 방지)

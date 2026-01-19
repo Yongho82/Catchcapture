@@ -74,7 +74,7 @@ namespace CatchCapture.Models
         // Note Settings
         public string NoteStoragePath { get; set; } = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "CatchCapture"), "notedata");
         public string NoteFileNameTemplate { get; set; } = "Catch_$yyyy-MM-dd_HH-mm-ss$";
-        public string NoteFolderGroupingMode { get; set; } = "None";
+        public string NoteFolderGroupingMode { get; set; } = "Monthly";
         public string? NotePassword { get; set; }
         public string? NotePasswordHint { get; set; }
         public bool IsNoteLockEnabled { get; set; } = false;
@@ -260,6 +260,13 @@ namespace CatchCapture.Models
             if (string.IsNullOrEmpty(EdgeLineColor))
             {
                 EdgeLineColor = "#FF0000";
+                changed = true;
+            }
+
+            // [사용자 요청] 노트 폴더분류 기본값을 '기본저장(None)'에서 '월별(Monthly)'로 변경
+            if (NoteFolderGroupingMode == "None")
+            {
+                NoteFolderGroupingMode = "Monthly";
                 changed = true;
             }
 

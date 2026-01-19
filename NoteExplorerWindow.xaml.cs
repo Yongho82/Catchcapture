@@ -81,7 +81,7 @@ namespace CatchCapture
 
         public static NoteExplorerWindow? Instance { get; private set; }
 
-        public NoteExplorerWindow()
+        public NoteExplorerWindow(long? focusNoteId = null)
         {
             try
             {
@@ -100,7 +100,7 @@ namespace CatchCapture
 
                 // Removed unused sync check registration
                 
-                _ = LoadNotes(filter: "Recent");
+                _ = LoadNotes(filter: "Recent", focusNoteId: focusNoteId);
                 LoadTags();
                 InitializeTipTimer();
                 HighlightSidebarButton(BtnFilterRecent);
@@ -401,9 +401,9 @@ namespace CatchCapture
             }
         }
 
-        public async Task RefreshNotes()
+        public async Task RefreshNotes(long? focusNoteId = null)
         {
-            await LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage);
+            await LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage, focusNoteId);
         }
 
         private void InitializeTipTimer()
@@ -463,7 +463,7 @@ namespace CatchCapture
             return wheres.Count > 0 ? " WHERE " + string.Join(" AND ", wheres) : "";
         }
 
-        public async Task LoadNotes(string filter = "All", string? tag = null, string? search = null, int page = 1)
+        public async Task LoadNotes(string filter = "All", string? tag = null, string? search = null, int page = 1, long? focusNoteId = null)
         {
             try
             {
@@ -727,6 +727,16 @@ namespace CatchCapture
                     LstNotes.SelectedIndex = 0;
                 }
                 */
+
+                if (focusNoteId.HasValue)
+                {
+                    var noteToFocus = result.notesList.FirstOrDefault(n => n.Id == focusNoteId.Value);
+                    if (noteToFocus != null)
+                    {
+                        LstNotes.SelectedItem = noteToFocus;
+                        LstNotes.ScrollIntoView(noteToFocus);
+                    }
+                }
 
                 UpdateSidebarCounts();
             }
@@ -1161,7 +1171,7 @@ namespace CatchCapture
                 noteInput.Owner = this;
                 if (noteInput.ShowDialog() == true)
                 {
-                    await LoadNotes(); // Refresh list after saving
+                    await RefreshNotes(noteInput.LastSavedNoteId);
                     LoadTags();
                 }
             }
@@ -1181,7 +1191,7 @@ namespace CatchCapture
                     inputWin.Owner = this;
                     if (inputWin.ShowDialog() == true)
                     {
-                        await LoadNotes(); // Refresh list after edit
+                        await RefreshNotes(inputWin.LastSavedNoteId);
                         LoadTags();
                     }
                 }
@@ -2137,6 +2147,9 @@ namespace CatchCapture
                     // 목록 갱신
                     await RefreshNotes();
                     LoadTags();
+
+                    // 성공 메시지 표시
+                    CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("SyncSuccess"), CatchCapture.Resources.LocalizationManager.GetString("Success"));
                 }
             }
             catch (Exception ex)
