@@ -18,6 +18,7 @@ namespace CatchCapture.Utilities
         public double Thickness { get; set; }
         public bool IsFilled { get; set; }
         public double FillOpacity { get; set; }
+        public double Rotation { get; set; }
     }
 
     /// <summary>
@@ -215,6 +216,19 @@ namespace CatchCapture.Utilities
 
         public static void ApplyDrawingLayer(UIElement element, CatchCapture.Models.DrawingLayer layer)
         {
+            if (element is FrameworkElement fe)
+            {
+                if (layer.Rotation != 0)
+                {
+                    fe.RenderTransformOrigin = new Point(0.5, 0.5);
+                    fe.RenderTransform = new RotateTransform(layer.Rotation);
+                }
+                else
+                {
+                    fe.RenderTransform = null;
+                }
+            }
+
             if (element is Shape shape)
             {
                 shape.Stroke = new SolidColorBrush(layer.Color);

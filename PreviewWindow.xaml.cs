@@ -395,6 +395,13 @@ namespace CatchCapture
                     {
                         bool isNumbering = groupCanvas.Children.Count > 0 && groupCanvas.Children[0] is Border;
                         
+                        double rotation = 0;
+                        if (groupCanvas.RenderTransform is RotateTransform rt) rotation = rt.Angle;
+                        else if (groupCanvas.RenderTransform is TransformGroup tg)
+                        {
+                            foreach (var t in tg.Children) if (t is RotateTransform r) rotation += r.Angle;
+                        }
+
                         layer = new CatchCapture.Models.DrawingLayer
                         {
                             Type = DrawingLayerType.Text, // 우선 둘 다 Text로 처리 (나중에 필요시 별도 enum 추가)
@@ -408,7 +415,8 @@ namespace CatchCapture
                             HasUnderline = tb.TextDecorations != null && tb.TextDecorations.Count > 0,
                             HasShadow = tb.Effect is System.Windows.Media.Effects.DropShadowEffect,
                             IsInteractive = true,
-                            LayerId = nextLayerId++
+                            LayerId = nextLayerId++,
+                            Rotation = rotation
                         };
                     }
                 }
@@ -428,6 +436,15 @@ namespace CatchCapture
             {
                 if (element is FrameworkElement fe && fe.Tag is CatchCapture.Models.DrawingLayer layer)
                 {
+                    // [추가] 회전 상태 동기화
+                    double rotation = 0;
+                    if (element.RenderTransform is RotateTransform rotateTransform) rotation = rotateTransform.Angle;
+                    else if (element.RenderTransform is TransformGroup transformGroup)
+                    {
+                        foreach (var tr in transformGroup.Children) if (tr is RotateTransform rr) rotation += rr.Angle;
+                    }
+                    layer.Rotation = rotation;
+
                     var bounds = InteractiveEditor.GetElementBounds(element);
                     if (layer.Type == DrawingLayerType.Shape)
                     {
@@ -916,28 +933,41 @@ namespace CatchCapture
                                 if (double.IsNaN(left)) left = 0;
                                 if (double.IsNaN(top)) top = 0;
 
+                                double w = double.IsNaN(shape.Width) ? shape.ActualWidth : shape.Width;
+                                double h = double.IsNaN(shape.Height) ? shape.ActualHeight : shape.Height;
+                                // 안전장치
+                                if (w <= 0 || double.IsNaN(w)) w = 0;
+                                if (h <= 0 || double.IsNaN(h)) h = 0;
+
                                 dc.PushTransform(new TranslateTransform(left, top));
+
+                                // [추가] 회전 등 변환 효과 반영
+                                if (shape.RenderTransform != null && shape.RenderTransform != Transform.Identity)
+                                {
+                                    var origin = shape.RenderTransformOrigin;
+                                    if (shape.RenderTransform is RotateTransform rt)
+                                    {
+                                        dc.PushTransform(new RotateTransform(rt.Angle, origin.X * w, origin.Y * h));
+                                    }
+                                    else
+                                    {
+                                        dc.PushTransform(shape.RenderTransform);
+                                    }
+                                }
                                 
                                 if (shape is Rectangle rect)
                                 {
-                                    double w = double.IsNaN(rect.Width) ? rect.ActualWidth : rect.Width;
-                                    double h = double.IsNaN(rect.Height) ? rect.ActualHeight : rect.Height;
-                                    // 안전장치
-                                    if (w <= 0 || double.IsNaN(w)) w = 0;
-                                    if (h <= 0 || double.IsNaN(h)) h = 0;
-
                                     dc.DrawRectangle(rect.Fill, new Pen(rect.Stroke, rect.StrokeThickness), new Rect(0, 0, w, h));
                                 }
                                 else if (shape is Ellipse ellipse)
                                 {
-                                    double w = double.IsNaN(ellipse.Width) ? ellipse.ActualWidth : ellipse.Width;
-                                    double h = double.IsNaN(ellipse.Height) ? ellipse.ActualHeight : ellipse.Height;
-                                    if (w <= 0 || double.IsNaN(w)) w = 0;
-                                    if (h <= 0 || double.IsNaN(h)) h = 0;
-
                                     dc.DrawEllipse(ellipse.Fill, new Pen(ellipse.Stroke, ellipse.StrokeThickness), 
                                         new Point(w/2, h/2), w/2, h/2);
                                 }
+
+                                // Pop Transform for RenderTransform if applied
+                                if (shape.RenderTransform != null && shape.RenderTransform != Transform.Identity) dc.Pop();
+                                // Pop TranslateTransform
                                 dc.Pop();
                             }
                             else if (element is TextBox textBox)
@@ -948,6 +978,25 @@ namespace CatchCapture
                                 double top = Canvas.GetTop(textBox);
                                 if (double.IsNaN(left)) left = 0;
                                 if (double.IsNaN(top)) top = 0;
+
+                                double tbWidth = double.IsNaN(textBox.Width) ? textBox.ActualWidth : textBox.Width;
+                                double tbHeight = double.IsNaN(textBox.Height) ? textBox.ActualHeight : textBox.Height;
+
+                                dc.PushTransform(new TranslateTransform(left, top));
+
+                                // [추가] 회전 등 변환 효과 반영
+                                if (textBox.RenderTransform != null && textBox.RenderTransform != Transform.Identity)
+                                {
+                                    var origin = textBox.RenderTransformOrigin;
+                                    if (textBox.RenderTransform is RotateTransform rt)
+                                    {
+                                        dc.PushTransform(new RotateTransform(rt.Angle, origin.X * tbWidth, origin.Y * tbHeight));
+                                    }
+                                    else
+                                    {
+                                        dc.PushTransform(textBox.RenderTransform);
+                                    }
+                                }
 
                                 var ft = new FormattedText(
                                     textBox.Text,
@@ -963,14 +1012,13 @@ namespace CatchCapture
                                 double lineHeight = TextBlock.GetLineHeight(textBox);
                                 if (lineHeight > 0 && !double.IsNaN(lineHeight)) ft.LineHeight = lineHeight;
 
-                                double tbWidth = double.IsNaN(textBox.Width) ? textBox.ActualWidth : textBox.Width;
                                 if (tbWidth > 0)
                                 {
                                     ft.MaxTextWidth = Math.Max(1, tbWidth - textBox.Padding.Left - textBox.Padding.Right);
                                 }
 
-                                // [개선] 그림자 효과 반영 (그림자가 활성화된 경우 살짝 오프셋하여 배경에 그림자 그림)
-                                Point drawPos = new Point(left + textBox.Padding.Left, top + textBox.Padding.Top);
+                                // [개선] 그림자 효과 반영
+                                Point drawPos = new Point(textBox.Padding.Left, textBox.Padding.Top);
                                 if (textBox.Effect is System.Windows.Media.Effects.DropShadowEffect shadow)
                                 {
                                     var shadowFt = new FormattedText(
@@ -993,6 +1041,9 @@ namespace CatchCapture
                                 }
 
                                 dc.DrawText(ft, drawPos);
+
+                                if (textBox.RenderTransform != null && textBox.RenderTransform != Transform.Identity) dc.Pop();
+                                dc.Pop();
                             }
                             else if (element is Canvas groupCanvas)
                             {
@@ -1001,10 +1052,30 @@ namespace CatchCapture
                                 if (double.IsNaN(gLeft)) gLeft = 0;
                                 if (double.IsNaN(gTop)) gTop = 0;
                                 
+                                double gw = double.IsNaN(groupCanvas.Width) ? groupCanvas.ActualWidth : groupCanvas.Width;
+                                double gh = double.IsNaN(groupCanvas.Height) ? groupCanvas.ActualHeight : groupCanvas.Height;
+
                                 dc.PushTransform(new TranslateTransform(gLeft, gTop));
+
+                                // [추가] 회전 등 변환 효과 반영 (화살표, 넘버링 등 그룹 요소)
+                                if (groupCanvas.RenderTransform != null && groupCanvas.RenderTransform != Transform.Identity)
+                                {
+                                    var origin = groupCanvas.RenderTransformOrigin;
+                                    if (groupCanvas.RenderTransform is RotateTransform rt)
+                                    {
+                                        dc.PushTransform(new RotateTransform(rt.Angle, origin.X * gw, origin.Y * gh));
+                                    }
+                                    else
+                                    {
+                                        dc.PushTransform(groupCanvas.RenderTransform);
+                                    }
+                                }
                                 
                                 foreach(UIElement child in groupCanvas.Children)
                                 {
+                                    // ... (rest of children rendering logic)
+                                    // Note: I will use AllowMultiple or just replace the whole block if needed.
+                                    // But I'll keep the inner part mostly same.
                                     if (child.Visibility != Visibility.Visible) continue;
 
                                     if (child is Border border)
@@ -1049,10 +1120,10 @@ namespace CatchCapture
                                         // Render Grid Background if any
                                         if (grid.Background != null)
                                         {
-                                            double gw = double.IsNaN(grid.Width) ? grid.ActualWidth : grid.Width;
-                                            double gh = double.IsNaN(grid.Height) ? grid.ActualHeight : grid.Height;
-                                            if (gw > 0 && gh > 0)
-                                                dc.DrawRectangle(grid.Background, null, new Rect(0, 0, gw, gh));
+                                            double grw = double.IsNaN(grid.Width) ? grid.ActualWidth : grid.Width;
+                                            double grh = double.IsNaN(grid.Height) ? grid.ActualHeight : grid.Height;
+                                            if (grw > 0 && grh > 0)
+                                                dc.DrawRectangle(grid.Background, null, new Rect(0, 0, grw, grh));
                                         }
 
                                         foreach (UIElement grandChild in grid.Children)
@@ -1188,6 +1259,8 @@ namespace CatchCapture
                                         }
                                     }
                                 }
+
+                                if (groupCanvas.RenderTransform != null && groupCanvas.RenderTransform != Transform.Identity) dc.Pop();
                                 dc.Pop();
                             }
                         }

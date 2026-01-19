@@ -3188,12 +3188,29 @@ namespace CatchCapture.Utilities
                         if (double.IsNaN(tWidth)) tWidth = textBox.ActualWidth;
                         if (double.IsNaN(tHeight)) tHeight = textBox.ActualHeight;
 
-                        // 배경 및 테두리 (활성화된 상태일 때만 그릴지 검토, 일단 항상 그림)
+                        drawingContext.PushTransform(new TranslateTransform(textLeft, textTop));
+
+                        // [추가] 회전 등 변환 효과 반영
+                        bool hasTransform = textBox.RenderTransform != null && textBox.RenderTransform != Transform.Identity;
+                        if (hasTransform)
+                        {
+                            var origin = textBox.RenderTransformOrigin;
+                            if (textBox.RenderTransform is RotateTransform rt)
+                            {
+                                drawingContext.PushTransform(new RotateTransform(rt.Angle, origin.X * tWidth, origin.Y * tHeight));
+                            }
+                            else
+                            {
+                                drawingContext.PushTransform(textBox.RenderTransform);
+                            }
+                        }
+
+                        // 배경 및 테두리
                         if (textBox.Background != null && textBox.Background != Brushes.Transparent)
                         {
                             drawingContext.DrawRectangle(textBox.Background, 
                                 (textBox.BorderThickness.Left > 0) ? new Pen(textBox.BorderBrush, textBox.BorderThickness.Left) : null,
-                                new Rect(textLeft, textTop, tWidth, tHeight));
+                                new Rect(0, 0, tWidth, tHeight));
                         }
 
                         var formattedText = new FormattedText(
@@ -3212,7 +3229,10 @@ namespace CatchCapture.Utilities
                              formattedText.LineHeight = lineHeight;
                         }
                         
-                        drawingContext.DrawText(formattedText, new Point(textLeft + textBox.Padding.Left, textTop + textBox.Padding.Top));
+                        drawingContext.DrawText(formattedText, new Point(textBox.Padding.Left, textBox.Padding.Top));
+
+                        if (hasTransform) drawingContext.Pop();
+                        drawingContext.Pop();
                     }     
                     else if (element is Shape shape)
                     {
@@ -3238,6 +3258,21 @@ namespace CatchCapture.Utilities
 
                             drawingContext.PushTransform(new TranslateTransform(left, top));
 
+                            // [추가] 회전 등 변환 효과 반영
+                            bool hasTransform = shape.RenderTransform != null && shape.RenderTransform != Transform.Identity;
+                            if (hasTransform)
+                            {
+                                var origin = shape.RenderTransformOrigin;
+                                if (shape.RenderTransform is RotateTransform rt)
+                                {
+                                    drawingContext.PushTransform(new RotateTransform(rt.Angle, origin.X * sWidth, origin.Y * sHeight));
+                                }
+                                else
+                                {
+                                    drawingContext.PushTransform(shape.RenderTransform);
+                                }
+                            }
+
                             if (shape is Rectangle rect)
                             {
                                 drawingContext.DrawRectangle(rect.Fill, new Pen(rect.Stroke, rect.StrokeThickness), new Rect(0, 0, sWidth, sHeight));
@@ -3246,6 +3281,8 @@ namespace CatchCapture.Utilities
                             {
                                 drawingContext.DrawEllipse(ellipse.Fill, new Pen(ellipse.Stroke, ellipse.StrokeThickness), new Point(sWidth / 2, sHeight / 2), sWidth / 2, sHeight / 2);
                             }
+
+                            if (hasTransform) drawingContext.Pop();
                             drawingContext.Pop();
                         } 
                     }
@@ -3273,6 +3310,25 @@ namespace CatchCapture.Utilities
                         if (double.IsNaN(gTop)) gTop = 0;
                         double groupOffsetLeft = gLeft - selectionLeft;
                         double groupOffsetTop = gTop - selectionTop;
+
+                        drawingContext.PushTransform(new TranslateTransform(groupOffsetLeft, groupOffsetTop));
+
+                        // [추가] 회전 등 변환 효과 반영
+                        double groupW = double.IsNaN(groupCanvas.Width) ? groupCanvas.ActualWidth : groupCanvas.Width;
+                        double groupH = double.IsNaN(groupCanvas.Height) ? groupCanvas.ActualHeight : groupCanvas.Height;
+                        bool hasTransform = groupCanvas.RenderTransform != null && groupCanvas.RenderTransform != Transform.Identity;
+                        if (hasTransform)
+                        {
+                            var origin = groupCanvas.RenderTransformOrigin;
+                            if (groupCanvas.RenderTransform is RotateTransform rt)
+                            {
+                                drawingContext.PushTransform(new RotateTransform(rt.Angle, origin.X * groupW, origin.Y * groupH));
+                            }
+                            else
+                            {
+                                drawingContext.PushTransform(groupCanvas.RenderTransform);
+                            }
+                        }
                         
                         foreach (UIElement child in groupCanvas.Children)
                         {
@@ -3286,9 +3342,6 @@ namespace CatchCapture.Utilities
                                 if (double.IsNaN(bLeft)) bLeft = 0;
                                 if (double.IsNaN(bTop)) bTop = 0;
 
-                                double badgeLeft = groupOffsetLeft + bLeft;
-                                double badgeTop = groupOffsetTop + bTop;
-                                
                                 double bWidth = border.Width;
                                 double bHeight = border.Height;
                                 if (double.IsNaN(bWidth)) bWidth = border.ActualWidth;
@@ -3297,7 +3350,7 @@ namespace CatchCapture.Utilities
                                 if (bWidth > 0 && bHeight > 0)
                                 {
                                     var ellipse = new EllipseGeometry(
-                                        new Point(badgeLeft + bWidth / 2, badgeTop + bHeight / 2),
+                                        new Point(bLeft + bWidth / 2, bTop + bHeight / 2),
                                         bWidth / 2,
                                         bHeight / 2);
                                     
@@ -3316,8 +3369,8 @@ namespace CatchCapture.Utilities
                                             VisualTreeHelper.GetDpi(this).PixelsPerDip);
                                         
                                         drawingContext.DrawText(formattedText, 
-                                            new Point(badgeLeft + (bWidth - formattedText.Width) / 2, 
-                                                    badgeTop + (bHeight - formattedText.Height) / 2));
+                                            new Point(bLeft + (bWidth - formattedText.Width) / 2, 
+                                                    bTop + (bHeight - formattedText.Height) / 2));
                                     }
                                 }
                             }
@@ -3329,10 +3382,7 @@ namespace CatchCapture.Utilities
                                 if (double.IsNaN(gridL)) gridL = 0;
                                 if (double.IsNaN(gridT)) gridT = 0;
 
-                                double currentGridLeft = groupOffsetLeft + gridL;
-                                double currentGridTop = groupOffsetTop + gridT;
-
-                                drawingContext.PushTransform(new TranslateTransform(currentGridLeft, currentGridTop));
+                                drawingContext.PushTransform(new TranslateTransform(gridL, gridT));
                                 
                                 if (grid.Background != null)
                                 {
@@ -3384,9 +3434,6 @@ namespace CatchCapture.Utilities
                                 if (double.IsNaN(tbL)) tbL = 0;
                                 if (double.IsNaN(tbT)) tbT = 0;
                                 
-                                double currentTbLeft = groupOffsetLeft + tbL;
-                                double currentTbTop = groupOffsetTop + tbT;
-
                                 var formattedText = new FormattedText(
                                     tb.Text,
                                     System.Globalization.CultureInfo.CurrentCulture,
@@ -3408,13 +3455,13 @@ namespace CatchCapture.Utilities
                                 {
                                     formattedText.MaxTextWidth = Math.Max(1, tbWidth - tb.Padding.Left - tb.Padding.Right);
                                 }
-                                drawingContext.DrawText(formattedText, new Point(currentTbLeft + tb.Padding.Left, currentTbTop + tb.Padding.Top));
+                                drawingContext.DrawText(formattedText, new Point(tbL + tb.Padding.Left, tbT + tb.Padding.Top));
                             }
                             else if (child is Line l)
                             {
                                 drawingContext.DrawLine(new Pen(l.Stroke, l.StrokeThickness), 
-                                    new Point(groupOffsetLeft + l.X1, groupOffsetTop + l.Y1), 
-                                    new Point(groupOffsetLeft + l.X2, groupOffsetTop + l.Y2));
+                                    new Point(l.X1, l.Y1), 
+                                    new Point(l.X2, l.Y2));
                             }
                             else if (child is Polygon p)
                             {
@@ -3423,12 +3470,10 @@ namespace CatchCapture.Utilities
                                 {
                                     if (p.Points.Count > 0)
                                     {
-                                        var startP = new Point(groupOffsetLeft + p.Points[0].X, groupOffsetTop + p.Points[0].Y);
-                                        geometryContext.BeginFigure(startP, true, true);
+                                        geometryContext.BeginFigure(p.Points[0], true, true);
                                         for (int i = 1; i < p.Points.Count; i++)
                                         {
-                                            var nextP = new Point(groupOffsetLeft + p.Points[i].X, groupOffsetTop + p.Points[i].Y);
-                                            geometryContext.LineTo(nextP, true, false);
+                                            geometryContext.LineTo(p.Points[i], true, false);
                                         }
                                     }
                                 }
@@ -3440,20 +3485,21 @@ namespace CatchCapture.Utilities
                                 double sT = Canvas.GetTop(s);
                                 if (double.IsNaN(sL)) sL = 0;
                                 if (double.IsNaN(sT)) sT = 0;
-                                double currentSLeft = groupOffsetLeft + sL;
-                                double currentSTop = groupOffsetTop + sT;
 
                                 double sw = double.IsNaN(s.Width) ? s.ActualWidth : s.Width;
                                 double sh = double.IsNaN(s.Height) ? s.ActualHeight : s.Height;
                                 if (sw > 0 && sh > 0)
                                 {
                                     if (s is Rectangle)
-                                        drawingContext.DrawRectangle(s.Fill, new Pen(s.Stroke, s.StrokeThickness), new Rect(currentSLeft, currentSTop, sw, sh));
+                                        drawingContext.DrawRectangle(s.Fill, new Pen(s.Stroke, s.StrokeThickness), new Rect(sL, sT, sw, sh));
                                     else if (s is Ellipse)
-                                        drawingContext.DrawEllipse(s.Fill, new Pen(s.Stroke, s.StrokeThickness), new Point(currentSLeft + sw/2, currentSTop + sh/2), sw/2, sh/2);
+                                        drawingContext.DrawEllipse(s.Fill, new Pen(s.Stroke, s.StrokeThickness), new Point(sL + sw/2, sT + sh/2), sw/2, sh/2);
                                 }
                             }
                         }
+
+                        if (hasTransform) drawingContext.Pop();
+                        drawingContext.Pop();
                     }
                 }
             }
