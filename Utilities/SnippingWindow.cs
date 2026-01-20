@@ -4465,7 +4465,7 @@ namespace CatchCapture.Utilities
                 if (SelectedFrozenImage != null)
                 {
                     var settings = Settings.Load();
-                    if (!string.IsNullOrEmpty(settings.NotePassword) && !App.IsNoteAuthenticated)
+                    if (settings.IsNoteLockEnabled && !string.IsNullOrEmpty(settings.NotePassword) && !App.IsNoteAuthenticated)
                     {
                         var lockWin = new NoteLockCheckWindow(settings.NotePassword, settings.NotePasswordHint);
                         lockWin.Owner = this;
