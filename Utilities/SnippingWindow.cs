@@ -267,17 +267,44 @@ namespace CatchCapture.Utilities
                     this.Visibility = Visibility.Visible;
                     
                     // ★ 속도 최적화: 돋보기를 비동기로 생성 (창 표시 후)
-                    await Dispatcher.InvokeAsync(() => CreateMagnifier(), System.Windows.Threading.DispatcherPriority.Background);
+                    await Dispatcher.InvokeAsync(() => {
+                        CreateMagnifier();
+                        UpdateMagnifier(Mouse.GetPosition(canvas));
+                    }, System.Windows.Threading.DispatcherPriority.Background);
                     
-                    // [수정] 오버레이 모드에서는 자동 캡처를 하지 않음 (동영상 재생 유지)
-                    // 사용자가 드래그를 완료할 때 캡처가 수행됨 (MouseLeftButtonUp 참조)
-                    
-                    /* 자동 캡처 제거
-                    if (screenCapture == null)
+                    // [수정] 오버레이 모드에서도 돋보기를 사용할 수 있도록 백그라운드에서 조용히 캡처 수행
+                    if (isOverlayMode && screenCapture == null)
                     {
-                        // ...
+                        _ = Task.Run(() =>
+                        {
+                            try
+                            {
+                                var hwnd = IntPtr.Zero;
+                                Dispatcher.Invoke(() => hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle);
+                                
+                                // 자신의 창은 캡처에서 제외
+                                ScreenCaptureUtility.SetWindowDisplayAffinity(hwnd, ScreenCaptureUtility.WDA_EXCLUDEFROMCAPTURE);
+                                System.Threading.Thread.Sleep(50); // UI 안정화 대기
+                                
+                                var fullScreen = ScreenCaptureUtility.CaptureScreen();
+                                if (fullScreen != null)
+                                {
+                                    fullScreen.Freeze();
+                                    Dispatcher.Invoke(() =>
+                                    {
+                                        // 사용자가 아직 드래그를 완료하기 전이라면 백그라운드 이미지를 돋보기용으로 설정
+                                        if (screenCapture == null)
+                                        {
+                                            screenCapture = fullScreen;
+                                            UpdateMagnifier(Mouse.GetPosition(canvas));
+                                        }
+                                    });
+                                }
+                                ScreenCaptureUtility.SetWindowDisplayAffinity(hwnd, ScreenCaptureUtility.WDA_NONE);
+                            }
+                            catch { }
+                        });
                     }
-                    */
 
                     // 모든 준비 완료 후 오버레이 표시 (깜빡임 방지)
                     this.Opacity = 1;
