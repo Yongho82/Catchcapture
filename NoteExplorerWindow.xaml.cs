@@ -24,6 +24,7 @@ namespace CatchCapture
         private const int PAGE_SIZE = 17;
         private int _totalPages = 1;
         private string _currentSortOrder = "n.UpdatedAt DESC";
+        private GridView? _noteGridView;
 
         private System.Windows.Threading.DispatcherTimer? _tipTimer;
         private int _currentTipIndex = 0;
@@ -93,6 +94,11 @@ namespace CatchCapture
                 
                 InitializeTips();
                 UpdateUIText();
+                
+                // Initialize GridView BEFORE LoadWindowState so column widths can be restored
+                _noteGridView = LstNotes.View as GridView;
+                _currentViewMode = Settings.Load().NoteExplorerViewMode;
+                
                 LoadWindowState();
 
                 // Centralized Hyperlink Click Handler for Preview Area
@@ -105,8 +111,7 @@ namespace CatchCapture
                 InitializeTipTimer();
                 HighlightSidebarButton(BtnFilterRecent);
 
-                // Load saved view mode
-                _currentViewMode = Settings.Load().NoteExplorerViewMode;
+                // Apply view mode after loading state
                 ApplyViewMode();
                 
                 // 휴지통 자동 비우기 (설정된 기간 경과 항목)
@@ -150,6 +155,18 @@ namespace CatchCapture
                 {
                     ColNoteList.Width = new GridLength(settings.NoteExplorerSplitterPosition, GridUnitType.Pixel);
                 }
+
+                // Restore GridView Column Widths
+                if (_noteGridView != null)
+                {
+                    var colCheck = _noteGridView.Columns.FirstOrDefault(c => (c.Header as FrameworkElement)?.Name == "ChkHeaderAll" || c.Header is CheckBox);
+                    // Using names for more reliability if available
+                    ColGroup.Width = settings.NoteColGroup;
+                    ColTitle.Width = settings.NoteColTitle;
+                    ColContent.Width = settings.NoteColContent;
+                    ColDate.Width = settings.NoteColDate;
+                    ColActions.Width = settings.NoteColActions;
+                }
             }
             catch { /* Ignore errors, use defaults */ }
         }
@@ -174,6 +191,16 @@ namespace CatchCapture
                 if (ColNoteList != null && ColNoteList.ActualWidth > 0)
                 {
                     settings.NoteExplorerSplitterPosition = ColNoteList.ActualWidth;
+                }
+
+                // Save GridView Column Widths
+                if (_noteGridView != null && _currentViewMode == 0)
+                {
+                    settings.NoteColGroup = ColGroup.Width;
+                    settings.NoteColTitle = ColTitle.Width;
+                    settings.NoteColContent = ColContent.Width;
+                    settings.NoteColDate = ColDate.Width;
+                    settings.NoteColActions = ColActions.Width;
                 }
                 
                 settings.Save();
@@ -215,10 +242,11 @@ namespace CatchCapture
             
             UpdateBottomTipBar();
             
-            if (ColHeaderGroup != null) ColHeaderGroup.Text = CatchCapture.Resources.LocalizationManager.GetString("ColGroup");
-            if (ColHeaderTitle != null) ColHeaderTitle.Text = CatchCapture.Resources.LocalizationManager.GetString("ColTitle");
-            if (ColHeaderContent != null) ColHeaderContent.Text = CatchCapture.Resources.LocalizationManager.GetString("ColContent");
-            if (ColHeaderModified != null) ColHeaderModified.Text = CatchCapture.Resources.LocalizationManager.GetString("ColLastModified");
+            if (ColGroup != null) ColGroup.Header = CatchCapture.Resources.LocalizationManager.GetString("ColGroup");
+            if (ColTitle != null) ColTitle.Header = CatchCapture.Resources.LocalizationManager.GetString("ColTitle");
+            if (ColContent != null) ColContent.Header = CatchCapture.Resources.LocalizationManager.GetString("ColContent");
+            if (ColDate != null) ColDate.Header = CatchCapture.Resources.LocalizationManager.GetString("ColLastModified");
+            if (ColActions != null) ColActions.Header = CatchCapture.Resources.LocalizationManager.GetString("Actions") ?? "작업";
             
             if (ParaPreviewLoading != null) ParaPreviewLoading.Inlines.Clear();
             if (ParaPreviewLoading != null) ParaPreviewLoading.Inlines.Add(CatchCapture.Resources.LocalizationManager.GetString("PreviewLoading"));
@@ -1368,10 +1396,16 @@ namespace CatchCapture
                     ? CatchCapture.Resources.LocalizationManager.GetString("UnselectAll") ?? "전체 해제"
                     : CatchCapture.Resources.LocalizationManager.GetString("SelectAll") ?? "전체 선택";
             }
-            if (ChkSelectAllHeader != null)
+            if (ChkHeaderAll != null)
             {
                 // Unsubscribe temporarily to avoid recursion if we want, but since we are just setting state it's fine
-                ChkSelectAllHeader.IsChecked = allSelected;
+                ChkHeaderAll.IsChecked = allSelected;
+            }
+            
+            // Hide/show checkbox column based on selection mode
+            if (ColCheckBox != null)
+            {
+                ColCheckBox.Width = IsSelectionMode ? 45 : 0;
             }
         }
 
@@ -1387,7 +1421,7 @@ namespace CatchCapture
 
         private void ApplyViewMode()
         {
-            if (LstNotes == null) return;
+            if (LstNotes == null || _noteGridView == null) return;
 
             // Save to settings
             var settings = Settings.Load();
@@ -1396,19 +1430,20 @@ namespace CatchCapture
 
             if (_currentViewMode == 0) // List
             {
+                LstNotes.View = _noteGridView;
                 LstNotes.ItemContainerStyle = (Style)FindResource("NoteItemStyle");
-                LstNotes.ItemTemplate = (DataTemplate)FindResource("ListTemplate");
+                ScrollViewer.SetHorizontalScrollBarVisibility(LstNotes, ScrollBarVisibility.Auto);
                 
-                // Set ItemsPanel to VirtualizingStackPanel (default)
+                // Set ItemsPanel to VirtualizingStackPanel (default for ListView with GridView)
                 var template = new ItemsPanelTemplate(new FrameworkElementFactory(typeof(VirtualizingStackPanel)));
                 LstNotes.ItemsPanel = template;
-                
-                if (ColHeaderBorder != null) ColHeaderBorder.Visibility = Visibility.Visible;
             }
             else // Card
             {
+                LstNotes.View = null; // Important: Clear GridView
                 LstNotes.ItemContainerStyle = (Style)FindResource("NoteCardStyle");
                 LstNotes.ItemTemplate = (DataTemplate)FindResource("CardTemplate");
+                ScrollViewer.SetHorizontalScrollBarVisibility(LstNotes, ScrollBarVisibility.Disabled);
                 
                 // Re-introduced VirtualizingWrapPanel
                 var factory = new FrameworkElementFactory(typeof(VirtualizingWrapPanel));
@@ -1416,8 +1451,6 @@ namespace CatchCapture
                 factory.SetValue(VirtualizingWrapPanel.ItemHeightProperty, 250.0);
                 var template = new ItemsPanelTemplate(factory);
                 LstNotes.ItemsPanel = template;
-                
-                if (ColHeaderBorder != null) ColHeaderBorder.Visibility = Visibility.Collapsed;
             }
 
             // Force layout update after panel change

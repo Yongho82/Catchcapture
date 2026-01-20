@@ -144,6 +144,13 @@ namespace CatchCapture.Models
         public double HistoryColActions { get; set; } = 53;
         public double HistoryColMemo { get; set; } = 150;
         
+        // Note Column Widths
+        public double NoteColGroup { get; set; } = 100;
+        public double NoteColTitle { get; set; } = 300;
+        public double NoteColContent { get; set; } = 400;
+        public double NoteColDate { get; set; } = 150;
+        public double NoteColActions { get; set; } = 100;
+        
         // Designated Capture State
         public double LastDesignatedWidth { get; set; } = 800;
         public double LastDesignatedHeight { get; set; } = 600;
@@ -489,6 +496,12 @@ namespace CatchCapture.Models
             HistoryColFavorite = EnsureFinite(HistoryColFavorite, 53);
             HistoryColActions = EnsureFinite(HistoryColActions, 53);
             HistoryColMemo = EnsureFinite(HistoryColMemo, 150);
+
+            NoteColGroup = EnsureFinite(NoteColGroup, 100);
+            NoteColTitle = EnsureFinite(NoteColTitle, 300);
+            NoteColContent = EnsureFinite(NoteColContent, 400);
+            NoteColDate = EnsureFinite(NoteColDate, 150);
+            NoteColActions = EnsureFinite(NoteColActions, 100);
 
             LastDesignatedWidth = EnsureFinite(LastDesignatedWidth, 800);
             LastDesignatedHeight = EnsureFinite(LastDesignatedHeight, 600);

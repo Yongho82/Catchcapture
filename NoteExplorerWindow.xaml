@@ -19,27 +19,37 @@
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         
-        <!-- List Mode Item Container Style -->
-        <!-- List Mode Item Container Style -->
-        <Style x:Key="NoteItemStyle" TargetType="ListBoxItem">
+        <!-- Note Item Style for ListView (Dual support for List and Card modes) -->
+        <Style x:Key="NoteItemStyle" TargetType="ListViewItem">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorder}"/>
-            <Setter Property="Padding" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="ListBoxItem">
-                        <Border x:Name="ItemBorder" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter/>
+                    <ControlTemplate TargetType="ListViewItem">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="4,2">
+                            <Grid>
+                                <Border x:Name="BottomLine" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ThemeBorder}" Opacity="0.4"/>
+                                <GridViewRowPresenter x:Name="PART_GridViewRowPresenter" Content="{TemplateBinding Content}" Columns="{TemplateBinding GridView.ColumnCollection}"/>
+                                <ContentPresenter x:Name="PART_ContentPresenter" Visibility="Collapsed"/>
+                            </Grid>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}"/>
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}"/>
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="{DynamicResource ThemeSidebarButtonPressedBackground}"/>
-                                <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorder}"/>
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ThemeSidebarButtonPressedBackground}"/>
                             </Trigger>
+                            <!-- Switch to Card Mode (View is null) -->
+                            <DataTrigger Binding="{Binding View, RelativeSource={RelativeSource AncestorType=ListView}}" Value="{x:Null}">
+                                <Setter TargetName="PART_GridViewRowPresenter" Property="Visibility" Value="Collapsed"/>
+                                <Setter TargetName="BottomLine" Property="Visibility" Value="Collapsed"/>
+                                <Setter TargetName="PART_ContentPresenter" Property="Visibility" Value="Visible"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter TargetName="Bd" Property="Padding" Value="0"/>
+                            </DataTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -47,7 +57,7 @@
         </Style>
 
         <!-- Card Mode Item Container Style -->
-        <Style x:Key="NoteCardStyle" TargetType="ListBoxItem">
+        <Style x:Key="NoteCardStyle" TargetType="ListViewItem">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="0"/>
@@ -55,7 +65,7 @@
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="ListBoxItem">
+                    <ControlTemplate TargetType="ListViewItem">
                         <Border x:Name="ItemBorder" Background="{TemplateBinding Background}" BorderThickness="2" BorderBrush="Transparent" CornerRadius="10" Margin="5" Width="220">
                              <ContentPresenter/>
                         </Border>
@@ -73,104 +83,6 @@
             </Setter>
         </Style>
 
-        <!-- List Mode Template -->
-        <DataTemplate x:Key="ListTemplate">
-            <Grid Height="38" Background="Transparent">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="28"/> <!-- Optimized Checkbox Width -->
-                    <ColumnDefinition Width="100"/> <!-- Group -->
-                    <ColumnDefinition Width="2*"/>  <!-- Title -->
-                    <ColumnDefinition Width="3*"/>  <!-- Content -->
-                    <ColumnDefinition Width="150"/> <!-- Date -->
-                    <ColumnDefinition Width="100"/>  <!-- Actions -->
-                </Grid.ColumnDefinitions>
-                
-                <!-- CheckBox -->
-                <CheckBox x:Name="ChkSelect" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center"
-                          IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                          Visibility="{Binding DataContext.IsSelectionMode, RelativeSource={RelativeSource AncestorType=ListBox}, Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <CheckBox.Style>
-                        <Style TargetType="CheckBox">
-                            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
-                            <Setter Property="RenderTransform">
-                                <Setter.Value>
-                                    <ScaleTransform ScaleX="0.8" ScaleY="0.8"/>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </CheckBox.Style>
-                </CheckBox>
-
-                <!-- Group -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="5,0,0,0">
-                    <Ellipse Width="10" Height="10" Fill="{Binding CategoryColor}" Margin="0,0,10,0"/>
-                    <TextBlock Text="{Binding CategoryName}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" FontSize="13" FontWeight="Medium"/>
-                </StackPanel>
-
-                <!-- Title -->
-                <TextBlock Grid.Column="2" Text="{Binding Title}" FontWeight="SemiBold" Foreground="{DynamicResource ThemeForeground}" FontSize="14" 
-                           VerticalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Margin="10,0"/>
-
-                <!-- Content -->
-                <TextBlock Grid.Column="3" Text="{Binding TruncatedContent}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.9" FontSize="13" 
-                           VerticalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Margin="10,0"/>
-
-                <!-- Date -->
-                <TextBlock Grid.Column="4" Text="{Binding FormattedDate}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12" 
-                           VerticalAlignment="Center" HorizontalAlignment="Center"/>
-
-                <!-- Actions -->
-                <StackPanel Grid.Column="5" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Button Click="BtnRestoreItem_Click" Tag="{Binding Id}" ToolTip="복원"
-                            Visibility="{Binding IsVisibleInTrash}"
-                            Background="Transparent" BorderThickness="0" Cursor="Hand" Margin="0,0,8,0">
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <Border x:Name="brd" Width="24" Height="24" Background="Transparent" CornerRadius="12">
-                                    <Path Data="M12,5V1L7,6L12,11V7C15.31,7 18,9.69 18,13C18,16.31 15.31,19 12,19C8.69,19 6,16.31 6,13H4C4,17.42 7.58,21 12,21C16.42,21 20,17.42 20,13C20,8.58 16.42,5 12,5Z" 
-                                           Fill="{DynamicResource ThemeForeground}" Opacity="0.5" Width="14" Height="14" Stretch="Uniform"/>
-                                </Border>
-                                <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="brd" Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}"/>
-                                    </Trigger>
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
-
-                    <Button Click="BtnPinItem_Click" Tag="{Binding Id}" 
-                            Background="Transparent" BorderThickness="0" Cursor="Hand" Margin="0,0,8,0">
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <Border x:Name="brd" Width="24" Height="24" Background="Transparent" CornerRadius="12">
-                                    <Path x:Name="path" Data="M16,12V4H17V2H7V4H8V12L6,14V16H11V22L12,23L13,22V16H18V14L16,12Z" 
-                                           Fill="{DynamicResource ThemeForeground}" Opacity="0.3" Width="14" Height="14" Stretch="Uniform"/>
-                                </Border>
-                                <ControlTemplate.Triggers>
-                                    <DataTrigger Binding="{Binding IsPinned}" Value="True">
-                                        <Setter TargetName="path" Property="Fill" Value="#E74C3C"/>
-                                        <Setter TargetName="path" Property="Opacity" Value="1"/>
-                                    </DataTrigger>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="brd" Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}"/>
-                                    </Trigger>
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
-
-                    <Button Click="BtnDeleteItem_Click" Tag="{Binding Id}"
-                            Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="{DynamicResource Delete}"
-                            VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,5,0">
-                         <TextBlock Text="🗑️" FontSize="14" Opacity="0.5" Foreground="{DynamicResource ThemeForeground}"/>
-                    </Button>
-                </StackPanel>
-
-                <!-- Board-style separator line -->
-                <Border Grid.ColumnSpan="6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ThemeBorder}" VerticalAlignment="Bottom"/>
-            </Grid>
-        </DataTemplate>
 
         <!-- Card Mode Template -->
         <DataTemplate x:Key="CardTemplate">
@@ -754,8 +666,7 @@
                 <Grid Grid.Column="1" Background="{DynamicResource ThemeBackground}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/> <!-- Top Controls (Batch & Search) -->
-                        <RowDefinition Height="Auto"/> <!-- Header -->
-                        <RowDefinition Height="*"/>    <!-- List -->
+                        <RowDefinition Height="*"/>    <!-- List (Includes Headers) -->
                         <RowDefinition Height="Auto"/> <!-- Pagination -->
                     </Grid.RowDefinitions>
 
@@ -818,52 +729,123 @@
                         </StackPanel>
                     </Grid>
 
-                    <!-- Column Headers -->
-                    <Border x:Name="ColHeaderBorder" Grid.Row="1" Background="{DynamicResource ThemeBackground}" Height="40" BorderThickness="0,1,0,1" BorderBrush="{DynamicResource ThemeBorder}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="28"/> <!-- Optimized Checkbox Width -->
-                                <ColumnDefinition Width="100"/> <!-- Group -->
-                                <ColumnDefinition Width="2*"/>  <!-- Title -->
-                                <ColumnDefinition Width="3*"/>  <!-- Content -->
-                                <ColumnDefinition Width="150"/> <!-- Date -->
-                                <ColumnDefinition Width="100"/>  <!-- Actions -->
-                            </Grid.ColumnDefinitions>
-                            <CheckBox x:Name="ChkSelectAllHeader" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" Click="BtnToggleSelectAll_Click"
-                                      Visibility="{Binding IsSelectionMode, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                <CheckBox.Style>
-                                    <Style TargetType="CheckBox">
-                                        <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
-                                        <Setter Property="RenderTransform">
-                                            <Setter.Value>
-                                                <ScaleTransform ScaleX="0.8" ScaleY="0.8"/>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </CheckBox.Style>
-                            </CheckBox>
-                            <TextBlock x:Name="ColHeaderGroup" Grid.Column="1" Text="그룹" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Margin="5,0,0,0"/>
-                            <TextBlock x:Name="ColHeaderTitle" Grid.Column="2" Text="제목" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0"/>
-                            <TextBlock x:Name="ColHeaderContent" Grid.Column="3" Text="내용" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0"/>
-                            <TextBlock x:Name="ColHeaderModified" Grid.Column="4" Text="마지막 수정일" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        </Grid>
-                    </Border>
+                    <Grid Grid.Row="1">
+                        <ListView x:Name="LstNotes" Background="Transparent" BorderThickness="0" 
+                                     Padding="0" Margin="0"
+                                     ItemContainerStyle="{StaticResource NoteItemStyle}" 
+                                     ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                     SelectionMode="Extended"
+                                     SelectionChanged="LstNotes_SelectionChanged"
+                                     MouseDoubleClick="LstNotes_MouseDoubleClick"
+                                     KeyDown="LstNotes_KeyDown"
+                                     VirtualizingPanel.IsVirtualizing="True"
+                                     VirtualizingPanel.VirtualizationMode="Recycling"
+                                     VirtualizingPanel.ScrollUnit="Pixel"
+                                     VirtualizingPanel.CacheLengthUnit="Item"
+                                     VirtualizingPanel.CacheLength="10,10">
+                            <ListView.View>
+                                <GridView x:Name="NoteGridView">
+                                    <GridViewColumn x:Name="ColCheckBox" Width="0">
+                                        <GridViewColumn.Header>
+                                            <CheckBox x:Name="ChkHeaderAll" Click="BtnToggleSelectAll_Click" HorizontalAlignment="Center"
+                                                      Visibility="{Binding DataContext.IsSelectionMode, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                        </GridViewColumn.Header>
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                          Visibility="{Binding DataContext.IsSelectionMode, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn x:Name="ColGroup" Header="그룹" Width="100">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="5,0,0,0">
+                                                    <Ellipse Width="10" Height="10" Fill="{Binding CategoryColor}" Margin="0,0,10,0"/>
+                                                    <TextBlock Text="{Binding CategoryName}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" FontSize="13" FontWeight="Medium"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn x:Name="ColTitle" Header="제목" Width="200">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Foreground="{DynamicResource ThemeForeground}" FontSize="14" 
+                                                           VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="10,0"/>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn x:Name="ColContent" Header="내용" Width="300">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding TruncatedContent}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.9" FontSize="13" 
+                                                           VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="10,0"/>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn x:Name="ColDate" Header="마지막 수정일" Width="150">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding FormattedDate}" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" FontSize="12" 
+                                                           VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn x:Name="ColActions" Header="작업" Width="100">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                    <Button Click="BtnRestoreItem_Click" Tag="{Binding Id}" ToolTip="복원"
+                                                            Visibility="{Binding IsVisibleInTrash}"
+                                                            Background="Transparent" BorderThickness="0" Cursor="Hand" Margin="0,0,8,0">
+                                                        <Button.Template>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border x:Name="brd" Width="24" Height="24" Background="Transparent" CornerRadius="12">
+                                                                    <Path Data="M12,5V1L7,6L12,11V7C15.31,7 18,9.69 18,13C18,16.31 15.31,19 12,19C8.69,19 6,16.31 6,13H4C4,17.42 7.58,21 12,21C16.42,21 20,17.42 20,13C20,8.58 16.42,5 12,5Z" 
+                                                                           Fill="{DynamicResource ThemeForeground}" Opacity="0.5" Width="14" Height="14" Stretch="Uniform"/>
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                        <Setter TargetName="brd" Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}"/>
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Button.Template>
+                                                    </Button>
 
-                    <Grid Grid.Row="2">
-                        <ListBox x:Name="LstNotes" Background="Transparent" BorderThickness="0" 
-                                    Padding="5" Margin="0"
-                                    ItemContainerStyle="{StaticResource NoteItemStyle}" 
-                                    ItemTemplate="{StaticResource ListTemplate}"
-                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                    SelectionMode="Extended"
-                                    SelectionChanged="LstNotes_SelectionChanged"
-                                    MouseDoubleClick="LstNotes_MouseDoubleClick"
-                                    KeyDown="LstNotes_KeyDown"
-                                    VirtualizingPanel.IsVirtualizing="True"
-                                    VirtualizingPanel.VirtualizationMode="Recycling"
-                                    VirtualizingPanel.ScrollUnit="Pixel"
-                                    VirtualizingPanel.CacheLengthUnit="Item"
-                                    VirtualizingPanel.CacheLength="10,10"/>
+                                                    <Button Click="BtnPinItem_Click" Tag="{Binding Id}" 
+                                                            Background="Transparent" BorderThickness="0" Cursor="Hand" Margin="0,0,8,0">
+                                                        <Button.Template>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border x:Name="brd" Width="24" Height="24" Background="Transparent" CornerRadius="12">
+                                                                    <Path x:Name="path" Data="M16,12V4H17V2H7V4H8V12L6,14V16H11V22L12,23L13,22V16H18V14L16,12Z" 
+                                                                           Fill="{DynamicResource ThemeForeground}" Opacity="0.3" Width="14" Height="14" Stretch="Uniform"/>
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsPinned}" Value="True">
+                                                                        <Setter TargetName="path" Property="Fill" Value="#E74C3C"/>
+                                                                        <Setter TargetName="path" Property="Opacity" Value="1"/>
+                                                                    </DataTrigger>
+                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                        <Setter TargetName="brd" Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}"/>
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Button.Template>
+                                                    </Button>
+
+                                                    <Button Click="BtnDeleteItem_Click" Tag="{Binding Id}"
+                                                            Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="{DynamicResource Delete}"
+                                                            VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,5,0">
+                                                         <TextBlock Text="🗑️" FontSize="14" Opacity="0.5" Foreground="{DynamicResource ThemeForeground}"/>
+                                                    </Button>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
 
                         <!-- Empty State UI -->
                         <StackPanel x:Name="PanelEmptyState" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed">
@@ -880,7 +862,7 @@
                         </Grid>
                     </Grid>
 
-                    <Border Grid.Row="3" Background="{DynamicResource ThemeBackground}" Height="40" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ThemeBorder}">
+                    <Border Grid.Row="2" Background="{DynamicResource ThemeBackground}" Height="40" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ThemeBorder}">
                         <Grid>
                             <!-- Left: Trash Info (Icon + Text) -->
 
