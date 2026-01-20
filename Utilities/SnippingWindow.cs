@@ -255,7 +255,7 @@ namespace CatchCapture.Utilities
             Deactivated += SnippingWindow_Deactivated;
             LostMouseCapture += SnippingWindow_LostMouseCapture;
             Activated += SnippingWindow_Activated; // [Fix] 장시간 방치 후 렌더링 갱신
-            Loaded += async (s, e) => 
+            Loaded += (s, e) => 
             { 
                 try 
                 { 
