@@ -69,7 +69,7 @@
 
                         <!-- Category Selector -->
                         <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,8,0">
-                            <ComboBox x:Name="CboCategory" Width="110" Height="32" VerticalContentAlignment="Center" Cursor="Hand">
+                        <ComboBox x:Name="CboCategory" Width="110" Height="32" VerticalContentAlignment="Center" Cursor="Hand" SelectedValuePath="Id">
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">

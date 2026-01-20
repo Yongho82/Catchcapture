@@ -48,6 +48,7 @@ namespace CatchCapture
             DatabaseManager.Instance.InsertCategory(name, color);
             TxtNewCategory.Clear();
             LoadCategories();
+            NoteExplorerWindow.Instance?.RefreshSidebarCounts();
         }
 
         private void BtnDeleteCategory_Click(object sender, RoutedEventArgs e)
@@ -64,6 +65,7 @@ namespace CatchCapture
                 {
                     DatabaseManager.Instance.DeleteCategory(id);
                     LoadCategories();
+                    NoteExplorerWindow.Instance?.RefreshSidebarCounts();
                 }
             }
         }

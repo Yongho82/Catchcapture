@@ -274,7 +274,7 @@ namespace CatchCapture
             }
         }
 
-        private async void UpdateSidebarCounts()
+        public async void RefreshSidebarCounts()
         {
             try
             {
@@ -738,7 +738,7 @@ namespace CatchCapture
                     }
                 }
 
-                UpdateSidebarCounts();
+                RefreshSidebarCounts();
             }
             catch (Exception ex)
             {
@@ -1592,7 +1592,7 @@ namespace CatchCapture
                     
                     
                     await LoadNotes("Trash"); // Refresh current view
-                    UpdateSidebarCounts(); // Refresh counts
+                    RefreshSidebarCounts(); // Refresh counts
                     await Task.Run(() => DatabaseManager.Instance.SyncToCloud(true)); // Sync to cloud immediately
                     CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("EmptyTrashComplete"), CatchCapture.Resources.LocalizationManager.GetString("Notice"));
                 }
@@ -1807,7 +1807,7 @@ namespace CatchCapture
             var win = new CategoryManagementWindow();
             win.Owner = this;
             win.ShowDialog();
-            UpdateSidebarCounts();
+            RefreshSidebarCounts();
         }
 
         private void BtnSortCategories_Click(object sender, RoutedEventArgs e)
@@ -1856,7 +1856,7 @@ namespace CatchCapture
                             }
                         }
                         await LoadNotes(_currentFilter, _currentTag, _currentSearch, _currentPage);
-                        UpdateSidebarCounts();
+                        RefreshSidebarCounts();
                     }
                     catch (Exception ex)
                     {

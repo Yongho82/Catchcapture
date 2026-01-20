@@ -37,7 +37,24 @@ namespace CatchCapture.Utilities
     public class DatabaseManager
     {
         private static DatabaseManager? _instance;
-        public static DatabaseManager Instance => _instance ??= new DatabaseManager();
+        private static readonly object _initLock = new object();
+        public static DatabaseManager Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    lock (_initLock)
+                    {
+                        if (_instance == null)
+                        {
+                            _instance = new DatabaseManager();
+                        }
+                    }
+                }
+                return _instance;
+            }
+        }
 
         // 1. 경로 관리
         private string _cloudDbPath = default!;        // 클라우드 원본
@@ -415,6 +432,9 @@ namespace CatchCapture.Utilities
                         needClose = true;
                     }
 
+                    // Flush changes before backup
+                    CheckpointDatabase(_localDbPath);
+
                     using (var cloudConnection = new SqliteConnection($"Data Source={_cloudDbPath}"))
                     {
                         cloudConnection.Open();
@@ -426,6 +446,9 @@ namespace CatchCapture.Utilities
                 else
                 {
                     // [종료 시 백업] 연결 확실히 종료 + Atomic Copy (파일 깨짐 방지)
+                    CheckpointDatabase(_localDbPath);
+                    CheckpointDatabase(_localHistoryDbPath);
+                    
                     CloseConnection();
 
                     string tempPath = _cloudDbPath + ".tmp";
@@ -434,7 +457,6 @@ namespace CatchCapture.Utilities
                     // 복사 성공 시 원본 교체
                     if (File.Exists(_cloudDbPath)) File.Delete(_cloudDbPath);
                     File.Move(tempPath, _cloudDbPath);
-                    
                 }
 
                 // History DB 백업 (단순 복사, 실패해도 무방)
@@ -789,6 +811,27 @@ namespace CatchCapture.Utilities
 
         private void InitializeDatabaseInternal()
         {
+            // [Fix] 가끔 구름 동기화 중 파일이 잠겨 있을 수 있으므로 재시도 로직 추가
+            int retryCount = 0;
+            while (retryCount < 3)
+            {
+                try
+                {
+                    PerformDatabaseInitialization();
+                    return;
+                }
+                catch (SqliteException ex) when (ex.SqliteErrorCode == 5) // SQLITE_BUSY
+                {
+                    retryCount++;
+                    System.Threading.Thread.Sleep(500);
+                }
+            }
+            // 최종 시도
+            PerformDatabaseInitialization();
+        }
+
+        private void PerformDatabaseInitialization()
+        {
             string dbDir = Path.GetDirectoryName(DbPath)!;
             string rootDir = dbDir;
 
@@ -813,11 +856,28 @@ namespace CatchCapture.Utilities
             {
                 connection.Open();
 
-                // 무결성 검사 (손상 감지용)
-                using (var cmd = new SqliteCommand("PRAGMA quick_check;", connection))
+                // 1. 테이블 존재 여부 확인 (Notes 테이블 기준)
+                bool tableExists = false;
+                using (var checkCmd = new SqliteCommand("SELECT name FROM sqlite_master WHERE type='table' AND name='Notes';", connection))
                 {
-                    try { cmd.ExecuteNonQuery(); } catch { throw new Exception("DB Integrity Check Failed"); }
+                    var result = checkCmd.ExecuteScalar();
+                    if (result != null && result.ToString() == "Notes") tableExists = true;
                 }
+
+                // 테이블이 없거나 무결성 체크 실패 시 초기화 진행
+                if (tableExists)
+                {
+                    // 무결성 검사 (손상 감지용)
+                    using (var cmd = new SqliteCommand("PRAGMA quick_check;", connection))
+                    {
+                        var status = cmd.ExecuteScalar()?.ToString();
+                        if (status != "ok") 
+                        {
+                            throw new Exception("DB Integrity Check Failed: " + status);
+                        }
+                    }
+                }
+                // 만약 tableExists가 false라면, 아래의 CREATE TABLE IF NOT EXISTS 블록들이 실행되어 테이블을 만듭니다.
 
                 // Create Notes table (Consolidated with all columns)
                 string createNotesTable = @"
@@ -894,13 +954,25 @@ namespace CatchCapture.Utilities
                 // Create Captures (History) table
 
 
-                using (var command = new SqliteCommand(createNotesTable, connection)) { command.ExecuteNonQuery(); }
-                using (var command = new SqliteCommand(createImagesTable, connection)) { command.ExecuteNonQuery(); }
-                using (var command = new SqliteCommand(createTagsTable, connection)) { command.ExecuteNonQuery(); }
-                using (var command = new SqliteCommand(createNoteTagsTable, connection)) { command.ExecuteNonQuery(); }
-                using (var command = new SqliteCommand(createAttachmentsTable, connection)) { command.ExecuteNonQuery(); }
-                using (var command = new SqliteCommand(createCategoriesTable, connection)) { command.ExecuteNonQuery(); }
-                using (var command = new SqliteCommand(createConfigTable, connection)) { command.ExecuteNonQuery(); }
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        using (var command = new SqliteCommand(createNotesTable, connection, transaction)) { command.ExecuteNonQuery(); }
+                        using (var command = new SqliteCommand(createImagesTable, connection, transaction)) { command.ExecuteNonQuery(); }
+                        using (var command = new SqliteCommand(createTagsTable, connection, transaction)) { command.ExecuteNonQuery(); }
+                        using (var command = new SqliteCommand(createNoteTagsTable, connection, transaction)) { command.ExecuteNonQuery(); }
+                        using (var command = new SqliteCommand(createAttachmentsTable, connection, transaction)) { command.ExecuteNonQuery(); }
+                        using (var command = new SqliteCommand(createCategoriesTable, connection, transaction)) { command.ExecuteNonQuery(); }
+                        using (var command = new SqliteCommand(createConfigTable, connection, transaction)) { command.ExecuteNonQuery(); }
+                        transaction.Commit();
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
                 // Captures table is now handled in InitializeHistoryDatabase
 
                 // Migration: Add CategoryId to Notes
@@ -1588,17 +1660,33 @@ namespace CatchCapture.Utilities
 
         public void InsertCategory(string name, string color)
         {
+            if (string.IsNullOrWhiteSpace(name)) return;
+
             using (var connection = new SqliteConnection($"Data Source={DbPath}"))
             {
                 connection.Open();
+                
+                // [Fix] Check for existence first to provide better behavior than IGNORE
+                string checkSql = "SELECT COUNT(*) FROM Categories WHERE Name = $name";
+                using (var checkCmd = new SqliteCommand(checkSql, connection))
+                {
+                    checkCmd.Parameters.AddWithValue("$name", name);
+                    long exists = (long)checkCmd.ExecuteScalar()!;
+                    if (exists > 0) return; 
+                }
+
                 _isNoteDirty = true;
-                string sql = "INSERT OR IGNORE INTO Categories (Name, Color) VALUES ($name, $color);";
+                string sql = "INSERT INTO Categories (Name, Color) VALUES ($name, $color);";
                 using (var command = new SqliteCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("$name", name);
                     command.Parameters.AddWithValue("$color", color);
                     command.ExecuteNonQuery();
                 }
+                
+                // [Fix] Flush changes to disk and sync
+                CheckpointDatabase(_localDbPath);
+                SyncToCloud(true);
             }
         }
 
@@ -1624,6 +1712,9 @@ namespace CatchCapture.Utilities
                     command.Parameters.AddWithValue("$id", id);
                     command.ExecuteNonQuery();
                 }
+                
+                // [Fix] Ensure category change is synced to cloud immediately
+                SyncToCloud(true);
             }
         }
         public Category? GetCategory(long id)
@@ -2018,6 +2109,10 @@ namespace CatchCapture.Utilities
                             }
 
                             transaction.Commit();
+                            
+                            // [Fix] Flush changes to disk before returning
+                            CheckpointDatabase(_localDbPath);
+                            
                             return noteId;
                         }
                         catch

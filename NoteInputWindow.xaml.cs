@@ -730,7 +730,7 @@ namespace CatchCapture
                     Content = Editor.GetPlainText() ?? "",
                     ContentXaml = Editor.GetXaml() ?? "",
                     Tags = TxtTags.Text ?? "",
-                    CategoryId = (CboCategory.SelectedItem is Category cat) ? cat.Id : 1,
+                    CategoryId = CboCategory.SelectedValue is long catId ? catId : 1,
                     SourceApp = _sourceApp,
                     SourceUrl = _sourceUrl,
                     // [Fix] Do NOT pass images here - they are already saved by PrepareImagesForSave
