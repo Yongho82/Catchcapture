@@ -266,11 +266,9 @@ namespace CatchCapture.Utilities
                     this.Opacity = 1.0;
                     this.Visibility = Visibility.Visible;
                     
-                    // ★ 속도 최적화: 돋보기를 비동기로 생성 (창 표시 후)
-                    await Dispatcher.InvokeAsync(() => {
-                        CreateMagnifier();
-                        UpdateMagnifier(Mouse.GetPosition(canvas));
-                    }, System.Windows.Threading.DispatcherPriority.Background);
+                    // ★ 속도 최적화: 돋보기를 동기적으로 즉시 생성 (딜레이 최소화)
+                    // 위치 업데이트는 첫 MouseMove에서 수행 (좌측 상단 깜빡임 방지)
+                    CreateMagnifier();
                     
                     // [수정] 오버레이 모드에서도 돋보기를 사용할 수 있도록 백그라운드에서 조용히 캡처 수행
                     if (isOverlayMode && screenCapture == null)
@@ -284,13 +282,13 @@ namespace CatchCapture.Utilities
                                 
                                 // 자신의 창은 캡처에서 제외
                                 ScreenCaptureUtility.SetWindowDisplayAffinity(hwnd, ScreenCaptureUtility.WDA_EXCLUDEFROMCAPTURE);
-                                System.Threading.Thread.Sleep(50); // UI 안정화 대기
+                                System.Threading.Thread.Sleep(30); // UI 안정화 대기 (줄임)
                                 
                                 var fullScreen = ScreenCaptureUtility.CaptureScreen();
                                 if (fullScreen != null)
                                 {
                                     fullScreen.Freeze();
-                                    Dispatcher.Invoke(() =>
+                                    Dispatcher.BeginInvoke(() =>
                                     {
                                         // 사용자가 아직 드래그를 완료하기 전이라면 백그라운드 이미지를 돋보기용으로 설정
                                         if (screenCapture == null)
