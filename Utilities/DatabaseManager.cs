@@ -74,12 +74,6 @@ namespace CatchCapture.Utilities
         
         // _syncTimer 제거됨
 
-        // 디버그 로그 파일 경로
-        private static readonly string _logFilePath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "CatchCapture",
-            "CatchCapture_LockDebug.txt");
-        private static readonly object _logLock = new object();
 
         // 락킹 상태 정보
         public string? NoteLockingMachine => CheckLock(_cloudDbPath);
@@ -88,37 +82,10 @@ namespace CatchCapture.Utilities
         // 데이터베이스 초기화 상태
         public bool IsHistoryDatabaseReady { get; private set; } = false;
 
-        /// <summary>
-        /// 디버그 로그를 txt 파일로 저장
-        /// </summary>
-        public void LogToFile(string message)
-        {
-            try
-            {
-                lock (_logLock)
-                {
-                    string? dir = Path.GetDirectoryName(_logFilePath);
-                    if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
-
-                    string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-                    string logLine = $"[{timestamp}] [{_currentIdentity}] {message}";
-                    File.AppendAllText(_logFilePath, logLine + Environment.NewLine);
-                    Debug.WriteLine(logLine);
-                }
-            }
-            catch { /* 로그 실패 무시 */ }
-        }
 
         private DatabaseManager()
         {
             InitializePaths();
-
-            // ★ 버전 확인용 시작 로그
-            LogToFile("============================================");
-            LogToFile("★★★ DatabaseManager 초기화 (Local-First 구조) ★★★");
-            LogToFile($"Cloud DB: {_cloudDbPath}");
-            LogToFile($"Local DB: {_localDbPath}");
-            LogToFile("============================================");
 
             // 3. 파일 동기화 (Cloud -> Local)
             SyncFromCloudToLocal();
@@ -201,7 +168,6 @@ namespace CatchCapture.Utilities
                 // 남이 쓰고 있으면 -> 당연히 ReadOnly
                 IsReadOnly = true;
             }
-            LogToFile($"초기 모드: {(IsReadOnly ? "읽기 전용" : "편집 가능")}");
         }
 
         private void OpenConnection()
@@ -237,7 +203,6 @@ namespace CatchCapture.Utilities
         {
             try
             {
-                LogToFile("경로 설정 변경 감지. 재초기화 시작...");
                 CloseConnection();
                 InitializePaths();
                 
@@ -247,11 +212,9 @@ namespace CatchCapture.Utilities
                 InitializeDatabase();
                 InitializeHistoryDatabase();
                 CheckInitialLockStatus();
-                LogToFile("재초기화 완료.");
             }
-            catch (Exception ex)
+            catch
             {
-                LogToFile($"[ERROR] Reinitialize 실패: {ex.Message}");
             }
         }
 
@@ -267,18 +230,14 @@ namespace CatchCapture.Utilities
                 // [중요] 내 Lock이 걸려있다면? -> 비정상 종료 등으로 로컬 데이터가 아직 백업 안 된 상태일 수 있음.
                 if (IsMyLock())
                 {
-                    LogToFile("[SKIP] 내 Lock 파일이 존재하므로 로컬 데이터를 보존합니다. (동기화 건너뜀)");
                     return;
                 }
-
-                LogToFile("Cloud -> Local 동기화 시작...");
 
                 // 1. Note DB 처리
                 if (File.Exists(_cloudDbPath))
                 {
                     // 클라우드 존재 -> 로컬로 복사 (Source of Truth)
                     File.Copy(_cloudDbPath, _localDbPath, true);
-                    LogToFile($"Note DB 강제 동기화 완료: {_cloudDbPath} -> {_localDbPath}");
                 }
                 else
                 {
@@ -311,7 +270,6 @@ namespace CatchCapture.Utilities
                     {
                         // 폴더 생성도 실패하고 접근도 안 됨 -> 진짜 오프라인
                         IsOfflineMode = true;
-                        LogToFile($"[OFFLINE PROTECT] Note DB 클라우드 폴더 접근/생성 불가. 오프라인 모드로 로컬 데이터 보존함. ({cloudDbDir})");
                         OfflineModeDetected?.Invoke(this, "클라우드 노트 저장소 드라이브가 연결되지 않았습니다.\n오프라인(로컬) 모드로 시작합니다.");
                     }
                     else if (isCloudAccessible && !File.Exists(_cloudDbPath) && File.Exists(_localDbPath))
@@ -320,11 +278,9 @@ namespace CatchCapture.Utilities
                         // 이 경우 로컬 파일을 클라우드로 올리거나(동기화), 로컬 파일도 지워야 함(초기화).
                         // 초기화 버튼 클릭 후 상황이라면 이미 로컬/클라우드 다 지워졌을 것.
                         // 만약 클라우드만 지워진 상태라면? 일단 로컬 데이터를 유지하고 오프라인은 띄우지 않음.
-                        LogToFile("Note DB 클라우드 파일 없음(폴더는 접근 가능). 로컬 파일 유지 중.");
                     }
                     else
                     {
-                        LogToFile("Note DB 클라우드 & 로컬 모두 없음. 초기화 대기.");
                     }
                 }
 
@@ -332,7 +288,6 @@ namespace CatchCapture.Utilities
                 if (File.Exists(_cloudHistoryDbPath))
                 {
                     File.Copy(_cloudHistoryDbPath, _localHistoryDbPath, true);
-                    LogToFile("History DB 강제 동기화 완료");
                 }
                 else
                 {
@@ -362,19 +317,15 @@ namespace CatchCapture.Utilities
                     if (!isHistoryCloudAccessible && File.Exists(_localHistoryDbPath))
                     {
                         IsOfflineMode = true;
-                        LogToFile($"[OFFLINE PROTECT] History DB 클라우드 폴더 접근/생성 불가. 로컬 데이터 보존함.");
                     }
                     else
                     {
-                        LogToFile("History DB 클라우드 & 로컬 모두 없음.");
                     }
                 }
                 
-                LogToFile("Cloud -> Local 동기화 완료");
             }
-            catch (Exception ex)
+            catch
             {
-                LogToFile($"[ERROR] 동기화 실패: {ex.Message}");
             }
         }
 
@@ -412,20 +363,17 @@ namespace CatchCapture.Utilities
                 // 로컬이 클라우드보다 최신이거나 같으면 덮어쓰지 않음 (데이터 유실 절대 방지)
                 if (destTime >= sourceTime)
                 {
-                    LogToFile($"[SKIP] 로컬 파일이 최신이거나 같음. 동기화 건너뜀. (Local: {destTime} >= Cloud: {sourceTime})");
                     return;
                 }
             }
 
             File.Copy(source, dest, true);
-            LogToFile($"파일 복사됨: {Path.GetFileName(source)} -> Local");
         }
 
         public void SyncToCloud(bool isLive = false)
         {
             if (IsOfflineMode)
             {
-                LogToFile("[SKIP] 오프라인 모드이므로 클라우드 저장(백업)을 건너뜀.");
                 return;
             }
 
@@ -434,14 +382,12 @@ namespace CatchCapture.Utilities
             {
                 if (IsLocked(_cloudDbPath) || IsLocked(_cloudHistoryDbPath))
                 {
-                    LogToFile("[SKIP] 읽기 전용 모드이며 다른 사용자가 있어 백업 건너뜀.");
                     return;
                 }
             }
 
             try
             {
-                LogToFile($"Local -> Cloud 저장(백업) 시작... (Live: {isLive})");
 
                 // 클라우드 디렉토리 존재 확인 및 생성
                 string cloudDbDir = Path.GetDirectoryName(_cloudDbPath)!;
@@ -473,7 +419,6 @@ namespace CatchCapture.Utilities
                     {
                         cloudConnection.Open();
                         _activeConnection!.BackupDatabase(cloudConnection);
-                        LogToFile("Note DB Live 백업 완료 (API)");
                     }
                     
                     if (needClose) CloseConnection();
@@ -490,22 +435,21 @@ namespace CatchCapture.Utilities
                     if (File.Exists(_cloudDbPath)) File.Delete(_cloudDbPath);
                     File.Move(tempPath, _cloudDbPath);
                     
-                    LogToFile($"Note DB 복사 완료(Atomic): {_localDbPath} -> {_cloudDbPath}");
                 }
 
                 // History DB 백업 (단순 복사, 실패해도 무방)
                 try
                 {
                     File.Copy(_localHistoryDbPath, _cloudHistoryDbPath, true);
-                    LogToFile("History DB 복사 완료");
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    CloudSaveFailed?.Invoke(this, $"클라우드 저장 실패: {ex.Message}");
+                }
 
-                LogToFile("Local -> Cloud 저장 완료");
             }
             catch (Exception ex)
             {
-                LogToFile($"[ERROR] 클라우드 저장 실패: {ex.Message}");
                 CloudSaveFailed?.Invoke(this, $"클라우드 저장 실패: {ex.Message}");
             }
         }
@@ -557,7 +501,6 @@ namespace CatchCapture.Utilities
         {
             try
             {
-                LogToFile("========== ReleaseOwnership 시작 ==========");
                 
                 // 1. Cloud로 데이터 백업 (동기화)
                 // SyncToCloud();
@@ -568,11 +511,9 @@ namespace CatchCapture.Utilities
                 
                 // 3. 읽기 전용으로 전환
                 IsReadOnly = true;
-                LogToFile("Lock 해제 및 ReadOnly 모드 전환 완료");
             }
-            catch (Exception ex)
+            catch
             {
-                LogToFile($"[ERROR] ReleaseOwnership 예외: {ex.Message}");
             }
         }
 
@@ -616,8 +557,7 @@ namespace CatchCapture.Utilities
             {
                 try
                 {
-                    LogToFile("노트 데이터베이스 초기화 시작...");
-                    CloseConnection();
+                CloseConnection();
                     SqliteConnection.ClearAllPools();
                     GC.Collect();
                     GC.WaitForPendingFinalizers();
@@ -625,13 +565,11 @@ namespace CatchCapture.Utilities
                     // 1. 클라우드 파일 제거
                     if (File.Exists(_cloudDbPath))
                     {
-                        try { File.Delete(_cloudDbPath); } catch (Exception ex) { LogToFile($"Cloud DB 삭제 실패: {ex.Message}"); }
                     }
                     
                     // 2. 로컬 파일 제거
                     if (File.Exists(_localDbPath))
                     {
-                        try { File.Delete(_localDbPath); } catch (Exception ex) { LogToFile($"Local DB 삭제 실패: {ex.Message}"); }
                     }
 
                     // 3. 재초기화
@@ -640,11 +578,9 @@ namespace CatchCapture.Utilities
                     // 4. 즉시 동기화 시도 (클라우드 파일 생성 보장)
                     SyncToCloud();
                     
-                    LogToFile("노트 데이터베이스 초기화 완료.");
                 }
-                catch (Exception ex)
+                catch
                 {
-                    LogToFile($"[ERROR] ResetNoteDatabase 실패: {ex.Message}");
                     throw;
                 }
             }
@@ -656,8 +592,7 @@ namespace CatchCapture.Utilities
             {
                 try
                 {
-                    LogToFile("히스토리 데이터베이스 초기화 시작...");
-                    CloseConnection();
+                CloseConnection();
                     SqliteConnection.ClearAllPools();
                     GC.Collect();
                     GC.WaitForPendingFinalizers();
@@ -665,13 +600,11 @@ namespace CatchCapture.Utilities
                     // 1. 클라우드 파일 제거
                     if (File.Exists(_cloudHistoryDbPath))
                     {
-                        try { File.Delete(_cloudHistoryDbPath); } catch (Exception ex) { LogToFile($"Cloud History DB 삭제 실패: {ex.Message}"); }
                     }
                     
                     // 2. 로컬 파일 제거
                     if (File.Exists(_localHistoryDbPath))
                     {
-                        try { File.Delete(_localHistoryDbPath); } catch (Exception ex) { LogToFile($"Local History DB 삭제 실패: {ex.Message}"); }
                     }
 
                     // 3. 재초기화
@@ -680,11 +613,9 @@ namespace CatchCapture.Utilities
                     // 4. 즉시 동기화 시도
                     SyncToCloud();
 
-                    LogToFile("히스토리 데이터베이스 초기화 완료.");
                 }
-                catch (Exception ex)
+                catch
                 {
-                    LogToFile($"[ERROR] ResetHistoryDatabase 실패: {ex.Message}");
                     throw;
                 }
             }
@@ -706,19 +637,16 @@ namespace CatchCapture.Utilities
             {
                 try
                 {
-                    LogToFile("========== TakeOwnership (권한 획득) 시작 ==========");
 
                     // 1. 이미 권한이 있으면 패스
                     if (!IsReadOnly && !forceReload)
                     {
-                        LogToFile("[SKIP] 이미 권한 보유 중");
                         return true;
                     }
 
                     // 2. 다른 사람이 쓰고 있는지 체크 (Lock 파일 확인)
                     if (IsLocked(_cloudDbPath))
                     {
-                        LogToFile("[FAIL] 다른 사용자가 이미 점유 중입니다.");
                         return false;
                     }
                     
@@ -733,17 +661,13 @@ namespace CatchCapture.Utilities
                     
                     SafeWriteFile(_cloudDbPath + ".lock", content);
                     SafeWriteFile(_cloudHistoryDbPath + ".lock", content);
-                    LogToFile($"Lock 파일 생성: {content}");
                     
                     // 5. 권한 부여
                     IsReadOnly = false;
-                    LogToFile("TakeOwnership 성공! (이제 쓰기 가능)");
-                    LogToFile("===========================================");
                     return true;
                 }
-                catch (Exception ex)
+                catch
                 {
-                    LogToFile($"[CRITICAL ERROR] TakeOwnership 실패: {ex.Message}");
                     return false;
                 }
             }
@@ -843,9 +767,8 @@ namespace CatchCapture.Utilities
             {
                 InitializeDatabaseInternal();
             }
-            catch (Exception ex)
+            catch
             {
-                LogToFile($"[CRITICAL] DB 초기화 실패 (손상 의심): {ex.Message}");
                 try
                 {
                     // 손상된 DB 처리
@@ -854,14 +777,11 @@ namespace CatchCapture.Utilities
                     if (File.Exists(DbPath))
                     {
                         File.Move(DbPath, corruptPath);
-                        LogToFile($"손상된 DB 백업됨: {corruptPath}");
                     }
                     InitializeDatabaseInternal();
-                    LogToFile("DB 자동 복구 완료");
                 }
-                catch (Exception retryEx)
+                catch
                 {
-                    LogToFile($"[FATAL] DB 복구 실패: {retryEx.Message}");
                     throw;
                 }
             }
@@ -1115,12 +1035,10 @@ namespace CatchCapture.Utilities
                 
                 // 초기화 성공
                 IsHistoryDatabaseReady = true;
-                LogToFile("히스토리 데이터베이스 초기화 완료");
             }
-            catch (Exception ex)
+            catch
             {
                 IsHistoryDatabaseReady = false;
-                LogToFile($"[ERROR] 히스토리 데이터베이스 초기화 실패: {ex.Message}");
             }
         }
 
@@ -2793,9 +2711,8 @@ namespace CatchCapture.Utilities
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                LogToFile($"Checkpoint failed for {dbPath}: {ex.Message}");
             }
         }
 
@@ -2847,9 +2764,8 @@ namespace CatchCapture.Utilities
                     // 3. 오래된 백업 정리
                     CleanupOldBackups();
                 }
-                catch (Exception ex)
+                catch
                 {
-                    LogToFile($"백업 생성 실패: {ex.Message}");
                 }
             });
         }
@@ -2873,9 +2789,8 @@ namespace CatchCapture.Utilities
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                LogToFile($"백업 정리 실패: {ex.Message}");
             }
         }
 
@@ -2942,15 +2857,13 @@ namespace CatchCapture.Utilities
                         Directory.CreateDirectory(cloudDir);
                     }
                     File.Copy(backupPath, cloudTargetPath, true);
-                    LogToFile($"DB 복원 완료 (Local & Cloud): {backupPath}");
                 }
                 catch
                 {
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                LogToFile($"[ERROR] 백업 복원 실패: {ex.Message}");
                 throw;
             }
         }

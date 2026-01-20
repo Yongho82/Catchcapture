@@ -1189,16 +1189,11 @@ namespace CatchCapture
                     DatabaseManager.Instance.RemoveLock();
                 }
                 catch (OperationCanceledException) { }
-                catch (Exception ex)
+                catch
                 {
-                    LogToFile($"LiveSync Error: {ex.Message}");
                 }
             }, token);
         }
 
-        private void LogToFile(string message)
-        {
-            try { DatabaseManager.Instance.LogToFile(message); } catch { }
-        }
     }
 }

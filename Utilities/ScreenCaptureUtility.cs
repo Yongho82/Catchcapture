@@ -385,7 +385,6 @@ namespace CatchCapture.Utilities
         {
             try
             {
-                LogToFile("스크롤 캡처 시작");
                 // MessageBox 대신 Dispatcher를 통해 GuideWindow만 사용
                 System.Windows.Application.Current.Dispatcher.Invoke(() =>
                 {
@@ -554,7 +553,6 @@ namespace CatchCapture.Utilities
                 // 첫 번째 스크롤 이미지와 두 번째 스크롤 이미지가 거의 동일한지 한 번 더 확인
                 bool hasRealScroll = !AreImagesAlmostIdentical(beforeFirstScroll, afterFirstScroll, 95);
                 
-                LogToFile($"스크롤 감지됨: {hasRealScroll}");
                 
                 if (!hasRealScroll)
                 {
@@ -573,17 +571,14 @@ namespace CatchCapture.Utilities
                 
                 // 스크롤 가능한 영역 감지 (상단 및 하단 고정 영역 제외)
                 Rectangle scrollableRegion = DetectScrollableRegion(beforeFirstScroll, afterFirstScroll);
-                LogToFile($"감지된 스크롤 영역: X={scrollableRegion.X}, Y={scrollableRegion.Y}, 너비={scrollableRegion.Width}, 높이={scrollableRegion.Height}");
                 
                 // 스크롤바 제외 (일반적으로 오른쪽 20px 정도가 스크롤바)
                 int scrollbarWidth = 20; // 스크롤바 예상 너비
                 scrollableRegion.Width = Math.Max(1, scrollableRegion.Width - scrollbarWidth);
-                LogToFile($"스크롤바 제외 후 영역: 너비={scrollableRegion.Width}");
                 
                 // 스크롤 영역이 감지되지 않았다면 전체 영역 사용
                 if (scrollableRegion.Width <= 10 || scrollableRegion.Height <= 10)
                 {
-                    LogToFile("유효한 스크롤 영역을 감지하지 못함");
                     scrollableRegion = new Rectangle(0, 0, clientWidth, clientHeight);
                 }
                 
@@ -607,7 +602,6 @@ namespace CatchCapture.Utilities
                 {
                     totalScrollHeight += img.Height;
                 }
-                LogToFile($"초기 스크롤 높이: {totalScrollHeight}px");
                 
                 // 스크롤 캡처 시작
                 while (!isScrollEnded && scrollCount < maxScrolls)
@@ -623,12 +617,10 @@ namespace CatchCapture.Utilities
                         Bitmap beforeLastImage = capturedImages[capturedImages.Count - 2];
                         
                         double similarity = CalculateImageSimilarity(lastImage, beforeLastImage);
-                        LogToFile($"마지막 두 이미지 유사도: {similarity:F4}");
                         
                         if (similarity > 0.7) // 70% 이상 유사할 경우
                         {
                             isNearEnd = true;
-                            LogToFile("마지막 페이지에 가까워짐 감지");
                         }
                     }
                     
@@ -636,13 +628,11 @@ namespace CatchCapture.Utilities
                     {
                         // 마지막에 가까울 때 더 작은 스크롤 (방향키 사용)
                         SendSmallScroll(8); // 스크롤 양을 증가
-                        LogToFile("페이지 끝에 가까움: 작은 스크롤 사용");
                     }
                     else
                     {
                         // 일반적인 경우 페이지 다운 키 사용
                         SendPageDownKey();
-                        LogToFile("일반 스크롤 (Page Down 사용)");
                     }
                     
                     Thread.Sleep(600); // 스크롤 후 페이지 로드 대기 시간 증가
@@ -664,7 +654,6 @@ namespace CatchCapture.Utilities
                         if (AreImagesAlmostIdentical(prevImage, currentScrollRegion, 97))
                         {
                             isDuplicate = true;
-                            LogToFile($"중복 이미지 감지됨: 스크롤 {scrollCount}");
                             break;
                         }
                     }
@@ -690,7 +679,6 @@ namespace CatchCapture.Utilities
                     // 이미지에 변화가 있으면 저장
                     capturedImages.Add(currentScrollRegion);
                     uniqueImages.Add(currentScrollRegion);
-                    LogToFile($"새 스크롤 이미지 추가됨: 스크롤 {scrollCount}, 크기: {currentScrollRegion.Width}x{currentScrollRegion.Height}");
                     
                     // 다음 비교를 위해 현재 이미지의 하단 부분 저장
                     using (Graphics g = Graphics.FromImage(lastVisibleArea))
@@ -743,7 +731,6 @@ namespace CatchCapture.Utilities
                     Bitmap prevImg = capturedImages[i - 1];
                     
                     int overlapHeight = CalculateExactOverlapHeight(prevImg, currentImg);
-                    LogToFile($"이미지 {i-1}과 {i} 사이 겹치는 높이: {overlapHeight}px");
                     overlapHeights.Add(overlapHeight);
                 }
                 
@@ -754,7 +741,6 @@ namespace CatchCapture.Utilities
                     totalHeight += capturedImages[i].Height - overlapHeights[i];
                 }
                 
-                LogToFile($"계산된 총 높이: {totalHeight}px");
                 
                 // 이미지가 너무 크면 조정
                 int maxHeight = 20000; // 최대 이미지 높이 (줄임)
@@ -1267,7 +1253,6 @@ namespace CatchCapture.Utilities
             // 실제 다른 픽셀 비율 계산 (샘플링 비율 고려)
             int estimatedDifferentPixels = differentPixels * 5; // 대략적인 추정치
             
-            LogToFile($"이미지 비교: 다른 픽셀 수: {differentPixels}, 예상 다른 픽셀 수: {estimatedDifferentPixels}, 최대 허용 다른 픽셀 수: {maxDifferentPixels}");
             
             return estimatedDifferentPixels <= maxDifferentPixels;
         }
@@ -1392,11 +1377,9 @@ namespace CatchCapture.Utilities
             // 스크롤 영역이 너무 작으면 전체 영역 사용
             if (bottomBorder - topBorder < height / 4)
             {
-                LogToFile("스크롤 영역이 너무 작아 전체 영역을 사용함");
                 return new Rectangle(0, 0, width, height);
             }
             
-            LogToFile($"감지된 스크롤 영역 경계: 상단={topBorder}, 하단={bottomBorder}, 좌측={leftBorder}, 우측={rightBorder}");
             return new Rectangle(leftBorder, topBorder, rightBorder - leftBorder, bottomBorder - topBorder);
         }
         
@@ -1413,7 +1396,6 @@ namespace CatchCapture.Utilities
             
             if (region.Width <= 0 || region.Height <= 0)
             {
-                LogToFile("추출 영역이 유효하지 않음, 원본 이미지 반환");
                 return new Bitmap(source);
             }
             
@@ -1426,20 +1408,6 @@ namespace CatchCapture.Utilities
             return result;
         }
         
-        // 로그 파일에 기록
-        private static void LogToFile(string message)
-        {
-            try
-            {
-                string logPath = "shape_debug.log";
-                string logEntry = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] {message}{Environment.NewLine}";
-                File.AppendAllText(logPath, logEntry);
-            }
-            catch
-            {
-                // 로그 작성 실패 시 무시
-            }
-        }
 
         // 두 이미지의 겹치는 높이를 정확히 계산
         private static int CalculateExactOverlapHeight(Bitmap topImage, Bitmap bottomImage)
@@ -1473,7 +1441,6 @@ namespace CatchCapture.Utilities
                 }
             }
             
-            LogToFile($"최적의 겹침 높이: {bestMatchHeight}px (매칭 점수: {bestMatchScore:F4})");
             return bestMatchHeight;
         }
         
