@@ -143,6 +143,10 @@ namespace CatchCapture.Models
         public double HistoryColFavorite { get; set; } = 53;
         public double HistoryColActions { get; set; } = 53;
         public double HistoryColMemo { get; set; } = 150;
+        
+        // Designated Capture State
+        public double LastDesignatedWidth { get; set; } = 800;
+        public double LastDesignatedHeight { get; set; } = 600;
 
         public static event EventHandler? SettingsChanged;
 
@@ -485,6 +489,9 @@ namespace CatchCapture.Models
             HistoryColFavorite = EnsureFinite(HistoryColFavorite, 53);
             HistoryColActions = EnsureFinite(HistoryColActions, 53);
             HistoryColMemo = EnsureFinite(HistoryColMemo, 150);
+
+            LastDesignatedWidth = EnsureFinite(LastDesignatedWidth, 800);
+            LastDesignatedHeight = EnsureFinite(LastDesignatedHeight, 600);
 
             CaptureLineThickness = EnsureFinite(CaptureLineThickness, 1.0);
 

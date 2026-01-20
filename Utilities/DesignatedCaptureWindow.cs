@@ -256,7 +256,13 @@ namespace CatchCapture.Utilities
             // 캡처 버튼
             _btnCapture = new Button
             {
-                Content = new TextBlock { Text = "캡처(F1)", Foreground = Brushes.White, FontSize = 12, FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center },
+                Content = new TextBlock { 
+                    Text = (ResLoc.GetString("Capture") ?? "캡처") + "(F1)", 
+                    Foreground = Brushes.White, 
+                    FontSize = 12, 
+                    FontWeight = FontWeights.Bold, 
+                    VerticalAlignment = VerticalAlignment.Center 
+                },
                 Padding = new Thickness(8, 0, 8, 0),
                 Height = 24,
                 VerticalAlignment = VerticalAlignment.Center,
@@ -357,16 +363,23 @@ namespace CatchCapture.Utilities
 
             _canvas.Children.Add(_headerBar);
 
-            // 초기 사각형 설정 500x350
-            double initW = 500;
-            double initH = 350;
-            double initL = (Width - initW) / 2; // 창 중앙에 배치 시도
-            if (initL < 0) initL = 50; 
-            double initT = (Height - initH) / 2;
-            if (initT < 0) initT = 50;
+            // 초기 사각형 설정 - 저장된 설정 로드
+            var settings = Settings.Load();
+            double initW = settings.LastDesignatedWidth;
+            double initH = settings.LastDesignatedHeight;
+
+            // 사각형이 화면보다 크면 조정
+            if (initW > vWidth - 140) initW = vWidth - 140;
+            if (initH > vHeight - 140) initH = vHeight - 140;
+            if (initW < 50) initW = 500; // 비정상 값 처리
+            if (initH < 50) initH = 350;
+
+            // 화면 중앙 좌표 계산 (가상 화면 기준)
+            double screenL = vLeft + (vWidth - initW) / 2;
+            double screenT = vTop + (vHeight - initH) / 2;
             
-            SetRect(new Rect(initL, initT, initW, initH));
-            SetRect(new Rect(initL, initT, initW, initH));
+            // UpdateWindowForScreenRect를 사용하여 창과 사각형을 적절히 배치 (클리핑 방지)
+            UpdateWindowForScreenRect(new Rect(screenL, screenT, initW, initH));
 
             // Install Hook
             _proc = HookCallback;
@@ -379,6 +392,26 @@ namespace CatchCapture.Utilities
                     _hookID = IntPtr.Zero;
                 }
             };
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            // 종료 시 현재 크기 저장 (캡처를 안 해도 저장되도록)
+            SaveCurrentSize();
+            base.OnClosed(e);
+        }
+
+        private void SaveCurrentSize()
+        {
+            try
+            {
+                Rect r = GetRect();
+                var settings = Settings.Load();
+                settings.LastDesignatedWidth = r.Width;
+                settings.LastDesignatedHeight = r.Height;
+                Settings.Save(settings);
+            }
+            catch { }
         }
 
         private void OnKeyDown(object sender, KeyEventArgs e)
@@ -736,6 +769,9 @@ namespace CatchCapture.Utilities
 
         private void CaptureAndNotify()
         {
+            // 캡처 전 최신 크기 저장
+            SaveCurrentSize();
+
             var dpi = VisualTreeHelper.GetDpi(this);
             Rect r = GetRect();
             
