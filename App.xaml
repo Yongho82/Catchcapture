@@ -323,7 +323,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="GridViewColumnHeader">
                         <Grid>
-                            <Border x:Name="HeaderBorder" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="0,1,1,1" Padding="{TemplateBinding Padding}">
+                            <Border x:Name="HeaderBorder" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="0,0,1,0" Padding="{TemplateBinding Padding}">
                                 <Border.Background>
                                     <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                                         <GradientStop Color="#15FFFFFF" Offset="0.0"/>
