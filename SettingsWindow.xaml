@@ -357,9 +357,15 @@
                      <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                         <TextBlock x:Name="VersionText" Text="{DynamicResource Version}" FontSize="12" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
                         <TextBlock Text=" 1.1.20" FontSize="12" Foreground="{DynamicResource ThemeForeground}" VerticalAlignment="Center"/>
-                        <TextBlock x:Name="WebsiteIcon" Text="🏠" FontSize="14" Margin="10,0,0,0" Cursor="Hand" VerticalAlignment="Center" 
+                        <TextBlock x:Name="WebsiteIcon" Text="🏠" FontSize="13" Margin="10,0,0,0" Cursor="Hand" VerticalAlignment="Center" 
                                    Foreground="{DynamicResource ThemeForeground}" Opacity="0.8"
                                    MouseLeftButtonUp="Website_Click" ToolTip="{DynamicResource VisitHomepage}"/>
+                        <TextBlock x:Name="ContactIcon" Text="📧" FontSize="14" Margin="10,0,0,0" Cursor="Hand" VerticalAlignment="Center" 
+                                   Foreground="{DynamicResource ThemeForeground}" Opacity="0.8"
+                                   MouseLeftButtonUp="Contact_Click" ToolTip="Q&amp;A"/>
+                        <TextBlock x:Name="XAccountIcon" Text="𝕏" FontSize="14" Margin="10,0,0,0" Cursor="Hand" VerticalAlignment="Center" FontWeight="Bold"
+                                   Foreground="{DynamicResource ThemeForeground}" Opacity="0.8"
+                                   MouseLeftButtonUp="XAccount_Click" ToolTip="X (Twitter)"/>
                      </StackPanel>
                      <StackPanel Orientation="Horizontal">
                         <TextBlock x:Name="RestoreDefaultsText" Text="{DynamicResource RestoreDefaults}" FontSize="11" Foreground="{DynamicResource ThemeForeground}" Cursor="Hand" MouseLeftButtonUp="RestoreDefaults_Click"/>

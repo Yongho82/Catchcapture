@@ -1994,13 +1994,29 @@ private void InitLanguageComboBox()
             {
                 Process.Start(new ProcessStartInfo
                 {
-                    FileName = "https://ezupsoft.com",
+                    FileName = "https://ezupsoft.com/contact",
                     UseShellExecute = true
                 });
             }
             catch
             {
-                CatchCapture.CustomMessageBox.Show("기본 메일 클라이언트를 열 수 없습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                CatchCapture.CustomMessageBox.Show("웹 브라우저를 열 수 없습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void XAccount_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "https://x.com/EzupSoft",
+                    UseShellExecute = true
+                });
+            }
+            catch
+            {
+                CatchCapture.CustomMessageBox.Show("웹 브라우저를 열 수 없습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 
