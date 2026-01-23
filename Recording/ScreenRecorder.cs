@@ -96,6 +96,9 @@ namespace CatchCapture.Recording
         private DateTime _recordingStartTime;
         private TimeSpan _actualDuration;
         
+        // 그리기 오버레이 참조 (녹화 시 그리기 내용 합성용)
+        private Recording.RecordingOverlay? _overlay;
+        
         public bool IsRecording => _isRecording;
         public bool IsPaused => _isPaused;
         public int FrameCount => _frameCount;
@@ -147,9 +150,12 @@ namespace CatchCapture.Recording
         /// <summary>
         /// 녹화 시작
         /// </summary>
-        public void StartRecording(Int32Rect captureArea)
+        public void StartRecording(Int32Rect captureArea, Recording.RecordingOverlay? overlay = null)
         {
             if (_isRecording) return;
+            
+            // 오버레이 참조 저장 (그리기 내용 합성용)
+            _overlay = overlay;
             
             // 테두리 두께(3px)만큼 안쪽으로 조정하여 테두리가 녹화에 포함되지 않도록 함
             const int borderThickness = 3;
@@ -1090,6 +1096,34 @@ namespace CatchCapture.Recording
                     }
                 }
                 catch { /* 커서 캡처 실패 시 무시 */ }
+                }
+                
+                // 그리기 오버레이 합성 (UI 스레드에서 안전하게 처리)
+                if (_overlay != null)
+                {
+                    try
+                    {
+                        System.Drawing.Bitmap? drawingBitmap = null;
+                        
+                        // UI 스레드에서 렌더링
+                        Application.Current?.Dispatcher.Invoke(() =>
+                        {
+                            drawingBitmap = _overlay.RenderDrawingToBitmap();
+                        });
+                        
+                        if (drawingBitmap != null)
+                        {
+                            using (drawingBitmap)
+                            {
+                                // 그리기 내용을 화면 캡처에 합성
+                                graphics.DrawImage(drawingBitmap, 0, 0, width, height);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"[CaptureScreen] Drawing overlay composition failed: {ex.Message}");
+                    }
                 }
                 
                 // Raw 픽셀 데이터로 저장 (PNG 압축 제거로 CPU 부하 감소)

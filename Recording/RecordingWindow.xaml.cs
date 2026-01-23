@@ -1074,7 +1074,7 @@ namespace CatchCapture.Recording
                 );
             }
 
-            _recorder.StartRecording(captureRect);
+            _recorder.StartRecording(captureRect, _overlay);
 
             _recordingDuration = TimeSpan.Zero;
             _recordingTimer.Start();

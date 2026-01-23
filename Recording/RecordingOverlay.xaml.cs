@@ -791,6 +791,84 @@ namespace CatchCapture.Recording
             _numberingCounter = 1; // 번호 초기화
         }
 
+        /// <summary>
+        /// 그리기 캔버스의 내용을 비트맵으로 렌더링 (녹화 시 화면에 합성용)
+        /// </summary>
+        public System.Drawing.Bitmap? RenderDrawingToBitmap()
+        {
+            try
+            {
+                // 그리기 내용이 없으면 null 반환
+                if ((DrawingCanvas == null || DrawingCanvas.Strokes.Count == 0) && 
+                    (ShapeCanvas == null || ShapeCanvas.Children.Count == 0))
+                {
+                    return null;
+                }
+
+                double width = _selectionArea.Width;
+                double height = _selectionArea.Height;
+                
+                if (width <= 0 || height <= 0) return null;
+
+                // DPI 스케일 가져오기
+                double dpiScale = GetDpiScale();
+                int pixelWidth = (int)Math.Ceiling(width * dpiScale);
+                int pixelHeight = (int)Math.Ceiling(height * dpiScale);
+
+                // WPF 렌더링
+                var renderTarget = new System.Windows.Media.Imaging.RenderTargetBitmap(
+                    pixelWidth, pixelHeight, 96 * dpiScale, 96 * dpiScale,
+                    System.Windows.Media.PixelFormats.Pbgra32);
+
+                // 투명 배경에 그리기 요소들만 렌더링
+                var drawingVisual = new System.Windows.Media.DrawingVisual();
+                using (var context = drawingVisual.RenderOpen())
+                {
+                    // ShapeCanvas 렌더링
+                    if (ShapeCanvas != null && ShapeCanvas.Children.Count > 0)
+                    {
+                        var shapeBrush = new System.Windows.Media.VisualBrush(ShapeCanvas)
+                        {
+                            Stretch = System.Windows.Media.Stretch.None,
+                            AlignmentX = System.Windows.Media.AlignmentX.Left,
+                            AlignmentY = System.Windows.Media.AlignmentY.Top
+                        };
+                        context.DrawRectangle(shapeBrush, null, new Rect(0, 0, width, height));
+                    }
+
+                    // DrawingCanvas (InkCanvas) 렌더링
+                    if (DrawingCanvas != null && DrawingCanvas.Strokes.Count > 0)
+                    {
+                        var inkBrush = new System.Windows.Media.VisualBrush(DrawingCanvas)
+                        {
+                            Stretch = System.Windows.Media.Stretch.None,
+                            AlignmentX = System.Windows.Media.AlignmentX.Left,
+                            AlignmentY = System.Windows.Media.AlignmentY.Top
+                        };
+                        context.DrawRectangle(inkBrush, null, new Rect(0, 0, width, height));
+                    }
+                }
+
+                renderTarget.Render(drawingVisual);
+
+                // WPF BitmapSource -> GDI+ Bitmap 변환
+                var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+                encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(renderTarget));
+                
+                using (var stream = new System.IO.MemoryStream())
+                {
+                    encoder.Save(stream);
+                    stream.Position = 0;
+                    return new System.Drawing.Bitmap(stream);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[RenderDrawingToBitmap] Error: {ex.Message}");
+                return null;
+            }
+        }
+
         // 도형 그리기 관련
         private enum ShapeToolType { None, Rectangle, Ellipse, Line, Arrow }
         private ShapeToolType _currentShapeTool = ShapeToolType.None;
