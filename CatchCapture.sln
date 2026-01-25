@@ -5,6 +5,8 @@ VisualStudioVersion = 17.13.35828.75 d17.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CatchCapture", "CatchCapture.csproj", "{7D1AB751-13F2-F171-9E68-F817B0D2F622}"
 EndProject
+Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "CatchCapture.Package", "CatchCapture.Package\CatchCapture.Package\CatchCapture.Package.wapproj", "{F0D9D239-EF57-4AEB-833A-10A5C0657F79}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,12 @@ Global
 		{7D1AB751-13F2-F171-9E68-F817B0D2F622}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D1AB751-13F2-F171-9E68-F817B0D2F622}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D1AB751-13F2-F171-9E68-F817B0D2F622}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0D9D239-EF57-4AEB-833A-10A5C0657F79}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{F0D9D239-EF57-4AEB-833A-10A5C0657F79}.Debug|Any CPU.Build.0 = Debug|x64
+		{F0D9D239-EF57-4AEB-833A-10A5C0657F79}.Debug|Any CPU.Deploy.0 = Debug|x64
+		{F0D9D239-EF57-4AEB-833A-10A5C0657F79}.Release|Any CPU.ActiveCfg = Release|x64
+		{F0D9D239-EF57-4AEB-833A-10A5C0657F79}.Release|Any CPU.Build.0 = Release|x64
+		{F0D9D239-EF57-4AEB-833A-10A5C0657F79}.Release|Any CPU.Deploy.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
