@@ -79,6 +79,8 @@
     <Content Include="Images\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Images\StoreLogo.png" />
     <Content Include="Images\Wide310x150Logo.scale-200.png" />
+    <Content Include="Resources\ffmpeg.exe" />
+    <Content Include="Resources\windowsdesktop-runtime-8.0.11-win-x64.exe" />
   </ItemGroup>
 
   <Import Project="$(WapProjPath)\Microsoft.DesktopBridge.targets" />
