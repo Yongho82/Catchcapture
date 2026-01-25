@@ -7,13 +7,13 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="749fdb54-d2bb-4209-b656-29058dd88b46"
-    Publisher="CN=엄용호"
+    Name="Ezupsoft.8936E99798B"
+    Publisher="CN=B5EA7C81-B497-441C-8B15-483FD9F7C76A"
     Version="1.0.0.0" />
 
   <Properties>
-    <DisplayName>CatchCapture.Package</DisplayName>
-    <PublisherDisplayName>엄용호</PublisherDisplayName>
+    <DisplayName>CatchCapture</DisplayName>
+    <PublisherDisplayName>Ezupsoft</PublisherDisplayName>
     <Logo>Images\StoreLogo.png</Logo>
   </Properties>
 
@@ -37,8 +37,8 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="CatchCapture.Package"
-        Description="CatchCapture.Package"
+        DisplayName="CatchCapture"
+        Description="CatchCapture"
         BackgroundColor="transparent"
         Square150x150Logo="Images\Square150x150Logo.png"
         Square44x44Logo="Images\Square44x44Logo.png">

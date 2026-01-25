@@ -1,91 +1,58 @@
-# Microsoft Store 제출 체크리스트
+# 🚀 CatchCapture Microsoft Store 제출 통합 가이드
 
-## 📋 제출 전 필수 확인 사항
+이 파일은 앱 제출을 위한 **최종 체크리스트 및 가이드**입니다. 다른 중복된 가이드 문서들은 정리되었습니다.
 
-### ✅ 앱 준비
-- [ ] 앱이 안정적으로 실행됨 (크래시 없음)
-- [ ] 모든 기능 테스트 완료
-- [ ] 버전 번호 확인: 1.0.0
-- [ ] 회사명: 이지업소프트
-- [ ] 제품명: CatchCapture
+---
 
-### ✅ 메타데이터
-- [x] .csproj에 메타데이터 추가 완료
-- [x] 개인정보 처리방침 페이지 준비: https://ezupsoft.com/catchcapture/privacy-policy.html
-- [ ] 앱 설명 작성 (한국어/영어)
-- [ ] 키워드 선정 (5개)
+## 📋 1. 스토어 식별 정보 (매니페스트 설정 완료)
+이 정보는 설정이 완료되었으며, `Package.appxmanifest` 파일에 반영되어 있습니다.
 
-### ✅ 이미지 자산
-- [ ] Square 44x44 Logo (44x44 픽셀)
-- [ ] Square 150x150 Logo (150x150 픽셀)
-- [ ] Wide 310x150 Logo (310x150 픽셀)
-- [ ] Store Logo (50x50 픽셀)
-- [ ] 스크린샷 3-5개 (1366x768 이상)
+- **Package Name**: `Ezupsoft.8936E99798B`
+- **Publisher**: `CN=B5EA7C81-B497-441C-8B15-483FD9F7C76A`
+- **Publisher Display Name**: `Ezupsoft`
+- **Reserved App Name**: `CatchCapture`
 
-### ✅ 패키징
-- [ ] Visual Studio 2022 설치
-- [ ] Windows Application Packaging 워크로드 설치
-- [ ] Packaging Project 생성
-- [ ] Release 빌드 성공
-- [ ] MSIX 파일 생성 성공
-- [ ] 로컬 테스트 완료
+---
 
-### ✅ Partner Center
-- [ ] 개발자 계정 등록 ($19 또는 $99)
-- [ ] 앱 이름 예약: CatchCapture
-- [ ] Publisher 정보 확인
-- [ ] 가격 설정: 무료
-- [ ] 연령 등급: 모든 연령 (3+)
+## 🛠️ 2. 최종 패키징 방법 (Visual Studio)
+제출 준비가 완료되면 다음 순서로 패키지 파일을 만드세요.
 
-### ✅ Store 목록
-- [ ] 앱 설명 작성
-- [ ] 스크린샷 업로드
-- [ ] 개인정보 처리방침 URL 입력
-- [ ] 지원 연락처 입력: ezupsoft@gmail.com
-- [ ] 웹사이트 URL 입력: https://ezupsoft.com
+1.  **솔루션 구성**: 상단 툴바에서 **`Release`** 와 **`x64`** (또는 x86/ARM64)를 선택합니다.
+2.  **프로젝트 선택**: `CatchCapture.Package` 프로젝트를 마우스 오른쪽 버튼으로 클릭합니다.
+3.  **메뉴 선택**: **[게시(Publish)]** -> **[앱 패키지 만들기(Create App Packages)]** 클릭.
+4.  **배포 유형**: "Microsoft Store 콘텐츠" 선택 후 로그인하여 진행.
+5.  **결과물**: 빌드가 완료되면 `.msixupload` 파일이 생성됩니다. 이 파일을 파트너 센터에 업로드하세요.
 
-### ✅ 최종 확인
-- [ ] 모든 섹션 완료
-- [ ] 패키지 업로드
-- [ ] 자동 검증 통과
-- [ ] 제출 버튼 클릭
+---
+
+## ✅ 3. 제출 전 최종 체크리스트
+
+### 앱 준비 및 자산
+- [x] 모든 크기의 공식 로고 생성 완료 (`icons/store icon/output/`)
+- [x] 16개국 언어별 스크린샷 준비 완료 (`icons/store img/Screenshots/`)
+- [x] 개인정보 처리방침 링크 준비 완료 ([https://ezupsoft.com/catchcapture/privacy-policy.html](https://ezupsoft.com/catchcapture/privacy-policy.html))
+
+### 패키징 설정
+- [x] `Package.appxmanifest` 식별 정보(Identity) 업데이트 완료
+- [x] `runFullTrust` 권한 설정 완료
+- [ ] **Release/x64** 빌드 및 `.msixupload` 생성
+
+### 파트너 센터 (Store Listing)
+- [ ] 16개국 언어별 스토어 설명 입력 (엑셀 파일 참고)
+- [ ] 언어별 스크린샷 업로드
+- [ ] 가격 설정 (무료) 및 연령 등급(3+) 설정
+- [ ] 패키지 파일 업로드 및 최종 [제출] 클릭
 
 ---
 
 ## 🎯 현재 진행 상황
-
-### 완료된 항목 ✅
-1. ✅ .csproj 메타데이터 추가
-2. ✅ 개인정보 처리방침 HTML 페이지 생성
-3. ✅ 설정 창에 개인정보 처리방침 링크 추가
-4. ✅ Package.appxmanifest 생성
-5. ✅ 패키징 가이드 문서 작성
-
-### 다음 단계 📝
-1. **이미지 준비**: 로고 이미지를 다양한 크기로 생성
-2. **Visual Studio 설정**: Packaging Project 추가
-3. **빌드 테스트**: MSIX 패키지 생성 및 테스트
-4. **Partner Center**: 개발자 계정 등록
-5. **제출**: 앱 업로드 및 인증 대기
+1. **완료**: 아이콘 생성, 다국어 스크린샷 준비, 매니페스트 식별 정보 동기화.
+2. **진행 중**: 파트너 센터에서 각 언어별 텍스트 및 이미지 입력 중.
+3. **남은 과제**: 최종 MSIX 패키지 빌드 및 제출.
 
 ---
 
-## 📞 연락처
-
-- 회사: 이지업소프트
-- 이메일: ezupsoft@gmail.com
-- 웹사이트: https://ezupsoft.com
-- 제품: CatchCapture v1.0.0
-
----
-
-## 🚀 준비 완료!
-
-모든 필수 파일이 준비되었습니다:
-- ✅ CatchCapture.csproj (메타데이터 포함)
-- ✅ Package.appxmanifest (MSIX 매니페스트)
-- ✅ privacy-policy.html (개인정보 처리방침)
-- ✅ MICROSOFT_STORE_GUIDE.md (상세 가이드)
-- ✅ CHECKLIST.md (이 파일)
-
-**다음 단계: Visual Studio에서 Packaging Project를 추가하세요!**
+## 📞 연락처 및 참조
+- **ID**: 이지업소프트 (Ezupsoft) / `ezupsoft@gmail.com`
+- **웹사이트**: [https://ezupsoft.com](https://ezupsoft.com)
+- **도움말**: 마이크로소프트 파트너 센터 대시보드에서 검수 상태를 확인하세요.
