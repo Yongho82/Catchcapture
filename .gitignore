@@ -28,8 +28,7 @@ build_error.txt
 installer/dist/
 
 # Large binaries in Resources
-Resources/*.exe
-CatchCapture.Package/CatchCapture.Package/Resources/*.exe
+**/Resources/*.exe
 
 # App Packaging artifacts
 AppPackages/
