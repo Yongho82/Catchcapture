@@ -26,3 +26,14 @@ build_error.txt
 
 # Installer
 installer/dist/
+
+# Large binaries in Resources
+Resources/*.exe
+CatchCapture.Package/CatchCapture.Package/Resources/*.exe
+
+# App Packaging artifacts
+AppPackages/
+*.msixupload
+*.msix
+*.appxbundle
+*.msixbundle
