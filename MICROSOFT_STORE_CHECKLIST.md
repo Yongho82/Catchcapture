@@ -1,6 +1,6 @@
 # 🚀 CatchCapture Microsoft Store 제출 통합 가이드
 
-이 파일은 앱 제출을 위한 **최종 체크리스트 및 가이드**입니다. 다른 중복된 가이드 문서들은 정리되었습니다.
+이 파일은 앱 제출을 위한 **최종 체크리스트 및 가이드**입니다.
 
 ---
 
@@ -28,9 +28,11 @@
 ## ✅ 3. 제출 전 최종 체크리스트
 
 ### 앱 준비 및 자산
-- [x] 모든 크기의 공식 로고 생성 완료 (`icons/store icon/output/`)
+- [x] 모든 크기의 공식 로고 생성 및 배치 완료 (`icons/store img/Assets/`)
 - [x] 16개국 언어별 스크린샷 준비 완료 (`icons/store img/Screenshots/`)
-- [x] 개인정보 처리방침 링크 준비 완료 ([https://ezupsoft.com/catchcapture/privacy-policy.html](https://ezupsoft.com/catchcapture/privacy-policy.html))
+    *   파일명 예시: `MAIN1_ar.png`, `MAIN1_kor.png` 등
+- [x] **개인정보 처리방침(Privacy Policy) URL** 등록 완료
+    *   URL: [https://ezupsoft.com/catchcapture/privacy-policy.html](https://ezupsoft.com/catchcapture/privacy-policy.html)
 
 ### 패키징 설정
 - [x] `Package.appxmanifest` 식별 정보(Identity) 업데이트 완료
@@ -39,16 +41,16 @@
 
 ### 파트너 센터 (Store Listing)
 - [ ] 16개국 언어별 스토어 설명 입력 (엑셀 파일 참고)
-- [ ] 언어별 스크린샷 업로드
+- [ ] 언어별 스크린샷 업로드 (파일명의 국가 코드 확인)
 - [ ] 가격 설정 (무료) 및 연령 등급(3+) 설정
 - [ ] 패키지 파일 업로드 및 최종 [제출] 클릭
 
 ---
 
 ## 🎯 현재 진행 상황
-1. **완료**: 아이콘 생성, 다국어 스크린샷 준비, 매니페스트 식별 정보 동기화.
-2. **진행 중**: 파트너 센터에서 각 언어별 텍스트 및 이미지 입력 중.
-3. **남은 과제**: 최종 MSIX 패키지 빌드 및 제출.
+1. **완료**: 아이콘 및 스크린샷 자산 준비, 매니페스트 식별 정보 동기화.
+2. **진행 중**: 파트너 센터에 다국어 정보 입력 및 이미지 업로드.
+3. **남은 과제**: 개인정보 처리방침 외부 링크 확보, 최종 패키지 빌드 및 제출.
 
 ---
 
