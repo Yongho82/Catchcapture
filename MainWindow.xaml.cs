@@ -2418,7 +2418,7 @@ public partial class MainWindow : Window
 
             // 즉시편집 설정 확인
             var currentSettings = Settings.Load();
-            bool instantEdit = currentSettings.SimpleModeInstantEdit;
+            bool instantEdit = false; // [Modified] 창 캡처는 즉시편집 설정 무시 (항상 기본 캡처 동작)
 
             this.Hide();
             if (simpleModeWindow != null) simpleModeWindow.Hide();
