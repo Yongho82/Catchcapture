@@ -1203,7 +1203,8 @@ namespace CatchCapture.Utilities
                 canvas.UpdateLayout();
                 
                 // selectionOverlay가 있으면 상태 리셋 (다음 드래그를 위해 준비)
-                if (selectionOverlay != null && !selectionOverlay.IsSelecting)
+                // 단, 즉시편집 모드(instantEditMode)일 때는 선택 영역을 유지해야 하므로 리셋하지 않음
+                if (selectionOverlay != null && !selectionOverlay.IsSelecting && !instantEditMode)
                 {
                     selectionOverlay.Reset();
                 }
