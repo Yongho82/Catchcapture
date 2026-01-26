@@ -3155,13 +3155,39 @@ namespace CatchCapture.Utilities
             using (var drawingContext = drawingVisual.RenderOpen())
             {
                 // 배경 이미지 그리기 (선택 영역만)
+                // 배경 이미지 그리기 (선택 영역만)
                 if (screenCapture != null)
                 {
-                    var sourceRect = new Rect(selectionLeft, selectionTop, selectionWidth, selectionHeight);
-                    var destRect = new Rect(0, 0, selectionWidth, selectionHeight);
-                    drawingContext.DrawImage(new CroppedBitmap(screenCapture, 
-                        new Int32Rect((int)selectionLeft, (int)selectionTop, 
-                        (int)selectionWidth, (int)selectionHeight)), destRect);
+                    // [Fix] 좌표 및 크기 정수 변환 시 반올림/Clamping 적용하여 범위 오류 방지
+                    int cropX = (int)selectionLeft; 
+                    int cropY = (int)selectionTop;
+                    int cropW = (int)selectionWidth;
+                    int cropH = (int)selectionHeight;
+                    
+                    // 좌표 보정 (음수 방지)
+                    if (cropX < 0) { cropW += cropX; cropX = 0; }
+                    if (cropY < 0) { cropH += cropY; cropY = 0; }
+                    
+                    // 크기 보정 (이미지 범위 초과 방지)
+                    if (cropX >= screenCapture.PixelWidth) cropX = screenCapture.PixelWidth - 1;
+                    if (cropY >= screenCapture.PixelHeight) cropY = screenCapture.PixelHeight - 1;
+                    
+                    if (cropX + cropW > screenCapture.PixelWidth) cropW = screenCapture.PixelWidth - cropX;
+                    if (cropY + cropH > screenCapture.PixelHeight) cropH = screenCapture.PixelHeight - cropY;
+
+                    if (cropW > 0 && cropH > 0)
+                    {
+                        var destRect = new Rect(0, 0, selectionWidth, selectionHeight);
+                        try
+                        {
+                            drawingContext.DrawImage(new CroppedBitmap(screenCapture, 
+                                new Int32Rect(cropX, cropY, cropW, cropH)), destRect);
+                        }
+                        catch (Exception ex)
+                        {
+                             System.Diagnostics.Debug.WriteLine($"CroppedBitmap Error: {ex.Message}");
+                        }
+                    }
                 }
                 
                 // 그린 요소들 그리기 (선택 영역 기준으로 오프셋 조정)
