@@ -280,7 +280,8 @@ namespace CatchCapture.Recording
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
-                CreateNoWindow = true
+                CreateNoWindow = true,
+                WorkingDirectory = Path.GetTempPath()
             };
             
             _ffmpegProcess = Process.Start(startInfo);
@@ -349,8 +350,8 @@ namespace CatchCapture.Recording
 
         private void StartAudioRecording()
         {
-            string tempFolder = Environment.GetFolderPath(Environment.SpecialFolder.CommonDocuments);
-            if (!Directory.Exists(tempFolder)) tempFolder = Path.GetTempPath();
+            string tempFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture", "temp");
+            if (!Directory.Exists(tempFolder)) Directory.CreateDirectory(tempFolder);
             
             _tempAudioPath = Path.Combine(tempFolder, $"rec_audio_{DateTime.Now:HHmmss}_{Guid.NewGuid().ToString().Substring(0, 8)}.wav");
             
@@ -705,7 +706,8 @@ namespace CatchCapture.Recording
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
-                CreateNoWindow = true
+                CreateNoWindow = true,
+                WorkingDirectory = Path.GetTempPath()
             };
             
             using var process = Process.Start(startInfo);
@@ -778,7 +780,8 @@ namespace CatchCapture.Recording
                     FileName = ffmpegPath,
                     Arguments = $"-y -i \"{videoPath}\" -vf \"fps={fpsStr},scale={scaleStr}:-1:flags=lanczos,palettegen={paletteGenOpt}\" \"{paletteTemp}\"",
                     UseShellExecute = false,
-                    CreateNoWindow = true
+                    CreateNoWindow = true,
+                    WorkingDirectory = Path.GetTempPath()
                 });
                 paletteProcess?.WaitForExit(30000);
                 
@@ -788,7 +791,8 @@ namespace CatchCapture.Recording
                     FileName = ffmpegPath,
                     Arguments = $"-y -i \"{videoPath}\" -i \"{paletteTemp}\" -lavfi \"fps={fpsStr},scale={scaleStr}:-1:flags=lanczos [x]; [x][1:v] paletteuse={paletteUseOpt}\" \"{gifPath}\"",
                     UseShellExecute = false,
-                    CreateNoWindow = true
+                    CreateNoWindow = true,
+                    WorkingDirectory = Path.GetTempPath()
                 });
                 await Task.Run(() => gifProcess?.WaitForExit(60000));
                 
@@ -817,7 +821,8 @@ namespace CatchCapture.Recording
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
-                    CreateNoWindow = true
+                    CreateNoWindow = true,
+                    WorkingDirectory = Path.GetTempPath()
                 };
 
                 using var process = Process.Start(startInfo);
@@ -1223,7 +1228,8 @@ namespace CatchCapture.Recording
                             FileName = ffmpegPath,
                             Arguments = $"-y -i \"{tempMp4Path}\" -vf \"{vf}\" \"{outputPath}\"",
                             UseShellExecute = false,
-                            CreateNoWindow = true
+                            CreateNoWindow = true,
+                            WorkingDirectory = Path.GetTempPath()
                         };
 
                         using (var process = Process.Start(startInfo))
@@ -1349,8 +1355,8 @@ namespace CatchCapture.Recording
             Log($"FFmpeg Path: {ffmpegPath}");
 
             // 임시 폴더 (공용 문서)
-            string tempFolder = Environment.GetFolderPath(Environment.SpecialFolder.CommonDocuments);
-            if (!Directory.Exists(tempFolder)) tempFolder = Path.GetTempPath();
+            string tempFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture", "temp");
+            if (!Directory.Exists(tempFolder)) Directory.CreateDirectory(tempFolder);
 
             string rawDataFileName = $"raw_data_{DateTime.Now:HHmmss}_{Guid.NewGuid().ToString().Substring(0, 8)}.raw";
             string rawDataPath = Path.Combine(tempFolder, rawDataFileName);
@@ -1517,7 +1523,8 @@ namespace CatchCapture.Recording
                         UseShellExecute = false,
                         RedirectStandardOutput = true,
                         RedirectStandardError = true,
-                        CreateNoWindow = true
+                        CreateNoWindow = true,
+                        WorkingDirectory = Path.GetTempPath()
                     };
 
                     Log($"Executing FFmpeg: {startInfo.Arguments}");

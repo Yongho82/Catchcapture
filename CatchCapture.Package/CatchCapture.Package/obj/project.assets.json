@@ -3775,24 +3775,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\USER\\.nuget\\packages\\": {},
+    "C:\\Users\\eyh05\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\yonghoprogram\\CatchCapture\\CatchCapture.Package\\CatchCapture.Package\\CatchCapture.Package.wapproj",
+      "projectUniqueName": "C:\\yonghoprogram\\Catchcapture\\CatchCapture.Package\\CatchCapture.Package\\CatchCapture.Package.wapproj",
       "projectName": "CatchCapture.Package",
-      "projectPath": "C:\\yonghoprogram\\CatchCapture\\CatchCapture.Package\\CatchCapture.Package\\CatchCapture.Package.wapproj",
-      "packagesPath": "C:\\Users\\USER\\.nuget\\packages\\",
-      "outputPath": "C:\\yonghoprogram\\CatchCapture\\CatchCapture.Package\\CatchCapture.Package\\obj\\",
+      "projectPath": "C:\\yonghoprogram\\Catchcapture\\CatchCapture.Package\\CatchCapture.Package\\CatchCapture.Package.wapproj",
+      "packagesPath": "C:\\Users\\eyh05\\.nuget\\packages\\",
+      "outputPath": "C:\\yonghoprogram\\Catchcapture\\CatchCapture.Package\\CatchCapture.Package\\obj\\",
       "projectStyle": "PackageReference",
       "UsingMicrosoftNETSdk": false,
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\USER\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\eyh05\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -3807,14 +3807,15 @@
         "uap10.0.17763": {
           "targetAlias": "net451",
           "projectReferences": {
-            "C:\\yonghoprogram\\CatchCapture\\CatchCapture.csproj": {
-              "projectPath": "C:\\yonghoprogram\\CatchCapture\\CatchCapture.csproj"
+            "C:\\yonghoprogram\\Catchcapture\\CatchCapture.csproj": {
+              "projectPath": "C:\\yonghoprogram\\Catchcapture\\CatchCapture.csproj"
             }
           }
         }
       },
       "warningProperties": {
         "noWarn": [
+          "NU1701",
           "NU1702"
         ]
       },
@@ -3823,7 +3824,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "10.0.100"
+      "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
       "uap10.0.17763": {
@@ -3845,6 +3846,10 @@
           "net472",
           "net48",
           "net481",
+          "net8.0-windows",
+          "net8.0",
+          "netcoreapp3.1",
+          "net461",
           "net10.0-windows10.0.26100",
           "net461"
         ],
@@ -3875,47 +3880,5 @@
         "#import": []
       }
     }
-  },
-  "logs": [
-    {
-      "code": "NU1701",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "프로젝트 대상 프레임워크 'UAP,Version=v10.0.17763' 대신 '.NETCoreApp,Version=v3.1, .NETCoreApp,Version=v3.0, .NETCoreApp,Version=v2.0, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1, net10.0-windows10.0.26100, .NETFramework,Version=v4.6.1'을(를) 사용하여 패키지 'Extended.Wpf.Toolkit 5.0.0'을(를) 복원했습니다. 이 패키지는 프로젝트와 완벽하게 호환되지 않을 수 있습니다.",
-      "libraryId": "Extended.Wpf.Toolkit",
-      "targetGraphs": [
-        "UAP,Version=v10.0.17763"
-      ]
-    },
-    {
-      "code": "NU1701",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "프로젝트 대상 프레임워크 'UAP,Version=v10.0.17763' 대신 '.NETCoreApp,Version=v3.1, .NETCoreApp,Version=v3.0, .NETCoreApp,Version=v2.0, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1, net10.0-windows10.0.26100, .NETFramework,Version=v4.6.1'을(를) 사용하여 패키지 'Microsoft.Xaml.Behaviors.Wpf 1.1.77'을(를) 복원했습니다. 이 패키지는 프로젝트와 완벽하게 호환되지 않을 수 있습니다.",
-      "libraryId": "Microsoft.Xaml.Behaviors.Wpf",
-      "targetGraphs": [
-        "UAP,Version=v10.0.17763"
-      ]
-    },
-    {
-      "code": "NU1701",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "프로젝트 대상 프레임워크 'UAP,Version=v10.0.17763' 대신 '.NETCoreApp,Version=v3.1, .NETCoreApp,Version=v3.0, .NETCoreApp,Version=v2.0, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1, net10.0-windows10.0.26100, .NETFramework,Version=v4.6.1'을(를) 사용하여 패키지 'NAudio 2.2.1'을(를) 복원했습니다. 이 패키지는 프로젝트와 완벽하게 호환되지 않을 수 있습니다.",
-      "libraryId": "NAudio",
-      "targetGraphs": [
-        "UAP,Version=v10.0.17763"
-      ]
-    },
-    {
-      "code": "NU1701",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "프로젝트 대상 프레임워크 'UAP,Version=v10.0.17763' 대신 '.NETCoreApp,Version=v3.1, .NETCoreApp,Version=v3.0, .NETCoreApp,Version=v2.0, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1, net10.0-windows10.0.26100, .NETFramework,Version=v4.6.1'을(를) 사용하여 패키지 'NAudio.WinForms 2.2.1'을(를) 복원했습니다. 이 패키지는 프로젝트와 완벽하게 호환되지 않을 수 있습니다.",
-      "libraryId": "NAudio.WinForms",
-      "targetGraphs": [
-        "UAP,Version=v10.0.17763"
-      ]
-    }
-  ]
+  }
 }

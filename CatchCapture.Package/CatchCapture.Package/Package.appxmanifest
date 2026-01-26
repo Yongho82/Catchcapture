@@ -60,7 +60,6 @@
     <Capability Name="internetClient" />
 
     <uap:Capability Name="picturesLibrary" />
-    <uap:Capability Name="documentsLibrary" />
     <rescap:Capability Name="runFullTrust" />
   </Capabilities>
 

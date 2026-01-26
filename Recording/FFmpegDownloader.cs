@@ -26,18 +26,101 @@ namespace CatchCapture.Recording
         public static string GetFFmpegPath()
         {
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            if (CheckExeInPath(baseDir)) return Path.Combine(baseDir, "ffmpeg.exe");
+            System.Diagnostics.Debug.WriteLine($"[FFmpeg] BaseDirectory: {baseDir}");
             
+            // 1. 실행 파일과 같은 폴더 확인
+            if (CheckExeInPath(baseDir)) 
+            {
+                System.Diagnostics.Debug.WriteLine($"[FFmpeg] Found in BaseDirectory");
+                return Path.Combine(baseDir, "ffmpeg.exe");
+            }
+            
+            // 2. Resources 폴더 확인 (패키징된 경우)
+            string resourcesDir = Path.Combine(baseDir, "Resources");
+            if (CheckExeInPath(resourcesDir)) 
+            {
+                System.Diagnostics.Debug.WriteLine($"[FFmpeg] Found in Resources folder");
+                return Path.Combine(resourcesDir, "ffmpeg.exe");
+            }
+            
+            // 3. CatchCapture 하위 폴더 확인 (MSIX 패키지 구조)
+            string catchCaptureDir = Path.Combine(baseDir, "CatchCapture");
+            if (CheckExeInPath(catchCaptureDir)) 
+            {
+                System.Diagnostics.Debug.WriteLine($"[FFmpeg] Found in CatchCapture subfolder");
+                return Path.Combine(catchCaptureDir, "ffmpeg.exe");
+            }
+            
+            // 4. MSIX 패키지 설치 경로 확인 (Windows.ApplicationModel.Package API)
+            try
+            {
+                var packagePath = Windows.ApplicationModel.Package.Current.InstalledLocation.Path;
+                System.Diagnostics.Debug.WriteLine($"[FFmpeg] Package InstalledLocation: {packagePath}");
+                
+                // 패키지 루트
+                if (CheckExeInPath(packagePath))
+                {
+                    System.Diagnostics.Debug.WriteLine($"[FFmpeg] Found in Package root");
+                    return Path.Combine(packagePath, "ffmpeg.exe");
+                }
+                
+                // 패키지/Resources
+                string pkgResources = Path.Combine(packagePath, "Resources");
+                if (CheckExeInPath(pkgResources))
+                {
+                    System.Diagnostics.Debug.WriteLine($"[FFmpeg] Found in Package/Resources");
+                    return Path.Combine(pkgResources, "ffmpeg.exe");
+                }
+                
+                // 패키지/CatchCapture
+                string pkgCatchCapture = Path.Combine(packagePath, "CatchCapture");
+                if (CheckExeInPath(pkgCatchCapture))
+                {
+                    System.Diagnostics.Debug.WriteLine($"[FFmpeg] Found in Package/CatchCapture");
+                    return Path.Combine(pkgCatchCapture, "ffmpeg.exe");
+                }
+                
+                // 패키지/CatchCapture/Resources (깊은 구조)
+                string pkgCatchCaptureRes = Path.Combine(packagePath, "CatchCapture", "Resources");
+                if (CheckExeInPath(pkgCatchCaptureRes))
+                {
+                    System.Diagnostics.Debug.WriteLine($"[FFmpeg] Found in Package/CatchCapture/Resources");
+                    return Path.Combine(pkgCatchCaptureRes, "ffmpeg.exe");
+                }
+            }
+            catch (Exception ex)
+            {
+                // 패키지가 아닌 일반 실행 환경에서는 이 API가 예외를 던짐
+                System.Diagnostics.Debug.WriteLine($"[FFmpeg] Not running as packaged app: {ex.Message}");
+            }
+            
+            // 5. AppData 폴더 확인 (다운로드된 경우)
             string appDataDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CatchCapture", "ffmpeg");
-            if (CheckExeInPath(appDataDir)) return Path.Combine(appDataDir, "ffmpeg.exe");
+            if (CheckExeInPath(appDataDir)) 
+            {
+                System.Diagnostics.Debug.WriteLine($"[FFmpeg] Found in AppData");
+                return Path.Combine(appDataDir, "ffmpeg.exe");
+            }
             
+            System.Diagnostics.Debug.WriteLine($"[FFmpeg] NOT FOUND anywhere!");
             return string.Empty;
         }
         
         private static bool CheckExeInPath(string path)
         {
-            if (!Directory.Exists(path)) return false;
-            return File.Exists(Path.Combine(path, "ffmpeg.exe"));
+            try
+            {
+                if (string.IsNullOrEmpty(path)) return false;
+                if (!Directory.Exists(path)) return false;
+                bool exists = File.Exists(Path.Combine(path, "ffmpeg.exe"));
+                System.Diagnostics.Debug.WriteLine($"[FFmpeg] Checking {path}: {(exists ? "EXISTS" : "not found")}");
+                return exists;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[FFmpeg] CheckExeInPath error for {path}: {ex.Message}");
+                return false;
+            }
         }
         
         public static bool IsFFmpegInstalled() => !string.IsNullOrEmpty(GetFFmpegPath());

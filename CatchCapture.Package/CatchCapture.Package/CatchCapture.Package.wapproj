@@ -55,14 +55,14 @@
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <DefaultLanguage>ko-KR</DefaultLanguage>
     <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled>
-    <NoWarn>$(NoWarn);NU1702</NoWarn>
+    <NoWarn>$(NoWarn);NU1701;NU1702</NoWarn>
+    <AssetTargetFallback>$(AssetTargetFallback);net8.0-windows;net8.0;netcoreapp3.1;net461</AssetTargetFallback>
     <EntryPointProjectUniqueName>..\..\CatchCapture.csproj</EntryPointProjectUniqueName>
+    <AppxBundlePlatforms>x64</AppxBundlePlatforms>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
-    <GenerateTestArtifacts>False</GenerateTestArtifacts>
-    <AppxBundlePlatforms>x64</AppxBundlePlatforms>
-    <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
+    <GenerateTestArtifacts>True</GenerateTestArtifacts>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -114,7 +114,6 @@
     <Content Include="Images\Wide310x150Logo.scale-200.png" />
     <None Include="Package.StoreAssociation.xml" />
     <Content Include="Resources\ffmpeg.exe" />
-    <Content Include="Resources\windowsdesktop_runtime_8.0.11_win_x64.exe" />
   </ItemGroup>
   <Import Project="$(WapProjPath)\Microsoft.DesktopBridge.targets" />
   <ItemGroup>
