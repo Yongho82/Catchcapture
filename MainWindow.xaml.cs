@@ -4434,7 +4434,7 @@ public partial class MainWindow : Window
     private bool wasInTrayModeBeforeRealTimeCapture = false;
 // --- Low Level Hook for F1 ---
 
-    private const int VK_F1 = 0x70;
+    private const int VK_F1 = 0x74; // [Modified] F1 -> F5 (Value changed to VK_F5)
     private const int VK_ESCAPE = 0x1B;
 
     private LowLevelKeyboardProc? _f1HookProc;
@@ -4458,7 +4458,10 @@ public partial class MainWindow : Window
         this.Hide();
 
         // 안내 메시지 표시
-        var guide = new GuideWindow(LocalizationManager.GetString("RealTimeF1Guide"), null);
+        string guideText = LocalizationManager.GetString("RealTimeF1Guide");
+        // [Modified] 리소스 텍스트에 포함된 "F1"을 "F5"로 변경하여 표시
+        if (!string.IsNullOrEmpty(guideText)) guideText = guideText.Replace("F1", "F5");
+        var guide = new GuideWindow(guideText, null);
         guide.Show();
 
         // 훅 설치

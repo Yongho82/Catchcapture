@@ -62,7 +62,7 @@ namespace CatchCapture.Utilities
         // --- Keyboard Hook ---
         private const int WH_KEYBOARD_LL = 13;
         private const int WM_KEYDOWN = 0x0100;
-        private const int VK_F1 = 0x70;
+        private const int VK_F1 = 0x74; // [Modified] F1 -> F5
         private LowLevelKeyboardProc _proc;
         private IntPtr _hookID = IntPtr.Zero;
 
@@ -257,7 +257,7 @@ namespace CatchCapture.Utilities
             _btnCapture = new Button
             {
                 Content = new TextBlock { 
-                    Text = (ResLoc.GetString("Capture") ?? "캡처") + "(F1)", 
+                    Text = (ResLoc.GetString("Capture") ?? "캡처") + "(F5)",  // [Modified] F1 -> F5 
                     Foreground = Brushes.White, 
                     FontSize = 12, 
                     FontWeight = FontWeights.Bold, 
