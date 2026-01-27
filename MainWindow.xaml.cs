@@ -2832,10 +2832,8 @@ public partial class MainWindow : Window
 
     private void SaveToHistory(CaptureImage captureInfo, BitmapSource image)
     {
-        string logPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "debug_history_log.txt");
         try
         {
-            System.IO.File.AppendAllText(logPath, $"[{DateTime.Now}] SaveToHistory Started. App={captureInfo.SourceApp}, Title={captureInfo.SourceTitle}, Image={image.PixelWidth}x{image.PixelHeight}\n");
 
             var settings = Settings.Load();
             string? fullPath = null;
@@ -2865,7 +2863,6 @@ public partial class MainWindow : Window
 
             if (string.IsNullOrEmpty(fullPath)) 
             {
-                System.IO.File.AppendAllText(logPath, $"[{DateTime.Now}] FullPath is empty. Aborting.\n");
                 return;
             }
 
@@ -2894,7 +2891,7 @@ public partial class MainWindow : Window
                 DatabaseManager.Instance.RemoveLock();
             });
 
-            System.IO.File.AppendAllText(logPath, $"[{DateTime.Now}] DB Insert Success. NewId={newId}\n");
+
 
             // 열려있는 히스토리 창이 있으면 갱신
             Application.Current.Dispatcher.Invoke(() =>
@@ -2941,7 +2938,7 @@ public partial class MainWindow : Window
                 errorMsg = $"{LocalizationManager.GetString("ErrHistorySave") ?? "히스토리 저장 실패"}: {ex.Message}\nStack: {ex.StackTrace}";
             }
             
-            try { System.IO.File.AppendAllText(logPath, $"[{DateTime.Now}] ERROR: {errorMsg}\n원본 오류: {ex.Message}\n"); } catch { }
+
             
             System.Diagnostics.Debug.WriteLine(errorMsg);
 
@@ -3440,9 +3437,63 @@ public partial class MainWindow : Window
             ShareImage(original); 
         };
 
-        // 패널에 버튼 추가 (구글 -> 공유 -> 저장 -> 삭제)
+        // [추가] 링크 만들기 버튼 추가
+        Button linkBtn = CreateHoverButton("extract_text.png", "이미지 링크 만들기 (클라우드 업로드)");
+        linkBtn.Click += async (s, e) =>
+        {
+            e.Handled = true;
+            try
+            {
+                var settings = Models.Settings.Load();
+                var original = await captureImage.GetOriginalImageAsync();
+                
+                // 업로드 시작 알림
+                CatchCapture.Utilities.StickerWindow.Show("업로드 시작...");
+
+                string tempPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"manual_upload_{Guid.NewGuid()}.png");
+                
+                // 이미지 저장
+                using (var fileStream = new System.IO.FileStream(tempPath, System.IO.FileMode.Create))
+                {
+                    PngBitmapEncoder encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(original));
+                    encoder.Save(fileStream);
+                }
+
+                string? url = null;
+                if (settings.CloudProvider == "GoogleDrive")
+                {
+                    url = await GoogleDriveUploadProvider.Instance.UploadImageAsync(tempPath);
+                }
+                else if (settings.CloudProvider == "ImgBB")
+                {
+                    url = await ImgBBUploadProvider.Instance.UploadImageAsync(tempPath, settings.ImgBBApiKey);
+                }
+                else if (settings.CloudProvider == "Dropbox")
+                {
+                    url = await DropboxUploadProvider.Instance.UploadImageAsync(tempPath);
+                }
+
+                if (!string.IsNullOrEmpty(url))
+                {
+                    System.Windows.Clipboard.SetText(url);
+                    // 링크 주소를 함께 표시 (너무 길 경우 앞부분만 표시하거나 그대로 표시)
+                    string displayUrl = url.Length > 40 ? url.Substring(0, 37) + "..." : url;
+                    CatchCapture.Utilities.StickerWindow.Show($"링크 복사됨: {displayUrl}");
+                }
+
+                if (System.IO.File.Exists(tempPath)) System.IO.File.Delete(tempPath);
+            }
+            catch (Exception ex)
+            {
+                CatchCapture.CustomMessageBox.Show($"업로드 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        };
+
+        // 패널에 버튼 추가 (구글 -> 공유 -> 링크 -> 저장 -> 삭제)
         buttonPanel.Children.Add(googleBtn);
         buttonPanel.Children.Add(shareBtn);
+        buttonPanel.Children.Add(linkBtn);
         buttonPanel.Children.Add(saveBtn);
         buttonPanel.Children.Add(deleteBtn);
         grid.Children.Add(buttonPanel);

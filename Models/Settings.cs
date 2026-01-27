@@ -48,6 +48,16 @@ namespace CatchCapture.Models
         public double EdgeShadowOpacity { get; set; } = 0.4;
         public string EdgeLineColor { get; set; } = "#FF0000"; // [추가] 엣지 라인 색상
         public int EdgeCapturePresetLevel { get; set; } = 3; // [추가] 엣지 프리셋 레벨 (1~5)
+
+        // [추가] Cloud Upload Settings
+
+        public string CloudProvider { get; set; } = "GoogleDrive"; // "GoogleDrive", "ImgBB", "Dropbox"
+        public string ImgBBApiKey { get; set; } = ""; // [추가] 사용자의 ImgBB API 키
+        public string DropboxAccessToken { get; set; } = ""; // [추가] Dropbox Access Token
+        public string DropboxRefreshToken { get; set; } = ""; // [추가] Dropbox Refresh Token
+
+
+
         
         // Recording Settings
         public RecordingSettings Recording { get; set; } = new RecordingSettings();
