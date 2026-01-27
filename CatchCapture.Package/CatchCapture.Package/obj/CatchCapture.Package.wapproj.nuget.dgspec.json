@@ -10,14 +10,14 @@
         "projectUniqueName": "C:\\yonghoprogram\\Catchcapture\\CatchCapture.csproj",
         "projectName": "com.ezupsoft.catchcapture",
         "projectPath": "C:\\yonghoprogram\\Catchcapture\\CatchCapture.csproj",
-        "packagesPath": "C:\\Users\\eyh05\\.nuget\\packages\\",
+        "packagesPath": "C:\\Users\\엄용호\\.nuget\\packages\\",
         "outputPath": "C:\\yonghoprogram\\Catchcapture\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\eyh05\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\엄용호\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -44,7 +44,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net8.0-windows10.0.19041": {
@@ -53,6 +53,14 @@
             "Extended.Wpf.Toolkit": {
               "target": "Package",
               "version": "[5.0.0, )"
+            },
+            "Google.Apis.Auth": {
+              "target": "Package",
+              "version": "[1.73.0, )"
+            },
+            "Google.Apis.Drive.v3": {
+              "target": "Package",
+              "version": "[1.73.0.3996, )"
             },
             "Microsoft.Data.Sqlite": {
               "target": "Package",
@@ -65,10 +73,6 @@
             "NAudio": {
               "target": "Package",
               "version": "[2.2.1, )"
-            },
-            "Newtonsoft.Json": {
-              "target": "Package",
-              "version": "[13.0.3, )"
             },
             "SixLabors.ImageSharp": {
               "target": "Package",
@@ -110,7 +114,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.308/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.201/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
@@ -120,7 +124,7 @@
         "projectUniqueName": "C:\\yonghoprogram\\Catchcapture\\CatchCapture.Package\\CatchCapture.Package\\CatchCapture.Package.wapproj",
         "projectName": "CatchCapture.Package",
         "projectPath": "C:\\yonghoprogram\\Catchcapture\\CatchCapture.Package\\CatchCapture.Package\\CatchCapture.Package.wapproj",
-        "packagesPath": "C:\\Users\\eyh05\\.nuget\\packages\\",
+        "packagesPath": "C:\\Users\\엄용호\\.nuget\\packages\\",
         "outputPath": "C:\\yonghoprogram\\Catchcapture\\CatchCapture.Package\\CatchCapture.Package\\obj\\",
         "projectStyle": "PackageReference",
         "UsingMicrosoftNETSdk": false,
@@ -128,7 +132,7 @@
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\eyh05\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\엄용호\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -160,7 +164,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "uap10.0.17763": {
@@ -186,7 +190,7 @@
             "net8.0",
             "netcoreapp3.1",
             "net461",
-            "net10.0-windows10.0.26100",
+            "net9.0-windows10.0.26100",
             "net461"
           ],
           "assetTargetFallback": true,
