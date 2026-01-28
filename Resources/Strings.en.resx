@@ -228,6 +228,7 @@
   <data name="FlipVertical" xml:space="preserve"><value>Flip V</value></data>
   <data name="ImageSearch" xml:space="preserve"><value>Img Search</value></data>
   <data name="Share" xml:space="preserve"><value>Share</value></data>
+  <data name="CreateImageLink" xml:space="preserve"><value>Create Image Link</value></data>
   <data name="Extract" xml:space="preserve"><value>Extract</value></data>
   <data name="ToolOptions" xml:space="preserve"><value>Tool Options</value></data>
   <data name="RecentCaptures" xml:space="preserve"><value>Recent Captures</value></data>

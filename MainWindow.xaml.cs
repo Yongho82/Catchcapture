@@ -3393,7 +3393,7 @@ public partial class MainWindow : Window
         }
 
         // 저장 버튼 추가
-        Button saveBtn = CreateHoverButton("save_selected.png", LocalizationManager.GetString("Save"));
+        Button saveBtn = CreateHoverButton("save_selected.png", LocalizationManager.GetString("ImageSaveTitle"));
         saveBtn.Click += (s, e) => { e.Handled = true; SaveImageToFile(captureImage); };
 
         // 삭제 버튼 추가
@@ -3430,7 +3430,7 @@ public partial class MainWindow : Window
         };
 
         // 공유 버튼 추가
-        Button shareBtn = CreateHoverButton("share_img.png", LocalizationManager.GetString("Share"));
+        Button shareBtn = CreateHoverButton("share_img.png", LocalizationManager.GetString("ShareImageTitle"));
         shareBtn.Click += async (s, e) => { 
             e.Handled = true; 
             var original = await captureImage.GetOriginalImageAsync();
@@ -3438,7 +3438,7 @@ public partial class MainWindow : Window
         };
 
         // [추가] 링크 만들기 버튼 추가
-        Button linkBtn = CreateHoverButton("img_link.png", "이미지 링크 만들기 (클라우드 업로드)");
+        Button linkBtn = CreateHoverButton("img_link.png", LocalizationManager.GetString("CreateImageLink"));
         linkBtn.Click += async (s, e) =>
         {
             e.Handled = true;

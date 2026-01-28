@@ -230,6 +230,7 @@
   <data name="FlipVertical" xml:space="preserve"><value>상하반전</value></data>
   <data name="ImageSearch" xml:space="preserve"><value>IMG 검색</value></data>
   <data name="Share" xml:space="preserve"><value>공유</value></data>
+  <data name="CreateImageLink" xml:space="preserve"><value>이미지 링크 만들기</value></data>
   <data name="Extract" xml:space="preserve"><value>추출</value></data>
   <data name="ToolOptions" xml:space="preserve"><value>도구 옵션</value></data>
   <data name="RecentCaptures" xml:space="preserve"><value>최근 캡처 목록</value></data>
