@@ -1671,7 +1671,9 @@ namespace CatchCapture.Controls
         private List<System.Windows.Controls.Image> GetAllImageControls()
         {
             var imageControls = new List<System.Windows.Controls.Image>();
-            foreach (var block in RtbEditor.Document.Blocks)
+            // [Fix] Use GetAllBlocks for recursive traversal (fixes issue where images in Section/List were not found)
+            var allBlocks = GetAllBlocks(RtbEditor.Document).ToList();
+            foreach (var block in allBlocks)
             {
                 if (block is BlockUIContainer container)
                 {

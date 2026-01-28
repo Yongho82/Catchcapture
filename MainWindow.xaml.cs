@@ -4042,8 +4042,8 @@ public partial class MainWindow : Window
             var image = captureImage.GetOriginalImage();
             if (image != null)
             {
-                // 비밀번호 잠금 확인
-                if (!string.IsNullOrEmpty(settings.NotePassword) && !App.IsNoteAuthenticated)
+                // 비밀번호 잠금 확인 (IsNoteLockEnabled가 활성화된 경우에만)
+                if (settings.IsNoteLockEnabled && !string.IsNullOrEmpty(settings.NotePassword) && !App.IsNoteAuthenticated)
                 {
                     var lockWin = new NoteLockCheckWindow(settings.NotePassword, settings.NotePasswordHint);
                     lockWin.Owner = this;
