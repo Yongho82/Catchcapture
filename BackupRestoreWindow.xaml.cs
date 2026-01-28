@@ -164,6 +164,13 @@ namespace CatchCapture
 
         private async void BtnCreateManualBackup_Click(object sender, RoutedEventArgs e)
         {
+            // Show guide message about missing images
+            string guideMsg = LocalizationManager.GetString("DbBackupExcludeImages");
+            if (MessageBox.Show(guideMsg, LocalizationManager.GetString("Info"), MessageBoxButton.OKCancel, MessageBoxImage.Information) != MessageBoxResult.OK)
+            {
+                return;
+            }
+
             try
             {
                 BtnCreateManualBackup.IsEnabled = false;
