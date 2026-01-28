@@ -12,6 +12,7 @@ using CatchCapture.Models;
 using Newtonsoft.Json.Linq;
 using System.Security.Cryptography;
 using System.Threading;
+using LocalizationManager = CatchCapture.Resources.LocalizationManager;
 
 namespace CatchCapture.Utilities
 {
@@ -179,11 +180,18 @@ namespace CatchCapture.Utilities
 
         private string GetSuccessHtml(string iconBase64)
         {
+            string title = LocalizationManager.GetString("AuthCompletedTitle");
+            string header = LocalizationManager.GetString("AuthCompletedHeader");
+            string desc = LocalizationManager.GetString("AuthCompletedDesc");
+            string note = LocalizationManager.GetString("DropboxAuthNote");
+            string status = LocalizationManager.GetString("AuthStatusChecking");
+            string fallback = LocalizationManager.GetString("AuthFallbackText");
+
             return $@"
 <html>
 <head>
     <meta charset='utf-8'>
-    <title>CatchCapture - 인증 완료</title>
+    <title>{title}</title>
     <style>
         body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background-color: #f5f7fa; color: #333; }}
         .container {{ text-align: center; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); max-width: 400px; width: 90%; }}
@@ -199,20 +207,19 @@ namespace CatchCapture.Utilities
     <div class='container'>
         <img src='data:image/png;base64,{iconBase64}' class='icon' alt='Logo'>
         <div style='font-size: 48px; margin-bottom: 10px;'>🔑</div>
-        <h2>인증 절차가 종료되었습니다</h2>
-        <p><strong>CatchCapture 앱</strong>으로 돌아가서<br>최종 연결 결과를 확인해주세요.</p>
+        <h2>{header}</h2>
+        <p>{desc}</p>
         
         <div style='background: #e8f0fe; border: 1px solid #d2e3fc; color: #1967d2; padding: 15px; border-radius: 10px; margin-top: 20px; font-size: 13px; text-align: left;'>
-            <strong>ℹ️ 안내:</strong><br>
-            브라우저 인증이 완료되었습니다. 이제 앱에서 토큰을 확인하고 연결을 마무리합니다. 결과는 앱의 설정 창에서 확인하실 수 있습니다.
+            {note}
         </div>
 
         <div id='status' style='margin-top: 25px;'>
             <div class='loader'></div>
-            <span style='font-size: 12px; color: #999;'>인증 결과를 확인 중입니다...</span>
+            <span style='font-size: 12px; color: #999;'>{status}</span>
         </div>
         <p id='fallback' style='display:none; font-size: 12px; color: #e74c3c; margin-top: 15px;'>
-            결과 확인 후 이 창을 직접 닫아주세요.
+            {fallback}
         </p>
     </div>
     <script>
@@ -316,7 +323,7 @@ namespace CatchCapture.Utilities
             {
                 if (!await RefreshTokenAsync())
                 {
-                    if (!await LoginAsync()) throw new Exception("Dropbox 로그인이 필요합니다.");
+                    if (!await LoginAsync()) throw new Exception(LocalizationManager.GetString("DropboxLoginRequired"));
                 }
             }
 
@@ -385,7 +392,7 @@ namespace CatchCapture.Utilities
                 return await GetExistingLinkAsync(dropboxPath);
             }
 
-            throw new Exception("공유 링크를 생성하지 못했습니다.");
+            throw new Exception(LocalizationManager.GetString("CreateSharedLinkFailed"));
         }
 
         private async Task<string> GetExistingLinkAsync(string dropboxPath)
@@ -411,7 +418,7 @@ namespace CatchCapture.Utilities
                     if (!string.IsNullOrEmpty(url)) return url.Replace("?dl=0", "?raw=1");
                 }
             }
-            throw new Exception("기존 링크를 가져오지 못했습니다.");
+            throw new Exception(LocalizationManager.GetString("GetExistingLinkFailed"));
         }
 
         // PKCE 헬퍼 함수들

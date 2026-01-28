@@ -123,6 +123,9 @@ namespace CatchCapture
                 UpdateAvailableMenus();
             }
             catch { }
+            
+            // 링크 설정 페이지 텍스트 갱신
+            UpdateLinkSettingsLocalizing();
         }
 
 private void UpdateUIText()
@@ -152,10 +155,8 @@ private void UpdateUIText()
                 if (RestoreDefaultsText != null) RestoreDefaultsText.Text = LocalizationManager.GetString("RestoreDefaults");
                 if (PrivacyPolicyText != null) PrivacyPolicyText.Text = LocalizationManager.GetString("PrivacyPolicy");
 
-                // Cloud Settings
-                if (NavCloud != null) NavCloud.Content = "이미지 링크 설정";
-                if (CloudSectionTitle != null) CloudSectionTitle.Text = "이미지 링크 설정";
-                if (CloudUploadGroup != null) CloudUploadGroup.Header = "업로드 설정 (Upload Settings)";
+                // Link Settings
+                UpdateLinkSettingsLocalizing();
 
                 
                 // 캡처 페이지
@@ -503,6 +504,33 @@ private void UpdateUIText()
             }
         }
 
+        private void UpdateLinkSettingsLocalizing()
+        {
+            if (PageCloud == null) return;
+
+            if (CloudSectionTitle != null) CloudSectionTitle.Text = LocalizationManager.GetString("LinkSettings");
+            if (CloudUploadGroup != null) CloudUploadGroup.Header = LocalizationManager.GetString("CloudUploadSettings");
+            
+            if (RbCloudGDrive != null) RbCloudGDrive.Content = LocalizationManager.GetString("GoogleDriveRecommended");
+            if (TxtGDriveDesc != null) TxtGDriveDesc.Text = LocalizationManager.GetString("GoogleDriveDesc");
+            
+            if (RbCloudImgBB != null) RbCloudImgBB.Content = LocalizationManager.GetString("ImgBBPersonal");
+            if (TxtImgBBDesc != null) TxtImgBBDesc.Text = LocalizationManager.GetString("ImgBBDesc");
+            if (TxtApiKeyLabel != null) TxtApiKeyLabel.Text = LocalizationManager.GetString("ApiKey");
+            if (BtnGetImgBBKey != null) BtnGetImgBBKey.Content = LocalizationManager.GetString("GetApiKey");
+            
+            if (RbCloudDropbox != null) RbCloudDropbox.Content = "Dropbox";
+            if (TxtDropboxDesc != null) TxtDropboxDesc.Text = LocalizationManager.GetString("DropboxDesc");
+            
+            if (TxtCloudHelp != null) TxtCloudHelp.Text = LocalizationManager.GetString("CloudHelpWhatIsIt");
+
+            // 상태 텍스트 갱신은 별도 메서드에서 비동기로 수행되므로 여기서는 호출만 하거나
+            // 즉시 갱신 가능한 부분만 처리
+            _ = UpdateCloudConnectionStatusAsync();
+        }
+
+
+
         private void InitKeyComboBoxes()
         {
             var keys = new System.Collections.Generic.List<string>();
@@ -726,6 +754,7 @@ private void InitLanguageComboBox()
 
         private void LoadCloudPage()
         {
+            UpdateLinkSettingsLocalizing();
             // 설정값 반영
             TxtImgBBApiKey.Text = _settings.ImgBBApiKey;
 
@@ -755,9 +784,9 @@ private void InitLanguageComboBox()
 
             if (GoogleDriveUploadProvider.Instance.IsConnected)
             {
-                TxtGDriveStatus.Text = $"(연결됨: {GoogleDriveUploadProvider.Instance.UserEmail})";
+                TxtGDriveStatus.Text = string.Format(LocalizationManager.GetString("ConnectedWithEmail"), GoogleDriveUploadProvider.Instance.UserEmail);
                 TxtGDriveStatus.Foreground = new SolidColorBrush(Colors.Green);
-                BtnGDriveLogin.Content = "연결 해제"; 
+                BtnGDriveLogin.Content = LocalizationManager.GetString("GoogleLogout"); 
                 RbCloudGDrive.IsEnabled = true;
                 
                 // 만약 현재 설정이 GoogleDrive라면 체크 상태 보장
@@ -768,9 +797,9 @@ private void InitLanguageComboBox()
             }
             else
             {
-                TxtGDriveStatus.Text = "(연결되지 않음)";
+                TxtGDriveStatus.Text = LocalizationManager.GetString("CloudNotConnected");
                 TxtGDriveStatus.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF6B6B"));
-                BtnGDriveLogin.Content = "Google 로그인";
+                BtnGDriveLogin.Content = LocalizationManager.GetString("GoogleLogin");
                 RbCloudGDrive.IsEnabled = true; // 항상 활성화하여 선택 가능하게 함
             }
 
@@ -786,22 +815,22 @@ private void InitLanguageComboBox()
 
                 if (!string.IsNullOrEmpty(accountName))
                 {
-                    TxtDropboxStatus.Text = $"(연결됨: {accountName}님)";
+                    TxtDropboxStatus.Text = string.Format(LocalizationManager.GetString("ConnectedWithName"), accountName);
                     TxtDropboxStatus.Foreground = System.Windows.Media.Brushes.Green;
                 }
                 else
                 {
-                    TxtDropboxStatus.Text = "(연결됨)";
+                    TxtDropboxStatus.Text = LocalizationManager.GetString("CloudConnected");
                     TxtDropboxStatus.Foreground = System.Windows.Media.Brushes.Green;
                 }
-                BtnDropboxLogin.Content = "연결 해제";
+                BtnDropboxLogin.Content = LocalizationManager.GetString("GoogleLogout");
                 RbCloudDropbox.IsEnabled = true;
             }
             else
             {
-                TxtDropboxStatus.Text = "(연결되지 않음)";
+                TxtDropboxStatus.Text = LocalizationManager.GetString("CloudNotConnected");
                 TxtDropboxStatus.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0xFF, 0x6B, 0x6B));
-                BtnDropboxLogin.Content = "Dropbox 연결";
+                BtnDropboxLogin.Content = LocalizationManager.GetString("DropboxLogin");
                 RbCloudDropbox.IsEnabled = true; // 항상 활성화하여 선택 가능하게 함
             }
         }
@@ -825,7 +854,7 @@ private void InitLanguageComboBox()
             try
             {
                 BtnDropboxLogin.IsEnabled = false;
-                BtnDropboxLogin.Content = "로그인 중...";
+                BtnDropboxLogin.Content = LocalizationManager.GetString("LoggingIn");
 
                 bool success = await DropboxUploadProvider.Instance.LoginAsync();
                 if (success)
@@ -842,7 +871,7 @@ private void InitLanguageComboBox()
                 }
                 else
                 {
-                    CatchCapture.CustomMessageBox.Show("Dropbox 연결에 실패했습니다.\n(창이 닫혔거나 타임아웃 되었습니다)", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("DropboxConnectFailed"), LocalizationManager.GetString("Info"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
             catch (Exception ex)
@@ -853,9 +882,9 @@ private void InitLanguageComboBox()
             {
                 BtnDropboxLogin.IsEnabled = true;
                 if (DropboxUploadProvider.Instance.IsConnected)
-                    BtnDropboxLogin.Content = "연결 해제";
+                    BtnDropboxLogin.Content = LocalizationManager.GetString("GoogleLogout");
                 else
-                    BtnDropboxLogin.Content = "Dropbox 연결";
+                    BtnDropboxLogin.Content = LocalizationManager.GetString("DropboxLogin");
             }
         }
 
@@ -890,7 +919,7 @@ private void InitLanguageComboBox()
             if (GoogleDriveUploadProvider.Instance.IsConnected)
             {
                 // 이미 연결된 경우 -> 연결 해제 (로그아웃)
-                if (CatchCapture.CustomMessageBox.Show("Google Drive 연결을 해제하시겠습니까?", "연결 해제", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                if (CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("DisconnectConfirm"), LocalizationManager.GetString("DisconnectTitle"), MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                 {
                     await GoogleDriveUploadProvider.Instance.LogoutAsync();
                     await UpdateCloudConnectionStatusAsync();
@@ -901,13 +930,13 @@ private void InitLanguageComboBox()
             try
             {
                 BtnGDriveLogin.IsEnabled = false;
-                BtnGDriveLogin.Content = "로그인 중...";
+                BtnGDriveLogin.Content = LocalizationManager.GetString("LoggingIn");
                 
                 bool result = await GoogleDriveUploadProvider.Instance.LoginAsync();
                 
                 if (result)
                 {
-                    CatchCapture.CustomMessageBox.Show("Google Drive 연결에 성공했습니다!", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
+                    CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("LoginSuccess"), LocalizationManager.GetString("Success"), MessageBoxButton.OK, MessageBoxImage.Information);
                     await UpdateCloudConnectionStatusAsync();
                     
                     // 연결 성공 시 자동으로 GDrive 선택하고 저장
@@ -917,7 +946,7 @@ private void InitLanguageComboBox()
                 }
                 else
                 {
-                     CatchCapture.CustomMessageBox.Show("로그인에 실패하였습니다.", "실패", MessageBoxButton.OK, MessageBoxImage.Error);
+                     CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("LoginFailed"), LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             catch (Exception ex)
@@ -939,9 +968,9 @@ private void InitLanguageComboBox()
             {
                 BtnGDriveLogin.IsEnabled = true;
                 if (GoogleDriveUploadProvider.Instance.IsConnected)
-                    BtnGDriveLogin.Content = "연결 해제";
+                    BtnGDriveLogin.Content = LocalizationManager.GetString("GoogleLogout");
                 else
-                    BtnGDriveLogin.Content = "Google 로그인";
+                    BtnGDriveLogin.Content = LocalizationManager.GetString("GoogleLogin");
             }
         }
 

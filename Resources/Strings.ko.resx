@@ -966,4 +966,48 @@
   <data name="DeleteConfirmation" xml:space="preserve"><value>삭제 확인</value></data>
   <data name="DeleteCompletedTitle" xml:space="preserve"><value>삭제 완료</value></data>
   <data name="DeleteError" xml:space="preserve"><value>삭제 중 오류 발생</value></data>
+  <data name="LoggingIn" xml:space="preserve"><value>로그인 중...</value></data>
+  <data name="Notification" xml:space="preserve"><value>알림</value></data>
+  <data name="AuthCompletedTitle" xml:space="preserve"><value>CatchCapture - 인증 완료</value></data>
+  <data name="AuthCompletedHeader" xml:space="preserve"><value>인증 절차가 종료되었습니다</value></data>
+  <data name="AuthCompletedDesc" xml:space="preserve"><value>CatchCapture 앱으로 돌아가서 최종 연결 결과를 확인해주세요.</value></data>
+  <data name="AuthStatusAnalyzing" xml:space="preserve"><value>인증 결과를 분석 중입니다...</value></data>
+  <data name="AuthStatusChecking" xml:space="preserve"><value>인증 결과를 확인 중입니다...</value></data>
+  <data name="AuthFallbackText" xml:space="preserve"><value>결과 확인 후 이 창을 직접 닫아주세요.</value></data>
+  <data name="GoogleDriveAuthNote" xml:space="preserve"><value>중요: 로그인 단계에서 '앱에서 사용하는 특정 Google Drive 파일...' 항목을 체크하지 않으셨다면 연결에 실패하며, 앱에서 실패 안내가 표시됩니다.</value></data>
+  <data name="DropboxAuthNote" xml:space="preserve"><value>안내: 브라우저 인증이 완료되었습니다. 이제 앱에서 토큰을 확인하고 연결을 마무리합니다.</value></data>
+  <data name="GoogleDriveLoginRequired" xml:space="preserve"><value>Google Drive 로그인이 필요합니다.</value></data>
+  <data name="DropboxLoginRequired" xml:space="preserve"><value>Dropbox 로그인이 필요합니다.</value></data>
+  <data name="CreateSharedLinkFailed" xml:space="preserve"><value>공유 링크를 생성하지 못했습니다.</value></data>
+  <data name="GetExistingLinkFailed" xml:space="preserve"><value>기존 링크를 가져오지 못했습니다.</value></data>
+  <data name="LinkSettings" xml:space="preserve"><value>링크설정</value></data>
+  <data name="CloudUploadSettings" xml:space="preserve"><value>업로드 설정</value></data>
+  <data name="GoogleDriveRecommended" xml:space="preserve"><value>Google Drive (추천)</value></data>
+  <data name="CloudNotConnected" xml:space="preserve"><value>(연결되지 않음)</value></data>
+  <data name="CloudConnected" xml:space="preserve"><value>(연결됨)</value></data>
+  <data name="GoogleLogin" xml:space="preserve"><value>Google 로그인</value></data>
+  <data name="GoogleLogout" xml:space="preserve"><value>연결 해제</value></data>
+  <data name="GoogleDriveDesc" xml:space="preserve"><value>내 구글 드라이브(CatchCapture 폴더)에 저장됩니다.</value></data>
+  <data name="ImgBBPersonal" xml:space="preserve"><value>ImgBB - 개인 계정 업로드</value></data>
+  <data name="ImgBBDesc" xml:space="preserve"><value>가장 간편하고 안정적인 무료 서비스입니다. API 키가 필요합니다.</value></data>
+  <data name="ApiKey" xml:space="preserve"><value>API Key:</value></data>
+  <data name="GetApiKey" xml:space="preserve"><value>키 발급받기</value></data>
+  <data name="DropboxDesc" xml:space="preserve"><value>드롭박스 계정에 업로드하고 공유 링크를 생성합니다.</value></data>
+  <data name="DropboxLogin" xml:space="preserve"><value>Dropbox 연결</value></data>
+  <data name="CloudHelpWhatIsIt" xml:space="preserve"><value>❓ 도움말: 클라우드 연동이 무엇인가요?</value></data>
+  <data name="CloudHelpGuide" xml:space="preserve"><value>클라우드 연동/링크 생성 안내</value></data>
+  <data name="CloudHelpQ1" xml:space="preserve"><value>Q. 이미지 링크 생성이란?</value></data>
+  <data name="CloudHelpA1" xml:space="preserve"><value>캡처한 이미지를 서버에 업로드하여 친구들에게 바로 공유할 수 있는 URL을 만드는 기능입니다.</value></data>
+  <data name="CloudHelpQ2" xml:space="preserve"><value>Q. ImgBB (API 키 연동)</value></data>
+  <data name="CloudHelpA2" xml:space="preserve"><value>API 키를 입력하여 연동하는 해외 유명 이미지 호스팅 서비스입니다. 이미지 관리 및 안정성이 뛰어납니다.</value></data>
+  <data name="CloudHelpQ3" xml:space="preserve"><value>Q. 계정 연동 (Google / Dropbox)</value></data>
+  <data name="CloudHelpA3" xml:space="preserve"><value>본인의 구글 또는 드롭박스 계정을 연결하여 사용합니다. 본인 저장소를 사용하므로 용량 제한이 적고 이미지가 영구 보존됩니다.</value></data>
+  <data name="ConnectedWithEmail" xml:space="preserve"><value>(연결됨: {0})</value></data>
+  <data name="ConnectedWithName" xml:space="preserve"><value>(연결됨: {0}님)</value></data>
+  <data name="DisconnectConfirm" xml:space="preserve"><value>Google Drive 연결을 해제하시겠습니까?</value></data>
+  <data name="DisconnectTitle" xml:space="preserve"><value>연결 해제</value></data>
+  <data name="LoginSuccess" xml:space="preserve"><value>Google Drive 연결에 성공했습니다!</value></data>
+  <data name="LoginFailed" xml:space="preserve"><value>로그인에 실패하였습니다.</value></data>
+  <data name="DropboxConnectFailed" xml:space="preserve"><value>Dropbox 연결에 실패했습니다.\n(창이 닫혔거나 타임아웃 되었습니다)</value></data>
+  <data name="ScopeMissingError" xml:space="preserve"><value>구글 드라이브 접근 권한이 허용되지 않았습니다.\n\n로그인 창 중간의 '앱에서 사용하는 특정 Google Drive 파일...' 항목을 반드시 체크해주셔야 연결이 가능합니다.</value></data>
 </root>

@@ -228,7 +228,6 @@
   <data name="FlipVertical" xml:space="preserve"><value>Flip V</value></data>
   <data name="ImageSearch" xml:space="preserve"><value>Img Search</value></data>
   <data name="Share" xml:space="preserve"><value>Share</value></data>
-  <data name="CreateImageLink" xml:space="preserve"><value>Create Image Link</value></data>
   <data name="Extract" xml:space="preserve"><value>Extract</value></data>
   <data name="ToolOptions" xml:space="preserve"><value>Tool Options</value></data>
   <data name="RecentCaptures" xml:space="preserve"><value>Recent Captures</value></data>
@@ -954,4 +953,49 @@ Are you sure you want to permanently delete all items?</value>
   <data name="DeleteConfirmation" xml:space="preserve"><value>Confirm Delete</value></data>
   <data name="DeleteCompletedTitle" xml:space="preserve"><value>Delete Completed</value></data>
   <data name="DeleteError" xml:space="preserve"><value>Error during delete</value></data>
+  <data name="LoggingIn" xml:space="preserve"><value>Logging in...</value></data>
+  <data name="Notification" xml:space="preserve"><value>Notification</value></data>
+  <data name="AuthCompletedTitle" xml:space="preserve"><value>CatchCapture - Authentication Completed</value></data>
+  <data name="AuthCompletedHeader" xml:space="preserve"><value>Authentication process has ended</value></data>
+  <data name="AuthCompletedDesc" xml:space="preserve"><value>Please return to the CatchCapture app to check the final connection result.</value></data>
+  <data name="AuthStatusAnalyzing" xml:space="preserve"><value>Analyzing authentication results...</value></data>
+  <data name="AuthStatusChecking" xml:space="preserve"><value>Checking authentication results...</value></data>
+  <data name="AuthFallbackText" xml:space="preserve"><value>Please close this window manually after checking the results.</value></data>
+  <data name="GoogleDriveAuthNote" xml:space="preserve"><value>Important: If you did not check the 'specific Google Drive files' box during login, the connection will fail and an error message will be displayed in the app.</value></data>
+  <data name="DropboxAuthNote" xml:space="preserve"><value>Notice: Browser authentication completed. The app will now verify the token and finalize the connection.</value></data>
+  <data name="GoogleDriveLoginRequired" xml:space="preserve"><value>Google Drive login is required.</value></data>
+  <data name="DropboxLoginRequired" xml:space="preserve"><value>Dropbox login is required.</value></data>
+  <data name="CreateSharedLinkFailed" xml:space="preserve"><value>Failed to create shared link.</value></data>
+  <data name="GetExistingLinkFailed" xml:space="preserve"><value>Failed to get existing link.</value></data>
+  <data name="CreateImageLink" xml:space="preserve"><value>Create Image Link</value></data>
+  <data name="LinkSettings" xml:space="preserve"><value>Link Settings</value></data>
+  <data name="CloudUploadSettings" xml:space="preserve"><value>Upload Settings</value></data>
+  <data name="GoogleDriveRecommended" xml:space="preserve"><value>Google Drive (Recommended)</value></data>
+  <data name="CloudNotConnected" xml:space="preserve"><value>(Not Connected)</value></data>
+  <data name="CloudConnected" xml:space="preserve"><value>(Connected)</value></data>
+  <data name="GoogleLogin" xml:space="preserve"><value>Google Login</value></data>
+  <data name="GoogleLogout" xml:space="preserve"><value>Disconnect</value></data>
+  <data name="GoogleDriveDesc" xml:space="preserve"><value>Images will be saved to your Google Drive CatchCapture folder.</value></data>
+  <data name="ImgBBPersonal" xml:space="preserve"><value>ImgBB - Personal Account</value></data>
+  <data name="ImgBBDesc" xml:space="preserve"><value>Easiest and most stable free service. API Key required.</value></data>
+  <data name="ApiKey" xml:space="preserve"><value>API Key:</value></data>
+  <data name="GetApiKey" xml:space="preserve"><value>Get API Key</value></data>
+  <data name="DropboxDesc" xml:space="preserve"><value>Upload to Dropbox and create shareable links.</value></data>
+  <data name="DropboxLogin" xml:space="preserve"><value>Connect Dropbox</value></data>
+  <data name="CloudHelpWhatIsIt" xml:space="preserve"><value>❓ Help: What is cloud integration?</value></data>
+  <data name="CloudHelpGuide" xml:space="preserve"><value>Cloud Integration / Link Creation Guide</value></data>
+  <data name="CloudHelpQ1" xml:space="preserve"><value>Q. What is Image Link creation?</value></data>
+  <data name="CloudHelpA1" xml:space="preserve"><value>It is a feature that uploads captured images to a server and creates a URL for instant sharing.</value></data>
+  <data name="CloudHelpQ2" xml:space="preserve"><value>Q. ImgBB (API Key)</value></data>
+  <data name="CloudHelpA2" xml:space="preserve"><value>A popular image hosting service. Excellent for image management and stability using your own API key.</value></data>
+  <data name="CloudHelpQ3" xml:space="preserve"><value>Q. Account integration (Google / Dropbox)</value></data>
+  <data name="CloudHelpA3" xml:space="preserve"><value>Connect your Google or Dropbox account. It uses your own storage, offering more space and permanent preservation.</value></data>
+  <data name="ConnectedWithEmail" xml:space="preserve"><value>(Connected: {0})</value></data>
+  <data name="ConnectedWithName" xml:space="preserve"><value>(Connected: {0})</value></data>
+  <data name="DisconnectConfirm" xml:space="preserve"><value>Are you sure you want to disconnect Google Drive?</value></data>
+  <data name="DisconnectTitle" xml:space="preserve"><value>Disconnect</value></data>
+  <data name="LoginSuccess" xml:space="preserve"><value>Google Drive connected successfully!</value></data>
+  <data name="LoginFailed" xml:space="preserve"><value>Login failed.</value></data>
+  <data name="DropboxConnectFailed" xml:space="preserve"><value>Dropbox connection failed.\n(Window closed or timed out)</value></data>
+  <data name="ScopeMissingError" xml:space="preserve"><value>Google Drive access permission not granted.\n\nPlease make sure to check 'See, edit, create, and delete only the specific Google Drive files you use with this app' during login.</value></data>
 </root>

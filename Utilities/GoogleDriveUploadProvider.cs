@@ -10,6 +10,7 @@ using Google.Apis.Drive.v3;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
 using System.Diagnostics;
+using LocalizationManager = CatchCapture.Resources.LocalizationManager;
 
 namespace CatchCapture.Utilities
 {
@@ -190,7 +191,7 @@ namespace CatchCapture.Utilities
             {
                 if (!await TrySilentLoginAsync())
                 {
-                    throw new Exception("Google Drive Login Required.");
+                    throw new Exception(LocalizationManager.GetString("GoogleDriveLoginRequired"));
                 }
             }
 
@@ -237,11 +238,18 @@ namespace CatchCapture.Utilities
         private string GetPremiumSuccessHtml()
         {
             string iconBase64 = GetAppIconBase64();
+            string title = LocalizationManager.GetString("AuthCompletedTitle");
+            string header = LocalizationManager.GetString("AuthCompletedHeader");
+            string desc = LocalizationManager.GetString("AuthCompletedDesc");
+            string note = LocalizationManager.GetString("GoogleDriveAuthNote");
+            string status = LocalizationManager.GetString("AuthStatusAnalyzing");
+            string fallback = LocalizationManager.GetString("AuthFallbackText");
+
             return $@"
 <html>
 <head>
     <meta charset='utf-8'>
-    <title>CatchCapture - 인증 완료</title>
+    <title>{title}</title>
     <style>
         body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background-color: #f5f7fa; color: #333; }}
         .container {{ text-align: center; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); max-width: 400px; width: 90%; }}
@@ -257,20 +265,19 @@ namespace CatchCapture.Utilities
     <div class='container'>
         <img src='data:image/png;base64,{iconBase64}' class='icon' alt='Logo'>
         <div style='font-size: 48px; margin-bottom: 10px;'>🔑</div>
-        <h2>인증 절차가 종료되었습니다</h2>
-        <p><strong>CatchCapture 앱</strong>으로 돌아가서<br>최종 연결 결과를 확인해주세요.</p>
+        <h2>{header}</h2>
+        <p>{desc}</p>
         
         <div style='background: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 15px; border-radius: 10px; margin-top: 20px; font-size: 13px; text-align: left;'>
-            <strong>⚠️ 중요:</strong><br>
-            로그인 단계에서 <strong>'앱에서 사용하는 특정 Google Drive 파일...'</strong> 항목을 체크하지 않으셨다면 연결에 실패하며, 앱에서 실패 안내가 표시됩니다.
+            {note}
         </div>
 
         <div id='status' style='margin-top: 25px;'>
             <div class='loader'></div>
-            <span style='font-size: 12px; color: #999;'>인증 결과를 분석 중입니다...</span>
+            <span style='font-size: 12px; color: #999;'>{status}</span>
         </div>
         <p id='fallback' style='display:none; font-size: 12px; color: #e74c3c; margin-top: 15px;'>
-            결과 확인 후 이 창을 직접 닫아주세요.
+            {fallback}
         </p>
     </div>
     <script>

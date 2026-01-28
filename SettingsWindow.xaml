@@ -319,15 +319,15 @@
                     <DropShadowEffect BlurRadius="15" ShadowDepth="2" Opacity="0.15"/>
                 </Border.Effect>
                 <StackPanel>
-                    <TextBlock Text="클라우드 연동/링크 생성 안내" FontWeight="Bold" FontSize="14" Margin="0,0,0,10" Foreground="{DynamicResource ThemeForeground}"/>
-                    <TextBlock Text="Q. 이미지 링크 생성이란?" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource ThemeForeground}" Margin="0,0,0,4"/>
-                    <TextBlock Text="캡처한 이미지를 서버에 업로드하여 친구들에게 바로 공유할 수 있는 URL을 만드는 기능입니다." FontSize="11" Foreground="{DynamicResource ThemeForeground}" Opacity="0.8" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                    <TextBlock Text="{DynamicResource CloudHelpGuide}" FontWeight="Bold" FontSize="14" Margin="0,0,0,10" Foreground="{DynamicResource ThemeForeground}"/>
+                    <TextBlock Text="{DynamicResource CloudHelpQ1}" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource ThemeForeground}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{DynamicResource CloudHelpA1}" FontSize="11" Foreground="{DynamicResource ThemeForeground}" Opacity="0.8" TextWrapping="Wrap" Margin="0,0,0,10"/>
                     
-                    <TextBlock Text="Q. ImgBB (API 키 연동)" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource ThemeForeground}" Margin="0,0,0,4"/>
-                    <TextBlock Text="API 키를 입력하여 연동하는 해외 유명 이미지 호스팅 서비스입니다. 이미지 관리 및 안정성이 뛰어납니다." FontSize="11" Foreground="{DynamicResource ThemeForeground}" Opacity="0.8" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                    <TextBlock Text="{DynamicResource CloudHelpQ2}" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource ThemeForeground}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{DynamicResource CloudHelpA2}" FontSize="11" Foreground="{DynamicResource ThemeForeground}" Opacity="0.8" TextWrapping="Wrap" Margin="0,0,0,10"/>
                     
-                    <TextBlock Text="Q. 계정 연동 (Google / Dropbox)" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource ThemeForeground}" Margin="0,0,0,4"/>
-                    <TextBlock Text="본인의 구글 또는 드롭박스 계정을 연결하여 사용합니다. 본인 저장소를 사용하므로 용량 제한이 적고 이미지가 영구 보존됩니다." FontSize="11" Foreground="{DynamicResource ThemeForeground}" Opacity="0.8" TextWrapping="Wrap"/>
+                    <TextBlock Text="{DynamicResource CloudHelpQ3}" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource ThemeForeground}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{DynamicResource CloudHelpA3}" FontSize="11" Foreground="{DynamicResource ThemeForeground}" Opacity="0.8" TextWrapping="Wrap"/>
                 </StackPanel>
             </Border>
         </ControlTemplate>
@@ -406,7 +406,7 @@
                     <Button x:Name="NavSystem" Content="{DynamicResource SystemSettings}" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="System"/>
                     <Button x:Name="NavCapture" Content="{DynamicResource CaptureSettings}" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Capture"/>
                     <Button x:Name="NavTheme" Content="{DynamicResource ThemeSettings}" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Theme" />
-                    <Button x:Name="NavCloud" Content="이미지 링크 설정" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Cloud"/>
+                    <Button x:Name="NavCloud" Content="{DynamicResource LinkSettings}" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Cloud"/>
                     <Button x:Name="NavMenuEdit" Content="{DynamicResource MenuEdit}" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="MenuEdit"/>
                     <Button x:Name="NavRecording" Content="{DynamicResource RecordingSettings}" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Recording"/>
                     <Button x:Name="NavNote" Content="{DynamicResource NoteSettings}" Style="{StaticResource SidebarButton}" Click="Nav_Click" Tag="Note"/>
@@ -681,9 +681,9 @@
                     <DropShadowEffect Color="Black" Direction="270" ShadowDepth="1" Opacity="0.05" BlurRadius="10"/>
                 </Border.Effect>
                 <StackPanel Margin="20,0,20,20">
-                    <TextBlock x:Name="CloudSectionTitle" Text="이미지 링크 설정" Style="{StaticResource SectionTitle}"/>
+                    <TextBlock x:Name="CloudSectionTitle" Text="{DynamicResource LinkSettings}" Style="{StaticResource SectionTitle}"/>
 
-                    <GroupBox x:Name="CloudUploadGroup" Header="업로드 설정 (Upload Settings)" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
+                    <GroupBox x:Name="CloudUploadGroup" Header="{DynamicResource CloudUploadSettings}" BorderBrush="{DynamicResource ThemeBorder}" Padding="15">
                         <StackPanel>
                             <!-- Google Drive (Recommended) -->
 
@@ -691,24 +691,24 @@
                             <!-- Google Drive (Recommended) -->
                             <StackPanel Margin="0,5">
                                 <StackPanel Orientation="Horizontal">
-                                    <RadioButton x:Name="RbCloudGDrive" GroupName="CloudProvider" Content="Google Drive (추천)" IsChecked="True" Tag="GoogleDrive" FontWeight="SemiBold" Foreground="{DynamicResource ThemeForeground}"/>
-                                    <TextBlock x:Name="TxtGDriveStatus" Text="(연결되지 않음)" FontSize="11" Foreground="#FF6B6B" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                    <RadioButton x:Name="RbCloudGDrive" GroupName="CloudProvider" Content="{DynamicResource GoogleDriveRecommended}" IsChecked="True" Tag="GoogleDrive" FontWeight="SemiBold" Foreground="{DynamicResource ThemeForeground}"/>
+                                    <TextBlock x:Name="TxtGDriveStatus" Text="{DynamicResource CloudNotConnected}" FontSize="11" Foreground="#FF6B6B" Margin="10,0,0,0" VerticalAlignment="Center"/>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="20,8,0,0">
-                                    <Button x:Name="BtnGDriveLogin" Content="Google 로그인" Width="140" Height="36" Click="BtnGDriveLogin_Click" Style="{StaticResource MacButtonSecondary}"/>
-                                    <TextBlock Text="내 구글 드라이브(CatchCapture 폴더)에 저장됩니다." FontSize="11" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                    <Button x:Name="BtnGDriveLogin" Content="{DynamicResource GoogleLogin}" Width="140" Height="36" Click="BtnGDriveLogin_Click" Style="{StaticResource MacButtonSecondary}"/>
+                                    <TextBlock x:Name="TxtGDriveDesc" Text="{DynamicResource GoogleDriveDesc}" FontSize="11" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" VerticalAlignment="Center" Margin="10,0,0,0"/>
                                 </StackPanel>
                             </StackPanel>
 
                             <!-- ImgBB -->
                             <StackPanel Margin="0,15,0,0">
-                                <RadioButton x:Name="RbCloudImgBB" GroupName="CloudProvider" Content="ImgBB - 개인 계정 업로드" Tag="ImgBB" FontWeight="SemiBold" Foreground="{DynamicResource ThemeForeground}"/>
+                                <RadioButton x:Name="RbCloudImgBB" GroupName="CloudProvider" Content="{DynamicResource ImgBBPersonal}" Tag="ImgBB" FontWeight="SemiBold" Foreground="{DynamicResource ThemeForeground}"/>
                                 <StackPanel Margin="20,5,0,0">
-                                    <TextBlock Text="가장 간편하고 안정적인 무료 서비스입니다. API 키가 필요합니다." FontSize="11" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7"/>
+                                    <TextBlock x:Name="TxtImgBBDesc" Text="{DynamicResource ImgBBDesc}" FontSize="11" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7"/>
                                     <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                                        <TextBlock Text="API Key:" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="11"/>
+                                        <TextBlock x:Name="TxtApiKeyLabel" Text="{DynamicResource ApiKey}" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="11"/>
                                         <TextBox x:Name="TxtImgBBApiKey" Width="250" Padding="5,3" FontSize="11" Background="{DynamicResource ThemeBackground}" Foreground="{DynamicResource ThemeForeground}" BorderBrush="{DynamicResource ThemeBorder}"/>
-                                        <Button x:Name="BtnGetImgBBKey" Content="키 발급받기" Margin="10,0,0,0" Padding="10,2" FontSize="11" Cursor="Hand" Click="BtnGetImgBBKey_Click"/>
+                                        <Button x:Name="BtnGetImgBBKey" Content="{DynamicResource GetApiKey}" Margin="10,0,0,0" Padding="10,2" FontSize="11" Cursor="Hand" Click="BtnGetImgBBKey_Click"/>
                                     </StackPanel>
                                 </StackPanel>
                             </StackPanel>
@@ -717,18 +717,18 @@
                             <StackPanel Margin="0,15,0,0">
                                 <StackPanel Orientation="Horizontal">
                                     <RadioButton x:Name="RbCloudDropbox" GroupName="CloudProvider" Content="Dropbox" Tag="Dropbox" FontWeight="SemiBold" Foreground="{DynamicResource ThemeForeground}"/>
-                                    <TextBlock x:Name="TxtDropboxStatus" Text="(연결되지 않음)" FontSize="11" Foreground="#FF6B6B" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="TxtDropboxStatus" Text="{DynamicResource CloudNotConnected}" FontSize="11" Foreground="#FF6B6B" Margin="10,0,0,0" VerticalAlignment="Center"/>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="20,8,0,0">
-                                    <Button x:Name="BtnDropboxLogin" Content="Dropbox 연결" Width="140" Height="36" Click="BtnDropboxLogin_Click" Style="{StaticResource MacButtonSecondary}"/>
-                                    <TextBlock Text="드롭박스 계정에 업로드하고 공유 링크를 생성합니다." FontSize="11" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                    <Button x:Name="BtnDropboxLogin" Content="{DynamicResource DropboxLogin}" Width="140" Height="36" Click="BtnDropboxLogin_Click" Style="{StaticResource MacButtonSecondary}"/>
+                                    <TextBlock x:Name="TxtDropboxDesc" Text="{DynamicResource DropboxDesc}" FontSize="11" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" VerticalAlignment="Center" Margin="10,0,0,0"/>
                                 </StackPanel>
                             </StackPanel>
                         </StackPanel>
                     </GroupBox>
 
                     <StackPanel Orientation="Horizontal" Margin="5,10,0,0" Cursor="Hand" MouseLeftButtonUp="BtnCloudHelp_Click" HorizontalAlignment="Right">
-                        <TextBlock Text="❓ 도움말: 클라우드 연동이 무엇인가요?" FontSize="11" Foreground="{DynamicResource AccentColor}" TextDecorations="Underline"/>
+                        <TextBlock x:Name="TxtCloudHelp" Text="{DynamicResource CloudHelpWhatIsIt}" FontSize="11" Foreground="{DynamicResource AccentColor}" TextDecorations="Underline"/>
                         <Popup x:Name="CloudHelpPopup" StaysOpen="False" Placement="Mouse" AllowsTransparency="True" PopupAnimation="Fade">
                             <Control Template="{StaticResource CloudHelpPopupContent}"/>
                         </Popup>
