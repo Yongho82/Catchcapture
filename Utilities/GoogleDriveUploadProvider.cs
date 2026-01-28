@@ -67,7 +67,8 @@ namespace CatchCapture.Utilities
                 _loginCts?.Cancel();
                 _loginCts = new CancellationTokenSource(TimeSpan.FromSeconds(30)); // 30초로 단축
 
-                using (var stream = new FileStream("client_secrets.json", FileMode.Open, FileAccess.Read))
+                string secretsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "client_secrets.json");
+                using (var stream = new FileStream(secretsPath, FileMode.Open, FileAccess.Read))
                 {
                     var secrets = GoogleClientSecrets.FromStream(stream).Secrets;
 
@@ -121,7 +122,8 @@ namespace CatchCapture.Utilities
             
             try 
             {
-                using (var stream = new FileStream("client_secrets.json", FileMode.Open, FileAccess.Read))
+                string secretsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "client_secrets.json");
+                using (var stream = new FileStream(secretsPath, FileMode.Open, FileAccess.Read))
                 {
                     var secrets = GoogleClientSecrets.FromStream(stream).Secrets;
                     string credPath = GetStoredTokenPath();
