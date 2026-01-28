@@ -30,7 +30,7 @@ namespace CatchCapture.Utilities
         private CancellationTokenSource? _loginCts; // 추가
         public string UserEmail { get; private set; } = "";
 
-        public bool IsConnected => _credential != null && !string.IsNullOrEmpty(UserEmail);
+        public bool IsConnected => _credential != null || CheckStoredToken();
 
         private GoogleDriveUploadProvider() { }
 
@@ -84,6 +84,13 @@ namespace CatchCapture.Utilities
 
                 if (_credential != null)
                 {
+                    // 필수 권한 체크 (드라이브 권한이 없으면 실패로 간주)
+                    if (_credential.Token.Scope == null || !_credential.Token.Scope.Contains("drive.file"))
+                    {
+                        await LogoutAsync();
+                        throw new Exception("REQUIRED_SCOPE_MISSING");
+                    }
+
                     await InitServiceAsync();
                     return true;
                 }
@@ -91,6 +98,7 @@ namespace CatchCapture.Utilities
             catch (OperationCanceledException) { }
             catch (Exception ex)
             {
+                if (ex.Message == "REQUIRED_SCOPE_MISSING") throw;
                 Debug.WriteLine($"Google Login Error: {ex.Message}");
             }
             finally
@@ -208,7 +216,8 @@ namespace CatchCapture.Utilities
                 Type = "anyone"
             }, file.Id).ExecuteAsync();
 
-            return file.WebContentLink;
+            // 다운로드가 아닌 바로 보기 링크 반환
+            return $"https://drive.google.com/uc?id={file.Id}";
         }
 
         private string GetAppIconBase64()
@@ -247,15 +256,21 @@ namespace CatchCapture.Utilities
 <body>
     <div class='container'>
         <img src='data:image/png;base64,{iconBase64}' class='icon' alt='Logo'>
-        <div class='success-mark'>✓</div>
-        <h2>Google 드라이브 연동 성공!</h2>
-        <p>이제 CatchCapture에서 Google 드라이브를 사용할 수 있습니다.<br>이 창은 잠시 후 자동으로 닫힙니다.</p>
-        <div id='status' style='margin-top: 20px;'>
+        <div style='font-size: 48px; margin-bottom: 10px;'>🔑</div>
+        <h2>인증 절차가 종료되었습니다</h2>
+        <p><strong>CatchCapture 앱</strong>으로 돌아가서<br>최종 연결 결과를 확인해주세요.</p>
+        
+        <div style='background: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 15px; border-radius: 10px; margin-top: 20px; font-size: 13px; text-align: left;'>
+            <strong>⚠️ 중요:</strong><br>
+            로그인 단계에서 <strong>'앱에서 사용하는 특정 Google Drive 파일...'</strong> 항목을 체크하지 않으셨다면 연결에 실패하며, 앱에서 실패 안내가 표시됩니다.
+        </div>
+
+        <div id='status' style='margin-top: 25px;'>
             <div class='loader'></div>
-            <span style='font-size: 12px; color: #999;'>창을 닫는 중...</span>
+            <span style='font-size: 12px; color: #999;'>인증 결과를 분석 중입니다...</span>
         </div>
         <p id='fallback' style='display:none; font-size: 12px; color: #e74c3c; margin-top: 15px;'>
-            창이 자동으로 닫히지 않으면 직접 닫아주세요.
+            결과 확인 후 이 창을 직접 닫아주세요.
         </p>
     </div>
     <script>

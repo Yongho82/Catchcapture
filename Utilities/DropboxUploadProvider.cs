@@ -24,13 +24,16 @@ namespace CatchCapture.Utilities
         public static DropboxUploadProvider Instance => _instance ??= new DropboxUploadProvider();
 
         private static readonly HttpClient client = new HttpClient();
-        private Settings _settings => Settings.Load(); // 항상 최신 설정 인스턴스 사용
+        private Settings _settings;
         private string? _codeVerifier;
         private CancellationTokenSource? _loginCts;
         private HttpListener? _listener; // 리스너를 필드로 관리하여 확실히 종료
 
         private DropboxUploadProvider()
         {
+            _settings = Settings.Load();
+            // 설정 변경 시 자동 업데이트
+            Settings.SettingsChanged += (s, e) => _settings = Settings.Load();
         }
 
         public bool IsConnected => !string.IsNullOrEmpty(_settings.DropboxRefreshToken);
@@ -195,15 +198,21 @@ namespace CatchCapture.Utilities
 <body>
     <div class='container'>
         <img src='data:image/png;base64,{iconBase64}' class='icon' alt='Logo'>
-        <div class='success-mark'>✓</div>
-        <h2>연동에 성공했습니다!</h2>
-        <p>이제 CatchCapture에서 Dropbox를 사용할 수 있습니다.<br>이 창은 잠시 후 자동으로 닫힙니다.</p>
-        <div id='status' style='margin-top: 20px;'>
+        <div style='font-size: 48px; margin-bottom: 10px;'>🔑</div>
+        <h2>인증 절차가 종료되었습니다</h2>
+        <p><strong>CatchCapture 앱</strong>으로 돌아가서<br>최종 연결 결과를 확인해주세요.</p>
+        
+        <div style='background: #e8f0fe; border: 1px solid #d2e3fc; color: #1967d2; padding: 15px; border-radius: 10px; margin-top: 20px; font-size: 13px; text-align: left;'>
+            <strong>ℹ️ 안내:</strong><br>
+            브라우저 인증이 완료되었습니다. 이제 앱에서 토큰을 확인하고 연결을 마무리합니다. 결과는 앱의 설정 창에서 확인하실 수 있습니다.
+        </div>
+
+        <div id='status' style='margin-top: 25px;'>
             <div class='loader'></div>
-            <span style='font-size: 12px; color: #999;'>창을 닫는 중...</span>
+            <span style='font-size: 12px; color: #999;'>인증 결과를 확인 중입니다...</span>
         </div>
         <p id='fallback' style='display:none; font-size: 12px; color: #e74c3c; margin-top: 15px;'>
-            창이 자동으로 닫히지 않으면 직접 닫아주세요.
+            결과 확인 후 이 창을 직접 닫아주세요.
         </p>
     </div>
     <script>

@@ -3445,6 +3445,63 @@ public partial class MainWindow : Window
             try
             {
                 var settings = Models.Settings.Load();
+                
+                // 로그인 상태 확인
+                bool isConnected = false;
+                string providerName = "";
+                
+                if (settings.CloudProvider == "GoogleDrive")
+                {
+                    isConnected = GoogleDriveUploadProvider.Instance.IsConnected;
+                    providerName = "Google Drive";
+                }
+                else if (settings.CloudProvider == "ImgBB")
+                {
+                    isConnected = !string.IsNullOrEmpty(settings.ImgBBApiKey);
+                    providerName = "ImgBB";
+                }
+                else if (settings.CloudProvider == "Dropbox")
+                {
+                    isConnected = DropboxUploadProvider.Instance.IsConnected;
+                    providerName = "Dropbox";
+                }
+                
+                // 로그인이 안 되어 있으면 설정 창으로 안내
+                if (!isConnected)
+                {
+                    var result = CatchCapture.CustomMessageBox.Show(
+                        $"{providerName}에 연결되지 않았습니다.\n설정 창에서 로그인하시겠습니까?",
+                        "클라우드 연결 필요",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);
+                    
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        var settingsWindow = new SettingsWindow();
+                        settingsWindow.SelectPage("Cloud");
+                        settingsWindow.ShowDialog();
+                        
+                        // 로그인 후 다시 확인
+                        settings = Models.Settings.Load();
+                        if (settings.CloudProvider == "GoogleDrive")
+                            isConnected = GoogleDriveUploadProvider.Instance.IsConnected;
+                        else if (settings.CloudProvider == "ImgBB")
+                            isConnected = !string.IsNullOrEmpty(settings.ImgBBApiKey);
+                        else if (settings.CloudProvider == "Dropbox")
+                            isConnected = DropboxUploadProvider.Instance.IsConnected;
+                        
+                        if (!isConnected)
+                        {
+                            CatchCapture.Utilities.StickerWindow.Show("로그인이 취소되었습니다.");
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+                
                 var original = await captureImage.GetOriginalImageAsync();
                 
                 // 업로드 시작 알림
@@ -3480,6 +3537,10 @@ public partial class MainWindow : Window
                     // 링크 주소를 함께 표시 (너무 길 경우 앞부분만 표시하거나 그대로 표시)
                     string displayUrl = url.Length > 40 ? url.Substring(0, 37) + "..." : url;
                     CatchCapture.Utilities.StickerWindow.Show($"링크 복사됨: {displayUrl}");
+                }
+                else
+                {
+                    CatchCapture.Utilities.StickerWindow.Show("업로드에 실패했습니다.");
                 }
 
                 if (System.IO.File.Exists(tempPath)) System.IO.File.Delete(tempPath);

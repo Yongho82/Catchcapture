@@ -4694,7 +4694,7 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\엄용호\\.nuget\\packages\\": {},
+    "C:\\Users\\eyh05\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
@@ -4703,7 +4703,7 @@
       "projectUniqueName": "C:\\yonghoprogram\\Catchcapture\\CatchCapture.Package\\CatchCapture.Package\\CatchCapture.Package.wapproj",
       "projectName": "CatchCapture.Package",
       "projectPath": "C:\\yonghoprogram\\Catchcapture\\CatchCapture.Package\\CatchCapture.Package\\CatchCapture.Package.wapproj",
-      "packagesPath": "C:\\Users\\엄용호\\.nuget\\packages\\",
+      "packagesPath": "C:\\Users\\eyh05\\.nuget\\packages\\",
       "outputPath": "C:\\yonghoprogram\\Catchcapture\\CatchCapture.Package\\CatchCapture.Package\\obj\\",
       "projectStyle": "PackageReference",
       "UsingMicrosoftNETSdk": false,
@@ -4711,7 +4711,7 @@
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\엄용호\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\eyh05\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -4743,7 +4743,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.200"
+      "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
       "uap10.0.17763": {
@@ -4769,7 +4769,7 @@
           "net8.0",
           "netcoreapp3.1",
           "net461",
-          "net9.0-windows10.0.26100",
+          "net10.0-windows10.0.26100",
           "net461"
         ],
         "assetTargetFallback": true,

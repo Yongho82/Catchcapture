@@ -771,15 +771,7 @@ private void InitLanguageComboBox()
                 TxtGDriveStatus.Text = "(연결되지 않음)";
                 TxtGDriveStatus.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF6B6B"));
                 BtnGDriveLogin.Content = "Google 로그인";
-                RbCloudGDrive.IsEnabled = false;
-                
-                // 만약 현재 선택된 것이 GDrive인데 연결이 안되어 있다면 기본값(ImgBB)으로 변경
-                if (RbCloudGDrive.IsChecked == true)
-                {
-                    RbCloudImgBB.IsChecked = true;
-                    _settings.CloudProvider = "ImgBB";
-                    _settings.Save(); // 즉시 저장
-                }
+                RbCloudGDrive.IsEnabled = true; // 항상 활성화하여 선택 가능하게 함
             }
 
             // Dropbox 상태 업데이트
@@ -810,18 +802,7 @@ private void InitLanguageComboBox()
                 TxtDropboxStatus.Text = "(연결되지 않음)";
                 TxtDropboxStatus.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0xFF, 0x6B, 0x6B));
                 BtnDropboxLogin.Content = "Dropbox 연결";
-                
-                // 연결되지 않았을 때만 비활성화 (이미 드롭박스가 선택되어 있다면 유지)
-                if (_settings.CloudProvider != "Dropbox")
-                    RbCloudDropbox.IsEnabled = false;
-
-                if (RbCloudDropbox.IsChecked == true && !DropboxUploadProvider.Instance.IsConnected)
-                {
-                    // 연결이 안 되어 있는데 선택된 경우에만 기본으로 복귀
-                    RbCloudImgBB.IsChecked = true;
-                    _settings.CloudProvider = "ImgBB";
-                    _settings.Save();
-                }
+                RbCloudDropbox.IsEnabled = true; // 항상 활성화하여 선택 가능하게 함
             }
         }
 
@@ -941,7 +922,18 @@ private void InitLanguageComboBox()
             }
             catch (Exception ex)
             {
-                CatchCapture.CustomMessageBox.Show($"오류 발생: {ex.Message}", "에러", MessageBoxButton.OK, MessageBoxImage.Error);
+                if (ex.Message == "REQUIRED_SCOPE_MISSING")
+                {
+                    CatchCapture.CustomMessageBox.Show(
+                        "구글 드라이브 접근 권한이 허용되지 않았습니다.\n\n로그인 창 중간의 '앱에서 사용하는 특정 Google Drive 파일...' 항목을 반드시 체크해주셔야 연결이 가능합니다.",
+                        "권한 필요",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                }
+                else
+                {
+                    CatchCapture.CustomMessageBox.Show($"오류 발생: {ex.Message}", "에러", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
             finally
             {
@@ -1743,6 +1735,12 @@ private void InitLanguageComboBox()
         {
             if (!ValidateNoteSettings()) return;
             if (!ValidateHotkeys()) return;
+            
+            // 저장 전, 클라우드 토큰 최신화 (다른 곳에서 업데이트 되었을 수 있음)
+            var latest = Settings.Load();
+            _settings.DropboxAccessToken = latest.DropboxAccessToken;
+            _settings.DropboxRefreshToken = latest.DropboxRefreshToken;
+            
             HarvestSettings();
             Settings.Save(_settings);
             
@@ -1838,6 +1836,12 @@ private void InitLanguageComboBox()
         {
             if (!ValidateNoteSettings()) return;
             if (!ValidateHotkeys()) return;
+
+            // 저장 전, 클라우드 토큰 최신화
+            var latest = Settings.Load();
+            _settings.DropboxAccessToken = latest.DropboxAccessToken;
+            _settings.DropboxRefreshToken = latest.DropboxRefreshToken;
+
             HarvestSettings();
             Settings.Save(_settings);
 

@@ -36,3 +36,6 @@ AppPackages/
 *.msix
 *.appxbundle
 *.msixbundle
+
+# Secrets
+client_secrets.json
