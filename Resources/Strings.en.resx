@@ -998,4 +998,21 @@ Are you sure you want to permanently delete all items?</value>
   <data name="LoginFailed" xml:space="preserve"><value>Login failed.</value></data>
   <data name="DropboxConnectFailed" xml:space="preserve"><value>Dropbox connection failed.\n(Window closed or timed out)</value></data>
   <data name="ScopeMissingError" xml:space="preserve"><value>Google Drive access permission not granted.\n\nPlease make sure to check 'See, edit, create, and delete only the specific Google Drive files you use with this app' during login.</value></data>
+  <data name="ImgBBApiKeyRequired" xml:space="preserve"><value>ImgBB API Key is not set. Please enter the key in settings.</value></data>
+  <data name="ImgBBLinkFailed" xml:space="preserve"><value>Failed to get link from ImgBB.</value></data>
+  <data name="CloudNotConnectedMsg" xml:space="preserve"><value>{0} is not connected.\nDo you want to login in settings?</value></data>
+  <data name="CloudConnectionRequired" xml:space="preserve"><value>Cloud Connection Required</value></data>
+  <data name="LoginCancelled" xml:space="preserve"><value>Login cancelled.</value></data>
+  <data name="UploadStarting" xml:space="preserve"><value>Starting upload...</value></data>
+  <data name="LinkCopiedWithUrl" xml:space="preserve"><value>Link copied: {0}</value></data>
+  <data name="UploadFailed" xml:space="preserve"><value>Upload failed.</value></data>
+  <data name="UploadFailedDetailed" xml:space="preserve"><value>Upload failed: {0}</value></data>
+  <data name="GoogleDrive" xml:space="preserve"><value>Google Drive</value></data>
+  <data name="ImgBB" xml:space="preserve"><value>ImgBB</value></data>
+  <data name="Dropbox" xml:space="preserve"><value>Dropbox</value></data>
+  <data name="ImageLinkTooltip" xml:space="preserve"><value>Create Image Link (Cloud Upload)</value></data>
+  <data name="ImageLinkButtonText" xml:space="preserve"><value>IMG Link</value></data>
+  <data name="CopiedToClipboardMsg" xml:space="preserve"><value>Copied to clipboard</value></data>
+  <data name="ShareTitle" xml:space="preserve"><value>Share Image</value></data>
+  <data name="ShareDescription" xml:space="preserve"><value>CatchCapture Screenshot</value></data>
 </root>

@@ -1484,7 +1484,7 @@ namespace CatchCapture.Utilities
             };
 
             // [추가] 이미지 링크 버튼
-            var imageLinkButton = CreateToolButton("img_link.png", "IMG링크", "이미지 링크 만들기 (클라우드 업로드)");
+            var imageLinkButton = CreateToolButton("img_link.png", ResLoc.GetString("ImageLinkButtonText"), ResLoc.GetString("ImageLinkTooltip"));
             imageLinkButton.Click += async (s, e) => 
             { 
                 await PerformImageLink();
@@ -2488,24 +2488,24 @@ namespace CatchCapture.Utilities
                 if (settings.CloudProvider == "GoogleDrive")
                 {
                     isConnected = GoogleDriveUploadProvider.Instance.IsConnected;
-                    providerName = "Google Drive";
+                    providerName = ResLoc.GetString("GoogleDrive");
                 }
                 else if (settings.CloudProvider == "ImgBB")
                 {
                     isConnected = !string.IsNullOrEmpty(settings.ImgBBApiKey);
-                    providerName = "ImgBB";
+                    providerName = ResLoc.GetString("ImgBB");
                 }
                 else if (settings.CloudProvider == "Dropbox")
                 {
                     isConnected = DropboxUploadProvider.Instance.IsConnected;
-                    providerName = "Dropbox";
+                    providerName = ResLoc.GetString("Dropbox");
                 }
 
                 if (!isConnected)
                 {
                     var result = CatchCapture.CustomMessageBox.Show(
-                        $"{providerName}에 연결되지 않았습니다.\n설정 창에서 로그인하시겠습니까?",
-                        "클라우드 연결 필요",
+                        string.Format(ResLoc.GetString("CloudNotConnectedMsg"), providerName),
+                        ResLoc.GetString("CloudConnectionRequired"),
                         MessageBoxButton.YesNo,
                         MessageBoxImage.Question);
 
@@ -2522,14 +2522,14 @@ namespace CatchCapture.Utilities
 
                         if (!isConnected)
                         {
-                            StickerWindow.Show("로그인이 취소되었습니다.");
+                            StickerWindow.Show(ResLoc.GetString("LoginCancelled"));
                             return;
                         }
                     }
                     else return;
                 }
 
-                StickerWindow.Show("업로드 시작...");
+                StickerWindow.Show(ResLoc.GetString("UploadStarting"));
                 string tempPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"instant_upload_{Guid.NewGuid()}.png");
 
                 using (var fileStream = new System.IO.FileStream(tempPath, System.IO.FileMode.Create))
@@ -2548,14 +2548,14 @@ namespace CatchCapture.Utilities
                 {
                     System.Windows.Clipboard.SetText(url);
                     string displayUrl = url.Length > 40 ? url.Substring(0, 37) + "..." : url;
-                    StickerWindow.Show($"링크 복사됨: {displayUrl}");
+                    StickerWindow.Show(string.Format(ResLoc.GetString("LinkCopiedWithUrl"), displayUrl));
                     
                     // [수정] 링크 복사 후 자동으로 닫지 않음 (확정 시 클립보드가 이미지로 덮어씌워지는 것을 방지)
                     // 사용자가 직접 확정 버튼을 눌러야 함
                 }
                 else
                 {
-                    StickerWindow.Show("업로드에 실패했습니다.");
+                    StickerWindow.Show(ResLoc.GetString("UploadFailed"));
                 }
 
                 if (System.IO.File.Exists(tempPath)) System.IO.File.Delete(tempPath);

@@ -1010,4 +1010,21 @@
   <data name="LoginFailed" xml:space="preserve"><value>로그인에 실패하였습니다.</value></data>
   <data name="DropboxConnectFailed" xml:space="preserve"><value>Dropbox 연결에 실패했습니다.\n(창이 닫혔거나 타임아웃 되었습니다)</value></data>
   <data name="ScopeMissingError" xml:space="preserve"><value>구글 드라이브 접근 권한이 허용되지 않았습니다.\n\n로그인 창 중간의 '앱에서 사용하는 특정 Google Drive 파일...' 항목을 반드시 체크해주셔야 연결이 가능합니다.</value></data>
+  <data name="ImgBBApiKeyRequired" xml:space="preserve"><value>ImgBB API 키가 설정되지 않았습니다. 설정에서 키를 입력해주세요.</value></data>
+  <data name="ImgBBLinkFailed" xml:space="preserve"><value>ImgBB로부터 링크를 받아오지 못했습니다.</value></data>
+  <data name="CloudNotConnectedMsg" xml:space="preserve"><value>{0}에 연결되지 않았습니다.\n설정 창에서 로그인하시겠습니까?</value></data>
+  <data name="CloudConnectionRequired" xml:space="preserve"><value>클라우드 연결 필요</value></data>
+  <data name="LoginCancelled" xml:space="preserve"><value>로그인이 취소되었습니다.</value></data>
+  <data name="UploadStarting" xml:space="preserve"><value>업로드 시작...</value></data>
+  <data name="LinkCopiedWithUrl" xml:space="preserve"><value>링크 복사됨: {0}</value></data>
+  <data name="UploadFailed" xml:space="preserve"><value>업로드에 실패했습니다.</value></data>
+  <data name="UploadFailedDetailed" xml:space="preserve"><value>업로드 실패: {0}</value></data>
+  <data name="GoogleDrive" xml:space="preserve"><value>Google Drive</value></data>
+  <data name="ImgBB" xml:space="preserve"><value>ImgBB</value></data>
+  <data name="Dropbox" xml:space="preserve"><value>Dropbox</value></data>
+  <data name="ImageLinkTooltip" xml:space="preserve"><value>이미지 링크 만들기 (클라우드 업로드)</value></data>
+  <data name="ImageLinkButtonText" xml:space="preserve"><value>IMG링크</value></data>
+  <data name="CopiedToClipboardMsg" xml:space="preserve"><value>클립보드에 복사됨</value></data>
+  <data name="ShareTitle" xml:space="preserve"><value>이미지 공유</value></data>
+  <data name="ShareDescription" xml:space="preserve"><value>캐치캡처 스크린샷</value></data>
 </root>

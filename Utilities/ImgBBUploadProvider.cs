@@ -3,6 +3,7 @@ using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using LocalizationManager = CatchCapture.Resources.LocalizationManager;
 
 namespace CatchCapture.Utilities
 {
@@ -17,10 +18,10 @@ namespace CatchCapture.Utilities
         public async Task<string> UploadImageAsync(string imagePath, string apiKey)
         {
             if (string.IsNullOrEmpty(apiKey))
-                throw new Exception("ImgBB API 키가 설정되지 않았습니다. 설정에서 키를 입력해주세요.");
+                throw new Exception(LocalizationManager.GetString("ImgBBApiKeyRequired"));
 
             if (!File.Exists(imagePath))
-                throw new FileNotFoundException("이미지 파일을 찾을 수 없습니다.");
+                throw new FileNotFoundException(LocalizationManager.GetString("FileNotFound"));
 
             using (var content = new MultipartFormDataContent())
             {
@@ -35,14 +36,14 @@ namespace CatchCapture.Utilities
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    throw new Exception($"ImgBB Upload Failed: {response.StatusCode}\n{responseString}");
+                    throw new Exception($"{LocalizationManager.GetString("UploadFailed")}: {response.StatusCode}");
                 }
 
                 var json = JObject.Parse(responseString);
                 string? url = json["data"]?["url"]?.ToString();
 
                 if (string.IsNullOrEmpty(url))
-                    throw new Exception("ImgBB로부터 링크를 받아오지 못했습니다.");
+                    throw new Exception(LocalizationManager.GetString("ImgBBLinkFailed"));
 
                 return url;
             }

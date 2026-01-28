@@ -2574,24 +2574,24 @@ namespace CatchCapture
                 if (settings.CloudProvider == "GoogleDrive")
                 {
                     isConnected = GoogleDriveUploadProvider.Instance.IsConnected;
-                    providerName = "Google Drive";
+                    providerName = LocalizationManager.GetString("GoogleDrive");
                 }
                 else if (settings.CloudProvider == "ImgBB")
                 {
                     isConnected = !string.IsNullOrEmpty(settings.ImgBBApiKey);
-                    providerName = "ImgBB";
+                    providerName = LocalizationManager.GetString("ImgBB");
                 }
                 else if (settings.CloudProvider == "Dropbox")
                 {
                     isConnected = DropboxUploadProvider.Instance.IsConnected;
-                    providerName = "Dropbox";
+                    providerName = LocalizationManager.GetString("Dropbox");
                 }
 
                 if (!isConnected)
                 {
                     var result = CatchCapture.CustomMessageBox.Show(
-                        $"{providerName}에 연결되지 않았습니다.\n설정 창에서 로그인하시겠습니까?",
-                        "클라우드 연결 필요",
+                        string.Format(LocalizationManager.GetString("CloudNotConnectedMsg"), providerName),
+                        LocalizationManager.GetString("CloudConnectionRequired"),
                         MessageBoxButton.YesNo,
                         MessageBoxImage.Question);
 
@@ -2608,14 +2608,14 @@ namespace CatchCapture
 
                         if (!isConnected)
                         {
-                            ShowToastMessage("로그인이 취소되었습니다.");
+                            ShowToastMessage(LocalizationManager.GetString("LoginCancelled"));
                             return;
                         }
                     }
                     else return;
                 }
 
-                ShowToastMessage("업로드 시작...");
+                ShowToastMessage(LocalizationManager.GetString("UploadStarting"));
                 string tempPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"preview_upload_{Guid.NewGuid()}.png");
 
                 using (var fileStream = new System.IO.FileStream(tempPath, System.IO.FileMode.Create))
@@ -2634,18 +2634,18 @@ namespace CatchCapture
                 {
                     System.Windows.Clipboard.SetText(url);
                     string displayUrl = url.Length > 40 ? url.Substring(0, 37) + "..." : url;
-                    ShowToastMessage($"링크 복사됨: {displayUrl}");
+                    ShowToastMessage(string.Format(LocalizationManager.GetString("LinkCopiedWithUrl"), displayUrl));
                 }
                 else
                 {
-                    ShowToastMessage("업로드에 실패했습니다.");
+                    ShowToastMessage(LocalizationManager.GetString("UploadFailed"));
                 }
 
                 if (System.IO.File.Exists(tempPath)) System.IO.File.Delete(tempPath);
             }
             catch (Exception ex)
             {
-                CustomMessageBox.Show($"업로드 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show(string.Format(LocalizationManager.GetString("UploadFailedDetailed"), ex.Message), LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -2676,7 +2676,7 @@ namespace CatchCapture
             }
             catch (Exception ex)
             {
-                CustomMessageBox.Show($"공유 오류: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"{LocalizationManager.GetString("ShareError")}: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -2711,8 +2711,8 @@ namespace CatchCapture
                 dataTransferManager.DataRequested += async (s, args) =>
                 {
                     var request = args.Request;
-                    request.Data.Properties.Title = "이미지 공유";
-                    request.Data.Properties.Description = "캐치캡처 스크린샷";
+                    request.Data.Properties.Title = LocalizationManager.GetString("ShareTitle");
+                    request.Data.Properties.Description = LocalizationManager.GetString("ShareDescription");
                     
                     var storageFile = await Windows.Storage.StorageFile.GetFileFromPathAsync(tempPath);
                     request.Data.SetStorageItems(new[] { storageFile });
@@ -2728,12 +2728,12 @@ namespace CatchCapture
                 {
                     if (ScreenCaptureUtility.CopyImageToClipboard(image))
                     {
-                        ShowToastMessage("클립보드에 복사됨");
+                        ShowToastMessage(LocalizationManager.GetString("CopiedToClipboardMsg"));
                     }
                 }
                 catch
                 {
-                    CustomMessageBox.Show($"공유 오류: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomMessageBox.Show($"{LocalizationManager.GetString("ShareError")}: {ex.Message}", LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -2833,8 +2833,8 @@ namespace CatchCapture
             if(SelectLabelText != null) SelectLabelText.Text = LocalizationManager.GetString("Select");
             if(SelectButton != null) SelectButton.ToolTip = LocalizationManager.GetString("SelectTooltip");
             // Image Search & Share & OCR
-            if (ImageLinkLabelText != null) ImageLinkLabelText.Text = "IMG링크";
-            if (ImageLinkButton != null) ImageLinkButton.ToolTip = "이미지 링크 만들기 (클라우드 업로드)";
+            if (ImageLinkLabelText != null) ImageLinkLabelText.Text = LocalizationManager.GetString("ImageLinkButtonText");
+            if (ImageLinkButton != null) ImageLinkButton.ToolTip = LocalizationManager.GetString("ImageLinkTooltip");
             if(ImageSearchLabelText != null) ImageSearchLabelText.Text = LocalizationManager.GetString("ImageSearch");
             if(ImageSearchButton != null) ImageSearchButton.ToolTip = LocalizationManager.GetString("ImageSearch");
             if(ShareLabelText != null) ShareLabelText.Text = LocalizationManager.GetString("Share");
