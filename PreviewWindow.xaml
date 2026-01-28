@@ -6,7 +6,7 @@
         xmlns:controls="clr-namespace:CatchCapture.Controls"
         xmlns:local="clr-namespace:CatchCapture"
         mc:Ignorable="d"
-        Title="캐치캡처-이미지 편집" Height="800" Width="1550" MinWidth="1200"
+        Title="캐치캡처-이미지 편집" Height="800" Width="1620" MinWidth="1250"
         WindowStartupLocation="CenterOwner"
         WindowStyle="None" AllowsTransparency="True"
         Background="Transparent"
@@ -420,6 +420,16 @@
                         </controls:TwoTierToolButton.IconContent>
                     </controls:TwoTierToolButton>
                     <Separator Style="{StaticResource ToolbarSeparatorStyle}"/>
+                    <!-- 이미지 링크 버튼 -->
+                    <Button x:Name="ImageLinkButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="ImageLinkButton_Click" ToolTip="이미지 링크 만들기 (클라우드 업로드)">
+                        <StackPanel VerticalAlignment="Top">
+                            <Image Source="icons/img_link.png" Width="20" Height="20" Margin="0,2,0,7"/>
+                            <Viewbox Width="51" Stretch="Uniform" StretchDirection="DownOnly">
+                                <TextBlock x:Name="ImageLinkLabelText" Text="IMG링크" Foreground="{DynamicResource ThemeForeground}" FontSize="12" HorizontalAlignment="Center"/>
+                            </Viewbox>
+                        </StackPanel>
+                    </Button>
+
                     <!-- 이미지 검색 버튼 (구글 렌즈) -->
                     <Button x:Name="ImageSearchButton" Style="{StaticResource ToolbarButtonStyle}" Height="65" Click="ImageSearchButton_Click" ToolTip="이미지 검색">
                         <StackPanel VerticalAlignment="Top">

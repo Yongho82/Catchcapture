@@ -1532,7 +1532,15 @@ private void InitLanguageComboBox()
                     DeleteDirectoryContents(attachPath);
                 }
 
-                CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("NoteResetComplete"), LocalizationManager.GetString("Success"), MessageBoxButton.OK, MessageBoxImage.Information);
+                CatchCapture.CustomMessageBox.Show(LocalizationManager.GetString("NoteResetComplete") + "\n" + LocalizationManager.GetString("RestartRequired"), LocalizationManager.GetString("Success"), MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // Restart Application
+                var exePath = Environment.ProcessPath;
+                if (exePath != null)
+                {
+                    Process.Start(exePath);
+                    Application.Current.Shutdown();
+                }
             }
             catch (Exception ex)
             {

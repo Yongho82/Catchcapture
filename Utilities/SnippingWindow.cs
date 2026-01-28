@@ -1483,6 +1483,13 @@ namespace CatchCapture.Utilities
                 await PerformOcr();
             };
 
+            // [추가] 이미지 링크 버튼
+            var imageLinkButton = CreateToolButton("img_link.png", "IMG링크", "이미지 링크 만들기 (클라우드 업로드)");
+            imageLinkButton.Click += async (s, e) => 
+            { 
+                await PerformImageLink();
+            };
+
             // [추가] 고정핀 버튼
             var pinButton = CreateToolButton("pin.png", LocalizationManager.Get("Pin") ?? "Pin", LocalizationManager.Get("PinToScreen") ?? "Pin to Screen");
             pinButton.Click += (s, e) => 
@@ -1758,6 +1765,7 @@ namespace CatchCapture.Utilities
             toolbarPanel.Children.Add(eraserButton);
             toolbarPanel.Children.Add(imageSearchButton);
             toolbarPanel.Children.Add(ocrButton);
+            toolbarPanel.Children.Add(imageLinkButton);
             toolbarPanel.Children.Add(pinButton); // [Fix] Add pinButton to toolbar
             toolbarPanel.Children.Add(separator);
             toolbarPanel.Children.Add(cancelButton);
@@ -2439,6 +2447,122 @@ namespace CatchCapture.Utilities
             catch (Exception ex)
             {
                 CatchCapture.CustomMessageBox.Show($"{LocalizationManager.Get("Error")}: {ex.Message}", LocalizationManager.Get("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async Task PerformImageLink()
+        {
+            try
+            {
+                // [수정] 즉시편집 모드에서 편집 요소가 있으면 자동으로 확정 처리
+                if (instantEditMode && drawnElements != null && drawnElements.Count > 0)
+                {
+                    SaveDrawingsToImage();
+                }
+
+                BitmapSource? imageToUpload = SelectedFrozenImage;
+                if (imageToUpload == null && screenCapture != null && SelectedArea.Width > 0 && SelectedArea.Height > 0)
+                {
+                    var relX = SelectedArea.X - (int)Math.Round(vLeft);
+                    var relY = SelectedArea.Y - (int)Math.Round(vTop);
+                    relX = Math.Max(0, Math.Min(relX, screenCapture.PixelWidth - 1));
+                    relY = Math.Max(0, Math.Min(relY, screenCapture.PixelHeight - 1));
+                    int cw = Math.Max(0, Math.Min(SelectedArea.Width, screenCapture.PixelWidth - relX));
+                    int ch = Math.Max(0, Math.Min(SelectedArea.Height, screenCapture.PixelHeight - relY));
+                    if (cw > 0 && ch > 0)
+                    {
+                        imageToUpload = new CroppedBitmap(screenCapture, new Int32Rect(relX, relY, cw, ch));
+                    }
+                }
+
+                if (imageToUpload == null)
+                {
+                    CatchCapture.CustomMessageBox.Show(LocalizationManager.Get("NoImageToSave"), LocalizationManager.Get("Info"));
+                    return;
+                }
+
+                var settings = CatchCapture.Models.Settings.Load();
+                bool isConnected = false;
+                string providerName = "";
+
+                if (settings.CloudProvider == "GoogleDrive")
+                {
+                    isConnected = GoogleDriveUploadProvider.Instance.IsConnected;
+                    providerName = "Google Drive";
+                }
+                else if (settings.CloudProvider == "ImgBB")
+                {
+                    isConnected = !string.IsNullOrEmpty(settings.ImgBBApiKey);
+                    providerName = "ImgBB";
+                }
+                else if (settings.CloudProvider == "Dropbox")
+                {
+                    isConnected = DropboxUploadProvider.Instance.IsConnected;
+                    providerName = "Dropbox";
+                }
+
+                if (!isConnected)
+                {
+                    var result = CatchCapture.CustomMessageBox.Show(
+                        $"{providerName}에 연결되지 않았습니다.\n설정 창에서 로그인하시겠습니까?",
+                        "클라우드 연결 필요",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);
+
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        var settingsWindow = new SettingsWindow();
+                        settingsWindow.SelectPage("Cloud");
+                        settingsWindow.ShowDialog();
+
+                        settings = CatchCapture.Models.Settings.Load();
+                        if (settings.CloudProvider == "GoogleDrive") isConnected = GoogleDriveUploadProvider.Instance.IsConnected;
+                        else if (settings.CloudProvider == "ImgBB") isConnected = !string.IsNullOrEmpty(settings.ImgBBApiKey);
+                        else if (settings.CloudProvider == "Dropbox") isConnected = DropboxUploadProvider.Instance.IsConnected;
+
+                        if (!isConnected)
+                        {
+                            StickerWindow.Show("로그인이 취소되었습니다.");
+                            return;
+                        }
+                    }
+                    else return;
+                }
+
+                StickerWindow.Show("업로드 시작...");
+                string tempPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"instant_upload_{Guid.NewGuid()}.png");
+
+                using (var fileStream = new System.IO.FileStream(tempPath, System.IO.FileMode.Create))
+                {
+                    PngBitmapEncoder encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(imageToUpload));
+                    encoder.Save(fileStream);
+                }
+
+                string? url = null;
+                if (settings.CloudProvider == "GoogleDrive") url = await GoogleDriveUploadProvider.Instance.UploadImageAsync(tempPath);
+                else if (settings.CloudProvider == "ImgBB") url = await ImgBBUploadProvider.Instance.UploadImageAsync(tempPath, settings.ImgBBApiKey);
+                else if (settings.CloudProvider == "Dropbox") url = await DropboxUploadProvider.Instance.UploadImageAsync(tempPath);
+
+                if (!string.IsNullOrEmpty(url))
+                {
+                    System.Windows.Clipboard.SetText(url);
+                    string displayUrl = url.Length > 40 ? url.Substring(0, 37) + "..." : url;
+                    StickerWindow.Show($"링크 복사됨: {displayUrl}");
+                    
+                    // [수정] 링크 복사 후 자동으로 닫지 않음 (확정 시 클립보드가 이미지로 덮어씌워지는 것을 방지)
+                    // 사용자가 직접 확정 버튼을 눌러야 함
+                }
+                else
+                {
+                    StickerWindow.Show("업로드에 실패했습니다.");
+                }
+
+                if (System.IO.File.Exists(tempPath)) System.IO.File.Delete(tempPath);
+            }
+            catch (Exception ex)
+            {
+                CatchCapture.CustomMessageBox.Show($"업로드 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

@@ -587,11 +587,13 @@ namespace CatchCapture.Utilities
                     // 1. 클라우드 파일 제거
                     if (File.Exists(_cloudDbPath))
                     {
+                        File.Delete(_cloudDbPath);
                     }
                     
                     // 2. 로컬 파일 제거
                     if (File.Exists(_localDbPath))
                     {
+                        File.Delete(_localDbPath);
                     }
 
                     // 3. 재초기화
@@ -622,11 +624,13 @@ namespace CatchCapture.Utilities
                     // 1. 클라우드 파일 제거
                     if (File.Exists(_cloudHistoryDbPath))
                     {
+                        File.Delete(_cloudHistoryDbPath);
                     }
                     
                     // 2. 로컬 파일 제거
                     if (File.Exists(_localHistoryDbPath))
                     {
+                        File.Delete(_localHistoryDbPath);
                     }
 
                     // 3. 재초기화

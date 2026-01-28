@@ -3438,7 +3438,7 @@ public partial class MainWindow : Window
         };
 
         // [추가] 링크 만들기 버튼 추가
-        Button linkBtn = CreateHoverButton("extract_text.png", "이미지 링크 만들기 (클라우드 업로드)");
+        Button linkBtn = CreateHoverButton("img_link.png", "이미지 링크 만들기 (클라우드 업로드)");
         linkBtn.Click += async (s, e) =>
         {
             e.Handled = true;
@@ -3551,10 +3551,10 @@ public partial class MainWindow : Window
             }
         };
 
-        // 패널에 버튼 추가 (구글 -> 공유 -> 링크 -> 저장 -> 삭제)
+        // 패널에 버튼 추가 (구글 -> 링크 -> 공유 -> 저장 -> 삭제)
         buttonPanel.Children.Add(googleBtn);
-        buttonPanel.Children.Add(shareBtn);
         buttonPanel.Children.Add(linkBtn);
+        buttonPanel.Children.Add(shareBtn);
         buttonPanel.Children.Add(saveBtn);
         buttonPanel.Children.Add(deleteBtn);
         grid.Children.Add(buttonPanel);

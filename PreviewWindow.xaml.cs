@@ -509,7 +509,7 @@ namespace CatchCapture
             double maxWindowHeight = workAreaHeight * 0.95;
 
             // 최소 창 크기 설정
-            double minWindowWidth = 1550; // 사용자가 원했던 기본 가로 사이즈로 복원 (기존 1200 -> 1520)
+            double minWindowWidth = 1620; // 사용자가 원했던 기본 가로 사이즈로 복원 (기존 1200 -> 1520)
             double minWindowHeight = 800; // XAML Height 기본값
 
             // UI 요소 크기 예상치
@@ -2521,7 +2521,8 @@ namespace CatchCapture
                 MosaicToolButton,
                 EraserToolButton,
                 MagicWandToolButton,
-                NumberingToolButton
+                NumberingToolButton,
+                ImageLinkButton
             };
 
             foreach (var element in toolButtons)
@@ -2558,6 +2559,95 @@ namespace CatchCapture
             }
         }
 
+
+        private async void ImageLinkButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var combinedImage = GetCombinedImage();
+                if (combinedImage == null) return;
+
+                var settings = CatchCapture.Models.Settings.Load();
+                bool isConnected = false;
+                string providerName = "";
+
+                if (settings.CloudProvider == "GoogleDrive")
+                {
+                    isConnected = GoogleDriveUploadProvider.Instance.IsConnected;
+                    providerName = "Google Drive";
+                }
+                else if (settings.CloudProvider == "ImgBB")
+                {
+                    isConnected = !string.IsNullOrEmpty(settings.ImgBBApiKey);
+                    providerName = "ImgBB";
+                }
+                else if (settings.CloudProvider == "Dropbox")
+                {
+                    isConnected = DropboxUploadProvider.Instance.IsConnected;
+                    providerName = "Dropbox";
+                }
+
+                if (!isConnected)
+                {
+                    var result = CatchCapture.CustomMessageBox.Show(
+                        $"{providerName}에 연결되지 않았습니다.\n설정 창에서 로그인하시겠습니까?",
+                        "클라우드 연결 필요",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);
+
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        var settingsWindow = new SettingsWindow();
+                        settingsWindow.SelectPage("Cloud");
+                        settingsWindow.ShowDialog();
+
+                        settings = CatchCapture.Models.Settings.Load();
+                        if (settings.CloudProvider == "GoogleDrive") isConnected = GoogleDriveUploadProvider.Instance.IsConnected;
+                        else if (settings.CloudProvider == "ImgBB") isConnected = !string.IsNullOrEmpty(settings.ImgBBApiKey);
+                        else if (settings.CloudProvider == "Dropbox") isConnected = DropboxUploadProvider.Instance.IsConnected;
+
+                        if (!isConnected)
+                        {
+                            ShowToastMessage("로그인이 취소되었습니다.");
+                            return;
+                        }
+                    }
+                    else return;
+                }
+
+                ShowToastMessage("업로드 시작...");
+                string tempPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"preview_upload_{Guid.NewGuid()}.png");
+
+                using (var fileStream = new System.IO.FileStream(tempPath, System.IO.FileMode.Create))
+                {
+                    PngBitmapEncoder encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(combinedImage));
+                    encoder.Save(fileStream);
+                }
+
+                string? url = null;
+                if (settings.CloudProvider == "GoogleDrive") url = await GoogleDriveUploadProvider.Instance.UploadImageAsync(tempPath);
+                else if (settings.CloudProvider == "ImgBB") url = await ImgBBUploadProvider.Instance.UploadImageAsync(tempPath, settings.ImgBBApiKey);
+                else if (settings.CloudProvider == "Dropbox") url = await DropboxUploadProvider.Instance.UploadImageAsync(tempPath);
+
+                if (!string.IsNullOrEmpty(url))
+                {
+                    System.Windows.Clipboard.SetText(url);
+                    string displayUrl = url.Length > 40 ? url.Substring(0, 37) + "..." : url;
+                    ShowToastMessage($"링크 복사됨: {displayUrl}");
+                }
+                else
+                {
+                    ShowToastMessage("업로드에 실패했습니다.");
+                }
+
+                if (System.IO.File.Exists(tempPath)) System.IO.File.Delete(tempPath);
+            }
+            catch (Exception ex)
+            {
+                CustomMessageBox.Show($"업로드 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
 
         private void ImageSearchButton_Click(object sender, RoutedEventArgs e)
         {
@@ -2743,6 +2833,8 @@ namespace CatchCapture
             if(SelectLabelText != null) SelectLabelText.Text = LocalizationManager.GetString("Select");
             if(SelectButton != null) SelectButton.ToolTip = LocalizationManager.GetString("SelectTooltip");
             // Image Search & Share & OCR
+            if (ImageLinkLabelText != null) ImageLinkLabelText.Text = "IMG링크";
+            if (ImageLinkButton != null) ImageLinkButton.ToolTip = "이미지 링크 만들기 (클라우드 업로드)";
             if(ImageSearchLabelText != null) ImageSearchLabelText.Text = LocalizationManager.GetString("ImageSearch");
             if(ImageSearchButton != null) ImageSearchButton.ToolTip = LocalizationManager.GetString("ImageSearch");
             if(ShareLabelText != null) ShareLabelText.Text = LocalizationManager.GetString("Share");
