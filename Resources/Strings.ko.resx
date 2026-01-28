@@ -240,7 +240,7 @@
   <data name="DrawShapeTooltip" xml:space="preserve"><value>도형 그리기 (기본: 사각형)</value></data>
   <data name="ShapeOptions" xml:space="preserve"><value>도형 옵션</value></data>
   <data name="ImageSizePrefix" xml:space="preserve"><value>이미지 사이즈 : </value></data>
-  <data name="RestartRequired" xml:space="preserve"><value>언어 변경 후 프로그램을 다시 시작해야 합니다.</value></data>
+  <data name="RestartRequired" xml:space="preserve"><value>변경 사항을 적용하려면 프로그램을 다시 시작해야 합니다.</value></data>
   <data name="MenuEdit" xml:space="preserve"><value>메뉴 편집</value></data>
   <data name="MenuEditGuide" xml:space="preserve"><value>드래그 앤 드롭으로 메뉴 순서, 변경, 삭제할 수 있어요.</value></data>
   <data name="Add" xml:space="preserve"><value>추가</value></data>

@@ -238,7 +238,7 @@
   <data name="DrawShapeTooltip" xml:space="preserve"><value>Draw Shape (Default: Rectangle)</value></data>
   <data name="ShapeOptions" xml:space="preserve"><value>Shape Options</value></data>
   <data name="ImageSizePrefix" xml:space="preserve"><value>Image Size: </value></data>
-  <data name="RestartRequired" xml:space="preserve"><value>Restart required to apply language changes.</value></data>
+  <data name="RestartRequired" xml:space="preserve"><value>Restart required to apply changes.</value></data>
   <data name="MenuEdit" xml:space="preserve"><value>Edit Menu</value></data>
   <data name="MenuEditGuide" xml:space="preserve"><value>Drag and drop to reorder or delete menu items.</value></data>
   <data name="Add" xml:space="preserve"><value>Add</value></data>
