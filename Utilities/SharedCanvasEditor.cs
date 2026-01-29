@@ -38,6 +38,7 @@ namespace CatchCapture.Utilities
         public double NumberingTextSize { get; set; } = 13;
         public Color NumberingBadgeColor { get; set; } = Colors.Red;
         public Color NumberingNoteColor { get; set; } = Colors.White;
+        public Color NumberingBackgroundColor { get; set; } = Colors.Transparent; // [추가] 배경색
         public double LineHeightMultiplier { get; set; } = 1.5; // 통합 줄 간격 배수 (보통 기준)
         
         // 텍스트 관련
@@ -395,7 +396,7 @@ namespace CatchCapture.Utilities
             var note = new TextBox {
                 Width = 120, // 기본 너비
                 MinHeight = bSize, 
-                Background = Brushes.Transparent,
+                Background = new SolidColorBrush(NumberingBackgroundColor),
                 BorderThickness = new Thickness(0),
                 Foreground = new SolidColorBrush(NumberingNoteColor), 
                 FontSize = NumberingTextSize,
@@ -682,7 +683,7 @@ namespace CatchCapture.Utilities
                 // 사용자가 "기본 셋팅값이 달라... 넘버링이랑 통일해줘"라고 했으므로 넘버링 스타일을 기본으로 하되, 폰트 크기는 TextFontSize 사용
                 FontSize = TextFontSize,
                 Foreground = new SolidColorBrush(SelectedColor), // [수정] 텍스트 도구는 SelectedColor 사용
-                Background = Brushes.Transparent,
+                Background = new SolidColorBrush(NumberingBackgroundColor), // [수정] 배경색 반영
                 BorderThickness = new Thickness(0),
                 VerticalContentAlignment = VerticalAlignment.Top,
                 Padding = new Thickness(5),
@@ -1044,6 +1045,9 @@ namespace CatchCapture.Utilities
                 
                 // [수정] 넘버링일 때만 NumberingNoteColor 사용, 일반 텍스트는 SelectedColor 사용
                 tb.Foreground = new SolidColorBrush((CurrentTool == "넘버링") ? NumberingNoteColor : SelectedColor);
+                
+                // [추가] 배경색 적용
+                tb.Background = new SolidColorBrush(NumberingBackgroundColor);
                 
                 // [추가] 통합 줄 간격(LineHeight) 적용 (넘버링/텍스트 공통)
                 double lineHeight = tb.FontSize * LineHeightMultiplier;

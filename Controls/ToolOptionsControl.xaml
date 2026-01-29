@@ -119,7 +119,8 @@
                     <TextBlock Text="색상" FontWeight="SemiBold" Margin="0,0,0,8" x:Name="ColorLabel"/>
                     <StackPanel x:Name="NumberingTabs" Margin="0,0,0,8" Orientation="Horizontal" Visibility="Collapsed">
                         <RadioButton x:Name="NumBadgeTab" Content="배지" Style="{StaticResource TabButtonStyle}" GroupName="NumTabs"/>
-                        <RadioButton x:Name="NumTextTab" Content="텍스트" Style="{StaticResource TabButtonStyle}" IsChecked="True" GroupName="NumTabs" Margin="5,0,0,0"/>
+                        <RadioButton x:Name="NumTextTab" Content="텍스트" Style="{StaticResource TabButtonStyle}" GroupName="NumTabs" Margin="5,0,0,0"/>
+                        <RadioButton x:Name="NumBgTab" Content="배경" Style="{StaticResource TabButtonStyle}" IsChecked="True" GroupName="NumTabs" Margin="5,0,0,0"/>
                     </StackPanel>
                 </Grid>
                 <WrapPanel x:Name="ColorGrid" Width="150"/>

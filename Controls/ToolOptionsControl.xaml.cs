@@ -228,13 +228,19 @@ namespace CatchCapture.Controls
         {
             if (_editor == null) return;
             bool isBadge = (NumBadgeTab.IsChecked == true);
+            bool isBg = (NumBgTab.IsChecked == true);
             
             // 배지/텍스트 옵션 패널 노출 제어
             NumberingBadgeOptions.Visibility = isBadge ? Visibility.Visible : Visibility.Collapsed;
             TextOptions.Visibility = isBadge ? Visibility.Collapsed : Visibility.Visible;
             
             // 탭에 맞는 현재 색상을 팔레트에서 하이라이트
-            UpdateColorSelection(isBadge ? _editor.NumberingBadgeColor : _editor.NumberingNoteColor);
+            Color current;
+            if (isBadge) current = _editor.NumberingBadgeColor;
+            else if (isBg) current = _editor.NumberingBackgroundColor;
+            else current = _editor.NumberingNoteColor;
+
+            UpdateColorSelection(current);
         }
 
         private void InitializeEvents()
@@ -350,6 +356,7 @@ namespace CatchCapture.Controls
             // Numbering
             NumBadgeTab.Checked += (s, e) => UpdateNumberingTabSelection();
             NumTextTab.Checked += (s, e) => UpdateNumberingTabSelection();
+            NumBgTab.Checked += (s, e) => UpdateNumberingTabSelection();
 
             NumBadgeSlider.ValueChanged += (s, e) => {
                 if (_editor == null) return;
@@ -573,6 +580,7 @@ namespace CatchCapture.Controls
                     if (_currentMode == "넘버링")
                     {
                         if (NumBadgeTab.IsChecked == true) _editor.NumberingBadgeColor = c;
+                        else if (NumBgTab.IsChecked == true) _editor.NumberingBackgroundColor = c;
                         else _editor.NumberingNoteColor = c;
                     }
                     else
@@ -644,6 +652,7 @@ namespace CatchCapture.Controls
                         if (_currentMode == "넘버링")
                         {
                             if (NumBadgeTab.IsChecked == true) _editor.NumberingBadgeColor = newColor;
+                            else if (NumBgTab.IsChecked == true) _editor.NumberingBackgroundColor = newColor;
                             else _editor.NumberingNoteColor = newColor;
                         }
                         else
@@ -721,6 +730,7 @@ namespace CatchCapture.Controls
             ShapeOpacityLabel.Text = ResLoc.GetString("FillOpacity");
             NumBadgeTab.Content = ResLoc.GetString("Badge");
             NumTextTab.Content = ResLoc.GetString("TextNote");
+            NumBgTab.Content = ResLoc.GetString("Background");
             NumBadgeLabel.Text = ResLoc.GetString("BadgeSize");
 
             MosaicLabel.Text = ResLoc.GetString("Intensity");

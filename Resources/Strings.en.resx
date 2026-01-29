@@ -744,6 +744,7 @@ Are you sure you want to permanently delete all items?</value>
   <data name="FileNamePreview" xml:space="preserve"><value>Preview</value></data>
   <data name="Badge" xml:space="preserve"><value>Badge</value></data>
   <data name="TextNote" xml:space="preserve"><value>Text</value></data>
+  <data name="Background" xml:space="preserve"><value>Background</value></data>
   <data name="BadgeSize" xml:space="preserve"><value>Badge Size</value></data>
   <data name="TextSize" xml:space="preserve"><value>Text Size</value></data>
   <data name="SettingsAutoCopyDesc" xml:space="preserve"><value>Auto-copy to clipboard after capture</value></data>
