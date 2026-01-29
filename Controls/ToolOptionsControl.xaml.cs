@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Input;
+using System.Windows.Shapes;
 using CatchCapture.Models; // For Color Palette
 using CatchCapture.Utilities; // For SharedCanvasEditor
 using ResLoc = CatchCapture.Resources.LocalizationManager;
@@ -510,8 +511,7 @@ namespace CatchCapture.Controls
             // Shared Palette
             foreach (var c in UIConstants.SharedColorPalette)
             {
-                if (c != Colors.Transparent) 
-                    ColorGrid.Children.Add(CreateColorSwatch(c));
+                ColorGrid.Children.Add(CreateColorSwatch(c));
             }
             
             // Custom Colors from Settings
@@ -546,7 +546,8 @@ namespace CatchCapture.Controls
                 Width = 26, Height = 26,
                 Margin = new Thickness(1),
                 Cursor = Cursors.Hand,
-                Background = Brushes.Transparent
+                Background = Brushes.Transparent,
+                Tag = c // [추가] 실제 도구에 적용될 논리적 색상을 Tag에 저장
             };
 
             // Selection Border (Outer Ring)
@@ -566,10 +567,25 @@ namespace CatchCapture.Controls
                 CornerRadius = new CornerRadius(3),
                 Background = new SolidColorBrush(c),
                 BorderThickness = new Thickness(1),
-                BorderBrush = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0)),
+                BorderBrush = new SolidColorBrush(Color.FromArgb(60, 0, 0, 0)), // 테두리 조금 더 진하게
                 HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
+                VerticalAlignment = VerticalAlignment.Center,
+                ClipToBounds = true
             };
+
+            // 투명색인 경우 대각선 표시
+            if (c == Colors.Transparent)
+            {
+                colorSwatch.Child = new Line
+                {
+                    X1 = 0, Y1 = 18, X2 = 18, Y2 = 0,
+                    Stroke = Brushes.Red,
+                    StrokeThickness = 1.5,
+                    Stretch = Stretch.Fill
+                };
+                colorSwatch.Background = Brushes.White; // 배경은 흰색으로 보여줌 (그래야 대각선이 보임)
+                // 실제 클릭 시 적용되는 색상은 c (Transparent) 임
+            }
 
             container.Children.Add(selectionBorder);
             container.Children.Add(colorSwatch);
@@ -607,16 +623,13 @@ namespace CatchCapture.Controls
             foreach (var child in ColorGrid.Children)
             {
                 // New structure: Grid -> [SelectionBorder, ColorSwatch]
-                if (child is Grid g && g.Children.Count >= 2)
+                if (child is Grid g && g.Tag is Color logicalColor)
                 {
-                    if (g.Children[1] is Border colorSwatch && colorSwatch.Background is SolidColorBrush sc)
+                    bool isSel = (logicalColor == selected);
+                    if (g.Children.Count >= 1 && g.Children[0] is Border selBorder)
                     {
-                        bool isSel = (sc.Color == selected);
-                        if (g.Children[0] is Border selBorder)
-                        {
-                            // Change selection color to Red for better visibility
-                            selBorder.BorderBrush = isSel ? Brushes.Red : Brushes.Transparent;
-                        }
+                        // Change selection color to Red for better visibility
+                        selBorder.BorderBrush = isSel ? Brushes.Red : Brushes.Transparent;
                     }
                 }
                 // Legacy support (fallback)

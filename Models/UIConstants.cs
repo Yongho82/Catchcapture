@@ -8,6 +8,7 @@ namespace CatchCapture.Models
         // PreviewWindow and SnippingWindow unified color palette
         public static readonly Color[] SharedColorPalette = new Color[]
         {
+            Colors.Transparent,
             // Row 1
             Colors.Black,
             Color.FromRgb(128, 128, 128),
@@ -27,8 +28,7 @@ namespace CatchCapture.Models
             Color.FromRgb(232, 62, 140),
             Color.FromRgb(13, 110, 253),
             Color.FromRgb(25, 135, 84),
-            Color.FromRgb(102, 16, 242),
-            Colors.Transparent
+            Color.FromRgb(102, 16, 242)
         };
     }
 }

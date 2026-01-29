@@ -1045,24 +1045,23 @@ namespace CatchCapture.Utilities
                 
                 // [수정] 넘버링일 때만 NumberingNoteColor 사용, 일반 텍스트는 SelectedColor 사용
                 tb.Foreground = new SolidColorBrush((CurrentTool == "넘버링") ? NumberingNoteColor : SelectedColor);
+                tb.CaretBrush = tb.Foreground; // [추가] 커서 색상을 텍스트 색상과 동일하게 설정
                 
                 // [추가] 배경색 적용
                 tb.Background = new SolidColorBrush(NumberingBackgroundColor);
                 
-                // [추가] 통합 줄 간격(LineHeight) 적용 (넘버링/텍스트 공통)
+                // 통합 줄 간격(LineHeight) 적용 (넘버링/텍스트 공통)
                 double lineHeight = tb.FontSize * LineHeightMultiplier;
                 TextBlock.SetLineHeight(tb, lineHeight);
+                TextBlock.SetLineStackingStrategy(tb, LineStackingStrategy.MaxHeight); // [수정] 커서 가시성을 위해 MaxHeight 사용
 
                 if (CurrentTool == "넘버링")
                 {
-                    // [수정] 넘버링은 첫 줄이 배지와 잘 맞아야 하므로 MaxHeight를 사용하고 상단 여백을 줄임
-                    TextBlock.SetLineStackingStrategy(tb, LineStackingStrategy.MaxHeight);
+                    // 넘버링은 첫 줄이 배지와 잘 맞아야 하므로 상단 여백을 조절
                     tb.Padding = new Thickness(5, 2, 5, 5);
                 }
                 else
                 {
-                    // 일반 텍스트는 일관된 줄 간격을 위해 BlockLineHeight 유지
-                    TextBlock.SetLineStackingStrategy(tb, LineStackingStrategy.BlockLineHeight);
                     tb.Padding = new Thickness(5);
                 }
 
@@ -1120,8 +1119,7 @@ namespace CatchCapture.Utilities
             tb.FontWeight = TextFontWeight;
             tb.FontStyle = TextFontStyle;
             
-            // [추가] 커서(캐럿) 색상 가독성 확보 (WPF TextBox는 LineHeight를 직접 지원하지 않음)
-            tb.CaretBrush = Brushes.White;
+            // 커서(캐럿) 색상은 Foreground와 동기화되도록 ApplyCurrentSettings에서 처리함
 
             if (TextUnderlineEnabled)
             {
@@ -1150,7 +1148,7 @@ namespace CatchCapture.Utilities
             // [추가] 초기 생성 시에도 줄 간격 적용
             double lineHeight = tb.FontSize * LineHeightMultiplier;
             TextBlock.SetLineHeight(tb, lineHeight);
-            TextBlock.SetLineStackingStrategy(tb, LineStackingStrategy.BlockLineHeight);
+            TextBlock.SetLineStackingStrategy(tb, LineStackingStrategy.MaxHeight);
         }
 
         private Color GetContrastColor(Color c)
