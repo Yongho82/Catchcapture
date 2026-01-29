@@ -2511,20 +2511,13 @@ namespace CatchCapture.Utilities
 
                     if (result == MessageBoxResult.Yes)
                     {
+                        // [수정] 오버레이(Topmost) 상태에서 설정창이 열리면 조작이 불가능한 문제가 있어 캡처를 종료하고 설정창을 엶
+                        this.Close();
+                        
                         var settingsWindow = new SettingsWindow();
                         settingsWindow.SelectPage("Cloud");
-                        settingsWindow.ShowDialog();
-
-                        settings = CatchCapture.Models.Settings.Load();
-                        if (settings.CloudProvider == "GoogleDrive") isConnected = GoogleDriveUploadProvider.Instance.IsConnected;
-                        else if (settings.CloudProvider == "ImgBB") isConnected = !string.IsNullOrEmpty(settings.ImgBBApiKey);
-                        else if (settings.CloudProvider == "Dropbox") isConnected = DropboxUploadProvider.Instance.IsConnected;
-
-                        if (!isConnected)
-                        {
-                            StickerWindow.Show(ResLoc.GetString("LoginCancelled"));
-                            return;
-                        }
+                        settingsWindow.Show();
+                        return;
                     }
                     else return;
                 }

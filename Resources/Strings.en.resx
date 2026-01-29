@@ -1025,7 +1025,7 @@ Are you sure you want to permanently delete all items?</value>
 2. Folder Access Permissions: Windows security settings (Firewall/Ransomware Protection) may block file writing in certain folders.
 
 💡 Solution
-- Change Storage Path: Go to [Note Settings] and change the storage location to a simple, safe path like 'D:\' or 'C:\CatchCapture' that is independent of your user account profile.
+- Change Storage Path: Go to [Note Settings] and change the storage location to a simple, safe path like 'D:\' or 'C:\' that is independent of your user account profile.
 
 If the problem persists, please contact us via the 'Contact Us' link at the bottom of the screen.</value></data>
 </root>
