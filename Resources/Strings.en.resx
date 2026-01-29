@@ -1016,4 +1016,16 @@ Are you sure you want to permanently delete all items?</value>
   <data name="CopiedToClipboardMsg" xml:space="preserve"><value>Copied to clipboard</value></data>
   <data name="ShareTitle" xml:space="preserve"><value>Share Image</value></data>
   <data name="ShareDescription" xml:space="preserve"><value>CatchCapture Screenshot</value></data>
+  <data name="ImageNotVisibleBtn" xml:space="preserve"><value>Images not showing?</value></data>
+  <data name="ImageNotVisibleTitle" xml:space="preserve"><value>Image Storage &amp; Display Guide</value></data>
+  <data name="ImageNotVisibleContent" xml:space="preserve"><value>If saving or displaying images in your notes is not working correctly due to system environment issues, please refer to the guide below.
+
+📌 Primary Causes
+1. Special Characters in Username: If your Windows account name contains special characters (e.g., &amp; or #), the app may fail to recognize profile paths, leading to save failures.
+2. Folder Access Permissions: Windows security settings (Firewall/Ransomware Protection) may block file writing in certain folders.
+
+💡 Solution
+- Change Storage Path: Go to [Note Settings] and change the storage location to a simple, safe path like 'D:\' or 'C:\CatchCapture' that is independent of your user account profile.
+
+If the problem persists, please contact us via the 'Contact Us' link at the bottom of the screen.</value></data>
 </root>

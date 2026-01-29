@@ -58,9 +58,9 @@
 
             <!-- Content -->
             <TextBlock x:Name="MessageText" Grid.Row="1" Text="메시지 내용이 여기에 표시됩니다." 
-                       TextWrapping="Wrap" TextAlignment="Center"
-                       HorizontalAlignment="Center" VerticalAlignment="Center"
-                       Margin="20,20,20,20" FontSize="13" Foreground="{DynamicResource ThemeForeground}" Opacity="0.9" LineHeight="20"/>
+                       TextWrapping="Wrap" TextAlignment="Left"
+                       HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                       Margin="25,20,25,20" FontSize="13" Foreground="{DynamicResource ThemeForeground}" Opacity="0.9" LineHeight="22"/>
 
             <!-- Footer -->
             <StackPanel x:Name="ButtonPanel" Grid.Row="2" Orientation="Horizontal" 

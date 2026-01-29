@@ -35,19 +35,24 @@ namespace CatchCapture
         /// <summary>
         /// 커스텀 메시지 박스 표시 (정적 메서드)
         /// </summary>
-        public static MessageBoxResult Show(string message, string? title = null, MessageBoxButton button = MessageBoxButton.OK, MessageBoxImage image = MessageBoxImage.None, double width = 0, string? yesLabel = null, string? noLabel = null, string? cancelLabel = null, string? okLabel = null)
+        public static MessageBoxResult Show(string message, string? title = null, MessageBoxButton button = MessageBoxButton.OK, MessageBoxImage image = MessageBoxImage.None, double width = 0, string? yesLabel = null, string? noLabel = null, string? cancelLabel = null, string? okLabel = null, TextAlignment textAlignment = TextAlignment.Center)
         {
             // UI 스레드에서 실행되도록 보장 (비동기 호출 등에서 안전하게)
             if (Application.Current != null && !Application.Current.Dispatcher.CheckAccess())
             {
-                return Application.Current.Dispatcher.Invoke(() => Show(message, title, button, image, width, yesLabel, noLabel, cancelLabel, okLabel));
+                return Application.Current.Dispatcher.Invoke(() => Show(message, title, button, image, width, yesLabel, noLabel, cancelLabel, okLabel, textAlignment));
             }
 
             var msgBox = new CustomMessageBox();
             if (width > 0) msgBox.Width = width;
             msgBox.TitleText.Text = title ?? LocalizationManager.GetString("Notice");
-            // 마침표+공백이 있으면 줄바꿈으로 변경하여 가독성 향상
-            msgBox.MessageText.Text = message.Replace(". ", ".\n");
+            // 마침표+공백이 있고, 이미 줄바꿈이 없는 경우에만 자동 줄바꿈 처리하여 가독성 향상
+            if (!message.Contains("\n") && message.Contains(". "))
+                msgBox.MessageText.Text = message.Replace(". ", ".\n");
+            else
+                msgBox.MessageText.Text = message;
+
+            msgBox.MessageText.TextAlignment = textAlignment;
             
             // 부모 창 설정 (가능하다면)
             if (Application.Current != null && Application.Current.Windows.Count > 0)

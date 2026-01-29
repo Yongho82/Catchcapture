@@ -215,6 +215,7 @@ namespace CatchCapture
             if (TxtMyNoteTitle != null) TxtMyNoteTitle.Text = CatchCapture.Resources.LocalizationManager.GetString("MyNote");
             if (TxtNewNoteLabel != null) TxtNewNoteLabel.Text = CatchCapture.Resources.LocalizationManager.GetString("NewNote");
             if (BtnNoteSettingsText != null) BtnNoteSettingsText.Text = CatchCapture.Resources.LocalizationManager.GetString("NoteSettingsMenu");
+            if (TxtImageVisibilityGuide != null) TxtImageVisibilityGuide.Text = CatchCapture.Resources.LocalizationManager.GetString("ImageNotVisibleBtn");
             if (TxtExploreTitle != null) TxtExploreTitle.Text = CatchCapture.Resources.LocalizationManager.GetString("Explore");
             if (TxtFilterAllText != null) TxtFilterAllText.Text = CatchCapture.Resources.LocalizationManager.GetString("AllNotes");
             if (TxtFilterGroupText != null) TxtFilterGroupText.Text = CatchCapture.Resources.LocalizationManager.GetString("GroupNote");
@@ -415,6 +416,14 @@ namespace CatchCapture
         {
             _tipTimer?.Stop();
             this.Close();
+        }
+
+        private void BtnImageVisibilityGuide_Click(object sender, RoutedEventArgs e)
+        {
+            string title = CatchCapture.Resources.LocalizationManager.GetString("ImageNotVisibleTitle") ?? "이미지 저장 및 표시 문제 안내";
+            string content = CatchCapture.Resources.LocalizationManager.GetString("ImageNotVisibleContent") ?? "이미지 저장 또는 표시가 안 되는 경우에 대한 안내입니다.";
+            
+            CatchCapture.CustomMessageBox.Show(content, title, MessageBoxButton.OK, MessageBoxImage.Information, width: 450, textAlignment: TextAlignment.Left);
         }
 
         private async void BtnNoteSettings_Click(object sender, RoutedEventArgs e)
