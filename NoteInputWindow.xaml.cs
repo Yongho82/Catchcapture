@@ -27,6 +27,8 @@ namespace CatchCapture
         private bool _isEditMode => _editingNoteId.HasValue;
         public long? LastSavedNoteId { get; private set; }
 
+        private System.Windows.Threading.DispatcherTimer? _autoSaveTimer;
+
         public class AttachmentItem
         {
             public string? FullPath { get; set; } // Local path for new files
@@ -89,6 +91,8 @@ namespace CatchCapture
             LoadWindowState();
             UpdateUIText();
             CatchCapture.Resources.LocalizationManager.LanguageChanged += (s, e) => UpdateUIText();
+
+            InitializeDrafts();
         }
 
         // Constructor for Edit Note
@@ -114,10 +118,13 @@ namespace CatchCapture
             LoadWindowState();
             UpdateUIText();
             CatchCapture.Resources.LocalizationManager.LanguageChanged += (s, e) => UpdateUIText();
+
+            InitializeDrafts();
         }
 
         protected override void OnClosed(EventArgs e)
         {
+            try { _autoSaveTimer?.Stop(); } catch { }
             base.OnClosed(e);
             SaveWindowState();
         }
@@ -808,6 +815,121 @@ namespace CatchCapture
                 BtnSave.IsEnabled = true;
                 CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ErrSaveNote") + " " + ex.Message, CatchCapture.Resources.LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void InitializeDrafts()
+        {
+            UpdateDraftCountUI();
+
+            _autoSaveTimer = new System.Windows.Threading.DispatcherTimer();
+            _autoSaveTimer.Interval = TimeSpan.FromSeconds(30);
+            _autoSaveTimer.Tick += (s, e) => SaveDraft();
+            _autoSaveTimer.Start();
+        }
+
+        private void UpdateDraftCountUI()
+        {
+            if (CheckAccess())
+            {
+                TxtDraftCount.Text = DraftManager.GetDraftCount().ToString();
+            }
+            else
+            {
+                Dispatcher.Invoke(UpdateDraftCountUI);
+            }
+        }
+
+        private void SaveDraft()
+        {
+            try
+            {
+                // UI 스레드에서 데이터 안전하게 긁어오기
+                Dispatcher.Invoke(() =>
+                {
+                    if (!HasMeaningfulContent()) return;
+
+                    var data = new DraftData
+                    {
+                        OriginalNoteId = _editingNoteId,
+                        Title = TxtTitle.Text,
+                        Tags = TxtTags.Text,
+                        CategoryId = (long)(CboCategory.SelectedValue ?? 1L),
+                        ContentXaml = Editor.GetXaml()
+                    };
+
+                    Task.Run(() => {
+                        DraftManager.SaveDraft(data);
+                        UpdateDraftCountUI();
+                    });
+                });
+            }
+            catch { }
+        }
+
+        private void BtnSaveDraft_Click(object sender, RoutedEventArgs e)
+        {
+            SaveDraft();
+            // 효과: 아이콘 잠시 밝게 하거나 툴팁 변경 가능 (일단 저장만)
+        }
+
+        private void BtnDrafts_Click(object sender, RoutedEventArgs e)
+        {
+            var draftWin = new DraftListWindow();
+            draftWin.Owner = this;
+            if (draftWin.ShowDialog() == true && draftWin.SelectedDraft != null)
+            {
+                RestoreDraft(draftWin.SelectedDraft);
+            }
+            UpdateDraftCountUI();
+        }
+
+        private void RestoreDraft(DraftData draft)
+        {
+            var result = CustomMessageBox.Show(
+                "선택한 내용으로 복구하시겠습니까?\n현재 작성 중인 내용은 모두 지워집니다.",
+                "임시저장 복구",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                TxtTitle.Text = draft.Title;
+                TxtTags.Text = draft.Tags;
+
+                // 카테고리 선택
+                foreach (Category cat in CboCategory.Items)
+                {
+                    if (cat.Id == draft.CategoryId)
+                    {
+                        CboCategory.SelectedItem = cat;
+                        break;
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(draft.ContentXaml))
+                {
+                    Editor.SetXaml(draft.ContentXaml);
+                    Editor.Focus();
+                }
+            }
+        }
+
+        private bool HasMeaningfulContent()
+        {
+            if (!string.IsNullOrWhiteSpace(TxtTitle.Text)) return true;
+            if (_attachments.Count > 0) return true;
+            if (Editor.GetAllImages().Count > 0) return true;
+
+            string bodyText = Editor.GetPlainText() ?? "";
+            string cleanBody = bodyText
+                .Replace("\r", "")
+                .Replace("\n", "")
+                .Replace("\t", "")
+                .Replace(" ", "")
+                .Replace("\u200B", "")
+                .Replace("\uFFFC", "");
+
+            return !string.IsNullOrEmpty(cleanBody);
         }
     }
 }
