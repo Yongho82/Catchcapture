@@ -70,7 +70,7 @@
                             </StackPanel>
 
                             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                <Button Content="{DynamicResource Restore}" Click="BtnRestore_Click" Cursor="Hand" Padding="12,5" Background="#3498db" Foreground="White" BorderThickness="0" FontWeight="Bold">
+                                <Button Content="{DynamicResource RestoreDraft}" Click="BtnRestore_Click" Cursor="Hand" Padding="12,5" Background="#3498db" Foreground="White" BorderThickness="0" FontWeight="Bold">
                                     <Button.Resources>
                                         <Style TargetType="Border">
                                             <Setter Property="CornerRadius" Value="6"/>

@@ -78,7 +78,7 @@
     <value>Captura Múltipla</value>
   </data>
   <data name="FullScreen" xml:space="preserve">
-    <value>Ecrã Completo</value>
+    <value>Tela Inteira</value>
   </data>
   <data name="DesignatedCapture" xml:space="preserve">
     <value>Área Fixa</value>
@@ -90,10 +90,10 @@
     <value>Captura de Elemento</value>
   </data>
   <data name="ScrollCapture" xml:space="preserve">
-    <value>Captura com Scroll</value>
+    <value>Captura com Rolagem</value>
   </data>
   <data name="OcrCapture" xml:space="preserve">
-    <value>Captura OCR</value>
+    <value>Captura com OCR</value>
   </data>
   
   <!-- Window Modes -->
@@ -103,22 +103,22 @@
   
   <!-- Menu Items -->
   <data name="Settings" xml:space="preserve">
-    <value>Definições</value>
+    <value>Configurações</value>
   </data>
   <data name="Exit" xml:space="preserve">
     <value>Sair</value>
   </data>
   <data name="Save" xml:space="preserve">
-    <value>Guardar</value>
+    <value>Salvar</value>
   </data>
   <data name="SaveAll" xml:space="preserve">
-    <value>Guardar Tudo</value>
+    <value>Salvar Tudo</value>
   </data>
   <data name="Delete" xml:space="preserve">
-    <value>Apagar</value>
+    <value>Excluir</value>
   </data>
   <data name="DeleteAll" xml:space="preserve">
-    <value>Apagar Tudo</value>
+    <value>Excluir Tudo</value>
   </data>
   <data name="Copy" xml:space="preserve">
     <value>Copiar</value>
@@ -144,7 +144,7 @@
     <value>Borracha</value>
   </data>
   <data name="Mosaic" xml:space="preserve">
-    <value>Mosaico</value>
+    <value>Pixelado</value>
   </data>
   <data name="Numbering" xml:space="preserve">
     <value>Numeração</value>
@@ -173,23 +173,22 @@
     <value>Idioma</value>
   </data>
   <data name="Hotkeys" xml:space="preserve">
-    <value>Teclas de Atalho</value>
+    <value>Atalhos de Teclado</value>
   </data>
   <data name="StartWithWindows" xml:space="preserve">
     <value>Iniciar com o Windows</value>
   </data>
   <data name="StartInTrayMode" xml:space="preserve">
-    <value>Iniciar em Modo de Tabuleiro</value>
+    <value>Iniciar na Área de Notificação</value>
   </data>
   <data name="SettingsSaved" xml:space="preserve">
-    <value>Definições guardadas com sucesso</value>
+    <value>Configurações salvas com sucesso</value>
   </data>
-
   <data name="Version" xml:space="preserve">
     <value>Versão</value>
   </data>
   <data name="Default" xml:space="preserve">
-    <value>Predefinido</value>
+    <value>Padrão</value>
   </data>
   <data name="Select" xml:space="preserve">
     <value>Selecionar</value>
@@ -198,7 +197,6 @@
     <value>Selecionar e ajustar elementos</value>
   </data>
 
-  
   <!-- Messages -->
   <data name="Confirm" xml:space="preserve">
     <value>Confirmar</value>
@@ -218,66 +216,70 @@
   <data name="Success" xml:space="preserve">
     <value>Sucesso</value>
   </data>
+
   <!-- Added Keys -->
   <data name="Capture" xml:space="preserve"><value>Capturar</value></data>
   <data name="Captured" xml:space="preserve"><value>Capturado</value></data>
   <data name="Recapture" xml:space="preserve"><value>Recapturar</value></data>
-  <data name="CopyToClipboard" xml:space="preserve"><value>Copiar para Área de Transferência</value></data>
-  <data name="Reset" xml:space="preserve"><value>Repor</value></data>
-  <data name="FlipHorizontal" xml:space="preserve"><value>Inverter H</value></data>
-  <data name="FlipVertical" xml:space="preserve"><value>Inverter V</value></data>
-  <data name="ImageSearch" xml:space="preserve"><value>Pesquisa de Imagem</value></data>
-  <data name="Share" xml:space="preserve"><value>Partilhar</value></data>
+  <data name="CopyToClipboard" xml:space="preserve"><value>Copiar para a Área de Transferência</value></data>
+  <data name="Reset" xml:space="preserve"><value>Redefinir</value></data>
+  <data name="FlipHorizontal" xml:space="preserve"><value>Espelhar Horizontal</value></data>
+  <data name="FlipVertical" xml:space="preserve"><value>Espelhar Vertical</value></data>
+  <data name="ImageSearch" xml:space="preserve"><value>Pesquisar Imagem</value></data>
+  <data name="Share" xml:space="preserve"><value>Compartilhar</value></data>
   <data name="Extract" xml:space="preserve"><value>Extrair</value></data>
   <data name="ToolOptions" xml:space="preserve"><value>Opções da Ferramenta</value></data>
   <data name="RecentCaptures" xml:space="preserve"><value>Capturas Recentes</value></data>
   <data name="Size" xml:space="preserve"><value>Tamanho</value></data>
   <data name="OriginalSize" xml:space="preserve"><value>Original</value></data>
-  <data name="ResetToOriginal" xml:space="preserve"><value>Repor para Original</value></data>
+  <data name="ResetToOriginal" xml:space="preserve"><value>Redefinir para Original</value></data>
   <data name="AddText" xml:space="preserve"><value>Adicionar Texto</value></data>
-  <data name="DrawShapeTooltip" xml:space="preserve"><value>Desenhar Forma (Predefinido: Retângulo)</value></data>
+  <data name="DrawShapeTooltip" xml:space="preserve"><value>Desenhar Forma (Padrão: Retângulo)</value></data>
   <data name="ShapeOptions" xml:space="preserve"><value>Opções de Forma</value></data>
   <data name="ImageSizePrefix" xml:space="preserve"><value>Tamanho da Imagem: </value></data>
-  <data name="RestartRequired" xml:space="preserve"><value>É necessário reiniciar para aplicar as alterações de idioma.</value></data>
+  <data name="RestartRequired" xml:space="preserve">
+    <value>É necessário reiniciar o programa para aplicar as alterações de idioma.</value>
+  </data>
+
   <data name="MenuEdit" xml:space="preserve"><value>Editar Menu</value></data>
-  <data name="MenuEditGuide" xml:space="preserve"><value>Arraste e solte para reordenar ou apagar itens do menu.</value></data>
+  <data name="MenuEditGuide" xml:space="preserve"><value>Arraste e solte para reordenar ou excluir itens do menu.</value></data>
   <data name="Add" xml:space="preserve"><value>Adicionar</value></data>
-  <data name="RestoreDefaultMenus" xml:space="preserve"><value>Restaurar Menus Predefinidos</value></data>
+  <data name="RestoreDefaultMenus" xml:space="preserve"><value>Restaurar Menus Padrão</value></data>
   <data name="VisitHomepage" xml:space="preserve"><value>Visitar Página Inicial</value></data>
-  <data name="RestoreDefaults" xml:space="preserve"><value>Restaurar Predefinições</value></data>
+  <data name="RestoreDefaults" xml:space="preserve"><value>Restaurar Padrões</value></data>
   <data name="PrivacyPolicy" xml:space="preserve"><value>Política de Privacidade</value></data>
-  <data name="CaptureSettings" xml:space="preserve"><value>Definições de Captura</value></data>
-  <data name="SaveSettings" xml:space="preserve"><value>Definições de Guarda</value></data>
-  <data name="SavePath" xml:space="preserve"><value>Caminho de Guarda</value></data>
+  <data name="CaptureSettings" xml:space="preserve"><value>Configurações de Captura</value></data>
+  <data name="SaveSettings" xml:space="preserve"><value>Configurações de Salvamento</value></data>
+  <data name="SavePath" xml:space="preserve"><value>Pasta de Salvamento</value></data>
   <data name="Change" xml:space="preserve"><value>Alterar</value></data>
-  <data name="FileFormat" xml:space="preserve"><value>Formato de Ficheiro</value></data>
+  <data name="FileFormat" xml:space="preserve"><value>Formato do Arquivo</value></data>
   <data name="Quality" xml:space="preserve"><value>Qualidade</value></data>
   <data name="Options" xml:space="preserve"><value>Opções</value></data>
-  <data name="AutoSaveCapture" xml:space="preserve"><value>Guardar Automaticamente Após Captura</value></data>
+  <data name="AutoSaveCapture" xml:space="preserve"><value>Salvar Automaticamente Após Captura</value></data>
   <data name="ShowPreviewAfterCapture" xml:space="preserve"><value>Mostrar Pré-visualização Após Captura</value></data>
-  <data name="HotkeySettings" xml:space="preserve"><value>Definições de Teclas de Atalho</value></data>
+  <data name="HotkeySettings" xml:space="preserve"><value>Configurações de Atalhos</value></data>
   <data name="UsePrintScreen" xml:space="preserve"><value>Usar Tecla Print Screen</value></data>
-  <data name="SystemSettings" xml:space="preserve"><value>Definições do Sistema</value></data>
-  <data name="StartupMode" xml:space="preserve"><value>Modo de Arranque</value></data>
-  <data name="StartInNormal" xml:space="preserve"><value>Iniciar em Modo Normal</value></data>
-  <data name="StartInSimple" xml:space="preserve"><value>Iniciar em Modo Simples</value></data>
-  <data name="StartInTray" xml:space="preserve"><value>Iniciar em Modo de Tabuleiro</value></data>
-  <data name="StartupModeNotice" xml:space="preserve"><value>※ Modo de Tabuleiro mostra apenas o ícone na barra de tarefas.</value></data>
-  <data name="LanguageSettings" xml:space="preserve"><value>Definições de Idioma</value></data>
+  <data name="SystemSettings" xml:space="preserve"><value>Configurações do Sistema</value></data>
+  <data name="StartupMode" xml:space="preserve"><value>Modo de Inicialização</value></data>
+  <data name="StartInNormal" xml:space="preserve"><value>Iniciar no Modo Normal</value></data>
+  <data name="StartInSimple" xml:space="preserve"><value>Iniciar no Modo Simples</value></data>
+  <data name="StartInTray" xml:space="preserve"><value>Iniciar na Área de Notificação</value></data>
+  <data name="StartupModeNotice" xml:space="preserve"><value>※ O modo Área de Notificação mostra apenas o ícone na barra de tarefas.</value></data>
+  <data name="LanguageSettings" xml:space="preserve"><value>Configurações de Idioma</value></data>
   <data name="LanguageLabel" xml:space="preserve"><value>Selecionar Idioma</value></data>
   <data name="NoExtractedText" xml:space="preserve"><value>Nenhum texto extraído.</value></data>
   <data name="Info" xml:space="preserve"><value>Informação</value></data>
-  <data name="ImageSaveTitle" xml:space="preserve"><value>Guardar Imagem</value></data>
-  <data name="ImageSaved" xml:space="preserve"><value>Imagem guardada com sucesso.</value></data>
+  <data name="ImageSaveTitle" xml:space="preserve"><value>Salvar Imagem</value></data>
+  <data name="ImageSaved" xml:space="preserve"><value>Imagem salva com sucesso.</value></data>
   <data name="NoImageToPrint" xml:space="preserve"><value>Nenhuma imagem para imprimir.</value></data>
   <data name="PrintPreviewError" xml:space="preserve"><value>Erro na pré-visualização de impressão</value></data>
   <data name="RecaptureError" xml:space="preserve"><value>Erro ao recapturar</value></data>
-  <data name="ConfirmReset" xml:space="preserve"><value>Repor para original? Todas as alterações serão perdidas.</value></data>
+  <data name="ConfirmReset" xml:space="preserve"><value>Redefinir para o original? Todas as alterações serão perdidas.</value></data>
   <data name="EditImage" xml:space="preserve"><value>Editar Imagem</value></data>
-  <data name="PenTooltip" xml:space="preserve"><value>Caneta (Predefinido: Preto, 3px)</value></data>
-  <data name="BackgroundRemoval" xml:space="preserve"><value>Rem BG</value></data>
+  <data name="PenTooltip" xml:space="preserve"><value>Caneta (Padrão: Preto, 3px)</value></data>
+  <data name="BackgroundRemoval" xml:space="preserve"><value>Remover Fundo</value></data>
   <data name="BackgroundRemovalTooltip" xml:space="preserve"><value>Remover Fundo Automaticamente</value></data>
-  <data name="ImageSearchTooltip" xml:space="preserve"><value>Pesquisa de Imagem no Google</value></data>
+  <data name="ImageSearchTooltip" xml:space="preserve"><value>Pesquisar esta Imagem no Google</value></data>
   <data name="ExtractText" xml:space="preserve"><value>Extrair Texto (OCR)</value></data>
   <data name="ZoomReset" xml:space="preserve"><value>Original (100%)</value></data>
   <data name="ZoomResetTooltip" xml:space="preserve"><value>Ver Tamanho Real</value></data>
@@ -289,63 +291,63 @@
   <data name="HighlighterLbl" xml:space="preserve"><value>Marcador</value></data>
   <data name="TextAdd" xml:space="preserve"><value>Adicionar Texto</value></data>
   <data name="UndoLbl" xml:space="preserve"><value>Desfazer</value></data>
-  <data name="ScreenRecording" xml:space="preserve"><value>Gravar</value></data>
+  <data name="ScreenRecording" xml:space="preserve"><value>Gravar Tela</value></data>
   <data name="Record" xml:space="preserve"><value>Gravar</value></data>
   <data name="RedoLbl" xml:space="preserve"><value>Refazer</value></data>
-  <data name="ResetLbl" xml:space="preserve"><value>Repor</value></data>
-  <data name="FlipH" xml:space="preserve"><value>Inverter H</value></data>
-  <data name="FlipV" xml:space="preserve"><value>Inverter V</value></data>
+  <data name="ResetLbl" xml:space="preserve"><value>Redefinir</value></data>
+  <data name="FlipH" xml:space="preserve"><value>Espelhar Horizontal</value></data>
+  <data name="FlipV" xml:space="preserve"><value>Espelhar Vertical</value></data>
   <data name="CopySelected" xml:space="preserve"><value>Copiar</value></data>
-  <data name="InstantEdit" xml:space="preserve"><value>Edição Instantânea</value></data>
+  <data name="InstantEdit" xml:space="preserve"><value>Edição Rápida</value></data>
   <data name="OpenEditor" xml:space="preserve"><value>Abrir Editor</value></data>
-  <data name="OpenSettings" xml:space="preserve"><value>Abrir Definições</value></data>
+  <data name="OpenSettings" xml:space="preserve"><value>Abrir Configurações</value></data>
   <data name="RealTimeF1Guide" xml:space="preserve"><value>Pressione F1 quando estiver pronto para capturar.</value></data>
   <data name="DelayNone" xml:space="preserve"><value>Sem Atraso</value></data>
   <data name="Delay3Sec" xml:space="preserve"><value>3 seg</value></data>
   <data name="Delay5Sec" xml:space="preserve"><value>5 seg</value></data>
   <data name="Delay10Sec" xml:space="preserve"><value>10 seg</value></data>
-  <data name="MultiCaptureGuide" xml:space="preserve"><value>ENTER: Compor&#xA;F1: Individual&#xA;ESC: Sair</value></data>
+  <data name="MultiCaptureGuide" xml:space="preserve"><value>ENTER: Compor\nF1: Individual\nESC: Sair</value></data>
   <data name="MultiCaptureMinReq" xml:space="preserve"><value>Por favor, capture pelo menos uma região.</value></data>
   <data name="InvalidCompositeSize" xml:space="preserve"><value>Tamanho da imagem composta inválido.</value></data>
   <data name="CompositeTooLarge" xml:space="preserve"><value>Imagem composta muito grande ({0}x{1}). Tamanho máximo é 32000x32000.</value></data>
   <data name="CompositeError" xml:space="preserve"><value>Erro ao compor imagens: {0}</value></data>
   <data name="CaptureError" xml:space="preserve"><value>Erro na captura: {0}</value></data>
-  <data name="NumberingOptions" xml:space="preserve"><value>Definições de Tamanho</value></data>
+  <data name="NumberingOptions" xml:space="preserve"><value>Opções de Numeração</value></data>
   <data name="NumberingBadge" xml:space="preserve"><value>Emblema</value></data>
   <data name="NumberingText" xml:space="preserve"><value>Texto</value></data>
-  <data name="EditConfirmGuide" xml:space="preserve"><value>Por favor, confirme(✓) as edições antes de prosseguir.</value></data>
+  <data name="EditConfirmGuide" xml:space="preserve"><value>Confirme (✓) as edições antes de prosseguir.</value></data>
   <data name="Color" xml:space="preserve"><value>Cor</value></data>
   <data name="TextOptions" xml:space="preserve"><value>Opções de Texto</value></data>
-  <data name="Font" xml:space="preserve"><value>Tipo de Letra</value></data>
+  <data name="Font" xml:space="preserve"><value>Fonte</value></data>
   <data name="Thickness" xml:space="preserve"><value>Espessura</value></data>
   <data name="Fill" xml:space="preserve"><value>Preenchimento</value></data>
   <data name="FillOpacity" xml:space="preserve"><value>Opacidade</value></data>
   <data name="Intensity" xml:space="preserve"><value>Intensidade</value></data>
-  <data name="ComputerApp" xml:space="preserve"><value>Aplicação do Computador...</value></data>
-  <data name="SelectApplication" xml:space="preserve"><value>Selecionar Aplicação</value></data>
+  <data name="ComputerApp" xml:space="preserve"><value>Aplicativo do Computador...</value></data>
+  <data name="SelectApplication" xml:space="preserve"><value>Selecionar Aplicativo</value></data>
   <data name="SortNameAsc" xml:space="preserve"><value>Nome ▲</value></data>
   <data name="SortNameDesc" xml:space="preserve"><value>Nome ▼</value></data>
   <data name="Browse" xml:space="preserve"><value>Procurar...</value></data>
   <data name="SelectExecutable" xml:space="preserve"><value>Selecionar Executável</value></data>
-  <data name="ConfirmDeleteShortcut" xml:space="preserve"><value>Apagar atalho '{0}'?</value></data>
-  <data name="DeleteShortcut" xml:space="preserve"><value>Apagar Atalho</value></data>
-  <data name="AppLaunchFailed" xml:space="preserve"><value>Falha ao iniciar aplicação: {0}</value></data>
+  <data name="ConfirmDeleteShortcut" xml:space="preserve"><value>Excluir atalho '{0}'?</value></data>
+  <data name="DeleteShortcut" xml:space="preserve"><value>Excluir Atalho</value></data>
+  <data name="AppLaunchFailed" xml:space="preserve"><value>Falha ao iniciar o aplicativo: {0}</value></data>
   <data name="GoogleSearch" xml:space="preserve"><value>Pesquisar Imagem no Google</value></data>
   <data name="CopiedToClipboard" xml:space="preserve"><value>Copiado para a área de transferência.</value></data>
   <data name="AllCopiedToClipboard" xml:space="preserve"><value>Todas as imagens copiadas para a área de transferência.</value></data>
-  <data name="SelectSaveFolder" xml:space="preserve"><value>Selecionar Pasta de Guarda</value></data>
-  <data name="UnsavedImagesDeleteConfirm" xml:space="preserve"><value>Existem imagens não guardadas. Tem a certeza que quer apagar tudo?</value></data>
-  <data name="UnsavedImageDeleteConfirm" xml:space="preserve"><value>Esta imagem não foi guardada. Tem a certeza que quer apagá-la?</value></data>
-  <data name="ShareImageTitle" xml:space="preserve"><value>Partilhar Imagem</value></data>
-  <data name="ShareImageDesc" xml:space="preserve"><value>Partilhar imagem capturada</value></data>
-  <data name="ShareError" xml:space="preserve"><value>Erro ao Partilhar</value></data>
-  <data name="AllImagesSaved" xml:space="preserve"><value>Todas as imagens foram guardadas.</value></data>
+  <data name="SelectSaveFolder" xml:space="preserve"><value>Selecionar Pasta de Salvamento</value></data>
+  <data name="UnsavedImagesDeleteConfirm" xml:space="preserve"><value>Existem imagens não salvas. Tem certeza que deseja excluir todas?</value></data>
+  <data name="UnsavedImageDeleteConfirm" xml:space="preserve"><value>Esta imagem não foi salva. Tem certeza que deseja excluí-la?</value></data>
+  <data name="ShareImageTitle" xml:space="preserve"><value>Compartilhar Imagem</value></data>
+  <data name="ShareImageDesc" xml:space="preserve"><value>Compartilhar imagem capturada</value></data>
+  <data name="ShareError" xml:space="preserve"><value>Erro ao compartilhar</value></data>
+  <data name="AllImagesSaved" xml:space="preserve"><value>Todas as imagens foram salvas.</value></data>
   <data name="CopyAll" xml:space="preserve"><value>Copiar Tudo</value></data>
-  <data name="PixelSizeLabel" xml:space="preserve"><value>Tamanho em Pixéis</value></data>
+  <data name="PixelSizeLabel" xml:space="preserve"><value>Tamanho em Pixels</value></data>
   <data name="MagicWandToleranceLabel" xml:space="preserve"><value>Tolerância</value></data>
   <data name="MagicWandContiguousOnly" xml:space="preserve"><value>Apenas áreas contíguas</value></data>
-  <data name="MagicWandDesc" xml:space="preserve"><value>Clique para remover fundo, ou arraste para selecionar área</value></data>
-  <data name="MagicWandTip" xml:space="preserve"><value>Clique ou arraste para remover fundo</value></data>
+  <data name="MagicWandDesc" xml:space="preserve"><value>Clique para remover fundo ou arraste para selecionar área</value></data>
+  <data name="MagicWandTip" xml:space="preserve"><value>Clique ou arraste para remover o fundo</value></data>
   <data name="Opacity" xml:space="preserve"><value>Opacidade</value></data>
   <data name="Style" xml:space="preserve"><value>Estilo</value></data>
   <data name="Bold" xml:space="preserve"><value>Negrito</value></data>
@@ -357,43 +359,42 @@
   <data name="GoogleTranslate" xml:space="preserve"><value>Google Tradutor</value></data>
   <data name="Close" xml:space="preserve"><value>Fechar</value></data>
   <data name="NoExtractedTextOcr" xml:space="preserve"><value>Nenhum texto extraído.</value></data>
-  <data name="OpeningGoogleTranslate" xml:space="preserve"><value>A abrir Google Tradutor...\nTexto copiado para a área de transferência.</value></data>
-  <data name="GoogleTranslateFailed" xml:space="preserve"><value>Falha ao abrir Google Tradutor: {0}</value></data>
-  <data name="RedirectingToTranslate" xml:space="preserve"><value>A redirecionar para o Google Tradutor...</value></data>
-  <data name="OcrLanguagePackWarning" xml:space="preserve"><value>※ Se o reconhecimento de japonês/chinês não for preciso, tente instalar o pacote de idioma em Definições do Windows > Hora &amp; Idioma > Idioma.</value></data>
-  <data name="SimpleModeDockinGuide" xml:space="preserve"><value>💡 Dica: Arraste para o topo, esquerda ou direita do ecrã para ancorar!</value></data>
+  <data name="OpeningGoogleTranslate" xml:space="preserve"><value>Abrindo Google Tradutor...\nTexto copiado para a área de transferência.</value></data>
+  <data name="GoogleTranslateFailed" xml:space="preserve"><value>Falha ao abrir o Google Tradutor: {0}</value></data>
+  <data name="RedirectingToTranslate" xml:space="preserve"><value>Redirecionando para o Google Tradutor...</value></data>
+  <data name="OcrLanguagePackWarning" xml:space="preserve"><value>※ Se o reconhecimento de japonês/chinês não estiver preciso, tente instalar o pacote de idioma em Configurações do Windows > Hora e Idioma > Idioma.</value></data>
+  <data name="SimpleModeDockinGuide" xml:space="preserve"><value>💡 Dica: Arraste para o topo, esquerda ou direita da tela para ancorar!</value></data>
   <data name="ExitSimpleMode" xml:space="preserve"><value>Sair do Modo Simples</value></data>
-  <data name="MinimizeToTray" xml:space="preserve"><value>Minimizar para Tabuleiro</value></data>
+  <data name="MinimizeToTray" xml:space="preserve"><value>Minimizar para a Área de Notificação</value></data>
   <data name="Enlarge" xml:space="preserve"><value>Aumentar Interface</value></data>
   <data name="SwitchToNormalMode" xml:space="preserve"><value>Mudar para Modo Normal</value></data>
   <data name="SwitchToSimpleMode" xml:space="preserve"><value>Mudar para Modo Simples</value></data>
-  <data name="Pin" xml:space="preserve"><value>Afixar</value></data>
+  <data name="Pin" xml:space="preserve"><value>Fixar</value></data>
   <data name="Unpin" xml:space="preserve"><value>Desafixar</value></data>
   <data name="ViewCaptureList" xml:space="preserve"><value>Ver Lista de Capturas</value></data>
   <data name="AddIcon" xml:space="preserve"><value>Adicionar Ícone</value></data>
-  <data name="HideToTray" xml:space="preserve"><value>Ocultar no Tabuleiro</value></data>
+  <data name="HideToTray" xml:space="preserve"><value>Ocultar na Área de Notificação</value></data>
   <data name="Fold" xml:space="preserve"><value>Dobrar</value></data>
-  <data name="UnitCapture" xml:space="preserve"><value>Captura Unitária</value></data>
-  <data name="ComputerApps" xml:space="preserve"><value>Aplicações do Computador</value></data>
+  <data name="UnitCapture" xml:space="preserve"><value>Captura Individual</value></data>
+  <data name="ComputerApps" xml:space="preserve"><value>Aplicativos do Computador</value></data>
   <data name="Open" xml:space="preserve"><value>Abrir</value></data>
   <data name="ShowMagnifier" xml:space="preserve"><value>Mostrar Lupa Durante Captura de Área</value></data>
   <data name="RecordingTool" xml:space="preserve"><value>Gravação</value></data>
   <data name="StartStopRecording" xml:space="preserve"><value>Iniciar/Parar Gravação</value></data>
-  <data name="Pause" xml:space="preserve"><value>Pausa</value></data>
+  <data name="Pause" xml:space="preserve"><value>Pausar</value></data>
   <data name="Resume" xml:space="preserve"><value>Retomar</value></data>
   <data name="SystemAudioOff" xml:space="preserve"><value>Áudio do Sistema (DESLIGADO)</value></data>
   <data name="SystemAudioOn" xml:space="preserve"><value>Áudio do Sistema (LIGADO)</value></data>
   <data name="MicrophoneOff" xml:space="preserve"><value>Microfone (DESLIGADO)</value></data>
   <data name="MicrophoneOn" xml:space="preserve"><value>Microfone (LIGADO)</value></data>
   <data name="VideoQuality" xml:space="preserve"><value>Qualidade (HD/SD/LD)</value></data>
-  <data name="FrameRate" xml:space="preserve"><value>Taxa de Fotogramas</value></data>
-  <data name="ShowMouseCursor" xml:space="preserve"><value>Mostrar Cursor do Rato</value></data>
+  <data name="FrameRate" xml:space="preserve"><value>Taxa de Quadros</value></data>
+  <data name="ShowMouseCursor" xml:space="preserve"><value>Mostrar Cursor do Mouse</value></data>
   <data name="Countdown" xml:space="preserve"><value>Contagem Regressiva</value></data>
   <data name="HideToolbar" xml:space="preserve"><value>Ocultar Barra de Ferramentas</value></data>
   <data name="ShowToolbar" xml:space="preserve"><value>Mostrar Barra de Ferramentas</value></data>
-  <data name="AutoSnap" xml:space="preserve"><value>Íman</value></data>
+  <data name="AutoSnap" xml:space="preserve"><value>Imã</value></data>
   <data name="AreaSelection" xml:space="preserve"><value>Selecionar Área</value></data>
-
   <data name="DrawingTools" xml:space="preserve"><value>Ferramentas de Desenho</value></data>
   <data name="ToolPen" xml:space="preserve"><value>Caneta</value></data>
   <data name="ToolHighlighter" xml:space="preserve"><value>Marcador</value></data>
@@ -406,30 +407,30 @@
   <data name="ToolClearAll" xml:space="preserve"><value>Limpar Tudo</value></data>
   <data name="OpenSaveFolder" xml:space="preserve"><value>Abrir Pasta</value></data>
   <data name="ModeSelect" xml:space="preserve"><value>Seleção de Modo</value></data>
-  <data name="ThemeSettings" xml:space="preserve"><value>Definições de Tema</value></data>
+  <data name="ThemeSettings" xml:space="preserve"><value>Configurações de Tema</value></data>
   <data name="ThemePreset" xml:space="preserve"><value>Predefinições de Tema</value></data>
-  <data name="ThemeGeneral" xml:space="preserve"><value>Geral (Predefinido)</value></data>
+  <data name="ThemeGeneral" xml:space="preserve"><value>Geral (Padrão)</value></data>
   <data name="ThemeDark" xml:space="preserve"><value>Modo Escuro</value></data>
   <data name="ThemeLight" xml:space="preserve"><value>Modo Claro</value></data>
   <data name="ThemeBlue" xml:space="preserve"><value>Modo Azul</value></data>
   <data name="ThemeCustom" xml:space="preserve"><value>Personalizado</value></data>
   <data name="ThemeBgColor" xml:space="preserve"><value>Cor de Fundo</value></data>
   <data name="ThemeTextColor" xml:space="preserve"><value>Cor do Texto</value></data>
-  <data name="ThemeColorGuide" xml:space="preserve"><value>※ Clique nas caixas de cor para escolher cores.</value></data>
+  <data name="ThemeColorGuide" xml:space="preserve"><value>※ Clique nas caixas de cor para escolher as cores.</value></data>
   <data name="Apply" xml:space="preserve"><value>Aplicar</value></data>
-  <data name="Preview" xml:space="preserve"><value>Pré-visualização</value></data>
-  <data name="ThemeSampleLabel" xml:space="preserve"><value>Exemplo de Pré-visualização</value></data>
-  <data name="ThemeSampleText" xml:space="preserve"><value>Este é um texto de exemplo de pré-visualização do tema. (ABCabc 123)</value></data>
-  <data name="RecordingSettings" xml:space="preserve"><value>Definições de Gravação</value></data>
-  <data name="BasicSettings" xml:space="preserve"><value>Definições Básicas</value></data>
-  <data name="RecordingStartStopHotkey" xml:space="preserve"><value>Tecla de Atalho Gravar/Parar</value></data>
-  <data name="RecordStartStop" xml:space="preserve"><value>Gravar/Parar</value></data>
-  <data name="CaptureLineSettings" xml:space="preserve"><value>Definições de Linha de Captura</value></data>
+  <data name="Preview" xml:space="preserve"><value>Visualizar</value></data>
+  <data name="ThemeSampleLabel" xml:space="preserve"><value>Exemplo de Visualização</value></data>
+  <data name="ThemeSampleText" xml:space="preserve"><value>Este é um texto de exemplo para visualização do tema. (ABCabc 123)</value></data>
+  <data name="RecordingSettings" xml:space="preserve"><value>Configurações de Gravação</value></data>
+  <data name="BasicSettings" xml:space="preserve"><value>Configurações Básicas</value></data>
+  <data name="RecordingStartStopHotkey" xml:space="preserve"><value>Atalho Iniciar/Parar Gravação</value></data>
+  <data name="RecordStartStop" xml:space="preserve"><value>Iniciar/Parar Gravação</value></data>
+  <data name="CaptureLineSettings" xml:space="preserve"><value>Configurações da Linha de Captura</value></data>
   <data name="OverlayBgColor" xml:space="preserve"><value>Cor de Fundo da Sobreposição</value></data>
-  <data name="LineStyle" xml:space="preserve"><value>Estilo de Linha</value></data>
+  <data name="LineStyle" xml:space="preserve"><value>Estilo da Linha</value></data>
   <data name="LineThickness" xml:space="preserve"><value>Espessura da Linha</value></data>
   <data name="LineColor" xml:space="preserve"><value>Cor da Linha</value></data>
-  <data name="CaptureSettingsGuide" xml:space="preserve"><value>* Clique nas caixas de cor para escolher cores do guia de captura.</value></data>
+  <data name="CaptureSettingsGuide" xml:space="preserve"><value>* Clique nas caixas de cor para escolher as cores da guia de captura.</value></data>
   <data name="SolidLine" xml:space="preserve"><value>Sólida</value></data>
   <data name="DashLine" xml:space="preserve"><value>Tracejada</value></data>
   <data name="DotLine" xml:space="preserve"><value>Pontilhada</value></data>
@@ -438,7 +439,7 @@
   <data name="QualityHigh" xml:space="preserve"><value>Alta Qualidade</value></data>
   <data name="QualityMedium" xml:space="preserve"><value>Qualidade Média</value></data>
   <data name="QualityLow" xml:space="preserve"><value>Baixa Qualidade</value></data>
-  
+
   <!-- Print Preview -->
   <data name="PrintPreviewTitle" xml:space="preserve"><value>Pré-visualização de Impressão</value></data>
   <data name="OrientationLabel" xml:space="preserve"><value>Orientação:</value></data>
@@ -453,53 +454,51 @@
   <data name="PreviewGenerationError" xml:space="preserve"><value>Erro ao gerar pré-visualização</value></data>
   <data name="PrintJobName" xml:space="preserve"><value>Impressão de Imagem CatchCapture</value></data>
 
-
   <data name="StartAsAdmin" xml:space="preserve"><value>Executar como Administrador</value></data>
-  <data name="StartAsAdminTooltip" xml:space="preserve"><value>Executar como administrador pode ser necessário para que as teclas de atalho globais funcionem corretamente em programas com privilégios de admin (jogos, gestor de tarefas, etc.).</value></data>
-  <data name="NoteSettings" xml:space="preserve"><value>Definições de Notas</value></data>
+  <data name="StartAsAdminTooltip" xml:space="preserve"><value>Executar como administrador pode ser necessário para que os atalhos globais funcionem corretamente em programas com privilégios de admin (jogos, Gerenciador de Tarefas, etc.).</value></data>
+  <data name="NoteSettings" xml:space="preserve"><value>Configurações de Notas</value></data>
 
-  <data name="NoteStorage" xml:space="preserve"><value>Armazenamento &amp; Base de Dados</value></data>
-  <data name="NotePath" xml:space="preserve"><value>Caminho de Armazenamento de Notas</value></data>
+  <data name="NoteStorage" xml:space="preserve"><value>Armazenamento e Banco de Dados</value></data>
+  <data name="NotePath" xml:space="preserve"><value>Caminho de Armazenamento das Notas</value></data>
   <data name="OpenFolder" xml:space="preserve"><value>Abrir Pasta</value></data>
-  <data name="ExtraOptions" xml:space="preserve"><value>Opções Extra</value></data>
-  <data name="BackupRestore" xml:space="preserve"><value>Cópia de Segurança &amp; Restauro</value></data>
+  <data name="ExtraOptions" xml:space="preserve"><value>Opções Extras</value></data>
+  <data name="BackupRestore" xml:space="preserve"><value>Backup e Restauração</value></data>
   <data name="ExportBackup" xml:space="preserve"><value>Exportar (.zip)</value></data>
   <data name="ImportBackup" xml:space="preserve"><value>Importar (.zip)</value></data>
   <data name="MergeBackup" xml:space="preserve"><value>Mesclar (.zip)</value></data>
-  <data name="MergeConfirmMsg" xml:space="preserve"><value>Deseja mesclar a cópia de segurança selecionada com os dados atuais?\n(Os itens serão adicionados por ordem cronológica)</value></data>
-  <data name="MergingMsg" xml:space="preserve"><value>A mesclar dados... Aguarde por favor.</value></data>
-  <data name="MergeSuccessMsg" xml:space="preserve"><value>Mesclagem de dados concluída.</value></data>
-  <data name="ErrorMerge" xml:space="preserve"><value>Erro durante a mesclagem de dados</value></data>
-  <data name="NoteSecurity" xml:space="preserve"><value>Segurança &amp; Bloqueio de Notas</value></data>
-  <data name="EnableNotePassword" xml:space="preserve"><value>Usar Bloqueio por Palavra-passe</value></data>
-  <data name="SetChangePassword" xml:space="preserve"><value>Definir/Alterar Palavra-passe</value></data>
-  <data name="PasswordHint" xml:space="preserve"><value>Dica de Palavra-passe</value></data>
-  <data name="PasswordWarning" xml:space="preserve"><value>* Atenção: Os dados não podem ser recuperados se a palavra-passe for perdida.</value></data>
+  <data name="MergeConfirmMsg" xml:space="preserve"><value>Deseja mesclar o backup selecionado com os dados atuais?\n(Os itens serão adicionados por ordem cronológica)</value></data>
+  <data name="MergingMsg" xml:space="preserve"><value>Mesclando dados... Aguarde por favor.</value></data>
+  <data name="MergeSuccessMsg" xml:space="preserve"><value>Mesclagem concluída com sucesso.</value></data>
+  <data name="ErrorMerge" xml:space="preserve"><value>Erro durante a mesclagem dos dados</value></data>
+  <data name="NoteSecurity" xml:space="preserve"><value>Segurança e Bloqueio de Notas</value></data>
+  <data name="EnableNotePassword" xml:space="preserve"><value>Usar Bloqueio por Senha</value></data>
+  <data name="SetChangePassword" xml:space="preserve"><value>Definir/Alterar Senha</value></data>
+  <data name="PasswordHint" xml:space="preserve"><value>Dica da Senha</value></data>
+  <data name="PasswordWarning" xml:space="preserve"><value>* Atenção: Os dados não podem ser recuperados se a senha for perdida.</value></data>
   <data name="ImageOptimization" xml:space="preserve"><value>Otimização de Imagem</value></data>
   <data name="Unknown" xml:space="preserve">
     <value>Desconhecido</value>
   </data>
 
   <data name="PleaseEnterPassword" xml:space="preserve">
-    <value>Por favor, introduza uma palavra-passe.</value>
+    <value>Digite a senha, por favor.</value>
   </data>
   <data name="PasswordsDoNotMatch" xml:space="preserve">
-    <value>As palavras-passe não coincidem.</value>
+    <value>As senhas não coincidem.</value>
   </data>
   <data name="PleaseEnterPasswordHint" xml:space="preserve">
-    <value>Por favor, introduza uma dica de palavra-passe.</value>
+    <value>Digite uma dica de senha.</value>
   </data>
-
   <data name="ImageQuality" xml:space="preserve"><value>Qualidade da Imagem</value></data>
-  <data name="OptimizeNoteImages" xml:space="preserve"><value>Otimizar tamanho da imagem ao guardar</value></data>
-  <data name="HotkeyRegisterError" xml:space="preserve"><value>A tecla de atalho já está em uso por outra aplicação.\nPor favor, altere a tecla de atalho nas Definições.</value></data>
-  <data name="NoteSave" xml:space="preserve"><value>Guardar Nota</value></data>
-  <data name="SaveNoteTooltip" xml:space="preserve"><value>Guardar nas Minhas Notas</value></data>
+  <data name="OptimizeNoteImages" xml:space="preserve"><value>Otimizar tamanho da imagem ao salvar</value></data>
+  <data name="HotkeyRegisterError" xml:space="preserve"><value>O atalho já está em uso por outro programa.\nAltere o atalho nas Configurações.</value></data>
+  <data name="NoteSave" xml:space="preserve"><value>Salvar Nota</value></data>
+  <data name="SaveNoteTooltip" xml:space="preserve"><value>Salvar nas Minhas Notas</value></data>
   <data name="NoteExplorerTitle" xml:space="preserve"><value>Explorador de Notas CatchCapture</value></data>
   <data name="MyNote" xml:space="preserve"><value>Minhas Notas</value></data>
   <data name="OpenMyNote" xml:space="preserve"><value>Minhas Notas</value></data>
   <data name="NewNote" xml:space="preserve"><value>Nova Nota</value></data>
-  <data name="NoteSettingsMenu" xml:space="preserve"><value>Definições de Notas</value></data>
+  <data name="NoteSettingsMenu" xml:space="preserve"><value>Configurações de Notas</value></data>
   <data name="Explore" xml:space="preserve"><value>Explorar</value></data>
   <data name="AllNotes" xml:space="preserve"><value>Todas as Notas</value></data>
   <data name="GroupNote" xml:space="preserve"><value>Grupo de Notas</value></data>
@@ -507,12 +506,12 @@
   <data name="SortByName" xml:space="preserve"><value>Nome</value></data>
   <data name="Today" xml:space="preserve"><value>Hoje</value></data>
   <data name="Recent7Days" xml:space="preserve"><value>Últimos 7 Dias</value></data>
-  <data name="Trash" xml:space="preserve"><value>Lixo</value></data>
+  <data name="Trash" xml:space="preserve"><value>Lixeira</value></data>
   <data name="Tags" xml:space="preserve"><value>Etiquetas</value></data>
   <data name="SelectAll" xml:space="preserve"><value>Selecionar Tudo</value></data>
   <data name="UnselectAll" xml:space="preserve"><value>Desselecionar Tudo</value></data>
-  <data name="DeleteSelected" xml:space="preserve"><value>Apagar Selecionados</value></data>
-  <data name="RecentStatusInfo" xml:space="preserve"><value>Registos da última semana</value></data>
+  <data name="DeleteSelected" xml:space="preserve"><value>Excluir Selecionados</value></data>
+  <data name="RecentStatusInfo" xml:space="preserve"><value>Registros da última semana</value></data>
   <data name="SearchPlaceholder" xml:space="preserve"><value>Pesquisar...</value></data>
   <data name="ColGroup" xml:space="preserve"><value>Grupo</value></data>
   <data name="ColTitle" xml:space="preserve"><value>Título</value></data>
@@ -520,80 +519,80 @@
   <data name="ColLastModified" xml:space="preserve"><value>Última Modificação</value></data>
   <data name="PreviewLoading" xml:space="preserve"><value>Selecione uma nota.</value></data>
 
-  <data name="NoteSecurityTip" xml:space="preserve"><value>Proteja as suas notas de forma segura com definições de palavra-passe.</value></data>
+  <data name="NoteSecurityTip" xml:space="preserve"><value>Proteja suas notas com segurança usando senha.</value></data>
   <data name="NoteInputTitle" xml:space="preserve"><value>CatchCapture - Escrever</value></data>
   <data name="WriteNote" xml:space="preserve"><value>Escrever Nota</value></data>
   <data name="EditNote" xml:space="preserve"><value>Editar Nota</value></data>
-  <data name="ManageCategories" xml:space="preserve"><value>Gerir Categorias</value></data>
-  <data name="TitlePlaceholder" xml:space="preserve"><value>Por favor, introduza um título</value></data>
-  <data name="TagsPlaceholder" xml:space="preserve"><value>Por favor, introduza etiquetas (separadas por vírgulas)</value></data>
-  <data name="Link" xml:space="preserve"><value>Ligação</value></data>
-  <data name="LinkPlaceholder" xml:space="preserve"><value>Por favor, introduza ligação relevante.</value></data>
-  <data name="FileAttachment" xml:space="preserve"><value>Anexo de Ficheiro</value></data>
-  <data name="FileAttachmentGuide" xml:space="preserve"><value>Arraste ficheiros para aqui ou clique para anexar.</value></data>
+  <data name="ManageCategories" xml:space="preserve"><value>Gerenciar Categorias</value></data>
+  <data name="TitlePlaceholder" xml:space="preserve"><value>Digite um título</value></data>
+  <data name="TagsPlaceholder" xml:space="preserve"><value>Digite etiquetas (separadas por vírgulas)</value></data>
+  <data name="Link" xml:space="preserve"><value>Link</value></data>
+  <data name="LinkPlaceholder" xml:space="preserve"><value>Digite um link relevante</value></data>
+  <data name="FileAttachment" xml:space="preserve"><value>Anexo de Arquivo</value></data>
+  <data name="FileAttachmentGuide" xml:space="preserve"><value>Arraste arquivos aqui ou clique para anexar</value></data>
   <data name="FinishWrite" xml:space="preserve"><value>Concluir Escrita</value></data>
   <data name="FinishEdit" xml:space="preserve"><value>Concluir Edição</value></data>
-  <data name="NotePasswordTitle" xml:space="preserve"><value>Definições de Palavra-passe da Nota</value></data>
-  <data name="NewPassword" xml:space="preserve"><value>Nova Palavra-passe</value></data>
-  <data name="ConfirmPassword" xml:space="preserve"><value>Confirmar Palavra-passe</value></data>
-  <data name="PasswordHintRequired" xml:space="preserve"><value>Dica de Palavra-passe (Obrigatória)</value></data>
-  <data name="PasswordLossWarning" xml:space="preserve"><value>※ Atenção: Os dados não podem ser recuperados se a palavra-passe for perdida devido à natureza do armazenamento local.</value></data>
+  <data name="NotePasswordTitle" xml:space="preserve"><value>Configurações de Senha da Nota</value></data>
+  <data name="NewPassword" xml:space="preserve"><value>Nova Senha</value></data>
+  <data name="ConfirmPassword" xml:space="preserve"><value>Confirmar Senha</value></data>
+  <data name="PasswordHintRequired" xml:space="preserve"><value>Dica da Senha (Obrigatória)</value></data>
+  <data name="PasswordLossWarning" xml:space="preserve"><value>※ Atenção: Não é possível recuperar os dados se perder a senha (armazenamento local).</value></data>
   <data name="CopyColor" xml:space="preserve"><value>Copiar Cor</value></data>
   <data name="SwitchColorFormat" xml:space="preserve"><value>Alternar RGB/HEX</value></data>
   <data name="SelectAreaGuide" xml:space="preserve"><value>Arraste para selecionar a área de captura.</value></data>
-  <data name="ErrReadNote" xml:space="preserve"><value>Erro ao ler informação da nota:</value></data>
-  <data name="SelectAttachFiles" xml:space="preserve"><value>Selecionar Ficheiros de Anexo</value></data>
+  <data name="ErrReadNote" xml:space="preserve"><value>Erro ao ler a nota:</value></data>
+  <data name="SelectAttachFiles" xml:space="preserve"><value>Selecionar Arquivos de Anexo</value></data>
   <data name="ErrMainWinNotFound" xml:space="preserve"><value>Janela principal não encontrada.</value></data>
 
-  <data name="NoContentToSave" xml:space="preserve"><value>Não há conteúdo para guardar.</value></data>
+  <data name="NoContentToSave" xml:space="preserve"><value>Não há conteúdo para salvar.</value></data>
   <data name="Untitled" xml:space="preserve"><value>Sem Título</value></data>
   <data name="NoteEditSuccess" xml:space="preserve"><value>Nota atualizada com sucesso.</value></data>
-  <data name="NoteSaveSuccess" xml:space="preserve"><value>Nota guardada com sucesso.</value></data>
-  <data name="ErrSaveNote" xml:space="preserve"><value>Ocorreu um erro ao guardar a nota:</value></data>
-  <data name="SearchResults" xml:space="preserve"><value>Resultados da Pesquisa: '{0}'</value></data>
+  <data name="NoteSaveSuccess" xml:space="preserve"><value>Nota salva com sucesso.</value></data>
+  <data name="ErrSaveNote" xml:space="preserve"><value>Erro ao salvar a nota:</value></data>
+  <data name="SearchResults" xml:space="preserve"><value>Resultados da pesquisa: '{0}'</value></data>
   <data name="TagFilter" xml:space="preserve"><value>Filtro de Etiqueta: #{0}</value></data>
-  <data name="TodayRecords" xml:space="preserve"><value>Registos de Hoje</value></data>
-  <data name="RecentWeekRecords" xml:space="preserve"><value>Registos da Última Semana</value></data>
-  <data name="TrashRecords" xml:space="preserve"><value>Registos no Lixo</value></data>
+  <data name="TodayRecords" xml:space="preserve"><value>Registros de Hoje</value></data>
+  <data name="RecentWeekRecords" xml:space="preserve"><value>Registros da Última Semana</value></data>
+  <data name="TrashRecords" xml:space="preserve"><value>Registros na Lixeira</value></data>
   <data name="GroupLabel" xml:space="preserve"><value>Grupo: {0}</value></data>
-  <data name="AllRecords" xml:space="preserve"><value>Todos os Registos</value></data>
-  <data name="DefaultCategory" xml:space="preserve"><value>Predefinido</value></data>
-  <data name="ErrLoadNotes" xml:space="preserve"><value>Ocorreu um erro ao carregar notas:</value></data>
+  <data name="AllRecords" xml:space="preserve"><value>Todos os Registros</value></data>
+  <data name="DefaultCategory" xml:space="preserve"><value>Padrão</value></data>
+  <data name="ErrLoadNotes" xml:space="preserve"><value>Erro ao carregar notas:</value></data>
   <data name="DirectWrite" xml:space="preserve"><value>Escrito Diretamente</value></data>
-  <data name="FileNotFound" xml:space="preserve"><value>Ficheiro não encontrado.</value></data>
-  <data name="ErrOpenFile" xml:space="preserve"><value>Ocorreu um erro ao abrir o ficheiro:</value></data>
-  <data name="ErrOpenNoteInput" xml:space="preserve"><value>Ocorreu um erro ao abrir a janela de escrita de nota:</value></data>
-  <data name="ErrOpenNoteEdit" xml:space="preserve"><value>Ocorreu um erro ao abrir a janela de edição de nota:</value></data>
-  <data name="ConfirmDeleteNote" xml:space="preserve"><value>Tem a certeza que quer apagar esta nota?</value></data>
-  <data name="ConfirmDeleteSelectedNotes" xml:space="preserve"><value>Tem a certeza que quer apagar {0} notas selecionadas?</value></data>
-  <data name="PleaseSelectNotesToDelete" xml:space="preserve"><value>Por favor, selecione notas para apagar.</value></data>
-  <data name="ConfirmDelete" xml:space="preserve"><value>Confirmar Apagar</value></data>
-  <data name="ErrDelete" xml:space="preserve"><value>Ocorreu um erro ao apagar:</value></data>
+  <data name="FileNotFound" xml:space="preserve"><value>Arquivo não encontrado.</value></data>
+  <data name="ErrOpenFile" xml:space="preserve"><value>Erro ao abrir o arquivo:</value></data>
+  <data name="ErrOpenNoteInput" xml:space="preserve"><value>Erro ao abrir a janela de escrita de nota:</value></data>
+  <data name="ErrOpenNoteEdit" xml:space="preserve"><value>Erro ao abrir a janela de edição de nota:</value></data>
+  <data name="ConfirmDeleteNote" xml:space="preserve"><value>Tem certeza que deseja excluir esta nota?</value></data>
+  <data name="ConfirmDeleteSelectedNotes" xml:space="preserve"><value>Tem certeza que deseja excluir {0} notas selecionadas?</value></data>
+  <data name="PleaseSelectNotesToDelete" xml:space="preserve"><value>Selecione notas para excluir.</value></data>
+  <data name="ConfirmDelete" xml:space="preserve"><value>Confirmar Exclusão</value></data>
+  <data name="ErrDelete" xml:space="preserve"><value>Erro ao excluir:</value></data>
   <data name="NoteUnlock" xml:space="preserve"><value>Desbloquear Nota</value></data>
   <data name="ProtectedContent" xml:space="preserve"><value>Conteúdo Protegido</value></data>
   <data name="ShowHint" xml:space="preserve"><value>Mostrar Dica</value></data>
   <data name="Unlock" xml:space="preserve"><value>Desbloquear</value></data>
-  <data name="NoHintRegistered" xml:space="preserve"><value>Nenhuma dica registada.</value></data>
-  <data name="PasswordHintMessage" xml:space="preserve"><value>Dica de Palavra-passe: {0}</value></data>
+  <data name="NoHintRegistered" xml:space="preserve"><value>Nenhuma dica cadastrada.</value></data>
+  <data name="PasswordHintMessage" xml:space="preserve"><value>Dica da Senha: {0}</value></data>
   <data name="Hint" xml:space="preserve"><value>Dica</value></data>
-  <data name="CategoryManagementTitle" xml:space="preserve"><value>Gestão de Categorias</value></data>
-  <data name="CategoryManagementDesc" xml:space="preserve"><value>Gerir grupos para organizar as suas notas.</value></data>
-  <data name="NewCategoryPlaceholder" xml:space="preserve"><value>Introduzir nova categoria...</value></data>
-  <data name="DefaultCategoryDeleteError" xml:space="preserve"><value>A categoria predefinida não pode ser apagada.</value></data>
-  <data name="DeleteCategoryConfirm" xml:space="preserve"><value>Tem a certeza que quer apagar esta categoria? As notas associadas serão movidas para 'Predefinido'.</value></data>
-  <data name="Tip1" xml:space="preserve"><value>Proteja as suas notas de forma segura com definições de palavra-passe.</value></data>
-  <data name="Tip2" xml:space="preserve"><value>Guarde nas notas imediatamente após a captura para registar ideias preciosas.</value></data>
-  <data name="Tip3" xml:space="preserve"><value>Cole imagens e conteúdo de páginas externas para usar o sistema inteligente de armazenamento permanente de baixa capacidade.</value></data>
-  <data name="Tip4" xml:space="preserve"><value>Ligue pastas na nuvem como N-Drive ou Google Drive para partilhar Minhas Notas em qualquer computador.</value></data>
-  <data name="Tip5" xml:space="preserve"><value>Use etiquetas para encontrar rapidamente o que deseja entre numerosas notas.</value></data>
-  <data name="Tip6" xml:space="preserve"><value>Adicione imagens facilmente por arrastar e soltar na janela de edição de nota.</value></data>
-  <data name="Tip7" xml:space="preserve"><value>A função de pesquisa permite pesquisar texto no conteúdo das notas, bem como nos títulos.</value></data>
-  <data name="Tip8" xml:space="preserve"><value>Clique duas vezes nas imagens nas notas para editá-las.</value></data>
-  <data name="Tip9" xml:space="preserve"><value>Clique em 'Guardar Nota' durante a captura para criar uma nota com um único clique.</value></data>
+  <data name="CategoryManagementTitle" xml:space="preserve"><value>Gerenciar Categorias</value></data>
+  <data name="CategoryManagementDesc" xml:space="preserve"><value>Gerencie grupos para organizar suas notas.</value></data>
+  <data name="NewCategoryPlaceholder" xml:space="preserve"><value>Digite nova categoria...</value></data>
+  <data name="DefaultCategoryDeleteError" xml:space="preserve"><value>A categoria Padrão não pode ser excluída.</value></data>
+  <data name="DeleteCategoryConfirm" xml:space="preserve"><value>Tem certeza que deseja excluir esta categoria? As notas serão movidas para 'Padrão'.</value></data>
+  <data name="Tip1" xml:space="preserve"><value>Proteja suas notas com segurança usando senha.</value></data>
+  <data name="Tip2" xml:space="preserve"><value>Salve nas notas logo após capturar para registrar ideias importantes.</value></data>
+  <data name="Tip3" xml:space="preserve"><value>Cole imagens e conteúdo externo para usar o armazenamento inteligente de baixa capacidade.</value></data>
+  <data name="Tip4" xml:space="preserve"><value>Conecte pastas na nuvem (Google Drive, OneDrive etc.) para acessar Minhas Notas em qualquer PC.</value></data>
+  <data name="Tip5" xml:space="preserve"><value>Use etiquetas para encontrar rapidamente o que precisa entre muitas notas.</value></data>
+  <data name="Tip6" xml:space="preserve"><value>Arraste e solte imagens na janela de edição de nota.</value></data>
+  <data name="Tip7" xml:space="preserve"><value>A pesquisa busca texto no conteúdo das notas, não só nos títulos.</value></data>
+  <data name="Tip8" xml:space="preserve"><value>Dê duplo clique nas imagens das notas para editá-las.</value></data>
+  <data name="Tip9" xml:space="preserve"><value>Clique 'Salvar Nota' durante captura para criar nota com 1 clique.</value></data>
   <data name="ColorPickerTitle" xml:space="preserve"><value>Seletor de Cor</value></data>
   <data name="Transparent" xml:space="preserve"><value>Transparente</value></data>
   <data name="TextColor" xml:space="preserve"><value>Cor do Texto</value></data>
-  <data name="HighlightColor" xml:space="preserve"><value>Cor de Destaque</value></data>
+  <data name="HighlightColor" xml:space="preserve"><value>Cor de Realce</value></data>
   <data name="AlignLeft" xml:space="preserve"><value>Alinhar à Esquerda</value></data>
   <data name="AlignCenter" xml:space="preserve"><value>Alinhar ao Centro</value></data>
   <data name="AlignRight" xml:space="preserve"><value>Alinhar à Direita</value></data>
@@ -601,49 +600,48 @@
   <data name="NumberList" xml:space="preserve"><value>Lista Numerada</value></data>
   <data name="InsertImage" xml:space="preserve"><value>Inserir Imagem</value></data>
   <data name="InsertCapture" xml:space="preserve"><value>Inserir Captura</value></data>
-  <data name="InsertLink" xml:space="preserve"><value>Inserir Ligação</value></data>
+  <data name="InsertLink" xml:space="preserve"><value>Inserir Link</value></data>
   <data name="LineSpacing" xml:space="preserve"><value>Espaçamento entre Linhas</value></data>
-  <data name="FontFamily" xml:space="preserve"><value>Família de Tipo de Letra</value></data>
-  <data name="FontSize" xml:space="preserve"><value>Tamanho do Tipo de Letra</value></data>
-  <data name="Password" xml:space="preserve"><value>Palavra-passe</value></data>
+  <data name="FontFamily" xml:space="preserve"><value>Família da Fonte</value></data>
+  <data name="FontSize" xml:space="preserve"><value>Tamanho da Fonte</value></data>
+  <data name="Password" xml:space="preserve"><value>Senha</value></data>
   <data name="RemoteRepository" xml:space="preserve"><value>Repositório Remoto</value></data>
   <data name="InitializeReset" xml:space="preserve"><value>Inicializar</value></data>
 
-  <data name="NoteResetConfirm1" xml:space="preserve"><value>Tem a certeza que quer inicializar todos os dados de notas?</value></data>
-  <data name="NoteResetConfirm2" xml:space="preserve"><value>Os dados inicializados não podem ser recuperados.\nTem mesmo a certeza?</value></data>
-  <data name="DataLossWarning" xml:space="preserve"><value>Aviso de Apagamento Permanente de Dados</value></data>
-  <data name="NoteResetComplete" xml:space="preserve"><value>Os dados de notas foram inicializados.</value></data>
+  <data name="NoteResetConfirm1" xml:space="preserve"><value>Tem certeza que deseja inicializar todos os dados de notas?</value></data>
+  <data name="NoteResetConfirm2" xml:space="preserve"><value>Os dados inicializados não podem ser recuperados.\nTem certeza mesmo?</value></data>
+  <data name="DataLossWarning" xml:space="preserve"><value>Aviso de Perda Permanente de Dados</value></data>
+  <data name="NoteResetComplete" xml:space="preserve"><value>Dados de notas inicializados.</value></data>
   <data name="NoteResetError" xml:space="preserve"><value>Erro na inicialização: {0}</value></data>
-  <data name="TrashSettings" xml:space="preserve"><value>Definições do Lixo</value></data>
-  <data name="TrashRetentionPeriod" xml:space="preserve"><value>Período de Retenção do Lixo</value></data>
-  <data name="TrashRetentionNotice" xml:space="preserve"><value>(Apagar automaticamente após o período definido)</value></data>
+  <data name="TrashSettings" xml:space="preserve"><value>Configurações da Lixeira</value></data>
+  <data name="TrashRetentionPeriod" xml:space="preserve"><value>Período de Retenção da Lixeira</value></data>
+  <data name="TrashRetentionNotice" xml:space="preserve"><value>(Exclui automaticamente após o período)</value></data>
   <data name="RetentionPermanent" xml:space="preserve"><value>Permanente</value></data>
   <data name="Days" xml:space="preserve"><value>Dias</value></data>
-  <data name="EmptyTrash" xml:space="preserve"><value>Esvaziar Lixo</value></data>
+  <data name="EmptyTrash" xml:space="preserve"><value>Esvaziar Lixeira</value></data>
   <data name="Notice" xml:space="preserve"><value>Aviso</value></data>
-  <data name="TrashRetentionInfo" xml:space="preserve"><value>Importante: O período de retenção do lixo está atualmente definido para {0} dias. Pode alterá-lo nas Definições de Notas.</value></data>
-  <data name="TrashRetentionPermanentInfo" xml:space="preserve"><value>Importante: O lixo está definido para ser mantido permanentemente. Pode alterá-lo nas Definições de Notas.</value></data>
+  <data name="TrashRetentionInfo" xml:space="preserve"><value>Importante: Lixeira configurada para {0} dias. Altere em Configurações de Notas.</value></data>
+  <data name="TrashRetentionPermanentInfo" xml:space="preserve"><value>Importante: Lixeira configurada para permanente. Altere em Configurações de Notas.</value></data>
   <data name="NoNotes" xml:space="preserve"><value>Nenhuma nota encontrada</value></data>
-  <data name="TrashEmpty" xml:space="preserve"><value>Lixo vazio</value></data>
-  <data name="NotePathDesc" xml:space="preserve"><value>Caminho onde a base de dados de notas e anexos são guardados.</value></data>
+  <data name="TrashEmpty" xml:space="preserve"><value>Lixeira vazia</value></data>
+  <data name="NotePathDesc" xml:space="preserve"><value>Caminho onde ficam salvas notas e anexos.</value></data>
   <data name="Recent30Days" xml:space="preserve"><value>Últimos 30 Dias</value></data>
   <data name="Recent3Months" xml:space="preserve"><value>Últimos 3 Meses</value></data>
   <data name="Recent6Months" xml:space="preserve"><value>Últimos 6 Meses</value></data>
-  <data name="ListView" xml:space="preserve"><value>Vista de Lista</value></data>
-  <data name="CardView" xml:space="preserve"><value>Vista de Cartão</value></data>
-  <data name="TrashEmptyComplete" xml:space="preserve"><value>Lixo esvaziado.</value></data>
+  <data name="ListView" xml:space="preserve"><value>Visualização em Lista</value></data>
+  <data name="CardView" xml:space="preserve"><value>Visualização em Cartões</value></data>
+  <data name="TrashEmptyComplete" xml:space="preserve"><value>Lixeira esvaziada.</value></data>
   <data name="Minimize" xml:space="preserve"><value>Minimizar</value></data>
   <data name="Maximize" xml:space="preserve"><value>Maximizar</value></data>
   <data name="Restore" xml:space="preserve"><value>Restaurar</value></data>
   <data name="RecentRecordsFormat" xml:space="preserve">
-    <value>{0} Registos</value>
+    <value>{0} Registros</value>
   </data>
   <data name="TrashEmptyWarning" xml:space="preserve">
-    <value>Os itens apagados não podem ser recuperados.
-Tem a certeza que quer apagar permanentemente todos os itens?</value>
+    <value>Itens excluídos não podem ser recuperados.\nDeseja excluir permanentemente tudo?</value>
   </data>
   <data name="TrashEmptyFailed" xml:space="preserve">
-    <value>Falha ao esvaziar o lixo: </value>
+    <value>Falha ao esvaziar lixeira: </value>
   </data>
   <data name="ErrPreviewFailed" xml:space="preserve">
     <value>Falha ao abrir pré-visualização: </value>
@@ -652,29 +650,28 @@ Tem a certeza que quer apagar permanentemente todos os itens?</value>
     <value>Sempre no Topo</value>
   </data>
   <data name="UnpinAlwaysOnTop" xml:space="preserve">
-    <value>Desafixar do Topo</value>
+    <value>Remover do Topo</value>
   </data>
   <data name="PrintOrSavePDF" xml:space="preserve">
-    <value>Imprimir / Guardar como PDF</value>
+    <value>Imprimir / Salvar como PDF</value>
   </data>
   <data name="ErrLoadNote" xml:space="preserve">
     <value>Falha ao carregar nota: </value>
   </data>
   <data name="ErrInitExplorer" xml:space="preserve"><value>Erro ao inicializar explorador: </value></data>
   <data name="ConfirmRestoreNote" xml:space="preserve"><value>Deseja restaurar esta nota?</value></data>
-  <data name="ErrRestoreNote" xml:space="preserve"><value>Ocorreu um erro ao restaurar: </value></data>
-  <data name="ErrPinNote" xml:space="preserve"><value>Ocorreu um erro ao alterar o estado de afixação: </value></data>
-
+  <data name="ErrRestoreNote" xml:space="preserve"><value>Erro ao restaurar: </value></data>
+  <data name="ErrPinNote" xml:space="preserve"><value>Erro ao alterar fixação: </value></data>
 
   <data name="ChangeTheme" xml:space="preserve"><value>Alterar Tema</value></data>
   <data name="SimpleMode" xml:space="preserve"><value>Simples</value></data>
-  <data name="TrayMode" xml:space="preserve"><value>Bandeja</value></data>
-  <data name="SaveToMyNote" xml:space="preserve"><value>Guardar nas Minhas Notas</value></data>
-  <data name="ConfirmDisableNotePassword" xml:space="preserve"><value>Deseja desativar o bloqueio por palavra-passe?&#x0a;(A palavra-passe definida será mantida)</value></data>
+  <data name="TrayMode" xml:space="preserve"><value>Área de Notificação</value></data>
+  <data name="SaveToMyNote" xml:space="preserve"><value>Salvar nas Minhas Notas</value></data>
+  <data name="ConfirmDisableNotePassword" xml:space="preserve"><value>Deseja desativar senha?\n(A senha atual será mantida)</value></data>
   
-  <data name="SettingsWindowTitle" xml:space="preserve"><value>CatchCapture - Definições</value></data>
+  <data name="SettingsWindowTitle" xml:space="preserve"><value>CatchCapture - Configurações</value></data>
   <data name="SettingsFormatFeatures" xml:space="preserve"><value>Funcionalidades de Formato</value></data>
-  <data name="SettingsFormatGuide" xml:space="preserve"><value>Guia de Formato de Ficheiro</value></data>
+  <data name="SettingsFormatGuide" xml:space="preserve"><value>Guia de Formatos de Arquivo</value></data>
   <data name="SettingsColFormat" xml:space="preserve"><value>Formato</value></data>
   <data name="SettingsColTransparent" xml:space="preserve"><value>Fundo Transparente</value></data>
   <data name="SettingsColAnimation" xml:space="preserve"><value>Animação</value></data>
@@ -685,35 +682,35 @@ Tem a certeza que quer apagar permanentemente todos os itens?</value>
   <data name="SettingsValMidHigh" xml:space="preserve"><value>Média/Alta</value></data>
   <data name="SettingsValLow" xml:space="preserve"><value>Baixa</value></data>
   <data name="SettingsValUltra" xml:space="preserve"><value>Ultra</value></data>
-  <data name="SettingsPnGEfficiency" xml:space="preserve"><value>Baixa (Compressão Sem Perda)</value></data>
-  <data name="SettingsPnGUsage" xml:space="preserve"><value>Logótipos, Ícones, Capturas de Ecrã</value></data>
-  <data name="SettingsJpgEfficiency" xml:space="preserve"><value>Alta (Compressão Com Perda)</value></data>
-  <data name="SettingsJpgUsage" xml:space="preserve"><value>Fotografias, Imagens Web</value></data>
+  <data name="SettingsPnGEfficiency" xml:space="preserve"><value>Baixa (Sem Perda)</value></data>
+  <data name="SettingsPnGUsage" xml:space="preserve"><value>Logotipos, Ícones, Capturas de Tela</value></data>
+  <data name="SettingsJpgEfficiency" xml:space="preserve"><value>Alta (Com Perda)</value></data>
+  <data name="SettingsJpgUsage" xml:space="preserve"><value>Fotos, Imagens Web</value></data>
   <data name="SettingsBmpEfficiency" xml:space="preserve"><value>Nenhuma (Original)</value></data>
   <data name="SettingsBmpUsage" xml:space="preserve"><value>Gráficos Simples do Windows</value></data>
   <data name="SettingsGifEfficiency" xml:space="preserve"><value>Alta (Limitação de Cores)</value></data>
   <data name="SettingsGifUsage" xml:space="preserve"><value>Animações Curtas (GIFs)</value></data>
-  <data name="SettingsWebpEfficiency" xml:space="preserve"><value>Muito Alta (Compressão de Nova Geração)</value></data>
+  <data name="SettingsWebpEfficiency" xml:space="preserve"><value>Muito Alta (Nova Geração)</value></data>
   <data name="SettingsWebpUsage" xml:space="preserve"><value>Imagens Otimizadas para Web</value></data>
   <data name="SettingsShowMagnifierDesc" xml:space="preserve"><value>Mostrar lupa durante captura de área</value></data>
   <data name="SettingsShowPreviewDesc" xml:space="preserve"><value>Mostrar pré-visualização/editor após captura</value></data>
-  <data name="SettingsAutoSaveDesc" xml:space="preserve"><value>Guardar ficheiro automaticamente após captura</value></data>
+  <data name="SettingsAutoSaveDesc" xml:space="preserve"><value>Salvar arquivo automaticamente após captura</value></data>
   <data name="RecQualityMP4" xml:space="preserve"><value>Qualidade (MP4)</value></data>
-  <data name="RecFpsMP4" xml:space="preserve"><value>Taxa de Fotogramas (MP4)</value></data>
-  <data name="RecHotkeyTitle" xml:space="preserve"><value>Tecla de Atalho Gravar/Parar</value></data>
-  <data name="RecordStop" xml:space="preserve"><value>Gravar/Parar</value></data>
-  <data name="NoteStorageDatabase" xml:space="preserve"><value>Armazenamento &amp; Base de Dados</value></data>
-  <data name="NoteStorageLocation" xml:space="preserve"><value>Localização de Armazenamento de Notas</value></data>
-  <data name="NotePathStructure" xml:space="preserve"><value>※ Estrutura de Pasta: [PastaNotas]\notedb (BD), [PastaNotas]\img (Imagens)</value></data>
+  <data name="RecFpsMP4" xml:space="preserve"><value>Taxa de Quadros (MP4)</value></data>
+  <data name="RecHotkeyTitle" xml:space="preserve"><value>Atalho Iniciar/Parar Gravação</value></data>
+  <data name="RecordStop" xml:space="preserve"><value>Iniciar/Parar Gravação</value></data>
+  <data name="NoteStorageDatabase" xml:space="preserve"><value>Armazenamento e Banco de Dados</value></data>
+  <data name="NoteStorageLocation" xml:space="preserve"><value>Localização de Armazenamento das Notas</value></data>
+  <data name="NotePathStructure" xml:space="preserve"><value>※ Estrutura de pasta: [PastaNotas]\notedb (BD), [PastaNotas]\img (Imagens)</value></data>
   <data name="RemoteStorage" xml:space="preserve"><value>Armazenamento Remoto</value></data>
-  <data name="RemoteStorageTooltip" xml:space="preserve"><value>Ligue pastas na nuvem (Google Drive, etc.) para partilhar notas entre dispositivos.</value></data>
-  <data name="RemoteStorageWarning" xml:space="preserve"><value>Quando ligado, a velocidade pode diminuir significativamente durante o processo de upload/download do servidor, o que não é um problema do programa.</value></data>
-  <data name="ResetNoteDataTooltip" xml:space="preserve"><value>Repor todos os dados de notas</value></data>
-  <data name="NoteFileNameSettings" xml:space="preserve"><value>Definições de Nome de Ficheiro</value></data>
-  <data name="NoteFolderGrouping" xml:space="preserve"><value>Definições de Agrupamento de Pastas</value></data>
-  <data name="NoteSecurityLock" xml:space="preserve"><value>Segurança &amp; Bloqueio de Notas</value></data>
-  <data name="ImageSaveSettings" xml:space="preserve"><value>Definições de Guarda de Imagem</value></data>
-  <data name="StartupSettings" xml:space="preserve"><value>Definições de Arranque</value></data>
+  <data name="RemoteStorageTooltip" xml:space="preserve"><value>Conecte pastas na nuvem (Google Drive, OneDrive etc.) para sincronizar notas entre dispositivos.</value></data>
+  <data name="RemoteStorageWarning" xml:space="preserve"><value>Quando conectado, a velocidade pode diminuir bastante durante upload/download (não é problema do programa).</value></data>
+  <data name="ResetNoteDataTooltip" xml:space="preserve"><value>Resetar todos os dados de notas</value></data>
+  <data name="NoteFileNameSettings" xml:space="preserve"><value>Configurações de Nome de Arquivo</value></data>
+  <data name="NoteFolderGrouping" xml:space="preserve"><value>Configurações de Agrupamento de Pastas</value></data>
+  <data name="NoteSecurityLock" xml:space="preserve"><value>Segurança e Bloqueio de Notas</value></data>
+  <data name="ImageSaveSettings" xml:space="preserve"><value>Configurações de Salvamento de Imagem</value></data>
+  <data name="StartupSettings" xml:space="preserve"><value>Configurações de Inicialização</value></data>
   <data name="Val1Day" xml:space="preserve"><value>1 Dia</value></data>
   <data name="Val3Days" xml:space="preserve"><value>3 Dias</value></data>
   <data name="Val7Days" xml:space="preserve"><value>7 Dias</value></data>
@@ -721,18 +718,18 @@ Tem a certeza que quer apagar permanentemente todos os itens?</value>
   <data name="Val30Days" xml:space="preserve"><value>30 Dias</value></data>
   <data name="Val60Days" xml:space="preserve"><value>60 Dias</value></data>
   <data name="Val90Days" xml:space="preserve"><value>90 Dias</value></data>
-  <data name="ValPermanent" xml:space="preserve"><value>Manter Para Sempre</value></data>
+  <data name="ValPermanent" xml:space="preserve"><value>Permanente</value></data>
   <data name="Wait" xml:space="preserve"><value>Aguarde...</value></data>
-  <data name="FileNameSettings" xml:space="preserve"><value>Definições de Nome de Ficheiro</value></data>
-  <data name="FolderGrouping" xml:space="preserve"><value>Definições de Agrupamento de Pastas</value></data>
+  <data name="FileNameSettings" xml:space="preserve"><value>Configurações de Nome de Arquivo</value></data>
+  <data name="FolderGrouping" xml:space="preserve"><value>Configurações de Agrupamento de Pastas</value></data>
   <data name="GroupingNone" xml:space="preserve"><value>Sem Agrupamento</value></data>
   <data name="GroupingMonthly" xml:space="preserve"><value>Mensal</value></data>
   <data name="GroupingQuarterly" xml:space="preserve"><value>Trimestral</value></data>
   <data name="GroupingYearly" xml:space="preserve"><value>Anual</value></data>
-  <data name="FileNamePreset_Default" xml:space="preserve"><value>Predefinido (Catch_Data_Hora)</value></data>
+  <data name="FileNamePreset_Default" xml:space="preserve"><value>Padrão (Catch_Data_Hora)</value></data>
   <data name="FileNamePreset_Simple" xml:space="preserve"><value>Simples (Imagem_Data)</value></data>
   <data name="FileNamePreset_Timestamp" xml:space="preserve"><value>Apenas Timestamp (20250101_120000)</value></data>
-  <data name="FileNamePreset_App" xml:space="preserve"><value>Nome da App (Chrome_Data)</value></data>
+  <data name="FileNamePreset_App" xml:space="preserve"><value>Nome do App (Chrome_Data)</value></data>
   <data name="FileNamePreset_Title" xml:space="preserve"><value>Título da Janela (Google_Data)</value></data>
   <data name="FileNamePreview" xml:space="preserve"><value>Pré-visualização</value></data>
   <data name="Badge" xml:space="preserve"><value>Emblema</value></data>
@@ -745,27 +742,27 @@ Tem a certeza que quer apagar permanentemente todos os itens?</value>
   <data name="BtnNo" xml:space="preserve"><value>Não</value></data>
   <data name="BtnOK" xml:space="preserve"><value>OK</value></data>
   <data name="BtnCancel" xml:space="preserve"><value>Cancelar</value></data>
-  <data name="AddVideoGuidance" xml:space="preserve"><value>Por favor, introduza URL do YouTube ou código fonte (iframe):</value></data>
-  <data name="SearchLocalFile" xml:space="preserve"><value>Procurar Ficheiro Local...</value></data>
+  <data name="AddVideoGuidance" xml:space="preserve"><value>Insira URL do YouTube ou código iframe:</value></data>
+  <data name="SearchLocalFile" xml:space="preserve"><value>Procurar Arquivo Local...</value></data>
   <data name="BtnAdd" xml:space="preserve"><value>Adicionar</value></data>
-  <data name="HotkeyConflictTitle" xml:space="preserve"><value>Conflito de Tecla de Atalho</value></data>
-  <data name="HotkeyConflictMsg" xml:space="preserve"><value>A tecla de atalho '{0}' já está usada por: {1}</value></data>
-  <data name="ImportConfirmMsg" xml:space="preserve"><value>Todos os dados de notas existentes serão substituídos por este ficheiro de cópia de segurança. Deseja continuar?</value></data>
-  <data name="ImportSuccessMsg" xml:space="preserve"><value>Recuperação concluída. Recomenda-se reiniciar o programa para aplicar as alterações.</value></data>
-  <data name="ErrorImport" xml:space="preserve"><value>Erro durante a recuperação</value></data>
-  <data name="ErrorBackup" xml:space="preserve"><value>Erro durante a cópia de segurança</value></data>
-  <data name="ErrorNoFolder" xml:space="preserve"><value>Pasta de origem para cópia de segurança não existe.</value></data>
-  <data name="BackupSuccess" xml:space="preserve"><value>Cópia de segurança concluída com sucesso.</value></data>
+  <data name="HotkeyConflictTitle" xml:space="preserve"><value>Conflito de Atalho</value></data>
+  <data name="HotkeyConflictMsg" xml:space="preserve"><value>O atalho '{0}' já está em uso por: {1}</value></data>
+  <data name="ImportConfirmMsg" xml:space="preserve"><value>Todos os dados de notas atuais serão substituídos por este backup. Deseja continuar?</value></data>
+  <data name="ImportSuccessMsg" xml:space="preserve"><value>Importação concluída. Recomenda-se reiniciar o programa.</value></data>
+  <data name="ErrorImport" xml:space="preserve"><value>Erro durante a importação</value></data>
+  <data name="ErrorBackup" xml:space="preserve"><value>Erro durante o backup</value></data>
+  <data name="ErrorNoFolder" xml:space="preserve"><value>A pasta de origem do backup não existe.</value></data>
+  <data name="BackupSuccess" xml:space="preserve"><value>Backup concluído com sucesso.</value></data>
   <data name="LineSpacing10" xml:space="preserve"><value>1.0 (Estreito)</value></data>
-  <data name="LineSpacing15" xml:space="preserve"><value>1.5 (Predefinido)</value></data>
+  <data name="LineSpacing15" xml:space="preserve"><value>1.5 (Padrão)</value></data>
   <data name="LineSpacing20" xml:space="preserve"><value>2.0 (Largo)</value></data>
-  <data name="SelectTextForLink" xml:space="preserve"><value>Por favor, selecione texto para a ligação primeiro.</value></data>
-  <data name="EnterURL" xml:space="preserve"><value>Por favor, introduza URL:</value></data>
-  <data name="ErrInsertLink" xml:space="preserve"><value>Não é possível inserir ligação:</value></data>
+  <data name="SelectTextForLink" xml:space="preserve"><value>Selecione um texto para inserir o link primeiro.</value></data>
+  <data name="EnterURL" xml:space="preserve"><value>Digite a URL:</value></data>
+  <data name="ErrInsertLink" xml:space="preserve"><value>Não foi possível inserir o link:</value></data>
   <data name="CaptureModeTitle" xml:space="preserve"><value>Método de Captura</value></data>
-  <data name="CaptureModeOverlay" xml:space="preserve"><value>Captura Rápida (Sobreposição) - Mantém animações em execução</value></data>
-  <data name="CaptureModeStatic" xml:space="preserve"><value>Captura Congelada - Congela o ecrã instantaneamente (Predefinido)</value></data>
-  <data name="CaptureModeDesc" xml:space="preserve"><value>※ Usar Lupa no modo Captura Rápida pode causar atrasos ao arrastar.</value></data>
+  <data name="CaptureModeOverlay" xml:space="preserve"><value>Captura Rápida (Sobreposição) - Mantém animações rodando</value></data>
+  <data name="CaptureModeStatic" xml:space="preserve"><value>Captura Congelada - Congela a tela instantaneamente (Padrão)</value></data>
+  <data name="CaptureModeDesc" xml:space="preserve"><value>※ Usar lupa no modo Captura Rápida pode causar atraso ao arrastar.</value></data>
   <data name="EdgeCapture" xml:space="preserve"><value>Captura com Borda</value></data>
   <data name="EdgeSoft" xml:space="preserve"><value>Borda Suave</value></data>
   <data name="EdgeSmooth" xml:space="preserve"><value>Borda Arredondada</value></data>
@@ -773,18 +770,18 @@ Tem a certeza que quer apagar permanentemente todos os itens?</value>
   <data name="EdgeCapsule" xml:space="preserve"><value>Estilo Cápsula</value></data>
   <data name="EdgeCircle" xml:space="preserve"><value>Círculo Perfeito</value></data>
   <data name="HistorySettings" xml:space="preserve"><value>Configurações do Histórico</value></data>
-  <data name="AutoManagement" xml:space="preserve"><value>Retenção e Gerenciamento de Dados</value></data>
+  <data name="AutoManagement" xml:space="preserve"><value>Retenção e Gerenciamento Automático</value></data>
   <data name="AutoDeletePeriod" xml:space="preserve"><value>Período de Exclusão Automática</value></data>
-  <data name="AutoDeleteToTrashNotice" xml:space="preserve"><value>(Move dados mais antigos que o período definido para a lixeira)</value></data>
+  <data name="AutoDeleteToTrashNotice" xml:space="preserve"><value>(Move itens antigos para a lixeira)</value></data>
   <data name="DbOptimize" xml:space="preserve"><value>Otimizar Banco de Dados</value></data>
   <data name="DbOptimizeDesc" xml:space="preserve"><value>Melhora a velocidade limpando espaço vazio</value></data>
-  <data name="HistorySameAsCapture" xml:space="preserve"><value>Igual às configurações de captura. Para alterar, faça nas configurações de captura.</value></data>
-  <data name="HistoryTip1" xml:space="preserve"><value>Veja todas as capturas e registros anteriores de uma vez no Histórico.</value></data>
-  <data name="HistoryTip2" xml:space="preserve"><value>Use a barra de busca para encontrar rapidamente por nome de arquivo ou app.</value></data>
-  <data name="HistoryTip3" xml:space="preserve"><value>Use filtros avançados para buscar por datas ou tipos de arquivo específicos.</value></data>
-  <data name="HistoryTip4" xml:space="preserve"><value>Selecione um item e clique em 'Salvar na Minha Nota' para criar uma nota com as informações originais.</value></data>
-  <data name="HistoryTip5" xml:space="preserve"><value>Clique duplo em um item da lista para abrir o arquivo original no visualizador padrão do Windows.</value></data>
-  <data name="HistoryTip6" xml:space="preserve"><value>Registros excluídos na lixeira serão removidos permanentemente após o período de retenção.</value></data>
+  <data name="HistorySameAsCapture" xml:space="preserve"><value>Igual às configurações de captura. Altere nas configurações de captura.</value></data>
+  <data name="HistoryTip1" xml:space="preserve"><value>Veja todas as capturas e registros anteriores no Histórico.</value></data>
+  <data name="HistoryTip2" xml:space="preserve"><value>Use a busca para encontrar rápido por nome de arquivo ou app.</value></data>
+  <data name="HistoryTip3" xml:space="preserve"><value>Use filtros avançados por data ou tipo de arquivo.</value></data>
+  <data name="HistoryTip4" xml:space="preserve"><value>Selecione um item e clique em 'Salvar na Minha Nota' para criar nota com os dados originais.</value></data>
+  <data name="HistoryTip5" xml:space="preserve"><value>Dê duplo clique em um item para abrir o arquivo no visualizador padrão do Windows.</value></data>
+  <data name="HistoryTip6" xml:space="preserve"><value>Itens na lixeira são excluídos permanentemente após o período de retenção.</value></data>
   <data name="Blur" xml:space="preserve"><value>Desfoque</value></data>
   <data name="HistoryWindowTitle" xml:space="preserve"><value>Histórico - CatchCapture</value></data>
   <data name="HistorySearchPlaceholder" xml:space="preserve"><value>Pesquisar por nome de arquivo, memo, app...</value></data>
@@ -798,7 +795,7 @@ Tem a certeza que quer apagar permanentemente todos os itens?</value>
   <data name="Details" xml:space="preserve"><value>Detalhes</value></data>
   <data name="CapacityLabel" xml:space="preserve"><value>Capacidade:</value></data>
   <data name="AppLabel" xml:space="preserve"><value>App:</value></data>
-  <data name="PathLabel" xml:space="preserve"><value>Caminho Detalhado</value></data>
+  <data name="PathLabel" xml:space="preserve"><value>Caminho Completo</value></data>
   <data name="TitleLabel" xml:space="preserve"><value>Título Completo:</value></data>
   <data name="SelectAnItemToViewDetails" xml:space="preserve"><value>Selecione um item para ver detalhes</value></data>
   <data name="ImageEditorTooltip" xml:space="preserve"><value>Editar imagem</value></data>
@@ -808,33 +805,33 @@ Tem a certeza que quer apagar permanentemente todos os itens?</value>
   <data name="ErrLoadHistory" xml:space="preserve"><value>Erro ao carregar histórico: </value></data>
   <data name="DeleteConfirmTitle" xml:space="preserve"><value>Confirmar Exclusão</value></data>
   <data name="DeleteConfirmMessage" xml:space="preserve"><value>Mover itens selecionados para a lixeira?</value></data>
-  <data name="PermanentDeleteConfirmMessage" xml:space="preserve"><value>Excluir permanentemente itens selecionados? (Arquivos também serão excluídos)</value></data>
-  <data name="EmptyTrashConfirmMessage" xml:space="preserve"><value>Excluir permanentemente todos os itens da lixeira?\n(Arquivos originais nas pastas também serão excluídos)</value></data>
+  <data name="PermanentDeleteConfirmMessage" xml:space="preserve"><value>Excluir permanentemente os itens selecionados? (Arquivos também serão excluídos)</value></data>
+  <data name="EmptyTrashConfirmMessage" xml:space="preserve"><value>Excluir permanentemente todos os itens da lixeira?\n(Arquivos originais também serão excluídos)</value></data>
   <data name="EmptyTrashTitle" xml:space="preserve"><value>Esvaziar Lixeira</value></data>
   <data name="ErrOpenFolder" xml:space="preserve"><value>Não foi possível abrir a pasta: </value></data>
-  <data name="ErrSaveImage" xml:space="preserve"><value>Ocorreu um erro ao salvar a imagem: </value></data>
+  <data name="ErrSaveImage" xml:space="preserve"><value>Erro ao salvar a imagem: </value></data>
   <data name="ErrOpenEditor" xml:space="preserve"><value>Não foi possível abrir o editor: </value></data>
   <data name="ErrPinImage" xml:space="preserve"><value>Não foi possível fixar a imagem: </value></data>
-  <data name="SyncConfirm" xml:space="preserve"><value>Dados na nuvem (OneDrive, Dropbox etc.) podem levar 1-3 minutos para refletir.\n\nDeseja obter os registros mais recentes agora?</value></data>
+  <data name="SyncConfirm" xml:space="preserve"><value>Dados na nuvem (OneDrive, Dropbox etc.) podem demorar 1-3 minutos para sincronizar.\n\nDeseja atualizar agora?</value></data>
   <data name="SyncInfoTitle" xml:space="preserve"><value>Informações de Sincronização</value></data>
   <data name="SyncFailed" xml:space="preserve"><value>Falha na sincronização: </value></data>
   <data name="NoteSyncTooltip" xml:space="preserve"><value>Obter dados mais recentes</value></data>
-  <data name="ClearTags" xml:space="preserve"><value>Limpar Tags</value></data>
-  <data name="ClearTagsTooltip" xml:space="preserve"><value>Excluir todas as tags</value></data>
-  <data name="ClearTagsConfirm" xml:space="preserve"><value>Tem certeza que deseja excluir todas as tags?\nAs informações de tags serão removidas de todas as notas.</value></data>
-  <data name="DeleteSingleTagConfirm" xml:space="preserve"><value>Deseja excluir a tag '#{0}'?\nEsta tag será removida apenas das notas em que está aplicada.</value></data>
-  <data name="DeleteSingleTagComplete" xml:space="preserve"><value>A tag '#{0}' foi excluída.</value></data>
+  <data name="ClearTags" xml:space="preserve"><value>Limpar Etiquetas</value></data>
+  <data name="ClearTagsTooltip" xml:space="preserve"><value>Excluir todas as etiquetas</value></data>
+  <data name="ClearTagsConfirm" xml:space="preserve"><value>Tem certeza que deseja excluir todas as etiquetas?\nAs etiquetas serão removidas de todas as notas.</value></data>
+  <data name="DeleteSingleTagConfirm" xml:space="preserve"><value>Deseja excluir a etiqueta '#{0}'?\nEla será removida apenas das notas em que está aplicada.</value></data>
+  <data name="DeleteSingleTagComplete" xml:space="preserve"><value>A etiqueta '#{0}' foi excluída.</value></data>
   <data name="MyNoteTitle" xml:space="preserve"><value>Minha Nota</value></data>
   <data name="NewNoteLabel" xml:space="preserve"><value>Nova Nota</value></data>
   <data name="CopyURL" xml:space="preserve"><value>Copiar URL</value></data>
   <data name="OpenHistory" xml:space="preserve"><value>Abrir Histórico</value></data>
   <data name="OpenCaptureFolder" xml:space="preserve"><value>Abrir Pasta de Capturas</value></data>
   <data name="OpenNoteFolder" xml:space="preserve"><value>Abrir Pasta de Notas</value></data>
-  <data name="CaptureAnd" xml:space="preserve"><value>Capturar &amp;</value></data>
-  <data name="ChangeEdgeStyleTooltip" xml:space="preserve"><value>Clique para alterar o estilo da borda</value></data>
-  <data name="EmptyTrashComplete" xml:space="preserve"><value>A lixeira foi esvaziada.</value></data>
+  <data name="CaptureAnd" xml:space="preserve"><value>Capturar e </value></data>
+  <data name="ChangeEdgeStyleTooltip" xml:space="preserve"><value>Clique para mudar o estilo da borda</value></data>
+  <data name="EmptyTrashComplete" xml:space="preserve"><value>Lixeira esvaziada.</value></data>
   <data name="All" xml:space="preserve"><value>Todos</value></data>
-  <data name="CopyFailed" xml:space="preserve"><value>Falha ao copiar para a área de transferência. Outro programa pode estar usando a área de transferência.</value></data>
+  <data name="CopyFailed" xml:space="preserve"><value>Falha ao copiar para a área de transferência. Outro programa pode estar usando a área.</value></data>
   <data name="HistoryTitle" xml:space="preserve"><value>Histórico</value></data>
   <data name="HistoryColDate" xml:space="preserve"><value>Data e Hora</value></data>
   <data name="HistoryColFileName" xml:space="preserve"><value>Nome do Arquivo</value></data>
@@ -842,7 +839,7 @@ Tem a certeza que quer apagar permanentemente todos os itens?</value>
   <data name="HistoryColMemo" xml:space="preserve"><value>Memo</value></data>
   <data name="HistoryColActions" xml:space="preserve"><value>Ações</value></data>
   <data name="History" xml:space="preserve"><value>Histórico</value></data>
-  <data name="HistoryFilterTitle" xml:space="preserve"><value>Filtro Detalhado</value></data>
+  <data name="HistoryFilterTitle" xml:space="preserve"><value>Filtro Avançado</value></data>
   <data name="HistoryFilterDate" xml:space="preserve"><value>Filtro por Data</value></data>
   <data name="HistoryFilterFileName" xml:space="preserve"><value>Nome do Arquivo</value></data>
   <data name="HistoryFilterFileType" xml:space="preserve"><value>Tipo de Arquivo</value></data>
@@ -864,7 +861,7 @@ Tem a certeza que quer apagar permanentemente todos os itens?</value>
   <data name="ShadowIntensity" xml:space="preserve"><value>Intensidade da Sombra</value></data>
   <data name="ShadowBlur" xml:space="preserve"><value>Desfoque da Sombra</value></data>
   <data name="ShadowSize" xml:space="preserve"><value>Tamanho da Sombra</value></data>
-  <data name="EdgeCaptureSettings" xml:space="preserve"><value>Configurações de Captura de Borda</value></data>
+  <data name="EdgeCaptureSettings" xml:space="preserve"><value>Configurações de Captura com Borda</value></data>
   <data name="Preset" xml:space="preserve"><value>Predefinição:</value></data>
   <data name="EdgeLevel1" xml:space="preserve"><value>Nível 1 (Suave)</value></data>
   <data name="EdgeLevel2" xml:space="preserve"><value>Nível 2 (Liso)</value></data>
@@ -873,60 +870,60 @@ Tem a certeza que quer apagar permanentemente todos os itens?</value>
   <data name="EdgeLevel5" xml:space="preserve"><value>Nível 5 (Círculo)</value></data>
   <data name="RestoreFromBackup" xml:space="preserve"><value>Restaurar do Backup</value></data>
   <data name="RestoringMsg" xml:space="preserve"><value>Restaurando dados... Aguarde por favor.</value></data>
-  <data name="RestoreSuccessMsg" xml:space="preserve"><value>Restauração concluída. O aplicativo será reiniciado para aplicar as alterações.</value></data>
+  <data name="RestoreSuccessMsg" xml:space="preserve"><value>Restauração concluída. O programa será reiniciado.</value></data>
   <data name="ErrorRestore" xml:space="preserve"><value>Erro durante a restauração</value></data>
   <data name="NoteBackupList" xml:space="preserve"><value>Backups de Notas</value></data>
   <data name="HistoryBackupList" xml:space="preserve"><value>Backups de Histórico</value></data>
   <data name="SelectBackupToRestore" xml:space="preserve"><value>Selecione um ponto de backup para restaurar</value></data>
-  <data name="ConfirmRestoreBackup" xml:space="preserve"><value>Deseja restaurar para o ponto selecionado ({0})?\nOs dados atuais serão automaticamente salvos em backup.</value></data>
+  <data name="ConfirmRestoreBackup" xml:space="preserve"><value>Deseja restaurar para o ponto selecionado ({0})?\nOs dados atuais serão salvos em backup automaticamente.</value></data>
   <data name="BackupColType" xml:space="preserve"><value>Tipo</value></data>
   <data name="BackupColSize" xml:space="preserve"><value>Tamanho</value></data>
   <data name="BackupColDate" xml:space="preserve"><value>Data</value></data>
   <data name="BackupColFileName" xml:space="preserve"><value>Nome do arquivo</value></data>
   <data name="BackupColTimeAgo" xml:space="preserve"><value>Há</value></data>
   <data name="BackupColManage" xml:space="preserve"><value>Gerenciar</value></data>
-  <data name="ExportAllWithImages" xml:space="preserve"><value>Exportar Tudo (Incl. Imagens)</value></data>
-  <data name="ImportAllWithImages" xml:space="preserve"><value>Importar Tudo (Incl. Imagens)</value></data>
-  <data name="CreateManualBackupNote" xml:space="preserve"><value>Backup DB (Estado Atual)</value></data>
-  <data name="CreateManualBackupHistory" xml:space="preserve"><value>Backup DB Histórico</value></data>
-  <data name="BackupTicker1" xml:space="preserve"><value>O DB de notas é salvo automaticamente ao sair.</value></data>
-  <data name="BackupTicker2" xml:space="preserve"><value>Backups periódicos de dados são recomendados.</value></data>
-  <data name="BackupTicker3" xml:space="preserve"><value>Realize uma exportação completa antes da inicialização.</value></data>
-  <data name="BackupTicker4" xml:space="preserve"><value>Os dados atuais serão sobrescritos durante a restauração do DB.</value></data>
+  <data name="ExportAllWithImages" xml:space="preserve"><value>Exportar Tudo (incl. Imagens)</value></data>
+  <data name="ImportAllWithImages" xml:space="preserve"><value>Importar Tudo (incl. Imagens)</value></data>
+  <data name="CreateManualBackupNote" xml:space="preserve"><value>Backup Manual de Notas (Estado Atual)</value></data>
+  <data name="CreateManualBackupHistory" xml:space="preserve"><value>Backup Manual de Histórico</value></data>
+  <data name="BackupTicker1" xml:space="preserve"><value>O banco de dados de notas é salvo automaticamente ao sair.</value></data>
+  <data name="BackupTicker2" xml:space="preserve"><value>Recomenda-se fazer backups periódicos.</value></data>
+  <data name="BackupTicker3" xml:space="preserve"><value>Faça exportação completa antes de resetar.</value></data>
+  <data name="BackupTicker4" xml:space="preserve"><value>Dados atuais serão sobrescritos ao restaurar.</value></data>
   <data name="BackupCompleted" xml:space="preserve"><value>Backup concluído.</value></data>
   <data name="BackupCompletedTitle" xml:space="preserve"><value>Backup Concluído</value></data>
   <data name="BackupFailed" xml:space="preserve"><value>Falha no backup</value></data>
-  <data name="ConfirmDeleteBackup" xml:space="preserve"><value>Tem certeza de que deseja excluir este arquivo de backup?</value></data>
-  <data name="BackupDeleted" xml:space="preserve"><value>O arquivo de backup foi excluído.</value></data>
-  <data name="ExportSuccess" xml:space="preserve"><value>Exportação completa de dados concluída!</value></data>
+  <data name="ConfirmDeleteBackup" xml:space="preserve"><value>Tem certeza que deseja excluir este arquivo de backup?</value></data>
+  <data name="BackupDeleted" xml:space="preserve"><value>Arquivo de backup excluído.</value></data>
+  <data name="ExportSuccess" xml:space="preserve"><value>Exportação completa concluída!</value></data>
   <data name="ExportFailed" xml:space="preserve"><value>Falha na exportação</value></data>
-  <data name="ImportConfirmation" xml:space="preserve"><value>A importação pode mesclar ou sobrescrever os dados de notas atuais.\nDeseja continuar?</value></data>
-  <data name="ImportSuccess" xml:space="preserve"><value>Importação de dados concluída! O aplicativo pode reiniciar.</value></data>
+  <data name="ImportConfirmation" xml:space="preserve"><value>A importação pode mesclar ou sobrescrever os dados atuais.\nDeseja continuar?</value></data>
+  <data name="ImportSuccess" xml:space="preserve"><value>Importação concluída! O programa pode reiniciar.</value></data>
   <data name="ImportFailed" xml:space="preserve"><value>Falha na importação</value></data>
-  <data name="BackupHistoryDBRestore" xml:space="preserve"><value>Restauração DB Histórico</value></data>
+  <data name="BackupHistoryDBRestore" xml:space="preserve"><value>Restauração do Banco de Histórico</value></data>
   <data name="BackupDataBackupAndRestore" xml:space="preserve"><value>Backup e Restauração de Dados</value></data>
-  <data name="ConfirmResetNote" xml:space="preserve"><value>Deseja inicializar todas as notas? Clicar em Sim resetará todas as imagens e bancos de dados.\nSe precisar de backup, realize primeiro o Backup de Dados.</value></data>
-  <data name="ConfirmResetHistory" xml:space="preserve"><value>Tem certeza de que deseja excluir permanentemente todos os registros de histórico?</value></data>
-  <data name="HistoryResetComplete" xml:space="preserve"><value>O histórico foi inicializado.</value></data>
-  <data name="HistoryResetError" xml:space="preserve"><value>Falha na inicialização do histórico: {0}</value></data>
+  <data name="ConfirmResetNote" xml:space="preserve"><value>Deseja resetar todas as notas? Isso apagará imagens e banco de dados.\nFaça backup antes se necessário.</value></data>
+  <data name="ConfirmResetHistory" xml:space="preserve"><value>Tem certeza que deseja excluir permanentemente todo o histórico?</value></data>
+  <data name="HistoryResetComplete" xml:space="preserve"><value>Histórico inicializado.</value></data>
+  <data name="HistoryResetError" xml:space="preserve"><value>Falha ao inicializar histórico: {0}</value></data>
   <data name="SelectBackupFolder" xml:space="preserve"><value>Selecionar Pasta de Backup</value></data>
   <data name="FolderNotFound" xml:space="preserve"><value>A pasta não existe.</value></data>
-  <data name="PasswordNotSet" xml:space="preserve"><value>Senha não definida. Defina uma senha.</value></data>
+  <data name="PasswordNotSet" xml:space="preserve"><value>Senha não definida. Defina uma senha primeiro.</value></data>
   <data name="BackupAuto" xml:space="preserve"><value>Backup Automático do Sistema</value></data>
   <data name="BackupManual" xml:space="preserve"><value>Backup Manual do Usuário</value></data>
   <data name="TimeJustNow" xml:space="preserve"><value>Agora mesmo</value></data>
   <data name="TimeMinutesAgo" xml:space="preserve"><value>{0} min atrás</value></data>
   <data name="TimeHoursAgo" xml:space="preserve"><value>{0} h atrás</value></data>
-  <data name="TimeDaysAgo" xml:space="preserve"><value>{0} d atrás</value></data>
+  <data name="TimeDaysAgo" xml:space="preserve"><value>{0} dias atrás</value></data>
   <data name="DeleteConfirmation" xml:space="preserve"><value>Confirmar Exclusão</value></data>
   <data name="DeleteCompletedTitle" xml:space="preserve"><value>Exclusão Concluída</value></data>
   <data name="DeleteError" xml:space="preserve"><value>Erro durante a exclusão</value></data>
   <data name="RecordingSaved" xml:space="preserve"><value>Gravação salva: {0}</value></data>
-  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>Gravação em andamento. Salvar?</value></data>
+  <data name="RecordingInProgressConfirm" xml:space="preserve"><value>Gravação em andamento. Deseja salvar?</value></data>
   <data name="RecordingInProgressTitle" xml:space="preserve"><value>Gravação em andamento</value></data>
-  <data name="NoFramesToSave" xml:space="preserve"><value>Nenhum quadro gravado, não é possível salvar.</value></data>
-  <data name="StopRecordingError" xml:space="preserve"><value>Erro ao parar a gravação: {0}</value></data>
-  <data name="NoMicDetected" xml:space="preserve"><value>Nenhum microfone detectado. Conecte um dispositivo de entrada de áudio.</value></data>
+  <data name="NoFramesToSave" xml:space="preserve"><value>Nenhum quadro gravado. Não é possível salvar.</value></data>
+  <data name="StopRecordingError" xml:space="preserve"><value>Erro ao parar gravação: {0}</value></data>
+  <data name="NoMicDetected" xml:space="preserve"><value>Nenhum microfone detectado. Conecte um dispositivo de áudio.</value></data>
   <data name="NoMicTitle" xml:space="preserve"><value>Sem microfone</value></data>
   <data name="MicCheckFailed" xml:space="preserve"><value>Falha na verificação do microfone: {0}</value></data>
   <data name="RecordingError" xml:space="preserve"><value>Erro durante a gravação: {0}</value></data>

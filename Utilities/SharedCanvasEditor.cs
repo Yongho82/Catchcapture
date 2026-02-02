@@ -37,8 +37,8 @@ namespace CatchCapture.Utilities
         public double NumberingBadgeSize { get; set; } = 24;
         public double NumberingTextSize { get; set; } = 13;
         public Color NumberingBadgeColor { get; set; } = Colors.Red;
-        public Color NumberingNoteColor { get; set; } = Colors.White;
-        public Color NumberingBackgroundColor { get; set; } = Colors.Transparent; // [추가] 배경색
+        public Color NumberingNoteColor { get; set; } = Colors.Black; // [수정] 흰색 배경에 보이도록 검정색으로 변경
+        public Color NumberingBackgroundColor { get; set; } = Colors.White; // [수정] 기본값 흰색으로 변경
         public double LineHeightMultiplier { get; set; } = 1.5; // 통합 줄 간격 배수 (보통 기준)
         
         // 텍스트 관련
