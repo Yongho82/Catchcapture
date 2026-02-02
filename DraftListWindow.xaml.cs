@@ -44,7 +44,10 @@ namespace CatchCapture
 
         private void BtnClearAll_Click(object sender, RoutedEventArgs e)
         {
-            if (CustomMessageBox.Show("모든 임시저장 항목을 삭제하시겠습니까?", "전체 삭제", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            if (CustomMessageBox.Show(
+                CatchCapture.Resources.LocalizationManager.GetString("ConfirmClearAll") ?? "모든 항목을 삭제하시겠습니까?", 
+                CatchCapture.Resources.LocalizationManager.GetString("ClearAllDrafts") ?? "전체 삭제", 
+                MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 DraftManager.DeleteAllDrafts();
                 LoadDrafts();

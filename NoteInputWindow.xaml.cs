@@ -232,6 +232,9 @@ namespace CatchCapture
             
             if (BtnCancel != null) BtnCancel.Content = CatchCapture.Resources.LocalizationManager.GetString("BtnCancel");
 
+            if (BtnSaveDraft != null) BtnSaveDraft.ToolTip = CatchCapture.Resources.LocalizationManager.GetString("SaveDraft");
+            if (TxtDraftsLabel != null) TxtDraftsLabel.Text = CatchCapture.Resources.LocalizationManager.GetString("Drafts");
+
             // Mode specific
             if (_isEditMode)
             {
@@ -886,8 +889,8 @@ namespace CatchCapture
         private void RestoreDraft(DraftData draft)
         {
             var result = CustomMessageBox.Show(
-                "선택한 내용으로 복구하시겠습니까?\n현재 작성 중인 내용은 모두 지워집니다.",
-                "임시저장 복구",
+                CatchCapture.Resources.LocalizationManager.GetString("ConfirmRestore") ?? "복구하시겠습니까?",
+                CatchCapture.Resources.LocalizationManager.GetString("Drafts") ?? "임시저장",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
 

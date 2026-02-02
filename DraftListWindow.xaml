@@ -22,7 +22,7 @@
             <!-- Header -->
             <Border Grid.Row="0" Background="{DynamicResource ThemeTitleBackground}" CornerRadius="15,15,0,0">
                 <Grid Margin="20,0">
-                    <TextBlock Text="임시저장 목록" VerticalAlignment="Center" FontWeight="Bold" FontSize="15" Foreground="{DynamicResource ThemeTitleForeground}"/>
+                    <TextBlock x:Name="TxtDraftListTitle" Text="{DynamicResource DraftList}" VerticalAlignment="Center" FontWeight="Bold" FontSize="15" Foreground="{DynamicResource ThemeTitleForeground}"/>
                     <Button HorizontalAlignment="Right" Click="BtnClose_Click" Background="Transparent" BorderThickness="0" Cursor="Hand">
                         <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" 
                               Fill="{DynamicResource ThemeTitleForeground}" Stretch="Uniform" Width="12" Height="12"/>
@@ -70,14 +70,14 @@
                             </StackPanel>
 
                             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                <Button Content="복구" Click="BtnRestore_Click" Cursor="Hand" Padding="12,5" Background="#3498db" Foreground="White" BorderThickness="0" FontWeight="Bold">
+                                <Button Content="{DynamicResource Restore}" Click="BtnRestore_Click" Cursor="Hand" Padding="12,5" Background="#3498db" Foreground="White" BorderThickness="0" FontWeight="Bold">
                                     <Button.Resources>
                                         <Style TargetType="Border">
                                             <Setter Property="CornerRadius" Value="6"/>
                                         </Style>
                                     </Button.Resources>
                                 </Button>
-                                <Button Click="BtnDelete_Click" Margin="5,0,0,0" Cursor="Hand" Background="Transparent" BorderThickness="0" ToolTip="삭제">
+                                <Button Click="BtnDelete_Click" Margin="5,0,0,0" Cursor="Hand" Background="Transparent" BorderThickness="0" ToolTip="{DynamicResource Delete}">
                                     <Path Data="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19V4M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" Fill="#FF5C5C" Stretch="Uniform" Width="12" Height="12"/>
                                 </Button>
                             </StackPanel>
@@ -89,7 +89,7 @@
 
             <!-- Footer -->
             <Border Grid.Row="2" Padding="15,10" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ThemeWindowBorder}">
-                <Button Content="임시저장 전체 삭제" Click="BtnClearAll_Click" Foreground="#FF5C5C" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalAlignment="Right" FontSize="12"/>
+                <Button x:Name="BtnClearAll" Content="{DynamicResource ClearAllDrafts}" Click="BtnClearAll_Click" Foreground="#FF5C5C" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalAlignment="Right" FontSize="12"/>
             </Border>
         </Grid>
     </Border>

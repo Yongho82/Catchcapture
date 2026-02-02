@@ -1040,4 +1040,32 @@
 - 저장 경로 변경: [노트 설정]에서 저장 위치를 'D:\' 또는 'C:\'와 같이 사용자 계정명과 무관한 간단하고 안전한 경로로 변경해 보세요.
 
 여전히 문제가 해결되지 않는다면 하단 '문의하기'를 통해 알려주시면 신속하게 도움을 드리겠습니다.</value></data>
+  <data name="Drafts" xml:space="preserve">
+    <value>임시저장</value>
+  </data>
+  <data name="SaveDraft" xml:space="preserve">
+    <value>임시저장 하기</value>
+  </data>
+  <data name="DraftList" xml:space="preserve">
+    <value>임시저장 목록</value>
+  </data>
+  <data name="NoDrafts" xml:space="preserve">
+    <value>저장된 항목이 없습니다.</value>
+  </data>
+  <data name="Restore" xml:space="preserve">
+    <value>복구</value>
+  </data>
+  <data name="ClearAllDrafts" xml:space="preserve">
+    <value>임시저장 전체 삭제</value>
+  </data>
+  <data name="ConfirmClearAll" xml:space="preserve">
+    <value>모든 임시저장 항목을 삭제하시겠습니까?</value>
+  </data>
+  <data name="ConfirmRestore" xml:space="preserve">
+    <value>선택한 내용으로 복구하시겠습니까?
+현재 작성 중인 내용은 모두 지워집니다.</value>
+  </data>
+  <data name="NoTitle" xml:space="preserve">
+    <value>(제목 없음)</value>
+  </data>
 </root>

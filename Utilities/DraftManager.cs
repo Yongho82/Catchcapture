@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using CatchCapture.Resources;
 
 namespace CatchCapture.Utilities
 {
@@ -17,7 +18,7 @@ namespace CatchCapture.Utilities
         public DateTime SavedAt { get; set; }
         
         // 디스플레이용
-        public string DisplayTitle => string.IsNullOrWhiteSpace(Title) ? "(제목 없음)" : Title;
+        public string DisplayTitle => string.IsNullOrWhiteSpace(Title) ? LocalizationManager.GetString("NoTitle") : Title;
         public string DisplayTime => SavedAt.ToString("yyyy-MM-dd HH:mm:ss");
     }
 
