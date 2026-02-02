@@ -969,6 +969,18 @@ namespace CatchCapture.Utilities
                         using (var command = new SqliteCommand(createAttachmentsTable, connection, transaction)) { command.ExecuteNonQuery(); }
                         using (var command = new SqliteCommand(createCategoriesTable, connection, transaction)) { command.ExecuteNonQuery(); }
                         using (var command = new SqliteCommand(createConfigTable, connection, transaction)) { command.ExecuteNonQuery(); }
+
+                        // [Add] Performance Indexes
+                        string createIndexes = @"
+                            CREATE INDEX IF NOT EXISTS idx_notes_createdat ON Notes(CreatedAt);
+                            CREATE INDEX IF NOT EXISTS idx_notes_categoryid ON Notes(CategoryId);
+                            CREATE INDEX IF NOT EXISTS idx_notes_status ON Notes(Status);
+                            CREATE INDEX IF NOT EXISTS idx_notes_ispinned ON Notes(IsPinned);
+                            CREATE INDEX IF NOT EXISTS idx_noteimages_noteid ON NoteImages(NoteId);
+                            CREATE INDEX IF NOT EXISTS idx_notetags_noteid ON NoteTags(NoteId);
+                            CREATE INDEX IF NOT EXISTS idx_noteattachments_noteid ON NoteAttachments(NoteId);";
+                        using (var command = new SqliteCommand(createIndexes, connection, transaction)) { command.ExecuteNonQuery(); }
+
                         transaction.Commit();
                     }
                     catch
@@ -1079,6 +1091,12 @@ namespace CatchCapture.Utilities
                         );";
 
                     using (var command = new SqliteCommand(createCapturesTable, connection)) { command.ExecuteNonQuery(); }
+
+                    // [Add] History Performance Indexes
+                    string createHistoryIndexes = @"
+                        CREATE INDEX IF NOT EXISTS idx_captures_createdat ON Captures(CreatedAt);
+                        CREATE INDEX IF NOT EXISTS idx_captures_status ON Captures(Status);";
+                    using (var command = new SqliteCommand(createHistoryIndexes, connection)) { command.ExecuteNonQuery(); }
 
                     // Migration: Add OriginalFilePath if it doesn't exist
                     try

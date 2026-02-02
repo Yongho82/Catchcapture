@@ -17,7 +17,7 @@ namespace CatchCapture
 {
     public partial class NoteExplorerWindow : Window, INotifyPropertyChanged
     {
-        private string _currentFilter = "Recent";
+        private string _currentFilter = "All";
         private string? _currentTag = null;
         private string? _currentSearch = "";
         private int _currentPage = 1;
@@ -106,10 +106,10 @@ namespace CatchCapture
 
                 // Removed unused sync check registration
                 
-                _ = LoadNotes(filter: "Recent", focusNoteId: focusNoteId);
+                _ = LoadNotes(filter: "All", focusNoteId: focusNoteId);
                 LoadTags();
                 InitializeTipTimer();
-                HighlightSidebarButton(BtnFilterRecent);
+                HighlightSidebarButton(BtnFilterAll);
 
                 // Apply view mode after loading state
                 ApplyViewMode();
@@ -226,7 +226,7 @@ namespace CatchCapture
             
             if (BtnSelectAll != null) BtnSelectAll.Content = CatchCapture.Resources.LocalizationManager.GetString("SelectAll");
             if (BtnDeleteSelected != null) BtnDeleteSelected.Content = CatchCapture.Resources.LocalizationManager.GetString("DeleteSelected");
-            if (TxtStatusInfo != null) TxtStatusInfo.Text = CatchCapture.Resources.LocalizationManager.GetString("RecentStatusInfo");
+            if (TxtStatusInfo != null) TxtStatusInfo.Text = CatchCapture.Resources.LocalizationManager.GetString("AllRecords");
             if (TxtSearchPlaceholder != null) TxtSearchPlaceholder.Text = CatchCapture.Resources.LocalizationManager.GetString("SearchPlaceholder");
             if (TxtEmptyTrash != null) TxtEmptyTrash.Text = CatchCapture.Resources.LocalizationManager.GetString("EmptyTrash") ?? "휴지통 비우기";
             
