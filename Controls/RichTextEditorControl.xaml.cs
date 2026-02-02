@@ -1862,17 +1862,34 @@ namespace CatchCapture.Controls
             
         private void OnPaste(object sender, DataObjectPastingEventArgs e)
         {
-            // 1. Check for Image formats (Bitmap, PNG, etc.)
+            // [Fix] Excel Detection: When pasting from Excel, force image conversion to preserve table layout and styling.
+            bool isExcel = e.DataObject.GetDataPresent("XML Spreadsheet") || 
+                           e.DataObject.GetDataPresent("Excel8") || 
+                           e.DataObject.GetDataPresent("Excel12");
+
             BitmapSource? bitmap = null;
 
             try
             {
-                if (e.DataObject.GetDataPresent(DataFormats.Bitmap))
+                // Priority 1: If it's Office/Excel, try WinForms Clipboard FIRST
+                // WinForms handles the DIB offset and EnhancedMetafile conversion for Office much better than WPF.
+                if (isExcel)
                 {
-                    bitmap = e.DataObject.GetData(DataFormats.Bitmap) as BitmapSource;
+                    try 
+                    {
+                        if (System.Windows.Forms.Clipboard.ContainsImage())
+                        {
+                            using (var drawingImg = System.Windows.Forms.Clipboard.GetImage())
+                            {
+                                if (drawingImg is System.Drawing.Bitmap drawingBitmap)
+                                    bitmap = ConvertDrawingBitmapToBitmapSource(drawingBitmap);
+                            }
+                        }
+                    }
+                    catch { }
                 }
-                
-                // fallback to PNG if Bitmap failed or not present (common for browser copies)
+
+                // Priority 2: Try PNG (Modern apps like Excel/Browsers provide this)
                 if (bitmap == null && e.DataObject.GetDataPresent("PNG"))
                 {
                     var stream = e.DataObject.GetData("PNG") as Stream;
@@ -1883,22 +1900,41 @@ namespace CatchCapture.Controls
                             bitmap = decoder.Frames[0];
                     }
                 }
+
+                // Priority 3: Normal WPF Bitmap (Use as fallback ONLY if others failed)
+                if (bitmap == null && e.DataObject.GetDataPresent(DataFormats.Bitmap))
+                {
+                    // [Important] For Excel, this often returns a white placeholder in WPF interop.
+                    bitmap = e.DataObject.GetData(DataFormats.Bitmap) as BitmapSource;
+                }
                 
-                // fallback to DeviceIndependentBitmap
+                // Priority 4: Device Independent Bitmap (DIB)
                 if (bitmap == null && e.DataObject.GetDataPresent(DataFormats.Dib))
                 {
-                    // DIB is more complex to convert, but sometimes works when standard Bitmap fails
-                    // For now, we rely on WPF's built-in conversion if possible
-                    bitmap = e.DataObject.GetData(DataFormats.Dib) as BitmapSource;
+                    try 
+                    {
+                        if (System.Windows.Forms.Clipboard.ContainsImage())
+                        {
+                             using (var drawingImg = System.Windows.Forms.Clipboard.GetImage())
+                             {
+                                 if (drawingImg is System.Drawing.Bitmap drawingBitmap)
+                                     bitmap = ConvertDrawingBitmapToBitmapSource(drawingBitmap);
+                             }
+                        }
+                    }
+                    catch { }
                 }
             }
             catch { }
 
             if (bitmap != null)
             {
-                InsertImage(bitmap);
-                e.CancelCommand();
-                return;
+                if (bitmap.PixelWidth > 0 && bitmap.PixelHeight > 0)
+                {
+                    InsertImage(bitmap);
+                    e.CancelCommand();
+                    return;
+                }
             }
             else if (e.DataObject.GetDataPresent(DataFormats.FileDrop))
             {
@@ -2454,6 +2490,35 @@ namespace CatchCapture.Controls
             if (capturedImage == null) return;
             MoveCaretToEnd();
             InsertCapturedImage(capturedImage);
+        }
+        [System.Runtime.InteropServices.DllImport("gdi32.dll")]
+        private static extern bool DeleteObject(IntPtr hObject);
+
+        private BitmapSource? ConvertDrawingBitmapToBitmapSource(System.Drawing.Bitmap bitmap)
+        {
+            try
+            {
+                IntPtr hBitmap = bitmap.GetHbitmap();
+                try
+                {
+                    var bitmapSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
+                        hBitmap,
+                        IntPtr.Zero,
+                        Int32Rect.Empty,
+                        BitmapSizeOptions.FromEmptyOptions());
+                    
+                    bitmapSource.Freeze();
+                    return bitmapSource;
+                }
+                finally
+                {
+                    DeleteObject(hBitmap);
+                }
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }
