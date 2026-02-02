@@ -62,7 +62,7 @@ namespace CatchCapture.Utilities
         // --- Keyboard Hook ---
         private const int WH_KEYBOARD_LL = 13;
         private const int WM_KEYDOWN = 0x0100;
-        private const int VK_F1 = 0x74; // [Modified] F1 -> F5
+        private const int VK_F5 = 0x74; // F5 키 캡처 단축키 (지정 캡처 창 전용)
         private LowLevelKeyboardProc _proc;
         private IntPtr _hookID = IntPtr.Zero;
 
@@ -95,7 +95,7 @@ namespace CatchCapture.Utilities
             if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN)
             {
                 int vkCode = Marshal.ReadInt32(lParam);
-                if (vkCode == VK_F1)
+                if (vkCode == VK_F5)
                 {
                     Dispatcher.Invoke(() => CaptureAndNotify());
                     return (IntPtr)1; // Swallow Key

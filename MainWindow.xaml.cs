@@ -507,7 +507,7 @@ public partial class MainWindow : Window
         }
 
         notifyIcon.Visible = true;
-        notifyIcon.Text = LocalizationManager.GetString("AppName");
+        notifyIcon.Text = LocalizationManager.GetString("AppTitle");
 
         notifyIcon.Click += (s, e) =>
         {
@@ -4546,7 +4546,7 @@ public partial class MainWindow : Window
     private bool wasInTrayModeBeforeRealTimeCapture = false;
 // --- Low Level Hook for F1 ---
 
-    private const int VK_F1 = 0x74; // [Modified] F1 -> F5 (Value changed to VK_F5)
+    private const int VK_F1 = 0x70; // F1 키 (원래 값으로 복구)
     private const int VK_ESCAPE = 0x1B;
 
     private LowLevelKeyboardProc? _f1HookProc;
