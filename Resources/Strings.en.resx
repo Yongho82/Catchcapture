@@ -784,6 +784,10 @@ Are you sure you want to permanently delete all items?</value>
   <data name="AutoManagement" xml:space="preserve"><value>Data Retention &amp; Management</value></data>
   <data name="AutoDeletePeriod" xml:space="preserve"><value>Auto Deletion Period</value></data>
   <data name="AutoDeleteToTrashNotice" xml:space="preserve"><value>(Moves data older than the set period to trash)</value></data>
+  <data name="ForceUnlock" xml:space="preserve"><value>Force Unlock Note</value></data>
+  <data name="ForceUnlockDesc" xml:space="preserve"><value>Force unlock if locked even when not in use on another PC.</value></data>
+  <data name="ForceUnlockConfirm" xml:space="preserve"><value>Are you sure you want to force unlock?\nData loss may occur if another PC is actively editing.</value></data>
+  <data name="UnlockSuccess" xml:space="preserve"><value>Unlocked successfully.</value></data>
   <data name="DbOptimize" xml:space="preserve"><value>Optimize DB</value></data>
   <data name="DbOptimizeDesc" xml:space="preserve"><value>Improves speed by cleaning up empty space</value></data>
   <data name="HistorySameAsCapture" xml:space="preserve"><value>Same as capture settings. If you need to change them, please do so in capture settings.</value></data>

@@ -744,6 +744,28 @@ namespace CatchCapture.Utilities
             catch { }
         }
 
+        public void ForceUnlockDatabases()
+        {
+            RemoveSingleLockForce(_cloudDbPath);
+            RemoveSingleLockForce(_cloudHistoryDbPath);
+            
+            // 락 해제 후 권한 재취득 시도
+            Reinitialize();
+        }
+
+        private void RemoveSingleLockForce(string dbFilePath)
+        {
+            try
+            {
+                string lockPath = dbFilePath + ".lock";
+                if (File.Exists(lockPath))
+                {
+                    File.Delete(lockPath);
+                }
+            }
+            catch { }
+        }
+
         public static string ResolveStoragePath(string path)
         {
             if (string.IsNullOrWhiteSpace(path)) return path;

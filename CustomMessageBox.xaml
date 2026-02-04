@@ -4,7 +4,8 @@
         Title="알림" Height="Auto" Width="340" MinHeight="130"
         SizeToContent="Height"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
-        ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Topmost="True">
+        ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Topmost="True"
+        ShowInTaskbar="False">
 
     <Window.Resources>
         <ControlTemplate x:Key="RoundedButtonTemplate" TargetType="Button">

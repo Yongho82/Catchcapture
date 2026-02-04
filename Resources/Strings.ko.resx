@@ -798,6 +798,10 @@
   <data name="AutoManagement" xml:space="preserve"><value>데이터 보관 및 자동 관리</value></data>
   <data name="AutoDeletePeriod" xml:space="preserve"><value>자동 삭제 주기</value></data>
   <data name="AutoDeleteToTrashNotice" xml:space="preserve"><value>(설정된 기간이 지난 데이터는 자동으로 휴지통으로 이동)</value></data>
+  <data name="ForceUnlock" xml:space="preserve"><value>노트 잠금 강제 해제</value></data>
+  <data name="ForceUnlockDesc" xml:space="preserve"><value>다른 PC에서 사용 중이 아닌데도 잠겨있을 때 강제로 해제합니다.</value></data>
+  <data name="ForceUnlockConfirm" xml:space="preserve"><value>정말로 잠금을 강제로 해제하시겠습니까?\n다른 PC에서 편집 중인 경우 데이터가 손실될 수 있습니다.</value></data>
+  <data name="UnlockSuccess" xml:space="preserve"><value>잠금이 해제되었습니다.</value></data>
   <data name="DbOptimize" xml:space="preserve"><value>DB 최적화</value></data>
   <data name="DbOptimizeDesc" xml:space="preserve"><value>쌓여있는 빈 공간을 정리하여 속도 개선</value></data>
   <data name="HistorySameAsCapture" xml:space="preserve"><value>캡처 설정과 동일 설정 적용. 변경이 필요하시면 캡처 설정에서 변경해주세요.</value></data>

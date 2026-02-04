@@ -20,12 +20,16 @@ namespace CatchCapture
                     DragMove();
             };
 
-            // 화면 캡처에서 제외
+            // 화면 캡처에서 제외 (가끔 검정 화면 오류가 발생하여 임시 비활성화)
+            /*
             Loaded += (s, e) =>
             {
-                var interop = new System.Windows.Interop.WindowInteropHelper(this);
-                SetWindowDisplayAffinity(interop.Handle, WDA_EXCLUDEFROMCAPTURE);
+                try {
+                    var interop = new System.Windows.Interop.WindowInteropHelper(this);
+                    SetWindowDisplayAffinity(interop.Handle, WDA_EXCLUDEFROMCAPTURE);
+                } catch { }
             };
+            */
         }
 
         [System.Runtime.InteropServices.DllImport("user32.dll")]
@@ -54,15 +58,15 @@ namespace CatchCapture
 
             msgBox.MessageText.TextAlignment = textAlignment;
             
-            // 부모 창 설정 (가능하다면)
-            if (Application.Current != null && Application.Current.Windows.Count > 0)
+            // 부모 창 설정 (CenterOwner를 위해)
+            if (Application.Current != null)
             {
-                // 활성화된 윈도우를 주인으로 설정
                 foreach (Window win in Application.Current.Windows)
                 {
                     if (win.IsActive && win.IsVisible)
                     {
                         msgBox.Owner = win;
+                        msgBox.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                         break;
                     }
                 }
@@ -103,6 +107,7 @@ namespace CatchCapture
                     break;
             }
 
+            msgBox.Activate();
             msgBox.ShowDialog();
             return msgBox.Result;
         }

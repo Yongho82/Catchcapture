@@ -381,6 +381,7 @@ private void UpdateUIText()
                 if (BtnResetNote != null) BtnResetNote.Content = LocalizationManager.GetString("InitializeReset");
 
 
+
                 // 노트 파일명 설정 로컬라이징 추가
                 if (NoteFileNameSettingsGroup != null) NoteFileNameSettingsGroup.Header = LocalizationManager.GetString("FileNameSettings");
                 if (NotePreviewLabel != null) NotePreviewLabel.Text = LocalizationManager.GetString("FileNamePreview") + " : ";
@@ -2909,6 +2910,8 @@ private void InitLanguageComboBox()
              var win = new BackupRestoreWindow(true) { Owner = this };
              win.ShowDialog();
         }
+
+
 
 
         private void CopyDirectory(string sourceDir, string targetDir, params string[] excludeNames)

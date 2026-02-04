@@ -1645,6 +1645,34 @@ namespace CatchCapture
             }
         }
 
+        private void BtnForceUnlock_Click(object sender, RoutedEventArgs e)
+        {
+            if (CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ForceUnlockConfirm"), 
+                CatchCapture.Resources.LocalizationManager.GetString("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    DatabaseManager.Instance.ForceUnlockDatabases();
+                    CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("UnlockSuccess"), 
+                        CatchCapture.Resources.LocalizationManager.GetString("Success"), MessageBoxButton.OK, MessageBoxImage.Information);
+                    
+                     // Attempt to refresh after unlock
+                    BtnSync_Click(this, new RoutedEventArgs());
+                }
+                catch (Exception ex)
+                {
+                    CatchCapture.CustomMessageBox.Show(ex.Message, CatchCapture.Resources.LocalizationManager.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void BtnForceUnlockHelp_Click(object sender, RoutedEventArgs e)
+        {
+            var helpText = CatchCapture.Resources.LocalizationManager.GetString("ForceUnlockDesc");
+            var title = CatchCapture.Resources.LocalizationManager.GetString("ForceUnlock");
+            CatchCapture.CustomMessageBox.Show(helpText, title, MessageBoxButton.OK, MessageBoxImage.Information, 450);
+        }
+
 
         private void HighlightSidebarButton(Button activeBtn)
         {
