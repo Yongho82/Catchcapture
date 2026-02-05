@@ -1117,7 +1117,11 @@ namespace CatchCapture.Utilities
                     // [Add] History Performance Indexes
                     string createHistoryIndexes = @"
                         CREATE INDEX IF NOT EXISTS idx_captures_createdat ON Captures(CreatedAt);
-                        CREATE INDEX IF NOT EXISTS idx_captures_status ON Captures(Status);";
+                        CREATE INDEX IF NOT EXISTS idx_captures_status ON Captures(Status);
+                        CREATE INDEX IF NOT EXISTS idx_captures_filename ON Captures(FileName);
+                        CREATE INDEX IF NOT EXISTS idx_captures_sourceapp ON Captures(SourceApp);
+                        CREATE INDEX IF NOT EXISTS idx_captures_isfavorite ON Captures(IsFavorite);
+                        CREATE INDEX IF NOT EXISTS idx_captures_ispinned ON Captures(IsPinned);";
                     using (var command = new SqliteCommand(createHistoryIndexes, connection)) { command.ExecuteNonQuery(); }
 
                     // Migration: Add OriginalFilePath if it doesn't exist

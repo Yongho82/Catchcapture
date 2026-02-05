@@ -85,12 +85,12 @@ namespace CatchCapture
                 this.Loaded += HistoryWindow_Loaded;
                 this.Closing += HistoryWindow_Closing;
                 
-                // 2. 날짜 시작, 끝은 today로 기본 설정
-                DateFrom.SelectedDate = DateTime.Today;
-                DateTo.SelectedDate = DateTime.Today;
+                // 2. 날짜 시작, 끝은 초기화하지 않음 (전체 조회를 위해)
+                DateFrom.SelectedDate = null;
+                DateTo.SelectedDate = null;
                 
-                // Load Recent 7 days by default (like NoteExplorer)
-                LoadHistory("Recent7"); 
+                // Show All History by default
+                LoadHistory("All"); 
                 RefreshCounts();
 
                 InitializeTips();
@@ -158,7 +158,7 @@ namespace CatchCapture
             // Set default sidebar selection to Recent7 (visual tree is now ready)
             foreach (var btn in FindVisualChildren<Button>(MainGrid.Children[0]))
             {
-                if (btn.Tag?.ToString() == "Recent7")
+                if (btn.Tag?.ToString() == "All")
                 {
                     UpdateSidebarSelection(btn);
                     break;
