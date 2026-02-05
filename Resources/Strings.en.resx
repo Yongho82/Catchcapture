@@ -523,6 +523,8 @@
   <data name="ColTitle" xml:space="preserve"><value>Title</value></data>
   <data name="ColContent" xml:space="preserve"><value>Content</value></data>
   <data name="ColLastModified" xml:space="preserve"><value>Last Modified</value></data>
+  <data name="WorkCategory" xml:space="preserve"><value>Work</value></data>
+  <data name="CommunityCategory" xml:space="preserve"><value>Community</value></data>
   <data name="PreviewLoading" xml:space="preserve"><value>Select a note.</value></data>
 
   <data name="NoteSecurityTip" xml:space="preserve"><value>Protect your notes securely with password settings.</value></data>

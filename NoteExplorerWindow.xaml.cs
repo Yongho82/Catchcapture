@@ -339,12 +339,19 @@ namespace CatchCapture
                     }
 
                     var categories = DatabaseManager.Instance.GetAllCategories();
-                    var categoryItems = categories.Select(cat => new CategorySidebarItem
-                    {
-                        Id = cat.Id,
-                        Name = cat.Id == 1 ? CatchCapture.Resources.LocalizationManager.GetString("DefaultCategory") : cat.Name,
-                        Color = cat.Color,
-                        Count = catCounts.ContainsKey(cat.Id) ? catCounts[cat.Id] : 0
+                    var categoryItems = categories.Select(cat => {
+                        string localizedName = cat.Name;
+                        if (cat.Id == 1) localizedName = CatchCapture.Resources.LocalizationManager.GetString("DefaultCategory");
+                        else if (cat.Name == "커뮤니티") localizedName = CatchCapture.Resources.LocalizationManager.GetString("CommunityCategory") ?? "커뮤니티";
+                        else if (cat.Name == "업무") localizedName = CatchCapture.Resources.LocalizationManager.GetString("WorkCategory") ?? "업무";
+                        
+                        return new CategorySidebarItem
+                        {
+                            Id = cat.Id,
+                            Name = localizedName,
+                            Color = cat.Color,
+                            Count = catCounts.ContainsKey(cat.Id) ? catCounts[cat.Id] : 0
+                        };
                     }).ToList();
 
                     return (all, today, recent, trash, categoryItems);
@@ -582,8 +589,12 @@ namespace CatchCapture
                                 {
                                     long noteId = reader.GetInt64(0);
                                     long catId = reader.IsDBNull(11) ? 1 : reader.GetInt64(11);
-                                    string catName = reader.IsDBNull(6) ? CatchCapture.Resources.LocalizationManager.GetString("DefaultCategory") : reader.GetString(6);
-                                    if (catId == 1) catName = CatchCapture.Resources.LocalizationManager.GetString("DefaultCategory");
+                                    string rawCatName = reader.IsDBNull(6) ? "기본" : reader.GetString(6);
+                                    
+                                    string catName = rawCatName;
+                                    if (catId == 1) catName = CatchCapture.Resources.LocalizationManager.GetString("DefaultCategory") ?? "기본";
+                                    else if (rawCatName == "커뮤니티") catName = CatchCapture.Resources.LocalizationManager.GetString("CommunityCategory") ?? "커뮤니티";
+                                    else if (rawCatName == "업무") catName = CatchCapture.Resources.LocalizationManager.GetString("WorkCategory") ?? "업무";
 
                                     notesList.Add(new NoteViewModel
                                     {

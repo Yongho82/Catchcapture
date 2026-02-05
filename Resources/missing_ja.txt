@@ -1,4 +1,6 @@
 ﻿  <data name="DbBackupExcludeImages" xml:space="preserve"><value>DB backup does not include images.&#xA;To include images, please use Full Export (IMG+DB).</value></data>
+  <data name="WorkCategory" xml:space="preserve"><value>Work</value></data>
+  <data name="CommunityCategory" xml:space="preserve"><value>Community</value></data>
   <data name="ResetData" xml:space="preserve"><value>Reset Data</value></data>
   <data name="Background" xml:space="preserve"><value>Background</value></data>
   <data name="ForceUnlock" xml:space="preserve"><value>Force Unlock Note</value></data>
@@ -7,13 +9,13 @@
   <data name="UnlockSuccess" xml:space="preserve"><value>Unlocked successfully.</value></data>
   <data name="FFmpegRequiredMessage" xml:space="preserve"><value>The video recording (MP4/GIF) feature requires an additional component (FFmpeg).\n\nDo you want to download and install it now?</value></data>
   <data name="ComponentRequired" xml:space="preserve"><value>Additional Component Required</value></data>
-  <data name="FFmpegDownloadTitle" xml:space="preserve"><value>?벀 Downloading FFmpeg...</value></data>
+  <data name="FFmpegDownloadTitle" xml:space="preserve"><value>📦 Downloading FFmpeg...</value></data>
   <data name="ConnectingToServer" xml:space="preserve"><value>Connecting to server...</value></data>
   <data name="Downloading" xml:space="preserve"><value>Downloading...</value></data>
   <data name="Extracting" xml:space="preserve"><value>Extracting...</value></data>
   <data name="Installing" xml:space="preserve"><value>Installing...</value></data>
-  <data name="Completed" xml:space="preserve"><value>??Completed!</value></data>
-  <data name="FFmpegInstallComplete" xml:space="preserve"><value>??FFmpeg Installation Complete!</value></data>
+  <data name="Completed" xml:space="preserve"><value>✓ Completed!</value></data>
+  <data name="FFmpegInstallComplete" xml:space="preserve"><value>✅ FFmpeg Installation Complete!</value></data>
   <data name="RecordingFeatureAvailable" xml:space="preserve"><value>You can now use the recording feature.</value></data>
   <data name="FFmpegAutoDownloadFailed" xml:space="preserve"><value>Automatic download failed.\nDo you want to manually select and install the ffmpeg.exe file?\n\n(Selecting the ffmpeg.exe file will copy it to the correct location)</value></data>
   <data name="InstallFailed" xml:space="preserve"><value>Installation Failed</value></data>
@@ -48,7 +50,7 @@
   <data name="GetApiKey" xml:space="preserve"><value>Get API Key</value></data>
   <data name="DropboxDesc" xml:space="preserve"><value>Upload to Dropbox and create shareable links.</value></data>
   <data name="DropboxLogin" xml:space="preserve"><value>Connect Dropbox</value></data>
-  <data name="CloudHelpWhatIsIt" xml:space="preserve"><value>??Help: What is cloud integration?</value></data>
+  <data name="CloudHelpWhatIsIt" xml:space="preserve"><value>❓ Help: What is cloud integration?</value></data>
   <data name="CloudHelpGuide" xml:space="preserve"><value>Cloud Integration / Link Creation Guide</value></data>
   <data name="CloudHelpQ1" xml:space="preserve"><value>Q. What is Image Link creation?</value></data>
   <data name="CloudHelpA1" xml:space="preserve"><value>It is a feature that uploads captured images to a server and creates a URL for instant sharing.</value></data>

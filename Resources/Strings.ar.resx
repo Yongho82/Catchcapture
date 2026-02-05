@@ -930,4 +930,101 @@
   <data name="NoMicTitle" xml:space="preserve"><value>لا يوجد ميكروفون</value></data>
   <data name="MicCheckFailed" xml:space="preserve"><value>فشل فحص الميكروفون: {0}</value></data>
   <data name="RecordingError" xml:space="preserve"><value>خطأ أثناء التسجيل: {0}</value></data>
+  <data name="DbBackupExcludeImages" xml:space="preserve"><value>نسخ احتياطي قاعدة البيانات لا يشمل الصور.&#xA;ليشمل الصور، يرجى استخدام التصدير الكامل (IMG+DB).</value></data>
+  <data name="WorkCategory" xml:space="preserve"><value>العمل</value></data>
+  <data name="CommunityCategory" xml:space="preserve"><value>المجتمع</value></data>
+  <data name="ResetData" xml:space="preserve"><value>إعادة تعيين البيانات</value></data>
+  <data name="Background" xml:space="preserve"><value>الخلفية</value></data>
+  <data name="ForceUnlock" xml:space="preserve"><value>فتح القفل القسري للملاحظة</value></data>
+  <data name="ForceUnlockDesc" xml:space="preserve"><value>استخدم هذا عندما تكون الملاحظة عالقة في وضع 'التحرير' أو لا يتم تحديث القائمة حتى بعد الحفظ. يحدث هذا غالبًا إذا كانت الملاحظة تُعدل على جهاز كمبيوتر آخر أو إذا انتهت جلسة سابقة بشكل غير متوقع. (تحذير: قد يحدث فقدان بيانات إذا كانت الملاحظة تُعدل بنشاط على جهاز آخر.)</value></data>
+  <data name="ForceUnlockConfirm" xml:space="preserve"><value>هل أنت متأكد من الفتح القسري؟&#xA;قد يحدث فقدان بيانات إذا كان جهاز كمبيوتر آخر يعدل بنشاط.</value></data>
+  <data name="UnlockSuccess" xml:space="preserve"><value>تم فتح القفل بنجاح.</value></data>
+  <data name="FFmpegRequiredMessage" xml:space="preserve"><value>ميزة تسجيل الفيديو (MP4/GIF) تتطلب مكونًا إضافيًا (FFmpeg).&#xA;&#xA;هل تريد تنزيل وتثبيته الآن؟</value></data>
+  <data name="ComponentRequired" xml:space="preserve"><value>مكون إضافي مطلوب</value></data>
+  <data name="FFmpegDownloadTitle" xml:space="preserve"><value>📦 جاري تنزيل FFmpeg...</value></data>
+  <data name="ConnectingToServer" xml:space="preserve"><value>جاري الاتصال بالخادم...</value></data>
+  <data name="Downloading" xml:space="preserve"><value>جاري التنزيل...</value></data>
+  <data name="Extracting" xml:space="preserve"><value>جاري الاستخراج...</value></data>
+  <data name="Installing" xml:space="preserve"><value>جاري التثبيت...</value></data>
+  <data name="Completed" xml:space="preserve"><value>✓ تم الإكمال!</value></data>
+  <data name="FFmpegInstallComplete" xml:space="preserve"><value>✅ تم تثبيت FFmpeg بنجاح!</value></data>
+  <data name="RecordingFeatureAvailable" xml:space="preserve"><value>يمكنك الآن استخدام ميزة التسجيل.</value></data>
+  <data name="FFmpegAutoDownloadFailed" xml:space="preserve"><value>فشل التنزيل التلقائي.&#xA;هل تريد تحديد ملف ffmpeg.exe يدويًا وتثبيته؟&#xA;&#xA;(سيتم نسخ الملف إلى الموقع الصحيح)</value></data>
+  <data name="InstallFailed" xml:space="preserve"><value>فشل التثبيت</value></data>
+  <data name="FFmpegManualInstallSuccess" xml:space="preserve"><value>اكتمل التثبيت اليدوي لـ FFmpeg.</value></data>
+  <data name="SyncSuccess" xml:space="preserve"><value>تمت المزامنة بنجاح.</value></data>
+  <data name="LoggingIn" xml:space="preserve"><value>جاري تسجيل الدخول...</value></data>
+  <data name="Notification" xml:space="preserve"><value>إشعار</value></data>
+  <data name="AuthCompletedTitle" xml:space="preserve"><value>CatchCapture - تمت المصادقة</value></data>
+  <data name="AuthCompletedHeader" xml:space="preserve"><value>انتهت عملية المصادقة</value></data>
+  <data name="AuthCompletedDesc" xml:space="preserve"><value>يرجى العودة إلى تطبيق CatchCapture للتحقق من نتيجة الاتصال النهائية.</value></data>
+  <data name="AuthStatusAnalyzing" xml:space="preserve"><value>جاري تحليل نتائج المصادقة...</value></data>
+  <data name="AuthStatusChecking" xml:space="preserve"><value>جاري التحقق من نتائج المصادقة...</value></data>
+  <data name="AuthFallbackText" xml:space="preserve"><value>يرجى إغلاق هذه النافذة يدويًا بعد التحقق من النتائج.</value></data>
+  <data name="GoogleDriveAuthNote" xml:space="preserve"><value>هام: إذا لم تقم بتحديد مربع "ملفات Google Drive المحددة" أثناء تسجيل الدخول، سيفشل الاتصال وسيظهر رسالة خطأ في التطبيق.</value></data>
+  <data name="DropboxAuthNote" xml:space="preserve"><value>إشعار: تم إكمال مصادقة المتصفح. سيقوم التطبيق الآن بالتحقق من الرمز وإنهاء الاتصال.</value></data>
+  <data name="GoogleDriveLoginRequired" xml:space="preserve"><value>تسجيل الدخول إلى Google Drive مطلوب.</value></data>
+  <data name="DropboxLoginRequired" xml:space="preserve"><value>تسجيل الدخول إلى Dropbox مطلوب.</value></data>
+  <data name="CreateSharedLinkFailed" xml:space="preserve"><value>فشل إنشاء رابط المشاركة.</value></data>
+  <data name="GetExistingLinkFailed" xml:space="preserve"><value>فشل الحصول على الرابط الموجود.</value></data>
+  <data name="CreateImageLink" xml:space="preserve"><value>إنشاء رابط الصورة</value></data>
+  <data name="LinkSettings" xml:space="preserve"><value>السحابة</value></data>
+  <data name="CloudUploadSettings" xml:space="preserve"><value>إعدادات الرفع</value></data>
+  <data name="GoogleDriveRecommended" xml:space="preserve"><value>Google Drive (موصى به)</value></data>
+  <data name="CloudNotConnected" xml:space="preserve"><value>(غير متصل)</value></data>
+  <data name="CloudConnected" xml:space="preserve"><value>(متصل)</value></data>
+  <data name="GoogleLogin" xml:space="preserve"><value>تسجيل الدخول بحساب Google</value></data>
+  <data name="GoogleLogout" xml:space="preserve"><value>فصل الاتصال</value></data>
+  <data name="GoogleDriveDesc" xml:space="preserve"><value>سيتم حفظ الصور في مجلد CatchCapture في Google Drive الخاص بك.</value></data>
+  <data name="ImgBBPersonal" xml:space="preserve"><value>ImgBB - حساب شخصي</value></data>
+  <data name="ImgBBDesc" xml:space="preserve"><value>أسهل وأكثر خدمات الاستضافة المجانية استقرارًا. مطلوب مفتاح API.</value></data>
+  <data name="ApiKey" xml:space="preserve"><value>مفتاح API:</value></data>
+  <data name="GetApiKey" xml:space="preserve"><value>الحصول على مفتاح API</value></data>
+  <data name="DropboxDesc" xml:space="preserve"><value>رفع إلى Dropbox وإنشاء روابط قابلة للمشاركة.</value></data>
+  <data name="DropboxLogin" xml:space="preserve"><value>ربط Dropbox</value></data>
+  <data name="CloudHelpWhatIsIt" xml:space="preserve"><value>❓ مساعدة: ما هي التكامل السحابي؟</value></data>
+  <data name="CloudHelpGuide" xml:space="preserve"><value>دليل التكامل السحابي / إنشاء الروابط</value></data>
+  <data name="CloudHelpQ1" xml:space="preserve"><value>س. ما هو إنشاء رابط الصورة؟</value></data>
+  <data name="CloudHelpA1" xml:space="preserve"><value>ميزة ترفع الصور المُلتقطة إلى خادم وتنشئ رابط URL للمشاركة الفورية.</value></data>
+  <data name="CloudHelpQ2" xml:space="preserve"><value>س. ImgBB (مفتاح API)</value></data>
+  <data name="CloudHelpA2" xml:space="preserve"><value>خدمة استضافة صور شهيرة. ممتازة لإدارة الصور والاستقرار باستخدام مفتاح API الخاص بك.</value></data>
+  <data name="CloudHelpQ3" xml:space="preserve"><value>س. تكامل الحساب (Google / Dropbox)</value></data>
+  <data name="CloudHelpA3" xml:space="preserve"><value>ربط حساب Google أو Dropbox الخاص بك. يستخدم مساحة التخزين الخاصة بك، مما يوفر مساحة أكبر وحفظ دائم.</value></data>
+  <data name="ConnectedWithEmail" xml:space="preserve"><value>(متصل: {0})</value></data>
+  <data name="ConnectedWithName" xml:space="preserve"><value>(متصل: {0})</value></data>
+  <data name="DisconnectConfirm" xml:space="preserve"><value>هل أنت متأكد من فصل Google Drive؟</value></data>
+  <data name="DisconnectTitle" xml:space="preserve"><value>فصل الاتصال</value></data>
+  <data name="LoginSuccess" xml:space="preserve"><value>تم ربط Google Drive بنجاح!</value></data>
+  <data name="LoginFailed" xml:space="preserve"><value>فشل تسجيل الدخول.</value></data>
+  <data name="DropboxConnectFailed" xml:space="preserve"><value>فشل الاتصال بـ Dropbox.&#xA;(تم إغلاق النافذة أو انتهت المهلة)</value></data>
+  <data name="ScopeMissingError" xml:space="preserve"><value>لم يتم منح إذن الوصول إلى Google Drive.&#xA;&#xA;يرجى التأكد من تحديد 'عرض وتعديل وإنشاء وحذف ملفات Google Drive المحددة فقط التي تستخدمها مع هذا التطبيق' أثناء تسجيل الدخول.</value></data>
+  <data name="ImgBBApiKeyRequired" xml:space="preserve"><value>لم يتم تعيين مفتاح API لـ ImgBB. يرجى إدخال المفتاح في الإعدادات.</value></data>
+  <data name="ImgBBLinkFailed" xml:space="preserve"><value>فشل الحصول على الرابط من ImgBB.</value></data>
+  <data name="CloudNotConnectedMsg" xml:space="preserve"><value>{0} غير متصل.&#xA;هل تريد تسجيل الدخول في الإعدادات؟</value></data>
+  <data name="CloudConnectionRequired" xml:space="preserve"><value>يتطلب الاتصال السحابي</value></data>
+  <data name="LoginCancelled" xml:space="preserve"><value>تم إلغاء تسجيل الدخول.</value></data>
+  <data name="UploadStarting" xml:space="preserve"><value>جاري بدء الرفع...</value></data>
+  <data name="LinkCopiedWithUrl" xml:space="preserve"><value>تم نسخ الرابط: {0}</value></data>
+  <data name="UploadFailed" xml:space="preserve"><value>فشل الرفع.</value></data>
+  <data name="UploadFailedDetailed" xml:space="preserve"><value>فشل الرفع: {0}</value></data>
+  <data name="GoogleDrive" xml:space="preserve"><value>Google Drive</value></data>
+  <data name="ImgBB" xml:space="preserve"><value>ImgBB</value></data>
+  <data name="Dropbox" xml:space="preserve"><value>Dropbox</value></data>
+  <data name="ImageLinkTooltip" xml:space="preserve"><value>إنشاء رابط صورة (رفع سحابي)</value></data>
+  <data name="ImageLinkButtonText" xml:space="preserve"><value>رابط IMG</value></data>
+  <data name="CopiedToClipboardMsg" xml:space="preserve"><value>تم النسخ إلى الحافظة</value></data>
+  <data name="ShareTitle" xml:space="preserve"><value>مشاركة الصورة</value></data>
+  <data name="ShareDescription" xml:space="preserve"><value>لقطة شاشة CatchCapture</value></data>
+  <data name="ImageNotVisibleBtn" xml:space="preserve"><value>الصور لا تظهر؟</value></data>
+  <data name="ImageNotVisibleTitle" xml:space="preserve"><value>دليل تخزين وعرض الصور</value></data>
+  <data name="ImageNotVisibleContent" xml:space="preserve"><value>إذا لم يعمل حفظ أو عرض الصور في الملاحظات بشكل صحيح بسبب مشكلات بيئة النظام، يرجى الرجوع إلى الدليل أدناه.&#xA;📌 الأسباب الرئيسية&#xA;1. أحرف خاصة في اسم المستخدم: إذا كان اسم حساب Windows يحتوي على أحرف خاصة (مثل &amp; أو #)، قد يفشل التطبيق في التعرف على مسارات الملف الشخصي، مما يؤدي إلى فشل الحفظ.&#xA;2. أذونات الوصول إلى المجلد: إعدادات أمان Windows (جدار الحماية/حماية الفدية) قد تمنع الكتابة في مجلدات معينة.&#xA;💡 الحل&#xA;- تغيير مسار التخزين: انتقل إلى [إعدادات الملاحظة] وغير موقع التخزين إلى مسار بسيط آمن مثل 'D:\' أو 'C:\' مستقل عن ملف تعريف حساب المستخدم.&#xA;إذا استمرت المشكلة، يرجى الاتصال بنا عبر رابط 'اتصل بنا' أسفل الشاشة.</value></data>
+  <data name="Drafts" xml:space="preserve"><value>المسودات</value></data>
+  <data name="SaveDraft" xml:space="preserve"><value>حفظ المسودة</value></data>
+  <data name="DraftList" xml:space="preserve"><value>قائمة المسودات</value></data>
+  <data name="NoDrafts" xml:space="preserve"><value>لا توجد مسودات.</value></data>
+  <data name="RestoreDraft" xml:space="preserve"><value>استعادة</value></data>
+  <data name="ClearAllDrafts" xml:space="preserve"><value>مسح جميع المسودات</value></data>
+  <data name="ConfirmClearAll" xml:space="preserve"><value>هل أنت متأكد من مسح جميع المسودات؟</value></data>
+  <data name="ConfirmRestore" xml:space="preserve"><value>هل تريد استعادة المحتوى المحدد؟&#xA;سيتم فقدان أي تغييرات حالية.</value></data>
+  <data name="NoTitle" xml:space="preserve"><value>(بدون عنوان)</value></data>
 </root>

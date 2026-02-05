@@ -930,4 +930,101 @@ Yakin ingin menghapus permanen semua item?</value>
   <data name="NoMicTitle" xml:space="preserve"><value>Tidak ada mikrofon</value></data>
   <data name="MicCheckFailed" xml:space="preserve"><value>Pemeriksaan mikrofon gagal: {0}</value></data>
   <data name="RecordingError" xml:space="preserve"><value>Error selama perekaman: {0}</value></data>
+  <data name="DbBackupExcludeImages" xml:space="preserve"><value>Cadangan DB tidak termasuk gambar.&#xA;Untuk menyertakan gambar, gunakan Ekspor Penuh (IMG+DB).</value></data>
+  <data name="WorkCategory" xml:space="preserve"><value>Pekerjaan</value></data>
+  <data name="CommunityCategory" xml:space="preserve"><value>Komunitas</value></data>
+  <data name="ResetData" xml:space="preserve"><value>Reset Data</value></data>
+  <data name="Background" xml:space="preserve"><value>Latar Belakang</value></data>
+  <data name="ForceUnlock" xml:space="preserve"><value>Force Unlock Catatan</value></data>
+  <data name="ForceUnlockDesc" xml:space="preserve"><value>Gunakan ini ketika catatan macet di mode 'Sedang Diedit' atau daftar tidak diperbarui setelah menyimpan. Ini sering terjadi jika catatan sedang diedit di PC lain atau sesi sebelumnya berakhir tidak terduga. (Peringatan: Kehilangan data mungkin terjadi jika catatan sedang diedit secara aktif di perangkat lain.)</value></data>
+  <data name="ForceUnlockConfirm" xml:space="preserve"><value>Apakah Anda yakin ingin force unlock?&#xA;Kehilangan data mungkin terjadi jika PC lain sedang mengedit secara aktif.</value></data>
+  <data name="UnlockSuccess" xml:space="preserve"><value>Berhasil dibuka kuncinya.</value></data>
+  <data name="FFmpegRequiredMessage" xml:space="preserve"><value>Fitur perekaman video (MP4/GIF) memerlukan komponen tambahan (FFmpeg).&#xA;&#xA;Apakah Anda ingin mengunduh dan memasangnya sekarang?</value></data>
+  <data name="ComponentRequired" xml:space="preserve"><value>Komponen Tambahan Diperlukan</value></data>
+  <data name="FFmpegDownloadTitle" xml:space="preserve"><value>📦 Mengunduh FFmpeg...</value></data>
+  <data name="ConnectingToServer" xml:space="preserve"><value>Menghubungkan ke server...</value></data>
+  <data name="Downloading" xml:space="preserve"><value>Mengunduh...</value></data>
+  <data name="Extracting" xml:space="preserve"><value>Mengekstrak...</value></data>
+  <data name="Installing" xml:space="preserve"><value>Memasang...</value></data>
+  <data name="Completed" xml:space="preserve"><value>✓ Selesai!</value></data>
+  <data name="FFmpegInstallComplete" xml:space="preserve"><value>✅ Pemasangan FFmpeg Selesai!</value></data>
+  <data name="RecordingFeatureAvailable" xml:space="preserve"><value>Anda sekarang dapat menggunakan fitur perekaman.</value></data>
+  <data name="FFmpegAutoDownloadFailed" xml:space="preserve"><value>Unduhan otomatis gagal.&#xA;Apakah Anda ingin memilih dan memasang file ffmpeg.exe secara manual?&#xA;&#xA;(File akan disalin ke lokasi yang benar)</value></data>
+  <data name="InstallFailed" xml:space="preserve"><value>Pemasangan Gagal</value></data>
+  <data name="FFmpegManualInstallSuccess" xml:space="preserve"><value>Pemasangan manual FFmpeg selesai.</value></data>
+  <data name="SyncSuccess" xml:space="preserve"><value>Sinkronisasi berhasil diselesaikan.</value></data>
+  <data name="LoggingIn" xml:space="preserve"><value>Sedang login...</value></data>
+  <data name="Notification" xml:space="preserve"><value>Notifikasi</value></data>
+  <data name="AuthCompletedTitle" xml:space="preserve"><value>CatchCapture - Autentikasi Selesai</value></data>
+  <data name="AuthCompletedHeader" xml:space="preserve"><value>Proses autentikasi telah selesai</value></data>
+  <data name="AuthCompletedDesc" xml:space="preserve"><value>Silakan kembali ke aplikasi CatchCapture untuk memeriksa hasil koneksi akhir.</value></data>
+  <data name="AuthStatusAnalyzing" xml:space="preserve"><value>Menganalisis hasil autentikasi...</value></data>
+  <data name="AuthStatusChecking" xml:space="preserve"><value>Memeriksa hasil autentikasi...</value></data>
+  <data name="AuthFallbackText" xml:space="preserve"><value>Silakan tutup jendela ini secara manual setelah memeriksa hasilnya.</value></data>
+  <data name="GoogleDriveAuthNote" xml:space="preserve"><value>Penting: Jika Anda tidak mencentang kotak 'file Google Drive tertentu' saat login, koneksi akan gagal dan pesan error akan muncul di aplikasi.</value></data>
+  <data name="DropboxAuthNote" xml:space="preserve"><value>Pemberitahuan: Autentikasi browser selesai. Aplikasi sekarang akan memverifikasi token dan menyelesaikan koneksi.</value></data>
+  <data name="GoogleDriveLoginRequired" xml:space="preserve"><value>Login Google Drive diperlukan.</value></data>
+  <data name="DropboxLoginRequired" xml:space="preserve"><value>Login Dropbox diperlukan.</value></data>
+  <data name="CreateSharedLinkFailed" xml:space="preserve"><value>Gagal membuat tautan berbagi.</value></data>
+  <data name="GetExistingLinkFailed" xml:space="preserve"><value>Gagal mendapatkan tautan yang ada.</value></data>
+  <data name="CreateImageLink" xml:space="preserve"><value>Buat Tautan Gambar</value></data>
+  <data name="LinkSettings" xml:space="preserve"><value>Awan</value></data>
+  <data name="CloudUploadSettings" xml:space="preserve"><value>Pengaturan Unggah</value></data>
+  <data name="GoogleDriveRecommended" xml:space="preserve"><value>Google Drive (Direkomendasikan)</value></data>
+  <data name="CloudNotConnected" xml:space="preserve"><value>(Belum Terhubung)</value></data>
+  <data name="CloudConnected" xml:space="preserve"><value>(Terhubung)</value></data>
+  <data name="GoogleLogin" xml:space="preserve"><value>Login Google</value></data>
+  <data name="GoogleLogout" xml:space="preserve"><value>Putuskan</value></data>
+  <data name="GoogleDriveDesc" xml:space="preserve"><value>Gambar akan disimpan ke folder CatchCapture di Google Drive Anda.</value></data>
+  <data name="ImgBBPersonal" xml:space="preserve"><value>ImgBB - Akun Pribadi</value></data>
+  <data name="ImgBBDesc" xml:space="preserve"><value>Layanan gratis paling mudah dan stabil. API Key diperlukan.</value></data>
+  <data name="ApiKey" xml:space="preserve"><value>API Key:</value></data>
+  <data name="GetApiKey" xml:space="preserve"><value>Dapatkan API Key</value></data>
+  <data name="DropboxDesc" xml:space="preserve"><value>Unggah ke Dropbox dan buat tautan yang dapat dibagikan.</value></data>
+  <data name="DropboxLogin" xml:space="preserve"><value>Hubungkan Dropbox</value></data>
+  <data name="CloudHelpWhatIsIt" xml:space="preserve"><value>❓ Bantuan: Apa itu integrasi cloud?</value></data>
+  <data name="CloudHelpGuide" xml:space="preserve"><value>Panduan Integrasi Cloud / Pembuatan Tautan</value></data>
+  <data name="CloudHelpQ1" xml:space="preserve"><value>P. Apa itu pembuatan tautan gambar?</value></data>
+  <data name="CloudHelpA1" xml:space="preserve"><value>Fitur yang mengunggah gambar yang diambil ke server dan membuat URL untuk berbagi instan.</value></data>
+  <data name="CloudHelpQ2" xml:space="preserve"><value>P. ImgBB (API Key)</value></data>
+  <data name="CloudHelpA2" xml:space="preserve"><value>Layanan hosting gambar populer. Sangat baik untuk manajemen gambar dan stabilitas menggunakan API Key sendiri.</value></data>
+  <data name="CloudHelpQ3" xml:space="preserve"><value>P. Integrasi akun (Google / Dropbox)</value></data>
+  <data name="CloudHelpA3" xml:space="preserve"><value>Hubungkan akun Google atau Dropbox Anda. Menggunakan penyimpanan pribadi Anda, lebih banyak ruang dan penyimpanan permanen.</value></data>
+  <data name="ConnectedWithEmail" xml:space="preserve"><value>(Terhubung: {0})</value></data>
+  <data name="ConnectedWithName" xml:space="preserve"><value>(Terhubung: {0})</value></data>
+  <data name="DisconnectConfirm" xml:space="preserve"><value>Apakah Anda yakin ingin memutuskan Google Drive?</value></data>
+  <data name="DisconnectTitle" xml:space="preserve"><value>Putuskan</value></data>
+  <data name="LoginSuccess" xml:space="preserve"><value>Google Drive berhasil terhubung!</value></data>
+  <data name="LoginFailed" xml:space="preserve"><value>Login gagal.</value></data>
+  <data name="DropboxConnectFailed" xml:space="preserve"><value>Koneksi Dropbox gagal.&#xA;(Jendela ditutup atau waktu habis)</value></data>
+  <data name="ScopeMissingError" xml:space="preserve"><value>Izin akses Google Drive tidak diberikan.&#xA;&#xA;Pastikan mencentang 'Lihat, edit, buat, dan hapus hanya file Google Drive tertentu yang digunakan dengan aplikasi ini' saat login.</value></data>
+  <data name="ImgBBApiKeyRequired" xml:space="preserve"><value>API Key ImgBB belum diatur. Masukkan kunci di pengaturan.</value></data>
+  <data name="ImgBBLinkFailed" xml:space="preserve"><value>Gagal mendapatkan tautan dari ImgBB.</value></data>
+  <data name="CloudNotConnectedMsg" xml:space="preserve"><value>{0} belum terhubung.&#xA;Apakah Anda ingin login di pengaturan?</value></data>
+  <data name="CloudConnectionRequired" xml:space="preserve"><value>Koneksi Cloud Diperlukan</value></data>
+  <data name="LoginCancelled" xml:space="preserve"><value>Login dibatalkan.</value></data>
+  <data name="UploadStarting" xml:space="preserve"><value>Memulai unggah...</value></data>
+  <data name="LinkCopiedWithUrl" xml:space="preserve"><value>Tautan disalin: {0}</value></data>
+  <data name="UploadFailed" xml:space="preserve"><value>Unggah gagal.</value></data>
+  <data name="UploadFailedDetailed" xml:space="preserve"><value>Unggah gagal: {0}</value></data>
+  <data name="GoogleDrive" xml:space="preserve"><value>Google Drive</value></data>
+  <data name="ImgBB" xml:space="preserve"><value>ImgBB</value></data>
+  <data name="Dropbox" xml:space="preserve"><value>Dropbox</value></data>
+  <data name="ImageLinkTooltip" xml:space="preserve"><value>Buat Tautan Gambar (Unggah Cloud)</value></data>
+  <data name="ImageLinkButtonText" xml:space="preserve"><value>Tautan IMG</value></data>
+  <data name="CopiedToClipboardMsg" xml:space="preserve"><value>Disalin ke clipboard</value></data>
+  <data name="ShareTitle" xml:space="preserve"><value>Bagikan Gambar</value></data>
+  <data name="ShareDescription" xml:space="preserve"><value>Screenshot CatchCapture</value></data>
+  <data name="ImageNotVisibleBtn" xml:space="preserve"><value>Gambar tidak muncul?</value></data>
+  <data name="ImageNotVisibleTitle" xml:space="preserve"><value>Panduan Penyimpanan &amp; Tampilan Gambar</value></data>
+  <data name="ImageNotVisibleContent" xml:space="preserve"><value>Jika penyimpanan atau tampilan gambar di catatan tidak berfungsi dengan benar karena masalah lingkungan sistem, lihat panduan di bawah.&#xA;📌 Penyebab Utama&#xA;1. Karakter khusus di nama pengguna: Jika nama akun Windows mengandung karakter khusus (mis. &amp; atau #), aplikasi mungkin gagal mengenali jalur profil.&#xA;2. Izin akses folder: Pengaturan keamanan Windows (firewall/perlindungan ransomware) dapat memblokir penulisan file di folder tertentu.&#xA;💡 Solusi&#xA;- Ubah jalur penyimpanan: Buka [Pengaturan Catatan] dan ubah lokasi ke jalur sederhana aman seperti 'D:\' atau 'C:\' yang independen dari profil pengguna.&#xA;Jika masalah berlanjut, hubungi kami melalui tautan 'Hubungi Kami' di bagian bawah layar.</value></data>
+  <data name="Drafts" xml:space="preserve"><value>Draf</value></data>
+  <data name="SaveDraft" xml:space="preserve"><value>Simpan Draf</value></data>
+  <data name="DraftList" xml:space="preserve"><value>Daftar Draf</value></data>
+  <data name="NoDrafts" xml:space="preserve"><value>Tidak ada draf ditemukan.</value></data>
+  <data name="RestoreDraft" xml:space="preserve"><value>Pulihkan</value></data>
+  <data name="ClearAllDrafts" xml:space="preserve"><value>Hapus Semua Draf</value></data>
+  <data name="ConfirmClearAll" xml:space="preserve"><value>Apakah Anda yakin ingin menghapus semua draf?</value></data>
+  <data name="ConfirmRestore" xml:space="preserve"><value>Apakah Anda ingin memulihkan konten yang dipilih?&#xA;Perubahan saat ini akan hilang.</value></data>
+  <data name="NoTitle" xml:space="preserve"><value>(Tanpa Judul)</value></data>
 </root>

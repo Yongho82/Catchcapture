@@ -930,4 +930,101 @@
   <data name="NoMicTitle" xml:space="preserve"><value>ไม่มีไมโครโฟน</value></data>
   <data name="MicCheckFailed" xml:space="preserve"><value>ตรวจสอบไมโครโฟนล้มเหลว: {0}</value></data>
   <data name="RecordingError" xml:space="preserve"><value>เกิดข้อผิดพลาดระหว่างการบันทึก: {0}</value></data>
+  <data name="DbBackupExcludeImages" xml:space="preserve"><value>การสำรองข้อมูล DB ไม่รวมรูปภาพ&#xA;หากต้องการรวมรูปภาพ กรุณาใช้การส่งออกแบบเต็ม (IMG+DB)</value></data>
+  <data name="WorkCategory" xml:space="preserve"><value>งาน</value></data>
+  <data name="CommunityCategory" xml:space="preserve"><value>ชุมชน</value></data>
+  <data name="ResetData" xml:space="preserve"><value>รีเซ็ตข้อมูล</value></data>
+  <data name="Background" xml:space="preserve"><value>พื้นหลัง</value></data>
+  <data name="ForceUnlock" xml:space="preserve"><value>บังคับปลดล็อกโน้ต</value></data>
+  <data name="ForceUnlockDesc" xml:space="preserve"><value>ใช้เมื่อโน้ตติดค้างในโหมด 'กำลังแก้ไข' หรือรายการไม่ได้รับการอัปเดตหลังจากบันทึก มักเกิดขึ้นหากโน้ตกำลังถูกแก้ไขในเครื่องอื่น หรือเซสชันก่อนหน้าสิ้นสุดอย่างไม่คาดคิด (คำเตือน: อาจสูญเสียข้อมูลหากโน้ตกำลังถูกแก้ไขอย่างแข็งขันในอุปกรณ์อื่น)</value></data>
+  <data name="ForceUnlockConfirm" xml:space="preserve"><value>แน่ใจหรือไม่ว่าต้องการบังคับปลดล็อก?&#xA;อาจสูญเสียข้อมูลหากเครื่องอื่นกำลังแก้ไขอย่างแข็งขัน</value></data>
+  <data name="UnlockSuccess" xml:space="preserve"><value>ปลดล็อกสำเร็จ</value></data>
+  <data name="FFmpegRequiredMessage" xml:space="preserve"><value>ฟีเจอร์บันทึกวิดีโอ (MP4/GIF) ต้องการคอมโพเนนต์เพิ่มเติม (FFmpeg)&#xA;&#xA;ต้องการดาวน์โหลดและติดตั้งตอนนี้หรือไม่?</value></data>
+  <data name="ComponentRequired" xml:space="preserve"><value>ต้องการคอมโพเนนต์เพิ่มเติม</value></data>
+  <data name="FFmpegDownloadTitle" xml:space="preserve"><value>📦 กำลังดาวน์โหลด FFmpeg...</value></data>
+  <data name="ConnectingToServer" xml:space="preserve"><value>กำลังเชื่อมต่อกับเซิร์ฟเวอร์...</value></data>
+  <data name="Downloading" xml:space="preserve"><value>กำลังดาวน์โหลด...</value></data>
+  <data name="Extracting" xml:space="preserve"><value>กำลังแตกไฟล์...</value></data>
+  <data name="Installing" xml:space="preserve"><value>กำลังติดตั้ง...</value></data>
+  <data name="Completed" xml:space="preserve"><value>✓ เสร็จสิ้น!</value></data>
+  <data name="FFmpegInstallComplete" xml:space="preserve"><value>✅ ติดตั้ง FFmpeg เสร็จสิ้น!</value></data>
+  <data name="RecordingFeatureAvailable" xml:space="preserve"><value>ตอนนี้คุณสามารถใช้ฟีเจอร์บันทึกได้แล้ว</value></data>
+  <data name="FFmpegAutoDownloadFailed" xml:space="preserve"><value>การดาวน์โหลดอัตโนมัติล้มเหลว&#xA;ต้องการเลือกและติดตั้งไฟล์ ffmpeg.exe ด้วยตนเองหรือไม่?&#xA;&#xA;(ไฟล์จะถูกคัดลอกไปยังตำแหน่งที่ถูกต้อง)</value></data>
+  <data name="InstallFailed" xml:space="preserve"><value>การติดตั้งล้มเหลว</value></data>
+  <data name="FFmpegManualInstallSuccess" xml:space="preserve"><value>การติดตั้ง FFmpeg แบบ手动เสร็จสิ้น</value></data>
+  <data name="SyncSuccess" xml:space="preserve"><value>ซิงโครไนซ์สำเร็จ</value></data>
+  <data name="LoggingIn" xml:space="preserve"><value>กำลังเข้าสู่ระบบ...</value></data>
+  <data name="Notification" xml:space="preserve"><value>การแจ้งเตือน</value></data>
+  <data name="AuthCompletedTitle" xml:space="preserve"><value>CatchCapture - การยืนยันตัวตนเสร็จสิ้น</value></data>
+  <data name="AuthCompletedHeader" xml:space="preserve"><value>กระบวนการยืนยันตัวตนสิ้นสุดแล้ว</value></data>
+  <data name="AuthCompletedDesc" xml:space="preserve"><value>กรุณากลับไปที่แอป CatchCapture เพื่อตรวจสอบผลลัพธ์การเชื่อมต่อสุดท้าย</value></data>
+  <data name="AuthStatusAnalyzing" xml:space="preserve"><value>กำลังวิเคราะห์ผลการยืนยันตัวตน...</value></data>
+  <data name="AuthStatusChecking" xml:space="preserve"><value>กำลังตรวจสอบผลการยืนยันตัวตน...</value></data>
+  <data name="AuthFallbackText" xml:space="preserve"><value>กรุณาปิดหน้าต่างนี้ด้วยตนเองหลังจากตรวจสอบผลลัพธ์</value></data>
+  <data name="GoogleDriveAuthNote" xml:space="preserve"><value>สำคัญ: หากคุณไม่ได้ติ๊กช่อง 'ไฟล์ Google Drive เฉพาะ' ระหว่างเข้าสู่ระบบ การเชื่อมต่อจะล้มเหลวและจะแสดงข้อความผิดพลาดในแอป</value></data>
+  <data name="DropboxAuthNote" xml:space="preserve"><value>แจ้งเตือน: การยืนยันตัวตนในเบราว์เซอร์เสร็จสิ้น แอปจะตรวจสอบโทเค็นและสิ้นสุดการเชื่อมต่อ</value></data>
+  <data name="GoogleDriveLoginRequired" xml:space="preserve"><value>ต้องเข้าสู่ระบบ Google Drive</value></data>
+  <data name="DropboxLoginRequired" xml:space="preserve"><value>ต้องเข้าสู่ระบบ Dropbox</value></data>
+  <data name="CreateSharedLinkFailed" xml:space="preserve"><value>สร้างลิงก์แชร์ไม่สำเร็จ</value></data>
+  <data name="GetExistingLinkFailed" xml:space="preserve"><value>รับลิงก์ที่มีอยู่ไม่สำเร็จ</value></data>
+  <data name="CreateImageLink" xml:space="preserve"><value>สร้างลิงก์ภาพ</value></data>
+  <data name="LinkSettings" xml:space="preserve"><value>คลาวด์</value></data>
+  <data name="CloudUploadSettings" xml:space="preserve"><value>การตั้งค่าอัปโหลด</value></data>
+  <data name="GoogleDriveRecommended" xml:space="preserve"><value>Google Drive (แนะนำ)</value></data>
+  <data name="CloudNotConnected" xml:space="preserve"><value>(ไม่ได้เชื่อมต่อ)</value></data>
+  <data name="CloudConnected" xml:space="preserve"><value>(เชื่อมต่อแล้ว)</value></data>
+  <data name="GoogleLogin" xml:space="preserve"><value>เข้าสู่ระบบ Google</value></data>
+  <data name="GoogleLogout" xml:space="preserve"><value>ยกเลิกการเชื่อมต่อ</value></data>
+  <data name="GoogleDriveDesc" xml:space="preserve"><value>ภาพจะถูกบันทึกในโฟลเดอร์ CatchCapture ใน Google Drive ของคุณ</value></data>
+  <data name="ImgBBPersonal" xml:space="preserve"><value>ImgBB - บัญชีส่วนตัว</value></data>
+  <data name="ImgBBDesc" xml:space="preserve"><value>บริการฟรีที่ง่ายและเสถียรที่สุด ต้องใช้ API Key</value></data>
+  <data name="ApiKey" xml:space="preserve"><value>API Key:</value></data>
+  <data name="GetApiKey" xml:space="preserve"><value>รับ API Key</value></data>
+  <data name="DropboxDesc" xml:space="preserve"><value>อัปโหลดไป Dropbox และสร้างลิงก์ที่แชร์ได้</value></data>
+  <data name="DropboxLogin" xml:space="preserve"><value>เชื่อมต่อ Dropbox</value></data>
+  <data name="CloudHelpWhatIsIt" xml:space="preserve"><value>❓ ช่วยเหลือ: การเชื่อมต่อคลาวด์คืออะไร?</value></data>
+  <data name="CloudHelpGuide" xml:space="preserve"><value>คู่มือการเชื่อมต่อคลาวด์ / การสร้างลิงก์</value></data>
+  <data name="CloudHelpQ1" xml:space="preserve"><value>ถ. การสร้างลิงก์ภาพคืออะไร?</value></data>
+  <data name="CloudHelpA1" xml:space="preserve"><value>ฟีเจอร์ที่อัปโหลดภาพที่จับได้ไปยังเซิร์ฟเวอร์และสร้าง URL เพื่อแชร์ทันที</value></data>
+  <data name="CloudHelpQ2" xml:space="preserve"><value>ถ. ImgBB (API Key)</value></data>
+  <data name="CloudHelpA2" xml:space="preserve"><value>บริการโฮสต์ภาพยอดนิยม ยอดเยี่ยมสำหรับการจัดการภาพและความเสถียรโดยใช้ API Key ของคุณเอง</value></data>
+  <data name="CloudHelpQ3" xml:space="preserve"><value>ถ. การเชื่อมต่อบัญชี (Google / Dropbox)</value></data>
+  <data name="CloudHelpA3" xml:space="preserve"><value>เชื่อมต่อบัญชี Google หรือ Dropbox ของคุณ ใช้พื้นที่เก็บข้อมูลของคุณเอง พื้นที่มากขึ้นและเก็บถาวรได้</value></data>
+  <data name="ConnectedWithEmail" xml:space="preserve"><value>(เชื่อมต่อ: {0})</value></data>
+  <data name="ConnectedWithName" xml:space="preserve"><value>(เชื่อมต่อ: {0})</value></data>
+  <data name="DisconnectConfirm" xml:space="preserve"><value>แน่ใจหรือไม่ว่าต้องการยกเลิกการเชื่อมต่อ Google Drive?</value></data>
+  <data name="DisconnectTitle" xml:space="preserve"><value>ยกเลิกการเชื่อมต่อ</value></data>
+  <data name="LoginSuccess" xml:space="preserve"><value>เชื่อมต่อ Google Drive สำเร็จ!</value></data>
+  <data name="LoginFailed" xml:space="preserve"><value>เข้าสู่ระบบล้มเหลว</value></data>
+  <data name="DropboxConnectFailed" xml:space="preserve"><value>เชื่อมต่อ Dropbox ล้มเหลว&#xA;(หน้าต่างปิดหรือหมดเวลา)</value></data>
+  <data name="ScopeMissingError" xml:space="preserve"><value>ไม่ได้ให้สิทธิ์เข้าถึง Google Drive&#xA;&#xA;กรุณาตรวจสอบให้แน่ใจว่าได้ติ๊ก 'ดู แก้ไข สร้าง และลบเฉพาะไฟล์ Google Drive เฉพาะที่ใช้กับแอปนี้' ระหว่างเข้าสู่ระบบ</value></data>
+  <data name="ImgBBApiKeyRequired" xml:space="preserve"><value>ยังไม่ได้ตั้งค่า API Key ของ ImgBB กรุณาใส่คีย์ในการตั้งค่า</value></data>
+  <data name="ImgBBLinkFailed" xml:space="preserve"><value>รับลิงก์จาก ImgBB ไม่สำเร็จ</value></data>
+  <data name="CloudNotConnectedMsg" xml:space="preserve"><value>{0} ยังไม่ได้เชื่อมต่อ&#xA;ต้องการเข้าสู่ระบบในการตั้งค่าหรือไม่?</value></data>
+  <data name="CloudConnectionRequired" xml:space="preserve"><value>ต้องเชื่อมต่อคลาวด์</value></data>
+  <data name="LoginCancelled" xml:space="preserve"><value>ยกเลิกการเข้าสู่ระบบ</value></data>
+  <data name="UploadStarting" xml:space="preserve"><value>กำลังเริ่มอัปโหลด...</value></data>
+  <data name="LinkCopiedWithUrl" xml:space="preserve"><value>คัดลอกลิงก์แล้ว: {0}</value></data>
+  <data name="UploadFailed" xml:space="preserve"><value>อัปโหลดล้มเหลว</value></data>
+  <data name="UploadFailedDetailed" xml:space="preserve"><value>อัปโหลดล้มเหลว: {0}</value></data>
+  <data name="GoogleDrive" xml:space="preserve"><value>Google Drive</value></data>
+  <data name="ImgBB" xml:space="preserve"><value>ImgBB</value></data>
+  <data name="Dropbox" xml:space="preserve"><value>Dropbox</value></data>
+  <data name="ImageLinkTooltip" xml:space="preserve"><value>สร้างลิงก์ภาพ (อัปโหลดคลาวด์)</value></data>
+  <data name="ImageLinkButtonText" xml:space="preserve"><value>ลิงก์ IMG</value></data>
+  <data name="CopiedToClipboardMsg" xml:space="preserve"><value>คัดลอกไปยังคลิปบอร์ดแล้ว</value></data>
+  <data name="ShareTitle" xml:space="preserve"><value>แชร์ภาพ</value></data>
+  <data name="ShareDescription" xml:space="preserve"><value>ภาพหน้าจอ CatchCapture</value></data>
+  <data name="ImageNotVisibleBtn" xml:space="preserve"><value>ภาพไม่แสดง?</value></data>
+  <data name="ImageNotVisibleTitle" xml:space="preserve"><value>คู่มือการเก็บและแสดงภาพ</value></data>
+  <data name="ImageNotVisibleContent" xml:space="preserve"><value>หากการบันทึกหรือแสดงภาพในโน้ตไม่ทำงานถูกต้องเนื่องจากปัญหาสภาพแวดล้อมระบบ กรุณาดูคู่มือด้านล่าง&#xA;📌 สาเหตุหลัก&#xA;1. อักขระพิเศษในชื่อผู้ใช้: หากชื่อบัญชี Windows มีอักขระพิเศษ (เช่น &amp; หรือ #) แอปอาจไม่สามารถรู้จักเส้นทางโปรไฟล์&#xA;2. สิทธิ์การเข้าถึงโฟลเดอร์: การตั้งค่าความปลอดภัยของ Windows (ไฟร์วอลล์/การป้องกัน ransomware) อาจบล็อกการเขียนไฟล์ในโฟลเดอร์บางแห่ง&#xA;💡 วิธีแก้ไข&#xA;- เปลี่ยนเส้นทางเก็บข้อมูล: ไปที่ [การตั้งค่าโน้ต] และเปลี่ยนตำแหน่งเป็นเส้นทางง่ายและปลอดภัย เช่น 'D:\' หรือ 'C:\' ที่ไม่ขึ้นกับโปรไฟล์ผู้ใช้&#xA;หากยังมีปัญหา กรุณาติดต่อเราผ่านลิงก์ 'ติดต่อเรา' ที่ด้านล่างของหน้าจอ</value></data>
+  <data name="Drafts" xml:space="preserve"><value>ร่าง</value></data>
+  <data name="SaveDraft" xml:space="preserve"><value>บันทึกร่าง</value></data>
+  <data name="DraftList" xml:space="preserve"><value>รายการร่าง</value></data>
+  <data name="NoDrafts" xml:space="preserve"><value>ไม่พบร่าง</value></data>
+  <data name="RestoreDraft" xml:space="preserve"><value>กู้คืน</value></data>
+  <data name="ClearAllDrafts" xml:space="preserve"><value>ล้างร่างทั้งหมด</value></data>
+  <data name="ConfirmClearAll" xml:space="preserve"><value>แน่ใจหรือไม่ว่าต้องการล้างร่างทั้งหมด?</value></data>
+  <data name="ConfirmRestore" xml:space="preserve"><value>ต้องการกู้คืนเนื้อหาที่เลือกหรือไม่?&#xA;การเปลี่ยนแปลงปัจจุบันจะสูญหาย</value></data>
+  <data name="NoTitle" xml:space="preserve"><value>(ไม่มีชื่อ)</value></data>
 </root>

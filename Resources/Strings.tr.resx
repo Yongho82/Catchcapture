@@ -928,4 +928,101 @@ Tüm öğeleri kalıcı olarak silmek istediğinizden emin misiniz?</value>
   <data name="NoMicTitle" xml:space="preserve"><value>Mikrofon yok</value></data>
   <data name="MicCheckFailed" xml:space="preserve"><value>Mikrofon kontrolü başarısız: {0}</value></data>
   <data name="RecordingError" xml:space="preserve"><value>Kayıt sırasında hata: {0}</value></data>
+  <data name="DbBackupExcludeImages" xml:space="preserve"><value>DB yedeği görüntüleri içermez.&#xA;Görüntüleri dahil etmek için lütfen Tam Dışa Aktar (IMG+DB) kullanın.</value></data>
+  <data name="WorkCategory" xml:space="preserve"><value>İş</value></data>
+  <data name="CommunityCategory" xml:space="preserve"><value>Topluluk</value></data>
+  <data name="ResetData" xml:space="preserve"><value>Verileri Sıfırla</value></data>
+  <data name="Background" xml:space="preserve"><value>Arka Plan</value></data>
+  <data name="ForceUnlock" xml:space="preserve"><value>Notu Zorla Aç</value></data>
+  <data name="ForceUnlockDesc" xml:space="preserve"><value>Bir not 'Düzenleniyor' modunda takıldığında veya kaydedildikten sonra liste güncellenmediğinde kullanın. Genellikle not başka bir PC'de düzenleniyorsa veya önceki oturum beklenmedik şekilde sona erdiyse olur. (Uyarı: Başka bir cihazda aktif olarak düzenleniyorsa veri kaybı olabilir.)</value></data>
+  <data name="ForceUnlockConfirm" xml:space="preserve"><value>Zorla açmayı gerçekten istiyor musunuz?&#xA;Başka bir PC aktif olarak düzenlerse veri kaybı olabilir.</value></data>
+  <data name="UnlockSuccess" xml:space="preserve"><value>Başarıyla açıldı.</value></data>
+  <data name="FFmpegRequiredMessage" xml:space="preserve"><value>Video kayıt (MP4/GIF) özelliği ek bir bileşen (FFmpeg) gerektirir.&#xA;&#xA;Şimdi indirip kurmak ister misiniz?</value></data>
+  <data name="ComponentRequired" xml:space="preserve"><value>Ek Bileşen Gerekli</value></data>
+  <data name="FFmpegDownloadTitle" xml:space="preserve"><value>📦 FFmpeg indiriliyor...</value></data>
+  <data name="ConnectingToServer" xml:space="preserve"><value>Sunucuya bağlanıyor...</value></data>
+  <data name="Downloading" xml:space="preserve"><value>İndiriliyor...</value></data>
+  <data name="Extracting" xml:space="preserve"><value>Ayrıştırılıyor...</value></data>
+  <data name="Installing" xml:space="preserve"><value>Kuruluyor...</value></data>
+  <data name="Completed" xml:space="preserve"><value>✓ Tamamlandı!</value></data>
+  <data name="FFmpegInstallComplete" xml:space="preserve"><value>✅ FFmpeg Kurulumu Tamamlandı!</value></data>
+  <data name="RecordingFeatureAvailable" xml:space="preserve"><value>Artık kayıt özelliğini kullanabilirsiniz.</value></data>
+  <data name="FFmpegAutoDownloadFailed" xml:space="preserve"><value>Otomatik indirme başarısız oldu.&#xA;ffmpeg.exe dosyasını manuel olarak seçip kurmak ister misiniz?&#xA;&#xA;(Dosya doğru konuma kopyalanacak)</value></data>
+  <data name="InstallFailed" xml:space="preserve"><value>Kurulum Başarısız</value></data>
+  <data name="FFmpegManualInstallSuccess" xml:space="preserve"><value>FFmpeg manuel kurulumu tamamlandı.</value></data>
+  <data name="SyncSuccess" xml:space="preserve"><value>Senkronizasyon başarıyla tamamlandı.</value></data>
+  <data name="LoggingIn" xml:space="preserve"><value>Giriş yapılıyor...</value></data>
+  <data name="Notification" xml:space="preserve"><value>Bildirim</value></data>
+  <data name="AuthCompletedTitle" xml:space="preserve"><value>CatchCapture - Kimlik Doğrulama Tamamlandı</value></data>
+  <data name="AuthCompletedHeader" xml:space="preserve"><value>Kimlik doğrulama işlemi sona erdi</value></data>
+  <data name="AuthCompletedDesc" xml:space="preserve"><value>Son bağlantı sonucunu kontrol etmek için CatchCapture uygulamasına dönün.</value></data>
+  <data name="AuthStatusAnalyzing" xml:space="preserve"><value>Kimlik doğrulama sonuçları analiz ediliyor...</value></data>
+  <data name="AuthStatusChecking" xml:space="preserve"><value>Kimlik doğrulama sonuçları kontrol ediliyor...</value></data>
+  <data name="AuthFallbackText" xml:space="preserve"><value>Sonuçları kontrol ettikten sonra bu pencereyi manuel olarak kapatın.</value></data>
+  <data name="GoogleDriveAuthNote" xml:space="preserve"><value>Önemli: Giriş sırasında 'belirli Google Drive dosyaları' kutusunu işaretlemediyseniz bağlantı başarısız olacak ve uygulamada hata mesajı görüntülenecektir.</value></data>
+  <data name="DropboxAuthNote" xml:space="preserve"><value>Bildirim: Tarayıcı doğrulaması tamamlandı. Uygulama şimdi token'ı doğrulayacak ve bağlantıyı tamamlayacak.</value></data>
+  <data name="GoogleDriveLoginRequired" xml:space="preserve"><value>Google Drive girişi gerekiyor.</value></data>
+  <data name="DropboxLoginRequired" xml:space="preserve"><value>Dropbox girişi gerekiyor.</value></data>
+  <data name="CreateSharedLinkFailed" xml:space="preserve"><value>Paylaşım bağlantısı oluşturulamadı.</value></data>
+  <data name="GetExistingLinkFailed" xml:space="preserve"><value>Mevcut bağlantı alınamadı.</value></data>
+  <data name="CreateImageLink" xml:space="preserve"><value>Görüntü bağlantısı oluştur</value></data>
+  <data name="LinkSettings" xml:space="preserve"><value>Bulut</value></data>
+  <data name="CloudUploadSettings" xml:space="preserve"><value>Yükleme ayarları</value></data>
+  <data name="GoogleDriveRecommended" xml:space="preserve"><value>Google Drive (Önerilen)</value></data>
+  <data name="CloudNotConnected" xml:space="preserve"><value>(Bağlı değil)</value></data>
+  <data name="CloudConnected" xml:space="preserve"><value>(Bağlı)</value></data>
+  <data name="GoogleLogin" xml:space="preserve"><value>Google Giriş</value></data>
+  <data name="GoogleLogout" xml:space="preserve"><value>Bağlantıyı Kes</value></data>
+  <data name="GoogleDriveDesc" xml:space="preserve"><value>Görüntüler Google Drive'ınızdaki CatchCapture klasörüne kaydedilecek.</value></data>
+  <data name="ImgBBPersonal" xml:space="preserve"><value>ImgBB - Kişisel Hesap</value></data>
+  <data name="ImgBBDesc" xml:space="preserve"><value>En kolay ve en kararlı ücretsiz hizmet. API Anahtarı gereklidir.</value></data>
+  <data name="ApiKey" xml:space="preserve"><value>API Anahtarı:</value></data>
+  <data name="GetApiKey" xml:space="preserve"><value>API Anahtarı Al</value></data>
+  <data name="DropboxDesc" xml:space="preserve"><value>Dropbox'a yükle ve paylaşılabilir bağlantılar oluştur.</value></data>
+  <data name="DropboxLogin" xml:space="preserve"><value>Dropbox Bağlan</value></data>
+  <data name="CloudHelpWhatIsIt" xml:space="preserve"><value>❓ Yardım: Bulut entegrasyonu nedir?</value></data>
+  <data name="CloudHelpGuide" xml:space="preserve"><value>Bulut Entegrasyonu / Bağlantı Oluşturma Kılavuzu</value></data>
+  <data name="CloudHelpQ1" xml:space="preserve"><value>S. Görüntü bağlantısı oluşturma nedir?</value></data>
+  <data name="CloudHelpA1" xml:space="preserve"><value>Yakalanan görüntüleri sunucuya yükleyip anında paylaşım için URL oluşturan özellik.</value></data>
+  <data name="CloudHelpQ2" xml:space="preserve"><value>S. ImgBB (API Anahtarı)</value></data>
+  <data name="CloudHelpA2" xml:space="preserve"><value>Popüler görüntü barındırma hizmeti. Kendi API anahtarınızla görüntü yönetimi ve kararlılık için mükemmel.</value></data>
+  <data name="CloudHelpQ3" xml:space="preserve"><value>S. Hesap entegrasyonu (Google / Dropbox)</value></data>
+  <data name="CloudHelpA3" xml:space="preserve"><value>Google veya Dropbox hesabınızı bağlayın. Kendi depolamanızı kullanır, daha fazla alan ve kalıcı saklama sunar.</value></data>
+  <data name="ConnectedWithEmail" xml:space="preserve"><value>(Bağlı: {0})</value></data>
+  <data name="ConnectedWithName" xml:space="preserve"><value>(Bağlı: {0})</value></data>
+  <data name="DisconnectConfirm" xml:space="preserve"><value>Google Drive bağlantısını gerçekten kesmek istiyor musunuz?</value></data>
+  <data name="DisconnectTitle" xml:space="preserve"><value>Bağlantıyı Kes</value></data>
+  <data name="LoginSuccess" xml:space="preserve"><value>Google Drive başarıyla bağlandı!</value></data>
+  <data name="LoginFailed" xml:space="preserve"><value>Giriş başarısız.</value></data>
+  <data name="DropboxConnectFailed" xml:space="preserve"><value>Dropbox bağlantısı başarısız.&#xA;(Pencere kapatıldı veya zaman aşımı)</value></data>
+  <data name="ScopeMissingError" xml:space="preserve"><value>Google Drive erişim izni verilmedi.&#xA;&#xA;Giriş sırasında 'Bu uygulamayla kullandığınız yalnızca belirli Google Drive dosyalarını görüntüle, düzenle, oluştur ve sil' seçeneğini işaretlediğinizden emin olun.</value></data>
+  <data name="ImgBBApiKeyRequired" xml:space="preserve"><value>ImgBB API Anahtarı ayarlanmadı. Ayarlarda anahtarı girin.</value></data>
+  <data name="ImgBBLinkFailed" xml:space="preserve"><value>ImgBB'den bağlantı alınamadı.</value></data>
+  <data name="CloudNotConnectedMsg" xml:space="preserve"><value>{0} bağlı değil.&#xA;Ayarlarda giriş yapmak ister misiniz?</value></data>
+  <data name="CloudConnectionRequired" xml:space="preserve"><value>Bulut Bağlantısı Gerekli</value></data>
+  <data name="LoginCancelled" xml:space="preserve"><value>Giriş iptal edildi.</value></data>
+  <data name="UploadStarting" xml:space="preserve"><value>Yükleme başlıyor...</value></data>
+  <data name="LinkCopiedWithUrl" xml:space="preserve"><value>Bağlantı kopyalandı: {0}</value></data>
+  <data name="UploadFailed" xml:space="preserve"><value>Yükleme başarısız.</value></data>
+  <data name="UploadFailedDetailed" xml:space="preserve"><value>Yükleme başarısız: {0}</value></data>
+  <data name="GoogleDrive" xml:space="preserve"><value>Google Drive</value></data>
+  <data name="ImgBB" xml:space="preserve"><value>ImgBB</value></data>
+  <data name="Dropbox" xml:space="preserve"><value>Dropbox</value></data>
+  <data name="ImageLinkTooltip" xml:space="preserve"><value>Görüntü bağlantısı oluştur (bulut yükleme)</value></data>
+  <data name="ImageLinkButtonText" xml:space="preserve"><value>IMG Bağlantısı</value></data>
+  <data name="CopiedToClipboardMsg" xml:space="preserve"><value>Panoya kopyalandı</value></data>
+  <data name="ShareTitle" xml:space="preserve"><value>Görüntüyü Paylaş</value></data>
+  <data name="ShareDescription" xml:space="preserve"><value>CatchCapture Ekran Görüntüsü</value></data>
+  <data name="ImageNotVisibleBtn" xml:space="preserve"><value>Görüntüler görünmüyor mu?</value></data>
+  <data name="ImageNotVisibleTitle" xml:space="preserve"><value>Görüntü Depolama ve Görüntüleme Kılavuzu</value></data>
+  <data name="ImageNotVisibleContent" xml:space="preserve"><value>Sistem ortamı sorunları nedeniyle notlarda görüntü kaydetme veya görüntüleme düzgün çalışmıyorsa aşağıdaki kılavuza bakın.&#xA;📌 Ana Nedenler&#xA;1. Kullanıcı adında özel karakterler: Windows hesap adı &amp; veya # gibi özel karakterler içeriyorsa, uygulama profil yollarını tanıyamayabilir.&#xA;2. Klasör erişim izinleri: Windows güvenlik ayarları (güvenlik duvarı/ransomware koruması) belirli klasörlerde dosya yazmayı engelleyebilir.&#xA;💡 Çözüm&#xA;- Depolama yolunu değiştirin: [Not Ayarları]'na gidin ve depolama konumunu kullanıcı profili bağımsız basit güvenli bir yol olan 'D:\' veya 'C:\' olarak değiştirin.&#xA;Sorun devam ederse ekranın altındaki 'Bize Ulaşın' bağlantısı üzerinden iletişime geçin.</value></data>
+  <data name="Drafts" xml:space="preserve"><value>Taslaklar</value></data>
+  <data name="SaveDraft" xml:space="preserve"><value>Taslağı Kaydet</value></data>
+  <data name="DraftList" xml:space="preserve"><value>Taslak Listesi</value></data>
+  <data name="NoDrafts" xml:space="preserve"><value>Taslak bulunamadı.</value></data>
+  <data name="RestoreDraft" xml:space="preserve"><value>Geri Yükle</value></data>
+  <data name="ClearAllDrafts" xml:space="preserve"><value>Tüm Taslakları Temizle</value></data>
+  <data name="ConfirmClearAll" xml:space="preserve"><value>Tüm taslakları gerçekten temizlemek istiyor musunuz?</value></data>
+  <data name="ConfirmRestore" xml:space="preserve"><value>Seçilen içeriği geri yüklemek istiyor musunuz?&#xA;Mevcut değişiklikler kaybolacak.</value></data>
+  <data name="NoTitle" xml:space="preserve"><value>(Başlık Yok)</value></data>
 </root>

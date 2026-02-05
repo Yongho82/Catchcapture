@@ -930,4 +930,101 @@
   <data name="NoMicTitle" xml:space="preserve"><value>无麦克风</value></data>
   <data name="MicCheckFailed" xml:space="preserve"><value>麦克风检查失败：{0}</value></data>
   <data name="RecordingError" xml:space="preserve"><value>录音过程中出错：{0}</value></data>
+  <data name="DbBackupExcludeImages" xml:space="preserve"><value>数据库备份不包含图片。&#xA;要包含图片，请使用完整导出 (IMG+DB)。</value></data>
+  <data name="WorkCategory" xml:space="preserve"><value>工作</value></data>
+  <data name="CommunityCategory" xml:space="preserve"><value>社区</value></data>
+  <data name="ResetData" xml:space="preserve"><value>重置数据</value></data>
+  <data name="Background" xml:space="preserve"><value>背景</value></data>
+  <data name="ForceUnlock" xml:space="preserve"><value>强制解锁笔记</value></data>
+  <data name="ForceUnlockDesc" xml:space="preserve"><value>当笔记卡在“编辑中”模式或保存后列表未更新时使用此功能。这通常是因为笔记在另一台电脑上被编辑，或之前会话意外结束。（注意：如果笔记在另一设备上正在被积极编辑，可能会导致数据丢失。）</value></data>
+  <data name="ForceUnlockConfirm" xml:space="preserve"><value>确定要强制解锁吗？&#xA;如果另一台电脑正在积极编辑，可能会丢失数据。</value></data>
+  <data name="UnlockSuccess" xml:space="preserve"><value>解锁成功。</value></data>
+  <data name="FFmpegRequiredMessage" xml:space="preserve"><value>视频录制 (MP4/GIF) 功能需要额外组件 (FFmpeg)。&#xA;&#xA;现在要下载并安装吗？</value></data>
+  <data name="ComponentRequired" xml:space="preserve"><value>需要额外组件</value></data>
+  <data name="FFmpegDownloadTitle" xml:space="preserve"><value>📦 正在下载 FFmpeg...</value></data>
+  <data name="ConnectingToServer" xml:space="preserve"><value>正在连接服务器...</value></data>
+  <data name="Downloading" xml:space="preserve"><value>正在下载...</value></data>
+  <data name="Extracting" xml:space="preserve"><value>正在解压...</value></data>
+  <data name="Installing" xml:space="preserve"><value>正在安装...</value></data>
+  <data name="Completed" xml:space="preserve"><value>✓ 已完成！</value></data>
+  <data name="FFmpegInstallComplete" xml:space="preserve"><value>✅ FFmpeg 安装完成！</value></data>
+  <data name="RecordingFeatureAvailable" xml:space="preserve"><value>现在可以使用录制功能了。</value></data>
+  <data name="FFmpegAutoDownloadFailed" xml:space="preserve"><value>自动下载失败。&#xA;要手动选择并安装 ffmpeg.exe 文件吗？&#xA;&#xA;(文件将被复制到正确位置)</value></data>
+  <data name="InstallFailed" xml:space="preserve"><value>安装失败</value></data>
+  <data name="FFmpegManualInstallSuccess" xml:space="preserve"><value>FFmpeg 手动安装完成。</value></data>
+  <data name="SyncSuccess" xml:space="preserve"><value>同步成功完成。</value></data>
+  <data name="LoggingIn" xml:space="preserve"><value>正在登录...</value></data>
+  <data name="Notification" xml:space="preserve"><value>通知</value></data>
+  <data name="AuthCompletedTitle" xml:space="preserve"><value>CatchCapture - 认证完成</value></data>
+  <data name="AuthCompletedHeader" xml:space="preserve"><value>认证过程已结束</value></data>
+  <data name="AuthCompletedDesc" xml:space="preserve"><value>请返回 CatchCapture 应用检查最终连接结果。</value></data>
+  <data name="AuthStatusAnalyzing" xml:space="preserve"><value>正在分析认证结果...</value></data>
+  <data name="AuthStatusChecking" xml:space="preserve"><value>正在检查认证结果...</value></data>
+  <data name="AuthFallbackText" xml:space="preserve"><value>检查结果后请手动关闭此窗口。</value></data>
+  <data name="GoogleDriveAuthNote" xml:space="preserve"><value>重要：如果登录时未勾选“仅特定 Google Drive 文件”选项，连接将失败，应用中会显示错误消息。</value></data>
+  <data name="DropboxAuthNote" xml:space="preserve"><value>通知：浏览器认证已完成。应用现在将验证令牌并完成连接。</value></data>
+  <data name="GoogleDriveLoginRequired" xml:space="preserve"><value>需要登录 Google Drive。</value></data>
+  <data name="DropboxLoginRequired" xml:space="preserve"><value>需要登录 Dropbox。</value></data>
+  <data name="CreateSharedLinkFailed" xml:space="preserve"><value>创建共享链接失败。</value></data>
+  <data name="GetExistingLinkFailed" xml:space="preserve"><value>获取现有链接失败。</value></data>
+  <data name="CreateImageLink" xml:space="preserve"><value>创建图片链接</value></data>
+  <data name="LinkSettings" xml:space="preserve"><value>云端</value></data>
+  <data name="CloudUploadSettings" xml:space="preserve"><value>上传设置</value></data>
+  <data name="GoogleDriveRecommended" xml:space="preserve"><value>Google Drive（推荐）</value></data>
+  <data name="CloudNotConnected" xml:space="preserve"><value>(未连接)</value></data>
+  <data name="CloudConnected" xml:space="preserve"><value>(已连接)</value></data>
+  <data name="GoogleLogin" xml:space="preserve"><value>Google 登录</value></data>
+  <data name="GoogleLogout" xml:space="preserve"><value>断开连接</value></data>
+  <data name="GoogleDriveDesc" xml:space="preserve"><value>图片将保存到您的 Google Drive 中的 CatchCapture 文件夹。</value></data>
+  <data name="ImgBBPersonal" xml:space="preserve"><value>ImgBB - 个人账户</value></data>
+  <data name="ImgBBDesc" xml:space="preserve"><value>最简单、最稳定的免费服务。需要 API Key。</value></data>
+  <data name="ApiKey" xml:space="preserve"><value>API Key：</value></data>
+  <data name="GetApiKey" xml:space="preserve"><value>获取 API Key</value></data>
+  <data name="DropboxDesc" xml:space="preserve"><value>上传到 Dropbox 并创建可共享链接。</value></data>
+  <data name="DropboxLogin" xml:space="preserve"><value>连接 Dropbox</value></data>
+  <data name="CloudHelpWhatIsIt" xml:space="preserve"><value>❓ 帮助：什么是云端集成？</value></data>
+  <data name="CloudHelpGuide" xml:space="preserve"><value>云端集成 / 链接创建指南</value></data>
+  <data name="CloudHelpQ1" xml:space="preserve"><value>Q. 什么是图片链接创建？</value></data>
+  <data name="CloudHelpA1" xml:space="preserve"><value>将捕获的图片上传到服务器并创建即时分享 URL 的功能。</value></data>
+  <data name="CloudHelpQ2" xml:space="preserve"><value>Q. ImgBB (API Key)</value></data>
+  <data name="CloudHelpA2" xml:space="preserve"><value>流行的图片托管服务。使用自己的 API Key 可实现出色的图片管理和稳定性。</value></data>
+  <data name="CloudHelpQ3" xml:space="preserve"><value>Q. 账户集成 (Google / Dropbox)</value></data>
+  <data name="CloudHelpA3" xml:space="preserve"><value>连接您的 Google 或 Dropbox 账户。使用您自己的存储空间，提供更大容量和永久保存。</value></data>
+  <data name="ConnectedWithEmail" xml:space="preserve"><value>(已连接：{0})</value></data>
+  <data name="ConnectedWithName" xml:space="preserve"><value>(已连接：{0})</value></data>
+  <data name="DisconnectConfirm" xml:space="preserve"><value>确定要断开 Google Drive 连接吗？</value></data>
+  <data name="DisconnectTitle" xml:space="preserve"><value>断开连接</value></data>
+  <data name="LoginSuccess" xml:space="preserve"><value>Google Drive 连接成功！</value></data>
+  <data name="LoginFailed" xml:space="preserve"><value>登录失败。</value></data>
+  <data name="DropboxConnectFailed" xml:space="preserve"><value>Dropbox 连接失败。&#xA;(窗口关闭或超时)</value></data>
+  <data name="ScopeMissingError" xml:space="preserve"><value>未授予 Google Drive 访问权限。&#xA;&#xA;请确保在登录时勾选“仅查看、编辑、创建和删除您与此应用一起使用的特定 Google Drive 文件”。</value></data>
+  <data name="ImgBBApiKeyRequired" xml:space="preserve"><value>ImgBB API Key 未设置。请在设置中输入密钥。</value></data>
+  <data name="ImgBBLinkFailed" xml:space="preserve"><value>从 ImgBB 获取链接失败。</value></data>
+  <data name="CloudNotConnectedMsg" xml:space="preserve"><value>{0} 未连接。&#xA;要在设置中登录吗？</value></data>
+  <data name="CloudConnectionRequired" xml:space="preserve"><value>需要云端连接</value></data>
+  <data name="LoginCancelled" xml:space="preserve"><value>登录已取消。</value></data>
+  <data name="UploadStarting" xml:space="preserve"><value>开始上传...</value></data>
+  <data name="LinkCopiedWithUrl" xml:space="preserve"><value>链接已复制：{0}</value></data>
+  <data name="UploadFailed" xml:space="preserve"><value>上传失败。</value></data>
+  <data name="UploadFailedDetailed" xml:space="preserve"><value>上传失败：{0}</value></data>
+  <data name="GoogleDrive" xml:space="preserve"><value>Google Drive</value></data>
+  <data name="ImgBB" xml:space="preserve"><value>ImgBB</value></data>
+  <data name="Dropbox" xml:space="preserve"><value>Dropbox</value></data>
+  <data name="ImageLinkTooltip" xml:space="preserve"><value>创建图片链接（云端上传）</value></data>
+  <data name="ImageLinkButtonText" xml:space="preserve"><value>IMG 链接</value></data>
+  <data name="CopiedToClipboardMsg" xml:space="preserve"><value>已复制到剪贴板</value></data>
+  <data name="ShareTitle" xml:space="preserve"><value>分享图片</value></data>
+  <data name="ShareDescription" xml:space="preserve"><value>CatchCapture 截图</value></data>
+  <data name="ImageNotVisibleBtn" xml:space="preserve"><value>图片不显示？</value></data>
+  <data name="ImageNotVisibleTitle" xml:space="preserve"><value>图片存储与显示指南</value></data>
+  <data name="ImageNotVisibleContent" xml:space="preserve"><value>由于系统环境问题导致笔记中保存或显示图片不正常时，请参考以下指南。&#xA;📌 主要原因&#xA;1. 用户名中含特殊字符：如果 Windows 账户名包含特殊字符（如 &amp; 或 #），应用可能无法识别配置文件路径，导致保存失败。&#xA;2. 文件夹访问权限：Windows 安全设置（防火墙/勒索软件保护）可能阻止某些文件夹的文件写入。&#xA;💡 解决方案&#xA;- 更改存储路径：进入 [笔记设置]，将存储位置改为简单安全的路径，如 'D:\' 或 'C:\'，独立于用户账户配置文件。&#xA;如果问题持续，请通过屏幕底部的“联系我们”链接与我们联系。</value></data>
+  <data name="Drafts" xml:space="preserve"><value>草稿</value></data>
+  <data name="SaveDraft" xml:space="preserve"><value>保存草稿</value></data>
+  <data name="DraftList" xml:space="preserve"><value>草稿列表</value></data>
+  <data name="NoDrafts" xml:space="preserve"><value>未找到草稿。</value></data>
+  <data name="RestoreDraft" xml:space="preserve"><value>恢复</value></data>
+  <data name="ClearAllDrafts" xml:space="preserve"><value>清除所有草稿</value></data>
+  <data name="ConfirmClearAll" xml:space="preserve"><value>确定要清除所有草稿吗？</value></data>
+  <data name="ConfirmRestore" xml:space="preserve"><value>要恢复选中的内容吗？&#xA;当前更改将全部丢失。</value></data>
+  <data name="NoTitle" xml:space="preserve"><value>(无标题)</value></data>
 </root>

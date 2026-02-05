@@ -930,4 +930,101 @@ Chắc chắn xóa vĩnh viễn toàn bộ thùng rác?</value>
   <data name="NoMicTitle" xml:space="preserve"><value>Không có micro</value></data>
   <data name="MicCheckFailed" xml:space="preserve"><value>Kiểm tra micro thất bại: {0}</value></data>
   <data name="RecordingError" xml:space="preserve"><value>Lỗi trong quá trình ghi âm: {0}</value></data>
+  <data name="DbBackupExcludeImages" xml:space="preserve"><value>Sao lưu DB không bao gồm hình ảnh.&#xA;Để bao gồm hình ảnh, vui lòng sử dụng Xuất toàn bộ (IMG+DB).</value></data>
+  <data name="WorkCategory" xml:space="preserve"><value>Công việc</value></data>
+  <data name="CommunityCategory" xml:space="preserve"><value>Cộng đồng</value></data>
+  <data name="ResetData" xml:space="preserve"><value>Đặt lại dữ liệu</value></data>
+  <data name="Background" xml:space="preserve"><value>Nền</value></data>
+  <data name="ForceUnlock" xml:space="preserve"><value>Buộc mở khóa ghi chú</value></data>
+  <data name="ForceUnlockDesc" xml:space="preserve"><value>Sử dụng khi ghi chú bị kẹt ở chế độ 'Đang chỉnh sửa' hoặc danh sách không cập nhật sau khi lưu. Thường xảy ra nếu ghi chú đang được chỉnh sửa trên máy tính khác hoặc phiên trước kết thúc bất ngờ. (Cảnh báo: Có thể mất dữ liệu nếu ghi chú đang được chỉnh sửa tích cực trên thiết bị khác.)</value></data>
+  <data name="ForceUnlockConfirm" xml:space="preserve"><value>Bạn có chắc muốn buộc mở khóa không?&#xA;Có thể mất dữ liệu nếu máy tính khác đang chỉnh sửa tích cực.</value></data>
+  <data name="UnlockSuccess" xml:space="preserve"><value>Mở khóa thành công.</value></data>
+  <data name="FFmpegRequiredMessage" xml:space="preserve"><value>Tính năng ghi video (MP4/GIF) yêu cầu thành phần bổ sung (FFmpeg).&#xA;&#xA;Bạn có muốn tải xuống và cài đặt ngay bây giờ không?</value></data>
+  <data name="ComponentRequired" xml:space="preserve"><value>Yêu cầu thành phần bổ sung</value></data>
+  <data name="FFmpegDownloadTitle" xml:space="preserve"><value>📦 Đang tải FFmpeg...</value></data>
+  <data name="ConnectingToServer" xml:space="preserve"><value>Đang kết nối đến máy chủ...</value></data>
+  <data name="Downloading" xml:space="preserve"><value>Đang tải xuống...</value></data>
+  <data name="Extracting" xml:space="preserve"><value>Đang giải nén...</value></data>
+  <data name="Installing" xml:space="preserve"><value>Đang cài đặt...</value></data>
+  <data name="Completed" xml:space="preserve"><value>✓ Hoàn tất!</value></data>
+  <data name="FFmpegInstallComplete" xml:space="preserve"><value>✅ Cài đặt FFmpeg hoàn tất!</value></data>
+  <data name="RecordingFeatureAvailable" xml:space="preserve"><value>Bạn có thể sử dụng tính năng ghi âm ngay bây giờ.</value></data>
+  <data name="FFmpegAutoDownloadFailed" xml:space="preserve"><value>Tải tự động thất bại.&#xA;Bạn có muốn chọn và cài đặt thủ công file ffmpeg.exe không?&#xA;&#xA;(File sẽ được sao chép vào vị trí đúng)</value></data>
+  <data name="InstallFailed" xml:space="preserve"><value>Cài đặt thất bại</value></data>
+  <data name="FFmpegManualInstallSuccess" xml:space="preserve"><value>Cài đặt thủ công FFmpeg hoàn tất.</value></data>
+  <data name="SyncSuccess" xml:space="preserve"><value>Đồng bộ hóa hoàn tất thành công.</value></data>
+  <data name="LoggingIn" xml:space="preserve"><value>Đang đăng nhập...</value></data>
+  <data name="Notification" xml:space="preserve"><value>Thông báo</value></data>
+  <data name="AuthCompletedTitle" xml:space="preserve"><value>CatchCapture - Xác thực hoàn tất</value></data>
+  <data name="AuthCompletedHeader" xml:space="preserve"><value>Quá trình xác thực đã kết thúc</value></data>
+  <data name="AuthCompletedDesc" xml:space="preserve"><value>Vui lòng quay lại ứng dụng CatchCapture để kiểm tra kết quả kết nối cuối cùng.</value></data>
+  <data name="AuthStatusAnalyzing" xml:space="preserve"><value>Đang phân tích kết quả xác thực...</value></data>
+  <data name="AuthStatusChecking" xml:space="preserve"><value>Đang kiểm tra kết quả xác thực...</value></data>
+  <data name="AuthFallbackText" xml:space="preserve"><value>Vui lòng đóng cửa sổ này thủ công sau khi kiểm tra kết quả.</value></data>
+  <data name="GoogleDriveAuthNote" xml:space="preserve"><value>Quan trọng: Nếu bạn không đánh dấu hộp 'các tệp Google Drive cụ thể' trong quá trình đăng nhập, kết nối sẽ thất bại và thông báo lỗi sẽ hiển thị trong ứng dụng.</value></data>
+  <data name="DropboxAuthNote" xml:space="preserve"><value>Thông báo: Xác thực trình duyệt đã hoàn tất. Ứng dụng sẽ xác minh token và hoàn tất kết nối.</value></data>
+  <data name="GoogleDriveLoginRequired" xml:space="preserve"><value>Yêu cầu đăng nhập Google Drive.</value></data>
+  <data name="DropboxLoginRequired" xml:space="preserve"><value>Yêu cầu đăng nhập Dropbox.</value></data>
+  <data name="CreateSharedLinkFailed" xml:space="preserve"><value>Tạo liên kết chia sẻ thất bại.</value></data>
+  <data name="GetExistingLinkFailed" xml:space="preserve"><value>Lấy liên kết hiện có thất bại.</value></data>
+  <data name="CreateImageLink" xml:space="preserve"><value>Tạo liên kết hình ảnh</value></data>
+  <data name="LinkSettings" xml:space="preserve"><value>Đám mây</value></data>
+  <data name="CloudUploadSettings" xml:space="preserve"><value>Cài đặt tải lên</value></data>
+  <data name="GoogleDriveRecommended" xml:space="preserve"><value>Google Drive (Khuyến nghị)</value></data>
+  <data name="CloudNotConnected" xml:space="preserve"><value>(Chưa kết nối)</value></data>
+  <data name="CloudConnected" xml:space="preserve"><value>(Đã kết nối)</value></data>
+  <data name="GoogleLogin" xml:space="preserve"><value>Đăng nhập Google</value></data>
+  <data name="GoogleLogout" xml:space="preserve"><value>Ngắt kết nối</value></data>
+  <data name="GoogleDriveDesc" xml:space="preserve"><value>Hình ảnh sẽ được lưu vào thư mục CatchCapture trên Google Drive của bạn.</value></data>
+  <data name="ImgBBPersonal" xml:space="preserve"><value>ImgBB - Tài khoản cá nhân</value></data>
+  <data name="ImgBBDesc" xml:space="preserve"><value>Dịch vụ miễn phí dễ nhất và ổn định nhất. Yêu cầu API Key.</value></data>
+  <data name="ApiKey" xml:space="preserve"><value>API Key:</value></data>
+  <data name="GetApiKey" xml:space="preserve"><value>Lấy API Key</value></data>
+  <data name="DropboxDesc" xml:space="preserve"><value>Tải lên Dropbox và tạo liên kết có thể chia sẻ.</value></data>
+  <data name="DropboxLogin" xml:space="preserve"><value>Kết nối Dropbox</value></data>
+  <data name="CloudHelpWhatIsIt" xml:space="preserve"><value>❓ Trợ giúp: Tích hợp đám mây là gì?</value></data>
+  <data name="CloudHelpGuide" xml:space="preserve"><value>Hướng dẫn tích hợp đám mây / Tạo liên kết</value></data>
+  <data name="CloudHelpQ1" xml:space="preserve"><value>H. Tạo liên kết hình ảnh là gì?</value></data>
+  <data name="CloudHelpA1" xml:space="preserve"><value>Tính năng tải hình ảnh đã chụp lên máy chủ và tạo URL để chia sẻ ngay lập tức.</value></data>
+  <data name="CloudHelpQ2" xml:space="preserve"><value>H. ImgBB (API Key)</value></data>
+  <data name="CloudHelpA2" xml:space="preserve"><value>Dịch vụ lưu trữ hình ảnh phổ biến. Tuyệt vời cho quản lý hình ảnh và độ ổn định khi sử dụng API Key riêng.</value></data>
+  <data name="CloudHelpQ3" xml:space="preserve"><value>H. Tích hợp tài khoản (Google / Dropbox)</value></data>
+  <data name="CloudHelpA3" xml:space="preserve"><value>Kết nối tài khoản Google hoặc Dropbox của bạn. Sử dụng bộ nhớ riêng, dung lượng lớn hơn và lưu trữ vĩnh viễn.</value></data>
+  <data name="ConnectedWithEmail" xml:space="preserve"><value>(Đã kết nối: {0})</value></data>
+  <data name="ConnectedWithName" xml:space="preserve"><value>(Đã kết nối: {0})</value></data>
+  <data name="DisconnectConfirm" xml:space="preserve"><value>Bạn có chắc muốn ngắt kết nối Google Drive không?</value></data>
+  <data name="DisconnectTitle" xml:space="preserve"><value>Ngắt kết nối</value></data>
+  <data name="LoginSuccess" xml:space="preserve"><value>Kết nối Google Drive thành công!</value></data>
+  <data name="LoginFailed" xml:space="preserve"><value>Đăng nhập thất bại.</value></data>
+  <data name="DropboxConnectFailed" xml:space="preserve"><value>Kết nối Dropbox thất bại.&#xA;(Cửa sổ đóng hoặc hết thời gian)</value></data>
+  <data name="ScopeMissingError" xml:space="preserve"><value>Không cấp quyền truy cập Google Drive.&#xA;&#xA;Vui lòng đảm bảo đánh dấu 'Chỉ xem, chỉnh sửa, tạo và xóa các tệp Google Drive cụ thể bạn dùng với ứng dụng này' trong quá trình đăng nhập.</value></data>
+  <data name="ImgBBApiKeyRequired" xml:space="preserve"><value>API Key ImgBB chưa được đặt. Vui lòng nhập key trong cài đặt.</value></data>
+  <data name="ImgBBLinkFailed" xml:space="preserve"><value>Lấy liên kết từ ImgBB thất bại.</value></data>
+  <data name="CloudNotConnectedMsg" xml:space="preserve"><value>{0} chưa được kết nối.&#xA;Bạn muốn đăng nhập trong cài đặt không?</value></data>
+  <data name="CloudConnectionRequired" xml:space="preserve"><value>Yêu cầu kết nối đám mây</value></data>
+  <data name="LoginCancelled" xml:space="preserve"><value>Đăng nhập bị hủy.</value></data>
+  <data name="UploadStarting" xml:space="preserve"><value>Bắt đầu tải lên...</value></data>
+  <data name="LinkCopiedWithUrl" xml:space="preserve"><value>Đã sao chép liên kết: {0}</value></data>
+  <data name="UploadFailed" xml:space="preserve"><value>Tải lên thất bại.</value></data>
+  <data name="UploadFailedDetailed" xml:space="preserve"><value>Tải lên thất bại: {0}</value></data>
+  <data name="GoogleDrive" xml:space="preserve"><value>Google Drive</value></data>
+  <data name="ImgBB" xml:space="preserve"><value>ImgBB</value></data>
+  <data name="Dropbox" xml:space="preserve"><value>Dropbox</value></data>
+  <data name="ImageLinkTooltip" xml:space="preserve"><value>Tạo liên kết hình ảnh (Tải lên đám mây)</value></data>
+  <data name="ImageLinkButtonText" xml:space="preserve"><value>Liên kết IMG</value></data>
+  <data name="CopiedToClipboardMsg" xml:space="preserve"><value>Đã sao chép vào bộ nhớ tạm</value></data>
+  <data name="ShareTitle" xml:space="preserve"><value>Chia sẻ hình ảnh</value></data>
+  <data name="ShareDescription" xml:space="preserve"><value>Ảnh chụp màn hình CatchCapture</value></data>
+  <data name="ImageNotVisibleBtn" xml:space="preserve"><value>Hình ảnh không hiển thị?</value></data>
+  <data name="ImageNotVisibleTitle" xml:space="preserve"><value>Hướng dẫn lưu trữ &amp; hiển thị hình ảnh</value></data>
+  <data name="ImageNotVisibleContent" xml:space="preserve"><value>Nếu lưu hoặc hiển thị hình ảnh trong ghi chú không hoạt động đúng do vấn đề môi trường hệ thống, vui lòng tham khảo hướng dẫn dưới đây.&#xA;📌 Nguyên nhân chính&#xA;1. Ký tự đặc biệt trong tên người dùng: Nếu tên tài khoản Windows chứa ký tự đặc biệt (ví dụ &amp; hoặc #), ứng dụng có thể không nhận diện được đường dẫn hồ sơ, dẫn đến thất bại khi lưu.&#xA;2. Quyền truy cập thư mục: Cài đặt bảo mật Windows (tường lửa/bảo vệ ransomware) có thể chặn ghi file vào một số thư mục.&#xA;💡 Giải pháp&#xA;- Thay đổi đường dẫn lưu trữ: Vào [Cài đặt ghi chú] và thay đổi vị trí lưu thành đường dẫn đơn giản an toàn như 'D:\' hoặc 'C:\' độc lập với hồ sơ tài khoản người dùng.&#xA;Nếu vấn đề vẫn tiếp diễn, vui lòng liên hệ chúng tôi qua liên kết 'Liên hệ chúng tôi' ở cuối màn hình.</value></data>
+  <data name="Drafts" xml:space="preserve"><value>Bản nháp</value></data>
+  <data name="SaveDraft" xml:space="preserve"><value>Lưu bản nháp</value></data>
+  <data name="DraftList" xml:space="preserve"><value>Danh sách bản nháp</value></data>
+  <data name="NoDrafts" xml:space="preserve"><value>Không tìm thấy bản nháp.</value></data>
+  <data name="RestoreDraft" xml:space="preserve"><value>Khôi phục</value></data>
+  <data name="ClearAllDrafts" xml:space="preserve"><value>Xóa tất cả bản nháp</value></data>
+  <data name="ConfirmClearAll" xml:space="preserve"><value>Bạn có chắc muốn xóa tất cả bản nháp không?</value></data>
+  <data name="ConfirmRestore" xml:space="preserve"><value>Bạn có muốn khôi phục nội dung đã chọn không?&#xA;Bất kỳ thay đổi hiện tại nào cũng sẽ bị mất.</value></data>
+  <data name="NoTitle" xml:space="preserve"><value>(Không có tiêu đề)</value></data>
 </root>

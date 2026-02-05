@@ -933,4 +933,101 @@
   <data name="NoMicTitle" xml:space="preserve"><value>マイクなし</value></data>
   <data name="MicCheckFailed" xml:space="preserve"><value>マイクチェックに失敗しました: {0}</value></data>
   <data name="RecordingError" xml:space="preserve"><value>録音中にエラーが発生しました: {0}</value></data>
+  <data name="DbBackupExcludeImages" xml:space="preserve"><value>DBバックアップには画像は含まれません。&#xA;画像を含める場合は、フルエクスポート (IMG+DB) を使用してください。</value></data>
+  <data name="WorkCategory" xml:space="preserve"><value>仕事</value></data>
+  <data name="CommunityCategory" xml:space="preserve"><value>コミュニティ</value></data>
+  <data name="ResetData" xml:space="preserve"><value>データのリセット</value></data>
+  <data name="Background" xml:space="preserve"><value>背景</value></data>
+  <data name="ForceUnlock" xml:space="preserve"><value>ノートを強制解除</value></data>
+  <data name="ForceUnlockDesc" xml:space="preserve"><value>ノートが「編集中」モードで固まったり、保存後もリストが更新されない場合に使用してください。別のPCで編集中だったり、前のセッションが異常終了した場合に発生しやすいです。 (注意: 他のデバイスでアクティブに編集中の場合、データ損失の可能性があります。)</value></data>
+  <data name="ForceUnlockConfirm" xml:space="preserve"><value>本当に強制解除しますか？&#xA;別のPCで編集中の場合、データが失われる可能性があります。</value></data>
+  <data name="UnlockSuccess" xml:space="preserve"><value>解除に成功しました。</value></data>
+  <data name="FFmpegRequiredMessage" xml:space="preserve"><value>動画録画 (MP4/GIF) 機能には追加コンポーネント (FFmpeg) が必要です。&#xA;&#xA;今すぐダウンロードしてインストールしますか？</value></data>
+  <data name="ComponentRequired" xml:space="preserve"><value>追加コンポーネントが必要です</value></data>
+  <data name="FFmpegDownloadTitle" xml:space="preserve"><value>📦 FFmpegをダウンロード中...</value></data>
+  <data name="ConnectingToServer" xml:space="preserve"><value>サーバーに接続中...</value></data>
+  <data name="Downloading" xml:space="preserve"><value>ダウンロード中...</value></data>
+  <data name="Extracting" xml:space="preserve"><value>展開中...</value></data>
+  <data name="Installing" xml:space="preserve"><value>インストール中...</value></data>
+  <data name="Completed" xml:space="preserve"><value>✓ 完了！</value></data>
+  <data name="FFmpegInstallComplete" xml:space="preserve"><value>✅ FFmpegのインストールが完了しました！</value></data>
+  <data name="RecordingFeatureAvailable" xml:space="preserve"><value>録画機能が利用可能になりました。</value></data>
+  <data name="FFmpegAutoDownloadFailed" xml:space="preserve"><value>自動ダウンロードに失敗しました。&#xA;ffmpeg.exeファイルを手動で選択してインストールしますか？&#xA;&#xA;(ファイルは正しい場所にコピーされます)</value></data>
+  <data name="InstallFailed" xml:space="preserve"><value>インストールに失敗しました</value></data>
+  <data name="FFmpegManualInstallSuccess" xml:space="preserve"><value>FFmpegの手動インストールが完了しました。</value></data>
+  <data name="SyncSuccess" xml:space="preserve"><value>同期が正常に完了しました。</value></data>
+  <data name="LoggingIn" xml:space="preserve"><value>ログイン中...</value></data>
+  <data name="Notification" xml:space="preserve"><value>通知</value></data>
+  <data name="AuthCompletedTitle" xml:space="preserve"><value>CatchCapture - 認証完了</value></data>
+  <data name="AuthCompletedHeader" xml:space="preserve"><value>認証プロセスが終了しました</value></data>
+  <data name="AuthCompletedDesc" xml:space="preserve"><value>CatchCaptureアプリに戻って最終的な接続結果を確認してください。</value></data>
+  <data name="AuthStatusAnalyzing" xml:space="preserve"><value>認証結果を分析中...</value></data>
+  <data name="AuthStatusChecking" xml:space="preserve"><value>認証結果を確認中...</value></data>
+  <data name="AuthFallbackText" xml:space="preserve"><value>結果を確認後、このウィンドウを手動で閉じてください。</value></data>
+  <data name="GoogleDriveAuthNote" xml:space="preserve"><value>重要: ログイン時に「特定のGoogle Driveファイルのみ」のチェックを入れていない場合、接続に失敗しアプリにエラーメッセージが表示されます。</value></data>
+  <data name="DropboxAuthNote" xml:space="preserve"><value>お知らせ: ブラウザ認証が完了しました。アプリがトークンを確認し、接続を完了します。</value></data>
+  <data name="GoogleDriveLoginRequired" xml:space="preserve"><value>Google Driveへのログインが必要です。</value></data>
+  <data name="DropboxLoginRequired" xml:space="preserve"><value>Dropboxへのログインが必要です。</value></data>
+  <data name="CreateSharedLinkFailed" xml:space="preserve"><value>共有リンクの作成に失敗しました。</value></data>
+  <data name="GetExistingLinkFailed" xml:space="preserve"><value>既存リンクの取得に失敗しました。</value></data>
+  <data name="CreateImageLink" xml:space="preserve"><value>画像リンクを作成</value></data>
+  <data name="LinkSettings" xml:space="preserve"><value>クラウド</value></data>
+  <data name="CloudUploadSettings" xml:space="preserve"><value>アップロード設定</value></data>
+  <data name="GoogleDriveRecommended" xml:space="preserve"><value>Google Drive (おすすめ)</value></data>
+  <data name="CloudNotConnected" xml:space="preserve"><value>(未接続)</value></data>
+  <data name="CloudConnected" xml:space="preserve"><value>(接続済み)</value></data>
+  <data name="GoogleLogin" xml:space="preserve"><value>Googleログイン</value></data>
+  <data name="GoogleLogout" xml:space="preserve"><value>接続解除</value></data>
+  <data name="GoogleDriveDesc" xml:space="preserve"><value>キャプチャした画像はGoogle DriveのCatchCaptureフォルダに保存されます。</value></data>
+  <data name="ImgBBPersonal" xml:space="preserve"><value>ImgBB - 個人アカウント</value></data>
+  <data name="ImgBBDesc" xml:space="preserve"><value>最も簡単で安定した無料サービスです。APIキーが必要です。</value></data>
+  <data name="ApiKey" xml:space="preserve"><value>APIキー:</value></data>
+  <data name="GetApiKey" xml:space="preserve"><value>APIキーを取得</value></data>
+  <data name="DropboxDesc" xml:space="preserve"><value>Dropboxにアップロードして共有可能なリンクを作成します。</value></data>
+  <data name="DropboxLogin" xml:space="preserve"><value>Dropboxを接続</value></data>
+  <data name="CloudHelpWhatIsIt" xml:space="preserve"><value>❓ ヘルプ: クラウド連携とは？</value></data>
+  <data name="CloudHelpGuide" xml:space="preserve"><value>クラウド連携 / リンク作成ガイド</value></data>
+  <data name="CloudHelpQ1" xml:space="preserve"><value>Q. 画像リンク作成とは？</value></data>
+  <data name="CloudHelpA1" xml:space="preserve"><value>キャプチャした画像をサーバーにアップロードし、すぐに共有できるURLを作成する機能です。</value></data>
+  <data name="CloudHelpQ2" xml:space="preserve"><value>Q. ImgBB (APIキー)</value></data>
+  <data name="CloudHelpA2" xml:space="preserve"><value>人気の画像ホスティングサービス。自分のAPIキーを使うと画像管理と安定性が優れています。</value></data>
+  <data name="CloudHelpQ3" xml:space="preserve"><value>Q. アカウント連携 (Google / Dropbox)</value></data>
+  <data name="CloudHelpA3" xml:space="preserve"><value>自分のGoogleまたはDropboxアカウントを連携します。自分のストレージを使うため容量が多く、永久保存が可能です。</value></data>
+  <data name="ConnectedWithEmail" xml:space="preserve"><value>(接続中: {0})</value></data>
+  <data name="ConnectedWithName" xml:space="preserve"><value>(接続中: {0})</value></data>
+  <data name="DisconnectConfirm" xml:space="preserve"><value>Google Driveの接続を本当に解除しますか？</value></data>
+  <data name="DisconnectTitle" xml:space="preserve"><value>接続解除</value></data>
+  <data name="LoginSuccess" xml:space="preserve"><value>Google Driveが正常に接続されました！</value></data>
+  <data name="LoginFailed" xml:space="preserve"><value>ログインに失敗しました。</value></data>
+  <data name="DropboxConnectFailed" xml:space="preserve"><value>Dropboxの接続に失敗しました。&#xA;(ウィンドウが閉じられたかタイムアウト)</value></data>
+  <data name="ScopeMissingError" xml:space="preserve"><value>Google Driveのアクセス権限が付与されていません。&#xA;&#xA;ログイン時に「このアプリで使用する特定のGoogle Driveファイルのみを表示、編集、作成、削除」を必ずチェックしてください。</value></data>
+  <data name="ImgBBApiKeyRequired" xml:space="preserve"><value>ImgBBのAPIキーが設定されていません。設定でキーを入力してください。</value></data>
+  <data name="ImgBBLinkFailed" xml:space="preserve"><value>ImgBBからリンクを取得できませんでした。</value></data>
+  <data name="CloudNotConnectedMsg" xml:space="preserve"><value>{0}が接続されていません。&#xA;設定でログインしますか？</value></data>
+  <data name="CloudConnectionRequired" xml:space="preserve"><value>クラウド接続が必要です</value></data>
+  <data name="LoginCancelled" xml:space="preserve"><value>ログインがキャンセルされました。</value></data>
+  <data name="UploadStarting" xml:space="preserve"><value>アップロードを開始します...</value></data>
+  <data name="LinkCopiedWithUrl" xml:space="preserve"><value>リンクをコピーしました: {0}</value></data>
+  <data name="UploadFailed" xml:space="preserve"><value>アップロードに失敗しました。</value></data>
+  <data name="UploadFailedDetailed" xml:space="preserve"><value>アップロード失敗: {0}</value></data>
+  <data name="GoogleDrive" xml:space="preserve"><value>Google Drive</value></data>
+  <data name="ImgBB" xml:space="preserve"><value>ImgBB</value></data>
+  <data name="Dropbox" xml:space="preserve"><value>Dropbox</value></data>
+  <data name="ImageLinkTooltip" xml:space="preserve"><value>画像リンク作成 (クラウドアップロード)</value></data>
+  <data name="ImageLinkButtonText" xml:space="preserve"><value>IMGリンク</value></data>
+  <data name="CopiedToClipboardMsg" xml:space="preserve"><value>クリップボードにコピーしました</value></data>
+  <data name="ShareTitle" xml:space="preserve"><value>画像を共有</value></data>
+  <data name="ShareDescription" xml:space="preserve"><value>CatchCaptureスクリーンショット</value></data>
+  <data name="ImageNotVisibleBtn" xml:space="preserve"><value>画像が表示されない？</value></data>
+  <data name="ImageNotVisibleTitle" xml:space="preserve"><value>画像保存・表示ガイド</value></data>
+  <data name="ImageNotVisibleContent" xml:space="preserve"><value>システム環境の問題でノートへの画像保存・表示が正しく動作しない場合、以下のガイドを参照してください。&#xA;📌 主な原因&#xA;1. ユーザー名に特殊文字: Windowsアカウント名に&amp;や#などの特殊文字があると、プロファイルパスの認識に失敗する可能性があります。&#xA;2. フォルダアクセス権限: Windowsのセキュリティ設定（ファイアウォール/ランサムウェア保護）で特定のフォルダへの書き込みがブロックされる場合があります。&#xA;💡 解決方法&#xA;- 保存パス変更: [ノート設定]で保存場所を'D:\'や'C:\'などユーザーアカウントと無関係なシンプルなパスに変更してください。&#xA;問題が続く場合は画面下部の「問い合わせ」リンクからご連絡ください。</value></data>
+  <data name="Drafts" xml:space="preserve"><value>下書き</value></data>
+  <data name="SaveDraft" xml:space="preserve"><value>下書き保存</value></data>
+  <data name="DraftList" xml:space="preserve"><value>下書き一覧</value></data>
+  <data name="NoDrafts" xml:space="preserve"><value>下書きが見つかりません。</value></data>
+  <data name="RestoreDraft" xml:space="preserve"><value>復元</value></data>
+  <data name="ClearAllDrafts" xml:space="preserve"><value>すべての下書きをクリア</value></data>
+  <data name="ConfirmClearAll" xml:space="preserve"><value>すべての下書きを本当に削除しますか？</value></data>
+  <data name="ConfirmRestore" xml:space="preserve"><value>選択した内容を復元しますか？&#xA;現在の変更はすべて失われます。</value></data>
+  <data name="NoTitle" xml:space="preserve"><value>(タイトルなし)</value></data>
 </root>

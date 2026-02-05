@@ -930,4 +930,101 @@ Eliminare permanentemente tutti gli elementi?</value>
   <data name="NoMicTitle" xml:space="preserve"><value>Nessun microfono</value></data>
   <data name="MicCheckFailed" xml:space="preserve"><value>Controllo microfono fallito: {0}</value></data>
   <data name="RecordingError" xml:space="preserve"><value>Errore durante la registrazione: {0}</value></data>
+  <data name="DbBackupExcludeImages" xml:space="preserve"><value>Il backup del DB non include le immagini.&#xA;Per includere le immagini, utilizza l'Esportazione completa (IMG+DB).</value></data>
+  <data name="WorkCategory" xml:space="preserve"><value>Lavoro</value></data>
+  <data name="CommunityCategory" xml:space="preserve"><value>Community</value></data>
+  <data name="ResetData" xml:space="preserve"><value>Reset Dati</value></data>
+  <data name="Background" xml:space="preserve"><value>Sfondo</value></data>
+  <data name="ForceUnlock" xml:space="preserve"><value>Forza sblocco nota</value></data>
+  <data name="ForceUnlockDesc" xml:space="preserve"><value>Usa questa opzione quando una nota rimane bloccata in modalità 'Modifica' o l'elenco non si aggiorna dopo il salvataggio. Succede spesso se la nota viene modificata su un altro PC o se una sessione precedente è terminata in modo imprevisto. (Attenzione: possibile perdita di dati se la nota è in modifica attiva su un altro dispositivo.)</value></data>
+  <data name="ForceUnlockConfirm" xml:space="preserve"><value>Sei sicuro di voler forzare lo sblocco?&#xA;Possibile perdita di dati se un altro PC sta modificando attivamente.</value></data>
+  <data name="UnlockSuccess" xml:space="preserve"><value>Sbloccato con successo.</value></data>
+  <data name="FFmpegRequiredMessage" xml:space="preserve"><value>La funzione di registrazione video (MP4/GIF) richiede un componente aggiuntivo (FFmpeg).&#xA;&#xA;Vuoi scaricarlo e installarlo ora?</value></data>
+  <data name="ComponentRequired" xml:space="preserve"><value>Componente aggiuntivo richiesto</value></data>
+  <data name="FFmpegDownloadTitle" xml:space="preserve"><value>📦 Download di FFmpeg in corso...</value></data>
+  <data name="ConnectingToServer" xml:space="preserve"><value>Connessione al server...</value></data>
+  <data name="Downloading" xml:space="preserve"><value>Download in corso...</value></data>
+  <data name="Extracting" xml:space="preserve"><value>Estrazione...</value></data>
+  <data name="Installing" xml:space="preserve"><value>Installazione...</value></data>
+  <data name="Completed" xml:space="preserve"><value>✓ Completato!</value></data>
+  <data name="FFmpegInstallComplete" xml:space="preserve"><value>✅ Installazione FFmpeg completata!</value></data>
+  <data name="RecordingFeatureAvailable" xml:space="preserve"><value>Ora puoi utilizzare la funzione di registrazione.</value></data>
+  <data name="FFmpegAutoDownloadFailed" xml:space="preserve"><value>Download automatico fallito.&#xA;Vuoi selezionare e installare manualmente il file ffmpeg.exe?&#xA;&#xA;(Il file verrà copiato nella posizione corretta)</value></data>
+  <data name="InstallFailed" xml:space="preserve"><value>Installazione fallita</value></data>
+  <data name="FFmpegManualInstallSuccess" xml:space="preserve"><value>Installazione manuale di FFmpeg completata.</value></data>
+  <data name="SyncSuccess" xml:space="preserve"><value>Sincronizzazione completata con successo.</value></data>
+  <data name="LoggingIn" xml:space="preserve"><value>Accesso in corso...</value></data>
+  <data name="Notification" xml:space="preserve"><value>Notifica</value></data>
+  <data name="AuthCompletedTitle" xml:space="preserve"><value>CatchCapture - Autenticazione completata</value></data>
+  <data name="AuthCompletedHeader" xml:space="preserve"><value>Processo di autenticazione terminato</value></data>
+  <data name="AuthCompletedDesc" xml:space="preserve"><value>Torna all'app CatchCapture per verificare il risultato finale della connessione.</value></data>
+  <data name="AuthStatusAnalyzing" xml:space="preserve"><value>Analisi dei risultati di autenticazione...</value></data>
+  <data name="AuthStatusChecking" xml:space="preserve"><value>Verifica dei risultati di autenticazione...</value></data>
+  <data name="AuthFallbackText" xml:space="preserve"><value>Chiudi manualmente questa finestra dopo aver verificato i risultati.</value></data>
+  <data name="GoogleDriveAuthNote" xml:space="preserve"><value>Importante: Se non hai selezionato la casella 'file Google Drive specifici' durante il login, la connessione fallirà e verrà visualizzato un messaggio di errore nell'app.</value></data>
+  <data name="DropboxAuthNote" xml:space="preserve"><value>Avviso: Autenticazione browser completata. L'app verificherà ora il token e completerà la connessione.</value></data>
+  <data name="GoogleDriveLoginRequired" xml:space="preserve"><value>Login Google Drive richiesto.</value></data>
+  <data name="DropboxLoginRequired" xml:space="preserve"><value>Login Dropbox richiesto.</value></data>
+  <data name="CreateSharedLinkFailed" xml:space="preserve"><value>Impossibile creare il link condiviso.</value></data>
+  <data name="GetExistingLinkFailed" xml:space="preserve"><value>Impossibile ottenere il link esistente.</value></data>
+  <data name="CreateImageLink" xml:space="preserve"><value>Crea link immagine</value></data>
+  <data name="LinkSettings" xml:space="preserve"><value>Cloud</value></data>
+  <data name="CloudUploadSettings" xml:space="preserve"><value>Impostazioni di upload</value></data>
+  <data name="GoogleDriveRecommended" xml:space="preserve"><value>Google Drive (Consigliato)</value></data>
+  <data name="CloudNotConnected" xml:space="preserve"><value>(Non connesso)</value></data>
+  <data name="CloudConnected" xml:space="preserve"><value>(Connesso)</value></data>
+  <data name="GoogleLogin" xml:space="preserve"><value>Login Google</value></data>
+  <data name="GoogleLogout" xml:space="preserve"><value>Disconnetti</value></data>
+  <data name="GoogleDriveDesc" xml:space="preserve"><value>Le immagini verranno salvate nella cartella CatchCapture del tuo Google Drive.</value></data>
+  <data name="ImgBBPersonal" xml:space="preserve"><value>ImgBB - Account personale</value></data>
+  <data name="ImgBBDesc" xml:space="preserve"><value>Servizio gratuito più semplice e stabile. Chiave API richiesta.</value></data>
+  <data name="ApiKey" xml:space="preserve"><value>Chiave API:</value></data>
+  <data name="GetApiKey" xml:space="preserve"><value>Ottieni chiave API</value></data>
+  <data name="DropboxDesc" xml:space="preserve"><value>Carica su Dropbox e crea link condivisibili.</value></data>
+  <data name="DropboxLogin" xml:space="preserve"><value>Collega Dropbox</value></data>
+  <data name="CloudHelpWhatIsIt" xml:space="preserve"><value>❓ Aiuto: Cos'è l'integrazione cloud?</value></data>
+  <data name="CloudHelpGuide" xml:space="preserve"><value>Guida all'integrazione cloud / Creazione link</value></data>
+  <data name="CloudHelpQ1" xml:space="preserve"><value>D. Cos'è la creazione di link immagine?</value></data>
+  <data name="CloudHelpA1" xml:space="preserve"><value>Funzione che carica le immagini catturate su un server e genera un URL per la condivisione immediata.</value></data>
+  <data name="CloudHelpQ2" xml:space="preserve"><value>D. ImgBB (chiave API)</value></data>
+  <data name="CloudHelpA2" xml:space="preserve"><value>Servizio di hosting immagini popolare. Ottimo per gestione e stabilità con chiave API personale.</value></data>
+  <data name="CloudHelpQ3" xml:space="preserve"><value>D. Integrazione account (Google / Dropbox)</value></data>
+  <data name="CloudHelpA3" xml:space="preserve"><value>Collega il tuo account Google o Dropbox. Usa il tuo spazio di archiviazione, più capacità e conservazione permanente.</value></data>
+  <data name="ConnectedWithEmail" xml:space="preserve"><value>(Connesso: {0})</value></data>
+  <data name="ConnectedWithName" xml:space="preserve"><value>(Connesso: {0})</value></data>
+  <data name="DisconnectConfirm" xml:space="preserve"><value>Sei sicuro di voler disconnettere Google Drive?</value></data>
+  <data name="DisconnectTitle" xml:space="preserve"><value>Disconnetti</value></data>
+  <data name="LoginSuccess" xml:space="preserve"><value>Google Drive connesso con successo!</value></data>
+  <data name="LoginFailed" xml:space="preserve"><value>Login fallito.</value></data>
+  <data name="DropboxConnectFailed" xml:space="preserve"><value>Connessione Dropbox fallita.&#xA;(Finestra chiusa o timeout)</value></data>
+  <data name="ScopeMissingError" xml:space="preserve"><value>Permesso di accesso Google Drive non concesso.&#xA;&#xA;Assicurati di selezionare 'Visualizza, modifica, crea ed elimina solo i file Google Drive specifici usati con questa app' durante il login.</value></data>
+  <data name="ImgBBApiKeyRequired" xml:space="preserve"><value>Chiave API ImgBB non impostata. Inserisci la chiave nelle impostazioni.</value></data>
+  <data name="ImgBBLinkFailed" xml:space="preserve"><value>Impossibile ottenere il link da ImgBB.</value></data>
+  <data name="CloudNotConnectedMsg" xml:space="preserve"><value>{0} non è connesso.&#xA;Vuoi effettuare il login nelle impostazioni?</value></data>
+  <data name="CloudConnectionRequired" xml:space="preserve"><value>Connessione cloud richiesta</value></data>
+  <data name="LoginCancelled" xml:space="preserve"><value>Login annullato.</value></data>
+  <data name="UploadStarting" xml:space="preserve"><value>Avvio upload...</value></data>
+  <data name="LinkCopiedWithUrl" xml:space="preserve"><value>Link copiato: {0}</value></data>
+  <data name="UploadFailed" xml:space="preserve"><value>Upload fallito.</value></data>
+  <data name="UploadFailedDetailed" xml:space="preserve"><value>Upload fallito: {0}</value></data>
+  <data name="GoogleDrive" xml:space="preserve"><value>Google Drive</value></data>
+  <data name="ImgBB" xml:space="preserve"><value>ImgBB</value></data>
+  <data name="Dropbox" xml:space="preserve"><value>Dropbox</value></data>
+  <data name="ImageLinkTooltip" xml:space="preserve"><value>Crea link immagine (upload cloud)</value></data>
+  <data name="ImageLinkButtonText" xml:space="preserve"><value>Link IMG</value></data>
+  <data name="CopiedToClipboardMsg" xml:space="preserve"><value>Copiato negli appunti</value></data>
+  <data name="ShareTitle" xml:space="preserve"><value>Condividi immagine</value></data>
+  <data name="ShareDescription" xml:space="preserve"><value>Screenshot CatchCapture</value></data>
+  <data name="ImageNotVisibleBtn" xml:space="preserve"><value>Le immagini non si vedono?</value></data>
+  <data name="ImageNotVisibleTitle" xml:space="preserve"><value>Guida ad archiviazione e visualizzazione immagini</value></data>
+  <data name="ImageNotVisibleContent" xml:space="preserve"><value>Se il salvataggio o la visualizzazione delle immagini nelle note non funziona correttamente a causa di problemi ambientali del sistema, consulta la guida seguente.&#xA;📌 Cause principali&#xA;1. Caratteri speciali nel nome utente: Se il nome account Windows contiene caratteri speciali (es. &amp; o #), l'app potrebbe non riconoscere i percorsi del profilo.&#xA;2. Permessi cartella: Le impostazioni di sicurezza Windows (firewall/protezione ransomware) possono bloccare la scrittura in determinate cartelle.&#xA;💡 Soluzione&#xA;- Cambia percorso archiviazione: Vai su [Impostazioni nota] e modifica la posizione in un percorso semplice e sicuro come 'D:\' o 'C:\' indipendente dal profilo utente.&#xA;Se il problema persiste, contattaci tramite il link 'Contattaci' in fondo allo schermo.</value></data>
+  <data name="Drafts" xml:space="preserve"><value>Bozze</value></data>
+  <data name="SaveDraft" xml:space="preserve"><value>Salva bozza</value></data>
+  <data name="DraftList" xml:space="preserve"><value>Elenco bozze</value></data>
+  <data name="NoDrafts" xml:space="preserve"><value>Nessuna bozza trovata.</value></data>
+  <data name="RestoreDraft" xml:space="preserve"><value>Ripristina</value></data>
+  <data name="ClearAllDrafts" xml:space="preserve"><value>Cancella tutte le bozze</value></data>
+  <data name="ConfirmClearAll" xml:space="preserve"><value>Sei sicuro di voler cancellare tutte le bozze?</value></data>
+  <data name="ConfirmRestore" xml:space="preserve"><value>Vuoi ripristinare il contenuto selezionato?&#xA;Le modifiche attuali andranno perse.</value></data>
+  <data name="NoTitle" xml:space="preserve"><value>(Senza titolo)</value></data>
 </root>

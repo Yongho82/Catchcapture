@@ -1071,7 +1071,9 @@ namespace CatchCapture.Utilities
                     if (count == 0)
                     {
                         string insertDefaults = @"
-                            INSERT INTO Categories (Name, Color) VALUES ('기본', '#8E2DE2');";
+                            INSERT INTO Categories (Name, Color) VALUES ('기본', '#8E2DE2');
+                            INSERT INTO Categories (Name, Color) VALUES ('커뮤니티', '#3498DB');
+                            INSERT INTO Categories (Name, Color) VALUES ('업무', '#E67E22');";
                         using (var insertCmd = new SqliteCommand(insertDefaults, connection))
                         {
                             insertCmd.ExecuteNonQuery();
