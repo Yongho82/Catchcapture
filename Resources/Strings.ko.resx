@@ -985,7 +985,7 @@
   <data name="DropboxLoginRequired" xml:space="preserve"><value>Dropbox 로그인이 필요합니다.</value></data>
   <data name="CreateSharedLinkFailed" xml:space="preserve"><value>공유 링크를 생성하지 못했습니다.</value></data>
   <data name="GetExistingLinkFailed" xml:space="preserve"><value>기존 링크를 가져오지 못했습니다.</value></data>
-  <data name="LinkSettings" xml:space="preserve"><value>링크설정</value></data>
+  <data name="LinkSettings" xml:space="preserve"><value>클라우드</value></data>
   <data name="CloudUploadSettings" xml:space="preserve"><value>업로드 설정</value></data>
   <data name="GoogleDriveRecommended" xml:space="preserve"><value>Google Drive (추천)</value></data>
   <data name="CloudNotConnected" xml:space="preserve"><value>(연결되지 않음)</value></data>

@@ -18,7 +18,7 @@ namespace CatchCapture.Utilities
 {
     public class DropboxUploadProvider
     {
-        private const string AppKey = "fdc25lx94w5nypl"; 
+        private const string AppKey = "hoawnf2qwus8iy3"; 
         private const string RedirectUri = "http://localhost:52475/";
 
         private static DropboxUploadProvider? _instance;

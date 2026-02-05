@@ -973,7 +973,7 @@ Are you sure you want to permanently delete all items?</value>
   <data name="CreateSharedLinkFailed" xml:space="preserve"><value>Failed to create shared link.</value></data>
   <data name="GetExistingLinkFailed" xml:space="preserve"><value>Failed to get existing link.</value></data>
   <data name="CreateImageLink" xml:space="preserve"><value>Create Image Link</value></data>
-  <data name="LinkSettings" xml:space="preserve"><value>Link Settings</value></data>
+  <data name="LinkSettings" xml:space="preserve"><value>Cloud</value></data>
   <data name="CloudUploadSettings" xml:space="preserve"><value>Upload Settings</value></data>
   <data name="GoogleDriveRecommended" xml:space="preserve"><value>Google Drive (Recommended)</value></data>
   <data name="CloudNotConnected" xml:space="preserve"><value>(Not Connected)</value></data>

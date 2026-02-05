@@ -35,7 +35,7 @@ Name: "startmenu"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: 
 
 [Files]
 ; 1. 메인 프로그램 파일들 (Release Publish 폴더 기준)
-Source: "..\bin\Release\net8.0-windows10.0.19041.0\publish\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\publish_folder\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 ; 2. .NET 8.0 Desktop Runtime 설치 파일 (Resources 폴더에서 가져오기)
 Source: "Resources\windowsdesktop-runtime-8.0.11-win-x64.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
