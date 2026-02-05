@@ -785,7 +785,7 @@ Are you sure you want to permanently delete all items?</value>
   <data name="AutoDeletePeriod" xml:space="preserve"><value>Auto Deletion Period</value></data>
   <data name="AutoDeleteToTrashNotice" xml:space="preserve"><value>(Moves data older than the set period to trash)</value></data>
   <data name="ForceUnlock" xml:space="preserve"><value>Force Unlock Note</value></data>
-  <data name="ForceUnlockDesc" xml:space="preserve"><value>Force unlock if locked even when not in use on another PC.</value></data>
+  <data name="ForceUnlockDesc" xml:space="preserve"><value>Use this when a note is stuck in 'Editing' mode or the list is not updating even after saving. This often happens if the note is being edited on another PC or if a previous session ended unexpectedly. (Caution: Data loss may occur if the note is actively being edited on another device.)</value></data>
   <data name="ForceUnlockConfirm" xml:space="preserve"><value>Are you sure you want to force unlock?\nData loss may occur if another PC is actively editing.</value></data>
   <data name="UnlockSuccess" xml:space="preserve"><value>Unlocked successfully.</value></data>
   <data name="DbOptimize" xml:space="preserve"><value>Optimize DB</value></data>

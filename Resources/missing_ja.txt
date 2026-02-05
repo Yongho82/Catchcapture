@@ -1,0 +1,104 @@
+﻿  <data name="DbBackupExcludeImages" xml:space="preserve"><value>DB backup does not include images.&#xA;To include images, please use Full Export (IMG+DB).</value></data>
+  <data name="ResetData" xml:space="preserve"><value>Reset Data</value></data>
+  <data name="Background" xml:space="preserve"><value>Background</value></data>
+  <data name="ForceUnlock" xml:space="preserve"><value>Force Unlock Note</value></data>
+  <data name="ForceUnlockDesc" xml:space="preserve"><value>Use this when a note is stuck in 'Editing' mode or the list is not updating even after saving. This often happens if the note is being edited on another PC or if a previous session ended unexpectedly. (Caution: Data loss may occur if the note is actively being edited on another device.)</value></data>
+  <data name="ForceUnlockConfirm" xml:space="preserve"><value>Are you sure you want to force unlock?\nData loss may occur if another PC is actively editing.</value></data>
+  <data name="UnlockSuccess" xml:space="preserve"><value>Unlocked successfully.</value></data>
+  <data name="FFmpegRequiredMessage" xml:space="preserve"><value>The video recording (MP4/GIF) feature requires an additional component (FFmpeg).\n\nDo you want to download and install it now?</value></data>
+  <data name="ComponentRequired" xml:space="preserve"><value>Additional Component Required</value></data>
+  <data name="FFmpegDownloadTitle" xml:space="preserve"><value>?벀 Downloading FFmpeg...</value></data>
+  <data name="ConnectingToServer" xml:space="preserve"><value>Connecting to server...</value></data>
+  <data name="Downloading" xml:space="preserve"><value>Downloading...</value></data>
+  <data name="Extracting" xml:space="preserve"><value>Extracting...</value></data>
+  <data name="Installing" xml:space="preserve"><value>Installing...</value></data>
+  <data name="Completed" xml:space="preserve"><value>??Completed!</value></data>
+  <data name="FFmpegInstallComplete" xml:space="preserve"><value>??FFmpeg Installation Complete!</value></data>
+  <data name="RecordingFeatureAvailable" xml:space="preserve"><value>You can now use the recording feature.</value></data>
+  <data name="FFmpegAutoDownloadFailed" xml:space="preserve"><value>Automatic download failed.\nDo you want to manually select and install the ffmpeg.exe file?\n\n(Selecting the ffmpeg.exe file will copy it to the correct location)</value></data>
+  <data name="InstallFailed" xml:space="preserve"><value>Installation Failed</value></data>
+  <data name="FFmpegManualInstallSuccess" xml:space="preserve"><value>FFmpeg manual installation completed.</value></data>
+  <data name="SyncSuccess" xml:space="preserve"><value>Synchronization completed successfully.</value></data>
+  <data name="LoggingIn" xml:space="preserve"><value>Logging in...</value></data>
+  <data name="Notification" xml:space="preserve"><value>Notification</value></data>
+  <data name="AuthCompletedTitle" xml:space="preserve"><value>CatchCapture - Authentication Completed</value></data>
+  <data name="AuthCompletedHeader" xml:space="preserve"><value>Authentication process has ended</value></data>
+  <data name="AuthCompletedDesc" xml:space="preserve"><value>Please return to the CatchCapture app to check the final connection result.</value></data>
+  <data name="AuthStatusAnalyzing" xml:space="preserve"><value>Analyzing authentication results...</value></data>
+  <data name="AuthStatusChecking" xml:space="preserve"><value>Checking authentication results...</value></data>
+  <data name="AuthFallbackText" xml:space="preserve"><value>Please close this window manually after checking the results.</value></data>
+  <data name="GoogleDriveAuthNote" xml:space="preserve"><value>Important: If you did not check the 'specific Google Drive files' box during login, the connection will fail and an error message will be displayed in the app.</value></data>
+  <data name="DropboxAuthNote" xml:space="preserve"><value>Notice: Browser authentication completed. The app will now verify the token and finalize the connection.</value></data>
+  <data name="GoogleDriveLoginRequired" xml:space="preserve"><value>Google Drive login is required.</value></data>
+  <data name="DropboxLoginRequired" xml:space="preserve"><value>Dropbox login is required.</value></data>
+  <data name="CreateSharedLinkFailed" xml:space="preserve"><value>Failed to create shared link.</value></data>
+  <data name="GetExistingLinkFailed" xml:space="preserve"><value>Failed to get existing link.</value></data>
+  <data name="CreateImageLink" xml:space="preserve"><value>Create Image Link</value></data>
+  <data name="LinkSettings" xml:space="preserve"><value>Cloud</value></data>
+  <data name="CloudUploadSettings" xml:space="preserve"><value>Upload Settings</value></data>
+  <data name="GoogleDriveRecommended" xml:space="preserve"><value>Google Drive (Recommended)</value></data>
+  <data name="CloudNotConnected" xml:space="preserve"><value>(Not Connected)</value></data>
+  <data name="CloudConnected" xml:space="preserve"><value>(Connected)</value></data>
+  <data name="GoogleLogin" xml:space="preserve"><value>Google Login</value></data>
+  <data name="GoogleLogout" xml:space="preserve"><value>Disconnect</value></data>
+  <data name="GoogleDriveDesc" xml:space="preserve"><value>Images will be saved to your Google Drive CatchCapture folder.</value></data>
+  <data name="ImgBBPersonal" xml:space="preserve"><value>ImgBB - Personal Account</value></data>
+  <data name="ImgBBDesc" xml:space="preserve"><value>Easiest and most stable free service. API Key required.</value></data>
+  <data name="ApiKey" xml:space="preserve"><value>API Key:</value></data>
+  <data name="GetApiKey" xml:space="preserve"><value>Get API Key</value></data>
+  <data name="DropboxDesc" xml:space="preserve"><value>Upload to Dropbox and create shareable links.</value></data>
+  <data name="DropboxLogin" xml:space="preserve"><value>Connect Dropbox</value></data>
+  <data name="CloudHelpWhatIsIt" xml:space="preserve"><value>??Help: What is cloud integration?</value></data>
+  <data name="CloudHelpGuide" xml:space="preserve"><value>Cloud Integration / Link Creation Guide</value></data>
+  <data name="CloudHelpQ1" xml:space="preserve"><value>Q. What is Image Link creation?</value></data>
+  <data name="CloudHelpA1" xml:space="preserve"><value>It is a feature that uploads captured images to a server and creates a URL for instant sharing.</value></data>
+  <data name="CloudHelpQ2" xml:space="preserve"><value>Q. ImgBB (API Key)</value></data>
+  <data name="CloudHelpA2" xml:space="preserve"><value>A popular image hosting service. Excellent for image management and stability using your own API key.</value></data>
+  <data name="CloudHelpQ3" xml:space="preserve"><value>Q. Account integration (Google / Dropbox)</value></data>
+  <data name="CloudHelpA3" xml:space="preserve"><value>Connect your Google or Dropbox account. It uses your own storage, offering more space and permanent preservation.</value></data>
+  <data name="ConnectedWithEmail" xml:space="preserve"><value>(Connected: {0})</value></data>
+  <data name="ConnectedWithName" xml:space="preserve"><value>(Connected: {0})</value></data>
+  <data name="DisconnectConfirm" xml:space="preserve"><value>Are you sure you want to disconnect Google Drive?</value></data>
+  <data name="DisconnectTitle" xml:space="preserve"><value>Disconnect</value></data>
+  <data name="LoginSuccess" xml:space="preserve"><value>Google Drive connected successfully!</value></data>
+  <data name="LoginFailed" xml:space="preserve"><value>Login failed.</value></data>
+  <data name="DropboxConnectFailed" xml:space="preserve"><value>Dropbox connection failed.\n(Window closed or timed out)</value></data>
+  <data name="ScopeMissingError" xml:space="preserve"><value>Google Drive access permission not granted.\n\nPlease make sure to check 'See, edit, create, and delete only the specific Google Drive files you use with this app' during login.</value></data>
+  <data name="ImgBBApiKeyRequired" xml:space="preserve"><value>ImgBB API Key is not set. Please enter the key in settings.</value></data>
+  <data name="ImgBBLinkFailed" xml:space="preserve"><value>Failed to get link from ImgBB.</value></data>
+  <data name="CloudNotConnectedMsg" xml:space="preserve"><value>{0} is not connected.\nDo you want to login in settings?</value></data>
+  <data name="CloudConnectionRequired" xml:space="preserve"><value>Cloud Connection Required</value></data>
+  <data name="LoginCancelled" xml:space="preserve"><value>Login cancelled.</value></data>
+  <data name="UploadStarting" xml:space="preserve"><value>Starting upload...</value></data>
+  <data name="LinkCopiedWithUrl" xml:space="preserve"><value>Link copied: {0}</value></data>
+  <data name="UploadFailed" xml:space="preserve"><value>Upload failed.</value></data>
+  <data name="UploadFailedDetailed" xml:space="preserve"><value>Upload failed: {0}</value></data>
+  <data name="GoogleDrive" xml:space="preserve"><value>Google Drive</value></data>
+  <data name="ImgBB" xml:space="preserve"><value>ImgBB</value></data>
+  <data name="Dropbox" xml:space="preserve"><value>Dropbox</value></data>
+  <data name="ImageLinkTooltip" xml:space="preserve"><value>Create Image Link (Cloud Upload)</value></data>
+  <data name="ImageLinkButtonText" xml:space="preserve"><value>IMG Link</value></data>
+  <data name="CopiedToClipboardMsg" xml:space="preserve"><value>Copied to clipboard</value></data>
+  <data name="ShareTitle" xml:space="preserve"><value>Share Image</value></data>
+  <data name="ShareDescription" xml:space="preserve"><value>CatchCapture Screenshot</value></data>
+  <data name="ImageNotVisibleBtn" xml:space="preserve"><value>Images not showing?</value></data>
+  <data name="ImageNotVisibleTitle" xml:space="preserve"><value>Image Storage &amp; Display Guide</value></data>
+  <data name="ImageNotVisibleContent" xml:space="preserve"><value>If saving or displaying images in your notes is not working correctly due to system environment issues, please refer to the guide below.
+
+📌 Primary Causes
+1. Special Characters in Username: If your Windows account name contains special characters (e.g., &amp; or #), the app may fail to recognize profile paths, leading to save failures.
+2. Folder Access Permissions: Windows security settings (Firewall/Ransomware Protection) may block file writing in certain folders.
+
+💡 Solution
+- Change Storage Path: Go to [Note Settings] and change the storage location to a simple, safe path like 'D:\' or 'C:\' that is independent of your user account profile.
+
+If the problem persists, please contact us via the 'Contact Us' link at the bottom of the screen.</value></data>
+  <data name="Drafts" xml:space="preserve"><value>Drafts</value></data>
+  <data name="SaveDraft" xml:space="preserve"><value>Save Draft</value></data>
+  <data name="DraftList" xml:space="preserve"><value>Draft List</value></data>
+  <data name="NoDrafts" xml:space="preserve"><value>No drafts found.</value></data>
+  <data name="RestoreDraft" xml:space="preserve"><value>Restore</value></data>
+  <data name="ClearAllDrafts" xml:space="preserve"><value>Clear All Drafts</value></data>
+  <data name="ConfirmClearAll" xml:space="preserve"><value>Are you sure you want to clear all drafts?</value></data>
+  <data name="ConfirmRestore" xml:space="preserve"><value>Do you want to restore the selected content?\nAny current changes will be lost.</value></data>
+  <data name="NoTitle" xml:space="preserve"><value>(No Title)</value></data>

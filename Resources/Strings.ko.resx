@@ -799,7 +799,7 @@
   <data name="AutoDeletePeriod" xml:space="preserve"><value>자동 삭제 주기</value></data>
   <data name="AutoDeleteToTrashNotice" xml:space="preserve"><value>(설정된 기간이 지난 데이터는 자동으로 휴지통으로 이동)</value></data>
   <data name="ForceUnlock" xml:space="preserve"><value>노트 잠금 강제 해제</value></data>
-  <data name="ForceUnlockDesc" xml:space="preserve"><value>다른 PC에서 사용 중이 아닌데도 잠겨있을 때 강제로 해제합니다.</value></data>
+  <data name="ForceUnlockDesc" xml:space="preserve"><value>노트가 '편집 중' 상태로 고정되어 수정할 수 없거나, 저장 후에도 목록이 업데이트되지 않을 때 사용합니다. 주로 다른 PC에서 편집 중이거나 비정상 종료로 인해 잠금 상태가 유지될 때 필요하며, 강제 해제 시 다른 기기에서 작업 중인 데이터가 유실될 수 있으니 주의하십시오.</value></data>
   <data name="ForceUnlockConfirm" xml:space="preserve"><value>정말로 잠금을 강제로 해제하시겠습니까?\n다른 PC에서 편집 중인 경우 데이터가 손실될 수 있습니다.</value></data>
   <data name="UnlockSuccess" xml:space="preserve"><value>잠금이 해제되었습니다.</value></data>
   <data name="DbOptimize" xml:space="preserve"><value>DB 최적화</value></data>
