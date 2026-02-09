@@ -56,273 +56,277 @@
                 </Grid>
             </Grid>
 
-            <!-- 2. Main Content -->
-            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="30,5,30,10">
-                <StackPanel>
-                    
-                    <!-- Category & Title Input -->
-                    <Grid Margin="0,0,0,12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+            <!-- 2. Main Content Layout (Grid-based for flexibility) -->
+            <Grid Grid.Row="1" Margin="30,5,30,10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/> <!-- Category & Title -->
+                    <RowDefinition Height="*"/>    <!-- Editor (Stretches to fill space) -->
+                    <RowDefinition Height="Auto"/> <!-- Metadata (Tags, Links, Files) -->
+                    <RowDefinition Height="Auto"/> <!-- Action Buttons -->
+                </Grid.RowDefinitions>
 
-                        <!-- Category Selector -->
-                        <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,8,0">
+                <!-- 2-1. Category & Title Input -->
+                <Grid Grid.Row="0" Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,8,0">
                         <ComboBox x:Name="CboCategory" Width="110" Height="32" VerticalContentAlignment="Center" Cursor="Hand" SelectedValuePath="Id">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Ellipse Width="8" Height="8" Fill="{Binding Color}" Margin="0,0,8,0"/>
-                                            <TextBlock Text="{Binding Name}" Foreground="{DynamicResource ThemeForeground}"/>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                            <Button x:Name="BtnManageCategories" Width="28" Height="32" Click="BtnManageCategories_Click" Margin="2,0,0,0"
-                                    Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="분류 관리">
-                                <Path Data="M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8M12,10A2,2 0 0,0 10,12A2,2 0 0,0 12,14A2,2 0 0,0 14,12A2,2 0 0,0 12,10M10,22C9.75,22 9.54,21.82 9.51,21.58L9.12,19.11C8.5,18.91 7.94,18.58 7.42,18.15L5.07,19.11C4.83,19.21 4.54,19.11 4.42,18.88L2.42,15.41C2.3,15.18 2.36,14.89 2.57,14.73L4.54,13.23C4.5,12.82 4.5,12.41 4.54,12C4.5,11.59 4.5,11.18 4.54,10.77L2.57,9.27C2.36,9.11 2.3,8.82 2.42,8.59L4.42,5.12C4.54,4.89 4.83,4.79 5.07,4.89L7.42,5.85C7.94,5.42 8.5,5.1 9.12,4.89L9.51,2.42C9.54,2.18 9.75,2 10,2H14C14.25,2 14.46,2.18 14.49,2.42L14.88,4.89C15.5,5.1 16.06,5.42 16.58,5.85L18.93,4.89C19.17,4.79 19.46,4.89 19.58,5.12L21.58,8.59C21.7,8.82 21.64,9.11 21.43,9.27L19.46,10.77C19.5,11.18 19.5,11.59 19.46,12C19.5,12.41 19.5,12.82 19.46,13.23L21.43,14.73C21.64,14.89 21.7,15.18 21.58,15.41L19.58,18.88C19.46,19.11 19.17,19.21 18.93,19.11L16.58,18.15C16.06,18.58 15.5,18.91 14.88,19.11L14.49,21.58C14.46,21.82 14.25,22 14,22H10Z" 
-                                      Fill="{DynamicResource ThemeForeground}" Opacity="0.6" Stretch="Uniform" Width="14" Height="14"/>
-                            </Button>
-                        </StackPanel>
-
-                        <!-- Title Input -->
-                        <Border Grid.Column="1" Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="4">
-                            <Grid>
-                                <TextBox x:Name="TxtTitle" 
-                                         Background="Transparent" BorderThickness="0"
-                                         Padding="15,8" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource ThemeForeground}"
-                                         CaretBrush="{DynamicResource ThemeForeground}">
-                                    <TextBox.Style>
-                                        <Style TargetType="TextBox">
-                                            <Style.Resources>
-                                                <Style TargetType="ScrollViewer">
-                                                    <Setter Property="VerticalScrollBarVisibility" Value="Hidden"/>
-                                                </Style>
-                                            </Style.Resources>
-                                        </Style>
-                                    </TextBox.Style>
-                                </TextBox>
-
-                                <!-- Drafts Management UI -->
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,8,0">
-                                    <!-- Save Draft Manually -->
-                                    <Button x:Name="BtnSaveDraft" Click="BtnSaveDraft_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" VerticalAlignment="Center" Padding="5" ToolTip="현재 내용 임시저장">
-                                        <Path Data="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z" 
-                                              Fill="#3498db" Stretch="Uniform" Width="18" Height="18"/>
-                                    </Button>
-
-                                    <!-- Draft List Count Button -->
-                                    <Button x:Name="BtnDrafts" Click="BtnDrafts_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" VerticalAlignment="Center" Padding="8,4" Margin="2,0,0,0">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock x:Name="TxtDraftsLabel" Text="임시저장" FontSize="12" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                                            <Border Background="#FF5C5C" CornerRadius="10" MinWidth="20" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                                <TextBlock x:Name="TxtDraftCount" Text="0" FontSize="11" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,0"/>
-                                            </Border>
-                                        </StackPanel>
-                                    </Button>
-                                </StackPanel>
-                                <TextBlock x:Name="TxtTitlePlaceholder" Text="제목을 입력해주세요" IsHitTestVisible="False" Foreground="{DynamicResource ThemeForeground}" Opacity="0.4" FontSize="16" 
-                                           VerticalAlignment="Center" Margin="17,0,0,0" FontWeight="SemiBold">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Text, ElementName=TxtTitle}" Value="">
-                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding IsFocused, ElementName=TxtTitle}" Value="True">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                            </Grid>
-                        </Border>
-                    </Grid>
-
-                    <!-- Editor -->
-                    <Border BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="4" Background="{DynamicResource ThemeBackground}" Margin="0,0,0,12">
-                        <controls:RichTextEditorControl x:Name="Editor" Height="480"/>
-                    </Border>
-
-                    <!-- Tags -->
-                    <Grid Margin="0,0,0,12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="60"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock x:Name="TxtTagsLabel" Text="태그" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" VerticalAlignment="Center" FontSize="14"/>
-                        <Border Grid.Column="1" Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="4">
-                            <Grid>
-                                <TextBox x:Name="TxtTags" Background="Transparent" BorderThickness="0" Padding="15,6" 
-                                         FontSize="14" Foreground="{DynamicResource ThemeForeground}" CaretBrush="{DynamicResource ThemeForeground}"/>
-                                <TextBlock x:Name="TxtTagsPlaceholder" Text="태그를 입력해주세요 (쉼표로 구분)" IsHitTestVisible="False" Foreground="{DynamicResource ThemeForeground}" Opacity="0.4" FontSize="14" 
-                                           VerticalAlignment="Center" Margin="17,0,0,0">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Text, ElementName=TxtTags}" Value="">
-                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding IsFocused, ElementName=TxtTags}" Value="True">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                            </Grid>
-                        </Border>
-                    </Grid>
-
-                    <!-- Link Input -->
-                    <Grid Margin="0,0,0,12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="60"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock x:Name="TxtLinkLabel" Text="링크" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" VerticalAlignment="Center" FontSize="14"/>
-                        <Border Grid.Column="1" Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="4">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Path Data="M3.9,12C3.9,10.29 5.29,8.9 7,8.9H11V7H7A5,5 0 0,0 2,12A5,5 0 0,0 7,17H11V15.1H7C5.29,15.1 3.9,13.71 3.9,12M8,13H16V11H8V13M17,7H13V8.9H17C18.71,8.9 20.1,10.29 20.1,12C20.1,13.71 18.71,15.1 17,15.1H13V17H17A5,5 0 0,0 22,12A5,5 0 0,0 17,7Z" 
-                                      Fill="{DynamicResource ThemeForeground}" Opacity="0.5" Width="16" Height="16" Margin="12,0,0,0" Stretch="Uniform"/>
-                                <TextBox x:Name="TxtSourceInfo" Grid.Column="1" Background="Transparent" BorderThickness="0" Padding="10,6" 
-                                         FontSize="14" Foreground="{DynamicResource ThemeForeground}" CaretBrush="{DynamicResource ThemeForeground}"/>
-                                <TextBlock x:Name="TxtLinkPlaceholder" Text="관련 링크를 입력해주세요." IsHitTestVisible="False" Foreground="{DynamicResource ThemeForeground}" Opacity="0.4" FontSize="14" 
-                                           VerticalAlignment="Center" Margin="12,0,0,0">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Text, ElementName=TxtSourceInfo}" Value="">
-                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding IsFocused, ElementName=TxtSourceInfo}" Value="True">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                            </Grid>
-                        </Border>
-                    </Grid>
-
-                    <!-- File Attachment -->
-                    <TextBlock x:Name="TxtFilesLabel" Text="파일 첨부" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" Margin="0,0,0,5" FontSize="14"/>
-                    <Button x:Name="BtnAddFile" Click="BtnAddFile_Click" AllowDrop="True" Drop="BtnAddFile_Drop" Cursor="Hand" Background="Transparent" BorderThickness="0" Margin="0,0,0,8">
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <Border CornerRadius="8" Padding="0,15" BorderThickness="1">
-                                    <Border.BorderBrush>
-                                        <VisualBrush>
-                                            <VisualBrush.Visual>
-                                                <Rectangle Stroke="{DynamicResource ThemeBorder}" StrokeThickness="1.5" StrokeDashArray="4 2"
-                                                           Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Border}}"
-                                                           Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Border}}"
-                                                           RadiusX="8" RadiusY="8"/>
-                                            </VisualBrush.Visual>
-                                        </VisualBrush>
-                                    </Border.BorderBrush>
-                                    <Border.Background>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                            <GradientStop Color="{DynamicResource ThemeColorBackground}" Offset="0"/>
-                                            <GradientStop Color="{DynamicResource ThemeColorSidebarButtonBackground}" Offset="1"/>
-                                        </LinearGradientBrush>
-                                    </Border.Background>
-                                    <Border.Effect>
-                                        <DropShadowEffect BlurRadius="10" Color="Black" Opacity="0.1" ShadowDepth="2" Direction="270"/>
-                                    </Border.Effect>
-                                    
-                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                            </ControlTemplate>
-                        </Button.Template>
-                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <TextBlock Text="📎" FontSize="20" HorizontalAlignment="Center" Margin="0,0,0,5" Foreground="{DynamicResource ThemeForeground}" Opacity="0.8"/>
-                            <TextBlock x:Name="TxtFileAttachGuide" Text="이곳에 파일을 드래그 하거나 클릭하여 첨부하세요." Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" FontSize="13" FontWeight="Medium" HorizontalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-
-                    <!-- Attachment List -->
-                    <ListBox x:Name="LstAttachments" Margin="0,0,0,0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Stretch">
-                        <ListBox.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel/>
-                            </ItemsPanelTemplate>
-                        </ListBox.ItemsPanel>
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <Border Background="{DynamicResource ThemeSidebarButtonBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,0,8,8">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="📎" Margin="0,0,5,0" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding DisplayName}" Foreground="{DynamicResource ThemeForeground}" FontSize="12" VerticalAlignment="Center"/>
-                                        <Button Click="BtnRemoveAttachment_Click" Margin="8,0,0,0" Background="Transparent" BorderThickness="0" Cursor="Hand" VerticalAlignment="Center">
-                                            <TextBlock Text="✕" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="10" FontWeight="Bold"/>
-                                        </Button>
+                                        <Ellipse Width="8" Height="8" Fill="{Binding Color}" Margin="0,0,8,0"/>
+                                        <TextBlock Text="{Binding Name}" Foreground="{DynamicResource ThemeForeground}"/>
                                     </StackPanel>
-                                </Border>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-
-                    <!-- Center Footer Buttons -->
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5,0,5">
-                        <Button x:Name="BtnCancel" Content="취소" Width="100" Height="40" Margin="0,0,15,0"
-                                Click="BtnClose_Click" Cursor="Hand" FontSize="14" FontWeight="Bold"
-                                Background="{DynamicResource ThemeBackground}" Foreground="{DynamicResource ThemeForeground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1">
-                             <Button.Template>
-                                <ControlTemplate TargetType="Button">
-                                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="20">
-                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}"/>
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Button.Template>
-                        </Button>
-
-                        <Button x:Name="BtnSave" Content="작성 완료" Width="150" Height="40" Click="BtnSave_Click" Cursor="Hand"
-                                FontSize="14" FontWeight="Bold" Foreground="White" BorderThickness="0">
-                            <Button.Template>
-                                <ControlTemplate TargetType="Button">
-                                    <Border CornerRadius="20">
-                                        <Border.Background>
-                                            <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
-                                                <GradientStop Color="#C037F1" Offset="0"/> <!-- Purple -->
-                                                <GradientStop Color="#8E2DE2" Offset="1"/> <!-- Violet -->
-                                            </LinearGradientBrush>
-                                        </Border.Background>
-                                        <Border.Effect>
-                                            <DropShadowEffect Color="#8E2DE2" BlurRadius="10" Opacity="0.3" ShadowDepth="2" Direction="270"/>
-                                        </Border.Effect>
-                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Opacity" Value="0.9"/>
-                                        </Trigger>
-                                        <Trigger Property="IsPressed" Value="True">
-                                            <Setter Property="Opacity" Value="0.8"/>
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Button.Template>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <Button x:Name="BtnManageCategories" Width="28" Height="32" Click="BtnManageCategories_Click" Margin="2,0,0,0"
+                                Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="분류 관리">
+                            <Path Data="M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8M12,10A2,2 0 0,0 10,12A2,2 0 0,0 12,14A2,2 0 0,0 14,12A2,2 0 0,0 12,10M10,22C9.75,22 9.54,21.82 9.51,21.58L9.12,19.11C8.5,18.91 7.94,18.58 7.42,18.15L5.07,19.11C4.83,19.21 4.54,19.11 4.42,18.88L2.42,15.41C2.3,15.18 2.36,14.89 2.57,14.73L4.54,13.23C4.5,12.82 4.5,12.41 4.54,12C4.5,11.59 4.5,11.18 4.54,10.77L2.57,9.27C2.36,9.11 2.3,8.82 2.42,8.59L4.42,5.12C4.54,4.89 4.83,4.79 5.07,4.89L7.42,5.85C7.94,5.42 8.5,5.1 9.12,4.89L9.51,2.42C9.54,2.18 9.75,2 10,2H14C14.25,2 14.46,2.18 14.49,2.42L14.88,4.89C15.5,5.1 16.06,5.42 16.58,5.85L18.93,4.89C19.17,4.79 19.46,4.89 19.58,5.12L21.58,8.59C21.7,8.82 21.64,9.11 21.43,9.27L19.46,10.77C19.5,11.18 19.5,11.59 19.46,12C19.5,12.41 19.5,12.82 19.46,13.23L21.43,14.73C21.64,14.89 21.7,15.18 21.58,15.41L19.58,18.88C19.46,19.11 19.17,19.21 18.93,19.11L16.58,18.15C16.06,18.58 15.5,18.91 14.88,19.11L14.49,21.58C14.46,21.82 14.25,22 14,22H10Z" 
+                                  Fill="{DynamicResource ThemeForeground}" Opacity="0.6" Stretch="Uniform" Width="14" Height="14"/>
                         </Button>
                     </StackPanel>
 
+                    <Border Grid.Column="1" Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="4">
+                        <Grid>
+                            <TextBox x:Name="TxtTitle" 
+                                     Background="Transparent" BorderThickness="0"
+                                     Padding="15,8" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource ThemeForeground}"
+                                     CaretBrush="{DynamicResource ThemeForeground}">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Style.Resources>
+                                            <Style TargetType="ScrollViewer">
+                                                <Setter Property="VerticalScrollBarVisibility" Value="Hidden"/>
+                                            </Style>
+                                        </Style.Resources>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,8,0">
+                                <Button x:Name="BtnSaveDraft" Click="BtnSaveDraft_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" VerticalAlignment="Center" Padding="5" ToolTip="현재 내용 임시저장">
+                                    <Path Data="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z" 
+                                          Fill="#3498db" Stretch="Uniform" Width="18" Height="18"/>
+                                </Button>
+
+                                <Button x:Name="BtnDrafts" Click="BtnDrafts_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" VerticalAlignment="Center" Padding="8,4" Margin="2,0,0,0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock x:Name="TxtDraftsLabel" Text="임시저장" FontSize="12" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                        <Border Background="#FF5C5C" CornerRadius="10" MinWidth="20" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <TextBlock x:Name="TxtDraftCount" Text="0" FontSize="11" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,0"/>
+                                        </Border>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                            <TextBlock x:Name="TxtTitlePlaceholder" Text="제목을 입력해주세요" IsHitTestVisible="False" Foreground="{DynamicResource ThemeForeground}" Opacity="0.4" FontSize="16" 
+                                       VerticalAlignment="Center" Margin="17,0,0,0" FontWeight="SemiBold">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text, ElementName=TxtTitle}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsFocused, ElementName=TxtTitle}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- 2-2. Editor (Flexible height) -->
+                <Border Grid.Row="1" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="4" Background="{DynamicResource ThemeBackground}" Margin="0,0,0,12">
+                    <controls:RichTextEditorControl x:Name="Editor" MinHeight="200" VerticalAlignment="Stretch"/>
+                </Border>
+
+                <!-- 2-3. Metadata Section (Tags, Links, Files - Scrollable if too long) -->
+                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MaxHeight="250" Margin="0,0,0,10">
+                    <StackPanel>
+                        <!-- Tags -->
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="60"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Name="TxtTagsLabel" Text="태그" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" VerticalAlignment="Center" FontSize="14"/>
+                            <Border Grid.Column="1" Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="4">
+                                <Grid>
+                                    <TextBox x:Name="TxtTags" Background="Transparent" BorderThickness="0" Padding="15,6" 
+                                             FontSize="14" Foreground="{DynamicResource ThemeForeground}" CaretBrush="{DynamicResource ThemeForeground}"/>
+                                    <TextBlock x:Name="TxtTagsPlaceholder" Text="태그를 입력해주세요 (쉼표로 구분)" IsHitTestVisible="False" Foreground="{DynamicResource ThemeForeground}" Opacity="0.4" FontSize="14" 
+                                               VerticalAlignment="Center" Margin="17,0,0,0">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Text, ElementName=TxtTags}" Value="">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsFocused, ElementName=TxtTags}" Value="True">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                            </Border>
+                        </Grid>
+
+                        <!-- Link Input -->
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="60"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Name="TxtLinkLabel" Text="링크" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" VerticalAlignment="Center" FontSize="14"/>
+                            <Border Grid.Column="1" Background="{DynamicResource ThemeBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="4">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Path Data="M3.9,12C3.9,10.29 5.29,8.9 7,8.9H11V7H7A5,5 0 0,0 2,12A5,5 0 0,0 7,17H11V15.1H7C5.29,15.1 3.9,13.71 3.9,12M8,13H16V11H8V13M17,7H13V8.9H17C18.71,8.9 20.1,10.29 20.1,12C20.1,13.71 18.71,15.1 17,15.1H13V17H17A5,5 0 0,0 22,12A5,5 0 0,0 17,7Z" 
+                                          Fill="{DynamicResource ThemeForeground}" Opacity="0.5" Width="16" Height="16" Margin="12,0,0,0" Stretch="Uniform"/>
+                                    <TextBox x:Name="TxtSourceInfo" Grid.Column="1" Background="Transparent" BorderThickness="0" Padding="10,6" 
+                                             FontSize="14" Foreground="{DynamicResource ThemeForeground}" CaretBrush="{DynamicResource ThemeForeground}"/>
+                                    <TextBlock x:Name="TxtLinkPlaceholder" Text="관련 링크를 입력해주세요." IsHitTestVisible="False" Foreground="{DynamicResource ThemeForeground}" Opacity="0.4" FontSize="14" 
+                                               VerticalAlignment="Center" Margin="12,0,0,0">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Text, ElementName=TxtSourceInfo}" Value="">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsFocused, ElementName=TxtSourceInfo}" Value="True">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                            </Border>
+                        </Grid>
+
+                        <!-- File Attachment -->
+                        <TextBlock x:Name="TxtFilesLabel" Text="파일 첨부" FontWeight="Bold" Foreground="{DynamicResource ThemeForeground}" Opacity="0.7" Margin="0,0,0,5" FontSize="14"/>
+                        <Button x:Name="BtnAddFile" Click="BtnAddFile_Click" AllowDrop="True" Drop="BtnAddFile_Drop" Cursor="Hand" Background="Transparent" BorderThickness="0" Margin="0,0,0,8">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border CornerRadius="8" Padding="0,15" BorderThickness="1">
+                                        <Border.BorderBrush>
+                                            <VisualBrush>
+                                                <VisualBrush.Visual>
+                                                    <Rectangle Stroke="{DynamicResource ThemeBorder}" StrokeThickness="1.5" StrokeDashArray="4 2"
+                                                               Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Border}}"
+                                                               Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Border}}"
+                                                               RadiusX="8" RadiusY="8"/>
+                                                </VisualBrush.Visual>
+                                            </VisualBrush>
+                                        </Border.BorderBrush>
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                <GradientStop Color="{DynamicResource ThemeColorBackground}" Offset="0"/>
+                                                <GradientStop Color="{DynamicResource ThemeColorSidebarButtonBackground}" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <Border.Effect>
+                                            <DropShadowEffect BlurRadius="10" Color="Black" Opacity="0.1" ShadowDepth="2" Direction="270"/>
+                                        </Border.Effect>
+
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="📎" FontSize="20" HorizontalAlignment="Center" Margin="0,0,0,5" Foreground="{DynamicResource ThemeForeground}" Opacity="0.8"/>
+                                <TextBlock x:Name="TxtFileAttachGuide" Text="이곳에 파일을 드래그 하거나 클릭하여 첨부하세요." Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" FontSize="13" FontWeight="Medium" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Attachment List -->
+                        <ListBox x:Name="LstAttachments" Margin="0,0,0,0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Stretch">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource ThemeSidebarButtonBackground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,0,8,8">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="📎" Margin="0,0,5,0" Foreground="{DynamicResource ThemeForeground}" Opacity="0.6" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding DisplayName}" Foreground="{DynamicResource ThemeForeground}" FontSize="12" VerticalAlignment="Center"/>
+                                            <Button Click="BtnRemoveAttachment_Click" Margin="8,0,0,0" Background="Transparent" BorderThickness="0" Cursor="Hand" VerticalAlignment="Center">
+                                                <TextBlock Text="✕" Foreground="{DynamicResource ThemeForeground}" Opacity="0.5" FontSize="10" FontWeight="Bold"/>
+                                            </Button>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- 2-4. Bottom Action Buttons -->
+                <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5,0,5">
+                    <Button x:Name="BtnCancel" Content="취소" Width="100" Height="40" Margin="0,0,15,0"
+                            Click="BtnClose_Click" Cursor="Hand" FontSize="14" FontWeight="Bold"
+                            Background="{DynamicResource ThemeBackground}" Foreground="{DynamicResource ThemeForeground}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="20">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource ThemeSidebarButtonHoverBackground}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <Button x:Name="BtnSave" Content="작성 완료" Width="150" Height="40" Click="BtnSave_Click" Cursor="Hand"
+                            FontSize="14" FontWeight="Bold" Foreground="White" BorderThickness="0">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border CornerRadius="20">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                                            <GradientStop Color="#C037F1" Offset="0"/> <!-- Purple -->
+                                            <GradientStop Color="#8E2DE2" Offset="1"/> <!-- Violet -->
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="#8E2DE2" BlurRadius="10" Opacity="0.3" ShadowDepth="2" Direction="270"/>
+                                    </Border.Effect>
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Opacity" Value="0.9"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter Property="Opacity" Value="0.8"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
                 </StackPanel>
-            </ScrollViewer>
+            </Grid>
+
             <!-- Loading Overlay -->
             <Grid x:Name="GridLoading" Visibility="Collapsed" Grid.RowSpan="2">
                 <Border Background="Black" Opacity="0.3" CornerRadius="12"/>

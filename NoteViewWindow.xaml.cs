@@ -114,6 +114,14 @@ namespace CatchCapture
                     this.Top = settings.NoteViewerTop;
                 }
                 */
+                // Restore WindowState
+                if (!string.IsNullOrEmpty(settings.NoteViewerWindowState))
+                {
+                    if (settings.NoteViewerWindowState == "Maximized")
+                        this.WindowState = WindowState.Maximized;
+                    else
+                        this.WindowState = WindowState.Normal;
+                }
             }
             catch { /* Ignore errors, use defaults */ }
         }
@@ -133,6 +141,9 @@ namespace CatchCapture
                     // settings.NoteViewerLeft = this.Left;
                     // settings.NoteViewerTop = this.Top;
                 }
+
+                // Save WindowState
+                settings.NoteViewerWindowState = this.WindowState == WindowState.Maximized ? "Maximized" : "Normal";
                 
                 settings.Save();
             }

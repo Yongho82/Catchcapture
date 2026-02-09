@@ -115,24 +115,28 @@ namespace CatchCapture.Models
         public double NoteExplorerTop { get; set; } = -9999;
         public double NoteExplorerSplitterPosition { get; set; } = -9999; // GridSplitter column width
         public int NoteExplorerViewMode { get; set; } = 0; // 0: List, 1: Card
+        public string NoteExplorerWindowState { get; set; } = "Normal"; // "Normal", "Maximized"
         
         // Note Viewer Window State
         public double NoteViewerWidth { get; set; } = 1200;
         public double NoteViewerHeight { get; set; } = 920;
         public double NoteViewerLeft { get; set; } = -9999;
         public double NoteViewerTop { get; set; } = -9999;
+        public string NoteViewerWindowState { get; set; } = "Normal"; // "Normal", "Maximized"
         
         // Note Input Window State
         public double NoteInputWidth { get; set; } = 1200;
         public double NoteInputHeight { get; set; } = 920;
         public double NoteInputLeft { get; set; } = -9999;
         public double NoteInputTop { get; set; } = -9999;
+        public string NoteInputWindowState { get; set; } = "Normal"; // "Normal", "Maximized"
         
         // History Window State
         public double HistoryWindowWidth { get; set; } = 1430;
         public double HistoryWindowHeight { get; set; } = 820;
         public double HistoryWindowLeft { get; set; } = -9999;
         public double HistoryWindowTop { get; set; } = -9999;
+        public string HistoryWindowState { get; set; } = "Normal"; // "Normal", "Maximized"
         public double HistoryPreviewPaneWidth { get; set; } = 331;
         public double HistoryListPaneWidth { get; set; } = 875;
         public int HistoryViewMode { get; set; } = 0; // 0: List, 1: Card
@@ -476,21 +480,25 @@ namespace CatchCapture.Models
             NoteExplorerLeft = EnsureFinite(NoteExplorerLeft, -9999);
             NoteExplorerTop = EnsureFinite(NoteExplorerTop, -9999);
             NoteExplorerSplitterPosition = EnsureFinite(NoteExplorerSplitterPosition, -9999);
+            if (string.IsNullOrEmpty(NoteExplorerWindowState)) NoteExplorerWindowState = "Normal";
 
             NoteViewerWidth = EnsureFinite(NoteViewerWidth, 1200);
             NoteViewerHeight = EnsureFinite(NoteViewerHeight, 920);
             NoteViewerLeft = EnsureFinite(NoteViewerLeft, -9999);
             NoteViewerTop = EnsureFinite(NoteViewerTop, -9999);
+            if (string.IsNullOrEmpty(NoteViewerWindowState)) NoteViewerWindowState = "Normal";
 
             NoteInputWidth = EnsureFinite(NoteInputWidth, 1200);
             NoteInputHeight = EnsureFinite(NoteInputHeight, 920);
             NoteInputLeft = EnsureFinite(NoteInputLeft, -9999);
             NoteInputTop = EnsureFinite(NoteInputTop, -9999);
+            if (string.IsNullOrEmpty(NoteInputWindowState)) NoteInputWindowState = "Normal";
 
             HistoryWindowWidth = EnsureFinite(HistoryWindowWidth, 1430);
             HistoryWindowHeight = EnsureFinite(HistoryWindowHeight, 820);
             HistoryWindowLeft = EnsureFinite(HistoryWindowLeft, -9999);
             HistoryWindowTop = EnsureFinite(HistoryWindowTop, -9999);
+            if (string.IsNullOrEmpty(HistoryWindowState)) HistoryWindowState = "Normal";
             HistoryPreviewPaneWidth = EnsureFinite(HistoryPreviewPaneWidth, 331);
             HistoryListPaneWidth = EnsureFinite(HistoryListPaneWidth, 875);
 
@@ -498,6 +506,7 @@ namespace CatchCapture.Models
             PreviewWindowHeight = EnsureFinite(PreviewWindowHeight, 0);
             PreviewWindowLeft = EnsureFinite(PreviewWindowLeft, -9999);
             PreviewWindowTop = EnsureFinite(PreviewWindowTop, -9999);
+            if (string.IsNullOrEmpty(PreviewWindowState)) PreviewWindowState = "Normal";
 
             HistoryColDate = EnsureFinite(HistoryColDate, 132);
             HistoryColFileName = EnsureFinite(HistoryColFileName, 205);

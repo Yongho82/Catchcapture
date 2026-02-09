@@ -167,6 +167,15 @@ namespace CatchCapture
                     ColDate.Width = settings.NoteColDate;
                     ColActions.Width = settings.NoteColActions;
                 }
+
+                // Restore WindowState
+                if (!string.IsNullOrEmpty(settings.NoteExplorerWindowState))
+                {
+                    if (settings.NoteExplorerWindowState == "Maximized")
+                        this.WindowState = WindowState.Maximized;
+                    else
+                        this.WindowState = WindowState.Normal;
+                }
             }
             catch { /* Ignore errors, use defaults */ }
         }
@@ -187,8 +196,8 @@ namespace CatchCapture
                     // settings.NoteExplorerTop = this.Top;
                 }
                 
-                // Save splitter position (ColNoteList actual width)
-                if (ColNoteList != null && ColNoteList.ActualWidth > 0)
+                // Save splitter position (only if not maximized to avoid saving oversized pixel widths)
+                if (this.WindowState == WindowState.Normal && ColNoteList != null && ColNoteList.ActualWidth > 0)
                 {
                     settings.NoteExplorerSplitterPosition = ColNoteList.ActualWidth;
                 }
@@ -202,6 +211,9 @@ namespace CatchCapture
                     settings.NoteColDate = ColDate.Width;
                     settings.NoteColActions = ColActions.Width;
                 }
+
+                // Save WindowState
+                settings.NoteExplorerWindowState = this.WindowState == WindowState.Maximized ? "Maximized" : "Normal";
                 
                 settings.Save();
             }
@@ -401,19 +413,11 @@ namespace CatchCapture
         {
             if (this.WindowState == WindowState.Maximized)
             {
-                // Balanced distribution (approx 850px each on 1080p)
-                if (ColNoteList != null) ColNoteList.Width = new GridLength(1, GridUnitType.Star);
-                if (ColPreview != null) ColPreview.Width = new GridLength(1, GridUnitType.Star);
-                
                 if (PathMaximize != null)
                     PathMaximize.Data = Geometry.Parse("M4,8H8V4H20V16H16V20H4V8M16,8V14H18V6H10V8H16M6,12V18H14V12H6Z");
             }
             else
             {
-                // Default ratios for normal window
-                if (ColNoteList != null) ColNoteList.Width = new GridLength(2, GridUnitType.Star);
-                if (ColPreview != null) ColPreview.Width = new GridLength(1.2, GridUnitType.Star);
-                
                 if (PathMaximize != null)
                     PathMaximize.Data = Geometry.Parse("M4,4H20V20H4V4M6,8V18H18V8H6Z");
             }

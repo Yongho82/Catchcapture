@@ -145,6 +145,15 @@ namespace CatchCapture
                 MainGrid.ColumnDefinitions[3].Width = new GridLength(settings.HistoryPreviewPaneWidth);
             }
 
+            // Restore WindowState
+            if (!string.IsNullOrEmpty(settings.HistoryWindowState))
+            {
+                if (settings.HistoryWindowState == "Maximized")
+                    this.WindowState = WindowState.Maximized;
+                else
+                    this.WindowState = WindowState.Normal;
+            }
+
             // Restore GridView Column Widths
             ColDate.Width = settings.HistoryColDate;
             ColFileName.Width = settings.HistoryColFileName;
@@ -194,6 +203,9 @@ namespace CatchCapture
                 settings.HistoryColActions = ColActions.Width;
                 if (ColMemo != null) settings.HistoryColMemo = ColMemo.Width;
                 
+                // Save WindowState
+                settings.HistoryWindowState = this.WindowState == WindowState.Maximized ? "Maximized" : "Normal";
+
                 settings.Save();
             }
 
