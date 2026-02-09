@@ -133,16 +133,16 @@ namespace CatchCapture
             // if (settings.HistoryWindowLeft != -9999) this.Left = settings.HistoryWindowLeft;
             // if (settings.HistoryWindowTop != -9999) this.Top = settings.HistoryWindowTop;
             
-            // Ensure List Pane is flexible (Col 1)
-            if (MainGrid.ColumnDefinitions.Count >= 2)
+            // Restore List Pane Width (Col 1) - Fixed/Stable
+            if (MainGrid.ColumnDefinitions.Count >= 2 && settings.HistoryListPaneWidth > 0)
             {
-                MainGrid.ColumnDefinitions[1].Width = new GridLength(1, GridUnitType.Star);
+                MainGrid.ColumnDefinitions[1].Width = new GridLength(settings.HistoryListPaneWidth, GridUnitType.Pixel);
             }
 
-            // Restore Preview Pane Width (Col 3)
+            // Ensure Preview Pane is flexible (Col 3)
             if (MainGrid.ColumnDefinitions.Count >= 4)
             {
-                MainGrid.ColumnDefinitions[3].Width = new GridLength(settings.HistoryPreviewPaneWidth);
+                MainGrid.ColumnDefinitions[3].Width = new GridLength(1, GridUnitType.Star);
             }
 
             // Restore WindowState
@@ -189,6 +189,11 @@ namespace CatchCapture
                 // settings.HistoryWindowLeft = this.Left;
                 // settings.HistoryWindowTop = this.Top;
                 
+                if (MainGrid.ColumnDefinitions.Count >= 2 && MainGrid.ColumnDefinitions[1].ActualWidth > 0)
+                {
+                    settings.HistoryListPaneWidth = MainGrid.ColumnDefinitions[1].ActualWidth;
+                }
+
                 if (MainGrid.ColumnDefinitions.Count >= 4)
                 {
                     settings.HistoryPreviewPaneWidth = MainGrid.ColumnDefinitions[3].Width.Value;

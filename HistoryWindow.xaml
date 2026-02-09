@@ -290,9 +290,9 @@
             <Grid Grid.Row="1" x:Name="MainGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="220"/> <!-- Sidebar -->
-                    <ColumnDefinition Width="*"/>   <!-- List (Calculated: 875) -->
+                    <ColumnDefinition Width="875" MinWidth="300" x:Name="ColListPane"/> <!-- List Pane (Fixed/Stable) -->
                     <ColumnDefinition Width="Auto"/> <!-- Splitter -->
-                    <ColumnDefinition Width="331" MinWidth="250" MaxWidth="1000"/> <!-- Preview Pane -->
+                    <ColumnDefinition Width="*" MinWidth="250" MaxWidth="1000" x:Name="ColPreviewPane"/> <!-- Preview Pane (Flexible) -->
                 </Grid.ColumnDefinitions>
 
                 <!-- Sidebar (1st Column) -->
