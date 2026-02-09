@@ -33,6 +33,18 @@ namespace CatchCapture
         private void LoadCategories()
         {
             var categories = DatabaseManager.Instance.GetAllCategories();
+            
+            // Localize default categories
+            foreach (var cat in categories)
+            {
+                if (cat.Name == "기본" || cat.Id == 1)
+                    cat.Name = CatchCapture.Resources.LocalizationManager.GetString("DefaultCategory") ?? "기본";
+                else if (cat.Name == "커뮤니티")
+                    cat.Name = CatchCapture.Resources.LocalizationManager.GetString("CommunityCategory") ?? "커뮤니티";
+                else if (cat.Name == "업무")
+                    cat.Name = CatchCapture.Resources.LocalizationManager.GetString("WorkCategory") ?? "업무";
+            }
+            
             CategoriesList.ItemsSource = categories;
         }
 

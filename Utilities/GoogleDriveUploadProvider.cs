@@ -65,7 +65,7 @@ namespace CatchCapture.Utilities
 
                 // 1. 기존 로그인 시도 취소
                 _loginCts?.Cancel();
-                _loginCts = new CancellationTokenSource(TimeSpan.FromSeconds(30)); // 30초로 단축
+                _loginCts = new CancellationTokenSource(TimeSpan.FromMinutes(2)); // 2분으로 연장
 
                 string secretsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "client_secrets.json");
                 using (var stream = new FileStream(secretsPath, FileMode.Open, FileAccess.Read))

@@ -199,8 +199,11 @@ namespace CatchCapture
                                 var category = DatabaseManager.Instance.GetCategory(catId);
                                 if (category != null)
                                 {
-                                    if (category.Id == 1) TxtCategory.Text = CatchCapture.Resources.LocalizationManager.GetString("DefaultCategory");
+                                    if (category.Id == 1 || category.Name == "기본") TxtCategory.Text = CatchCapture.Resources.LocalizationManager.GetString("DefaultCategory") ?? "기본";
+                                    else if (category.Name == "커뮤니티") TxtCategory.Text = CatchCapture.Resources.LocalizationManager.GetString("CommunityCategory") ?? "커뮤니티";
+                                    else if (category.Name == "업무") TxtCategory.Text = CatchCapture.Resources.LocalizationManager.GetString("WorkCategory") ?? "업무";
                                     else TxtCategory.Text = category.Name;
+
                                     var brush = new System.Windows.Media.BrushConverter().ConvertFromString(category.Color) as System.Windows.Media.Brush;
                                     CategoryCircle.Fill = brush ?? System.Windows.Media.Brushes.Gray;
                                 }

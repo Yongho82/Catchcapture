@@ -1,6 +1,6 @@
-#define MyAppName "CatchCapture"
+﻿#define MyAppName "CatchCapture"
 #define MyAppVersion "1.0.1"
-#define MyAppPublisher "Yongho"
+#define MyAppPublisher "Ezupsoft"
 #define MyAppExeName "CatchCapture.exe"
 #define IsBeta "false"
 
@@ -20,7 +20,7 @@ AppId={{A5A0FAF0-6D1F-4F4E-B2A6-9B8F0F5D2E31}}
 #endif
 AppPublisher={#MyAppPublisher}
 DefaultDirName={localappdata}\{#MyAppName}
-PrivilegesRequired=lowest
+PrivilegesRequired=admin
 #if IsBeta == "true"
   DefaultGroupName={#MyAppName} Beta
 #else
@@ -42,42 +42,45 @@ CloseApplications=force
 ; Installer icon
 SetupIconFile=..\icons\catcha.ico
 ; Uninstall icon in Control Panel
-UninstallDisplayIcon={app}\icons\catcha.ico
+UninstallDisplayIcon={app}\{#MyAppExeName}
 
 ; 언어 감지 및 대화상자 설정
-; uilanguage: Windows UI 언어를 감지하여 일치하는 언어로 자동 선택 (일치하는게 없으면 첫 번째 언어 사용)
 LanguageDetectionMethod=uilanguage
-; yes: 언어 선택 대화상자 표시 - Inno Setup EXE 직접 실행 시 언어 선택 가능
-; no: 대화상자 없이 자동 감지된 언어로 진행 - MSIX 패키징 시 시스템 언어로 자동 설치 (권장)
-; auto: 감지된 언어와 일치하는 언어가 [Languages]에 없으면 표시
-ShowLanguageDialog=no
+ShowLanguageDialog=yes
 
 [Languages]
 Name: "korean"; MessagesFile: "compiler:Languages\Korean.isl"
 Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "japanese"; MessagesFile: "compiler:Languages\Japanese.isl"
 Name: "schinese"; MessagesFile: "Languages\ChineseSimplified.isl"
+Name: "tchinese"; MessagesFile: "Languages\ChineseTraditional.isl"
 Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
 Name: "german"; MessagesFile: "compiler:Languages\German.isl"
 Name: "french"; MessagesFile: "compiler:Languages\French.isl"
+Name: "italian"; MessagesFile: "compiler:Languages\Italian.isl"
+Name: "portuguese"; MessagesFile: "compiler:Languages\Portuguese.isl"
+Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
+Name: "arabic"; MessagesFile: "compiler:Languages\Arabic.isl"
+Name: "turkish"; MessagesFile: "compiler:Languages\Turkish.isl"
+Name: "indonesian"; MessagesFile: "Languages\Indonesian.isl"
+Name: "thai"; MessagesFile: "Languages\Thai.isl"
+Name: "vietnamese"; MessagesFile: "Languages\Vietnamese.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
-
-; 시작 메뉴 바로가기 - 각 언어별 메시지
-Name: "startmenu"; Description: "시작 메뉴에 바로가기 만들기"; GroupDescription: "추가 작업:"; Flags: checkedonce; Languages: korean
-Name: "startmenu"; Description: "Create Start Menu shortcut"; GroupDescription: "Additional tasks:"; Flags: checkedonce; Languages: english
-Name: "startmenu"; Description: "スタートメニューにショートカットを作成"; GroupDescription: "追加タスク:"; Flags: checkedonce; Languages: japanese
-Name: "startmenu"; Description: "创建开始菜单快捷方式"; GroupDescription: "附加任务:"; Flags: checkedonce; Languages: schinese
-Name: "startmenu"; Description: "Crear acceso directo en el menú Inicio"; GroupDescription: "Tareas adicionales:"; Flags: checkedonce; Languages: spanish
-Name: "startmenu"; Description: "Startmenü-Verknüpfung erstellen"; GroupDescription: "Zusätzliche Aufgaben:"; Flags: checkedonce; Languages: german
-Name: "startmenu"; Description: "Créer un raccourci dans le menu Démarrer"; GroupDescription: "Tâches supplémentaires:"; Flags: checkedonce; Languages: french
+Name: "startmenu"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
 ; dotnet build/publish output - Use the relative path from the script
 Source: "..\publish_folder\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
 ; Include icons if needed at runtime
 Source: "..\icons\*"; DestDir: "{app}\icons"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
+
+; .NET 8.0 Desktop Runtime 설치 파일 (Resources 폴더에서 가져오기)
+Source: "Resources\windowsdesktop-runtime-8.0.11-win-x64.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
+
+; FFmpeg (동영상 녹화/변환용)
+Source: "Resources\ffmpeg.exe"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
 
 [Icons]
 ; Start Menu shortcuts - 각 언어별 적절한 이름
@@ -86,17 +89,12 @@ Source: "..\icons\*"; DestDir: "{app}\icons"; Flags: ignoreversion recursesubdir
   Name: "{group}\{#MyAppName} Beta"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: english; Tasks: startmenu
   Name: "{group}\キャッチキャプチャ Beta"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: japanese; Tasks: startmenu
   Name: "{group}\捕捉截图 Beta"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: schinese; Tasks: startmenu
-  Name: "{group}\{#MyAppName} Beta"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: spanish; Tasks: startmenu
-  Name: "{group}\{#MyAppName} Beta"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: german; Tasks: startmenu
-  Name: "{group}\{#MyAppName} Beta"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: french; Tasks: startmenu
 #else
-  Name: "{group}\캐치캡처"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: korean; Tasks: startmenu
-  Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: english; Tasks: startmenu
+  Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Tasks: startmenu
   Name: "{group}\キャッチキャプチャ"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: japanese; Tasks: startmenu
   Name: "{group}\捕捉截图"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: schinese; Tasks: startmenu
-  Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: spanish; Tasks: startmenu
-  Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: german; Tasks: startmenu
-  Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: french; Tasks: startmenu
+  Name: "{group}\捕捉截圖"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: tchinese; Tasks: startmenu
+  Name: "{group}\캐치캡처"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: korean; Tasks: startmenu
 #endif
 
 ; Desktop shortcuts - 각 언어별 적절한 이름
@@ -105,28 +103,21 @@ Source: "..\icons\*"; DestDir: "{app}\icons"; Flags: ignoreversion recursesubdir
   Name: "{userdesktop}\{#MyAppName} Beta"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: english; Tasks: desktopicon
   Name: "{userdesktop}\キャッチキャプチャ Beta"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: japanese; Tasks: desktopicon
   Name: "{userdesktop}\捕捉截图 Beta"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: schinese; Tasks: desktopicon
-  Name: "{userdesktop}\{#MyAppName} Beta"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: spanish; Tasks: desktopicon
-  Name: "{userdesktop}\{#MyAppName} Beta"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: german; Tasks: desktopicon
-  Name: "{userdesktop}\{#MyAppName} Beta"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: french; Tasks: desktopicon
 #else
-  Name: "{userdesktop}\캐치캡처"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: korean; Tasks: desktopicon
-  Name: "{userdesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: english; Tasks: desktopicon
+  Name: "{userdesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Tasks: desktopicon
   Name: "{userdesktop}\キャッチキャプチャ"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: japanese; Tasks: desktopicon
   Name: "{userdesktop}\捕捉截图"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: schinese; Tasks: desktopicon
-  Name: "{userdesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: spanish; Tasks: desktopicon
-  Name: "{userdesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: german; Tasks: desktopicon
-  Name: "{userdesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: french; Tasks: desktopicon
+  Name: "{userdesktop}\捕捉截圖"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: tchinese; Tasks: desktopicon
+  Name: "{userdesktop}\캐치캡처"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\icons\catcha.ico"; Languages: korean; Tasks: desktopicon
 #endif
 
 [Run]
-; 설치 완료 후 실행 옵션 - 각 언어별 메시지
-Filename: "{app}\CatchCapture.exe"; Description: "설치가 끝나면 실행"; Flags: nowait postinstall skipifsilent; Languages: korean
-Filename: "{app}\CatchCapture.exe"; Description: "Launch CatchCapture"; Flags: nowait postinstall skipifsilent; Languages: english
-Filename: "{app}\CatchCapture.exe"; Description: "インストール後に起動"; Flags: nowait postinstall skipifsilent; Languages: japanese
-Filename: "{app}\CatchCapture.exe"; Description: "安装后启动"; Flags: nowait postinstall skipifsilent; Languages: schinese
-Filename: "{app}\CatchCapture.exe"; Description: "Ejecutar después de la instalación"; Flags: nowait postinstall skipifsilent; Languages: spanish
-Filename: "{app}\CatchCapture.exe"; Description: "Nach der Installation starten"; Flags: nowait postinstall skipifsilent; Languages: german
-Filename: "{app}\CatchCapture.exe"; Description: "Lancer après l'installation"; Flags: nowait postinstall skipifsilent; Languages: french
+; .NET 런타임 설치 (조용히 설치)
+; /install /passive /norestart 옵션으로 사용자 개입 없이 설치
+Filename: "{tmp}\windowsdesktop-runtime-8.0.11-win-x64.exe"; Parameters: "/install /passive /norestart"; StatusMsg: ".NET Desktop Runtime 8.0.11 설치 중..."; 
+
+; 설치 완료 후 실행 옵션
+Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 [Code]
 // 기존 버전 삭제 로직
@@ -171,10 +162,10 @@ begin
     end;
   end;
 end;
+
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\*"
 ; LocalAppData 설정 파일 삭제
 Type: filesandordirs; Name: "{localappdata}\CatchCapture"
 ; Roaming AppData 설정 파일 삭제 (레거시)
 Type: filesandordirs; Name: "{userappdata}\CatchCapture"
-

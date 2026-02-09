@@ -3,7 +3,7 @@
 
 #define MyAppName "CatchCapture"
 #define MyAppVersion "1.0.1"
-#define MyAppPublisher "Yongho"
+#define MyAppPublisher "Ezupsoft"
 #define MyAppExeName "CatchCapture.exe"
 
 [Setup]
@@ -22,6 +22,7 @@ SetupIconFile=..\icons\catcha.ico
 Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
+UninstallDisplayIcon={app}\{#MyAppExeName}
 
 ; 언어 설정 선택 가능하게 설정
 ShowLanguageDialog=yes
