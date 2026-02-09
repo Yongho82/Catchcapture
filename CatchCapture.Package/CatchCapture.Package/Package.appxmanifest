@@ -9,7 +9,7 @@
   <Identity
     Name="Ezupsoft.8936E99798B"
     Publisher="CN=B5EA7C81-B497-441C-8B15-483FD9F7C76A"
-    Version="1.0.2.0" />
+    Version="1.0.3.0" />
 
   <Properties>
     <DisplayName>CatchCapture</DisplayName>
