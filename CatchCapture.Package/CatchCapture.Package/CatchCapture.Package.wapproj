@@ -57,13 +57,13 @@
     <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled>
     <NoWarn>$(NoWarn);NU1701;NU1702</NoWarn>
     <AssetTargetFallback>$(AssetTargetFallback);net8.0-windows;net8.0;netcoreapp3.1;net461</AssetTargetFallback>
-    <EntryPointProjectUniqueName>..\..\CatchCapture.csproj</EntryPointProjectUniqueName>
-    <AppxBundlePlatforms>x64</AppxBundlePlatforms>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+    <EntryPointProjectUniqueName>..\..\CatchCapture.csproj</EntryPointProjectUniqueName>
+    <AppxBundlePlatforms>x64</AppxBundlePlatforms>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <GenerateAppxPackageOnBuild>true</GenerateAppxPackageOnBuild>

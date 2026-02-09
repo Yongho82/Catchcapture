@@ -19,6 +19,7 @@
     <Authors>Ezupsoft</Authors>
     <PackageId>com.ezupsoft.catchcapture</PackageId>
     <NeutralLanguage>ko-KR</NeutralLanguage>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
