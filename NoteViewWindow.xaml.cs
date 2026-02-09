@@ -584,11 +584,29 @@ namespace CatchCapture
 
         private void BtnEdit_Click(object sender, RoutedEventArgs e)
         {
-            var inputWin = new NoteInputWindow(_noteId);
-            inputWin.Owner = this;
-            if (inputWin.ShowDialog() == true)
+            try
             {
-                LoadNoteData();
+                this.Hide();
+                var inputWin = new NoteInputWindow(_noteId);
+                
+                // Use MainWindow as owner while viewer is hidden to maintain correct layering
+                var mainWin = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
+                inputWin.Owner = mainWin;
+
+                if (inputWin.ShowDialog() == true)
+                {
+                    LoadNoteData();
+                }
+            }
+            catch (Exception ex)
+            {
+                CatchCapture.CustomMessageBox.Show(CatchCapture.Resources.LocalizationManager.GetString("ErrOpenNoteEdit") + " " + ex.Message);
+            }
+            finally
+            {
+                this.Show();
+                this.Activate();
+                this.Focus();
             }
         }
 
