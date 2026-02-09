@@ -92,7 +92,7 @@ namespace CatchCapture.Utilities
         {
             // 1. 이전 로그인 시도가 있다면 취소
             _loginCts?.Cancel();
-            _loginCts = new CancellationTokenSource(TimeSpan.FromSeconds(30)); // 30초로 단축
+            _loginCts = new CancellationTokenSource(TimeSpan.FromMinutes(2)); // 2분으로 연장
             var token = _loginCts.Token;
 
             try
