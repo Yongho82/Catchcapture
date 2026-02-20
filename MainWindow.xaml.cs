@@ -1563,7 +1563,7 @@ public partial class MainWindow : Window
 
     private void AreaCaptureButton_Click(object sender, RoutedEventArgs e)
     {
-        StartAreaCapture();
+        StartAreaCapture(!settings.IsTrayMode);
     }
 
     private void DelayCaptureButton_Click(object sender, RoutedEventArgs e)
@@ -3109,9 +3109,13 @@ public partial class MainWindow : Window
 
                             try
                             {
-                                this.Show();
-                                this.WindowState = WindowState.Normal;
-                                this.Activate();
+                                // ★ 트레이 모드에서는 미리보기 닫혀도 메인창 표시 안 함
+                                if (!settings.IsTrayMode)
+                                {
+                                    this.Show();
+                                    this.WindowState = WindowState.Normal;
+                                    this.Activate();
+                                }
                             }
                             catch { }
                         }
@@ -4619,10 +4623,11 @@ public partial class MainWindow : Window
 
                     if (isF1)
                     {
-                        // 영역 캡처 시작
+                        // 영역 캡처 시작 (실시간 캡처: 트레이 모드이거나 창이 숨겨진 상태이면 캡처 후 메인창 표시 안 함)
+                        bool isTrayNow = settings.IsTrayMode || wasInTrayModeBeforeRealTimeCapture || !this.IsVisible;
                         try
                         {
-                            await StartAreaCaptureAsync(0, _showMainWindowAfterRealTimeCapture);
+                            await StartAreaCaptureAsync(0, isTrayNow ? false : _showMainWindowAfterRealTimeCapture);
                         }
                         finally
                         {
@@ -4636,8 +4641,12 @@ public partial class MainWindow : Window
                     }
                     else // Escape
                     {
-                        // 취소 시 메인 창 복원
-                        this.Show();
+                        // 취소 시 트레이 모드이거나 현재 창이 숨겨져 있다면 메인 창 복원 안 함
+                        if (!settings.IsTrayMode && !wasInTrayModeBeforeRealTimeCapture && this.IsVisible)
+                        {
+                            this.Show();
+                        }
+                        wasInTrayModeBeforeRealTimeCapture = false;
                     }
                 }));
 
@@ -4656,7 +4665,8 @@ public partial class MainWindow : Window
             switch (id)
             {
                 case HOTKEY_ID_AREA:
-                    Dispatcher.Invoke(() => StartAreaCapture());
+                    // 현재 창이 활성화되어 보이는 상태이고 트레이 모드가 아닐 때만 캡처 후 창 표시
+                    Dispatcher.Invoke(() => StartAreaCapture(this.IsVisible && !settings.IsTrayMode));
                     handled = true;
                     break;
 
@@ -5770,9 +5780,11 @@ public partial class MainWindow : Window
                      settings.Hotkeys.RegionCapture.Key == "F1" && 
                      !isCtrl && !isShift && !isAlt && !isWin)
                  {
-                     Dispatcher.BeginInvoke(new Action(() => StartAreaCapture()));
-                     return (IntPtr)1; // 키 가로채기 (다른 앱에 전달 안 함)
-                 }
+                      // ★ 트레이 모드이거나 현재 창이 숨겨진 상태라면 캡처 후 메인창 표시 안 함
+                      bool showAfter = this.IsVisible && !settings.IsTrayMode;
+                      Dispatcher.BeginInvoke(new Action(() => StartAreaCapture(showAfter)));
+                      return (IntPtr)1; // 키 가로채기 (다른 앱에 전달 안 함)
+                  }
             }
         }
 
