@@ -80,6 +80,7 @@ public partial class MainWindow : Window
         // ★ 메모리 최적화: 프리로딩을 WeakReference로 변경
     private WeakReference<BitmapSource>? preloadedScreenshotRef;
     private DateTime preloadedTime;
+    private DateTime _lastCaptureActivityTime = DateTime.Now; // ★ 마지막 캡처/활동 시간 (장시간 방치 감지용)
     private bool isPreloading = false;
 
     // 글로벌 단축키 관련
@@ -1935,8 +1936,13 @@ public partial class MainWindow : Window
         }
         else
         {
+            // ★ 장시간 방치 감지: 마지막 캡처 활동 이후 5분 이상 경과 시
+            // AllowsTransparency=true 오버레이 모드에서 GPU 렌더링이 깨질 수 있으므로
+            // 정지 캡처 모드로 자동 폴백
+            bool isLongIdle = (DateTime.Now - _lastCaptureActivityTime).TotalMinutes >= 5;
+
             // 설정 확인: 빠른 캡처(오버레이) vs 정지 캡처
-            if (settings.UseOverlayCaptureMode)
+            if (settings.UseOverlayCaptureMode && !isLongIdle)
             {
                 // ★ 빠른 캡처: 처음에 캡처하지 않음 (로딩 시간 0초, 동영상 계속 재생)
                 screenshot = null;
@@ -1946,6 +1952,7 @@ public partial class MainWindow : Window
             else
             {
                 // ★ 정지 캡처: 스크린샷 먼저 찍음 (화면 정지)
+                // isLongIdle일 때도 여기로 옴 → GPU 렌더링 깨짐 방지
                 var screenshotTask = Task.Run(() => ScreenCaptureUtility.CaptureScreen());
                 var metadataTask = Task.Run(() => ScreenCaptureUtility.GetActiveWindowMetadata());
                 
@@ -1953,6 +1960,9 @@ public partial class MainWindow : Window
                 metadata = await metadataTask;
             }
         }
+
+        // ★ 캡처 활동 시간 갱신
+        _lastCaptureActivityTime = DateTime.Now;
 
         // SnippingWindow 생성 및 표시 (cornerRadius 전달)
         var snippingWindow = new SnippingWindow(false, screenshot, metadata.AppName, metadata.Title, cornerRadius);
